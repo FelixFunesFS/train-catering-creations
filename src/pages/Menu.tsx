@@ -18,7 +18,7 @@ const Menu = () => {
 
 
         {/* Card Grid Menu */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-8 max-w-8xl mx-auto">
           
           {/* Appetizers Card */}
           <Card className="shadow-elegant hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
@@ -37,17 +37,14 @@ const Menu = () => {
                   { name: "Tomato Caprese", desc: "Fresh mozzarella, basil, and vine-ripened tomatoes" },
                   { name: "Mini Loaded Potatoes", desc: "Crispy potato skins loaded with cheese, bacon, and chives" },
                   { name: "Grazing Table", desc: "An abundant spread perfect for sharing" }
-                ].map((item, index) => (
-                  <div key={index} className="border-b border-muted/50 pb-3 last:border-b-0">
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <h4 className="font-medium text-foreground">{item.name}</h4>
-                        <p className="text-muted-foreground text-sm mt-1 italic">{item.desc}</p>
-                      </div>
-                      <span className="text-primary font-medium ml-4 text-sm">MP</span>
-                    </div>
-                  </div>
-                ))}
+                 ].map((item, index) => (
+                   <div key={index} className="border-b border-muted/50 pb-3 last:border-b-0">
+                     <div>
+                       <h4 className="font-medium text-foreground">{item.name}</h4>
+                       <p className="text-muted-foreground text-sm mt-1 italic">{item.desc}</p>
+                     </div>
+                   </div>
+                 ))}
               </div>
             </CardContent>
           </Card>
@@ -66,12 +63,11 @@ const Menu = () => {
                     {[
                       "Baked/Smoked Chicken", "Barbecue Chicken", "Fried Chicken", 
                       "Chicken Tenders", "Chicken Wings", "Chicken Alfredo", "Turkey Wings"
-                    ].map((item, index) => (
-                      <div key={index} className="flex justify-between items-center border-b border-muted/30 pb-2">
-                        <span className="text-foreground text-sm">{item}</span>
-                        <span className="text-primary font-medium text-sm">MP</span>
-                      </div>
-                    ))}
+                     ].map((item, index) => (
+                       <div key={index} className="border-b border-muted/30 pb-2">
+                         <span className="text-foreground text-sm">{item}</span>
+                       </div>
+                     ))}
                   </div>
                 </div>
                 
@@ -81,12 +77,11 @@ const Menu = () => {
                     {[
                       "Brisket", "Ribs", "Pulled Pork", "Fried Pork Chops", 
                       "Smothered Pork Chops", "Meatloaf", "Hamburgers", "Smoked Sausage"
-                    ].map((item, index) => (
-                      <div key={index} className="flex justify-between items-center border-b border-muted/30 pb-2">
-                        <span className="text-foreground text-sm">{item}</span>
-                        <span className="text-primary font-medium text-sm">MP</span>
-                      </div>
-                    ))}
+                     ].map((item, index) => (
+                       <div key={index} className="border-b border-muted/30 pb-2">
+                         <span className="text-foreground text-sm">{item}</span>
+                       </div>
+                     ))}
                   </div>
                 </div>
               </div>
@@ -101,17 +96,14 @@ const Menu = () => {
                     { name: "Shrimp Alfredo", desc: "Succulent shrimp in creamy alfredo sauce over pasta" },
                     { name: "Crabs", desc: "Fresh crabs prepared to perfection" },
                     { name: "Lasagna", desc: "Layers of pasta, meat sauce, and melted cheese" }
-                  ].map((item, index) => (
-                    <div key={index} className="border-b border-muted/30 pb-3">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <h4 className="font-medium text-foreground text-sm">{item.name}</h4>
-                          <p className="text-muted-foreground text-xs italic mt-1">{item.desc}</p>
-                        </div>
-                        <span className="text-primary font-medium ml-4 text-sm">MP</span>
-                      </div>
-                    </div>
-                  ))}
+                   ].map((item, index) => (
+                     <div key={index} className="border-b border-muted/30 pb-3">
+                       <div>
+                         <h4 className="font-medium text-foreground text-sm">{item.name}</h4>
+                         <p className="text-muted-foreground text-xs italic mt-1">{item.desc}</p>
+                       </div>
+                     </div>
+                   ))}
                 </div>
               </div>
             </CardContent>
@@ -128,48 +120,44 @@ const Menu = () => {
                 <div>
                   <h3 className="text-base font-semibold text-foreground mb-3 text-center">Rice & Grains</h3>
                   <div className="space-y-2">
-                    {["White Rice", "Yellow Rice", "Dirty Rice", "Rice w/ Peas", "Rice w/ Gravy"].map((item, index) => (
-                      <div key={index} className="flex justify-between items-center text-sm">
-                        <span className="text-foreground">{item}</span>
-                        <span className="text-primary">MP</span>
-                      </div>
-                    ))}
+                     {["White Rice", "Yellow Rice", "Dirty Rice", "Rice w/ Peas", "Rice w/ Gravy"].map((item, index) => (
+                       <div key={index} className="text-sm">
+                         <span className="text-foreground">{item}</span>
+                       </div>
+                     ))}
                   </div>
                 </div>
                 
                 <div>
                   <h3 className="text-base font-semibold text-foreground mb-3 text-center">Vegetables</h3>
                   <div className="space-y-2">
-                    {["Green Beans w/ Potatoes", "Sweet Peas w/ Corn", "Cabbage", "Yams", "Vegetable Medley", "Corn"].map((item, index) => (
-                      <div key={index} className="flex justify-between items-center text-sm">
-                        <span className="text-foreground">{item}</span>
-                        <span className="text-primary">MP</span>
-                      </div>
-                    ))}
+                     {["Green Beans w/ Potatoes", "Sweet Peas w/ Corn", "Cabbage", "Yams", "Vegetable Medley", "Corn"].map((item, index) => (
+                       <div key={index} className="text-sm">
+                         <span className="text-foreground">{item}</span>
+                       </div>
+                     ))}
                   </div>
                 </div>
                 
                 <div>
                   <h3 className="text-base font-semibold text-foreground mb-3 text-center">Classics</h3>
                   <div className="space-y-2">
-                    {["Macaroni & Cheese", "Mashed Potatoes & Gravy", "Baked Beans", "Macaroni Salad", "Potato Salad"].map((item, index) => (
-                      <div key={index} className="flex justify-between items-center text-sm">
-                        <span className="text-foreground">{item}</span>
-                        <span className="text-primary">MP</span>
-                      </div>
-                    ))}
+                     {["Macaroni & Cheese", "Mashed Potatoes & Gravy", "Baked Beans", "Macaroni Salad", "Potato Salad"].map((item, index) => (
+                       <div key={index} className="text-sm">
+                         <span className="text-foreground">{item}</span>
+                       </div>
+                     ))}
                   </div>
                 </div>
                 
                 <div>
                   <h3 className="text-base font-semibold text-foreground mb-3 text-center">Fresh Salads</h3>
                   <div className="space-y-2">
-                    {["Garden Salad", "Caesar Salad"].map((item, index) => (
-                      <div key={index} className="flex justify-between items-center text-sm">
-                        <span className="text-foreground">{item}</span>
-                        <span className="text-primary">MP</span>
-                      </div>
-                    ))}
+                     {["Garden Salad", "Caesar Salad"].map((item, index) => (
+                       <div key={index} className="text-sm">
+                         <span className="text-foreground">{item}</span>
+                       </div>
+                     ))}
                   </div>
                 </div>
               </div>
@@ -192,14 +180,42 @@ const Menu = () => {
                   { name: "Vegetarian Lasagna", desc: "Layers of pasta with vegetables and cheese" },
                   { name: "Vegetarian Spaghetti", desc: "Classic pasta with marinara or pesto sauce" },
                   { name: "Vegetarian Meatloaf", desc: "Plant-based comfort food that satisfies" }
+                 ].map((item, index) => (
+                   <div key={index} className="border-b border-muted/50 pb-3 last:border-b-0">
+                     <div>
+                       <h4 className="font-medium text-foreground text-sm">{item.name}</h4>
+                       <p className="text-muted-foreground text-xs italic mt-1">{item.desc}</p>
+                     </div>
+                   </div>
+                 ))}
+              </div>
+            </CardContent>
+          </Card>
+          {/* Tanya's Sweet Creations Card */}
+          <Card className="shadow-elegant hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+            <CardHeader className="text-center">
+              <CardTitle className="text-2xl font-elegant text-foreground">Tanya's Sweet Creations</CardTitle>
+              <div className="w-12 h-0.5 bg-gradient-primary mx-auto mt-2"></div>
+              <p className="text-muted-foreground text-sm italic mt-2">Perfect finishing touches for any celebration</p>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {[
+                  { name: "Brownies", desc: "Rich, fudgy brownies made from scratch" },
+                  { name: "Red Velvet Cake", desc: "Classic Southern favorite with cream cheese frosting" },
+                  { name: "Vanilla Cake", desc: "Light and fluffy vanilla cake with buttercream" },
+                  { name: "Chocolate Cake", desc: "Decadent chocolate cake for chocolate lovers" },
+                  { name: "Strawberry Cake", desc: "Fresh strawberry cake with seasonal berries" },
+                  { name: "Carrot Cake", desc: "Spiced carrot cake with cream cheese frosting" },
+                  { name: "Cheesecake", desc: "Creamy New York style cheesecake" },
+                  { name: "Cupcakes", desc: "Individual treats in various flavors" },
+                  { name: "Banana Pudding", desc: "Traditional Southern banana pudding" },
+                  { name: "Dessert Shooters", desc: "Mini desserts perfect for events" }
                 ].map((item, index) => (
                   <div key={index} className="border-b border-muted/50 pb-3 last:border-b-0">
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <h4 className="font-medium text-foreground text-sm">{item.name}</h4>
-                        <p className="text-muted-foreground text-xs italic mt-1">{item.desc}</p>
-                      </div>
-                      <span className="text-primary font-medium ml-4 text-sm">MP</span>
+                    <div>
+                      <h4 className="font-medium text-foreground text-sm">{item.name}</h4>
+                      <p className="text-muted-foreground text-xs italic mt-1">{item.desc}</p>
                     </div>
                   </div>
                 ))}
@@ -207,30 +223,6 @@ const Menu = () => {
             </CardContent>
           </Card>
         </div>
-
-        {/* Desserts */}
-        <Card className="shadow-elegant mb-12">
-          <CardHeader>
-            <CardTitle className="text-3xl font-elegant text-center">Tanya's Sweet Creations</CardTitle>
-          </CardHeader>
-          <CardContent className="text-center">
-            <p className="text-lg text-muted-foreground mb-6">
-              Our talented Pastry Chef Tanya creates the perfect finishing touch for any celebration:
-            </p>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 text-foreground">
-              <span className="font-medium">Brownies</span>
-              <span className="font-medium">Red Velvet Cake</span>
-              <span className="font-medium">Vanilla Cake</span>
-              <span className="font-medium">Chocolate Cake</span>
-              <span className="font-medium">Strawberry Cake</span>
-              <span className="font-medium">Carrot Cake</span>
-              <span className="font-medium">Cheesecake</span>
-              <span className="font-medium">Cupcakes</span>
-              <span className="font-medium">Banana Pudding</span>
-              <span className="font-medium">Dessert Shooters</span>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Contact for Custom Menu */}
         <Card className="shadow-elegant bg-gradient-card">
