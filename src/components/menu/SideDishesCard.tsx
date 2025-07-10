@@ -1,21 +1,30 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const SideDishesCard = () => {
-  const allSideItems = [
+  const riceGrains = [
     { name: "White Rice", desc: "Fluffy steamed rice" },
     { name: "Yellow Rice", desc: "Seasoned with saffron" },
     { name: "Dirty Rice", desc: "Cajun-style with meat" },
     { name: "Rice w/ Peas", desc: "Caribbean style" },
-    { name: "Rice w/ Gravy", desc: "Savory brown gravy" },
+    { name: "Rice w/ Gravy", desc: "Savory brown gravy" }
+  ];
+
+  const potatoesComfort = [
+    { name: "Mashed Potatoes & Gravy", desc: "Smooth and rich" },
+    { name: "Yams", desc: "Sweet candied style" },
+    { name: "Macaroni & Cheese", desc: "Creamy baked perfection" },
+    { name: "Baked Beans", desc: "Sweet molasses style" }
+  ];
+
+  const freshVegetables = [
     { name: "Green Beans w/ Potatoes", desc: "Southern comfort" },
     { name: "Sweet Peas w/ Corn", desc: "Garden fresh medley" },
     { name: "Cabbage", desc: "Seasoned tender greens" },
-    { name: "Yams", desc: "Sweet candied style" },
     { name: "Vegetable Medley", desc: "Seasonal mix" },
-    { name: "Corn", desc: "Buttered kernels" },
-    { name: "Macaroni & Cheese", desc: "Creamy baked perfection" },
-    { name: "Mashed Potatoes & Gravy", desc: "Smooth and rich" },
-    { name: "Baked Beans", desc: "Sweet molasses style" },
+    { name: "Corn", desc: "Buttered kernels" }
+  ];
+
+  const salads = [
     { name: "Garden Salad", desc: "Fresh mixed greens" },
     { name: "Caesar Salad", desc: "Classic romaine & parmesan" },
     { name: "Macaroni Salad", desc: "Creamy pasta salad" },
@@ -29,14 +38,57 @@ const SideDishesCard = () => {
         <div className="w-12 h-0.5 bg-gradient-primary mx-auto mt-2"></div>
         <p className="text-muted-foreground text-sm italic mt-2">Complement your meal with our signature sides</p>
       </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {allSideItems.map((item, index) => (
-            <div key={index} className="border-b border-muted/40 pb-2 last:border-b-0">
-              <h4 className="text-sm font-medium text-foreground">{item.name}</h4>
-              <p className="text-xs text-muted-foreground mt-1 italic leading-relaxed">{item.desc}</p>
-            </div>
-          ))}
+      <CardContent className="space-y-6">
+        {/* Rice & Grains */}
+        <div>
+          <h3 className="text-lg font-elegant text-center text-foreground mb-3">Rice & Grains</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {riceGrains.map((item, index) => (
+              <div key={index} className="border-b border-muted/40 pb-2 last:border-b-0">
+                <h4 className="text-sm font-medium text-foreground">{item.name}</h4>
+                <p className="text-xs text-muted-foreground mt-1 italic leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Potatoes & Comfort Sides */}
+        <div>
+          <h3 className="text-lg font-elegant text-center text-foreground mb-3">Potatoes & Comfort Sides</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {potatoesComfort.map((item, index) => (
+              <div key={index} className="border-b border-muted/40 pb-2 last:border-b-0">
+                <h4 className="text-sm font-medium text-foreground">{item.name}</h4>
+                <p className="text-xs text-muted-foreground mt-1 italic leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Fresh & Vegetables */}
+        <div>
+          <h3 className="text-lg font-elegant text-center text-foreground mb-3">Fresh & Vegetables</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {freshVegetables.map((item, index) => (
+              <div key={index} className="border-b border-muted/40 pb-2 last:border-b-0">
+                <h4 className="text-sm font-medium text-foreground">{item.name}</h4>
+                <p className="text-xs text-muted-foreground mt-1 italic leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Salads */}
+        <div>
+          <h3 className="text-lg font-elegant text-center text-foreground mb-3">Salads</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {salads.map((item, index) => (
+              <div key={index} className="border-b border-muted/40 pb-2 last:border-b-0">
+                <h4 className="text-sm font-medium text-foreground">{item.name}</h4>
+                <p className="text-xs text-muted-foreground mt-1 italic leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </CardContent>
     </Card>
