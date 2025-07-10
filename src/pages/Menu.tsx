@@ -17,119 +17,187 @@ const Menu = () => {
         </div>
 
 
-        {/* Menu Sections */}
-        <div className="mb-12">
-          <Accordion type="multiple" defaultValue={["proteins", "sides"]} className="w-full">
-            {/* Proteins */}
-            <AccordionItem value="proteins" className="border rounded-lg mb-4 shadow-card">
-              <AccordionTrigger className="px-6 py-4 hover:no-underline">
-                <h3 className="text-2xl font-elegant font-bold text-foreground">Proteins</h3>
-              </AccordionTrigger>
-              <AccordionContent className="px-6 pb-4">
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-2 text-sm">
-                  <span>Baked/Smoked Chicken</span>
-                  <span>Barbecue Chicken</span>
-                  <span>Chicken Tenders</span>
-                  <span>Turkey Wings</span>
-                  <span>Chicken Alfredo</span>
-                  <span>Meatloaf</span>
-                  <span>Brisket</span>
-                  <span>Hamburgers</span>
-                  <span>Smoked Sausage</span>
-                  <span>Fried Pork Chops</span>
-                  <span>Smothered Pork Chops</span>
-                  <span>Pulled Pork</span>
-                  <span>Ribs</span>
-                  <span>Low Country Boil</span>
-                  <span>Fried Chicken</span>
-                  <span>Fried Fish</span>
-                  <span>Baked Salmon</span>
-                  <span>Shrimp Alfredo</span>
-                  <span>Spaghetti</span>
-                  <span>Lasagna</span>
-                  <span>Tacos</span>
-                  <span>Chicken Wings</span>
-                  <span>Crabs</span>
+        {/* Restaurant-Style Menu */}
+        <div className="max-w-4xl mx-auto space-y-16">
+          
+          {/* Appetizers */}
+          <section className="menu-section">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-elegant font-bold text-foreground mb-2">Appetizers</h2>
+              <div className="w-16 h-0.5 bg-gradient-primary mx-auto"></div>
+            </div>
+            <div className="space-y-4">
+              {[
+                { name: "Charcuterie Board", desc: "Selection of artisanal meats, cheeses, and accompaniments" },
+                { name: "Chocolate Covered Fruit Platter", desc: "Fresh seasonal fruits dipped in rich chocolate" },
+                { name: "Shrimp Deviled Eggs w/Bacon Finish", desc: "Classic deviled eggs elevated with fresh shrimp and crispy bacon" },
+                { name: "Mini Chicken & Waffles", desc: "Southern comfort in bite-sized portions" },
+                { name: "Smoked Salmon Cucumber Bites", desc: "Fresh cucumber rounds topped with premium smoked salmon" },
+                { name: "Tomato Caprese", desc: "Fresh mozzarella, basil, and vine-ripened tomatoes" },
+                { name: "Mini Loaded Potatoes", desc: "Crispy potato skins loaded with cheese, bacon, and chives" },
+                { name: "Grazing Table", desc: "An abundant spread perfect for sharing" }
+              ].map((item, index) => (
+                <div key={index} className="flex items-start justify-between border-b border-dotted border-muted pb-3">
+                  <div className="flex-1">
+                    <h4 className="font-medium text-foreground text-lg">{item.name}</h4>
+                    <p className="text-muted-foreground text-sm mt-1 italic">{item.desc}</p>
+                  </div>
+                  <div className="ml-4 text-primary font-medium">MP</div>
                 </div>
-              </AccordionContent>
-            </AccordionItem>
+              ))}
+            </div>
+          </section>
 
-            {/* Sides */}
-            <AccordionItem value="sides" className="border rounded-lg mb-4 shadow-card">
-              <AccordionTrigger className="px-6 py-4 hover:no-underline">
-                <h3 className="text-2xl font-elegant font-bold text-foreground">Sides</h3>
-              </AccordionTrigger>
-              <AccordionContent className="px-6 pb-4">
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-2 text-sm">
-                  <span>Macaroni Salad</span>
-                  <span>Potato Salad</span>
-                  <span>Sweet Peas w/ Corn</span>
-                  <span>Green Beans w/ Potatoes</span>
-                  <span>Yams</span>
-                  <span>White Rice</span>
-                  <span>Yellow Rice</span>
-                  <span>Dirty Rice</span>
-                  <span>Rice w/ Peas</span>
-                  <span>Rice w/ Gravy</span>
-                  <span>Macaroni & Cheese</span>
-                  <span>Cabbage</span>
-                  <span>Garden Salad</span>
-                  <span>Caesar Salad</span>
-                  <span>Baked Beans</span>
-                  <span>Mashed Potatoes & Gravy</span>
-                  <span>Corn</span>
-                  <span>Vegetable Medley</span>
+          {/* Main Courses - Proteins */}
+          <section className="menu-section">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-elegant font-bold text-foreground mb-2">Main Courses</h2>
+              <div className="w-16 h-0.5 bg-gradient-primary mx-auto"></div>
+            </div>
+            <div className="grid md:grid-cols-2 gap-8">
+              <div>
+                <h3 className="text-xl font-elegant font-semibold text-foreground mb-4 text-center">Poultry & Fowl</h3>
+                <div className="space-y-3">
+                  {[
+                    "Baked/Smoked Chicken", "Barbecue Chicken", "Fried Chicken", 
+                    "Chicken Tenders", "Chicken Wings", "Chicken Alfredo", "Turkey Wings"
+                  ].map((item, index) => (
+                    <div key={index} className="flex justify-between items-center border-b border-dotted border-muted pb-2">
+                      <span className="text-foreground">{item}</span>
+                      <span className="text-primary font-medium">MP</span>
+                    </div>
+                  ))}
                 </div>
-              </AccordionContent>
-            </AccordionItem>
+              </div>
+              
+              <div>
+                <h3 className="text-xl font-elegant font-semibold text-foreground mb-4 text-center">Beef & Pork</h3>
+                <div className="space-y-3">
+                  {[
+                    "Brisket", "Ribs", "Pulled Pork", "Fried Pork Chops", 
+                    "Smothered Pork Chops", "Meatloaf", "Hamburgers", "Smoked Sausage"
+                  ].map((item, index) => (
+                    <div key={index} className="flex justify-between items-center border-b border-dotted border-muted pb-2">
+                      <span className="text-foreground">{item}</span>
+                      <span className="text-primary font-medium">MP</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            
+            <div className="mt-8">
+              <h3 className="text-xl font-elegant font-semibold text-foreground mb-4 text-center">Seafood & Specialties</h3>
+              <div className="grid md:grid-cols-2 gap-4">
+                {[
+                  { name: "Low Country Boil", desc: "Traditional Southern seafood boil with shrimp, sausage, corn, and potatoes" },
+                  { name: "Baked Salmon", desc: "Fresh Atlantic salmon with herbs and seasonings" },
+                  { name: "Fried Fish", desc: "Golden fried fish fillets with our signature seasoning" },
+                  { name: "Shrimp Alfredo", desc: "Succulent shrimp in creamy alfredo sauce over pasta" },
+                  { name: "Crabs", desc: "Fresh crabs prepared to perfection" },
+                  { name: "Lasagna", desc: "Layers of pasta, meat sauce, and melted cheese" }
+                ].map((item, index) => (
+                  <div key={index} className="border-b border-dotted border-muted pb-3">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <h4 className="font-medium text-foreground">{item.name}</h4>
+                        <p className="text-muted-foreground text-sm italic mt-1">{item.desc}</p>
+                      </div>
+                      <span className="text-primary font-medium ml-4">MP</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
 
-            {/* Appetizers */}
-            <AccordionItem value="appetizers" className="border rounded-lg mb-4 shadow-card">
-              <AccordionTrigger className="px-6 py-4 hover:no-underline">
-                <h3 className="text-2xl font-elegant font-bold text-foreground">Appetizers</h3>
-              </AccordionTrigger>
-              <AccordionContent className="px-6 pb-4">
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-2 text-sm">
-                  <span>Fruit Platter</span>
-                  <span>Cheese Platter</span>
-                  <span>Meat Platter</span>
-                  <span>Charcuterie Board</span>
-                  <span>Tuna Salad</span>
-                  <span>Grazing Table</span>
-                  <span>Chocolate Covered Fruit Platter</span>
-                  <span>Chicken Sliders</span>
-                  <span>Pulled Pork Sliders</span>
-                  <span>Meatballs</span>
-                  <span>Deviled Eggs</span>
-                  <span>Chicken Salad</span>
-                  <span>Vegetable Platter</span>
-                  <span>Mini Chicken & Waffles</span>
-                  <span>Tomato Caprese</span>
-                  <span>Mini Loaded Potatoes</span>
-                  <span>Tomato Bruschetta</span>
-                  <span>Shrimp Deviled Eggs w/Bacon Finish</span>
-                  <span>Smoked Salmon Cucumber Bites</span>
+          {/* Side Dishes */}
+          <section className="menu-section">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-elegant font-bold text-foreground mb-2">Side Dishes</h2>
+              <div className="w-16 h-0.5 bg-gradient-primary mx-auto"></div>
+            </div>
+            <div className="grid md:grid-cols-3 gap-6">
+              <div>
+                <h3 className="text-lg font-semibold text-foreground mb-3 text-center">Rice & Grains</h3>
+                <div className="space-y-2">
+                  {["White Rice", "Yellow Rice", "Dirty Rice", "Rice w/ Peas", "Rice w/ Gravy"].map((item, index) => (
+                    <div key={index} className="flex justify-between items-center text-sm">
+                      <span className="text-foreground">{item}</span>
+                      <span className="text-primary">MP</span>
+                    </div>
+                  ))}
                 </div>
-              </AccordionContent>
-            </AccordionItem>
+              </div>
+              
+              <div>
+                <h3 className="text-lg font-semibold text-foreground mb-3 text-center">Vegetables</h3>
+                <div className="space-y-2">
+                  {["Green Beans w/ Potatoes", "Sweet Peas w/ Corn", "Cabbage", "Yams", "Vegetable Medley", "Corn"].map((item, index) => (
+                    <div key={index} className="flex justify-between items-center text-sm">
+                      <span className="text-foreground">{item}</span>
+                      <span className="text-primary">MP</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              <div>
+                <h3 className="text-lg font-semibold text-foreground mb-3 text-center">Classics</h3>
+                <div className="space-y-2">
+                  {["Macaroni & Cheese", "Mashed Potatoes & Gravy", "Baked Beans", "Macaroni Salad", "Potato Salad"].map((item, index) => (
+                    <div key={index} className="flex justify-between items-center text-sm">
+                      <span className="text-foreground">{item}</span>
+                      <span className="text-primary">MP</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            
+            <div className="mt-6">
+              <h3 className="text-lg font-semibold text-foreground mb-3 text-center">Fresh Salads</h3>
+              <div className="flex justify-center">
+                <div className="space-y-2">
+                  {["Garden Salad", "Caesar Salad"].map((item, index) => (
+                    <div key={index} className="flex justify-between items-center text-sm min-w-48">
+                      <span className="text-foreground">{item}</span>
+                      <span className="text-primary">MP</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
 
-            {/* Vegetarian Options */}
-            <AccordionItem value="vegetarian" className="border rounded-lg mb-4 shadow-card">
-              <AccordionTrigger className="px-6 py-4 hover:no-underline">
-                <h3 className="text-2xl font-elegant font-bold text-foreground">Vegetarian Options</h3>
-              </AccordionTrigger>
-              <AccordionContent className="px-6 pb-4">
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-2 text-sm">
-                  <span>Patties w/ Gravy</span>
-                  <span>Burger</span>
-                  <span>Hot Dogs</span>
-                  <span>Lasagna</span>
-                  <span>Spaghetti</span>
-                  <span>Meat Loaf</span>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
+          {/* Vegetarian Options */}
+          <section className="menu-section">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-elegant font-bold text-foreground mb-2">Plant-Based Options</h2>
+              <div className="w-16 h-0.5 bg-gradient-primary mx-auto"></div>
+              <p className="text-muted-foreground mt-3 italic">Delicious alternatives for our vegetarian guests</p>
+            </div>
+            <div className="max-w-2xl mx-auto">
+              <div className="space-y-3">
+                {[
+                  { name: "Vegetarian Patties w/ Gravy", desc: "House-made patties served with rich, savory gravy" },
+                  { name: "Plant-Based Burger", desc: "Hearty veggie burger with all the fixings" },
+                  { name: "Vegetarian Hot Dogs", desc: "Plant-based dogs with your choice of toppings" },
+                  { name: "Vegetarian Lasagna", desc: "Layers of pasta with vegetables and cheese" },
+                  { name: "Vegetarian Spaghetti", desc: "Classic pasta with marinara or pesto sauce" },
+                  { name: "Vegetarian Meatloaf", desc: "Plant-based comfort food that satisfies" }
+                ].map((item, index) => (
+                  <div key={index} className="flex justify-between items-start border-b border-dotted border-muted pb-3">
+                    <div className="flex-1">
+                      <h4 className="font-medium text-foreground">{item.name}</h4>
+                      <p className="text-muted-foreground text-sm italic mt-1">{item.desc}</p>
+                    </div>
+                    <span className="text-primary font-medium ml-4">MP</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
         </div>
 
         {/* Desserts */}
