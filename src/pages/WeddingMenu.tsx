@@ -358,7 +358,7 @@ const WeddingMenu = () => {
         </div>
 
         {/* Service Highlights */}
-        <div className="grid md:grid-cols-2 gap-8 mb-12">
+        <div className="grid md:grid-cols-2 gap-8 mb-12 mt-24">
           <Card className="shadow-elegant">
             <CardHeader>
               <CardTitle className="text-2xl font-elegant">Premium Service Features</CardTitle>
