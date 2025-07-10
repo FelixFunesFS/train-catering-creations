@@ -13,48 +13,44 @@ const SideDishesCard = () => {
         <div className="w-12 h-0.5 bg-gradient-primary mx-auto mt-2"></div>
       </CardHeader>
       <CardContent>
-        <div className="space-y-6">
-          <div>
-            <h3 className="text-base font-semibold text-foreground mb-3 text-center">Rice & Grains</h3>
-            <div className="space-y-2">
-              {riceItems.map((item, index) => (
-                <div key={index} className="text-sm">
-                  <span className="text-foreground">{item}</span>
-                </div>
-              ))}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-sm font-semibold text-foreground mb-2">Rice & Grains</h3>
+              <div className="space-y-1">
+                {riceItems.map((item, index) => (
+                  <div key={index} className="text-xs text-foreground">{item}</div>
+                ))}
+              </div>
+            </div>
+            
+            <div>
+              <h3 className="text-sm font-semibold text-foreground mb-2">Classics</h3>
+              <div className="space-y-1">
+                {classicItems.map((item, index) => (
+                  <div key={index} className="text-xs text-foreground">{item}</div>
+                ))}
+              </div>
             </div>
           </div>
           
-          <div>
-            <h3 className="text-base font-semibold text-foreground mb-3 text-center">Vegetables</h3>
-            <div className="space-y-2">
-              {vegetableItems.map((item, index) => (
-                <div key={index} className="text-sm">
-                  <span className="text-foreground">{item}</span>
-                </div>
-              ))}
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-sm font-semibold text-foreground mb-2">Vegetables</h3>
+              <div className="space-y-1">
+                {vegetableItems.map((item, index) => (
+                  <div key={index} className="text-xs text-foreground">{item}</div>
+                ))}
+              </div>
             </div>
-          </div>
-          
-          <div>
-            <h3 className="text-base font-semibold text-foreground mb-3 text-center">Classics</h3>
-            <div className="space-y-2">
-              {classicItems.map((item, index) => (
-                <div key={index} className="text-sm">
-                  <span className="text-foreground">{item}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-          
-          <div>
-            <h3 className="text-base font-semibold text-foreground mb-3 text-center">Fresh Salads</h3>
-            <div className="space-y-2">
-              {saladItems.map((item, index) => (
-                <div key={index} className="text-sm">
-                  <span className="text-foreground">{item}</span>
-                </div>
-              ))}
+            
+            <div>
+              <h3 className="text-sm font-semibold text-foreground mb-2">Fresh Salads</h3>
+              <div className="space-y-1">
+                {saladItems.map((item, index) => (
+                  <div key={index} className="text-xs text-foreground">{item}</div>
+                ))}
+              </div>
             </div>
           </div>
         </div>

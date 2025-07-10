@@ -1,6 +1,7 @@
 import MenuHeader from "@/components/menu/MenuHeader";
 import AppetizersCard from "@/components/menu/AppetizersCard";
-import MainCoursesCard from "@/components/menu/MainCoursesCard";
+import PoultrySeafoodCard from "@/components/menu/PoultrySeafoodCard";
+import BeefPorkCard from "@/components/menu/BeefPorkCard";
 import SideDishesCard from "@/components/menu/SideDishesCard";
 import PlantBasedCard from "@/components/menu/PlantBasedCard";
 import DessertsCard from "@/components/menu/DessertsCard";
@@ -13,12 +14,24 @@ const Menu = () => {
         <MenuHeader />
 
         {/* Card Grid Menu */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-8 max-w-8xl mx-auto">
-          <AppetizersCard />
-          <MainCoursesCard />
-          <SideDishesCard />
-          <PlantBasedCard />
-          <DessertsCard />
+        <div className="space-y-12">
+          {/* First Row - Main Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <AppetizersCard />
+            <PoultrySeafoodCard />
+            <PlantBasedCard />
+          </div>
+          
+          {/* Second Row - Remaining Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            <BeefPorkCard />
+            <SideDishesCard />
+          </div>
+          
+          {/* Full Width Desserts */}
+          <div className="max-w-6xl mx-auto">
+            <DessertsCard />
+          </div>
         </div>
 
         {/* Contact for Custom Menu */}
