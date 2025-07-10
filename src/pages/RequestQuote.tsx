@@ -34,20 +34,20 @@ const RequestQuote = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-hero py-16">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-hero py-20">
+      <div className="max-w-4xl mx-auto px-6 sm:px-8 lg:px-12">
         {/* Header */}
-        <div className="text-center mb-16">
-          <h1 className="text-4xl lg:text-5xl font-elegant font-bold text-foreground mb-6">
+        <div className="text-center mb-20">
+          <h1 className="text-4xl lg:text-5xl font-elegant font-bold text-foreground mb-8">
             Request a Quote
           </h1>
-          <div className="w-24 h-1 bg-gradient-primary mx-auto mb-8"></div>
+          <div className="w-24 h-1 bg-gradient-primary mx-auto mb-10"></div>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             Let's create something amazing together. Tell us about your event and we'll provide a personalized quote within 24 hours.
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-8">
+        <div className="grid lg:grid-cols-3 gap-12">
           {/* Contact Form */}
           <div className="lg:col-span-2">
             <Card className="shadow-elegant">
@@ -55,8 +55,8 @@ const RequestQuote = () => {
                 <CardTitle className="text-2xl font-elegant">Event Details</CardTitle>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="grid md:grid-cols-2 gap-4">
+                <form onSubmit={handleSubmit} className="space-y-8">
+                  <div className="grid md:grid-cols-2 gap-6">
                     <div>
                       <Label htmlFor="name">Full Name *</Label>
                       <Input
@@ -64,7 +64,7 @@ const RequestQuote = () => {
                         value={formData.name}
                         onChange={(e) => handleChange("name", e.target.value)}
                         required
-                        className="mt-1"
+                        className="mt-2"
                       />
                     </div>
                     <div>
@@ -75,12 +75,12 @@ const RequestQuote = () => {
                         value={formData.email}
                         onChange={(e) => handleChange("email", e.target.value)}
                         required
-                        className="mt-1"
+                        className="mt-2"
                       />
                     </div>
                   </div>
 
-                  <div className="grid md:grid-cols-2 gap-4">
+                  <div className="grid md:grid-cols-2 gap-6">
                     <div>
                       <Label htmlFor="phone">Phone Number *</Label>
                       <Input
@@ -89,13 +89,13 @@ const RequestQuote = () => {
                         value={formData.phone}
                         onChange={(e) => handleChange("phone", e.target.value)}
                         required
-                        className="mt-1"
+                        className="mt-2"
                       />
                     </div>
                     <div>
                       <Label htmlFor="eventType">Event Type *</Label>
                       <Select onValueChange={(value) => handleChange("eventType", value)} required>
-                        <SelectTrigger className="mt-1">
+                        <SelectTrigger className="mt-2">
                           <SelectValue placeholder="Select event type" />
                         </SelectTrigger>
                         <SelectContent>
@@ -113,7 +113,7 @@ const RequestQuote = () => {
                     </div>
                   </div>
 
-                  <div className="grid md:grid-cols-2 gap-4">
+                  <div className="grid md:grid-cols-2 gap-6">
                     <div>
                       <Label htmlFor="eventDate">Event Date *</Label>
                       <Input
@@ -122,7 +122,7 @@ const RequestQuote = () => {
                         value={formData.eventDate}
                         onChange={(e) => handleChange("eventDate", e.target.value)}
                         required
-                        className="mt-1"
+                        className="mt-2"
                       />
                     </div>
                     <div>
@@ -134,7 +134,7 @@ const RequestQuote = () => {
                         value={formData.guestCount}
                         onChange={(e) => handleChange("guestCount", e.target.value)}
                         required
-                        className="mt-1"
+                        className="mt-2"
                       />
                     </div>
                   </div>
@@ -146,7 +146,7 @@ const RequestQuote = () => {
                       placeholder="Address or venue name"
                       value={formData.location}
                       onChange={(e) => handleChange("location", e.target.value)}
-                      className="mt-1"
+                      className="mt-2"
                     />
                   </div>
 
@@ -157,11 +157,11 @@ const RequestQuote = () => {
                       placeholder="Tell us about your vision, dietary restrictions, budget range, or any special requests..."
                       value={formData.message}
                       onChange={(e) => handleChange("message", e.target.value)}
-                      className="mt-1 min-h-[120px]"
+                      className="mt-2 min-h-[140px]"
                     />
                   </div>
 
-                  <Button type="submit" className="w-full bg-primary hover:bg-primary-glow text-primary-foreground font-medium py-3">
+                  <Button type="submit" className="w-full bg-primary hover:bg-primary-glow text-primary-foreground font-medium py-4">
                     Request Quote
                   </Button>
                 </form>
@@ -170,13 +170,13 @@ const RequestQuote = () => {
           </div>
 
           {/* Contact Information */}
-          <div className="space-y-6">
+          <div className="space-y-8">
             <Card className="shadow-card">
               <CardHeader>
                 <CardTitle className="text-xl font-elegant">Contact Information</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center space-x-3">
+              <CardContent className="space-y-6">
+                <div className="flex items-center space-x-4">
                   <Phone className="h-5 w-5 text-primary" />
                   <div>
                     <p className="font-medium">Phone</p>
@@ -185,7 +185,7 @@ const RequestQuote = () => {
                     </a>
                   </div>
                 </div>
-                <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-4">
                   <Mail className="h-5 w-5 text-primary" />
                   <div>
                     <p className="font-medium">Email</p>
@@ -194,7 +194,7 @@ const RequestQuote = () => {
                     </a>
                   </div>
                 </div>
-                <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-4">
                   <MapPin className="h-5 w-5 text-primary" />
                   <div>
                     <p className="font-medium">Service Area</p>
@@ -208,16 +208,16 @@ const RequestQuote = () => {
               <CardHeader>
                 <CardTitle className="text-xl font-elegant">What to Expect</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3 text-sm text-muted-foreground">
-                <div className="flex items-start space-x-2">
+              <CardContent className="space-y-4 text-sm text-muted-foreground">
+                <div className="flex items-start space-x-3">
                   <Calendar className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
                   <span>We'll respond within 24 hours</span>
                 </div>
-                <div className="flex items-start space-x-2">
+                <div className="flex items-start space-x-3">
                   <Users className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
                   <span>Personal consultation to discuss your needs</span>
                 </div>
-                <div className="flex items-start space-x-2">
+                <div className="flex items-start space-x-3">
                   <MapPin className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
                   <span>Customized proposal with pricing</span>
                 </div>
@@ -225,7 +225,7 @@ const RequestQuote = () => {
             </Card>
 
             <Card className="shadow-card bg-primary-light">
-              <CardContent className="p-4 text-center">
+              <CardContent className="p-6 text-center">
                 <p className="text-primary font-medium text-sm">
                   🎉 Ready to book? Call us directly for immediate assistance!
                 </p>
