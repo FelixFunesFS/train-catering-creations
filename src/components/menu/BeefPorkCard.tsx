@@ -25,30 +25,13 @@ const BeefPorkCard = () => {
         <div className="w-12 h-0.5 bg-gradient-primary mx-auto mt-2"></div>
       </CardHeader>
       <CardContent>
-        <div className="space-y-2">
-          <div>
-            <h3 className="text-base font-semibold text-foreground mb-2 text-center">Premium Meats</h3>
-            <div className="space-y-2">
-              {meatItems.map((item, index) => (
-                <div key={index} className="border-b border-muted/40 pb-2 last:border-b-0">
-                  <h4 className="text-sm font-medium text-foreground">{item.name}</h4>
-                  <p className="text-xs text-muted-foreground mt-1 italic leading-relaxed">{item.desc}</p>
-                </div>
-              ))}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {[...meatItems, ...specialtyItems].map((item, index) => (
+            <div key={index} className="border-b border-muted/40 pb-2 last:border-b-0">
+              <h4 className="text-sm font-medium text-foreground">{item.name}</h4>
+              <p className="text-xs text-muted-foreground mt-1 italic leading-relaxed">{item.desc}</p>
             </div>
-          </div>
-          
-          <div>
-            <h3 className="text-base font-semibold text-foreground mb-2 text-center">House Specialties</h3>
-            <div className="space-y-2">
-              {specialtyItems.map((item, index) => (
-                <div key={index} className="border-b border-muted/40 pb-2 last:border-b-0">
-                  <h4 className="text-sm font-medium text-foreground">{item.name}</h4>
-                  <p className="text-xs text-muted-foreground mt-1 italic leading-relaxed">{item.desc}</p>
-                </div>
-              ))}
-            </div>
-          </div>
+          ))}
         </div>
       </CardContent>
     </Card>

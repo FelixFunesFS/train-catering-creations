@@ -19,13 +19,11 @@ const AppetizersCard = () => {
         <div className="w-12 h-0.5 bg-gradient-primary mx-auto mt-2"></div>
       </CardHeader>
       <CardContent>
-        <div className="space-y-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {appetizers.map((item, index) => (
             <div key={index} className="border-b border-muted/40 pb-2 last:border-b-0">
-              <div>
-                <h4 className="text-sm font-medium text-foreground">{item.name}</h4>
-                <p className="text-xs text-muted-foreground mt-1 italic leading-relaxed">{item.desc}</p>
-              </div>
+              <h4 className="text-sm font-medium text-foreground">{item.name}</h4>
+              <p className="text-xs text-muted-foreground mt-1 italic leading-relaxed">{item.desc}</p>
             </div>
           ))}
         </div>
