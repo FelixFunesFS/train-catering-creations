@@ -14,21 +14,27 @@ const Menu = () => {
         <MenuHeader />
 
         {/* Card Grid Menu */}
-        <div className="space-y-12">
-          {/* First Row - Main Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="space-y-16">
+          {/* First Row - Appetizers & Poultry */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <AppetizersCard />
             <PoultrySeafoodCard />
+          </div>
+          
+          {/* Second Row - Beef & Plant-Based */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <BeefPorkCard />
             <PlantBasedCard />
           </div>
           
-          {/* Second Row - Remaining Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-            <BeefPorkCard />
-            <SideDishesCard />
+          {/* Third Row - Side Dishes Centered */}
+          <div className="flex justify-center">
+            <div className="w-full max-w-2xl">
+              <SideDishesCard />
+            </div>
           </div>
           
-          {/* Full Width Desserts */}
+          {/* Full Width Desserts Showcase */}
           <div className="max-w-6xl mx-auto">
             <DessertsCard />
           </div>

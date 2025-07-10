@@ -15,17 +15,17 @@ const PoultrySeafoodCard = () => {
   ];
 
   return (
-    <Card className="shadow-elegant hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+    <Card className="h-full shadow-elegant hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
       <CardHeader className="text-center pb-4">
-        <CardTitle className="text-xl font-elegant text-foreground">Poultry & Seafood</CardTitle>
+        <CardTitle className="text-2xl font-elegant text-foreground">Poultry & Seafood</CardTitle>
         <div className="w-12 h-0.5 bg-gradient-primary mx-auto mt-2"></div>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-4">
         <div>
           <h3 className="text-base font-semibold text-foreground mb-3 text-center">Poultry Favorites</h3>
           <div className="space-y-2">
             {poultryItems.map((item, index) => (
-              <div key={index} className="text-sm text-foreground border-b border-muted/30 pb-1 last:border-b-0">
+              <div key={index} className="text-sm text-foreground border-b border-muted/40 pb-3 last:border-b-0">
                 {item}
               </div>
             ))}
@@ -34,11 +34,11 @@ const PoultrySeafoodCard = () => {
         
         <div>
           <h3 className="text-base font-semibold text-foreground mb-3 text-center">Fresh Seafood</h3>
-          <div className="space-y-3">
+          <div className="space-y-4">
             {seafoodItems.map((item, index) => (
-              <div key={index} className="border-b border-muted/30 pb-2 last:border-b-0">
-                <h4 className="font-medium text-foreground text-sm">{item.name}</h4>
-                <p className="text-muted-foreground text-xs italic mt-1">{item.desc}</p>
+              <div key={index} className="border-b border-muted/40 pb-3 last:border-b-0">
+                <h4 className="text-sm font-medium text-foreground">{item.name}</h4>
+                <p className="text-xs text-muted-foreground mt-1 italic leading-relaxed">{item.desc}</p>
               </div>
             ))}
           </div>
