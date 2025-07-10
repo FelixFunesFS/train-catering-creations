@@ -16,16 +16,6 @@ const Menu = () => {
           </p>
         </div>
 
-        {/* Note */}
-        <div className="text-center mb-12">
-          <Card className="bg-primary-light border-primary">
-            <CardContent className="p-6">
-              <p className="text-primary font-medium">
-                Full menu details will be provided shortly. Contact us for current offerings and custom menu options.
-              </p>
-            </CardContent>
-          </Card>
-        </div>
 
         {/* Menu Sections */}
         <div className="mb-12">
