@@ -17,168 +17,174 @@ const Menu = () => {
         </div>
 
 
-        {/* Restaurant-Style Menu */}
-        <div className="max-w-4xl mx-auto space-y-16">
+        {/* Card Grid Menu */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8 max-w-7xl mx-auto">
           
-          {/* Appetizers */}
-          <section className="menu-section">
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-elegant font-bold text-foreground mb-2">Appetizers</h2>
-              <div className="w-16 h-0.5 bg-gradient-primary mx-auto"></div>
-            </div>
-            <div className="space-y-4">
-              {[
-                { name: "Charcuterie Board", desc: "Selection of artisanal meats, cheeses, and accompaniments" },
-                { name: "Chocolate Covered Fruit Platter", desc: "Fresh seasonal fruits dipped in rich chocolate" },
-                { name: "Shrimp Deviled Eggs w/Bacon Finish", desc: "Classic deviled eggs elevated with fresh shrimp and crispy bacon" },
-                { name: "Mini Chicken & Waffles", desc: "Southern comfort in bite-sized portions" },
-                { name: "Smoked Salmon Cucumber Bites", desc: "Fresh cucumber rounds topped with premium smoked salmon" },
-                { name: "Tomato Caprese", desc: "Fresh mozzarella, basil, and vine-ripened tomatoes" },
-                { name: "Mini Loaded Potatoes", desc: "Crispy potato skins loaded with cheese, bacon, and chives" },
-                { name: "Grazing Table", desc: "An abundant spread perfect for sharing" }
-              ].map((item, index) => (
-                <div key={index} className="flex items-start justify-between border-b border-dotted border-muted pb-3">
-                  <div className="flex-1">
-                    <h4 className="font-medium text-foreground text-lg">{item.name}</h4>
-                    <p className="text-muted-foreground text-sm mt-1 italic">{item.desc}</p>
-                  </div>
-                  <div className="ml-4 text-primary font-medium">MP</div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* Main Courses - Proteins */}
-          <section className="menu-section">
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-elegant font-bold text-foreground mb-2">Main Courses</h2>
-              <div className="w-16 h-0.5 bg-gradient-primary mx-auto"></div>
-            </div>
-            <div className="grid md:grid-cols-2 gap-8">
-              <div>
-                <h3 className="text-xl font-elegant font-semibold text-foreground mb-4 text-center">Poultry & Fowl</h3>
-                <div className="space-y-3">
-                  {[
-                    "Baked/Smoked Chicken", "Barbecue Chicken", "Fried Chicken", 
-                    "Chicken Tenders", "Chicken Wings", "Chicken Alfredo", "Turkey Wings"
-                  ].map((item, index) => (
-                    <div key={index} className="flex justify-between items-center border-b border-dotted border-muted pb-2">
-                      <span className="text-foreground">{item}</span>
-                      <span className="text-primary font-medium">MP</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              
-              <div>
-                <h3 className="text-xl font-elegant font-semibold text-foreground mb-4 text-center">Beef & Pork</h3>
-                <div className="space-y-3">
-                  {[
-                    "Brisket", "Ribs", "Pulled Pork", "Fried Pork Chops", 
-                    "Smothered Pork Chops", "Meatloaf", "Hamburgers", "Smoked Sausage"
-                  ].map((item, index) => (
-                    <div key={index} className="flex justify-between items-center border-b border-dotted border-muted pb-2">
-                      <span className="text-foreground">{item}</span>
-                      <span className="text-primary font-medium">MP</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-            
-            <div className="mt-8">
-              <h3 className="text-xl font-elegant font-semibold text-foreground mb-4 text-center">Seafood & Specialties</h3>
-              <div className="grid md:grid-cols-2 gap-4">
+          {/* Appetizers Card */}
+          <Card className="shadow-elegant hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+            <CardHeader className="text-center">
+              <CardTitle className="text-2xl font-elegant text-foreground">Appetizers</CardTitle>
+              <div className="w-12 h-0.5 bg-gradient-primary mx-auto mt-2"></div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
                 {[
-                  { name: "Low Country Boil", desc: "Traditional Southern seafood boil with shrimp, sausage, corn, and potatoes" },
-                  { name: "Baked Salmon", desc: "Fresh Atlantic salmon with herbs and seasonings" },
-                  { name: "Fried Fish", desc: "Golden fried fish fillets with our signature seasoning" },
-                  { name: "Shrimp Alfredo", desc: "Succulent shrimp in creamy alfredo sauce over pasta" },
-                  { name: "Crabs", desc: "Fresh crabs prepared to perfection" },
-                  { name: "Lasagna", desc: "Layers of pasta, meat sauce, and melted cheese" }
+                  { name: "Charcuterie Board", desc: "Selection of artisanal meats, cheeses, and accompaniments" },
+                  { name: "Chocolate Covered Fruit Platter", desc: "Fresh seasonal fruits dipped in rich chocolate" },
+                  { name: "Shrimp Deviled Eggs w/Bacon Finish", desc: "Classic deviled eggs elevated with fresh shrimp and crispy bacon" },
+                  { name: "Mini Chicken & Waffles", desc: "Southern comfort in bite-sized portions" },
+                  { name: "Smoked Salmon Cucumber Bites", desc: "Fresh cucumber rounds topped with premium smoked salmon" },
+                  { name: "Tomato Caprese", desc: "Fresh mozzarella, basil, and vine-ripened tomatoes" },
+                  { name: "Mini Loaded Potatoes", desc: "Crispy potato skins loaded with cheese, bacon, and chives" },
+                  { name: "Grazing Table", desc: "An abundant spread perfect for sharing" }
                 ].map((item, index) => (
-                  <div key={index} className="border-b border-dotted border-muted pb-3">
+                  <div key={index} className="border-b border-muted/50 pb-3 last:border-b-0">
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
                         <h4 className="font-medium text-foreground">{item.name}</h4>
-                        <p className="text-muted-foreground text-sm italic mt-1">{item.desc}</p>
+                        <p className="text-muted-foreground text-sm mt-1 italic">{item.desc}</p>
                       </div>
-                      <span className="text-primary font-medium ml-4">MP</span>
+                      <span className="text-primary font-medium ml-4 text-sm">MP</span>
                     </div>
                   </div>
                 ))}
               </div>
-            </div>
-          </section>
+            </CardContent>
+          </Card>
 
-          {/* Side Dishes */}
-          <section className="menu-section">
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-elegant font-bold text-foreground mb-2">Side Dishes</h2>
-              <div className="w-16 h-0.5 bg-gradient-primary mx-auto"></div>
-            </div>
-            <div className="grid md:grid-cols-3 gap-6">
-              <div>
-                <h3 className="text-lg font-semibold text-foreground mb-3 text-center">Rice & Grains</h3>
-                <div className="space-y-2">
-                  {["White Rice", "Yellow Rice", "Dirty Rice", "Rice w/ Peas", "Rice w/ Gravy"].map((item, index) => (
-                    <div key={index} className="flex justify-between items-center text-sm">
-                      <span className="text-foreground">{item}</span>
-                      <span className="text-primary">MP</span>
-                    </div>
-                  ))}
+          {/* Main Courses Card */}
+          <Card className="shadow-elegant hover:shadow-lg transition-all duration-300 hover:-translate-y-1 xl:col-span-2">
+            <CardHeader className="text-center">
+              <CardTitle className="text-2xl font-elegant text-foreground">Main Courses</CardTitle>
+              <div className="w-12 h-0.5 bg-gradient-primary mx-auto mt-2"></div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid md:grid-cols-2 gap-8">
+                <div>
+                  <h3 className="text-lg font-elegant font-semibold text-foreground mb-4 text-center">Poultry & Fowl</h3>
+                  <div className="space-y-3">
+                    {[
+                      "Baked/Smoked Chicken", "Barbecue Chicken", "Fried Chicken", 
+                      "Chicken Tenders", "Chicken Wings", "Chicken Alfredo", "Turkey Wings"
+                    ].map((item, index) => (
+                      <div key={index} className="flex justify-between items-center border-b border-muted/30 pb-2">
+                        <span className="text-foreground text-sm">{item}</span>
+                        <span className="text-primary font-medium text-sm">MP</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                <div>
+                  <h3 className="text-lg font-elegant font-semibold text-foreground mb-4 text-center">Beef & Pork</h3>
+                  <div className="space-y-3">
+                    {[
+                      "Brisket", "Ribs", "Pulled Pork", "Fried Pork Chops", 
+                      "Smothered Pork Chops", "Meatloaf", "Hamburgers", "Smoked Sausage"
+                    ].map((item, index) => (
+                      <div key={index} className="flex justify-between items-center border-b border-muted/30 pb-2">
+                        <span className="text-foreground text-sm">{item}</span>
+                        <span className="text-primary font-medium text-sm">MP</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
               
-              <div>
-                <h3 className="text-lg font-semibold text-foreground mb-3 text-center">Vegetables</h3>
-                <div className="space-y-2">
-                  {["Green Beans w/ Potatoes", "Sweet Peas w/ Corn", "Cabbage", "Yams", "Vegetable Medley", "Corn"].map((item, index) => (
-                    <div key={index} className="flex justify-between items-center text-sm">
-                      <span className="text-foreground">{item}</span>
-                      <span className="text-primary">MP</span>
+              <div className="mt-8">
+                <h3 className="text-lg font-elegant font-semibold text-foreground mb-4 text-center">Seafood & Specialties</h3>
+                <div className="grid md:grid-cols-2 gap-4">
+                  {[
+                    { name: "Low Country Boil", desc: "Traditional Southern seafood boil with shrimp, sausage, corn, and potatoes" },
+                    { name: "Baked Salmon", desc: "Fresh Atlantic salmon with herbs and seasonings" },
+                    { name: "Fried Fish", desc: "Golden fried fish fillets with our signature seasoning" },
+                    { name: "Shrimp Alfredo", desc: "Succulent shrimp in creamy alfredo sauce over pasta" },
+                    { name: "Crabs", desc: "Fresh crabs prepared to perfection" },
+                    { name: "Lasagna", desc: "Layers of pasta, meat sauce, and melted cheese" }
+                  ].map((item, index) => (
+                    <div key={index} className="border-b border-muted/30 pb-3">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <h4 className="font-medium text-foreground text-sm">{item.name}</h4>
+                          <p className="text-muted-foreground text-xs italic mt-1">{item.desc}</p>
+                        </div>
+                        <span className="text-primary font-medium ml-4 text-sm">MP</span>
+                      </div>
                     </div>
                   ))}
                 </div>
               </div>
-              
-              <div>
-                <h3 className="text-lg font-semibold text-foreground mb-3 text-center">Classics</h3>
-                <div className="space-y-2">
-                  {["Macaroni & Cheese", "Mashed Potatoes & Gravy", "Baked Beans", "Macaroni Salad", "Potato Salad"].map((item, index) => (
-                    <div key={index} className="flex justify-between items-center text-sm">
-                      <span className="text-foreground">{item}</span>
-                      <span className="text-primary">MP</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-            
-            <div className="mt-6">
-              <h3 className="text-lg font-semibold text-foreground mb-3 text-center">Fresh Salads</h3>
-              <div className="flex justify-center">
-                <div className="space-y-2">
-                  {["Garden Salad", "Caesar Salad"].map((item, index) => (
-                    <div key={index} className="flex justify-between items-center text-sm min-w-48">
-                      <span className="text-foreground">{item}</span>
-                      <span className="text-primary">MP</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </section>
+            </CardContent>
+          </Card>
 
-          {/* Vegetarian Options */}
-          <section className="menu-section">
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-elegant font-bold text-foreground mb-2">Plant-Based Options</h2>
-              <div className="w-16 h-0.5 bg-gradient-primary mx-auto"></div>
-              <p className="text-muted-foreground mt-3 italic">Delicious alternatives for our vegetarian guests</p>
-            </div>
-            <div className="max-w-2xl mx-auto">
-              <div className="space-y-3">
+          {/* Side Dishes Card */}
+          <Card className="shadow-elegant hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+            <CardHeader className="text-center">
+              <CardTitle className="text-2xl font-elegant text-foreground">Side Dishes</CardTitle>
+              <div className="w-12 h-0.5 bg-gradient-primary mx-auto mt-2"></div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-base font-semibold text-foreground mb-3 text-center">Rice & Grains</h3>
+                  <div className="space-y-2">
+                    {["White Rice", "Yellow Rice", "Dirty Rice", "Rice w/ Peas", "Rice w/ Gravy"].map((item, index) => (
+                      <div key={index} className="flex justify-between items-center text-sm">
+                        <span className="text-foreground">{item}</span>
+                        <span className="text-primary">MP</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                <div>
+                  <h3 className="text-base font-semibold text-foreground mb-3 text-center">Vegetables</h3>
+                  <div className="space-y-2">
+                    {["Green Beans w/ Potatoes", "Sweet Peas w/ Corn", "Cabbage", "Yams", "Vegetable Medley", "Corn"].map((item, index) => (
+                      <div key={index} className="flex justify-between items-center text-sm">
+                        <span className="text-foreground">{item}</span>
+                        <span className="text-primary">MP</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                <div>
+                  <h3 className="text-base font-semibold text-foreground mb-3 text-center">Classics</h3>
+                  <div className="space-y-2">
+                    {["Macaroni & Cheese", "Mashed Potatoes & Gravy", "Baked Beans", "Macaroni Salad", "Potato Salad"].map((item, index) => (
+                      <div key={index} className="flex justify-between items-center text-sm">
+                        <span className="text-foreground">{item}</span>
+                        <span className="text-primary">MP</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                <div>
+                  <h3 className="text-base font-semibold text-foreground mb-3 text-center">Fresh Salads</h3>
+                  <div className="space-y-2">
+                    {["Garden Salad", "Caesar Salad"].map((item, index) => (
+                      <div key={index} className="flex justify-between items-center text-sm">
+                        <span className="text-foreground">{item}</span>
+                        <span className="text-primary">MP</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Plant-Based Options Card */}
+          <Card className="shadow-elegant hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+            <CardHeader className="text-center">
+              <CardTitle className="text-2xl font-elegant text-foreground">Plant-Based Options</CardTitle>
+              <div className="w-12 h-0.5 bg-gradient-primary mx-auto mt-2"></div>
+              <p className="text-muted-foreground text-sm italic mt-2">Delicious alternatives for our vegetarian guests</p>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
                 {[
                   { name: "Vegetarian Patties w/ Gravy", desc: "House-made patties served with rich, savory gravy" },
                   { name: "Plant-Based Burger", desc: "Hearty veggie burger with all the fixings" },
@@ -187,17 +193,19 @@ const Menu = () => {
                   { name: "Vegetarian Spaghetti", desc: "Classic pasta with marinara or pesto sauce" },
                   { name: "Vegetarian Meatloaf", desc: "Plant-based comfort food that satisfies" }
                 ].map((item, index) => (
-                  <div key={index} className="flex justify-between items-start border-b border-dotted border-muted pb-3">
-                    <div className="flex-1">
-                      <h4 className="font-medium text-foreground">{item.name}</h4>
-                      <p className="text-muted-foreground text-sm italic mt-1">{item.desc}</p>
+                  <div key={index} className="border-b border-muted/50 pb-3 last:border-b-0">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <h4 className="font-medium text-foreground text-sm">{item.name}</h4>
+                        <p className="text-muted-foreground text-xs italic mt-1">{item.desc}</p>
+                      </div>
+                      <span className="text-primary font-medium ml-4 text-sm">MP</span>
                     </div>
-                    <span className="text-primary font-medium ml-4">MP</span>
                   </div>
                 ))}
               </div>
-            </div>
-          </section>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Desserts */}
