@@ -22,17 +22,17 @@ const PoultrySeafoodCard = () => {
 
   return (
     <Card className="h-full shadow-elegant hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-      <CardHeader className="text-center pb-4">
+      <CardHeader className="text-center pb-3">
         <CardTitle className="text-2xl font-elegant text-foreground">Poultry & Seafood</CardTitle>
         <div className="w-12 h-0.5 bg-gradient-primary mx-auto mt-2"></div>
       </CardHeader>
-      <CardContent className="h-full">
-        <div className="max-h-80 overflow-y-auto space-y-4">
+      <CardContent>
+        <div className="space-y-2">
           <div>
-            <h3 className="text-base font-semibold text-foreground mb-3 text-center">Poultry Favorites</h3>
-            <div className="space-y-3">
+            <h3 className="text-base font-semibold text-foreground mb-2 text-center">Poultry Favorites</h3>
+            <div className="space-y-2">
               {poultryItems.map((item, index) => (
-                <div key={index} className="border-b border-muted/40 pb-3 last:border-b-0">
+                <div key={index} className="border-b border-muted/40 pb-2 last:border-b-0">
                   <h4 className="text-sm font-medium text-foreground">{item.name}</h4>
                   <p className="text-xs text-muted-foreground mt-1 italic leading-relaxed">{item.desc}</p>
                 </div>
@@ -41,10 +41,10 @@ const PoultrySeafoodCard = () => {
           </div>
           
           <div>
-            <h3 className="text-base font-semibold text-foreground mb-3 text-center">Seafood & Pasta</h3>
-            <div className="space-y-3">
+            <h3 className="text-base font-semibold text-foreground mb-2 text-center">Seafood & Pasta</h3>
+            <div className="space-y-2">
               {seafoodItems.map((item, index) => (
-                <div key={index} className="border-b border-muted/40 pb-3 last:border-b-0">
+                <div key={index} className="border-b border-muted/40 pb-2 last:border-b-0">
                   <h4 className="text-sm font-medium text-foreground">{item.name}</h4>
                   <p className="text-xs text-muted-foreground mt-1 italic leading-relaxed">{item.desc}</p>
                 </div>

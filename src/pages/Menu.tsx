@@ -14,7 +14,7 @@ const Menu = () => {
         <MenuHeader />
 
         {/* Card Grid Menu */}
-        <div className="space-y-16">
+        <div className="space-y-8">
           {/* First Row - Appetizers & Poultry */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <AppetizersCard />

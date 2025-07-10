@@ -12,15 +12,15 @@ const PlantBasedCard = () => {
 
   return (
     <Card className="h-full shadow-elegant hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-      <CardHeader className="text-center pb-4">
+      <CardHeader className="text-center pb-3">
         <CardTitle className="text-2xl font-elegant text-foreground">Plant-Based Options</CardTitle>
         <div className="w-12 h-0.5 bg-gradient-primary mx-auto mt-2"></div>
         <p className="text-muted-foreground text-sm italic mt-2">Delicious alternatives for our vegetarian guests</p>
       </CardHeader>
-      <CardContent className="h-full">
-        <div className="max-h-80 overflow-y-auto space-y-4">
+      <CardContent>
+        <div className="space-y-2">
           {plantBasedItems.map((item, index) => (
-            <div key={index} className="border-b border-muted/40 pb-3 last:border-b-0">
+            <div key={index} className="border-b border-muted/40 pb-2 last:border-b-0">
               <div>
                 <h4 className="text-sm font-medium text-foreground">{item.name}</h4>
                 <p className="text-xs text-muted-foreground mt-1 italic leading-relaxed">{item.desc}</p>
