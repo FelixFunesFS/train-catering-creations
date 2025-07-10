@@ -2,113 +2,90 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Soul Train's Eatery Design System - Elegant & Bright
-All colors MUST be HSL.
+/* Soul Train's Eatery Design System - Bold Black & Red
+All colors MUST be HSL. Designed for accessibility with high contrast ratios.
 */
 
 @layer base {
   :root {
-    /* Pure whites and elegant neutrals */
-    --background: 0 0% 100%;
-    --foreground: 25 20% 15%;
+    /* High contrast black and white base */
+    --background: 0 0% 7%;
+    --foreground: 0 0% 95%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 25 20% 15%;
+    --card: 0 0% 9%;
+    --card-foreground: 0 0% 95%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 25 20% 15%;
+    --popover: 0 0% 9%;
+    --popover-foreground: 0 0% 95%;
 
-    /* Sophisticated gold and warm tones */
-    --primary: 45 100% 35%;
+    /* Bold red primary - high contrast */
+    --primary: 0 84% 58%;
     --primary-foreground: 0 0% 100%;
-    --primary-light: 45 100% 85%;
-    --primary-glow: 45 100% 60%;
+    --primary-light: 0 84% 85%;
+    --primary-glow: 0 100% 65%;
 
-    /* Soft warm secondary */
-    --secondary: 25 25% 95%;
-    --secondary-foreground: 25 20% 15%;
+    /* Dark red secondary */
+    --secondary: 0 40% 15%;
+    --secondary-foreground: 0 0% 95%;
 
-    /* Subtle muted tones */
-    --muted: 20 15% 96%;
-    --muted-foreground: 25 15% 45%;
+    /* Muted grays with high contrast */
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 70%;
 
-    /* Elegant accent */
-    --accent: 35 80% 90%;
-    --accent-foreground: 25 20% 15%;
+    /* Red accent */
+    --accent: 0 65% 25%;
+    --accent-foreground: 0 0% 95%;
 
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 0 84% 58%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Minimal borders */
-    --border: 25 15% 92%;
-    --input: 25 15% 92%;
-    --ring: 45 100% 35%;
+    /* High contrast borders */
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 0 84% 58%;
 
     --radius: 0.75rem;
 
-    /* Elegant gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(45 100% 35%), hsl(45 100% 50%));
-    --gradient-hero: linear-gradient(135deg, hsl(0 0% 100%), hsl(25 25% 98%));
-    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(25 15% 98%));
+    /* Bold gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(0 84% 58%), hsl(0 100% 65%));
+    --gradient-hero: linear-gradient(135deg, hsl(0 0% 7%), hsl(0 0% 12%));
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 9%), hsl(0 0% 12%));
 
-    /* Elegant shadows */
-    --shadow-elegant: 0 10px 40px -10px hsl(25 20% 15% / 0.1);
-    --shadow-card: 0 4px 20px -4px hsl(25 20% 15% / 0.08);
-    --shadow-glow: 0 0 30px hsl(45 100% 60% / 0.2);
-
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* High contrast shadows */
+    --shadow-elegant: 0 10px 40px -10px hsl(0 0% 0% / 0.4);
+    --shadow-card: 0 4px 20px -4px hsl(0 0% 0% / 0.3);
+    --shadow-glow: 0 0 30px hsl(0 84% 58% / 0.3);
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    /* Light mode for dark theme toggle - high contrast inverse */
+    --background: 0 0% 95%;
+    --foreground: 0 0% 10%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 0 0% 98%;
+    --card-foreground: 0 0% 10%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 0 0% 98%;
+    --popover-foreground: 0 0% 10%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 0 84% 45%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 0 0% 90%;
+    --secondary-foreground: 0 0% 10%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 0 0% 90%;
+    --muted-foreground: 0 0% 40%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 0 65% 50%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84% 45%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --border: 0 0% 85%;
+    --input: 0 0% 85%;
+    --ring: 0 84% 45%;
   }
 }
 
