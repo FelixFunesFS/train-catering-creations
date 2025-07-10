@@ -1,10 +1,26 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const SideDishesCard = () => {
-  const riceItems = ["White Rice", "Yellow Rice", "Dirty Rice", "Rice w/ Peas", "Rice w/ Gravy"];
-  const vegetableItems = ["Green Beans w/ Potatoes", "Sweet Peas w/ Corn", "Cabbage", "Yams", "Vegetable Medley", "Corn"];
-  const classicItems = ["Macaroni & Cheese", "Mashed Potatoes & Gravy", "Baked Beans"];
-  const saladItems = ["Garden Salad", "Caesar Salad", "Macaroni Salad", "Potato Salad"];
+  const allSideItems = [
+    { name: "White Rice", desc: "Fluffy steamed rice" },
+    { name: "Yellow Rice", desc: "Seasoned with saffron" },
+    { name: "Dirty Rice", desc: "Cajun-style with meat" },
+    { name: "Rice w/ Peas", desc: "Caribbean style" },
+    { name: "Rice w/ Gravy", desc: "Savory brown gravy" },
+    { name: "Green Beans w/ Potatoes", desc: "Southern comfort" },
+    { name: "Sweet Peas w/ Corn", desc: "Garden fresh medley" },
+    { name: "Cabbage", desc: "Seasoned tender greens" },
+    { name: "Yams", desc: "Sweet candied style" },
+    { name: "Vegetable Medley", desc: "Seasonal mix" },
+    { name: "Corn", desc: "Buttered kernels" },
+    { name: "Macaroni & Cheese", desc: "Creamy baked perfection" },
+    { name: "Mashed Potatoes & Gravy", desc: "Smooth and rich" },
+    { name: "Baked Beans", desc: "Sweet molasses style" },
+    { name: "Garden Salad", desc: "Fresh mixed greens" },
+    { name: "Caesar Salad", desc: "Classic romaine & parmesan" },
+    { name: "Macaroni Salad", desc: "Creamy pasta salad" },
+    { name: "Potato Salad", desc: "Traditional Southern style" }
+  ];
 
   return (
     <Card className="shadow-elegant hover:shadow-lg transition-all duration-300 hover:-translate-y-1 bg-gradient-card">
@@ -14,46 +30,13 @@ const SideDishesCard = () => {
         <p className="text-muted-foreground text-sm italic mt-2">Complement your meal with our signature sides</p>
       </CardHeader>
       <CardContent className="h-full">
-        <div className="max-h-80 overflow-y-auto grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-4">
-            <div>
-              <h3 className="text-base font-semibold text-foreground mb-3 text-center">Rice & Grains</h3>
-              <div className="space-y-2">
-                {riceItems.map((item, index) => (
-                  <div key={index} className="text-sm text-foreground border-b border-muted/40 pb-2 last:border-b-0">{item}</div>
-                ))}
-              </div>
+        <div className="max-h-96 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {allSideItems.map((item, index) => (
+            <div key={index} className="border-b border-muted/40 pb-3 last:border-b-0">
+              <h4 className="text-sm font-medium text-foreground">{item.name}</h4>
+              <p className="text-xs text-muted-foreground mt-1 italic leading-relaxed">{item.desc}</p>
             </div>
-            
-            <div>
-              <h3 className="text-base font-semibold text-foreground mb-3 text-center">Southern Classics</h3>
-              <div className="space-y-2">
-                {classicItems.map((item, index) => (
-                  <div key={index} className="text-sm text-foreground border-b border-muted/40 pb-2 last:border-b-0">{item}</div>
-                ))}
-              </div>
-            </div>
-          </div>
-          
-          <div className="space-y-4">
-            <div>
-              <h3 className="text-base font-semibold text-foreground mb-3 text-center">Fresh Vegetables</h3>
-              <div className="space-y-2">
-                {vegetableItems.map((item, index) => (
-                  <div key={index} className="text-sm text-foreground border-b border-muted/40 pb-2 last:border-b-0">{item}</div>
-                ))}
-              </div>
-            </div>
-            
-            <div>
-              <h3 className="text-base font-semibold text-foreground mb-3 text-center">Salads</h3>
-              <div className="space-y-2">
-                {saladItems.map((item, index) => (
-                  <div key={index} className="text-sm text-foreground border-b border-muted/40 pb-2 last:border-b-0">{item}</div>
-                ))}
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
       </CardContent>
     </Card>

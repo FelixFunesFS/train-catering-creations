@@ -2,8 +2,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const BeefPorkCard = () => {
   const meatItems = [
-    "Brisket", "Ribs", "Pulled Pork", "Fried Pork Chops", 
-    "Smothered Pork Chops", "Meatloaf", "Hamburgers", "Smoked Sausage"
+    { name: "Brisket", desc: "Slow-smoked tender beef" },
+    { name: "Ribs", desc: "Fall-off-the-bone BBQ" },
+    { name: "Pulled Pork", desc: "Smoky shredded pork" },
+    { name: "Fried Pork Chops", desc: "Golden breaded chops" },
+    { name: "Smothered Pork Chops", desc: "Rich gravy covered" },
+    { name: "Meatloaf", desc: "Home-style comfort" },
+    { name: "Hamburgers", desc: "Juicy grilled patties" },
+    { name: "Smoked Sausage", desc: "Savory house-made" }
   ];
 
   const specialtyItems = [
@@ -22,10 +28,11 @@ const BeefPorkCard = () => {
         <div className="max-h-80 overflow-y-auto space-y-4">
           <div>
             <h3 className="text-base font-semibold text-foreground mb-3 text-center">Premium Meats</h3>
-            <div className="space-y-2">
+            <div className="space-y-3">
               {meatItems.map((item, index) => (
-                <div key={index} className="text-sm text-foreground border-b border-muted/40 pb-2 last:border-b-0">
-                  {item}
+                <div key={index} className="border-b border-muted/40 pb-3 last:border-b-0">
+                  <h4 className="text-sm font-medium text-foreground">{item.name}</h4>
+                  <p className="text-xs text-muted-foreground mt-1 italic leading-relaxed">{item.desc}</p>
                 </div>
               ))}
             </div>

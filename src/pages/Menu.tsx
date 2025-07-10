@@ -27,11 +27,9 @@ const Menu = () => {
             <PlantBasedCard />
           </div>
           
-          {/* Third Row - Side Dishes Centered */}
-          <div className="flex justify-center">
-            <div className="w-full max-w-2xl">
-              <SideDishesCard />
-            </div>
+          {/* Third Row - Side Dishes Full Width */}
+          <div className="w-full">
+            <SideDishesCard />
           </div>
           
           {/* Full Width Desserts Showcase */}
