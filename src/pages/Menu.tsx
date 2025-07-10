@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 const Menu = () => {
   return (
@@ -27,243 +28,118 @@ const Menu = () => {
         </div>
 
         {/* Menu Sections */}
-        <div className="grid md:grid-cols-2 gap-8 mb-12">
-          {/* Proteins */}
-          <Card className="shadow-card">
-            <CardHeader>
-              <CardTitle className="text-2xl font-elegant text-center">Proteins</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Baked/Smoked Chicken</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Barbecue Chicken</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Chicken Tenders</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Turkey Wings</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Chicken Alfredo</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Meatloaf</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Brisket</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Hamburgers</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Smoked Sausage</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Fried Pork Chops</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Smothered Pork Chops</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Pull Pork</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Ribs</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Low Country Boil</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Fried Chicken</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Fried Fish</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Baked Salmon</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Shrimp Alfredo</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Spaghetti</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Lasagna</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Tacos</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Chicken Wings</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Crabs</span>
-              </div>
-            </CardContent>
-          </Card>
+        <div className="mb-12">
+          <Accordion type="multiple" defaultValue={["proteins", "sides"]} className="w-full">
+            {/* Proteins */}
+            <AccordionItem value="proteins" className="border rounded-lg mb-4 shadow-card">
+              <AccordionTrigger className="px-6 py-4 hover:no-underline">
+                <h3 className="text-2xl font-elegant font-bold text-foreground">Proteins</h3>
+              </AccordionTrigger>
+              <AccordionContent className="px-6 pb-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-2 text-sm">
+                  <span>Baked/Smoked Chicken</span>
+                  <span>Barbecue Chicken</span>
+                  <span>Chicken Tenders</span>
+                  <span>Turkey Wings</span>
+                  <span>Chicken Alfredo</span>
+                  <span>Meatloaf</span>
+                  <span>Brisket</span>
+                  <span>Hamburgers</span>
+                  <span>Smoked Sausage</span>
+                  <span>Fried Pork Chops</span>
+                  <span>Smothered Pork Chops</span>
+                  <span>Pulled Pork</span>
+                  <span>Ribs</span>
+                  <span>Low Country Boil</span>
+                  <span>Fried Chicken</span>
+                  <span>Fried Fish</span>
+                  <span>Baked Salmon</span>
+                  <span>Shrimp Alfredo</span>
+                  <span>Spaghetti</span>
+                  <span>Lasagna</span>
+                  <span>Tacos</span>
+                  <span>Chicken Wings</span>
+                  <span>Crabs</span>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
 
-          {/* Sides */}
-          <Card className="shadow-card">
-            <CardHeader>
-              <CardTitle className="text-2xl font-elegant text-center">Sides</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Macaroni Salad</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Potato Salad</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Sweet Peas w/ Corn</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Green Beans w/ Potatoes</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Yams</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">White Rice</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Yellow Rice</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Dirty Rice</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Rice w/ Peas</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Rice w/ Gravy</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Macaroni & Cheese</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Cabbage</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Garden Salad</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Caesar Salad</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Baked Beans</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Mashed Potatoes & Gravy</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Corn</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Vegetable Medley</span>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+            {/* Sides */}
+            <AccordionItem value="sides" className="border rounded-lg mb-4 shadow-card">
+              <AccordionTrigger className="px-6 py-4 hover:no-underline">
+                <h3 className="text-2xl font-elegant font-bold text-foreground">Sides</h3>
+              </AccordionTrigger>
+              <AccordionContent className="px-6 pb-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-2 text-sm">
+                  <span>Macaroni Salad</span>
+                  <span>Potato Salad</span>
+                  <span>Sweet Peas w/ Corn</span>
+                  <span>Green Beans w/ Potatoes</span>
+                  <span>Yams</span>
+                  <span>White Rice</span>
+                  <span>Yellow Rice</span>
+                  <span>Dirty Rice</span>
+                  <span>Rice w/ Peas</span>
+                  <span>Rice w/ Gravy</span>
+                  <span>Macaroni & Cheese</span>
+                  <span>Cabbage</span>
+                  <span>Garden Salad</span>
+                  <span>Caesar Salad</span>
+                  <span>Baked Beans</span>
+                  <span>Mashed Potatoes & Gravy</span>
+                  <span>Corn</span>
+                  <span>Vegetable Medley</span>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
 
-        {/* Appetizers & Vegetarian Options */}
-        <div className="grid md:grid-cols-2 gap-8 mb-12">
-          {/* Appetizers */}
-          <Card className="shadow-card">
-            <CardHeader>
-              <CardTitle className="text-2xl font-elegant text-center">Appetizers</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Fruit Platter</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Cheese Platter</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Meat Platter</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Charcuterie Board</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Tuna Salad</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Grazing Table</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Chocolate Covered Fruit Platter</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Chicken Sliders</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Pulled Pork Sliders</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Meatballs</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Deviled Eggs</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Chicken Salad</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Vegetable Platter</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Mini Chicken & Waffles</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Tomato Caprese</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Mini Loaded Potatoes</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Tomato Bruschetta</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Shrimp Deviled Eggs w/Bacon Finish</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Smoked Salmon Cucumber Bites</span>
-              </div>
-            </CardContent>
-          </Card>
+            {/* Appetizers */}
+            <AccordionItem value="appetizers" className="border rounded-lg mb-4 shadow-card">
+              <AccordionTrigger className="px-6 py-4 hover:no-underline">
+                <h3 className="text-2xl font-elegant font-bold text-foreground">Appetizers</h3>
+              </AccordionTrigger>
+              <AccordionContent className="px-6 pb-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-2 text-sm">
+                  <span>Fruit Platter</span>
+                  <span>Cheese Platter</span>
+                  <span>Meat Platter</span>
+                  <span>Charcuterie Board</span>
+                  <span>Tuna Salad</span>
+                  <span>Grazing Table</span>
+                  <span>Chocolate Covered Fruit Platter</span>
+                  <span>Chicken Sliders</span>
+                  <span>Pulled Pork Sliders</span>
+                  <span>Meatballs</span>
+                  <span>Deviled Eggs</span>
+                  <span>Chicken Salad</span>
+                  <span>Vegetable Platter</span>
+                  <span>Mini Chicken & Waffles</span>
+                  <span>Tomato Caprese</span>
+                  <span>Mini Loaded Potatoes</span>
+                  <span>Tomato Bruschetta</span>
+                  <span>Shrimp Deviled Eggs w/Bacon Finish</span>
+                  <span>Smoked Salmon Cucumber Bites</span>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
 
-          {/* Vegetarian Options */}
-          <Card className="shadow-card">
-            <CardHeader>
-              <CardTitle className="text-2xl font-elegant text-center">Vegetarian Options</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Patties w/ Gravy</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Burger</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Hot Dogs</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Lasagna</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Spaghetti</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="font-medium">Meat Loaf</span>
-              </div>
-            </CardContent>
-          </Card>
+            {/* Vegetarian Options */}
+            <AccordionItem value="vegetarian" className="border rounded-lg mb-4 shadow-card">
+              <AccordionTrigger className="px-6 py-4 hover:no-underline">
+                <h3 className="text-2xl font-elegant font-bold text-foreground">Vegetarian Options</h3>
+              </AccordionTrigger>
+              <AccordionContent className="px-6 pb-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-2 text-sm">
+                  <span>Patties w/ Gravy</span>
+                  <span>Burger</span>
+                  <span>Hot Dogs</span>
+                  <span>Lasagna</span>
+                  <span>Spaghetti</span>
+                  <span>Meat Loaf</span>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </div>
 
         {/* Desserts */}
