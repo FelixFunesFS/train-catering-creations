@@ -2,12 +2,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const PoultrySeafoodCard = () => {
   const poultryItems = [
-    "Baked/Smoked Chicken", "Barbecue Chicken", "Fried Chicken", 
-    "Chicken Tenders", "Chicken Wings", "Chicken Alfredo", "Turkey Wings"
+    "Baked Chicken", "Smoked Chicken", "Barbecue Chicken", "Fried Chicken", 
+    "Chicken Tenders", "Chicken Wings", "Turkey Wings"
   ];
 
   const seafoodItems = [
-    { name: "Low Country Boil", desc: "Traditional Southern seafood boil" },
+    { name: "Chicken Alfredo", desc: "Creamy alfredo pasta with tender chicken" },
+    { name: "Low Country Boil", desc: "Traditional Southern seafood medley" },
     { name: "Baked Salmon", desc: "Fresh Atlantic salmon with herbs" },
     { name: "Fried Fish", desc: "Golden fried fish fillets" },
     { name: "Shrimp Alfredo", desc: "Succulent shrimp in creamy alfredo" },
@@ -20,27 +21,29 @@ const PoultrySeafoodCard = () => {
         <CardTitle className="text-2xl font-elegant text-foreground">Poultry & Seafood</CardTitle>
         <div className="w-12 h-0.5 bg-gradient-primary mx-auto mt-2"></div>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div>
-          <h3 className="text-base font-semibold text-foreground mb-3 text-center">Poultry Favorites</h3>
-          <div className="space-y-2">
-            {poultryItems.map((item, index) => (
-              <div key={index} className="text-sm text-foreground border-b border-muted/40 pb-3 last:border-b-0">
-                {item}
-              </div>
-            ))}
+      <CardContent className="h-full">
+        <div className="max-h-80 overflow-y-auto space-y-4">
+          <div>
+            <h3 className="text-base font-semibold text-foreground mb-3 text-center">Poultry Favorites</h3>
+            <div className="space-y-2">
+              {poultryItems.map((item, index) => (
+                <div key={index} className="text-sm text-foreground border-b border-muted/40 pb-2 last:border-b-0">
+                  {item}
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-        
-        <div>
-          <h3 className="text-base font-semibold text-foreground mb-3 text-center">Fresh Seafood</h3>
-          <div className="space-y-4">
-            {seafoodItems.map((item, index) => (
-              <div key={index} className="border-b border-muted/40 pb-3 last:border-b-0">
-                <h4 className="text-sm font-medium text-foreground">{item.name}</h4>
-                <p className="text-xs text-muted-foreground mt-1 italic leading-relaxed">{item.desc}</p>
-              </div>
-            ))}
+          
+          <div>
+            <h3 className="text-base font-semibold text-foreground mb-3 text-center">Seafood & Pasta</h3>
+            <div className="space-y-3">
+              {seafoodItems.map((item, index) => (
+                <div key={index} className="border-b border-muted/40 pb-3 last:border-b-0">
+                  <h4 className="text-sm font-medium text-foreground">{item.name}</h4>
+                  <p className="text-xs text-muted-foreground mt-1 italic leading-relaxed">{item.desc}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </CardContent>

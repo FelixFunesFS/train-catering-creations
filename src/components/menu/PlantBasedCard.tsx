@@ -2,12 +2,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const PlantBasedCard = () => {
   const plantBasedItems = [
-    { name: "Vegetarian Patties w/ Gravy", desc: "House-made patties served with rich, savory gravy" },
-    { name: "Plant-Based Burger", desc: "Hearty veggie burger with all the fixings" },
-    { name: "Vegetarian Hot Dogs", desc: "Plant-based dogs with your choice of toppings" },
-    { name: "Vegetarian Lasagna", desc: "Layers of pasta with vegetables and cheese" },
-    { name: "Vegetarian Spaghetti", desc: "Classic pasta with marinara or pesto sauce" },
-    { name: "Vegetarian Meatloaf", desc: "Plant-based comfort food that satisfies" }
+    { name: "Vegetarian Patties w/ Gravy", desc: "House-made patties with savory gravy" },
+    { name: "Plant-Based Burger", desc: "Hearty veggie burger with fixings" },
+    { name: "Vegetarian Hot Dogs", desc: "Plant-based with choice of toppings" },
+    { name: "Vegetarian Lasagna", desc: "Layered pasta with vegetables & cheese" },
+    { name: "Vegetarian Spaghetti", desc: "With marinara or pesto sauce" },
+    { name: "Vegetarian Meatloaf", desc: "Plant-based comfort food" }
   ];
 
   return (
@@ -17,8 +17,8 @@ const PlantBasedCard = () => {
         <div className="w-12 h-0.5 bg-gradient-primary mx-auto mt-2"></div>
         <p className="text-muted-foreground text-sm italic mt-2">Delicious alternatives for our vegetarian guests</p>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
+      <CardContent className="h-full">
+        <div className="max-h-80 overflow-y-auto space-y-4">
           {plantBasedItems.map((item, index) => (
             <div key={index} className="border-b border-muted/40 pb-3 last:border-b-0">
               <div>

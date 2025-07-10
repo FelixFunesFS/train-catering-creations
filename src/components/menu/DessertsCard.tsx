@@ -3,14 +3,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 const DessertsCard = () => {
   const dessertItems = [
     { name: "Brownies", desc: "Rich, fudgy brownies made from scratch" },
-    { name: "Red Velvet Cake", desc: "Classic Southern favorite with cream cheese frosting" },
-    { name: "Vanilla Cake", desc: "Light and fluffy vanilla cake with buttercream" },
-    { name: "Chocolate Cake", desc: "Decadent chocolate cake for chocolate lovers" },
-    { name: "Strawberry Cake", desc: "Fresh strawberry cake with seasonal berries" },
-    { name: "Carrot Cake", desc: "Spiced carrot cake with cream cheese frosting" },
-    { name: "Cheesecake", desc: "Creamy New York style cheesecake" },
+    { name: "Red Velvet Cake", desc: "Southern favorite with cream cheese frosting" },
+    { name: "Vanilla Cake", desc: "Light & fluffy with buttercream" },
+    { name: "Chocolate Cake", desc: "Decadent cake for chocolate lovers" },
+    { name: "Strawberry Cake", desc: "Fresh cake with seasonal berries" },
+    { name: "Carrot Cake", desc: "Spiced with cream cheese frosting" },
+    { name: "Cheesecake", desc: "Creamy New York style" },
     { name: "Cupcakes", desc: "Individual treats in various flavors" },
-    { name: "Banana Pudding", desc: "Traditional Southern banana pudding" },
+    { name: "Banana Pudding", desc: "Traditional Southern favorite" },
     { name: "Dessert Shooters", desc: "Mini desserts perfect for events" }
   ];
 

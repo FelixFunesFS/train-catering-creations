@@ -3,8 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 const SideDishesCard = () => {
   const riceItems = ["White Rice", "Yellow Rice", "Dirty Rice", "Rice w/ Peas", "Rice w/ Gravy"];
   const vegetableItems = ["Green Beans w/ Potatoes", "Sweet Peas w/ Corn", "Cabbage", "Yams", "Vegetable Medley", "Corn"];
-  const classicItems = ["Macaroni & Cheese", "Mashed Potatoes & Gravy", "Baked Beans", "Macaroni Salad", "Potato Salad"];
-  const saladItems = ["Garden Salad", "Caesar Salad"];
+  const classicItems = ["Macaroni & Cheese", "Mashed Potatoes & Gravy", "Baked Beans"];
+  const saladItems = ["Garden Salad", "Caesar Salad", "Macaroni Salad", "Potato Salad"];
 
   return (
     <Card className="shadow-elegant hover:shadow-lg transition-all duration-300 hover:-translate-y-1 bg-gradient-card">
@@ -13,8 +13,8 @@ const SideDishesCard = () => {
         <div className="w-12 h-0.5 bg-gradient-primary mx-auto mt-2"></div>
         <p className="text-muted-foreground text-sm italic mt-2">Complement your meal with our signature sides</p>
       </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <CardContent className="h-full">
+        <div className="max-h-80 overflow-y-auto grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-4">
             <div>
               <h3 className="text-base font-semibold text-foreground mb-3 text-center">Rice & Grains</h3>
@@ -46,7 +46,7 @@ const SideDishesCard = () => {
             </div>
             
             <div>
-              <h3 className="text-base font-semibold text-foreground mb-3 text-center">Garden Salads</h3>
+              <h3 className="text-base font-semibold text-foreground mb-3 text-center">Salads</h3>
               <div className="space-y-2">
                 {saladItems.map((item, index) => (
                   <div key={index} className="text-sm text-foreground border-b border-muted/40 pb-2 last:border-b-0">{item}</div>
