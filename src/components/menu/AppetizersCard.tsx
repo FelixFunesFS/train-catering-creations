@@ -9,7 +9,18 @@ const AppetizersCard = () => {
     { name: "Smoked Salmon Cucumber Bites", desc: "Premium salmon on fresh cucumber" },
     { name: "Tomato Caprese", desc: "Fresh mozzarella, basil & vine-ripened tomatoes" },
     { name: "Mini Loaded Potatoes", desc: "Crispy skins with cheese, bacon & chives" },
-    { name: "Grazing Table", desc: "Abundant spread perfect for sharing" }
+    { name: "Grazing Table", desc: "Abundant spread perfect for sharing" },
+    { name: "Fruit Platter", desc: "Fresh seasonal fruits beautifully arranged" },
+    { name: "Cheese Platter", desc: "Selection of fine cheeses with crackers" },
+    { name: "Chicken Sliders", desc: "Mini sandwiches with tender chicken" },
+    { name: "Meat Platter", desc: "Assorted premium deli meats" },
+    { name: "Pulled Pork Sliders", desc: "Smoky pork on mini buns" },
+    { name: "Meatballs", desc: "Homestyle meatballs in savory sauce" },
+    { name: "Tomato Bruschetta", desc: "Toasted bread with fresh tomato topping" },
+    { name: "Tuna Salad", desc: "Classic tuna salad with fresh herbs" },
+    { name: "Deviled Eggs", desc: "Traditional Southern-style deviled eggs" },
+    { name: "Chicken Salad", desc: "Creamy chicken salad with celery & herbs" },
+    { name: "Vegetable Platter", desc: "Fresh crisp vegetables with dip" }
   ];
 
   return (
