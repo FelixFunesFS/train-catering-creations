@@ -1,9 +1,8 @@
 import MenuHeader from "@/components/menu/MenuHeader";
 import AppetizersCard from "@/components/menu/AppetizersCard";
-import PoultrySeafoodCard from "@/components/menu/PoultrySeafoodCard";
-import BeefPorkCard from "@/components/menu/BeefPorkCard";
-import SideDishesCard from "@/components/menu/SideDishesCard";
+import EntreesCard from "@/components/menu/EntreesCard";
 import PlantBasedCard from "@/components/menu/PlantBasedCard";
+import SideDishesCard from "@/components/menu/SideDishesCard";
 import DessertsCard from "@/components/menu/DessertsCard";
 import MenuContact from "@/components/menu/MenuContact";
 
@@ -13,29 +12,22 @@ const Menu = () => {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <MenuHeader />
 
-        {/* Card Grid Menu */}
+        {/* Full Width Menu Cards */}
         <div className="space-y-8">
-          {/* First Row - Appetizers & Poultry */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <AppetizersCard />
-            <PoultrySeafoodCard />
-          </div>
+          {/* Appetizers - Full Width */}
+          <AppetizersCard />
           
-          {/* Second Row - Beef & Plant-Based */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <BeefPorkCard />
-            <PlantBasedCard />
-          </div>
+          {/* Main Entrees - Full Width */}
+          <EntreesCard />
           
-          {/* Third Row - Side Dishes Full Width */}
-          <div className="w-full">
-            <SideDishesCard />
-          </div>
+          {/* Plant-Based Options - Full Width */}
+          <PlantBasedCard />
           
-          {/* Full Width Desserts Showcase */}
-          <div className="max-w-6xl mx-auto">
-            <DessertsCard />
-          </div>
+          {/* Side Dishes - Full Width */}
+          <SideDishesCard />
+          
+          {/* Desserts - Full Width */}
+          <DessertsCard />
         </div>
 
         {/* Contact for Custom Menu */}

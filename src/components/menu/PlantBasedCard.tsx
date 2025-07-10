@@ -18,7 +18,7 @@ const PlantBasedCard = () => {
         <p className="text-muted-foreground text-sm italic mt-2">Delicious alternatives for our vegetarian guests</p>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {plantBasedItems.map((item, index) => (
             <div key={index} className="border-b border-muted/40 pb-2 last:border-b-0">
               <h4 className="text-sm font-medium text-foreground">{item.name}</h4>
