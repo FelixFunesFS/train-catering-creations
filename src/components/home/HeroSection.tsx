@@ -48,11 +48,6 @@ export const HeroSection = () => {
       position: "object-center"
     },
     {
-      src: "/lovable-uploads/161b6b76-8d2e-41ff-836d-ff072af6c4b7.png",
-      alt: "Individual dessert presentations with elegant plating and cupcake tower",
-      position: "object-center"
-    },
-    {
       src: "/lovable-uploads/ae0c2001-6164-4fc6-9163-6219c2aa790e.png",
       alt: "Outdoor tent wedding reception with elegant table settings and lighting",
       position: "object-center"
