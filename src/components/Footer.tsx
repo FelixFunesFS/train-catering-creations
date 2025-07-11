@@ -20,7 +20,7 @@ export const Footer = () => {
     "Private Events",
     "Holiday Parties",
     "Funeral Repasts",
-    "Soul Food Specialties"
+    "Custom Menus"
   ];
 
   return (
