@@ -12,17 +12,17 @@ export const HeroSection = () => {
     alt: "Elegant wedding dessert table with tiered cake, neon signage, and gourmet treats",
     title: "Wedding Reception"
   }, {
-    src: "/lovable-uploads/ca9734ef-7643-4b4c-913b-eeec8c80237d.png",
-    alt: "Professional chafing dishes setup with elegant catering display",
-    title: "Buffet Service"
+    src: "/lovable-uploads/0703365f-22eb-4c4d-b258-4a2c8a23b63a.png",
+    alt: "Rustic venue buffet setup with chafing dishes and atmospheric lighting",
+    title: "Venue Setup"
   }, {
     src: "/lovable-uploads/9332d2dd-3c00-48bb-ba3d-17b943a78ad2.png",
     alt: "Grand formal event space with multiple tables and floral arrangements",
     title: "Formal Events"
   }, {
-    src: "/lovable-uploads/0703365f-22eb-4c4d-b258-4a2c8a23b63a.png",
-    alt: "Rustic venue buffet setup with chafing dishes and atmospheric lighting",
-    title: "Venue Setup"
+    src: "/lovable-uploads/ca9734ef-7643-4b4c-913b-eeec8c80237d.png",
+    alt: "Professional chafing dishes setup with elegant catering display",
+    title: "Buffet Service"
   }];
 
   // Additional images for rotation
