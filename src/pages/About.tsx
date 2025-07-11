@@ -1,5 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { Users, Phone, Mail, MapPin } from "lucide-react";
 
 const About = () => {
   return (
@@ -7,6 +8,11 @@ const About = () => {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-16">
+          <div className="flex justify-center mb-6">
+            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
+              <Users className="w-8 h-8 text-primary" />
+            </div>
+          </div>
           <h1 className="text-4xl lg:text-5xl font-elegant font-bold text-foreground mb-8">
             About Soul Train's Eatery
           </h1>
