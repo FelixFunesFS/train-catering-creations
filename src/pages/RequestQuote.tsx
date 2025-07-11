@@ -47,9 +47,9 @@ const RequestQuote = () => {
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-12">
+        <div className="grid lg:grid-cols-2 gap-16">
           {/* Contact Form */}
-          <div className="lg:col-span-2">
+          <div className="order-2 lg:order-1">
             <Card className="shadow-elegant">
               <CardHeader>
                 <CardTitle className="text-2xl font-elegant">Event Details</CardTitle>
@@ -170,65 +170,98 @@ const RequestQuote = () => {
           </div>
 
           {/* Contact Information */}
-          <div className="space-y-8">
-            <Card className="shadow-card">
-              <CardHeader>
-                <CardTitle className="text-xl font-elegant">Contact Information</CardTitle>
+          <div className="order-1 lg:order-2 space-y-8">
+            <Card className="shadow-elegant border-primary/10">
+              <CardHeader className="pb-8">
+                <CardTitle className="text-2xl font-elegant text-center">Get In Touch</CardTitle>
+                <div className="w-16 h-1 bg-gradient-primary mx-auto mt-4"></div>
               </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="flex items-center space-x-4">
-                  <Phone className="h-5 w-5 text-primary" />
-                  <div>
-                    <p className="font-medium">Phone</p>
-                    <a href="tel:8439700265" className="text-primary hover:text-primary-glow">
+              <CardContent className="space-y-8 px-8 pb-8">
+                <div className="flex items-start space-x-6 group hover:bg-primary-light/30 p-4 rounded-lg transition-all duration-300">
+                  <div className="bg-primary/10 p-3 rounded-full group-hover:bg-primary/20 transition-colors">
+                    <Phone className="h-6 w-6 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-semibold text-lg mb-2">Phone</p>
+                    <a href="tel:8439700265" className="text-primary hover:text-primary-glow font-medium text-lg">
                       (843) 970-0265
                     </a>
+                    <p className="text-muted-foreground text-sm mt-1">Available for immediate consultation</p>
                   </div>
                 </div>
-                <div className="flex items-center space-x-4">
-                  <Mail className="h-5 w-5 text-primary" />
-                  <div>
-                    <p className="font-medium">Email</p>
-                    <a href="mailto:soultrainseatery@gmail.com" className="text-primary hover:text-primary-glow text-sm">
+                
+                <div className="flex items-start space-x-6 group hover:bg-primary-light/30 p-4 rounded-lg transition-all duration-300">
+                  <div className="bg-primary/10 p-3 rounded-full group-hover:bg-primary/20 transition-colors">
+                    <Mail className="h-6 w-6 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-semibold text-lg mb-2">Email</p>
+                    <a href="mailto:soultrainseatery@gmail.com" className="text-primary hover:text-primary-glow font-medium break-all">
                       soultrainseatery@gmail.com
                     </a>
+                    <p className="text-muted-foreground text-sm mt-1">Send us your event details</p>
                   </div>
                 </div>
-                <div className="flex items-center space-x-4">
-                  <MapPin className="h-5 w-5 text-primary" />
-                  <div>
-                    <p className="font-medium">Service Area</p>
-                    <p className="text-muted-foreground text-sm">Charleston, SC & Lowcountry</p>
+                
+                <div className="flex items-start space-x-6 group hover:bg-primary-light/30 p-4 rounded-lg transition-all duration-300">
+                  <div className="bg-primary/10 p-3 rounded-full group-hover:bg-primary/20 transition-colors">
+                    <MapPin className="h-6 w-6 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-semibold text-lg mb-2">Service Area</p>
+                    <p className="text-foreground font-medium">Charleston, SC & Lowcountry</p>
+                    <p className="text-muted-foreground text-sm mt-1">We travel throughout the region</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="shadow-card">
-              <CardHeader>
-                <CardTitle className="text-xl font-elegant">What to Expect</CardTitle>
+            <Card className="shadow-elegant bg-gradient-to-br from-primary-light to-primary-light/50 border-primary/20">
+              <CardHeader className="pb-6">
+                <CardTitle className="text-xl font-elegant text-center text-primary">What to Expect</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4 text-sm text-muted-foreground">
-                <div className="flex items-start space-x-3">
-                  <Calendar className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                  <span>We'll respond within 24 hours</span>
+              <CardContent className="space-y-6 px-8 pb-8">
+                <div className="flex items-start space-x-4">
+                  <div className="bg-primary/20 p-2 rounded-full">
+                    <Calendar className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-primary">Quick Response</p>
+                    <p className="text-primary/80 text-sm">We'll respond within 24 hours</p>
+                  </div>
                 </div>
-                <div className="flex items-start space-x-3">
-                  <Users className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                  <span>Personal consultation to discuss your needs</span>
+                <div className="flex items-start space-x-4">
+                  <div className="bg-primary/20 p-2 rounded-full">
+                    <Users className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-primary">Personal Consultation</p>
+                    <p className="text-primary/80 text-sm">Detailed discussion of your needs</p>
+                  </div>
                 </div>
-                <div className="flex items-start space-x-3">
-                  <MapPin className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                  <span>Customized proposal with pricing</span>
+                <div className="flex items-start space-x-4">
+                  <div className="bg-primary/20 p-2 rounded-full">
+                    <MapPin className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-primary">Custom Proposal</p>
+                    <p className="text-primary/80 text-sm">Tailored pricing and menu options</p>
+                  </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="shadow-card bg-primary-light">
-              <CardContent className="p-6 text-center">
-                <p className="text-primary font-medium text-sm">
-                  🎉 Ready to book? Call us directly for immediate assistance!
+            <Card className="shadow-elegant bg-gradient-primary border-0">
+              <CardContent className="p-8 text-center">
+                <p className="text-primary-foreground font-semibold text-lg mb-2">
+                  🎉 Ready to book immediately?
                 </p>
+                <p className="text-primary-foreground/90 text-sm mb-4">
+                  Call us directly for instant assistance and availability!
+                </p>
+                <a href="tel:8439700265" className="inline-block bg-primary-foreground text-primary px-6 py-3 rounded-full font-semibold hover:shadow-glow transition-all duration-300 transform hover:scale-105">
+                  Call Now: (843) 970-0265
+                </a>
               </CardContent>
             </Card>
           </div>
