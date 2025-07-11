@@ -17,14 +17,8 @@ export const ServicesSection = () => {
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
           <Card className="shadow-card text-center hover:shadow-elegant transition-shadow overflow-hidden group">
-            <div className="relative h-32 overflow-hidden">
-              <img 
-                src="/lovable-uploads/894051bf-31c6-4930-bb88-e3e1d74f7ee1.png" 
-                alt="Rustic wedding venue with chandeliers" 
-                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-black/40" />
-              <Heart className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 h-8 w-8 text-white" />
+            <div className="relative h-32 bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
+              <Heart className="h-12 w-12 text-primary group-hover:scale-110 transition-transform duration-300" />
             </div>
             <CardContent className="p-8">
               <h3 className="text-xl font-elegant font-semibold text-foreground mb-4">Weddings</h3>
@@ -36,14 +30,8 @@ export const ServicesSection = () => {
           </Card>
 
           <Card className="shadow-card text-center hover:shadow-elegant transition-shadow overflow-hidden group">
-            <div className="relative h-32 overflow-hidden">
-              <img 
-                src="/lovable-uploads/a68ac24e-cf0d-4941-9059-568c9b92bebf.png" 
-                alt="Grand banquet hall with gold accents" 
-                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-black/40" />
-              <Crown className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 h-8 w-8 text-white" />
+            <div className="relative h-32 bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
+              <Crown className="h-12 w-12 text-primary group-hover:scale-110 transition-transform duration-300" />
             </div>
             <CardContent className="p-8">
               <h3 className="text-xl font-elegant font-semibold text-foreground mb-4">Black Tie Events</h3>
@@ -55,14 +43,8 @@ export const ServicesSection = () => {
           </Card>
 
           <Card className="shadow-card text-center hover:shadow-elegant transition-shadow overflow-hidden group">
-            <div className="relative h-32 overflow-hidden">
-              <img 
-                src="/lovable-uploads/9ea8f6b7-e1cd-4f55-a434-1ffedf0b96dc.png" 
-                alt="Military formal ceremony with decorative arch" 
-                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-black/40" />
-              <Star className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 h-8 w-8 text-white" />
+            <div className="relative h-32 bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
+              <Star className="h-12 w-12 text-primary group-hover:scale-110 transition-transform duration-300" />
             </div>
             <CardContent className="p-8">
               <h3 className="text-xl font-elegant font-semibold text-foreground mb-4">Military Functions</h3>
@@ -74,14 +56,8 @@ export const ServicesSection = () => {
           </Card>
 
           <Card className="shadow-card text-center hover:shadow-elegant transition-shadow overflow-hidden group">
-            <div className="relative h-32 overflow-hidden">
-              <img 
-                src="/lovable-uploads/531de58a-4283-4d7c-882c-a78b6cdc97c0.png" 
-                alt="Professional patriotic buffet setup" 
-                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-black/40" />
-              <Users className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 h-8 w-8 text-white" />
+            <div className="relative h-32 bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
+              <Users className="h-12 w-12 text-primary group-hover:scale-110 transition-transform duration-300" />
             </div>
             <CardContent className="p-8">
               <h3 className="text-xl font-elegant font-semibold text-foreground mb-4">Private Events</h3>
