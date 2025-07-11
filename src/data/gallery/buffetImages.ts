@@ -189,5 +189,26 @@ export const buffetImages: GalleryImage[] = [
     title: "Professional Chafing Service with Meatballs",
     description: "Elegant buffet setup featuring chafing dishes with seasoned chicken, meatballs, and side dishes",
     quality: 8
+  },
+  {
+    src: "/lovable-uploads/8dc454d4-5169-44a6-a430-481c6c9582e7.png",
+    category: "buffet",
+    title: "Brick Wall Buffet with Eucalyptus",
+    description: "Sophisticated buffet setup against rustic brick wall with elegant eucalyptus garland accents",
+    quality: 9
+  },
+  {
+    src: "/lovable-uploads/92340ff8-1737-4c83-9a95-8af53f406242.png",
+    category: "buffet",
+    title: "Professional Buffet Team Service",
+    description: "Expert catering team providing professional buffet service with multiple chafing dishes",
+    quality: 9
+  },
+  {
+    src: "/lovable-uploads/90274afc-189b-431c-b864-5d18548bb5c0.png",
+    category: "buffet",
+    title: "Large Event Buffet Setup",
+    description: "Extensive buffet arrangement for large-scale events with comprehensive food selection",
+    quality: 8
   }
 ];

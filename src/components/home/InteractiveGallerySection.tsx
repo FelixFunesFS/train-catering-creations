@@ -66,6 +66,48 @@ const highQualityImages = [
     title: "Fresh Berry Tart Display",
     description: "Elegant berry tart presentation",
     category: "dessert"
+  },
+  {
+    src: "/lovable-uploads/86a73cc7-624a-4cae-8bde-af21cef9593a.png",
+    title: "Wedding Dessert Table with Neon Sign",
+    description: "Stunning wedding dessert display with Mr & Mrs neon sign",
+    category: "wedding"
+  },
+  {
+    src: "/lovable-uploads/7f22e72c-441b-4b6c-9525-56748107fdd5.png",
+    title: "Elegant Dessert Shooters",
+    description: "Premium dessert shooters with professional presentation",
+    category: "dessert"
+  },
+  {
+    src: "/lovable-uploads/8dc454d4-5169-44a6-a430-481c6c9582e7.png",
+    title: "Brick Wall Buffet with Eucalyptus",
+    description: "Sophisticated buffet against rustic brick wall",
+    category: "buffet"
+  },
+  {
+    src: "/lovable-uploads/8899d29d-45ef-4fba-97f7-51385d68d23f.png",
+    title: "Military Formal Ceremony",
+    description: "Professional military ceremony with elegant service",
+    category: "formal"
+  },
+  {
+    src: "/lovable-uploads/89b3b1b4-4845-44e7-85f7-9586bd5cdb8e.png",
+    title: "Elegant Formal Event Setup",
+    description: "Sophisticated formal event with professional presentation",
+    category: "formal"
+  },
+  {
+    src: "/lovable-uploads/92340ff8-1737-4c83-9a95-8af53f406242.png",
+    title: "Professional Buffet Team Service",
+    description: "Expert catering team providing buffet service",
+    category: "buffet"
+  },
+  {
+    src: "/lovable-uploads/84e8a135-2a5b-45ec-a57b-913b0540e56e.png",
+    title: "Premium Cupcake Display",
+    description: "Professional tiered cupcake presentation",
+    category: "dessert"
   }
 ];
 

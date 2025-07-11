@@ -105,5 +105,26 @@ export const dessertImages: GalleryImage[] = [
     title: "Multi-Tier Dessert Display Case",
     description: "Elegant tiered dessert display featuring shooters, individual cakes, and premium presentation",
     quality: 9
+  },
+  {
+    src: "/lovable-uploads/84e8a135-2a5b-45ec-a57b-913b0540e56e.png",
+    category: "desserts",
+    title: "Premium Cupcake Display",
+    description: "Professional tiered cupcake display with elegant presentation for special events",
+    quality: 9
+  },
+  {
+    src: "/lovable-uploads/7f22e72c-441b-4b6c-9525-56748107fdd5.png",
+    category: "desserts",
+    title: "Elegant Dessert Shooters",
+    description: "Beautiful dessert shooters with professional presentation and decorative garnishes",
+    quality: 10
+  },
+  {
+    src: "/lovable-uploads/70e40df6-dfac-462d-94a2-af7391d5b35c.png",
+    category: "desserts",
+    title: "Memorial Service Dessert Table",
+    description: "Tasteful memorial service dessert display with elegant presentation and comfort treats",
+    quality: 8
   }
 ];
