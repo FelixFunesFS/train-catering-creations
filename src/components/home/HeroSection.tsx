@@ -56,7 +56,7 @@ export const HeroSection = () => {
             {/* Red Logo Icon */}
             <div className="flex justify-center mb-4">
               <img 
-                src="/lovable-uploads/f16e846d-2b43-4050-84d5-ddda004233db.png" 
+                src="/lovable-uploads/3ad8c9b2-2411-43d2-ae32-de28c449b81c.png" 
                 alt="Soul Train's Eatery Logo" 
                 className="w-8 h-8 sm:w-10 sm:h-10 animate-fade-in object-contain"
               />
