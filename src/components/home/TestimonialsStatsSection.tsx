@@ -22,10 +22,10 @@ export const TestimonialsStatsSection = () => {
           {/* Statistics Side */}
           <div className="space-y-8">
             <div className="text-center lg:text-left">
-              <h2 className="text-3xl lg:text-4xl font-elegant font-bold text-primary-foreground mb-4">
+              <h2 className="text-2xl lg:text-3xl font-bold text-primary-foreground mb-4">
                 Proven Excellence
               </h2>
-              <p className="text-xl text-primary-foreground opacity-90">
+              <p className="text-lg text-primary-foreground opacity-90">
                 Numbers that speak to our commitment to exceptional catering
               </p>
             </div>
@@ -35,10 +35,10 @@ export const TestimonialsStatsSection = () => {
                 <Card key={index} className="bg-white/10 border-white/20 hover:bg-white/15 transition-all duration-300 hover:scale-105 hover:shadow-glow">
                   <CardContent className="p-8 text-center">
                     <stat.icon className="h-12 w-12 text-primary mx-auto mb-4" />
-                    <div className="text-5xl lg:text-6xl font-bold text-primary-foreground mb-2 font-elegant">
+                    <div className="text-3xl lg:text-4xl font-bold text-primary-foreground mb-2">
                       {stat.number}
                     </div>
-                    <p className="text-lg text-primary-foreground font-medium opacity-90">
+                    <p className="text-base text-primary-foreground font-medium opacity-90">
                       {stat.label}
                     </p>
                   </CardContent>
@@ -50,7 +50,7 @@ export const TestimonialsStatsSection = () => {
           {/* Review Side */}
           <div className="bg-white/10 rounded-2xl p-8 lg:p-12 border border-white/20">
             <Quote className="h-12 w-12 text-primary mb-6" />
-            <blockquote className="text-2xl lg:text-3xl font-script text-primary-foreground leading-relaxed mb-8">
+            <blockquote className="text-xl lg:text-2xl font-script text-primary-foreground leading-relaxed mb-8">
               "Soul Train's Eatery catered our wedding and it was absolutely perfect! The mac and cheese was the talk of the night, and every guest asked for the caterer's information."
             </blockquote>
             
@@ -61,10 +61,10 @@ export const TestimonialsStatsSection = () => {
             </div>
             
             <div className="border-t border-white/20 pt-6">
-              <p className="text-xl font-semibold text-primary-foreground">
+              <p className="text-lg font-semibold text-primary-foreground">
                 Sarah & Michael's Wedding
               </p>
-              <p className="text-lg text-primary-foreground opacity-75">
+              <p className="text-base text-primary-foreground opacity-75">
                 Charleston, SC
               </p>
             </div>
