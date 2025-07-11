@@ -1,5 +1,4 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
 
 const About = () => {
   return (
@@ -11,25 +10,24 @@ const About = () => {
             About Soul Train's Eatery
           </h1>
           
-          {/* Profile Image */}
-          <div className="flex justify-center mb-8">
-            <Avatar className="w-40 h-40 lg:w-48 lg:h-48 shadow-elegant">
-              <AvatarImage 
-                src="/lovable-uploads/c171cee1-bcc6-40c9-ab2e-cfb1191cba5a.png" 
-                alt="Chef Dominick 'Train' Ward and Pastry Chef Tanya Ward"
-                className="object-cover"
-              />
-            </Avatar>
-          </div>
-          
-          <p className="text-lg text-muted-foreground mb-6 font-medium">
-            Chef Dominick "Train" Ward and Pastry Chef Tanya Ward
-          </p>
-          
           <div className="w-24 h-1 bg-gradient-primary mx-auto mb-8"></div>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-12">
             Where passion meets Southern hospitality, creating unforgettable culinary experiences for over 8 flavorful years.
           </p>
+          
+          {/* Profile Image */}
+          <div className="flex justify-center mb-8">
+            <div className="max-w-md mx-auto">
+              <img 
+                src="/lovable-uploads/c171cee1-bcc6-40c9-ab2e-cfb1191cba5a.png" 
+                alt="Chef Dominick 'Train' Ward and Pastry Chef Tanya Ward"
+                className="w-full h-auto rounded-xl shadow-elegant object-contain"
+              />
+              <p className="text-lg text-muted-foreground mt-4 font-medium text-center">
+                Chef Dominick "Train" Ward and Pastry Chef Tanya Ward
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Main Story */}
