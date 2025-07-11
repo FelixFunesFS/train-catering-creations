@@ -1,4 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 
 const About = () => {
   return (
@@ -16,17 +17,17 @@ const About = () => {
           </p>
           
           {/* Profile Image */}
-          <div className="flex justify-center mb-8">
-            <div className="max-w-md mx-auto">
-              <img 
+          <div className="flex flex-col items-center mb-8">
+            <Avatar className="w-48 h-48 lg:w-56 lg:h-56 shadow-elegant border-4 border-background">
+              <AvatarImage 
                 src="/lovable-uploads/c171cee1-bcc6-40c9-ab2e-cfb1191cba5a.png" 
                 alt="Chef Dominick 'Train' Ward and Pastry Chef Tanya Ward"
-                className="w-full h-auto rounded-xl shadow-elegant object-contain"
+                className="object-cover object-center"
               />
-              <p className="text-lg text-muted-foreground mt-4 font-medium text-center">
-                Chef Dominick "Train" Ward and Pastry Chef Tanya Ward
-              </p>
-            </div>
+            </Avatar>
+            <p className="text-lg text-muted-foreground mt-4 font-medium text-center">
+              Chef Dominick "Train" Ward and Pastry Chef Tanya Ward
+            </p>
           </div>
         </div>
 
