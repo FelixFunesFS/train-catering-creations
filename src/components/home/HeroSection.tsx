@@ -28,16 +28,6 @@ export const HeroSection = () => {
       position: "object-center"
     },
     {
-      src: "/lovable-uploads/ad203b16-cedb-430a-be39-c32a262ebebd.png",
-      alt: "Artisanal grazing board with fresh fruits, premium cheeses, and gourmet selections",
-      position: "object-center"
-    },
-    {
-      src: "/lovable-uploads/ed173b87-f34a-40e4-848c-44cd6fca316f.png",
-      alt: "Elaborate charcuterie display with artisanal breads, cheeses, and fresh accompaniments",
-      position: "object-center"
-    },
-    {
       src: "/lovable-uploads/9332d2dd-3c00-48bb-ba3d-17b943a78ad2.png",
       alt: "Grand formal event space with multiple tables and floral arrangements",
       position: "object-top"
@@ -45,11 +35,6 @@ export const HeroSection = () => {
     {
       src: "/lovable-uploads/cb0a7324-9db0-427f-b582-e49bb5c15f87.png",
       alt: "Professional buffet service with grilled specialties and hot entrees",
-      position: "object-center"
-    },
-    {
-      src: "/lovable-uploads/ae0c2001-6164-4fc6-9163-6219c2aa790e.png",
-      alt: "Outdoor tent wedding reception with elegant table settings and lighting",
       position: "object-center"
     },
     {
