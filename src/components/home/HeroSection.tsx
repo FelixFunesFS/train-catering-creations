@@ -1,18 +1,71 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
+import { useEffect, useState } from "react";
+import Autoplay from "embla-carousel-autoplay";
 
 export const HeroSection = () => {
+  const heroImages = [
+    {
+      src: "/lovable-uploads/ca9734ef-7643-4b4c-913b-eeec8c80237d.png",
+      alt: "Professional chafing dishes setup with elegant catering display"
+    },
+    {
+      src: "/lovable-uploads/324100be-b134-4222-a2cf-4667ed370b98.png", 
+      alt: "Elegant event space with white chair covers and gold accents"
+    },
+    {
+      src: "/lovable-uploads/9332d2dd-3c00-48bb-ba3d-17b943a78ad2.png",
+      alt: "Grand formal event space with multiple tables and floral arrangements"
+    },
+    {
+      src: "/lovable-uploads/5dd8930c-34cc-4b9e-84a6-beeeb540d35e.png",
+      alt: "Wedding dessert table with custom neon sign and tiered cake"
+    },
+    {
+      src: "/lovable-uploads/bd4e5565-94d9-4973-bf7b-3deeedbfbe21.png",
+      alt: "Elegant appetizer display with beverage service and professional presentation"
+    }
+  ];
+
   return (
     <section className="min-h-screen flex flex-col lg:flex-row">
-      {/* Left Side - Hero Image */}
+      {/* Left Side - Hero Image Carousel */}
       <div className="lg:w-1/2 h-64 lg:h-screen relative overflow-hidden">
-        <img
-          src="/lovable-uploads/894051bf-31c6-4930-bb88-e3e1d74f7ee1.png"
-          alt="Rustic wedding venue with chandeliers, string lights, and elegant dining setup"
-          className="w-full h-full object-cover animate-fade-in"
-        />
-        {/* Subtle overlay for depth */}
-        <div className="absolute inset-0 bg-black/10"></div>
+        <Carousel
+          plugins={[
+            Autoplay({
+              delay: 4000,
+            }),
+          ]}
+          className="w-full h-full"
+        >
+          <CarouselContent className="h-full">
+            {heroImages.map((image, index) => (
+              <CarouselItem key={index} className="h-full">
+                <div className="relative h-full">
+                  <img
+                    src={image.src}
+                    alt={image.alt}
+                    className="w-full h-full object-cover"
+                  />
+                  {/* Gradient overlay for better text readability */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-black/20 to-transparent"></div>
+                </div>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+        </Carousel>
+        
+        {/* Navigation dots */}
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
+          {heroImages.map((_, index) => (
+            <div
+              key={index}
+              className="w-2 h-2 rounded-full bg-white/50 animate-pulse"
+            ></div>
+          ))}
+        </div>
       </div>
 
       {/* Right Side - Content */}
