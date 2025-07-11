@@ -319,7 +319,7 @@ const WeddingMenu = () => {
         </div>
 
         {/* Event Types */}
-        <div className="grid md:grid-cols-3 gap-8 mb-12">
+        <div className="grid md:grid-cols-3 gap-6 lg:gap-8 mb-12 lg:mb-16 mt-16 md:mt-20 lg:mt-24">
           <Card className="shadow-card text-center">
             <CardHeader>
               <Heart className="h-12 w-12 text-primary mx-auto mb-4" />
