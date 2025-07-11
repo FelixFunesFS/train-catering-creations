@@ -96,15 +96,17 @@ const About = () => {
         </div>
 
         {/* Mission Statement */}
-        <Card className="shadow-elegant bg-gradient-card overflow-hidden">
-          <div className="relative h-64 overflow-hidden">
+        <div className="text-center mb-8">
+          <div className="relative w-full max-w-2xl mx-auto mb-8 rounded-lg overflow-hidden shadow-elegant">
             <img 
               src="/lovable-uploads/8268fc9a-93a0-4b72-a923-95fc0f10b0c0.png" 
               alt="Chef Dominick 'Train' Ward and Tanya Ward, the founders of Soul Train's Eatery, wearing their signature red aprons"
-              className="w-full h-full object-cover object-center"
+              className="w-full h-auto object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
           </div>
+        </div>
+        
+        <Card className="shadow-elegant bg-gradient-card">
           <CardContent className="p-8 lg:p-12 text-center">
             <h3 className="text-3xl font-elegant font-bold text-foreground mb-6">
               Our Promise
