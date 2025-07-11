@@ -20,7 +20,7 @@ export const HeroSection = () => {
     alt: "Elegant formal event display with tiered appetizers and beverage service",
     title: "Formal Events"
   }, {
-    src: "/lovable-uploads/219fd936-c6cf-4585-a336-826a456494ff.png",
+    src: "/lovable-uploads/9cac9a48-0705-452d-baa8-dcb614df0935.png",
     alt: "Professional buffet service setup with chafing dishes and elegant presentation",
     title: "Buffet Service"
   }];
