@@ -161,5 +161,33 @@ export const buffetImages: GalleryImage[] = [
     title: "Elegant Chafing Service with Florals",
     description: "Professional chafing dishes with beautiful floral arrangements",
     quality: 8
+  },
+  {
+    src: "/lovable-uploads/8ba15696-f0b1-4e3d-a03a-c511e797c7b3.png",
+    category: "buffet",
+    title: "Elegant Chafing Service with Mixed Florals",
+    description: "Professional chafing dishes with beautiful mixed floral arrangements in elegant venue",
+    quality: 8
+  },
+  {
+    src: "/lovable-uploads/00794f94-e887-498c-9e70-18887bdfca1f.png",
+    category: "buffet",
+    title: "Chafing Setup with Rose Accents",
+    description: "Professional chafing dish service with red roses and elegant presentation",
+    quality: 7
+  },
+  {
+    src: "/lovable-uploads/ca7c68a6-6138-4fa3-85d3-6d9fb5bf2da2.png",
+    category: "buffet",
+    title: "Patriotic Buffet with Green Beans",
+    description: "Buffet line featuring green beans, casseroles, and chicken with patriotic flag decorations",
+    quality: 8
+  },
+  {
+    src: "/lovable-uploads/863dcfee-95d6-4e5b-a12d-6b1553bbcf58.png",
+    category: "buffet",
+    title: "Home Buffet Service",
+    description: "Extensive home buffet setup with multiple dishes served in modern kitchen setting",
+    quality: 8
   }
 ];

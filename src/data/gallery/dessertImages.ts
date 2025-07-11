@@ -70,5 +70,19 @@ export const dessertImages: GalleryImage[] = [
     title: "Dessert Display Case",
     description: "Professional dessert display case with assorted pastries and treats",
     quality: 7
+  },
+  {
+    src: "/lovable-uploads/9f908ab3-500f-481a-b35b-3fe663708efe.png",
+    category: "desserts",
+    title: "Fresh Berry Tart Display",
+    description: "Elegant tiered display of individual berry tarts with fresh strawberries and blueberries",
+    quality: 9
+  },
+  {
+    src: "/lovable-uploads/cded6622-37ad-43a0-9653-554dfaca031f.png",
+    category: "desserts",
+    title: "Individual Dessert Cups and Cupcakes",
+    description: "Professional dessert station with individual serving cups and tiered cupcake display",
+    quality: 8
   }
 ];

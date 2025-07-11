@@ -84,5 +84,19 @@ export const signatureDishesImages: GalleryImage[] = [
     title: "Golden Seasoned Chicken",
     description: "Tender chicken pieces with aromatic seasonings and decorative flower garnish",
     quality: 7
+  },
+  {
+    src: "/lovable-uploads/90274afc-189b-431c-b864-5d18548bb5c0.png",
+    category: "signature-dishes",
+    title: "Seasoned Salmon Specialty",
+    description: "Close-up of perfectly seasoned salmon fillets with herbs and spices",
+    quality: 8
+  },
+  {
+    src: "/lovable-uploads/5faa2672-7671-4e24-b9d6-c3e9e3503380.png",
+    category: "signature-dishes",
+    title: "Herb-Crusted Chicken Pieces",
+    description: "Perfectly seasoned chicken pieces with aromatic herb crust and seasonings",
+    quality: 8
   }
 ];

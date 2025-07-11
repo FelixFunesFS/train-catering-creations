@@ -78,4 +78,11 @@ export const formalImages: GalleryImage[] = [
     description: "Extensive community gathering with professional buffet service for hundreds of guests",
     quality: 5
   },
+  {
+    src: "/lovable-uploads/a68ac24e-cf0d-4941-9059-568c9b92bebf.png",
+    category: "formal",
+    title: "Grand Banquet Hall with Gold Accents",
+    description: "Elegant banquet hall event with gold linens, formal table settings, and professional service",
+    quality: 9
+  }
 ];
