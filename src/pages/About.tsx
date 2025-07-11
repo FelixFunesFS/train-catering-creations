@@ -131,18 +131,20 @@ const About = () => {
         </div>
 
         {/* Contact Info */}
-        <div className="text-center mt-12">
-          <p className="text-muted-foreground mb-4">Ready to start planning your event?</p>
-          <div className="flex flex-col sm:flex-row justify-center items-center space-y-2 sm:space-y-0 sm:space-x-8">
-            <a href="tel:8439700265" className="text-primary hover:text-primary-glow font-medium">
-              Call (843) 970-0265
-            </a>
-            <a href="mailto:soultrainseatery@gmail.com" className="text-primary hover:text-primary-glow font-medium">
-              soultrainseatery@gmail.com
-            </a>
-          </div>
-          <p className="text-sm text-muted-foreground mt-2">Charleston, SC</p>
-        </div>
+        <Card className="shadow-elegant bg-gradient-card text-center">
+          <CardContent className="p-8 lg:p-12">
+            <p className="text-xl text-muted-foreground mb-6">Ready to start planning your event?</p>
+            <div className="flex flex-col sm:flex-row justify-center items-center space-y-3 sm:space-y-0 sm:space-x-8 mb-4">
+              <a href="tel:8439700265" className="text-primary hover:text-primary-glow font-medium text-lg transition-colors">
+                📞 Call (843) 970-0265
+              </a>
+              <a href="mailto:soultrainseatery@gmail.com" className="text-primary hover:text-primary-glow font-medium text-lg transition-colors">
+                ✉️ soultrainseatery@gmail.com
+              </a>
+            </div>
+            <p className="text-muted-foreground">📍 Charleston, SC</p>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
