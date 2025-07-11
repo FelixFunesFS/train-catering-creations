@@ -287,5 +287,53 @@ export const galleryImages: GalleryImage[] = [
     category: "signature-dishes",
     title: "Salmon and Creamy Casserole",
     description: "Gourmet salmon and creamy casserole dishes with artistic edible flower presentation"
+  },
+  {
+    src: "/lovable-uploads/62171981-b3b3-4296-aaa2-8c2e03ea3a06.png",
+    category: "signature-dishes",
+    title: "Pork Chops and Grilled Chicken",
+    description: "Professional chafing service featuring tender pork chops and perfectly seasoned grilled chicken"
+  },
+  {
+    src: "/lovable-uploads/1708ddcd-bd89-4e19-a06a-e7514294a5c4.png",
+    category: "team",
+    title: "Professional Chef Team with Signature Dishes",
+    description: "Our talented chefs presenting signature entrees and banana pudding chocolate cake"
+  },
+  {
+    src: "/lovable-uploads/d8284609-c1fa-4c32-a724-b5cfd1445478.png",
+    category: "corporate",
+    title: "Corporate Event Service",
+    description: "Professional buffet service for corporate events with fresh dinner rolls and entrees"
+  },
+  {
+    src: "/lovable-uploads/10c59daf-38e2-43ef-b254-fa213c060449.png",
+    category: "buffet",
+    title: "Brick Wall Venue Buffet",
+    description: "Elegant buffet setup in charming brick venue with floral garnished dishes"
+  },
+  {
+    src: "/lovable-uploads/00a31482-e01b-4549-9cfe-350bb19f4a73.png",
+    category: "desserts",
+    title: "Memorial Celebration Dessert Table",
+    description: "Beautiful memorial service dessert display with tiered cupcakes and blue theme"
+  },
+  {
+    src: "/lovable-uploads/5cf78628-6e41-4aca-b783-2cafaa738a73.png",
+    category: "buffet",
+    title: "Brick Wall Chafing Service",
+    description: "Multiple chafing dishes with eucalyptus garland against rustic brick backdrop"
+  },
+  {
+    src: "/lovable-uploads/8186e520-1d63-4d6a-837b-2cf905ee002c.png",
+    category: "team",
+    title: "Team Buffet Service at Brick Venue",
+    description: "Our professional team providing excellent buffet service in elegant brick setting"
+  },
+  {
+    src: "/lovable-uploads/fef8f5c1-040b-4e11-9102-f04a790da932.png",
+    category: "formal",
+    title: "Elegant Purple-Themed Celebration",
+    description: "Sophisticated formal event with purple linens, brick walls, and professional table service"
   }
 ];
