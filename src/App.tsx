@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { BackToTop } from "@/components/ui/back-to-top";
 import Index from "./pages/Index";
 import About from "./pages/About";
 import Menu from "./pages/Menu";
@@ -22,7 +23,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <div className="min-h-screen bg-background font-clean flex flex-col">
+        <div className="min-h-screen bg-background font-clean flex flex-col relative">
           <Header />
           <main className="flex-1">
             <Routes>
@@ -38,6 +39,7 @@ const App = () => (
             </Routes>
           </main>
           <Footer />
+          <BackToTop />
         </div>
       </BrowserRouter>
     </TooltipProvider>

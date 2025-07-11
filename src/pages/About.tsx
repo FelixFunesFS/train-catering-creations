@@ -4,16 +4,16 @@ import { Users, Phone, Mail, MapPin } from "lucide-react";
 
 const About = () => {
   return (
-    <div className="min-h-screen bg-gradient-hero py-16">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-hero section-padding">
+      <div className="container-narrow animate-fade-in">
         {/* Header */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-16 animate-slide-up">
           <div className="flex justify-center mb-6">
-            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
+            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center hover-glow transition-all duration-300">
               <Users className="w-8 h-8 text-primary" />
             </div>
           </div>
-          <h1 className="text-4xl lg:text-5xl font-elegant font-bold text-foreground mb-8">
+          <h1 className="mb-8">
             About Soul Train's Eatery
           </h1>
           
@@ -23,12 +23,12 @@ const About = () => {
           </p>
           
           {/* Profile Image */}
-          <div className="flex flex-col items-center mb-8">
-            <div className="relative w-48 h-48 lg:w-56 lg:h-56 shadow-[0_0_30px_hsl(0_72%_50%_/_0.3)] border-8 border-white rounded-full overflow-hidden">
+          <div className="flex flex-col items-center mb-8 animate-scale-in">
+            <div className="relative w-48 h-48 lg:w-56 lg:h-56 shadow-glow border-8 border-white rounded-full overflow-hidden hover-lift group">
               <img 
                 src="/lovable-uploads/7386b87d-cf31-4aad-a072-4dc06d9d2a3a.png" 
                 alt="Chef Dominick 'Train' Ward working in the kitchen with professional expertise"
-                className="w-full h-full object-cover object-center"
+                className="image-responsive group-hover:scale-110 transition-transform duration-500"
               />
             </div>
             <p className="text-lg text-muted-foreground mt-4 font-medium text-center">
@@ -38,8 +38,8 @@ const About = () => {
         </div>
 
         {/* Main Story */}
-        <Card className="mb-12 shadow-elegant">
-          <CardContent className="p-8 lg:p-12">
+        <Card className="mb-12 shadow-elegant card-interactive">
+          <CardContent className="space-content">
             <div className="prose prose-lg max-w-none">
               <p className="text-lg leading-relaxed mb-6">
                 Soul Train's Eatery has been proudly serving the Lowcountry of South Carolina for over <strong>8 flavorful years!</strong> Founded by Chef Dominick "Train" Ward and his wife Tanya Ward—our talented Pastry Chef—Soul Train's is a family-run, community-rooted catering business where passion meets Southern hospitality.
@@ -58,9 +58,9 @@ const About = () => {
 
 
         {/* Our Specialties */}
-        <div className="grid md:grid-cols-2 gap-8 mb-12">
-          <Card className="shadow-card">
-            <CardContent className="p-8">
+        <div className="grid md:grid-cols-2 gap-6 lg:gap-8 mb-12">
+          <Card className="shadow-card card-interactive">
+            <CardContent className="space-content-sm">
               <h3 className="text-2xl font-elegant font-semibold text-foreground mb-4">
                 Signature Dishes
               </h3>
@@ -78,16 +78,16 @@ const About = () => {
             </CardContent>
           </Card>
 
-          <Card className="shadow-card overflow-hidden">
-            <div className="relative h-40 overflow-hidden">
+          <Card className="shadow-card card-interactive overflow-hidden group">
+            <div className="relative h-40 sm:h-48 overflow-hidden">
               <img 
                 src="/lovable-uploads/6fa5bcaf-1613-416b-babc-289ac84bb501.png" 
                 alt="Beautiful cupcake display by Tanya Ward featuring various flavors and elegant decorations" 
-                className="w-full h-full object-cover"
+                className="image-card group-hover:scale-110 transition-transform duration-500"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
             </div>
-            <CardContent className="p-8">
+            <CardContent className="space-content-sm">
               <h3 className="text-2xl font-elegant font-semibold text-foreground mb-4">
                 Sweet Treats by Tanya
               </h3>
@@ -102,21 +102,21 @@ const About = () => {
         </div>
 
         {/* Mission Statement */}
-        <div className="grid lg:grid-cols-2 gap-8 items-center mb-12">
+        <div className="grid lg:grid-cols-2 gap-6 lg:gap-8 items-center mb-12">
           {/* Image Section */}
-          <div className="relative">
-            <div className="relative w-full rounded-lg overflow-hidden shadow-elegant">
+          <div className="relative order-2 lg:order-1">
+            <div className="relative w-full rounded-lg overflow-hidden shadow-elegant hover-lift group">
               <img 
                 src="/lovable-uploads/8268fc9a-93a0-4b72-a923-95fc0f10b0c0.png" 
                 alt="Chef Dominick 'Train' Ward and Tanya Ward, the founders of Soul Train's Eatery, wearing their signature red aprons"
-                className="w-full h-auto object-cover"
+                className="image-responsive group-hover:scale-105 transition-transform duration-500"
               />
             </div>
           </div>
 
           {/* Promise Card */}
-          <Card className="shadow-elegant bg-gradient-card h-full">
-            <CardContent className="p-8 lg:p-12 text-center flex flex-col justify-center h-full">
+          <Card className="shadow-elegant bg-gradient-card h-full card-interactive order-1 lg:order-2">
+            <CardContent className="text-center flex flex-col justify-center h-full space-content">
               <h3 className="text-3xl font-elegant font-bold text-foreground mb-6">
                 Our Promise
               </h3>
@@ -128,27 +128,38 @@ const About = () => {
         </div>
 
         {/* Quote Section */}
-        <div className="text-center mb-12">
-          <div className="max-w-4xl mx-auto px-4">
-            <div className="text-2xl md:text-3xl lg:text-4xl font-script text-primary leading-relaxed">
+        <div className="text-center mb-12 animate-slide-up">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-2xl md:text-3xl lg:text-4xl font-script text-primary leading-relaxed hover:text-primary-glow transition-colors duration-300">
               🎉 Let Soul Train's Eatery take care of all your catering needs—so you can enjoy the celebration!
             </div>
           </div>
         </div>
 
         {/* Contact Info */}
-        <Card className="shadow-elegant bg-gradient-card text-center">
-          <CardContent className="p-8 lg:p-12">
+        <Card className="shadow-elegant bg-gradient-card text-center card-interactive">
+          <CardContent className="space-content">
             <p className="text-xl text-muted-foreground mb-6">Ready to start planning your event?</p>
             <div className="flex flex-col sm:flex-row justify-center items-center space-y-3 sm:space-y-0 sm:space-x-8 mb-4">
-              <a href="tel:8439700265" className="text-primary hover:text-primary-glow font-medium text-lg transition-colors">
-                📞 Call (843) 970-0265
+              <a 
+                href="tel:8439700265" 
+                className="text-primary hover:text-primary-glow font-medium text-lg transition-all duration-300 hover:scale-105 flex items-center gap-2"
+              >
+                <Phone className="w-5 h-5" />
+                Call (843) 970-0265
               </a>
-              <a href="mailto:soultrainseatery@gmail.com" className="text-primary hover:text-primary-glow font-medium text-lg transition-colors">
-                ✉️ soultrainseatery@gmail.com
+              <a 
+                href="mailto:soultrainseatery@gmail.com" 
+                className="text-primary hover:text-primary-glow font-medium text-lg transition-all duration-300 hover:scale-105 flex items-center gap-2"
+              >
+                <Mail className="w-5 h-5" />
+                soultrainseatery@gmail.com
               </a>
             </div>
-            <p className="text-muted-foreground">📍 Charleston, SC</p>
+            <p className="text-muted-foreground flex items-center justify-center gap-2">
+              <MapPin className="w-5 h-5" />
+              Charleston, SC
+            </p>
           </CardContent>
         </Card>
       </div>

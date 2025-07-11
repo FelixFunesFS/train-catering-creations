@@ -9,22 +9,29 @@ export const ImageModal = ({
   selectedImage,
   onClose
 }: ImageModalProps) => {
-  return <Dialog open={!!selectedImage} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl p-0 bg-transparent border-0">
+  return (
+    <Dialog open={!!selectedImage} onOpenChange={onClose}>
+      <DialogContent className="max-w-5xl p-0 bg-transparent border-0 animate-scale-in">
         <DialogTitle className="sr-only">Gallery Image</DialogTitle>
         <DialogDescription className="sr-only">Full size view of gallery image</DialogDescription>
         <div className="relative">
-          <Button variant="ghost" size="sm" className="absolute -top-12 right-0 text-white hover:text-gray-300 z-10" onClick={onClose}>
+          <Button 
+            variant="ghost" 
+            size="icon"
+            className="absolute -top-14 right-0 text-white hover:text-white/80 hover:bg-black/20 rounded-full z-10 transition-all duration-300" 
+            onClick={onClose}
+          >
             <X className="h-6 w-6" />
           </Button>
           {selectedImage && (
             <img 
               src={selectedImage} 
               alt="Gallery image" 
-              className="w-full h-auto max-h-[80vh] object-contain rounded-lg"
+              className="w-full h-auto max-h-[85vh] object-contain rounded-lg shadow-2xl"
             />
           )}
         </div>
       </DialogContent>
-    </Dialog>;
+    </Dialog>
+  );
 };

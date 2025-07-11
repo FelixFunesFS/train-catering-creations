@@ -26,25 +26,49 @@ export const Header = () => {
     href: "/reviews"
   }];
   const isActive = (path: string) => location.pathname === path;
-  return <header className="bg-background shadow-elegant sticky top-0 z-50">
+  return <header className="bg-background/95 backdrop-blur-sm shadow-elegant sticky top-0 z-50 border-b border-border">
       {/* Main navigation */}
-      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-        <div className="flex justify-between items-center py-6">
+      <div className="container-wide">
+        <div className="flex justify-between items-center py-4 lg:py-6">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-4">
-            <img src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" alt="Soul Train's Eatery Logo" className="w-8 h-8 object-contain" />
-            <div className="text-2xl lg:text-3xl font-script font-bold text-primary">Soul Train's Eatery</div>
-            
+          <Link to="/" className="flex items-center space-x-3 group">
+            <img 
+              src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
+              alt="Soul Train's Eatery Logo" 
+              className="w-8 h-8 lg:w-10 lg:h-10 object-contain transition-transform duration-300 group-hover:scale-110" 
+            />
+            <div className="text-xl sm:text-2xl lg:text-3xl font-script font-bold text-primary group-hover:text-primary-glow transition-colors duration-300">
+              Soul Train's Eatery
+            </div>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center space-x-10">
-            <nav className="flex space-x-10">
-              {navigation.map(item => <Link key={item.name} to={item.href} className={cn("text-sm font-medium transition-colors hover:text-primary py-2", isActive(item.href) ? "text-primary border-b-2 border-primary" : "text-muted-foreground")}>
+          <div className="hidden lg:flex items-center space-x-8 xl:space-x-12">
+            <nav className="flex space-x-8 xl:space-x-10">
+              {navigation.map(item => (
+                <Link 
+                  key={item.name} 
+                  to={item.href} 
+                  className={cn(
+                    "text-sm xl:text-base font-medium transition-all duration-300 py-2 px-1 relative group",
+                    isActive(item.href) 
+                      ? "text-primary" 
+                      : "text-muted-foreground hover:text-primary"
+                  )}
+                >
                   {item.name}
-                </Link>)}
+                  <span 
+                    className={cn(
+                      "absolute bottom-0 left-0 w-full h-0.5 bg-primary transition-all duration-300",
+                      isActive(item.href) 
+                        ? "scale-x-100" 
+                        : "scale-x-0 group-hover:scale-x-100"
+                    )}
+                  />
+                </Link>
+              ))}
             </nav>
-            <Button asChild className="bg-primary text-white hover:bg-primary-glow shadow-glow">
+            <Button asChild className="btn-primary">
               <Link to="/request-quote">Request Quote</Link>
             </Button>
           </div>
@@ -56,18 +80,34 @@ export const Header = () => {
         </div>
 
         {/* Mobile Navigation */}
-        {isMenuOpen && <div className="lg:hidden pb-6">
-            <nav className="flex flex-col space-y-4">
-              {navigation.map(item => <Link key={item.name} to={item.href} className={cn("text-sm font-medium transition-colors hover:text-primary px-4 py-3 rounded-md", isActive(item.href) ? "text-primary bg-primary-light" : "text-muted-foreground")} onClick={() => setIsMenuOpen(false)}>
+        {isMenuOpen && (
+          <div className="lg:hidden pb-6 border-t border-border mt-4 pt-6 animate-fade-in">
+            <nav className="flex flex-col space-y-2">
+              {navigation.map(item => (
+                <Link 
+                  key={item.name} 
+                  to={item.href} 
+                  className={cn(
+                    "text-base font-medium transition-all duration-300 px-4 py-3 rounded-lg relative overflow-hidden",
+                    isActive(item.href) 
+                      ? "text-primary bg-primary-light" 
+                      : "text-muted-foreground hover:text-primary hover:bg-accent/50"
+                  )} 
+                  onClick={() => setIsMenuOpen(false)}
+                >
                   {item.name}
-                </Link>)}
-              <Button asChild className="bg-primary text-white hover:bg-primary-glow shadow-glow mx-4">
-                <Link to="/request-quote" onClick={() => setIsMenuOpen(false)}>
-                  Request Quote
                 </Link>
-              </Button>
+              ))}
+              <div className="px-4 pt-4">
+                <Button asChild className="btn-primary w-full">
+                  <Link to="/request-quote" onClick={() => setIsMenuOpen(false)}>
+                    Request Quote
+                  </Link>
+                </Button>
+              </div>
             </nav>
-          </div>}
+          </div>
+        )}
       </div>
     </header>;
 };

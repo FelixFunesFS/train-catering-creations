@@ -8,19 +8,21 @@ interface ImageGridProps {
 
 export const ImageGrid = ({ images, onImageClick }: ImageGridProps) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+    <div className="grid grid-auto-fit gap-4 lg:gap-6 mb-12">
       {images.map((image, index) => (
         <Card 
           key={index} 
-          className="shadow-card hover:shadow-elegant transition-shadow cursor-pointer group"
+          className="card-interactive shadow-card cursor-pointer group overflow-hidden animate-fade-in"
+          style={{ animationDelay: `${index * 100}ms` }}
           onClick={() => onImageClick(image.src)}
         >
           <CardContent className="p-0">
-            <div className="relative overflow-hidden rounded-lg aspect-square">
+            <div className="relative overflow-hidden aspect-square">
               <img
                 src={image.src}
                 alt={image.title}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                className="image-card group-hover:scale-110 transition-transform duration-500"
+                loading="lazy"
                 onError={(e) => {
                   console.error(`Failed to load image: ${image.src}`, e);
                   e.currentTarget.style.backgroundColor = '#f3f4f6';
@@ -28,10 +30,10 @@ export const ImageGrid = ({ images, onImageClick }: ImageGridProps) => {
                 }}
                 onLoad={() => console.log(`Successfully loaded: ${image.src}`)}
               />
-              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-end">
-                <div className="p-4 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <h3 className="font-elegant font-semibold">{image.title}</h3>
-                  <p className="text-sm">{image.description}</p>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end">
+                <div className="p-4 text-white transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                  <h3 className="font-elegant font-semibold text-lg mb-1">{image.title}</h3>
+                  <p className="text-sm opacity-90">{image.description}</p>
                 </div>
               </div>
             </div>
