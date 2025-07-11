@@ -125,5 +125,47 @@ export const galleryImages: GalleryImage[] = [
     category: "formal",
     title: "Elegant Buffet with Florals",
     description: "Sophisticated buffet presentation with beautiful floral arrangements"
+  },
+  {
+    src: "/lovable-uploads/fad0e5e6-f1c0-4f48-814f-9b2820fc883c.png",
+    category: "desserts",
+    title: "Custom Celebration Cake",
+    description: "Beautiful custom cake with individual dessert portions for special celebrations"
+  },
+  {
+    src: "/lovable-uploads/21e40c5d-63be-49c5-8d0f-aa09b3984345.png",
+    category: "bbq",
+    title: "BBQ Specialties",
+    description: "Delicious BBQ meats and sides served in rustic style"
+  },
+  {
+    src: "/lovable-uploads/7811d4a2-0f02-4e99-9408-ef463697e1f1.png",
+    category: "buffet",
+    title: "Southern Style Buffet",
+    description: "Traditional Southern cuisine with beans, cornbread, and comfort foods"
+  },
+  {
+    src: "/lovable-uploads/0666234e-dcb9-43ef-9c29-1da16e4b5233.png",
+    category: "buffet",
+    title: "Hearty Comfort Food Spread",
+    description: "Generous portions of comfort food favorites including fried chicken and sides"
+  },
+  {
+    src: "/lovable-uploads/3373e247-7831-4889-b72a-e8f70cb13908.png",
+    category: "corporate",
+    title: "Beverage Station Setup",
+    description: "Professional beverage service with decorative drink dispensers"
+  },
+  {
+    src: "/lovable-uploads/f761a1ed-ae60-4fec-b818-62d4ee2da0cb.png",
+    category: "team",
+    title: "Professional Catering Service",
+    description: "Our coordinated team providing seamless buffet service"
+  },
+  {
+    src: "/lovable-uploads/b877859f-7725-42f2-9465-0eed4e19c5ac.png",
+    category: "team",
+    title: "Catering Team Photo",
+    description: "Our professional catering team in matching uniforms ready to serve"
   }
 ];
