@@ -68,12 +68,6 @@ const highQualityImages = [
     category: "signature"
   },
   {
-    src: "/lovable-uploads/89b3b1b4-4845-44e7-85f7-9586bd5cdb8e.png",
-    title: "Elegant Formal Event Setup",
-    description: "Sophisticated formal event with professional table service and elegant presentation",
-    category: "formal"
-  },
-  {
     src: "/lovable-uploads/84e8a135-2a5b-45ec-a57b-913b0540e56e.png",
     title: "Roasted Vegetables and Chicken",
     description: "Perfectly seasoned roasted vegetables and chicken with colorful floral garnish",
