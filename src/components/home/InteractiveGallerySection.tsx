@@ -62,12 +62,6 @@ const highQualityImages = [
     category: "signature"
   },
   {
-    src: "/lovable-uploads/3ca474e1-96d3-4e42-93a1-6a219b98e1b8.png",
-    title: "Dessert Shooters Display",
-    description: "Creative dessert shooters arrangement",
-    category: "dessert"
-  },
-  {
     src: "/lovable-uploads/9f908ab3-500f-481a-b35b-3fe663708efe.png",
     title: "Fresh Berry Tart Display",
     description: "Elegant berry tart presentation",
