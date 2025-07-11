@@ -6,9 +6,9 @@ export const HeroSection = () => {
     <section className="relative bg-gradient-hero py-24 lg:py-40 overflow-hidden">
       {/* Background Image */}
       <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-30 transition-transform duration-1000 hover:scale-105"
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-1000 hover:scale-105"
         style={{
-          backgroundImage: `url('/lovable-uploads/fef8f5c1-040b-4e11-9102-f04a790da932.png')`
+          backgroundImage: `url('/lovable-uploads/db45f284-96c9-4919-8f7c-474f1c62d822.png')`
         }}
       />
       {/* Dark Gradient Overlay for Text Readability */}
