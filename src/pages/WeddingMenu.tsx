@@ -325,8 +325,8 @@ const WeddingMenu = () => {
             <div className="relative">
               <AspectRatio ratio={4/3}>
                 <img 
-                  src="/lovable-uploads/edcf2b0c-48ce-4fa1-b126-bae69794e159.png" 
-                  alt="Elegant wedding reception setup with beautiful table arrangements"
+                  src="/lovable-uploads/269bd0e4-4a19-4f14-b966-7b3173a10b95.png" 
+                  alt="Elegant wedding reception setup with beautiful floral arrangements and draped tables"
                   className="object-cover w-full h-full"
                   loading="lazy"
                 />
@@ -348,8 +348,8 @@ const WeddingMenu = () => {
             <div className="relative">
               <AspectRatio ratio={4/3}>
                 <img 
-                  src="/lovable-uploads/88b08366-e9d1-4afc-9bb5-737debec18e8.png" 
-                  alt="Elegant outdoor catering setup with chafing dishes and professional service"
+                  src="/lovable-uploads/d4bf7685-b46c-4c39-8a28-1d003b978403.png" 
+                  alt="Elegant outdoor catering setup with chafing dishes and floral decorations"
                   className="object-cover w-full h-full"
                   loading="lazy"
                 />
@@ -371,8 +371,8 @@ const WeddingMenu = () => {
             <div className="relative">
               <AspectRatio ratio={4/3}>
                 <img 
-                  src="/lovable-uploads/11bbd70e-3036-41fa-8753-921dc14c0bab.png" 
-                  alt="Military honor guard ceremony with elegant charcuterie spread"
+                  src="/lovable-uploads/cf6d0cd4-02bd-4607-b658-14a809d30275.png" 
+                  alt="Military honor guard ceremony with elegant charcuterie board catering"
                   className="object-cover w-full h-full"
                   loading="lazy"
                 />
