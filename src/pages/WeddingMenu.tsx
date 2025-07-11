@@ -3,10 +3,10 @@ import { Heart, Star, Crown } from "lucide-react";
 
 const WeddingMenu = () => {
   return (
-    <div className="min-h-screen bg-gradient-hero py-16">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-hero py-16 md:py-20 lg:py-24">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-12 lg:mb-16">
           <div className="flex justify-center mb-4">
             <Heart className="h-8 w-8 text-primary mr-2" />
             <Crown className="h-8 w-8 text-primary mx-2" />
@@ -22,10 +22,10 @@ const WeddingMenu = () => {
         </div>
 
         {/* Menu Sections */}
-        <div className="space-y-16">
+        <div className="space-y-12 lg:space-y-16">
           {/* Hors d'Oeuvres & Small Bites */}
           <section>
-            <div className="text-center mb-12">
+            <div className="text-center mb-8 lg:mb-12">
               <h2 className="text-3xl font-elegant font-bold text-foreground mb-4">
                 Hors d'Oeuvres & Small Bites
               </h2>
@@ -137,7 +137,7 @@ const WeddingMenu = () => {
 
           {/* Signature Entrées */}
           <section>
-            <div className="text-center mb-12">
+            <div className="text-center mb-8 lg:mb-12">
               <h2 className="text-3xl font-elegant font-bold text-foreground mb-4">
                 Signature Entrées
               </h2>
@@ -235,7 +235,7 @@ const WeddingMenu = () => {
 
           {/* Artful Accompaniments */}
           <section>
-            <div className="text-center mb-12">
+            <div className="text-center mb-8 lg:mb-12">
               <h2 className="text-3xl font-elegant font-bold text-foreground mb-4">
                 Artful Accompaniments
               </h2>
@@ -358,7 +358,7 @@ const WeddingMenu = () => {
         </div>
 
         {/* Service Highlights */}
-        <div className="grid md:grid-cols-2 gap-8 mb-12">
+        <div className="grid md:grid-cols-2 gap-6 lg:gap-8 mb-12 lg:mb-16">
           <Card className="shadow-elegant">
             <CardHeader>
               <CardTitle className="text-2xl font-elegant">Premium Service Features</CardTitle>
@@ -418,7 +418,7 @@ const WeddingMenu = () => {
 
         {/* Call to Action */}
         <Card className="shadow-elegant bg-gradient-card">
-          <CardContent className="p-8 lg:p-12 text-center">
+          <CardContent className="p-6 lg:p-8 text-center">
             <h3 className="text-3xl font-elegant font-bold text-foreground mb-6">
               Let's Plan Your Perfect Event
             </h3>
