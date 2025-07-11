@@ -22,7 +22,7 @@ export const HeroSection = () => {
   }, {
     src: "/lovable-uploads/d2ed2f6e-a667-4bf2-9e28-30029d377f94.png",
     alt: "Elegant formal event display with tiered appetizers and beverage service",
-    title: "Private Gatherings"
+    title: "Brunch Events"
   }];
 
   // Additional images for rotation
