@@ -40,9 +40,9 @@ const SideDishesCard = () => {
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Rice & Grains */}
-        <div>
-          <h3 className="text-lg font-elegant text-center text-foreground mb-3">Rice & Grains</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div>
+            <h3 className="text-lg font-elegant text-center text-foreground mb-3">Rice & Grains</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {riceGrains.map((item, index) => (
               <div key={index} className="border-b border-muted/40 pb-2 last:border-b-0">
                 <h4 className="text-sm font-medium text-foreground">{item.name}</h4>
@@ -53,9 +53,9 @@ const SideDishesCard = () => {
         </div>
 
         {/* Potatoes & Comfort Sides */}
-        <div>
-          <h3 className="text-lg font-elegant text-center text-foreground mb-3">Potatoes & Comfort Sides</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div>
+            <h3 className="text-lg font-elegant text-center text-foreground mb-3">Potatoes & Comfort Sides</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {potatoesComfort.map((item, index) => (
               <div key={index} className="border-b border-muted/40 pb-2 last:border-b-0">
                 <h4 className="text-sm font-medium text-foreground">{item.name}</h4>
@@ -66,9 +66,9 @@ const SideDishesCard = () => {
         </div>
 
         {/* Fresh & Vegetables */}
-        <div>
-          <h3 className="text-lg font-elegant text-center text-foreground mb-3">Fresh & Vegetables</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div>
+            <h3 className="text-lg font-elegant text-center text-foreground mb-3">Fresh & Vegetables</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {freshVegetables.map((item, index) => (
               <div key={index} className="border-b border-muted/40 pb-2 last:border-b-0">
                 <h4 className="text-sm font-medium text-foreground">{item.name}</h4>
@@ -79,9 +79,9 @@ const SideDishesCard = () => {
         </div>
 
         {/* Salads */}
-        <div>
-          <h3 className="text-lg font-elegant text-center text-foreground mb-3">Salads</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div>
+            <h3 className="text-lg font-elegant text-center text-foreground mb-3">Salads</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {salads.map((item, index) => (
               <div key={index} className="border-b border-muted/40 pb-2 last:border-b-0">
                 <h4 className="text-sm font-medium text-foreground">{item.name}</h4>
