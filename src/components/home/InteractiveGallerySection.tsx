@@ -80,28 +80,10 @@ const highQualityImages = [
     category: "signature"
   },
   {
-    src: "/lovable-uploads/8dc454d4-5169-44a6-a430-481c6c9582e7.png",
-    title: "Brick Wall Buffet with Eucalyptus",
-    description: "Sophisticated buffet setup against rustic brick wall with elegant eucalyptus garland accents",
-    category: "buffet"
-  },
-  {
-    src: "/lovable-uploads/8899d29d-45ef-4fba-97f7-51385d68d23f.png",
-    title: "Military Formal Ceremony",
-    description: "Professional military ceremony with formal chafing dish service and ceremonial presentation",
-    category: "formal"
-  },
-  {
     src: "/lovable-uploads/89b3b1b4-4845-44e7-85f7-9586bd5cdb8e.png",
     title: "Elegant Formal Event Setup",
     description: "Sophisticated formal event with professional table service and elegant presentation",
     category: "formal"
-  },
-  {
-    src: "/lovable-uploads/92340ff8-1737-4c83-9a95-8af53f406242.png",
-    title: "Professional Buffet Team Service",
-    description: "Expert catering team providing professional buffet service with multiple chafing dishes",
-    category: "buffet"
   },
   {
     src: "/lovable-uploads/84e8a135-2a5b-45ec-a57b-913b0540e56e.png",
