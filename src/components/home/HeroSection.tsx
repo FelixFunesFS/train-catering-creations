@@ -3,36 +3,39 @@ import { Button } from "@/components/ui/button";
 
 export const HeroSection = () => {
   return (
-    <section className="relative bg-gradient-hero py-24 lg:py-40 overflow-hidden">
-      {/* Background Image */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-1000 hover:scale-105"
-        style={{
-          backgroundImage: `url('/lovable-uploads/db45f284-96c9-4919-8f7c-474f1c62d822.png')`
-        }}
-      />
-      
-      <div className="relative max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-        <div className="text-center py-8 lg:py-12">
-          <h1 className="text-5xl lg:text-7xl font-elegant font-bold text-white mb-8 drop-shadow-lg max-w-5xl mx-auto">
+    <section className="min-h-screen grid lg:grid-cols-2 overflow-hidden">
+      {/* Left Side - Text Content */}
+      <div className="bg-gradient-hero flex items-center justify-center p-6 sm:p-8 lg:p-12 order-2 lg:order-1">
+        <div className="max-w-xl text-center lg:text-left">
+          <h1 className="text-4xl lg:text-6xl xl:text-7xl font-elegant font-bold text-foreground mb-6">
             Soul Train's <span className="text-primary">Eatery</span>
           </h1>
-          <p className="text-xl lg:text-2xl text-white/90 mb-12 max-w-3xl mx-auto leading-relaxed drop-shadow-md">
+          <p className="text-lg lg:text-xl text-muted-foreground mb-8 leading-relaxed">
             Where passion meets Southern hospitality. Elegant catering for weddings, black tie events, and memorable celebrations in Charleston's Lowcountry.
           </p>
-          <div className="flex flex-col sm:flex-row justify-center items-center space-y-6 sm:space-y-0 sm:space-x-8">
+          <div className="flex flex-col sm:flex-row justify-center lg:justify-start items-center space-y-4 sm:space-y-0 sm:space-x-6">
             <Link to="/request-quote">
-              <Button className="bg-primary hover:bg-primary-glow text-primary-foreground px-10 py-5 text-lg font-medium shadow-glow">
+              <Button className="bg-primary hover:bg-primary-glow text-primary-foreground px-8 py-4 text-lg font-medium shadow-glow w-full sm:w-auto">
                 Request a Quote
               </Button>
             </Link>
             <Link to="/gallery">
-              <Button variant="outline" className="border-white text-white hover:bg-white/20 px-10 py-5 text-lg font-medium">
+              <Button variant="outline" className="px-8 py-4 text-lg font-medium w-full sm:w-auto">
                 View Our Work
               </Button>
             </Link>
           </div>
         </div>
+      </div>
+
+      {/* Right Side - Image */}
+      <div className="relative order-1 lg:order-2 min-h-[40vh] lg:min-h-screen">
+        <img
+          src="/lovable-uploads/db45f284-96c9-4919-8f7c-474f1c62d822.png"
+          alt="Soul Train's Eatery elegant buffet spread"
+          className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/20 lg:bg-gradient-to-l lg:from-transparent lg:via-transparent lg:to-background/10"></div>
       </div>
     </section>
   );
