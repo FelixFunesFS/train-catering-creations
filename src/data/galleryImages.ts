@@ -395,5 +395,41 @@ export const galleryImages: GalleryImage[] = [
     category: "wedding",
     title: "Elegant Wedding Buffet",
     description: "Beautiful outdoor wedding buffet with fresh floral arrangements and chafing dishes"
+  },
+  {
+    src: "/lovable-uploads/ebe1042e-4689-494d-8864-eb1af2c3162d.png",
+    category: "buffet",
+    title: "Blue Linen Buffet Service",
+    description: "Professional chafing dish buffet setup with elegant blue linens"
+  },
+  {
+    src: "/lovable-uploads/20756dbc-ddc5-4ffc-adfc-db4aa3fc06f8.png",
+    category: "formal",
+    title: "Large Community Event",
+    description: "Extensive community gathering with professional buffet service for hundreds of guests"
+  },
+  {
+    src: "/lovable-uploads/6ae71cc1-9efa-49ca-b188-6b182df3f8a8.png",
+    category: "team",
+    title: "Soul Train Eatery Team",
+    description: "Professional catering team from Soul Train Eatery ready to serve"
+  },
+  {
+    src: "/lovable-uploads/26d2d500-6017-41a2-99b2-b7050cefedba.png",
+    category: "wedding",
+    title: "Elegant Outdoor Wedding Tent",
+    description: "Stunning wedding reception setup with chandeliers, string lights, and formal table service"
+  },
+  {
+    src: "/lovable-uploads/b5dcca51-3179-4643-bcee-157949f54c3c.png",
+    category: "buffet",
+    title: "Outdoor Tent Buffet Setup",
+    description: "Professional outdoor buffet service under tent with labeled dishes and eucalyptus garland"
+  },
+  {
+    src: "/lovable-uploads/3ab60c01-2b27-43f3-a570-36df4a7fc88b.png",
+    category: "team",
+    title: "Chef Presenting Outdoor Buffet",
+    description: "Professional chef showcasing macaroni and green beans at outdoor tent event"
   }
 ];
