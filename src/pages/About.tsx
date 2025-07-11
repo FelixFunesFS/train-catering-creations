@@ -22,7 +22,7 @@ const About = () => {
               <AvatarImage 
                 src="/lovable-uploads/c171cee1-bcc6-40c9-ab2e-cfb1191cba5a.png" 
                 alt="Chef Dominick 'Train' Ward and Pastry Chef Tanya Ward"
-                className="object-cover object-center"
+                className="object-cover object-top"
               />
             </Avatar>
             <p className="text-lg text-muted-foreground mt-4 font-medium text-center">
