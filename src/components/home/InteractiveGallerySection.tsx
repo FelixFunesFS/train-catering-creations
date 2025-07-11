@@ -68,12 +68,6 @@ const highQualityImages = [
     category: "dessert"
   },
   {
-    src: "/lovable-uploads/86a73cc7-624a-4cae-8bde-af21cef9593a.png",
-    title: "Wedding Dessert Table with Neon Sign",
-    description: "Stunning wedding dessert display with Mr & Mrs neon sign",
-    category: "wedding"
-  },
-  {
     src: "/lovable-uploads/7f22e72c-441b-4b6c-9525-56748107fdd5.png",
     title: "Salmon and Creamy Casserole",
     description: "Gourmet salmon and creamy casserole dishes with artistic edible flower presentation",
