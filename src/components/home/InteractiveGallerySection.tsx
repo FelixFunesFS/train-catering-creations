@@ -56,12 +56,6 @@ const highQualityImages = [
     category: "buffet"
   },
   {
-    src: "/lovable-uploads/eecf9726-8cce-48e5-8abb-f0dd78ebcb4e.png",
-    title: "Elegant Layered Dessert Cups",
-    description: "Beautiful layered dessert presentation",
-    category: "dessert"
-  },
-  {
     src: "/lovable-uploads/82c332e5-a941-4e79-bd7d-3aebfc9b230b.png",
     title: "Chicken and Waffles with Berries",
     description: "Gourmet chicken and waffles presentation",
