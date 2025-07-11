@@ -167,5 +167,65 @@ export const galleryImages: GalleryImage[] = [
     category: "team",
     title: "Catering Team Photo",
     description: "Our professional catering team in matching uniforms ready to serve"
+  },
+  {
+    src: "/lovable-uploads/c8da25d1-99cf-4dc7-84e8-aa6437f059c0.png",
+    category: "desserts",
+    title: "Artisan Chocolate Collection",
+    description: "Handcrafted chocolate truffles and confections beautifully presented"
+  },
+  {
+    src: "/lovable-uploads/f16e846d-2b43-4050-84d5-ddda004233db.png",
+    category: "desserts",
+    title: "Fresh Baked Pastries",
+    description: "Assorted pastries and baked goods prepared fresh for your event"
+  },
+  {
+    src: "/lovable-uploads/78706c39-c63f-4ca7-8795-a497286e2dda.png",
+    category: "buffet",
+    title: "Elegant Event Buffet",
+    description: "Sophisticated buffet setup with floral accents and premium serving dishes"
+  },
+  {
+    src: "/lovable-uploads/3c354402-a75f-4382-a187-10cb1a68d044.png",
+    category: "buffet",
+    title: "Professional Chafing Service",
+    description: "Multiple chafing dishes maintaining perfect serving temperatures"
+  },
+  {
+    src: "/lovable-uploads/f60d5eb4-390e-41c6-8a2d-80efc4b8099c.png",
+    category: "corporate",
+    title: "Corporate Event Buffet Line",
+    description: "Extensive buffet spread for large corporate gatherings"
+  },
+  {
+    src: "/lovable-uploads/44c11da0-af1e-4741-b5df-a701c8b135ef.png",
+    category: "buffet",
+    title: "Interactive Buffet Service",
+    description: "Guests enjoying our interactive buffet experience with fresh selections"
+  },
+  {
+    src: "/lovable-uploads/8899d29d-45ef-4fba-97f7-51385d68d23f.png",
+    category: "bbq",
+    title: "Rustic Outdoor Buffet",
+    description: "Charming outdoor buffet setup with natural wood backdrop"
+  },
+  {
+    src: "/lovable-uploads/66362602-d667-4c91-8247-ff833602e670.png",
+    category: "signature-dishes",
+    title: "Signature Paella Dish",
+    description: "Traditional paella with fresh vegetables and aromatic seasonings"
+  },
+  {
+    src: "/lovable-uploads/92340ff8-1737-4c83-9a95-8af53f406242.png",
+    category: "bbq",
+    title: "Outdoor Grilling Service",
+    description: "Fresh grilling and outdoor cooking for authentic BBQ experience"
+  },
+  {
+    src: "/lovable-uploads/ce326d9b-0fe1-4440-b916-bf286a5531c5.png",
+    category: "team",
+    title: "Chefs with Signature Dishes",
+    description: "Our talented chefs proudly presenting their signature creations"
   }
 ];
