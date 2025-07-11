@@ -14,12 +14,6 @@ import Autoplay from "embla-carousel-autoplay";
 
 const highQualityImages = [
   {
-    src: "/lovable-uploads/c8da25d1-99cf-4dc7-84e8-aa6437f059c0.png",
-    title: "Outdoor Wedding Ceremony with Chef",
-    description: "Professional chef service at elegant outdoor wedding",
-    category: "wedding"
-  },
-  {
     src: "/lovable-uploads/894051bf-31c6-4930-bb88-e3e1d74f7ee1.png",
     title: "Rustic Wedding Venue",
     description: "Beautiful rustic venue with elegant lighting",
