@@ -16,78 +16,66 @@ export const SignatureDishesSection = () => {
         </div>
 
         <div className="grid md:grid-cols-3 gap-10">
-          <Card className="overflow-hidden group hover:scale-105 hover:shadow-2xl transition-all duration-500 animate-fade-in" style={{animationDelay: '200ms'}}>
-            <div className="relative h-48 overflow-hidden rounded-t-2xl">
+          <Card className="shadow-card overflow-hidden group">
+            <div className="relative h-48 overflow-hidden">
               <img 
                 src="/lovable-uploads/ea7d03d8-7085-4847-b9d1-ebb3b0dd070a.png" 
                 alt="Perfectly sliced brisket showcase" 
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent group-hover:from-black/70 transition-all duration-300" />
-              <div className="absolute inset-0 backdrop-blur-[1px] group-hover:backdrop-blur-[2px] transition-all duration-300" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
             </div>
-            <CardContent className="p-8 relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent rounded-b-2xl"></div>
-              <div className="relative z-10">
-                <h3 className="text-xl font-elegant font-semibold text-foreground mb-6 group-hover:text-primary transition-colors duration-300">Southern Classics</h3>
-                <ul className="space-y-3 text-muted-foreground group-hover:text-foreground transition-colors duration-300">
-                  <li className="hover:translate-x-2 transition-transform duration-200">• Slow-Smoked Brisket</li>
-                  <li className="hover:translate-x-2 transition-transform duration-200 delay-75">• Good Old-Fashioned Ribs</li>
-                  <li className="hover:translate-x-2 transition-transform duration-200 delay-150">• Red Beans & Rice</li>
-                  <li className="hover:translate-x-2 transition-transform duration-200 delay-225">• Southern-Style Cabbage</li>
-                  <li className="hover:translate-x-2 transition-transform duration-200 delay-300">• Creamy Mac & Cheese</li>
-                </ul>
-              </div>
+            <CardContent className="p-8">
+              <h3 className="text-xl font-elegant font-semibold text-foreground mb-6">Southern Classics</h3>
+              <ul className="space-y-3 text-muted-foreground">
+                <li>• Slow-Smoked Brisket</li>
+                <li>• Good Old-Fashioned Ribs</li>
+                <li>• Red Beans & Rice</li>
+                <li>• Southern-Style Cabbage</li>
+                <li>• Creamy Mac & Cheese</li>
+              </ul>
             </CardContent>
           </Card>
 
-          <Card className="overflow-hidden group hover:scale-105 hover:shadow-2xl transition-all duration-500 animate-fade-in" style={{animationDelay: '400ms'}}>
-            <div className="relative h-48 overflow-hidden rounded-t-2xl">
+          <Card className="shadow-card overflow-hidden group">
+            <div className="relative h-48 overflow-hidden">
               <img 
                 src="/lovable-uploads/7f22e72c-441b-4b6c-9525-56748107fdd5.png" 
                 alt="Gourmet salmon and creamy casserole presentation" 
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent group-hover:from-black/70 transition-all duration-300" />
-              <div className="absolute inset-0 backdrop-blur-[1px] group-hover:backdrop-blur-[2px] transition-all duration-300" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
             </div>
-            <CardContent className="p-8 relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent rounded-b-2xl"></div>
-              <div className="relative z-10">
-                <h3 className="text-xl font-elegant font-semibold text-foreground mb-6 group-hover:text-primary transition-colors duration-300">Seafood & Specialties</h3>
-                <ul className="space-y-3 text-muted-foreground group-hover:text-foreground transition-colors duration-300">
-                  <li className="hover:translate-x-2 transition-transform duration-200">• Shrimp Alfredo</li>
-                  <li className="hover:translate-x-2 transition-transform duration-200 delay-75">• Baked Salmon</li>
-                  <li className="hover:translate-x-2 transition-transform duration-200 delay-150">• Jamaican Jerk Chicken</li>
-                  <li className="hover:translate-x-2 transition-transform duration-200 delay-225">• Customizable Taco Platters</li>
-                  <li className="hover:translate-x-2 transition-transform duration-200 delay-300">• Vegetarian Options</li>
-                </ul>
-              </div>
+            <CardContent className="p-8">
+              <h3 className="text-xl font-elegant font-semibold text-foreground mb-6">Seafood & Specialties</h3>
+              <ul className="space-y-3 text-muted-foreground">
+                <li>• Shrimp Alfredo</li>
+                <li>• Baked Salmon</li>
+                <li>• Jamaican Jerk Chicken</li>
+                <li>• Customizable Taco Platters</li>
+                <li>• Vegetarian Options</li>
+              </ul>
             </CardContent>
           </Card>
 
-          <Card className="overflow-hidden group hover:scale-105 hover:shadow-2xl transition-all duration-500 animate-fade-in" style={{animationDelay: '600ms'}}>
-            <div className="relative h-48 overflow-hidden rounded-t-2xl">
+          <Card className="shadow-card overflow-hidden group">
+            <div className="relative h-48 overflow-hidden">
               <img 
                 src="/lovable-uploads/eecf9726-8cce-48e5-8abb-f0dd78ebcb4e.png" 
                 alt="Elegant layered dessert cups arrangement" 
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent group-hover:from-black/70 transition-all duration-300" />
-              <div className="absolute inset-0 backdrop-blur-[1px] group-hover:backdrop-blur-[2px] transition-all duration-300" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
             </div>
-            <CardContent className="p-8 relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent rounded-b-2xl"></div>
-              <div className="relative z-10">
-                <h3 className="text-xl font-elegant font-semibold text-foreground mb-6 group-hover:text-primary transition-colors duration-300">Tanya's Desserts</h3>
-                <ul className="space-y-3 text-muted-foreground group-hover:text-foreground transition-colors duration-300">
-                  <li className="hover:translate-x-2 transition-transform duration-200">• Custom Cupcakes</li>
-                  <li className="hover:translate-x-2 transition-transform duration-200 delay-75">• Dessert Shots</li>
-                  <li className="hover:translate-x-2 transition-transform duration-200 delay-150">• Pastry Creations</li>
-                  <li className="hover:translate-x-2 transition-transform duration-200 delay-225">• Wedding Cakes</li>
-                  <li className="hover:translate-x-2 transition-transform duration-200 delay-300">• Special Occasion Treats</li>
-                </ul>
-              </div>
+            <CardContent className="p-8">
+              <h3 className="text-xl font-elegant font-semibold text-foreground mb-6">Tanya's Desserts</h3>
+              <ul className="space-y-3 text-muted-foreground">
+                <li>• Custom Cupcakes</li>
+                <li>• Dessert Shots</li>
+                <li>• Pastry Creations</li>
+                <li>• Wedding Cakes</li>
+                <li>• Special Occasion Treats</li>
+              </ul>
             </CardContent>
           </Card>
         </div>

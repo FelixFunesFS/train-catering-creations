@@ -15,78 +15,58 @@ export const ServicesSection = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {/* Weddings - Glassmorphism Card */}
-          <div className="group relative backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-8 hover:bg-white/15 hover:border-white/30 transition-all duration-500 hover:scale-105 hover:shadow-2xl">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent rounded-2xl"></div>
-            <div className="relative z-10 text-center">
-              <div className="mb-6 flex justify-center">
-                <div className="p-4 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 group-hover:bg-white/20 transition-all duration-300">
-                  <Heart className="h-8 w-8 text-primary group-hover:scale-110 transition-transform duration-300" />
-                </div>
-              </div>
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <Card className="shadow-card text-center hover:shadow-elegant transition-shadow overflow-hidden group">
+            <div className="relative h-32 bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
+              <Heart className="h-12 w-12 text-primary group-hover:scale-110 transition-transform duration-300" />
+            </div>
+            <CardContent className="p-8">
               <h3 className="text-xl font-elegant font-semibold text-foreground mb-4">Weddings</h3>
-              <p className="text-muted-foreground mb-6 text-sm leading-relaxed">Elegant receptions and intimate ceremonies with personalized menus</p>
-              <Link to="/wedding-menu" className="inline-flex items-center text-primary hover:text-primary-glow font-medium text-sm group-hover:translate-x-1 transition-all duration-300">
-                Learn More 
-                <span className="ml-1 group-hover:ml-2 transition-all duration-300">→</span>
+              <p className="text-muted-foreground mb-6">Elegant receptions and intimate ceremonies with personalized menus</p>
+              <Link to="/wedding-menu" className="text-primary hover:text-primary-glow font-medium">
+                Learn More →
               </Link>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
-          {/* Black Tie Events - Glassmorphism Card */}
-          <div className="group relative backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-8 hover:bg-white/15 hover:border-white/30 transition-all duration-500 hover:scale-105 hover:shadow-2xl">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent rounded-2xl"></div>
-            <div className="relative z-10 text-center">
-              <div className="mb-6 flex justify-center">
-                <div className="p-4 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 group-hover:bg-white/20 transition-all duration-300">
-                  <Crown className="h-8 w-8 text-primary group-hover:scale-110 transition-transform duration-300" />
-                </div>
-              </div>
+          <Card className="shadow-card text-center hover:shadow-elegant transition-shadow overflow-hidden group">
+            <div className="relative h-32 bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
+              <Crown className="h-12 w-12 text-primary group-hover:scale-110 transition-transform duration-300" />
+            </div>
+            <CardContent className="p-8">
               <h3 className="text-xl font-elegant font-semibold text-foreground mb-4">Black Tie Events</h3>
-              <p className="text-muted-foreground mb-6 text-sm leading-relaxed">Sophisticated catering for galas and formal celebrations</p>
-              <Link to="/wedding-menu" className="inline-flex items-center text-primary hover:text-primary-glow font-medium text-sm group-hover:translate-x-1 transition-all duration-300">
-                Learn More 
-                <span className="ml-1 group-hover:ml-2 transition-all duration-300">→</span>
+              <p className="text-muted-foreground mb-6">Sophisticated catering for galas and formal celebrations</p>
+              <Link to="/wedding-menu" className="text-primary hover:text-primary-glow font-medium">
+                Learn More →
               </Link>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
-          {/* Military Functions - Glassmorphism Card */}
-          <div className="group relative backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-8 hover:bg-white/15 hover:border-white/30 transition-all duration-500 hover:scale-105 hover:shadow-2xl">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent rounded-2xl"></div>
-            <div className="relative z-10 text-center">
-              <div className="mb-6 flex justify-center">
-                <div className="p-4 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 group-hover:bg-white/20 transition-all duration-300">
-                  <Star className="h-8 w-8 text-primary group-hover:scale-110 transition-transform duration-300" />
-                </div>
-              </div>
+          <Card className="shadow-card text-center hover:shadow-elegant transition-shadow overflow-hidden group">
+            <div className="relative h-32 bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
+              <Star className="h-12 w-12 text-primary group-hover:scale-110 transition-transform duration-300" />
+            </div>
+            <CardContent className="p-8">
               <h3 className="text-xl font-elegant font-semibold text-foreground mb-4">Military Functions</h3>
-              <p className="text-muted-foreground mb-6 text-sm leading-relaxed">Honoring service with promotions, ceremonies, and celebrations</p>
-              <Link to="/wedding-menu" className="inline-flex items-center text-primary hover:text-primary-glow font-medium text-sm group-hover:translate-x-1 transition-all duration-300">
-                Learn More 
-                <span className="ml-1 group-hover:ml-2 transition-all duration-300">→</span>
+              <p className="text-muted-foreground mb-6">Honoring service with promotions, ceremonies, and celebrations</p>
+              <Link to="/wedding-menu" className="text-primary hover:text-primary-glow font-medium">
+                Learn More →
               </Link>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
-          {/* Private Events - Glassmorphism Card */}
-          <div className="group relative backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-8 hover:bg-white/15 hover:border-white/30 transition-all duration-500 hover:scale-105 hover:shadow-2xl">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent rounded-2xl"></div>
-            <div className="relative z-10 text-center">
-              <div className="mb-6 flex justify-center">
-                <div className="p-4 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 group-hover:bg-white/20 transition-all duration-300">
-                  <Users className="h-8 w-8 text-primary group-hover:scale-110 transition-transform duration-300" />
-                </div>
-              </div>
-              <h3 className="text-xl font-elegant font-semibold text-foreground mb-4">Private Events</h3>
-              <p className="text-muted-foreground mb-6 text-sm leading-relaxed">Corporate conferences, family gatherings, and special occasions</p>
-              <Link to="/menu" className="inline-flex items-center text-primary hover:text-primary-glow font-medium text-sm group-hover:translate-x-1 transition-all duration-300">
-                View Menu 
-                <span className="ml-1 group-hover:ml-2 transition-all duration-300">→</span>
-              </Link>
+          <Card className="shadow-card text-center hover:shadow-elegant transition-shadow overflow-hidden group">
+            <div className="relative h-32 bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
+              <Users className="h-12 w-12 text-primary group-hover:scale-110 transition-transform duration-300" />
             </div>
-          </div>
+            <CardContent className="p-8">
+              <h3 className="text-xl font-elegant font-semibold text-foreground mb-4">Private Events</h3>
+              <p className="text-muted-foreground mb-6">Corporate conferences, family gatherings, and special occasions</p>
+              <Link to="/menu" className="text-primary hover:text-primary-glow font-medium">
+                View Menu →
+              </Link>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </section>
