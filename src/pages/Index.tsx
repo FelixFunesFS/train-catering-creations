@@ -12,8 +12,8 @@ const Index = () => {
       <AboutPreviewSection />
       <ServicesSection />
       <SignatureDishesSection />
-      <CTASection />
       <TestimonialsStatsSection />
+      <CTASection />
     </div>
   );
 };

@@ -12,11 +12,6 @@ export const TestimonialsStatsSection = () => {
       number: "8,200+",
       label: "Meals Served",
       icon: Utensils
-    },
-    {
-      number: "8+",
-      label: "Years Experience",
-      icon: Trophy
     }
   ];
 
@@ -35,7 +30,7 @@ export const TestimonialsStatsSection = () => {
               </p>
             </div>
             
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
               {stats.map((stat, index) => (
                 <Card key={index} className="bg-white/10 border-white/20 hover:bg-white/15 transition-all duration-300 hover:scale-105 hover:shadow-glow">
                   <CardContent className="p-8 text-center">
