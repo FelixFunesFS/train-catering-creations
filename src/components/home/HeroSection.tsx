@@ -29,13 +29,15 @@ export const HeroSection = () => {
       </div>
 
       {/* Right Side - Image */}
-      <div className="relative order-1 lg:order-2 min-h-[40vh] lg:min-h-screen">
-        <img
-          src="/lovable-uploads/db45f284-96c9-4919-8f7c-474f1c62d822.png"
-          alt="Soul Train's Eatery elegant buffet spread"
-          className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/20 lg:bg-gradient-to-l lg:from-transparent lg:via-transparent lg:to-background/10"></div>
+      <div className="relative order-1 lg:order-2 min-h-[40vh] lg:min-h-screen flex items-center justify-center p-4 lg:p-8">
+        <div className="relative w-[85%] h-[80%] rounded-2xl overflow-hidden shadow-2xl">
+          <img
+            src="/lovable-uploads/db45f284-96c9-4919-8f7c-474f1c62d822.png"
+            alt="Soul Train's Eatery elegant buffet spread"
+            className="w-full h-full object-contain transition-transform duration-700 hover:scale-102"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/10 rounded-2xl"></div>
+        </div>
       </div>
     </section>
   );
