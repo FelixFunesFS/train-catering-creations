@@ -44,13 +44,6 @@ export const teamImages: GalleryImage[] = [
     quality: 8
   },
   {
-    src: "/lovable-uploads/1708ddcd-bd89-4e19-a06a-e7514294a5c4.png",
-    category: "team",
-    title: "Professional Chef Team with Signature Dishes",
-    description: "Our talented chefs presenting signature entrees and banana pudding chocolate cake",
-    quality: 7
-  },
-  {
     src: "/lovable-uploads/6ae71cc1-9efa-49ca-b188-6b182df3f8a8.png",
     category: "team",
     title: "Soul Train Eatery Team",
@@ -85,11 +78,4 @@ export const teamImages: GalleryImage[] = [
     description: "Our skilled chef team in professional uniforms providing elegant chafing dish service",
     quality: 8
   },
-  {
-    src: "/lovable-uploads/86a73cc7-624a-4cae-8bde-af21cef9593a.png",
-    category: "team",
-    title: "Chef Team with Signature Dishes",
-    description: "Professional chefs proudly presenting large pans of signature dishes",
-    quality: 8
-  }
 ];
