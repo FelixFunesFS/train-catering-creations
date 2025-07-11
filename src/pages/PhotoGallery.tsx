@@ -122,6 +122,36 @@ const PhotoGallery = () => {
       category: "bbq",
       title: "Outdoor BBQ Setup",
       description: "Chef Dominick with our outdoor grilling and BBQ catering services"
+    },
+    {
+      src: "/lovable-uploads/48473662-ac84-4137-aa84-261848dfba4c.png",
+      category: "team",
+      title: "Team with Elegant Buffet Setup",
+      description: "Professional team serving at formal indoor event"
+    },
+    {
+      src: "/lovable-uploads/d3f15374-fef1-4f79-b573-1aba60d1d65f.png",
+      category: "team",
+      title: "Professional Service Team",
+      description: "Second angle of the elegant buffet service"
+    },
+    {
+      src: "/lovable-uploads/1a5c721b-7419-4c66-aecf-ae6903a31e4a.png",
+      category: "bbq",
+      title: "Outdoor Catering Spread",
+      description: "BBQ and outdoor catering with chicken and sides"
+    },
+    {
+      src: "/lovable-uploads/e224366b-8e66-4725-a0ef-d9aa7fe1b5f9.png",
+      category: "corporate",
+      title: "Corporate Beverage Station",
+      description: "Professional corporate event with beverage service"
+    },
+    {
+      src: "/lovable-uploads/2cf1a495-207f-4269-9636-bd48b60d431b.png",
+      category: "corporate",
+      title: "Large Corporate Event Buffet",
+      description: "Extensive spread for corporate/military events"
     }
   ];
 
@@ -135,6 +165,7 @@ const PhotoGallery = () => {
     { id: "signature-dishes", name: "Signature Dishes" },
     { id: "team", name: "Team" },
     { id: "bbq", name: "BBQ & Outdoor" },
+    { id: "corporate", name: "Corporate Events" },
     { id: "family", name: "Family Events" }
   ];
 
