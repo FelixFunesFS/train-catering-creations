@@ -44,20 +44,6 @@ export const dessertImages: GalleryImage[] = [
     quality: 9
   },
   {
-    src: "/lovable-uploads/82c332e5-a941-4e79-bd7d-3aebfc9b230b.png",
-    category: "desserts",
-    title: "Chicken and Waffles with Berries",
-    description: "Gourmet chicken and waffles topped with fresh strawberries, blueberries, and powdered sugar",
-    quality: 9
-  },
-  {
-    src: "/lovable-uploads/f3ddc698-c228-4106-a756-bc31aeb3f7d4.png",
-    category: "desserts", 
-    title: "French Toast with Fresh Berries",
-    description: "Golden French toast triangles topped with fresh strawberries, blueberries, and powdered sugar",
-    quality: 9
-  },
-  {
     src: "/lovable-uploads/3ca474e1-96d3-4e42-93a1-6a219b98e1b8.png",
     category: "desserts",
     title: "Dessert Shooters Display",
@@ -120,11 +106,4 @@ export const dessertImages: GalleryImage[] = [
     description: "Beautiful dessert shooters with professional presentation and decorative garnishes",
     quality: 10
   },
-  {
-    src: "/lovable-uploads/70e40df6-dfac-462d-94a2-af7391d5b35c.png",
-    category: "desserts",
-    title: "Memorial Service Dessert Table",
-    description: "Tasteful memorial service dessert display with elegant presentation and comfort treats",
-    quality: 8
-  }
 ];

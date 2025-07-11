@@ -126,5 +126,19 @@ export const signatureDishesImages: GalleryImage[] = [
     title: "Golden Seasoned Chicken Medley",
     description: "Beautifully seasoned chicken pieces with golden color and aromatic spices",
     quality: 8
+  },
+  {
+    src: "/lovable-uploads/82c332e5-a941-4e79-bd7d-3aebfc9b230b.png",
+    category: "signature-dishes",
+    title: "Chicken and Waffles with Berries",
+    description: "Gourmet chicken and waffles topped with fresh strawberries, blueberries, and powdered sugar",
+    quality: 9
+  },
+  {
+    src: "/lovable-uploads/f3ddc698-c228-4106-a756-bc31aeb3f7d4.png",
+    category: "signature-dishes", 
+    title: "French Toast with Fresh Berries",
+    description: "Golden French toast triangles topped with fresh strawberries, blueberries, and powdered sugar",
+    quality: 9
   }
 ];

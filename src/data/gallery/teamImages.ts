@@ -67,8 +67,8 @@ export const teamImages: GalleryImage[] = [
   {
     src: "/lovable-uploads/8dc454d4-5169-44a6-a430-481c6c9582e7.png",
     category: "team",
-    title: "Corporate Event Beverage Service",
-    description: "Professional team member providing beverage service at corporate conference event",
+    title: "Professional Buffet Team Service",
+    description: "Expert catering team providing professional buffet service with multiple chafing dishes",
     quality: 7
   },
   {
