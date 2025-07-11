@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Heart, Users, Crown, ChefHat, Award } from "lucide-react";
+import { Users, Crown, ChefHat, Award, Cake } from "lucide-react";
 
 export const AboutPreviewSection = () => {
   return (
@@ -34,7 +34,7 @@ export const AboutPreviewSection = () => {
             </Card>
             <Card className="shadow-card hover:shadow-elegant transition-all duration-500 hover:scale-105 hover:-translate-y-2 group animate-fade-in" style={{animationDelay: '400ms'}}>
               <CardContent className="p-8 text-center">
-                <Heart className="h-10 w-10 text-primary mx-auto mb-4 group-hover:scale-110 group-hover:text-red-500 transition-all duration-300" />
+                <Cake className="h-10 w-10 text-primary mx-auto mb-4 group-hover:scale-110 group-hover:text-pink-500 transition-all duration-300" />
                 <h3 className="font-elegant font-semibold text-foreground mb-2 group-hover:text-primary transition-colors duration-300">Tanya Ward</h3>
                 <p className="text-sm text-muted-foreground group-hover:text-foreground transition-colors duration-300">Pastry Chef</p>
               </CardContent>
