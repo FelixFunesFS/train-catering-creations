@@ -16,7 +16,7 @@ export const TestimonialsStatsSection = () => {
   ];
 
   return (
-    <section className="py-40 bg-background">
+    <section className="py-40 bg-background border-t border-border/30">
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
         <div className="grid lg:grid-cols-2 gap-24 items-center">
           {/* Statistics Side */}
