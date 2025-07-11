@@ -50,7 +50,7 @@ export const TestimonialsStatsSection = () => {
           {/* Review Side */}
           <div className="bg-card rounded-2xl p-16 lg:p-20 border border-border shadow-card">
             <Quote className="h-12 w-12 text-primary mb-8" />
-            <blockquote className="text-xl lg:text-2xl font-elegant text-foreground leading-relaxed mb-10">
+            <blockquote className="text-lg lg:text-xl font-elegant text-foreground leading-relaxed mb-10">
               "Soul Train's Eatery catered our wedding and it was absolutely perfect! The mac and cheese was the talk of the night, and every guest asked for the caterer's information."
             </blockquote>
             
