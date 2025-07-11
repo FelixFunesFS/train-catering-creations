@@ -227,5 +227,65 @@ export const galleryImages: GalleryImage[] = [
     category: "team",
     title: "Chefs with Signature Dishes",
     description: "Our talented chefs proudly presenting their signature creations"
+  },
+  {
+    src: "/lovable-uploads/a213805d-d700-4f05-8d15-9ba19c6a9734.png",
+    category: "buffet",
+    title: "Formal Buffet with Fried Chicken",
+    description: "Elegant buffet featuring golden fried chicken and fresh rolls with floral accents"
+  },
+  {
+    src: "/lovable-uploads/894051bf-31c6-4930-bb88-e3e1d74f7ee1.png",
+    category: "wedding",
+    title: "Rustic Wedding Venue",
+    description: "Stunning rustic venue with chandeliers, string lights, and elegant dining setup"
+  },
+  {
+    src: "/lovable-uploads/31195e1f-92d1-4d88-9466-00bb2d439661.png",
+    category: "formal",
+    title: "Holiday Christmas Buffet",
+    description: "Festive Christmas-themed buffet with holiday decorations and chafing dishes"
+  },
+  {
+    src: "/lovable-uploads/6bac8536-705d-4ff8-b4b3-07473fd8b8dc.png",
+    category: "formal",
+    title: "Military Formal Event Setup",
+    description: "Professional military event with formal chafing dish service and ceremonial setup"
+  },
+  {
+    src: "/lovable-uploads/9b77523f-734a-4dd7-8984-5d07b1705024.png",
+    category: "formal",
+    title: "Military Ceremony with Grazing Boards",
+    description: "Formal military ceremony featuring elegant charcuterie and grazing boards"
+  },
+  {
+    src: "/lovable-uploads/30c27788-7d8a-4512-8cc5-dce6e98d17f2.png",
+    category: "formal",
+    title: "Large Military Ceremony",
+    description: "Grand military ceremony with professional catering and formal table service"
+  },
+  {
+    src: "/lovable-uploads/6aec2d18-641f-46aa-8c0e-e39f4e604fd6.png",
+    category: "formal",
+    title: "Elegant Brick Wall Venue",
+    description: "Sophisticated formal dining in charming brick wall venue with purple linens"
+  },
+  {
+    src: "/lovable-uploads/de51be25-0eb8-43f8-a277-43227a8adb59.png",
+    category: "signature-dishes",
+    title: "Casserole and Rice Specialties",
+    description: "Beautifully presented casseroles and rice dishes garnished with edible flowers"
+  },
+  {
+    src: "/lovable-uploads/84e8a135-2a5b-45ec-a57b-913b0540e56e.png",
+    category: "signature-dishes",
+    title: "Roasted Vegetables and Chicken",
+    description: "Perfectly seasoned roasted vegetables and chicken with colorful floral garnish"
+  },
+  {
+    src: "/lovable-uploads/7f22e72c-441b-4b6c-9525-56748107fdd5.png",
+    category: "signature-dishes",
+    title: "Salmon and Creamy Casserole",
+    description: "Gourmet salmon and creamy casserole dishes with artistic edible flower presentation"
   }
 ];
