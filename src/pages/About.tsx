@@ -75,8 +75,8 @@ const About = () => {
           <Card className="shadow-card overflow-hidden">
             <div className="relative h-40 overflow-hidden">
               <img 
-                src="/lovable-uploads/eecf9726-8cce-48e5-8abb-f0dd78ebcb4e.png" 
-                alt="Elegant layered dessert cups by Tanya Ward" 
+                src="/lovable-uploads/6fa5bcaf-1613-416b-babc-289ac84bb501.png" 
+                alt="Beautiful cupcake display by Tanya Ward featuring various flavors and elegant decorations" 
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
