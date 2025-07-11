@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Phone, Mail, MapPin, Clock, Facebook, Instagram, Twitter, Star } from "lucide-react";
+import { MessageCircle, Mail, MapPin, Clock, Facebook, Instagram, Twitter, Star } from "lucide-react";
 
 export const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -54,11 +54,11 @@ export const Footer = () => {
             <h3 className="text-lg font-elegant font-semibold text-foreground mb-4">Contact Us</h3>
             <div className="space-y-3">
               <a 
-                href="tel:8439700265" 
+                href="sms:8439700265" 
                 className="flex items-center space-x-3 text-sm text-muted-foreground hover:text-primary transition-colors group"
               >
-                <Phone className="h-4 w-4 group-hover:text-primary" />
-                <span>(843) 970-0265</span>
+                <MessageCircle className="h-4 w-4 group-hover:text-primary" />
+                <span>Text (843) 970-0265</span>
               </a>
               <a 
                 href="mailto:soultrainseatery@gmail.com"
@@ -78,7 +78,7 @@ export const Footer = () => {
                 <Clock className="h-4 w-4" />
                 <div>
                   <p>By Appointment</p>
-                  <p className="text-xs">Call for availability</p>
+                  <p className="text-xs">Text for availability</p>
                 </div>
               </div>
             </div>

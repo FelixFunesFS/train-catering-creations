@@ -52,7 +52,7 @@ export const Header = () => {
                 </Link>
               ))}
             </nav>
-            <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90">
+            <Button asChild className="bg-primary text-white hover:bg-primary-glow shadow-glow">
               <Link to="/request-quote">Request Quote</Link>
             </Button>
           </div>
@@ -87,7 +87,7 @@ export const Header = () => {
                   {item.name}
                 </Link>
               ))}
-              <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90 mx-4">
+              <Button asChild className="bg-primary text-white hover:bg-primary-glow shadow-glow mx-4">
                 <Link to="/request-quote" onClick={() => setIsMenuOpen(false)}>
                   Request Quote
                 </Link>

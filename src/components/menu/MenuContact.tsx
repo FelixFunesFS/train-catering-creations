@@ -11,8 +11,8 @@ const MenuContact = () => {
           Every event is unique. Let us create a customized menu that perfectly fits your occasion, dietary needs, and budget.
         </p>
         <div className="flex flex-col sm:flex-row justify-center items-center space-y-2 sm:space-y-0 sm:space-x-8">
-          <a href="tel:8439700265" className="text-primary hover:text-primary-glow font-medium">
-            Call (843) 970-0265
+          <a href="sms:8439700265" className="text-primary hover:text-primary-glow font-medium">
+            Text (843) 970-0265
           </a>
           <a href="mailto:soultrainseatery@gmail.com" className="text-primary hover:text-primary-glow font-medium">
             Email Us

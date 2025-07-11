@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, Users, MapPin, Phone, Mail } from "lucide-react";
+import { Calendar, Users, MapPin, MessageCircle, Mail } from "lucide-react";
 
 const ContactInfoCards = () => {
   return (
@@ -12,14 +12,14 @@ const ContactInfoCards = () => {
         <CardContent className="space-y-8 px-8 pb-8">
           <div className="flex items-start space-x-6 group hover:bg-primary-light/30 p-4 rounded-lg transition-all duration-300">
             <div className="bg-primary/10 p-3 rounded-full group-hover:bg-primary/20 transition-colors">
-              <Phone className="h-6 w-6 text-primary" />
+              <MessageCircle className="h-6 w-6 text-primary" />
             </div>
             <div className="flex-1">
-              <p className="font-semibold text-lg mb-2">Phone</p>
-              <a href="tel:8439700265" className="text-primary hover:text-primary-glow font-medium text-lg">
+              <p className="font-semibold text-lg mb-2">Text Message</p>
+              <a href="sms:8439700265" className="text-primary hover:text-primary-glow font-medium text-lg">
                 (843) 970-0265
               </a>
-              <p className="text-muted-foreground text-sm mt-1">Available for immediate consultation</p>
+              <p className="text-muted-foreground text-sm mt-1">Text us for immediate consultation</p>
             </div>
           </div>
           
@@ -90,10 +90,10 @@ const ContactInfoCards = () => {
             🎉 Ready to book immediately?
           </p>
           <p className="text-primary-foreground/90 text-sm mb-4">
-            Call us directly for instant assistance and availability!
+            Text us directly for instant assistance and availability!
           </p>
-          <a href="tel:8439700265" className="inline-block bg-primary-foreground text-primary px-6 py-3 rounded-full font-semibold hover:shadow-glow transition-all duration-300 transform hover:scale-105">
-            Call Now: (843) 970-0265
+          <a href="sms:8439700265" className="inline-block bg-primary-foreground text-primary px-6 py-3 rounded-full font-semibold hover:shadow-glow transition-all duration-300 transform hover:scale-105">
+            Text Now: (843) 970-0265
           </a>
         </CardContent>
       </Card>

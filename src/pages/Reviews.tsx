@@ -129,10 +129,10 @@ const Reviews = () => {
                 Request a Quote
               </a>
               <a 
-                href="tel:8439700265" 
+                href="sms:8439700265" 
                 className="border border-primary text-primary px-8 py-3 rounded-lg font-medium hover:bg-primary-light transition-colors"
               >
-                Call (843) 970-0265
+                Text (843) 970-0265
               </a>
             </div>
           </CardContent>

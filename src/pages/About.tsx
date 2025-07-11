@@ -89,8 +89,8 @@ const About = () => {
         <div className="text-center mt-12">
           <p className="text-muted-foreground mb-4">Ready to start planning your event?</p>
           <div className="flex flex-col sm:flex-row justify-center items-center space-y-2 sm:space-y-0 sm:space-x-8">
-            <a href="tel:8439700265" className="text-primary hover:text-primary-glow font-medium">
-              (843) 970-0265
+            <a href="sms:8439700265" className="text-primary hover:text-primary-glow font-medium">
+              Text (843) 970-0265
             </a>
             <a href="mailto:soultrainseatery@gmail.com" className="text-primary hover:text-primary-glow font-medium">
               soultrainseatery@gmail.com

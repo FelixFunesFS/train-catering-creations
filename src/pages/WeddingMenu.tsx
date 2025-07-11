@@ -427,10 +427,10 @@ const WeddingMenu = () => {
             </p>
             <div className="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-8">
               <a 
-                href="tel:8439700265" 
+                href="sms:8439700265" 
                 className="bg-primary text-primary-foreground px-8 py-3 rounded-lg font-medium hover:bg-primary-glow transition-colors shadow-glow"
               >
-                Call (843) 970-0265
+                Text (843) 970-0265
               </a>
               <a 
                 href="mailto:soultrainseatery@gmail.com" 

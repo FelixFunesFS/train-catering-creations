@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { MessageCircle } from "lucide-react";
 
 export const CTASection = () => {
   return (
@@ -12,13 +13,14 @@ export const CTASection = () => {
           Let Soul Train's Eatery handle the kitchen while you enjoy the moment. Contact us today for a personalized quote.
         </p>
         <div className="flex flex-col sm:flex-row justify-center items-center space-y-6 sm:space-y-0 sm:space-x-8">
-          <Button asChild className="bg-white text-primary hover:bg-primary-light px-10 py-5 text-lg">
-            <a href="tel:8439700265">
-              Call (843) 970-0265
+          <Button asChild className="bg-primary text-white hover:bg-primary-glow shadow-glow px-10 py-5 text-lg">
+            <a href="sms:8439700265" className="flex items-center space-x-2">
+              <MessageCircle className="h-5 w-5" />
+              <span>Text (843) 970-0265</span>
             </a>
           </Button>
           <Link to="/request-quote">
-            <Button variant="outline" className="border-white text-white hover:bg-white hover:text-primary px-10 py-5 text-lg">
+            <Button variant="outline" className="border-2 border-white text-white hover:bg-white hover:text-primary px-10 py-5 text-lg">
               Get a Quote
             </Button>
           </Link>
