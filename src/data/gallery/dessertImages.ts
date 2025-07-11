@@ -9,13 +9,6 @@ export const dessertImages: GalleryImage[] = [
     quality: 7
   },
   {
-    src: "/lovable-uploads/c8da25d1-99cf-4dc7-84e8-aa6437f059c0.png",
-    category: "desserts",
-    title: "Artisan Chocolate Collection",
-    description: "Handcrafted chocolate truffles and confections beautifully presented",
-    quality: 8
-  },
-  {
     src: "/lovable-uploads/f16e846d-2b43-4050-84d5-ddda004233db.png",
     category: "desserts",
     title: "Fresh Baked Pastries",
@@ -49,13 +42,6 @@ export const dessertImages: GalleryImage[] = [
     title: "Elegant Layered Dessert Cups",
     description: "Professional layered dessert cups beautifully arranged for elegant presentation",
     quality: 9
-  },
-  {
-    src: "/lovable-uploads/df73f6e3-5169-401d-9ad5-7d2aa39602d5.png",
-    category: "desserts",
-    title: "Small Dessert Shooters",
-    description: "Delicate dessert shooters perfectly portioned for elegant events",
-    quality: 6
   },
   {
     src: "/lovable-uploads/82c332e5-a941-4e79-bd7d-3aebfc9b230b.png",
