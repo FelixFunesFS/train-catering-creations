@@ -8,13 +8,13 @@ export const HeroSection = () => {
 
   // Featured images for the grid display - taking the first 4 images for initial display
   const heroImages = [{
-    src: "/lovable-uploads/ca9734ef-7643-4b4c-913b-eeec8c80237d.png",
-    alt: "Professional chafing dishes setup with elegant catering display",
-    title: "Buffet Service"
-  }, {
     src: "/lovable-uploads/1dcbc1ee-eb25-4d89-8722-cb4904d1ba69.png",
     alt: "Elegant wedding dessert table with tiered cake, neon signage, and gourmet treats",
     title: "Wedding Reception"
+  }, {
+    src: "/lovable-uploads/ca9734ef-7643-4b4c-913b-eeec8c80237d.png",
+    alt: "Professional chafing dishes setup with elegant catering display",
+    title: "Buffet Service"
   }, {
     src: "/lovable-uploads/9332d2dd-3c00-48bb-ba3d-17b943a78ad2.png",
     alt: "Grand formal event space with multiple tables and floral arrangements",
