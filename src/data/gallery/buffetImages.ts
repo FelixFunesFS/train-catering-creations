@@ -107,13 +107,6 @@ export const buffetImages: GalleryImage[] = [
     quality: 8
   },
   {
-    src: "/lovable-uploads/c171cee1-bcc6-40c9-ab2e-cfb1191cba5a.png",
-    category: "buffet",
-    title: "Outdoor Buffet Under Trees",
-    description: "Beautiful outdoor buffet setup under natural tree canopy with professional service",
-    quality: 8
-  },
-  {
     src: "/lovable-uploads/531de58a-4283-4d7c-882c-a78b6cdc97c0.png",
     category: "buffet",
     title: "Professional Patriotic Buffet",
