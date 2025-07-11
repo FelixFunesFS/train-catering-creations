@@ -84,5 +84,12 @@ export const formalImages: GalleryImage[] = [
     title: "Grand Banquet Hall with Gold Accents",
     description: "Elegant banquet hall event with gold linens, formal table settings, and professional service",
     quality: 9
+  },
+  {
+    src: "/lovable-uploads/9ea8f6b7-e1cd-4f55-a434-1ffedf0b96dc.png",
+    category: "formal",
+    title: "Military Formal Ceremony with Arch",
+    description: "Elegant military ceremony with formal dining setup, decorative lighting arch, and professional presentation",
+    quality: 9
   }
 ];

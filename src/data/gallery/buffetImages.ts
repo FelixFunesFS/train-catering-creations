@@ -189,5 +189,12 @@ export const buffetImages: GalleryImage[] = [
     title: "Home Buffet Service",
     description: "Extensive home buffet setup with multiple dishes served in modern kitchen setting",
     quality: 8
+  },
+  {
+    src: "/lovable-uploads/c95b1e4e-f36f-427c-ba66-087751a8502d.png",
+    category: "buffet",
+    title: "Professional Chafing Service with Meatballs",
+    description: "Elegant buffet setup featuring chafing dishes with seasoned chicken, meatballs, and side dishes",
+    quality: 8
   }
 ];

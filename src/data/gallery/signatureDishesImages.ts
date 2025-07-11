@@ -98,5 +98,33 @@ export const signatureDishesImages: GalleryImage[] = [
     title: "Herb-Crusted Chicken Pieces",
     description: "Perfectly seasoned chicken pieces with aromatic herb crust and seasonings",
     quality: 8
+  },
+  {
+    src: "/lovable-uploads/ea7d03d8-7085-4847-b9d1-ebb3b0dd070a.png",
+    category: "signature-dishes",
+    title: "Perfectly Sliced Brisket",
+    description: "Expert-cut brisket slices with beautiful bark and tender interior",
+    quality: 9
+  },
+  {
+    src: "/lovable-uploads/05ace31b-ea2b-4f81-a99a-31680dca1a81.png",
+    category: "signature-dishes",
+    title: "Seasoned Sausage Medley",
+    description: "Artfully seasoned sausages with peppers and rich sauce preparation",
+    quality: 8
+  },
+  {
+    src: "/lovable-uploads/c822e943-8e7a-474a-87df-977e423546c4.png",
+    category: "signature-dishes",
+    title: "Herb-Seasoned Pasta",
+    description: "Fresh fettuccine pasta with aromatic herbs and seasonings",
+    quality: 8
+  },
+  {
+    src: "/lovable-uploads/56fe8fa6-d303-4982-b800-a4825d7bddd4.png",
+    category: "signature-dishes",
+    title: "Golden Seasoned Chicken Medley",
+    description: "Beautifully seasoned chicken pieces with golden color and aromatic spices",
+    quality: 8
   }
 ];

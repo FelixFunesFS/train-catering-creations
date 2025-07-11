@@ -84,5 +84,26 @@ export const dessertImages: GalleryImage[] = [
     title: "Individual Dessert Cups and Cupcakes",
     description: "Professional dessert station with individual serving cups and tiered cupcake display",
     quality: 8
+  },
+  {
+    src: "/lovable-uploads/f9a42f19-7d75-4fab-82f9-49e527ccc869.png",
+    category: "desserts",
+    title: "Elegant Individual Dessert Cups",
+    description: "Professional arrangement of individual dessert cups with decorative garnishes",
+    quality: 9
+  },
+  {
+    src: "/lovable-uploads/8a8c93f1-a792-4737-a1e1-3c3d7d99d06f.png",
+    category: "desserts",
+    title: "Individual Chocolate Cake Portions",
+    description: "Rich chocolate cake slices individually plated for elegant service",
+    quality: 8
+  },
+  {
+    src: "/lovable-uploads/61ae11ed-0e85-4a03-bf2a-c743182a3599.png",
+    category: "desserts",
+    title: "Multi-Tier Dessert Display Case",
+    description: "Elegant tiered dessert display featuring shooters, individual cakes, and premium presentation",
+    quality: 9
   }
 ];

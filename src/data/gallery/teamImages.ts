@@ -78,4 +78,11 @@ export const teamImages: GalleryImage[] = [
     description: "Our skilled chef team in professional uniforms providing elegant chafing dish service",
     quality: 8
   },
+  {
+    src: "/lovable-uploads/022262dd-31ca-4499-bbac-5e0a3676589d.png",
+    category: "team",
+    title: "Chef Carving Fresh Brisket",
+    description: "Professional chef expertly carving fresh brisket with precision and care",
+    quality: 9
+  }
 ];
