@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 
@@ -218,6 +218,12 @@ const PhotoGallery = () => {
                     src={image.src}
                     alt={image.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    onError={(e) => {
+                      console.error(`Failed to load image: ${image.src}`, e);
+                      e.currentTarget.style.backgroundColor = '#f3f4f6';
+                      e.currentTarget.alt = 'Image failed to load';
+                    }}
+                    onLoad={() => console.log(`Successfully loaded: ${image.src}`)}
                   />
                   <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-end">
                     <div className="p-4 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -260,6 +266,8 @@ const PhotoGallery = () => {
         {/* Image Modal */}
         <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
           <DialogContent className="max-w-4xl p-0 bg-transparent border-0">
+            <DialogTitle className="sr-only">Gallery Image</DialogTitle>
+            <DialogDescription className="sr-only">Full size view of gallery image</DialogDescription>
             <div className="relative">
               <Button
                 variant="ghost"
@@ -274,6 +282,9 @@ const PhotoGallery = () => {
                   src={selectedImage}
                   alt="Gallery image"
                   className="w-full h-auto max-h-[90vh] object-contain rounded-lg"
+                  onError={(e) => {
+                    console.error(`Failed to load modal image: ${selectedImage}`, e);
+                  }}
                 />
               )}
             </div>
