@@ -1,30 +1,31 @@
 import { Link } from "react-router-dom";
 import { Phone, Mail, MapPin, Clock, Facebook, Instagram, Twitter, Star } from "lucide-react";
-
 export const Footer = () => {
   const currentYear = new Date().getFullYear();
-
-  const navigationLinks = [
-    { name: "Home", href: "/" },
-    { name: "About Us", href: "/about" },
-    { name: "Menu", href: "/menu" },
-    { name: "Wedding & Events", href: "/wedding-menu" },
-    { name: "Gallery", href: "/gallery" },
-    { name: "Reviews", href: "/reviews" },
-    { name: "Request Quote", href: "/request-quote" },
-  ];
-
-  const services = [
-    "Corporate Catering",
-    "Wedding Catering", 
-    "Private Events",
-    "Holiday Parties",
-    "Funeral Repasts",
-    "Custom Menus"
-  ];
-
-  return (
-    <footer className="bg-gradient-card border-t border-border">
+  const navigationLinks = [{
+    name: "Home",
+    href: "/"
+  }, {
+    name: "About Us",
+    href: "/about"
+  }, {
+    name: "Menu",
+    href: "/menu"
+  }, {
+    name: "Wedding & Events",
+    href: "/wedding-menu"
+  }, {
+    name: "Gallery",
+    href: "/gallery"
+  }, {
+    name: "Reviews",
+    href: "/reviews"
+  }, {
+    name: "Request Quote",
+    href: "/request-quote"
+  }];
+  const services = ["Corporate Catering", "Wedding Catering", "Private Events", "Holiday Parties", "Funeral Repasts", "Custom Menus"];
+  return <footer className="bg-gradient-card border-t border-border">
       {/* Main Footer Content */}
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -32,17 +33,9 @@ export const Footer = () => {
           {/* Company Information */}
           <div className="lg:col-span-1">
             <div className="flex items-center space-x-3 mb-4">
-              <img 
-                src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
-                alt="Soul Train's Eatery Logo" 
-                className="w-8 h-8 object-contain"
-              />
-              <div className="text-2xl font-script font-bold text-primary">
-                Soul Train's
-              </div>
-              <div className="text-xl font-script text-muted-foreground">
-                Eatery
-              </div>
+              <img src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" alt="Soul Train's Eatery Logo" className="w-8 h-8 object-contain" />
+              <div className="text-2xl font-script font-bold text-primary">Soul Train's Eatery</div>
+              
             </div>
             <p className="text-muted-foreground text-sm leading-relaxed mb-4">
               Authentic soul food catering bringing comfort and flavor to your special events. 
@@ -58,17 +51,11 @@ export const Footer = () => {
           <div>
             <h3 className="text-lg font-elegant font-semibold text-foreground mb-4">Contact Us</h3>
             <div className="space-y-3">
-              <a 
-                href="tel:8439700265" 
-                className="flex items-center space-x-3 text-sm text-muted-foreground hover:text-primary transition-colors group"
-              >
+              <a href="tel:8439700265" className="flex items-center space-x-3 text-sm text-muted-foreground hover:text-primary transition-colors group">
                 <Phone className="h-4 w-4 group-hover:text-primary" />
                 <span>Call (843) 970-0265</span>
               </a>
-              <a 
-                href="mailto:soultrainseatery@gmail.com"
-                className="flex items-center space-x-3 text-sm text-muted-foreground hover:text-primary transition-colors group"
-              >
+              <a href="mailto:soultrainseatery@gmail.com" className="flex items-center space-x-3 text-sm text-muted-foreground hover:text-primary transition-colors group">
                 <Mail className="h-4 w-4 group-hover:text-primary" />
                 <span>soultrainseatery@gmail.com</span>
               </a>
@@ -93,15 +80,9 @@ export const Footer = () => {
           <div>
             <h3 className="text-lg font-elegant font-semibold text-foreground mb-4">Quick Links</h3>
             <nav className="space-y-2">
-              {navigationLinks.map((item) => (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  className="block text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
+              {navigationLinks.map(item => <Link key={item.name} to={item.href} className="block text-sm text-muted-foreground hover:text-primary transition-colors">
                   {item.name}
-                </Link>
-              ))}
+                </Link>)}
             </nav>
           </div>
 
@@ -109,15 +90,10 @@ export const Footer = () => {
           <div>
             <h3 className="text-lg font-elegant font-semibold text-foreground mb-4">Our Services</h3>
             <ul className="space-y-2">
-              {services.map((service, index) => (
-                <li 
-                  key={index}
-                  className="text-sm text-muted-foreground flex items-start"
-                >
+              {services.map((service, index) => <li key={index} className="text-sm text-muted-foreground flex items-start">
                   <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 mr-3 flex-shrink-0"></span>
                   {service}
-                </li>
-              ))}
+                </li>)}
             </ul>
           </div>
         </div>
@@ -130,25 +106,13 @@ export const Footer = () => {
             <div className="flex items-center space-x-4">
               <span className="text-sm text-muted-foreground">Follow Us:</span>
               <div className="flex space-x-3">
-                <a 
-                  href="#" 
-                  className="w-8 h-8 bg-muted rounded-full flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors"
-                  aria-label="Facebook"
-                >
+                <a href="#" className="w-8 h-8 bg-muted rounded-full flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors" aria-label="Facebook">
                   <Facebook className="h-4 w-4" />
                 </a>
-                <a 
-                  href="#" 
-                  className="w-8 h-8 bg-muted rounded-full flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors"
-                  aria-label="Instagram"
-                >
+                <a href="#" className="w-8 h-8 bg-muted rounded-full flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors" aria-label="Instagram">
                   <Instagram className="h-4 w-4" />
                 </a>
-                <a 
-                  href="#" 
-                  className="w-8 h-8 bg-muted rounded-full flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors"
-                  aria-label="Twitter"
-                >
+                <a href="#" className="w-8 h-8 bg-muted rounded-full flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors" aria-label="Twitter">
                   <Twitter className="h-4 w-4" />
                 </a>
               </div>
@@ -170,11 +134,7 @@ export const Footer = () => {
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
           <div className="flex flex-col sm:flex-row justify-between items-center text-sm text-primary-foreground">
             <div className="flex items-center space-x-3">
-              <img 
-                src="/lovable-uploads/6a31016d-af1b-4deb-a589-8952157f1015.png" 
-                alt="Soul Train's Eatery Logo" 
-                className="w-6 h-6 object-contain"
-              />
+              <img src="/lovable-uploads/6a31016d-af1b-4deb-a589-8952157f1015.png" alt="Soul Train's Eatery Logo" className="w-6 h-6 object-contain" />
               <p>© {currentYear} Soul Train's Eatery. All rights reserved.</p>
             </div>
             <div className="flex space-x-6 mt-2 sm:mt-0">
@@ -185,6 +145,5 @@ export const Footer = () => {
           </div>
         </div>
       </div>
-    </footer>
-  );
+    </footer>;
 };
