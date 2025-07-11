@@ -44,17 +44,31 @@ export const dessertImages: GalleryImage[] = [
     quality: 5
   },
   {
-    src: "/public/lovable-uploads/eecf9726-8cce-48e5-8abb-f0dd78ebcb4e.png",
+    src: "/lovable-uploads/eecf9726-8cce-48e5-8abb-f0dd78ebcb4e.png",
     category: "desserts",
     title: "Elegant Layered Dessert Cups",
     description: "Professional layered dessert cups beautifully arranged for elegant presentation",
     quality: 9
   },
   {
-    src: "/public/lovable-uploads/df73f6e3-5169-401d-9ad5-7d2aa39602d5.png",
+    src: "/lovable-uploads/df73f6e3-5169-401d-9ad5-7d2aa39602d5.png",
     category: "desserts",
     title: "Small Dessert Shooters",
     description: "Delicate dessert shooters perfectly portioned for elegant events",
     quality: 6
+  },
+  {
+    src: "/lovable-uploads/82c332e5-a941-4e79-bd7d-3aebfc9b230b.png",
+    category: "desserts",
+    title: "Chicken and Waffles with Berries",
+    description: "Gourmet chicken and waffles topped with fresh strawberries, blueberries, and powdered sugar",
+    quality: 9
+  },
+  {
+    src: "/lovable-uploads/f3ddc698-c228-4106-a756-bc31aeb3f7d4.png",
+    category: "desserts", 
+    title: "French Toast with Fresh Berries",
+    description: "Golden French toast triangles topped with fresh strawberries, blueberries, and powdered sugar",
+    quality: 9
   }
 ];

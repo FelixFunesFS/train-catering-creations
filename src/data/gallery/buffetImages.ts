@@ -107,17 +107,38 @@ export const buffetImages: GalleryImage[] = [
     quality: 8
   },
   {
-    src: "/public/lovable-uploads/c171cee1-bcc6-40c9-ab2e-cfb1191cba5a.png",
+    src: "/lovable-uploads/c171cee1-bcc6-40c9-ab2e-cfb1191cba5a.png",
     category: "buffet",
     title: "Outdoor Buffet Under Trees",
     description: "Beautiful outdoor buffet setup under natural tree canopy with professional service",
     quality: 8
   },
   {
-    src: "/public/lovable-uploads/531de58a-4283-4d7c-882c-a78b6cdc97c0.png",
+    src: "/lovable-uploads/531de58a-4283-4d7c-882c-a78b6cdc97c0.png",
     category: "buffet",
     title: "Professional Patriotic Buffet",
     description: "Elegant buffet service with patriotic theme and professional chafing dishes",
     quality: 9
+  },
+  {
+    src: "/lovable-uploads/ba425c77-ac3c-40ec-8d98-db47190fe7d1.png",
+    category: "buffet",
+    title: "Breakfast Buffet with Scrambled Eggs",
+    description: "Hearty breakfast buffet featuring scrambled eggs, gravy, and comfort food favorites",
+    quality: 7
+  },
+  {
+    src: "/lovable-uploads/13044833-4f1e-43fd-967a-30c4b8684113.png",
+    category: "buffet",
+    title: "Premium Breakfast Meat Selection",
+    description: "Extensive breakfast buffet with sausages, bacon, ham, and fresh fruit accompaniments",
+    quality: 8
+  },
+  {
+    src: "/lovable-uploads/36498683-1a26-4a70-aa58-621611d4b763.png",
+    category: "buffet",
+    title: "Outdoor Buffet with Chicken and Vegetables",
+    description: "Professional outdoor buffet setup featuring seasoned chicken, roasted vegetables, and casserole dishes",
+    quality: 8
   }
 ];

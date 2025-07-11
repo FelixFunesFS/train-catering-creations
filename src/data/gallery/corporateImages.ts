@@ -23,17 +23,17 @@ export const corporateImages: GalleryImage[] = [
     quality: 7
   },
   {
-    src: "/lovable-uploads/d8284609-c1fa-4c32-a724-b5cfd1445478.png",
-    category: "corporate",
-    title: "Corporate Event Service",
-    description: "Professional buffet service for corporate events with fresh dinner rolls and entrees",
-    quality: 6
-  },
-  {
     src: "/lovable-uploads/4f0091f9-e3bf-4286-b94a-ae95bb11a386.png",
     category: "corporate",
     title: "Corporate Event with Vegetable Display",
     description: "Professional corporate catering featuring fresh vegetable platters and chafing service",
     quality: 7
+  },
+  {
+    src: "/lovable-uploads/fca6e1ac-4a3c-4b9d-95cc-1068a654704f.png",
+    category: "corporate",
+    title: "Corporate Conference Buffet",
+    description: "Professional corporate conference catering with fried chicken, vegetables, and fresh rolls",
+    quality: 8
   }
 ];

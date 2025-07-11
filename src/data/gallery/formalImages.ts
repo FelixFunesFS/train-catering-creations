@@ -79,21 +79,21 @@ export const formalImages: GalleryImage[] = [
     quality: 5
   },
   {
-    src: "/public/lovable-uploads/70e40df6-dfac-462d-94a2-af7391d5b35c.png",
+    src: "/lovable-uploads/70e40df6-dfac-462d-94a2-af7391d5b35c.png",
     category: "formal",
     title: "Tropical Themed Banquet Hall",
     description: "Large banquet hall event with tropical theme and extensive table service",
     quality: 8
   },
   {
-    src: "/public/lovable-uploads/ee3c3869-2387-4cf0-9979-3196754ee6a6.png",
+    src: "/lovable-uploads/ee3c3869-2387-4cf0-9979-3196754ee6a6.png",
     category: "formal",
     title: "Large Gymnasium Event",
     description: "Formal event in gymnasium setting with professional buffet service and table setup",
     quality: 7
   },
   {
-    src: "/public/lovable-uploads/b7990d05-792f-4525-a616-c3e055a675da.png",
+    src: "/lovable-uploads/b7990d05-792f-4525-a616-c3e055a675da.png",
     category: "formal",
     title: "Elegant Event Hall",
     description: "Sophisticated event hall with extensive chafing dish service and formal presentation",

@@ -44,7 +44,7 @@ export const weddingImages: GalleryImage[] = [
     quality: 9
   },
   {
-    src: "/public/lovable-uploads/c8da25d1-99cf-4dc7-84e8-aa6437f059c0.png",
+    src: "/lovable-uploads/c8da25d1-99cf-4dc7-84e8-aa6437f059c0.png",
     category: "wedding",
     title: "Outdoor Wedding Ceremony with Chef",
     description: "Beautiful outdoor wedding ceremony with professional chef presenting signature dish",

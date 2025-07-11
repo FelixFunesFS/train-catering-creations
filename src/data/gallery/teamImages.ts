@@ -65,17 +65,31 @@ export const teamImages: GalleryImage[] = [
     quality: 7
   },
   {
-    src: "/public/lovable-uploads/b96e2d67-0d45-4824-82f6-38dd17e7a41e.png",
+    src: "/lovable-uploads/b96e2d67-0d45-4824-82f6-38dd17e7a41e.png",
     category: "team",
     title: "Soul Train Eatery Promotional Image",
     description: "Professional Soul Train Eatery team photo with signature branding",
     quality: 8
   },
   {
-    src: "/public/lovable-uploads/35f7f100-ef48-4c17-938c-2d00a1011210.png",
+    src: "/lovable-uploads/35f7f100-ef48-4c17-938c-2d00a1011210.png",
     category: "team",
     title: "Team Members with Signature Dishes",
     description: "Team members proudly presenting our signature dishes and specialties",
     quality: 6
+  },
+  {
+    src: "/lovable-uploads/8dc454d4-5169-44a6-a430-481c6c9582e7.png",
+    category: "team",
+    title: "Corporate Event Beverage Service",
+    description: "Professional team member providing beverage service at corporate conference event",
+    quality: 7
+  },
+  {
+    src: "/lovable-uploads/becb7164-24ae-4c24-a240-72d0be9a82dd.png",
+    category: "team",
+    title: "Professional Chef Team with Chafing Service",
+    description: "Our skilled chef team in professional uniforms providing elegant chafing dish service",
+    quality: 8
   }
 ];
