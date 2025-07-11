@@ -43,7 +43,7 @@ const About = () => {
               </h3>
               <div className="max-w-md mx-auto">
                 <img 
-                  src="/lovable-uploads/5e746e43-d6fd-463b-b9da-341fe71b5677.png" 
+                  src="/lovable-uploads/c171cee1-bcc6-40c9-ab2e-cfb1191cba5a.png" 
                   alt="Chef Dominick 'Train' Ward and Pastry Chef Tanya Ward"
                   className="w-full h-auto rounded-lg shadow-elegant mb-4"
                 />
