@@ -96,29 +96,33 @@ const About = () => {
         </div>
 
         {/* Mission Statement */}
-        <div className="text-center mb-8">
-          <div className="relative w-full max-w-2xl mx-auto mb-8 rounded-lg overflow-hidden shadow-elegant">
-            <img 
-              src="/lovable-uploads/8268fc9a-93a0-4b72-a923-95fc0f10b0c0.png" 
-              alt="Chef Dominick 'Train' Ward and Tanya Ward, the founders of Soul Train's Eatery, wearing their signature red aprons"
-              className="w-full h-auto object-cover"
-            />
-          </div>
-        </div>
-        
-        <Card className="shadow-elegant bg-gradient-card">
-          <CardContent className="p-8 lg:p-12 text-center">
-            <h3 className="text-3xl font-elegant font-bold text-foreground mb-6">
-              Our Promise
-            </h3>
-            <p className="text-xl text-muted-foreground leading-relaxed mb-8">
-              We don't just bring food—we bring flavor, family, and unforgettable experiences. Let Soul Train's Eatery handle the kitchen while you enjoy the moment.
-            </p>
-            <div className="text-2xl font-script text-primary">
-              🎉 Let Soul Train's Eatery take care of all your catering needs—so you can enjoy the celebration!
+        <div className="grid lg:grid-cols-2 gap-8 items-center">
+          {/* Image Section */}
+          <div className="relative">
+            <div className="relative w-full rounded-lg overflow-hidden shadow-elegant">
+              <img 
+                src="/lovable-uploads/8268fc9a-93a0-4b72-a923-95fc0f10b0c0.png" 
+                alt="Chef Dominick 'Train' Ward and Tanya Ward, the founders of Soul Train's Eatery, wearing their signature red aprons"
+                className="w-full h-auto object-cover"
+              />
             </div>
-          </CardContent>
-        </Card>
+          </div>
+
+          {/* Promise Card */}
+          <Card className="shadow-elegant bg-gradient-card h-full">
+            <CardContent className="p-8 lg:p-12 text-center flex flex-col justify-center h-full">
+              <h3 className="text-3xl font-elegant font-bold text-foreground mb-6">
+                Our Promise
+              </h3>
+              <p className="text-xl text-muted-foreground leading-relaxed mb-8">
+                We don't just bring food—we bring flavor, family, and unforgettable experiences. Let Soul Train's Eatery handle the kitchen while you enjoy the moment.
+              </p>
+              <div className="text-2xl font-script text-primary">
+                🎉 Let Soul Train's Eatery take care of all your catering needs—so you can enjoy the celebration!
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
         {/* Contact Info */}
         <div className="text-center mt-12">
