@@ -33,11 +33,6 @@ export const HeroSection = () => {
       position: "object-top"
     },
     {
-      src: "/lovable-uploads/cb0a7324-9db0-427f-b582-e49bb5c15f87.png",
-      alt: "Professional buffet service with grilled specialties and hot entrees",
-      position: "object-center"
-    },
-    {
       src: "/lovable-uploads/0703365f-22eb-4c4d-b258-4a2c8a23b63a.png",
       alt: "Rustic venue buffet setup with chafing dishes and atmospheric lighting",
       position: "object-center"
