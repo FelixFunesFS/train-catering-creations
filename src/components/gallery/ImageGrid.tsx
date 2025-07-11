@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { GalleryImage } from "@/data/galleryImages";
+import { GalleryImage } from "@/data/gallery/types";
 
 interface ImageGridProps {
   images: GalleryImage[];

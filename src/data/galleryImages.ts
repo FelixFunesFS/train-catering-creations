@@ -13,8 +13,8 @@ import { familyImages } from './gallery/familyImages';
 // Re-export the interface for backward compatibility
 export type { GalleryImage } from './gallery/types';
 
-// Combine all gallery images from different categories
-export const galleryImages: GalleryImage[] = [
+// Combine all gallery images from different categories and sort by quality (highest to lowest)
+const allImages: GalleryImage[] = [
   ...buffetImages,
   ...weddingImages,
   ...formalImages,
@@ -26,3 +26,5 @@ export const galleryImages: GalleryImage[] = [
   ...bbqImages,
   ...familyImages
 ];
+
+export const galleryImages: GalleryImage[] = allImages.sort((a, b) => b.quality - a.quality);
