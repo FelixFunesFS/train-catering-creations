@@ -87,10 +87,10 @@ export const InteractiveGallerySection = () => {
   };
 
   return (
-    <section className="py-24 bg-background">
-      <div className="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12">
-        <div className="text-center mb-20">
-          <h2 className="text-3xl lg:text-4xl font-elegant font-bold text-foreground mb-8">
+    <section className="py-16 md:py-20 lg:py-24 bg-background">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-12 lg:mb-16">
+          <h2 className="text-3xl lg:text-4xl font-elegant font-bold text-foreground mb-6">
             Our Gallery Showcase
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
@@ -143,7 +143,7 @@ export const InteractiveGallerySection = () => {
           </Carousel>
         </div>
 
-        <div className="text-center mt-16">
+        <div className="text-center mt-12 lg:mt-16">
           <Link to="/gallery">
             <Button className="bg-primary hover:bg-primary-glow text-primary-foreground px-10 py-4 mr-4">
               View Full Gallery

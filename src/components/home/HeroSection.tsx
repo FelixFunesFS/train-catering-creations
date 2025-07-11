@@ -42,13 +42,13 @@ export const HeroSection = () => {
     setSelectedImage(null);
   };
   return <>
-      <section className="min-h-screen bg-gradient-to-br from-background via-background to-muted/10 py-[20px] my-0 mx-0 px-0">
-        {/* Brand Header Section - Compact (~35vh) */}
-        <div className="relative h-[35vh] flex flex-col justify-center items-center text-center px-6 sm:px-8 lg:px-12">
+      <section className="min-h-screen bg-gradient-to-br from-background via-background to-muted/10 py-16 md:py-20 lg:py-24">
+        {/* Brand Header Section */}
+        <div className="relative flex flex-col justify-center items-center text-center px-4 sm:px-6 lg:px-8 pb-12 lg:pb-16">
           {/* Subtle background pattern */}
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 opacity-50"></div>
           
-          <div className="relative z-10 max-w-4xl mx-auto">
+          <div className="relative z-10 max-w-7xl mx-auto">
             <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-script font-bold text-foreground leading-[0.9] tracking-tight animate-fade-in mb-4">
               Soul Train's <span className="text-primary bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">Eatery</span>
             </h1>
@@ -83,13 +83,13 @@ export const HeroSection = () => {
           </div>
         </div>
 
-        {/* Image Gallery Grid Section - (~45vh) */}
-        <div className="relative h-[45vh] px-6 sm:px-8 lg:px-12 pb-12 py-[20px]">
+        {/* Image Gallery Grid Section */}
+        <div className="relative px-4 sm:px-6 lg:px-8 pb-8 lg:pb-12">
           <div className="max-w-7xl mx-auto">
             
             
             {/* Responsive Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 h-full max-h-[280px]">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
               {heroImages.map((image, index) => <div key={index} className="group relative overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer bg-card" onClick={() => handleImageClick(image.src)}>
                   <div className="aspect-[5/4] overflow-hidden">
                     <img src={image.src} alt={image.alt} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 brightness-105 contrast-105" loading={index < 2 ? "eager" : "lazy"} />
@@ -113,7 +113,7 @@ export const HeroSection = () => {
             </div>
 
             {/* View More Link */}
-            <div className="text-center mt-8">
+            <div className="text-center mt-12">
               <Link to="/gallery" className="inline-flex items-center gap-2 text-primary hover:text-primary-glow transition-colors duration-200 font-medium text-lg group">
                 View Complete Gallery 
                 <svg className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">

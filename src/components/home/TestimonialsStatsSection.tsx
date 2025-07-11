@@ -16,13 +16,13 @@ export const TestimonialsStatsSection = () => {
   ];
 
   return (
-    <section className="py-40 bg-gradient-hero border-t border-border/30">
-      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-        <div className="grid lg:grid-cols-2 gap-24 items-center">
+    <section className="py-16 md:py-20 lg:py-24 bg-gradient-hero border-t border-border/30">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Statistics Side */}
-          <div className="space-y-16">
+          <div className="space-y-8 lg:space-y-12">
             <div className="text-center lg:text-left">
-              <h2 className="text-2xl lg:text-3xl font-elegant font-bold text-foreground mb-8">
+              <h2 className="text-2xl lg:text-3xl font-elegant font-bold text-foreground mb-6">
                 Proven Excellence
               </h2>
               <p className="text-lg text-muted-foreground">
@@ -30,15 +30,15 @@ export const TestimonialsStatsSection = () => {
               </p>
             </div>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-16">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 lg:gap-8">
               {stats.map((stat, index) => (
                 <Card key={index} className="bg-card border-border hover:shadow-elegant transition-all duration-300 hover:scale-105">
-                  <CardContent className="p-16 text-center">
-                    <stat.icon className="h-12 w-12 text-primary mx-auto mb-8" />
-                    <div className="text-3xl lg:text-4xl font-elegant font-bold text-foreground mb-6">
+                  <CardContent className="p-6 lg:p-8 text-center">
+                    <stat.icon className="h-10 w-10 lg:h-12 lg:w-12 text-primary mx-auto mb-4 lg:mb-6" />
+                    <div className="text-2xl lg:text-3xl font-elegant font-bold text-foreground mb-4">
                       {stat.number}
                     </div>
-                    <p className="text-base text-muted-foreground font-medium">
+                    <p className="text-sm lg:text-base text-muted-foreground font-medium">
                       {stat.label}
                     </p>
                   </CardContent>
@@ -48,19 +48,19 @@ export const TestimonialsStatsSection = () => {
           </div>
 
           {/* Review Side */}
-          <div className="bg-card rounded-2xl p-16 lg:p-20 border border-border shadow-card">
-            <Quote className="h-12 w-12 text-primary mb-8" />
-            <blockquote className="text-lg lg:text-xl font-elegant text-foreground leading-relaxed mb-10">
+          <div className="bg-card rounded-2xl p-6 lg:p-8 border border-border shadow-card">
+            <Quote className="h-10 w-10 lg:h-12 lg:w-12 text-primary mb-6" />
+            <blockquote className="text-lg lg:text-xl font-elegant text-foreground leading-relaxed mb-8">
               "Soul Train's Eatery catered our wedding and it was absolutely perfect! The mac and cheese was the talk of the night, and every guest asked for the caterer's information."
             </blockquote>
             
             <div className="flex items-center space-x-2 mb-6">
               {[...Array(5)].map((_, i) => (
-                <div key={i} className="w-6 h-6 text-primary">⭐</div>
+                <div key={i} className="w-5 h-5 lg:w-6 lg:h-6 text-primary">⭐</div>
               ))}
             </div>
             
-            <div className="border-t border-border pt-8">
+            <div className="border-t border-border pt-6">
               <p className="text-lg font-semibold text-foreground">
                 Sarah & Michael's Wedding
               </p>
