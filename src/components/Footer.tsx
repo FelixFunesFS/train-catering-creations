@@ -32,6 +32,11 @@ export const Footer = () => {
           {/* Company Information */}
           <div className="lg:col-span-1">
             <div className="flex items-center space-x-3 mb-4">
+              <img 
+                src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
+                alt="Soul Train's Eatery Logo" 
+                className="w-8 h-8 object-contain"
+              />
               <div className="text-2xl font-elegant font-bold text-primary">
                 Soul Train's
               </div>
