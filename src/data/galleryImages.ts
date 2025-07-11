@@ -335,5 +335,65 @@ export const galleryImages: GalleryImage[] = [
     category: "formal",
     title: "Elegant Purple-Themed Celebration",
     description: "Sophisticated formal event with purple linens, brick walls, and professional table service"
+  },
+  {
+    src: "/lovable-uploads/dd5b9f3c-0d75-4315-b27a-751f4108ffb2.png",
+    category: "signature-dishes",
+    title: "Herb-Crusted Salmon",
+    description: "Perfectly seasoned salmon fillets with fresh herbs and purple flower garnish"
+  },
+  {
+    src: "/lovable-uploads/2c2c42ec-fbd9-474d-852a-2017e4e0c020.png",
+    category: "signature-dishes",
+    title: "Golden Cheese Casserole",
+    description: "Rich and creamy cheese casserole beautifully garnished with edible flowers"
+  },
+  {
+    src: "/lovable-uploads/e928bb0b-ff60-4086-8ebe-ddf37a4e1aa5.png",
+    category: "signature-dishes",
+    title: "Seasoned Green Bean Medley",
+    description: "Fresh green beans and vegetables with colorful floral presentation"
+  },
+  {
+    src: "/lovable-uploads/35f7f100-ef48-4c17-938c-2d00a1011210.png",
+    category: "signature-dishes",
+    title: "Golden Seasoned Chicken",
+    description: "Tender chicken pieces with aromatic seasonings and decorative flower garnish"
+  },
+  {
+    src: "/lovable-uploads/4f0091f9-e3bf-4286-b94a-ae95bb11a386.png",
+    category: "corporate",
+    title: "Corporate Event with Vegetable Display",
+    description: "Professional corporate catering featuring fresh vegetable platters and chafing service"
+  },
+  {
+    src: "/lovable-uploads/f3216df6-f951-4c71-9494-a017a5b3dc49.png",
+    category: "formal",
+    title: "Large Banquet Hall Event",
+    description: "Grand banquet hall with fried chicken buffet service and formal table settings"
+  },
+  {
+    src: "/lovable-uploads/ad965c24-3496-4da0-8e96-9fd472990093.png",
+    category: "buffet",
+    title: "Rustic Venue Buffet Service",
+    description: "Hearty buffet featuring chicken and meatballs in charming rustic setting"
+  },
+  {
+    src: "/lovable-uploads/d642e51f-be17-4ad8-8cec-ed28811a9160.png",
+    category: "desserts",
+    title: "Nike-Themed Dessert Table",
+    description: "Creative sports-themed dessert display with cupcakes and decorative sneakers"
+  },
+  {
+    src: "/lovable-uploads/e6c64cd9-ff3d-4eb4-b6cf-c868bc6dd95d.png",
+    category: "buffet",
+    title: "Elegant Buffet with Coral Linens",
+    description: "Sophisticated buffet line with coral-colored linens and extensive chafing service"
+  },
+  {
+    src: "/lovable-uploads/e61537fa-d421-490b-932f-402236a093aa.png",
+    category: "wedding",
+    title: "Elegant Wedding Buffet",
+    description: "Beautiful outdoor wedding buffet with fresh floral arrangements and chafing dishes"
   }
 ];
