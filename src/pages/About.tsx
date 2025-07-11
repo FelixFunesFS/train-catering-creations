@@ -18,7 +18,7 @@ const About = () => {
           
           {/* Profile Image */}
           <div className="flex flex-col items-center mb-8">
-            <div className="relative w-48 h-48 lg:w-56 lg:h-56 shadow-elegant border-4 border-background rounded-full overflow-hidden">
+            <div className="relative w-48 h-48 lg:w-56 lg:h-56 shadow-[0_0_30px_hsl(0_72%_50%_/_0.3)] border-8 border-white rounded-full overflow-hidden">
               <img 
                 src="/lovable-uploads/7386b87d-cf31-4aad-a072-4dc06d9d2a3a.png" 
                 alt="Chef Dominick 'Train' Ward working in the kitchen with professional expertise"
