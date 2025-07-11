@@ -20,8 +20,8 @@ export const CTASection = () => {
             </a>
           </Button>
           <Link to="/request-quote">
-            <Button variant="outline" className="border-2 border-white text-white hover:bg-white hover:text-primary px-10 py-5 text-lg">
-              Get a Quote
+            <Button variant="outline" className="border-2 border-white text-white bg-transparent hover:bg-white hover:text-primary px-10 py-5 text-lg">
+              Request Quote
             </Button>
           </Link>
         </div>

@@ -157,13 +157,13 @@ const PhotoGallery = () => {
                 href="/request-quote" 
                 className="bg-primary text-primary-foreground px-8 py-3 rounded-lg font-medium hover:bg-primary-glow transition-colors shadow-glow"
               >
-                Request a Quote
+                Request Quote
               </a>
               <a 
-                href="sms:8439700265" 
+                href="tel:8439700265" 
                 className="border border-primary text-primary px-8 py-3 rounded-lg font-medium hover:bg-primary-light transition-colors"
               >
-                Text Us Today
+                Call Us Today
               </a>
             </div>
           </CardContent>

@@ -16,13 +16,13 @@ export const TestimonialsStatsSection = () => {
   ];
 
   return (
-    <section className="py-24 bg-gradient-to-br from-foreground via-foreground to-muted-foreground">
+    <section className="py-32 bg-gradient-to-br from-foreground via-foreground to-muted-foreground">
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
+        <div className="grid lg:grid-cols-2 gap-20 items-center">
           {/* Statistics Side */}
-          <div className="space-y-8">
+          <div className="space-y-12">
             <div className="text-center lg:text-left">
-              <h2 className="text-2xl lg:text-3xl font-bold text-primary-foreground mb-4">
+              <h2 className="text-2xl lg:text-3xl font-bold text-primary-foreground mb-6">
                 Proven Excellence
               </h2>
               <p className="text-lg text-primary-foreground opacity-90">
@@ -30,12 +30,12 @@ export const TestimonialsStatsSection = () => {
               </p>
             </div>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-12">
               {stats.map((stat, index) => (
                 <Card key={index} className="bg-white/10 border-white/20 hover:bg-white/15 transition-all duration-300 hover:scale-105 hover:shadow-glow">
-                  <CardContent className="p-8 text-center">
-                    <stat.icon className="h-12 w-12 text-primary mx-auto mb-4" />
-                    <div className="text-3xl lg:text-4xl font-bold text-primary-foreground mb-2">
+                  <CardContent className="p-12 text-center">
+                    <stat.icon className="h-12 w-12 text-primary mx-auto mb-6" />
+                    <div className="text-3xl lg:text-4xl font-bold text-primary-foreground mb-4">
                       {stat.number}
                     </div>
                     <p className="text-base text-primary-foreground font-medium opacity-90">
@@ -48,7 +48,7 @@ export const TestimonialsStatsSection = () => {
           </div>
 
           {/* Review Side */}
-          <div className="bg-white/10 rounded-2xl p-8 lg:p-12 border border-white/20">
+          <div className="bg-white/10 rounded-2xl p-12 lg:p-16 border border-white/20">
             <Quote className="h-12 w-12 text-primary mb-6" />
             <blockquote className="text-xl lg:text-2xl font-script text-primary-foreground leading-relaxed mb-8">
               "Soul Train's Eatery catered our wedding and it was absolutely perfect! The mac and cheese was the talk of the night, and every guest asked for the caterer's information."
