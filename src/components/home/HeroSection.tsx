@@ -16,7 +16,7 @@ export const HeroSection = () => {
     alt: "Rustic venue buffet setup with chafing dishes and atmospheric lighting",
     title: "Formal Events"
   }, {
-    src: "/lovable-uploads/9cac9a48-0705-452d-baa8-dcb614df0935.png",
+    src: "/lovable-uploads/c3ec0f07-ade4-40c3-89f7-0c5f2c8bebcf.png",
     alt: "Professional buffet service setup with chafing dishes and elegant presentation",
     title: "Buffet Service"
   }, {
