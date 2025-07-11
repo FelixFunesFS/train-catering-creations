@@ -68,6 +68,60 @@ const PhotoGallery = () => {
       category: "desserts",
       title: "Elegant Dessert Station",
       description: "Beautiful presentation of pastries and dessert selections"
+    },
+    {
+      src: "/lovable-uploads/afb2bfef-c686-4fa3-bfcd-df7f2d12c92e.png",
+      category: "signature-dishes",
+      title: "Grilled Chicken Perfection",
+      description: "Our signature grilled chicken with herbs and seasonings"
+    },
+    {
+      src: "/lovable-uploads/fae1f99f-7d00-43be-bad2-e09bc5799e81.png",
+      category: "signature-dishes",
+      title: "Seasoned Fish Fillet",
+      description: "Expertly prepared fish with our special seasoning blend"
+    },
+    {
+      src: "/lovable-uploads/b56a4ba1-e2d4-4ec1-ad09-0263e41cc8d3.png",
+      category: "formal",
+      title: "Military Formal Event",
+      description: "Professional catering for military ceremonies and formal gatherings"
+    },
+    {
+      src: "/lovable-uploads/37d6fe45-f7aa-4e87-9672-10110aba73e2.png",
+      category: "buffet",
+      title: "Elegant Buffet with Florals",
+      description: "Beautifully decorated buffet station with fresh floral arrangements"
+    },
+    {
+      src: "/lovable-uploads/1a2796ea-0092-4372-b642-30d6b55f1cec.png",
+      category: "wedding",
+      title: "Wedding Reception Hall",
+      description: "Stunning wedding reception setup with elegant table arrangements"
+    },
+    {
+      src: "/lovable-uploads/faf45827-ad08-47fe-b5f2-20fa674631a4.png",
+      category: "wedding",
+      title: "Wedding Venue Setup",
+      description: "Beautiful wedding venue with professional table service"
+    },
+    {
+      src: "/lovable-uploads/1780e8c6-e881-437a-af97-4cc25247052b.png",
+      category: "formal",
+      title: "Large Community Event",
+      description: "Catering for large-scale community gatherings and celebrations"
+    },
+    {
+      src: "/lovable-uploads/b2e3fc50-415e-40bf-80d8-f6da7b47fcb9.png",
+      category: "team",
+      title: "Chef and Team",
+      description: "Meet our talented culinary team led by Chef Dominick Ward"
+    },
+    {
+      src: "/lovable-uploads/4394caa2-fdc2-48ca-b62a-3a9fd58b76dd.png",
+      category: "bbq",
+      title: "Outdoor BBQ Setup",
+      description: "Chef Dominick with our outdoor grilling and BBQ catering services"
     }
   ];
 
@@ -78,6 +132,9 @@ const PhotoGallery = () => {
     { id: "grazing", name: "Grazing Boards" },
     { id: "buffet", name: "Buffet Service" },
     { id: "desserts", name: "Desserts" },
+    { id: "signature-dishes", name: "Signature Dishes" },
+    { id: "team", name: "Team" },
+    { id: "bbq", name: "BBQ & Outdoor" },
     { id: "family", name: "Family Events" }
   ];
 
