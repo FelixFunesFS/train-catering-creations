@@ -3,8 +3,18 @@ import { Button } from "@/components/ui/button";
 
 export const HeroSection = () => {
   return (
-    <section className="bg-gradient-hero py-24 lg:py-40">
-      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+    <section className="relative bg-gradient-hero py-24 lg:py-40 overflow-hidden">
+      {/* Background Image */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
+        style={{
+          backgroundImage: `url('/lovable-uploads/a68ac24e-cf0d-4941-9059-568c9b92bebf.png')`
+        }}
+      />
+      {/* Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-hero" />
+      
+      <div className="relative max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
         <div className="text-center">
           <h1 className="text-5xl lg:text-7xl font-elegant font-bold text-foreground mb-8">
             Soul Train's <span className="text-primary">Eatery</span>

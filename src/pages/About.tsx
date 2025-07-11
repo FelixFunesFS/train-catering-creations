@@ -18,15 +18,15 @@ const About = () => {
           
           {/* Profile Image */}
           <div className="flex flex-col items-center mb-8">
-            <Avatar className="w-48 h-48 lg:w-56 lg:h-56 shadow-elegant border-4 border-background">
-              <AvatarImage 
-                src="/lovable-uploads/c171cee1-bcc6-40c9-ab2e-cfb1191cba5a.png" 
-                alt="Chef Dominick 'Train' Ward and Pastry Chef Tanya Ward"
-                className="object-cover object-top"
+            <div className="relative w-48 h-48 lg:w-56 lg:h-56 shadow-elegant border-4 border-background rounded-full overflow-hidden">
+              <img 
+                src="/lovable-uploads/022262dd-31ca-4499-bbac-5e0a3676589d.png" 
+                alt="Chef Dominick 'Train' Ward expertly carving fresh brisket"
+                className="w-full h-full object-cover object-center"
               />
-            </Avatar>
+            </div>
             <p className="text-lg text-muted-foreground mt-4 font-medium text-center">
-              Chef Dominick "Train" Ward and Pastry Chef Tanya Ward
+              Chef Dominick "Train" Ward - Master of BBQ Excellence
             </p>
           </div>
         </div>
@@ -72,7 +72,15 @@ const About = () => {
             </CardContent>
           </Card>
 
-          <Card className="shadow-card">
+          <Card className="shadow-card overflow-hidden">
+            <div className="relative h-40 overflow-hidden">
+              <img 
+                src="/lovable-uploads/eecf9726-8cce-48e5-8abb-f0dd78ebcb4e.png" 
+                alt="Elegant layered dessert cups by Tanya Ward" 
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+            </div>
             <CardContent className="p-8">
               <h3 className="text-2xl font-elegant font-semibold text-foreground mb-4">
                 Sweet Treats by Tanya

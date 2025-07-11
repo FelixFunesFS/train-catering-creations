@@ -16,7 +16,15 @@ export const SignatureDishesSection = () => {
         </div>
 
         <div className="grid md:grid-cols-3 gap-10">
-          <Card className="shadow-card">
+          <Card className="shadow-card overflow-hidden group">
+            <div className="relative h-48 overflow-hidden">
+              <img 
+                src="/lovable-uploads/ea7d03d8-7085-4847-b9d1-ebb3b0dd070a.png" 
+                alt="Perfectly sliced brisket showcase" 
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+            </div>
             <CardContent className="p-8">
               <h3 className="text-xl font-elegant font-semibold text-foreground mb-6">Southern Classics</h3>
               <ul className="space-y-3 text-muted-foreground">
@@ -29,7 +37,15 @@ export const SignatureDishesSection = () => {
             </CardContent>
           </Card>
 
-          <Card className="shadow-card">
+          <Card className="shadow-card overflow-hidden group">
+            <div className="relative h-48 overflow-hidden">
+              <img 
+                src="/lovable-uploads/7f22e72c-441b-4b6c-9525-56748107fdd5.png" 
+                alt="Gourmet salmon and creamy casserole presentation" 
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+            </div>
             <CardContent className="p-8">
               <h3 className="text-xl font-elegant font-semibold text-foreground mb-6">Seafood & Specialties</h3>
               <ul className="space-y-3 text-muted-foreground">
@@ -42,7 +58,15 @@ export const SignatureDishesSection = () => {
             </CardContent>
           </Card>
 
-          <Card className="shadow-card">
+          <Card className="shadow-card overflow-hidden group">
+            <div className="relative h-48 overflow-hidden">
+              <img 
+                src="/lovable-uploads/eecf9726-8cce-48e5-8abb-f0dd78ebcb4e.png" 
+                alt="Elegant layered dessert cups arrangement" 
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+            </div>
             <CardContent className="p-8">
               <h3 className="text-xl font-elegant font-semibold text-foreground mb-6">Tanya's Desserts</h3>
               <ul className="space-y-3 text-muted-foreground">
