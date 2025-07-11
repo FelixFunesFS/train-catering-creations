@@ -32,12 +32,6 @@ const highQualityImages = [
     category: "wedding"
   },
   {
-    src: "/lovable-uploads/a68ac24e-cf0d-4941-9059-568c9b92bebf.png",
-    title: "Grand Banquet Hall",
-    description: "Luxurious banquet hall with gold accents",
-    category: "formal"
-  },
-  {
     src: "/lovable-uploads/9ea8f6b7-e1cd-4f55-a434-1ffedf0b96dc.png",
     title: "Military Formal Ceremony",
     description: "Professional formal ceremony with decorative arch",
