@@ -26,7 +26,12 @@ export const Header = () => {
         <div className="flex justify-between items-center py-6">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-4">
-            <div className="text-2xl lg:text-3xl font-elegant font-bold text-primary">
+            <img 
+              src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
+              alt="Soul Train's Eatery Logo" 
+              className="w-8 h-8 object-contain"
+            />
+            <div className="text-2xl lg:text-3xl font-script font-bold text-primary">
               Soul Train's
             </div>
             <div className="text-xl lg:text-2xl font-script text-muted-foreground">

@@ -37,7 +37,7 @@ export const Footer = () => {
                 alt="Soul Train's Eatery Logo" 
                 className="w-8 h-8 object-contain"
               />
-              <div className="text-2xl font-elegant font-bold text-primary">
+              <div className="text-2xl font-script font-bold text-primary">
                 Soul Train's
               </div>
               <div className="text-xl font-script text-muted-foreground">
