@@ -44,7 +44,7 @@ const EntreesCard = () => {
         <div className="space-y-6">
           {/* Poultry Section */}
           <div>
-            <h3 className="text-lg font-semibold text-center text-foreground mb-3">Poultry</h3>
+            <h3 className="text-lg font-elegant text-center text-foreground mb-3">Poultry</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               {poultryItems.map((item, index) => (
                 <div key={index} className="border-b border-muted/40 pb-2 last:border-b-0">
@@ -57,7 +57,7 @@ const EntreesCard = () => {
 
           {/* Beef & Pork Section */}
           <div>
-            <h3 className="text-lg font-semibold text-center text-foreground mb-3">Beef & Pork</h3>
+            <h3 className="text-lg font-elegant text-center text-foreground mb-3">Beef & Pork</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               {beefPorkItems.map((item, index) => (
                 <div key={index} className="border-b border-muted/40 pb-2 last:border-b-0">
@@ -70,7 +70,7 @@ const EntreesCard = () => {
 
           {/* Seafood Section */}
           <div>
-            <h3 className="text-lg font-semibold text-center text-foreground mb-3">Seafood</h3>
+            <h3 className="text-lg font-elegant text-center text-foreground mb-3">Seafood</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               {seafoodItems.map((item, index) => (
                 <div key={index} className="border-b border-muted/40 pb-2 last:border-b-0">
