@@ -17,7 +17,13 @@ export const ImageModal = ({
           <Button variant="ghost" size="sm" className="absolute -top-12 right-0 text-white hover:text-gray-300 z-10" onClick={onClose}>
             <X className="h-6 w-6" />
           </Button>
-          {selectedImage}
+          {selectedImage && (
+            <img 
+              src={selectedImage} 
+              alt="Gallery image" 
+              className="w-full h-auto max-h-[80vh] object-contain rounded-lg"
+            />
+          )}
         </div>
       </DialogContent>
     </Dialog>;
