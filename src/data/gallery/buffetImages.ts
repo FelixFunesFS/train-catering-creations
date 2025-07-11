@@ -140,5 +140,26 @@ export const buffetImages: GalleryImage[] = [
     title: "Outdoor Buffet with Chicken and Vegetables",
     description: "Professional outdoor buffet setup featuring seasoned chicken, roasted vegetables, and casserole dishes",
     quality: 8
+  },
+  {
+    src: "/lovable-uploads/b6bd9762-fdf1-45ee-8622-1ebd471fa4ac.png",
+    category: "buffet",
+    title: "Red Linen Buffet Setup",
+    description: "Professional buffet service with elegant red linens and chafing dishes",
+    quality: 7
+  },
+  {
+    src: "/lovable-uploads/11d5b2f9-2299-49fa-92c6-30942bf457ae.png",
+    category: "buffet",
+    title: "Fall-Themed Buffet",
+    description: "Seasonal buffet setup with autumn decorations and chafing service",
+    quality: 8
+  },
+  {
+    src: "/lovable-uploads/af3acb92-6e01-4d77-9bb3-2783a070405d.png",
+    category: "buffet",
+    title: "Elegant Chafing Service with Florals",
+    description: "Professional chafing dishes with beautiful floral arrangements",
+    quality: 8
   }
 ];

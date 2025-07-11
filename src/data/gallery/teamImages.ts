@@ -84,5 +84,12 @@ export const teamImages: GalleryImage[] = [
     title: "Professional Chef Team with Chafing Service",
     description: "Our skilled chef team in professional uniforms providing elegant chafing dish service",
     quality: 8
+  },
+  {
+    src: "/lovable-uploads/86a73cc7-624a-4cae-8bde-af21cef9593a.png",
+    category: "team",
+    title: "Chef Team with Signature Dishes",
+    description: "Professional chefs proudly presenting large pans of signature dishes",
+    quality: 8
   }
 ];
