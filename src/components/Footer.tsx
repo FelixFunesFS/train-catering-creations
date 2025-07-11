@@ -1,0 +1,178 @@
+import { Link } from "react-router-dom";
+import { Phone, Mail, MapPin, Clock, Facebook, Instagram, Twitter, Star } from "lucide-react";
+
+export const Footer = () => {
+  const currentYear = new Date().getFullYear();
+
+  const navigationLinks = [
+    { name: "Home", href: "/" },
+    { name: "About Us", href: "/about" },
+    { name: "Menu", href: "/menu" },
+    { name: "Wedding & Events", href: "/wedding-menu" },
+    { name: "Gallery", href: "/gallery" },
+    { name: "Reviews", href: "/reviews" },
+    { name: "Request Quote", href: "/request-quote" },
+  ];
+
+  const services = [
+    "Corporate Catering",
+    "Wedding Catering", 
+    "Private Events",
+    "Holiday Parties",
+    "Funeral Repasts",
+    "Soul Food Specialties"
+  ];
+
+  return (
+    <footer className="bg-gradient-card border-t border-border">
+      {/* Main Footer Content */}
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          
+          {/* Company Information */}
+          <div className="lg:col-span-1">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="text-2xl font-elegant font-bold text-primary">
+                Soul Train's
+              </div>
+              <div className="text-xl font-script text-muted-foreground">
+                Eatery
+              </div>
+            </div>
+            <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+              Authentic soul food catering bringing comfort and flavor to your special events. 
+              From intimate gatherings to large celebrations, we serve love on every plate.
+            </p>
+            <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+              <Star className="h-4 w-4 text-primary" fill="currentColor" />
+              <span>Premium Catering Services</span>
+            </div>
+          </div>
+
+          {/* Contact Information */}
+          <div>
+            <h3 className="text-lg font-elegant font-semibold text-foreground mb-4">Contact Us</h3>
+            <div className="space-y-3">
+              <a 
+                href="tel:8439700265" 
+                className="flex items-center space-x-3 text-sm text-muted-foreground hover:text-primary transition-colors group"
+              >
+                <Phone className="h-4 w-4 group-hover:text-primary" />
+                <span>(843) 970-0265</span>
+              </a>
+              <a 
+                href="mailto:soultrainseatery@gmail.com"
+                className="flex items-center space-x-3 text-sm text-muted-foreground hover:text-primary transition-colors group"
+              >
+                <Mail className="h-4 w-4 group-hover:text-primary" />
+                <span>soultrainseatery@gmail.com</span>
+              </a>
+              <div className="flex items-start space-x-3 text-sm text-muted-foreground">
+                <MapPin className="h-4 w-4 mt-0.5" />
+                <div>
+                  <p>Charleston, SC Metro Area</p>
+                  <p className="text-xs">Serving all surrounding areas</p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-3 text-sm text-muted-foreground">
+                <Clock className="h-4 w-4" />
+                <div>
+                  <p>By Appointment</p>
+                  <p className="text-xs">Call for availability</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Links */}
+          <div>
+            <h3 className="text-lg font-elegant font-semibold text-foreground mb-4">Quick Links</h3>
+            <nav className="space-y-2">
+              {navigationLinks.map((item) => (
+                <Link
+                  key={item.name}
+                  to={item.href}
+                  className="block text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  {item.name}
+                </Link>
+              ))}
+            </nav>
+          </div>
+
+          {/* Services */}
+          <div>
+            <h3 className="text-lg font-elegant font-semibold text-foreground mb-4">Our Services</h3>
+            <ul className="space-y-2">
+              {services.map((service, index) => (
+                <li 
+                  key={index}
+                  className="text-sm text-muted-foreground flex items-start"
+                >
+                  <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  {service}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        {/* Social Media & Testimonial */}
+        <div className="mt-12 pt-8 border-t border-border">
+          <div className="flex flex-col lg:flex-row justify-between items-center space-y-4 lg:space-y-0">
+            
+            {/* Social Media */}
+            <div className="flex items-center space-x-4">
+              <span className="text-sm text-muted-foreground">Follow Us:</span>
+              <div className="flex space-x-3">
+                <a 
+                  href="#" 
+                  className="w-8 h-8 bg-muted rounded-full flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors"
+                  aria-label="Facebook"
+                >
+                  <Facebook className="h-4 w-4" />
+                </a>
+                <a 
+                  href="#" 
+                  className="w-8 h-8 bg-muted rounded-full flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors"
+                  aria-label="Instagram"
+                >
+                  <Instagram className="h-4 w-4" />
+                </a>
+                <a 
+                  href="#" 
+                  className="w-8 h-8 bg-muted rounded-full flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors"
+                  aria-label="Twitter"
+                >
+                  <Twitter className="h-4 w-4" />
+                </a>
+              </div>
+            </div>
+
+            {/* Customer Testimonial */}
+            <div className="text-center lg:text-right">
+              <p className="text-sm text-muted-foreground italic">
+                "Soul Train's Eatery made our wedding perfect with their amazing food!"
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">- Happy Customer</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Copyright Bar */}
+      <div className="bg-primary py-4">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+          <div className="flex flex-col sm:flex-row justify-between items-center text-sm text-primary-foreground">
+            <p>© {currentYear} Soul Train's Eatery. All rights reserved.</p>
+            <div className="flex space-x-6 mt-2 sm:mt-0">
+              <span>Licensed & Insured</span>
+              <span>•</span>
+              <span>Charleston, SC</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+};
