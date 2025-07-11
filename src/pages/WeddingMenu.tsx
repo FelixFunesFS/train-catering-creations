@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Heart, Star, Crown } from "lucide-react";
 
 const WeddingMenu = () => {
@@ -320,7 +321,18 @@ const WeddingMenu = () => {
 
         {/* Event Types */}
         <div className="grid md:grid-cols-3 gap-6 lg:gap-8 mb-12 lg:mb-16 mt-16 md:mt-20 lg:mt-24">
-          <Card className="shadow-card text-center">
+          <Card className="shadow-card text-center hover-scale transition-all duration-300 overflow-hidden">
+            <div className="relative">
+              <AspectRatio ratio={4/3}>
+                <img 
+                  src="/lovable-uploads/edcf2b0c-48ce-4fa1-b126-bae69794e159.png" 
+                  alt="Elegant wedding reception setup with beautiful table arrangements"
+                  className="object-cover w-full h-full"
+                  loading="lazy"
+                />
+              </AspectRatio>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+            </div>
             <CardHeader>
               <Heart className="h-12 w-12 text-primary mx-auto mb-4" />
               <CardTitle className="text-xl font-elegant">Weddings</CardTitle>
@@ -332,7 +344,18 @@ const WeddingMenu = () => {
             </CardContent>
           </Card>
 
-          <Card className="shadow-card text-center">
+          <Card className="shadow-card text-center hover-scale transition-all duration-300 overflow-hidden">
+            <div className="relative">
+              <AspectRatio ratio={4/3}>
+                <img 
+                  src="/lovable-uploads/88b08366-e9d1-4afc-9bb5-737debec18e8.png" 
+                  alt="Elegant outdoor catering setup with chafing dishes and professional service"
+                  className="object-cover w-full h-full"
+                  loading="lazy"
+                />
+              </AspectRatio>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+            </div>
             <CardHeader>
               <Crown className="h-12 w-12 text-primary mx-auto mb-4" />
               <CardTitle className="text-xl font-elegant">Black Tie Events</CardTitle>
@@ -344,7 +367,18 @@ const WeddingMenu = () => {
             </CardContent>
           </Card>
 
-          <Card className="shadow-card text-center">
+          <Card className="shadow-card text-center hover-scale transition-all duration-300 overflow-hidden">
+            <div className="relative">
+              <AspectRatio ratio={4/3}>
+                <img 
+                  src="/lovable-uploads/11bbd70e-3036-41fa-8753-921dc14c0bab.png" 
+                  alt="Military honor guard ceremony with elegant charcuterie spread"
+                  className="object-cover w-full h-full"
+                  loading="lazy"
+                />
+              </AspectRatio>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+            </div>
             <CardHeader>
               <Star className="h-12 w-12 text-primary mx-auto mb-4" />
               <CardTitle className="text-xl font-elegant">Military Functions</CardTitle>
