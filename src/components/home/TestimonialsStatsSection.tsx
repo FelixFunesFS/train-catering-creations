@@ -35,7 +35,7 @@ export const TestimonialsStatsSection = () => {
                 <Card key={index} className="bg-card border-border hover:shadow-elegant transition-all duration-300 hover:scale-105">
                   <CardContent className="p-16 text-center">
                     <stat.icon className="h-12 w-12 text-primary mx-auto mb-8" />
-                    <div className="text-3xl lg:text-4xl font-bold text-foreground mb-6">
+                    <div className="text-3xl lg:text-4xl font-elegant font-bold text-foreground mb-6">
                       {stat.number}
                     </div>
                     <p className="text-base text-muted-foreground font-medium">
