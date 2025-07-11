@@ -18,16 +18,12 @@ const About = () => {
           
           {/* Profile Image */}
           <div className="flex flex-col items-center mb-8">
-            <div className="relative w-48 h-48 lg:w-56 lg:h-56">
-              <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary-glow to-accent rounded-full p-1">
-                <div className="w-full h-full bg-background rounded-full p-2">
-                  <img 
-                    src="/lovable-uploads/7386b87d-cf31-4aad-a072-4dc06d9d2a3a.png" 
-                    alt="Chef Dominick 'Train' Ward working in the kitchen with professional expertise"
-                    className="w-full h-full object-cover object-center rounded-full shadow-elegant"
-                  />
-                </div>
-              </div>
+            <div className="relative w-48 h-48 lg:w-56 lg:h-56 shadow-elegant border-4 border-background rounded-full overflow-hidden">
+              <img 
+                src="/lovable-uploads/7386b87d-cf31-4aad-a072-4dc06d9d2a3a.png" 
+                alt="Chef Dominick 'Train' Ward working in the kitchen with professional expertise"
+                className="w-full h-full object-cover object-center"
+              />
             </div>
             <p className="text-lg text-muted-foreground mt-4 font-medium text-center">
               Chef Dominick "Train" Ward - Master of BBQ Excellence
