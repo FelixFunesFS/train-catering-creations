@@ -24,7 +24,7 @@ export const Footer = () => {
     name: "Request Quote",
     href: "/request-quote"
   }];
-  const services = ["Corporate Catering", "Wedding Catering", "Private Events", "Holiday Parties", "Funeral Repasts", "Custom Menus"];
+  const services = ["Military Functions", "Corporate Catering", "Wedding Catering", "Private Events", "Holiday Parties", "Funeral Repasts", "Custom Menus"];
   return <footer className="bg-gradient-card border-t border-border">
       {/* Main Footer Content */}
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-12">
