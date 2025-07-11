@@ -16,12 +16,12 @@ export const HeroSection = () => {
     alt: "Rustic venue buffet setup with chafing dishes and atmospheric lighting",
     title: "Venue Setup"
   }, {
-    src: "/lovable-uploads/9332d2dd-3c00-48bb-ba3d-17b943a78ad2.png",
-    alt: "Grand formal event space with multiple tables and floral arrangements",
+    src: "/lovable-uploads/d2ed2f6e-a667-4bf2-9e28-30029d377f94.png",
+    alt: "Elegant formal event display with tiered appetizers and beverage service",
     title: "Formal Events"
   }, {
-    src: "/lovable-uploads/ca9734ef-7643-4b4c-913b-eeec8c80237d.png",
-    alt: "Professional chafing dishes setup with elegant catering display",
+    src: "/lovable-uploads/219fd936-c6cf-4585-a336-826a456494ff.png",
+    alt: "Professional buffet service setup with chafing dishes and elegant presentation",
     title: "Buffet Service"
   }];
 
