@@ -12,8 +12,8 @@ export const HeroSection = () => {
     alt: "Professional chafing dishes setup with elegant catering display",
     title: "Buffet Service"
   }, {
-    src: "/lovable-uploads/324100be-b134-4222-a2cf-4667ed370b98.png",
-    alt: "Elegant event space with white chair covers and gold accents",
+    src: "/lovable-uploads/1dcbc1ee-eb25-4d89-8722-cb4904d1ba69.png",
+    alt: "Elegant wedding dessert table with tiered cake, neon signage, and gourmet treats",
     title: "Wedding Reception"
   }, {
     src: "/lovable-uploads/9332d2dd-3c00-48bb-ba3d-17b943a78ad2.png",
