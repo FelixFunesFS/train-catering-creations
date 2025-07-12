@@ -144,7 +144,7 @@ const QuoteForm = () => {
             />
           </div>
 
-          <Button type="submit" className="w-full bg-primary hover:bg-primary-glow text-primary-foreground font-medium py-4">
+          <Button type="submit" className="w-full bg-primary hover:bg-primary-glow text-primary-foreground px-6 py-3 text-base font-semibold shadow-elegant hover:shadow-lg transform hover:scale-105 transition-all duration-300">
             Request Quote
           </Button>
         </form>

@@ -82,7 +82,7 @@ export const SignatureDishesSection = () => {
 
         <div className="text-center mt-12 lg:mt-16">
           <Link to="/menu">
-            <Button className="bg-primary hover:bg-primary-glow text-primary-foreground px-10 py-4">
+            <Button className="bg-primary hover:bg-primary-glow text-primary-foreground px-6 py-3 text-base font-semibold shadow-elegant hover:shadow-lg transform hover:scale-105 transition-all duration-300 w-full sm:w-auto">
               View Full Menu
             </Button>
           </Link>

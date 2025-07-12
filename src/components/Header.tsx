@@ -68,7 +68,7 @@ export const Header = () => {
                 </Link>
               ))}
             </nav>
-            <Button asChild className="btn-primary">
+            <Button asChild className="bg-primary hover:bg-primary-glow text-primary-foreground px-6 py-3 text-base font-semibold shadow-elegant hover:shadow-lg transform hover:scale-105 transition-all duration-300">
               <Link to="/request-quote">Request Quote</Link>
             </Button>
           </div>
@@ -99,7 +99,7 @@ export const Header = () => {
                 </Link>
               ))}
               <div className="px-4 pt-4">
-                <Button asChild className="btn-primary w-full">
+                <Button asChild className="bg-primary hover:bg-primary-glow text-primary-foreground px-6 py-3 text-base font-semibold shadow-elegant hover:shadow-lg transform hover:scale-105 transition-all duration-300 w-full">
                   <Link to="/request-quote" onClick={() => setIsMenuOpen(false)}>
                     Request Quote
                   </Link>

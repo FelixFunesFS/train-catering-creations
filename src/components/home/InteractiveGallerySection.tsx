@@ -143,14 +143,14 @@ export const InteractiveGallerySection = () => {
           </Carousel>
         </div>
 
-        <div className="text-center mt-12 lg:mt-16">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-12 lg:mt-16">
           <Link to="/gallery">
-            <Button className="bg-primary hover:bg-primary-glow text-primary-foreground px-6 py-3 text-base font-semibold shadow-elegant hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+            <Button className="bg-primary hover:bg-primary-glow text-primary-foreground px-6 py-3 text-base font-semibold shadow-elegant hover:shadow-lg transform hover:scale-105 transition-all duration-300 w-full sm:w-auto">
               View Full Gallery
             </Button>
           </Link>
-          <Link to="/quote">
-            <Button variant="outline" className="border-2 border-primary text-primary bg-transparent hover:bg-primary/5 hover:border-primary/50 px-6 py-3 text-base font-semibold transform hover:scale-105 transition-all duration-300 hover:shadow-md">
+          <Link to="/request-quote">
+            <Button variant="outline" className="border-2 border-primary text-primary bg-transparent hover:bg-primary/5 hover:border-primary/50 px-6 py-3 text-base font-semibold transform hover:scale-105 transition-all duration-300 hover:shadow-md w-full sm:w-auto">
               Request Quote
             </Button>
           </Link>
