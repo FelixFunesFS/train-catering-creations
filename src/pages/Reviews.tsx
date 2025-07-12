@@ -148,7 +148,7 @@ const Reviews = () => {
                   <h4 className="text-lg font-elegant font-semibold text-primary mb-2">
                     Worked with us recently?
                   </h4>
-                  <p className="text-primary-foreground text-sm">
+                  <p className="text-primary text-sm">
                     We'd love to hear about your experience! Contact us to share your feedback.
                   </p>
                 </CardContent>
