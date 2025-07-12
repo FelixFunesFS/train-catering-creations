@@ -110,7 +110,7 @@ const About = () => {
               <img 
                 src="/lovable-uploads/8268fc9a-93a0-4b72-a923-95fc0f10b0c0.png" 
                 alt="Chef Dominick 'Train' Ward and Tanya Ward, the founders of Soul Train's Eatery, wearing their signature red aprons"
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover object-top"
               />
             </div>
           </div>
@@ -124,7 +124,7 @@ const About = () => {
               <p className="text-xl text-muted-foreground leading-relaxed mb-6">
                 We don't just bring food—we bring flavor, family, and unforgettable experiences. Let Soul Train's Eatery handle the kitchen while you enjoy the moment.
               </p>
-              <div className="text-lg md:text-xl font-script text-primary leading-relaxed mt-8">
+              <div className="text-xl md:text-2xl font-script text-primary leading-relaxed mt-8">
                 🎉 Let Soul Train's Eatery take care of all your catering needs—so you can enjoy the celebration!
               </div>
             </CardContent>
