@@ -6,7 +6,7 @@ import SideDishesCard from "@/components/menu/SideDishesCard";
 import DessertsCard from "@/components/menu/DessertsCard";
 import MenuContact from "@/components/menu/MenuContact";
 const Menu = () => {
-  return <div className="min-h-screen bg-gradient-hero py-16">
+  return <div className="min-h-screen bg-gradient-hero py-16 md:py-20 lg:py-24">
       {/* Hero Image Section */}
       
       
