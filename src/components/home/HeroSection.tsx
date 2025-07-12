@@ -70,12 +70,12 @@ export const HeroSection = () => {
             {/* Call-to-Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in">
               <Link to="/request-quote" className="group">
-                <Button className="bg-primary hover:bg-primary-glow text-primary-foreground px-6 py-3 text-base font-semibold shadow-elegant hover:shadow-lg transform hover:scale-105 transition-all duration-300 w-full sm:w-auto group-hover:shadow-primary/20">
+                <Button className="bg-primary hover:bg-primary-glow text-primary-foreground px-6 py-3 text-base font-semibold shadow-elegant hover:shadow-lg transform hover:scale-105 transition-all duration-300 w-full sm:w-auto">
                   Request a Quote
                 </Button>
               </Link>
               <Link to="/gallery" className="group">
-                <Button variant="outline" className="px-6 py-3 text-base font-semibold w-full sm:w-auto border-2 hover:bg-primary/5 hover:border-primary/50 transition-all duration-300 group-hover:shadow-md">
+                <Button variant="outline" className="border-2 border-primary text-primary bg-transparent hover:bg-primary/5 hover:border-primary/50 px-6 py-3 text-base font-semibold w-full sm:w-auto transform hover:scale-105 transition-all duration-300 hover:shadow-md">
                   View Our Work
                 </Button>
               </Link>
