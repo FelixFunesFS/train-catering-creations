@@ -111,14 +111,14 @@ export const InteractiveGallerySection = () => {
             ]}
             className="w-full"
           >
-            <CarouselContent className="-ml-1 md:-ml-2">
+            <CarouselContent className="-ml-2 md:-ml-4">
               {highQualityImages.map((image, index) => (
-                <CarouselItem key={index} className="pl-1 md:pl-2 basis-full sm:basis-1/2 lg:basis-1/3">
+                <CarouselItem key={index} className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3">
                   <Card 
                     className="shadow-card hover:shadow-elegant transition-all duration-300 cursor-pointer group"
                     onClick={() => handleImageClick(image.src)}
                   >
-                    <CardContent className="!p-0">
+                    <CardContent className="p-0">
                       <div className="relative overflow-hidden rounded-lg aspect-square">
                         <img
                           src={image.src}
@@ -143,14 +143,14 @@ export const InteractiveGallerySection = () => {
           </Carousel>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-12 lg:mt-16">
+        <div className="text-center mt-12 lg:mt-16">
           <Link to="/gallery">
-            <Button className="bg-primary hover:bg-primary-glow text-primary-foreground px-6 py-3 text-base font-semibold shadow-elegant hover:shadow-lg transform hover:scale-105 transition-all duration-300 w-full sm:w-auto">
+            <Button className="bg-primary hover:bg-primary-glow text-primary-foreground px-10 py-4 mr-4">
               View Full Gallery
             </Button>
           </Link>
-          <Link to="/request-quote">
-            <Button variant="outline" className="border-2 border-primary text-primary bg-transparent hover:bg-primary/5 hover:border-primary/50 px-6 py-3 text-base font-semibold transform hover:scale-105 transition-all duration-300 hover:shadow-md w-full sm:w-auto">
+          <Link to="/quote">
+            <Button variant="outline" className="px-10 py-4">
               Request Quote
             </Button>
           </Link>

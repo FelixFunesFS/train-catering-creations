@@ -1,5 +1,4 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 
 export const GalleryCTA = () => {
   return (
@@ -11,17 +10,19 @@ export const GalleryCTA = () => {
         <p className="text-muted-foreground mb-6">
           Let us bring the same level of elegance and delicious food to your next event.
         </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-          <Button asChild className="bg-primary hover:bg-primary-glow text-primary-foreground px-6 py-3 text-base font-semibold shadow-elegant hover:shadow-lg transform hover:scale-105 transition-all duration-300 w-full sm:w-auto">
-            <a href="/request-quote">
-              Request Quote
-            </a>
-          </Button>
-          <Button asChild variant="outline" className="border-2 border-primary text-primary bg-transparent hover:bg-primary/5 hover:border-primary/50 px-6 py-3 text-base font-semibold transform hover:scale-105 transition-all duration-300 hover:shadow-md w-full sm:w-auto">
-            <a href="tel:8439700265">
-              Call Us Today
-            </a>
-          </Button>
+        <div className="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-6">
+          <a 
+            href="/request-quote" 
+            className="bg-primary text-primary-foreground px-8 py-3 rounded-lg font-medium hover:bg-primary-glow transition-colors shadow-glow"
+          >
+            Request Quote
+          </a>
+          <a 
+            href="tel:8439700265" 
+            className="border border-primary text-primary px-8 py-3 rounded-lg font-medium hover:bg-primary-light transition-colors"
+          >
+            Call Us Today
+          </a>
         </div>
       </CardContent>
     </Card>

@@ -70,12 +70,12 @@ export const HeroSection = () => {
             {/* Call-to-Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in">
               <Link to="/request-quote" className="group">
-                <Button className="bg-primary hover:bg-primary-glow text-primary-foreground px-6 py-3 text-base font-semibold shadow-elegant hover:shadow-lg transform hover:scale-105 transition-all duration-300 w-full sm:w-auto">
+                <Button className="bg-primary hover:bg-primary-glow text-primary-foreground px-6 py-3 text-base font-semibold shadow-elegant hover:shadow-lg transform hover:scale-105 transition-all duration-300 w-full sm:w-auto group-hover:shadow-primary/20">
                   Request a Quote
                 </Button>
               </Link>
               <Link to="/gallery" className="group">
-                <Button variant="outline" className="border-2 border-primary text-primary bg-transparent hover:bg-primary/5 hover:border-primary/50 px-6 py-3 text-base font-semibold w-full sm:w-auto transform hover:scale-105 transition-all duration-300 hover:shadow-md">
+                <Button variant="outline" className="px-6 py-3 text-base font-semibold w-full sm:w-auto border-2 hover:bg-primary/5 hover:border-primary/50 transition-all duration-300 group-hover:shadow-md">
                   View Our Work
                 </Button>
               </Link>
@@ -89,7 +89,7 @@ export const HeroSection = () => {
             
             
             {/* Responsive Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 lg:gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
               {heroImages.map((image, index) => <div key={index} className="group relative overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer bg-card" onClick={() => handleImageClick(image.src)}>
                   <div className="aspect-[5/4] overflow-hidden">
                     <img src={image.src} alt={image.alt} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 brightness-105 contrast-105" loading={index < 2 ? "eager" : "lazy"} />

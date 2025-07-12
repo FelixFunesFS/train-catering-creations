@@ -19,7 +19,7 @@ export const AboutPreviewSection = () => {
               From intimate gatherings to grand celebrations, we bring over two decades of culinary expertise, Southern hospitality, and ServSafe certified professionalism to every event.
             </p>
             <Link to="/about">
-              <Button className="bg-primary hover:bg-primary-glow text-primary-foreground px-6 py-3 text-base font-semibold shadow-elegant hover:shadow-lg transform hover:scale-105 transition-all duration-300 w-full sm:w-auto">
+              <Button className="bg-primary hover:bg-primary-glow text-primary-foreground px-8 py-4">
                 Learn More About Us
               </Button>
             </Link>

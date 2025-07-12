@@ -1,13 +1,6 @@
-import { Camera } from "lucide-react";
-
 export const GalleryHeader = () => {
   return (
     <div className="text-center mb-16">
-      <div className="flex justify-center mb-6">
-        <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
-          <Camera className="w-8 h-8 text-primary" />
-        </div>
-      </div>
       <h1 className="text-4xl lg:text-5xl font-elegant font-bold text-foreground mb-6">
         Photo Gallery
       </h1>
