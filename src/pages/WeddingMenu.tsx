@@ -21,7 +21,7 @@ const WeddingMenu = () => {
             />
             
             <div className="grid md:grid-cols-3 gap-6 lg:gap-8 mt-12">
-          <Card className="shadow-card text-center hover:scale-105 transition-all duration-200 overflow-hidden">
+          <Card className="relative shadow-card text-center hover:scale-105 transition-all duration-200 overflow-hidden">
             <OptimizedImage 
               src="/lovable-uploads/269bd0e4-4a19-4f14-b966-7b3173a10b95.png" 
               alt="Elegant wedding reception setup with beautiful floral arrangements and draped tables"
@@ -39,7 +39,7 @@ const WeddingMenu = () => {
             </CardContent>
           </Card>
 
-          <Card className="shadow-card text-center hover:scale-105 transition-all duration-200 overflow-hidden">
+          <Card className="relative shadow-card text-center hover:scale-105 transition-all duration-200 overflow-hidden">
             <OptimizedImage 
               src="/lovable-uploads/d4bf7685-b46c-4c39-8a28-1d003b978403.png" 
               alt="Elegant outdoor catering setup with chafing dishes and floral decorations"
@@ -57,7 +57,7 @@ const WeddingMenu = () => {
             </CardContent>
           </Card>
 
-          <Card className="shadow-card text-center hover:scale-105 transition-all duration-200 overflow-hidden">
+          <Card className="relative shadow-card text-center hover:scale-105 transition-all duration-200 overflow-hidden">
             <OptimizedImage 
               src="/lovable-uploads/cf6d0cd4-02bd-4607-b658-14a809d30275.png" 
               alt="Military honor guard ceremony with elegant charcuterie board catering"
