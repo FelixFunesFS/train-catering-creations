@@ -122,20 +122,12 @@ const About = () => {
                 Our Promise
               </h3>
               <p className="text-xl text-muted-foreground leading-relaxed">
-                We don't just bring food—we bring flavor, family, and unforgettable experiences. Let Soul Train's Eatery handle the kitchen while you enjoy the moment.
+                We don't just bring food—we bring flavor, family, and unforgettable experiences. Let Soul Train's Eatery take care of all your catering needs—so you can enjoy the celebration!
               </p>
             </CardContent>
           </Card>
         </div>
 
-        {/* Quote Section */}
-        <div className="text-center mb-12">
-          <div className="max-w-4xl mx-auto px-4">
-            <div className="text-2xl md:text-3xl lg:text-4xl font-script text-primary leading-relaxed">
-              🎉 Let Soul Train's Eatery take care of all your catering needs—so you can enjoy the celebration!
-            </div>
-          </div>
-        </div>
 
         {/* Contact Info */}
         <Card className="shadow-elegant bg-gradient-card text-center">
