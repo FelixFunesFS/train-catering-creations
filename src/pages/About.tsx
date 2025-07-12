@@ -124,7 +124,7 @@ const About = () => {
               <p className="text-xl text-muted-foreground leading-relaxed mb-6">
                 We don't just bring food—we bring flavor, family, and unforgettable experiences. Let Soul Train's Eatery handle the kitchen while you enjoy the moment.
               </p>
-              <div className="text-2xl md:text-3xl lg:text-4xl font-script text-primary leading-relaxed">
+              <div className="text-xl md:text-2xl lg:text-3xl font-script text-primary leading-relaxed">
                 🎉 Let Soul Train's Eatery take care of all your catering needs—so you can enjoy the celebration!
               </div>
             </CardContent>
