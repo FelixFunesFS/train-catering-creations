@@ -1,4 +1,5 @@
 import { GalleryImage } from "@/data/gallery/types";
+import { OptimizedImage } from "@/components/ui/optimized-image";
 
 interface ImageGridProps {
   images: GalleryImage[];
@@ -15,12 +16,12 @@ export const ImageGrid = ({ images, onImageClick }: ImageGridProps) => {
           onClick={() => onImageClick(image.src)}
         >
           <div className="relative w-full h-full">
-            <img
+            <OptimizedImage
               src={image.src}
               alt={image.title}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-              loading="lazy"
-              decoding="async"
+              aspectRatio="aspect-[5/4]"
+              className="group-hover:scale-105 transition-transform duration-200"
+              priority={index < 10}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-end">
               <div className="p-4 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200">
