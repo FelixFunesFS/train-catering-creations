@@ -17,7 +17,7 @@ export const PageHeader = ({
   children 
 }: PageHeaderProps) => {
   return (
-    <div className={cn("text-center mb-12 sm:mb-16", className)}>
+    <div className={cn("text-center mb-8 sm:mb-12 md:mb-16", className)}>
       {/* Icons */}
       {icons.length > 0 && (
         <div className="flex justify-center mb-4 animate-fade-in">
@@ -25,7 +25,7 @@ export const PageHeader = ({
             <div 
               key={index} 
               className={cn(
-                "h-6 w-6 sm:h-8 sm:w-8 text-primary",
+                "h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8 text-primary",
                 index === 0 && "mr-2",
                 index === icons.length - 1 && "ml-2",
                 index > 0 && index < icons.length - 1 && "mx-2"
@@ -38,16 +38,16 @@ export const PageHeader = ({
       )}
       
       {/* Title */}
-      <h1 className="text-3xl sm:text-4xl lg:text-5xl font-elegant font-bold text-foreground mb-4 sm:mb-6 animate-fade-in">
+      <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant font-bold text-foreground mb-4 sm:mb-6 animate-fade-in">
         {title}
       </h1>
       
       {/* Decorative line */}
-      <div className="w-16 sm:w-24 h-1 bg-gradient-primary mx-auto mb-6 sm:mb-8 animate-fade-in" />
+      <div className="w-12 sm:w-16 md:w-24 h-1 bg-gradient-primary mx-auto mb-6 sm:mb-8 animate-fade-in" />
       
       {/* Description */}
       {description && (
-        <p className="text-lg sm:text-xl text-foreground max-w-2xl mx-auto leading-relaxed px-4 animate-fade-in">
+        <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-foreground max-w-2xl mx-auto leading-relaxed px-4 animate-fade-in">
           {description}
         </p>
       )}

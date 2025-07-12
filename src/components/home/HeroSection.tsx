@@ -49,7 +49,7 @@ export const HeroSection = () => {
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 opacity-50 my-0 py-0"></div>
           
           <div className="relative z-10 max-w-7xl mx-auto">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-script font-bold text-foreground leading-[0.9] tracking-tight animate-fade-in mb-4">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-script font-bold text-foreground leading-[0.9] tracking-tight animate-fade-in mb-4">
               Soul Train's <span className="text-primary bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">Eatery</span>
             </h1>
             
@@ -59,18 +59,18 @@ export const HeroSection = () => {
             </div>
             
             <div className="w-24 h-1 bg-gradient-to-r from-primary to-primary-glow rounded-full mx-auto mb-6"></div>
-            <p className="text-base lg:text-lg text-muted-foreground leading-relaxed font-medium animate-fade-in max-w-2xl mx-auto mb-6">
+            <p className="text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed font-medium animate-fade-in max-w-2xl mx-auto mb-6">
               Where passion meets Southern hospitality. Elegant catering for weddings, black tie events, and memorable celebrations in Charleston's Lowcountry.
             </p>
             
             {/* Call-to-Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in max-w-md mx-auto">
-              <Button asChild variant="cta" size="responsive-sm">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center animate-fade-in max-w-xs sm:max-w-md mx-auto">
+              <Button asChild variant="cta" size="responsive-sm" className="w-full sm:w-auto">
                 <Link to="/request-quote">
                   Request a Quote
                 </Link>
               </Button>
-              <Button asChild variant="cta-outline" size="responsive-sm">
+              <Button asChild variant="cta-outline" size="responsive-sm" className="w-full sm:w-auto">
                 <Link to="/gallery">
                   View Our Work
                 </Link>
@@ -85,7 +85,7 @@ export const HeroSection = () => {
             
             
             {/* Responsive Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
               {heroImages.map((image, index) => <div key={index} className="group relative overflow-hidden rounded-lg shadow-card hover:shadow-elegant transition-all duration-200 cursor-pointer bg-card" onClick={() => handleImageClick(image.src)}>
                   <div className="aspect-[5/4] overflow-hidden">
                     <img src={image.src} alt={image.alt} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200 brightness-105 contrast-105" loading={index < 2 ? "eager" : "lazy"} />
