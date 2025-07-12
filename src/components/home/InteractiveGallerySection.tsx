@@ -82,11 +82,11 @@ export const InteractiveGallerySection = () => {
         }} plugins={[Autoplay({
           delay: 4000
         })]} className="w-full">
-            <CarouselContent className="-ml-2 md:-ml-4">
-              {highQualityImages.map((image, index) => <CarouselItem key={index} className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3">
-                  <Card className="shadow-card hover:shadow-elegant transition-all duration-200 cursor-pointer group" onClick={() => handleImageClick(image.src)}>
-                    <CardContent className="p-0 mx-[3px]">
-                      <div className="relative overflow-hidden rounded-lg aspect-square">
+            <CarouselContent className="-ml-0">
+              {highQualityImages.map((image, index) => <CarouselItem key={index} className="pl-0 basis-1/2 sm:basis-1/3 md:basis-1/4">
+                  <Card className="cursor-pointer group border-0 shadow-none" onClick={() => handleImageClick(image.src)}>
+                    <CardContent className="p-0">
+                      <div className="relative overflow-hidden aspect-square">
                         <img src={image.src} alt={image.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200" loading="lazy" />
                         <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 flex items-end mx-0">
                           <div className="p-4 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200">
