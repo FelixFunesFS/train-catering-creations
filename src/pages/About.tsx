@@ -106,25 +106,25 @@ const About = () => {
         <div className="grid lg:grid-cols-2 gap-8 items-center mb-12">
           {/* Image Section */}
           <div className="relative">
-            <div className="relative w-full rounded-lg overflow-hidden shadow-elegant">
+            <div className="relative w-full h-64 md:h-80 lg:h-96 rounded-lg overflow-hidden shadow-elegant">
               <img 
                 src="/lovable-uploads/8268fc9a-93a0-4b72-a923-95fc0f10b0c0.png" 
                 alt="Chef Dominick 'Train' Ward and Tanya Ward, the founders of Soul Train's Eatery, wearing their signature red aprons"
-                className="w-full h-auto object-cover"
+                className="w-full h-full object-cover"
               />
             </div>
           </div>
 
           {/* Promise Card */}
-          <Card className="shadow-elegant bg-gradient-card h-full">
-            <CardContent className="p-8 lg:p-12 text-center flex flex-col justify-center h-full">
+          <Card className="shadow-elegant bg-gradient-card h-64 md:h-80 lg:h-96">
+            <CardContent className="p-6 lg:p-8 text-center flex flex-col justify-center h-full">
               <h3 className="text-3xl font-elegant font-bold text-foreground mb-6">
                 Our Promise
               </h3>
               <p className="text-xl text-muted-foreground leading-relaxed mb-6">
                 We don't just bring food—we bring flavor, family, and unforgettable experiences. Let Soul Train's Eatery handle the kitchen while you enjoy the moment.
               </p>
-              <div className="text-xl md:text-2xl lg:text-3xl font-script text-primary leading-relaxed">
+              <div className="text-lg md:text-xl font-script text-primary leading-relaxed mt-8">
                 🎉 Let Soul Train's Eatery take care of all your catering needs—so you can enjoy the celebration!
               </div>
             </CardContent>
