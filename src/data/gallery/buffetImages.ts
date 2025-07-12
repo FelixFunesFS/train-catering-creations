@@ -191,13 +191,6 @@ export const buffetImages: GalleryImage[] = [
     quality: 8
   },
   {
-    src: "/lovable-uploads/92340ff8-1737-4c83-9a95-8af53f406242.png",
-    category: "buffet",
-    title: "Professional Buffet Team Service",
-    description: "Expert catering team providing professional buffet service with multiple chafing dishes",
-    quality: 9
-  },
-  {
     src: "/lovable-uploads/90274afc-189b-431c-b864-5d18548bb5c0.png",
     category: "buffet",
     title: "Large Event Buffet Setup",
