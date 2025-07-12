@@ -30,7 +30,7 @@ const WeddingMenu = () => {
                 <img 
                   src="/lovable-uploads/269bd0e4-4a19-4f14-b966-7b3173a10b95.png" 
                   alt="Elegant wedding reception setup with beautiful floral arrangements and draped tables"
-                  className="object-cover w-full h-full transform scale-110"
+                  className="object-cover w-full h-full"
                   loading="lazy"
                 />
               </AspectRatio>
