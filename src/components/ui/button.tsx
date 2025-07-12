@@ -5,7 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 touch-manipulation",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium ring-offset-background transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 touch-manipulation select-none",
   {
     variants: {
       variant: {
@@ -25,15 +25,15 @@ const buttonVariants = cva(
         accent: "bg-accent text-accent-foreground hover:bg-accent/80 shadow-sm hover:shadow-md",
       },
       size: {
-        default: "h-10 px-4 py-2 text-sm min-h-[44px]",
-        sm: "h-9 rounded-md px-3 text-sm min-h-[36px]",
-        lg: "h-11 rounded-md px-6 text-base min-h-[44px]",
-        xl: "h-12 rounded-md px-8 text-base font-semibold min-h-[48px]",
-        icon: "h-10 w-10 min-h-[44px] min-w-[44px]",
-        "responsive-sm": "h-9 px-3 text-sm min-h-[36px] sm:h-10 sm:px-4 sm:min-h-[44px]",
-        "responsive-md": "h-10 px-4 text-sm min-h-[44px] sm:h-11 sm:px-6 sm:text-base",
-        "responsive-lg": "h-11 px-6 text-base min-h-[44px] sm:h-12 sm:px-8 sm:text-lg",
-        "responsive-xl": "h-12 px-8 text-base min-h-[48px] sm:h-14 sm:px-10 sm:text-lg",
+        default: "h-10 px-4 py-2 text-sm min-h-[44px] min-w-[44px]",
+        sm: "h-9 rounded-md px-3 text-sm min-h-[44px] min-w-[44px]",
+        lg: "h-11 rounded-md px-6 text-base min-h-[44px] min-w-[44px]",
+        xl: "h-12 rounded-md px-8 text-base font-semibold min-h-[48px] min-w-[48px]",
+        icon: "h-12 w-12 min-h-[48px] min-w-[48px]",
+        "responsive-sm": "h-10 px-3 text-sm min-h-[44px] min-w-[44px] sm:h-11 sm:px-4 sm:min-h-[48px] sm:min-w-[48px]",
+        "responsive-md": "h-11 px-4 text-sm min-h-[44px] min-w-[44px] sm:h-12 sm:px-6 sm:text-base sm:min-h-[48px] sm:min-w-[48px]",
+        "responsive-lg": "h-12 px-6 text-base min-h-[48px] min-w-[48px] sm:h-14 sm:px-8 sm:text-lg sm:min-h-[56px] sm:min-w-[56px]",
+        "responsive-xl": "h-14 px-8 text-base min-h-[56px] min-w-[56px] sm:h-16 sm:px-10 sm:text-lg sm:min-h-[64px] sm:min-w-[64px]",
       },
     },
     defaultVariants: {

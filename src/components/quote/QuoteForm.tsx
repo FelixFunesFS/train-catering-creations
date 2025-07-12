@@ -38,50 +38,50 @@ const QuoteForm = () => {
         <CardTitle className="text-2xl font-elegant">Event Details</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-8">
-          <div className="grid md:grid-cols-2 gap-6">
+        <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <div>
-              <Label htmlFor="name">Full Name *</Label>
+              <Label htmlFor="name" className="text-sm sm:text-base font-medium text-foreground">Full Name *</Label>
               <Input
                 id="name"
                 value={formData.name}
                 onChange={(e) => handleChange("name", e.target.value)}
                 required
-                className="mt-2"
+                className="mt-2 h-12 text-base"
               />
             </div>
             <div>
-              <Label htmlFor="email">Email Address *</Label>
+              <Label htmlFor="email" className="text-sm sm:text-base font-medium text-foreground">Email Address *</Label>
               <Input
                 id="email"
                 type="email"
                 value={formData.email}
                 onChange={(e) => handleChange("email", e.target.value)}
                 required
-                className="mt-2"
+                className="mt-2 h-12 text-base"
               />
             </div>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <div>
-              <Label htmlFor="phone">Phone Number *</Label>
+              <Label htmlFor="phone" className="text-sm sm:text-base font-medium text-foreground">Phone Number *</Label>
               <Input
                 id="phone"
                 type="tel"
                 value={formData.phone}
                 onChange={(e) => handleChange("phone", e.target.value)}
                 required
-                className="mt-2"
+                className="mt-2 h-12 text-base"
               />
             </div>
             <div>
-              <Label htmlFor="eventType">Event Type *</Label>
+              <Label htmlFor="eventType" className="text-sm sm:text-base font-medium text-foreground">Event Type *</Label>
               <Select onValueChange={(value) => handleChange("eventType", value)} required>
-                <SelectTrigger className="mt-2">
+                <SelectTrigger className="mt-2 h-12 text-base">
                   <SelectValue placeholder="Select event type" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="z-50 bg-background border-border">
                   <SelectItem value="wedding">Wedding</SelectItem>
                   <SelectItem value="blacktie">Black Tie Event</SelectItem>
                   <SelectItem value="military">Military Function</SelectItem>
@@ -96,20 +96,20 @@ const QuoteForm = () => {
             </div>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <div>
-              <Label htmlFor="eventDate">Event Date *</Label>
+              <Label htmlFor="eventDate" className="text-sm sm:text-base font-medium text-foreground">Event Date *</Label>
               <Input
                 id="eventDate"
                 type="date"
                 value={formData.eventDate}
                 onChange={(e) => handleChange("eventDate", e.target.value)}
                 required
-                className="mt-2"
+                className="mt-2 h-12 text-base"
               />
             </div>
             <div>
-              <Label htmlFor="guestCount">Number of Guests *</Label>
+              <Label htmlFor="guestCount" className="text-sm sm:text-base font-medium text-foreground">Number of Guests *</Label>
               <Input
                 id="guestCount"
                 type="number"
@@ -117,34 +117,34 @@ const QuoteForm = () => {
                 value={formData.guestCount}
                 onChange={(e) => handleChange("guestCount", e.target.value)}
                 required
-                className="mt-2"
+                className="mt-2 h-12 text-base"
               />
             </div>
           </div>
 
           <div>
-            <Label htmlFor="location">Event Location</Label>
+            <Label htmlFor="location" className="text-sm sm:text-base font-medium text-foreground">Event Location</Label>
             <Input
               id="location"
               placeholder="Address or venue name"
               value={formData.location}
               onChange={(e) => handleChange("location", e.target.value)}
-              className="mt-2"
+              className="mt-2 h-12 text-base"
             />
           </div>
 
           <div>
-            <Label htmlFor="message">Additional Details</Label>
+            <Label htmlFor="message" className="text-sm sm:text-base font-medium text-foreground">Additional Details</Label>
             <Textarea
               id="message"
               placeholder="Tell us about your vision, dietary restrictions, budget range, or any special requests..."
               value={formData.message}
               onChange={(e) => handleChange("message", e.target.value)}
-              className="mt-2 min-h-[140px]"
+              className="mt-2 min-h-[120px] sm:min-h-[140px] text-base resize-none"
             />
           </div>
 
-          <Button type="submit" variant="cta" size="responsive-lg" className="w-full">
+          <Button type="submit" variant="cta" size="responsive-xl" className="w-full">
             Request Quote
           </Button>
         </form>
