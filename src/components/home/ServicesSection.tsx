@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { SectionCard } from "@/components/ui/section-card";
-import { Heart, Star, Users, Crown } from "lucide-react";
+import { OptimizedImage } from "@/components/ui/optimized-image";
 
 export const ServicesSection = () => {
   return (
@@ -18,8 +18,13 @@ export const ServicesSection = () => {
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
           <Card className="shadow-card text-center hover:shadow-elegant transition-all duration-200 overflow-hidden group">
-            <div className="relative h-32 bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
-              <Heart className="h-12 w-12 text-primary group-hover:scale-110 transition-transform duration-200" />
+            <div className="relative h-48">
+              <OptimizedImage
+                src="/lovable-uploads/546d7d1a-7987-4f44-a2d9-668efea60e51.png"
+                alt="Wedding Reception Setup"
+                aspectRatio="aspect-video"
+                className="group-hover:scale-105 transition-transform duration-300"
+              />
             </div>
             <CardContent className="p-6">
               <h3 className="text-xl font-elegant font-semibold text-foreground mb-4">Weddings</h3>
@@ -32,8 +37,13 @@ export const ServicesSection = () => {
           </Card>
 
           <Card className="shadow-card text-center hover:shadow-elegant transition-all duration-200 overflow-hidden group">
-            <div className="relative h-32 bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
-              <Crown className="h-12 w-12 text-primary group-hover:scale-110 transition-transform duration-200" />
+            <div className="relative h-48">
+              <OptimizedImage
+                src="/lovable-uploads/4b484494-59a9-4a30-90d6-c546fc32d0f7.png"
+                alt="Black Tie Event Catering"
+                aspectRatio="aspect-video"
+                className="group-hover:scale-105 transition-transform duration-300"
+              />
             </div>
             <CardContent className="p-6">
               <h3 className="text-xl font-elegant font-semibold text-foreground mb-4">Black Tie Events</h3>
@@ -46,8 +56,13 @@ export const ServicesSection = () => {
           </Card>
 
           <Card className="shadow-card text-center hover:shadow-elegant transition-all duration-200 overflow-hidden group">
-            <div className="relative h-32 bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
-              <Star className="h-12 w-12 text-primary group-hover:scale-110 transition-transform duration-200" />
+            <div className="relative h-48">
+              <OptimizedImage
+                src="/lovable-uploads/3226c955-a9b7-4c8d-a4c2-e5e7fc206f6f.png"
+                alt="Military Function Catering"
+                aspectRatio="aspect-video"
+                className="group-hover:scale-105 transition-transform duration-300"
+              />
             </div>
             <CardContent className="p-6">
               <h3 className="text-xl font-elegant font-semibold text-foreground mb-4">Military Functions</h3>
@@ -60,8 +75,13 @@ export const ServicesSection = () => {
           </Card>
 
           <Card className="shadow-card text-center hover:shadow-elegant transition-all duration-200 overflow-hidden group">
-            <div className="relative h-32 bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
-              <Users className="h-12 w-12 text-primary group-hover:scale-110 transition-transform duration-200" />
+            <div className="relative h-48">
+              <OptimizedImage
+                src="/lovable-uploads/6cd766e3-21ce-4e88-a3a4-6c8835dc9654.png"
+                alt="Private Event Catering"
+                aspectRatio="aspect-video"
+                className="group-hover:scale-105 transition-transform duration-300"
+              />
             </div>
             <CardContent className="p-6">
               <h3 className="text-xl font-elegant font-semibold text-foreground mb-4">Private Events</h3>
