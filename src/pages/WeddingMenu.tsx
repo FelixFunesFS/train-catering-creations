@@ -333,11 +333,11 @@ const WeddingMenu = () => {
               </AspectRatio>
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
             </div>
-            <CardHeader className="p-4">
+            <CardHeader className="p-4 pb-2">
               <Heart className="h-8 w-8 text-primary mx-auto mb-3" />
-              <CardTitle className="text-xl font-elegant">Weddings</CardTitle>
+              <CardTitle className="text-xl font-elegant mb-0">Weddings</CardTitle>
             </CardHeader>
-            <CardContent className="p-4 pt-0">
+            <CardContent className="p-4 pt-2">
               <p className="text-muted-foreground text-sm">
                 From intimate ceremonies to grand receptions, we make your wedding day perfectly delicious.
               </p>
@@ -356,11 +356,11 @@ const WeddingMenu = () => {
               </AspectRatio>
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
             </div>
-            <CardHeader className="p-4">
+            <CardHeader className="p-4 pb-2">
               <Crown className="h-8 w-8 text-primary mx-auto mb-3" />
-              <CardTitle className="text-xl font-elegant">Black Tie Events</CardTitle>
+              <CardTitle className="text-xl font-elegant mb-0">Black Tie Events</CardTitle>
             </CardHeader>
-            <CardContent className="p-4 pt-0">
+            <CardContent className="p-4 pt-2">
               <p className="text-muted-foreground text-sm">
                 Sophisticated menus for galas, corporate events, and formal celebrations.
               </p>
@@ -379,11 +379,11 @@ const WeddingMenu = () => {
               </AspectRatio>
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
             </div>
-            <CardHeader className="p-4">
+            <CardHeader className="p-4 pb-2">
               <Star className="h-8 w-8 text-primary mx-auto mb-3" />
-              <CardTitle className="text-xl font-elegant">Military Functions</CardTitle>
+              <CardTitle className="text-xl font-elegant mb-0">Military Functions</CardTitle>
             </CardHeader>
-            <CardContent className="p-4 pt-0">
+            <CardContent className="p-4 pt-2">
               <p className="text-muted-foreground text-sm">
                 Proudly serving military promotions, ceremonies, and special occasions with honor.
               </p>
