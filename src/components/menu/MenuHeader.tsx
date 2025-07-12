@@ -1,6 +1,13 @@
+import { UtensilsCrossed, ChefHat, Star } from "lucide-react";
+
 const MenuHeader = () => {
   return (
     <div className="text-center mb-16">
+      <div className="flex justify-center mb-4">
+        <UtensilsCrossed className="h-8 w-8 text-primary mr-2" />
+        <ChefHat className="h-8 w-8 text-primary mx-2" />
+        <Star className="h-8 w-8 text-primary ml-2" />
+      </div>
       <h1 className="text-4xl lg:text-5xl font-elegant font-bold text-foreground mb-6">
         Our Menu
       </h1>

@@ -1,5 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { User, Award, Heart } from "lucide-react";
 
 const About = () => {
   return (
@@ -7,6 +8,11 @@ const About = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-16">
+          <div className="flex justify-center mb-4">
+            <User className="h-8 w-8 text-primary mr-2" />
+            <Award className="h-8 w-8 text-primary mx-2" />
+            <Heart className="h-8 w-8 text-primary ml-2" />
+          </div>
           <h1 className="text-4xl lg:text-5xl font-elegant font-bold text-foreground mb-8">
             About Soul Train's Eatery
           </h1>
