@@ -5,7 +5,7 @@ import ContactInfoCards from "@/components/quote/ContactInfoCards";
 const RequestQuote = () => {
   return (
     <div className="min-h-screen bg-gradient-hero py-20">
-      <div className="max-w-4xl mx-auto px-6 sm:px-8 lg:px-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <QuoteHeader />
         
         <div className="grid lg:grid-cols-2 gap-16">
