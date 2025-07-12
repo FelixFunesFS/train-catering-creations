@@ -64,13 +64,13 @@ export const HeroSection = () => {
             </p>
             
             {/* Call-to-Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in">
-              <Button asChild variant="cta" size="responsive-lg">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in max-w-md mx-auto">
+              <Button asChild variant="cta" size="responsive-md">
                 <Link to="/request-quote">
                   Request a Quote
                 </Link>
               </Button>
-              <Button asChild variant="cta-outline" size="responsive-lg">
+              <Button asChild variant="cta-outline" size="responsive-md">
                 <Link to="/gallery">
                   View Our Work
                 </Link>

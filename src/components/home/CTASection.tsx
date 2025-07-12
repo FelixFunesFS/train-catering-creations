@@ -12,14 +12,14 @@ export const CTASection = () => {
         <p className="text-xl text-primary-foreground mb-8 lg:mb-12 opacity-90">
           Let Soul Train's Eatery handle the kitchen while you enjoy the moment. Contact us today for a personalized quote.
         </p>
-        <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6">
-          <Button asChild variant="cta" size="responsive-lg">
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6 max-w-lg mx-auto">
+          <Button asChild variant="cta" size="responsive-md">
             <a href="sms:8439700265" className="flex items-center space-x-2">
               <MessageCircle className="h-5 w-5" />
               <span>Text (843) 970-0265</span>
             </a>
           </Button>
-          <Button asChild variant="cta-white" size="responsive-lg">
+          <Button asChild variant="cta-white" size="responsive-md">
             <Link to="/request-quote">
               Request Quote
             </Link>

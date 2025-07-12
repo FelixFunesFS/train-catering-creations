@@ -11,13 +11,13 @@ export const GalleryCTA = () => {
         <p className="text-muted-foreground mb-6">
           Let us bring the same level of elegance and delicious food to your next event.
         </p>
-        <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6">
-          <Button asChild variant="cta" size="responsive-lg">
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6 max-w-md mx-auto">
+          <Button asChild variant="cta" size="responsive-md">
             <a href="/request-quote">
               Request Quote
             </a>
           </Button>
-          <Button asChild variant="cta-outline" size="responsive-md">
+          <Button asChild variant="cta-outline" size="responsive-sm">
             <a href="tel:8439700265">
               Call Us Today
             </a>
