@@ -44,13 +44,6 @@ export const dessertImages: GalleryImage[] = [
     quality: 9
   },
   {
-    src: "/lovable-uploads/3ca474e1-96d3-4e42-93a1-6a219b98e1b8.png",
-    category: "desserts",
-    title: "Dessert Shooters Display",
-    description: "Beautiful dessert shooters with menu display featuring pumpkin cheesecake and chocolate mousse",
-    quality: 9
-  },
-  {
     src: "/lovable-uploads/051aefe3-40f0-4bb0-bcc9-0eb4eece4abd.png",
     category: "desserts",
     title: "Dessert Display Case",

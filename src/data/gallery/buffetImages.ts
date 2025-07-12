@@ -23,13 +23,6 @@ export const buffetImages: GalleryImage[] = [
     quality: 7
   },
   {
-    src: "/lovable-uploads/78706c39-c63f-4ca7-8795-a497286e2dda.png",
-    category: "buffet",
-    title: "Elegant Event Buffet",
-    description: "Sophisticated buffet setup with floral accents and premium serving dishes",
-    quality: 8
-  },
-  {
     src: "/lovable-uploads/3c354402-a75f-4382-a187-10cb1a68d044.png",
     category: "buffet",
     title: "Professional Chafing Service",
