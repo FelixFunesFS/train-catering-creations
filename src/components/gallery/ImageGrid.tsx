@@ -9,15 +9,15 @@ interface ImageGridProps {
 
 export const ImageGrid = ({ images, onImageClick }: ImageGridProps) => {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 mb-12">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 mb-12">
       {images.map((image, index) => (
         <Card 
           key={index} 
-          className="shadow-card hover:shadow-elegant transition-all duration-200 cursor-pointer group min-h-[280px] sm:min-h-[320px]"
+          className="shadow-card hover:shadow-elegant transition-all duration-200 cursor-pointer group min-h-[240px] sm:min-h-[280px] xl:min-h-[240px]"
           onClick={() => onImageClick(image.src)}
         >
           <CardContent className="p-0">
-            <div className="relative overflow-hidden rounded-lg min-h-[280px] sm:min-h-[320px] group">
+            <div className="relative overflow-hidden rounded-lg min-h-[240px] sm:min-h-[280px] xl:min-h-[240px] group">
               <OptimizedImage
                 src={image.src}
                 alt={image.title}
