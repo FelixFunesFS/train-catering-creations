@@ -37,7 +37,6 @@ const WeddingMenu = () => {
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
             </div>
             <CardHeader className="pb-3">
-              <Heart className="h-10 w-10 text-primary mx-auto mb-3" />
               <CardTitle className="text-lg font-elegant">Weddings</CardTitle>
             </CardHeader>
             <CardContent className="pt-0 pb-4">
@@ -60,7 +59,6 @@ const WeddingMenu = () => {
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
             </div>
             <CardHeader className="pb-3">
-              <Crown className="h-10 w-10 text-primary mx-auto mb-3" />
               <CardTitle className="text-lg font-elegant">Black Tie Events</CardTitle>
             </CardHeader>
             <CardContent className="pt-0 pb-4">
@@ -83,7 +81,6 @@ const WeddingMenu = () => {
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
             </div>
             <CardHeader className="pb-3">
-              <Star className="h-10 w-10 text-primary mx-auto mb-3" />
               <CardTitle className="text-lg font-elegant">Military Functions</CardTitle>
             </CardHeader>
             <CardContent className="pt-0 pb-4">
