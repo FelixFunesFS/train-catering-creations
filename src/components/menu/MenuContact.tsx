@@ -12,12 +12,12 @@ const MenuContact = () => {
           Every event is unique. Let us create a customized menu that perfectly fits your occasion, dietary needs, and budget.
         </p>
         <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6">
-          <Button asChild variant="cta-outline" size="responsive-md">
+          <Button asChild variant="cta-outline" size="responsive-sm">
             <a href="tel:8439700265">
               Call (843) 970-0265
             </a>
           </Button>
-          <Button asChild variant="outline" size="responsive-md">
+          <Button asChild variant="outline" size="responsive-sm">
             <a href="mailto:soultrainseatery@gmail.com">
               Email Us
             </a>

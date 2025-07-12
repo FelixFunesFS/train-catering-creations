@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Heart, Star, Crown } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { OptimizedImage } from "@/components/ui/optimized-image";
@@ -449,19 +450,17 @@ const WeddingMenu = () => {
                 <p className="text-xl text-muted-foreground leading-relaxed mb-8 max-w-2xl mx-auto">
                   Schedule a consultation to discuss your vision, taste our specialties, and receive a customized proposal for your special occasion.
                 </p>
-                <div className="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-8">
-                  <a 
-                    href="tel:8439700265" 
-                    className="bg-primary text-primary-foreground px-8 py-3 rounded-lg font-medium hover:bg-primary-glow transition-colors shadow-glow"
-                  >
-                    Call (843) 970-0265
-                  </a>
-                  <a 
-                    href="mailto:soultrainseatery@gmail.com" 
-                    className="border border-primary text-primary px-8 py-3 rounded-lg font-medium hover:bg-primary-light transition-colors"
-                  >
-                    Email for Quote
-                  </a>
+                <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6">
+                  <Button asChild variant="cta" size="responsive-sm">
+                    <a href="tel:8439700265">
+                      Call (843) 970-0265
+                    </a>
+                  </Button>
+                  <Button asChild variant="cta-outline" size="responsive-sm">
+                    <a href="mailto:soultrainseatery@gmail.com">
+                      Email for Quote
+                    </a>
+                  </Button>
                 </div>
                 <p className="text-sm text-muted-foreground mt-6">
                   Serving Charleston, SC and surrounding Lowcountry areas

@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Calendar, Users, MapPin, Phone, Mail } from "lucide-react";
 
 const ContactInfoCards = () => {
@@ -92,9 +93,11 @@ const ContactInfoCards = () => {
           <p className="text-primary-foreground/90 text-sm mb-4">
             Call us directly for instant assistance and availability!
           </p>
-          <a href="tel:8439700265" className="inline-block bg-primary-foreground text-primary px-6 py-3 rounded-full font-semibold hover:shadow-glow transition-all duration-300 transform hover:scale-105">
-            Call Now: (843) 970-0265
-          </a>
+          <Button asChild variant="cta-white" size="responsive-sm" className="rounded-full transform hover:scale-105">
+            <a href="tel:8439700265">
+              Call Now: (843) 970-0265
+            </a>
+          </Button>
         </CardContent>
       </Card>
     </div>
