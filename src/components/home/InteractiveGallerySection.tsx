@@ -111,9 +111,9 @@ export const InteractiveGallerySection = () => {
             ]}
             className="w-full"
           >
-            <CarouselContent className="-ml-2 md:-ml-4">
+            <CarouselContent className="-ml-1">
               {highQualityImages.slice(0, 4).map((image, index) => (
-                <CarouselItem key={index} className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/4">
+                <CarouselItem key={index} className="pl-1 basis-full sm:basis-1/2 lg:basis-1/4">
                   <Card 
                     className="border-0 shadow-card hover:shadow-elegant transition-all duration-200 cursor-pointer group"
                     onClick={() => handleImageClick(image.src)}
@@ -138,8 +138,8 @@ export const InteractiveGallerySection = () => {
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <CarouselPrevious className="hidden md:flex" />
-            <CarouselNext className="hidden md:flex" />
+            <CarouselPrevious />
+            <CarouselNext />
           </Carousel>
         </div>
 
