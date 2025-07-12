@@ -104,7 +104,7 @@ const Reviews = () => {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-muted-foreground mb-3 leading-relaxed">
+                    <p className="text-foreground mb-3 leading-relaxed">
                       "{review.text}"
                     </p>
                     <p className="text-xs text-muted-foreground">{review.date}</p>
