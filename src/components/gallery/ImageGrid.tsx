@@ -1,6 +1,4 @@
-import { Card, CardContent } from "@/components/ui/card";
 import { GalleryImage } from "@/data/gallery/types";
-import { OptimizedImage } from "@/components/ui/optimized-image";
 
 interface ImageGridProps {
   images: GalleryImage[];
@@ -17,19 +15,17 @@ export const ImageGrid = ({ images, onImageClick }: ImageGridProps) => {
           onClick={() => onImageClick(image.src)}
         >
           <div className="relative w-full h-full">
-            <OptimizedImage
+            <img
               src={image.src}
               alt={image.title}
-              className="group-hover:scale-105 brightness-105 contrast-105 w-full h-full object-cover"
-              onImageError={() => {
-                console.error(`Failed to load image: ${image.src}`);
-              }}
-              onImageLoad={() => console.log(`Successfully loaded: ${image.src}`)}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+              loading="lazy"
+              decoding="async"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-end">
               <div className="p-4 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                <h3 className="font-elegant font-semibold text-white contrast-150">{image.title}</h3>
-                <p className="text-sm text-white/90 contrast-150">{image.description}</p>
+                <h3 className="font-elegant font-semibold text-white">{image.title}</h3>
+                <p className="text-sm text-white/90">{image.description}</p>
               </div>
             </div>
           </div>

@@ -88,7 +88,7 @@ export const HeroSection = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
               {heroImages.map((image, index) => <div key={index} className="group relative overflow-hidden rounded-lg shadow-card hover:shadow-elegant transition-all duration-200 cursor-pointer bg-card" onClick={() => handleImageClick(image.src)}>
                   <div className="aspect-[5/4] overflow-hidden">
-                    <img src={image.src} alt={image.alt} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200 brightness-105 contrast-105" loading={index < 2 ? "eager" : "lazy"} />
+                    <img src={image.src} alt={image.alt} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200" loading={index < 2 ? "eager" : "lazy"} decoding="async" />
                   </div>
                   
                   {/* Hover Overlay */}

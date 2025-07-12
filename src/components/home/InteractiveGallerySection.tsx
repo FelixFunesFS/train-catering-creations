@@ -86,11 +86,11 @@ export const InteractiveGallerySection = () => {
               {highQualityImages.map((image, index) => <CarouselItem key={index} className="pl-1 basis-1/2 sm:basis-1/3 md:basis-1/4">
                   <div className="shadow-card hover:shadow-elegant bg-card border-2 border-transparent hover:border-primary/20 transition-all duration-200 cursor-pointer group rounded-lg overflow-hidden" onClick={() => handleImageClick(image.src)}>
                     <div className="relative aspect-[5/4]">
-                      <img src={image.src} alt={image.title} className="w-full h-full object-cover group-hover:scale-105 brightness-105 contrast-105 transition-transform duration-200" loading="lazy" />
+                      <img src={image.src} alt={image.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200" loading="lazy" decoding="async" />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-end">
                         <div className="p-4 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                          <h3 className="font-elegant font-semibold text-white contrast-150">{image.title}</h3>
-                          <p className="text-sm text-white/90 contrast-150">{image.description}</p>
+                          <h3 className="font-elegant font-semibold text-white">{image.title}</h3>
+                          <p className="text-sm text-white/90">{image.description}</p>
                         </div>
                       </div>
                     </div>
