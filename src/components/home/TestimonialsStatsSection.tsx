@@ -32,17 +32,17 @@ export const TestimonialsStatsSection = () => {
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 lg:gap-8">
               {stats.map((stat, index) => (
-                <Card key={index} className="bg-card border-border hover:shadow-elegant transition-all duration-300 hover:scale-105">
-                  <CardContent className="p-6 lg:p-8 text-center">
-                    <stat.icon className="h-10 w-10 lg:h-12 lg:w-12 text-primary mx-auto mb-4 lg:mb-6" />
-                    <div className="text-2xl lg:text-3xl font-elegant font-bold text-foreground mb-4">
-                      {stat.number}
-                    </div>
-                    <p className="text-sm lg:text-base text-muted-foreground font-medium">
-                      {stat.label}
-                    </p>
-                  </CardContent>
-                </Card>
+              <Card key={index} className="bg-card border-border hover:shadow-elegant transition-all duration-200 hover:scale-105 group">
+                <CardContent className="p-6 lg:p-8 text-center">
+                  <stat.icon className="h-10 w-10 lg:h-12 lg:w-12 text-primary mx-auto mb-4 lg:mb-6 group-hover:scale-110 transition-transform duration-200" />
+                  <div className="text-2xl lg:text-3xl font-elegant font-bold text-foreground mb-4">
+                    {stat.number}
+                  </div>
+                  <p className="text-sm lg:text-base text-muted-foreground font-medium">
+                    {stat.label}
+                  </p>
+                </CardContent>
+              </Card>
               ))}
             </div>
           </div>

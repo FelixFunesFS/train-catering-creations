@@ -16,54 +16,58 @@ export const ServicesSection = () => {
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-          <Card className="shadow-card text-center hover:shadow-elegant transition-shadow overflow-hidden group">
+          <Card className="shadow-card text-center hover:shadow-elegant transition-all duration-200 overflow-hidden group">
             <div className="relative h-32 bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
-              <Heart className="h-12 w-12 text-primary group-hover:scale-110 transition-transform duration-300" />
+              <Heart className="h-12 w-12 text-primary group-hover:scale-110 transition-transform duration-200" />
             </div>
             <CardContent className="p-6">
               <h3 className="text-xl font-elegant font-semibold text-foreground mb-4">Weddings</h3>
               <p className="text-muted-foreground mb-6">Elegant receptions and intimate ceremonies with personalized menus</p>
-              <Link to="/wedding-menu" className="text-primary hover:text-primary-glow font-medium">
-                Learn More →
+              <Link to="/wedding-menu" className="text-primary hover:text-primary-glow font-medium group inline-flex items-center gap-1">
+                Learn More 
+                <span className="group-hover:translate-x-1 transition-transform duration-200">→</span>
               </Link>
             </CardContent>
           </Card>
 
-          <Card className="shadow-card text-center hover:shadow-elegant transition-shadow overflow-hidden group">
+          <Card className="shadow-card text-center hover:shadow-elegant transition-all duration-200 overflow-hidden group">
             <div className="relative h-32 bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
-              <Crown className="h-12 w-12 text-primary group-hover:scale-110 transition-transform duration-300" />
+              <Crown className="h-12 w-12 text-primary group-hover:scale-110 transition-transform duration-200" />
             </div>
             <CardContent className="p-6">
               <h3 className="text-xl font-elegant font-semibold text-foreground mb-4">Black Tie Events</h3>
               <p className="text-muted-foreground mb-6">Sophisticated catering for galas and formal celebrations</p>
-              <Link to="/wedding-menu" className="text-primary hover:text-primary-glow font-medium">
-                Learn More →
+              <Link to="/wedding-menu" className="text-primary hover:text-primary-glow font-medium group inline-flex items-center gap-1">
+                Learn More 
+                <span className="group-hover:translate-x-1 transition-transform duration-200">→</span>
               </Link>
             </CardContent>
           </Card>
 
-          <Card className="shadow-card text-center hover:shadow-elegant transition-shadow overflow-hidden group">
+          <Card className="shadow-card text-center hover:shadow-elegant transition-all duration-200 overflow-hidden group">
             <div className="relative h-32 bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
-              <Star className="h-12 w-12 text-primary group-hover:scale-110 transition-transform duration-300" />
+              <Star className="h-12 w-12 text-primary group-hover:scale-110 transition-transform duration-200" />
             </div>
             <CardContent className="p-6">
               <h3 className="text-xl font-elegant font-semibold text-foreground mb-4">Military Functions</h3>
               <p className="text-muted-foreground mb-6">Honoring service with promotions, ceremonies, and celebrations</p>
-              <Link to="/wedding-menu" className="text-primary hover:text-primary-glow font-medium">
-                Learn More →
+              <Link to="/wedding-menu" className="text-primary hover:text-primary-glow font-medium group inline-flex items-center gap-1">
+                Learn More 
+                <span className="group-hover:translate-x-1 transition-transform duration-200">→</span>
               </Link>
             </CardContent>
           </Card>
 
-          <Card className="shadow-card text-center hover:shadow-elegant transition-shadow overflow-hidden group">
+          <Card className="shadow-card text-center hover:shadow-elegant transition-all duration-200 overflow-hidden group">
             <div className="relative h-32 bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
-              <Users className="h-12 w-12 text-primary group-hover:scale-110 transition-transform duration-300" />
+              <Users className="h-12 w-12 text-primary group-hover:scale-110 transition-transform duration-200" />
             </div>
             <CardContent className="p-6">
               <h3 className="text-xl font-elegant font-semibold text-foreground mb-4">Private Events</h3>
               <p className="text-muted-foreground mb-6">Corporate conferences, family gatherings, and special occasions</p>
-              <Link to="/menu" className="text-primary hover:text-primary-glow font-medium">
-                View Menu →
+              <Link to="/menu" className="text-primary hover:text-primary-glow font-medium group inline-flex items-center gap-1">
+                View Menu 
+                <span className="group-hover:translate-x-1 transition-transform duration-200">→</span>
               </Link>
             </CardContent>
           </Card>

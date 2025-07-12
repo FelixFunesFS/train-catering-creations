@@ -25,34 +25,34 @@ export const AboutPreviewSection = () => {
             </Link>
           </div>
           <div className="grid grid-cols-2 gap-6 lg:gap-8">
-            <Card className="shadow-card">
-              <CardContent className="p-6 text-center">
-                <ChefHat className="h-10 w-10 text-primary mx-auto mb-4" />
-                <h3 className="font-elegant font-semibold text-foreground mb-2">Chef Train</h3>
-                <p className="text-sm text-muted-foreground">20+ Years Experience</p>
-              </CardContent>
-            </Card>
-            <Card className="shadow-card">
-              <CardContent className="p-6 text-center">
-                <Heart className="h-10 w-10 text-primary mx-auto mb-4" />
-                <h3 className="font-elegant font-semibold text-foreground mb-2">Tanya Ward</h3>
-                <p className="text-sm text-muted-foreground">Pastry Chef</p>
-              </CardContent>
-            </Card>
-            <Card className="shadow-card">
-              <CardContent className="p-6 text-center">
-                <Award className="h-10 w-10 text-primary mx-auto mb-4" />
-                <h3 className="font-elegant font-semibold text-foreground mb-2">ServSafe</h3>
-                <p className="text-sm text-muted-foreground">Certified</p>
-              </CardContent>
-            </Card>
-            <Card className="shadow-card">
-              <CardContent className="p-6 text-center">
-                <Users className="h-10 w-10 text-primary mx-auto mb-4" />
-                <h3 className="font-elegant font-semibold text-foreground mb-2">Family Run</h3>
-                <p className="text-sm text-muted-foreground">Community Rooted</p>
-              </CardContent>
-            </Card>
+          <Card className="shadow-card hover:shadow-elegant transition-shadow duration-200 overflow-hidden group">
+            <CardContent className="p-6 text-center">
+              <ChefHat className="h-10 w-10 text-primary mx-auto mb-4 group-hover:scale-110 transition-transform duration-200" />
+              <h3 className="font-elegant font-semibold text-foreground mb-2">Chef Train</h3>
+              <p className="text-sm text-muted-foreground">20+ Years Experience</p>
+            </CardContent>
+          </Card>
+          <Card className="shadow-card hover:shadow-elegant transition-shadow duration-200 overflow-hidden group">
+            <CardContent className="p-6 text-center">
+              <Heart className="h-10 w-10 text-primary mx-auto mb-4 group-hover:scale-110 transition-transform duration-200" />
+              <h3 className="font-elegant font-semibold text-foreground mb-2">Tanya Ward</h3>
+              <p className="text-sm text-muted-foreground">Pastry Chef</p>
+            </CardContent>
+          </Card>
+          <Card className="shadow-card hover:shadow-elegant transition-shadow duration-200 overflow-hidden group">
+            <CardContent className="p-6 text-center">
+              <Award className="h-10 w-10 text-primary mx-auto mb-4 group-hover:scale-110 transition-transform duration-200" />
+              <h3 className="font-elegant font-semibold text-foreground mb-2">ServSafe</h3>
+              <p className="text-sm text-muted-foreground">Certified</p>
+            </CardContent>
+          </Card>
+          <Card className="shadow-card hover:shadow-elegant transition-shadow duration-200 overflow-hidden group">
+            <CardContent className="p-6 text-center">
+              <Users className="h-10 w-10 text-primary mx-auto mb-4 group-hover:scale-110 transition-transform duration-200" />
+              <h3 className="font-elegant font-semibold text-foreground mb-2">Family Run</h3>
+              <p className="text-sm text-muted-foreground">Community Rooted</p>
+            </CardContent>
+          </Card>
           </div>
         </div>
       </div>

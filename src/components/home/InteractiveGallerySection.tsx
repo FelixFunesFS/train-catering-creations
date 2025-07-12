@@ -115,7 +115,7 @@ export const InteractiveGallerySection = () => {
               {highQualityImages.map((image, index) => (
                 <CarouselItem key={index} className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3">
                   <Card 
-                    className="shadow-card hover:shadow-elegant transition-all duration-300 cursor-pointer group"
+                    className="shadow-card hover:shadow-elegant transition-all duration-200 cursor-pointer group"
                     onClick={() => handleImageClick(image.src)}
                   >
                     <CardContent className="p-0">
@@ -123,11 +123,11 @@ export const InteractiveGallerySection = () => {
                         <img
                           src={image.src}
                           alt={image.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
                           loading="lazy"
                         />
-                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-end">
-                          <div className="p-4 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 flex items-end">
+                          <div className="p-4 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                             <h3 className="font-elegant font-semibold text-sm">{image.title}</h3>
                             <p className="text-xs mt-1">{image.description}</p>
                           </div>

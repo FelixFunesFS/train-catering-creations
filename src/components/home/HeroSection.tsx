@@ -56,9 +56,9 @@ export const HeroSection = () => {
             {/* Red Logo Icon */}
             <div className="flex justify-center mb-4">
               <img 
-                src="/lovable-uploads/3ad8c9b2-2411-43d2-ae32-de28c449b81c.png" 
+                src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
                 alt="Soul Train's Eatery Logo" 
-                className="w-8 h-8 sm:w-10 sm:h-10 animate-fade-in object-contain"
+                className="w-12 h-12 sm:w-14 sm:h-14 animate-fade-in object-contain hover:scale-110 transition-transform duration-300"
               />
             </div>
             
@@ -90,13 +90,13 @@ export const HeroSection = () => {
             
             {/* Responsive Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4">
-              {heroImages.map((image, index) => <div key={index} className="group relative overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer bg-card" onClick={() => handleImageClick(image.src)}>
+              {heroImages.map((image, index) => <div key={index} className="group relative overflow-hidden rounded-lg shadow-card hover:shadow-elegant transition-all duration-200 cursor-pointer bg-card" onClick={() => handleImageClick(image.src)}>
                   <div className="aspect-[5/4] overflow-hidden">
-                    <img src={image.src} alt={image.alt} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 brightness-105 contrast-105" loading={index < 2 ? "eager" : "lazy"} />
+                    <img src={image.src} alt={image.alt} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200 brightness-105 contrast-105" loading={index < 2 ? "eager" : "lazy"} />
                   </div>
                   
                   {/* Hover Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                     <div className="absolute bottom-4 left-4 right-4">
                       <h3 className="text-white font-semibold text-lg mb-1">
                         {image.title}
@@ -108,7 +108,7 @@ export const HeroSection = () => {
                   </div>
 
                   {/* Subtle border effect */}
-                  <div className="absolute inset-0 border-2 border-transparent group-hover:border-primary/20 rounded-lg transition-colors duration-300"></div>
+                  <div className="absolute inset-0 border-2 border-transparent group-hover:border-primary/20 rounded-lg transition-colors duration-200"></div>
                 </div>)}
             </div>
 
