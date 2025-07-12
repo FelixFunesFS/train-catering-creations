@@ -7,7 +7,6 @@ import { SectionCard } from "@/components/ui/section-card";
 const WeddingMenu = () => {
   return (
     <div className="min-h-screen bg-gradient-hero py-16 md:py-20 lg:py-24">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionCard>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <PageHeader
@@ -471,7 +470,6 @@ const WeddingMenu = () => {
             </Card>
           </div>
         </SectionCard>
-      </div>
     </div>
   );
 };
