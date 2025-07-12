@@ -9,9 +9,7 @@ const About = () => {
         {/* Header */}
         <div className="text-center mb-16 animate-slide-up">
           <div className="flex justify-center mb-6">
-            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center hover-glow transition-all duration-300">
-              <Users className="w-8 h-8 text-primary" />
-            </div>
+            <Users className="w-12 h-12 text-primary hover:text-primary-glow transition-colors duration-300" />
           </div>
           <h1 className="mb-8">
             About Soul Train's Eatery

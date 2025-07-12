@@ -347,16 +347,34 @@ Enhanced with consistent spacing, typography, and interactive elements.
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   }
 
-  /* Spacing utilities */
+  /* Spacing utilities with responsive scaling */
   .space-content > * + * {
-    margin-top: var(--spacing-lg);
+    margin-top: var(--spacing-md);
+  }
+  
+  @media (min-width: 640px) {
+    .space-content > * + * {
+      margin-top: var(--spacing-lg);
+    }
   }
 
   .space-content-sm > * + * {
-    margin-top: var(--spacing-md);
+    margin-top: var(--spacing-sm);
+  }
+  
+  @media (min-width: 640px) {
+    .space-content-sm > * + * {
+      margin-top: var(--spacing-md);
+    }
   }
 
   .space-content-lg > * + * {
-    margin-top: var(--spacing-xl);
+    margin-top: var(--spacing-lg);
+  }
+  
+  @media (min-width: 640px) {
+    .space-content-lg > * + * {
+      margin-top: var(--spacing-xl);
+    }
   }
 }
