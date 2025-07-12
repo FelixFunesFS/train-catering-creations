@@ -119,7 +119,7 @@ export const InteractiveGallerySection = () => {
                     onClick={() => handleImageClick(image.src)}
                   >
                     <CardContent className="p-0">
-                      <div className="relative overflow-hidden rounded-lg aspect-square">
+                      <div className="relative overflow-hidden aspect-square">
                         <img
                           src={image.src}
                           alt={image.title}
