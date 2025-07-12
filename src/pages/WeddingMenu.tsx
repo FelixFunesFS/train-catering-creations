@@ -29,10 +29,10 @@ const WeddingMenu = () => {
               className="transition-transform duration-200 group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-            <CardHeader className="px-4 py-2 sm:px-6 sm:py-3 pb-1">
+            <CardHeader className="pb-3">
               <CardTitle className="text-lg font-elegant">Weddings</CardTitle>
             </CardHeader>
-            <CardContent className="pt-0 pb-3 px-4 sm:px-6">
+            <CardContent className="pt-0 pb-4">
               <p className="text-muted-foreground text-sm">
                 From intimate ceremonies to grand receptions, we make your wedding day perfectly delicious.
               </p>
@@ -47,10 +47,10 @@ const WeddingMenu = () => {
               className="transition-transform duration-200 group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-            <CardHeader className="px-4 py-2 sm:px-6 sm:py-3 pb-1">
+            <CardHeader className="pb-3">
               <CardTitle className="text-lg font-elegant">Black Tie Events</CardTitle>
             </CardHeader>
-            <CardContent className="pt-0 pb-3 px-4 sm:px-6">
+            <CardContent className="pt-0 pb-4">
               <p className="text-muted-foreground text-sm">
                 Sophisticated menus for galas, corporate events, and formal celebrations.
               </p>
@@ -65,10 +65,10 @@ const WeddingMenu = () => {
               className="object-[50%_35%] transition-transform duration-200 group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-            <CardHeader className="px-4 py-2 sm:px-6 sm:py-3 pb-1">
+            <CardHeader className="pb-3">
               <CardTitle className="text-lg font-elegant">Military Functions</CardTitle>
             </CardHeader>
-            <CardContent className="pt-0 pb-3 px-4 sm:px-6">
+            <CardContent className="pt-0 pb-4">
               <p className="text-muted-foreground text-sm">
                 Proudly serving military promotions, ceremonies, and special occasions with honor.
               </p>
