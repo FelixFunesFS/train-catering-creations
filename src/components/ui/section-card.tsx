@@ -8,7 +8,7 @@ const SectionCard = React.forwardRef<
   <section
     ref={ref}
     className={cn(
-      "py-8 md:py-12 lg:py-16 bg-gradient-card shadow-card rounded-lg mx-4 sm:mx-6 lg:mx-8 my-4",
+      "py-8 md:py-12 lg:py-16 bg-gradient-card shadow-card rounded-lg mx-4 sm:mx-6 lg:mx-8 my-2 md:my-3 lg:my-4",
       className
     )}
     {...props}

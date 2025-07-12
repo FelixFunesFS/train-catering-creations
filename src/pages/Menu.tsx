@@ -9,7 +9,7 @@ import { SectionCard } from "@/components/ui/section-card";
 
 const Menu = () => {
   return (
-    <div className="min-h-screen bg-gradient-hero py-16 md:py-20 lg:py-24">
+    <div className="min-h-screen bg-gradient-hero py-8 md:py-12 lg:py-16">
         <SectionCard>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <MenuHeader />

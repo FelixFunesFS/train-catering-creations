@@ -144,9 +144,11 @@ const QuoteForm = () => {
             />
           </div>
 
-          <Button type="submit" variant="cta" size="responsive-lg" className="w-full">
-            Request Quote
-          </Button>
+          <div className="flex justify-center">
+            <Button type="submit" variant="cta" size="responsive-md" className="min-w-[200px] sm:min-w-[250px]">
+              Request Quote
+            </Button>
+          </div>
         </form>
       </CardContent>
     </Card>
