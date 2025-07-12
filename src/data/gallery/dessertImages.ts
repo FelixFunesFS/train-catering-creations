@@ -44,13 +44,6 @@ export const dessertImages: GalleryImage[] = [
     quality: 9
   },
   {
-    src: "/lovable-uploads/051aefe3-40f0-4bb0-bcc9-0eb4eece4abd.png",
-    category: "desserts",
-    title: "Dessert Display Case",
-    description: "Professional dessert display case with assorted pastries and treats",
-    quality: 7
-  },
-  {
     src: "/lovable-uploads/9f908ab3-500f-481a-b35b-3fe663708efe.png",
     category: "desserts",
     title: "Fresh Berry Tart Display",

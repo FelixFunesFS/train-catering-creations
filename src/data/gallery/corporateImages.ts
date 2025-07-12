@@ -16,13 +16,6 @@ export const corporateImages: GalleryImage[] = [
     quality: 6
   },
   {
-    src: "/lovable-uploads/f60d5eb4-390e-41c6-8a2d-80efc4b8099c.png",
-    category: "corporate",
-    title: "Corporate Event Buffet Line",
-    description: "Extensive buffet spread for large corporate gatherings",
-    quality: 7
-  },
-  {
     src: "/lovable-uploads/4f0091f9-e3bf-4286-b94a-ae95bb11a386.png",
     category: "corporate",
     title: "Corporate Event with Vegetable Display",

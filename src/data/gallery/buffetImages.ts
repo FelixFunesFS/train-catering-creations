@@ -23,20 +23,6 @@ export const buffetImages: GalleryImage[] = [
     quality: 7
   },
   {
-    src: "/lovable-uploads/3c354402-a75f-4382-a187-10cb1a68d044.png",
-    category: "buffet",
-    title: "Professional Chafing Service",
-    description: "Multiple chafing dishes maintaining perfect serving temperatures",
-    quality: 7
-  },
-  {
-    src: "/lovable-uploads/44c11da0-af1e-4741-b5df-a701c8b135ef.png",
-    category: "buffet",
-    title: "Interactive Buffet Service",
-    description: "Guests enjoying our interactive buffet experience with fresh selections",
-    quality: 6
-  },
-  {
     src: "/lovable-uploads/7811d4a2-0f02-4e99-9408-ef463697e1f1.png",
     category: "buffet",
     title: "Southern Style Buffet",
