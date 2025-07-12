@@ -60,7 +60,7 @@ const Reviews = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-hero py-8 md:py-12 lg:py-16">
+    <div className="min-h-screen bg-gradient-hero">
         <SectionCard>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <PageHeader

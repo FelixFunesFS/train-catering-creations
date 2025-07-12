@@ -13,13 +13,13 @@ export const CTASection = () => {
           Let Soul Train's Eatery handle the kitchen while you enjoy the moment. Contact us today for a personalized quote.
         </p>
         <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6 max-w-lg mx-auto">
-          <Button asChild variant="cta" size="responsive-md">
+          <Button asChild variant="cta" size="responsive-sm">
             <a href="sms:8439700265" className="flex items-center space-x-2">
               <MessageCircle className="h-5 w-5" />
               <span>Text (843) 970-0265</span>
             </a>
           </Button>
-          <Button asChild variant="cta-white" size="responsive-md">
+          <Button asChild variant="cta-white" size="responsive-sm">
             <Link to="/request-quote">
               Request Quote
             </Link>

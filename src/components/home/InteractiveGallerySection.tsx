@@ -145,12 +145,12 @@ export const InteractiveGallerySection = () => {
 
         <div className="text-center mt-12 lg:mt-16">
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6">
-            <Button asChild variant="cta" size="responsive-lg">
+            <Button asChild variant="cta" size="responsive-sm">
               <Link to="/gallery">
                 View Full Gallery
               </Link>
             </Button>
-            <Button asChild variant="cta-outline" size="responsive-lg">
+            <Button asChild variant="cta-outline" size="responsive-sm">
               <Link to="/request-quote">
                 Request Quote
               </Link>

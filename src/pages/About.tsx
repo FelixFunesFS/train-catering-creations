@@ -4,7 +4,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { OptimizedImage } from "@/components/ui/optimized-image";
 import { SectionCard } from "@/components/ui/section-card";
 const About = () => {
-   return <div className="min-h-screen bg-gradient-hero py-8 md:py-12 lg:py-16">
+   return <div className="min-h-screen bg-gradient-hero">
         <SectionCard>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <PageHeader title="About Soul Train's Eatery" description="Where passion meets Southern hospitality, creating unforgettable culinary experiences for over 8 flavorful years." icons={[<ChefHat className="h-6 w-6 sm:h-8 sm:w-8" />, <Award className="h-6 w-6 sm:h-8 sm:w-8" />, <Heart className="h-6 w-6 sm:h-8 sm:w-8" />]}>

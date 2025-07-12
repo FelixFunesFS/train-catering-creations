@@ -5,7 +5,7 @@ import { InteractiveGallerySection } from "@/components/home/InteractiveGalleryS
 import { CTASection } from "@/components/home/CTASection";
 import { TestimonialsStatsSection } from "@/components/home/TestimonialsStatsSection";
 const Index = () => {
-  return <div className="min-h-screen bg-gradient-hero py-8 md:py-12 lg:py-16">
+  return <div className="min-h-screen bg-gradient-hero">
       <HeroSection />
       <AboutPreviewSection />
       <ServicesSection />
