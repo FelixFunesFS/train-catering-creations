@@ -12,7 +12,7 @@ export const GalleryCTA = () => {
           Let us bring the same level of elegance and delicious food to your next event.
         </p>
         <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6">
-          <Button asChild variant="cta" size="responsive-md">
+          <Button asChild variant="cta" size="responsive-lg">
             <a href="/request-quote">
               Request Quote
             </a>
