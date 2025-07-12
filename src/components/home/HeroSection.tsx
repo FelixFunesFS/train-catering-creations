@@ -46,7 +46,7 @@ export const HeroSection = () => {
         {/* Brand Header Section */}
         <div className="relative flex flex-col justify-center items-center text-center px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
           {/* Subtle background pattern */}
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 opacity-50"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 opacity-50 my-0 py-0"></div>
           
           <div className="relative z-10 max-w-7xl mx-auto">
             <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-script font-bold text-foreground leading-[0.9] tracking-tight animate-fade-in mb-4">
@@ -55,11 +55,7 @@ export const HeroSection = () => {
             
             {/* Red Logo Icon */}
             <div className="flex justify-center mb-4">
-              <img 
-                src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
-                alt="Soul Train's Eatery Logo" 
-                className="w-12 h-12 sm:w-14 sm:h-14 animate-fade-in object-contain hover:scale-110 transition-transform duration-300"
-              />
+              <img src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" alt="Soul Train's Eatery Logo" className="w-12 h-12 sm:w-14 sm:h-14 animate-fade-in object-contain hover:scale-110 transition-transform duration-300" />
             </div>
             
             <div className="w-24 h-1 bg-gradient-to-r from-primary to-primary-glow rounded-full mx-auto mb-6"></div>
