@@ -115,11 +115,11 @@ export const InteractiveGallerySection = () => {
               {highQualityImages.slice(0, 4).map((image, index) => (
                 <CarouselItem key={index} className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/4">
                   <Card 
-                    className="shadow-card hover:shadow-elegant transition-all duration-200 cursor-pointer group border-0"
+                    className="shadow-card hover:shadow-elegant transition-all duration-200 cursor-pointer group"
                     onClick={() => handleImageClick(image.src)}
                   >
                     <CardContent className="p-0">
-                      <div className="relative overflow-hidden aspect-square">
+                      <div className="relative overflow-hidden rounded-lg aspect-square">
                         <img
                           src={image.src}
                           alt={image.title}

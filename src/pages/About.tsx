@@ -109,7 +109,7 @@ const About = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <Card className="shadow-elegant bg-gradient-card text-center">
               <CardContent className="p-8 lg:p-12">
-                <p className="text-lg font-elegant font-semibold text-foreground mb-4">Ready to start planning your event?</p>
+                <p className="text-xl text-muted-foreground mb-6">Ready to start planning your event?</p>
                 <div className="flex flex-col sm:flex-row justify-center items-center space-y-3 sm:space-y-0 sm:space-x-8 mb-4">
                   <a href="tel:8439700265" className="text-primary hover:text-primary-glow font-medium text-lg transition-colors">
                     📞 Call (843) 970-0265
