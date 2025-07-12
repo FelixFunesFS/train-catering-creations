@@ -2,24 +2,25 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Heart, Star, Crown } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { OptimizedImage } from "@/components/ui/optimized-image";
+import { SectionCard } from "@/components/ui/section-card";
 
 const WeddingMenu = () => {
   return (
     <div className="min-h-screen bg-gradient-hero py-16 md:py-20 lg:py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <PageHeader
-          title="Wedding & Black Tie Events"
-          description="Elevate your special occasion with our elegant catering service. From intimate ceremonies to grand celebrations, we create unforgettable culinary experiences."
-          icons={[
-            <Heart className="h-6 w-6 sm:h-8 sm:w-8" />,
-            <Crown className="h-6 w-6 sm:h-8 sm:w-8" />,
-            <Star className="h-6 w-6 sm:h-8 sm:w-8" />
-          ]}
-        />
-
-        {/* Event Types */}
-        <div className="grid md:grid-cols-3 gap-6 lg:gap-8 mb-12 lg:mb-16">
+        <SectionCard>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <PageHeader
+              title="Wedding & Black Tie Events"
+              description="Elevate your special occasion with our elegant catering service. From intimate ceremonies to grand celebrations, we create unforgettable culinary experiences."
+              icons={[
+                <Heart className="h-6 w-6 sm:h-8 sm:w-8" />,
+                <Crown className="h-6 w-6 sm:h-8 sm:w-8" />,
+                <Star className="h-6 w-6 sm:h-8 sm:w-8" />
+              ]}
+            />
+            
+            <div className="grid md:grid-cols-3 gap-6 lg:gap-8 mt-12">
           <Card className="shadow-card text-center hover:scale-105 transition-all duration-200 overflow-hidden">
             <OptimizedImage 
               src="/lovable-uploads/269bd0e4-4a19-4f14-b966-7b3173a10b95.png" 
@@ -73,22 +74,25 @@ const WeddingMenu = () => {
               </p>
             </CardContent>
           </Card>
-        </div>
-
-        {/* Menu Sections */}
-        <div className="space-y-12 lg:space-y-16">
-          {/* Hors d'Oeuvres & Small Bites */}
-          <section>
-            <div className="text-center mb-8 lg:mb-12">
-              <h2 className="text-3xl font-elegant font-bold text-foreground mb-4">
-                Hors d'Oeuvres & Small Bites
-              </h2>
-              <p className="text-lg text-muted-foreground italic">
-                Artfully crafted starters to elevate cocktail hours and refined gatherings
-              </p>
             </div>
-            
-            <div className="grid md:grid-cols-2 gap-6">
+          </div>
+        </SectionCard>
+
+        <SectionCard>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="space-y-12 lg:space-y-16">
+              {/* Hors d'Oeuvres & Small Bites */}
+              <section>
+                <div className="text-center mb-8 lg:mb-12">
+                  <h2 className="text-3xl font-elegant font-bold text-foreground mb-4">
+                    Hors d'Oeuvres & Small Bites
+                  </h2>
+                  <p className="text-lg text-muted-foreground italic">
+                    Artfully crafted starters to elevate cocktail hours and refined gatherings
+                  </p>
+                </div>
+                
+                <div className="grid md:grid-cols-2 gap-6">
               <Card className="shadow-card">
                 <CardContent className="p-6">
                   <h4 className="font-elegant font-semibold text-foreground mb-2">Fresh Local Fruit Platter</h4>
@@ -186,21 +190,21 @@ const WeddingMenu = () => {
                   <p className="text-sm text-muted-foreground">Delicate smoked salmon served on crisp cucumber slices, finished with dill-infused cream cheese.</p>
                 </CardContent>
               </Card>
-            </div>
-          </section>
+                </div>
+              </section>
 
-          {/* Signature Entrées */}
-          <section>
-            <div className="text-center mb-8 lg:mb-12">
-              <h2 className="text-3xl font-elegant font-bold text-foreground mb-4">
-                Signature Entrées
-              </h2>
-              <p className="text-lg text-muted-foreground italic">
-                Premium proteins, thoughtfully prepared for elegant affairs
-              </p>
-            </div>
-            
-            <div className="grid md:grid-cols-2 gap-6">
+              {/* Signature Entrées */}
+              <section>
+                <div className="text-center mb-8 lg:mb-12">
+                  <h2 className="text-3xl font-elegant font-bold text-foreground mb-4">
+                    Signature Entrées
+                  </h2>
+                  <p className="text-lg text-muted-foreground italic">
+                    Premium proteins, thoughtfully prepared for elegant affairs
+                  </p>
+                </div>
+                
+                <div className="grid md:grid-cols-2 gap-6">
               <Card className="shadow-card">
                 <CardContent className="p-6">
                   <h4 className="font-elegant font-semibold text-foreground mb-2">Applewood-Smoked Herb Chicken</h4>
@@ -284,21 +288,21 @@ const WeddingMenu = () => {
                   <p className="text-sm text-muted-foreground">A coastal celebration of shrimp, sausage, corn, and potatoes, simmered in bold, aromatic spices.</p>
                 </CardContent>
               </Card>
-            </div>
-          </section>
+                </div>
+              </section>
 
-          {/* Artful Accompaniments */}
-          <section>
-            <div className="text-center mb-8 lg:mb-12">
-              <h2 className="text-3xl font-elegant font-bold text-foreground mb-4">
-                Artful Accompaniments
-              </h2>
-              <p className="text-lg text-muted-foreground italic">
-                Side dishes that harmonize beautifully with your entrées
-              </p>
-            </div>
-            
-            <div className="grid md:grid-cols-2 gap-6">
+              {/* Artful Accompaniments */}
+              <section>
+                <div className="text-center mb-8 lg:mb-12">
+                  <h2 className="text-3xl font-elegant font-bold text-foreground mb-4">
+                    Artful Accompaniments
+                  </h2>
+                  <p className="text-lg text-muted-foreground italic">
+                    Side dishes that harmonize beautifully with your entrées
+                  </p>
+                </div>
+                
+                <div className="grid md:grid-cols-2 gap-6">
               <Card className="shadow-card">
                 <CardContent className="p-6">
                   <h4 className="font-elegant font-semibold text-foreground mb-2">Creamy Southern Macaroni & Cheese</h4>
@@ -368,13 +372,15 @@ const WeddingMenu = () => {
                   <p className="text-sm text-muted-foreground">A colorful assortment of farm-fresh vegetables sautéed and lightly seasoned to perfection.</p>
                 </CardContent>
               </Card>
+                </div>
+              </section>
             </div>
-          </section>
-        </div>
+          </div>
+        </SectionCard>
 
-
-        {/* Service Highlights */}
-        <div className="grid md:grid-cols-2 gap-6 lg:gap-8 mb-12 lg:mb-16">
+        <SectionCard>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid md:grid-cols-2 gap-6 lg:gap-8">
           <Card className="shadow-elegant">
             <CardHeader>
               <CardTitle className="text-2xl font-elegant">Premium Service Features</CardTitle>
@@ -430,36 +436,41 @@ const WeddingMenu = () => {
               </div>
             </CardContent>
           </Card>
-        </div>
-
-        {/* Call to Action */}
-        <Card className="shadow-elegant bg-gradient-card">
-          <CardContent className="p-6 lg:p-8 text-center">
-            <h3 className="text-3xl font-elegant font-bold text-foreground mb-6">
-              Let's Plan Your Perfect Event
-            </h3>
-            <p className="text-xl text-muted-foreground leading-relaxed mb-8 max-w-2xl mx-auto">
-              Schedule a consultation to discuss your vision, taste our specialties, and receive a customized proposal for your special occasion.
-            </p>
-            <div className="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-8">
-              <a 
-                href="tel:8439700265" 
-                className="bg-primary text-primary-foreground px-8 py-3 rounded-lg font-medium hover:bg-primary-glow transition-colors shadow-glow"
-              >
-                Call (843) 970-0265
-              </a>
-              <a 
-                href="mailto:soultrainseatery@gmail.com" 
-                className="border border-primary text-primary px-8 py-3 rounded-lg font-medium hover:bg-primary-light transition-colors"
-              >
-                Email for Quote
-              </a>
             </div>
-            <p className="text-sm text-muted-foreground mt-6">
-              Serving Charleston, SC and surrounding Lowcountry areas
-            </p>
-          </CardContent>
-        </Card>
+          </div>
+        </SectionCard>
+
+        <SectionCard>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <Card className="shadow-elegant bg-gradient-card">
+              <CardContent className="p-6 lg:p-8 text-center">
+                <h3 className="text-3xl font-elegant font-bold text-foreground mb-6">
+                  Let's Plan Your Perfect Event
+                </h3>
+                <p className="text-xl text-muted-foreground leading-relaxed mb-8 max-w-2xl mx-auto">
+                  Schedule a consultation to discuss your vision, taste our specialties, and receive a customized proposal for your special occasion.
+                </p>
+                <div className="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-8">
+                  <a 
+                    href="tel:8439700265" 
+                    className="bg-primary text-primary-foreground px-8 py-3 rounded-lg font-medium hover:bg-primary-glow transition-colors shadow-glow"
+                  >
+                    Call (843) 970-0265
+                  </a>
+                  <a 
+                    href="mailto:soultrainseatery@gmail.com" 
+                    className="border border-primary text-primary px-8 py-3 rounded-lg font-medium hover:bg-primary-light transition-colors"
+                  >
+                    Email for Quote
+                  </a>
+                </div>
+                <p className="text-sm text-muted-foreground mt-6">
+                  Serving Charleston, SC and surrounding Lowcountry areas
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </SectionCard>
       </div>
     </div>
   );

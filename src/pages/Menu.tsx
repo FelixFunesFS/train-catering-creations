@@ -5,37 +5,44 @@ import PlantBasedCard from "@/components/menu/PlantBasedCard";
 import SideDishesCard from "@/components/menu/SideDishesCard";
 import DessertsCard from "@/components/menu/DessertsCard";
 import MenuContact from "@/components/menu/MenuContact";
+import { SectionCard } from "@/components/ui/section-card";
+
 const Menu = () => {
-  return <div className="min-h-screen bg-gradient-hero py-16 md:py-20 lg:py-24">
-      {/* Hero Image Section */}
-      
-      
+  return (
+    <div className="min-h-screen bg-gradient-hero py-16 md:py-20 lg:py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <MenuHeader />
+        <SectionCard>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <MenuHeader />
+          </div>
+        </SectionCard>
 
-        {/* Full Width Menu Cards */}
-        <div className="space-y-8">
-          {/* Appetizers - Full Width */}
-          <AppetizersCard />
-          
-          {/* Main Entrees - Full Width */}
-          <EntreesCard />
-          
-          {/* Plant-Based Options - Full Width */}
-          <PlantBasedCard />
-          
-          {/* Side Dishes - Full Width */}
-          <SideDishesCard />
-          
-          {/* Desserts - Full Width */}
-          <DessertsCard />
-        </div>
+        <SectionCard>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="space-y-8">
+              <AppetizersCard />
+              <EntreesCard />
+              <PlantBasedCard />
+            </div>
+          </div>
+        </SectionCard>
 
-        {/* Contact for Custom Menu */}
-        <div className="mt-12">
-          <MenuContact />
-        </div>
+        <SectionCard>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="space-y-8">
+              <SideDishesCard />
+              <DessertsCard />
+            </div>
+          </div>
+        </SectionCard>
+
+        <SectionCard>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <MenuContact />
+          </div>
+        </SectionCard>
       </div>
-    </div>;
+    </div>
+  );
 };
 export default Menu;

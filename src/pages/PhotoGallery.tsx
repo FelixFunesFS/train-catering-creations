@@ -5,6 +5,7 @@ import { CategoryFilter } from "@/components/gallery/CategoryFilter";
 import { ImageGrid } from "@/components/gallery/ImageGrid";
 import { ImageModal } from "@/components/gallery/ImageModal";
 import { GalleryCTA } from "@/components/gallery/GalleryCTA";
+import { SectionCard } from "@/components/ui/section-card";
 
 const PhotoGallery = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -29,17 +30,25 @@ const PhotoGallery = () => {
   return (
     <div className="min-h-screen bg-gradient-hero py-16 md:py-20 lg:py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <GalleryHeader />
+        <SectionCard>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <GalleryHeader />
+          </div>
+        </SectionCard>
         
-        <CategoryFilter 
-          selectedCategory={selectedCategory}
-          onCategoryChange={handleCategoryChange}
-        />
-        
-        <ImageGrid 
-          images={filteredImages}
-          onImageClick={handleImageClick}
-        />
+        <SectionCard>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <CategoryFilter 
+              selectedCategory={selectedCategory}
+              onCategoryChange={handleCategoryChange}
+            />
+            
+            <ImageGrid 
+              images={filteredImages}
+              onImageClick={handleImageClick}
+            />
+          </div>
+        </SectionCard>
         
         <GalleryCTA />
         

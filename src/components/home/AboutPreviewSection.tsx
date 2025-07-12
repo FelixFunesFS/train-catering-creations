@@ -1,11 +1,12 @@
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { SectionCard } from "@/components/ui/section-card";
 import { Heart, Users, Crown, ChefHat, Award } from "lucide-react";
 
 export const AboutPreviewSection = () => {
   return (
-    <section className="py-8 md:py-12 lg:py-16 bg-gradient-card shadow-card rounded-lg mx-4 sm:mx-6 lg:mx-8 my-8">
+    <SectionCard>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           <div>
@@ -56,6 +57,6 @@ export const AboutPreviewSection = () => {
           </div>
         </div>
       </div>
-    </section>
+    </SectionCard>
   );
 };

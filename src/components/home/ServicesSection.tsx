@@ -1,10 +1,11 @@
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
+import { SectionCard } from "@/components/ui/section-card";
 import { Heart, Star, Users, Crown } from "lucide-react";
 
 export const ServicesSection = () => {
   return (
-    <section className="py-8 md:py-12 lg:py-16 bg-gradient-card shadow-card rounded-lg mx-4 sm:mx-6 lg:mx-8 my-8">
+    <SectionCard>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12 lg:mb-16">
           <h2 className="text-3xl lg:text-4xl font-elegant font-bold text-foreground mb-6">
@@ -73,6 +74,6 @@ export const ServicesSection = () => {
           </Card>
         </div>
       </div>
-    </section>
+    </SectionCard>
   );
 };

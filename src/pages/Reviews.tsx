@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Star, Heart, ThumbsUp } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
+import { SectionCard } from "@/components/ui/section-card";
 
 const Reviews = () => {
   // Sample reviews - these would come from a real review system
@@ -61,97 +62,104 @@ const Reviews = () => {
   return (
     <div className="min-h-screen bg-gradient-hero py-16 md:py-20 lg:py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <PageHeader
-          title="Client Reviews"
-          description="See what our clients say about their experience with Soul Train's Eatery"
-          icons={[
-            <Star className="h-6 w-6 sm:h-8 sm:w-8" />,
-            <Heart className="h-6 w-6 sm:h-8 sm:w-8" />,
-            <ThumbsUp className="h-6 w-6 sm:h-8 sm:w-8" />
-          ]}
-        />
+        <SectionCard>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <PageHeader
+              title="Client Reviews"
+              description="See what our clients say about their experience with Soul Train's Eatery"
+              icons={[
+                <Star className="h-6 w-6 sm:h-8 sm:w-8" />,
+                <Heart className="h-6 w-6 sm:h-8 sm:w-8" />,
+                <ThumbsUp className="h-6 w-6 sm:h-8 sm:w-8" />
+              ]}
+            />
+          </div>
+        </SectionCard>
 
-        {/* Overall Rating */}
-        <Card className="shadow-elegant mb-12 text-center">
-          <CardContent className="p-8">
-            <div className="flex justify-center items-center space-x-2 mb-4">
-              {renderStars(5)}
-              <span className="text-2xl font-bold text-primary ml-2">5.0</span>
-            </div>
-            <p className="text-lg text-muted-foreground">
-              Based on {reviews.length}+ reviews from satisfied clients
-            </p>
-            <p className="text-sm text-muted-foreground mt-2">
-              Serving Charleston, SC and the Lowcountry for over 8 years
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Reviews Grid */}
-        <div className="grid md:grid-cols-2 gap-8 mb-12">
-          {reviews.map((review, index) => (
-            <Card key={index} className="shadow-card">
-              <CardHeader>
-                <div className="flex justify-between items-start">
-                  <div>
-                    <CardTitle className="text-lg font-elegant">{review.name}</CardTitle>
-                    <p className="text-sm text-muted-foreground">{review.event}</p>
-                  </div>
-                  <div className="flex space-x-1">
-                    {renderStars(review.rating)}
-                  </div>
+        <SectionCard>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <Card className="shadow-elegant mb-12 text-center">
+              <CardContent className="p-8">
+                <div className="flex justify-center items-center space-x-2 mb-4">
+                  {renderStars(5)}
+                  <span className="text-2xl font-bold text-primary ml-2">5.0</span>
                 </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground mb-3 leading-relaxed">
-                  "{review.text}"
+                <p className="text-lg text-muted-foreground">
+                  Based on {reviews.length}+ reviews from satisfied clients
                 </p>
-                <p className="text-xs text-muted-foreground">{review.date}</p>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Serving Charleston, SC and the Lowcountry for over 8 years
+                </p>
               </CardContent>
             </Card>
-          ))}
-        </div>
 
-        {/* Call to Action */}
-        <Card className="shadow-elegant bg-gradient-card">
-          <CardContent className="p-8 text-center">
-            <h3 className="text-2xl font-elegant font-bold text-foreground mb-4">
-              Ready to Create Your Own Success Story?
-            </h3>
-            <p className="text-muted-foreground mb-6">
-              Join our growing list of satisfied clients. Let us make your next event unforgettable.
-            </p>
-            <div className="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-6">
-              <a 
-                href="/request-quote" 
-                className="bg-primary text-primary-foreground px-8 py-3 rounded-lg font-medium hover:bg-primary-glow transition-colors shadow-glow"
-              >
-                Request Quote
-              </a>
-              <a 
-                href="tel:8439700265" 
-                className="border border-primary text-primary px-8 py-3 rounded-lg font-medium hover:bg-primary-light transition-colors"
-              >
-                Call (843) 970-0265
-              </a>
+            <div className="grid md:grid-cols-2 gap-8">
+              {reviews.map((review, index) => (
+                <Card key={index} className="shadow-card">
+                  <CardHeader>
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <CardTitle className="text-lg font-elegant">{review.name}</CardTitle>
+                        <p className="text-sm text-muted-foreground">{review.event}</p>
+                      </div>
+                      <div className="flex space-x-1">
+                        {renderStars(review.rating)}
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground mb-3 leading-relaxed">
+                      "{review.text}"
+                    </p>
+                    <p className="text-xs text-muted-foreground">{review.date}</p>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </SectionCard>
 
-        {/* Leave a Review */}
-        <div className="text-center mt-12">
-          <Card className="shadow-card bg-primary-light">
-            <CardContent className="p-6">
-              <h4 className="text-lg font-elegant font-semibold text-primary mb-2">
-                Worked with us recently?
-              </h4>
-              <p className="text-primary-foreground text-sm">
-                We'd love to hear about your experience! Contact us to share your feedback.
-              </p>
-            </CardContent>
-          </Card>
-        </div>
+        <SectionCard>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <Card className="shadow-elegant bg-gradient-card">
+              <CardContent className="p-8 text-center">
+                <h3 className="text-2xl font-elegant font-bold text-foreground mb-4">
+                  Ready to Create Your Own Success Story?
+                </h3>
+                <p className="text-muted-foreground mb-6">
+                  Join our growing list of satisfied clients. Let us make your next event unforgettable.
+                </p>
+                <div className="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-6">
+                  <a 
+                    href="/request-quote" 
+                    className="bg-primary text-primary-foreground px-8 py-3 rounded-lg font-medium hover:bg-primary-glow transition-colors shadow-glow"
+                  >
+                    Request Quote
+                  </a>
+                  <a 
+                    href="tel:8439700265" 
+                    className="border border-primary text-primary px-8 py-3 rounded-lg font-medium hover:bg-primary-light transition-colors"
+                  >
+                    Call (843) 970-0265
+                  </a>
+                </div>
+              </CardContent>
+            </Card>
+
+            <div className="text-center mt-12">
+              <Card className="shadow-card bg-primary-light">
+                <CardContent className="p-6">
+                  <h4 className="text-lg font-elegant font-semibold text-primary mb-2">
+                    Worked with us recently?
+                  </h4>
+                  <p className="text-primary-foreground text-sm">
+                    We'd love to hear about your experience! Contact us to share your feedback.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </SectionCard>
       </div>
     </div>
   );
