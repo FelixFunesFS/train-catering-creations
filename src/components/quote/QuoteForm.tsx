@@ -144,7 +144,7 @@ const QuoteForm = () => {
             />
           </div>
 
-          <Button type="submit" variant="cta" size="xl" className="w-full">
+          <Button type="submit" variant="cta" size="responsive-lg" className="w-full">
             Request Quote
           </Button>
         </form>

@@ -15,10 +15,6 @@ export const CategoryFilter = ({ selectedCategory, onCategoryChange }: CategoryF
           variant={selectedCategory === category.id ? "default" : "outline"}
           size="responsive-sm"
           onClick={() => onCategoryChange(category.id)}
-          className={selectedCategory === category.id 
-            ? "bg-primary text-primary-foreground shadow-md" 
-            : "text-muted-foreground hover:text-primary hover:border-primary/50"
-          }
         >
           {category.name}
         </Button>
