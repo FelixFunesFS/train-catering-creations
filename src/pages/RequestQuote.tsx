@@ -2,6 +2,7 @@ import QuoteHeader from "@/components/quote/QuoteHeader";
 import QuoteForm from "@/components/quote/QuoteForm";
 import ContactInfoCards from "@/components/quote/ContactInfoCards";
 import { SectionCard } from "@/components/ui/section-card";
+import { CTASection } from "@/components/ui/cta-section";
 
 const RequestQuote = () => {
   return (
@@ -25,6 +26,24 @@ const RequestQuote = () => {
             </div>
           </div>
         </SectionCard>
+        
+        <CTASection
+          title="Questions About Your Quote?"
+          description="Our team is ready to help you plan the perfect event. Contact us directly for personalized assistance."
+          buttons={[
+            {
+              text: "Call (843) 970-0265",
+              href: "tel:8439700265",
+              variant: "cta"
+            },
+            {
+              text: "Email Us",
+              href: "mailto:soultrainseatery@gmail.com",
+              variant: "cta-white"
+            }
+          ]}
+          footer="Response time: Usually within 24 hours"
+        />
     </div>
   );
 };

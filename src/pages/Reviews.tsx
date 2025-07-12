@@ -1,8 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Star, Heart, ThumbsUp } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { SectionCard } from "@/components/ui/section-card";
+import { CTASection } from "@/components/ui/cta-section";
 
 const Reviews = () => {
   // Sample reviews - these would come from a real review system
@@ -116,32 +116,27 @@ const Reviews = () => {
           </div>
         </SectionCard>
 
+        <CTASection
+          title="Ready to Create Your Own Success Story?"
+          description="Join our growing list of satisfied clients. Let us make your next event unforgettable."
+          buttons={[
+            {
+              text: "Request Quote",
+              href: "/request-quote",
+              variant: "cta"
+            },
+            {
+              text: "Call (843) 970-0265",
+              href: "tel:8439700265",
+              variant: "cta-white"
+            }
+          ]}
+          footer="Proudly serving Charleston, SC and the surrounding Lowcountry"
+        />
+
         <SectionCard>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <Card className="shadow-elegant bg-gradient-card">
-              <CardContent className="p-8 text-center">
-                <h3 className="text-2xl font-elegant font-bold text-foreground mb-4">
-                  Ready to Create Your Own Success Story?
-                </h3>
-                <p className="text-muted-foreground mb-6">
-                  Join our growing list of satisfied clients. Let us make your next event unforgettable.
-                </p>
-                <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6">
-                  <Button asChild variant="cta" size="responsive-sm">
-                    <a href="/request-quote">
-                      Request Quote
-                    </a>
-                  </Button>
-                  <Button asChild variant="cta-outline" size="responsive-sm">
-                    <a href="tel:8439700265">
-                      Call (843) 970-0265
-                    </a>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            <div className="text-center mt-12">
+            <div className="text-center">
               <Card className="shadow-card bg-primary-light">
                 <CardContent className="p-6">
                   <h4 className="text-lg font-elegant font-semibold text-primary mb-2">
