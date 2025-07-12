@@ -131,10 +131,10 @@ export const Footer = () => {
 
       {/* Copyright Bar */}
       <div className="bg-primary py-4">
-        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-0">
           <div className="flex flex-col sm:flex-row justify-between items-center text-sm text-primary-foreground">
             <div className="flex items-center space-x-3">
-              <img src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" alt="Soul Train's Eatery Logo" className="w-8 h-8 object-contain" />
+              
               <p>© {currentYear} Soul Train's Eatery. All rights reserved.</p>
             </div>
             <div className="flex space-x-6 mt-2 sm:mt-0">
