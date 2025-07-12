@@ -42,12 +42,5 @@ export const weddingImages: GalleryImage[] = [
     title: "Elegant Outdoor Wedding Tent",
     description: "Stunning wedding reception setup with chandeliers, string lights, and formal table service",
     quality: 9
-  },
-  {
-    src: "/lovable-uploads/86a73cc7-624a-4cae-8bde-af21cef9593a.png",
-    category: "wedding",
-    title: "Wedding Dessert Table with Neon Sign",
-    description: "Stunning wedding dessert table featuring beautiful cupcakes and illuminated Mr & Mrs neon sign",
-    quality: 10
   }
 ];
