@@ -71,26 +71,23 @@ const Reviews = () => {
                 <Heart className="h-6 w-6 sm:h-8 sm:w-8" />,
                 <ThumbsUp className="h-6 w-6 sm:h-8 sm:w-8" />
               ]}
-            />
+            >
+              <div className="flex justify-center items-center space-x-2 mb-4">
+                {renderStars(5)}
+                <span className="text-2xl font-bold text-primary ml-2">5.0</span>
+              </div>
+              <p className="text-lg text-muted-foreground">
+                Based on {reviews.length}+ reviews from satisfied clients
+              </p>
+              <p className="text-sm text-muted-foreground mt-2">
+                Serving Charleston, SC and the Lowcountry for over 8 years
+              </p>
+            </PageHeader>
           </div>
         </SectionCard>
 
         <SectionCard>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <Card className="shadow-elegant mb-12 text-center">
-              <CardContent className="p-8">
-                <div className="flex justify-center items-center space-x-2 mb-4">
-                  {renderStars(5)}
-                  <span className="text-2xl font-bold text-primary ml-2">5.0</span>
-                </div>
-                <p className="text-lg text-muted-foreground">
-                  Based on {reviews.length}+ reviews from satisfied clients
-                </p>
-                <p className="text-sm text-muted-foreground mt-2">
-                  Serving Charleston, SC and the Lowcountry for over 8 years
-                </p>
-              </CardContent>
-            </Card>
 
             <div className="grid md:grid-cols-2 gap-8">
               {reviews.map((review, index) => (
