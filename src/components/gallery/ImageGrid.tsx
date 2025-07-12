@@ -8,7 +8,7 @@ interface ImageGridProps {
 
 export const ImageGrid = ({ images, onImageClick }: ImageGridProps) => {
   return (
-    <div className="grid grid-auto-fit gap-4 lg:gap-6 mb-12">
+    <div className="grid grid-auto-fit gap-2 lg:gap-3 mb-12">
       {images.map((image, index) => (
         <Card 
           key={index} 
@@ -16,7 +16,7 @@ export const ImageGrid = ({ images, onImageClick }: ImageGridProps) => {
           style={{ animationDelay: `${index * 100}ms` }}
           onClick={() => onImageClick(image.src)}
         >
-          <CardContent className="p-0">
+          <CardContent className="!p-0">
             <div className="relative overflow-hidden aspect-square">
               <img
                 src={image.src}
