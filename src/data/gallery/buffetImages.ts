@@ -135,20 +135,6 @@ export const buffetImages: GalleryImage[] = [
     quality: 7
   },
   {
-    src: "/lovable-uploads/11d5b2f9-2299-49fa-92c6-30942bf457ae.png",
-    category: "buffet",
-    title: "Fall-Themed Buffet",
-    description: "Seasonal buffet setup with autumn decorations and chafing service",
-    quality: 8
-  },
-  {
-    src: "/lovable-uploads/af3acb92-6e01-4d77-9bb3-2783a070405d.png",
-    category: "buffet",
-    title: "Elegant Chafing Service with Florals",
-    description: "Professional chafing dishes with beautiful floral arrangements",
-    quality: 8
-  },
-  {
     src: "/lovable-uploads/8ba15696-f0b1-4e3d-a03a-c511e797c7b3.png",
     category: "buffet",
     title: "Elegant Chafing Service with Mixed Florals",
