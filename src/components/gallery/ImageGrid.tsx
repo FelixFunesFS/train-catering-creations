@@ -13,15 +13,15 @@ export const ImageGrid = ({ images, onImageClick }: ImageGridProps) => {
       {images.map((image, index) => (
         <div 
           key={index} 
-          className="shadow-card hover:shadow-elegant bg-card border-2 border-transparent hover:border-primary/20 transition-all duration-200 cursor-pointer group min-h-[240px] sm:min-h-[280px] xl:min-h-[240px] rounded-lg overflow-hidden"
+          className="shadow-card hover:shadow-elegant bg-card border-2 border-transparent hover:border-primary/20 transition-all duration-200 cursor-pointer group aspect-[5/4] rounded-lg overflow-hidden"
           onClick={() => onImageClick(image.src)}
         >
-          <div className="relative min-h-[240px] sm:min-h-[280px] xl:min-h-[240px] group">
+          <div className="relative w-full h-full">
             <OptimizedImage
               src={image.src}
               alt={image.title}
               aspectRatio="aspect-[5/4]"
-              className="group-hover:scale-105 brightness-105 contrast-105"
+              className="group-hover:scale-105 brightness-105 contrast-105 w-full h-full object-cover"
               onImageError={() => {
                 console.error(`Failed to load image: ${image.src}`);
               }}
