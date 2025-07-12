@@ -1,4 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 const MenuContact = () => {
   return (
@@ -10,13 +11,17 @@ const MenuContact = () => {
         <p className="text-muted-foreground mb-6">
           Every event is unique. Let us create a customized menu that perfectly fits your occasion, dietary needs, and budget.
         </p>
-        <div className="flex flex-col sm:flex-row justify-center items-center space-y-2 sm:space-y-0 sm:space-x-8">
-          <a href="tel:8439700265" className="text-primary hover:text-primary-glow font-medium">
-            Call (843) 970-0265
-          </a>
-          <a href="mailto:soultrainseatery@gmail.com" className="text-primary hover:text-primary-glow font-medium">
-            Email Us
-          </a>
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6">
+          <Button asChild variant="cta-outline" size="responsive-md">
+            <a href="tel:8439700265">
+              Call (843) 970-0265
+            </a>
+          </Button>
+          <Button asChild variant="outline" size="responsive-md">
+            <a href="mailto:soultrainseatery@gmail.com">
+              Email Us
+            </a>
+          </Button>
         </div>
       </CardContent>
     </Card>

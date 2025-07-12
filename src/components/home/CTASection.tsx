@@ -12,18 +12,18 @@ export const CTASection = () => {
         <p className="text-xl text-primary-foreground mb-8 lg:mb-12 opacity-90">
           Let Soul Train's Eatery handle the kitchen while you enjoy the moment. Contact us today for a personalized quote.
         </p>
-        <div className="flex flex-col sm:flex-row justify-center items-center gap-6 sm:gap-8">
-          <Button asChild className="bg-primary text-white hover:bg-primary-glow shadow-glow px-8 lg:px-10 py-4 lg:py-5 text-base lg:text-lg">
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6">
+          <Button asChild variant="cta" size="responsive-lg">
             <a href="sms:8439700265" className="flex items-center space-x-2">
               <MessageCircle className="h-5 w-5" />
               <span>Text (843) 970-0265</span>
             </a>
           </Button>
-          <Link to="/request-quote">
-            <Button variant="outline" className="border-2 border-white text-white bg-transparent hover:bg-white hover:text-primary px-8 lg:px-10 py-4 lg:py-5 text-base lg:text-lg">
+          <Button asChild variant="cta-white" size="responsive-lg">
+            <Link to="/request-quote">
               Request Quote
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         </div>
         <p className="text-primary-foreground mt-6 lg:mt-8 opacity-75">
           Proudly serving Charleston, SC and the surrounding Lowcountry

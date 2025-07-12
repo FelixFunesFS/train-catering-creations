@@ -1,4 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 export const GalleryCTA = () => {
   return (
@@ -10,19 +11,17 @@ export const GalleryCTA = () => {
         <p className="text-muted-foreground mb-6">
           Let us bring the same level of elegance and delicious food to your next event.
         </p>
-        <div className="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-6">
-          <a 
-            href="/request-quote" 
-            className="bg-primary text-primary-foreground px-8 py-3 rounded-lg font-medium hover:bg-primary-glow transition-colors shadow-glow"
-          >
-            Request Quote
-          </a>
-          <a 
-            href="tel:8439700265" 
-            className="border border-primary text-primary px-8 py-3 rounded-lg font-medium hover:bg-primary-light transition-colors"
-          >
-            Call Us Today
-          </a>
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6">
+          <Button asChild variant="cta" size="responsive-md">
+            <a href="/request-quote">
+              Request Quote
+            </a>
+          </Button>
+          <Button asChild variant="cta-outline" size="responsive-md">
+            <a href="tel:8439700265">
+              Call Us Today
+            </a>
+          </Button>
         </div>
       </CardContent>
     </Card>
