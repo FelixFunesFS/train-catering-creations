@@ -57,12 +57,12 @@ const highQualityImages = [{
   category: "signature"
 }];
 export const InteractiveGallerySection = () => {
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const handleImageClick = (imageSrc: string) => {
-    setSelectedImage(imageSrc);
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+  const handleImageClick = (index: number) => {
+    setSelectedImageIndex(index);
   };
   const handleCloseModal = () => {
-    setSelectedImage(null);
+    setSelectedImageIndex(null);
   };
   return <section className="py-8 md:py-12 lg:py-16 bg-gradient-card shadow-card rounded-lg mx-4 sm:mx-6 lg:mx-8 my-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -84,8 +84,8 @@ export const InteractiveGallerySection = () => {
         })]} className="w-full">
             <CarouselContent className="-ml-1 gap-2">
               {highQualityImages.map((image, index) => <CarouselItem key={index} className="pl-1 basis-1/2 sm:basis-1/3 md:basis-1/4">
-                  <div className="shadow-card hover:shadow-elegant bg-card border-2 border-transparent hover:border-primary/20 transition-all duration-200 cursor-pointer group rounded-lg overflow-hidden" onClick={() => handleImageClick(image.src)}>
-                    <div className="relative aspect-[5/4]">
+                  <div className="shadow-card hover:shadow-elegant bg-card border-2 border-transparent hover:border-primary/20 transition-all duration-200 cursor-pointer group rounded-lg overflow-hidden" onClick={() => handleImageClick(index)}>
+                    <div className="relative aspect-[3/4]">
                       <img src={image.src} alt={image.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200" loading="lazy" decoding="async" />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-end">
                         <div className="p-4 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200">
@@ -118,6 +118,10 @@ export const InteractiveGallerySection = () => {
         </div>
       </div>
 
-      <ImageModal selectedImage={selectedImage} onClose={handleCloseModal} />
+      <ImageModal 
+        images={highQualityImages}
+        selectedIndex={selectedImageIndex} 
+        onClose={handleCloseModal} 
+      />
     </section>;
 };

@@ -3,43 +3,58 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { ImageModal } from "@/components/gallery/ImageModal";
 export const HeroSection = () => {
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const [imageSet, setImageSet] = useState(0);
 
   // Featured images for the grid display - taking the first 4 images for initial display
   const heroImages = [{
     src: "/lovable-uploads/1dcbc1ee-eb25-4d89-8722-cb4904d1ba69.png",
     alt: "Elegant wedding dessert table with tiered cake, neon signage, and gourmet treats",
-    title: "Wedding Reception"
+    title: "Wedding Reception",
+    description: "Elegant wedding dessert table with tiered cake, neon signage, and gourmet treats",
+    category: "wedding"
   }, {
     src: "/lovable-uploads/0703365f-22eb-4c4d-b258-4a2c8a23b63a.png",
     alt: "Rustic venue buffet setup with chafing dishes and atmospheric lighting",
-    title: "Formal Events"
+    title: "Formal Events",
+    description: "Rustic venue buffet setup with chafing dishes and atmospheric lighting",
+    category: "formal"
   }, {
     src: "/lovable-uploads/c3ec0f07-ade4-40c3-89f7-0c5f2c8bebcf.png",
     alt: "Professional buffet service setup with chafing dishes and elegant presentation",
-    title: "Buffet Service"
+    title: "Buffet Service",
+    description: "Professional buffet service setup with chafing dishes and elegant presentation",
+    category: "buffet"
   }, {
     src: "/lovable-uploads/d2ed2f6e-a667-4bf2-9e28-30029d377f94.png",
     alt: "Elegant formal event display with tiered appetizers and beverage service",
-    title: "Brunch Events"
+    title: "Brunch Events",
+    description: "Elegant formal event display with tiered appetizers and beverage service",
+    category: "brunch"
   }];
 
   // Additional images for rotation
   const additionalImages = [{
     src: "/lovable-uploads/5dd8930c-34cc-4b9e-84a6-beeeb540d35e.png",
     alt: "Wedding dessert table with custom neon sign and tiered cake",
-    title: "Dessert Display"
+    title: "Dessert Display",
+    description: "Wedding dessert table with custom neon sign and tiered cake",
+    category: "dessert"
   }, {
     src: "/lovable-uploads/bd4e5565-94d9-4973-bf7b-3deeedbfbe21.png",
     alt: "Elegant appetizer display with beverage service and professional presentation",
-    title: "Appetizer Service"
+    title: "Appetizer Service",
+    description: "Elegant appetizer display with beverage service and professional presentation",
+    category: "appetizer"
   }];
-  const handleImageClick = (imageSrc: string) => {
-    setSelectedImage(imageSrc);
+
+  const allImages = [...heroImages, ...additionalImages];
+
+  const handleImageClick = (index: number) => {
+    setSelectedImageIndex(index);
   };
   const handleCloseModal = () => {
-    setSelectedImage(null);
+    setSelectedImageIndex(null);
   };
   return <>
       <section className="bg-gradient-card shadow-elegant rounded-lg mx-4 sm:mx-6 lg:mx-8">
@@ -86,7 +101,7 @@ export const HeroSection = () => {
             
             {/* Responsive Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-              {heroImages.map((image, index) => <div key={index} className="group relative overflow-hidden rounded-lg shadow-card hover:shadow-elegant transition-all duration-200 cursor-pointer bg-card" onClick={() => handleImageClick(image.src)}>
+              {heroImages.map((image, index) => <div key={index} className="group relative overflow-hidden rounded-lg shadow-card hover:shadow-elegant transition-all duration-200 cursor-pointer bg-card" onClick={() => handleImageClick(index)}>
                   <div className="aspect-[5/4] overflow-hidden">
                     <img src={image.src} alt={image.alt} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200" loading={index < 2 ? "eager" : "lazy"} decoding="async" />
                   </div>
@@ -122,6 +137,10 @@ export const HeroSection = () => {
       </section>
 
       {/* Image Modal */}
-      {selectedImage && <ImageModal selectedImage={selectedImage} onClose={handleCloseModal} />}
+      <ImageModal 
+        images={allImages}
+        selectedIndex={selectedImageIndex} 
+        onClose={handleCloseModal} 
+      />
     </>;
 };

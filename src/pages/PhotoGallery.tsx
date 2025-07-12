@@ -8,7 +8,7 @@ import { GalleryCTA } from "@/components/gallery/GalleryCTA";
 import { SectionCard } from "@/components/ui/section-card";
 
 const PhotoGallery = () => {
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
   const filteredImages = selectedCategory === "all" 
@@ -16,11 +16,12 @@ const PhotoGallery = () => {
     : galleryImages.filter(img => img.category === selectedCategory);
 
   const handleImageClick = (imageSrc: string) => {
-    setSelectedImage(imageSrc);
+    const index = filteredImages.findIndex(img => img.src === imageSrc);
+    setSelectedImageIndex(index);
   };
 
   const handleCloseModal = () => {
-    setSelectedImage(null);
+    setSelectedImageIndex(null);
   };
 
   const handleCategoryChange = (category: string) => {
@@ -52,7 +53,8 @@ const PhotoGallery = () => {
         <GalleryCTA />
         
         <ImageModal 
-          selectedImage={selectedImage}
+          images={filteredImages}
+          selectedIndex={selectedImageIndex}
           onClose={handleCloseModal}
         />
     </div>
