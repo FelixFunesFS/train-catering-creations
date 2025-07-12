@@ -110,7 +110,7 @@ const About = () => {
               <img 
                 src="/lovable-uploads/8268fc9a-93a0-4b72-a923-95fc0f10b0c0.png" 
                 alt="Chef Dominick 'Train' Ward and Tanya Ward, the founders of Soul Train's Eatery, wearing their signature red aprons"
-                className="w-full h-full object-cover object-top"
+                className="w-full h-full object-cover object-[center_20%]"
               />
             </div>
           </div>
