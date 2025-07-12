@@ -1,41 +1,33 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Heart, Star, Crown } from "lucide-react";
+import { PageHeader } from "@/components/ui/page-header";
+import { OptimizedImage } from "@/components/ui/optimized-image";
 
 const WeddingMenu = () => {
   return (
     <div className="min-h-screen bg-gradient-hero py-16 md:py-20 lg:py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="text-center mb-12 lg:mb-16">
-          <div className="flex justify-center mb-4">
-            <Heart className="h-8 w-8 text-primary mr-2" />
-            <Crown className="h-8 w-8 text-primary mx-2" />
-            <Star className="h-8 w-8 text-primary ml-2" />
-          </div>
-          <h1 className="text-4xl lg:text-5xl font-elegant font-bold text-foreground mb-6">
-            Wedding & Black Tie Events
-          </h1>
-          <div className="w-24 h-1 bg-gradient-primary mx-auto mb-8"></div>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            Elevate your special occasion with our elegant catering service. From intimate ceremonies to grand celebrations, we create unforgettable culinary experiences.
-          </p>
-        </div>
+        <PageHeader
+          title="Wedding & Black Tie Events"
+          description="Elevate your special occasion with our elegant catering service. From intimate ceremonies to grand celebrations, we create unforgettable culinary experiences."
+          icons={[
+            <Heart className="h-6 w-6 sm:h-8 sm:w-8" />,
+            <Crown className="h-6 w-6 sm:h-8 sm:w-8" />,
+            <Star className="h-6 w-6 sm:h-8 sm:w-8" />
+          ]}
+        />
 
         {/* Event Types */}
         <div className="grid md:grid-cols-3 gap-6 lg:gap-8 mb-12 lg:mb-16">
-          <Card className="shadow-card text-center hover-scale transition-all duration-300 overflow-hidden">
-            <div className="relative">
-              <AspectRatio ratio={16/9}>
-                <img 
-                  src="/lovable-uploads/269bd0e4-4a19-4f14-b966-7b3173a10b95.png" 
-                  alt="Elegant wedding reception setup with beautiful floral arrangements and draped tables"
-                  className="object-cover w-full h-full"
-                  loading="lazy"
-                />
-              </AspectRatio>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-            </div>
+          <Card className="shadow-card text-center hover:scale-105 transition-all duration-200 overflow-hidden">
+            <OptimizedImage 
+              src="/lovable-uploads/269bd0e4-4a19-4f14-b966-7b3173a10b95.png" 
+              alt="Elegant wedding reception setup with beautiful floral arrangements and draped tables"
+              aspectRatio="aspect-video"
+              className="transition-transform duration-200 group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
             <CardHeader className="pb-3">
               <CardTitle className="text-lg font-elegant">Weddings</CardTitle>
             </CardHeader>
@@ -46,18 +38,14 @@ const WeddingMenu = () => {
             </CardContent>
           </Card>
 
-          <Card className="shadow-card text-center hover-scale transition-all duration-300 overflow-hidden">
-            <div className="relative">
-              <AspectRatio ratio={16/9}>
-                <img 
-                  src="/lovable-uploads/d4bf7685-b46c-4c39-8a28-1d003b978403.png" 
-                  alt="Elegant outdoor catering setup with chafing dishes and floral decorations"
-                  className="object-cover w-full h-full"
-                  loading="lazy"
-                />
-              </AspectRatio>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-            </div>
+          <Card className="shadow-card text-center hover:scale-105 transition-all duration-200 overflow-hidden">
+            <OptimizedImage 
+              src="/lovable-uploads/d4bf7685-b46c-4c39-8a28-1d003b978403.png" 
+              alt="Elegant outdoor catering setup with chafing dishes and floral decorations"
+              aspectRatio="aspect-video"
+              className="transition-transform duration-200 group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
             <CardHeader className="pb-3">
               <CardTitle className="text-lg font-elegant">Black Tie Events</CardTitle>
             </CardHeader>
@@ -68,19 +56,14 @@ const WeddingMenu = () => {
             </CardContent>
           </Card>
 
-          <Card className="shadow-card text-center hover-scale transition-all duration-300 overflow-hidden">
-            <div className="relative">
-              <AspectRatio ratio={16/9}>
-                <img 
-                  src="/lovable-uploads/cf6d0cd4-02bd-4607-b658-14a809d30275.png" 
-                  alt="Military honor guard ceremony with elegant charcuterie board catering"
-                  className="object-cover object-center w-full h-full"
-                  style={{ objectPosition: '50% 35%' }}
-                  loading="lazy"
-                />
-              </AspectRatio>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-            </div>
+          <Card className="shadow-card text-center hover:scale-105 transition-all duration-200 overflow-hidden">
+            <OptimizedImage 
+              src="/lovable-uploads/cf6d0cd4-02bd-4607-b658-14a809d30275.png" 
+              alt="Military honor guard ceremony with elegant charcuterie board catering"
+              aspectRatio="aspect-video"
+              className="object-[50%_35%] transition-transform duration-200 group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
             <CardHeader className="pb-3">
               <CardTitle className="text-lg font-elegant">Military Functions</CardTitle>
             </CardHeader>

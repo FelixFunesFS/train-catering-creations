@@ -55,6 +55,9 @@ All colors MUST be HSL. Designed for maximum accessibility with high contrast ra
     --shadow-elegant: 0 10px 40px -10px hsl(0 0% 0% / 0.1);
     --shadow-card: 0 4px 20px -4px hsl(0 0% 0% / 0.05);
     --shadow-glow: 0 0 30px hsl(0 72% 50% / 0.15);
+    
+    /* Animation keyframes */
+    --shimmer-animation: shimmer 2s infinite;
   }
 
   .dark {
@@ -96,5 +99,20 @@ All colors MUST be HSL. Designed for maximum accessibility with high contrast ra
 
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+  
+  .animate-shimmer {
+    animation: shimmer 2s infinite;
   }
 }

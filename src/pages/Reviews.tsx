@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Star, Heart, ThumbsUp } from "lucide-react";
+import { PageHeader } from "@/components/ui/page-header";
 
 const Reviews = () => {
   // Sample reviews - these would come from a real review system
@@ -61,20 +62,15 @@ const Reviews = () => {
     <div className="min-h-screen bg-gradient-hero py-16 md:py-20 lg:py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="text-center mb-16">
-          <div className="flex justify-center mb-4">
-            <Star className="h-8 w-8 text-primary mr-2" />
-            <Heart className="h-8 w-8 text-primary mx-2" />
-            <ThumbsUp className="h-8 w-8 text-primary ml-2" />
-          </div>
-          <h1 className="text-4xl lg:text-5xl font-elegant font-bold text-foreground mb-6">
-            Client Reviews
-          </h1>
-          <div className="w-24 h-1 bg-gradient-primary mx-auto mb-8"></div>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            See what our clients say about their experience with Soul Train's Eatery
-          </p>
-        </div>
+        <PageHeader
+          title="Client Reviews"
+          description="See what our clients say about their experience with Soul Train's Eatery"
+          icons={[
+            <Star className="h-6 w-6 sm:h-8 sm:w-8" />,
+            <Heart className="h-6 w-6 sm:h-8 sm:w-8" />,
+            <ThumbsUp className="h-6 w-6 sm:h-8 sm:w-8" />
+          ]}
+        />
 
         {/* Overall Rating */}
         <Card className="shadow-elegant mb-12 text-center">
