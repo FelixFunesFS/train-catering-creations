@@ -82,16 +82,16 @@ export const InteractiveGallerySection = () => {
         }} plugins={[Autoplay({
           delay: 4000
         })]} className="w-full">
-            <CarouselContent className="-ml-0">
-              {highQualityImages.map((image, index) => <CarouselItem key={index} className="pl-0 basis-1/2 sm:basis-1/3 md:basis-1/4">
-                  <Card className="cursor-pointer group border-0 shadow-none" onClick={() => handleImageClick(image.src)}>
+            <CarouselContent className="-ml-1 gap-2">
+              {highQualityImages.map((image, index) => <CarouselItem key={index} className="pl-1 basis-1/2 sm:basis-1/3 md:basis-1/4">
+                  <Card className="shadow-card hover:shadow-elegant bg-card border-2 border-transparent group-hover:border-primary/20 transition-all duration-200 cursor-pointer group" onClick={() => handleImageClick(image.src)}>
                     <CardContent className="p-0">
-                      <div className="relative overflow-hidden aspect-square">
-                        <img src={image.src} alt={image.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200" loading="lazy" />
-                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 flex items-end mx-0">
+                      <div className="relative overflow-hidden rounded-lg aspect-[5/4]">
+                        <img src={image.src} alt={image.title} className="w-full h-full object-cover group-hover:scale-105 brightness-105 contrast-105 transition-transform duration-200" loading="lazy" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-end">
                           <div className="p-4 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                            <h3 className="font-elegant font-semibold text-sm">{image.title}</h3>
-                            <p className="text-xs mt-1">{image.description}</p>
+                            <h3 className="font-elegant font-semibold text-white contrast-150">{image.title}</h3>
+                            <p className="text-sm text-white/90 contrast-150">{image.description}</p>
                           </div>
                         </div>
                       </div>
