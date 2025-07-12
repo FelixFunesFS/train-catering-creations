@@ -2,6 +2,20 @@ import { GalleryImage } from './types';
 
 export const buffetImages: GalleryImage[] = [
   {
+    src: "/lovable-uploads/0d103574-55d4-4eca-8b24-99fb579cc931.png",
+    category: "buffet",
+    title: "Elegant Buffet Setup",
+    description: "Beautifully arranged buffet with multiple hot dishes in a home setting",
+    quality: 7
+  },
+  {
+    src: "/lovable-uploads/198d84dd-24de-4062-957d-ef34558c1f4b.png",
+    category: "buffet",
+    title: "Chafing Dish Service",
+    description: "Professional chafing dishes with pasta and hot entrees",
+    quality: 6
+  },
+  {
     src: "/lovable-uploads/253dc0d5-e588-4e00-9e42-eee6c9a87890.png",
     category: "buffet",
     title: "Outdoor Catering Setup",
