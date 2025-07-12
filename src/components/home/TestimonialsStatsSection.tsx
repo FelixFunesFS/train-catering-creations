@@ -18,7 +18,7 @@ export const TestimonialsStatsSection = () => {
   return (
     <section className="py-6 md:py-8 lg:py-10 bg-gradient-card shadow-card rounded-lg mx-4 sm:mx-6 lg:mx-8 my-4 md:my-6">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-center">
+        <div className="grid lg:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-stretch">
           {/* Statistics Side */}
           <div className="space-y-6 lg:space-y-8">
             <div className="text-center lg:text-left">
@@ -48,25 +48,26 @@ export const TestimonialsStatsSection = () => {
           </div>
 
           {/* Review Side */}
-          <div className="bg-card rounded-2xl p-4 sm:p-6 lg:p-8 border border-border shadow-card">
+          <div className="bg-card rounded-2xl p-4 sm:p-6 lg:p-8 border border-border shadow-card flex flex-col justify-between h-full">
             <Quote className="h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 text-primary mb-6" />
-            <blockquote className="text-base sm:text-lg lg:text-xl font-elegant text-foreground leading-relaxed mb-8">
+            <blockquote className="text-xl sm:text-2xl lg:text-3xl font-elegant font-bold text-foreground leading-relaxed mb-8">
               "Soul Train's Eatery catered our wedding and it was absolutely perfect! The mac and cheese was the talk of the night, and every guest asked for the caterer's information."
             </blockquote>
-            
-            <div className="flex items-center space-x-2 mb-6">
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-primary">⭐</div>
-              ))}
-            </div>
-            
-            <div className="border-t border-border pt-6">
-              <p className="text-base sm:text-lg font-semibold text-foreground">
-                Sarah & Michael's Wedding
-              </p>
-              <p className="text-sm sm:text-base text-muted-foreground">
-                Charleston, SC
-              </p>
+            <div>
+              <div className="flex items-center space-x-2 mb-6">
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-primary">⭐</div>
+                ))}
+              </div>
+              
+              <div className="border-t border-border pt-6">
+                <p className="text-base sm:text-lg font-semibold text-foreground">
+                  Sarah & Michael's Wedding
+                </p>
+                <p className="text-sm sm:text-base text-muted-foreground">
+                  Charleston, SC
+                </p>
+              </div>
             </div>
           </div>
         </div>
