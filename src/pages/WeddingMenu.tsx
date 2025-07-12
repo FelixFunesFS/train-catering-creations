@@ -74,7 +74,8 @@ const WeddingMenu = () => {
                 <img 
                   src="/lovable-uploads/cf6d0cd4-02bd-4607-b658-14a809d30275.png" 
                   alt="Military honor guard ceremony with elegant charcuterie board catering"
-                  className="object-cover object-top w-full h-full"
+                  className="object-cover object-center w-full h-full"
+                  style={{ objectPosition: '50% 35%' }}
                   loading="lazy"
                 />
               </AspectRatio>
