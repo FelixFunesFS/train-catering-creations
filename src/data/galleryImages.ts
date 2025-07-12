@@ -27,4 +27,4 @@ const allImages: GalleryImage[] = [
   ...familyImages
 ];
 
-export const galleryImages: GalleryImage[] = allImages.sort((a, b) => b.quality - a.quality);
+export const galleryImages: GalleryImage[] = allImages.sort(() => Math.random() - 0.5);
