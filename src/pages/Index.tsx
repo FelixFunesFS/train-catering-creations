@@ -7,7 +7,7 @@ import { TestimonialsStatsSection } from "@/components/home/TestimonialsStatsSec
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-hero py-16 md:py-20 lg:py-24">
       <HeroSection />
       <AboutPreviewSection />
       <ServicesSection />

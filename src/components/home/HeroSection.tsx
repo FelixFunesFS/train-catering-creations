@@ -42,9 +42,9 @@ export const HeroSection = () => {
     setSelectedImage(null);
   };
   return <>
-      <section className="min-h-screen bg-gradient-to-br from-background via-background to-muted/10 py-16 md:py-20 lg:py-24">
+      <section className="bg-gradient-card shadow-elegant rounded-lg mx-4 sm:mx-6 lg:mx-8">
         {/* Brand Header Section */}
-        <div className="relative flex flex-col justify-center items-center text-center px-4 sm:px-6 lg:px-8 pb-12 lg:pb-16">
+        <div className="relative flex flex-col justify-center items-center text-center px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
           {/* Subtle background pattern */}
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 opacity-50"></div>
           

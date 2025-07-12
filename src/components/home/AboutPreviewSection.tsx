@@ -5,7 +5,7 @@ import { Heart, Users, Crown, ChefHat, Award } from "lucide-react";
 
 export const AboutPreviewSection = () => {
   return (
-    <section className="py-16 md:py-20 lg:py-24 bg-background">
+    <section className="py-8 md:py-12 lg:py-16 bg-gradient-card shadow-card rounded-lg mx-4 sm:mx-6 lg:mx-8 my-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           <div>
@@ -19,7 +19,7 @@ export const AboutPreviewSection = () => {
               From intimate gatherings to grand celebrations, we bring over two decades of culinary expertise, Southern hospitality, and ServSafe certified professionalism to every event.
             </p>
             <Link to="/about">
-              <Button className="bg-primary hover:bg-primary-glow text-primary-foreground px-8 py-4">
+              <Button variant="cta" size="responsive-lg">
                 Learn More About Us
               </Button>
             </Link>
