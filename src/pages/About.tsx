@@ -31,9 +31,10 @@ const About = () => {
                 className="w-full h-full object-cover object-center"
               />
             </div>
-            <p className="text-lg text-muted-foreground mt-4 font-medium text-center">
-              Chef Dominick "Train" Ward - Master Culinary Excellence
-            </p>
+            <div className="text-lg text-muted-foreground mt-4 font-medium text-center">
+              <div>Chef Dominick "Train" Ward</div>
+              <div>Master Culinary Excellence</div>
+            </div>
           </div>
         </div>
 
