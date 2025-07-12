@@ -37,13 +37,6 @@ export const teamImages: GalleryImage[] = [
     quality: 7
   },
   {
-    src: "/lovable-uploads/ce326d9b-0fe1-4440-b916-bf286a5531c5.png",
-    category: "team",
-    title: "Chefs with Signature Dishes",
-    description: "Our talented chefs proudly presenting their signature creations",
-    quality: 8
-  },
-  {
     src: "/lovable-uploads/6ae71cc1-9efa-49ca-b188-6b182df3f8a8.png",
     category: "team",
     title: "Soul Train Eatery Team",

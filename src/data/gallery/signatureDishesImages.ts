@@ -23,13 +23,6 @@ export const signatureDishesImages: GalleryImage[] = [
     quality: 7
   },
   {
-    src: "/lovable-uploads/66362602-d667-4c91-8247-ff833602e670.png",
-    category: "signature-dishes",
-    title: "Signature Paella Dish",
-    description: "Traditional paella with fresh vegetables and aromatic seasonings",
-    quality: 8
-  },
-  {
     src: "/lovable-uploads/de51be25-0eb8-43f8-a277-43227a8adb59.png",
     category: "signature-dishes",
     title: "Casserole and Rice Specialties",
