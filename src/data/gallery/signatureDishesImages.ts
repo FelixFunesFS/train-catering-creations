@@ -51,13 +51,6 @@ export const signatureDishesImages: GalleryImage[] = [
     quality: 7
   },
   {
-    src: "/lovable-uploads/dd5b9f3c-0d75-4315-b27a-751f4108ffb2.png",
-    category: "signature-dishes",
-    title: "Herb-Crusted Salmon",
-    description: "Perfectly seasoned salmon fillets with fresh herbs and purple flower garnish",
-    quality: 8
-  },
-  {
     src: "/lovable-uploads/2c2c42ec-fbd9-474d-852a-2017e4e0c020.png",
     category: "signature-dishes",
     title: "Golden Cheese Casserole",

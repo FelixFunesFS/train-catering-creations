@@ -154,12 +154,5 @@ export const buffetImages: GalleryImage[] = [
     title: "Professional Chafing Service with Meatballs",
     description: "Elegant buffet setup featuring chafing dishes with seasoned chicken, meatballs, and side dishes",
     quality: 8
-  },
-  {
-    src: "/lovable-uploads/90274afc-189b-431c-b864-5d18548bb5c0.png",
-    category: "buffet",
-    title: "Large Event Buffet Setup",
-    description: "Extensive buffet arrangement for large-scale events with comprehensive food selection",
-    quality: 8
   }
 ];
