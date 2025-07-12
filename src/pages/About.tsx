@@ -1,4 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { ChefHat, Award, Heart } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { OptimizedImage } from "@/components/ui/optimized-image";
@@ -105,24 +106,31 @@ const About = () => {
         </SectionCard>
 
 
-        <SectionCard>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <Card className="shadow-elegant bg-gradient-card text-center">
-              <CardContent className="p-8 lg:p-12">
-                <p className="text-xl text-muted-foreground mb-6">Ready to start planning your event?</p>
-                <div className="flex flex-col sm:flex-row justify-center items-center space-y-3 sm:space-y-0 sm:space-x-8 mb-4">
-                  <a href="tel:8439700265" className="text-primary hover:text-primary-glow font-medium text-lg transition-colors">
-                    📞 Call (843) 970-0265
-                  </a>
-                  <a href="mailto:soultrainseatery@gmail.com" className="text-primary hover:text-primary-glow font-medium text-lg transition-colors">
-                    ✉️ soultrainseatery@gmail.com
-                  </a>
-                </div>
-                <p className="text-muted-foreground">📍 Charleston, SC</p>
-              </CardContent>
-            </Card>
+        <section className="py-6 md:py-8 lg:py-10 bg-gradient-primary rounded-lg mx-4 sm:mx-6 lg:mx-8 my-4 md:my-6 shadow-elegant">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant font-bold text-primary-foreground mb-6">
+              Ready to Start Planning Your Event?
+            </h2>
+            <p className="text-base sm:text-lg lg:text-xl text-primary-foreground mb-8 lg:mb-12 opacity-90">
+              Let Soul Train's Eatery handle the kitchen while you enjoy the moment. Contact us today for a personalized quote.
+            </p>
+            <div className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 max-w-xs sm:max-w-lg mx-auto">
+              <Button asChild variant="cta" size="responsive-sm" className="w-full sm:w-auto">
+                <a href="tel:8439700265" className="flex items-center justify-center space-x-2">
+                  <span>Call (843) 970-0265</span>
+                </a>
+              </Button>
+              <Button asChild variant="cta-white" size="responsive-sm" className="w-full sm:w-auto">
+                <a href="mailto:soultrainseatery@gmail.com">
+                  Email Us
+                </a>
+              </Button>
+            </div>
+            <p className="text-primary-foreground mt-6 lg:mt-8 opacity-75 text-sm sm:text-base">
+              📍 Charleston, SC
+            </p>
           </div>
-        </SectionCard>
+        </section>
     </div>;
 };
 export default About;

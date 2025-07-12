@@ -440,35 +440,31 @@ const WeddingMenu = () => {
           </div>
         </SectionCard>
 
-        <SectionCard>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <Card className="shadow-elegant bg-gradient-card">
-              <CardContent className="p-6 lg:p-8 text-center">
-                <h3 className="text-3xl font-elegant font-bold text-foreground mb-6">
-                  Let's Plan Your Perfect Event
-                </h3>
-                <p className="text-xl text-muted-foreground leading-relaxed mb-8 max-w-2xl mx-auto">
-                  Schedule a consultation to discuss your vision, taste our specialties, and receive a customized proposal for your special occasion.
-                </p>
-                <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6">
-                  <Button asChild variant="cta" size="responsive-sm">
-                    <a href="tel:8439700265">
-                      Call (843) 970-0265
-                    </a>
-                  </Button>
-                  <Button asChild variant="cta-outline" size="responsive-sm">
-                    <a href="mailto:soultrainseatery@gmail.com">
-                      Email for Quote
-                    </a>
-                  </Button>
-                </div>
-                <p className="text-sm text-muted-foreground mt-6">
-                  Serving Charleston, SC and surrounding Lowcountry areas
-                </p>
-              </CardContent>
-            </Card>
+        <section className="py-6 md:py-8 lg:py-10 bg-gradient-primary rounded-lg mx-4 sm:mx-6 lg:mx-8 my-4 md:my-6 shadow-elegant">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant font-bold text-primary-foreground mb-6">
+              Let's Plan Your Perfect Event
+            </h2>
+            <p className="text-base sm:text-lg lg:text-xl text-primary-foreground mb-8 lg:mb-12 opacity-90">
+              Schedule a consultation to discuss your vision, taste our specialties, and receive a customized proposal for your special occasion.
+            </p>
+            <div className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 max-w-xs sm:max-w-lg mx-auto">
+              <Button asChild variant="cta" size="responsive-sm" className="w-full sm:w-auto">
+                <a href="tel:8439700265">
+                  Call (843) 970-0265
+                </a>
+              </Button>
+              <Button asChild variant="cta-white" size="responsive-sm" className="w-full sm:w-auto">
+                <a href="mailto:soultrainseatery@gmail.com">
+                  Email for Quote
+                </a>
+              </Button>
+            </div>
+            <p className="text-primary-foreground mt-6 lg:mt-8 opacity-75 text-sm sm:text-base">
+              Serving Charleston, SC and surrounding Lowcountry areas
+            </p>
           </div>
-        </SectionCard>
+        </section>
     </div>
   );
 };
