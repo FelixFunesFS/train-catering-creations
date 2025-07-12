@@ -40,8 +40,8 @@ export const TestimonialsStatsSection = () => {
           </div>
 
           {/* Review Side */}
-          <div className="bg-card rounded-2xl p-4 sm:p-6 lg:p-8 border border-border shadow-card flex flex-col justify-between h-full px-[27px] py-0">
-            <Quote className="h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 text-primary mb-6 my-[19px]" />
+          <div className="bg-card rounded-2xl p-4 sm:p-6 lg:p-8 border border-border shadow-card flex flex-col justify-between h-full px-[27px] py-0 hover:shadow-elegant transition-all duration-200 hover:scale-105 group">
+            <Quote className="h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 text-primary mb-6 my-[19px] group-hover:scale-110 transition-transform duration-200" />
             <blockquote className="text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed mb-8">
               "Soul Train's Eatery catered our wedding and it was absolutely perfect! The mac and cheese was the talk of the night, and every guest asked for the caterer's information."
             </blockquote>
