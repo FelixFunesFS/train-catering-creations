@@ -39,7 +39,7 @@ export const ServicesSection = () => {
           <Card className="shadow-card text-center hover:shadow-elegant transition-all duration-200 overflow-hidden group">
             <div className="relative h-48">
               <OptimizedImage
-                src="/lovable-uploads/2c599843-7d0e-405d-870d-639d55dc1208.png"
+                src="/lovable-uploads/63832488-46ff-4d71-ade5-f871173c28ab.png"
                 alt="Black Tie Event Catering"
                 aspectRatio="aspect-video"
                 className="group-hover:scale-105 transition-transform duration-300"
