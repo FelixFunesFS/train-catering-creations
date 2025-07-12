@@ -44,13 +44,6 @@ export const weddingImages: GalleryImage[] = [
     quality: 9
   },
   {
-    src: "/lovable-uploads/c8da25d1-99cf-4dc7-84e8-aa6437f059c0.png",
-    category: "wedding",
-    title: "Outdoor Wedding Ceremony with Chef",
-    description: "Beautiful outdoor wedding ceremony with professional chef presenting signature dish",
-    quality: 10
-  },
-  {
     src: "/lovable-uploads/86a73cc7-624a-4cae-8bde-af21cef9593a.png",
     category: "wedding",
     title: "Wedding Dessert Table with Neon Sign",
