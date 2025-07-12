@@ -32,7 +32,7 @@ const About = () => {
               />
             </div>
             <p className="text-lg text-muted-foreground mt-4 font-medium text-center">
-              Chef Dominick "Train" Ward - Master of BBQ Excellence
+              Chef Dominick "Train" Ward - Master Culinary Excellence
             </p>
           </div>
         </div>
