@@ -150,7 +150,7 @@ export const InteractiveGallerySection = () => {
             </Button>
           </Link>
           <Link to="/quote">
-            <Button variant="outline" className="px-10 py-4">
+            <Button variant="outline" className="border-2 border-primary text-primary bg-transparent hover:bg-primary/5 hover:border-primary/50 px-6 py-3 text-base font-semibold transform hover:scale-105 transition-all duration-300 hover:shadow-md">
               Request Quote
             </Button>
           </Link>
