@@ -20,7 +20,6 @@ export const ImageGrid = ({ images, onImageClick }: ImageGridProps) => {
             <OptimizedImage
               src={image.src}
               alt={image.title}
-              aspectRatio="aspect-[5/4]"
               className="group-hover:scale-105 brightness-105 contrast-105 w-full h-full object-cover"
               onImageError={() => {
                 console.error(`Failed to load image: ${image.src}`);
