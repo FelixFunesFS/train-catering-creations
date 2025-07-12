@@ -93,13 +93,6 @@ export const formalImages: GalleryImage[] = [
     quality: 9
   },
   {
-    src: "/lovable-uploads/8899d29d-45ef-4fba-97f7-51385d68d23f.png",
-    category: "formal",
-    title: "Military Formal Ceremony",
-    description: "Professional military ceremony with formal chafing dish service and ceremonial presentation",
-    quality: 9
-  },
-  {
     src: "/lovable-uploads/89b3b1b4-4845-44e7-85f7-9586bd5cdb8e.png",
     category: "formal",
     title: "Elegant Formal Event Setup",

@@ -98,12 +98,5 @@ export const dessertImages: GalleryImage[] = [
     title: "Premium Cupcake Display",
     description: "Professional tiered cupcake display with elegant presentation for special events",
     quality: 9
-  },
-  {
-    src: "/lovable-uploads/7f22e72c-441b-4b6c-9525-56748107fdd5.png",
-    category: "desserts",
-    title: "Elegant Dessert Shooters",
-    description: "Beautiful dessert shooters with professional presentation and decorative garnishes",
-    quality: 10
-  },
+  }
 ];
