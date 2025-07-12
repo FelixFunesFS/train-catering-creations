@@ -191,13 +191,6 @@ export const buffetImages: GalleryImage[] = [
     quality: 8
   },
   {
-    src: "/lovable-uploads/8dc454d4-5169-44a6-a430-481c6c9582e7.png",
-    category: "buffet",
-    title: "Brick Wall Buffet with Eucalyptus",
-    description: "Sophisticated buffet setup against rustic brick wall with elegant eucalyptus garland accents",
-    quality: 9
-  },
-  {
     src: "/lovable-uploads/92340ff8-1737-4c83-9a95-8af53f406242.png",
     category: "buffet",
     title: "Professional Buffet Team Service",
