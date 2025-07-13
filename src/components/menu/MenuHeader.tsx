@@ -11,6 +11,7 @@ const MenuHeader = () => {
         <ChefHat className="h-6 w-6 sm:h-8 sm:w-8" />,
         <Star className="h-6 w-6 sm:h-8 sm:w-8" />
       ]}
+      buttons={[{ text: "Request Quote", href: "/request-quote", variant: "cta" }]}
     />
   );
 };

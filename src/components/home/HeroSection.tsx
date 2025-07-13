@@ -74,12 +74,12 @@ export const HeroSection = () => {
             </div>
             
             <div className="w-24 h-1 bg-gradient-to-r from-primary to-primary-glow rounded-full mx-auto mb-6"></div>
-            <p className="text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed font-medium animate-fade-in max-w-2xl mx-auto mb-6">
+            <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-muted-foreground leading-relaxed font-medium animate-fade-in max-w-2xl mx-auto mb-6">
               Where passion meets Southern hospitality. Elegant catering for weddings, black tie events, and memorable celebrations in Charleston's Lowcountry.
             </p>
             
             {/* Call-to-Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center animate-fade-in max-w-xs sm:max-w-md mx-auto">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center animate-fade-in">
               <Button asChild variant="cta" size="responsive-sm" className="w-3/5 sm:w-auto">
                 <Link to="/request-quote">
                   Request a Quote

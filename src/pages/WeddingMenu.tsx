@@ -18,6 +18,7 @@ const WeddingMenu = () => {
                 <Crown className="h-6 w-6 sm:h-8 sm:w-8" />,
                 <Star className="h-6 w-6 sm:h-8 sm:w-8" />
               ]}
+              buttons={[{ text: "Request Quote", href: "/request-quote", variant: "cta" }]}
             />
             
             <div className="grid md:grid-cols-3 gap-6 lg:gap-8 mt-12">
