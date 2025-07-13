@@ -22,19 +22,19 @@ const About = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
             <Card className="mb-8 sm:mb-12 shadow-elegant">
               <CardContent className="p-4 sm:p-6 lg:p-8 xl:p-12">
-                <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 items-center mb-6 sm:mb-8">
-                  <div className="text-center lg:text-left">
-                    <h2 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-elegant font-bold text-primary mb-2 sm:mb-3">
-                      Chef Dominick "Train" Ward
-                    </h2>
-                    <p className="text-base sm:text-lg lg:text-xl xl:text-2xl text-muted-foreground font-medium">
-                      Master Culinary Excellence
-                    </p>
-                  </div>
-                  <div className="flex justify-center lg:justify-end">
+                <div className="text-center mb-6 sm:mb-8">
+                  <div className="flex justify-center mb-4 sm:mb-6">
                     <div className="relative w-48 h-48 sm:w-56 sm:h-56 lg:w-64 lg:h-64 shadow-glow border-4 sm:border-8 border-white rounded-full overflow-hidden">
                       <OptimizedImage src="/lovable-uploads/7386b87d-cf31-4aad-a072-4dc06d9d2a3a.png" alt="Chef Dominick 'Train' Ward working in the kitchen with professional expertise" aspectRatio="aspect-square" className="object-center" priority />
                     </div>
+                  </div>
+                  <div>
+                    <h2 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-elegant font-bold text-primary mb-2 sm:mb-3">
+                      Chef Dominick "Train" Ward
+                    </h2>
+                    <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-muted-foreground font-medium">
+                      Master Culinary Excellence
+                    </p>
                   </div>
                 </div>
                 
@@ -119,19 +119,19 @@ const About = () => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <Card className="mb-8 sm:mb-12 shadow-elegant">
                 <CardContent className="p-4 sm:p-6 lg:p-8 xl:p-12">
-                  <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 items-center mb-6 sm:mb-8">
-                    <div className="text-center lg:text-left">
-                      <h2 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-elegant font-bold text-primary mb-2 sm:mb-3">
-                        Chef Dominick "Train" Ward
-                      </h2>
-                      <p className="text-base sm:text-lg lg:text-xl xl:text-2xl text-muted-foreground font-medium">
-                        Master Culinary Excellence
-                      </p>
-                    </div>
-                    <div className="flex justify-center lg:justify-end">
+                  <div className="text-center mb-6 sm:mb-8">
+                    <div className="flex justify-center mb-4 sm:mb-6">
                       <div className="relative w-48 h-48 sm:w-56 sm:h-56 lg:w-64 lg:h-64 shadow-glow border-4 sm:border-8 border-white rounded-full overflow-hidden">
                         <OptimizedImage src="/lovable-uploads/7386b87d-cf31-4aad-a072-4dc06d9d2a3a.png" alt="Chef Dominick 'Train' Ward working in the kitchen with professional expertise" aspectRatio="aspect-square" className="object-center" priority />
                       </div>
+                    </div>
+                    <div>
+                      <h2 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-elegant font-bold text-primary mb-2 sm:mb-3">
+                        Chef Dominick "Train" Ward
+                      </h2>
+                      <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-muted-foreground font-medium">
+                        Master Culinary Excellence
+                      </p>
                     </div>
                   </div>
                   
