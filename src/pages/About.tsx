@@ -25,10 +25,10 @@ const About = () => {
                 <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 items-center mb-6 sm:mb-8">
                   <div className="text-center lg:text-left">
                     <h2 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-elegant font-bold text-primary mb-2 sm:mb-3">
-                      Master Culinary Excellence
+                      Chef Dominick "Train" Ward
                     </h2>
                     <p className="text-base sm:text-lg lg:text-xl xl:text-2xl text-muted-foreground font-medium">
-                      Chef Dominick "Train" Ward
+                      Master Culinary Excellence
                     </p>
                   </div>
                   <div className="flex justify-center lg:justify-end">
@@ -122,10 +122,10 @@ const About = () => {
                   <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 items-center mb-6 sm:mb-8">
                     <div className="text-center lg:text-left">
                       <h2 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-elegant font-bold text-primary mb-2 sm:mb-3">
-                        Master Culinary Excellence
+                        Chef Dominick "Train" Ward
                       </h2>
                       <p className="text-base sm:text-lg lg:text-xl xl:text-2xl text-muted-foreground font-medium">
-                        Chef Dominick "Train" Ward
+                        Master Culinary Excellence
                       </p>
                     </div>
                     <div className="flex justify-center lg:justify-end">
