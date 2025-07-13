@@ -148,24 +148,6 @@ const Reviews = () => {
           </SectionCard>
         </div>
 
-        <CTASection
-          title="Ready to Create Your Own Success Story?"
-          description="Join our growing list of satisfied clients. Let us make your next event unforgettable."
-          buttons={[
-            {
-              text: "Request Quote",
-              href: "/request-quote",
-              variant: "cta"
-            },
-            {
-              text: "Call (843) 970-0265",
-              href: "tel:8439700265",
-              variant: "cta-white"
-            }
-          ]}
-          footer="Proudly serving Charleston, SC and the surrounding Lowcountry"
-        />
-
         {/* Mobile: Direct card without SectionCard wrapper */}
         <div className="lg:hidden">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -203,6 +185,24 @@ const Reviews = () => {
             </div>
           </SectionCard>
         </div>
+
+        <CTASection
+          title="Ready to Create Your Own Success Story?"
+          description="Join our growing list of satisfied clients. Let us make your next event unforgettable."
+          buttons={[
+            {
+              text: "Request Quote",
+              href: "/request-quote",
+              variant: "cta"
+            },
+            {
+              text: "Call (843) 970-0265",
+              href: "tel:8439700265",
+              variant: "cta-white"
+            }
+          ]}
+          footer="Proudly serving Charleston, SC and the surrounding Lowcountry"
+        />
     </div>
   );
 };
