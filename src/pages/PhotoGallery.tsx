@@ -15,6 +15,12 @@ const PhotoGallery = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [viewMode, setViewMode] = useState<"grid" | "carousel" | "featured" | "masonry">("masonry");
   const filteredImages = selectedCategory === "all" ? galleryImages : galleryImages.filter(img => img.category === selectedCategory);
+  
+  // Calculate image counts for each category
+  const imageCounts = galleryImages.reduce((acc, img) => {
+    acc[img.category] = (acc[img.category] || 0) + 1;
+    return acc;
+  }, { all: galleryImages.length } as Record<string, number>);
   const handleImageClick = (imageSrc: string) => {
     const index = filteredImages.findIndex(img => img.src === imageSrc);
     setSelectedImageIndex(index);
@@ -38,7 +44,11 @@ const PhotoGallery = () => {
         
         <SectionCard>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <CategoryFilter selectedCategory={selectedCategory} onCategoryChange={handleCategoryChange} />
+            <CategoryFilter 
+              selectedCategory={selectedCategory} 
+              onCategoryChange={handleCategoryChange}
+              imageCount={imageCounts}
+            />
             
             <ViewToggle viewMode={viewMode} onViewChange={handleViewChange} />
             

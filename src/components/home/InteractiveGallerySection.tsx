@@ -119,7 +119,7 @@ export const InteractiveGallerySection = () => {
       </div>
 
       <ImageModal 
-        images={highQualityImages}
+        images={highQualityImages.map(img => ({ ...img, quality: 8 }))}
         selectedIndex={selectedImageIndex} 
         onClose={handleCloseModal} 
       />

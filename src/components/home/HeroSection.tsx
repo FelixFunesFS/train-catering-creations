@@ -138,7 +138,7 @@ export const HeroSection = () => {
 
       {/* Image Modal */}
       <ImageModal 
-        images={allImages}
+        images={allImages.map(img => ({ ...img, quality: 7 }))}
         selectedIndex={selectedImageIndex} 
         onClose={handleCloseModal} 
       />
