@@ -13,7 +13,7 @@ import { SectionCard } from "@/components/ui/section-card";
 const PhotoGallery = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
-  const [viewMode, setViewMode] = useState<"grid" | "carousel" | "featured" | "masonry">("featured");
+  const [viewMode, setViewMode] = useState<"grid" | "carousel" | "featured" | "masonry">("masonry");
   const filteredImages = selectedCategory === "all" ? galleryImages : galleryImages.filter(img => img.category === selectedCategory);
   const handleImageClick = (imageSrc: string) => {
     const index = filteredImages.findIndex(img => img.src === imageSrc);
@@ -51,13 +51,7 @@ const PhotoGallery = () => {
             )}
             
             {viewMode === "masonry" && (
-              <>
-                <MasonryGrid images={filteredImages} onImageClick={handleImageClick} />
-                {/* Fallback to regular grid on mobile */}
-                <div className="sm:hidden">
-                  <ImageGrid images={filteredImages} onImageClick={handleImageClick} />
-                </div>
-              </>
+              <MasonryGrid images={filteredImages} onImageClick={handleImageClick} />
             )}
             
             {viewMode === "carousel" && (
