@@ -87,10 +87,10 @@ const Reviews = () => {
           </div>
         </SectionCard>
 
-        <SectionCard>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
-            <div className="grid md:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
+        {/* Mobile: Direct cards without SectionCard wrapper */}
+        <div className="lg:hidden">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6">
+            <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
               {reviews.map((review, index) => (
                 <Card key={index} className="shadow-card">
                   <CardHeader>
@@ -114,7 +114,38 @@ const Reviews = () => {
               ))}
             </div>
           </div>
-        </SectionCard>
+        </div>
+
+        {/* Desktop: With SectionCard wrapper */}
+        <div className="hidden lg:block">
+          <SectionCard>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="grid md:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
+                {reviews.map((review, index) => (
+                  <Card key={index} className="shadow-card">
+                    <CardHeader>
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <CardTitle className="text-base sm:text-lg font-elegant">{review.name}</CardTitle>
+                          <p className="text-xs sm:text-sm text-muted-foreground">{review.event}</p>
+                        </div>
+                        <div className="flex space-x-1">
+                          {renderStars(review.rating)}
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm sm:text-base text-foreground mb-2 sm:mb-3 leading-relaxed">
+                        "{review.text}"
+                      </p>
+                      <p className="text-xs text-muted-foreground">{review.date}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </SectionCard>
+        </div>
 
         <CTASection
           title="Ready to Create Your Own Success Story?"
@@ -134,8 +165,9 @@ const Reviews = () => {
           footer="Proudly serving Charleston, SC and the surrounding Lowcountry"
         />
 
-        <SectionCard>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Mobile: Direct card without SectionCard wrapper */}
+        <div className="lg:hidden">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6">
             <div className="text-center">
               <Card className="shadow-card bg-primary-light">
                 <CardContent className="p-4 sm:p-6">
@@ -149,7 +181,27 @@ const Reviews = () => {
               </Card>
             </div>
           </div>
-        </SectionCard>
+        </div>
+
+        {/* Desktop: With SectionCard wrapper */}
+        <div className="hidden lg:block">
+          <SectionCard>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="text-center">
+                <Card className="shadow-card bg-primary-light">
+                  <CardContent className="p-4 sm:p-6">
+                    <h4 className="text-base sm:text-lg font-elegant font-semibold text-primary mb-2">
+                      Worked with us recently?
+                    </h4>
+                    <p className="text-primary text-xs sm:text-sm">
+                      We'd love to hear about your experience! Contact us to share your feedback.
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </SectionCard>
+        </div>
     </div>
   );
 };

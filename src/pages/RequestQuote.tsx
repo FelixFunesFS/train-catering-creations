@@ -13,19 +13,36 @@ const RequestQuote = () => {
           </div>
         </SectionCard>
         
-        <SectionCard>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
-              <div className="order-2 lg:order-1">
-                <QuoteForm />
-              </div>
-              
-              <div className="order-1 lg:order-2">
+        {/* Mobile: Direct cards without SectionCard wrapper */}
+        <div className="lg:hidden">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6">
+            <div className="grid grid-cols-1 gap-8">
+              <div>
                 <ContactInfoCards />
+              </div>
+              <div>
+                <QuoteForm />
               </div>
             </div>
           </div>
-        </SectionCard>
+        </div>
+
+        {/* Desktop: With SectionCard wrapper */}
+        <div className="hidden lg:block">
+          <SectionCard>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
+                <div className="order-2 lg:order-1">
+                  <QuoteForm />
+                </div>
+                
+                <div className="order-1 lg:order-2">
+                  <ContactInfoCards />
+                </div>
+              </div>
+            </div>
+          </SectionCard>
+        </div>
         
         <CTASection
           title="Questions About Your Quote?"

@@ -16,24 +16,40 @@ const Menu = () => {
           </div>
         </SectionCard>
 
-        <SectionCard>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Mobile: Direct cards without SectionCard wrapper */}
+        <div className="lg:hidden">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6">
             <div className="space-y-8">
               <AppetizersCard />
               <EntreesCard />
               <PlantBasedCard />
-            </div>
-          </div>
-        </SectionCard>
-
-        <SectionCard>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="space-y-8">
               <SideDishesCard />
               <DessertsCard />
             </div>
           </div>
-        </SectionCard>
+        </div>
+
+        {/* Desktop: With SectionCard wrapper */}
+        <div className="hidden lg:block">
+          <SectionCard>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="space-y-8">
+                <AppetizersCard />
+                <EntreesCard />
+                <PlantBasedCard />
+              </div>
+            </div>
+          </SectionCard>
+
+          <SectionCard>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="space-y-8">
+                <SideDishesCard />
+                <DessertsCard />
+              </div>
+            </div>
+          </SectionCard>
+        </div>
 
         <MenuContact />
     </div>
