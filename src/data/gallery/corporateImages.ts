@@ -2,13 +2,6 @@ import { GalleryImage } from './types';
 
 export const corporateImages: GalleryImage[] = [
   {
-    src: "/lovable-uploads/89b3b1b4-4845-44e7-85f7-9586bd5cdb8e.png",
-    category: "formal",
-    title: "Professional Formal Event Catering",
-    description: "Elegant buffet setup for formal business events with multiple gourmet hot dishes",
-    quality: 7
-  },
-  {
     src: "/lovable-uploads/3373e247-7831-4889-b72a-e8f70cb13908.png",
     category: "formal",
     title: "Formal Event Beverage Station",
