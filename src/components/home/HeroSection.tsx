@@ -57,7 +57,7 @@ export const HeroSection = () => {
     setSelectedImageIndex(null);
   };
   return <>
-      <section className="bg-gradient-card shadow-elegant rounded-lg mx-4 sm:mx-6 lg:mx-8">
+      <section className="bg-gradient-card shadow-elegant hover:shadow-glow transition-all duration-200 rounded-lg mx-4 sm:mx-6 lg:mx-8">
         {/* Brand Header Section */}
         <div className="relative flex flex-col justify-center items-center text-center px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
           {/* Subtle background pattern */}
