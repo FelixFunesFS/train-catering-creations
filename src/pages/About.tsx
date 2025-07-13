@@ -8,17 +8,7 @@ const About = () => {
    return <div className="min-h-screen bg-gradient-hero">
         <SectionCard>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <PageHeader title="About Soul Train's Eatery" description="Where passion meets Southern hospitality, creating unforgettable culinary experiences for over 8 flavorful years." icons={[<ChefHat className="h-6 w-6 sm:h-8 sm:w-8" />, <Award className="h-6 w-6 sm:h-8 sm:w-8" />, <Heart className="h-6 w-6 sm:h-8 sm:w-8" />]}>
-              <div className="flex flex-col items-center">
-                <div className="relative w-40 h-40 sm:w-48 sm:h-48 lg:w-56 lg:h-56 shadow-glow border-4 sm:border-8 border-white rounded-full overflow-hidden">
-                  <OptimizedImage src="/lovable-uploads/7386b87d-cf31-4aad-a072-4dc06d9d2a3a.png" alt="Chef Dominick 'Train' Ward working in the kitchen with professional expertise" aspectRatio="aspect-square" className="object-center" priority />
-                </div>
-                <div className="text-sm sm:text-base lg:text-lg text-muted-foreground mt-3 sm:mt-4 font-medium text-center">
-                  <div>Chef Dominick "Train" Ward</div>
-                  <div>Master Culinary Excellence</div>
-                </div>
-              </div>
-            </PageHeader>
+            <PageHeader title="About Soul Train's Eatery" description="Where passion meets Southern hospitality, creating unforgettable culinary experiences for over 8 flavorful years." icons={[<ChefHat className="h-6 w-6 sm:h-8 sm:w-8" />, <Award className="h-6 w-6 sm:h-8 sm:w-8" />, <Heart className="h-6 w-6 sm:h-8 sm:w-8" />]} />
           </div>
         </SectionCard>
 
@@ -26,6 +16,22 @@ const About = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <Card className="mb-8 sm:mb-12 shadow-elegant">
               <CardContent className="p-4 sm:p-6 lg:p-8 xl:p-12">
+                <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 items-center mb-6 sm:mb-8">
+                  <div className="flex justify-center lg:justify-start">
+                    <div className="relative w-48 h-48 sm:w-56 sm:h-56 lg:w-64 lg:h-64 shadow-glow border-4 sm:border-8 border-white rounded-full overflow-hidden">
+                      <OptimizedImage src="/lovable-uploads/7386b87d-cf31-4aad-a072-4dc06d9d2a3a.png" alt="Chef Dominick 'Train' Ward working in the kitchen with professional expertise" aspectRatio="aspect-square" className="object-center" priority />
+                    </div>
+                  </div>
+                  <div className="text-center lg:text-left">
+                    <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant font-bold text-primary mb-2 sm:mb-3">
+                      Chef Dominick "Train" Ward
+                    </h2>
+                    <p className="text-lg sm:text-xl lg:text-2xl xl:text-3xl text-muted-foreground font-medium">
+                      Master Culinary Excellence
+                    </p>
+                  </div>
+                </div>
+                
                 <div className="prose prose-lg max-w-none">
                   <p className="text-sm sm:text-base lg:text-lg leading-relaxed mb-4 sm:mb-6">
                     Soul Train's Eatery has been proudly serving the Lowcountry of South Carolina for over <strong>8 flavorful years!</strong> Founded by Chef Dominick "Train" Ward and his wife Tanya Ward—our talented Pastry Chef—Soul Train's is a family-run, community-rooted catering business where passion meets Southern hospitality.
