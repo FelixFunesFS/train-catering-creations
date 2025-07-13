@@ -56,6 +56,18 @@ All colors MUST be HSL. Designed for maximum accessibility with high contrast ra
     --shadow-card: 0 4px 20px -4px hsl(0 0% 0% / 0.05);
     --shadow-glow: 0 0 30px hsl(0 72% 50% / 0.15);
     
+    /* Responsive spacing tokens */
+    --spacing-section: 1rem;
+    --spacing-section-sm: 1.5rem;
+    --spacing-section-lg: 2rem;
+    --spacing-card: 1rem;
+    --spacing-card-sm: 1.5rem;
+    --spacing-card-lg: 2rem;
+    
+    /* Mobile-optimized touch targets */
+    --touch-target-min: 44px;
+    --touch-target-comfortable: 48px;
+    
     /* Animation keyframes */
     --shimmer-animation: shimmer 2s infinite;
   }
@@ -103,6 +115,22 @@ All colors MUST be HSL. Designed for maximum accessibility with high contrast ra
 }
 
 @layer utilities {
+  /* Touch-friendly minimum sizes */
+  .min-h-touch {
+    min-height: var(--touch-target-min);
+  }
+  
+  .min-w-touch {
+    min-width: var(--touch-target-min);
+  }
+  
+  /* Responsive text utilities */
+  .text-responsive-xs { @apply text-xs-mobile text-xs; }
+  .text-responsive-sm { @apply text-sm-mobile sm:text-sm; }
+  .text-responsive-base { @apply text-base-mobile sm:text-base; }
+  .text-responsive-lg { @apply text-lg-mobile sm:text-lg; }
+  .text-responsive-xl { @apply text-xl-mobile sm:text-xl; }
+
   @keyframes shimmer {
     0% {
       transform: translateX(-100%);

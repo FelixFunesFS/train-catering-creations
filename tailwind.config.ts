@@ -70,6 +70,28 @@ export default {
 				'card': 'var(--shadow-card)',
 				'glow': 'var(--shadow-glow)'
 			},
+			spacing: {
+				'section': 'var(--spacing-section)',
+				'section-sm': 'var(--spacing-section-sm)',
+				'section-lg': 'var(--spacing-section-lg)',
+				'card': 'var(--spacing-card)',
+				'card-sm': 'var(--spacing-card-sm)',
+				'card-lg': 'var(--spacing-card-lg)',
+				'touch': 'var(--touch-target-min)',
+				'touch-comfortable': 'var(--touch-target-comfortable)'
+			},
+			fontSize: {
+				'xs-mobile': ['0.75rem', { lineHeight: '1rem' }],
+				'sm-mobile': ['0.875rem', { lineHeight: '1.25rem' }],
+				'base-mobile': ['0.875rem', { lineHeight: '1.375rem' }],
+				'lg-mobile': ['1rem', { lineHeight: '1.5rem' }],
+				'xl-mobile': ['1.125rem', { lineHeight: '1.75rem' }],
+				'responsive-xs': ['0.75rem', { lineHeight: '1rem' }],
+				'responsive-sm': ['0.875rem', { lineHeight: '1.25rem' }],
+				'responsive-base': ['0.875rem', { lineHeight: '1.375rem' }],
+				'responsive-lg': ['1rem', { lineHeight: '1.5rem' }],
+				'responsive-xl': ['1.125rem', { lineHeight: '1.75rem' }]
+			},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',

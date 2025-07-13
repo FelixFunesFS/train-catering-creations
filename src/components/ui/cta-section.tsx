@@ -17,22 +17,22 @@ interface CTASectionProps {
 
 export const CTASection = ({ title, description, buttons, footer }: CTASectionProps) => {
   return (
-    <section className="py-6 md:py-8 lg:py-10 bg-gradient-primary rounded-lg mx-4 sm:mx-6 lg:mx-8 my-4 md:my-6 shadow-elegant">
+    <section className="py-section-sm md:py-section-lg bg-gradient-primary rounded-lg mx-4 sm:mx-6 lg:mx-8 my-section shadow-elegant">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant font-bold text-primary-foreground mb-6">
+        <h2 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-elegant font-bold text-primary-foreground mb-4 sm:mb-6">
           {title}
         </h2>
-        <p className="text-base sm:text-lg lg:text-xl text-primary-foreground mb-8 lg:mb-12 opacity-90">
+        <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-primary-foreground mb-6 sm:mb-8 lg:mb-12 opacity-90 max-w-3xl mx-auto leading-relaxed">
           {description}
         </p>
-        <div className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 max-w-xs sm:max-w-lg mx-auto">
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 max-w-sm sm:max-w-lg mx-auto px-4 sm:px-0">
           {buttons.map((button, index) => (
             <Button 
               key={index} 
               asChild 
               variant={button.variant || "cta"} 
-              size="responsive-sm" 
-              className="w-full sm:w-auto"
+              size="responsive-lg" 
+              className="w-full sm:w-auto min-w-[180px] sm:min-w-[160px]"
             >
               <a href={button.href} className="flex items-center justify-center space-x-2">
                 {button.icon}
@@ -42,7 +42,7 @@ export const CTASection = ({ title, description, buttons, footer }: CTASectionPr
           ))}
         </div>
         {footer && (
-          <p className="text-primary-foreground mt-6 lg:mt-8 opacity-75 text-sm sm:text-base">
+          <p className="text-primary-foreground mt-4 sm:mt-6 lg:mt-8 opacity-75 text-xs sm:text-sm">
             {footer}
           </p>
         )}

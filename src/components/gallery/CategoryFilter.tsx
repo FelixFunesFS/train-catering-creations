@@ -8,14 +8,14 @@ interface CategoryFilterProps {
 
 export const CategoryFilter = ({ selectedCategory, onCategoryChange }: CategoryFilterProps) => {
   return (
-    <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mb-12">
+    <div className="flex flex-wrap justify-center gap-2 sm:gap-3 md:gap-4 mb-8 sm:mb-12 px-2">
       {galleryCategories.map((category) => (
         <Button
           key={category.id}
           variant={selectedCategory === category.id ? "default" : "outline"}
-          size="responsive-md"
+          size="responsive-sm"
           onClick={() => onCategoryChange(category.id)}
-          className="text-sm sm:text-base font-medium"
+          className="text-xs sm:text-sm md:text-base font-medium min-h-touch flex-shrink-0 px-3 sm:px-4"
         >
           {category.name}
         </Button>

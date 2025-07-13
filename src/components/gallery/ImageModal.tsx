@@ -69,22 +69,22 @@ export const ImageModal = ({
           {/* Navigation buttons */}
           <Button 
             variant="ghost" 
-            size="sm" 
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 z-10 bg-black/20 hover:bg-black/40"
+            size="icon" 
+            className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 z-10 bg-black/30 hover:bg-black/50 min-h-touch min-w-touch rounded-full"
             onClick={handlePrevious}
             disabled={images.length <= 1}
           >
-            <ChevronLeft className="h-6 w-6" />
+            <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" />
           </Button>
           
           <Button 
             variant="ghost" 
-            size="sm" 
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 z-10 bg-black/20 hover:bg-black/40"
+            size="icon" 
+            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 z-10 bg-black/30 hover:bg-black/50 min-h-touch min-w-touch rounded-full"
             onClick={handleNext}
             disabled={images.length <= 1}
           >
-            <ChevronRight className="h-6 w-6" />
+            <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" />
           </Button>
 
           {currentImage && (
@@ -94,9 +94,9 @@ export const ImageModal = ({
                 alt={currentImage.title} 
                 className="w-full h-auto max-h-[80vh] object-contain rounded-lg"
               />
-              <div className="absolute bottom-4 left-4 right-4 text-white bg-black/50 rounded-lg p-3">
-                <h3 className="font-semibold text-lg">{currentImage.title}</h3>
-                <p className="text-sm text-white/90">{currentImage.description}</p>
+              <div className="absolute bottom-2 sm:bottom-4 left-2 sm:left-4 right-2 sm:right-4 text-white bg-black/60 rounded-lg p-2 sm:p-3">
+                <h3 className="font-semibold text-sm sm:text-base md:text-lg">{currentImage.title}</h3>
+                <p className="text-xs sm:text-sm text-white/90">{currentImage.description}</p>
               </div>
             </div>
           )}
