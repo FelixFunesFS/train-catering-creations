@@ -21,58 +21,55 @@ const WeddingMenu = () => {
             />
             
             <div className="grid md:grid-cols-3 gap-6 lg:gap-8 mt-12">
-          <Card className="relative shadow-card text-center hover:scale-105 transition-all duration-200 overflow-hidden">
-            <OptimizedImage 
-              src="/lovable-uploads/269bd0e4-4a19-4f14-b966-7b3173a10b95.png" 
-              alt="Elegant wedding reception setup with beautiful floral arrangements and draped tables"
-              aspectRatio="aspect-video"
-              className="transition-transform duration-200 group-hover:scale-105"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg font-elegant">Weddings</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0 pb-4">
-              <p className="text-muted-foreground text-sm">
-                From intimate ceremonies to grand receptions, we make your wedding day perfectly delicious.
-              </p>
-            </CardContent>
+          <Card className="shadow-card overflow-hidden group hover:shadow-elegant transition-all duration-200">
+            <div className="relative h-48 overflow-hidden">
+              <img 
+                src="/lovable-uploads/269bd0e4-4a19-4f14-b966-7b3173a10b95.png" 
+                alt="Elegant wedding reception setup with beautiful floral arrangements and draped tables"
+                className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-6">
+                <h3 className="text-xl font-elegant font-semibold text-white mb-2">Weddings</h3>
+                <p className="text-white/90 text-sm">
+                  From intimate ceremonies to grand receptions, we make your wedding day perfectly delicious.
+                </p>
+              </div>
+            </div>
           </Card>
 
-          <Card className="relative shadow-card text-center hover:scale-105 transition-all duration-200 overflow-hidden">
-            <OptimizedImage 
-              src="/lovable-uploads/d4bf7685-b46c-4c39-8a28-1d003b978403.png" 
-              alt="Elegant outdoor catering setup with chafing dishes and floral decorations"
-              aspectRatio="aspect-video"
-              className="transition-transform duration-200 group-hover:scale-105"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg font-elegant">Black Tie Events</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0 pb-4">
-              <p className="text-muted-foreground text-sm">
-                Sophisticated menus for galas, corporate events, and formal celebrations.
-              </p>
-            </CardContent>
+          <Card className="shadow-card overflow-hidden group hover:shadow-elegant transition-all duration-200">
+            <div className="relative h-48 overflow-hidden">
+              <img 
+                src="/lovable-uploads/d4bf7685-b46c-4c39-8a28-1d003b978403.png" 
+                alt="Elegant outdoor catering setup with chafing dishes and floral decorations"
+                className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-6">
+                <h3 className="text-xl font-elegant font-semibold text-white mb-2">Black Tie Events</h3>
+                <p className="text-white/90 text-sm">
+                  Sophisticated menus for galas, corporate events, and formal celebrations.
+                </p>
+              </div>
+            </div>
           </Card>
 
-          <Card className="relative shadow-card text-center hover:scale-105 transition-all duration-200 overflow-hidden">
-            <OptimizedImage 
-              src="/lovable-uploads/cf6d0cd4-02bd-4607-b658-14a809d30275.png" 
-              alt="Military honor guard ceremony with elegant charcuterie board catering"
-              aspectRatio="aspect-video"
-              className="object-[50%_35%] transition-transform duration-200 group-hover:scale-105"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg font-elegant">Military Functions</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0 pb-4">
-              <p className="text-muted-foreground text-sm">
-                Proudly serving military promotions, ceremonies, and special occasions with honor.
-              </p>
-            </CardContent>
+          <Card className="shadow-card overflow-hidden group hover:shadow-elegant transition-all duration-200">
+            <div className="relative h-48 overflow-hidden">
+              <img 
+                src="/lovable-uploads/cf6d0cd4-02bd-4607-b658-14a809d30275.png" 
+                alt="Military honor guard ceremony with elegant charcuterie board catering"
+                className="w-full h-full object-cover object-[50%_35%] transition-transform duration-200 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-6">
+                <h3 className="text-xl font-elegant font-semibold text-white mb-2">Military Functions</h3>
+                <p className="text-white/90 text-sm">
+                  Proudly serving military promotions, ceremonies, and special occasions with honor.
+                </p>
+              </div>
+            </div>
           </Card>
             </div>
           </div>

@@ -32,7 +32,7 @@ export const CTASection = ({ title, description, buttons, footer }: CTASectionPr
               asChild 
               variant={button.variant || "cta"} 
               size="responsive-lg" 
-              className="w-full sm:w-auto min-w-[180px] sm:min-w-[160px]"
+              className="w-3/5 sm:w-auto min-w-[180px] sm:min-w-[160px]"
             >
               <a href={button.href} className="flex items-center justify-center space-x-2">
                 {button.icon}
