@@ -1,5 +1,7 @@
 import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 interface PageHeaderProps {
   title: string;
@@ -7,6 +9,11 @@ interface PageHeaderProps {
   icons?: ReactNode[];
   className?: string;
   children?: ReactNode;
+  buttons?: Array<{
+    text: string;
+    href: string;
+    variant?: string;
+  }>;
 }
 
 export const PageHeader = ({ 
@@ -14,7 +21,8 @@ export const PageHeader = ({
   description, 
   icons = [], 
   className,
-  children 
+  children,
+  buttons = []
 }: PageHeaderProps) => {
   return (
     <div className={cn("text-center mb-8 sm:mb-12 md:mb-16", className)}>
@@ -56,6 +64,25 @@ export const PageHeader = ({
       {children && (
         <div className="mt-6 sm:mt-8 animate-fade-in">
           {children}
+        </div>
+      )}
+      
+      {/* Buttons */}
+      {buttons.length > 0 && (
+        <div className="flex justify-center mt-6 sm:mt-8 animate-fade-in">
+          {buttons.map((button, index) => (
+            <Button
+              key={index}
+              asChild
+              variant={button.variant as any || "cta"}
+              size="responsive-sm"
+              className="w-3/5 sm:w-auto"
+            >
+              <Link to={button.href}>
+                {button.text}
+              </Link>
+            </Button>
+          ))}
         </div>
       )}
     </div>

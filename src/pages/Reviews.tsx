@@ -72,6 +72,7 @@ const Reviews = () => {
                 <Heart className="h-6 w-6 sm:h-8 sm:w-8" />,
                 <ThumbsUp className="h-6 w-6 sm:h-8 sm:w-8" />
               ]}
+              buttons={[{ text: "About Us", href: "/about", variant: "cta" }]}
             >
               <div className="flex justify-center items-center space-x-2 mb-3 sm:mb-4">
                 {renderStars(5)}
