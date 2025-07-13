@@ -9,20 +9,20 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary-glow shadow-sm hover:shadow-glow transform hover:scale-[1.02]",
+        default: "bg-primary text-primary-foreground hover:bg-primary-glow shadow-card hover:shadow-glow transform hover:scale-[1.02]",
         destructive:
-          "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-sm hover:shadow-md",
+          "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-card hover:shadow-elegant",
         outline:
-          "border-2 border-primary text-primary bg-transparent hover:bg-primary hover:text-primary-foreground shadow-sm hover:shadow-md",
+          "border-2 border-primary text-primary bg-transparent hover:bg-primary hover:text-primary-foreground shadow-card hover:shadow-elegant",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-sm hover:shadow-md",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
+          "bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-card hover:shadow-elegant",
+        ghost: "hover:bg-accent hover:text-accent-foreground hover:shadow-card",
         link: "text-primary underline-offset-4 hover:underline",
-        cta: "bg-primary text-primary-foreground hover:bg-primary-glow shadow-glow hover:shadow-lg transform hover:scale-[1.02]",
-        "cta-outline": "border-2 border-primary text-primary bg-transparent hover:bg-primary hover:text-primary-foreground shadow-sm hover:shadow-md transform hover:scale-[1.01]",
-        "cta-white": "border-2 border-white text-white bg-transparent hover:bg-white hover:text-primary shadow-sm hover:shadow-md transform hover:scale-[1.01]",
-        "cta-secondary": "bg-secondary text-secondary-foreground hover:bg-accent hover:text-accent-foreground shadow-sm hover:shadow-md",
-        accent: "bg-accent text-accent-foreground hover:bg-accent/80 shadow-sm hover:shadow-md",
+        cta: "bg-primary text-primary-foreground hover:bg-primary-glow shadow-glow hover:shadow-float transform hover:scale-[1.02]",
+        "cta-outline": "border-2 border-primary text-primary bg-transparent hover:bg-primary hover:text-primary-foreground shadow-card hover:shadow-elegant transform hover:scale-[1.01]",
+        "cta-white": "border-2 border-white text-white bg-transparent hover:bg-white hover:text-primary shadow-card hover:shadow-elegant transform hover:scale-[1.01]",
+        "cta-secondary": "bg-secondary text-secondary-foreground hover:bg-accent hover:text-accent-foreground shadow-card hover:shadow-elegant",
+        accent: "bg-accent text-accent-foreground hover:bg-accent/80 shadow-card hover:shadow-elegant",
       },
       size: {
         default: "h-9 px-4 py-2 text-sm sm:h-10",

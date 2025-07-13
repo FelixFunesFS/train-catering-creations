@@ -11,7 +11,7 @@ const PlantBasedCard = () => {
   ];
 
   return (
-    <Card className="h-full shadow-elegant hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+    <Card className="h-full shadow-card hover:shadow-elegant transition-all duration-200 hover:scale-[1.01]">
       <CardHeader className="text-center pb-3">
         <CardTitle className="text-2xl font-elegant text-foreground">Plant-Based Options</CardTitle>
         <div className="w-12 h-0.5 bg-gradient-primary mx-auto mt-2"></div>

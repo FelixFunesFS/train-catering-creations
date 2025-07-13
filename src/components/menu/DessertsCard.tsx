@@ -18,7 +18,7 @@ const DessertsCard = () => {
   ];
 
   return (
-    <Card className="shadow-elegant hover:shadow-lg transition-all duration-300 hover:-translate-y-1 bg-gradient-card border-2 border-primary/10">
+    <Card className="shadow-card hover:shadow-elegant transition-all duration-200 hover:scale-[1.01] bg-gradient-card border-2 border-primary/10">
       <CardHeader className="text-center pb-3">
         <CardTitle className="text-2xl font-elegant text-foreground">Tanya's Sweet Creations</CardTitle>
         <div className="w-12 h-0.5 bg-gradient-primary mx-auto mt-2"></div>

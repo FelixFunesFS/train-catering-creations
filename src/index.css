@@ -51,10 +51,16 @@ All colors MUST be HSL. Designed for maximum accessibility with high contrast ra
     --gradient-hero: linear-gradient(135deg, hsl(0 0% 100%), hsl(0 0% 98%));
     --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(0 0% 99%));
 
-    /* Soft shadows for depth */
-    --shadow-elegant: 0 10px 40px -10px hsl(0 0% 0% / 0.1);
-    --shadow-card: 0 4px 20px -4px hsl(0 0% 0% / 0.05);
-    --shadow-glow: 0 0 30px hsl(0 72% 50% / 0.15);
+    /* Enhanced shadow hierarchy for cohesive design */
+    --shadow-card: 0 2px 8px -2px hsl(0 0% 0% / 0.05);
+    --shadow-elegant: 0 8px 24px -4px hsl(0 0% 0% / 0.1);
+    --shadow-glow: 0 0 20px hsl(0 72% 50% / 0.15);
+    --shadow-float: 0 16px 48px -8px hsl(0 0% 0% / 0.15);
+    
+    /* Mobile-optimized shadows (lighter for smaller screens) */
+    --shadow-card-mobile: 0 1px 4px -1px hsl(0 0% 0% / 0.05);
+    --shadow-elegant-mobile: 0 4px 12px -2px hsl(0 0% 0% / 0.08);
+    --shadow-glow-mobile: 0 0 12px hsl(0 72% 50% / 0.12);
     
     /* Responsive spacing tokens */
     --spacing-section: 1rem;
@@ -130,6 +136,17 @@ All colors MUST be HSL. Designed for maximum accessibility with high contrast ra
   .text-responsive-base { @apply text-base-mobile sm:text-base; }
   .text-responsive-lg { @apply text-lg-mobile sm:text-lg; }
   .text-responsive-xl { @apply text-xl-mobile sm:text-xl; }
+
+  /* Mobile-optimized shadow utilities */
+  .shadow-card { box-shadow: var(--shadow-card-mobile); }
+  .shadow-elegant { box-shadow: var(--shadow-elegant-mobile); }
+  .shadow-glow { box-shadow: var(--shadow-glow-mobile); }
+  
+  @media (min-width: 640px) {
+    .shadow-card { box-shadow: var(--shadow-card); }
+    .shadow-elegant { box-shadow: var(--shadow-elegant); }
+    .shadow-glow { box-shadow: var(--shadow-glow); }
+  }
 
   @keyframes shimmer {
     0% {
