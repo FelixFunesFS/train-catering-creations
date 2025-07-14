@@ -75,8 +75,8 @@ export const PageHeader = ({
               key={index}
               asChild
               variant={button.variant as any || "cta"}
-              size="responsive-sm"
-              className="w-3/5 sm:w-auto"
+              size="responsive-md"
+              className="w-3/5 sm:w-auto sm:min-w-[14rem]"
             >
               <Link to={button.href}>
                 {button.text}
