@@ -56,83 +56,85 @@ export const HeroSection = () => {
   const handleCloseModal = () => {
     setSelectedImageIndex(null);
   };
-  return <div className="py-section sm:py-section-sm lg:py-section-lg">
-      {/* Brand Header Section */}
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8 sm:mb-12 md:mb-16">
-        {/* Subtle background pattern */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 opacity-50 my-0 py-0"></div>
-        
-        <div className="relative z-10 flex flex-col justify-center items-center text-center">
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-script font-bold text-foreground leading-[0.9] tracking-tight animate-fade-in mb-4">
-            Soul Train's <span className="text-primary bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">Eatery</span>
-          </h1>
+  return <>
+      <section className="bg-gradient-card shadow-elegant hover:shadow-glow transition-all duration-200 rounded-lg mx-4 sm:mx-6 lg:mx-8 my-section sm:my-section-sm py-section sm:py-section-sm lg:py-section-lg">
+        {/* Brand Header Section */}
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8 sm:mb-12 md:mb-16">
+          {/* Subtle background pattern */}
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 opacity-50 my-0 py-0"></div>
           
-          {/* Red Logo Icon */}
-          <div className="flex justify-center mb-4">
-            <img src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" alt="Soul Train's Eatery Logo" className="w-12 h-12 sm:w-14 sm:h-14 animate-fade-in object-contain hover:scale-110 transition-transform duration-300" />
-          </div>
-          
-          <div className="w-24 h-1 bg-gradient-to-r from-primary to-primary-glow rounded-full mx-auto mb-6"></div>
-          <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-muted-foreground leading-relaxed font-medium animate-fade-in max-w-2xl mx-auto mb-6">
-            Where passion meets Southern hospitality. Elegant catering for weddings, black tie events, and memorable celebrations in Charleston's Lowcountry.
-          </p>
-          
-          {/* Call-to-Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 lg:gap-6 justify-center items-center animate-fade-in">
-            <Button asChild variant="cta" size="responsive-sm" className="w-3/5 sm:w-auto sm:min-w-[12rem]">
-              <Link to="/request-quote">
-                Request a Quote
-              </Link>
-            </Button>
-            <Button asChild variant="cta-outline" size="responsive-sm" className="w-3/5 sm:w-auto sm:min-w-[12rem]">
-              <Link to="/gallery">
-                View Our Work
-              </Link>
-            </Button>
+          <div className="relative z-10 flex flex-col justify-center items-center text-center">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-script font-bold text-foreground leading-[0.9] tracking-tight animate-fade-in mb-4">
+              Soul Train's <span className="text-primary bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">Eatery</span>
+            </h1>
+            
+            {/* Red Logo Icon */}
+            <div className="flex justify-center mb-4">
+              <img src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" alt="Soul Train's Eatery Logo" className="w-12 h-12 sm:w-14 sm:h-14 animate-fade-in object-contain hover:scale-110 transition-transform duration-300" />
+            </div>
+            
+            <div className="w-24 h-1 bg-gradient-to-r from-primary to-primary-glow rounded-full mx-auto mb-6"></div>
+            <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-muted-foreground leading-relaxed font-medium animate-fade-in max-w-2xl mx-auto mb-6">
+              Where passion meets Southern hospitality. Elegant catering for weddings, black tie events, and memorable celebrations in Charleston's Lowcountry.
+            </p>
+            
+            {/* Call-to-Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 lg:gap-6 justify-center items-center animate-fade-in">
+              <Button asChild variant="cta" size="responsive-sm" className="w-3/5 sm:w-auto sm:min-w-[12rem]">
+                <Link to="/request-quote">
+                  Request a Quote
+                </Link>
+              </Button>
+              <Button asChild variant="cta-outline" size="responsive-sm" className="w-3/5 sm:w-auto sm:min-w-[12rem]">
+                <Link to="/gallery">
+                  View Our Work
+                </Link>
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Image Gallery Grid Section */}
-      <div className="relative px-4 sm:px-6 lg:px-8 pb-8 lg:pb-12">
-        <div className="max-w-7xl mx-auto">
-          
-          
-          {/* Responsive Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 lg:gap-12">
-            {heroImages.map((image, index) => <div key={index} className="group relative overflow-hidden rounded-lg shadow-elegant hover:shadow-glow bg-gradient-card transition-all duration-200 cursor-pointer" onClick={() => handleImageClick(index)}>
-                <div className="aspect-[5/4] overflow-hidden">
-                  <img src={image.src} alt={image.alt} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200" loading={index < 2 ? "eager" : "lazy"} decoding="async" />
-                </div>
-                
-                {/* Hover Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                  <div className="absolute bottom-4 left-4 right-4">
-                    <h3 className="text-white font-semibold text-lg mb-1">
-                      {image.title}
-                    </h3>
-                    <p className="text-white/90 text-sm leading-tight">
-                      Click to view full size
-                    </p>
+        {/* Image Gallery Grid Section */}
+        <div className="relative px-4 sm:px-6 lg:px-8 pb-8 lg:pb-12">
+          <div className="max-w-7xl mx-auto">
+            
+            
+            {/* Responsive Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+              {heroImages.map((image, index) => <div key={index} className="group relative overflow-hidden rounded-lg shadow-elegant hover:shadow-glow bg-gradient-card transition-all duration-200 cursor-pointer" onClick={() => handleImageClick(index)}>
+                  <div className="aspect-[5/4] overflow-hidden">
+                    <img src={image.src} alt={image.alt} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200" loading={index < 2 ? "eager" : "lazy"} decoding="async" />
                   </div>
-                </div>
+                  
+                  {/* Hover Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    <div className="absolute bottom-4 left-4 right-4">
+                      <h3 className="text-white font-semibold text-lg mb-1">
+                        {image.title}
+                      </h3>
+                      <p className="text-white/90 text-sm leading-tight">
+                        Click to view full size
+                      </p>
+                    </div>
+                  </div>
 
-                {/* Subtle border effect */}
-                <div className="absolute inset-0 border-2 border-transparent group-hover:border-primary/20 rounded-lg transition-colors duration-200"></div>
-              </div>)}
-          </div>
+                  {/* Subtle border effect */}
+                  <div className="absolute inset-0 border-2 border-transparent group-hover:border-primary/20 rounded-lg transition-colors duration-200"></div>
+                </div>)}
+            </div>
 
-          {/* View More Link */}
-          <div className="text-center mt-12">
-            <Link to="/gallery" className="inline-flex items-center gap-2 text-primary hover:text-primary-glow transition-colors duration-200 font-medium text-lg group">
-              View Complete Gallery 
-              <svg className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
-            </Link>
+            {/* View More Link */}
+            <div className="text-center mt-12">
+              <Link to="/gallery" className="inline-flex items-center gap-2 text-primary hover:text-primary-glow transition-colors duration-200 font-medium text-lg group">
+                View Complete Gallery 
+                <svg className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </Link>
+            </div>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* Image Modal */}
       <ImageModal 
@@ -140,5 +142,5 @@ export const HeroSection = () => {
         selectedIndex={selectedImageIndex} 
         onClose={handleCloseModal} 
       />
-    </div>;
+    </>;
 };

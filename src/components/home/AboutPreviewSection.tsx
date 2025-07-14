@@ -25,7 +25,7 @@ export const AboutPreviewSection = () => {
               </Button>
             </Link>
           </div>
-          <div className="grid grid-cols-2 gap-6 md:gap-8 lg:gap-12">
+          <div className="grid grid-cols-2 gap-4 md:gap-6 lg:gap-8">
           <Card className="shadow-card hover:shadow-elegant transition-shadow duration-200 overflow-hidden group">
             <CardContent className="p-4 sm:p-6 text-center">
               <ChefHat className="h-8 w-8 sm:h-10 sm:w-10 text-primary mx-auto mb-4 group-hover:scale-110 transition-transform duration-200" />
