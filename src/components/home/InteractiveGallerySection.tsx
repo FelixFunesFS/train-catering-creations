@@ -102,7 +102,7 @@ export const InteractiveGallerySection = () => {
           </Carousel>
         </div>
 
-        <div className="text-center mt-12 lg:mt-16">
+        <div className="text-center mt-16 lg:mt-20">
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6">
             <Button asChild variant="cta" size="responsive-lg" className="w-3/5 sm:w-auto">
               <Link to="/gallery">

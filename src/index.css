@@ -65,12 +65,14 @@ All colors MUST be HSL. Designed for maximum accessibility with high contrast ra
     --shadow-glow-mobile: 0 0 12px hsl(0 72% 50% / 0.12);
     
     /* Responsive spacing tokens */
-    --spacing-section: 1rem;
-    --spacing-section-sm: 1.5rem;
-    --spacing-section-lg: 2rem;
-    --spacing-card: 1rem;
-    --spacing-card-sm: 1.5rem;
-    --spacing-card-lg: 2rem;
+    --spacing-section: 3rem;
+    --spacing-section-sm: 2.5rem;
+    --spacing-section-lg: 4rem;
+    --spacing-card: 1.5rem;
+    --spacing-card-sm: 2rem;
+    --spacing-card-lg: 2.5rem;
+    --spacing-card-grid: 1.5rem;
+    --spacing-card-grid-lg: 2.5rem;
     
     /* Mobile-optimized touch targets */
     --touch-target-min: 44px;

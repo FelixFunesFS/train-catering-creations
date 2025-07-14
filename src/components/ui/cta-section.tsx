@@ -25,7 +25,7 @@ export const CTASection = ({ title, description, buttons, footer }: CTASectionPr
         <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-primary-foreground mb-6 sm:mb-8 lg:mb-12 opacity-90 max-w-3xl mx-auto leading-relaxed">
           {description}
         </p>
-        <div className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 max-w-sm sm:max-w-lg mx-auto px-4 sm:px-0">
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6 max-w-sm sm:max-w-lg mx-auto px-4 sm:px-0">
           {buttons.map((button, index) => (
             <Button 
               key={index} 
