@@ -69,14 +69,14 @@ export const PageHeader = ({
       
       {/* Buttons */}
       {buttons.length > 0 && (
-        <div className="flex justify-center mt-6 sm:mt-8 animate-fade-in">
+        <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center mt-6 sm:mt-8 animate-fade-in">
           {buttons.map((button, index) => (
                 <Button 
                   key={index} 
                   asChild 
                   variant={button.variant as any || "cta"} 
                   size="responsive-md" 
-                  
+                  className="w-3/5 sm:w-auto sm:min-w-[14rem]"
                 >
               <Link to={button.href}>
                 {button.text}

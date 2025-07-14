@@ -145,7 +145,7 @@ const QuoteForm = () => {
           </div>
 
           <div className="flex justify-center">
-            <Button type="submit" variant="cta" size="responsive-lg">
+            <Button type="submit" variant="cta" size="responsive-lg" className="w-3/5 sm:w-auto sm:min-w-[14rem]">
               Request Quote
             </Button>
           </div>

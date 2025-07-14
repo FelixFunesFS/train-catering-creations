@@ -15,7 +15,7 @@ export const CategoryFilter = ({ selectedCategory, onCategoryChange }: CategoryF
           variant={selectedCategory === category.id ? "default" : "outline"}
           size="responsive-sm"
           onClick={() => onCategoryChange(category.id)}
-          className="font-medium flex-shrink-0"
+          className="font-medium min-h-touch flex-shrink-0"
         >
           {category.name}
         </Button>
