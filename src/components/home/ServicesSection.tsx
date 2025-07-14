@@ -18,7 +18,7 @@ export const ServicesSection = () => {
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 lg:gap-8">
-          <Card className="shadow-card text-center hover:shadow-elegant transition-all duration-200 overflow-hidden group flex flex-col">
+          <Card className="shadow-elegant hover:shadow-glow bg-gradient-card text-center transition-all duration-200 overflow-hidden group flex flex-col">
             <div className="relative flex-1">
               <OptimizedImage
                 src="/lovable-uploads/546d7d1a-7987-4f44-a2d9-668efea60e51.png"
@@ -37,7 +37,7 @@ export const ServicesSection = () => {
             </CardContent>
           </Card>
 
-          <Card className="shadow-card text-center hover:shadow-elegant transition-all duration-200 overflow-hidden group flex flex-col">
+          <Card className="shadow-elegant hover:shadow-glow bg-gradient-card text-center transition-all duration-200 overflow-hidden group flex flex-col">
             <div className="relative flex-1">
               <OptimizedImage
                 src="/lovable-uploads/63832488-46ff-4d71-ade5-f871173c28ab.png"
@@ -56,7 +56,7 @@ export const ServicesSection = () => {
             </CardContent>
           </Card>
 
-          <Card className="shadow-card text-center hover:shadow-elegant transition-all duration-200 overflow-hidden group flex flex-col">
+          <Card className="shadow-elegant hover:shadow-glow bg-gradient-card text-center transition-all duration-200 overflow-hidden group flex flex-col">
             <div className="relative flex-1">
               <OptimizedImage
                 src="/lovable-uploads/3226c955-a9b7-4c8d-a4c2-e5e7fc206f6f.png"
@@ -75,7 +75,7 @@ export const ServicesSection = () => {
             </CardContent>
           </Card>
 
-          <Card className="shadow-card text-center hover:shadow-elegant transition-all duration-200 overflow-hidden group flex flex-col">
+          <Card className="shadow-elegant hover:shadow-glow bg-gradient-card text-center transition-all duration-200 overflow-hidden group flex flex-col">
             <div className="relative flex-1">
               <OptimizedImage
                 src="/lovable-uploads/6cd766e3-21ce-4e88-a3a4-6c8835dc9654.png"
