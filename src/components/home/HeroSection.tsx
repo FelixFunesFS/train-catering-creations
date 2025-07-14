@@ -84,7 +84,7 @@ export const HeroSection = () => {
                 asChild
                 variant="cta"
                 size="responsive-md"
-                className="w-4/5 sm:w-auto sm:min-w-[16rem]"
+                className="w-5/6 sm:w-auto sm:min-w-[18rem]"
               >
                 <Link to="/request-quote">
                   Request a Quote
@@ -94,7 +94,7 @@ export const HeroSection = () => {
                 asChild
                 variant="cta-outline"
                 size="responsive-md"
-                className="w-4/5 sm:w-auto sm:min-w-[16rem]"
+                className="w-5/6 sm:w-auto sm:min-w-[18rem]"
               >
                 <Link to="/gallery">
                   View Our Work
