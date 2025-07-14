@@ -87,7 +87,7 @@ export const HeroSection = () => {
                 className="w-3/5 sm:w-auto sm:min-w-[14rem]"
               >
                 <Link to="/request-quote">
-                  Request a Quote
+                  Request Quote
                 </Link>
               </Button>
               <Button
@@ -97,7 +97,7 @@ export const HeroSection = () => {
                 className="w-3/5 sm:w-auto sm:min-w-[14rem]"
               >
                 <Link to="/gallery">
-                  View Our Work
+                  Gallery
                 </Link>
               </Button>
             </div>
