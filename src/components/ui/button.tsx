@@ -5,7 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium ring-offset-background transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 touch-manipulation select-none",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-semibold ring-offset-background transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 touch-manipulation select-none",
   {
     variants: {
       variant: {
@@ -16,24 +16,24 @@ const buttonVariants = cva(
           "border-2 border-primary text-primary bg-transparent hover:bg-primary hover:text-primary-foreground shadow-card hover:shadow-elegant",
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-card hover:shadow-elegant",
-        ghost: "hover:bg-accent hover:text-accent-foreground hover:shadow-card",
-        link: "text-primary underline-offset-4 hover:underline",
-        cta: "bg-primary text-primary-foreground hover:bg-primary-glow shadow-glow hover:shadow-float transform hover:scale-[1.02]",
+        ghost: "hover:bg-accent hover:text-accent-foreground hover:shadow-card font-medium",
+        link: "text-primary underline-offset-4 hover:underline font-medium",
+        cta: "bg-primary text-primary-foreground hover:bg-primary-glow shadow-glow hover:shadow-float transform hover:scale-[1.02] font-bold",
         "cta-outline": "border-2 border-primary text-primary bg-transparent hover:bg-primary hover:text-primary-foreground shadow-card hover:shadow-elegant transform hover:scale-[1.01]",
         "cta-white": "border-2 border-white text-white bg-transparent hover:bg-white hover:text-primary shadow-card hover:shadow-elegant transform hover:scale-[1.01]",
         "cta-secondary": "bg-secondary text-secondary-foreground hover:bg-accent hover:text-accent-foreground shadow-card hover:shadow-elegant",
         accent: "bg-accent text-accent-foreground hover:bg-accent/80 shadow-card hover:shadow-elegant",
       },
       size: {
-        default: "h-9 px-4 py-2 text-sm sm:h-10",
-        sm: "h-8 rounded-md px-3 text-sm sm:h-9",
-        lg: "h-9 rounded-md px-6 text-base sm:h-10",
-        xl: "h-10 rounded-md px-8 text-base font-semibold sm:h-11",
-        icon: "h-9 w-9 sm:h-10 sm:w-10",
-        "responsive-sm": "min-h-touch px-6 text-sm sm:text-base sm:px-8 w-full sm:w-auto justify-center whitespace-nowrap",
-        "responsive-md": "min-h-touch px-12 text-sm sm:text-base sm:px-14 w-full sm:w-auto justify-center whitespace-nowrap",
-        "responsive-lg": "min-h-touch px-10 text-base sm:text-base sm:px-12 w-full sm:w-auto justify-center whitespace-nowrap",
-        "responsive-xl": "min-h-touch px-12 text-base sm:text-lg sm:px-14 w-full sm:w-auto justify-center whitespace-nowrap",
+        default: "h-10 px-4 py-2 text-sm font-medium",
+        sm: "h-9 px-3 text-sm font-medium",
+        lg: "h-11 px-6 text-base font-semibold",
+        xl: "h-12 px-8 text-lg font-bold",
+        icon: "h-10 w-10",
+        "responsive-sm": "min-h-[48px] px-6 py-3 text-sm font-medium sm:text-base sm:px-8 w-full sm:w-auto justify-center",
+        "responsive-md": "min-h-[48px] px-8 py-3 text-base font-semibold sm:text-base sm:px-10 w-full sm:w-auto justify-center",
+        "responsive-lg": "min-h-[48px] px-10 py-3 text-base font-bold sm:text-lg sm:px-12 w-full sm:w-auto justify-center",
+        "responsive-xl": "min-h-[52px] px-12 py-4 text-lg font-bold sm:text-xl sm:px-16 w-full sm:w-auto justify-center",
       },
     },
     defaultVariants: {

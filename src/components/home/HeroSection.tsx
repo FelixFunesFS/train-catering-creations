@@ -83,8 +83,8 @@ export const HeroSection = () => {
               <Button
                 asChild
                 variant="cta"
-                size="responsive-md"
-                className="w-3/5 sm:w-auto sm:min-w-[14rem]"
+                size="responsive-xl"
+                className="sm:min-w-[16rem]"
               >
                 <Link to="/request-quote">
                   Request a Quote
@@ -93,8 +93,8 @@ export const HeroSection = () => {
               <Button
                 asChild
                 variant="cta-outline"
-                size="responsive-md"
-                className="w-3/5 sm:w-auto sm:min-w-[14rem]"
+                size="responsive-xl"
+                className="sm:min-w-[16rem]"
               >
                 <Link to="/gallery">
                   View Our Work
