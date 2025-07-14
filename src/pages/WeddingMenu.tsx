@@ -32,9 +32,6 @@ const WeddingMenu = () => {
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-6">
                 <h3 className="text-xl font-elegant font-semibold text-white mb-2">Weddings</h3>
-                <p className="text-white/90 text-sm">
-                  From intimate ceremonies to grand receptions, we make your wedding day perfectly delicious.
-                </p>
               </div>
             </div>
           </Card>
@@ -49,9 +46,6 @@ const WeddingMenu = () => {
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-6">
                 <h3 className="text-xl font-elegant font-semibold text-white mb-2">Black Tie Events</h3>
-                <p className="text-white/90 text-sm">
-                  Sophisticated menus for galas, corporate events, and formal celebrations.
-                </p>
               </div>
             </div>
           </Card>
@@ -66,9 +60,6 @@ const WeddingMenu = () => {
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-6">
                 <h3 className="text-xl font-elegant font-semibold text-white mb-2">Military Functions</h3>
-                <p className="text-white/90 text-sm">
-                  Proudly serving military promotions, ceremonies, and special occasions with honor.
-                </p>
               </div>
             </div>
           </Card>
