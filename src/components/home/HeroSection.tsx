@@ -59,7 +59,7 @@ export const HeroSection = () => {
   return <>
       <section className="bg-gradient-card shadow-elegant hover:shadow-glow transition-all duration-200 rounded-lg mx-4 sm:mx-6 lg:mx-8 my-section sm:my-section-sm py-section sm:py-section-sm lg:py-section-lg">
         {/* Brand Header Section */}
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8 sm:mb-12 md:mb-16">
+        <div className="relative max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 mb-8 sm:mb-12 md:mb-16">
           {/* Subtle background pattern */}
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 opacity-50 my-0 py-0"></div>
           
@@ -79,13 +79,13 @@ export const HeroSection = () => {
             </p>
             
             {/* Call-to-Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 lg:gap-6 justify-center items-center animate-fade-in">
-              <Button asChild variant="cta" size="responsive-sm" className="w-3/5 sm:w-auto sm:min-w-[12rem]">
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center animate-fade-in">
+              <Button asChild variant="cta" size="responsive-md" className="w-4/5 sm:w-auto sm:min-w-[14rem]">
                 <Link to="/request-quote">
                   Request a Quote
                 </Link>
               </Button>
-              <Button asChild variant="cta-outline" size="responsive-sm" className="w-3/5 sm:w-auto sm:min-w-[12rem]">
+              <Button asChild variant="cta-outline" size="responsive-md" className="w-4/5 sm:w-auto sm:min-w-[14rem]">
                 <Link to="/gallery">
                   View Our Work
                 </Link>
@@ -95,7 +95,7 @@ export const HeroSection = () => {
         </div>
 
         {/* Image Gallery Grid Section */}
-        <div className="relative px-4 sm:px-6 lg:px-8 pb-8 lg:pb-12">
+        <div className="relative px-6 sm:px-8 lg:px-12 pb-8 lg:pb-12">
           <div className="max-w-7xl mx-auto">
             
             

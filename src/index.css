@@ -75,7 +75,8 @@ All colors MUST be HSL. Designed for maximum accessibility with high contrast ra
     --spacing-card-grid-lg: 2.5rem;
     
     /* Mobile-optimized touch targets */
-    --touch-target-min: 44px;
+  --touch-target-min: 48px;
+  --touch-target-mobile: 52px;
     --touch-target-comfortable: 48px;
     
     /* Animation keyframes */
