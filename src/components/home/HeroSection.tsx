@@ -82,20 +82,20 @@ export const HeroSection = () => {
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center animate-fade-in">
               <Button
                 asChild
-                variant="cta"
+                variant="default"
                 size="responsive-xl"
               >
-                <Link to="/request-quote">
-                  Request a Quote
+                <Link to="/gallery">
+                  View Gallery
                 </Link>
               </Button>
               <Button
                 asChild
-                variant="cta-outline"
+                variant="ghost"
                 size="responsive-xl"
               >
-                <Link to="/gallery">
-                  View Our Work
+                <Link to="/request-quote">
+                  Request Quote
                 </Link>
               </Button>
             </div>
