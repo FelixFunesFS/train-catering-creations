@@ -22,7 +22,7 @@ export const FeaturedImageGrid = ({ images, onImageClick }: FeaturedImageGridPro
               key={`featured-${index}`}
               className={`${
                 index === 0 ? 'col-span-3 row-span-2' : 'col-span-3'
-              } shadow-card hover:shadow-elegant bg-card border-2 border-transparent hover:border-primary/20 transition-all duration-200 cursor-pointer group rounded-lg overflow-hidden`}
+              } shadow-elegant hover:shadow-glow bg-gradient-card border-2 border-transparent hover:border-primary/20 transition-all duration-200 cursor-pointer group rounded-lg overflow-hidden`}
               onClick={() => onImageClick(image.src)}
             >
               <div className="relative w-full h-full">
@@ -58,7 +58,7 @@ export const FeaturedImageGrid = ({ images, onImageClick }: FeaturedImageGridPro
         {regularImages.map((image, index) => (
           <div 
             key={`regular-${index}`}
-            className="shadow-card hover:shadow-elegant bg-card border-2 border-transparent hover:border-primary/20 transition-all duration-200 cursor-pointer group aspect-[5/4] rounded-lg overflow-hidden min-h-touch"
+            className="shadow-elegant hover:shadow-glow bg-gradient-card border-2 border-transparent hover:border-primary/20 transition-all duration-200 cursor-pointer group aspect-[5/4] rounded-lg overflow-hidden min-h-touch"
             onClick={() => onImageClick(image.src)}
           >
             <div className="relative w-full h-full">

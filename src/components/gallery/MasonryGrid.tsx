@@ -66,7 +66,7 @@ export const MasonryGrid = ({ images, onImageClick }: MasonryGridProps) => {
         return (
           <div 
             key={`masonry-${index}`}
-            className={`shadow-card hover:shadow-elegant bg-card border-2 border-transparent hover:border-primary/20 transition-all duration-200 cursor-pointer group rounded-lg overflow-hidden ${containerClass}`}
+            className={`shadow-elegant hover:shadow-glow bg-gradient-card border-2 border-transparent hover:border-primary/20 transition-all duration-200 cursor-pointer group rounded-lg overflow-hidden ${containerClass}`}
             onClick={() => onImageClick(image.src)}
           >
             <div className="relative w-full">

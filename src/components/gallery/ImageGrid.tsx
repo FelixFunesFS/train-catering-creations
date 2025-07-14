@@ -12,7 +12,7 @@ export const ImageGrid = ({ images, onImageClick }: ImageGridProps) => {
       {images.map((image, index) => (
         <div 
           key={index} 
-          className="shadow-card hover:shadow-elegant bg-card border-2 border-transparent hover:border-primary/20 transition-all duration-200 cursor-pointer group aspect-[5/4] rounded-lg overflow-hidden min-h-touch"
+          className="shadow-elegant hover:shadow-glow bg-gradient-card border-2 border-transparent hover:border-primary/20 transition-all duration-200 cursor-pointer group aspect-[5/4] rounded-lg overflow-hidden min-h-touch"
           onClick={() => onImageClick(image.src)}
         >
           <div className="relative w-full h-full">
