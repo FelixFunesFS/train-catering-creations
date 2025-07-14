@@ -24,7 +24,7 @@ export const TestimonialsStatsSection = () => {
               </p>
             </div>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 lg:gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8 lg:gap-12">
               {stats.map((stat, index) => <Card key={index} className="bg-card border-border hover:shadow-elegant transition-all duration-200 hover:scale-105 group">
                 <CardContent className="p-4 sm:p-6 lg:p-8 text-center">
                   <stat.icon className="h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 text-primary mx-auto mb-4 lg:mb-6 group-hover:scale-110 transition-transform duration-200" />

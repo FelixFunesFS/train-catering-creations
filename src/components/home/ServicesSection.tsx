@@ -5,7 +5,8 @@ import { OptimizedImage } from "@/components/ui/optimized-image";
 
 export const ServicesSection = () => {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="py-section sm:py-section-sm lg:py-section-lg">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="text-center mb-8 sm:mb-12 lg:mb-16">
         <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant font-bold text-foreground mb-6">
           Our Catering Services
@@ -15,7 +16,7 @@ export const ServicesSection = () => {
         </p>
       </div>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 lg:gap-8">
+      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 lg:gap-12">
         <Card className="shadow-elegant hover:shadow-glow bg-gradient-card text-center transition-all duration-200 overflow-hidden group flex flex-col">
           <div className="relative flex-1">
             <OptimizedImage
@@ -91,6 +92,7 @@ export const ServicesSection = () => {
             </Link>
           </CardContent>
         </Card>
+      </div>
       </div>
     </div>
   );

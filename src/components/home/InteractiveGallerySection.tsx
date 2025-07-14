@@ -64,7 +64,8 @@ export const InteractiveGallerySection = () => {
   const handleCloseModal = () => {
     setSelectedImageIndex(null);
   };
-  return <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  return <div className="py-section sm:py-section-sm lg:py-section-lg">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="text-center mb-12 lg:mb-16">
         <h2 className="text-3xl lg:text-4xl font-elegant font-bold text-foreground mb-6">
           Our Gallery Showcase
@@ -121,5 +122,6 @@ export const InteractiveGallerySection = () => {
         selectedIndex={selectedImageIndex} 
         onClose={handleCloseModal} 
       />
-    </div>;
+    </div>
+  </div>;
 };
