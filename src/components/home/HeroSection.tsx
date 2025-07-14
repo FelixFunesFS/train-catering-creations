@@ -57,13 +57,13 @@ export const HeroSection = () => {
     setSelectedImageIndex(null);
   };
   return <>
-      <section className="bg-gradient-card shadow-elegant hover:shadow-glow transition-all duration-200 rounded-lg mx-4 sm:mx-6 lg:mx-8">
+      <section className="bg-gradient-card shadow-elegant hover:shadow-glow transition-all duration-200 rounded-lg mx-4 sm:mx-6 lg:mx-8 my-section sm:my-section-sm py-section sm:py-section-sm lg:py-section-lg">
         {/* Brand Header Section */}
-        <div className="relative flex flex-col justify-center items-center text-center px-4 sm:px-6 lg:px-8 py-section sm:py-section-sm lg:py-section-lg mb-8 sm:mb-12 md:mb-16">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8 sm:mb-12 md:mb-16">
           {/* Subtle background pattern */}
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 opacity-50 my-0 py-0"></div>
           
-          <div className="relative z-10 max-w-7xl mx-auto">
+          <div className="relative z-10 flex flex-col justify-center items-center text-center">
             <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-script font-bold text-foreground leading-[0.9] tracking-tight animate-fade-in mb-4">
               Soul Train's <span className="text-primary bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">Eatery</span>
             </h1>
