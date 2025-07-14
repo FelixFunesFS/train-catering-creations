@@ -7,22 +7,22 @@ export const Footer = () => {
     href: "/"
   }, {
     name: "About Us",
-    href: "/about"
+    href: "/about#page-header"
   }, {
     name: "Menu",
-    href: "/menu"
+    href: "/menu#page-header"
   }, {
     name: "Wedding & Events",
-    href: "/wedding-menu"
+    href: "/wedding-menu#page-header"
   }, {
     name: "Gallery",
-    href: "/gallery"
+    href: "/gallery#page-header"
   }, {
     name: "Reviews",
-    href: "/reviews"
+    href: "/reviews#page-header"
   }, {
     name: "Request Quote",
-    href: "/request-quote"
+    href: "/request-quote#page-header"
   }];
   const services = ["Military Functions", "Corporate Catering", "Wedding Catering", "Private Events", "Holiday Parties", "Funeral Repasts", "Custom Menus"];
   return <footer className="bg-gradient-card border-t border-border">

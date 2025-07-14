@@ -19,7 +19,7 @@ export const AboutPreviewSection = () => {
             <p className="text-sm sm:text-base lg:text-lg text-muted-foreground mb-8 leading-relaxed">
               From intimate gatherings to grand celebrations, we bring over two decades of culinary expertise, Southern hospitality, and ServSafe certified professionalism to every event.
             </p>
-            <Link to="/about">
+            <Link to="/about#page-header">
               <Button variant="cta" size="responsive-md" className="w-3/5 sm:w-auto sm:min-w-[14rem]">
                 Learn More About Us
               </Button>

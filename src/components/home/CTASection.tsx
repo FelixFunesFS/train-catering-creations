@@ -15,7 +15,7 @@ export const CTASection = () => {
         },
         {
           text: "Request Quote",
-          href: "/request-quote",
+          href: "/request-quote#page-header",
           variant: "cta-white"
         }
       ]}

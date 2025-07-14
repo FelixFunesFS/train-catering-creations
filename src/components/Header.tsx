@@ -11,19 +11,19 @@ export const Header = () => {
     href: "/"
   }, {
     name: "About Us",
-    href: "/about"
+    href: "/about#page-header"
   }, {
     name: "Menu",
-    href: "/menu"
+    href: "/menu#page-header"
   }, {
     name: "Wedding & Events",
-    href: "/wedding-menu"
+    href: "/wedding-menu#page-header"
   }, {
     name: "Gallery",
-    href: "/gallery"
+    href: "/gallery#page-header"
   }, {
     name: "Reviews",
-    href: "/reviews"
+    href: "/reviews#page-header"
   }];
   const isActive = (path: string) => location.pathname === path;
   return <header className="bg-background shadow-elegant sticky top-0 z-50">
@@ -45,7 +45,7 @@ export const Header = () => {
                 </Link>)}
             </nav>
             <Button asChild variant="cta" size="responsive-sm" className="w-3/5 sm:w-auto sm:min-w-[12rem]">
-              <Link to="/request-quote">Request Quote</Link>
+              <Link to="/request-quote#page-header">Request Quote</Link>
             </Button>
           </div>
 
@@ -62,7 +62,7 @@ export const Header = () => {
                   {item.name}
                 </Link>)}
               <Button asChild variant="cta" size="responsive-sm" className="w-3/5 sm:w-auto sm:min-w-[12rem]">
-                <Link to="/request-quote" onClick={() => setIsMenuOpen(false)}>
+                <Link to="/request-quote#page-header" onClick={() => setIsMenuOpen(false)}>
                   Request Quote
                 </Link>
               </Button>

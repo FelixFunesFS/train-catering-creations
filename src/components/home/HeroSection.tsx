@@ -86,7 +86,7 @@ export const HeroSection = () => {
                 size="responsive-md"
                 className="w-[90%] sm:w-auto sm:min-w-[14rem]"
               >
-                <Link to="/request-quote">
+                <Link to="/request-quote#page-header">
                   Request Quote
                 </Link>
               </Button>
@@ -96,7 +96,7 @@ export const HeroSection = () => {
                 size="responsive-md"
                 className="w-[90%] sm:w-auto sm:min-w-[14rem]"
               >
-                <Link to="/gallery">
+                <Link to="/gallery#page-header">
                   Gallery
                 </Link>
               </Button>
@@ -135,7 +135,7 @@ export const HeroSection = () => {
 
             {/* View More Link */}
             <div className="text-center mt-12">
-              <Link to="/gallery" className="inline-flex items-center gap-2 text-primary hover:text-primary-glow transition-colors duration-200 font-medium text-lg group">
+              <Link to="/gallery#page-header" className="inline-flex items-center gap-2 text-primary hover:text-primary-glow transition-colors duration-200 font-medium text-lg group">
                 View Complete Gallery 
                 <svg className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
