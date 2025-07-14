@@ -31,7 +31,7 @@ const buttonVariants = cva(
         xl: "h-10 rounded-md px-8 text-base font-semibold sm:h-11",
         icon: "h-9 w-9 sm:h-10 sm:w-10",
         "responsive-sm": "min-h-touch px-6 text-sm sm:text-base sm:px-8 w-full sm:w-auto justify-center whitespace-nowrap",
-        "responsive-md": "min-h-touch px-10 text-sm sm:text-base sm:px-12 w-full sm:w-auto justify-center whitespace-nowrap",
+        "responsive-md": "min-h-touch px-12 text-sm sm:text-base sm:px-14 w-full sm:w-auto justify-center whitespace-nowrap",
         "responsive-lg": "min-h-touch px-10 text-base sm:text-base sm:px-12 w-full sm:w-auto justify-center whitespace-nowrap",
         "responsive-xl": "min-h-touch px-12 text-base sm:text-lg sm:px-14 w-full sm:w-auto justify-center whitespace-nowrap",
       },
