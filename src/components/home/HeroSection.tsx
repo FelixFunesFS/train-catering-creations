@@ -84,7 +84,6 @@ export const HeroSection = () => {
                 asChild
                 variant="cta"
                 size="responsive-xl"
-                className="sm:min-w-[16rem]"
               >
                 <Link to="/request-quote">
                   Request a Quote
@@ -94,7 +93,6 @@ export const HeroSection = () => {
                 asChild
                 variant="cta-outline"
                 size="responsive-xl"
-                className="sm:min-w-[16rem]"
               >
                 <Link to="/gallery">
                   View Our Work

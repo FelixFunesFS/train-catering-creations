@@ -82,7 +82,7 @@ export const SignatureDishesSection = () => {
 
         <div className="text-center mt-12 lg:mt-16">
           <Link to="/menu">
-            <Button variant="cta" size="responsive-sm" className="w-3/5 sm:w-auto">
+            <Button variant="cta" size="responsive-sm">
               View Full Menu
             </Button>
           </Link>
