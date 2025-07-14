@@ -69,7 +69,7 @@ export const PageHeader = ({
       
       {/* Buttons */}
       {buttons.length > 0 && (
-        <div className="flex justify-center mt-6 sm:mt-8 animate-fade-in">
+        <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center mt-6 sm:mt-8 animate-fade-in">
           {buttons.map((button, index) => (
                 <Button 
                   key={index} 
