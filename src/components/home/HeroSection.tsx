@@ -79,7 +79,7 @@ export const HeroSection = () => {
             </p>
             
             {/* Call-to-Action Buttons */}
-            <div className="flex justify-center mt-6 sm:mt-8 animate-fade-in">
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center mt-6 sm:mt-8 animate-fade-in">
               <Button
                 asChild
                 variant="cta"
@@ -94,7 +94,7 @@ export const HeroSection = () => {
                 asChild
                 variant="cta-outline"
                 size="responsive-md"
-                className="w-3/5 sm:w-auto sm:min-w-[14rem] ml-4"
+                className="w-3/5 sm:w-auto sm:min-w-[14rem]"
               >
                 <Link to="/gallery">
                   View Our Work
