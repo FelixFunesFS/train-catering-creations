@@ -44,7 +44,7 @@ export const Header = () => {
                   {item.name}
                 </Link>)}
             </nav>
-            <Button asChild variant="cta" size="responsive-sm" className="sm:min-w-[12rem]">
+            <Button asChild variant="cta" size="responsive-sm" className="w-3/5 sm:w-auto sm:min-w-[12rem]">
               <Link to="/request-quote">Request Quote</Link>
             </Button>
           </div>
@@ -61,7 +61,7 @@ export const Header = () => {
               {navigation.map(item => <Link key={item.name} to={item.href} className={cn("text-sm font-medium transition-all duration-200 hover:text-primary hover:translate-x-1 px-4 py-3 rounded-md", isActive(item.href) ? "text-primary bg-primary-light font-semibold border-l-2 border-primary" : "text-muted-foreground")} onClick={() => setIsMenuOpen(false)}>
                   {item.name}
                 </Link>)}
-              <Button asChild variant="cta" size="responsive-sm" className="sm:min-w-[12rem]">
+              <Button asChild variant="cta" size="responsive-sm" className="w-3/5 sm:w-auto sm:min-w-[12rem]">
                 <Link to="/request-quote" onClick={() => setIsMenuOpen(false)}>
                   Request Quote
                 </Link>
