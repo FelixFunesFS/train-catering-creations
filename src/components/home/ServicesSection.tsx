@@ -18,43 +18,47 @@ export const ServicesSection = () => {
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-10 lg:gap-14">
-          <Card className="shadow-elegant hover:shadow-glow bg-gradient-card text-center transition-all duration-200 overflow-hidden group flex flex-col">
-            <div className="relative flex-1">
-              <OptimizedImage
-                src="/lovable-uploads/546d7d1a-7987-4f44-a2d9-668efea60e51.png"
-                alt="Wedding Reception Setup"
-                aspectRatio="aspect-video"
-                className="group-hover:scale-105 transition-transform duration-300 h-full"
-              />
-            </div>
-            <CardContent className="p-4 sm:p-6">
-              <h3 className="text-lg sm:text-xl font-elegant font-semibold text-foreground mb-4">Weddings</h3>
-              <p className="text-sm sm:text-base text-muted-foreground mb-6">Elegant receptions and intimate ceremonies with personalized menus</p>
-              <Link to="/wedding-menu" className="text-primary hover:text-primary-glow font-medium group inline-flex items-center gap-1">
-                Learn More 
-                <span className="group-hover:translate-x-1 transition-transform duration-200">→</span>
-              </Link>
-            </CardContent>
-          </Card>
+          <Link to="/wedding-menu" className="block">
+            <Card className="shadow-elegant hover:shadow-glow bg-gradient-card text-center transition-all duration-200 overflow-hidden group flex flex-col cursor-pointer">
+              <div className="relative flex-1">
+                <OptimizedImage
+                  src="/lovable-uploads/546d7d1a-7987-4f44-a2d9-668efea60e51.png"
+                  alt="Wedding Reception Setup"
+                  aspectRatio="aspect-video"
+                  className="group-hover:scale-105 transition-transform duration-300 h-full"
+                />
+              </div>
+              <CardContent className="p-4 sm:p-6">
+                <h3 className="text-lg sm:text-xl font-elegant font-semibold text-foreground mb-4">Weddings</h3>
+                <p className="text-sm sm:text-base text-muted-foreground mb-6">Elegant receptions and intimate ceremonies with personalized menus</p>
+                <span className="text-primary hover:text-primary-glow font-medium group inline-flex items-center gap-1">
+                  Learn More 
+                  <span className="group-hover:translate-x-1 transition-transform duration-200">→</span>
+                </span>
+              </CardContent>
+            </Card>
+          </Link>
 
-          <Card className="shadow-elegant hover:shadow-glow bg-gradient-card text-center transition-all duration-200 overflow-hidden group flex flex-col">
-            <div className="relative flex-1">
-              <OptimizedImage
-                src="/lovable-uploads/63832488-46ff-4d71-ade5-f871173c28ab.png"
-                alt="Black Tie Event Catering"
-                aspectRatio="aspect-video"
-                className="group-hover:scale-105 transition-transform duration-300 h-full"
-              />
-            </div>
-            <CardContent className="p-4 sm:p-6">
-              <h3 className="text-lg sm:text-xl font-elegant font-semibold text-foreground mb-4">Black Tie Events</h3>
-              <p className="text-sm sm:text-base text-muted-foreground mb-6">Sophisticated catering for galas and formal celebrations</p>
-              <Link to="/wedding-menu" className="text-primary hover:text-primary-glow font-medium group inline-flex items-center gap-1">
-                Learn More 
-                <span className="group-hover:translate-x-1 transition-transform duration-200">→</span>
-              </Link>
-            </CardContent>
-          </Card>
+          <Link to="/wedding-menu" className="block">
+            <Card className="shadow-elegant hover:shadow-glow bg-gradient-card text-center transition-all duration-200 overflow-hidden group flex flex-col cursor-pointer">
+              <div className="relative flex-1">
+                <OptimizedImage
+                  src="/lovable-uploads/63832488-46ff-4d71-ade5-f871173c28ab.png"
+                  alt="Black Tie Event Catering"
+                  aspectRatio="aspect-video"
+                  className="group-hover:scale-105 transition-transform duration-300 h-full"
+                />
+              </div>
+              <CardContent className="p-4 sm:p-6">
+                <h3 className="text-lg sm:text-xl font-elegant font-semibold text-foreground mb-4">Black Tie Events</h3>
+                <p className="text-sm sm:text-base text-muted-foreground mb-6">Sophisticated catering for galas and formal celebrations</p>
+                <span className="text-primary hover:text-primary-glow font-medium group inline-flex items-center gap-1">
+                  Learn More 
+                  <span className="group-hover:translate-x-1 transition-transform duration-200">→</span>
+                </span>
+              </CardContent>
+            </Card>
+          </Link>
 
           <Card className="shadow-elegant hover:shadow-glow bg-gradient-card text-center transition-all duration-200 overflow-hidden group flex flex-col">
             <div className="relative flex-1">
