@@ -64,7 +64,7 @@ export const HeroSection = () => {
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 opacity-50 my-0 py-0"></div>
           
           <div className="relative z-10 flex flex-col justify-center items-center text-center">
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-script font-bold text-foreground leading-[0.9] tracking-tight animate-fade-in mb-4">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-script font-bold text-foreground leading-[0.9] tracking-tight animate-fade-in mb-4">
               Soul Train's <span className="text-primary bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">Eatery</span>
             </h1>
             
@@ -80,12 +80,12 @@ export const HeroSection = () => {
             
             {/* Call-to-Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center animate-fade-in">
-              <Button asChild variant="cta" size="responsive-md" className="w-4/5 sm:w-auto sm:min-w-[14rem]">
+              <Button asChild variant="cta" size="responsive-md" className="w-3/5 sm:w-auto sm:min-w-[14rem]">
                 <Link to="/request-quote">
                   Request a Quote
                 </Link>
               </Button>
-              <Button asChild variant="cta-outline" size="responsive-md" className="w-4/5 sm:w-auto sm:min-w-[14rem]">
+              <Button asChild variant="cta-outline" size="responsive-md" className="w-3/5 sm:w-auto sm:min-w-[14rem]">
                 <Link to="/gallery">
                   View Our Work
                 </Link>

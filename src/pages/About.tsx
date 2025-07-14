@@ -75,7 +75,7 @@ const About = () => {
               </Card>
 
               <Card className="shadow-card overflow-hidden">
-                <OptimizedImage src="/lovable-uploads/6fa5bcaf-1613-416b-babc-289ac84bb501.png" alt="Beautiful cupcake display by Tanya Ward featuring various flavors and elegant decorations" aspectRatio="aspect-[5/3]" containerClassName="h-32 sm:h-40" />
+                <OptimizedImage src="/lovable-uploads/6fa5bcaf-1613-416b-babc-289ac84bb501.png" alt="Beautiful cupcake display by Tanya Ward featuring various flavors and elegant decorations" aspectRatio="aspect-[5/3]" />
                 
                 <CardContent className="p-4 sm:p-6 lg:p-8">
                   <h3 className="text-xl sm:text-2xl font-elegant font-semibold text-foreground mb-3 sm:mb-4">
@@ -96,7 +96,7 @@ const About = () => {
                 <OptimizedImage src="/lovable-uploads/8268fc9a-93a0-4b72-a923-95fc0f10b0c0.png" alt="Chef Dominick 'Train' Ward and Tanya Ward, the founders of Soul Train's Eatery, wearing their signature red aprons" aspectRatio="aspect-[4/3]" containerClassName="w-full h-48 sm:h-64 md:h-80 lg:h-96 rounded-lg shadow-elegant" className="object-[center_20%]" />
               </div>
 
-              <Card className="shadow-elegant bg-gradient-card h-48 sm:h-64 md:h-80 lg:h-96">
+              <Card className="shadow-elegant bg-gradient-card min-h-48 sm:min-h-64 md:min-h-80 lg:min-h-96">
                 <CardContent className="p-4 sm:p-6 lg:p-8 text-center flex flex-col justify-center h-full">
                   <h3 className="text-xl sm:text-2xl lg:text-3xl font-elegant font-bold text-foreground mb-4 sm:mb-6">
                     Our Promise
@@ -172,7 +172,7 @@ const About = () => {
                 </Card>
 
                 <Card className="shadow-card overflow-hidden">
-                  <OptimizedImage src="/lovable-uploads/6fa5bcaf-1613-416b-babc-289ac84bb501.png" alt="Beautiful cupcake display by Tanya Ward featuring various flavors and elegant decorations" aspectRatio="aspect-[5/3]" containerClassName="h-32 sm:h-40" />
+                  <OptimizedImage src="/lovable-uploads/6fa5bcaf-1613-416b-babc-289ac84bb501.png" alt="Beautiful cupcake display by Tanya Ward featuring various flavors and elegant decorations" aspectRatio="aspect-[5/3]" />
                   
                   <CardContent className="p-4 sm:p-6 lg:p-8">
                     <h3 className="text-xl sm:text-2xl font-elegant font-semibold text-foreground mb-3 sm:mb-4">
@@ -197,7 +197,7 @@ const About = () => {
                   <OptimizedImage src="/lovable-uploads/8268fc9a-93a0-4b72-a923-95fc0f10b0c0.png" alt="Chef Dominick 'Train' Ward and Tanya Ward, the founders of Soul Train's Eatery, wearing their signature red aprons" aspectRatio="aspect-[4/3]" containerClassName="w-full h-48 sm:h-64 md:h-80 lg:h-96 rounded-lg shadow-elegant" className="object-[center_20%]" />
                 </div>
 
-                <Card className="shadow-elegant bg-gradient-card h-48 sm:h-64 md:h-80 lg:h-96">
+                <Card className="shadow-elegant bg-gradient-card min-h-48 sm:min-h-64 md:min-h-80 lg:min-h-96">
                   <CardContent className="p-4 sm:p-6 lg:p-8 text-center flex flex-col justify-center h-full">
                     <h3 className="text-xl sm:text-2xl lg:text-3xl font-elegant font-bold text-foreground mb-4 sm:mb-6">
                       Our Promise

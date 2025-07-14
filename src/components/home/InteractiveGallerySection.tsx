@@ -67,10 +67,10 @@ export const InteractiveGallerySection = () => {
   return <section className="py-8 md:py-12 lg:py-16 bg-gradient-card shadow-elegant hover:shadow-glow transition-all duration-200 rounded-lg mx-4 sm:mx-6 lg:mx-8 my-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12 lg:mb-16">
-          <h2 className="text-3xl lg:text-4xl font-elegant font-bold text-foreground mb-6">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant font-bold text-foreground mb-6">
             Our Gallery Showcase
           </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto">
             Experience the artistry and elegance of Soul Train's catering through our finest moments captured at weddings, corporate events, and special celebrations.
           </p>
         </div>
@@ -104,12 +104,12 @@ export const InteractiveGallerySection = () => {
 
         <div className="text-center mt-16 lg:mt-20">
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6">
-            <Button asChild variant="cta" size="responsive-lg" className="w-4/5 sm:w-auto sm:min-w-[14rem]">
+            <Button asChild variant="cta" size="responsive-lg" className="w-3/5 sm:w-auto sm:min-w-[14rem]">
               <Link to="/gallery">
                 View Full Gallery
               </Link>
             </Button>
-            <Button asChild variant="cta-outline" size="responsive-lg" className="w-4/5 sm:w-auto sm:min-w-[14rem]">
+            <Button asChild variant="cta-outline" size="responsive-lg" className="w-3/5 sm:w-auto sm:min-w-[14rem]">
               <Link to="/request-quote">
                 Request Quote
               </Link>
