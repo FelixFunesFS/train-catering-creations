@@ -1,8 +1,13 @@
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 export const SignatureDishesSection = () => {
+  const { ref: card1Ref, isVisible: card1Visible } = useScrollAnimation({ delay: 0 });
+  const { ref: card2Ref, isVisible: card2Visible } = useScrollAnimation({ delay: 200 });
+  const { ref: card3Ref, isVisible: card3Visible } = useScrollAnimation({ delay: 400 });
+
   return (
     <section className="py-8 md:py-12 lg:py-16 bg-gradient-card shadow-card rounded-lg mx-4 sm:mx-6 lg:mx-8 my-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -16,7 +21,12 @@ export const SignatureDishesSection = () => {
         </div>
 
         <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
-          <Card className="shadow-card overflow-hidden group hover:shadow-elegant transition-all duration-200">
+          <Card 
+            ref={card1Ref}
+            className={`shadow-card overflow-hidden group hover:shadow-elegant transition-all duration-200 ${
+              card1Visible ? 'scroll-animate-visible' : 'scroll-animate-hidden'
+            }`}
+          >
             <div className="relative h-48 overflow-hidden">
               <img 
                 src="/lovable-uploads/ea7d03d8-7085-4847-b9d1-ebb3b0dd070a.png" 
@@ -37,7 +47,12 @@ export const SignatureDishesSection = () => {
             </CardContent>
           </Card>
 
-          <Card className="shadow-card overflow-hidden group hover:shadow-elegant transition-all duration-200">
+          <Card 
+            ref={card2Ref}
+            className={`shadow-card overflow-hidden group hover:shadow-elegant transition-all duration-200 ${
+              card2Visible ? 'scroll-animate-visible' : 'scroll-animate-hidden'
+            }`}
+          >
             <div className="relative h-48 overflow-hidden">
               <img 
                 src="/lovable-uploads/7f22e72c-441b-4b6c-9525-56748107fdd5.png" 
@@ -58,7 +73,12 @@ export const SignatureDishesSection = () => {
             </CardContent>
           </Card>
 
-          <Card className="shadow-card overflow-hidden group hover:shadow-elegant transition-all duration-200">
+          <Card 
+            ref={card3Ref}
+            className={`shadow-card overflow-hidden group hover:shadow-elegant transition-all duration-200 ${
+              card3Visible ? 'scroll-animate-visible' : 'scroll-animate-hidden'
+            }`}
+          >
             <div className="relative h-48 overflow-hidden">
               <img 
                 src="/lovable-uploads/eecf9726-8cce-48e5-8abb-f0dd78ebcb4e.png" 

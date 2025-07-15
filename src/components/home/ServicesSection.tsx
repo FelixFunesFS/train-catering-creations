@@ -3,8 +3,14 @@ import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { SectionCard } from "@/components/ui/section-card";
 import { OptimizedImage } from "@/components/ui/optimized-image";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 export const ServicesSection = () => {
+  const { ref: card1Ref, isVisible: card1Visible } = useScrollAnimation({ delay: 0 });
+  const { ref: card2Ref, isVisible: card2Visible } = useScrollAnimation({ delay: 150 });
+  const { ref: card3Ref, isVisible: card3Visible } = useScrollAnimation({ delay: 300 });
+  const { ref: card4Ref, isVisible: card4Visible } = useScrollAnimation({ delay: 450 });
+
   return (
     <SectionCard>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -19,7 +25,12 @@ export const ServicesSection = () => {
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-10 lg:gap-14">
           <Link to="/wedding-menu#page-header" className="block">
-            <Card className="shadow-elegant hover:shadow-glow bg-gradient-card text-center transition-all duration-200 overflow-hidden group flex flex-col cursor-pointer">
+            <Card 
+              ref={card1Ref}
+              className={`shadow-elegant hover:shadow-glow bg-gradient-card text-center transition-all duration-200 overflow-hidden group flex flex-col cursor-pointer ${
+                card1Visible ? 'scroll-animate-visible' : 'scroll-animate-hidden'
+              }`}
+            >
               <div className="relative flex-1">
                 <OptimizedImage
                   src="/lovable-uploads/546d7d1a-7987-4f44-a2d9-668efea60e51.png"
@@ -40,7 +51,12 @@ export const ServicesSection = () => {
           </Link>
 
           <Link to="/wedding-menu#page-header" className="block">
-            <Card className="shadow-elegant hover:shadow-glow bg-gradient-card text-center transition-all duration-200 overflow-hidden group flex flex-col cursor-pointer">
+            <Card 
+              ref={card2Ref}
+              className={`shadow-elegant hover:shadow-glow bg-gradient-card text-center transition-all duration-200 overflow-hidden group flex flex-col cursor-pointer ${
+                card2Visible ? 'scroll-animate-visible' : 'scroll-animate-hidden'
+              }`}
+            >
               <div className="relative flex-1">
                 <OptimizedImage
                   src="/lovable-uploads/63832488-46ff-4d71-ade5-f871173c28ab.png"
@@ -60,7 +76,12 @@ export const ServicesSection = () => {
             </Card>
           </Link>
 
-          <Card className="shadow-elegant hover:shadow-glow bg-gradient-card text-center transition-all duration-200 overflow-hidden group flex flex-col">
+          <Card 
+            ref={card3Ref}
+            className={`shadow-elegant hover:shadow-glow bg-gradient-card text-center transition-all duration-200 overflow-hidden group flex flex-col ${
+              card3Visible ? 'scroll-animate-visible' : 'scroll-animate-hidden'
+            }`}
+          >
             <div className="relative flex-1">
               <OptimizedImage
                 src="/lovable-uploads/3226c955-a9b7-4c8d-a4c2-e5e7fc206f6f.png"
@@ -79,7 +100,12 @@ export const ServicesSection = () => {
             </CardContent>
           </Card>
 
-          <Card className="shadow-elegant hover:shadow-glow bg-gradient-card text-center transition-all duration-200 overflow-hidden group flex flex-col">
+          <Card 
+            ref={card4Ref}
+            className={`shadow-elegant hover:shadow-glow bg-gradient-card text-center transition-all duration-200 overflow-hidden group flex flex-col ${
+              card4Visible ? 'scroll-animate-visible' : 'scroll-animate-hidden'
+            }`}
+          >
             <div className="relative flex-1">
               <OptimizedImage
                 src="/lovable-uploads/6cd766e3-21ce-4e88-a3a4-6c8835dc9654.png"
