@@ -13,8 +13,12 @@ export const useAnimationClass = (variant: AnimationVariant, isVisible: boolean)
         return isVisible ? 'medium-visible' : 'medium-hidden';
       case 'strong':
         return isVisible ? 'strong-visible' : 'strong-hidden';
+      case 'fade-up':
+        return isVisible ? 'fade-up-visible' : 'fade-up-hidden';
+      case 'scale-fade':
+        return isVisible ? 'scale-fade-visible' : 'scale-fade-hidden';
       default:
-        return isVisible ? 'scroll-animate-visible' : 'scroll-animate-hidden';
+        return isVisible ? 'ios-spring-visible' : 'ios-spring-hidden';
     }
   };
 

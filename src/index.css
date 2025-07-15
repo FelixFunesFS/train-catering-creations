@@ -246,10 +246,10 @@ All colors MUST be HSL. Designed for maximum accessibility with high contrast ra
     transform: translateY(0) scale(1);
   }
 
-  /* iOS-style animation variants */
+  /* iOS-style animation variants - Mobile First */
   .ios-spring-hidden {
     opacity: 0;
-    transform: translateY(50px) scale(0.9);
+    transform: translateY(20px) scale(0.95);
     transition: opacity 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275), transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
   
@@ -260,7 +260,7 @@ All colors MUST be HSL. Designed for maximum accessibility with high contrast ra
 
   .elastic-hidden {
     opacity: 0;
-    transform: translateY(60px) scale(0.8);
+    transform: translateY(25px) scale(0.9);
     transition: opacity 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55), transform 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   }
   
@@ -271,7 +271,7 @@ All colors MUST be HSL. Designed for maximum accessibility with high contrast ra
 
   .subtle-hidden {
     opacity: 0;
-    transform: translateY(20px) scale(0.98);
+    transform: translateY(15px) scale(0.98);
     transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   }
   
@@ -282,7 +282,7 @@ All colors MUST be HSL. Designed for maximum accessibility with high contrast ra
 
   .medium-hidden {
     opacity: 0;
-    transform: translateY(35px) scale(0.92);
+    transform: translateY(20px) scale(0.95);
     transition: opacity 0.5s cubic-bezier(0.23, 1, 0.32, 1), transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
   }
   
@@ -293,13 +293,69 @@ All colors MUST be HSL. Designed for maximum accessibility with high contrast ra
 
   .strong-hidden {
     opacity: 0;
-    transform: translateY(60px) scale(0.85);
+    transform: translateY(30px) scale(0.9);
     transition: opacity 0.6s cubic-bezier(0.19, 1, 0.22, 1), transform 0.6s cubic-bezier(0.19, 1, 0.22, 1);
   }
   
   .strong-visible {
     opacity: 1;
     transform: translateY(0) scale(1);
+  }
+
+  /* New animation variants */
+  .fade-up-hidden {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  
+  .fade-up-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .scale-fade-hidden {
+    opacity: 0;
+    transform: scale(0.95);
+    transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  
+  .scale-fade-visible {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  /* Enhanced animations for larger screens */
+  @media (min-width: 768px) {
+    .ios-spring-hidden {
+      transform: translateY(40px) scale(0.9);
+    }
+    
+    .elastic-hidden {
+      transform: translateY(50px) scale(0.8);
+    }
+    
+    .strong-hidden {
+      transform: translateY(50px) scale(0.85);
+    }
+    
+    .fade-up-hidden {
+      transform: translateY(30px);
+    }
+  }
+
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    .ios-spring-hidden,
+    .elastic-hidden,
+    .subtle-hidden,
+    .medium-hidden,
+    .strong-hidden,
+    .fade-up-hidden,
+    .scale-fade-hidden {
+      transition: opacity 0.3s ease;
+      transform: none;
+    }
   }
 
   /* Enhanced hover effects */

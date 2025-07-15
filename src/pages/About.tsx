@@ -6,17 +6,54 @@ import { SectionCard } from "@/components/ui/section-card";
 import { CTASection } from "@/components/ui/cta-section";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
+
 const About = () => {
-  const { ref: card1Ref, isVisible: card1Visible, variant: card1Variant } = useScrollAnimation({ delay: 0, variant: 'ios-spring' });
-  const { ref: card2Ref, isVisible: card2Visible, variant: card2Variant } = useScrollAnimation({ delay: 200, variant: 'elastic' });
-  const { ref: card3Ref, isVisible: card3Visible, variant: card3Variant } = useScrollAnimation({ delay: 400, variant: 'medium' });
+  const { ref: headerRef, isVisible: headerVisible, variant: headerVariant } = useScrollAnimation({ 
+    delay: 0, 
+    variant: 'fade-up',
+    mobile: { variant: 'fade-up', delay: 0 },
+    desktop: { variant: 'ios-spring', delay: 0 }
+  });
   
-  const card1AnimationClass = useAnimationClass(card1Variant, card1Visible);
-  const card2AnimationClass = useAnimationClass(card2Variant, card2Visible);
-  const card3AnimationClass = useAnimationClass(card3Variant, card3Visible);
-   return <div className="min-h-screen bg-gradient-hero">
-        <SectionCard>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  const { ref: card1Ref, isVisible: card1Visible, variant: card1Variant } = useScrollAnimation({ 
+    delay: 200, 
+    variant: 'ios-spring',
+    mobile: { variant: 'medium', delay: 100 },
+    desktop: { variant: 'ios-spring', delay: 200 }
+  });
+  
+  const { ref: card2Ref, isVisible: card2Visible, variant: card2Variant } = useScrollAnimation({ 
+    delay: 400, 
+    variant: 'elastic',
+    mobile: { variant: 'medium', delay: 200 },
+    desktop: { variant: 'elastic', delay: 400 }
+  });
+  
+  const { ref: card3Ref, isVisible: card3Visible, variant: card3Variant } = useScrollAnimation({ 
+    delay: 600, 
+    variant: 'elastic',
+    mobile: { variant: 'medium', delay: 300 },
+    desktop: { variant: 'elastic', delay: 600 }
+  });
+  
+  const { ref: promiseRef, isVisible: promiseVisible, variant: promiseVariant } = useScrollAnimation({ 
+    delay: 800, 
+    variant: 'ios-spring',
+    mobile: { variant: 'medium', delay: 400 },
+    desktop: { variant: 'ios-spring', delay: 800 }
+  });
+  
+  const { ref: ctaRef, isVisible: ctaVisible, variant: ctaVariant } = useScrollAnimation({ 
+    delay: 1000, 
+    variant: 'strong',
+    mobile: { variant: 'medium', delay: 500 },
+    desktop: { variant: 'strong', delay: 1000 }
+  });
+  return (
+    <div className="min-h-screen bg-gradient-hero">
+      <SectionCard>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div ref={headerRef} className={useAnimationClass(headerVariant, headerVisible)}>
             <PageHeader 
               title="About Soul Train's Eatery" 
               description="Where passion meets Southern hospitality, creating unforgettable culinary experiences for over 8 flavorful years." 
@@ -24,12 +61,14 @@ const About = () => {
               buttons={[{ text: "View Gallery", href: "/gallery#page-header", variant: "cta" }]}
             />
           </div>
-        </SectionCard>
+        </div>
+      </SectionCard>
 
-        {/* Mobile: Direct cards without SectionCard wrapper */}
-        <div className="lg:hidden">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6">
-            <Card ref={card1Ref} className={`mb-8 sm:mb-12 shadow-elegant hover-float ${card1AnimationClass}`}>
+      {/* Mobile: Direct cards without SectionCard wrapper */}
+      <div className="lg:hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div ref={card1Ref} className={useAnimationClass(card1Variant, card1Visible)}>
+            <Card className="mb-8 sm:mb-12 shadow-elegant hover-float">
               <CardContent className="p-4 sm:p-6 lg:p-8 xl:p-12">
                 <div className="text-center mb-6 sm:mb-8">
                   <div className="flex justify-center mb-4 sm:mb-6">
@@ -62,9 +101,11 @@ const About = () => {
                 </div>
               </CardContent>
             </Card>
-            
-            <div className="grid md:grid-cols-2 gap-6 sm:gap-8 mb-8 sm:mb-12">
-              <Card ref={card2Ref} className={`shadow-card hover-float ${card2AnimationClass}`}>
+          </div>
+          
+          <div className="grid md:grid-cols-2 gap-6 sm:gap-8 mb-8 sm:mb-12">
+            <div ref={card2Ref} className={useAnimationClass(card2Variant, card2Visible)}>
+              <Card className="shadow-card hover-float">
                 <CardContent className="p-4 sm:p-6 lg:p-8">
                   <h3 className="text-xl sm:text-2xl font-elegant font-semibold text-foreground mb-3 sm:mb-4">
                     Signature Dishes
@@ -82,8 +123,10 @@ const About = () => {
                   </ul>
                 </CardContent>
               </Card>
+            </div>
 
-              <Card ref={card3Ref} className={`shadow-card overflow-hidden hover-float ${card3AnimationClass}`}>
+            <div ref={card3Ref} className={useAnimationClass(card3Variant, card3Visible)}>
+              <Card className="shadow-card overflow-hidden hover-float">
                 <OptimizedImage src="/lovable-uploads/6fa5bcaf-1613-416b-babc-289ac84bb501.png" alt="Beautiful cupcake display by Tanya Ward featuring various flavors and elegant decorations" aspectRatio="aspect-[5/3]" />
                 
                 <CardContent className="p-4 sm:p-6 lg:p-8">
@@ -99,7 +142,9 @@ const About = () => {
                 </CardContent>
               </Card>
             </div>
+          </div>
 
+          <div ref={promiseRef} className={useAnimationClass(promiseVariant, promiseVisible)}>
             <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 items-center">
               <div className="relative">
                 <OptimizedImage src="/lovable-uploads/8268fc9a-93a0-4b72-a923-95fc0f10b0c0.png" alt="Chef Dominick 'Train' Ward and Tanya Ward, the founders of Soul Train's Eatery, wearing their signature red aprons" aspectRatio="aspect-[4/3]" containerClassName="w-full h-48 sm:h-64 md:h-80 lg:h-96 rounded-lg shadow-elegant" className="object-[center_20%]" />
@@ -121,11 +166,13 @@ const About = () => {
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Desktop: With SectionCard wrapper */}
-        <div className="hidden lg:block">
-          <SectionCard>
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Desktop: With SectionCard wrapper */}
+      <div className="hidden lg:block">
+        <SectionCard>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div ref={card1Ref} className={useAnimationClass(card1Variant, card1Visible)}>
               <Card className="mb-8 sm:mb-12 shadow-elegant">
                 <CardContent className="p-4 sm:p-6 lg:p-8 xl:p-12">
                   <div className="text-center mb-6 sm:mb-8">
@@ -159,8 +206,10 @@ const About = () => {
                   </div>
                 </CardContent>
               </Card>
-              
-              <div className="grid md:grid-cols-2 gap-6 sm:gap-8">
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-6 sm:gap-8">
+              <div ref={card2Ref} className={useAnimationClass(card2Variant, card2Visible)}>
                 <Card className="shadow-card">
                   <CardContent className="p-4 sm:p-6 lg:p-8">
                     <h3 className="text-xl sm:text-2xl font-elegant font-semibold text-foreground mb-3 sm:mb-4">
@@ -179,7 +228,9 @@ const About = () => {
                     </ul>
                   </CardContent>
                 </Card>
+              </div>
 
+              <div ref={card3Ref} className={useAnimationClass(card3Variant, card3Visible)}>
                 <Card className="shadow-card overflow-hidden">
                   <OptimizedImage src="/lovable-uploads/6fa5bcaf-1613-416b-babc-289ac84bb501.png" alt="Beautiful cupcake display by Tanya Ward featuring various flavors and elegant decorations" aspectRatio="aspect-[5/3]" />
                   
@@ -197,10 +248,12 @@ const About = () => {
                 </Card>
               </div>
             </div>
-          </SectionCard>
+          </div>
+        </SectionCard>
 
-          <SectionCard>
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <SectionCard>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div ref={promiseRef} className={useAnimationClass(promiseVariant, promiseVisible)}>
               <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 items-center">
                 <div className="relative">
                   <OptimizedImage src="/lovable-uploads/8268fc9a-93a0-4b72-a923-95fc0f10b0c0.png" alt="Chef Dominick 'Train' Ward and Tanya Ward, the founders of Soul Train's Eatery, wearing their signature red aprons" aspectRatio="aspect-[4/3]" containerClassName="w-full h-48 sm:h-64 md:h-80 lg:h-96 rounded-lg shadow-elegant" className="object-[center_20%]" />
@@ -221,10 +274,11 @@ const About = () => {
                 </Card>
               </div>
             </div>
-          </SectionCard>
-        </div>
+          </div>
+        </SectionCard>
+      </div>
 
-
+      <div ref={ctaRef} className={useAnimationClass(ctaVariant, ctaVisible)}>
         <CTASection
           title="Ready to Start Planning Your Event?"
           description="Let Soul Train's Eatery handle the kitchen while you enjoy the moment. Contact us today for a personalized quote."
@@ -242,6 +296,8 @@ const About = () => {
           ]}
           footer="📍 Charleston, SC"
         />
-    </div>;
+      </div>
+    </div>
+  );
 };
 export default About;

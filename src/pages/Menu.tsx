@@ -10,12 +10,61 @@ import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 
 const Menu = () => {
-  const { ref: headerRef, isVisible: headerVisible } = useScrollAnimation({ delay: 0, variant: 'ios-spring' });
+  const { ref: headerRef, isVisible: headerVisible, variant: headerVariant } = useScrollAnimation({ 
+    delay: 0, 
+    variant: 'fade-up',
+    mobile: { variant: 'fade-up', delay: 0 },
+    desktop: { variant: 'ios-spring', delay: 0 }
+  });
+  
+  // Menu card animations with staggered timing
+  const { ref: appetizerRef, isVisible: appetizerVisible, variant: appetizerVariant } = useScrollAnimation({ 
+    delay: 100, 
+    variant: 'ios-spring',
+    mobile: { variant: 'subtle', delay: 100 },
+    desktop: { variant: 'ios-spring', delay: 100 }
+  });
+  
+  const { ref: entreeRef, isVisible: entreeVisible, variant: entreeVariant } = useScrollAnimation({ 
+    delay: 200, 
+    variant: 'ios-spring',
+    mobile: { variant: 'subtle', delay: 150 },
+    desktop: { variant: 'ios-spring', delay: 200 }
+  });
+  
+  const { ref: plantRef, isVisible: plantVisible, variant: plantVariant } = useScrollAnimation({ 
+    delay: 300, 
+    variant: 'ios-spring',
+    mobile: { variant: 'subtle', delay: 200 },
+    desktop: { variant: 'ios-spring', delay: 300 }
+  });
+  
+  const { ref: sidesRef, isVisible: sidesVisible, variant: sidesVariant } = useScrollAnimation({ 
+    delay: 400, 
+    variant: 'ios-spring',
+    mobile: { variant: 'subtle', delay: 250 },
+    desktop: { variant: 'ios-spring', delay: 400 }
+  });
+  
+  const { ref: dessertRef, isVisible: dessertVisible, variant: dessertVariant } = useScrollAnimation({ 
+    delay: 500, 
+    variant: 'ios-spring',
+    mobile: { variant: 'subtle', delay: 300 },
+    desktop: { variant: 'ios-spring', delay: 500 }
+  });
+  
+  const { ref: contactRef, isVisible: contactVisible, variant: contactVariant } = useScrollAnimation({ 
+    delay: 600, 
+    variant: 'elastic',
+    mobile: { variant: 'medium', delay: 350 },
+    desktop: { variant: 'elastic', delay: 600 }
+  });
+
   return (
     <div className="min-h-screen bg-gradient-hero">
         <SectionCard>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-fade-up">
+            <div ref={headerRef} className={useAnimationClass(headerVariant, headerVisible)}>
               <MenuHeader />
             </div>
           </div>
@@ -25,11 +74,21 @@ const Menu = () => {
         <div className="lg:hidden">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
             <div className="space-y-8">
-              <AppetizersCard />
-              <EntreesCard />
-              <PlantBasedCard />
-              <SideDishesCard />
-              <DessertsCard />
+              <div ref={appetizerRef} className={useAnimationClass(appetizerVariant, appetizerVisible)}>
+                <AppetizersCard />
+              </div>
+              <div ref={entreeRef} className={useAnimationClass(entreeVariant, entreeVisible)}>
+                <EntreesCard />
+              </div>
+              <div ref={plantRef} className={useAnimationClass(plantVariant, plantVisible)}>
+                <PlantBasedCard />
+              </div>
+              <div ref={sidesRef} className={useAnimationClass(sidesVariant, sidesVisible)}>
+                <SideDishesCard />
+              </div>
+              <div ref={dessertRef} className={useAnimationClass(dessertVariant, dessertVisible)}>
+                <DessertsCard />
+              </div>
             </div>
           </div>
         </div>
@@ -39,9 +98,15 @@ const Menu = () => {
           <SectionCard>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="space-y-8">
-                <AppetizersCard />
-                <EntreesCard />
-                <PlantBasedCard />
+                <div ref={appetizerRef} className={useAnimationClass(appetizerVariant, appetizerVisible)}>
+                  <AppetizersCard />
+                </div>
+                <div ref={entreeRef} className={useAnimationClass(entreeVariant, entreeVisible)}>
+                  <EntreesCard />
+                </div>
+                <div ref={plantRef} className={useAnimationClass(plantVariant, plantVisible)}>
+                  <PlantBasedCard />
+                </div>
               </div>
             </div>
           </SectionCard>
@@ -49,14 +114,20 @@ const Menu = () => {
           <SectionCard>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="space-y-8">
-                <SideDishesCard />
-                <DessertsCard />
+                <div ref={sidesRef} className={useAnimationClass(sidesVariant, sidesVisible)}>
+                  <SideDishesCard />
+                </div>
+                <div ref={dessertRef} className={useAnimationClass(dessertVariant, dessertVisible)}>
+                  <DessertsCard />
+                </div>
               </div>
             </div>
           </SectionCard>
         </div>
 
-        <MenuContact />
+        <div ref={contactRef} className={useAnimationClass(contactVariant, contactVisible)}>
+          <MenuContact />
+        </div>
     </div>
   );
 };

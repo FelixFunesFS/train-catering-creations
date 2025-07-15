@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
-export type AnimationVariant = 'subtle' | 'medium' | 'strong' | 'elastic' | 'ios-spring';
+export type AnimationVariant = 'subtle' | 'medium' | 'strong' | 'elastic' | 'ios-spring' | 'fade-up' | 'scale-fade';
 
 interface UseScrollAnimationOptions {
   threshold?: number;
@@ -9,6 +9,14 @@ interface UseScrollAnimationOptions {
   delay?: number;
   variant?: AnimationVariant;
   stagger?: number;
+  mobile?: {
+    variant?: AnimationVariant;
+    delay?: number;
+  };
+  desktop?: {
+    variant?: AnimationVariant;
+    delay?: number;
+  };
 }
 
 export const useScrollAnimation = (options: UseScrollAnimationOptions = {}) => {
@@ -18,11 +26,44 @@ export const useScrollAnimation = (options: UseScrollAnimationOptions = {}) => {
     triggerOnce = true,
     delay = 0,
     variant = 'ios-spring',
-    stagger = 0
+    stagger = 0,
+    mobile,
+    desktop
   } = options;
 
   const [isVisible, setIsVisible] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+
+  // Detect mobile/desktop
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Get responsive variant and delay
+  const getResponsiveConfig = () => {
+    if (isMobile && mobile) {
+      return {
+        variant: mobile.variant || variant,
+        delay: mobile.delay !== undefined ? mobile.delay : delay
+      };
+    } else if (!isMobile && desktop) {
+      return {
+        variant: desktop.variant || variant,
+        delay: desktop.delay !== undefined ? desktop.delay : delay
+      };
+    }
+    return { variant, delay };
+  };
+
+  const { variant: currentVariant, delay: currentDelay } = getResponsiveConfig();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -30,7 +71,7 @@ export const useScrollAnimation = (options: UseScrollAnimationOptions = {}) => {
         if (entry.isIntersecting) {
           setTimeout(() => {
             setIsVisible(true);
-          }, delay);
+          }, currentDelay + stagger);
           
           if (triggerOnce) {
             observer.unobserve(entry.target);
@@ -54,7 +95,7 @@ export const useScrollAnimation = (options: UseScrollAnimationOptions = {}) => {
         observer.unobserve(ref.current);
       }
     };
-  }, [threshold, rootMargin, triggerOnce, delay]);
+  }, [threshold, rootMargin, triggerOnce, currentDelay, stagger]);
 
-  return { ref, isVisible, variant };
+  return { ref, isVisible, variant: currentVariant, isMobile };
 };
