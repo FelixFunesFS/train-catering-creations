@@ -1,5 +1,4 @@
 import { useMarqueeAnimation } from '@/hooks/useMarqueeAnimation';
-import { Train } from 'lucide-react';
 
 export const BrandMarquee = () => {
   const { ref, className, style } = useMarqueeAnimation({
@@ -11,13 +10,13 @@ export const BrandMarquee = () => {
   const marqueeContent = (
     <div className="flex items-center gap-8 text-xl font-script text-primary/80">
       <span className="whitespace-nowrap">Soul Train's Eatery</span>
-      <Train className="h-6 w-6 text-primary" />
+      <img src="/lovable-uploads/d5bcd865-8652-4b1c-a055-cf38d61e578e.png" alt="Soul Train's logo" className="h-6 w-6" />
       <span className="whitespace-nowrap">Where passion meets Southern hospitality</span>
-      <Train className="h-6 w-6 text-primary" />
+      <img src="/lovable-uploads/d5bcd865-8652-4b1c-a055-cf38d61e578e.png" alt="Soul Train's logo" className="h-6 w-6" />
       <span className="whitespace-nowrap">Soul Train's Eatery</span>
-      <Train className="h-6 w-6 text-primary" />
+      <img src="/lovable-uploads/d5bcd865-8652-4b1c-a055-cf38d61e578e.png" alt="Soul Train's logo" className="h-6 w-6" />
       <span className="whitespace-nowrap">Where passion meets Southern hospitality</span>
-      <Train className="h-6 w-6 text-primary" />
+      <img src="/lovable-uploads/d5bcd865-8652-4b1c-a055-cf38d61e578e.png" alt="Soul Train's logo" className="h-6 w-6" />
     </div>
   );
 
