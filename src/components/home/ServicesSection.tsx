@@ -18,7 +18,7 @@ export const ServicesSection = () => {
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-10 lg:gap-14">
-          <Link to="/wedding-menu#page-header" className="block">
+          <Link to="/wedding-menu#page-icons" className="block">
             <Card className="shadow-elegant hover:shadow-glow bg-gradient-card text-center transition-all duration-200 overflow-hidden group flex flex-col cursor-pointer">
               <div className="relative flex-1">
                 <OptimizedImage
@@ -39,7 +39,7 @@ export const ServicesSection = () => {
             </Card>
           </Link>
 
-          <Link to="/wedding-menu#page-header" className="block">
+          <Link to="/wedding-menu#page-icons" className="block">
             <Card className="shadow-elegant hover:shadow-glow bg-gradient-card text-center transition-all duration-200 overflow-hidden group flex flex-col cursor-pointer">
               <div className="relative flex-1">
                 <OptimizedImage
