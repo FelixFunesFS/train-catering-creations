@@ -2,8 +2,6 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { ImageModal } from "@/components/gallery/ImageModal";
-import { AnimatedSection, AnimatedGrid } from "@/components/ui/animated-section";
-import { FloatingElement, ParallaxElement } from "@/components/ui/floating-elements";
 export const HeroSection = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const [imageSet, setImageSet] = useState(0);
@@ -65,81 +63,57 @@ export const HeroSection = () => {
           {/* Subtle background pattern */}
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 opacity-50 my-0 py-0"></div>
           
-          {/* Floating decorative elements */}
-          <FloatingElement delay={1000} amplitude={15} speed={4000} className="absolute -top-4 left-10 hidden lg:block">
-            <div className="w-3 h-3 bg-primary/20 rounded-full"></div>
-          </FloatingElement>
-          <FloatingElement delay={2000} amplitude={20} speed={5000} className="absolute top-20 right-16 hidden lg:block">
-            <div className="w-2 h-2 bg-primary-glow/30 rounded-full"></div>
-          </FloatingElement>
-          <FloatingElement delay={3000} amplitude={12} speed={3500} className="absolute bottom-10 left-20 hidden lg:block">
-            <div className="w-4 h-4 bg-primary/15 rounded-full"></div>
-          </FloatingElement>
-          
           <div className="relative z-10 flex flex-col justify-center items-center text-center">
-            <AnimatedSection animation="fade-in-up" delay={0}>
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-script font-bold text-foreground leading-[0.9] tracking-tight mb-4">
-                Soul Train's <span className="text-primary bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">Eatery</span>
-              </h1>
-            </AnimatedSection>
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-script font-bold text-foreground leading-[0.9] tracking-tight animate-fade-in mb-4">
+              Soul Train's <span className="text-primary bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">Eatery</span>
+            </h1>
             
             {/* Red Logo Icon */}
-            <AnimatedSection animation="scale-in" delay={200}>
-              <FloatingElement delay={500} amplitude={8} speed={6000} className="flex justify-center mb-4">
-                <img src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" alt="Soul Train's Eatery Logo" className="w-12 h-12 sm:w-14 sm:h-14 object-contain hover:scale-110 transition-transform duration-300 hover-bounce glow-pulse" />
-              </FloatingElement>
-            </AnimatedSection>
+            <div className="flex justify-center mb-4">
+              <img src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" alt="Soul Train's Eatery Logo" className="w-12 h-12 sm:w-14 sm:h-14 animate-fade-in object-contain hover:scale-110 transition-transform duration-300" />
+            </div>
             
-            <AnimatedSection animation="fade-in-up" delay={300}>
-              <div className="w-24 h-1 bg-gradient-to-r from-primary to-primary-glow rounded-full mx-auto mb-6"></div>
-            </AnimatedSection>
-            
-            <AnimatedSection animation="fade-in-up" delay={400}>
-              <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-muted-foreground leading-relaxed font-medium max-w-2xl mx-auto mb-6">
-                Where passion meets Southern hospitality. Elegant catering for weddings, black tie events, and memorable celebrations in Charleston's Lowcountry.
-              </p>
-            </AnimatedSection>
+            <div className="w-24 h-1 bg-gradient-to-r from-primary to-primary-glow rounded-full mx-auto mb-6"></div>
+            <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-muted-foreground leading-relaxed font-medium animate-fade-in max-w-2xl mx-auto mb-6">
+              Where passion meets Southern hospitality. Elegant catering for weddings, black tie events, and memorable celebrations in Charleston's Lowcountry.
+            </p>
             
             {/* Call-to-Action Buttons */}
-            <AnimatedSection animation="fade-in-up" delay={500}>
-              <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center mt-6 sm:mt-8">
-                <Button
-                  asChild
-                  variant="cta"
-                  size="responsive-md"
-                  className="w-[90%] sm:w-auto sm:min-w-[14rem] button-magnetic hover-lift"
-                >
-                  <Link to="/request-quote#page-header">
-                    Request Quote
-                  </Link>
-                </Button>
-                <Button
-                  asChild
-                  variant="cta-outline"
-                  size="responsive-md"
-                  className="w-[90%] sm:w-auto sm:min-w-[14rem] button-magnetic hover-lift"
-                >
-                  <Link to="/gallery#page-header">
-                    Gallery
-                  </Link>
-                </Button>
-              </div>
-            </AnimatedSection>
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center mt-6 sm:mt-8 animate-fade-in">
+              <Button
+                asChild
+                variant="cta"
+                size="responsive-md"
+                className="w-[90%] sm:w-auto sm:min-w-[14rem]"
+              >
+                <Link to="/request-quote#page-header">
+                  Request Quote
+                </Link>
+              </Button>
+              <Button
+                asChild
+                variant="cta-outline"
+                size="responsive-md"
+                className="w-[90%] sm:w-auto sm:min-w-[14rem]"
+              >
+                <Link to="/gallery#page-header">
+                  Gallery
+                </Link>
+              </Button>
+            </div>
           </div>
         </div>
 
         {/* Image Gallery Grid Section */}
         <div className="relative px-6 sm:px-8 lg:px-12 pb-8 lg:pb-12">
           <div className="max-w-7xl mx-auto">
+            
+            
             {/* Responsive Grid */}
-            <AnimatedGrid 
-              className="grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 lg:gap-12"
-              staggerDelay={150}
-            >
-              {heroImages.map((image, index) => 
-                <div key={index} className="group relative overflow-hidden rounded-lg shadow-elegant hover:shadow-glow bg-gradient-card card-interactive cursor-pointer hover-lift tilt-card" onClick={() => handleImageClick(index)}>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 lg:gap-12">
+              {heroImages.map((image, index) => <div key={index} className="group relative overflow-hidden rounded-lg shadow-elegant hover:shadow-glow bg-gradient-card transition-all duration-200 cursor-pointer" onClick={() => handleImageClick(index)}>
                   <div className="aspect-[5/4] overflow-hidden">
-                    <img src={image.src} alt={image.alt} className="w-full h-full object-cover image-zoom" loading={index < 2 ? "eager" : "lazy"} decoding="async" />
+                    <img src={image.src} alt={image.alt} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200" loading={index < 2 ? "eager" : "lazy"} decoding="async" />
                   </div>
                   
                   {/* Hover Overlay */}
@@ -156,21 +130,18 @@ export const HeroSection = () => {
 
                   {/* Subtle border effect */}
                   <div className="absolute inset-0 border-2 border-transparent group-hover:border-primary/20 rounded-lg transition-colors duration-200"></div>
-                </div>
-              )}
-            </AnimatedGrid>
+                </div>)}
+            </div>
 
             {/* View More Link */}
-            <AnimatedSection animation="fade-in-up" delay={600}>
-              <div className="text-center mt-12">
-                <Link to="/gallery#page-header" className="inline-flex items-center gap-2 text-primary hover:text-primary-glow transition-colors duration-200 font-medium text-lg group">
-                  View Complete Gallery 
-                  <svg className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                  </svg>
-                </Link>
-              </div>
-            </AnimatedSection>
+            <div className="text-center mt-12">
+              <Link to="/gallery#page-header" className="inline-flex items-center gap-2 text-primary hover:text-primary-glow transition-colors duration-200 font-medium text-lg group">
+                View Complete Gallery 
+                <svg className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </Link>
+            </div>
           </div>
         </div>
       </section>

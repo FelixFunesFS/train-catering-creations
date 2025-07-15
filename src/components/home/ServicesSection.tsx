@@ -3,29 +3,23 @@ import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { SectionCard } from "@/components/ui/section-card";
 import { OptimizedImage } from "@/components/ui/optimized-image";
-import { AnimatedSection, AnimatedGrid } from "@/components/ui/animated-section";
 
 export const ServicesSection = () => {
   return (
     <SectionCard>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <AnimatedSection animation="fade-in-up" delay={0}>
-          <div className="text-center mb-8 sm:mb-12 lg:mb-16">
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant font-bold text-foreground mb-6">
-              Our Catering Services
-            </h2>
-            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
-              From elegant weddings to corporate events, we cater every occasion with care, flavor, and professionalism.
-            </p>
-          </div>
-        </AnimatedSection>
+        <div className="text-center mb-8 sm:mb-12 lg:mb-16">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant font-bold text-foreground mb-6">
+            Our Catering Services
+          </h2>
+          <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
+            From elegant weddings to corporate events, we cater every occasion with care, flavor, and professionalism.
+          </p>
+        </div>
 
-        <AnimatedGrid 
-          className="md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-10 lg:gap-14"
-          staggerDelay={100}
-        >
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-10 lg:gap-14">
           <Link to="/wedding-menu#page-header" className="block">
-            <Card className="shadow-elegant hover:shadow-glow bg-gradient-card text-center transition-all duration-200 overflow-hidden group flex flex-col cursor-pointer hover-lift">
+            <Card className="shadow-elegant hover:shadow-glow bg-gradient-card text-center transition-all duration-200 overflow-hidden group flex flex-col cursor-pointer">
               <div className="relative flex-1">
                 <OptimizedImage
                   src="/lovable-uploads/546d7d1a-7987-4f44-a2d9-668efea60e51.png"
@@ -46,7 +40,7 @@ export const ServicesSection = () => {
           </Link>
 
           <Link to="/wedding-menu#page-header" className="block">
-            <Card className="shadow-elegant hover:shadow-glow bg-gradient-card text-center transition-all duration-200 overflow-hidden group flex flex-col cursor-pointer hover-lift">
+            <Card className="shadow-elegant hover:shadow-glow bg-gradient-card text-center transition-all duration-200 overflow-hidden group flex flex-col cursor-pointer">
               <div className="relative flex-1">
                 <OptimizedImage
                   src="/lovable-uploads/63832488-46ff-4d71-ade5-f871173c28ab.png"
@@ -66,7 +60,7 @@ export const ServicesSection = () => {
             </Card>
           </Link>
 
-          <Card className="shadow-elegant hover:shadow-glow bg-gradient-card text-center transition-all duration-200 overflow-hidden group flex flex-col hover-lift">
+          <Card className="shadow-elegant hover:shadow-glow bg-gradient-card text-center transition-all duration-200 overflow-hidden group flex flex-col">
             <div className="relative flex-1">
               <OptimizedImage
                 src="/lovable-uploads/3226c955-a9b7-4c8d-a4c2-e5e7fc206f6f.png"
@@ -85,7 +79,7 @@ export const ServicesSection = () => {
             </CardContent>
           </Card>
 
-          <Card className="shadow-elegant hover:shadow-glow bg-gradient-card text-center transition-all duration-200 overflow-hidden group flex flex-col hover-lift">
+          <Card className="shadow-elegant hover:shadow-glow bg-gradient-card text-center transition-all duration-200 overflow-hidden group flex flex-col">
             <div className="relative flex-1">
               <OptimizedImage
                 src="/lovable-uploads/6cd766e3-21ce-4e88-a3a4-6c8835dc9654.png"
@@ -103,7 +97,7 @@ export const ServicesSection = () => {
               </Link>
             </CardContent>
           </Card>
-        </AnimatedGrid>
+        </div>
       </div>
     </SectionCard>
   );
