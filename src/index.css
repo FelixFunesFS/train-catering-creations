@@ -302,7 +302,7 @@ All colors MUST be HSL. Designed for maximum accessibility with high contrast ra
     transform: translateY(0) scale(1);
   }
 
-  /* New animation variants */
+  /* Enhanced animation variants */
   .fade-up-hidden {
     opacity: 0;
     transform: translateY(20px);
@@ -325,6 +325,117 @@ All colors MUST be HSL. Designed for maximum accessibility with high contrast ra
     transform: scale(1);
   }
 
+  /* Directional slide animations */
+  .slide-left-hidden {
+    opacity: 0;
+    transform: translateX(-40px);
+    transition: opacity 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275), transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  
+  .slide-left-visible {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .slide-right-hidden {
+    opacity: 0;
+    transform: translateX(40px);
+    transition: opacity 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275), transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  
+  .slide-right-visible {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .slide-up-hidden {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275), transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  
+  .slide-up-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .slide-down-hidden {
+    opacity: 0;
+    transform: translateY(-40px);
+    transition: opacity 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275), transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  
+  .slide-down-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Image zoom effects */
+  .zoom-fade-hidden {
+    opacity: 0;
+    transform: scale(1.1);
+    transition: opacity 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  
+  .zoom-fade-visible {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  /* Bounce animation */
+  .bounce-in-hidden {
+    opacity: 0;
+    transform: translateY(40px) scale(0.8);
+    transition: opacity 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55), transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+  
+  .bounce-in-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  /* Rotate fade animation */
+  .rotate-fade-hidden {
+    opacity: 0;
+    transform: rotate(10deg) scale(0.95);
+    transition: opacity 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  
+  .rotate-fade-visible {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+  }
+
+  /* Flip animation */
+  .flip-in-hidden {
+    opacity: 0;
+    transform: rotateY(90deg) scale(0.9);
+    transition: opacity 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  
+  .flip-in-visible {
+    opacity: 1;
+    transform: rotateY(0deg) scale(1);
+  }
+
+  /* Parallax background effect */
+  .parallax-bg {
+    will-change: transform;
+    transform: translateZ(0);
+  }
+
+  /* Sticky fade animation */
+  .sticky-fade-hidden {
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  
+  .sticky-fade-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
   /* Enhanced animations for larger screens */
   @media (min-width: 768px) {
     .ios-spring-hidden {
@@ -342,6 +453,30 @@ All colors MUST be HSL. Designed for maximum accessibility with high contrast ra
     .fade-up-hidden {
       transform: translateY(30px);
     }
+
+    .slide-left-hidden {
+      transform: translateX(-60px);
+    }
+    
+    .slide-right-hidden {
+      transform: translateX(60px);
+    }
+    
+    .slide-up-hidden {
+      transform: translateY(60px);
+    }
+    
+    .slide-down-hidden {
+      transform: translateY(-60px);
+    }
+    
+    .bounce-in-hidden {
+      transform: translateY(60px) scale(0.7);
+    }
+    
+    .zoom-fade-hidden {
+      transform: scale(1.15);
+    }
   }
 
   /* Reduced motion support */
@@ -352,7 +487,16 @@ All colors MUST be HSL. Designed for maximum accessibility with high contrast ra
     .medium-hidden,
     .strong-hidden,
     .fade-up-hidden,
-    .scale-fade-hidden {
+    .scale-fade-hidden,
+    .slide-left-hidden,
+    .slide-right-hidden,
+    .slide-up-hidden,
+    .slide-down-hidden,
+    .zoom-fade-hidden,
+    .bounce-in-hidden,
+    .rotate-fade-hidden,
+    .flip-in-hidden,
+    .sticky-fade-hidden {
       transition: opacity 0.3s ease;
       transform: none;
     }
@@ -407,5 +551,120 @@ All colors MUST be HSL. Designed for maximum accessibility with high contrast ra
 
   .scroll-animate-stagger-4 {
     transition-delay: 0.4s;
+  }
+
+  .scroll-animate-stagger-5 {
+    transition-delay: 0.5s;
+  }
+
+  .scroll-animate-stagger-6 {
+    transition-delay: 0.6s;
+  }
+
+  /* Marquee animation */
+  @keyframes marquee {
+    0% {
+      transform: translateX(100%);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+
+  .marquee {
+    animation: marquee 15s linear infinite;
+  }
+
+  .marquee-slow {
+    animation: marquee 25s linear infinite;
+  }
+
+  .marquee-fast {
+    animation: marquee 8s linear infinite;
+  }
+
+  /* Hover zoom effect for images */
+  .image-zoom {
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    overflow: hidden;
+  }
+
+  .image-zoom:hover {
+    transform: scale(1.05);
+  }
+
+  .image-zoom img {
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .image-zoom:hover img {
+    transform: scale(1.1);
+  }
+
+  /* Advanced hover effects */
+  .hover-lift {
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-12px);
+    box-shadow: 0 20px 40px -12px hsl(0 0% 0% / 0.25);
+  }
+
+  .hover-glow {
+    transition: box-shadow 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .hover-glow:hover {
+    box-shadow: 0 0 30px hsl(0 72% 50% / 0.4);
+  }
+
+  /* Card stack effect */
+  .card-stack {
+    position: relative;
+  }
+
+  .card-stack::before {
+    content: '';
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    right: 4px;
+    bottom: 4px;
+    background: hsl(var(--card));
+    border-radius: inherit;
+    z-index: -1;
+    opacity: 0.8;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .card-stack:hover::before {
+    top: 8px;
+    left: 8px;
+    opacity: 0.6;
+  }
+
+  /* Performance optimizations */
+  .gpu-accelerated {
+    transform: translateZ(0);
+    will-change: transform;
+  }
+
+  .smooth-scroll {
+    scroll-behavior: smooth;
+  }
+
+  /* Text reveal animation */
+  .text-reveal {
+    overflow: hidden;
+  }
+
+  .text-reveal-line {
+    transform: translateY(100%);
+    transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  .text-reveal-visible .text-reveal-line {
+    transform: translateY(0);
   }
 }

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
-export type AnimationVariant = 'subtle' | 'medium' | 'strong' | 'elastic' | 'ios-spring' | 'fade-up' | 'scale-fade';
+export type AnimationVariant = 'subtle' | 'medium' | 'strong' | 'elastic' | 'ios-spring' | 'fade-up' | 'scale-fade' | 'slide-left' | 'slide-right' | 'slide-up' | 'slide-down' | 'zoom-fade' | 'bounce-in' | 'rotate-fade' | 'flip-in' | 'sticky-fade';
 
 interface UseScrollAnimationOptions {
   threshold?: number;
