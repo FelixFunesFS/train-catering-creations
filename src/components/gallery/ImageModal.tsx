@@ -57,12 +57,12 @@ export const ImageModal = ({
 
   return (
     <Dialog open={selectedIndex !== null} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl p-0 bg-transparent border-0 [&>button]:hidden">
+      <DialogContent className="max-w-4xl p-0 bg-transparent border-0 [&>button]:hidden animate-scale-in">
         <DialogTitle className="sr-only">Gallery Image</DialogTitle>
         <DialogDescription className="sr-only">Full size view of gallery image</DialogDescription>
         <div className="relative">
           {/* Image counter */}
-          <div className="absolute -top-12 left-0 text-white text-sm z-10">
+          <div className="absolute -top-12 left-0 text-white text-sm z-10 animate-fade-in-up">
             {currentIndex + 1} of {images.length}
           </div>
           
@@ -70,7 +70,7 @@ export const ImageModal = ({
           <Button 
             variant="ghost" 
             size="icon" 
-            className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 z-10 bg-black/30 hover:bg-black/50 min-h-touch min-w-touch rounded-full"
+            className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 z-10 bg-black/30 hover:bg-black/50 backdrop-blur-sm min-h-touch min-w-touch rounded-full hover:scale-110 transition-all duration-200"
             onClick={handlePrevious}
             disabled={images.length <= 1}
           >
@@ -80,7 +80,7 @@ export const ImageModal = ({
           <Button 
             variant="ghost" 
             size="icon" 
-            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 z-10 bg-black/30 hover:bg-black/50 min-h-touch min-w-touch rounded-full"
+            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 z-10 bg-black/30 hover:bg-black/50 backdrop-blur-sm min-h-touch min-w-touch rounded-full hover:scale-110 transition-all duration-200"
             onClick={handleNext}
             disabled={images.length <= 1}
           >
@@ -88,13 +88,13 @@ export const ImageModal = ({
           </Button>
 
           {currentImage && (
-            <div className="transition-opacity duration-200">
+            <div className="transition-all duration-300 animate-fade-in-up">
               <img 
                 src={currentImage.src} 
                 alt={currentImage.title} 
-                className="w-full h-auto max-h-[80vh] object-contain rounded-lg"
+                className="w-full h-auto max-h-[80vh] object-contain rounded-lg shadow-float"
               />
-              <div className="absolute bottom-2 sm:bottom-4 left-2 sm:left-4 right-2 sm:right-4 text-white bg-black/60 rounded-lg p-2 sm:p-3">
+              <div className="absolute bottom-2 sm:bottom-4 left-2 sm:left-4 right-2 sm:right-4 text-white bg-black/60 backdrop-blur-sm rounded-lg p-2 sm:p-3 animate-slide-in-bottom">
                 <h3 className="font-semibold text-sm sm:text-base md:text-lg">{currentImage.title}</h3>
                 <p className="text-xs sm:text-sm text-white/90">{currentImage.description}</p>
               </div>

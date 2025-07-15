@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { ImageModal } from "@/components/gallery/ImageModal";
 import { AnimatedSection, AnimatedGrid } from "@/components/ui/animated-section";
+import { FloatingElement, ParallaxElement } from "@/components/ui/floating-elements";
 export const HeroSection = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const [imageSet, setImageSet] = useState(0);
@@ -64,6 +65,17 @@ export const HeroSection = () => {
           {/* Subtle background pattern */}
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 opacity-50 my-0 py-0"></div>
           
+          {/* Floating decorative elements */}
+          <FloatingElement delay={1000} amplitude={15} speed={4000} className="absolute -top-4 left-10 hidden lg:block">
+            <div className="w-3 h-3 bg-primary/20 rounded-full"></div>
+          </FloatingElement>
+          <FloatingElement delay={2000} amplitude={20} speed={5000} className="absolute top-20 right-16 hidden lg:block">
+            <div className="w-2 h-2 bg-primary-glow/30 rounded-full"></div>
+          </FloatingElement>
+          <FloatingElement delay={3000} amplitude={12} speed={3500} className="absolute bottom-10 left-20 hidden lg:block">
+            <div className="w-4 h-4 bg-primary/15 rounded-full"></div>
+          </FloatingElement>
+          
           <div className="relative z-10 flex flex-col justify-center items-center text-center">
             <AnimatedSection animation="fade-in-up" delay={0}>
               <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-script font-bold text-foreground leading-[0.9] tracking-tight mb-4">
@@ -73,9 +85,9 @@ export const HeroSection = () => {
             
             {/* Red Logo Icon */}
             <AnimatedSection animation="scale-in" delay={200}>
-              <div className="flex justify-center mb-4">
-                <img src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" alt="Soul Train's Eatery Logo" className="w-12 h-12 sm:w-14 sm:h-14 object-contain hover:scale-110 transition-transform duration-300 hover-bounce" />
-              </div>
+              <FloatingElement delay={500} amplitude={8} speed={6000} className="flex justify-center mb-4">
+                <img src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" alt="Soul Train's Eatery Logo" className="w-12 h-12 sm:w-14 sm:h-14 object-contain hover:scale-110 transition-transform duration-300 hover-bounce glow-pulse" />
+              </FloatingElement>
             </AnimatedSection>
             
             <AnimatedSection animation="fade-in-up" delay={300}>
@@ -95,7 +107,7 @@ export const HeroSection = () => {
                   asChild
                   variant="cta"
                   size="responsive-md"
-                  className="w-[90%] sm:w-auto sm:min-w-[14rem] hover-lift"
+                  className="w-[90%] sm:w-auto sm:min-w-[14rem] button-magnetic hover-lift"
                 >
                   <Link to="/request-quote#page-header">
                     Request Quote
@@ -105,7 +117,7 @@ export const HeroSection = () => {
                   asChild
                   variant="cta-outline"
                   size="responsive-md"
-                  className="w-[90%] sm:w-auto sm:min-w-[14rem] hover-lift"
+                  className="w-[90%] sm:w-auto sm:min-w-[14rem] button-magnetic hover-lift"
                 >
                   <Link to="/gallery#page-header">
                     Gallery
@@ -125,9 +137,9 @@ export const HeroSection = () => {
               staggerDelay={150}
             >
               {heroImages.map((image, index) => 
-                <div key={index} className="group relative overflow-hidden rounded-lg shadow-elegant hover:shadow-glow bg-gradient-card transition-all duration-200 cursor-pointer hover-lift" onClick={() => handleImageClick(index)}>
+                <div key={index} className="group relative overflow-hidden rounded-lg shadow-elegant hover:shadow-glow bg-gradient-card card-interactive cursor-pointer hover-lift tilt-card" onClick={() => handleImageClick(index)}>
                   <div className="aspect-[5/4] overflow-hidden">
-                    <img src={image.src} alt={image.alt} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200" loading={index < 2 ? "eager" : "lazy"} decoding="async" />
+                    <img src={image.src} alt={image.alt} className="w-full h-full object-cover image-zoom" loading={index < 2 ? "eager" : "lazy"} decoding="async" />
                   </div>
                   
                   {/* Hover Overlay */}

@@ -188,6 +188,44 @@ export default {
 					'50%': {
 						boxShadow: '0 0 20px hsl(var(--primary) / 0.8)'
 					}
+				},
+				shimmer: {
+					'0%': { backgroundPosition: '-200% 0' },
+					'100%': { backgroundPosition: '200% 0' }
+				},
+				'tilt-in': {
+					'0%': { 
+						transform: 'perspective(1000px) rotateX(15deg) rotateY(-10deg) scale3d(0.9, 0.9, 0.9)',
+						opacity: '0'
+					},
+					'100%': { 
+						transform: 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)',
+						opacity: '1'
+					}
+				},
+				float: {
+					'0%, 100%': { transform: 'translateY(0px)' },
+					'50%': { transform: 'translateY(-10px)' }
+				},
+				ripple: {
+					'0%': { 
+						transform: 'scale(0)',
+						opacity: '0.6'
+					},
+					'100%': { 
+						transform: 'scale(4)',
+						opacity: '0'
+					}
+				},
+				'slide-in-bottom': {
+					'0%': { 
+						transform: 'translateY(100%)',
+						opacity: '0'
+					},
+					'100%': { 
+						transform: 'translateY(0)',
+						opacity: '1'
+					}
 				}
 			},
 			animation: {
@@ -199,7 +237,34 @@ export default {
 				'scale-in': 'scale-in 0.5s ease-out both',
 				'slide-in-up': 'slide-in-up 0.5s ease-out both',
 				'bounce-in': 'bounce-in 0.7s ease-out both',
-				'pulse-glow': 'pulse-glow 2s ease-in-out infinite'
+				'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
+				'shimmer': 'shimmer 2s linear infinite',
+				'tilt-in': 'tilt-in 0.6s ease-out',
+				'float': 'float 3s ease-in-out infinite',
+				'ripple': 'ripple 0.6s ease-out',
+				'slide-in-bottom': 'slide-in-bottom 0.4s ease-out',
+				'stagger-1': 'fade-in-up 0.6s ease-out 0.1s both',
+				'stagger-2': 'fade-in-up 0.6s ease-out 0.2s both',
+				'stagger-3': 'fade-in-up 0.6s ease-out 0.3s both'
+			},
+			backgroundSize: {
+				'auto': 'auto',
+				'cover': 'cover',
+				'contain': 'contain',
+				'200': '200% 200%'
+			},
+			transformOrigin: {
+				'center': 'center',
+				'top': 'top',
+				'bottom': 'bottom',
+				'left': 'left',
+				'right': 'right'
+			},
+			boxShadow: {
+				'elegant': 'var(--shadow-elegant)',
+				'card': 'var(--shadow-card)',
+				'glow': 'var(--shadow-glow)',
+				'float': '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.05)'
 			}
 		}
 	},

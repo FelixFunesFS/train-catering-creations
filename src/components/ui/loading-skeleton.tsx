@@ -6,7 +6,7 @@ function Skeleton({ className, ...props }: SkeletonProps) {
   return (
     <div
       className={cn(
-        "animate-pulse rounded-md bg-muted/50",
+        "animate-shimmer bg-gradient-to-r from-muted via-muted-foreground/20 to-muted bg-size-200 rounded-md",
         className
       )}
       {...props}
@@ -21,9 +21,9 @@ interface ImageSkeletonProps {
 
 function ImageSkeleton({ className, aspectRatio = "aspect-square" }: ImageSkeletonProps) {
   return (
-    <div className={cn("relative overflow-hidden rounded-lg", aspectRatio, className)}>
+    <div className={cn("relative overflow-hidden rounded-lg shadow-card hover:shadow-elegant transition-all duration-300", aspectRatio, className)}>
       <Skeleton className="w-full h-full" />
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer" />
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent animate-shimmer" />
     </div>
   )
 }

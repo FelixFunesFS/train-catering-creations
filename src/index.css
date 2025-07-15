@@ -322,6 +322,57 @@ All colors MUST be HSL. Designed for maximum accessibility with high contrast ra
     @apply transition-transform duration-200 ease-out;
     @apply hover:scale-110 hover:animate-bounce-in;
   }
+
+  /* Enhanced interactive effects */
+  .hover-lift {
+    @apply hover:scale-[1.02] hover:-translate-y-1 transition-all duration-300;
+  }
+  
+  .magnetic-hover {
+    @apply transition-transform duration-300 ease-out;
+  }
+  
+  .ripple-effect {
+    @apply relative overflow-hidden;
+  }
+  
+  .tilt-card {
+    @apply transition-transform duration-300 ease-out transform-gpu;
+  }
+  
+  .parallax-slow {
+    @apply transition-transform duration-700 ease-out;
+  }
+  
+  .glow-pulse {
+    @apply animate-pulse-glow shadow-glow;
+  }
+
+  /* Advanced hover states */
+  .button-magnetic {
+    @apply hover:shadow-float active:scale-95 active:shadow-card transition-all duration-200;
+  }
+  
+  .card-interactive {
+    @apply hover:shadow-glow hover:border-primary/30 transition-all duration-300;
+  }
+  
+  .image-zoom {
+    @apply transition-transform duration-500 hover:scale-110;
+  }
+  
+  .text-shimmer {
+    @apply bg-gradient-to-r from-primary via-primary-glow to-primary bg-size-200 animate-shimmer bg-clip-text text-transparent;
+  }
+
+  /* Gesture animations */
+  .swipe-indicator {
+    @apply animate-pulse opacity-60;
+  }
+  
+  .loading-skeleton {
+    @apply animate-shimmer bg-gradient-to-r from-muted via-muted-foreground/20 to-muted bg-size-200;
+  }
   
   /* Stagger delays */
   .stagger-1 { animation-delay: 100ms; }
@@ -337,6 +388,18 @@ All colors MUST be HSL. Designed for maximum accessibility with high contrast ra
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
+    }
+    
+    .hover-lift,
+    .hover-bounce,
+    .hover-glow,
+    .magnetic-hover,
+    .tilt-card,
+    .parallax-slow,
+    .button-magnetic,
+    .card-interactive,
+    .image-zoom {
+      @apply hover:scale-100 hover:translate-y-0;
     }
   }
 }
