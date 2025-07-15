@@ -8,8 +8,8 @@ import { CTASection } from "@/components/ui/cta-section";
 const WeddingMenu = () => {
   return (
     <div className="min-h-screen bg-gradient-hero">
-        <div id="page-header"></div>
-        <SectionCard>
+      <div id="page-header"></div>
+      <SectionCard>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <PageHeader
               title="Wedding & Black Tie Events"
