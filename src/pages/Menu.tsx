@@ -6,13 +6,18 @@ import SideDishesCard from "@/components/menu/SideDishesCard";
 import DessertsCard from "@/components/menu/DessertsCard";
 import MenuContact from "@/components/menu/MenuContact";
 import { SectionCard } from "@/components/ui/section-card";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { useAnimationClass } from "@/hooks/useAnimationClass";
 
 const Menu = () => {
+  const { ref: headerRef, isVisible: headerVisible } = useScrollAnimation({ delay: 0, variant: 'ios-spring' });
   return (
     <div className="min-h-screen bg-gradient-hero">
         <SectionCard>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <MenuHeader />
+            <div className="text-fade-up">
+              <MenuHeader />
+            </div>
           </div>
         </SectionCard>
 

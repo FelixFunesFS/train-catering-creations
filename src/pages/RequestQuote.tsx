@@ -3,13 +3,20 @@ import QuoteForm from "@/components/quote/QuoteForm";
 import ContactInfoCards from "@/components/quote/ContactInfoCards";
 import { SectionCard } from "@/components/ui/section-card";
 import { CTASection } from "@/components/ui/cta-section";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { useAnimationClass } from "@/hooks/useAnimationClass";
 
 const RequestQuote = () => {
+  const { ref: headerRef, isVisible: headerVisible } = useScrollAnimation({ delay: 0, variant: 'ios-spring' });
+  const { ref: formRef, isVisible: formVisible, variant: formVariant } = useScrollAnimation({ delay: 200, variant: 'elastic' });
+  const formAnimationClass = useAnimationClass(formVariant, formVisible);
   return (
     <div className="min-h-screen bg-gradient-hero">
         <SectionCard>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <QuoteHeader />
+            <div className="text-fade-up">
+              <QuoteHeader />
+            </div>
           </div>
         </SectionCard>
         
@@ -17,10 +24,10 @@ const RequestQuote = () => {
         <div className="lg:hidden">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
             <div className="grid grid-cols-1 gap-8">
-              <div>
+              <div className="text-fade-up-delay-1">
                 <ContactInfoCards />
               </div>
-              <div>
+              <div ref={formRef} className={`hover-float ${formAnimationClass}`}>
                 <QuoteForm />
               </div>
             </div>

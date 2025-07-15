@@ -4,7 +4,16 @@ import { PageHeader } from "@/components/ui/page-header";
 import { OptimizedImage } from "@/components/ui/optimized-image";
 import { SectionCard } from "@/components/ui/section-card";
 import { CTASection } from "@/components/ui/cta-section";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { useAnimationClass } from "@/hooks/useAnimationClass";
 const About = () => {
+  const { ref: card1Ref, isVisible: card1Visible, variant: card1Variant } = useScrollAnimation({ delay: 0, variant: 'ios-spring' });
+  const { ref: card2Ref, isVisible: card2Visible, variant: card2Variant } = useScrollAnimation({ delay: 200, variant: 'elastic' });
+  const { ref: card3Ref, isVisible: card3Visible, variant: card3Variant } = useScrollAnimation({ delay: 400, variant: 'medium' });
+  
+  const card1AnimationClass = useAnimationClass(card1Variant, card1Visible);
+  const card2AnimationClass = useAnimationClass(card2Variant, card2Visible);
+  const card3AnimationClass = useAnimationClass(card3Variant, card3Visible);
    return <div className="min-h-screen bg-gradient-hero">
         <SectionCard>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -20,7 +29,7 @@ const About = () => {
         {/* Mobile: Direct cards without SectionCard wrapper */}
         <div className="lg:hidden">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
-            <Card className="mb-8 sm:mb-12 shadow-elegant">
+            <Card ref={card1Ref} className={`mb-8 sm:mb-12 shadow-elegant hover-float ${card1AnimationClass}`}>
               <CardContent className="p-4 sm:p-6 lg:p-8 xl:p-12">
                 <div className="text-center mb-6 sm:mb-8">
                   <div className="flex justify-center mb-4 sm:mb-6">
@@ -55,7 +64,7 @@ const About = () => {
             </Card>
             
             <div className="grid md:grid-cols-2 gap-6 sm:gap-8 mb-8 sm:mb-12">
-              <Card className="shadow-card">
+              <Card ref={card2Ref} className={`shadow-card hover-float ${card2AnimationClass}`}>
                 <CardContent className="p-4 sm:p-6 lg:p-8">
                   <h3 className="text-xl sm:text-2xl font-elegant font-semibold text-foreground mb-3 sm:mb-4">
                     Signature Dishes
@@ -74,7 +83,7 @@ const About = () => {
                 </CardContent>
               </Card>
 
-              <Card className="shadow-card overflow-hidden">
+              <Card ref={card3Ref} className={`shadow-card overflow-hidden hover-float ${card3AnimationClass}`}>
                 <OptimizedImage src="/lovable-uploads/6fa5bcaf-1613-416b-babc-289ac84bb501.png" alt="Beautiful cupcake display by Tanya Ward featuring various flavors and elegant decorations" aspectRatio="aspect-[5/3]" />
                 
                 <CardContent className="p-4 sm:p-6 lg:p-8">

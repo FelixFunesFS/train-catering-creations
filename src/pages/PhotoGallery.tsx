@@ -10,7 +10,9 @@ import { GalleryCarousel } from "@/components/gallery/GalleryCarousel";
 import { ImageModal } from "@/components/gallery/ImageModal";
 import { GalleryCTA } from "@/components/gallery/GalleryCTA";
 import { SectionCard } from "@/components/ui/section-card";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 const PhotoGallery = () => {
+  const { ref: headerRef, isVisible: headerVisible } = useScrollAnimation({ delay: 0, variant: 'ios-spring' });
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [viewMode, setViewMode] = useState<"grid" | "carousel" | "featured" | "masonry">("masonry");
@@ -32,7 +34,9 @@ const PhotoGallery = () => {
   return <div className="min-h-screen bg-gradient-hero">
         <SectionCard className="py-px">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <GalleryHeader />
+            <div className="text-fade-up">
+              <GalleryHeader />
+            </div>
           </div>
         </SectionCard>
         
