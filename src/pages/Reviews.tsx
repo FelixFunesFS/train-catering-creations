@@ -3,8 +3,19 @@ import { Star, Heart, ThumbsUp } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { SectionCard } from "@/components/ui/section-card";
 import { CTASection } from "@/components/ui/cta-section";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { useAnimationClass } from "@/hooks/useAnimationClass";
 
 const Reviews = () => {
+  const { ref: headerRef, isVisible: headerVisible, variant: headerVariant } = useScrollAnimation({ 
+    variant: 'ios-spring', 
+    delay: 0,
+    mobile: { delay: 0 },
+    desktop: { delay: 100 }
+  });
+
+  const headerAnimationClass = useAnimationClass(headerVariant, headerVisible);
+
   // Sample reviews - these would come from a real review system
   const reviews = [
     {
@@ -64,7 +75,8 @@ const Reviews = () => {
     <div className="min-h-screen bg-gradient-hero">
         <SectionCard>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <PageHeader
+            <div ref={headerRef} className={headerAnimationClass}>
+              <PageHeader
               title="Client Reviews"
               description="See what our clients say about their experience with Soul Train's Eatery"
               icons={[
@@ -84,7 +96,8 @@ const Reviews = () => {
               <p className="text-xs sm:text-sm text-muted-foreground mt-2">
                 Serving Charleston, SC and the Lowcountry for over 8 years
               </p>
-            </PageHeader>
+              </PageHeader>
+            </div>
           </div>
         </SectionCard>
 
@@ -92,8 +105,17 @@ const Reviews = () => {
         <div className="lg:hidden">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
             <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
-              {reviews.map((review, index) => (
-                <Card key={index} className="shadow-card">
+              {reviews.map((review, index) => {
+                const { ref: cardRef, isVisible: cardVisible, variant: cardVariant } = useScrollAnimation({ 
+                  variant: 'elastic', 
+                  delay: index * 100,
+                  mobile: { delay: index * 75 },
+                  desktop: { delay: index * 100 }
+                });
+                const cardAnimationClass = useAnimationClass(cardVariant, cardVisible);
+                
+                return (
+                  <Card key={index} ref={cardRef} className={`shadow-card ${cardAnimationClass}`}>
                   <CardHeader>
                     <div className="flex justify-between items-start">
                       <div>
@@ -111,8 +133,9 @@ const Reviews = () => {
                     </p>
                     <p className="text-xs text-muted-foreground">{review.date}</p>
                   </CardContent>
-                </Card>
-              ))}
+                  </Card>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -122,8 +145,17 @@ const Reviews = () => {
           <SectionCard>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="grid md:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
-                {reviews.map((review, index) => (
-                  <Card key={index} className="shadow-card">
+                {reviews.map((review, index) => {
+                  const { ref: cardRef, isVisible: cardVisible, variant: cardVariant } = useScrollAnimation({ 
+                    variant: 'elastic', 
+                    delay: index * 100,
+                    mobile: { delay: index * 75 },
+                    desktop: { delay: index * 100 }
+                  });
+                  const cardAnimationClass = useAnimationClass(cardVariant, cardVisible);
+                  
+                  return (
+                    <Card key={index} ref={cardRef} className={`shadow-card ${cardAnimationClass}`}>
                     <CardHeader>
                       <div className="flex justify-between items-start">
                         <div>
@@ -141,8 +173,9 @@ const Reviews = () => {
                       </p>
                       <p className="text-xs text-muted-foreground">{review.date}</p>
                     </CardContent>
-                  </Card>
-                ))}
+                    </Card>
+                  );
+                })}
               </div>
             </div>
           </SectionCard>

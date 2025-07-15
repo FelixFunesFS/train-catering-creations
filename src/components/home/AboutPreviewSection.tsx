@@ -4,18 +4,55 @@ import { Button } from "@/components/ui/button";
 import { SectionCard } from "@/components/ui/section-card";
 import { Heart, Users, Crown, ChefHat, Award } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { useAnimationClass } from "@/hooks/useAnimationClass";
 
 export const AboutPreviewSection = () => {
-  const { ref: card1Ref, isVisible: card1Visible } = useScrollAnimation({ delay: 0 });
-  const { ref: card2Ref, isVisible: card2Visible } = useScrollAnimation({ delay: 100 });
-  const { ref: card3Ref, isVisible: card3Visible } = useScrollAnimation({ delay: 200 });
-  const { ref: card4Ref, isVisible: card4Visible } = useScrollAnimation({ delay: 300 });
+  const { ref: titleRef, isVisible: titleVisible, variant: titleVariant } = useScrollAnimation({ 
+    variant: 'ios-spring', 
+    delay: 0,
+    mobile: { delay: 0 },
+    desktop: { delay: 100 }
+  });
+  
+  const { ref: card1Ref, isVisible: card1Visible, variant: card1Variant } = useScrollAnimation({ 
+    variant: 'elastic', 
+    delay: 200,
+    mobile: { delay: 150 },
+    desktop: { delay: 250 }
+  });
+  
+  const { ref: card2Ref, isVisible: card2Visible, variant: card2Variant } = useScrollAnimation({ 
+    variant: 'elastic', 
+    delay: 300,
+    mobile: { delay: 250 },
+    desktop: { delay: 350 }
+  });
+  
+  const { ref: card3Ref, isVisible: card3Visible, variant: card3Variant } = useScrollAnimation({ 
+    variant: 'elastic', 
+    delay: 400,
+    mobile: { delay: 350 },
+    desktop: { delay: 450 }
+  });
+  
+  const { ref: card4Ref, isVisible: card4Visible, variant: card4Variant } = useScrollAnimation({ 
+    variant: 'elastic', 
+    delay: 500,
+    mobile: { delay: 450 },
+    desktop: { delay: 550 }
+  });
+
+  const titleAnimationClass = useAnimationClass(titleVariant, titleVisible);
+  const card1AnimationClass = useAnimationClass(card1Variant, card1Visible);
+  const card2AnimationClass = useAnimationClass(card2Variant, card2Visible);
+  const card3AnimationClass = useAnimationClass(card3Variant, card3Visible);
+  const card4AnimationClass = useAnimationClass(card4Variant, card4Visible);
 
   return (
     <SectionCard>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          <div>
+          <div ref={titleRef} className={titleAnimationClass}>
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant font-bold text-foreground mb-6">
               8+ Years of Culinary Excellence
             </h2>
@@ -34,9 +71,7 @@ export const AboutPreviewSection = () => {
           <div className="grid grid-cols-2 gap-6 md:gap-10 lg:gap-12">
           <Card 
             ref={card1Ref}
-            className={`shadow-card hover:shadow-elegant transition-all duration-200 overflow-hidden group ${
-              card1Visible ? 'scroll-animate-visible' : 'scroll-animate-hidden'
-            }`}
+            className={`shadow-card hover:shadow-elegant transition-all duration-200 overflow-hidden group ${card1AnimationClass}`}
           >
             <CardContent className="p-4 sm:p-6 text-center">
               <ChefHat className="h-8 w-8 sm:h-10 sm:w-10 text-primary mx-auto mb-4 group-hover:scale-110 transition-transform duration-200" />
@@ -46,9 +81,7 @@ export const AboutPreviewSection = () => {
           </Card>
           <Card 
             ref={card2Ref}
-            className={`shadow-card hover:shadow-elegant transition-all duration-200 overflow-hidden group ${
-              card2Visible ? 'scroll-animate-visible' : 'scroll-animate-hidden'
-            }`}
+            className={`shadow-card hover:shadow-elegant transition-all duration-200 overflow-hidden group ${card2AnimationClass}`}
           >
             <CardContent className="p-4 sm:p-6 text-center">
               <Heart className="h-8 w-8 sm:h-10 sm:w-10 text-primary mx-auto mb-4 group-hover:scale-110 transition-transform duration-200" />
@@ -58,9 +91,7 @@ export const AboutPreviewSection = () => {
           </Card>
           <Card 
             ref={card3Ref}
-            className={`shadow-card hover:shadow-elegant transition-all duration-200 overflow-hidden group ${
-              card3Visible ? 'scroll-animate-visible' : 'scroll-animate-hidden'
-            }`}
+            className={`shadow-card hover:shadow-elegant transition-all duration-200 overflow-hidden group ${card3AnimationClass}`}
           >
             <CardContent className="p-4 sm:p-6 text-center">
               <Award className="h-8 w-8 sm:h-10 sm:w-10 text-primary mx-auto mb-4 group-hover:scale-110 transition-transform duration-200" />
@@ -70,9 +101,7 @@ export const AboutPreviewSection = () => {
           </Card>
           <Card 
             ref={card4Ref}
-            className={`shadow-card hover:shadow-elegant transition-all duration-200 overflow-hidden group ${
-              card4Visible ? 'scroll-animate-visible' : 'scroll-animate-hidden'
-            }`}
+            className={`shadow-card hover:shadow-elegant transition-all duration-200 overflow-hidden group ${card4AnimationClass}`}
           >
             <CardContent className="p-4 sm:p-6 text-center">
               <Users className="h-8 w-8 sm:h-10 sm:w-10 text-primary mx-auto mb-4 group-hover:scale-110 transition-transform duration-200" />

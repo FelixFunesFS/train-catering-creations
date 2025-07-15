@@ -1,5 +1,7 @@
 import { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { useAnimationClass } from "@/hooks/useAnimationClass";
 
 interface CTAButton {
   text: string;
@@ -16,16 +18,35 @@ interface CTASectionProps {
 }
 
 export const CTASection = ({ title, description, buttons, footer }: CTASectionProps) => {
+  const { ref: titleRef, isVisible: titleVisible, variant: titleVariant } = useScrollAnimation({ 
+    variant: 'ios-spring', 
+    delay: 0,
+    mobile: { delay: 0 },
+    desktop: { delay: 100 }
+  });
+  
+  const { ref: buttonsRef, isVisible: buttonsVisible, variant: buttonsVariant } = useScrollAnimation({ 
+    variant: 'elastic', 
+    delay: 200,
+    mobile: { delay: 150 },
+    desktop: { delay: 250 }
+  });
+
+  const titleAnimationClass = useAnimationClass(titleVariant, titleVisible);
+  const buttonsAnimationClass = useAnimationClass(buttonsVariant, buttonsVisible);
+
   return (
     <section className="py-section-sm md:py-section-lg bg-gradient-primary rounded-lg mx-4 sm:mx-6 lg:mx-8 my-section shadow-elevated hover:shadow-glow-strong transition-all duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h2 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-elegant font-bold text-primary-foreground mb-4 sm:mb-6">
-          {title}
-        </h2>
-        <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-primary-foreground mb-6 sm:mb-8 lg:mb-12 opacity-90 max-w-3xl mx-auto leading-relaxed">
-          {description}
-        </p>
-        <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6 max-w-sm sm:max-w-lg mx-auto px-4 sm:px-0">
+        <div ref={titleRef} className={titleAnimationClass}>
+          <h2 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-elegant font-bold text-primary-foreground mb-4 sm:mb-6">
+            {title}
+          </h2>
+          <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-primary-foreground mb-6 sm:mb-8 lg:mb-12 opacity-90 max-w-3xl mx-auto leading-relaxed">
+            {description}
+          </p>
+        </div>
+        <div ref={buttonsRef} className={`flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6 max-w-sm sm:max-w-lg mx-auto px-4 sm:px-0 ${buttonsAnimationClass}`}>
           {buttons.map((button, index) => (
             <Button 
               key={index} 
