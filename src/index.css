@@ -7,6 +7,10 @@ All colors MUST be HSL. Designed for maximum accessibility with high contrast ra
 */
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
   :root {
     /* Clean white base with high contrast */
     --background: 0 0% 100%;
