@@ -5,21 +5,34 @@ export const useScrollToAnchor = () => {
   const location = useLocation();
 
   useEffect(() => {
+    // Disable React Router's scroll restoration
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+    }
+
     const hash = location.hash;
     
+    // Always scroll immediately to prevent preserved position
     if (hash) {
       // Small delay to ensure DOM elements are rendered
       const timer = setTimeout(() => {
         const element = document.querySelector(hash);
         if (element) {
-          element.scrollIntoView({ behavior: 'smooth' });
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+          // Fallback to top if element not found
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-      }, 100);
+      }, 150);
       
       return () => clearTimeout(timer);
     } else {
-      // No hash, scroll to top
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      // No hash, immediately scroll to top
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      // Then smooth scroll to ensure it's at the top
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 50);
     }
   }, [location.pathname, location.hash]);
 };
