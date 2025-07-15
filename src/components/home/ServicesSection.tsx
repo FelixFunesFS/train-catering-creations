@@ -18,7 +18,7 @@ export const ServicesSection = () => {
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-10 lg:gap-14">
-          <Link to="/wedding-menu#page-header" className="block">
+          <Link to="/wedding-menu#page-top-section" className="block">
             <Card className="shadow-elegant hover:shadow-glow bg-gradient-card text-center transition-all duration-200 overflow-hidden group flex flex-col cursor-pointer">
               <div className="relative flex-1">
                 <OptimizedImage
@@ -39,7 +39,7 @@ export const ServicesSection = () => {
             </Card>
           </Link>
 
-          <Link to="/wedding-menu#page-header" className="block">
+          <Link to="/wedding-menu#page-top-section" className="block">
             <Card className="shadow-elegant hover:shadow-glow bg-gradient-card text-center transition-all duration-200 overflow-hidden group flex flex-col cursor-pointer">
               <div className="relative flex-1">
                 <OptimizedImage
@@ -72,7 +72,7 @@ export const ServicesSection = () => {
             <CardContent className="p-4 sm:p-6">
               <h3 className="text-lg sm:text-xl font-elegant font-semibold text-foreground mb-4">Military Functions</h3>
               <p className="text-sm sm:text-base text-muted-foreground mb-6">Honoring service with promotions, ceremonies, and celebrations</p>
-              <Link to="/wedding-menu#page-header" className="text-primary hover:text-primary-glow font-medium group inline-flex items-center gap-1">
+              <Link to="/wedding-menu#page-top-section" className="text-primary hover:text-primary-glow font-medium group inline-flex items-center gap-1">
                 Learn More 
                 <span className="group-hover:translate-x-1 transition-transform duration-200">→</span>
               </Link>
