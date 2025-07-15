@@ -362,7 +362,8 @@ All colors MUST be HSL. Designed for maximum accessibility with high contrast ra
   }
   
   .text-shimmer {
-    @apply bg-gradient-to-r from-primary via-primary-glow to-primary bg-size-200 animate-shimmer bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-primary via-primary-glow to-primary animate-shimmer bg-clip-text text-transparent;
+    background-size: 200% 200%;
   }
 
   /* Gesture animations */
@@ -371,7 +372,8 @@ All colors MUST be HSL. Designed for maximum accessibility with high contrast ra
   }
   
   .loading-skeleton {
-    @apply animate-shimmer bg-gradient-to-r from-muted via-muted-foreground/20 to-muted bg-size-200;
+    @apply animate-shimmer bg-gradient-to-r from-muted via-muted-foreground/20 to-muted;
+    background-size: 200% 200%;
   }
   
   /* Stagger delays */
