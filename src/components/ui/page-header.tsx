@@ -28,7 +28,7 @@ export const PageHeader = ({
     <div id="page-top-section" className={cn("text-center mb-8 sm:mb-12 md:mb-16", className)}>
       {/* Icons */}
       {icons.length > 0 && (
-        <div id="page-icons" className="flex justify-center mb-4">
+        <div id="page-icons" className="flex justify-center mb-4 pt-8 -mt-8">
           {icons.map((icon, index) => (
             <div 
               key={index} 
