@@ -1,10 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 
+export type AnimationVariant = 'subtle' | 'medium' | 'strong' | 'elastic' | 'ios-spring';
+
 interface UseScrollAnimationOptions {
   threshold?: number;
   rootMargin?: string;
   triggerOnce?: boolean;
   delay?: number;
+  variant?: AnimationVariant;
+  stagger?: number;
 }
 
 export const useScrollAnimation = (options: UseScrollAnimationOptions = {}) => {
@@ -12,7 +16,9 @@ export const useScrollAnimation = (options: UseScrollAnimationOptions = {}) => {
     threshold = 0.1,
     rootMargin = '0px 0px -50px 0px',
     triggerOnce = true,
-    delay = 0
+    delay = 0,
+    variant = 'ios-spring',
+    stagger = 0
   } = options;
 
   const [isVisible, setIsVisible] = useState(false);
@@ -50,5 +56,5 @@ export const useScrollAnimation = (options: UseScrollAnimationOptions = {}) => {
     };
   }, [threshold, rootMargin, triggerOnce, delay]);
 
-  return { ref, isVisible };
+  return { ref, isVisible, variant };
 };

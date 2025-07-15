@@ -4,32 +4,36 @@ import { Card, CardContent } from "@/components/ui/card";
 import { SectionCard } from "@/components/ui/section-card";
 import { OptimizedImage } from "@/components/ui/optimized-image";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { useAnimationClass } from "@/hooks/useAnimationClass";
 
 export const ServicesSection = () => {
-  const { ref: card1Ref, isVisible: card1Visible } = useScrollAnimation({ delay: 0 });
-  const { ref: card2Ref, isVisible: card2Visible } = useScrollAnimation({ delay: 150 });
-  const { ref: card3Ref, isVisible: card3Visible } = useScrollAnimation({ delay: 300 });
-  const { ref: card4Ref, isVisible: card4Visible } = useScrollAnimation({ delay: 450 });
+  const { ref: card1Ref, isVisible: card1Visible, variant: card1Variant } = useScrollAnimation({ delay: 0, variant: 'ios-spring' });
+  const { ref: card2Ref, isVisible: card2Visible, variant: card2Variant } = useScrollAnimation({ delay: 150, variant: 'ios-spring' });
+  const { ref: card3Ref, isVisible: card3Visible, variant: card3Variant } = useScrollAnimation({ delay: 300, variant: 'ios-spring' });
+  const { ref: card4Ref, isVisible: card4Visible, variant: card4Variant } = useScrollAnimation({ delay: 450, variant: 'ios-spring' });
+  
+  const card1AnimationClass = useAnimationClass(card1Variant, card1Visible);
+  const card2AnimationClass = useAnimationClass(card2Variant, card2Visible);
+  const card3AnimationClass = useAnimationClass(card3Variant, card3Visible);
+  const card4AnimationClass = useAnimationClass(card4Variant, card4Visible);
 
   return (
     <SectionCard>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-8 sm:mb-12 lg:mb-16">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant font-bold text-foreground mb-6">
-            Our Catering Services
-          </h2>
-          <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
-            From elegant weddings to corporate events, we cater every occasion with care, flavor, and professionalism.
-          </p>
-        </div>
+          <div className="text-center mb-8 sm:mb-12 lg:mb-16">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant font-bold text-foreground mb-6 text-fade-up">
+              Our Catering Services
+            </h2>
+            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto text-fade-up-delay-1">
+              From elegant weddings to corporate events, we cater every occasion with care, flavor, and professionalism.
+            </p>
+          </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-10 lg:gap-14">
           <Link to="/wedding-menu#page-header" className="block">
             <Card 
               ref={card1Ref}
-              className={`shadow-elegant hover:shadow-glow bg-gradient-card text-center transition-all duration-200 overflow-hidden group flex flex-col cursor-pointer ${
-                card1Visible ? 'scroll-animate-visible' : 'scroll-animate-hidden'
-              }`}
+              className={`shadow-elegant hover:shadow-glow bg-gradient-card text-center transition-all duration-200 overflow-hidden group flex flex-col cursor-pointer hover-float ${card1AnimationClass}`}
             >
               <div className="relative flex-1">
                 <OptimizedImage
@@ -53,9 +57,7 @@ export const ServicesSection = () => {
           <Link to="/wedding-menu#page-header" className="block">
             <Card 
               ref={card2Ref}
-              className={`shadow-elegant hover:shadow-glow bg-gradient-card text-center transition-all duration-200 overflow-hidden group flex flex-col cursor-pointer ${
-                card2Visible ? 'scroll-animate-visible' : 'scroll-animate-hidden'
-              }`}
+              className={`shadow-elegant hover:shadow-glow bg-gradient-card text-center transition-all duration-200 overflow-hidden group flex flex-col cursor-pointer hover-float ${card2AnimationClass}`}
             >
               <div className="relative flex-1">
                 <OptimizedImage
@@ -78,9 +80,7 @@ export const ServicesSection = () => {
 
           <Card 
             ref={card3Ref}
-            className={`shadow-elegant hover:shadow-glow bg-gradient-card text-center transition-all duration-200 overflow-hidden group flex flex-col ${
-              card3Visible ? 'scroll-animate-visible' : 'scroll-animate-hidden'
-            }`}
+            className={`shadow-elegant hover:shadow-glow bg-gradient-card text-center transition-all duration-200 overflow-hidden group flex flex-col hover-float ${card3AnimationClass}`}
           >
             <div className="relative flex-1">
               <OptimizedImage
@@ -102,9 +102,7 @@ export const ServicesSection = () => {
 
           <Card 
             ref={card4Ref}
-            className={`shadow-elegant hover:shadow-glow bg-gradient-card text-center transition-all duration-200 overflow-hidden group flex flex-col ${
-              card4Visible ? 'scroll-animate-visible' : 'scroll-animate-hidden'
-            }`}
+            className={`shadow-elegant hover:shadow-glow bg-gradient-card text-center transition-all duration-200 overflow-hidden group flex flex-col hover-float ${card4AnimationClass}`}
           >
             <div className="relative flex-1">
               <OptimizedImage

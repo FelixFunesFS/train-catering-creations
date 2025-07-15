@@ -234,15 +234,107 @@ All colors MUST be HSL. Designed for maximum accessibility with high contrast ra
     animation: scaleIn 0.5s ease-out forwards;
   }
 
+  /* iOS-style scroll animations */
   .scroll-animate-hidden {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(40px) scale(0.95);
+    transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   }
-
+  
   .scroll-animate-visible {
     opacity: 1;
-    transform: translateY(0);
-    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    transform: translateY(0) scale(1);
+  }
+
+  /* iOS-style animation variants */
+  .ios-spring-hidden {
+    opacity: 0;
+    transform: translateY(50px) scale(0.9);
+    transition: opacity 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275), transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  
+  .ios-spring-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  .elastic-hidden {
+    opacity: 0;
+    transform: translateY(60px) scale(0.8);
+    transition: opacity 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55), transform 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+  
+  .elastic-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  .subtle-hidden {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+    transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  
+  .subtle-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  .medium-hidden {
+    opacity: 0;
+    transform: translateY(35px) scale(0.92);
+    transition: opacity 0.5s cubic-bezier(0.23, 1, 0.32, 1), transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  
+  .medium-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  .strong-hidden {
+    opacity: 0;
+    transform: translateY(60px) scale(0.85);
+    transition: opacity 0.6s cubic-bezier(0.19, 1, 0.22, 1), transform 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+  }
+  
+  .strong-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  /* Enhanced hover effects */
+  .hover-float {
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  
+  .hover-float:hover {
+    transform: translateY(-8px);
+  }
+
+  /* Text animation utilities */
+  .text-fade-up {
+    animation: textFadeUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  }
+  
+  .text-fade-up-delay-1 {
+    animation: textFadeUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.2s forwards;
+    opacity: 0;
+  }
+  
+  .text-fade-up-delay-2 {
+    animation: textFadeUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.4s forwards;
+    opacity: 0;
+  }
+
+  @keyframes textFadeUp {
+    0% {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   .scroll-animate-stagger-1 {

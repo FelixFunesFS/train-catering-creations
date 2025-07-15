@@ -2,20 +2,25 @@ import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { useAnimationClass } from "@/hooks/useAnimationClass";
 
 export const SignatureDishesSection = () => {
-  const { ref: card1Ref, isVisible: card1Visible } = useScrollAnimation({ delay: 0 });
-  const { ref: card2Ref, isVisible: card2Visible } = useScrollAnimation({ delay: 200 });
-  const { ref: card3Ref, isVisible: card3Visible } = useScrollAnimation({ delay: 400 });
+  const { ref: card1Ref, isVisible: card1Visible, variant: card1Variant } = useScrollAnimation({ delay: 0, variant: 'strong' });
+  const { ref: card2Ref, isVisible: card2Visible, variant: card2Variant } = useScrollAnimation({ delay: 200, variant: 'strong' });
+  const { ref: card3Ref, isVisible: card3Visible, variant: card3Variant } = useScrollAnimation({ delay: 400, variant: 'strong' });
+  
+  const card1AnimationClass = useAnimationClass(card1Variant, card1Visible);
+  const card2AnimationClass = useAnimationClass(card2Variant, card2Visible);
+  const card3AnimationClass = useAnimationClass(card3Variant, card3Visible);
 
   return (
     <section className="py-8 md:py-12 lg:py-16 bg-gradient-card shadow-card rounded-lg mx-4 sm:mx-6 lg:mx-8 my-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12 lg:mb-16">
-          <h2 className="text-3xl lg:text-4xl font-elegant font-bold text-foreground mb-6">
+          <h2 className="text-3xl lg:text-4xl font-elegant font-bold text-foreground mb-6 text-fade-up">
             Signature Dishes
           </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto text-fade-up-delay-1">
             Taste the South with our carefully crafted menu featuring both traditional favorites and creative specialties.
           </p>
         </div>
@@ -23,9 +28,7 @@ export const SignatureDishesSection = () => {
         <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
           <Card 
             ref={card1Ref}
-            className={`shadow-card overflow-hidden group hover:shadow-elegant transition-all duration-200 ${
-              card1Visible ? 'scroll-animate-visible' : 'scroll-animate-hidden'
-            }`}
+            className={`shadow-card overflow-hidden group hover:shadow-elegant transition-all duration-200 hover-float ${card1AnimationClass}`}
           >
             <div className="relative h-48 overflow-hidden">
               <img 
@@ -49,9 +52,7 @@ export const SignatureDishesSection = () => {
 
           <Card 
             ref={card2Ref}
-            className={`shadow-card overflow-hidden group hover:shadow-elegant transition-all duration-200 ${
-              card2Visible ? 'scroll-animate-visible' : 'scroll-animate-hidden'
-            }`}
+            className={`shadow-card overflow-hidden group hover:shadow-elegant transition-all duration-200 hover-float ${card2AnimationClass}`}
           >
             <div className="relative h-48 overflow-hidden">
               <img 
@@ -75,9 +76,7 @@ export const SignatureDishesSection = () => {
 
           <Card 
             ref={card3Ref}
-            className={`shadow-card overflow-hidden group hover:shadow-elegant transition-all duration-200 ${
-              card3Visible ? 'scroll-animate-visible' : 'scroll-animate-hidden'
-            }`}
+            className={`shadow-card overflow-hidden group hover:shadow-elegant transition-all duration-200 hover-float ${card3AnimationClass}`}
           >
             <div className="relative h-48 overflow-hidden">
               <img 
@@ -102,7 +101,7 @@ export const SignatureDishesSection = () => {
 
         <div className="text-center mt-12 lg:mt-16">
           <Link to="/menu#page-header">
-            <Button variant="cta" size="responsive-sm" className="w-3/5 sm:w-auto">
+            <Button variant="cta" size="responsive-sm" className="w-3/5 sm:w-auto hover-float">
               View Full Menu
             </Button>
           </Link>
