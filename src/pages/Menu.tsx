@@ -1,7 +1,6 @@
 import MenuHeader from "@/components/menu/MenuHeader";
 import AppetizersCard from "@/components/menu/AppetizersCard";
 import EntreesCard from "@/components/menu/EntreesCard";
-
 import SideDishesCard from "@/components/menu/SideDishesCard";
 import DessertsCard from "@/components/menu/DessertsCard";
 import MenuContact from "@/components/menu/MenuContact";
@@ -32,26 +31,25 @@ const Menu = () => {
     desktop: { variant: 'ios-spring', delay: 200 }
   });
   
-  
   const { ref: sidesRef, isVisible: sidesVisible, variant: sidesVariant } = useScrollAnimation({ 
+    delay: 300, 
+    variant: 'ios-spring',
+    mobile: { variant: 'subtle', delay: 200 },
+    desktop: { variant: 'ios-spring', delay: 300 }
+  });
+  
+  const { ref: dessertRef, isVisible: dessertVisible, variant: dessertVariant } = useScrollAnimation({ 
     delay: 400, 
     variant: 'ios-spring',
     mobile: { variant: 'subtle', delay: 250 },
     desktop: { variant: 'ios-spring', delay: 400 }
   });
   
-  const { ref: dessertRef, isVisible: dessertVisible, variant: dessertVariant } = useScrollAnimation({ 
-    delay: 500, 
-    variant: 'ios-spring',
-    mobile: { variant: 'subtle', delay: 300 },
-    desktop: { variant: 'ios-spring', delay: 500 }
-  });
-  
   const { ref: contactRef, isVisible: contactVisible, variant: contactVariant } = useScrollAnimation({ 
-    delay: 600, 
+    delay: 500, 
     variant: 'elastic',
-    mobile: { variant: 'medium', delay: 350 },
-    desktop: { variant: 'elastic', delay: 600 }
+    mobile: { variant: 'medium', delay: 300 },
+    desktop: { variant: 'elastic', delay: 500 }
   });
 
   return (
@@ -112,7 +110,6 @@ const Menu = () => {
                 <div className="flex-1 border-t border-accent/20" />
               </div>
               
-              
               <div ref={sidesRef} className={useAnimationClass(sidesVariant, sidesVisible)}>
                 <SideDishesCard />
               </div>
@@ -162,7 +159,6 @@ const Menu = () => {
                 <div ref={entreeRef} className={useAnimationClass(entreeVariant, entreeVisible)}>
                   <EntreesCard />
                 </div>
-                
               </div>
             </div>
           </SectionCard>
@@ -200,4 +196,5 @@ const Menu = () => {
     </div>
   );
 };
+
 export default Menu;
