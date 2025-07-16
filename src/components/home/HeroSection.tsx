@@ -63,20 +63,22 @@ export const HeroSection = () => {
           {/* Subtle background pattern */}
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 opacity-50 my-0 py-0"></div>
           
-          <div className="relative z-10 flex flex-col justify-center items-center text-center">
-            {/* Logo Icon - moved above title like other pages */}
-            <div className="flex justify-center mb-4 animate-fade-in">
-              <img src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" alt="Soul Train's Eatery Logo" className="w-12 h-12 sm:w-14 sm:h-14 object-contain hover:scale-110 transition-transform duration-300" />
+          <div className="relative z-10 text-center mb-8 sm:mb-12 md:mb-16">
+            {/* Logo Icon - matches PageHeader icon styling */}
+            <div className="flex justify-center mb-4 pt-8 -mt-8">
+              <div className="h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8">
+                <img src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" alt="Soul Train's Eatery Logo" className="w-full h-full object-contain hover:scale-110 transition-transform duration-300" />
+              </div>
             </div>
             
             <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant font-bold text-foreground mb-4 sm:mb-6 animate-fade-in">
               Where Southern Flavor Meets Family & Celebration
             </h1>
             
-            {/* Decorative line - matches other pages */}
-            <div className="w-12 sm:w-16 md:w-24 h-1 bg-gradient-primary mx-auto mb-6 sm:mb-8 animate-fade-in"></div>
+            {/* Decorative line - matches PageHeader exactly */}
+            <div className="w-12 sm:w-16 md:w-24 h-1 bg-gradient-primary mx-auto mb-6 sm:mb-8 animate-fade-in" />
             
-            <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-foreground leading-relaxed font-medium animate-fade-in max-w-2xl mx-auto mb-6">
+            <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-foreground max-w-2xl mx-auto leading-relaxed px-4 animate-fade-in">
               Welcome to Soul Train's Eatery—Charleston's go-to for soulful, memorable catering. For over 8 years, we've served the Lowcountry with dishes that warm the heart and wow the taste buds. From weddings and baby showers to bereavements and business luncheons, our food brings people together—and our service keeps them coming back. Taste the love in every bite.
             </p>
             
