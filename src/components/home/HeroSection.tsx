@@ -65,7 +65,7 @@ export const HeroSection = () => {
           
           <div className="relative z-10 flex flex-col justify-center items-center text-center">
             <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant font-bold text-foreground leading-[0.9] tracking-tight text-fade-up mb-4">
-              Where Southern Flavor Meets <span className="text-primary bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">Family & Celebration</span>
+              Where Southern Flavor Meets Family & Celebration
             </h1>
             
             {/* Red Logo Icon */}
