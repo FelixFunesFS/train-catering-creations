@@ -64,27 +64,29 @@ export const HeroSection = () => {
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 opacity-50 my-0 py-0"></div>
           
           <div className="relative z-10 flex flex-col justify-center items-center text-center">
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant font-bold text-foreground leading-[0.9] tracking-tight text-fade-up mb-4">
-              Where Southern Flavor Meets Family & Celebration
-            </h1>
-            
-            {/* Red Logo Icon */}
-            <div className="flex justify-center mb-4 text-fade-up-delay-1">
+            {/* Logo Icon - moved above title like other pages */}
+            <div className="flex justify-center mb-4 animate-fade-in">
               <img src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" alt="Soul Train's Eatery Logo" className="w-12 h-12 sm:w-14 sm:h-14 object-contain hover:scale-110 transition-transform duration-300" />
             </div>
             
-            <div className="w-24 h-1 bg-gradient-to-r from-primary to-primary-glow rounded-full mx-auto mb-6 text-fade-up-delay-1"></div>
-            <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-muted-foreground leading-relaxed font-medium text-fade-up-delay-2 max-w-2xl mx-auto mb-6">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant font-bold text-foreground mb-4 sm:mb-6 animate-fade-in">
+              Where Southern Flavor Meets Family & Celebration
+            </h1>
+            
+            {/* Decorative line - matches other pages */}
+            <div className="w-12 sm:w-16 md:w-24 h-1 bg-gradient-primary mx-auto mb-6 sm:mb-8 animate-fade-in"></div>
+            
+            <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-foreground leading-relaxed font-medium animate-fade-in max-w-2xl mx-auto mb-6">
               Welcome to Soul Train's Eatery—Charleston's go-to for soulful, memorable catering. For over 8 years, we've served the Lowcountry with dishes that warm the heart and wow the taste buds. From weddings and baby showers to bereavements and business luncheons, our food brings people together—and our service keeps them coming back. Taste the love in every bite.
             </p>
             
             {/* Call-to-Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center mt-6 sm:mt-8 text-fade-up-delay-2">
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center mt-6 sm:mt-8 animate-fade-in">
               <Button
                 asChild
                 variant="cta"
                 size="responsive-md"
-                className="w-[90%] sm:w-auto sm:min-w-[14rem] hover-float"
+                className="w-3/5 sm:w-auto sm:min-w-[14rem]"
               >
                 <Link to="/request-quote#page-header">
                   Request Quote
@@ -94,7 +96,7 @@ export const HeroSection = () => {
                 asChild
                 variant="cta-outline"
                 size="responsive-md"
-                className="w-[90%] sm:w-auto sm:min-w-[14rem] hover-float"
+                className="w-3/5 sm:w-auto sm:min-w-[14rem]"
               >
                 <Link to="/gallery#page-header">
                   Gallery
