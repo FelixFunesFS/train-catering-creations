@@ -10,23 +10,20 @@ const AppetizersCard = () => {
     "Vegetable Platter"
   ];
 
-  const gourmetBites = [
+  const signatureBites = [
     "Shrimp Deviled Eggs w/Bacon Finish",
     "Smoked Salmon Cucumber Bites",
     "Tomato Caprese",
     "Tomato Bruschetta",
+    "Mini Chicken & Waffles",
+    "Mini Loaded Potatoes",
     "Chocolate Covered Fruit Platter"
   ];
 
-  const heartyBites = [
-    "Mini Chicken & Waffles",
-    "Mini Loaded Potatoes",
+  const classicStarters = [
     "Chicken Sliders",
     "Pulled Pork Sliders",
-    "Meatballs"
-  ];
-
-  const classicFavorites = [
+    "Meatballs",
     "Deviled Eggs",
     "Chicken Salad",
     "Tuna Salad"
@@ -48,60 +45,45 @@ const AppetizersCard = () => {
       </CardHeader>
       <CardContent className="space-y-8 relative z-10">
         {/* Platters & Boards */}
-        <div className="bg-accent/5 rounded-lg p-4 border border-accent/10">
-          <h3 className="text-lg font-elegant text-center text-foreground mb-6 relative">
+        <div className="bg-accent/5 rounded-lg p-6 border border-accent/15">
+          <h3 className="text-xl font-elegant text-center text-foreground mb-8 relative">
             Platters & Boards
-            <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-8 h-0.5 bg-accent/40 rounded-full" />
+            <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-12 h-0.5 bg-accent/60 rounded-full" />
           </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             {plattersBoards.map((item, index) => (
-              <div key={index} className="text-center py-3 px-3 rounded-lg hover:bg-accent/10 transition-colors duration-200 group">
-                <h4 className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{item}</h4>
+              <div key={index} className="text-center py-4 px-4 rounded-lg hover:bg-accent/15 transition-all duration-200 group cursor-default border border-transparent hover:border-accent/20">
+                <h4 className="text-base font-medium text-foreground group-hover:text-primary transition-colors">{item}</h4>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Gourmet Bites */}
-        <div className="bg-primary/5 rounded-lg p-4 border border-primary/10">
-          <h3 className="text-lg font-elegant text-center text-foreground mb-6 relative">
-            Gourmet Bites
-            <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-8 h-0.5 bg-primary/40 rounded-full" />
+        {/* Signature Bites */}
+        <div className="bg-primary/5 rounded-lg p-6 border border-primary/15">
+          <h3 className="text-xl font-elegant text-center text-foreground mb-8 relative">
+            Signature Bites
+            <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-12 h-0.5 bg-primary/60 rounded-full" />
           </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {gourmetBites.map((item, index) => (
-              <div key={index} className="text-center py-3 px-3 rounded-lg hover:bg-primary/10 transition-colors duration-200 group">
-                <h4 className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{item}</h4>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {signatureBites.map((item, index) => (
+              <div key={index} className="text-center py-4 px-4 rounded-lg hover:bg-primary/15 transition-all duration-200 group cursor-default border border-transparent hover:border-primary/20">
+                <h4 className="text-base font-medium text-foreground group-hover:text-primary transition-colors">{item}</h4>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Hearty Bites */}
-        <div className="bg-secondary/5 rounded-lg p-4 border border-secondary/10">
-          <h3 className="text-lg font-elegant text-center text-foreground mb-6 relative">
-            Hearty Bites
-            <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-8 h-0.5 bg-secondary/40 rounded-full" />
+        {/* Classic Starters */}
+        <div className="bg-secondary/5 rounded-lg p-6 border border-secondary/15">
+          <h3 className="text-xl font-elegant text-center text-foreground mb-8 relative">
+            Classic Starters
+            <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-12 h-0.5 bg-secondary/60 rounded-full" />
           </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {heartyBites.map((item, index) => (
-              <div key={index} className="text-center py-3 px-3 rounded-lg hover:bg-secondary/10 transition-colors duration-200 group">
-                <h4 className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{item}</h4>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Classic Favorites */}
-        <div className="bg-muted/20 rounded-lg p-4 border border-muted/30">
-          <h3 className="text-lg font-elegant text-center text-foreground mb-6 relative">
-            Classic Favorites
-            <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-8 h-0.5 bg-muted-foreground/40 rounded-full" />
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {classicFavorites.map((item, index) => (
-              <div key={index} className="text-center py-3 px-3 rounded-lg hover:bg-muted/30 transition-colors duration-200 group">
-                <h4 className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{item}</h4>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {classicStarters.map((item, index) => (
+              <div key={index} className="text-center py-4 px-4 rounded-lg hover:bg-secondary/15 transition-all duration-200 group cursor-default border border-transparent hover:border-secondary/20">
+                <h4 className="text-base font-medium text-foreground group-hover:text-primary transition-colors">{item}</h4>
               </div>
             ))}
           </div>

@@ -46,10 +46,10 @@ const DessertsCard = () => {
               Signature Cakes
               <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-12 h-0.5 bg-primary/60 rounded-full" />
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {cakeItems.map((item, index) => (
                 <div key={index} className="text-center py-4 px-4 rounded-lg bg-background/50 hover:bg-primary/15 transition-all duration-200 group cursor-default border border-primary/10">
-                  <h4 className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{item}</h4>
+                  <h4 className="text-base font-medium text-foreground group-hover:text-primary transition-colors">{item}</h4>
                 </div>
               ))}
             </div>
@@ -61,10 +61,10 @@ const DessertsCard = () => {
               Specialty Treats
               <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-12 h-0.5 bg-accent/60 rounded-full" />
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {specialtyDessertItems.map((item, index) => (
                 <div key={index} className="text-center py-4 px-4 rounded-lg bg-background/50 hover:bg-accent/15 transition-all duration-200 group cursor-default border border-accent/10">
-                  <h4 className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{item}</h4>
+                  <h4 className="text-base font-medium text-foreground group-hover:text-primary transition-colors">{item}</h4>
                 </div>
               ))}
             </div>

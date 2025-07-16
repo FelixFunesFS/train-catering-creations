@@ -33,6 +33,15 @@ const EntreesCard = () => {
     "Fried Fish"
   ];
 
+  const plantBasedItems = [
+    "Vegan Lasagna",
+    "Quinoa Power Bowl",
+    "Stuffed Bell Peppers",
+    "Black Bean Burgers",
+    "Roasted Vegetable Medley",
+    "Grilled Portobello Mushrooms"
+  ];
+
   return (
     <Card className="shadow-card hover:shadow-elegant transition-all duration-300 hover:scale-[1.02] bg-gradient-card border border-primary/20 hover:border-primary/40 relative overflow-hidden group">
       {/* Decorative elements */}
@@ -52,45 +61,60 @@ const EntreesCard = () => {
       <CardContent className="relative z-10">
         <div className="space-y-8">
           {/* Poultry Section */}
-          <div className="bg-accent/5 rounded-lg p-5 border border-accent/15">
-            <h3 className="text-lg font-elegant text-center text-foreground mb-6 relative">
+          <div className="bg-accent/5 rounded-lg p-6 border border-accent/15">
+            <h3 className="text-xl font-elegant text-center text-foreground mb-8 relative">
               Poultry
-              <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-10 h-0.5 bg-accent/50 rounded-full" />
+              <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-12 h-0.5 bg-accent/60 rounded-full" />
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               {poultryItems.map((item, index) => (
-                <div key={index} className="text-center py-3 px-3 rounded-md hover:bg-accent/15 transition-all duration-200 group cursor-default">
-                  <h4 className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{item}</h4>
+                <div key={index} className="text-center py-4 px-4 rounded-lg hover:bg-accent/15 transition-all duration-200 group cursor-default border border-transparent hover:border-accent/20">
+                  <h4 className="text-base font-medium text-foreground group-hover:text-primary transition-colors">{item}</h4>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Beef & Pork Section */}
-          <div className="bg-primary/5 rounded-lg p-5 border border-primary/15">
-            <h3 className="text-lg font-elegant text-center text-foreground mb-6 relative">
+          <div className="bg-primary/5 rounded-lg p-6 border border-primary/15">
+            <h3 className="text-xl font-elegant text-center text-foreground mb-8 relative">
               Beef & Pork
-              <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-10 h-0.5 bg-primary/50 rounded-full" />
+              <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-12 h-0.5 bg-primary/60 rounded-full" />
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {beefPorkItems.map((item, index) => (
-                <div key={index} className="text-center py-3 px-3 rounded-md hover:bg-primary/15 transition-all duration-200 group cursor-default">
-                  <h4 className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{item}</h4>
+                <div key={index} className="text-center py-4 px-4 rounded-lg hover:bg-primary/15 transition-all duration-200 group cursor-default border border-transparent hover:border-primary/20">
+                  <h4 className="text-base font-medium text-foreground group-hover:text-primary transition-colors">{item}</h4>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Seafood Section */}
-          <div className="bg-secondary/5 rounded-lg p-5 border border-secondary/15">
-            <h3 className="text-lg font-elegant text-center text-foreground mb-6 relative">
+          <div className="bg-secondary/5 rounded-lg p-6 border border-secondary/15">
+            <h3 className="text-xl font-elegant text-center text-foreground mb-8 relative">
               Seafood
-              <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-10 h-0.5 bg-secondary/50 rounded-full" />
+              <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-12 h-0.5 bg-secondary/60 rounded-full" />
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               {seafoodItems.map((item, index) => (
-                <div key={index} className="text-center py-3 px-3 rounded-md hover:bg-secondary/15 transition-all duration-200 group cursor-default">
-                  <h4 className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{item}</h4>
+                <div key={index} className="text-center py-4 px-4 rounded-lg hover:bg-secondary/15 transition-all duration-200 group cursor-default border border-transparent hover:border-secondary/20">
+                  <h4 className="text-base font-medium text-foreground group-hover:text-primary transition-colors">{item}</h4>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Plant-Based Section */}
+          <div className="bg-green-500/5 rounded-lg p-6 border border-green-500/15">
+            <h3 className="text-xl font-elegant text-center text-foreground mb-8 relative">
+              Plant-Based Options
+              <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-12 h-0.5 bg-green-500/60 rounded-full" />
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {plantBasedItems.map((item, index) => (
+                <div key={index} className="text-center py-4 px-4 rounded-lg hover:bg-green-500/15 transition-all duration-200 group cursor-default border border-transparent hover:border-green-500/20">
+                  <h4 className="text-base font-medium text-foreground group-hover:text-primary transition-colors">{item}</h4>
                 </div>
               ))}
             </div>

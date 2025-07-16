@@ -1,7 +1,7 @@
 import MenuHeader from "@/components/menu/MenuHeader";
 import AppetizersCard from "@/components/menu/AppetizersCard";
 import EntreesCard from "@/components/menu/EntreesCard";
-import PlantBasedCard from "@/components/menu/PlantBasedCard";
+
 import SideDishesCard from "@/components/menu/SideDishesCard";
 import DessertsCard from "@/components/menu/DessertsCard";
 import MenuContact from "@/components/menu/MenuContact";
@@ -32,12 +32,6 @@ const Menu = () => {
     desktop: { variant: 'ios-spring', delay: 200 }
   });
   
-  const { ref: plantRef, isVisible: plantVisible, variant: plantVariant } = useScrollAnimation({ 
-    delay: 300, 
-    variant: 'ios-spring',
-    mobile: { variant: 'subtle', delay: 200 },
-    desktop: { variant: 'ios-spring', delay: 300 }
-  });
   
   const { ref: sidesRef, isVisible: sidesVisible, variant: sidesVariant } = useScrollAnimation({ 
     delay: 400, 
@@ -118,17 +112,6 @@ const Menu = () => {
                 <div className="flex-1 border-t border-accent/20" />
               </div>
               
-              <div ref={plantRef} className={useAnimationClass(plantVariant, plantVisible)}>
-                <PlantBasedCard />
-              </div>
-              
-              <div className="flex items-center justify-center">
-                <div className="flex-1 border-t border-accent/20" />
-                <div className="px-4">
-                  <div className="w-3 h-3 bg-accent/30 rounded-full" />
-                </div>
-                <div className="flex-1 border-t border-accent/20" />
-              </div>
               
               <div ref={sidesRef} className={useAnimationClass(sidesVariant, sidesVisible)}>
                 <SideDishesCard />
@@ -180,9 +163,6 @@ const Menu = () => {
                   <EntreesCard />
                 </div>
                 
-                <div ref={plantRef} className={useAnimationClass(plantVariant, plantVisible)}>
-                  <PlantBasedCard />
-                </div>
               </div>
             </div>
           </SectionCard>
