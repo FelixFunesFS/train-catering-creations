@@ -44,7 +44,7 @@ export const ServicesSection = () => {
                 />
               </div>
               <CardContent className="p-4 sm:p-6">
-                <h3 className="text-lg sm:text-xl font-elegant font-semibold text-foreground mb-4">Weddings</h3>
+                <h3 className="text-lg sm:text-xl font-elegant text-foreground mb-4">Weddings</h3>
                 <p className="text-sm sm:text-base text-muted-foreground mb-6">Elegant receptions and intimate ceremonies with personalized menus</p>
                 <span className="text-primary hover:text-primary-glow font-medium group inline-flex items-center gap-1">
                   Learn More 
@@ -68,7 +68,7 @@ export const ServicesSection = () => {
                 />
               </div>
               <CardContent className="p-4 sm:p-6">
-                <h3 className="text-lg sm:text-xl font-elegant font-semibold text-foreground mb-4">Black Tie Events</h3>
+                <h3 className="text-lg sm:text-xl font-elegant text-foreground mb-4">Black Tie Events</h3>
                 <p className="text-sm sm:text-base text-muted-foreground mb-6">Sophisticated catering for galas and formal celebrations</p>
                 <span className="text-primary hover:text-primary-glow font-medium group inline-flex items-center gap-1">
                   Learn More 
@@ -91,7 +91,7 @@ export const ServicesSection = () => {
               />
             </div>
             <CardContent className="p-4 sm:p-6">
-              <h3 className="text-lg sm:text-xl font-elegant font-semibold text-foreground mb-4">Military Functions</h3>
+              <h3 className="text-lg sm:text-xl font-elegant text-foreground mb-4">Military Functions</h3>
               <p className="text-sm sm:text-base text-muted-foreground mb-6">Honoring service with promotions, ceremonies, and celebrations</p>
               <Link to="/wedding-menu#page-header" className="text-primary hover:text-primary-glow font-medium group inline-flex items-center gap-1">
                 Learn More 
@@ -113,7 +113,7 @@ export const ServicesSection = () => {
               />
             </div>
             <CardContent className="p-4 sm:p-6">
-              <h3 className="text-lg sm:text-xl font-elegant font-semibold text-foreground mb-4">Private Events</h3>
+              <h3 className="text-lg sm:text-xl font-elegant text-foreground mb-4">Private Events</h3>
               <p className="text-sm sm:text-base text-muted-foreground mb-6">Corporate conferences, family gatherings, and special occasions</p>
               <Link to="/menu#page-header" className="text-primary hover:text-primary-glow font-medium group inline-flex items-center gap-1">
                 View Menu 
