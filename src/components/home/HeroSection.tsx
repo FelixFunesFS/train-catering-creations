@@ -64,7 +64,7 @@ export const HeroSection = () => {
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 opacity-50 my-0 py-0"></div>
           
           <div className="relative z-10 flex flex-col justify-center items-center text-center">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-script font-bold text-foreground leading-[0.9] tracking-tight text-fade-up mb-4">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant font-bold text-foreground leading-[0.9] tracking-tight text-fade-up mb-4">
               Where Southern Flavor Meets <span className="text-primary bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">Family & Celebration</span>
             </h1>
             
