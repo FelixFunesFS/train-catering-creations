@@ -105,7 +105,7 @@ const WeddingMenu = () => {
                   
                   return (
                     <div ref={headerRef} className={`text-center mb-8 lg:mb-12 ${headerAnimationClass}`}>
-                      <h2 className="text-3xl font-elegant font-bold text-foreground mb-4">
+                      <h2 className="text-3xl font-elegant text-foreground mb-4">
                         Hors d'Oeuvres & Small Bites
                       </h2>
                       <p className="text-lg text-muted-foreground italic">
@@ -228,7 +228,7 @@ const WeddingMenu = () => {
                   
                   return (
                     <div ref={headerRef} className={`text-center mb-8 lg:mb-12 ${headerAnimationClass}`}>
-                      <h2 className="text-3xl font-elegant font-bold text-foreground mb-4">
+                      <h2 className="text-3xl font-elegant text-foreground mb-4">
                         Signature Entrées
                       </h2>
                       <p className="text-lg text-muted-foreground italic">

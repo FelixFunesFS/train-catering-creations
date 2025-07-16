@@ -67,7 +67,7 @@ export const InteractiveGallerySection = () => {
   return <section className="py-8 md:py-12 lg:py-16 bg-gradient-card shadow-elegant hover:shadow-glow transition-all duration-200 rounded-lg mx-4 sm:mx-6 lg:mx-8 my-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12 lg:mb-16">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant font-bold text-foreground mb-6 text-fade-up">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant text-foreground mb-6 text-fade-up">
             Our Gallery Showcase
           </h2>
           <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto text-fade-up-delay-1">

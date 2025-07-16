@@ -71,7 +71,7 @@ export const HeroSection = () => {
               </div>
             </div>
             
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant font-bold text-foreground mb-4 sm:mb-6 animate-fade-in">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant text-foreground mb-4 sm:mb-6 animate-fade-in">
               Where Southern Flavor Meets Family & Celebration
             </h1>
             

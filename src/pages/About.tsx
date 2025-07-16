@@ -77,7 +77,7 @@ const About = () => {
                     </div>
                   </div>
                   <div>
-                    <h2 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-elegant font-bold text-primary mb-2 sm:mb-3">
+                    <h2 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-elegant text-primary mb-2 sm:mb-3">
                       Chef Dominick "Train" Ward
                     </h2>
                     <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-muted-foreground font-medium">
@@ -152,7 +152,7 @@ const About = () => {
 
               <Card className="shadow-elegant bg-gradient-card min-h-48 sm:min-h-64 md:min-h-80 lg:min-h-96">
                 <CardContent className="p-4 sm:p-6 lg:p-8 text-center flex flex-col justify-center h-full">
-                  <h3 className="text-xl sm:text-2xl lg:text-3xl font-elegant font-bold text-foreground mb-4 sm:mb-6">
+                  <h3 className="text-xl sm:text-2xl lg:text-3xl font-elegant text-foreground mb-4 sm:mb-6">
                     Our Promise
                   </h3>
                   <p className="text-sm sm:text-base lg:text-xl text-muted-foreground leading-relaxed mb-4 sm:mb-6">
@@ -182,7 +182,7 @@ const About = () => {
                       </div>
                     </div>
                     <div>
-                      <h2 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-elegant font-bold text-primary mb-2 sm:mb-3">
+                      <h2 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-elegant text-primary mb-2 sm:mb-3">
                         Chef Dominick "Train" Ward
                       </h2>
                       <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-muted-foreground font-medium">
@@ -261,7 +261,7 @@ const About = () => {
 
                 <Card className="shadow-elegant bg-gradient-card min-h-48 sm:min-h-64 md:min-h-80 lg:min-h-96">
                   <CardContent className="p-4 sm:p-6 lg:p-8 text-center flex flex-col justify-center h-full">
-                    <h3 className="text-xl sm:text-2xl lg:text-3xl font-elegant font-bold text-foreground mb-4 sm:mb-6">
+                    <h3 className="text-xl sm:text-2xl lg:text-3xl font-elegant text-foreground mb-4 sm:mb-6">
                       Our Promise
                     </h3>
                     <p className="text-sm sm:text-base lg:text-xl text-muted-foreground leading-relaxed mb-4 sm:mb-6">

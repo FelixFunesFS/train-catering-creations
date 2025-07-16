@@ -29,7 +29,7 @@ export const TestimonialsStatsSection = () => {
             className={`space-y-6 lg:space-y-8 ${statsAnimationClass}`}
           >
             <div className="text-center lg:text-left">
-              <h2 className="text-xl sm:text-2xl lg:text-3xl font-elegant font-bold text-foreground mb-6 text-fade-up">
+              <h2 className="text-xl sm:text-2xl lg:text-3xl font-elegant text-foreground mb-6 text-fade-up">
                 Proven Excellence
               </h2>
               <p className="text-sm sm:text-base lg:text-lg text-muted-foreground text-fade-up-delay-1">
@@ -42,7 +42,7 @@ export const TestimonialsStatsSection = () => {
                 <Card key={index} className="bg-card border-border hover:shadow-elegant transition-all duration-200 hover:scale-105 group hover-float">
                   <CardContent className="p-4 sm:p-6 lg:p-8 text-center">
                     <stat.icon className="h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 text-primary mx-auto mb-4 lg:mb-6 group-hover:scale-110 transition-transform duration-200" />
-                    <div className="text-xl sm:text-2xl lg:text-3xl font-elegant font-bold text-foreground mb-4">
+                    <div className="text-xl sm:text-2xl lg:text-3xl font-elegant text-foreground mb-4">
                       {stat.number}
                     </div>
                     <p className="text-xs sm:text-sm lg:text-base text-muted-foreground font-medium">

@@ -46,7 +46,7 @@ export const PageHeader = ({
       )}
       
       {/* Title */}
-      <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant font-bold text-foreground mb-4 sm:mb-6 animate-fade-in">
+      <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant text-foreground mb-4 sm:mb-6 animate-fade-in">
         {title}
       </h1>
       

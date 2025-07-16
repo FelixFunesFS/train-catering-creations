@@ -53,7 +53,7 @@ export const AboutPreviewSection = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           <div ref={titleRef} className={titleAnimationClass}>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant font-bold text-foreground mb-6">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant text-foreground mb-6">
               8+ Years of Culinary Excellence
             </h2>
             <p className="text-sm sm:text-base lg:text-lg text-muted-foreground mb-6 leading-relaxed">
