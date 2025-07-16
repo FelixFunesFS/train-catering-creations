@@ -4,8 +4,8 @@ import { PageHeader } from "@/components/ui/page-header";
 const MenuHeader = () => {
   return (
     <PageHeader
-      title="Our Menu"
-      description="Savor the flavors of the South with our signature dishes, crafted with love and over 20 years of culinary expertise."
+      title="Crafted with Soul, Seasoned with Love"
+      description="Explore a menu that honors tradition and excites the palate. From fall-off-the-bone ribs and creamy mac & cheese to delicate pastries and fresh seasonal sides, each dish is crafted with heart and heritage. Whether you're planning a casual gathering or formal affair, we offer customizable menu options to match your vision, your guests, and your flavor preferences."
       icons={[
         <UtensilsCrossed className="h-6 w-6 sm:h-8 sm:w-8" />,
         <ChefHat className="h-6 w-6 sm:h-8 sm:w-8" />,

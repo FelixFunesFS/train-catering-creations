@@ -11,11 +11,11 @@ export const BrandMarquee = () => {
     <div className="flex items-center gap-8 text-xl font-script text-primary/80">
       <span className="whitespace-nowrap">Soul Train's Eatery</span>
       <img src="/lovable-uploads/d5bcd865-8652-4b1c-a055-cf38d61e578e.png" alt="Soul Train's logo" className="h-6 w-6" />
-      <span className="whitespace-nowrap">Where passion meets Southern hospitality</span>
+      <span className="whitespace-nowrap">Where Southern Flavor Meets Family & Celebration</span>
       <img src="/lovable-uploads/d5bcd865-8652-4b1c-a055-cf38d61e578e.png" alt="Soul Train's logo" className="h-6 w-6" />
-      <span className="whitespace-nowrap">Soul Train's Eatery</span>
+      <span className="whitespace-nowrap">Charleston's Premier Catering</span>
       <img src="/lovable-uploads/d5bcd865-8652-4b1c-a055-cf38d61e578e.png" alt="Soul Train's logo" className="h-6 w-6" />
-      <span className="whitespace-nowrap">Where passion meets Southern hospitality</span>
+      <span className="whitespace-nowrap">Taste the Love in Every Bite</span>
       <img src="/lovable-uploads/d5bcd865-8652-4b1c-a055-cf38d61e578e.png" alt="Soul Train's logo" className="h-6 w-6" />
     </div>
   );

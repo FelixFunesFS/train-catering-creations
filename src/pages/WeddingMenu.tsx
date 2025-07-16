@@ -32,8 +32,8 @@ const WeddingMenu = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div ref={headerRef} className={headerAnimationClass}>
               <PageHeader
-              title="Wedding & Black Tie Events"
-              description="Elevate your special occasion with our elegant catering service. From intimate ceremonies to grand celebrations, we create unforgettable culinary experiences."
+              title="Elegant Events with Southern Soul"
+              description="Your special day deserves exceptional flavor and flawless presentation. At Soul Train's Eatery, we specialize in catering weddings and upscale black-tie events with grace, style, and warmth. From cocktail hour hors d'oeuvres to grand receptions, our team blends culinary excellence with genuine hospitality—making your celebration both sophisticated and soulful."
               icons={[
                 <Heart className="h-6 w-6 sm:h-8 sm:w-8" />,
                 <Crown className="h-6 w-6 sm:h-8 sm:w-8" />,

@@ -65,7 +65,7 @@ export const HeroSection = () => {
           
           <div className="relative z-10 flex flex-col justify-center items-center text-center">
             <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-script font-bold text-foreground leading-[0.9] tracking-tight text-fade-up mb-4">
-              Soul Train's <span className="text-primary bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">Eatery</span>
+              Where Southern Flavor Meets <span className="text-primary bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">Family & Celebration</span>
             </h1>
             
             {/* Red Logo Icon */}
@@ -75,7 +75,7 @@ export const HeroSection = () => {
             
             <div className="w-24 h-1 bg-gradient-to-r from-primary to-primary-glow rounded-full mx-auto mb-6 text-fade-up-delay-1"></div>
             <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-muted-foreground leading-relaxed font-medium text-fade-up-delay-2 max-w-2xl mx-auto mb-6">
-              Where passion meets Southern hospitality. Elegant catering for weddings, black tie events, and memorable celebrations in Charleston's Lowcountry.
+              Welcome to Soul Train's Eatery—Charleston's go-to for soulful, memorable catering. For over 8 years, we've served the Lowcountry with dishes that warm the heart and wow the taste buds. From weddings and baby showers to bereavements and business luncheons, our food brings people together—and our service keeps them coming back. Taste the love in every bite.
             </p>
             
             {/* Call-to-Action Buttons */}

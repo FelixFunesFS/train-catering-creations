@@ -55,8 +55,8 @@ const About = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div ref={headerRef} className={useAnimationClass(headerVariant, headerVisible)}>
             <PageHeader 
-              title="About Soul Train's Eatery" 
-              description="Where passion meets Southern hospitality, creating unforgettable culinary experiences for over 8 flavorful years." 
+              title="A Family Passion, Served on Every Plate" 
+              description="Soul Train's Eatery was founded by Chef Dominick 'Train' Ward and his wife Tanya, a gifted pastry chef. Together, they've built a family-run catering company deeply rooted in Southern hospitality, faith, and community. With over 20 years of culinary experience, Chef Train leads a team that's as dedicated to service as it is to flavor. Certified, trusted, and always on time—we're here to make your event unforgettable." 
               icons={[<ChefHat className="h-6 w-6 sm:h-8 sm:w-8" />, <Award className="h-6 w-6 sm:h-8 sm:w-8" />, <Heart className="h-6 w-6 sm:h-8 sm:w-8" />]}
               buttons={[{ text: "View Gallery", href: "/gallery#page-header", variant: "cta" }]}
             />
