@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -56,7 +55,7 @@ export const HeroSection = () => {
   return (
     <>
       {/* Hero Section */}
-      <section className="py-4 sm:py-6 lg:py-8 bg-gradient-card shadow-elegant hover:shadow-elevated transition-all duration-200 rounded-lg mx-4 sm:mx-6 lg:mx-8 my-2 sm:my-3 lg:my-4 mt-1">
+      <section className="py-8 lg:py-12">
         {/* Brand Header Section */}
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
           {/* Subtle background pattern */}
