@@ -9,7 +9,7 @@ import { BrandMarquee } from "@/components/home/BrandMarquee";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-gradient-hero space-y-16 lg:space-y-24">
+    <div className="min-h-screen bg-gradient-hero space-y-4 sm:space-y-6 lg:space-y-8">
       <HeroSection />
       <AboutPreviewSection />
       <BrandMarquee />

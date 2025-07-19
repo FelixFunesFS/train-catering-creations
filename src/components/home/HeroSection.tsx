@@ -69,7 +69,7 @@ export const HeroSection = () => {
           
           <div className="relative z-10 text-center mb-8 sm:mb-12 md:mb-16">
             {/* Logo Icon - matches PageHeader icon styling */}
-            <div className="flex justify-center mb-4 pt-8">
+            <div className="flex justify-center mb-4 pt-2">
               <div className="h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8">
                 <img src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" alt="Soul Train's Eatery Logo" className="w-full h-full object-contain hover:scale-110 transition-transform duration-300" />
               </div>
