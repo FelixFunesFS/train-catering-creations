@@ -1,3 +1,4 @@
+
 import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -25,10 +26,10 @@ export const PageHeader = ({
   buttons = []
 }: PageHeaderProps) => {
   return (
-    <div id="page-top-section" className={cn("text-center mb-8 sm:mb-12 md:mb-16", className)}>
+    <div id="page-header" className={cn("text-center mb-8 sm:mb-12 md:mb-16 pt-6 sm:pt-8 md:pt-12", className)}>
       {/* Icons */}
       {icons.length > 0 && (
-        <div id="page-icons" className="flex justify-center mb-4 pt-8 -mt-8">
+        <div id="page-icons" className="flex justify-center mb-4">
           {icons.map((icon, index) => (
             <div 
               key={index} 
@@ -71,13 +72,13 @@ export const PageHeader = ({
       {buttons.length > 0 && (
         <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center mt-6 sm:mt-8 animate-fade-in">
           {buttons.map((button, index) => (
-                <Button 
-                  key={index} 
-                  asChild 
-                  variant={button.variant as any || "cta"} 
-                  size="responsive-md" 
-                  className="w-3/5 sm:w-auto sm:min-w-[14rem]"
-                >
+            <Button 
+              key={index} 
+              asChild 
+              variant={button.variant as any || "cta"} 
+              size="responsive-md" 
+              className="w-3/5 sm:w-auto sm:min-w-[14rem]"
+            >
               <Link to={button.href}>
                 {button.text}
               </Link>

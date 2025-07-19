@@ -1,10 +1,11 @@
+
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { ImageModal } from "@/components/gallery/ImageModal";
+
 export const HeroSection = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
-  const [imageSet, setImageSet] = useState(0);
 
   // Featured images for the grid display - taking the first 4 images for initial display
   const heroImages = [{
@@ -47,14 +48,19 @@ export const HeroSection = () => {
     description: "Elegant appetizer display with beverage service and professional presentation",
     category: "appetizer"
   }];
+
   const allImages = [...heroImages, ...additionalImages];
+
   const handleImageClick = (index: number) => {
     setSelectedImageIndex(index);
   };
+
   const handleCloseModal = () => {
     setSelectedImageIndex(null);
   };
-  return <>
+
+  return (
+    <>
       <section className="bg-gradient-card shadow-elegant hover:shadow-glow transition-all duration-200 rounded-lg sm:mx-6 lg:mx-8 my-section sm:my-section-sm py-section sm:py-section-sm lg:py-section-lg mx-[16px]">
         {/* Brand Header Section */}
         <div className="relative max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 mb-8 sm:mb-12 md:mb-16">
@@ -63,7 +69,7 @@ export const HeroSection = () => {
           
           <div className="relative z-10 text-center mb-8 sm:mb-12 md:mb-16">
             {/* Logo Icon - matches PageHeader icon styling */}
-            <div className="flex justify-center mb-4 pt-8 -mt-8">
+            <div className="flex justify-center mb-4 pt-8">
               <div className="h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8">
                 <img src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" alt="Soul Train's Eatery Logo" className="w-full h-full object-contain hover:scale-110 transition-transform duration-300" />
               </div>
@@ -76,7 +82,7 @@ export const HeroSection = () => {
             {/* Decorative line - matches PageHeader exactly */}
             <div className="w-12 sm:w-16 md:w-24 h-1 bg-gradient-primary mx-auto mb-6 sm:mb-8 animate-fade-in" />
             
-            <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-foreground max-w-2xl mx-auto leading-relaxed px-4 animate-fade-in">More than a meal, Soul Train’s Eatery delivers comfort, connection, and Lowcountry flavor to every table.</p>
+            <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-foreground max-w-2xl mx-auto leading-relaxed px-4 animate-fade-in">More than a meal, Soul Train's Eatery delivers comfort, connection, and Lowcountry flavor to every table.</p>
             
             {/* Call-to-Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center mt-6 sm:mt-8 animate-fade-in">
@@ -97,11 +103,10 @@ export const HeroSection = () => {
         {/* Image Gallery Grid Section */}
         <div className="relative px-6 sm:px-8 lg:px-12 pb-8 lg:pb-12">
           <div className="max-w-7xl mx-auto">
-            
-            
             {/* Responsive Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 lg:gap-12">
-              {heroImages.map((image, index) => <div key={index} className="group relative overflow-hidden rounded-lg shadow-elegant hover:shadow-glow bg-gradient-card transition-all duration-200 cursor-pointer" onClick={() => handleImageClick(index)}>
+              {heroImages.map((image, index) => (
+                <div key={index} className="group relative overflow-hidden rounded-lg shadow-elegant hover:shadow-glow bg-gradient-card transition-all duration-200 cursor-pointer" onClick={() => handleImageClick(index)}>
                   <div className="aspect-[5/4] overflow-hidden">
                     <img src={image.src} alt={image.alt} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200" loading={index < 2 ? "eager" : "lazy"} decoding="async" />
                   </div>
@@ -109,7 +114,7 @@ export const HeroSection = () => {
                   {/* Hover Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                     <div className="absolute bottom-4 left-4 right-4">
-                      <h3 className="text-white font-semibold text-lg mb-1">
+                      <h3 className="text-white font-elegant font-semibold text-lg mb-1">
                         {image.title}
                       </h3>
                       <p className="text-white/90 text-sm leading-tight">
@@ -120,7 +125,8 @@ export const HeroSection = () => {
 
                   {/* Subtle border effect */}
                   <div className="absolute inset-0 border-2 border-transparent group-hover:border-primary/20 rounded-lg transition-colors duration-200"></div>
-                </div>)}
+                </div>
+              ))}
             </div>
 
             {/* View More Link */}
@@ -138,5 +144,6 @@ export const HeroSection = () => {
 
       {/* Image Modal */}
       <ImageModal images={allImages} selectedIndex={selectedImageIndex} onClose={handleCloseModal} />
-    </>;
+    </>
+  );
 };
