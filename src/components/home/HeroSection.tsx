@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ImageModal } from "@/components/gallery/ImageModal";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
+
 export const HeroSection = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
 
@@ -60,31 +61,31 @@ export const HeroSection = () => {
               {/* Subtle background pattern */}
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 opacity-50"></div>
               
-              <div className="relative z-10 text-center space-y-3 sm:space-y-4 lg:space-y-6 py-4 sm:py-6 lg:py-8">
+              <div className="relative z-10 text-center pt-2 sm:pt-4 md:pt-12 py-4 sm:py-6 lg:py-8">
                 {/* Logo Icon - consistent with PageHeader styling */}
-                <div className="flex justify-center my-[19px]">
-                  <div className="h-10 w-10 sm:h-12 sm:w-12 lg:h-14 lg:w-14 xl:h-16 xl:w-16">
+                <div className="flex justify-center mb-4">
+                  <div className="h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8">
                     <img src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" alt="Soul Train's Eatery Logo" className="w-full h-full object-contain hover:scale-110 transition-transform duration-300" />
                   </div>
                 </div>
                 
                 {/* Main Heading */}
-                <div className="space-y-2 sm:space-y-3">
+                <div className="mb-4 sm:mb-6">
                   <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant text-foreground leading-tight sm:leading-tight lg:leading-tight animate-fade-in">
                     Where Southern Flavor Meets Family & Celebration
                   </h1>
-                  
-                  {/* Decorative line */}
-                  <div className="w-16 sm:w-20 lg:w-24 xl:w-28 h-1 bg-gradient-primary mx-auto animate-fade-in" />
                 </div>
+                
+                {/* Decorative line */}
+                <div className="w-16 sm:w-20 lg:w-24 xl:w-28 h-1 bg-gradient-primary mx-auto mb-6 sm:mb-8 animate-fade-in" />
 
                 {/* Descriptive Text */}
-                <div className="max-w-3xl mx-auto px-2 sm:px-4">
+                <div className="max-w-3xl mx-auto px-2 sm:px-4 mb-6 sm:mb-8">
                   <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-foreground leading-relaxed animate-fade-in">More than a meal - it's Southern comfort, heartfelt connection, and Lowcountry flavor on every plate.</p>
                 </div>
                 
                 {/* Call-to-Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-3 justify-center items-center animate-fade-in">
+                <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center animate-fade-in">
                   <Button asChild variant="cta" className="w-44 h-12 flex items-center justify-center">
                     <Link to="/request-quote#page-header">
                       Request Quote
