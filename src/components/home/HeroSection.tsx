@@ -60,10 +60,10 @@ export const HeroSection = () => {
               {/* Subtle background pattern */}
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 opacity-50"></div>
               
-              <div className="relative z-10 text-center space-y-3 sm:space-y-4 lg:space-y-6 py-4 sm:py-6 lg:py-8">
+              <div className="relative z-10 text-center space-y-3 sm:space-y-4 lg:space-y-6 pt-2 sm:pt-4 md:pt-12">
                 {/* Logo Icon - consistent with PageHeader styling */}
-                <div className="flex justify-center">
-                  <div className="h-10 w-10 sm:h-12 sm:w-12 lg:h-14 lg:w-14 xl:h-16 xl:w-16">
+                <div className="flex justify-center mb-4">
+                  <div className="h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8">
                     <img src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" alt="Soul Train's Eatery Logo" className="w-full h-full object-contain hover:scale-110 transition-transform duration-300" />
                   </div>
                 </div>
