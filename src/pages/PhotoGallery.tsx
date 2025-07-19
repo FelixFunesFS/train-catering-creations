@@ -74,7 +74,7 @@ const PhotoGallery = () => {
   
   return (
     <div className="min-h-screen bg-gradient-hero">
-      <SectionCard className="py-px">
+      <SectionCard className="py-px mt-1">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div ref={headerRef} className={useAnimationClass(headerVariant, headerVisible)}>
             <GalleryHeader />

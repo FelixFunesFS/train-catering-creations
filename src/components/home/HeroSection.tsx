@@ -61,7 +61,7 @@ export const HeroSection = () => {
 
   return (
     <>
-      <section className="bg-gradient-card shadow-elegant hover:shadow-glow transition-all duration-200 rounded-lg sm:mx-6 lg:mx-8 my-section sm:my-section-sm py-section sm:py-section-sm lg:py-section-lg mx-[16px]">
+      <section className="bg-gradient-card shadow-elegant hover:shadow-glow transition-all duration-200 rounded-lg sm:mx-6 lg:mx-8 mt-1 mb-2 sm:mb-3 lg:mb-4 py-section sm:py-section-sm lg:py-section-lg mx-[16px]">
         {/* Brand Header Section */}
         <div className="relative max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 mb-8 sm:mb-12 md:mb-16">
           {/* Subtle background pattern */}
