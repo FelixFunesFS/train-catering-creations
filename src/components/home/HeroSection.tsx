@@ -57,7 +57,7 @@ export const HeroSection = () => {
           {/* Subtle background pattern */}
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 opacity-50"></div>
           
-          <div className="relative z-10 text-center space-y-4 sm:space-y-6 lg:space-y-8 py-6 sm:py-8 lg:py-12">
+          <div className="relative z-10 text-center space-y-3 sm:space-y-4 lg:space-y-6 py-4 sm:py-6 lg:py-8">
             {/* Logo Icon - consistent with PageHeader styling */}
             <div className="flex justify-center">
               <div className="h-10 w-10 sm:h-12 sm:w-12 lg:h-14 lg:w-14 xl:h-16 xl:w-16">
@@ -66,7 +66,7 @@ export const HeroSection = () => {
             </div>
             
             {/* Main Heading */}
-            <div className="space-y-3 sm:space-y-4">
+            <div className="space-y-2 sm:space-y-3">
               <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant text-foreground leading-tight sm:leading-tight lg:leading-tight animate-fade-in">
                 Where Southern Flavor Meets Family & Celebration
               </h1>
