@@ -55,13 +55,17 @@ All colors MUST be HSL. Designed for maximum accessibility with high contrast ra
     --gradient-hero: linear-gradient(135deg, hsl(0 0% 100%), hsl(0 0% 98%));
     --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(0 0% 99%));
 
-    /* Enhanced shadow hierarchy for cohesive design */
-    --shadow-card: 0 2px 8px -2px hsl(0 0% 0% / 0.05);
-    --shadow-elegant: 0 8px 24px -4px hsl(0 0% 0% / 0.2);
-    --shadow-glow: 0 0 20px hsl(0 72% 50% / 0.35);
-    --shadow-elevated: 0 12px 32px -4px hsl(0 0% 0% / 0.25);
-    --shadow-glow-strong: 0 0 28px hsl(0 72% 50% / 0.4);
-    --shadow-float: 0 16px 48px -8px hsl(0 0% 0% / 0.15);
+  /* Enhanced shadow hierarchy for cohesive design */
+  --shadow-card: 0 2px 8px -2px hsl(0 0% 0% / 0.05);
+  --shadow-elegant: 0 8px 24px -4px hsl(0 0% 0% / 0.2);
+  --shadow-glow: 0 0 20px hsl(0 72% 50% / 0.35);
+  --shadow-elevated: 0 12px 32px -4px hsl(0 0% 0% / 0.25);
+  --shadow-glow-strong: 0 0 28px hsl(0 72% 50% / 0.4);
+  --shadow-float: 0 16px 48px -8px hsl(0 0% 0% / 0.15);
+  
+  /* Floating card optimizations */
+  --floating-duration: 250ms;
+  --floating-timing: cubic-bezier(0.4, 0, 0.2, 1);
     
     /* Mobile-optimized shadows (lighter for smaller screens) */
     --shadow-card-mobile: 0 1px 4px -1px hsl(0 0% 0% / 0.05);
@@ -479,7 +483,26 @@ All colors MUST be HSL. Designed for maximum accessibility with high contrast ra
     }
   }
 
-  /* Reduced motion support */
+  /* Reduced motion support for floating cards */
+  @media (prefers-reduced-motion: reduce) {
+    .floating-card-subtle,
+    .floating-card-medium,
+    .floating-card-dramatic,
+    .floating-card-interactive {
+      transform: translateZ(0) !important;
+      will-change: auto !important;
+      transition: box-shadow var(--floating-duration) var(--floating-timing);
+    }
+    
+    .floating-card-subtle:hover,
+    .floating-card-medium:hover,
+    .floating-card-dramatic:hover,
+    .floating-card-interactive:hover {
+      transform: translateZ(0) !important;
+    }
+  }
+
+  /* Reduced motion support for scroll animations */
   @media (prefers-reduced-motion: reduce) {
     .ios-spring-hidden,
     .elastic-hidden,
@@ -642,6 +665,63 @@ All colors MUST be HSL. Designed for maximum accessibility with high contrast ra
     top: 8px;
     left: 8px;
     opacity: 0.6;
+  }
+
+  /* Floating Card Utilities */
+  .floating-card-subtle {
+    transform: translateZ(0);
+    will-change: transform;
+    transition: all var(--floating-duration) var(--floating-timing);
+  }
+  
+  .floating-card-subtle:hover {
+    transform: translateY(-2px) scale(1.005);
+    box-shadow: var(--shadow-elegant);
+  }
+  
+  .floating-card-medium {
+    transform: translateZ(0);
+    will-change: transform;
+    transition: all var(--floating-duration) var(--floating-timing);
+  }
+  
+  .floating-card-medium:hover {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: var(--shadow-elegant);
+  }
+  
+  .floating-card-dramatic {
+    transform: translateZ(0);
+    will-change: transform;
+    transition: all var(--floating-duration) var(--floating-timing);
+  }
+  
+  .floating-card-dramatic:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: var(--shadow-glow);
+  }
+  
+  .floating-card-interactive {
+    transform: translateZ(0);
+    will-change: transform;
+    transition: all var(--floating-duration) var(--floating-timing);
+    cursor: pointer;
+  }
+  
+  .floating-card-interactive:hover {
+    transform: translateY(-6px) scale(1.015);
+    box-shadow: var(--shadow-elevated);
+    border-color: hsl(var(--primary) / 0.2);
+  }
+  
+  /* Responsive floating - reduce effects on mobile */
+  @media (max-width: 640px) {
+    .floating-card-subtle:hover,
+    .floating-card-medium:hover,
+    .floating-card-dramatic:hover,
+    .floating-card-interactive:hover {
+      transform: translateY(-2px) scale(1.005);
+    }
   }
 
   /* Performance optimizations */

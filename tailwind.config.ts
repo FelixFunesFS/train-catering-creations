@@ -66,9 +66,12 @@ export default {
 				'gradient-card': 'var(--gradient-card)'
 			},
 			boxShadow: {
-				'elegant': 'var(--shadow-elegant)',
 				'card': 'var(--shadow-card)',
-				'glow': 'var(--shadow-glow)'
+				'elegant': 'var(--shadow-elegant)',
+				'elevated': 'var(--shadow-elevated)',
+				'glow': 'var(--shadow-glow)',
+				'glow-strong': 'var(--shadow-glow-strong)',
+				'float': 'var(--shadow-float)'
 			},
 			spacing: {
 				'section': 'var(--spacing-section)',
@@ -96,6 +99,10 @@ export default {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
+			},
+			transitionDuration: {
+				'250': '250ms',
+				'floating': 'var(--floating-duration)'
 			},
 			keyframes: {
 				'accordion-down': {

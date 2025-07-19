@@ -4,6 +4,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { ImageModal } from "@/components/gallery/ImageModal";
+import { OptimizedFloatingImage } from "@/components/ui/optimized-floating-image";
+import { FloatingCard } from "@/components/ui/floating-card";
 import Autoplay from "embla-carousel-autoplay";
 const highQualityImages = [{
   src: "/lovable-uploads/894051bf-31c6-4930-bb88-e3e1d74f7ee1.png",
@@ -64,7 +66,14 @@ export const InteractiveGallerySection = () => {
   const handleCloseModal = () => {
     setSelectedImageIndex(null);
   };
-  return <section className="py-8 md:py-12 lg:py-16 bg-gradient-card shadow-elegant hover:shadow-glow transition-all duration-300 rounded-xl mx-4 sm:mx-6 lg:mx-8 my-8 transform hover:-translate-y-2 hover:shadow-2xl">
+  return <FloatingCard 
+      variant="subtle" 
+      restingShadow="elegant" 
+      hoverShadow="glow" 
+      className="py-8 md:py-12 lg:py-16 bg-gradient-card rounded-xl mx-4 sm:mx-6 lg:mx-8 my-8"
+      asChild
+    >
+      <section>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12 lg:mb-16">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant text-foreground mb-6 text-fade-up">
@@ -84,17 +93,17 @@ export const InteractiveGallerySection = () => {
         })]} className="w-full">
             <CarouselContent className="-ml-1 gap-2">
               {highQualityImages.map((image, index) => <CarouselItem key={index} className="pl-1 basis-1/2 sm:basis-1/3 md:basis-1/4">
-                  <div className="bg-card/80 backdrop-blur-sm border border-border/50 hover:border-primary/30 transition-all duration-300 cursor-pointer group rounded-xl overflow-hidden shadow-lg transform hover:-translate-y-4 hover:shadow-2xl hover:scale-105" onClick={() => handleImageClick(index)}>
-                    <div className="relative aspect-[3/4]">
-                      <img src={image.src} alt={image.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200" loading="lazy" decoding="async" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-end">
-                        <div className="p-4 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                          <h3 className="font-elegant font-semibold text-white">{image.title}</h3>
-                          <p className="text-sm text-white/90">{image.description}</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  <OptimizedFloatingImage
+                    src={image.src}
+                    alt={image.title}
+                    title={image.title}
+                    description={image.description}
+                    aspectRatio="aspect-[3/4]"
+                    variant="medium"
+                    priority={index < 4}
+                    onImageClick={() => handleImageClick(index)}
+                    className="bg-card/80 backdrop-blur-sm border border-border/50"
+                  />
                 </CarouselItem>)}
             </CarouselContent>
             <CarouselPrevious className="hidden md:flex" />
@@ -123,5 +132,6 @@ export const InteractiveGallerySection = () => {
         selectedIndex={selectedImageIndex} 
         onClose={handleCloseModal} 
       />
-    </section>;
+    </section>
+    </FloatingCard>;
 };
