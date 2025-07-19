@@ -1,7 +1,9 @@
+
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { ImageModal } from "@/components/gallery/ImageModal";
+import { SectionCard } from "@/components/ui/section-card";
 
 export const HeroSection = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
@@ -60,7 +62,7 @@ export const HeroSection = () => {
 
   return (
     <>
-      <section className="bg-gradient-card shadow-elegant hover:shadow-glow transition-all duration-200 rounded-lg mx-4 sm:mx-6 lg:mx-8 mt-1 mb-2 sm:mb-3 lg:mb-4 py-section sm:py-section-sm lg:py-section-lg">
+      <SectionCard className="mt-1">
         {/* Brand Header Section */}
         <div className="relative max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 mb-8 sm:mb-12 md:mb-16">
           {/* Subtle background pattern */}
@@ -139,7 +141,7 @@ export const HeroSection = () => {
             </div>
           </div>
         </div>
-      </section>
+      </SectionCard>
 
       {/* Image Modal */}
       <ImageModal images={allImages} selectedIndex={selectedImageIndex} onClose={handleCloseModal} />
