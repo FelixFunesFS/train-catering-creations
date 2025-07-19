@@ -58,63 +58,80 @@ export const HeroSection = () => {
     <>
       <SectionCard className="mt-1">
         {/* Brand Header Section */}
-        <div className="relative max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 mb-8 sm:mb-12 md:mb-16">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
           {/* Subtle background pattern */}
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 opacity-50 my-0 py-0"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 opacity-50"></div>
           
-          <div className="relative z-10 text-center mb-8 sm:mb-12 md:mb-16">
-            {/* Logo Icon - matches PageHeader icon styling */}
-            <div className="flex justify-center mb-4 pt-2">
-              <div className="h-8 w-8 sm:h-10 sm:w-10 md:h-12 md:w-12 lg:h-14 lg:w-14">
-                <img src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" alt="Soul Train's Eatery Logo" className="w-full h-full object-contain hover:scale-110 transition-transform duration-300" />
+          <div className="relative z-10 text-center space-y-6 sm:space-y-8 lg:space-y-10 py-8 sm:py-12 lg:py-16">
+            {/* Logo Icon - consistent with PageHeader styling */}
+            <div className="flex justify-center">
+              <div className="h-10 w-10 sm:h-12 sm:w-12 lg:h-14 lg:w-14 xl:h-16 xl:w-16">
+                <img 
+                  src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
+                  alt="Soul Train's Eatery Logo" 
+                  className="w-full h-full object-contain hover:scale-110 transition-transform duration-300" 
+                />
               </div>
             </div>
             
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant text-foreground mb-4 sm:mb-6 animate-fade-in">
-              Where Southern Flavor Meets Family & Celebration
-            </h1>
-            
-            {/* Decorative line - matches PageHeader exactly */}
-            <div className="w-12 sm:w-16 md:w-24 h-1 bg-gradient-primary mx-auto mb-6 sm:mb-8 animate-fade-in" />
-          </div>
-        </div>
+            {/* Main Heading */}
+            <div className="space-y-4 sm:space-y-6">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant text-foreground leading-tight sm:leading-tight lg:leading-tight animate-fade-in">
+                Where Southern Flavor Meets Family & Celebration
+              </h1>
+              
+              {/* Decorative line */}
+              <div className="w-16 sm:w-20 lg:w-24 xl:w-28 h-1 bg-gradient-primary mx-auto animate-fade-in" />
+            </div>
 
-        {/* More than a meal text and buttons - moved above image cards */}
-        <div className="text-center mb-8 sm:mb-12 px-6 sm:px-8 lg:px-12">
-          <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-foreground max-w-2xl mx-auto leading-relaxed px-4 mb-6 sm:mb-8 animate-fade-in">
-            More than a meal, Soul Train's Eatery delivers comfort, connection, and Lowcountry flavor to every table.
-          </p>
-          
-          {/* Call-to-Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-6 sm:mb-8 animate-fade-in">
-            <Button asChild variant="cta" size="sm" className="w-32 sm:w-36 text-base">
-              <Link to="/request-quote#page-header">
-                Request Quote
-              </Link>
-            </Button>
-            <Button asChild variant="cta-outline" size="sm" className="w-32 sm:w-36 text-base">
-              <Link to="/gallery#page-header">
-                Gallery
-              </Link>
-            </Button>
+            {/* Descriptive Text */}
+            <div className="max-w-3xl mx-auto px-2 sm:px-4">
+              <p className="text-base sm:text-lg lg:text-xl text-foreground/90 leading-relaxed animate-fade-in">
+                More than a meal, Soul Train's Eatery delivers comfort, connection, and Lowcountry flavor to every table.
+              </p>
+            </div>
+            
+            {/* Call-to-Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center animate-fade-in">
+              <Button asChild variant="cta" size="responsive-sm" className="min-w-[140px] sm:min-w-[160px]">
+                <Link to="/request-quote#page-header">
+                  Request Quote
+                </Link>
+              </Button>
+              <Button asChild variant="cta-outline" size="responsive-sm" className="min-w-[140px] sm:min-w-[160px]">
+                <Link to="/gallery#page-header">
+                  Gallery
+                </Link>
+              </Button>
+            </div>
           </div>
         </div>
 
         {/* Image Gallery Grid Section */}
-        <div className="relative px-6 sm:px-8 lg:px-12 pb-8 lg:pb-12">
+        <div className="relative px-4 sm:px-6 lg:px-8 xl:px-12 pb-8 sm:pb-12 lg:pb-16">
           <div className="max-w-7xl mx-auto">
             {/* Responsive Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-3 mb-8 sm:mb-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 mb-8 sm:mb-10 lg:mb-12">
               {heroImages.map((image, index) => (
-                <div key={index} className="group relative overflow-hidden rounded-lg shadow-elegant hover:shadow-glow bg-gradient-card transition-all duration-200 cursor-pointer" onClick={() => handleImageClick(index)}>
+                <div 
+                  key={index} 
+                  className="group relative overflow-hidden rounded-lg shadow-elegant hover:shadow-glow bg-gradient-card transition-all duration-300 cursor-pointer transform hover:scale-[1.02]" 
+                  onClick={() => handleImageClick(index)}
+                >
                   <div className="aspect-[3/2] overflow-hidden">
-                    <img src={image.src} alt={image.alt} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200" loading={index < 2 ? "eager" : "lazy"} decoding="async" />
+                    <img 
+                      src={image.src} 
+                      alt={image.alt} 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                      loading={index < 2 ? "eager" : "lazy"} 
+                      decoding="async" 
+                    />
                   </div>
                   
                   {/* Hover Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <div className="absolute bottom-4 left-4 right-4">
-                      <h3 className="text-white font-elegant font-semibold text-lg mb-1">
+                      <h3 className="text-white font-elegant font-semibold text-lg mb-2">
                         {image.title}
                       </h3>
                       <p className="text-white/90 text-sm leading-tight">
@@ -124,14 +141,17 @@ export const HeroSection = () => {
                   </div>
 
                   {/* Subtle border effect */}
-                  <div className="absolute inset-0 border-2 border-transparent group-hover:border-primary/20 rounded-lg transition-colors duration-200"></div>
+                  <div className="absolute inset-0 border-2 border-transparent group-hover:border-primary/20 rounded-lg transition-colors duration-300"></div>
                 </div>
               ))}
             </div>
 
             {/* View More Link */}
             <div className="text-center">
-              <Link to="/gallery#page-header" className="inline-flex items-center gap-2 text-primary hover:text-primary-glow transition-colors duration-200 font-medium text-lg group">
+              <Link 
+                to="/gallery#page-header" 
+                className="inline-flex items-center gap-2 text-primary hover:text-primary-glow transition-colors duration-200 font-medium text-lg group min-h-touch"
+              >
                 View Complete Gallery 
                 <svg className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
