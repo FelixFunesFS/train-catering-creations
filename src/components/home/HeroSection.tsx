@@ -55,7 +55,7 @@ export const HeroSection = () => {
           {/* Subtle background pattern */}
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 opacity-50"></div>
           
-          <div className="relative z-10 text-center space-y-6 sm:space-y-8 lg:space-y-10 py-8 sm:py-12 lg:py-16">
+          <div className="relative z-10 text-center space-y-4 sm:space-y-6 lg:space-y-8 py-6 sm:py-8 lg:py-12">
             {/* Logo Icon - consistent with PageHeader styling */}
             <div className="flex justify-center">
               <div className="h-10 w-10 sm:h-12 sm:w-12 lg:h-14 lg:w-14 xl:h-16 xl:w-16">
@@ -64,7 +64,7 @@ export const HeroSection = () => {
             </div>
             
             {/* Main Heading */}
-            <div className="space-y-4 sm:space-y-6">
+            <div className="space-y-3 sm:space-y-4">
               <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant text-foreground leading-tight sm:leading-tight lg:leading-tight animate-fade-in">
                 Where Southern Flavor Meets Family & Celebration
               </h1>
@@ -80,12 +80,12 @@ export const HeroSection = () => {
             
             {/* Call-to-Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-stretch animate-fade-in">
-              <Button asChild variant="cta" size="responsive-sm" className="flex-1 sm:min-w-[160px] sm:flex-initial">
+              <Button asChild variant="cta" size="responsive-lg" className="w-3/5 sm:w-auto sm:min-w-[14rem]">
                 <Link to="/request-quote#page-header">
                   Request Quote
                 </Link>
               </Button>
-              <Button asChild variant="cta-outline" size="responsive-sm" className="flex-1 sm:min-w-[160px] sm:flex-initial">
+              <Button asChild variant="cta-outline" size="responsive-lg" className="w-3/5 sm:w-auto sm:min-w-[14rem]">
                 <Link to="/gallery#page-header">
                   Gallery
                 </Link>
@@ -95,10 +95,10 @@ export const HeroSection = () => {
         </div>
 
         {/* Image Gallery Grid Section */}
-        <div className="relative px-4 sm:px-6 lg:px-8 xl:px-12 pb-8 sm:pb-12 lg:pb-16">
+        <div className="relative px-4 sm:px-6 lg:px-8 xl:px-12 pb-6 sm:pb-8 lg:pb-12">
           <div className="max-w-7xl mx-auto">
             {/* Responsive Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 mb-8 sm:mb-10 lg:mb-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8 lg:mb-10">
               {heroImages.map((image, index) => <div key={index} className="group relative overflow-hidden rounded-lg shadow-elegant hover:shadow-glow bg-gradient-card transition-all duration-300 cursor-pointer transform hover:scale-[1.02]" onClick={() => handleImageClick(index)}>
                   <div className="aspect-[3/2] overflow-hidden">
                     <img src={image.src} alt={image.alt} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading={index < 2 ? "eager" : "lazy"} decoding="async" />

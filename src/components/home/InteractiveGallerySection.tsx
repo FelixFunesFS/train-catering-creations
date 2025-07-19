@@ -73,8 +73,8 @@ export const InteractiveGallerySection = () => {
   return (
     <section className="py-16 lg:py-20 bg-gradient-card/20 border-t border-border/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12 lg:mb-16">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant text-foreground mb-6 text-fade-up">
+        <div className="text-center mb-8 lg:mb-12">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant text-foreground mb-4 text-fade-up">
             Our Gallery Showcase
           </h2>
           <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto text-fade-up-delay-1">
@@ -111,7 +111,7 @@ export const InteractiveGallerySection = () => {
           </Carousel>
         </div>
 
-        <div className="text-center mt-16 lg:mt-20">
+        <div className="text-center mt-12 lg:mt-16">
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6">
             <Button asChild variant="cta" size="responsive-lg" className="w-3/5 sm:w-auto sm:min-w-[14rem]">
               <Link to="/gallery#page-header">

@@ -29,7 +29,7 @@ export const Header = () => {
   return <header className="bg-background shadow-elegant sticky top-0 z-50">
       {/* Main navigation */}
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-        <div className="flex justify-between items-center py-6">
+        <div className="flex justify-between items-center py-3 sm:py-6">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-4 hover:scale-105 transition-transform duration-200">
             <img src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" alt="Soul Train's Eatery Logo" className="w-10 h-10 object-contain" />
