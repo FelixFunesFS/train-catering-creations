@@ -75,7 +75,7 @@ export const HeroSection = () => {
             </h1>
             
             {/* Decorative line - matches PageHeader exactly */}
-            <div className="w-12 sm:w-16 md:w-24 h-1 bg-gradient-primary mx-auto mb-4 sm:mb-6 animate-fade-in" />
+            <div className="w-12 sm:w-16 md:w-24 h-1 bg-gradient-primary mx-auto mb-6 sm:mb-8 animate-fade-in" />
           </div>
         </div>
 
@@ -87,12 +87,12 @@ export const HeroSection = () => {
           
           {/* Call-to-Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center mb-6 sm:mb-8 animate-fade-in">
-            <Button asChild variant="cta" size="sm" className="w-3/5 sm:w-auto sm:min-w-[12rem]">
+            <Button asChild variant="cta" size="responsive-md" className="w-3/5 sm:w-auto sm:min-w-[14rem]">
               <Link to="/request-quote#page-header">
                 Request Quote
               </Link>
             </Button>
-            <Button asChild variant="cta-outline" size="sm" className="w-3/5 sm:w-auto sm:min-w-[12rem]">
+            <Button asChild variant="cta-outline" size="responsive-md" className="w-3/5 sm:w-auto sm:min-w-[14rem]">
               <Link to="/gallery#page-header">
                 Gallery
               </Link>
