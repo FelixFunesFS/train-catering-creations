@@ -41,9 +41,15 @@ export const Footer = () => {
               Authentic soul food catering bringing comfort and flavor to your special events. 
               From intimate gatherings to large celebrations, we serve love on every plate.
             </p>
-            <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-              <Star className="h-4 w-4 text-primary" fill="currentColor" />
-              <span>Premium Catering Services</span>
+            <div className="space-y-2">
+              <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                <Star className="h-4 w-4 text-primary" fill="currentColor" />
+                <span>Premium Catering Services</span>
+              </div>
+              <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                <Star className="h-4 w-4 text-primary" fill="currentColor" />
+                <span>Licensed & Insured</span>
+              </div>
             </div>
           </div>
 
@@ -137,14 +143,10 @@ export const Footer = () => {
               
               <p>© {currentYear} Soul Train's Eatery. All rights reserved.</p>
             </div>
-            <div className="flex flex-wrap space-x-6 mt-2 sm:mt-0 text-center sm:text-right">
+            <div className="flex flex-wrap space-x-3 mt-2 sm:mt-0 text-center sm:text-right">
               <Link to="/privacy-policy" className="hover:text-primary-foreground/80 transition-colors duration-200">Privacy Policy</Link>
-              <span>•</span>
+              <span>|</span>
               <Link to="/terms-conditions" className="hover:text-primary-foreground/80 transition-colors duration-200">Terms & Conditions</Link>
-              <span>•</span>
-              <span>Licensed & Insured</span>
-              <span>•</span>
-              <span>Charleston, SC</span>
             </div>
           </div>
         </div>
