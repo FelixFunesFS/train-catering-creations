@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { ImageModal } from "@/components/gallery/ImageModal";
-
 export const HeroSection = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
 
@@ -41,19 +40,14 @@ export const HeroSection = () => {
     description: "Elegant appetizer display with beverage service and professional presentation",
     category: "appetizer"
   }];
-
   const allImages = [...heroImages, ...additionalImages];
-
   const handleImageClick = (index: number) => {
     setSelectedImageIndex(index);
   };
-
   const handleCloseModal = () => {
     setSelectedImageIndex(null);
   };
-
-  return (
-    <>
+  return <>
       {/* Hero Section */}
       <section className="py-8 lg:py-12">
         {/* Brand Header Section */}
@@ -65,11 +59,7 @@ export const HeroSection = () => {
             {/* Logo Icon - consistent with PageHeader styling */}
             <div className="flex justify-center">
               <div className="h-10 w-10 sm:h-12 sm:w-12 lg:h-14 lg:w-14 xl:h-16 xl:w-16">
-                <img 
-                  src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
-                  alt="Soul Train's Eatery Logo" 
-                  className="w-full h-full object-contain hover:scale-110 transition-transform duration-300" 
-                />
+                <img src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" alt="Soul Train's Eatery Logo" className="w-full h-full object-contain hover:scale-110 transition-transform duration-300" />
               </div>
             </div>
             
@@ -85,9 +75,7 @@ export const HeroSection = () => {
 
             {/* Descriptive Text */}
             <div className="max-w-3xl mx-auto px-2 sm:px-4">
-              <p className="text-base sm:text-lg lg:text-xl text-foreground/90 leading-relaxed animate-fade-in">
-                More than a meal, Soul Train's Eatery delivers comfort, connection, and Lowcountry flavor to every table.
-              </p>
+              <p className="text-base sm:text-lg lg:text-xl text-foreground/90 leading-relaxed animate-fade-in">More than a meal -it’s Southern comfort, heartfelt connection, and Lowcountry flavor on every plate.</p>
             </div>
             
             {/* Call-to-Action Buttons */}
@@ -111,20 +99,9 @@ export const HeroSection = () => {
           <div className="max-w-7xl mx-auto">
             {/* Responsive Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 mb-8 sm:mb-10 lg:mb-12">
-              {heroImages.map((image, index) => (
-                <div 
-                  key={index} 
-                  className="group relative overflow-hidden rounded-lg shadow-elegant hover:shadow-glow bg-gradient-card transition-all duration-300 cursor-pointer transform hover:scale-[1.02]" 
-                  onClick={() => handleImageClick(index)}
-                >
+              {heroImages.map((image, index) => <div key={index} className="group relative overflow-hidden rounded-lg shadow-elegant hover:shadow-glow bg-gradient-card transition-all duration-300 cursor-pointer transform hover:scale-[1.02]" onClick={() => handleImageClick(index)}>
                   <div className="aspect-[3/2] overflow-hidden">
-                    <img 
-                      src={image.src} 
-                      alt={image.alt} 
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
-                      loading={index < 2 ? "eager" : "lazy"} 
-                      decoding="async" 
-                    />
+                    <img src={image.src} alt={image.alt} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading={index < 2 ? "eager" : "lazy"} decoding="async" />
                   </div>
                   
                   {/* Hover Overlay */}
@@ -141,16 +118,12 @@ export const HeroSection = () => {
 
                   {/* Subtle border effect */}
                   <div className="absolute inset-0 border-2 border-transparent group-hover:border-primary/20 rounded-lg transition-colors duration-300"></div>
-                </div>
-              ))}
+                </div>)}
             </div>
 
             {/* View More Link */}
             <div className="text-center">
-              <Link 
-                to="/gallery#page-header" 
-                className="inline-flex items-center gap-2 text-primary hover:text-primary-glow transition-colors duration-200 font-medium text-lg group min-h-touch"
-              >
+              <Link to="/gallery#page-header" className="inline-flex items-center gap-2 text-primary hover:text-primary-glow transition-colors duration-200 font-medium text-lg group min-h-touch">
                 View Complete Gallery 
                 <svg className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
@@ -163,6 +136,5 @@ export const HeroSection = () => {
 
       {/* Image Modal */}
       <ImageModal images={allImages} selectedIndex={selectedImageIndex} onClose={handleCloseModal} />
-    </>
-  );
+    </>;
 };
