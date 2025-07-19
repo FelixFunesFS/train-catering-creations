@@ -84,10 +84,10 @@ export const InteractiveGallerySection = () => {
         })]} className="w-full">
             <CarouselContent className="-ml-1 gap-6 sm:gap-8">
               {highQualityImages.map((image, index) => <CarouselItem key={index} className="pl-1 basis-4/5 sm:basis-2/3 md:basis-1/2 lg:basis-1/3">
-                  <Card className="group cursor-pointer bg-gradient-card/80 backdrop-blur-sm border-0 shadow-elegant hover:shadow-glow transition-all duration-500 hover:-translate-y-2 hover:rotate-1 transform-gpu" onClick={() => handleImageClick(index)}>
-                    <CardContent className="p-0 relative overflow-hidden rounded-lg">
+                  <Card className="group cursor-pointer bg-gradient-card/90 backdrop-blur-sm border-0 shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:shadow-[0_20px_60px_rgb(0,0,0,0.25)] transition-all duration-500 hover:-translate-y-6 hover:rotate-2 transform-gpu rounded-2xl" onClick={() => handleImageClick(index)}>
+                    <CardContent className="p-0 relative overflow-hidden rounded-2xl">
                       <div className="relative aspect-[4/5]">
-                        <img src={image.src} alt={image.title} className="w-full h-full object-cover group-hover:scale-110 transition-all duration-700" loading="lazy" decoding="async" />
+                        <img src={image.src} alt={image.title} className="w-full h-full object-cover group-hover:scale-110 transition-all duration-700 rounded-2xl" loading="lazy" decoding="async" />
                         
                         {/* Floating overlay with category badge */}
                         <div className="absolute top-4 right-4 bg-primary/90 backdrop-blur-sm text-primary-foreground px-3 py-1 rounded-full text-xs font-medium uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
