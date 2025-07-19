@@ -69,9 +69,9 @@ export default {
 				'card': 'var(--shadow-card)',
 				'elegant': 'var(--shadow-elegant)',
 				'elevated': 'var(--shadow-elevated)',
+				'float': 'var(--shadow-float)',
 				'glow': 'var(--shadow-glow)',
-				'glow-strong': 'var(--shadow-glow-strong)',
-				'float': 'var(--shadow-float)'
+				'glow-strong': 'var(--shadow-glow-strong)'
 			},
 			spacing: {
 				'section': 'var(--spacing-section)',

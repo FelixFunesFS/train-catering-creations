@@ -1,9 +1,10 @@
+
 import * as React from "react"
 import { cn } from "@/lib/utils"
 import { Slot } from "@radix-ui/react-slot"
 
 export type FloatingCardVariant = "subtle" | "medium" | "dramatic" | "interactive" | "none"
-export type FloatingCardShadow = "card" | "elegant" | "elevated" | "glow"
+export type FloatingCardShadow = "card" | "elegant" | "elevated" | "float"
 
 interface FloatingCardProps extends React.HTMLAttributes<HTMLDivElement> {
   /** The floating effect intensity */
@@ -28,7 +29,7 @@ const FloatingCard = React.forwardRef<HTMLDivElement, FloatingCardProps>(({
   className,
   variant = "medium",
   restingShadow = "card",
-  hoverShadow = "elegant",
+  hoverShadow = "elevated",
   highlightBorder = false,
   liftAmount,
   scaleAmount,
@@ -62,7 +63,7 @@ const FloatingCard = React.forwardRef<HTMLDivElement, FloatingCardProps>(({
     card: "shadow-card",
     elegant: "shadow-elegant", 
     elevated: "shadow-elevated",
-    glow: "shadow-glow"
+    float: "shadow-float"
   }
   
   const baseClasses = [
@@ -120,7 +121,7 @@ const FloatingImageCard = React.forwardRef<HTMLDivElement, FloatingCardProps>(
       ref={ref}
       variant="medium"
       restingShadow="card"
-      hoverShadow="elegant"
+      hoverShadow="elevated"
       highlightBorder
       className={cn("overflow-hidden cursor-pointer", className)}
       {...props}
@@ -151,7 +152,7 @@ const FloatingCTACard = React.forwardRef<HTMLDivElement, FloatingCardProps>(
       ref={ref}
       variant="dramatic"
       restingShadow="elegant"
-      hoverShadow="glow"
+      hoverShadow="float"
       highlightBorder
       className={cn("bg-gradient-card border border-border", className)}
       {...props}

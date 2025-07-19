@@ -55,22 +55,25 @@ All colors MUST be HSL. Designed for maximum accessibility with high contrast ra
     --gradient-hero: linear-gradient(135deg, hsl(0 0% 100%), hsl(0 0% 98%));
     --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(0 0% 99%));
 
-  /* Enhanced shadow hierarchy for cohesive design */
-  --shadow-card: 0 2px 8px -2px hsl(0 0% 0% / 0.05);
-  --shadow-elegant: 0 8px 24px -4px hsl(0 0% 0% / 0.2);
-  --shadow-glow: 0 0 20px hsl(0 72% 50% / 0.35);
-  --shadow-elevated: 0 12px 32px -4px hsl(0 0% 0% / 0.25);
-  --shadow-glow-strong: 0 0 28px hsl(0 72% 50% / 0.4);
-  --shadow-float: 0 16px 48px -8px hsl(0 0% 0% / 0.15);
+    /* Enhanced neutral shadow hierarchy for cohesive design */
+    --shadow-card: 0 2px 8px -2px hsl(0 0% 0% / 0.05);
+    --shadow-elegant: 0 8px 24px -4px hsl(0 0% 0% / 0.12);
+    --shadow-elevated: 0 12px 32px -4px hsl(0 0% 0% / 0.15);
+    --shadow-float: 0 16px 48px -8px hsl(0 0% 0% / 0.18);
+    
+    /* Optional red glow shadows (kept for special cases) */
+    --shadow-glow: 0 0 20px hsl(0 72% 50% / 0.25);
+    --shadow-glow-strong: 0 0 28px hsl(0 72% 50% / 0.3);
   
-  /* Floating card optimizations */
-  --floating-duration: 250ms;
-  --floating-timing: cubic-bezier(0.4, 0, 0.2, 1);
+    /* Floating card optimizations */
+    --floating-duration: 250ms;
+    --floating-timing: cubic-bezier(0.4, 0, 0.2, 1);
     
     /* Mobile-optimized shadows (lighter for smaller screens) */
     --shadow-card-mobile: 0 1px 4px -1px hsl(0 0% 0% / 0.05);
     --shadow-elegant-mobile: 0 4px 12px -2px hsl(0 0% 0% / 0.08);
-    --shadow-glow-mobile: 0 0 12px hsl(0 72% 50% / 0.12);
+    --shadow-elevated-mobile: 0 6px 16px -2px hsl(0 0% 0% / 0.1);
+    --shadow-float-mobile: 0 8px 24px -4px hsl(0 0% 0% / 0.12);
     
     /* Responsive spacing tokens */
     --spacing-section: 3rem;
@@ -83,8 +86,8 @@ All colors MUST be HSL. Designed for maximum accessibility with high contrast ra
     --spacing-card-grid-lg: 2.5rem;
     
     /* Mobile-optimized touch targets */
-  --touch-target-min: 48px;
-  --touch-target-mobile: 52px;
+    --touch-target-min: 48px;
+    --touch-target-mobile: 52px;
     --touch-target-comfortable: 48px;
     
     /* Animation keyframes */
@@ -150,19 +153,19 @@ All colors MUST be HSL. Designed for maximum accessibility with high contrast ra
   .text-responsive-lg { @apply text-lg-mobile sm:text-lg; }
   .text-responsive-xl { @apply text-xl-mobile sm:text-xl; }
 
-  /* Mobile-optimized shadow utilities */
+  /* Mobile-optimized neutral shadow utilities */
   .shadow-card { box-shadow: var(--shadow-card-mobile); }
   .shadow-elegant { box-shadow: var(--shadow-elegant-mobile); }
-  .shadow-glow { box-shadow: var(--shadow-glow-mobile); }
-  .shadow-elevated { box-shadow: var(--shadow-elegant-mobile); }
-  .shadow-glow-strong { box-shadow: var(--shadow-glow-mobile); }
+  .shadow-elevated { box-shadow: var(--shadow-elevated-mobile); }
+  .shadow-float { box-shadow: var(--shadow-float-mobile); }
+  .shadow-glow { box-shadow: var(--shadow-glow); }
+  .shadow-glow-strong { box-shadow: var(--shadow-glow-strong); }
   
   @media (min-width: 640px) {
     .shadow-card { box-shadow: var(--shadow-card); }
     .shadow-elegant { box-shadow: var(--shadow-elegant); }
-    .shadow-glow { box-shadow: var(--shadow-glow); }
     .shadow-elevated { box-shadow: var(--shadow-elevated); }
-    .shadow-glow-strong { box-shadow: var(--shadow-glow-strong); }
+    .shadow-float { box-shadow: var(--shadow-float); }
   }
 
   @keyframes shimmer {
@@ -525,13 +528,14 @@ All colors MUST be HSL. Designed for maximum accessibility with high contrast ra
     }
   }
 
-  /* Enhanced hover effects */
+  /* Enhanced hover effects with neutral shadows */
   .hover-float {
-    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   }
   
   .hover-float:hover {
     transform: translateY(-8px);
+    box-shadow: var(--shadow-elevated);
   }
 
   /* Text animation utilities */
@@ -667,7 +671,7 @@ All colors MUST be HSL. Designed for maximum accessibility with high contrast ra
     opacity: 0.6;
   }
 
-  /* Floating Card Utilities */
+  /* Floating Card Utilities - Updated with neutral shadows */
   .floating-card-subtle {
     transform: translateZ(0);
     will-change: transform;
@@ -687,7 +691,7 @@ All colors MUST be HSL. Designed for maximum accessibility with high contrast ra
   
   .floating-card-medium:hover {
     transform: translateY(-4px) scale(1.01);
-    box-shadow: var(--shadow-elegant);
+    box-shadow: var(--shadow-elevated);
   }
   
   .floating-card-dramatic {
@@ -698,7 +702,7 @@ All colors MUST be HSL. Designed for maximum accessibility with high contrast ra
   
   .floating-card-dramatic:hover {
     transform: translateY(-8px) scale(1.02);
-    box-shadow: var(--shadow-glow);
+    box-shadow: var(--shadow-float);
   }
   
   .floating-card-interactive {
@@ -721,6 +725,7 @@ All colors MUST be HSL. Designed for maximum accessibility with high contrast ra
     .floating-card-dramatic:hover,
     .floating-card-interactive:hover {
       transform: translateY(-2px) scale(1.005);
+      box-shadow: var(--shadow-elegant-mobile);
     }
   }
 
