@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import { Phone, Mail, MapPin, Clock, Facebook, Instagram, Twitter, Star } from "lucide-react";
 export const Footer = () => {
@@ -43,11 +44,11 @@ export const Footer = () => {
             </p>
             <div className="space-y-2">
               <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                <Star className="h-4 w-4 text-primary" fill="currentColor" />
+                <Star className="h-4 w-4 text-accent-foreground" fill="currentColor" />
                 <span>Premium Catering Services</span>
               </div>
               <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                <Star className="h-4 w-4 text-primary" fill="currentColor" />
+                <Star className="h-4 w-4 text-accent-foreground" fill="currentColor" />
                 <span>Licensed & Insured</span>
               </div>
             </div>
@@ -135,18 +136,18 @@ export const Footer = () => {
         </div>
       </div>
 
-      {/* Copyright Bar */}
-      <div className="bg-primary py-4">
+      {/* Enhanced Copyright Bar with better neutral balance */}
+      <div className="bg-secondary border-t border-border py-4">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-0">
-          <div className="flex flex-col sm:flex-row justify-between items-center text-sm text-primary-foreground">
+          <div className="flex flex-col sm:flex-row justify-between items-center text-sm text-secondary-foreground">
             <div className="flex items-center space-x-3">
               
               <p>© {currentYear} Soul Train's Eatery. All rights reserved.</p>
             </div>
             <div className="flex flex-wrap space-x-3 mt-2 sm:mt-0 text-center sm:text-right">
-              <Link to="/privacy-policy" className="hover:text-primary-foreground/80 transition-colors duration-200">Privacy Policy</Link>
+              <Link to="/privacy-policy" className="hover:text-primary transition-colors duration-200">Privacy Policy</Link>
               <span>|</span>
-              <Link to="/terms-conditions" className="hover:text-primary-foreground/80 transition-colors duration-200">Terms & Conditions</Link>
+              <Link to="/terms-conditions" className="hover:text-primary transition-colors duration-200">Terms & Conditions</Link>
             </div>
           </div>
         </div>

@@ -53,6 +53,24 @@ export default {
 				card: {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
+				},
+				category: {
+					appetizers: 'hsl(var(--category-appetizers))',
+					'appetizers-foreground': 'hsl(var(--category-appetizers-foreground))',
+					entrees: 'hsl(var(--category-entrees))',
+					'entrees-foreground': 'hsl(var(--category-entrees-foreground))',
+					sides: 'hsl(var(--category-sides))',
+					'sides-foreground': 'hsl(var(--category-sides-foreground))',
+					desserts: 'hsl(var(--category-desserts))',
+					'desserts-foreground': 'hsl(var(--category-desserts-foreground))',
+				},
+				service: {
+					wedding: 'hsl(var(--service-wedding))',
+					'wedding-foreground': 'hsl(var(--service-wedding-foreground))',
+					corporate: 'hsl(var(--service-corporate))',
+					'corporate-foreground': 'hsl(var(--service-corporate-foreground))',
+					family: 'hsl(var(--service-family))',
+					'family-foreground': 'hsl(var(--service-family-foreground))',
 				}
 			},
 			fontFamily: {

@@ -1,9 +1,11 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* Soul Train's Eatery Design System - Clean White with Bold Red Accents
 All colors MUST be HSL. Designed for maximum accessibility with high contrast ratios.
+Enhanced 60-30-10 color scheme implementation.
 */
 
 @layer base {
@@ -12,7 +14,7 @@ All colors MUST be HSL. Designed for maximum accessibility with high contrast ra
   }
   
   :root {
-    /* Clean white base with high contrast */
+    /* Clean white base with high contrast - 60% */
     --background: 0 0% 100%;
     --foreground: 0 0% 8%;
 
@@ -22,22 +24,22 @@ All colors MUST be HSL. Designed for maximum accessibility with high contrast ra
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 8%;
 
-    /* Bold red primary - accessible contrast on white */
+    /* Bold red primary - 10% accent */
     --primary: 0 72% 50%;
     --primary-foreground: 0 0% 100%;
     --primary-light: 0 72% 95%;
-    --primary-glow: 0 72% 45%; /* Darker, more subtle red */
+    --primary-glow: 0 72% 45%;
 
-    /* Light gray secondary with high contrast */
+    /* Light gray secondary with high contrast - 30% neutrals */
     --secondary: 0 0% 96%;
     --secondary-foreground: 0 0% 8%;
 
-    /* Subtle grays with accessible contrast */
+    /* Subtle grays with accessible contrast - 30% neutrals */
     --muted: 0 0% 96%;
     --muted-foreground: 0 0% 35%;
 
-    /* Darker red accent for accessibility */
-    --accent: 0 0% 96%;
+    /* Refined accent for better balance */
+    --accent: 0 0% 94%;
     --accent-foreground: 0 0% 8%;
 
     --destructive: 0 72% 50%;
@@ -49,6 +51,24 @@ All colors MUST be HSL. Designed for maximum accessibility with high contrast ra
     --ring: 0 72% 50%;
 
     --radius: 0.75rem;
+
+    /* Enhanced category colors for menu sections */
+    --category-appetizers: 45 100% 60%; /* Warm amber */
+    --category-appetizers-foreground: 0 0% 8%;
+    --category-entrees: 0 50% 45%; /* Rich burgundy */
+    --category-entrees-foreground: 0 0% 100%;
+    --category-sides: 120 40% 50%; /* Fresh green */
+    --category-sides-foreground: 0 0% 100%;
+    --category-desserts: 320 60% 60%; /* Soft pink */
+    --category-desserts-foreground: 0 0% 8%;
+
+    /* Service type colors for events */
+    --service-wedding: 340 70% 85%; /* Soft rose */
+    --service-wedding-foreground: 0 0% 8%;
+    --service-corporate: 210 30% 25%; /* Professional navy */
+    --service-corporate-foreground: 0 0% 100%;
+    --service-family: 25 70% 70%; /* Warm peach */
+    --service-family-foreground: 0 0% 8%;
 
     /* Clean gradients with subtle transitions */
     --gradient-primary: linear-gradient(135deg, hsl(0 72% 50%), hsl(0 72% 45%));
@@ -62,7 +82,7 @@ All colors MUST be HSL. Designed for maximum accessibility with high contrast ra
     --shadow-float: 0 16px 48px -8px hsl(0 0% 0% / 0.18);
     --shadow-soft: 0 4px 16px -2px hsl(0 0% 0% / 0.08);
     
-    /* Updated neutral glow shadows (no more red) */
+    /* Updated neutral glow shadows */
     --shadow-glow: 0 8px 32px -4px hsl(0 0% 0% / 0.15);
     --shadow-glow-strong: 0 12px 40px -4px hsl(0 0% 0% / 0.20);
   
@@ -125,6 +145,16 @@ All colors MUST be HSL. Designed for maximum accessibility with high contrast ra
     --border: 0 0% 85%;
     --input: 0 0% 85%;
     --ring: 0 84% 45%;
+
+    /* Dark mode category colors */
+    --category-appetizers: 45 80% 50%;
+    --category-appetizers-foreground: 0 0% 100%;
+    --category-entrees: 0 40% 40%;
+    --category-entrees-foreground: 0 0% 100%;
+    --category-sides: 120 30% 40%;
+    --category-sides-foreground: 0 0% 100%;
+    --category-desserts: 320 50% 50%;
+    --category-desserts-foreground: 0 0% 100%;
   }
 }
 
@@ -139,6 +169,17 @@ All colors MUST be HSL. Designed for maximum accessibility with high contrast ra
 }
 
 @layer utilities {
+  /* Enhanced category color utilities */
+  .category-appetizers { @apply bg-category-appetizers text-category-appetizers-foreground; }
+  .category-entrees { @apply bg-category-entrees text-category-entrees-foreground; }
+  .category-sides { @apply bg-category-sides text-category-sides-foreground; }
+  .category-desserts { @apply bg-category-desserts text-category-desserts-foreground; }
+
+  /* Service type utilities */
+  .service-wedding { @apply bg-service-wedding text-service-wedding-foreground; }
+  .service-corporate { @apply bg-service-corporate text-service-corporate-foreground; }
+  .service-family { @apply bg-service-family text-service-family-foreground; }
+
   /* Touch-friendly minimum sizes */
   .min-h-touch {
     min-height: var(--touch-target-min);
@@ -147,6 +188,8 @@ All colors MUST be HSL. Designed for maximum accessibility with high contrast ra
   .min-w-touch {
     min-width: var(--touch-target-min);
   }
+
+  /* ... keep existing code (responsive text utilities, shadow utilities, keyframes, animations, hover effects, etc.) the same ... */
   
   /* Responsive text utilities */
   .text-responsive-xs { @apply text-xs-mobile text-xs; }
@@ -766,3 +809,4 @@ All colors MUST be HSL. Designed for maximum accessibility with high contrast ra
     transform: translateY(0);
   }
 }
+

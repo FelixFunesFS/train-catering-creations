@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import MenuHeader from "@/components/menu/MenuHeader";
 import MenuNavigation from "@/components/menu/MenuNavigation";
@@ -40,7 +41,7 @@ const Menu = () => {
       sections: [
         {
           title: "Platters & Boards",
-          color: "bg-accent/5 border-accent/15",
+          color: "bg-category-appetizers/10 border-category-appetizers/30",
           items: [
             "Charcuterie Board",
             "Grazing Table", 
@@ -52,7 +53,7 @@ const Menu = () => {
         },
         {
           title: "Signature Bites",
-          color: "bg-primary/5 border-primary/15",
+          color: "bg-category-appetizers/15 border-category-appetizers/40",
           items: [
             "Shrimp Deviled Eggs w/Bacon Finish",
             "Smoked Salmon Cucumber Bites",
@@ -65,7 +66,7 @@ const Menu = () => {
         },
         {
           title: "Classic Starters",
-          color: "bg-secondary/5 border-secondary/15",
+          color: "bg-category-appetizers/8 border-category-appetizers/25",
           items: [
             "Chicken Sliders",
             "Pulled Pork Sliders",
@@ -85,7 +86,7 @@ const Menu = () => {
       sections: [
         {
           title: "Poultry",
-          color: "bg-accent/5 border-accent/15",
+          color: "bg-category-entrees/10 border-category-entrees/30",
           items: [
             "Baked/Smoked Chicken",
             "Barbecue Chicken",
@@ -98,7 +99,7 @@ const Menu = () => {
         },
         {
           title: "Beef & Pork",
-          color: "bg-primary/5 border-primary/15",
+          color: "bg-category-entrees/15 border-category-entrees/40",
           items: [
             "Smoked Sausage",
             "Fried Pork Chops",
@@ -115,7 +116,7 @@ const Menu = () => {
         },
         {
           title: "Seafood",
-          color: "bg-secondary/5 border-secondary/15",
+          color: "bg-category-entrees/8 border-category-entrees/25",
           items: [
             "Baked Salmon",
             "Shrimp Alfredo",
@@ -126,7 +127,7 @@ const Menu = () => {
         },
         {
           title: "Plant-Based Options",
-          color: "bg-green-500/5 border-green-500/15",
+          color: "bg-category-sides/10 border-category-sides/30",
           items: [
             "Vegan Lasagna",
             "Quinoa Power Bowl",
@@ -146,7 +147,7 @@ const Menu = () => {
       sections: [
         {
           title: "Comfort Classics",
-          color: "bg-amber-500/5 border-amber-500/15",
+          color: "bg-category-sides/10 border-category-sides/30",
           items: [
             "Macaroni & Cheese",
             "Mashed Potatoes & Gravy",
@@ -162,7 +163,7 @@ const Menu = () => {
         },
         {
           title: "Fresh & Light",
-          color: "bg-emerald-500/5 border-emerald-500/15",
+          color: "bg-category-sides/15 border-category-sides/40",
           items: [
             "Garden Salad",
             "Caesar Salad",
@@ -184,7 +185,7 @@ const Menu = () => {
       sections: [
         {
           title: "Signature Cakes",
-          color: "bg-pink-500/5 border-pink-500/15",
+          color: "bg-category-desserts/10 border-category-desserts/30",
           items: [
             "Red Velvet Cake",
             "Vanilla Cake",
@@ -195,7 +196,7 @@ const Menu = () => {
         },
         {
           title: "Specialty Treats",
-          color: "bg-purple-500/5 border-purple-500/15",
+          color: "bg-category-desserts/15 border-category-desserts/40",
           items: [
             "Brownies",
             "Cheesecake",
@@ -214,10 +215,10 @@ const Menu = () => {
 
   return (
     <div className="min-h-screen bg-gradient-hero relative overflow-hidden">
-        {/* Decorative background elements */}
+        {/* Enhanced decorative background elements with subtle color */}
         <div className="absolute inset-0 bg-gradient-to-br from-background/50 to-accent/5 pointer-events-none" />
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/3 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-1/3 right-1/4 w-64 h-64 bg-accent/5 rounded-full blur-2xl pointer-events-none" />
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/2 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-1/3 right-1/4 w-64 h-64 bg-accent/3 rounded-full blur-2xl pointer-events-none" />
         
         <SectionCard className="mt-1">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
@@ -227,14 +228,14 @@ const Menu = () => {
           </div>
         </SectionCard>
 
-        {/* Visual separator */}
+        {/* Visual separator with subtle enhancement */}
         <div className="relative">
           <div className="absolute inset-0 flex items-center" aria-hidden="true">
-            <div className="w-full border-t border-gradient-primary/20" />
+            <div className="w-full border-t border-muted/40" />
           </div>
           <div className="relative flex justify-center">
             <span className="px-6 bg-gradient-hero text-muted-foreground">
-              <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+              <div className="w-8 h-8 bg-primary/8 rounded-full flex items-center justify-center">
                 <div className="w-2 h-2 bg-primary rounded-full" />
               </div>
             </span>
