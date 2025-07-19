@@ -62,7 +62,7 @@ export const HeroSection = () => {
               
               <div className="relative z-10 text-center space-y-3 sm:space-y-4 lg:space-y-6 py-4 sm:py-6 lg:py-8">
                 {/* Logo Icon - consistent with PageHeader styling */}
-                <div className="flex justify-center">
+                <div className="flex justify-center my-[26px]">
                   <div className="h-10 w-10 sm:h-12 sm:w-12 lg:h-14 lg:w-14 xl:h-16 xl:w-16">
                     <img src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" alt="Soul Train's Eatery Logo" className="w-full h-full object-contain hover:scale-110 transition-transform duration-300" />
                   </div>
@@ -104,19 +104,14 @@ export const HeroSection = () => {
               <div className="max-w-7xl mx-auto">
                 {/* Responsive Carousel */}
                 <div className="relative mb-6 sm:mb-8 lg:mb-10">
-                  <Carousel 
-                    opts={{
-                      align: "start",
-                      loop: true
-                    }} 
-                    plugins={[Autoplay({
-                      delay: 4000
-                    })]}
-                    className="w-full"
-                  >
+                  <Carousel opts={{
+                  align: "start",
+                  loop: true
+                }} plugins={[Autoplay({
+                  delay: 4000
+                })]} className="w-full">
                     <CarouselContent className="-ml-1 gap-2">
-                      {heroImages.map((image, index) => (
-                        <CarouselItem key={index} className="pl-1 basis-full md:basis-1/2 lg:basis-1/3">
+                      {heroImages.map((image, index) => <CarouselItem key={index} className="pl-1 basis-full md:basis-1/2 lg:basis-1/3">
                           <div className="group relative overflow-hidden rounded-lg shadow-elegant hover:shadow-glow bg-gradient-card transition-all duration-300 cursor-pointer transform hover:scale-[1.02]" onClick={() => handleImageClick(index)}>
                             <div className="aspect-[3/2] overflow-hidden">
                               <img src={image.src} alt={image.alt} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading={index < 2 ? "eager" : "lazy"} decoding="async" />
@@ -137,8 +132,7 @@ export const HeroSection = () => {
                             {/* Subtle border effect */}
                             <div className="absolute inset-0 border-2 border-transparent group-hover:border-primary/20 rounded-lg transition-colors duration-300"></div>
                           </div>
-                        </CarouselItem>
-                      ))}
+                        </CarouselItem>)}
                     </CarouselContent>
                     <CarouselPrevious className="hidden md:flex -left-12" />
                     <CarouselNext className="hidden md:flex -right-12" />
