@@ -8,7 +8,7 @@ import { SectionCard } from "@/components/ui/section-card";
 export const HeroSection = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
 
-  // Featured images for the grid display - taking the first 4 images for initial display
+  // Featured images for the grid display - taking the first 3 images for initial display
   const heroImages = [{
     src: "/lovable-uploads/1dcbc1ee-eb25-4d89-8722-cb4904d1ba69.png",
     alt: "Elegant wedding dessert table with tiered cake, neon signage, and gourmet treats",
@@ -21,12 +21,6 @@ export const HeroSection = () => {
     title: "Formal Events",
     description: "Rustic venue buffet setup with chafing dishes and atmospheric lighting",
     category: "formal"
-  }, {
-    src: "/lovable-uploads/c3ec0f07-ade4-40c3-89f7-0c5f2c8bebcf.png",
-    alt: "Professional buffet service setup with chafing dishes and elegant presentation",
-    title: "Buffet Service",
-    description: "Professional buffet service setup with chafing dishes and elegant presentation",
-    category: "buffet"
   }, {
     src: "/lovable-uploads/d2ed2f6e-a667-4bf2-9e28-30029d377f94.png",
     alt: "Elegant formal event display with tiered appetizers and beverage service",
@@ -89,7 +83,7 @@ export const HeroSection = () => {
         <div className="relative px-6 sm:px-8 lg:px-12 pb-8 lg:pb-12">
           <div className="max-w-7xl mx-auto">
             {/* Responsive Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-3 lg:gap-4 mb-8 sm:mb-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-3 lg:gap-4 mb-8 sm:mb-12">
               {heroImages.map((image, index) => (
                 <div key={index} className="group relative overflow-hidden rounded-lg shadow-elegant hover:shadow-glow bg-gradient-card transition-all duration-200 cursor-pointer" onClick={() => handleImageClick(index)}>
                   <div className="aspect-[5/4] overflow-hidden">
