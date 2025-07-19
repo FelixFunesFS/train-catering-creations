@@ -1,7 +1,9 @@
+
 import { Calendar, Utensils, Trophy, Quote } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
+
 export const TestimonialsStatsSection = () => {
   const { ref: statsRef, isVisible: statsVisible, variant: statsVariant } = useScrollAnimation({ delay: 0, variant: 'elastic' });
   const { ref: reviewRef, isVisible: reviewVisible, variant: reviewVariant } = useScrollAnimation({ delay: 300, variant: 'elastic' });
@@ -20,7 +22,7 @@ export const TestimonialsStatsSection = () => {
   }];
   
   return (
-    <section className="py-6 md:py-8 lg:py-10 bg-gradient-card shadow-elegant hover:shadow-glow transition-all duration-200 rounded-lg mx-4 sm:mx-6 lg:mx-8 my-4 md:my-6">
+    <section className="py-16 lg:py-20 bg-muted/30 border-t border-border/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-stretch">
           {/* Statistics Side */}
@@ -39,7 +41,7 @@ export const TestimonialsStatsSection = () => {
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8 lg:gap-12">
               {stats.map((stat, index) => (
-                <Card key={index} className="bg-card border-border hover:shadow-elegant transition-all duration-200 hover:scale-105 group hover-float">
+                <Card key={index} className="bg-card border-border shadow-elegant hover:shadow-elevated transition-all duration-200 hover:scale-105 group">
                   <CardContent className="p-4 sm:p-6 lg:p-8 text-center">
                     <stat.icon className="h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 text-primary mx-auto mb-4 lg:mb-6 group-hover:scale-110 transition-transform duration-200" />
                     <div className="text-xl sm:text-2xl lg:text-3xl font-elegant text-foreground mb-4">
@@ -57,7 +59,7 @@ export const TestimonialsStatsSection = () => {
           {/* Review Side */}
           <div 
             ref={reviewRef}
-            className={`bg-card rounded-2xl p-6 lg:p-8 border border-border shadow-elegant hover:shadow-glow transition-all duration-200 hover:scale-105 group flex flex-col justify-between h-full hover-float ${reviewAnimationClass}`}
+            className={`bg-card rounded-2xl p-6 lg:p-8 border border-border shadow-elegant hover:shadow-elevated transition-all duration-200 hover:scale-105 group flex flex-col justify-between h-full ${reviewAnimationClass}`}
           >
             <Quote className="h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 text-primary mb-6 group-hover:scale-110 transition-transform duration-200" />
             <blockquote className="text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed mb-8">

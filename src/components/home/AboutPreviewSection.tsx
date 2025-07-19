@@ -1,7 +1,7 @@
+
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { SectionCard } from "@/components/ui/section-card";
 import { Heart, Users, Crown, ChefHat, Award } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
@@ -49,7 +49,7 @@ export const AboutPreviewSection = () => {
   const card4AnimationClass = useAnimationClass(card4Variant, card4Visible);
 
   return (
-    <SectionCard>
+    <section className="py-16 lg:py-20 bg-muted/20 border-t border-border/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           <div ref={titleRef} className={titleAnimationClass}>
@@ -69,49 +69,49 @@ export const AboutPreviewSection = () => {
             </Link>
           </div>
           <div className="grid grid-cols-2 gap-6 md:gap-10 lg:gap-12">
-          <Card 
-            ref={card1Ref}
-            className={`shadow-card hover:shadow-elegant transition-all duration-200 overflow-hidden group ${card1AnimationClass}`}
-          >
-            <CardContent className="p-4 sm:p-6 text-center">
-              <ChefHat className="h-8 w-8 sm:h-10 sm:w-10 text-primary mx-auto mb-4 group-hover:scale-110 transition-transform duration-200" />
-              <h3 className="font-elegant font-semibold text-foreground mb-2 text-sm sm:text-base">Chef Train</h3>
-              <p className="text-xs sm:text-sm text-muted-foreground">20+ Years Experience</p>
-            </CardContent>
-          </Card>
-          <Card 
-            ref={card2Ref}
-            className={`shadow-card hover:shadow-elegant transition-all duration-200 overflow-hidden group ${card2AnimationClass}`}
-          >
-            <CardContent className="p-4 sm:p-6 text-center">
-              <Heart className="h-8 w-8 sm:h-10 sm:w-10 text-primary mx-auto mb-4 group-hover:scale-110 transition-transform duration-200" />
-              <h3 className="font-elegant font-semibold text-foreground mb-2 text-sm sm:text-base">Tanya Ward</h3>
-              <p className="text-xs sm:text-sm text-muted-foreground">Pastry Chef</p>
-            </CardContent>
-          </Card>
-          <Card 
-            ref={card3Ref}
-            className={`shadow-card hover:shadow-elegant transition-all duration-200 overflow-hidden group ${card3AnimationClass}`}
-          >
-            <CardContent className="p-4 sm:p-6 text-center">
-              <Award className="h-8 w-8 sm:h-10 sm:w-10 text-primary mx-auto mb-4 group-hover:scale-110 transition-transform duration-200" />
-              <h3 className="font-elegant font-semibold text-foreground mb-2 text-sm sm:text-base">ServSafe</h3>
-              <p className="text-xs sm:text-sm text-muted-foreground">Certified</p>
-            </CardContent>
-          </Card>
-          <Card 
-            ref={card4Ref}
-            className={`shadow-card hover:shadow-elegant transition-all duration-200 overflow-hidden group ${card4AnimationClass}`}
-          >
-            <CardContent className="p-4 sm:p-6 text-center">
-              <Users className="h-8 w-8 sm:h-10 sm:w-10 text-primary mx-auto mb-4 group-hover:scale-110 transition-transform duration-200" />
-              <h3 className="font-elegant font-semibold text-foreground mb-2 text-sm sm:text-base">Family Run</h3>
-              <p className="text-xs sm:text-sm text-muted-foreground">Community Rooted</p>
-            </CardContent>
-          </Card>
+            <Card 
+              ref={card1Ref}
+              className={`shadow-elegant hover:shadow-elevated transition-all duration-200 overflow-hidden group bg-card ${card1AnimationClass}`}
+            >
+              <CardContent className="p-4 sm:p-6 text-center">
+                <ChefHat className="h-8 w-8 sm:h-10 sm:w-10 text-primary mx-auto mb-4 group-hover:scale-110 transition-transform duration-200" />
+                <h3 className="font-elegant font-semibold text-foreground mb-2 text-sm sm:text-base">Chef Train</h3>
+                <p className="text-xs sm:text-sm text-muted-foreground">20+ Years Experience</p>
+              </CardContent>
+            </Card>
+            <Card 
+              ref={card2Ref}
+              className={`shadow-elegant hover:shadow-elevated transition-all duration-200 overflow-hidden group bg-card ${card2AnimationClass}`}
+            >
+              <CardContent className="p-4 sm:p-6 text-center">
+                <Heart className="h-8 w-8 sm:h-10 sm:w-10 text-primary mx-auto mb-4 group-hover:scale-110 transition-transform duration-200" />
+                <h3 className="font-elegant font-semibold text-foreground mb-2 text-sm sm:text-base">Tanya Ward</h3>
+                <p className="text-xs sm:text-sm text-muted-foreground">Pastry Chef</p>
+              </CardContent>
+            </Card>
+            <Card 
+              ref={card3Ref}
+              className={`shadow-elegant hover:shadow-elevated transition-all duration-200 overflow-hidden group bg-card ${card3AnimationClass}`}
+            >
+              <CardContent className="p-4 sm:p-6 text-center">
+                <Award className="h-8 w-8 sm:h-10 sm:w-10 text-primary mx-auto mb-4 group-hover:scale-110 transition-transform duration-200" />
+                <h3 className="font-elegant font-semibold text-foreground mb-2 text-sm sm:text-base">ServSafe</h3>
+                <p className="text-xs sm:text-sm text-muted-foreground">Certified</p>
+              </CardContent>
+            </Card>
+            <Card 
+              ref={card4Ref}
+              className={`shadow-elegant hover:shadow-elevated transition-all duration-200 overflow-hidden group bg-card ${card4AnimationClass}`}
+            >
+              <CardContent className="p-4 sm:p-6 text-center">
+                <Users className="h-8 w-8 sm:h-10 sm:w-10 text-primary mx-auto mb-4 group-hover:scale-110 transition-transform duration-200" />
+                <h3 className="font-elegant font-semibold text-foreground mb-2 text-sm sm:text-base">Family Run</h3>
+                <p className="text-xs sm:text-sm text-muted-foreground">Community Rooted</p>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
-    </SectionCard>
+    </section>
   );
 };

@@ -1,7 +1,6 @@
 
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
-import { SectionCard } from "@/components/ui/section-card";
 import { OptimizedImage } from "@/components/ui/optimized-image";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
@@ -18,22 +17,22 @@ export const ServicesSection = () => {
   const card4AnimationClass = useAnimationClass(card4Variant, card4Visible);
 
   return (
-    <SectionCard>
+    <section className="py-16 lg:py-20 bg-gradient-card/30 border-t border-border/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-8 sm:mb-12 lg:mb-16">
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant text-foreground mb-6 text-fade-up">
-              Our Catering Services
-            </h2>
-            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto text-fade-up-delay-1">
-              From elegant weddings to corporate events, we cater every occasion with care, flavor, and professionalism.
-            </p>
-          </div>
+        <div className="text-center mb-8 sm:mb-12 lg:mb-16">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant text-foreground mb-6 text-fade-up">
+            Our Catering Services
+          </h2>
+          <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto text-fade-up-delay-1">
+            From elegant weddings to corporate events, we cater every occasion with care, flavor, and professionalism.
+          </p>
+        </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-10 lg:gap-14">
           <Link to="/wedding-menu#page-header" className="block">
             <Card 
               ref={card1Ref}
-              className={`shadow-elegant hover:shadow-glow bg-gradient-card text-center transition-all duration-200 overflow-hidden group flex flex-col cursor-pointer hover-float ${card1AnimationClass}`}
+              className={`shadow-elegant hover:shadow-elevated bg-card text-center transition-all duration-200 overflow-hidden group flex flex-col cursor-pointer ${card1AnimationClass}`}
             >
               <div className="relative flex-1">
                 <OptimizedImage
@@ -46,7 +45,7 @@ export const ServicesSection = () => {
               <CardContent className="p-4 sm:p-6">
                 <h3 className="text-lg sm:text-xl font-elegant text-foreground mb-4">Weddings</h3>
                 <p className="text-sm sm:text-base text-muted-foreground mb-6">Elegant receptions and intimate ceremonies with personalized menus</p>
-                <span className="text-primary hover:text-primary-glow font-medium group inline-flex items-center gap-1">
+                <span className="text-primary hover:text-primary/80 font-medium group inline-flex items-center gap-1">
                   Learn More 
                   <span className="group-hover:translate-x-1 transition-transform duration-200">→</span>
                 </span>
@@ -57,7 +56,7 @@ export const ServicesSection = () => {
           <Link to="/wedding-menu#page-header" className="block">
             <Card 
               ref={card2Ref}
-              className={`shadow-elegant hover:shadow-glow bg-gradient-card text-center transition-all duration-200 overflow-hidden group flex flex-col cursor-pointer hover-float ${card2AnimationClass}`}
+              className={`shadow-elegant hover:shadow-elevated bg-card text-center transition-all duration-200 overflow-hidden group flex flex-col cursor-pointer ${card2AnimationClass}`}
             >
               <div className="relative flex-1">
                 <OptimizedImage
@@ -70,7 +69,7 @@ export const ServicesSection = () => {
               <CardContent className="p-4 sm:p-6">
                 <h3 className="text-lg sm:text-xl font-elegant text-foreground mb-4">Black Tie Events</h3>
                 <p className="text-sm sm:text-base text-muted-foreground mb-6">Sophisticated catering for galas and formal celebrations</p>
-                <span className="text-primary hover:text-primary-glow font-medium group inline-flex items-center gap-1">
+                <span className="text-primary hover:text-primary/80 font-medium group inline-flex items-center gap-1">
                   Learn More 
                   <span className="group-hover:translate-x-1 transition-transform duration-200">→</span>
                 </span>
@@ -80,7 +79,7 @@ export const ServicesSection = () => {
 
           <Card 
             ref={card3Ref}
-            className={`shadow-elegant hover:shadow-glow bg-gradient-card text-center transition-all duration-200 overflow-hidden group flex flex-col hover-float ${card3AnimationClass}`}
+            className={`shadow-elegant hover:shadow-elevated bg-card text-center transition-all duration-200 overflow-hidden group flex flex-col ${card3AnimationClass}`}
           >
             <div className="relative flex-1">
               <OptimizedImage
@@ -93,7 +92,7 @@ export const ServicesSection = () => {
             <CardContent className="p-4 sm:p-6">
               <h3 className="text-lg sm:text-xl font-elegant text-foreground mb-4">Military Functions</h3>
               <p className="text-sm sm:text-base text-muted-foreground mb-6">Honoring service with promotions, ceremonies, and celebrations</p>
-              <Link to="/wedding-menu#page-header" className="text-primary hover:text-primary-glow font-medium group inline-flex items-center gap-1">
+              <Link to="/wedding-menu#page-header" className="text-primary hover:text-primary/80 font-medium group inline-flex items-center gap-1">
                 Learn More 
                 <span className="group-hover:translate-x-1 transition-transform duration-200">→</span>
               </Link>
@@ -102,7 +101,7 @@ export const ServicesSection = () => {
 
           <Card 
             ref={card4Ref}
-            className={`shadow-elegant hover:shadow-glow bg-gradient-card text-center transition-all duration-200 overflow-hidden group flex flex-col hover-float ${card4AnimationClass}`}
+            className={`shadow-elegant hover:shadow-elevated bg-card text-center transition-all duration-200 overflow-hidden group flex flex-col ${card4AnimationClass}`}
           >
             <div className="relative flex-1">
               <OptimizedImage
@@ -115,7 +114,7 @@ export const ServicesSection = () => {
             <CardContent className="p-4 sm:p-6">
               <h3 className="text-lg sm:text-xl font-elegant text-foreground mb-4">Private Events</h3>
               <p className="text-sm sm:text-base text-muted-foreground mb-6">Corporate conferences, family gatherings, and special occasions</p>
-              <Link to="/menu#page-header" className="text-primary hover:text-primary-glow font-medium group inline-flex items-center gap-1">
+              <Link to="/menu#page-header" className="text-primary hover:text-primary/80 font-medium group inline-flex items-center gap-1">
                 View Menu 
                 <span className="group-hover:translate-x-1 transition-transform duration-200">→</span>
               </Link>
@@ -123,6 +122,6 @@ export const ServicesSection = () => {
           </Card>
         </div>
       </div>
-    </SectionCard>
+    </section>
   );
 };

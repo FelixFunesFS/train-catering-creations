@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { ImageModal } from "@/components/gallery/ImageModal";
 import { OptimizedFloatingImage } from "@/components/ui/optimized-floating-image";
-import { FloatingCard } from "@/components/ui/floating-card";
 import Autoplay from "embla-carousel-autoplay";
 
 const highQualityImages = [{
@@ -72,75 +71,67 @@ export const InteractiveGallerySection = () => {
   };
   
   return (
-    <FloatingCard 
-      variant="subtle" 
-      restingShadow="elegant" 
-      hoverShadow="elevated" 
-      className="py-8 md:py-12 lg:py-16 bg-gradient-card rounded-xl mx-4 sm:mx-6 lg:mx-8 my-8"
-      asChild
-    >
-      <section>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12 lg:mb-16">
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant text-foreground mb-6 text-fade-up">
-              Our Gallery Showcase
-            </h2>
-            <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto text-fade-up-delay-1">
-              Experience the artistry and elegance of Soul Train's catering through our finest moments captured at weddings, corporate events, and special celebrations.
-            </p>
-          </div>
-
-          <div className="relative">
-            <Carousel opts={{
-              align: "start",
-              loop: true
-            }} plugins={[Autoplay({
-              delay: 4000
-            })]} className="w-full">
-              <CarouselContent className="-ml-1 gap-2">
-                {highQualityImages.map((image, index) => (
-                  <CarouselItem key={index} className="pl-1 basis-1/2 sm:basis-1/3 md:basis-1/4">
-                    <OptimizedFloatingImage
-                      src={image.src}
-                      alt={image.title}
-                      title={image.title}
-                      description={image.description}
-                      aspectRatio="aspect-[3/4]"
-                      variant="medium"
-                      priority={index < 4}
-                      onImageClick={() => handleImageClick(index)}
-                      className="bg-card/80 backdrop-blur-sm border border-border/50"
-                    />
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselPrevious className="hidden md:flex" />
-              <CarouselNext className="hidden md:flex" />
-            </Carousel>
-          </div>
-
-          <div className="text-center mt-16 lg:mt-20">
-            <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6">
-              <Button asChild variant="cta" size="responsive-lg" className="w-3/5 sm:w-auto sm:min-w-[14rem] hover-float">
-                <Link to="/gallery#page-header">
-                  View Full Gallery
-                </Link>
-              </Button>
-              <Button asChild variant="cta-outline" size="responsive-lg" className="w-3/5 sm:w-auto sm:min-w-[14rem] hover-float">
-                <Link to="/request-quote#page-header">
-                  Request Quote
-                </Link>
-              </Button>
-            </div>
-          </div>
+    <section className="py-16 lg:py-20 bg-gradient-card/20 border-t border-border/10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-12 lg:mb-16">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant text-foreground mb-6 text-fade-up">
+            Our Gallery Showcase
+          </h2>
+          <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto text-fade-up-delay-1">
+            Experience the artistry and elegance of Soul Train's catering through our finest moments captured at weddings, corporate events, and special celebrations.
+          </p>
         </div>
 
-        <ImageModal 
-          images={highQualityImages}
-          selectedIndex={selectedImageIndex} 
-          onClose={handleCloseModal} 
-        />
-      </section>
-    </FloatingCard>
+        <div className="relative">
+          <Carousel opts={{
+            align: "start",
+            loop: true
+          }} plugins={[Autoplay({
+            delay: 4000
+          })]} className="w-full">
+            <CarouselContent className="-ml-1 gap-2">
+              {highQualityImages.map((image, index) => (
+                <CarouselItem key={index} className="pl-1 basis-1/2 sm:basis-1/3 md:basis-1/4">
+                  <OptimizedFloatingImage
+                    src={image.src}
+                    alt={image.title}
+                    title={image.title}
+                    description={image.description}
+                    aspectRatio="aspect-[3/4]"
+                    variant="medium"
+                    priority={index < 4}
+                    onImageClick={() => handleImageClick(index)}
+                    className="bg-card/80 backdrop-blur-sm border border-border/50 shadow-elegant hover:shadow-elevated"
+                  />
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="hidden md:flex" />
+            <CarouselNext className="hidden md:flex" />
+          </Carousel>
+        </div>
+
+        <div className="text-center mt-16 lg:mt-20">
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6">
+            <Button asChild variant="cta" size="responsive-lg" className="w-3/5 sm:w-auto sm:min-w-[14rem]">
+              <Link to="/gallery#page-header">
+                View Full Gallery
+              </Link>
+            </Button>
+            <Button asChild variant="cta-outline" size="responsive-lg" className="w-3/5 sm:w-auto sm:min-w-[14rem]">
+              <Link to="/request-quote#page-header">
+                Request Quote
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <ImageModal 
+        images={highQualityImages}
+        selectedIndex={selectedImageIndex} 
+        onClose={handleCloseModal} 
+      />
+    </section>
   );
 };
