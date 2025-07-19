@@ -47,9 +47,7 @@ export const HeroSection = () => {
     description: "Elegant appetizer display with beverage service and professional presentation",
     category: "appetizer"
   }];
-
   const allImages = [...heroImages, ...additionalImages];
-
   const handleImageClick = (index: number) => {
     setSelectedImageIndex(index);
   };
@@ -78,28 +76,16 @@ export const HeroSection = () => {
             {/* Decorative line - matches PageHeader exactly */}
             <div className="w-12 sm:w-16 md:w-24 h-1 bg-gradient-primary mx-auto mb-6 sm:mb-8 animate-fade-in" />
             
-            <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-foreground max-w-2xl mx-auto leading-relaxed px-4 animate-fade-in">
-              Welcome to Soul Train's Eatery—Charleston's go-to for soulful, memorable catering. For over 8 years, we've served the Lowcountry with dishes that warm the heart and wow the taste buds. From weddings and baby showers to bereavements and business luncheons, our food brings people together—and our service keeps them coming back. Taste the love in every bite.
-            </p>
+            <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-foreground max-w-2xl mx-auto leading-relaxed px-4 animate-fade-in">Welcome to Soul Train's Eatery, Charleston's go-to for soulful, memorable catering. For over 8 years, we've served the Lowcountry with dishes that warm the heart and wow the taste buds. Taste the love in every bite.</p>
             
             {/* Call-to-Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center mt-6 sm:mt-8 animate-fade-in">
-              <Button
-                asChild
-                variant="cta"
-                size="responsive-md"
-                className="w-3/5 sm:w-auto sm:min-w-[14rem]"
-              >
+              <Button asChild variant="cta" size="responsive-md" className="w-3/5 sm:w-auto sm:min-w-[14rem]">
                 <Link to="/request-quote#page-header">
                   Request Quote
                 </Link>
               </Button>
-              <Button
-                asChild
-                variant="cta-outline"
-                size="responsive-md"
-                className="w-3/5 sm:w-auto sm:min-w-[14rem]"
-              >
+              <Button asChild variant="cta-outline" size="responsive-md" className="w-3/5 sm:w-auto sm:min-w-[14rem]">
                 <Link to="/gallery#page-header">
                   Gallery
                 </Link>
@@ -151,10 +137,6 @@ export const HeroSection = () => {
       </section>
 
       {/* Image Modal */}
-      <ImageModal 
-        images={allImages}
-        selectedIndex={selectedImageIndex} 
-        onClose={handleCloseModal} 
-      />
+      <ImageModal images={allImages} selectedIndex={selectedImageIndex} onClose={handleCloseModal} />
     </>;
 };
