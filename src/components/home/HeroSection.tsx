@@ -79,6 +79,27 @@ export const HeroSection = () => {
           </div>
         </div>
 
+        {/* More than a meal text and buttons - moved above image cards */}
+        <div className="text-center mb-8 sm:mb-12 px-6 sm:px-8 lg:px-12">
+          <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-foreground max-w-2xl mx-auto leading-relaxed px-4 mb-6 sm:mb-8 animate-fade-in">
+            More than a meal, Soul Train's Eatery delivers comfort, connection, and Lowcountry flavor to every table.
+          </p>
+          
+          {/* Call-to-Action Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center mb-6 sm:mb-8 animate-fade-in">
+            <Button asChild variant="cta" size="responsive-md" className="w-3/5 sm:w-auto sm:min-w-[14rem]">
+              <Link to="/request-quote#page-header">
+                Request Quote
+              </Link>
+            </Button>
+            <Button asChild variant="cta-outline" size="responsive-md" className="w-3/5 sm:w-auto sm:min-w-[14rem]">
+              <Link to="/gallery#page-header">
+                Gallery
+              </Link>
+            </Button>
+          </div>
+        </div>
+
         {/* Image Gallery Grid Section */}
         <div className="relative px-6 sm:px-8 lg:px-12 pb-8 lg:pb-12">
           <div className="max-w-7xl mx-auto">
@@ -108,27 +129,8 @@ export const HeroSection = () => {
               ))}
             </div>
 
-            {/* More than a meal text and buttons - moved below image cards */}
+            {/* View More Link */}
             <div className="text-center">
-              <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-foreground max-w-2xl mx-auto leading-relaxed px-4 mb-6 sm:mb-8 animate-fade-in">
-                More than a meal, Soul Train's Eatery delivers comfort, connection, and Lowcountry flavor to every table.
-              </p>
-              
-              {/* Call-to-Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center mb-8 sm:mb-12 animate-fade-in">
-                <Button asChild variant="cta" size="responsive-md" className="w-3/5 sm:w-auto sm:min-w-[14rem]">
-                  <Link to="/request-quote#page-header">
-                    Request Quote
-                  </Link>
-                </Button>
-                <Button asChild variant="cta-outline" size="responsive-md" className="w-3/5 sm:w-auto sm:min-w-[14rem]">
-                  <Link to="/gallery#page-header">
-                    Gallery
-                  </Link>
-                </Button>
-              </div>
-
-              {/* View More Link */}
               <Link to="/gallery#page-header" className="inline-flex items-center gap-2 text-primary hover:text-primary-glow transition-colors duration-200 font-medium text-lg group">
                 View Complete Gallery 
                 <svg className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
