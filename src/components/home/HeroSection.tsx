@@ -80,7 +80,7 @@ export const HeroSection = () => {
 
                 {/* Descriptive Text */}
                 <div className="max-w-3xl mx-auto px-2 sm:px-4">
-                  <p className="text-base sm:text-lg lg:text-xl text-foreground/90 leading-relaxed animate-fade-in">More than a meal - it's Southern comfort, heartfelt connection, and Lowcountry flavor on every plate.</p>
+                  <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-foreground leading-relaxed animate-fade-in">More than a meal - it's Southern comfort, heartfelt connection, and Lowcountry flavor on every plate.</p>
                 </div>
                 
                 {/* Call-to-Action Buttons */}
