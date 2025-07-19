@@ -55,7 +55,7 @@ export const HeroSection = () => {
     setSelectedImageIndex(null);
   };
   return <>
-      <section className="bg-gradient-card shadow-elegant hover:shadow-glow transition-all duration-200 rounded-lg mx-4 sm:mx-6 lg:mx-8 my-section sm:my-section-sm py-section sm:py-section-sm lg:py-section-lg">
+      <section className="bg-gradient-card shadow-elegant hover:shadow-glow transition-all duration-200 rounded-lg sm:mx-6 lg:mx-8 my-section sm:my-section-sm py-section sm:py-section-sm lg:py-section-lg mx-[16px]">
         {/* Brand Header Section */}
         <div className="relative max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 mb-8 sm:mb-12 md:mb-16">
           {/* Subtle background pattern */}
@@ -76,7 +76,7 @@ export const HeroSection = () => {
             {/* Decorative line - matches PageHeader exactly */}
             <div className="w-12 sm:w-16 md:w-24 h-1 bg-gradient-primary mx-auto mb-6 sm:mb-8 animate-fade-in" />
             
-            <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-foreground max-w-2xl mx-auto leading-relaxed px-4 animate-fade-in">Welcome to Soul Train's Eatery, Charleston's go-to for soulful, memorable catering. For over 8 years, we've served the Lowcountry with dishes that warm the heart and wow the taste buds. Taste the love in every bite.</p>
+            <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-foreground max-w-2xl mx-auto leading-relaxed px-4 animate-fade-in">More than a meal, Soul Train’s Eatery delivers comfort, connection, and Lowcountry flavor to every table.</p>
             
             {/* Call-to-Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center mt-6 sm:mt-8 animate-fade-in">
