@@ -84,7 +84,7 @@ export const InteractiveGallerySection = () => {
         })]} className="w-full">
             <CarouselContent className="-ml-1 gap-2">
               {highQualityImages.map((image, index) => <CarouselItem key={index} className="pl-1 basis-1/2 sm:basis-1/3 md:basis-1/4">
-                  <div className="shadow-elegant hover:shadow-glow bg-gradient-card border-2 border-transparent hover:border-primary/20 transition-all duration-300 cursor-pointer group rounded-xl overflow-hidden hover-float transform hover:-translate-y-2 hover:shadow-2xl" onClick={() => handleImageClick(index)}>
+                  <div className="bg-card/80 backdrop-blur-sm border border-border/50 hover:border-primary/30 transition-all duration-300 cursor-pointer group rounded-xl overflow-hidden transform hover:-translate-y-3 hover:shadow-2xl shadow-lg" onClick={() => handleImageClick(index)}>
                     <div className="relative aspect-[3/4]">
                       <img src={image.src} alt={image.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200" loading="lazy" decoding="async" />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-end">
