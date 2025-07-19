@@ -26,7 +26,7 @@ export const PageHeader = ({
   buttons = []
 }: PageHeaderProps) => {
   return (
-    <div id="page-header" className={cn("text-center mb-8 sm:mb-12 md:mb-16 pt-6 sm:pt-8 md:pt-12", className)}>
+    <div id="page-header" className={cn("text-center mb-8 sm:mb-12 md:mb-16 pt-2 sm:pt-4 md:pt-12", className)}>
       {/* Icons */}
       {icons.length > 0 && (
         <div id="page-icons" className="flex justify-center mb-4">
