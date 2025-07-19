@@ -1,10 +1,8 @@
-
 import { useState } from "react";
 import MenuHeader from "@/components/menu/MenuHeader";
 import MenuNavigation from "@/components/menu/MenuNavigation";
 import ImageMenuCard from "@/components/menu/ImageMenuCard";
 import MenuContact from "@/components/menu/MenuContact";
-import { SectionCard } from "@/components/ui/section-card";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 
@@ -220,13 +218,13 @@ const Menu = () => {
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/2 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-1/3 right-1/4 w-64 h-64 bg-accent/3 rounded-full blur-2xl pointer-events-none" />
         
-        <SectionCard className="mt-1">
+        <section className="py-8 lg:py-12">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
             <div ref={headerRef} className={useAnimationClass(headerVariant, headerVisible)}>
               <MenuHeader />
             </div>
           </div>
-        </SectionCard>
+        </section>
 
         {/* Visual separator with subtle enhancement */}
         <div className="relative">
@@ -243,7 +241,7 @@ const Menu = () => {
         </div>
 
         {/* Split-screen layout */}
-        <SectionCard>
+        <section className="py-8 lg:py-12">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
             <div 
               ref={contentRef} 
@@ -276,7 +274,7 @@ const Menu = () => {
               </div>
             </div>
           </div>
-        </SectionCard>
+        </section>
 
         <div ref={contactRef} className={useAnimationClass(contactVariant, contactVisible)}>
           <MenuContact />

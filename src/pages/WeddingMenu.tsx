@@ -1,8 +1,8 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Heart, Star, Crown } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { OptimizedImage } from "@/components/ui/optimized-image";
-import { SectionCard } from "@/components/ui/section-card";
 import { CTASection } from "@/components/ui/cta-section";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
@@ -28,7 +28,7 @@ const WeddingMenu = () => {
 
   return (
     <div className="min-h-screen bg-gradient-hero">
-        <SectionCard>
+        <section className="py-8 lg:py-12">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div ref={headerRef} className={headerAnimationClass}>
               <PageHeader
@@ -87,9 +87,9 @@ const WeddingMenu = () => {
           </Card>
             </div>
           </div>
-        </SectionCard>
+        </section>
 
-        <SectionCard>
+        <section className="py-8 lg:py-12">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="space-y-12 lg:space-y-16">
               {/* Hors d'Oeuvres & Small Bites */}
@@ -400,9 +400,9 @@ const WeddingMenu = () => {
               </section>
             </div>
           </div>
-        </SectionCard>
+        </section>
 
-        <SectionCard>
+        <section className="py-8 lg:py-12">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid md:grid-cols-2 gap-6 lg:gap-8">
           {(() => {
@@ -486,7 +486,7 @@ const WeddingMenu = () => {
           })()}
             </div>
           </div>
-        </SectionCard>
+        </section>
 
         <CTASection
           title="Create Your Perfect Wedding Menu"

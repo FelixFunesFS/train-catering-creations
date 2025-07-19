@@ -53,7 +53,7 @@ const About = () => {
   return (
     <div className="min-h-screen bg-gradient-hero">
       {/* Header Section */}
-      <section className="py-4 sm:py-6 lg:py-8 bg-gradient-card shadow-elegant hover:shadow-elevated transition-all duration-200 rounded-lg mx-4 sm:mx-6 lg:mx-8 my-2 sm:my-3 lg:my-4">
+      <section className="py-8 lg:py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div ref={headerRef} className={useAnimationClass(headerVariant, headerVisible)}>
             <PageHeader 
@@ -67,7 +67,7 @@ const About = () => {
       </section>
 
       {/* Main Content Section */}
-      <section className="py-4 sm:py-6 lg:py-8 bg-gradient-card shadow-elegant hover:shadow-elevated transition-all duration-200 rounded-lg mx-4 sm:mx-6 lg:mx-8 my-2 sm:my-3 lg:my-4">
+      <section className="py-8 lg:py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div ref={card1Ref} className={`mb-8 sm:mb-12 ${useAnimationClass(card1Variant, card1Visible)}`}>
             <Card className="shadow-elegant hover-float">
