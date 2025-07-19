@@ -73,7 +73,7 @@ const Reviews = () => {
 
   return (
     <div className="min-h-screen bg-gradient-hero">
-        <SectionCard>
+        <SectionCard className="mt-1">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div ref={headerRef} className={headerAnimationClass}>
               <PageHeader
