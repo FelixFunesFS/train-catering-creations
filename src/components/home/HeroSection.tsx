@@ -2,6 +2,8 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { ImageModal } from "@/components/gallery/ImageModal";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import Autoplay from "embla-carousel-autoplay";
 export const HeroSection = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
 
@@ -97,28 +99,47 @@ export const HeroSection = () => {
         {/* Image Gallery Grid Section */}
         <div className="relative px-4 sm:px-6 lg:px-8 xl:px-12 pb-6 sm:pb-8 lg:pb-12">
           <div className="max-w-7xl mx-auto">
-            {/* Responsive Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8 lg:mb-10">
-              {heroImages.map((image, index) => <div key={index} className="group relative overflow-hidden rounded-lg shadow-elegant hover:shadow-glow bg-gradient-card transition-all duration-300 cursor-pointer transform hover:scale-[1.02]" onClick={() => handleImageClick(index)}>
-                  <div className="aspect-[3/2] overflow-hidden">
-                    <img src={image.src} alt={image.alt} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading={index < 2 ? "eager" : "lazy"} decoding="async" />
-                  </div>
-                  
-                  {/* Hover Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <div className="absolute bottom-4 left-4 right-4">
-                      <h3 className="text-white font-elegant font-semibold text-lg mb-2">
-                        {image.title}
-                      </h3>
-                      <p className="text-white/90 text-sm leading-tight">
-                        Click to view full size
-                      </p>
-                    </div>
-                  </div>
+            {/* Responsive Carousel */}
+            <div className="relative mb-6 sm:mb-8 lg:mb-10">
+              <Carousel 
+                opts={{
+                  align: "start",
+                  loop: true
+                }} 
+                plugins={[Autoplay({
+                  delay: 4000
+                })]}
+                className="w-full"
+              >
+                <CarouselContent className="-ml-1 gap-2">
+                  {heroImages.map((image, index) => (
+                    <CarouselItem key={index} className="pl-1 basis-full md:basis-1/2 lg:basis-1/3">
+                      <div className="group relative overflow-hidden rounded-lg shadow-elegant hover:shadow-glow bg-gradient-card transition-all duration-300 cursor-pointer transform hover:scale-[1.02]" onClick={() => handleImageClick(index)}>
+                        <div className="aspect-[3/2] overflow-hidden">
+                          <img src={image.src} alt={image.alt} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading={index < 2 ? "eager" : "lazy"} decoding="async" />
+                        </div>
+                        
+                        {/* Hover Overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                          <div className="absolute bottom-4 left-4 right-4">
+                            <h3 className="text-white font-elegant font-semibold text-lg mb-2">
+                              {image.title}
+                            </h3>
+                            <p className="text-white/90 text-sm leading-tight">
+                              Click to view full size
+                            </p>
+                          </div>
+                        </div>
 
-                  {/* Subtle border effect */}
-                  <div className="absolute inset-0 border-2 border-transparent group-hover:border-primary/20 rounded-lg transition-colors duration-300"></div>
-                </div>)}
+                        {/* Subtle border effect */}
+                        <div className="absolute inset-0 border-2 border-transparent group-hover:border-primary/20 rounded-lg transition-colors duration-300"></div>
+                      </div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious className="hidden md:flex -left-12" />
+                <CarouselNext className="hidden md:flex -right-12" />
+              </Carousel>
             </div>
 
             {/* View More Link */}
