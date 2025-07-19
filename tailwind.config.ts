@@ -70,6 +70,7 @@ export default {
 				'elegant': 'var(--shadow-elegant)',
 				'elevated': 'var(--shadow-elevated)',
 				'float': 'var(--shadow-float)',
+				'soft': 'var(--shadow-soft)',
 				'glow': 'var(--shadow-glow)',
 				'glow-strong': 'var(--shadow-glow-strong)'
 			},

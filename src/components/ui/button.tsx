@@ -1,3 +1,4 @@
+
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
@@ -9,7 +10,7 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary-glow shadow-card hover:shadow-glow transform hover:scale-[1.02]",
+        default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-card hover:shadow-elevated transform hover:scale-[1.02]",
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-card hover:shadow-elegant",
         outline:
@@ -18,7 +19,7 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-card hover:shadow-elegant",
         ghost: "hover:bg-accent hover:text-accent-foreground hover:shadow-card font-medium",
         link: "text-primary underline-offset-4 hover:underline font-medium",
-        cta: "bg-primary text-primary-foreground hover:bg-primary-glow shadow-glow hover:shadow-float transform hover:scale-[1.02] font-bold",
+        cta: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-elevated hover:shadow-float transform hover:scale-[1.02] font-bold",
         "cta-outline": "border-2 border-primary text-primary bg-transparent hover:bg-primary hover:text-primary-foreground shadow-card hover:shadow-elegant transform hover:scale-[1.01]",
         "cta-white": "border-2 border-white text-white bg-transparent hover:bg-white hover:text-primary shadow-card hover:shadow-elegant transform hover:scale-[1.01]",
         "cta-secondary": "bg-secondary text-secondary-foreground hover:bg-accent hover:text-accent-foreground shadow-card hover:shadow-elegant",
