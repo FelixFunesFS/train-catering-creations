@@ -137,7 +137,11 @@ export const Footer = () => {
               
               <p>© {currentYear} Soul Train's Eatery. All rights reserved.</p>
             </div>
-            <div className="flex space-x-6 mt-2 sm:mt-0">
+            <div className="flex flex-wrap space-x-6 mt-2 sm:mt-0 text-center sm:text-right">
+              <Link to="/privacy-policy" className="hover:text-primary-foreground/80 transition-colors duration-200">Privacy Policy</Link>
+              <span>•</span>
+              <Link to="/terms-conditions" className="hover:text-primary-foreground/80 transition-colors duration-200">Terms & Conditions</Link>
+              <span>•</span>
               <span>Licensed & Insured</span>
               <span>•</span>
               <span>Charleston, SC</span>
