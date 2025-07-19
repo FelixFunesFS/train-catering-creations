@@ -2,7 +2,6 @@
 import QuoteHeader from "@/components/quote/QuoteHeader";
 import QuoteForm from "@/components/quote/QuoteForm";
 import ContactInfoCards from "@/components/quote/ContactInfoCards";
-import { SectionCard } from "@/components/ui/section-card";
 import { CTASection } from "@/components/ui/cta-section";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
@@ -38,48 +37,33 @@ const RequestQuote = () => {
 
   return (
     <div className="min-h-screen bg-gradient-hero">
-      <SectionCard className="mt-1">
+      {/* Header Section */}
+      <section className="py-4 sm:py-6 lg:py-8 bg-gradient-card shadow-elegant hover:shadow-elevated transition-all duration-200 rounded-lg mx-4 sm:mx-6 lg:mx-8 my-2 sm:my-3 lg:my-4 mt-1">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div ref={headerRef} className={useAnimationClass(headerVariant, headerVisible)}>
             <QuoteHeader />
           </div>
         </div>
-      </SectionCard>
+      </section>
       
-      {/* Mobile: Direct cards without SectionCard wrapper */}
-      <div className="lg:hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="grid grid-cols-1 gap-8">
-            <div ref={contactRef} className={useAnimationClass(contactVariant, contactVisible)}>
-              <ContactInfoCards />
+      {/* Main Content Section */}
+      <section className="py-4 sm:py-6 lg:py-8 bg-gradient-card shadow-elegant hover:shadow-elevated transition-all duration-200 rounded-lg mx-4 sm:mx-6 lg:mx-8 my-2 sm:my-3 lg:my-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
+            <div className="order-2 lg:order-1">
+              <div ref={formRef} className={useAnimationClass(formVariant, formVisible)}>
+                <QuoteForm />
+              </div>
             </div>
-            <div ref={formRef} className={`hover-float ${useAnimationClass(formVariant, formVisible)}`}>
-              <QuoteForm />
+            
+            <div className="order-1 lg:order-2">
+              <div ref={contactRef} className={useAnimationClass(contactVariant, contactVisible)}>
+                <ContactInfoCards />
+              </div>
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Desktop: With SectionCard wrapper */}
-      <div className="hidden lg:block">
-        <SectionCard>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
-              <div className="order-2 lg:order-1">
-                <div ref={formRef} className={useAnimationClass(formVariant, formVisible)}>
-                  <QuoteForm />
-                </div>
-              </div>
-              
-              <div className="order-1 lg:order-2">
-                <div ref={contactRef} className={useAnimationClass(contactVariant, contactVisible)}>
-                  <ContactInfoCards />
-                </div>
-              </div>
-            </div>
-          </div>
-        </SectionCard>
-      </div>
+      </section>
       
       <div ref={ctaRef} className={useAnimationClass(ctaVariant, ctaVisible)}>
         <CTASection

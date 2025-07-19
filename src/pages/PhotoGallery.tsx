@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { galleryImages } from "@/data/galleryImages";
 import { GalleryHeader } from "@/components/gallery/GalleryHeader";
@@ -9,7 +10,6 @@ import { MasonryGrid } from "@/components/gallery/MasonryGrid";
 import { GalleryCarousel } from "@/components/gallery/GalleryCarousel";
 import { ImageModal } from "@/components/gallery/ImageModal";
 import { GalleryCTA } from "@/components/gallery/GalleryCTA";
-import { SectionCard } from "@/components/ui/section-card";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 
@@ -74,15 +74,17 @@ const PhotoGallery = () => {
   
   return (
     <div className="min-h-screen bg-gradient-hero">
-      <SectionCard className="py-px mt-1">
+      {/* Header Section */}
+      <section className="py-1 bg-gradient-card shadow-elegant hover:shadow-elevated transition-all duration-200 rounded-lg mx-4 sm:mx-6 lg:mx-8 my-2 sm:my-3 lg:my-4 mt-1">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div ref={headerRef} className={useAnimationClass(headerVariant, headerVisible)}>
             <GalleryHeader />
           </div>
         </div>
-      </SectionCard>
+      </section>
       
-      <SectionCard>
+      {/* Gallery Controls and Content Section */}
+      <section className="py-4 sm:py-6 lg:py-8 bg-gradient-card shadow-elegant hover:shadow-elevated transition-all duration-200 rounded-lg mx-4 sm:mx-6 lg:mx-8 my-2 sm:my-3 lg:my-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div ref={filterRef} className={useAnimationClass(filterVariant, filterVisible)}>
             <CategoryFilter selectedCategory={selectedCategory} onCategoryChange={handleCategoryChange} />
@@ -110,7 +112,7 @@ const PhotoGallery = () => {
             )}
           </div>
         </div>
-      </SectionCard>
+      </section>
       
       <div ref={ctaRef} className={useAnimationClass(ctaVariant, ctaVisible)}>
         <GalleryCTA />
