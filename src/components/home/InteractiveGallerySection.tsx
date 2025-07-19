@@ -75,30 +75,42 @@ export const InteractiveGallerySection = () => {
           </p>
         </div>
 
-        <div className="relative">
+        <div className="relative px-4 sm:px-8">
           <Carousel opts={{
           align: "start",
           loop: true
         }} plugins={[Autoplay({
           delay: 4000
         })]} className="w-full">
-            <CarouselContent className="-ml-1 gap-2">
-              {highQualityImages.map((image, index) => <CarouselItem key={index} className="pl-1 basis-1/2 sm:basis-1/3 md:basis-1/4">
-                  <div className="shadow-elegant hover:shadow-glow bg-gradient-card border-2 border-transparent hover:border-primary/20 transition-all duration-200 cursor-pointer group rounded-lg overflow-hidden hover-float" onClick={() => handleImageClick(index)}>
-                    <div className="relative aspect-[3/4]">
-                      <img src={image.src} alt={image.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200" loading="lazy" decoding="async" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-end">
-                        <div className="p-4 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                          <h3 className="font-elegant font-semibold text-white">{image.title}</h3>
-                          <p className="text-sm text-white/90">{image.description}</p>
+            <CarouselContent className="-ml-1 gap-6 sm:gap-8">
+              {highQualityImages.map((image, index) => <CarouselItem key={index} className="pl-1 basis-4/5 sm:basis-2/3 md:basis-1/2 lg:basis-1/3">
+                  <Card className="group cursor-pointer bg-gradient-card/80 backdrop-blur-sm border-0 shadow-elegant hover:shadow-glow transition-all duration-500 hover:-translate-y-2 hover:rotate-1 transform-gpu" onClick={() => handleImageClick(index)}>
+                    <CardContent className="p-0 relative overflow-hidden rounded-lg">
+                      <div className="relative aspect-[4/5]">
+                        <img src={image.src} alt={image.title} className="w-full h-full object-cover group-hover:scale-110 transition-all duration-700" loading="lazy" decoding="async" />
+                        
+                        {/* Floating overlay with category badge */}
+                        <div className="absolute top-4 right-4 bg-primary/90 backdrop-blur-sm text-primary-foreground px-3 py-1 rounded-full text-xs font-medium uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+                          {image.category}
                         </div>
+                        
+                        {/* Gradient overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500">
+                          <div className="absolute bottom-0 left-0 right-0 p-6 text-white transform translate-y-4 group-hover:translate-y-0 transition-all duration-500">
+                            <h3 className="font-elegant text-lg font-semibold text-white mb-2 drop-shadow-lg">{image.title}</h3>
+                            <p className="text-sm text-white/90 leading-relaxed drop-shadow-sm">{image.description}</p>
+                          </div>
+                        </div>
+                        
+                        {/* Shimmer effect */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out"></div>
                       </div>
-                    </div>
-                  </div>
+                    </CardContent>
+                  </Card>
                 </CarouselItem>)}
             </CarouselContent>
-            <CarouselPrevious className="hidden md:flex" />
-            <CarouselNext className="hidden md:flex" />
+            <CarouselPrevious className="hidden md:flex -left-6 bg-background/80 backdrop-blur-sm border-primary/20 hover:bg-primary hover:text-primary-foreground shadow-lg" />
+            <CarouselNext className="hidden md:flex -right-6 bg-background/80 backdrop-blur-sm border-primary/20 hover:bg-primary hover:text-primary-foreground shadow-lg" />
           </Carousel>
         </div>
 
