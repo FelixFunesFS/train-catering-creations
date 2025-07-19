@@ -54,16 +54,16 @@ export const PageHeader = ({
       {/* Decorative line */}
       <div className="w-12 sm:w-16 md:w-24 h-1 bg-gradient-primary mx-auto mb-6 sm:mb-8 animate-fade-in" />
       
-      {/* Custom content (image cards) - moved above description */}
+      {/* Custom content (image cards) - positioned between title and description */}
       {children && (
-        <div className="mt-6 sm:mt-8 mb-6 sm:mb-8 animate-fade-in">
+        <div className="mb-6 sm:mb-8 animate-fade-in">
           {children}
         </div>
       )}
       
       {/* Description */}
       {description && (
-        <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-foreground max-w-2xl mx-auto leading-relaxed px-4 animate-fade-in">
+        <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-foreground max-w-2xl mx-auto leading-relaxed px-4 mb-6 sm:mb-8 animate-fade-in">
           {description}
         </p>
       )}
