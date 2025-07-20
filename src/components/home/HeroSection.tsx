@@ -1,33 +1,36 @@
-
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { ImageModal } from "@/components/gallery/ImageModal";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
+import { Heart, Briefcase, Coffee, Users, Calendar, Sun } from "lucide-react";
 
 export const HeroSection = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
 
-  // Featured images for the grid display - taking the first 3 images for initial display
+  // Featured images for the grid display with category icons
   const heroImages = [{
     src: "/lovable-uploads/1dcbc1ee-eb25-4d89-8722-cb4904d1ba69.png",
     alt: "Elegant wedding dessert table with tiered cake, neon signage, and gourmet treats",
     title: "Wedding Reception",
     description: "Elegant wedding dessert table with tiered cake, neon signage, and gourmet treats",
-    category: "wedding"
+    category: "wedding",
+    icon: Heart
   }, {
     src: "/lovable-uploads/0703365f-22eb-4c4d-b258-4a2c8a23b63a.png",
     alt: "Rustic venue buffet setup with chafing dishes and atmospheric lighting",
     title: "Formal Events",
     description: "Rustic venue buffet setup with chafing dishes and atmospheric lighting",
-    category: "formal"
+    category: "formal",
+    icon: Briefcase
   }, {
     src: "/lovable-uploads/d2ed2f6e-a667-4bf2-9e28-30029d377f94.png",
     alt: "Elegant formal event display with tiered appetizers and beverage service",
     title: "Brunch Events",
     description: "Elegant formal event display with tiered appetizers and beverage service",
-    category: "brunch"
+    category: "brunch",
+    icon: Coffee
   }];
 
   const additionalImages = [{
@@ -54,6 +57,13 @@ export const HeroSection = () => {
     setSelectedImageIndex(null);
   };
 
+  const handleKeyDown = (event: React.KeyboardEvent, index: number) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      handleImageClick(index);
+    }
+  };
+
   return (
     <>
       {/* Hero Section */}
@@ -67,10 +77,14 @@ export const HeroSection = () => {
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 opacity-50 py-0 my-[25px]"></div>
               
               <div className="relative z-10 text-center pt-2 sm:pt-4 md:pt-12 sm:py-6 lg:py-0 py-0">
-                {/* Logo Icon - consistent with PageHeader styling */}
+                {/* Logo Icon with Neumorphism */}
                 <div className="flex justify-center mb-4 my-[25px]">
-                  <div className="h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14">
-                    <img src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" alt="Soul Train's Eatery Logo" className="w-full h-full object-contain hover:scale-110 transition-transform duration-300" />
+                  <div className="h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14 neumorphic-circle p-2">
+                    <img 
+                      src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
+                      alt="Soul Train's Eatery Logo" 
+                      className="w-full h-full object-contain hover:scale-110 transition-transform duration-300" 
+                    />
                   </div>
                 </div>
                 
@@ -87,43 +101,85 @@ export const HeroSection = () => {
                   <div className="max-w-7xl mx-auto">
                     {/* Responsive Carousel */}
                     <div className="relative">
-                      <Carousel opts={{
-                      align: "start",
-                      loop: true
-                    }} plugins={[Autoplay({
-                      delay: 4000
-                    })]} className="w-full">
+                      <Carousel 
+                        opts={{
+                          align: "start",
+                          loop: true
+                        }} 
+                        plugins={[Autoplay({
+                          delay: 4000,
+                          stopOnInteraction: true,
+                          stopOnMouseEnter: true
+                        })]} 
+                        className="w-full"
+                        role="region"
+                        aria-label="Featured catering services gallery"
+                      >
                         <CarouselContent className="-ml-1 gap-2">
-                        {heroImages.map((image, index) => (
-                          <CarouselItem key={index} className="pl-1 basis-full md:basis-1/2 lg:basis-1/3">
-                            <div 
-                              className="group relative rounded-2xl bg-gradient-card transition-all duration-300 cursor-pointer transform hover:scale-[1.02] animate-fade-in shadow-glow hover:shadow-glow-strong" 
-                              onClick={() => handleImageClick(index)}
-                            >
-                              <div className="aspect-[16/9] overflow-hidden rounded-2xl">
-                                  <img src={image.src} alt={image.alt} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading={index < 2 ? "eager" : "lazy"} decoding="async" />
-                                </div>
-                                
-                                {/* Hover Overlay */}
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                  <div className="absolute bottom-4 left-4 right-4">
-                                    <h3 className="text-white font-elegant font-semibold text-lg mb-2">
-                                      {image.title}
-                                    </h3>
-                                    <p className="text-white/90 text-sm leading-tight">
-                                      Click to view full size
-                                    </p>
+                        {heroImages.map((image, index) => {
+                          const IconComponent = image.icon;
+                          return (
+                            <CarouselItem key={index} className="pl-1 basis-full md:basis-1/2 lg:basis-1/3">
+                              <div 
+                                className="neumorphic-card group relative rounded-2xl bg-gradient-card transition-all duration-300 cursor-pointer transform hover:scale-[1.02] animate-fade-in overflow-hidden" 
+                                onClick={() => handleImageClick(index)}
+                                onKeyDown={(e) => handleKeyDown(e, index)}
+                                tabIndex={0}
+                                role="button"
+                                aria-label={`View ${image.title} gallery. ${image.description}`}
+                              >
+                                <div className="aspect-[16/9] overflow-hidden rounded-2xl relative">
+                                  <img 
+                                    src={image.src} 
+                                    alt={image.alt} 
+                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                                    loading={index < 2 ? "eager" : "lazy"} 
+                                    decoding="async"
+                                  />
+                                  
+                                  {/* Permanent Glass Overlay with Title and Icon */}
+                                  <div className="absolute bottom-0 left-0 right-0 bg-black/20 backdrop-blur-md glass-overlay">
+                                    <div className="p-3 md:p-4 flex items-center gap-3">
+                                      <div className="neumorphic-icon-container p-2 rounded-lg bg-white/10 backdrop-blur-sm">
+                                        <IconComponent 
+                                          className="h-4 w-4 md:h-5 md:w-5 text-white" 
+                                          aria-hidden="true"
+                                        />
+                                      </div>
+                                      <div className="flex-1 min-w-0">
+                                        <h3 className="font-elegant font-semibold text-white text-sm md:text-base mb-1 truncate">
+                                          {image.title}
+                                        </h3>
+                                        <p className="text-xs md:text-sm text-white/90 line-clamp-1">
+                                          Click to view gallery
+                                        </p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  
+                                  {/* Enhanced Hover Overlay */}
+                                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                                    <div className="neumorphic-soft bg-white/10 backdrop-blur-sm rounded-full p-3 transform scale-75 group-hover:scale-100 transition-transform duration-300">
+                                      <div className="text-white text-xs font-medium">View Gallery</div>
+                                    </div>
                                   </div>
                                 </div>
 
-                                {/* Subtle border effect */}
-                                <div className="absolute inset-0 border-2 border-transparent group-hover:border-primary/20 rounded-2xl transition-colors duration-300"></div>
+                                {/* Focus indicator */}
+                                <div className="absolute inset-0 border-2 border-transparent focus-within:border-primary/50 rounded-2xl transition-colors duration-300 pointer-events-none"></div>
                               </div>
                             </CarouselItem>
-                        ))}
+                          );
+                        })}
                         </CarouselContent>
-                        <CarouselPrevious className="hidden md:flex -left-12" />
-                        <CarouselNext className="hidden md:flex -right-12" />
+                        <CarouselPrevious 
+                          className="hidden md:flex -left-12 neumorphic-soft" 
+                          aria-label="Previous image"
+                        />
+                        <CarouselNext 
+                          className="hidden md:flex -right-12 neumorphic-soft" 
+                          aria-label="Next image"
+                        />
                       </Carousel>
                     </div>
                   </div>
@@ -136,16 +192,26 @@ export const HeroSection = () => {
               </div>
             </div>
 
-            {/* Call-to-Action Buttons Section */}
+            {/* Call-to-Action Buttons Section with Neumorphism */}
             <div className="relative order-3 md:order-3 py-0">
               <div className="text-center pb-4 sm:pb-6 lg:pb-8">
                 <div className="flex flex-row gap-2 sm:gap-4 justify-center items-center animate-fade-in w-full sm:w-auto">
-                  <Button asChild variant="cta" size="default" className="flex-1 sm:flex-none sm:w-56 min-h-[44px] sm:min-h-[52px]">
+                  <Button 
+                    asChild 
+                    variant="cta" 
+                    size="default" 
+                    className="flex-1 sm:flex-none sm:w-56 min-h-[44px] sm:min-h-[52px] neumorphic-button"
+                  >
                     <Link to="/request-quote#page-header">
                       Request Quote
                     </Link>
                   </Button>
-                  <Button asChild variant="cta-outline" size="default" className="flex-1 sm:flex-none sm:w-56 min-h-[44px] sm:min-h-[52px]">
+                  <Button 
+                    asChild 
+                    variant="cta-outline" 
+                    size="default" 
+                    className="flex-1 sm:flex-none sm:w-56 min-h-[44px] sm:min-h-[52px] neumorphic-button-outline"
+                  >
                     <Link to="/gallery#page-header">
                       View Gallery
                     </Link>
