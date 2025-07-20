@@ -80,7 +80,7 @@ export const HeroSection = () => {
             </div>
 
             {/* Image Gallery Carousel Section */}
-            <div className="relative pt-2 sm:pt-3 pb-2 sm:pb-3 lg:pb-4 order-2">
+            <div className="relative pt-1 sm:pt-2 pb-1 sm:pb-2 order-2">
               <div className="max-w-7xl mx-auto">
                 {/* Responsive Carousel */}
                 <div className="relative">
@@ -125,7 +125,7 @@ export const HeroSection = () => {
             <div className="relative order-3">
               <div className="relative z-10 text-center py-2 sm:py-3 lg:py-4">
                 {/* Descriptive Text */}
-                <div className="max-w-3xl mx-auto px-2 sm:px-4 mb-4 sm:mb-6">
+                <div className="max-w-3xl mx-auto px-2 sm:px-4 mb-2 sm:mb-3">
                   <p className="text-base sm:text-lg text-muted-foreground leading-relaxed animate-fade-in">More than a meal - it's Southern comfort, heartfelt connection,<br className="hidden sm:inline" /> and Lowcountry flavor on every plate.</p>
                 </div>
                 
