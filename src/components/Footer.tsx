@@ -137,17 +137,17 @@ export const Footer = () => {
       </div>
 
       {/* Enhanced Copyright Bar with better neutral balance */}
-      <div className="bg-secondary border-t border-border py-4">
+      <div className="bg-red-600 border-t border-red-700 py-4">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-0">
-          <div className="flex flex-col sm:flex-row justify-between items-center text-sm text-secondary-foreground">
+          <div className="flex flex-col sm:flex-row justify-between items-center text-sm text-white">
             <div className="flex items-center space-x-3">
               
               <p>© {currentYear} Soul Train's Eatery. All rights reserved.</p>
             </div>
             <div className="flex flex-wrap space-x-3 mt-2 sm:mt-0 text-center sm:text-right">
-              <Link to="/privacy-policy" className="text-red-500 hover:text-red-600 transition-colors duration-200">Privacy Policy</Link>
-              <span>|</span>
-              <Link to="/terms-conditions" className="hover:text-primary transition-colors duration-200">Terms & Conditions</Link>
+              <Link to="/privacy-policy" className="text-white hover:text-red-200 transition-colors duration-200">Privacy Policy</Link>
+              <span className="text-white">|</span>
+              <Link to="/terms-conditions" className="text-white hover:text-red-200 transition-colors duration-200">Terms & Conditions</Link>
             </div>
           </div>
         </div>
