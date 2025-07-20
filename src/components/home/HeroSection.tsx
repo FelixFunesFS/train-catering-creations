@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -28,7 +29,6 @@ export const HeroSection = () => {
     category: "brunch"
   }];
 
-  // Additional images for rotation
   const additionalImages = [{
     src: "/lovable-uploads/5dd8930c-34cc-4b9e-84a6-beeeb540d35e.png",
     alt: "Wedding dessert table with custom neon sign and tiered cake",
@@ -89,7 +89,7 @@ export const HeroSection = () => {
                     })]} className="w-full">
                         <CarouselContent className="-ml-1 gap-2">
                         {heroImages.map((image, index) => <CarouselItem key={index} className="pl-1 basis-full md:basis-1/2 lg:basis-1/3">
-                            <div className="group relative overflow-hidden rounded-lg bg-gradient-card transition-all duration-300 cursor-pointer transform hover:scale-[1.02] animate-fade-in" style={{boxShadow: '0 8px 25px -5px rgba(0,0,0,0.15), 0 4px 10px -2px rgba(0,0,0,0.1), 0 0 0 1px rgba(255,255,255,0.05)'}} onClick={() => handleImageClick(index)}>
+                            <div className="group relative overflow-hidden rounded-2xl bg-gradient-card transition-all duration-300 cursor-pointer transform hover:scale-[1.02] animate-fade-in shadow-elegant hover:shadow-elevated" onClick={() => handleImageClick(index)}>
                               <div className="aspect-[16/9] overflow-hidden">
                                   <img src={image.src} alt={image.alt} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading={index < 2 ? "eager" : "lazy"} decoding="async" />
                                 </div>
@@ -107,7 +107,7 @@ export const HeroSection = () => {
                                 </div>
 
                                 {/* Subtle border effect */}
-                                <div className="absolute inset-0 border-2 border-transparent group-hover:border-primary/20 rounded-lg transition-colors duration-300"></div>
+                                <div className="absolute inset-0 border-2 border-transparent group-hover:border-primary/20 rounded-2xl transition-colors duration-300"></div>
                               </div>
                             </CarouselItem>)}
                         </CarouselContent>
