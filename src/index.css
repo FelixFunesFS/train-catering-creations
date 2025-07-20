@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=Dancing+Script:wght@400;500;600;700&display=swap');
 
 @tailwind base;
@@ -6,40 +7,53 @@
 
 @layer base {
   :root {
-    --background: 0 0% 98%;
+    --background: 30 5% 98%;
     --foreground: 40 12% 8%;
     --card: 0 0% 100%;
     --card-foreground: 40 12% 8%;
     --popover: 0 0% 100%;
     --popover-foreground: 40 12% 8%;
-    --primary: 0 84% 60%;
-    --primary-light: 0 84% 70%;
-    --primary-glow: 0 84% 60%;
+    --primary: 0 75% 50%;
+    --primary-light: 0 75% 65%;
+    --primary-dark: 0 75% 35%;
+    --primary-glow: 0 75% 50%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 0 0% 95%;
+    --secondary: 30 10% 94%;
     --secondary-foreground: 40 12% 8%;
-    --muted: 0 0% 96%;
+    --muted: 30 8% 96%;
     --muted-foreground: 40 8% 45%;
-    --accent: 0 0% 95%;
+    --accent: 45 20% 96%;
     --accent-foreground: 40 12% 8%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 90%;
-    --input: 0 0% 95%;
-    --ring: 0 84% 60%;
+    --border: 30 8% 88%;
+    --input: 30 8% 94%;
+    --ring: 0 75% 50%;
     --radius: 0.75rem;
+
+    /* Luxury supporting colors */
+    --gold: 45 85% 55%;
+    --gold-light: 45 85% 70%;
+    --gold-dark: 45 85% 40%;
+    --gold-foreground: 40 12% 8%;
+    --navy: 220 40% 25%;
+    --navy-light: 220 40% 35%;
+    --navy-dark: 220 40% 15%;
+    --navy-foreground: 0 0% 100%;
+    --cream: 45 20% 96%;
+    --cream-foreground: 40 12% 8%;
 
     /* Enhanced accessibility colors - WCAG 2.1 AA compliant */
     --text-high-contrast: 40 12% 8%;
-    --text-medium-contrast: 40 8% 25%;
-    --text-low-contrast: 40 8% 35%;
-    --focus-ring: 0 84% 60%;
+    --text-medium-contrast: 40 8% 20%;
+    --text-low-contrast: 40 8% 30%;
+    --focus-ring: 0 75% 50%;
     --focus-ring-offset: 0 0% 100%;
 
     /* Category colors for menu sections */
     --category-appetizers: 120 45% 55%;
     --category-appetizers-foreground: 40 12% 8%;
-    --category-entrees: 0 84% 60%;
+    --category-entrees: 0 75% 50%;
     --category-entrees-foreground: 0 0% 100%;
     --category-sides: 60 75% 60%;
     --category-sides-foreground: 40 12% 8%;
@@ -49,40 +63,42 @@
     /* Service type colors */
     --service-wedding: 340 75% 65%;
     --service-wedding-foreground: 40 12% 8%;
-    --service-corporate: 220 60% 65%;
-    --service-corporate-foreground: 40 12% 8%;
+    --service-corporate: 220 40% 25%;
+    --service-corporate-foreground: 0 0% 100%;
     --service-family: 120 45% 55%;
     --service-family-foreground: 40 12% 8%;
 
-    /* Enhanced alternating section gradients */
-    --gradient-pattern-a: linear-gradient(135deg, hsl(0, 0%, 98%) 0%, hsl(0, 84%, 60%, 0.08) 30%, hsl(0, 84%, 50%, 0.12) 70%, hsl(0, 0%, 98%) 100%);
-    --gradient-pattern-b: linear-gradient(225deg, hsl(0, 84%, 60%, 0.04) 0%, hsl(0, 0%, 98%) 40%, hsl(0, 84%, 50%, 0.06) 80%, hsl(0, 0%, 100%) 100%);
-    --gradient-pattern-c: linear-gradient(45deg, hsl(0, 84%, 50%, 0.10) 0%, hsl(0, 0%, 100%) 30%, hsl(0, 84%, 60%, 0.08) 70%, hsl(0, 0%, 98%) 100%);
-    --gradient-pattern-d: linear-gradient(315deg, hsl(0, 0%, 98%) 0%, hsl(0, 84%, 60%, 0.05) 40%, hsl(0, 84%, 50%, 0.05) 80%, hsl(0, 0%, 100%) 100%);
+    /* Enhanced alternating section gradients with warm undertones */
+    --gradient-pattern-a: linear-gradient(135deg, hsl(30, 5%, 98%) 0%, hsl(0, 75%, 50%, 0.05) 30%, hsl(0, 75%, 40%, 0.08) 70%, hsl(30, 5%, 98%) 100%);
+    --gradient-pattern-b: linear-gradient(225deg, hsl(0, 75%, 50%, 0.03) 0%, hsl(45, 20%, 96%) 40%, hsl(0, 75%, 40%, 0.04) 80%, hsl(0, 0%, 100%) 100%);
+    --gradient-pattern-c: linear-gradient(45deg, hsl(0, 75%, 40%, 0.06) 0%, hsl(0, 0%, 100%) 30%, hsl(45, 85%, 55%, 0.08) 70%, hsl(30, 5%, 98%) 100%);
+    --gradient-pattern-d: linear-gradient(315deg, hsl(30, 5%, 98%) 0%, hsl(0, 75%, 50%, 0.04) 40%, hsl(45, 85%, 55%, 0.05) 80%, hsl(45, 20%, 96%) 100%);
 
     /* Enhanced gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(0, 84%, 60%) 0%, hsl(0, 84%, 50%) 100%);
-    --gradient-hero: linear-gradient(180deg, hsl(0, 0%, 98%) 0%, hsl(0, 0%, 100%) 50%, hsl(0, 0%, 98%) 100%);
-    --gradient-card: linear-gradient(145deg, hsl(0, 0%, 100%) 0%, hsl(0, 0%, 96%) 100%);
-    --gradient-nav: linear-gradient(180deg, hsl(0, 0%, 98%, 0.95) 0%, hsl(0, 0%, 100%, 0.90) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(0, 75%, 50%) 0%, hsl(0, 75%, 35%) 100%);
+    --gradient-gold: linear-gradient(135deg, hsl(45, 85%, 55%) 0%, hsl(45, 85%, 40%) 100%);
+    --gradient-hero: linear-gradient(180deg, hsl(30, 5%, 98%) 0%, hsl(0, 0%, 100%) 50%, hsl(30, 5%, 98%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(0, 0%, 100%) 0%, hsl(30, 8%, 96%) 100%);
+    --gradient-nav: linear-gradient(180deg, hsl(30, 5%, 98%, 0.95) 0%, hsl(0, 0%, 100%, 0.90) 100%);
 
-    /* Enhanced neumorphic shadows for light theme */
-    --shadow-neumorphic-1: 3px 3px 6px hsla(0, 0%, 0%, 0.08), -3px -3px 6px hsla(0, 0%, 100%, 0.9);
-    --shadow-neumorphic-2: 6px 6px 12px hsla(0, 0%, 0%, 0.12), -6px -6px 12px hsla(0, 0%, 100%, 0.95);
-    --shadow-neumorphic-3: 9px 9px 18px hsla(0, 0%, 0%, 0.15), -9px -9px 18px hsla(0, 0%, 100%, 1);
-    --shadow-neumorphic-4: 12px 12px 24px hsla(0, 0%, 0%, 0.18), -12px -12px 24px hsla(0, 0%, 100%, 1);
-    --shadow-neumorphic-5: 16px 16px 32px hsla(0, 0%, 0%, 0.2), -16px -16px 32px hsla(0, 0%, 100%, 1);
-    --shadow-neumorphic-6: 20px 20px 40px hsla(0, 0%, 0%, 0.22), -20px -20px 40px hsla(0, 0%, 100%, 1);
+    /* Enhanced neumorphic shadows with warm undertones */
+    --shadow-neumorphic-1: 3px 3px 6px hsla(30, 10%, 0%, 0.10), -3px -3px 6px hsla(45, 20%, 100%, 0.95);
+    --shadow-neumorphic-2: 6px 6px 12px hsla(30, 10%, 0%, 0.15), -6px -6px 12px hsla(45, 20%, 100%, 1);
+    --shadow-neumorphic-3: 9px 9px 18px hsla(30, 10%, 0%, 0.18), -9px -9px 18px hsla(45, 20%, 100%, 1);
+    --shadow-neumorphic-4: 12px 12px 24px hsla(30, 10%, 0%, 0.20), -12px -12px 24px hsla(45, 20%, 100%, 1);
+    --shadow-neumorphic-5: 16px 16px 32px hsla(30, 10%, 0%, 0.22), -16px -16px 32px hsla(45, 20%, 100%, 1);
+    --shadow-neumorphic-6: 20px 20px 40px hsla(30, 10%, 0%, 0.25), -20px -20px 40px hsla(45, 20%, 100%, 1);
 
     /* Inset shadows for pressed states */
-    --shadow-neumorphic-inset-1: inset 3px 3px 6px hsla(0, 0%, 0%, 0.08), inset -3px -3px 6px hsla(0, 0%, 100%, 0.9);
-    --shadow-neumorphic-inset-2: inset 6px 6px 12px hsla(0, 0%, 0%, 0.12), inset -6px -6px 12px hsla(0, 0%, 100%, 0.95);
-    --shadow-neumorphic-inset-3: inset 9px 9px 18px hsla(0, 0%, 0%, 0.15), inset -9px -9px 18px hsla(0, 0%, 100%, 1);
+    --shadow-neumorphic-inset-1: inset 3px 3px 6px hsla(30, 10%, 0%, 0.10), inset -3px -3px 6px hsla(45, 20%, 100%, 0.95);
+    --shadow-neumorphic-inset-2: inset 6px 6px 12px hsla(30, 10%, 0%, 0.15), inset -6px -6px 12px hsla(45, 20%, 100%, 1);
+    --shadow-neumorphic-inset-3: inset 9px 9px 18px hsla(30, 10%, 0%, 0.18), inset -9px -9px 18px hsla(45, 20%, 100%, 1);
 
-    /* Focus and interaction shadows */
-    --shadow-focus: 0 0 0 3px hsla(0, 84%, 60%, 0.3);
-    --shadow-glow: 0 0 20px hsla(0, 84%, 60%, 0.3);
-    --shadow-glow-strong: 0 0 30px hsla(0, 84%, 60%, 0.5);
+    /* Enhanced focus and interaction shadows */
+    --shadow-focus: 0 0 0 3px hsla(0, 75%, 50%, 0.3);
+    --shadow-glow: 0 0 20px hsla(0, 75%, 50%, 0.25);
+    --shadow-glow-strong: 0 0 30px hsla(0, 75%, 50%, 0.4);
+    --shadow-gold-glow: 0 0 20px hsla(45, 85%, 55%, 0.3);
 
     /* Responsive spacing */
     --spacing-section: 4rem;
@@ -108,7 +124,7 @@
     --card-foreground: 32 15% 95%;
     --popover: 40 12% 8%;
     --popover-foreground: 32 15% 95%;
-    --primary: 0 84% 60%;
+    --primary: 0 75% 60%;
     --primary-foreground: 0 0% 100%;
     --secondary: 40 8% 15%;
     --secondary-foreground: 32 15% 95%;
@@ -120,7 +136,7 @@
     --destructive-foreground: 210 20% 98%;
     --border: 40 8% 15%;
     --input: 40 8% 15%;
-    --ring: 0 84% 60%;
+    --ring: 0 75% 60%;
   }
 }
 
@@ -234,9 +250,9 @@
     transform: translateY(1px);
   }
 
-  /* Neumorphic button system */
+  /* Enhanced neumorphic button system */
   .neumorphic-button-primary {
-    @apply bg-gradient-to-br from-primary to-primary/90 text-primary-foreground;
+    @apply bg-gradient-to-br from-primary to-primary-dark text-primary-foreground;
     box-shadow: var(--shadow-neumorphic-2);
     transition: all var(--transition-duration) ease;
   }
@@ -264,6 +280,23 @@
 
   .neumorphic-button-secondary:active {
     box-shadow: var(--shadow-neumorphic-inset-1);
+    transform: translateY(0);
+  }
+
+  /* Premium gold button variant */
+  .neumorphic-button-gold {
+    @apply bg-gradient-to-br from-gold to-gold-dark text-gold-foreground;
+    box-shadow: var(--shadow-neumorphic-2);
+    transition: all var(--transition-duration) ease;
+  }
+
+  .neumorphic-button-gold:hover {
+    box-shadow: var(--shadow-neumorphic-3), var(--shadow-gold-glow);
+    transform: translateY(-1px);
+  }
+
+  .neumorphic-button-gold:active {
+    box-shadow: var(--shadow-neumorphic-inset-2);
     transform: translateY(0);
   }
 
@@ -357,7 +390,7 @@
     left: 0;
     right: 0;
     height: 1px;
-    background: linear-gradient(90deg, transparent, hsla(0, 84%, 60%, 0.3), transparent);
+    background: linear-gradient(90deg, transparent, hsla(0, 75%, 50%, 0.3), transparent);
   }
 
   /* Enhanced floating animations */
@@ -393,7 +426,8 @@
     }
     
     .neumorphic-button-primary,
-    .neumorphic-button-secondary {
+    .neumorphic-button-secondary,
+    .neumorphic-button-gold {
       @apply border-2;
     }
   }

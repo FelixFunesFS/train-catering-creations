@@ -19,7 +19,10 @@ const buttonVariants = cva(
         "cta-outline": "border-2 border-primary text-primary bg-transparent hover:bg-primary hover:text-primary-foreground neumorphic-card-2 hover:shadow-glow transform hover:scale-[1.02] font-bold",
         "cta-white": "border-2 border-white text-white bg-transparent hover:bg-white hover:text-primary neumorphic-card-1 transform hover:scale-[1.01]",
         "cta-secondary": "neumorphic-button-secondary hover:shadow-glow",
+        "cta-gold": "neumorphic-button-gold shadow-gold-glow hover:shadow-gold-glow transform hover:scale-[1.02] font-bold",
         accent: "bg-accent text-accent-foreground hover:bg-accent/80 neumorphic-card-2",
+        gold: "neumorphic-button-gold transform hover:scale-[1.01]",
+        navy: "bg-navy text-navy-foreground hover:bg-navy-light neumorphic-card-2 transform hover:scale-[1.01]",
       },
       size: {
         default: "h-10 px-4 py-2 text-sm font-medium",

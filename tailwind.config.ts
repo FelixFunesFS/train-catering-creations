@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -28,6 +29,7 @@ export default {
 					DEFAULT: 'hsl(var(--primary))',
 					foreground: 'hsl(var(--primary-foreground))',
 					light: 'hsl(var(--primary-light))',
+					dark: 'hsl(var(--primary-dark))',
 					glow: 'hsl(var(--primary-glow))'
 				},
 				secondary: {
@@ -53,6 +55,23 @@ export default {
 				card: {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
+				},
+				// Luxury supporting colors
+				gold: {
+					DEFAULT: 'hsl(var(--gold))',
+					foreground: 'hsl(var(--gold-foreground))',
+					light: 'hsl(var(--gold-light))',
+					dark: 'hsl(var(--gold-dark))'
+				},
+				navy: {
+					DEFAULT: 'hsl(var(--navy))',
+					foreground: 'hsl(var(--navy-foreground))',
+					light: 'hsl(var(--navy-light))',
+					dark: 'hsl(var(--navy-dark))'
+				},
+				cream: {
+					DEFAULT: 'hsl(var(--cream))',
+					foreground: 'hsl(var(--cream-foreground))'
 				},
 				category: {
 					appetizers: 'hsl(var(--category-appetizers))',
@@ -80,6 +99,7 @@ export default {
 			},
 			backgroundImage: {
 				'gradient-primary': 'var(--gradient-primary)',
+				'gradient-gold': 'var(--gradient-gold)',
 				'gradient-hero': 'var(--gradient-hero)',
 				'gradient-card': 'var(--gradient-card)',
 				'gradient-pattern-a': 'var(--gradient-pattern-a)',
@@ -96,6 +116,7 @@ export default {
 				'soft': 'var(--shadow-soft)',
 				'glow': 'var(--shadow-glow)',
 				'glow-strong': 'var(--shadow-glow-strong)',
+				'gold-glow': 'var(--shadow-gold-glow)',
 				'neumorphic-inset': 'var(--shadow-neumorphic-inset)',
 				'neumorphic-outset': 'var(--shadow-neumorphic-outset)',
 				'neumorphic-soft': 'var(--shadow-neumorphic-soft)',
