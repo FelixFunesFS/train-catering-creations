@@ -69,15 +69,15 @@ export const HeroSection = () => {
                 </div>
                 
                 {/* Main Heading */}
-                <div className="mb-6 sm:mb-8">
+                <div className="mb-4 sm:mb-6">
                   <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant text-foreground leading-tight sm:leading-tight lg:leading-tight animate-fade-in">Where Southern Flavor Meets<br />Family & Celebration</h1>
                 </div>
                 
                 {/* Decorative line */}
-                <div className="w-16 sm:w-20 lg:w-24 xl:w-28 h-1 bg-gradient-primary mx-auto mb-6 sm:mb-8 animate-fade-in" />
+                <div className="w-16 sm:w-20 lg:w-24 xl:w-28 h-1 bg-gradient-primary mx-auto mb-4 sm:mb-6 animate-fade-in" />
 
                 {/* Image Gallery Carousel Section */}
-                <div className="relative pt-4 sm:pt-4 pb-4 sm:pb-6 lg:pb-8 my-0 py-0">
+                <div className="relative pt-2 sm:pt-2 pb-4 sm:pb-6 lg:pb-8 my-0 py-0">
                   <div className="max-w-7xl mx-auto">
                     {/* Responsive Carousel */}
                     <div className="relative">
