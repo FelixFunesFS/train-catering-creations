@@ -51,7 +51,7 @@ const About = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-hero">
+    <div className="min-h-screen neumorphic-page">
       {/* Header Section */}
       <section className="py-8 lg:py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -59,7 +59,7 @@ const About = () => {
             <PageHeader 
               title="A Family Passion, Served on Every Plate" 
               description="Soul Train's Eatery was founded by Chef Dominick 'Train' Ward and his wife Tanya, a gifted pastry chef. Together, they've built a family-run catering company deeply rooted in Southern hospitality, faith, and community. With over 20 years of culinary experience, Chef Train leads a team that's as dedicated to service as it is to flavor. Certified, trusted, and always on time—we're here to make your event unforgettable." 
-              icons={[<ChefHat className="h-6 w-6 sm:h-8 sm:w-8" />, <Award className="h-6 w-6 sm:h-8 sm:w-8" />, <Heart className="h-6 w-6 sm:h-8 sm:w-8" />]}
+              icons={[<ChefHat className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />, <Award className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />, <Heart className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />]}
               buttons={[{ text: "View Gallery", href: "/gallery#page-header", variant: "cta" }]}
             />
           </div>
@@ -70,7 +70,7 @@ const About = () => {
       <section className="py-8 lg:py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div ref={card1Ref} className={`mb-8 sm:mb-12 ${useAnimationClass(card1Variant, card1Visible)}`}>
-            <Card className="shadow-elegant hover-float">
+            <Card className="hover-float">
               <CardContent className="p-4 sm:p-6 lg:p-8 xl:p-12">
                 <div className="text-center mb-6 sm:mb-8">
                   <div className="flex justify-center mb-4 sm:mb-6">
@@ -107,28 +107,28 @@ const About = () => {
           
           <div className="grid md:grid-cols-2 gap-6 sm:gap-8 mb-8 sm:mb-12">
             <div ref={card2Ref} className={useAnimationClass(card2Variant, card2Visible)}>
-              <Card className="shadow-card hover-float">
+              <Card className="hover-float">
                 <CardContent className="p-4 sm:p-6 lg:p-8">
                   <h3 className="text-xl sm:text-2xl font-elegant font-semibold text-foreground mb-3 sm:mb-4">
                     Signature Dishes
                   </h3>
                   <ul className="space-y-1.5 sm:space-y-2 text-sm sm:text-base text-muted-foreground">
-                    <li>• Shrimp Alfredo</li>
-                    <li>• Baked Salmon</li>
-                    <li>• Slow-Smoked Brisket</li>
-                    <li>• Good Old-Fashioned Ribs</li>
-                    <li>• Red Beans & Rice</li>
-                    <li>• Southern-Style Cabbage</li>
-                    <li>• Jamaican Jerk Chicken</li>
-                    <li>• Customizable Taco Platters</li>
-                    <li>• Variety of Vegetarian Options</li>
+                    <li className="flex items-start"><span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 mr-3 flex-shrink-0"></span>Shrimp Alfredo</li>
+                    <li className="flex items-start"><span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 mr-3 flex-shrink-0"></span>Baked Salmon</li>
+                    <li className="flex items-start"><span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 mr-3 flex-shrink-0"></span>Slow-Smoked Brisket</li>
+                    <li className="flex items-start"><span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 mr-3 flex-shrink-0"></span>Good Old-Fashioned Ribs</li>
+                    <li className="flex items-start"><span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 mr-3 flex-shrink-0"></span>Red Beans & Rice</li>
+                    <li className="flex items-start"><span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 mr-3 flex-shrink-0"></span>Southern-Style Cabbage</li>
+                    <li className="flex items-start"><span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 mr-3 flex-shrink-0"></span>Jamaican Jerk Chicken</li>
+                    <li className="flex items-start"><span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 mr-3 flex-shrink-0"></span>Customizable Taco Platters</li>
+                    <li className="flex items-start"><span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 mr-3 flex-shrink-0"></span>Variety of Vegetarian Options</li>
                   </ul>
                 </CardContent>
               </Card>
             </div>
 
             <div ref={card3Ref} className={useAnimationClass(card3Variant, card3Visible)}>
-              <Card className="shadow-card overflow-hidden hover-float">
+              <Card className="overflow-hidden hover-float">
                 <OptimizedImage src="/lovable-uploads/6fa5bcaf-1613-416b-babc-289ac84bb501.png" alt="Beautiful cupcake display by Tanya Ward featuring various flavors and elegant decorations" aspectRatio="aspect-[5/3]" />
                 
                 <CardContent className="p-4 sm:p-6 lg:p-8">
@@ -152,7 +152,7 @@ const About = () => {
                 <OptimizedImage src="/lovable-uploads/8268fc9a-93a0-4b72-a923-95fc0f10b0c0.png" alt="Chef Dominick 'Train' Ward and Tanya Ward, the founders of Soul Train's Eatery, wearing their signature red aprons" aspectRatio="aspect-[4/3]" containerClassName="w-full h-48 sm:h-64 md:h-80 lg:h-96 rounded-lg shadow-elegant" className="object-[center_20%]" />
               </div>
 
-              <Card className="shadow-elegant bg-gradient-card min-h-48 sm:min-h-64 md:min-h-80 lg:min-h-96">
+              <Card className="min-h-48 sm:min-h-64 md:min-h-80 lg:min-h-96">
                 <CardContent className="p-4 sm:p-6 lg:p-8 text-center flex flex-col justify-center h-full">
                   <h3 className="text-xl sm:text-2xl lg:text-3xl font-elegant text-foreground mb-4 sm:mb-6">
                     Our Promise

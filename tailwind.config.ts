@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -90,7 +91,11 @@ export default {
 				'float': 'var(--shadow-float)',
 				'soft': 'var(--shadow-soft)',
 				'glow': 'var(--shadow-glow)',
-				'glow-strong': 'var(--shadow-glow-strong)'
+				'glow-strong': 'var(--shadow-glow-strong)',
+				'neumorphic-inset': 'var(--shadow-neumorphic-inset)',
+				'neumorphic-outset': 'var(--shadow-neumorphic-outset)',
+				'neumorphic-soft': 'var(--shadow-neumorphic-soft)',
+				'neumorphic-elevated': 'var(--shadow-neumorphic-elevated)'
 			},
 			spacing: {
 				'section': 'var(--spacing-section)',

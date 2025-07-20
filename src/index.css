@@ -13,10 +13,10 @@
     --card-foreground: 32 15% 95%;
     --popover: 40 12% 8%;
     --popover-foreground: 32 15% 95%;
-    --primary: 29 84% 65%;
-    --primary-light: 29 84% 75%;
-    --primary-glow: 29 84% 65%;
-    --primary-foreground: 40 12% 8%;
+    --primary: 0 84% 60%;
+    --primary-light: 0 84% 70%;
+    --primary-glow: 0 84% 60%;
+    --primary-foreground: 0 0% 100%;
     --secondary: 40 8% 15%;
     --secondary-foreground: 32 15% 95%;
     --muted: 40 8% 12%;
@@ -27,14 +27,14 @@
     --destructive-foreground: 210 20% 98%;
     --border: 40 8% 15%;
     --input: 40 8% 15%;
-    --ring: 29 84% 65%;
+    --ring: 0 84% 60%;
     --radius: 0.75rem;
 
     /* Category colors for menu sections */
     --category-appetizers: 120 45% 55%;
     --category-appetizers-foreground: 40 12% 8%;
-    --category-entrees: 29 84% 65%;
-    --category-entrees-foreground: 40 12% 8%;
+    --category-entrees: 0 84% 60%;
+    --category-entrees-foreground: 0 0% 100%;
     --category-sides: 60 75% 60%;
     --category-sides-foreground: 40 12% 8%;
     --category-desserts: 340 75% 65%;
@@ -48,19 +48,25 @@
     --service-family: 120 45% 55%;
     --service-family-foreground: 40 12% 8%;
 
-    /* Enhanced gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(29, 84%, 65%) 0%, hsl(29, 84%, 55%) 100%);
+    /* Enhanced gradients - now red themed */
+    --gradient-primary: linear-gradient(135deg, hsl(0, 84%, 60%) 0%, hsl(0, 84%, 50%) 100%);
     --gradient-hero: linear-gradient(180deg, hsl(38, 10%, 5%) 0%, hsl(40, 12%, 8%) 50%, hsl(38, 10%, 5%) 100%);
     --gradient-card: linear-gradient(145deg, hsl(40, 12%, 8%) 0%, hsl(40, 8%, 12%) 100%);
 
-    /* Enhanced shadows */
+    /* Enhanced shadows with neumorphic design */
     --shadow-card: 0 4px 6px -1px hsla(0, 0%, 0%, 0.3), 0 2px 4px -1px hsla(0, 0%, 0%, 0.2);
     --shadow-elegant: 0 10px 15px -3px hsla(0, 0%, 0%, 0.4), 0 4px 6px -2px hsla(0, 0%, 0%, 0.3);
     --shadow-elevated: 0 20px 25px -5px hsla(0, 0%, 0%, 0.4), 0 10px 10px -5px hsla(0, 0%, 0%, 0.2);
     --shadow-float: 0 25px 50px -12px hsla(0, 0%, 0%, 0.5);
     --shadow-soft: 0 2px 8px hsla(0, 0%, 0%, 0.15);
-    --shadow-glow: 0 0 20px hsla(29, 84%, 65%, 0.3);
-    --shadow-glow-strong: 0 0 30px hsla(29, 84%, 65%, 0.5);
+    --shadow-glow: 0 0 20px hsla(0, 84%, 60%, 0.3);
+    --shadow-glow-strong: 0 0 30px hsla(0, 84%, 60%, 0.5);
+
+    /* Neumorphic shadows */
+    --shadow-neumorphic-inset: inset 2px 2px 5px hsla(0, 0%, 0%, 0.3), inset -2px -2px 5px hsla(0, 0%, 100%, 0.1);
+    --shadow-neumorphic-outset: 4px 4px 8px hsla(0, 0%, 0%, 0.4), -4px -4px 8px hsla(0, 0%, 100%, 0.05);
+    --shadow-neumorphic-soft: 2px 2px 6px hsla(0, 0%, 0%, 0.2), -2px -2px 6px hsla(0, 0%, 100%, 0.03);
+    --shadow-neumorphic-elevated: 6px 6px 12px hsla(0, 0%, 0%, 0.5), -6px -6px 12px hsla(0, 0%, 100%, 0.08);
 
     /* Responsive spacing */
     --spacing-section: 4rem;
@@ -85,8 +91,8 @@
     --card-foreground: 32 15% 95%;
     --popover: 40 12% 8%;
     --popover-foreground: 32 15% 95%;
-    --primary: 29 84% 65%;
-    --primary-foreground: 40 12% 8%;
+    --primary: 0 84% 60%;
+    --primary-foreground: 0 0% 100%;
     --secondary: 40 8% 15%;
     --secondary-foreground: 32 15% 95%;
     --muted: 40 8% 12%;
@@ -97,7 +103,7 @@
     --destructive-foreground: 210 20% 98%;
     --border: 40 8% 15%;
     --input: 40 8% 15%;
-    --ring: 29 84% 65%;
+    --ring: 0 84% 60%;
   }
 }
 
@@ -126,6 +132,51 @@
 
   .hover-scale {
     @apply transition-transform duration-200 hover:scale-105;
+  }
+
+  /* Neumorphic design utilities */
+  .neumorphic-inset {
+    box-shadow: var(--shadow-neumorphic-inset);
+  }
+
+  .neumorphic-outset {
+    box-shadow: var(--shadow-neumorphic-outset);
+  }
+
+  .neumorphic-soft {
+    box-shadow: var(--shadow-neumorphic-soft);
+  }
+
+  .neumorphic-elevated {
+    box-shadow: var(--shadow-neumorphic-elevated);
+  }
+
+  .neumorphic-page {
+    @apply bg-gradient-to-br from-background to-card;
+    box-shadow: var(--shadow-neumorphic-soft);
+  }
+
+  .neumorphic-card {
+    @apply bg-gradient-to-br from-card to-muted;
+    box-shadow: var(--shadow-neumorphic-outset);
+    border: 1px solid hsla(0, 0%, 100%, 0.05);
+  }
+
+  .neumorphic-button {
+    @apply bg-gradient-to-br from-secondary to-muted;
+    box-shadow: var(--shadow-neumorphic-outset);
+    border: 1px solid hsla(0, 0%, 100%, 0.1);
+    transition: all 0.2s ease;
+  }
+
+  .neumorphic-button:hover {
+    box-shadow: var(--shadow-neumorphic-elevated);
+    transform: translateY(-1px);
+  }
+
+  .neumorphic-button:active {
+    box-shadow: var(--shadow-neumorphic-inset);
+    transform: translateY(0);
   }
 }
 
