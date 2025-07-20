@@ -24,9 +24,10 @@ export const BrandMarquee = () => {
     <div className="relative overflow-hidden bg-gradient-to-r from-background via-muted/30 to-background py-12 lg:py-16 border-y border-border/20">
       <div 
         ref={ref}
-        className={`flex items-center ${className}`}
+        className={`flex items-center whitespace-nowrap ${className}`}
         style={style}
       >
+        {marqueeContent}
         {marqueeContent}
         {marqueeContent}
         {marqueeContent}
