@@ -77,7 +77,16 @@ export const HeroSection = () => {
               </div>
             </div>
 
-            {/* Full-width Hero Image with Title Overlay */}
+            {/* Subtext Above Image */}
+            <div className="text-center mb-6 sm:mb-8">
+              <div className="max-w-2xl mx-auto px-2 sm:px-4">
+                <p className="text-lg sm:text-xl lg:text-2xl font-elegant font-bold text-foreground leading-relaxed animate-fade-in">
+                  Charleston's premier catering experience- where every bit is made with love and served with soul.
+                </p>
+              </div>
+            </div>
+
+            {/* Full-width Hero Image with Title and Buttons Overlay */}
             <div className="relative order-1 md:order-1 mb-6 sm:mb-8">
               {/* Hero Background Image */}
               <div className="relative aspect-[16/9] overflow-hidden rounded-2xl">
@@ -91,7 +100,7 @@ export const HeroSection = () => {
                 {/* Gradient Overlay for Text Readability */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
                 
-                {/* Title Overlay */}
+                {/* Title and Buttons Overlay */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white z-10 px-4">
                   {/* Main Heading with Script Font */}
                   <div className="mb-4 sm:mb-6">
@@ -101,13 +110,20 @@ export const HeroSection = () => {
                   </div>
                   
                   {/* Decorative line */}
-                  <div className="w-20 sm:w-24 lg:w-28 xl:w-32 h-1 bg-gradient-primary mx-auto mb-4 sm:mb-6 animate-fade-in drop-shadow-sm" />
+                  <div className="w-20 sm:w-24 lg:w-28 xl:w-32 h-1 bg-gradient-primary mx-auto mb-6 sm:mb-8 animate-fade-in drop-shadow-sm" />
 
-                  {/* Elegant Descriptive Text */}
-                  <div className="max-w-2xl mx-auto px-2 sm:px-4">
-                    <p className="text-lg sm:text-xl lg:text-2xl font-elegant font-bold text-white/95 leading-relaxed animate-fade-in drop-shadow-md">
-                      Charleston's premier catering experience- where every bit is made with love and served with soul.
-                    </p>
+                  {/* Call-to-Action Buttons */}
+                  <div className="flex flex-row gap-2 sm:gap-4 justify-center items-center animate-fade-in w-full sm:w-auto">
+                    <Button asChild variant="cta" size="default" className="flex-1 sm:flex-none sm:w-56 min-h-[44px] sm:min-h-[52px]">
+                      <Link to="/request-quote#page-header">
+                        Request Quote
+                      </Link>
+                    </Button>
+                    <Button asChild variant="cta-outline" size="default" className="flex-1 sm:flex-none sm:w-56 min-h-[44px] sm:min-h-[52px]">
+                      <Link to="/gallery#page-header">
+                        View Gallery
+                      </Link>
+                    </Button>
                   </div>
                 </div>
                 
@@ -173,23 +189,6 @@ export const HeroSection = () => {
               </div>
             )}
 
-            {/* Call-to-Action Buttons Section */}
-            <div className="relative order-3 md:order-3 py-0">
-              <div className="text-center pb-4 sm:pb-6 lg:pb-8">
-                <div className="flex flex-row gap-2 sm:gap-4 justify-center items-center animate-fade-in w-full sm:w-auto">
-                  <Button asChild variant="cta" size="default" className="flex-1 sm:flex-none sm:w-56 min-h-[44px] sm:min-h-[52px]">
-                    <Link to="/request-quote#page-header">
-                      Request Quote
-                    </Link>
-                  </Button>
-                  <Button asChild variant="cta-outline" size="default" className="flex-1 sm:flex-none sm:w-56 min-h-[44px] sm:min-h-[52px]">
-                    <Link to="/gallery#page-header">
-                      View Gallery
-                    </Link>
-                  </Button>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </section>
