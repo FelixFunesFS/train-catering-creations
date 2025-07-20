@@ -79,13 +79,13 @@ export const HeroSection = () => {
                   <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant text-foreground leading-tight sm:leading-tight lg:leading-tight">Charleston's Premier Catering Experience</h1>
                 </div>
                 
+                {/* Decorative line */}
+                <div className="w-16 sm:w-20 lg:w-24 xl:w-28 h-1 bg-gradient-primary mx-auto mb-4 sm:mb-6 animate-fade-in" />
+                
                 {/* Subtitle */}
                 <div className="mb-4 sm:mb-6 animate-fade-in">
                   <p className="text-lg sm:text-xl lg:text-2xl text-muted-foreground font-elegant leading-relaxed">Where every bite is made with love and served with soul!</p>
                 </div>
-                
-                {/* Decorative line */}
-                <div className="w-16 sm:w-20 lg:w-24 xl:w-28 h-1 bg-gradient-primary mx-auto mb-4 sm:mb-6 animate-fade-in" />
 
                 {/* Image Gallery Carousel Section */}
                 <div className="relative pt-2 sm:pt-2 pb-4 sm:pb-6 lg:pb-8 my-0 py-0 animate-fade-in">
