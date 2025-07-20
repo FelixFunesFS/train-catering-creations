@@ -51,7 +51,7 @@ export const Header = () => {
 
           {/* Mobile menu button */}
           <Button variant="ghost" size="icon" className="lg:hidden hover:scale-110 transition-all duration-200" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-            {isMenuOpen ? <X className="h-7 w-7" /> : <Menu className="h-7 w-7" />}
+            {isMenuOpen ? <X className="h-8 w-8 sm:h-9 sm:w-9" /> : <Menu className="h-8 w-8 sm:h-9 sm:w-9" />}
           </Button>
         </div>
 
