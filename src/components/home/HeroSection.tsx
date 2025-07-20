@@ -56,8 +56,8 @@ export const HeroSection = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
           <div className="flex flex-col">
             
-            {/* Brand Header Section */}
-            <div className="relative order-1 md:order-1">
+            {/* Brand Header Section - Top Part */}
+            <div className="relative order-1">
               {/* Subtle background pattern */}
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 opacity-50"></div>
               
@@ -75,31 +75,12 @@ export const HeroSection = () => {
                 </div>
                 
                 {/* Decorative line */}
-                <div className="w-16 sm:w-20 lg:w-24 xl:w-28 h-1 bg-gradient-primary mx-auto mb-6 sm:mb-8 animate-fade-in" />
-
-                {/* Descriptive Text */}
-                <div className="max-w-3xl mx-auto px-2 sm:px-4 mb-6 sm:mb-8">
-                  <p className="text-base sm:text-lg text-muted-foreground leading-relaxed animate-fade-in">More than a meal - it's Southern comfort, heartfelt connection,<br className="hidden sm:inline" /> and Lowcountry flavor on every plate.</p>
-                </div>
-                
-                {/* Call-to-Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 justify-center items-center animate-fade-in max-w-lg mx-auto">
-                  <Button asChild variant="cta" size="responsive-lg" className="w-3/5 sm:w-auto sm:min-w-[14rem] min-h-[44px] sm:min-h-[52px] box-border">
-                    <Link to="/request-quote#page-header">
-                      Request Quote
-                    </Link>
-                  </Button>
-                  <Button asChild variant="cta-outline" size="responsive-lg" className="w-3/5 sm:w-auto sm:min-w-[14rem] min-h-[44px] sm:min-h-[52px] box-border">
-                    <Link to="/gallery#page-header">
-                      View Gallery
-                    </Link>
-                  </Button>
-                </div>
+                <div className="w-16 sm:w-20 lg:w-24 xl:w-28 h-1 bg-gradient-primary mx-auto animate-fade-in" />
               </div>
             </div>
 
             {/* Image Gallery Carousel Section */}
-            <div className="relative pt-4 sm:pt-4 pb-4 sm:pb-6 lg:pb-8 order-2 md:order-2">
+            <div className="relative pt-4 sm:pt-4 pb-4 sm:pb-6 lg:pb-8 order-2">
               <div className="max-w-7xl mx-auto">
                 {/* Responsive Carousel */}
                 <div className="relative">
@@ -136,6 +117,30 @@ export const HeroSection = () => {
                     <CarouselPrevious className="hidden md:flex -left-12" />
                     <CarouselNext className="hidden md:flex -right-12" />
                   </Carousel>
+                </div>
+              </div>
+            </div>
+
+            {/* Brand Header Section - Bottom Part */}
+            <div className="relative order-3">
+              <div className="relative z-10 text-center py-4 sm:py-6 lg:py-8">
+                {/* Descriptive Text */}
+                <div className="max-w-3xl mx-auto px-2 sm:px-4 mb-6 sm:mb-8">
+                  <p className="text-base sm:text-lg text-muted-foreground leading-relaxed animate-fade-in">More than a meal - it's Southern comfort, heartfelt connection,<br className="hidden sm:inline" /> and Lowcountry flavor on every plate.</p>
+                </div>
+                
+                {/* Call-to-Action Buttons */}
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 justify-center items-center animate-fade-in max-w-lg mx-auto">
+                  <Button asChild variant="cta" size="responsive-lg" className="w-3/5 sm:w-auto sm:min-w-[14rem] min-h-[44px] sm:min-h-[52px] box-border">
+                    <Link to="/request-quote#page-header">
+                      Request Quote
+                    </Link>
+                  </Button>
+                  <Button asChild variant="cta-outline" size="responsive-lg" className="w-3/5 sm:w-auto sm:min-w-[14rem] min-h-[44px] sm:min-h-[52px] box-border">
+                    <Link to="/gallery#page-header">
+                      View Gallery
+                    </Link>
+                  </Button>
                 </div>
               </div>
             </div>
