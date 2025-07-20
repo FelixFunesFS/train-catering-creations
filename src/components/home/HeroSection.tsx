@@ -76,7 +76,7 @@ export const HeroSection = () => {
                 
                 {/* Main Heading */}
                 <div className="mb-4 sm:mb-6">
-                  <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant text-foreground leading-tight sm:leading-tight lg:leading-tight animate-fade-in">Where Southern Flavor Meets<br />Family & Celebration</h1>
+                  <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant text-foreground leading-tight sm:leading-tight lg:leading-tight animate-fade-in">Charleston's premier catering experience -<br />where every bite is made with love and served with soul!</h1>
                 </div>
                 
                 {/* Decorative line */}
@@ -129,10 +129,6 @@ export const HeroSection = () => {
                   </div>
                 </div>
 
-                {/* Descriptive Text */}
-                <div className="max-w-3xl mx-auto px-2 sm:px-4 mb-6 sm:mb-8">
-                  <p className="text-base sm:text-lg text-muted-foreground leading-relaxed animate-fade-in my-0 py-0">More than a meal - it's Southern comfort, heartfelt connection,<br className="hidden sm:inline" /> and Lowcountry flavor on every plate.</p>
-                </div>
               </div>
             </div>
 
