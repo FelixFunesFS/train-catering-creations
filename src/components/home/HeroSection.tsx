@@ -82,20 +82,9 @@ export const HeroSection = () => {
                 {/* Decorative line */}
                 <div className="w-16 sm:w-20 lg:w-24 xl:w-28 h-1 bg-gradient-primary mx-auto mb-4 sm:mb-6 animate-fade-in" />
                 
-                {/* Interactive Animated Subtitle */}
-                <div className="mb-4 sm:mb-6 animate-fade-in group cursor-pointer">
-                  <p className="text-lg sm:text-xl lg:text-2xl font-elegant leading-relaxed
-                    bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent
-                    hover:from-accent hover:via-primary hover:to-accent
-                    transition-all duration-500 ease-in-out
-                    hover:scale-105 hover:-translate-y-1
-                    animate-pulse hover:animate-none
-                    drop-shadow-sm hover:drop-shadow-lg
-                    relative
-                    before:content-['✨'] before:absolute before:-left-8 before:top-0 before:opacity-0 before:group-hover:opacity-100 before:transition-opacity before:duration-300
-                    after:content-['✨'] after:absolute after:-right-8 after:top-0 after:opacity-0 after:group-hover:opacity-100 after:transition-opacity after:duration-300">
-                    Where every bite is made with love and served with soul!
-                  </p>
+                {/* Subtitle */}
+                <div className="mb-4 sm:mb-6 animate-fade-in">
+                  <p className="text-lg sm:text-xl lg:text-2xl text-muted-foreground font-elegant leading-relaxed">Where every bite is made with love and served with soul!</p>
                 </div>
 
                 {/* Image Gallery Carousel Section */}
