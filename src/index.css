@@ -663,7 +663,20 @@ Enhanced 60-30-10 color scheme implementation.
   }
 
   .marquee-fast {
-    animation: marquee 6s linear infinite;
+    animation: marquee 4s linear infinite;
+  }
+
+  /* Neuomorphism shadows */
+  .shadow-neumorph {
+    box-shadow: 
+      8px 8px 16px hsl(0 0% 0% / 0.1),
+      -8px -8px 16px hsl(0 0% 100% / 0.8);
+  }
+
+  .shadow-neumorph-hover {
+    box-shadow: 
+      12px 12px 24px hsl(0 0% 0% / 0.15),
+      -12px -12px 24px hsl(0 0% 100% / 0.9);
   }
 
   /* Hover zoom effect for images */
