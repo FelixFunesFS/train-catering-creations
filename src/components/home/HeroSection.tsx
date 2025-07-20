@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ImageModal } from "@/components/gallery/ImageModal";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
+
 export const HeroSection = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
 
@@ -82,13 +83,13 @@ export const HeroSection = () => {
                 </div>
                 
                 {/* Call-to-Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center animate-fade-in">
-                  <Button asChild variant="cta" className="w-44 h-12 flex items-center justify-center">
+                <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center animate-fade-in max-w-lg mx-auto">
+                  <Button asChild variant="cta" size="responsive-lg" className="w-3/4 sm:w-auto sm:min-w-[14rem]">
                     <Link to="/request-quote#page-header">
                       Request Quote
                     </Link>
                   </Button>
-                  <Button asChild variant="cta-outline" className="w-44 h-12 flex items-center justify-center hidden sm:flex">
+                  <Button asChild variant="cta-outline" size="responsive-lg" className="w-3/5 sm:w-auto sm:min-w-[12rem] hidden sm:flex">
                     <Link to="/gallery#page-header">
                       Gallery
                     </Link>
