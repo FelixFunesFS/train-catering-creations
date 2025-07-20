@@ -4,7 +4,6 @@ import { useState } from "react";
 import { ImageModal } from "@/components/gallery/ImageModal";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
-
 export const HeroSection = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
 
@@ -57,11 +56,11 @@ export const HeroSection = () => {
           <div className="flex flex-col">
             
             {/* Brand Header Section */}
-            <div className="relative order-1 md:order-1">
+            <div className="relative order-1 md:order-1 py-0 my-0">
               {/* Subtle background pattern */}
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 opacity-50"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 opacity-50 py-0 my-[25px]"></div>
               
-              <div className="relative z-10 text-center pt-2 sm:pt-4 md:pt-12 py-4 sm:py-6 lg:py-8">
+              <div className="relative z-10 text-center pt-2 sm:pt-4 md:pt-12 py-4 sm:py-6 lg:py-0">
                 {/* Logo Icon - consistent with PageHeader styling */}
                 <div className="flex justify-center mb-4 my-[25px]">
                   <div className="h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14">
@@ -79,13 +78,13 @@ export const HeroSection = () => {
 
                 {/* Descriptive Text */}
                 <div className="max-w-3xl mx-auto px-2 sm:px-4 mb-6 sm:mb-8">
-                  <p className="text-base sm:text-lg text-muted-foreground leading-relaxed animate-fade-in">More than a meal - it's Southern comfort, heartfelt connection,<br className="hidden sm:inline" /> and Lowcountry flavor on every plate.</p>
+                  <p className="text-base sm:text-lg text-muted-foreground leading-relaxed animate-fade-in py-0 my-0">More than a meal - it's Southern comfort, heartfelt connection,<br className="hidden sm:inline" /> and Lowcountry flavor on every plate.</p>
                 </div>
               </div>
             </div>
 
             {/* Image Gallery Carousel Section */}
-            <div className="relative pt-4 sm:pt-4 pb-4 sm:pb-6 lg:pb-8 order-2 md:order-2">
+            <div className="relative pt-4 sm:pt-4 pb-4 sm:pb-6 lg:pb-8 order-2 md:order-2 py-[17px] my-0">
               <div className="max-w-7xl mx-auto">
                 {/* Responsive Carousel */}
                 <div className="relative">
