@@ -3,7 +3,6 @@ import { OptimizedImage } from "@/components/ui/optimized-image";
 import { FloatingServiceCard } from "@/components/ui/floating-card";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
-
 export const ServicesSection = () => {
   const {
     ref: titleRef,
@@ -13,7 +12,6 @@ export const ServicesSection = () => {
     variant: 'fluid-up',
     delay: 0
   });
-
   const {
     ref: card1Ref,
     isVisible: card1Visible,
@@ -22,7 +20,6 @@ export const ServicesSection = () => {
     delay: 150,
     variant: 'fluid-up'
   });
-  
   const {
     ref: card2Ref,
     isVisible: card2Visible,
@@ -31,7 +28,6 @@ export const ServicesSection = () => {
     delay: 300,
     variant: 'fluid-up'
   });
-  
   const {
     ref: card3Ref,
     isVisible: card3Visible,
@@ -40,7 +36,6 @@ export const ServicesSection = () => {
     delay: 450,
     variant: 'fluid-up'
   });
-  
   const {
     ref: card4Ref,
     isVisible: card4Visible,
@@ -49,15 +44,12 @@ export const ServicesSection = () => {
     delay: 600,
     variant: 'fluid-up'
   });
-  
   const titleAnimationClass = useAnimationClass(titleVariant, titleVisible);
   const card1AnimationClass = useAnimationClass(card1Variant, card1Visible);
   const card2AnimationClass = useAnimationClass(card2Variant, card2Visible);
   const card3AnimationClass = useAnimationClass(card3Variant, card3Visible);
   const card4AnimationClass = useAnimationClass(card4Variant, card4Visible);
-
-  return (
-    <section className="py-16 lg:py-20 bg-gradient-card/30 border-t border-border/10">
+  return <section className="py-16 lg:py-20 bg-gradient-card/30 border-t border-border/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div ref={titleRef} className={`text-center mb-6 sm:mb-8 lg:mb-12 ${titleAnimationClass}`}>
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant text-foreground mb-4">
@@ -68,11 +60,8 @@ export const ServicesSection = () => {
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-5">
           <Link to="/wedding-menu#page-header" className="block">
-            <FloatingServiceCard 
-              ref={card1Ref} 
-              className={`text-center transition-all duration-200 overflow-hidden group flex flex-col cursor-pointer p-0 ${card1AnimationClass}`}
-            >
-              <div className="relative h-48 sm:h-56 lg:h-64 w-full overflow-hidden">
+            <FloatingServiceCard ref={card1Ref} className={`text-center transition-all duration-200 overflow-hidden group flex flex-col cursor-pointer p-0 ${card1AnimationClass}`}>
+              <div className="relative h-48 sm:h-56 lg:h-64 w-full overflow-hidden my-0">
                 <OptimizedImage src="/lovable-uploads/546d7d1a-7987-4f44-a2d9-668efea60e51.png" alt="Wedding Reception Setup" aspectRatio="aspect-video" className="group-hover:scale-105 transition-transform duration-300 w-full h-full object-cover" />
               </div>
               <div className="px-3 sm:px-4 pb-3 sm:pb-4">
@@ -86,15 +75,12 @@ export const ServicesSection = () => {
             </FloatingServiceCard>
           </Link>
 
-          <Link to="/wedding-menu#page-header" className="block">
-            <FloatingServiceCard 
-              ref={card2Ref} 
-              className={`text-center transition-all duration-200 overflow-hidden group flex flex-col cursor-pointer p-0 ${card2AnimationClass}`}
-            >
-              <div className="relative h-48 sm:h-56 lg:h-64 w-full overflow-hidden">
+          <Link to="/wedding-menu#page-header" className="block px-0">
+            <FloatingServiceCard ref={card2Ref} className={`text-center transition-all duration-200 overflow-hidden group flex flex-col cursor-pointer p-0 ${card2AnimationClass}`}>
+              <div className="relative h-48 sm:h-56 lg:h-64 w-full overflow-hidden mx-0 my-0 px-0 py-0">
                 <OptimizedImage src="/lovable-uploads/63832488-46ff-4d71-ade5-f871173c28ab.png" alt="Black Tie Event Catering" aspectRatio="aspect-video" className="group-hover:scale-105 transition-transform duration-300 w-full h-full object-cover" />
               </div>
-              <div className="px-3 sm:px-4 pb-3 sm:pb-4">
+              <div className="px-3 pb-3 sm:pb-4 sm:px-[15px]">
                 <h3 className="text-lg sm:text-xl font-elegant text-foreground mb-2">Black Tie Events</h3>
                 <p className="text-sm sm:text-base text-muted-foreground mb-3">Sophisticated catering for galas and formal celebrations</p>
                 <span className="text-accent hover:text-accent/80 font-medium group inline-flex items-center gap-1">
@@ -105,11 +91,8 @@ export const ServicesSection = () => {
             </FloatingServiceCard>
           </Link>
 
-          <FloatingServiceCard 
-            ref={card3Ref} 
-            className={`text-center transition-all duration-200 overflow-hidden group flex flex-col p-0 ${card3AnimationClass}`}
-          >
-            <div className="relative h-48 sm:h-56 lg:h-64 w-full overflow-hidden">
+          <FloatingServiceCard ref={card3Ref} className={`text-center transition-all duration-200 overflow-hidden group flex flex-col p-0 ${card3AnimationClass}`}>
+            <div className="relative h-48 sm:h-56 lg:h-64 w-full overflow-hidden mx-0 py-0 my-0">
               <OptimizedImage src="/lovable-uploads/3226c955-a9b7-4c8d-a4c2-e5e7fc206f6f.png" alt="Military Function Catering" aspectRatio="aspect-video" className="group-hover:scale-105 transition-transform duration-300 w-full h-full object-cover" />
             </div>
             <div className="px-3 sm:px-4 pb-3 sm:pb-4">
@@ -122,11 +105,8 @@ export const ServicesSection = () => {
             </div>
           </FloatingServiceCard>
 
-          <FloatingServiceCard 
-            ref={card4Ref} 
-            className={`text-center transition-all duration-200 overflow-hidden group flex flex-col p-0 ${card4AnimationClass}`}
-          >
-            <div className="relative h-48 sm:h-56 lg:h-64 w-full overflow-hidden">
+          <FloatingServiceCard ref={card4Ref} className={`text-center transition-all duration-200 overflow-hidden group flex flex-col p-0 ${card4AnimationClass}`}>
+            <div className="relative h-48 sm:h-56 lg:h-64 w-full overflow-hidden mx-0">
               <OptimizedImage src="/lovable-uploads/6cd766e3-21ce-4e88-a3a4-6c8835dc9654.png" alt="Private Event Catering" aspectRatio="aspect-video" className="group-hover:scale-105 transition-transform duration-300 w-full h-full object-cover" />
             </div>
             <div className="px-3 sm:px-4 pb-3 sm:pb-4">
@@ -140,6 +120,5 @@ export const ServicesSection = () => {
           </FloatingServiceCard>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
