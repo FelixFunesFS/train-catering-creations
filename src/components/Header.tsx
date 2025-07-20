@@ -84,8 +84,8 @@ export const Header = () => {
               </div>
               <Button 
                 asChild 
-                variant="outline" 
-                className="nav-link-neumorphic text-sm font-medium px-4 py-2 rounded-lg transition-all duration-300 focus-visible-enhanced"
+                variant="cta" 
+                className="text-sm font-medium px-4 py-2 rounded-lg neumorphic-button-primary"
               >
                 <Link to="/request-quote#page-header">Request Quote</Link>
               </Button>
