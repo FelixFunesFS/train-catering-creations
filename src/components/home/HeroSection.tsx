@@ -126,7 +126,7 @@ export const HeroSection = () => {
               <div className="relative z-10 text-center py-2 sm:py-3 lg:py-4">
                 {/* Descriptive Text */}
                 <div className="max-w-3xl mx-auto px-2 sm:px-4 mb-4 sm:mb-6">
-                  <p className="text-base sm:text-lg text-muted-foreground leading-relaxed animate-fade-in">More than a meal - it's Southern comfort, heartfelt connection,<br className="hidden sm:inline" /> and Lowcountry flavor on every plate.</p>
+                  <p className="text-base sm:text-lg text-muted-foreground leading-relaxed animate-fade-in">Culinary craftsmanship, heartfelt connection, and Lowcountry flavor on every plate.</p>
                 </div>
                 
                 {/* Call-to-Action Buttons */}
