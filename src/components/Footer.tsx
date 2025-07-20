@@ -37,7 +37,7 @@ export const Footer = () => {
           <div className="lg:col-span-1">
             <div className="flex items-center space-x-3 mb-4">
               <img src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" alt="Soul Train's Eatery Logo" className="w-10 h-10 object-contain" />
-              <div className="text-2xl font-script font-bold text-black">Soul Train's Eatery</div>
+              <div className="text-2xl font-script font-bold text-foreground">Soul Train's Eatery</div>
             </div>
             <p className="text-muted-foreground text-sm leading-relaxed mb-4">
               Authentic soul food catering bringing comfort and flavor to your special events. 

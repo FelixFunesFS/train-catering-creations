@@ -57,7 +57,7 @@ export const Header = () => {
                   />
                 </div>
               </div>
-              <div className="text-2xl lg:text-3xl font-script font-bold text-black">
+              <div className="text-2xl lg:text-3xl font-script font-bold text-foreground">
                 Soul Train's Eatery
               </div>
             </Link>
