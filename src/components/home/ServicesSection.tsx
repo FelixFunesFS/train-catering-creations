@@ -67,7 +67,7 @@ export const ServicesSection = () => {
           <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">Elegant weddings, heartfelt celebrations, and corporate events—catered with care, Southern soul, and impeccable service.</p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-10 lg:gap-14">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-5">
           <Link to="/wedding-menu#page-header" className="block">
             <FloatingServiceCard 
               ref={card1Ref} 
