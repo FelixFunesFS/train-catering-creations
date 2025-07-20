@@ -75,7 +75,12 @@ export const HeroSection = () => {
                 </div>
                 
                 {/* Decorative line */}
-                <div className="w-16 sm:w-20 lg:w-24 xl:w-28 h-1 bg-gradient-primary mx-auto animate-fade-in" />
+                <div className="w-16 sm:w-20 lg:w-24 xl:w-28 h-1 bg-gradient-primary mx-auto mb-2 animate-fade-in" />
+
+                {/* Descriptive Text */}
+                <div className="max-w-3xl mx-auto px-2 sm:px-4 mb-2 sm:mb-3">
+                  <p className="text-base sm:text-lg text-muted-foreground leading-relaxed animate-fade-in">Southern comfort, heartfelt connection, and Lowcountry flavor on every plate.</p>
+                </div>
               </div>
             </div>
 
@@ -124,11 +129,6 @@ export const HeroSection = () => {
             {/* Brand Header Section - Bottom Part */}
             <div className="relative order-3">
               <div className="relative z-10 text-center py-2 sm:py-3 lg:py-4">
-                {/* Descriptive Text */}
-                <div className="max-w-3xl mx-auto px-2 sm:px-4 mb-2 sm:mb-3">
-                  <p className="text-base sm:text-lg text-muted-foreground leading-relaxed animate-fade-in">Southern comfort, heartfelt connection, and Lowcountry flavor on every plate.</p>
-                </div>
-                
                 {/* Call-to-Action Buttons */}
                 <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 justify-center items-center animate-fade-in max-w-lg mx-auto">
                   <Button asChild variant="cta" size="responsive-lg" className="w-3/5 sm:w-auto sm:min-w-[14rem] min-h-[44px] sm:min-h-[52px] box-border">
