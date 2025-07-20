@@ -81,8 +81,7 @@ export default {
 			backgroundImage: {
 				'gradient-primary': 'var(--gradient-primary)',
 				'gradient-hero': 'var(--gradient-hero)',
-				'gradient-card': 'var(--gradient-card)',
-				'gradient-tagline': 'linear-gradient(135deg, hsl(0 72% 50%), hsl(25 85% 60%), hsl(0 72% 45%), hsl(320 60% 60%))'
+				'gradient-card': 'var(--gradient-card)'
 			},
 			boxShadow: {
 				'card': 'var(--shadow-card)',
@@ -91,15 +90,7 @@ export default {
 				'float': 'var(--shadow-float)',
 				'soft': 'var(--shadow-soft)',
 				'glow': 'var(--shadow-glow)',
-				'glow-strong': 'var(--shadow-glow-strong)',
-				'text-glow': '0 0 20px hsl(0 72% 50% / 0.3), 0 0 40px hsl(0 72% 50% / 0.1)',
-				'neumorph': 'var(--shadow-neumorph)',
-				'neumorph-inset': 'var(--shadow-neumorph-inset)',
-				'neumorph-hover': 'var(--shadow-neumorph-hover)',
-				'neumorph-button': 'var(--shadow-neumorph-button)',
-				'neumorph-card': 'var(--shadow-neumorph-card)',
-				'shadow-glow': '0 0 10px hsl(0 72% 50% / 0.3), 0 0 20px hsl(0 72% 50% / 0.2)',
-				'shadow-glow-strong': '0 0 20px hsl(0 72% 50% / 0.5), 0 0 40px hsl(0 72% 50% / 0.3), 0 0 60px hsl(0 72% 50% / 0.1)'
+				'glow-strong': 'var(--shadow-glow-strong)'
 			},
 			spacing: {
 				'section': 'var(--spacing-section)',
@@ -230,95 +221,6 @@ export default {
 						opacity: '1',
 						transform: 'rotateY(0deg)'
 					}
-				},
-				'fly-in-right': {
-					'0%': {
-						opacity: '0',
-						transform: 'translateX(60px) scale(0.95)'
-					},
-					'100%': {
-						opacity: '1',
-						transform: 'translateX(0) scale(1)'
-					}
-				},
-				'fly-out-left': {
-					'0%': {
-						opacity: '1',
-						transform: 'translateX(0) scale(1)'
-					},
-					'100%': {
-						opacity: '0',
-						transform: 'translateX(-80px) scale(0.9)'
-					}
-				},
-				'gradient-shift': {
-					'0%': {
-						backgroundPosition: '0% 50%'
-					},
-					'50%': {
-						backgroundPosition: '100% 50%'
-					},
-					'100%': {
-						backgroundPosition: '0% 50%'
-					}
-				},
-				'glow-pulse': {
-					'0%': {
-						textShadow: '0 0 5px hsl(0 72% 50% / 0.3)'
-					},
-					'50%': {
-						textShadow: '0 0 20px hsl(0 72% 50% / 0.5), 0 0 30px hsl(0 72% 50% / 0.3)'
-					},
-					'100%': {
-						textShadow: '0 0 5px hsl(0 72% 50% / 0.3)'
-					}
-				},
-				'line-glow': {
-					'0%': {
-						boxShadow: '0 0 5px hsl(0 72% 50% / 0.3), var(--shadow-neumorph)'
-					},
-					'50%': {
-						boxShadow: '0 0 20px hsl(0 72% 50% / 0.6), 0 0 30px hsl(0 72% 50% / 0.4), var(--shadow-neumorph-hover)'
-					},
-					'100%': {
-						boxShadow: '0 0 5px hsl(0 72% 50% / 0.3), var(--shadow-neumorph)'
-					}
-				},
-				'typewriter': {
-					'0%': {
-						opacity: '0',
-						transform: 'translateY(10px) scale(0.8)'
-					},
-					'50%': {
-						opacity: '0.7',
-						transform: 'translateY(-2px) scale(1.05)'
-					},
-					'100%': {
-						opacity: '1',
-						transform: 'translateY(0) scale(1)'
-					}
-				},
-				'magnetic-pull': {
-					'0%': {
-						transform: 'translateY(0) rotate(0deg)'
-					},
-					'25%': {
-						transform: 'translateY(-2px) rotate(1deg)'
-					},
-					'75%': {
-						transform: 'translateY(1px) rotate(-0.5deg)'
-					},
-					'100%': {
-						transform: 'translateY(0) rotate(0deg)'
-					}
-				},
-				'cursor-blink': {
-					'0%, 50%': {
-						opacity: '1'
-					},
-					'51%, 100%': {
-						opacity: '0'
-					}
 				}
 			},
 			animation: {
@@ -333,15 +235,7 @@ export default {
 				'zoom-in': 'zoom-in 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
 				'bounce-in': 'bounce-in 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
 				'rotate-in': 'rotate-in 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-				'flip-in': 'flip-in 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-				'fly-in-right': 'fly-in-right 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-				'fly-out-left': 'fly-out-left 0.5s cubic-bezier(0.55, 0.085, 0.68, 0.53)',
-				'gradient-shift': 'gradient-shift 3s ease-in-out infinite',
-				'glow-pulse': 'glow-pulse 2s ease-in-out infinite',
-				'line-glow': 'line-glow 2s ease-in-out infinite',
-				'typewriter': 'typewriter 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
-				'magnetic-pull': 'magnetic-pull 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
-				'cursor-blink': 'cursor-blink 1s infinite'
+				'flip-in': 'flip-in 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
 			}
 		}
 	},
