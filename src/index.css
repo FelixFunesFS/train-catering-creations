@@ -85,6 +85,14 @@ Enhanced 60-30-10 color scheme implementation.
     /* Updated neutral glow shadows */
     --shadow-glow: 0 8px 32px -4px hsl(0 0% 0% / 0.15);
     --shadow-glow-strong: 0 12px 40px -4px hsl(0 0% 0% / 0.20);
+
+    /* Neuomorphism shadows */
+    --shadow-neumorph: 8px 8px 16px hsl(0 0% 0% / 0.1), -8px -8px 16px hsl(0 0% 100% / 0.8);
+    --shadow-neumorph-inset: inset 4px 4px 8px hsl(0 0% 0% / 0.1), inset -4px -4px 8px hsl(0 0% 100% / 0.8);
+    --shadow-neumorph-hover: 12px 12px 24px hsl(0 0% 0% / 0.15), -12px -12px 24px hsl(0 0% 100% / 0.9);
+    --shadow-neumorph-text: 2px 2px 4px hsl(0 0% 0% / 0.15), -1px -1px 2px hsl(0 0% 100% / 0.8);
+    --shadow-neumorph-button: 6px 6px 12px hsl(0 0% 0% / 0.1), -6px -6px 12px hsl(0 0% 100% / 0.8);
+    --shadow-neumorph-card: 10px 10px 20px hsl(0 0% 0% / 0.1), -10px -10px 20px hsl(0 0% 100% / 0.8);
   
     /* Floating card optimizations */
     --floating-duration: 250ms;
@@ -206,6 +214,14 @@ Enhanced 60-30-10 color scheme implementation.
   .shadow-soft { box-shadow: var(--shadow-soft-mobile); }
   .shadow-glow { box-shadow: var(--shadow-glow); }
   .shadow-glow-strong { box-shadow: var(--shadow-glow-strong); }
+  
+  /* Neuomorphism shadow utilities */
+  .shadow-neumorph { box-shadow: var(--shadow-neumorph); }
+  .shadow-neumorph-inset { box-shadow: var(--shadow-neumorph-inset); }
+  .shadow-neumorph-hover { box-shadow: var(--shadow-neumorph-hover); }
+  .shadow-neumorph-text { filter: drop-shadow(var(--shadow-neumorph-text)); }
+  .shadow-neumorph-button { box-shadow: var(--shadow-neumorph-button); }
+  .shadow-neumorph-card { box-shadow: var(--shadow-neumorph-card); }
   
   @media (min-width: 640px) {
     .shadow-card { box-shadow: var(--shadow-card); }

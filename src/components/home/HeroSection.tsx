@@ -9,6 +9,7 @@ import { useTaglineAnimation } from "@/hooks/useTaglineAnimation";
 
 export const HeroSection = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+  const [lineAnimationActive, setLineAnimationActive] = useState(true);
   
   // Tagline animation hook
   const taglineAnimation = useTaglineAnimation({
@@ -24,6 +25,13 @@ export const HeroSection = () => {
   // Trigger letter animations when component loads
   useEffect(() => {
     taglineAnimation.triggerLetterAnimation(taglineLetters.length);
+    
+    // Stop line animation after 3 seconds
+    const lineTimer = setTimeout(() => {
+      setLineAnimationActive(false);
+    }, 3000);
+
+    return () => clearTimeout(lineTimer);
   }, [taglineAnimation.isLoaded]);
 
   // Function to determine if current character should have extra delay (word spacing)
@@ -106,11 +114,11 @@ export const HeroSection = () => {
                 
                 {/* Main Heading */}
                 <div className="mb-2 sm:mb-4 animate-fade-in">
-                  <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant text-foreground leading-tight sm:leading-tight lg:leading-tight">Charleston's Premier Catering Experience</h1>
+                  <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant text-foreground leading-tight sm:leading-tight lg:leading-tight shadow-neumorph-text">Charleston's Premier Catering Experience</h1>
                 </div>
                 
-                {/* Decorative line */}
-                <div className="w-16 sm:w-20 lg:w-24 xl:w-28 h-1 bg-gradient-primary mx-auto mb-4 sm:mb-6 animate-fade-in" />
+                {/* Decorative line with animated shadow */}
+                <div className={`w-16 sm:w-20 lg:w-24 xl:w-28 h-1 bg-gradient-primary mx-auto mb-4 sm:mb-6 animate-fade-in ${lineAnimationActive ? 'animate-line-glow' : ''}`} />
                 
                 {/* Animated Tagline */}
                 <div 
@@ -125,11 +133,7 @@ export const HeroSection = () => {
                         `inline-block text-lg sm:text-xl lg:text-2xl font-elegant leading-relaxed bg-gradient-tagline bg-clip-text text-transparent bg-[length:200%_200%] animate-gradient-shift transition-all duration-300 hover:scale-105 cursor-default select-none will-change-transform ${letter === ' ' ? 'w-1' : ''}`
                       )}
                       style={{
-                        animationDelay: `${getLetterDelay(index)}ms`,
-                        ...(taglineAnimation.shadowVisible && {
-                          filter: 'drop-shadow(0 0 3px hsl(0 72% 50% / 0.15))',
-                          textShadow: '0 0 8px hsl(0 72% 50% / 0.1)'
-                        })
+                        animationDelay: `${getLetterDelay(index)}ms`
                       }}
                     >
                       {letter === ' ' ? '\u00A0' : letter}
@@ -191,12 +195,12 @@ export const HeroSection = () => {
             <div className="relative order-3 md:order-3 py-0 animate-fade-in">
               <div className="text-center pb-4 sm:pb-6 lg:pb-8">
                 <div className="flex flex-row gap-2 sm:gap-4 justify-center items-center animate-fade-in w-full sm:w-auto">
-                  <Button asChild variant="cta" size="responsive-sm" className="flex-1 sm:w-auto sm:min-w-[8rem]">
+                  <Button asChild variant="cta" size="responsive-sm" className="flex-1 sm:w-auto sm:min-w-[8rem] shadow-neumorph-button hover:shadow-neumorph-hover">
                     <Link to="/request-quote#page-header">
                       Request Quote
                     </Link>
                   </Button>
-                  <Button asChild variant="cta-outline" size="responsive-sm" className="flex-1 sm:w-auto sm:min-w-[8rem]">
+                  <Button asChild variant="cta-outline" size="responsive-sm" className="flex-1 sm:w-auto sm:min-w-[8rem] shadow-neumorph-button hover:shadow-neumorph-hover">
                     <Link to="/gallery#page-header">
                       View Gallery
                     </Link>
