@@ -12,7 +12,7 @@ import { useAnimationClass } from "@/hooks/useAnimationClass";
 export const HeroSection = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
 
-  // Scroll animations for floating text elements
+  // Scroll animations for text elements (without floating)
   const {
     ref: headingRef,
     isVisible: headingVisible,
@@ -98,22 +98,21 @@ export const HeroSection = () => {
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 opacity-50"></div>
               
               <div className="relative z-10 text-center pt-2 sm:pt-4 md:pt-12 py-4 sm:py-6 lg:py-8">
-                {/* Logo Icon - consistent with PageHeader styling */}
+                {/* Logo Icon - no floating, just simple hover effect */}
                 <div className="flex justify-center mb-4 my-[25px]">
-                  <FloatingCard variant="subtle" className="h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14">
+                  <div className="h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14">
                     <img src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" alt="Soul Train's Eatery Logo" className="w-full h-full object-contain hover:scale-110 transition-transform duration-300" />
-                  </FloatingCard>
+                  </div>
                 </div>
                 
-                {/* Main Heading with Floating Effect */}
+                {/* Main Heading without FloatingCard */}
                 <div className="mb-6 sm:mb-8">
-                  <FloatingCard 
+                  <div 
                     ref={headingRef}
-                    variant="subtle" 
-                    className={`bg-transparent shadow-none ${headingAnimationClass}`}
+                    className={headingAnimationClass}
                   >
                     <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant text-foreground leading-tight sm:leading-tight lg:leading-tight">Where Southern Flavor Meets<br />Family & Celebration</h1>
-                  </FloatingCard>
+                  </div>
                 </div>
                 
                 {/* Decorative line */}
@@ -168,15 +167,14 @@ export const HeroSection = () => {
             {/* Brand Header Section - Bottom Part */}
             <div className="relative order-3">
               <div className="relative z-10 text-center py-2 sm:py-3 lg:py-4">
-                {/* Descriptive Text with Floating Effect */}
+                {/* Descriptive Text without FloatingCard */}
                 <div className="max-w-3xl mx-auto px-2 sm:px-4 mb-4 sm:mb-6">
-                  <FloatingCard 
+                  <div 
                     ref={subtextRef}
-                    variant="subtle" 
-                    className={`bg-transparent shadow-none ${subtextAnimationClass}`}
+                    className={subtextAnimationClass}
                   >
                     <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">Culinary craftsmanship, heartfelt connection, and Lowcountry flavor on every plate.</p>
-                  </FloatingCard>
+                  </div>
                 </div>
                 
                 {/* Call-to-Action Buttons with Interactive Floating */}
