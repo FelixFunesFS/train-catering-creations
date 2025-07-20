@@ -116,7 +116,7 @@ export const HeroSection = () => {
                                       {image.title}
                                     </h3>
                                     <p className="text-white/90 text-sm leading-tight">
-                                      Click to view full size
+                                      {image.description}
                                     </p>
                                   </div>
                                 </div>
