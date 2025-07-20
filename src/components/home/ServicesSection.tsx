@@ -1,46 +1,59 @@
-
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { OptimizedImage } from "@/components/ui/optimized-image";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
-
 export const ServicesSection = () => {
-  const { ref: card1Ref, isVisible: card1Visible, variant: card1Variant } = useScrollAnimation({ delay: 0, variant: 'ios-spring' });
-  const { ref: card2Ref, isVisible: card2Visible, variant: card2Variant } = useScrollAnimation({ delay: 150, variant: 'ios-spring' });
-  const { ref: card3Ref, isVisible: card3Visible, variant: card3Variant } = useScrollAnimation({ delay: 300, variant: 'ios-spring' });
-  const { ref: card4Ref, isVisible: card4Visible, variant: card4Variant } = useScrollAnimation({ delay: 450, variant: 'ios-spring' });
-  
+  const {
+    ref: card1Ref,
+    isVisible: card1Visible,
+    variant: card1Variant
+  } = useScrollAnimation({
+    delay: 0,
+    variant: 'ios-spring'
+  });
+  const {
+    ref: card2Ref,
+    isVisible: card2Visible,
+    variant: card2Variant
+  } = useScrollAnimation({
+    delay: 150,
+    variant: 'ios-spring'
+  });
+  const {
+    ref: card3Ref,
+    isVisible: card3Visible,
+    variant: card3Variant
+  } = useScrollAnimation({
+    delay: 300,
+    variant: 'ios-spring'
+  });
+  const {
+    ref: card4Ref,
+    isVisible: card4Visible,
+    variant: card4Variant
+  } = useScrollAnimation({
+    delay: 450,
+    variant: 'ios-spring'
+  });
   const card1AnimationClass = useAnimationClass(card1Variant, card1Visible);
   const card2AnimationClass = useAnimationClass(card2Variant, card2Visible);
   const card3AnimationClass = useAnimationClass(card3Variant, card3Visible);
   const card4AnimationClass = useAnimationClass(card4Variant, card4Visible);
-
-  return (
-    <section className="py-16 lg:py-20 bg-gradient-card/30 border-t border-border/10">
+  return <section className="py-16 lg:py-20 bg-gradient-card/30 border-t border-border/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-6 sm:mb-8 lg:mb-12">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant text-foreground mb-4 text-fade-up">
             Our Catering Services
           </h2>
-          <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto text-fade-up-delay-1">
-            From elegant weddings to corporate events, we cater every occasion with care, flavor, and professionalism.
-          </p>
+          <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto text-fade-up-delay-1">Elegant weddings, heartfelt celebrations, and corporate events—catered with care, Southern soul, and impeccable service.</p>
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-10 lg:gap-14">
           <Link to="/wedding-menu#page-header" className="block">
-            <Card 
-              ref={card1Ref}
-              className={`shadow-elegant hover:shadow-elevated bg-card text-center transition-all duration-200 overflow-hidden group flex flex-col cursor-pointer ${card1AnimationClass}`}
-            >
+            <Card ref={card1Ref} className={`shadow-elegant hover:shadow-elevated bg-card text-center transition-all duration-200 overflow-hidden group flex flex-col cursor-pointer ${card1AnimationClass}`}>
               <div className="relative flex-1">
-                <OptimizedImage
-                  src="/lovable-uploads/546d7d1a-7987-4f44-a2d9-668efea60e51.png"
-                  alt="Wedding Reception Setup"
-                  aspectRatio="aspect-video"
-                  className="group-hover:scale-105 transition-transform duration-300 h-full"
-                />
+                <OptimizedImage src="/lovable-uploads/546d7d1a-7987-4f44-a2d9-668efea60e51.png" alt="Wedding Reception Setup" aspectRatio="aspect-video" className="group-hover:scale-105 transition-transform duration-300 h-full" />
               </div>
               <CardContent className="p-4 sm:p-6">
                 <h3 className="text-lg sm:text-xl font-elegant text-foreground mb-4">Weddings</h3>
@@ -54,17 +67,9 @@ export const ServicesSection = () => {
           </Link>
 
           <Link to="/wedding-menu#page-header" className="block">
-            <Card 
-              ref={card2Ref}
-              className={`shadow-elegant hover:shadow-elevated bg-card text-center transition-all duration-200 overflow-hidden group flex flex-col cursor-pointer ${card2AnimationClass}`}
-            >
+            <Card ref={card2Ref} className={`shadow-elegant hover:shadow-elevated bg-card text-center transition-all duration-200 overflow-hidden group flex flex-col cursor-pointer ${card2AnimationClass}`}>
               <div className="relative flex-1">
-                <OptimizedImage
-                  src="/lovable-uploads/63832488-46ff-4d71-ade5-f871173c28ab.png"
-                  alt="Black Tie Event Catering"
-                  aspectRatio="aspect-video"
-                  className="group-hover:scale-105 transition-transform duration-300 h-full"
-                />
+                <OptimizedImage src="/lovable-uploads/63832488-46ff-4d71-ade5-f871173c28ab.png" alt="Black Tie Event Catering" aspectRatio="aspect-video" className="group-hover:scale-105 transition-transform duration-300 h-full" />
               </div>
               <CardContent className="p-4 sm:p-6">
                 <h3 className="text-lg sm:text-xl font-elegant text-foreground mb-4">Black Tie Events</h3>
@@ -77,17 +82,9 @@ export const ServicesSection = () => {
             </Card>
           </Link>
 
-          <Card 
-            ref={card3Ref}
-            className={`shadow-elegant hover:shadow-elevated bg-card text-center transition-all duration-200 overflow-hidden group flex flex-col ${card3AnimationClass}`}
-          >
+          <Card ref={card3Ref} className={`shadow-elegant hover:shadow-elevated bg-card text-center transition-all duration-200 overflow-hidden group flex flex-col ${card3AnimationClass}`}>
             <div className="relative flex-1">
-              <OptimizedImage
-                src="/lovable-uploads/3226c955-a9b7-4c8d-a4c2-e5e7fc206f6f.png"
-                alt="Military Function Catering"
-                aspectRatio="aspect-video"
-                className="group-hover:scale-105 transition-transform duration-300 h-full"
-              />
+              <OptimizedImage src="/lovable-uploads/3226c955-a9b7-4c8d-a4c2-e5e7fc206f6f.png" alt="Military Function Catering" aspectRatio="aspect-video" className="group-hover:scale-105 transition-transform duration-300 h-full" />
             </div>
             <CardContent className="p-4 sm:p-6">
               <h3 className="text-lg sm:text-xl font-elegant text-foreground mb-4">Military Functions</h3>
@@ -99,17 +96,9 @@ export const ServicesSection = () => {
             </CardContent>
           </Card>
 
-          <Card 
-            ref={card4Ref}
-            className={`shadow-elegant hover:shadow-elevated bg-card text-center transition-all duration-200 overflow-hidden group flex flex-col ${card4AnimationClass}`}
-          >
+          <Card ref={card4Ref} className={`shadow-elegant hover:shadow-elevated bg-card text-center transition-all duration-200 overflow-hidden group flex flex-col ${card4AnimationClass}`}>
             <div className="relative flex-1">
-              <OptimizedImage
-                src="/lovable-uploads/6cd766e3-21ce-4e88-a3a4-6c8835dc9654.png"
-                alt="Private Event Catering"
-                aspectRatio="aspect-video"
-                className="group-hover:scale-105 transition-transform duration-300 h-full"
-              />
+              <OptimizedImage src="/lovable-uploads/6cd766e3-21ce-4e88-a3a4-6c8835dc9654.png" alt="Private Event Catering" aspectRatio="aspect-video" className="group-hover:scale-105 transition-transform duration-300 h-full" />
             </div>
             <CardContent className="p-4 sm:p-6">
               <h3 className="text-lg sm:text-xl font-elegant text-foreground mb-4">Private Events</h3>
@@ -122,6 +111,5 @@ export const ServicesSection = () => {
           </Card>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
