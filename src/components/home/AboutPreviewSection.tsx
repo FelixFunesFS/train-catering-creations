@@ -80,8 +80,19 @@ export const AboutPreviewSection = () => {
   const card2AnimationClass = useAnimationClass(card2Variant, card2Visible);
   const card3AnimationClass = useAnimationClass(card3Variant, card3Visible);
   const card4AnimationClass = useAnimationClass(card4Variant, card4Visible);
-  return <section className="py-16 lg:py-20 bg-muted/20 border-t border-border/10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  return <section className="py-16 lg:py-20 bg-muted/20 border-t border-border/10 relative">
+      {/* Watermark Icon - Behind the culinary excellence content */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
+        <div className="opacity-5 transform scale-150 md:scale-200">
+          <img 
+            src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
+            alt="" 
+            className="w-48 h-48 sm:w-64 sm:h-64 md:w-80 md:h-80 object-contain" 
+            aria-hidden="true"
+          />
+        </div>
+      </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           <div ref={titleRef} className={titleAnimationClass}>
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant text-foreground mb-6">Culinary Excellence</h2>
