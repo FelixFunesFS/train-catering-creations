@@ -69,6 +69,60 @@ export const HeroSection = () => {
     title: "Family Events",
     description: "Family gathering with delicious buffet spread in beautiful home kitchen",
     category: "family"
+  }, {
+    src: "/lovable-uploads/ad076245-ec29-4017-90f8-5e048ebae73e.png",
+    alt: "Elegant formal dining setup with round tables and floral centerpieces",
+    title: "Wedding Reception",
+    description: "Elegant formal dining setup with round tables and beautiful floral centerpieces",
+    category: "wedding"
+  }, {
+    src: "/lovable-uploads/78888ca5-52f3-42fc-aa30-28cdd5a027dc.png",
+    alt: "Rustic barn venue with chandelier lighting and buffet service",
+    title: "Rustic Events",
+    description: "Rustic barn venue with chandelier lighting and professional buffet service",
+    category: "rustic"
+  }, {
+    src: "/lovable-uploads/ee29b26a-7421-47bb-94c9-e40e0c4442b7.png",
+    alt: "Creative themed dessert display with Nike sneaker decorations",
+    title: "Themed Events",
+    description: "Creative themed dessert display with custom decorations and cupcakes",
+    category: "themed"
+  }, {
+    src: "/lovable-uploads/dcdc2d94-7b58-4259-8830-94aacec1dce7.png",
+    alt: "Elegant appetizer station with tiered displays and fresh flowers",
+    title: "Appetizer Station",
+    description: "Elegant appetizer station with tiered displays, fresh fruits and beautiful presentation",
+    category: "appetizers"
+  }, {
+    src: "/lovable-uploads/7a467ee0-8a78-4a35-8d30-f6cdcc507d01.png",
+    alt: "Beautiful cupcake display with white flowers and elegant decorations",
+    title: "Cupcake Display",
+    description: "Beautiful cupcake display with white flowers and elegant decorative elements",
+    category: "desserts"
+  }, {
+    src: "/lovable-uploads/b82c916f-28ca-4fb1-95ce-748a678f7e53.png",
+    alt: "Outdoor catering setup with chafing dishes and blue ribbon decorations",
+    title: "Outdoor Catering",
+    description: "Professional outdoor catering setup with chafing dishes and elegant decorations",
+    category: "outdoor"
+  }, {
+    src: "/lovable-uploads/bdc2ea92-a392-4b94-abc0-21399ee77228.png",
+    alt: "Outdoor red table setup with chafing dishes and floral garland",
+    title: "Garden Party",
+    description: "Elegant outdoor red table setup with chafing dishes and beautiful floral garland",
+    category: "garden"
+  }, {
+    src: "/lovable-uploads/ffacec3c-7f69-441c-aaaa-6c418edaf0cd.png",
+    alt: "Large scale buffet line setup for formal event",
+    title: "Formal Buffet",
+    description: "Large scale buffet line setup with multiple chafing dishes for formal events",
+    category: "formal"
+  }, {
+    src: "/lovable-uploads/8e93d858-5343-462c-9f0f-c71306d2fc2c.png",
+    alt: "Professional catering station with Soul Train's Eatery branding",
+    title: "Branded Service",
+    description: "Professional catering station featuring Soul Train's Eatery branded setup",
+    category: "branded"
   }];
   
   const allImages = [...heroImages, ...additionalImages, ...newCarouselImages];
