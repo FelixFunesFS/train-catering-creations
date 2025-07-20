@@ -64,28 +64,26 @@ export const Header = () => {
             </Link>
 
             {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center space-x-6" aria-label="Main navigation">
-              <div className="flex space-x-4">
-                {navigation.map(item => (
-                  <Link 
-                    key={item.name} 
-                    to={item.href} 
-                    className={cn(
-                      "nav-link-neumorphic text-sm font-medium px-4 py-2 rounded-lg transition-all duration-300 focus-visible-enhanced",
-                      isActive(item.href) 
-                        ? "active text-primary font-semibold" 
-                        : "text-muted-foreground hover:text-primary"
-                    )}
-                    aria-current={isActive(item.href) ? "page" : undefined}
-                  >
-                    {item.name}
-                  </Link>
-                ))}
-              </div>
+            <nav className="hidden lg:flex items-center space-x-4" aria-label="Main navigation">
+              {navigation.map(item => (
+                <Link 
+                  key={item.name} 
+                  to={item.href} 
+                  className={cn(
+                    "nav-link-neumorphic text-sm font-medium px-4 py-2 rounded-lg transition-all duration-300 focus-visible-enhanced",
+                    isActive(item.href) 
+                      ? "active text-primary font-semibold" 
+                      : "text-muted-foreground hover:text-primary"
+                  )}
+                  aria-current={isActive(item.href) ? "page" : undefined}
+                >
+                  {item.name}
+                </Link>
+              ))}
               <Button 
                 asChild 
                 variant="cta" 
-                className="text-sm font-medium px-4 py-2 rounded-lg neumorphic-button-primary"
+                className="text-sm font-medium px-4 py-2 rounded-lg neumorphic-button-primary h-[38px]"
               >
                 <Link to="/request-quote#page-header">Request Quote</Link>
               </Button>
