@@ -36,7 +36,7 @@ export const Footer = () => {
           <div className="lg:col-span-1">
             <div className="flex items-center space-x-3 mb-4">
               <img src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" alt="Soul Train's Eatery Logo" className="w-10 h-10 object-contain" />
-              <div className="text-2xl font-script font-bold text-primary">Soul Train's Eatery</div>
+              <div className="text-2xl font-script font-bold text-accent">Soul Train's Eatery</div>
               
             </div>
             <p className="text-muted-foreground text-sm leading-relaxed mb-4">
@@ -59,11 +59,11 @@ export const Footer = () => {
           <div>
             <h3 className="text-lg font-elegant font-semibold text-foreground mb-4">Contact Us</h3>
             <div className="space-y-3">
-              <a href="tel:8439700265" className="flex items-center space-x-3 text-sm text-muted-foreground hover:text-primary transition-all duration-200 group">
+              <a href="tel:8439700265" className="flex items-center space-x-3 text-sm text-muted-foreground hover:text-accent transition-all duration-200 group">
                 <Phone className="h-4 w-4 text-accent" />
                 <span>Call (843) 970-0265</span>
               </a>
-              <a href="mailto:soultrainseatery@gmail.com" className="flex items-center space-x-3 text-sm text-muted-foreground hover:text-primary transition-all duration-200 group">
+              <a href="mailto:soultrainseatery@gmail.com" className="flex items-center space-x-3 text-sm text-muted-foreground hover:text-accent transition-all duration-200 group">
                 <Mail className="h-4 w-4 text-accent" />
                 <span>soultrainseatery@gmail.com</span>
               </a>
@@ -88,7 +88,7 @@ export const Footer = () => {
           <div>
             <h3 className="text-lg font-elegant font-semibold text-foreground mb-4">Quick Links</h3>
             <nav className="space-y-2">
-              {navigationLinks.map(item => <Link key={item.name} to={item.href} className="block text-sm text-muted-foreground hover:text-primary hover:translate-x-1 transition-all duration-200">
+              {navigationLinks.map(item => <Link key={item.name} to={item.href} className="block text-sm text-muted-foreground hover:text-accent hover:translate-x-1 transition-all duration-200">
                   {item.name}
                 </Link>)}
             </nav>
@@ -99,7 +99,7 @@ export const Footer = () => {
             <h3 className="text-lg font-elegant font-semibold text-foreground mb-4">Our Services</h3>
             <ul className="space-y-2">
               {services.map((service, index) => <li key={index} className="text-sm text-muted-foreground flex items-start">
-                  <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  <span className="w-1.5 h-1.5 bg-accent rounded-full mt-2 mr-3 flex-shrink-0"></span>
                   {service}
                 </li>)}
             </ul>
@@ -114,13 +114,13 @@ export const Footer = () => {
             <div className="flex items-center space-x-4">
               <span className="text-sm text-muted-foreground">Follow Us:</span>
               <div className="flex space-x-3">
-                <a href="#" className="w-8 h-8 bg-muted rounded-full flex items-center justify-center hover:bg-primary hover:text-primary-foreground hover:scale-110 transition-all duration-200" aria-label="Facebook">
+                <a href="#" className="w-8 h-8 bg-muted rounded-full flex items-center justify-center hover:bg-accent hover:text-accent-foreground hover:scale-110 transition-all duration-200" aria-label="Facebook">
                   <Facebook className="h-4 w-4" />
                 </a>
-                <a href="#" className="w-8 h-8 bg-muted rounded-full flex items-center justify-center hover:bg-primary hover:text-primary-foreground hover:scale-110 transition-all duration-200" aria-label="Instagram">
+                <a href="#" className="w-8 h-8 bg-muted rounded-full flex items-center justify-center hover:bg-accent hover:text-accent-foreground hover:scale-110 transition-all duration-200" aria-label="Instagram">
                   <Instagram className="h-4 w-4" />
                 </a>
-                <a href="#" className="w-8 h-8 bg-muted rounded-full flex items-center justify-center hover:bg-primary hover:text-primary-foreground hover:scale-110 transition-all duration-200" aria-label="Twitter">
+                <a href="#" className="w-8 h-8 bg-muted rounded-full flex items-center justify-center hover:bg-accent hover:text-accent-foreground hover:scale-110 transition-all duration-200" aria-label="Twitter">
                   <Twitter className="h-4 w-4" />
                 </a>
               </div>

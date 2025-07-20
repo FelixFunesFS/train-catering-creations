@@ -33,14 +33,14 @@ export const Header = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2 hover:scale-105 transition-transform duration-200">
             <img src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" alt="Soul Train's Eatery Logo" className="w-8 h-8 sm:w-10 sm:h-10 object-contain" />
-            <div className="text-2xl lg:text-3xl font-script font-bold text-primary">Soul Train's Eatery</div>
+            <div className="text-2xl lg:text-3xl font-script font-bold text-accent">Soul Train's Eatery</div>
             
           </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center space-x-10">
             <nav className="flex space-x-10">
-              {navigation.map(item => <Link key={item.name} to={item.href} className={cn("text-sm font-medium transition-colors duration-200 hover:text-primary hover:scale-105 py-2", isActive(item.href) ? "text-primary border-b-2 border-primary font-semibold" : "text-muted-foreground")}>
+              {navigation.map(item => <Link key={item.name} to={item.href} className={cn("text-sm font-medium transition-colors duration-200 hover:text-accent hover:scale-105 py-2", isActive(item.href) ? "text-accent border-b-2 border-accent font-semibold" : "text-muted-foreground")}>
                   {item.name}
                 </Link>)}
             </nav>
@@ -58,7 +58,7 @@ export const Header = () => {
         {/* Mobile Navigation */}
         {isMenuOpen && <div className="lg:hidden pb-6">
             <nav className="flex flex-col space-y-4">
-              {navigation.map(item => <Link key={item.name} to={item.href} className={cn("text-sm font-medium transition-all duration-200 hover:text-primary hover:translate-x-1 px-4 py-3 rounded-md", isActive(item.href) ? "text-primary bg-primary-light font-semibold border-l-2 border-primary" : "text-muted-foreground")} onClick={() => setIsMenuOpen(false)}>
+              {navigation.map(item => <Link key={item.name} to={item.href} className={cn("text-sm font-medium transition-all duration-200 hover:text-accent hover:translate-x-1 px-4 py-3 rounded-md", isActive(item.href) ? "text-accent bg-accent/10 font-semibold border-l-2 border-accent" : "text-muted-foreground")} onClick={() => setIsMenuOpen(false)}>
                   {item.name}
                 </Link>)}
               <Button asChild variant="cta" size="responsive-sm" className="w-3/5 sm:w-auto sm:min-w-[12rem]">
