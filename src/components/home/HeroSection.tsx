@@ -81,20 +81,6 @@ export const HeroSection = () => {
                 <div className="max-w-3xl mx-auto px-2 sm:px-4 mb-6 sm:mb-8">
                   <p className="text-base sm:text-lg text-muted-foreground leading-relaxed animate-fade-in">More than a meal - it's Southern comfort, heartfelt connection,<br className="hidden sm:inline" /> and Lowcountry flavor on every plate.</p>
                 </div>
-                
-                {/* Call-to-Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 justify-center items-center animate-fade-in max-w-lg mx-auto">
-                  <Button asChild variant="cta" size="responsive-lg" className="w-3/5 sm:w-auto sm:min-w-[14rem]">
-                    <Link to="/request-quote#page-header">
-                      Request Quote
-                    </Link>
-                  </Button>
-                  <Button asChild variant="cta-outline" size="responsive-lg" className="w-3/5 sm:w-auto sm:min-w-[14rem] min-h-[44px] sm:min-h-[52px]">
-                    <Link to="/gallery#page-header">
-                      View Gallery
-                    </Link>
-                  </Button>
-                </div>
               </div>
             </div>
 
@@ -136,6 +122,24 @@ export const HeroSection = () => {
                     <CarouselPrevious className="hidden md:flex -left-12" />
                     <CarouselNext className="hidden md:flex -right-12" />
                   </Carousel>
+                </div>
+              </div>
+            </div>
+
+            {/* Call-to-Action Buttons Section */}
+            <div className="relative order-3 md:order-3">
+              <div className="text-center pb-4 sm:pb-6 lg:pb-8">
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 justify-center items-center animate-fade-in max-w-lg mx-auto">
+                  <Button asChild variant="cta" size="responsive-lg" className="w-3/5 sm:w-auto sm:min-w-[14rem]">
+                    <Link to="/request-quote#page-header">
+                      Request Quote
+                    </Link>
+                  </Button>
+                  <Button asChild variant="cta-outline" size="responsive-lg" className="w-3/5 sm:w-auto sm:min-w-[14rem] min-h-[44px] sm:min-h-[52px]">
+                    <Link to="/gallery#page-header">
+                      View Gallery
+                    </Link>
+                  </Button>
                 </div>
               </div>
             </div>
