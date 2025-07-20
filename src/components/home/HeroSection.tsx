@@ -56,7 +56,7 @@ export const HeroSection = () => {
           <div className="flex flex-col">
             
             {/* Brand Header Section */}
-            <div className="relative order-1 md:order-1 my-0 py-[5px]">
+            <div className="relative order-1 md:order-1 my-0 py-0">
               {/* Subtle background pattern */}
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 opacity-50 py-0 my-[25px]"></div>
               
@@ -84,7 +84,7 @@ export const HeroSection = () => {
             </div>
 
             {/* Call-to-Action Buttons Section */}
-            <div className="relative order-2 md:order-2">
+            <div className="relative order-2 md:order-2 py-0">
               <div className="text-center pb-4 sm:pb-6 lg:pb-8">
                 <div className="flex flex-row gap-2 sm:gap-4 justify-center items-center animate-fade-in w-full sm:w-auto">
                   <Button asChild variant="cta" size="default" className="flex-1 sm:flex-none sm:w-56 min-h-[44px] sm:min-h-[52px]">
@@ -102,7 +102,7 @@ export const HeroSection = () => {
             </div>
 
             {/* Image Gallery Carousel Section */}
-            <div className="relative pt-4 sm:pt-4 pb-4 sm:pb-6 lg:pb-8 order-3 md:order-3 my-0 py-[15px]">
+            <div className="relative pt-4 sm:pt-4 pb-4 sm:pb-6 lg:pb-8 order-3 md:order-3 my-0 py-0">
               <div className="max-w-7xl mx-auto">
                 {/* Responsive Carousel */}
                 <div className="relative">
