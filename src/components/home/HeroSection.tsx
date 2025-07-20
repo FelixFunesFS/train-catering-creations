@@ -11,17 +11,17 @@ export const HeroSection = () => {
 
   // Featured images for the grid display - taking the first 3 images for initial display
   const heroImages = [{
-    src: "/lovable-uploads/1dcbc1ee-eb25-4d89-8722-cb4904d1ba69.png",
-    alt: "Elegant wedding dessert table with tiered cake, neon signage, and gourmet treats",
-    title: "Wedding Reception",
-    description: "Elegant wedding dessert table with tiered cake, neon signage, and gourmet treats",
-    category: "wedding"
-  }, {
     src: "/lovable-uploads/0703365f-22eb-4c4d-b258-4a2c8a23b63a.png",
     alt: "Rustic venue buffet setup with chafing dishes and atmospheric lighting",
     title: "Formal Events",
     description: "Rustic venue buffet setup with chafing dishes and atmospheric lighting",
     category: "formal"
+  }, {
+    src: "/lovable-uploads/1dcbc1ee-eb25-4d89-8722-cb4904d1ba69.png",
+    alt: "Elegant wedding dessert table with tiered cake, neon signage, and gourmet treats",
+    title: "Wedding Reception",
+    description: "Elegant wedding dessert table with tiered cake, neon signage, and gourmet treats",
+    category: "wedding"
   }, {
     src: "/lovable-uploads/d2ed2f6e-a667-4bf2-9e28-30029d377f94.png",
     alt: "Elegant formal event display with tiered appetizers and beverage service",
@@ -69,7 +69,7 @@ export const HeroSection = () => {
             {/* Full-width Hero Image with Title Overlay */}
             <div className="relative order-1 md:order-1 mb-6 sm:mb-8">
               {/* Hero Background Image */}
-              <div className="relative h-[60vh] sm:h-[70vh] lg:h-[80vh] overflow-hidden rounded-2xl">
+              <div className="relative aspect-[16/9] overflow-hidden rounded-2xl">
                 <img 
                   src={heroImage.src} 
                   alt={heroImage.alt} 
