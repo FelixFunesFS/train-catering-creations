@@ -48,10 +48,19 @@
     --service-family: 120 45% 55%;
     --service-family-foreground: 40 12% 8%;
 
-    /* Enhanced gradients - now red themed */
+    /* Enhanced gradients - red themed with section patterns */
     --gradient-primary: linear-gradient(135deg, hsl(0, 84%, 60%) 0%, hsl(0, 84%, 50%) 100%);
     --gradient-hero: linear-gradient(180deg, hsl(38, 10%, 5%) 0%, hsl(40, 12%, 8%) 50%, hsl(38, 10%, 5%) 100%);
     --gradient-card: linear-gradient(145deg, hsl(40, 12%, 8%) 0%, hsl(40, 8%, 12%) 100%);
+    
+    /* New alternating section gradients */
+    --gradient-pattern-a: linear-gradient(135deg, hsl(38, 10%, 5%) 0%, hsl(0, 84%, 60%, 0.03) 50%, hsl(0, 84%, 50%, 0.05) 100%);
+    --gradient-pattern-b: linear-gradient(225deg, hsl(0, 84%, 60%, 0.02) 0%, hsl(38, 10%, 5%) 50%, hsl(0, 84%, 50%, 0.03) 100%);
+    --gradient-pattern-c: linear-gradient(45deg, hsl(0, 84%, 50%, 0.04) 0%, hsl(38, 10%, 5%) 50%, hsl(0, 84%, 60%, 0.03) 100%);
+    --gradient-pattern-d: linear-gradient(315deg, hsl(38, 10%, 5%) 0%, hsl(0, 84%, 60%, 0.02) 50%, hsl(0, 84%, 50%, 0.02) 100%);
+    
+    /* Navigation glassmorphic gradient */
+    --gradient-nav: linear-gradient(180deg, hsl(38, 10%, 5%, 0.95) 0%, hsl(40, 12%, 8%, 0.90) 100%);
 
     /* Enhanced shadows with neumorphic design */
     --shadow-card: 0 4px 6px -1px hsla(0, 0%, 0%, 0.3), 0 2px 4px -1px hsla(0, 0%, 0%, 0.2);
@@ -62,11 +71,16 @@
     --shadow-glow: 0 0 20px hsla(0, 84%, 60%, 0.3);
     --shadow-glow-strong: 0 0 30px hsla(0, 84%, 60%, 0.5);
 
-    /* Neumorphic shadows */
+    /* Enhanced neumorphic shadows */
     --shadow-neumorphic-inset: inset 2px 2px 5px hsla(0, 0%, 0%, 0.3), inset -2px -2px 5px hsla(0, 0%, 100%, 0.1);
     --shadow-neumorphic-outset: 4px 4px 8px hsla(0, 0%, 0%, 0.4), -4px -4px 8px hsla(0, 0%, 100%, 0.05);
     --shadow-neumorphic-soft: 2px 2px 6px hsla(0, 0%, 0%, 0.2), -2px -2px 6px hsla(0, 0%, 100%, 0.03);
     --shadow-neumorphic-elevated: 6px 6px 12px hsla(0, 0%, 0%, 0.5), -6px -6px 12px hsla(0, 0%, 100%, 0.08);
+    
+    /* Navigation specific shadows */
+    --shadow-nav-floating: 0 8px 32px hsla(0, 0%, 0%, 0.3), 0 2px 8px hsla(0, 0%, 0%, 0.2);
+    --shadow-nav-link: 1px 1px 3px hsla(0, 0%, 0%, 0.2), -1px -1px 3px hsla(0, 0%, 100%, 0.05);
+    --shadow-nav-active: inset 1px 1px 3px hsla(0, 0%, 0%, 0.3), inset -1px -1px 3px hsla(0, 0%, 100%, 0.08);
 
     /* Responsive spacing */
     --spacing-section: 4rem;
@@ -134,7 +148,7 @@
     @apply transition-transform duration-200 hover:scale-105;
   }
 
-  /* Neumorphic design utilities */
+  /* Enhanced neumorphic design utilities */
   .neumorphic-inset {
     box-shadow: var(--shadow-neumorphic-inset);
   }
@@ -178,6 +192,68 @@
     box-shadow: var(--shadow-neumorphic-inset);
     transform: translateY(0);
   }
+
+  /* New section pattern backgrounds */
+  .section-pattern-a {
+    background: var(--gradient-pattern-a);
+  }
+
+  .section-pattern-b {
+    background: var(--gradient-pattern-b);
+  }
+
+  .section-pattern-c {
+    background: var(--gradient-pattern-c);
+  }
+
+  .section-pattern-d {
+    background: var(--gradient-pattern-d);
+  }
+
+  /* Navigation specific styles */
+  .nav-glassmorphic {
+    background: var(--gradient-nav);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: var(--shadow-nav-floating);
+    border-bottom: 1px solid hsla(0, 0%, 100%, 0.1);
+  }
+
+  .nav-link-neumorphic {
+    box-shadow: var(--shadow-nav-link);
+    background: linear-gradient(145deg, hsl(40, 8%, 15%) 0%, hsl(40, 12%, 8%) 100%);
+    border: 1px solid hsla(0, 0%, 100%, 0.05);
+    transition: all 0.3s ease;
+  }
+
+  .nav-link-neumorphic:hover {
+    box-shadow: var(--shadow-neumorphic-elevated);
+    transform: translateY(-1px);
+  }
+
+  .nav-link-neumorphic.active {
+    box-shadow: var(--shadow-nav-active);
+    background: linear-gradient(145deg, hsl(0, 84%, 60%, 0.1) 0%, hsl(40, 12%, 8%) 100%);
+    border-color: hsl(0, 84%, 60%, 0.2);
+  }
+
+  .logo-neumorphic {
+    background: linear-gradient(145deg, hsl(40, 8%, 15%) 0%, hsl(40, 12%, 8%) 100%);
+    box-shadow: var(--shadow-neumorphic-soft);
+    border: 1px solid hsla(0, 0%, 100%, 0.05);
+    transition: all 0.3s ease;
+  }
+
+  .logo-neumorphic:hover {
+    box-shadow: var(--shadow-glow);
+    transform: translateY(-2px);
+  }
+
+  /* Section transitions */
+  .section-border {
+    border-top: 1px solid hsla(0, 0%, 100%, 0.05);
+    box-shadow: 0 -1px 0 hsla(0, 0%, 0%, 0.1);
+  }
 }
 
 @keyframes float {
@@ -219,4 +295,16 @@ html {
 
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-border/80;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

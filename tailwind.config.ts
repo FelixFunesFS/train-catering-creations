@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -82,7 +81,12 @@ export default {
 			backgroundImage: {
 				'gradient-primary': 'var(--gradient-primary)',
 				'gradient-hero': 'var(--gradient-hero)',
-				'gradient-card': 'var(--gradient-card)'
+				'gradient-card': 'var(--gradient-card)',
+				'gradient-pattern-a': 'var(--gradient-pattern-a)',
+				'gradient-pattern-b': 'var(--gradient-pattern-b)',
+				'gradient-pattern-c': 'var(--gradient-pattern-c)',
+				'gradient-pattern-d': 'var(--gradient-pattern-d)',
+				'gradient-nav': 'var(--gradient-nav)'
 			},
 			boxShadow: {
 				'card': 'var(--shadow-card)',
@@ -95,7 +99,10 @@ export default {
 				'neumorphic-inset': 'var(--shadow-neumorphic-inset)',
 				'neumorphic-outset': 'var(--shadow-neumorphic-outset)',
 				'neumorphic-soft': 'var(--shadow-neumorphic-soft)',
-				'neumorphic-elevated': 'var(--shadow-neumorphic-elevated)'
+				'neumorphic-elevated': 'var(--shadow-neumorphic-elevated)',
+				'nav-floating': 'var(--shadow-nav-floating)',
+				'nav-link': 'var(--shadow-nav-link)',
+				'nav-active': 'var(--shadow-nav-active)'
 			},
 			spacing: {
 				'section': 'var(--spacing-section)',
