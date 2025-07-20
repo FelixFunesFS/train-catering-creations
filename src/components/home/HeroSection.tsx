@@ -172,22 +172,22 @@ export const HeroSection = () => {
                 
                 {/* Logo and Title Overlay */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white z-10 px-4">
+                  {/* Main Heading with Script Font */}
+                  <div className="mb-4 sm:mb-6">
+                    <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-script font-bold text-white leading-tight animate-fade-in shadow-2xl drop-shadow-2xl">
+                      Soul Train's Eatery
+                    </h1>
+                  </div>
+
                   {/* Logo Icon */}
                   <div className="flex justify-center mb-4 sm:mb-6">
                     <div className="h-12 w-12 sm:h-16 sm:w-16 md:h-20 md:w-20">
                       <img 
                         src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
                         alt="Soul Train's Eatery Logo" 
-                        className="w-full h-full object-contain hover:scale-110 transition-transform duration-300 drop-shadow-lg brightness-0 invert" 
+                        className="w-full h-full object-contain hover:scale-110 transition-transform duration-300 brightness-0 invert shadow-2xl drop-shadow-2xl" 
                       />
                     </div>
-                  </div>
-
-                  {/* Main Heading with Script Font */}
-                  <div className="mb-4 sm:mb-6">
-                    <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-script font-bold text-white leading-tight animate-fade-in drop-shadow-lg">
-                      Soul Train's Eatery
-                    </h1>
                   </div>
                   
                   {/* Decorative line */}
