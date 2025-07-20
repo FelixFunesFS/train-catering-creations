@@ -84,9 +84,7 @@ export const AboutPreviewSection = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           <div ref={titleRef} className={titleAnimationClass}>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant text-foreground mb-6">
-              8+ Years of Culinary Excellence
-            </h2>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant text-foreground mb-6">Culinary Excellence</h2>
             <p className="text-sm sm:text-base lg:text-lg text-muted-foreground mb-6 leading-relaxed">
               Founded by Chef Dominick "Train" Ward and Pastry Chef Tanya Ward, Soul Train's Eatery is a family-run, community-rooted catering business serving Charleston's Lowcountry with love and precision.
             </p>
