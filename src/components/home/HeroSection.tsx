@@ -89,7 +89,7 @@ export const HeroSection = () => {
                     })]} className="w-full">
                         <CarouselContent className="-ml-1 gap-2">
                         {heroImages.map((image, index) => <CarouselItem key={index} className="pl-1 basis-full md:basis-1/2 lg:basis-1/3">
-                            <div className="group relative overflow-hidden rounded-lg shadow-2xl hover:shadow-glow bg-gradient-card transition-all duration-300 cursor-pointer transform translate-y-0 hover:translate-y-[-8px] hover:scale-[1.02] animate-fade-in" style={{boxShadow: '0 20px 40px -10px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.1)'}} onClick={() => handleImageClick(index)}>
+                            <div className="group relative overflow-hidden rounded-lg bg-gradient-card transition-all duration-300 cursor-pointer transform hover:scale-[1.02] animate-fade-in" style={{boxShadow: '0 8px 25px -5px rgba(0,0,0,0.15), 0 4px 10px -2px rgba(0,0,0,0.1), 0 0 0 1px rgba(255,255,255,0.05)'}} onClick={() => handleImageClick(index)}>
                               <div className="aspect-[16/9] overflow-hidden">
                                   <img src={image.src} alt={image.alt} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading={index < 2 ? "eager" : "lazy"} decoding="async" />
                                 </div>
