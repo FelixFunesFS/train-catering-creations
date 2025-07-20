@@ -97,7 +97,7 @@ export const HeroSection = () => {
                         {heroImages.map((image, index) => (
                           <CarouselItem key={index} className="pl-1 basis-full md:basis-1/2 lg:basis-1/3">
                             <div 
-                              className="group relative overflow-hidden rounded-2xl bg-gradient-card transition-all duration-300 cursor-pointer transform hover:scale-[1.02] animate-fade-in shadow-[0_4px_6px_rgba(0,0,0,0.05),_0_1px_3px_rgba(0,0,0,0.1)] hover:shadow-[0_6px_8px_rgba(0,0,0,0.08),_0_2px_4px_rgba(0,0,0,0.12)]" 
+                              className="group relative overflow-hidden rounded-2xl bg-gradient-card transition-all duration-300 cursor-pointer transform hover:scale-[1.02] animate-fade-in shadow-[0_4px_6px_rgba(0,0,0,0.15),_0_1px_3px_rgba(0,0,0,0.25)] hover:shadow-[0_8px_12px_rgba(0,0,0,0.2),_0_3px_6px_rgba(0,0,0,0.3)]" 
                               onClick={() => handleImageClick(index)}
                             >
                               <div className="aspect-[16/9] overflow-hidden">
