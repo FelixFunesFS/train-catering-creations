@@ -95,7 +95,7 @@ export const HeroSection = () => {
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white z-10 px-4">
                   {/* Main Heading with Script Font */}
                   <div className="mb-4 sm:mb-6">
-                    <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-script text-white leading-tight animate-fade-in drop-shadow-lg" style={{ textShadow: '2px 2px 0 black, -2px -2px 0 black, 2px -2px 0 black, -2px 2px 0 black' }}>
+                    <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-script font-bold text-white leading-tight animate-fade-in drop-shadow-lg">
                       Soul Train's Eatery
                     </h1>
                   </div>
@@ -105,7 +105,7 @@ export const HeroSection = () => {
 
                   {/* Elegant Descriptive Text */}
                   <div className="max-w-2xl mx-auto px-2 sm:px-4">
-                    <p className="text-lg sm:text-xl lg:text-2xl font-elegant text-white/95 leading-relaxed animate-fade-in drop-shadow-md" style={{ textShadow: '1px 1px 0 black, -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black' }}>
+                    <p className="text-lg sm:text-xl lg:text-2xl font-elegant font-bold text-white/95 leading-relaxed animate-fade-in drop-shadow-md">
                       Charleston's premier catering experience- where every bit is made with love and served with soul.
                     </p>
                   </div>
