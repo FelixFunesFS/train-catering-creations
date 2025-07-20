@@ -66,6 +66,17 @@ export const HeroSection = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
           <div className="flex flex-col">
             
+            {/* Logo Icon Above Image */}
+            <div className="flex justify-center mb-4 sm:mb-6">
+              <div className="h-12 w-12 sm:h-16 sm:w-16 md:h-20 md:w-20">
+                <img 
+                  src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
+                  alt="Soul Train's Eatery Logo" 
+                  className="w-full h-full object-contain hover:scale-110 transition-transform duration-300" 
+                />
+              </div>
+            </div>
+
             {/* Full-width Hero Image with Title Overlay */}
             <div className="relative order-1 md:order-1 mb-6 sm:mb-8">
               {/* Hero Background Image */}
@@ -80,19 +91,8 @@ export const HeroSection = () => {
                 {/* Gradient Overlay for Text Readability */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
                 
-                {/* Title and Logo Overlay */}
+                {/* Title Overlay */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white z-10 px-4">
-                  {/* Logo Icon */}
-                  <div className="flex justify-center mb-4 sm:mb-6">
-                    <div className="h-12 w-12 sm:h-16 sm:w-16 md:h-20 md:w-20">
-                      <img 
-                        src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
-                        alt="Soul Train's Eatery Logo" 
-                        className="w-full h-full object-contain hover:scale-110 transition-transform duration-300" 
-                      />
-                    </div>
-                  </div>
-                  
                   {/* Main Heading with Script Font */}
                   <div className="mb-4 sm:mb-6">
                     <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-script text-white leading-tight animate-fade-in drop-shadow-lg">
