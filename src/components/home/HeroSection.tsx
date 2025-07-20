@@ -112,8 +112,8 @@ export const HeroSection = () => {
                       )}
                       style={{
                         animationDelay: `${index * 180}ms`,
-                        filter: 'drop-shadow(0 0 10px hsl(0 72% 50% / 0.3))',
-                        textShadow: '0 0 20px hsl(0 72% 50% / 0.2)'
+                        filter: 'drop-shadow(0 0 3px hsl(0 72% 50% / 0.15))',
+                        textShadow: '0 0 8px hsl(0 72% 50% / 0.1)'
                       }}
                     >
                       {word}
