@@ -84,7 +84,7 @@ export const HeroSection = () => {
                 
                 {/* Call-to-Action Buttons */}
                 <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 justify-center items-center animate-fade-in max-w-lg mx-auto">
-                  <Button asChild variant="cta" size="responsive-lg" className="w-3/5 sm:w-auto sm:min-w-[14rem]">
+                  <Button asChild variant="cta" size="responsive-lg" className="w-3/5 sm:w-auto sm:min-w-[14rem] min-h-[44px] sm:min-h-[52px] box-border">
                     <Link to="/request-quote#page-header">
                       Request Quote
                     </Link>
