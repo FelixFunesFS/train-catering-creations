@@ -5,6 +5,7 @@ import { useState } from "react";
 import { ImageModal } from "@/components/gallery/ImageModal";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
+
 export const HeroSection = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
 
@@ -42,14 +43,19 @@ export const HeroSection = () => {
     description: "Elegant appetizer display with beverage service and professional presentation",
     category: "appetizer"
   }];
+  
   const allImages = [...heroImages, ...additionalImages];
+  
   const handleImageClick = (index: number) => {
     setSelectedImageIndex(index);
   };
+  
   const handleCloseModal = () => {
     setSelectedImageIndex(null);
   };
-  return <>
+
+  return (
+    <>
       {/* Hero Section */}
       <section className="mb-8 sm:mb-12 md:mb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
@@ -88,8 +94,12 @@ export const HeroSection = () => {
                       delay: 4000
                     })]} className="w-full">
                         <CarouselContent className="-ml-1 gap-2">
-                        {heroImages.map((image, index) => <CarouselItem key={index} className="pl-1 basis-full md:basis-1/2 lg:basis-1/3">
-                            <div className="group relative overflow-hidden rounded-2xl bg-gradient-card transition-all duration-300 cursor-pointer transform hover:scale-[1.02] animate-fade-in shadow-elegant hover:shadow-elevated" onClick={() => handleImageClick(index)}>
+                        {heroImages.map((image, index) => (
+                          <CarouselItem key={index} className="pl-1 basis-full md:basis-1/2 lg:basis-1/3">
+                            <div 
+                              className="group relative overflow-hidden rounded-2xl bg-gradient-card transition-all duration-300 cursor-pointer transform hover:scale-[1.02] animate-fade-in shadow-[0_4px_6px_rgba(0,0,0,0.05),_0_1px_3px_rgba(0,0,0,0.1)] hover:shadow-[0_6px_8px_rgba(0,0,0,0.08),_0_2px_4px_rgba(0,0,0,0.12)]" 
+                              onClick={() => handleImageClick(index)}
+                            >
                               <div className="aspect-[16/9] overflow-hidden">
                                   <img src={image.src} alt={image.alt} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading={index < 2 ? "eager" : "lazy"} decoding="async" />
                                 </div>
@@ -109,7 +119,8 @@ export const HeroSection = () => {
                                 {/* Subtle border effect */}
                                 <div className="absolute inset-0 border-2 border-transparent group-hover:border-primary/20 rounded-2xl transition-colors duration-300"></div>
                               </div>
-                            </CarouselItem>)}
+                            </CarouselItem>
+                        ))}
                         </CarouselContent>
                         <CarouselPrevious className="hidden md:flex -left-12" />
                         <CarouselNext className="hidden md:flex -right-12" />
@@ -124,7 +135,6 @@ export const HeroSection = () => {
                 </div>
               </div>
             </div>
-
 
             {/* Call-to-Action Buttons Section */}
             <div className="relative order-3 md:order-3 py-0">
@@ -149,5 +159,6 @@ export const HeroSection = () => {
 
       {/* Image Modal */}
       <ImageModal images={allImages} selectedIndex={selectedImageIndex} onClose={handleCloseModal} />
-    </>;
+    </>
+  );
 };
