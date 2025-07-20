@@ -85,8 +85,7 @@ export const Header = () => {
               <Button 
                 asChild 
                 variant="cta" 
-                size="sm"
-                className="neumorphic-button-primary"
+                className="text-sm font-medium px-4 py-2 rounded-lg neumorphic-button-primary"
               >
                 <Link to="/request-quote#page-header">Request Quote</Link>
               </Button>
