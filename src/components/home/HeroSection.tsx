@@ -75,17 +75,12 @@ export const HeroSection = () => {
                 </div>
                 
                 {/* Decorative line */}
-                <div className="w-16 sm:w-20 lg:w-24 xl:w-28 h-1 bg-gradient-primary mx-auto mb-4 sm:mb-6 animate-fade-in" />
-
-                {/* Descriptive Text */}
-                <div className="max-w-3xl mx-auto px-2 sm:px-4 mb-6 sm:mb-8">
-                  <p className="text-base sm:text-lg text-muted-foreground leading-relaxed animate-fade-in">Culinary craftsmanship, heartfelt connection, and Lowcountry flavor on every plate.</p>
-                </div>
+                <div className="w-16 sm:w-20 lg:w-24 xl:w-28 h-1 bg-gradient-primary mx-auto animate-fade-in" />
               </div>
             </div>
 
             {/* Image Gallery Carousel Section */}
-            <div className="relative pt-4 sm:pt-6 pb-6 sm:pb-8 order-2">
+            <div className="relative pt-2 sm:pt-3 pb-2 sm:pb-3 lg:pb-4 order-2">
               <div className="max-w-7xl mx-auto">
                 {/* Responsive Carousel */}
                 <div className="relative">
@@ -129,6 +124,11 @@ export const HeroSection = () => {
             {/* Brand Header Section - Bottom Part */}
             <div className="relative order-3">
               <div className="relative z-10 text-center py-2 sm:py-3 lg:py-4">
+                {/* Descriptive Text */}
+                <div className="max-w-3xl mx-auto px-2 sm:px-4 mb-4 sm:mb-6">
+                  <p className="text-base sm:text-lg text-muted-foreground leading-relaxed animate-fade-in">More than a meal - it's Southern comfort, heartfelt connection,<br className="hidden sm:inline" /> and Lowcountry flavor on every plate.</p>
+                </div>
+                
                 {/* Call-to-Action Buttons */}
                 <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 justify-center items-center animate-fade-in max-w-lg mx-auto">
                   <Button asChild variant="cta" size="responsive-lg" className="w-3/5 sm:w-auto sm:min-w-[14rem] min-h-[44px] sm:min-h-[52px] box-border">
