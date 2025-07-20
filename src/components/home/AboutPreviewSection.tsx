@@ -84,29 +84,31 @@ export const AboutPreviewSection = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           <div ref={titleRef} className={`${titleAnimationClass} relative`}>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant text-foreground mb-6">Culinary Excellence</h2>
-            <p className="text-sm sm:text-base lg:text-lg text-muted-foreground mb-6 leading-relaxed">
-              Founded by Chef Dominick "Train" Ward and Pastry Chef Tanya Ward, Soul Train's Eatery is a family-run, community-rooted catering business serving Charleston's Lowcountry with love and precision.
-            </p>
-            <p className="text-sm sm:text-base lg:text-lg text-muted-foreground mb-8 leading-relaxed">From intimate gatherings to grand celebrations, we bring over two decades of culinary expertise, Southern hospitality, and ServSafe certified professionalism to every event. Taste the love in every bite.</p>
-            
-            {/* Watermark Icon - Centered above the button */}
-            <div className="flex justify-center mb-6 pointer-events-none">
-              <div className="opacity-10">
+            {/* Watermark Icon - Behind the content, big */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
+              <div className="opacity-5 transform scale-150">
                 <img 
                   src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
                   alt="" 
-                  className="w-20 h-20 sm:w-24 sm:h-24 object-contain" 
+                  className="w-48 h-48 sm:w-64 sm:h-64 md:w-80 md:h-80 object-contain" 
                   aria-hidden="true"
                 />
               </div>
             </div>
             
-            <Link to="/about#page-header">
-              <Button variant="cta" size="responsive-md" className="w-3/5 sm:w-auto sm:min-w-[14rem]">
-                Learn More About Us
-              </Button>
-            </Link>
+            <div className="relative z-10">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant text-foreground mb-6">Culinary Excellence</h2>
+              <p className="text-sm sm:text-base lg:text-lg text-muted-foreground mb-6 leading-relaxed">
+                Founded by Chef Dominick "Train" Ward and Pastry Chef Tanya Ward, Soul Train's Eatery is a family-run, community-rooted catering business serving Charleston's Lowcountry with love and precision.
+              </p>
+              <p className="text-sm sm:text-base lg:text-lg text-muted-foreground mb-8 leading-relaxed">From intimate gatherings to grand celebrations, we bring over two decades of culinary expertise, Southern hospitality, and ServSafe certified professionalism to every event. Taste the love in every bite.</p>
+              
+              <Link to="/about#page-header">
+                <Button variant="cta" size="responsive-md" className="w-3/5 sm:w-auto sm:min-w-[14rem]">
+                  Learn More About Us
+                </Button>
+              </Link>
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-6 md:gap-10 lg:gap-12">
             <Card ref={card1Ref} className={`shadow-elegant hover:shadow-elevated transition-all duration-200 overflow-hidden group bg-card ${card1AnimationClass}`}>
