@@ -44,11 +44,11 @@ export const Footer = () => {
             </p>
             <div className="space-y-2">
               <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                <Star className="h-4 w-4 text-accent-foreground" fill="currentColor" />
+                <Star className="h-4 w-4 text-red-500" fill="currentColor" />
                 <span>Premium Catering Services</span>
               </div>
               <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                <Star className="h-4 w-4 text-accent-foreground" fill="currentColor" />
+                <Star className="h-4 w-4 text-red-500" fill="currentColor" />
                 <span>Licensed & Insured</span>
               </div>
             </div>
@@ -59,22 +59,22 @@ export const Footer = () => {
             <h3 className="text-lg font-elegant font-semibold text-foreground mb-4">Contact Us</h3>
             <div className="space-y-3">
               <a href="tel:8439700265" className="flex items-center space-x-3 text-sm text-muted-foreground hover:text-primary transition-all duration-200 group">
-                <Phone className="h-4 w-4 group-hover:text-primary transition-colors duration-200" />
+                <Phone className="h-4 w-4 text-red-500" />
                 <span>Call (843) 970-0265</span>
               </a>
               <a href="mailto:soultrainseatery@gmail.com" className="flex items-center space-x-3 text-sm text-muted-foreground hover:text-primary transition-all duration-200 group">
-                <Mail className="h-4 w-4 group-hover:text-primary transition-colors duration-200" />
+                <Mail className="h-4 w-4 text-red-500" />
                 <span>soultrainseatery@gmail.com</span>
               </a>
               <div className="flex items-start space-x-3 text-sm text-muted-foreground">
-                <MapPin className="h-4 w-4 mt-0.5" />
+                <MapPin className="h-4 w-4 mt-0.5 text-red-500" />
                 <div>
                   <p>Charleston, SC Metro Area</p>
                   <p className="text-xs">Serving all surrounding areas</p>
                 </div>
               </div>
               <div className="flex items-center space-x-3 text-sm text-muted-foreground">
-                <Clock className="h-4 w-4" />
+                <Clock className="h-4 w-4 text-red-500" />
                 <div>
                   <p>By Appointment</p>
                   <p className="text-xs">Call for availability</p>
@@ -145,7 +145,7 @@ export const Footer = () => {
               <p>© {currentYear} Soul Train's Eatery. All rights reserved.</p>
             </div>
             <div className="flex flex-wrap space-x-3 mt-2 sm:mt-0 text-center sm:text-right">
-              <Link to="/privacy-policy" className="hover:text-primary transition-colors duration-200">Privacy Policy</Link>
+              <Link to="/privacy-policy" className="text-red-500 hover:text-red-600 transition-colors duration-200">Privacy Policy</Link>
               <span>|</span>
               <Link to="/terms-conditions" className="hover:text-primary transition-colors duration-200">Terms & Conditions</Link>
             </div>
