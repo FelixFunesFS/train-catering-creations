@@ -66,7 +66,7 @@ const Reviews = () => {
     return Array.from({ length: 5 }, (_, i) => (
       <Star
         key={i}
-        className={`h-4 w-4 ${i < rating ? 'text-primary fill-current' : 'text-muted-foreground'}`}
+        className={`h-4 w-4 ${i < rating ? 'text-accent fill-current' : 'text-muted-foreground'}`}
       />
     ));
   };
@@ -89,7 +89,7 @@ const Reviews = () => {
             >
               <div className="flex justify-center items-center space-x-2 mb-3 sm:mb-4">
                 {renderStars(5)}
-                <span className="text-xl sm:text-2xl font-bold text-primary ml-2">5.0</span>
+                <span className="text-xl sm:text-2xl font-bold text-accent ml-2">5.0</span>
               </div>
               <p className="text-base sm:text-lg text-muted-foreground">
                 Based on {reviews.length}+ reviews from satisfied clients
@@ -145,12 +145,12 @@ const Reviews = () => {
       <section className="py-8 lg:py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <Card className="shadow-card bg-primary-light">
+            <Card className="shadow-card bg-accent/10">
               <CardContent className="p-4 sm:p-6">
-                <h4 className="text-base sm:text-lg font-elegant font-semibold text-primary mb-2">
+                <h4 className="text-base sm:text-lg font-elegant font-semibold text-accent mb-2">
                   Worked with us recently?
                 </h4>
-                <p className="text-primary text-xs sm:text-sm">
+                <p className="text-accent text-xs sm:text-sm">
                   We'd love to hear about your experience! Contact us to share your feedback.
                 </p>
               </CardContent>

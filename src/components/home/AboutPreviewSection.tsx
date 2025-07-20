@@ -86,7 +86,7 @@ export const AboutPreviewSection = () => {
               className={`overflow-hidden group bg-card ${card1AnimationClass}`}
             >
               <div className="p-4 sm:p-6 text-center">
-                <ChefHat className="h-8 w-8 sm:h-10 sm:w-10 text-primary mx-auto mb-4 group-hover:scale-110 transition-transform duration-200" />
+                <ChefHat className="h-8 w-8 sm:h-10 sm:w-10 text-accent mx-auto mb-4 group-hover:scale-110 transition-transform duration-200" />
                 <h3 className="font-elegant font-semibold text-foreground mb-2 text-sm sm:text-base">Chef Train</h3>
                 <p className="text-xs sm:text-sm text-muted-foreground">20+ Years Experience</p>
               </div>
@@ -101,7 +101,7 @@ export const AboutPreviewSection = () => {
               className={`overflow-hidden group bg-card ${card2AnimationClass}`}
             >
               <div className="p-4 sm:p-6 text-center">
-                <Heart className="h-8 w-8 sm:h-10 sm:w-10 text-primary mx-auto mb-4 group-hover:scale-110 transition-transform duration-200" />
+                <Heart className="h-8 w-8 sm:h-10 sm:w-10 text-accent mx-auto mb-4 group-hover:scale-110 transition-transform duration-200" />
                 <h3 className="font-elegant font-semibold text-foreground mb-2 text-sm sm:text-base">Tanya Ward</h3>
                 <p className="text-xs sm:text-sm text-muted-foreground">Pastry Chef</p>
               </div>
@@ -116,7 +116,7 @@ export const AboutPreviewSection = () => {
               className={`overflow-hidden group bg-card ${card3AnimationClass}`}
             >
               <div className="p-4 sm:p-6 text-center">
-                <Award className="h-8 w-8 sm:h-10 sm:w-10 text-primary mx-auto mb-4 group-hover:scale-110 transition-transform duration-200" />
+                <Award className="h-8 w-8 sm:h-10 sm:w-10 text-accent mx-auto mb-4 group-hover:scale-110 transition-transform duration-200" />
                 <h3 className="font-elegant font-semibold text-foreground mb-2 text-sm sm:text-base">ServSafe</h3>
                 <p className="text-xs sm:text-sm text-muted-foreground">Certified</p>
               </div>
@@ -131,7 +131,7 @@ export const AboutPreviewSection = () => {
               className={`overflow-hidden group bg-card ${card4AnimationClass}`}
             >
               <div className="p-4 sm:p-6 text-center">
-                <Users className="h-8 w-8 sm:h-10 sm:w-10 text-primary mx-auto mb-4 group-hover:scale-110 transition-transform duration-200" />
+                <Users className="h-8 w-8 sm:h-10 sm:w-10 text-accent mx-auto mb-4 group-hover:scale-110 transition-transform duration-200" />
                 <h3 className="font-elegant font-semibold text-foreground mb-2 text-sm sm:text-base">Family Run</h3>
                 <p className="text-xs sm:text-sm text-muted-foreground">Community Rooted</p>
               </div>

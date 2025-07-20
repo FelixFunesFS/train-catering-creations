@@ -421,23 +421,23 @@ const WeddingMenu = () => {
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-start space-x-3">
-                <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
+                <div className="w-2 h-2 bg-accent rounded-full mt-2"></div>
                 <span>Elegant presentation and professional service staff</span>
               </div>
               <div className="flex items-start space-x-3">
-                <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
+                <div className="w-2 h-2 bg-accent rounded-full mt-2"></div>
                 <span>Custom menu design for dietary restrictions</span>
               </div>
               <div className="flex items-start space-x-3">
-                <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
+                <div className="w-2 h-2 bg-accent rounded-full mt-2"></div>
                 <span>Full-service setup and cleanup</span>
               </div>
               <div className="flex items-start space-x-3">
-                <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
+                <div className="w-2 h-2 bg-accent rounded-full mt-2"></div>
                 <span>ServSafe certified food handling</span>
               </div>
               <div className="flex items-start space-x-3">
-                <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
+                <div className="w-2 h-2 bg-accent rounded-full mt-2"></div>
                 <span>Coordination with your event planner</span>
               </div>
             </CardContent>
@@ -461,23 +461,23 @@ const WeddingMenu = () => {
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-start space-x-3">
-                <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
+                <div className="w-2 h-2 bg-accent rounded-full mt-2"></div>
                 <span>Cocktail hour hors d'oeuvres and canapés</span>
               </div>
               <div className="flex items-start space-x-3">
-                <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
+                <div className="w-2 h-2 bg-accent rounded-full mt-2"></div>
                 <span>Multi-course plated dinners</span>
               </div>
               <div className="flex items-start space-x-3">
-                <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
+                <div className="w-2 h-2 bg-accent rounded-full mt-2"></div>
                 <span>Elegant buffet presentations</span>
               </div>
               <div className="flex items-start space-x-3">
-                <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
+                <div className="w-2 h-2 bg-accent rounded-full mt-2"></div>
                 <span>Tanya's custom wedding desserts</span>
               </div>
               <div className="flex items-start space-x-3">
-                <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
+                <div className="w-2 h-2 bg-accent rounded-full mt-2"></div>
                 <span>Late-night snack stations</span>
               </div>
             </CardContent>

@@ -79,7 +79,7 @@ export const ServicesSection = () => {
               <div className="p-4 sm:p-6">
                 <h3 className="text-lg sm:text-xl font-elegant text-foreground mb-4">Weddings</h3>
                 <p className="text-sm sm:text-base text-muted-foreground mb-6">Elegant receptions and intimate ceremonies with personalized menus</p>
-                <span className="text-primary hover:text-primary/80 font-medium group inline-flex items-center gap-1">
+                <span className="text-accent hover:text-accent/80 font-medium group inline-flex items-center gap-1">
                   Learn More 
                   <span className="group-hover:translate-x-1 transition-transform duration-200">→</span>
                 </span>
@@ -98,7 +98,7 @@ export const ServicesSection = () => {
               <div className="p-4 sm:p-6">
                 <h3 className="text-lg sm:text-xl font-elegant text-foreground mb-4">Black Tie Events</h3>
                 <p className="text-sm sm:text-base text-muted-foreground mb-6">Sophisticated catering for galas and formal celebrations</p>
-                <span className="text-primary hover:text-primary/80 font-medium group inline-flex items-center gap-1">
+                <span className="text-accent hover:text-accent/80 font-medium group inline-flex items-center gap-1">
                   Learn More 
                   <span className="group-hover:translate-x-1 transition-transform duration-200">→</span>
                 </span>
@@ -116,7 +116,7 @@ export const ServicesSection = () => {
             <div className="p-4 sm:p-6">
               <h3 className="text-lg sm:text-xl font-elegant text-foreground mb-4">Military Functions</h3>
               <p className="text-sm sm:text-base text-muted-foreground mb-6">Honoring service with promotions, ceremonies, and celebrations</p>
-              <Link to="/wedding-menu#page-header" className="text-primary hover:text-primary/80 font-medium group inline-flex items-center gap-1">
+              <Link to="/wedding-menu#page-header" className="text-accent hover:text-accent/80 font-medium group inline-flex items-center gap-1">
                 Learn More 
                 <span className="group-hover:translate-x-1 transition-transform duration-200">→</span>
               </Link>
@@ -133,7 +133,7 @@ export const ServicesSection = () => {
             <div className="p-4 sm:p-6">
               <h3 className="text-lg sm:text-xl font-elegant text-foreground mb-4">Private Events</h3>
               <p className="text-sm sm:text-base text-muted-foreground mb-6">Corporate conferences, family gatherings, and special occasions</p>
-              <Link to="/menu#page-header" className="text-primary hover:text-primary/80 font-medium group inline-flex items-center gap-1">
+              <Link to="/menu#page-header" className="text-accent hover:text-accent/80 font-medium group inline-flex items-center gap-1">
                 View Menu 
                 <span className="group-hover:translate-x-1 transition-transform duration-200">→</span>
               </Link>
