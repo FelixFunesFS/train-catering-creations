@@ -43,8 +43,35 @@ export const HeroSection = () => {
     description: "Elegant appetizer display with beverage service and professional presentation",
     category: "appetizer"
   }];
+
+  // New images for the carousel
+  const newCarouselImages = [{
+    src: "/lovable-uploads/07027d9a-2f11-458f-ba01-5293e3b9ea99.png",
+    alt: "Elegant buffet setup with chafing dishes and floral arrangements",
+    title: "Buffet Service",
+    description: "Professional buffet setup with chafing dishes and beautiful floral arrangements",
+    category: "buffet"
+  }, {
+    src: "/lovable-uploads/396a0e19-f59d-4114-9cf2-e859757c2064.png",
+    alt: "Formal military event dining setup with professional service",
+    title: "Corporate Events",
+    description: "Formal military event dining setup with professional service",
+    category: "corporate"
+  }, {
+    src: "/lovable-uploads/905958ee-1978-4419-9caa-de23adaf453f.png",
+    alt: "Professional chafing dish setup with elegant presentation",
+    title: "Catering Setup",
+    description: "Professional chafing dish setup with elegant presentation and fresh flowers",
+    category: "catering"
+  }, {
+    src: "/lovable-uploads/97f874a8-d6b5-43d9-913b-11f84e614841.png",
+    alt: "Family gathering with delicious buffet spread in home kitchen",
+    title: "Family Events",
+    description: "Family gathering with delicious buffet spread in beautiful home kitchen",
+    category: "family"
+  }];
   
-  const allImages = [...heroImages, ...additionalImages];
+  const allImages = [...heroImages, ...additionalImages, ...newCarouselImages];
   
   const handleImageClick = (index: number) => {
     setSelectedImageIndex(index);
@@ -56,8 +83,8 @@ export const HeroSection = () => {
 
   // Get the hero image (first image)
   const heroImage = heroImages[0];
-  // Get remaining images for carousel
-  const carouselImages = heroImages.slice(1);
+  // Use new carousel images for the carousel section
+  const carouselImages = newCarouselImages;
 
   return (
     <>
@@ -148,10 +175,10 @@ export const HeroSection = () => {
                     })]} className="w-full">
                       <CarouselContent className="-ml-1 gap-2">
                         {carouselImages.map((image, index) => (
-                          <CarouselItem key={index + 1} className="pl-1 basis-full md:basis-1/2">
-                            <div 
-                              className="group relative rounded-2xl bg-gradient-card transition-all duration-300 cursor-pointer transform hover:scale-[1.02] animate-fade-in shadow-glow hover:shadow-glow-strong" 
-                              onClick={() => handleImageClick(index + 1)}
+                           <CarouselItem key={index + 1} className="pl-1 basis-full sm:basis-1/2 lg:basis-1/4">
+                             <div 
+                               className="group relative rounded-2xl bg-gradient-card transition-all duration-300 cursor-pointer transform hover:scale-[1.02] animate-fade-in shadow-glow hover:shadow-glow-strong" 
+                               onClick={() => handleImageClick(heroImages.length + additionalImages.length + index)}
                             >
                               <div className="aspect-[16/9] overflow-hidden rounded-2xl">
                                 <img 
