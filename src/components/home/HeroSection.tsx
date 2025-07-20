@@ -147,21 +147,10 @@ export const HeroSection = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
           <div className="flex flex-col">
             
-            {/* Logo Icon Above Image */}
-            <div className="flex justify-center mb-4 sm:mb-6">
-              <div className="h-12 w-12 sm:h-16 sm:w-16 md:h-20 md:w-20">
-                <img 
-                  src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
-                  alt="Soul Train's Eatery Logo" 
-                  className="w-full h-full object-contain hover:scale-110 transition-transform duration-300" 
-                />
-              </div>
-            </div>
-
             {/* Subtext Above Image */}
             <div className="text-center mb-6 sm:mb-8">
               <div className="max-w-2xl mx-auto px-2 sm:px-4">
-                <p className="text-lg sm:text-xl lg:text-2xl font-elegant font-bold text-foreground leading-relaxed animate-fade-in">
+                <p className="text-lg sm:text-xl lg:text-2xl font-elegant text-foreground leading-relaxed animate-fade-in">
                   Charleston's premier catering experience- where every bit is made with love and served with soul.
                 </p>
               </div>
@@ -181,8 +170,19 @@ export const HeroSection = () => {
                 {/* Gradient Overlay for Text Readability */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
                 
-                {/* Title and Buttons Overlay */}
+                {/* Logo and Title Overlay */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white z-10 px-4">
+                  {/* Logo Icon */}
+                  <div className="flex justify-center mb-4 sm:mb-6">
+                    <div className="h-12 w-12 sm:h-16 sm:w-16 md:h-20 md:w-20">
+                      <img 
+                        src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
+                        alt="Soul Train's Eatery Logo" 
+                        className="w-full h-full object-contain hover:scale-110 transition-transform duration-300 drop-shadow-lg" 
+                      />
+                    </div>
+                  </div>
+
                   {/* Main Heading with Script Font */}
                   <div className="mb-4 sm:mb-6">
                     <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-script font-bold text-white leading-tight animate-fade-in drop-shadow-lg">
@@ -191,21 +191,7 @@ export const HeroSection = () => {
                   </div>
                   
                   {/* Decorative line */}
-                  <div className="w-20 sm:w-24 lg:w-28 xl:w-32 h-1 bg-gradient-primary mx-auto mb-6 sm:mb-8 animate-fade-in drop-shadow-sm" />
-
-                  {/* Call-to-Action Buttons */}
-                  <div className="flex flex-row gap-2 sm:gap-4 justify-center items-center animate-fade-in w-full sm:w-auto">
-                    <Button asChild variant="cta" size="default" className="flex-1 sm:flex-none sm:w-56 min-h-[44px] sm:min-h-[52px]">
-                      <Link to="/request-quote#page-header">
-                        Request Quote
-                      </Link>
-                    </Button>
-                    <Button asChild variant="cta-outline" size="default" className="flex-1 sm:flex-none sm:w-56 min-h-[44px] sm:min-h-[52px]">
-                      <Link to="/gallery#page-header">
-                        View Gallery
-                      </Link>
-                    </Button>
-                  </div>
+                  <div className="w-20 sm:w-24 lg:w-28 xl:w-32 h-1 bg-gradient-primary mx-auto animate-fade-in drop-shadow-sm" />
                 </div>
                 
                 {/* Click handler for modal */}
@@ -269,6 +255,20 @@ export const HeroSection = () => {
                 </div>
               </div>
             )}
+
+            {/* Call-to-Action Buttons Below Carousel */}
+            <div className="flex flex-row gap-2 sm:gap-4 justify-center items-center animate-fade-in w-full sm:w-auto order-3">
+              <Button asChild variant="cta" size="default" className="flex-1 sm:flex-none sm:w-56 min-h-[44px] sm:min-h-[52px]">
+                <Link to="/request-quote#page-header">
+                  Request Quote
+                </Link>
+              </Button>
+              <Button asChild variant="cta-outline" size="default" className="flex-1 sm:flex-none sm:w-56 min-h-[44px] sm:min-h-[52px]">
+                <Link to="/gallery#page-header">
+                  View Gallery
+                </Link>
+              </Button>
+            </div>
 
           </div>
         </div>
