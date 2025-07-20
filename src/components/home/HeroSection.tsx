@@ -1,53 +1,28 @@
-
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { ImageModal } from "@/components/gallery/ImageModal";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
-import { useTaglineAnimation } from "@/hooks/useTaglineAnimation";
+import { MagneticTagline } from "./MagneticTagline";
 
 export const HeroSection = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const [lineAnimationActive, setLineAnimationActive] = useState(true);
-  
-  // Tagline animation hook
-  const taglineAnimation = useTaglineAnimation({
-    onLoadDelay: 800,
-    staggerDelay: 50,
-    scrollThreshold: 150
-  });
 
-  // Split tagline into letters for staggered animation
-  const taglineText = "Where every bite is made with love and served with soul!";
-  const taglineLetters = taglineText.split("");
-
-  // Trigger letter animations when component loads
+  // Stop line animation after 3 seconds
   useEffect(() => {
-    taglineAnimation.triggerLetterAnimation(taglineLetters.length);
-    
-    // Stop line animation after 3 seconds
     const lineTimer = setTimeout(() => {
       setLineAnimationActive(false);
     }, 3000);
 
     return () => clearTimeout(lineTimer);
-  }, [taglineAnimation.isLoaded]);
+  }, []);
 
-  // Function to determine if current character should have extra delay (word spacing)
-  const getLetterDelay = (index: number) => {
-    const baseDelay = index * 50;
-    const char = taglineLetters[index];
-    const prevChar = index > 0 ? taglineLetters[index - 1] : '';
-    
-    // Add minimal extra delay after spaces for tighter word spacing
-    if (prevChar === ' ') {
-      return baseDelay + 50;
-    }
-    return baseDelay;
+  const handleTaglineComplete = () => {
+    console.log('Tagline animation completed');
   };
 
-  // Featured images for the grid display - taking the first 3 images for initial display
   const heroImages = [{
     src: "/lovable-uploads/1dcbc1ee-eb25-4d89-8722-cb4904d1ba69.png",
     alt: "Elegant wedding dessert table with tiered cake, neon signage, and gourmet treats",
@@ -112,33 +87,20 @@ export const HeroSection = () => {
                   </div>
                 </div>
                 
-                {/* Main Heading */}
+                {/* Main Heading with Neumorph Shadow */}
                 <div className="mb-2 sm:mb-4 animate-fade-in">
                   <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant text-foreground leading-tight sm:leading-tight lg:leading-tight shadow-neumorph-text">Charleston's Premier Catering Experience</h1>
                 </div>
                 
-                {/* Decorative line with animated shadow */}
-                <div className={`w-16 sm:w-20 lg:w-24 xl:w-28 h-1 bg-gradient-primary mx-auto mb-4 sm:mb-6 animate-fade-in ${lineAnimationActive ? 'animate-line-glow' : ''}`} />
+                {/* Decorative line with animated neumorph shadow */}
+                <div className={`w-16 sm:w-20 lg:w-24 xl:w-28 h-1 bg-gradient-primary mx-auto mb-4 sm:mb-6 animate-fade-in shadow-neumorph ${lineAnimationActive ? 'animate-line-glow' : ''}`} />
                 
-                {/* Animated Tagline */}
-                <div 
-                  ref={taglineAnimation.ref}
-                  className={taglineAnimation.getContainerClassName("mb-4 sm:mb-6 min-h-[4rem] sm:min-h-[5rem] flex flex-wrap justify-center items-center perspective-1000 leading-relaxed")}
-                >
-                  {taglineLetters.map((letter, index) => (
-                    <span
-                      key={index}
-                      className={taglineAnimation.getLetterClassName(
-                        index,
-                        `inline-block text-lg sm:text-xl lg:text-2xl font-elegant leading-relaxed bg-gradient-tagline bg-clip-text text-transparent bg-[length:200%_200%] animate-gradient-shift transition-all duration-300 hover:scale-105 cursor-default select-none will-change-transform ${letter === ' ' ? 'w-1' : ''}`
-                      )}
-                      style={{
-                        animationDelay: `${getLetterDelay(index)}ms`
-                      }}
-                    >
-                      {letter === ' ' ? '\u00A0' : letter}
-                    </span>
-                  ))}
+                {/* Animated Tagline with Framer Motion */}
+                <div className="mb-4 sm:mb-6 min-h-[4rem] sm:min-h-[5rem] flex flex-wrap justify-center items-center perspective-1000 leading-relaxed">
+                  <MagneticTagline 
+                    text="Where every bite is made with love and served with soul!"
+                    onAnimationComplete={handleTaglineComplete}
+                  />
                 </div>
 
                 {/* Image Gallery Carousel Section */}
@@ -156,7 +118,7 @@ export const HeroSection = () => {
                         {heroImages.map((image, index) => (
                           <CarouselItem key={index} className="pl-1 basis-full md:basis-1/2 lg:basis-1/3">
                             <div 
-                              className="group relative rounded-2xl bg-gradient-card transition-all duration-300 cursor-pointer transform hover:scale-[1.02] animate-fade-in shadow-neumorph hover:shadow-neumorph-hover" 
+                              className="group relative rounded-2xl bg-gradient-card transition-all duration-300 cursor-pointer transform hover:scale-[1.02] animate-fade-in shadow-neumorph-card hover:shadow-neumorph-hover" 
                               onClick={() => handleImageClick(index)}
                             >
                               <div className="aspect-[16/9] overflow-hidden rounded-2xl">
@@ -166,7 +128,7 @@ export const HeroSection = () => {
                                 {/* Hover Overlay */}
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                   <div className="absolute bottom-4 left-4 right-4">
-                                    <h3 className="text-white font-elegant font-semibold text-lg mb-2">
+                                    <h3 className="text-white font-elegant font-semibold text-lg mb-2 shadow-neumorph-text">
                                       {image.title}
                                     </h3>
                                     <p className="text-white/90 text-sm leading-tight">

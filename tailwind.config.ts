@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -98,7 +97,9 @@ export default {
 				'neumorph-inset': 'var(--shadow-neumorph-inset)',
 				'neumorph-hover': 'var(--shadow-neumorph-hover)',
 				'neumorph-button': 'var(--shadow-neumorph-button)',
-				'neumorph-card': 'var(--shadow-neumorph-card)'
+				'neumorph-card': 'var(--shadow-neumorph-card)',
+				'shadow-glow': '0 0 10px hsl(0 72% 50% / 0.3), 0 0 20px hsl(0 72% 50% / 0.2)',
+				'shadow-glow-strong': '0 0 20px hsl(0 72% 50% / 0.5), 0 0 40px hsl(0 72% 50% / 0.3), 0 0 60px hsl(0 72% 50% / 0.1)'
 			},
 			spacing: {
 				'section': 'var(--spacing-section)',
@@ -274,13 +275,49 @@ export default {
 				},
 				'line-glow': {
 					'0%': {
-						boxShadow: '0 0 5px hsl(0 72% 50% / 0.3)'
+						boxShadow: '0 0 5px hsl(0 72% 50% / 0.3), var(--shadow-neumorph)'
 					},
 					'50%': {
-						boxShadow: '0 0 20px hsl(0 72% 50% / 0.6), 0 0 30px hsl(0 72% 50% / 0.4)'
+						boxShadow: '0 0 20px hsl(0 72% 50% / 0.6), 0 0 30px hsl(0 72% 50% / 0.4), var(--shadow-neumorph-hover)'
 					},
 					'100%': {
-						boxShadow: '0 0 5px hsl(0 72% 50% / 0.3)'
+						boxShadow: '0 0 5px hsl(0 72% 50% / 0.3), var(--shadow-neumorph)'
+					}
+				},
+				'typewriter': {
+					'0%': {
+						opacity: '0',
+						transform: 'translateY(10px) scale(0.8)'
+					},
+					'50%': {
+						opacity: '0.7',
+						transform: 'translateY(-2px) scale(1.05)'
+					},
+					'100%': {
+						opacity: '1',
+						transform: 'translateY(0) scale(1)'
+					}
+				},
+				'magnetic-pull': {
+					'0%': {
+						transform: 'translateY(0) rotate(0deg)'
+					},
+					'25%': {
+						transform: 'translateY(-2px) rotate(1deg)'
+					},
+					'75%': {
+						transform: 'translateY(1px) rotate(-0.5deg)'
+					},
+					'100%': {
+						transform: 'translateY(0) rotate(0deg)'
+					}
+				},
+				'cursor-blink': {
+					'0%, 50%': {
+						opacity: '1'
+					},
+					'51%, 100%': {
+						opacity: '0'
 					}
 				}
 			},
@@ -301,7 +338,10 @@ export default {
 				'fly-out-left': 'fly-out-left 0.5s cubic-bezier(0.55, 0.085, 0.68, 0.53)',
 				'gradient-shift': 'gradient-shift 3s ease-in-out infinite',
 				'glow-pulse': 'glow-pulse 2s ease-in-out infinite',
-				'line-glow': 'line-glow 2s ease-in-out infinite'
+				'line-glow': 'line-glow 2s ease-in-out infinite',
+				'typewriter': 'typewriter 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+				'magnetic-pull': 'magnetic-pull 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+				'cursor-blink': 'cursor-blink 1s infinite'
 			}
 		}
 	},
