@@ -32,9 +32,9 @@ export const HeroSection = () => {
     const char = taglineLetters[index];
     const prevChar = index > 0 ? taglineLetters[index - 1] : '';
     
-    // Add extra delay after spaces to create word-by-word effect
+    // Add minimal extra delay after spaces for tighter word spacing
     if (prevChar === ' ') {
-      return baseDelay + 100;
+      return baseDelay + 50;
     }
     return baseDelay;
   };
@@ -115,14 +115,14 @@ export const HeroSection = () => {
                 {/* Animated Tagline */}
                 <div 
                   ref={taglineAnimation.ref}
-                  className={taglineAnimation.getContainerClassName("mb-4 sm:mb-6 min-h-[4rem] sm:min-h-[5rem] flex flex-wrap justify-center items-center perspective-1000")}
+                  className={taglineAnimation.getContainerClassName("mb-4 sm:mb-6 min-h-[4rem] sm:min-h-[5rem] flex flex-wrap justify-center items-center perspective-1000 leading-relaxed")}
                 >
                   {taglineLetters.map((letter, index) => (
                     <span
                       key={index}
                       className={taglineAnimation.getLetterClassName(
                         index,
-                        `inline-block text-lg sm:text-xl lg:text-2xl font-elegant leading-relaxed bg-gradient-tagline bg-clip-text text-transparent bg-[length:200%_200%] animate-gradient-shift transition-all duration-300 hover:scale-105 cursor-default select-none will-change-transform ${letter === ' ' ? 'w-2' : ''}`
+                        `inline-block text-lg sm:text-xl lg:text-2xl font-elegant leading-relaxed bg-gradient-tagline bg-clip-text text-transparent bg-[length:200%_200%] animate-gradient-shift transition-all duration-300 hover:scale-105 cursor-default select-none will-change-transform ${letter === ' ' ? 'w-1' : ''}`
                       )}
                       style={{
                         animationDelay: `${getLetterDelay(index)}ms`,
