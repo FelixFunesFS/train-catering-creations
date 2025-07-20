@@ -1,11 +1,8 @@
-
 import { AnimationVariant } from './useScrollAnimation';
 
 export const useAnimationClass = (variant: AnimationVariant, isVisible: boolean) => {
   const getVariantClass = () => {
     switch (variant) {
-      case 'fluid-up':
-        return isVisible ? 'fluid-up-visible' : 'fluid-up-hidden';
       case 'ios-spring':
         return isVisible ? 'ios-spring-visible' : 'ios-spring-hidden';
       case 'elastic':
@@ -39,7 +36,7 @@ export const useAnimationClass = (variant: AnimationVariant, isVisible: boolean)
       case 'sticky-fade':
         return isVisible ? 'sticky-fade-visible' : 'sticky-fade-hidden';
       default:
-        return isVisible ? 'fluid-up-visible' : 'fluid-up-hidden';
+        return isVisible ? 'ios-spring-visible' : 'ios-spring-hidden';
     }
   };
 

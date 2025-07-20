@@ -29,7 +29,7 @@ export const GalleryCarousel = ({ images, onImageClick }: GalleryCarouselProps) 
               className="pl-1 basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5"
             >
               <div 
-                className="shadow-elegant hover:shadow-glow bg-gradient-card border-2 border-transparent hover:border-accent/20 transition-all duration-200 cursor-pointer group aspect-[5/4] rounded-lg overflow-hidden min-h-touch"
+                className="shadow-elegant hover:shadow-glow bg-gradient-card border-2 border-transparent hover:border-primary/20 transition-all duration-200 cursor-pointer group aspect-[5/4] rounded-lg overflow-hidden min-h-touch"
                 onClick={() => onImageClick(image.src)}
               >
                 <div className="relative w-full h-full">

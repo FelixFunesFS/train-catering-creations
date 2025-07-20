@@ -67,7 +67,7 @@ export const MasonryGrid = ({ images, onImageClick }: MasonryGridProps) => {
         return (
           <div 
             key={`masonry-${index}`}
-            className={`shadow-elegant hover:shadow-elevated bg-gradient-card border-2 border-transparent hover:border-accent/20 transition-all duration-200 cursor-pointer group rounded-lg overflow-hidden ${containerClass}`}
+            className={`shadow-elegant hover:shadow-elevated bg-gradient-card border-2 border-transparent hover:border-primary/20 transition-all duration-200 cursor-pointer group rounded-lg overflow-hidden ${containerClass}`}
             onClick={() => onImageClick(image.src)}
           >
             <div className="relative w-full">
@@ -82,7 +82,7 @@ export const MasonryGrid = ({ images, onImageClick }: MasonryGridProps) => {
                 <div className="p-3 md:p-4 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                   <div className="flex items-center gap-2 mb-1">
                     {image.quality >= 8 && (
-                      <span className="bg-accent/80 text-accent-foreground px-2 py-1 rounded text-xs font-medium">
+                      <span className="bg-primary/80 text-primary-foreground px-2 py-1 rounded text-xs font-medium">
                         {image.quality >= 9 ? 'Premium' : 'High Quality'}
                       </span>
                     )}

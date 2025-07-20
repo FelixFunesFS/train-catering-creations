@@ -22,7 +22,7 @@ export const FeaturedImageGrid = ({ images, onImageClick }: FeaturedImageGridPro
               key={`featured-${index}`}
               className={`${
                 index === 0 ? 'col-span-3 row-span-2' : 'col-span-3'
-              } shadow-elegant hover:shadow-glow bg-gradient-card border-2 border-transparent hover:border-accent/20 transition-all duration-200 cursor-pointer group rounded-lg overflow-hidden`}
+              } shadow-elegant hover:shadow-glow bg-gradient-card border-2 border-transparent hover:border-primary/20 transition-all duration-200 cursor-pointer group rounded-lg overflow-hidden`}
               onClick={() => onImageClick(image.src)}
             >
               <div className="relative w-full h-full">
@@ -36,7 +36,7 @@ export const FeaturedImageGrid = ({ images, onImageClick }: FeaturedImageGridPro
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-end">
                   <div className="p-4 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="bg-accent/80 text-accent-foreground px-2 py-1 rounded text-xs font-medium">
+                      <span className="bg-primary/80 text-primary-foreground px-2 py-1 rounded text-xs font-medium">
                         Premium
                       </span>
                       <span className="bg-background/20 px-2 py-1 rounded text-xs">
@@ -58,7 +58,7 @@ export const FeaturedImageGrid = ({ images, onImageClick }: FeaturedImageGridPro
         {regularImages.map((image, index) => (
           <div 
             key={`regular-${index}`}
-            className="shadow-elegant hover:shadow-glow bg-gradient-card border-2 border-transparent hover:border-accent/20 transition-all duration-200 cursor-pointer group aspect-[5/4] rounded-lg overflow-hidden min-h-touch"
+            className="shadow-elegant hover:shadow-glow bg-gradient-card border-2 border-transparent hover:border-primary/20 transition-all duration-200 cursor-pointer group aspect-[5/4] rounded-lg overflow-hidden min-h-touch"
             onClick={() => onImageClick(image.src)}
           >
             <div className="relative w-full h-full">

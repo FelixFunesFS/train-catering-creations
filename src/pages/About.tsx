@@ -79,7 +79,7 @@ const About = () => {
                     </div>
                   </div>
                   <div>
-                    <h2 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-elegant text-accent mb-2 sm:mb-3">
+                    <h2 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-elegant text-primary mb-2 sm:mb-3">
                       Chef Dominick "Train" Ward
                     </h2>
                     <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-muted-foreground font-medium">
@@ -138,7 +138,7 @@ const About = () => {
                   <p className="text-sm sm:text-base text-muted-foreground mb-3 sm:mb-4">
                     Don't forget our sweet side—Tanya's cupcakes, dessert shots, and pastry creations are the perfect finishing touch to any celebration.
                   </p>
-                  <p className="text-xs sm:text-sm text-accent font-medium">
+                  <p className="text-xs sm:text-sm text-primary font-medium">
                     Ask about our customizable menu options!
                   </p>
                 </CardContent>
@@ -160,7 +160,7 @@ const About = () => {
                   <p className="text-sm sm:text-base lg:text-xl text-muted-foreground leading-relaxed mb-4 sm:mb-6">
                     We don't just bring food—we bring flavor, family, and unforgettable experiences. Let Soul Train's Eatery handle the kitchen while you enjoy the moment.
                   </p>
-                  <div className="text-base sm:text-lg md:text-xl lg:text-2xl font-script text-accent leading-relaxed mt-4 sm:mt-6 lg:mt-8">
+                  <div className="text-base sm:text-lg md:text-xl lg:text-2xl font-script text-primary leading-relaxed mt-4 sm:mt-6 lg:mt-8">
                     🎉 Let Soul Train's Eatery take care of all your catering needs—so you can enjoy the celebration!
                   </div>
                 </CardContent>
