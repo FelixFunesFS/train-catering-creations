@@ -92,7 +92,7 @@ export const HeroSection = () => {
                         <CarouselContent className="-ml-1 gap-2">
                         {heroImages.map((image, index) => <CarouselItem key={index} className="pl-1 basis-full md:basis-1/2 lg:basis-1/3">
                             <div 
-                              className="group relative overflow-hidden rounded-2xl bg-gradient-card transition-all duration-300 cursor-pointer transform hover:scale-[1.02] animate-fade-in" 
+                              className="group relative overflow-hidden rounded-2xl transition-all duration-300 cursor-pointer transform hover:scale-[1.02] animate-fade-in"
                               style={{
                                 boxShadow: '0 0 0 1px rgba(255,255,255,0.2), 0 12px 40px -8px rgba(0,0,0,0.6), 0 0 50px -10px rgba(59, 130, 246, 0.3)'
                               }}
