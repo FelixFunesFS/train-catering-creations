@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -81,7 +82,8 @@ export default {
 			backgroundImage: {
 				'gradient-primary': 'var(--gradient-primary)',
 				'gradient-hero': 'var(--gradient-hero)',
-				'gradient-card': 'var(--gradient-card)'
+				'gradient-card': 'var(--gradient-card)',
+				'gradient-tagline': 'linear-gradient(135deg, hsl(0 72% 50%), hsl(25 85% 60%), hsl(0 72% 45%), hsl(320 60% 60%))'
 			},
 			boxShadow: {
 				'card': 'var(--shadow-card)',
@@ -90,7 +92,8 @@ export default {
 				'float': 'var(--shadow-float)',
 				'soft': 'var(--shadow-soft)',
 				'glow': 'var(--shadow-glow)',
-				'glow-strong': 'var(--shadow-glow-strong)'
+				'glow-strong': 'var(--shadow-glow-strong)',
+				'text-glow': '0 0 20px hsl(0 72% 50% / 0.3), 0 0 40px hsl(0 72% 50% / 0.1)'
 			},
 			spacing: {
 				'section': 'var(--spacing-section)',
@@ -221,6 +224,56 @@ export default {
 						opacity: '1',
 						transform: 'rotateY(0deg)'
 					}
+				},
+				'fly-in-right': {
+					'0%': {
+						opacity: '0',
+						transform: 'translateX(100px) translateY(-20px) scale(0.8) rotate(15deg)'
+					},
+					'60%': {
+						opacity: '0.8',
+						transform: 'translateX(-5px) translateY(2px) scale(1.05) rotate(-2deg)'
+					},
+					'100%': {
+						opacity: '1',
+						transform: 'translateX(0) translateY(0) scale(1) rotate(0deg)'
+					}
+				},
+				'fly-out-left': {
+					'0%': {
+						opacity: '1',
+						transform: 'translateX(0) translateY(0) scale(1) rotate(0deg)'
+					},
+					'40%': {
+						opacity: '0.6',
+						transform: 'translateX(-20px) translateY(-10px) scale(0.95) rotate(-5deg)'
+					},
+					'100%': {
+						opacity: '0',
+						transform: 'translateX(-120px) translateY(-30px) scale(0.7) rotate(-20deg)'
+					}
+				},
+				'gradient-shift': {
+					'0%': {
+						backgroundPosition: '0% 50%'
+					},
+					'50%': {
+						backgroundPosition: '100% 50%'
+					},
+					'100%': {
+						backgroundPosition: '0% 50%'
+					}
+				},
+				'glow-pulse': {
+					'0%': {
+						textShadow: '0 0 5px hsl(0 72% 50% / 0.3)'
+					},
+					'50%': {
+						textShadow: '0 0 20px hsl(0 72% 50% / 0.5), 0 0 30px hsl(0 72% 50% / 0.3)'
+					},
+					'100%': {
+						textShadow: '0 0 5px hsl(0 72% 50% / 0.3)'
+					}
 				}
 			},
 			animation: {
@@ -235,7 +288,11 @@ export default {
 				'zoom-in': 'zoom-in 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
 				'bounce-in': 'bounce-in 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
 				'rotate-in': 'rotate-in 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-				'flip-in': 'flip-in 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+				'flip-in': 'flip-in 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+				'fly-in-right': 'fly-in-right 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+				'fly-out-left': 'fly-out-left 0.6s cubic-bezier(0.55, 0.085, 0.68, 0.53)',
+				'gradient-shift': 'gradient-shift 3s ease-in-out infinite',
+				'glow-pulse': 'glow-pulse 2s ease-in-out infinite'
 			}
 		}
 	},

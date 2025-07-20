@@ -1,13 +1,29 @@
 
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ImageModal } from "@/components/gallery/ImageModal";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
+import { useTaglineAnimation } from "@/hooks/useTaglineAnimation";
 
 export const HeroSection = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+  
+  // Tagline animation hook
+  const taglineAnimation = useTaglineAnimation({
+    onLoadDelay: 800,
+    staggerDelay: 180,
+    scrollThreshold: 150
+  });
+
+  // Split tagline into words for staggered animation
+  const taglineWords = "Where every bite is made with love and served with soul!".split(" ");
+
+  // Trigger word animations when component loads
+  useEffect(() => {
+    taglineAnimation.triggerWordAnimation(taglineWords.length);
+  }, [taglineAnimation.isLoaded]);
 
   // Featured images for the grid display - taking the first 3 images for initial display
   const heroImages = [{
@@ -82,9 +98,28 @@ export const HeroSection = () => {
                 {/* Decorative line */}
                 <div className="w-16 sm:w-20 lg:w-24 xl:w-28 h-1 bg-gradient-primary mx-auto mb-4 sm:mb-6 animate-fade-in" />
                 
-                {/* Subtitle */}
-                <div className="mb-4 sm:mb-6 animate-fade-in">
-                  <p className="text-lg sm:text-xl lg:text-2xl text-muted-foreground font-elegant leading-relaxed">Where every bite is made with love and served with soul!</p>
+                {/* Animated Tagline */}
+                <div 
+                  ref={taglineAnimation.ref}
+                  className={taglineAnimation.getContainerClassName("mb-4 sm:mb-6 min-h-[4rem] sm:min-h-[5rem] flex flex-wrap justify-center items-center gap-x-1 sm:gap-x-2 perspective-1000")}
+                >
+                  {taglineWords.map((word, index) => (
+                    <span
+                      key={index}
+                      className={taglineAnimation.getWordClassName(
+                        index,
+                        `inline-block text-lg sm:text-xl lg:text-2xl font-elegant leading-relaxed bg-gradient-tagline bg-clip-text text-transparent bg-[length:200%_200%] animate-gradient-shift transition-all duration-300 hover:scale-105 cursor-default select-none will-change-transform`
+                      )}
+                      style={{
+                        animationDelay: `${index * 180}ms`,
+                        filter: 'drop-shadow(0 0 10px hsl(0 72% 50% / 0.3))',
+                        textShadow: '0 0 20px hsl(0 72% 50% / 0.2)'
+                      }}
+                    >
+                      {word}
+                      {index < taglineWords.length - 1 && ' '}
+                    </span>
+                  ))}
                 </div>
 
                 {/* Image Gallery Carousel Section */}
