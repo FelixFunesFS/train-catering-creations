@@ -30,22 +30,50 @@ export const BrandMarquee = () => {
   );
 
   return (
-    <div className="w-full relative overflow-hidden bg-gradient-to-r from-background via-muted/30 to-background py-12 lg:py-16 border-y border-border/20">
-      <div 
-        ref={ref}
-        className={`flex items-center whitespace-nowrap ${className}`}
-        style={{...style, width: 'max-content'}}
-      >
-        {/* Repeat content 8 times for seamless looping across full screen width */}
-        {marqueeContent}
-        {marqueeContent}
-        {marqueeContent}
-        {marqueeContent}
-        {marqueeContent}
-        {marqueeContent}
-        {marqueeContent}
-        {marqueeContent}
+    <>
+      {/* Desktop Full-Width Card */}
+      <div className="hidden lg:block">
+        <div className="neumorphic-card-1 mx-4 xl:mx-8 rounded-2xl overflow-hidden">
+          <div className="w-full relative overflow-hidden bg-gradient-to-r from-background via-muted/30 to-background py-12 lg:py-16 border-y border-border/20">
+            <div 
+              ref={ref}
+              className={`flex items-center whitespace-nowrap ${className}`}
+              style={{...style, width: 'max-content'}}
+            >
+              {/* Repeat content 8 times for seamless looping across full screen width */}
+              {marqueeContent}
+              {marqueeContent}
+              {marqueeContent}
+              {marqueeContent}
+              {marqueeContent}
+              {marqueeContent}
+              {marqueeContent}
+              {marqueeContent}
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
+
+      {/* Mobile/Tablet Layout */}
+      <div className="block lg:hidden">
+        <div className="w-full relative overflow-hidden bg-gradient-to-r from-background via-muted/30 to-background py-12 lg:py-16 border-y border-border/20">
+          <div 
+            ref={ref}
+            className={`flex items-center whitespace-nowrap ${className}`}
+            style={{...style, width: 'max-content'}}
+          >
+            {/* Repeat content 8 times for seamless looping across full screen width */}
+            {marqueeContent}
+            {marqueeContent}
+            {marqueeContent}
+            {marqueeContent}
+            {marqueeContent}
+            {marqueeContent}
+            {marqueeContent}
+            {marqueeContent}
+          </div>
+        </div>
+      </div>
+    </>
   );
 };
