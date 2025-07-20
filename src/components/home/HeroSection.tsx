@@ -68,22 +68,27 @@ export const HeroSection = () => {
               
               <div className="relative z-10 text-center pt-2 sm:pt-4 md:pt-12 sm:py-6 lg:py-0 py-0">
                 {/* Logo Icon - consistent with PageHeader styling */}
-                <div className="flex justify-center mb-4 my-[25px]">
+                <div className="flex justify-center mb-4 my-[25px] animate-fade-in">
                   <div className="h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14">
                     <img src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" alt="Soul Train's Eatery Logo" className="w-full h-full object-contain hover:scale-110 transition-transform duration-300" />
                   </div>
                 </div>
                 
                 {/* Main Heading */}
-                <div className="mb-4 sm:mb-6">
-                  <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant text-foreground leading-tight sm:leading-tight lg:leading-tight animate-fade-in">Charleston's premier catering experience -<br />where every bite is made with love and served with soul!</h1>
+                <div className="mb-2 sm:mb-4 animate-fade-in">
+                  <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant text-foreground leading-tight sm:leading-tight lg:leading-tight">Charleston's Premier Catering Experience</h1>
+                </div>
+                
+                {/* Subtitle */}
+                <div className="mb-4 sm:mb-6 animate-fade-in">
+                  <p className="text-lg sm:text-xl lg:text-2xl text-muted-foreground font-elegant leading-relaxed">Where every bite is made with love and served with soul!</p>
                 </div>
                 
                 {/* Decorative line */}
                 <div className="w-16 sm:w-20 lg:w-24 xl:w-28 h-1 bg-gradient-primary mx-auto mb-4 sm:mb-6 animate-fade-in" />
 
                 {/* Image Gallery Carousel Section */}
-                <div className="relative pt-2 sm:pt-2 pb-4 sm:pb-6 lg:pb-8 my-0 py-0">
+                <div className="relative pt-2 sm:pt-2 pb-4 sm:pb-6 lg:pb-8 my-0 py-0 animate-fade-in">
                   <div className="max-w-7xl mx-auto">
                     {/* Responsive Carousel */}
                     <div className="relative">
@@ -133,7 +138,7 @@ export const HeroSection = () => {
             </div>
 
             {/* Call-to-Action Buttons Section */}
-            <div className="relative order-3 md:order-3 py-0">
+            <div className="relative order-3 md:order-3 py-0 animate-fade-in">
               <div className="text-center pb-4 sm:pb-6 lg:pb-8">
                 <div className="flex flex-row gap-2 sm:gap-4 justify-center items-center animate-fade-in w-full sm:w-auto">
                   <Button asChild variant="cta" size="default" className="flex-1 sm:flex-none sm:w-56 min-h-[44px] sm:min-h-[52px]">
