@@ -131,7 +131,7 @@ export const HeroSection = () => {
 
                 {/* Descriptive Text */}
                 <div className="max-w-3xl mx-auto px-2 sm:px-4 mb-6 sm:mb-8">
-                  <p className="text-base sm:text-lg text-muted-foreground leading-relaxed animate-fade-in my-0 py-0">Charleston's premier catering experience—where every bite is made with love and served with soul.</p>
+                  <p className="text-base sm:text-lg text-muted-foreground leading-relaxed animate-fade-in my-0 py-0">Soul Train's Eatery, Charleston's premier catering experience- where every bit is made with love and served with soul.</p>
                 </div>
               </div>
             </div>
