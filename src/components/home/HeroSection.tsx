@@ -54,6 +54,11 @@ export const HeroSection = () => {
     setSelectedImageIndex(null);
   };
 
+  // Get the hero image (first image)
+  const heroImage = heroImages[0];
+  // Get remaining images for carousel
+  const carouselImages = heroImages.slice(1);
+
   return (
     <>
       {/* Hero Section */}
@@ -61,80 +66,112 @@ export const HeroSection = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
           <div className="flex flex-col">
             
-            {/* Brand Header Section */}
-            <div className="relative order-1 md:order-1 my-0 py-0">
-              {/* Subtle background pattern */}
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 opacity-50 py-0 my-[25px]"></div>
-              
-              <div className="relative z-10 text-center pt-2 sm:pt-4 md:pt-12 sm:py-6 lg:py-0 py-0">
-                {/* Logo Icon - consistent with PageHeader styling */}
-                <div className="flex justify-center mb-4 my-[25px]">
-                  <div className="h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14">
-                    <img src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" alt="Soul Train's Eatery Logo" className="w-full h-full object-contain hover:scale-110 transition-transform duration-300" />
+            {/* Full-width Hero Image with Title Overlay */}
+            <div className="relative order-1 md:order-1 mb-6 sm:mb-8">
+              {/* Hero Background Image */}
+              <div className="relative h-[60vh] sm:h-[70vh] lg:h-[80vh] overflow-hidden rounded-2xl">
+                <img 
+                  src={heroImage.src} 
+                  alt={heroImage.alt} 
+                  className="w-full h-full object-cover"
+                  loading="eager"
+                />
+                
+                {/* Gradient Overlay for Text Readability */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
+                
+                {/* Title and Logo Overlay */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white z-10 px-4">
+                  {/* Logo Icon */}
+                  <div className="flex justify-center mb-4 sm:mb-6">
+                    <div className="h-12 w-12 sm:h-16 sm:w-16 md:h-20 md:w-20">
+                      <img 
+                        src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
+                        alt="Soul Train's Eatery Logo" 
+                        className="w-full h-full object-contain hover:scale-110 transition-transform duration-300" 
+                      />
+                    </div>
+                  </div>
+                  
+                  {/* Main Heading with Script Font */}
+                  <div className="mb-4 sm:mb-6">
+                    <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-script text-white leading-tight animate-fade-in drop-shadow-lg">
+                      Soul Train's Eatery
+                    </h1>
+                  </div>
+                  
+                  {/* Decorative line */}
+                  <div className="w-20 sm:w-24 lg:w-28 xl:w-32 h-1 bg-gradient-primary mx-auto mb-4 sm:mb-6 animate-fade-in drop-shadow-sm" />
+
+                  {/* Elegant Descriptive Text */}
+                  <div className="max-w-2xl mx-auto px-2 sm:px-4">
+                    <p className="text-lg sm:text-xl lg:text-2xl font-elegant text-white/95 leading-relaxed animate-fade-in drop-shadow-md">
+                      Charleston's premier catering experience- where every bit is made with love and served with soul.
+                    </p>
                   </div>
                 </div>
                 
-                {/* Main Heading */}
-                <div className="mb-4 sm:mb-6">
-                  <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant text-foreground leading-tight sm:leading-tight lg:leading-tight animate-fade-in">Soul Train's Eatery</h1>
-                </div>
-                
-                {/* Decorative line */}
-                <div className="w-16 sm:w-20 lg:w-24 xl:w-28 h-1 bg-gradient-primary mx-auto mb-4 sm:mb-6 animate-fade-in" />
+                {/* Click handler for modal */}
+                <div 
+                  className="absolute inset-0 cursor-pointer z-5"
+                  onClick={() => handleImageClick(0)}
+                />
+              </div>
+            </div>
 
-                {/* Image Gallery Carousel Section */}
-                <div className="relative pt-2 sm:pt-2 pb-4 sm:pb-6 lg:pb-8 my-0 py-0">
-                  <div className="max-w-7xl mx-auto">
-                    {/* Responsive Carousel */}
-                    <div className="relative">
-                      <Carousel opts={{
+            {/* Additional Images Carousel */}
+            {carouselImages.length > 0 && (
+              <div className="relative order-2 md:order-2 mb-6 sm:mb-8">
+                <div className="max-w-7xl mx-auto">
+                  <div className="relative">
+                    <Carousel opts={{
                       align: "start",
                       loop: true
                     }} plugins={[Autoplay({
                       delay: 4000
                     })]} className="w-full">
-                        <CarouselContent className="-ml-1 gap-2">
-                        {heroImages.map((image, index) => (
-                          <CarouselItem key={index} className="pl-1 basis-full md:basis-1/2 lg:basis-1/3">
+                      <CarouselContent className="-ml-1 gap-2">
+                        {carouselImages.map((image, index) => (
+                          <CarouselItem key={index + 1} className="pl-1 basis-full md:basis-1/2">
                             <div 
                               className="group relative rounded-2xl bg-gradient-card transition-all duration-300 cursor-pointer transform hover:scale-[1.02] animate-fade-in shadow-glow hover:shadow-glow-strong" 
-                              onClick={() => handleImageClick(index)}
+                              onClick={() => handleImageClick(index + 1)}
                             >
                               <div className="aspect-[16/9] overflow-hidden rounded-2xl">
-                                  <img src={image.src} alt={image.alt} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading={index < 2 ? "eager" : "lazy"} decoding="async" />
-                                </div>
-                                
-                                {/* Hover Overlay */}
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                  <div className="absolute bottom-4 left-4 right-4">
-                                    <h3 className="text-white font-elegant font-semibold text-lg mb-2">
-                                      {image.title}
-                                    </h3>
-                                    <p className="text-white/90 text-sm leading-tight">
-                                      Click to view full size
-                                    </p>
-                                  </div>
-                                </div>
-
-                                {/* Subtle border effect */}
-                                <div className="absolute inset-0 border-2 border-transparent group-hover:border-primary/20 rounded-2xl transition-colors duration-300"></div>
+                                <img 
+                                  src={image.src} 
+                                  alt={image.alt} 
+                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                                  loading="lazy" 
+                                  decoding="async" 
+                                />
                               </div>
-                            </CarouselItem>
+                              
+                              {/* Hover Overlay */}
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <div className="absolute bottom-4 left-4 right-4">
+                                  <h3 className="text-white font-elegant font-semibold text-lg mb-2">
+                                    {image.title}
+                                  </h3>
+                                  <p className="text-white/90 text-sm leading-tight">
+                                    Click to view full size
+                                  </p>
+                                </div>
+                              </div>
+
+                              {/* Subtle border effect */}
+                              <div className="absolute inset-0 border-2 border-transparent group-hover:border-primary/20 rounded-2xl transition-colors duration-300"></div>
+                            </div>
+                          </CarouselItem>
                         ))}
-                        </CarouselContent>
-                        <CarouselPrevious className="hidden md:flex -left-12" />
-                        <CarouselNext className="hidden md:flex -right-12" />
-                      </Carousel>
-                    </div>
+                      </CarouselContent>
+                      <CarouselPrevious className="hidden md:flex -left-12" />
+                      <CarouselNext className="hidden md:flex -right-12" />
+                    </Carousel>
                   </div>
                 </div>
-
-                {/* Descriptive Text */}
-                <div className="max-w-3xl mx-auto px-2 sm:px-4 mb-6 sm:mb-8">
-                  <p className="text-base sm:text-lg text-muted-foreground leading-relaxed animate-fade-in my-0 py-0">Charleston's premier catering experience- where every bit is made with love and served with soul.</p>
-                </div>
               </div>
-            </div>
+            )}
 
             {/* Call-to-Action Buttons Section */}
             <div className="relative order-3 md:order-3 py-0">
