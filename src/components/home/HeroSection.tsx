@@ -63,14 +63,14 @@ export const HeroSection = () => {
               
               <div className="relative z-10 text-center pt-2 sm:pt-4 md:pt-12 py-4 sm:py-6 lg:py-8">
                 {/* Logo Icon - consistent with PageHeader styling */}
-                <div className="flex justify-center mb-4">
-                  <div className="h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10">
+                <div className="flex justify-center mb-6 sm:mb-8">
+                  <div className="h-8 w-8 sm:h-10 sm:w-10 md:h-12 md:w-12">
                     <img src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" alt="Soul Train's Eatery Logo" className="w-full h-full object-contain hover:scale-110 transition-transform duration-300" />
                   </div>
                 </div>
                 
                 {/* Main Heading */}
-                <div className="mb-4 sm:mb-6">
+                <div className="mb-6 sm:mb-8">
                   <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant text-foreground leading-tight sm:leading-tight lg:leading-tight animate-fade-in">
                     Where Southern Flavor Meets Family & Celebration
                   </h1>
