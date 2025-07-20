@@ -100,7 +100,7 @@ export const HeroSection = () => {
             </div>
 
             {/* Image Gallery Carousel Section */}
-            <div className="relative pb-6 sm:pb-8 lg:pb-12 order-1 md:order-2">
+            <div className="relative pt-2 sm:pt-4 md:pt-12 pb-6 sm:pb-8 lg:pb-12 order-1 md:order-2">
               <div className="max-w-7xl mx-auto">
                 {/* Responsive Carousel */}
                 <div className="relative mb-6 sm:mb-8 lg:mb-10">
