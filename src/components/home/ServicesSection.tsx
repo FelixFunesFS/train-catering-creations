@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { OptimizedImage } from "@/components/ui/optimized-image";
 import { FloatingServiceCard } from "@/components/ui/floating-card";
@@ -71,14 +70,14 @@ export const ServicesSection = () => {
           <Link to="/wedding-menu#page-header" className="block">
             <FloatingServiceCard 
               ref={card1Ref} 
-              className={`text-center transition-all duration-200 overflow-hidden group flex flex-col cursor-pointer ${card1AnimationClass}`}
+              className={`text-center transition-all duration-200 overflow-hidden group flex flex-col cursor-pointer p-0 ${card1AnimationClass}`}
             >
-              <div className="relative h-48 sm:h-56 lg:h-64 overflow-hidden">
+              <div className="relative h-48 sm:h-56 lg:h-64 w-full overflow-hidden">
                 <OptimizedImage src="/lovable-uploads/546d7d1a-7987-4f44-a2d9-668efea60e51.png" alt="Wedding Reception Setup" aspectRatio="aspect-video" className="group-hover:scale-105 transition-transform duration-300 w-full h-full object-cover" />
               </div>
-              <div className="p-4 sm:p-6">
-                <h3 className="text-lg sm:text-xl font-elegant text-foreground mb-4">Weddings</h3>
-                <p className="text-sm sm:text-base text-muted-foreground mb-6">Elegant receptions and intimate ceremonies with personalized menus</p>
+              <div className="p-4 sm:p-5 pt-3 sm:pt-4">
+                <h3 className="text-lg sm:text-xl font-elegant text-foreground mb-3">Weddings</h3>
+                <p className="text-sm sm:text-base text-muted-foreground mb-5">Elegant receptions and intimate ceremonies with personalized menus</p>
                 <span className="text-accent hover:text-accent/80 font-medium group inline-flex items-center gap-1">
                   Learn More 
                   <span className="group-hover:translate-x-1 transition-transform duration-200">→</span>
@@ -90,14 +89,14 @@ export const ServicesSection = () => {
           <Link to="/wedding-menu#page-header" className="block">
             <FloatingServiceCard 
               ref={card2Ref} 
-              className={`text-center transition-all duration-200 overflow-hidden group flex flex-col cursor-pointer ${card2AnimationClass}`}
+              className={`text-center transition-all duration-200 overflow-hidden group flex flex-col cursor-pointer p-0 ${card2AnimationClass}`}
             >
-              <div className="relative h-48 sm:h-56 lg:h-64 overflow-hidden">
+              <div className="relative h-48 sm:h-56 lg:h-64 w-full overflow-hidden">
                 <OptimizedImage src="/lovable-uploads/63832488-46ff-4d71-ade5-f871173c28ab.png" alt="Black Tie Event Catering" aspectRatio="aspect-video" className="group-hover:scale-105 transition-transform duration-300 w-full h-full object-cover" />
               </div>
-              <div className="p-4 sm:p-6">
-                <h3 className="text-lg sm:text-xl font-elegant text-foreground mb-4">Black Tie Events</h3>
-                <p className="text-sm sm:text-base text-muted-foreground mb-6">Sophisticated catering for galas and formal celebrations</p>
+              <div className="p-4 sm:p-5 pt-3 sm:pt-4">
+                <h3 className="text-lg sm:text-xl font-elegant text-foreground mb-3">Black Tie Events</h3>
+                <p className="text-sm sm:text-base text-muted-foreground mb-5">Sophisticated catering for galas and formal celebrations</p>
                 <span className="text-accent hover:text-accent/80 font-medium group inline-flex items-center gap-1">
                   Learn More 
                   <span className="group-hover:translate-x-1 transition-transform duration-200">→</span>
@@ -108,14 +107,14 @@ export const ServicesSection = () => {
 
           <FloatingServiceCard 
             ref={card3Ref} 
-            className={`text-center transition-all duration-200 overflow-hidden group flex flex-col ${card3AnimationClass}`}
+            className={`text-center transition-all duration-200 overflow-hidden group flex flex-col p-0 ${card3AnimationClass}`}
           >
-            <div className="relative h-48 sm:h-56 lg:h-64 overflow-hidden">
+            <div className="relative h-48 sm:h-56 lg:h-64 w-full overflow-hidden">
               <OptimizedImage src="/lovable-uploads/3226c955-a9b7-4c8d-a4c2-e5e7fc206f6f.png" alt="Military Function Catering" aspectRatio="aspect-video" className="group-hover:scale-105 transition-transform duration-300 w-full h-full object-cover" />
             </div>
-            <div className="p-4 sm:p-6">
-              <h3 className="text-lg sm:text-xl font-elegant text-foreground mb-4">Military Functions</h3>
-              <p className="text-sm sm:text-base text-muted-foreground mb-6">Honoring service with promotions, ceremonies, and celebrations</p>
+            <div className="p-4 sm:p-5 pt-3 sm:pt-4">
+              <h3 className="text-lg sm:text-xl font-elegant text-foreground mb-3">Military Functions</h3>
+              <p className="text-sm sm:text-base text-muted-foreground mb-5">Honoring service with promotions, ceremonies, and celebrations</p>
               <Link to="/wedding-menu#page-header" className="text-accent hover:text-accent/80 font-medium group inline-flex items-center gap-1">
                 Learn More 
                 <span className="group-hover:translate-x-1 transition-transform duration-200">→</span>
@@ -125,14 +124,14 @@ export const ServicesSection = () => {
 
           <FloatingServiceCard 
             ref={card4Ref} 
-            className={`text-center transition-all duration-200 overflow-hidden group flex flex-col ${card4AnimationClass}`}
+            className={`text-center transition-all duration-200 overflow-hidden group flex flex-col p-0 ${card4AnimationClass}`}
           >
-            <div className="relative h-48 sm:h-56 lg:h-64 overflow-hidden">
+            <div className="relative h-48 sm:h-56 lg:h-64 w-full overflow-hidden">
               <OptimizedImage src="/lovable-uploads/6cd766e3-21ce-4e88-a3a4-6c8835dc9654.png" alt="Private Event Catering" aspectRatio="aspect-video" className="group-hover:scale-105 transition-transform duration-300 w-full h-full object-cover" />
             </div>
-            <div className="p-4 sm:p-6">
-              <h3 className="text-lg sm:text-xl font-elegant text-foreground mb-4">Private Events</h3>
-              <p className="text-sm sm:text-base text-muted-foreground mb-6">Corporate conferences, family gatherings, and special occasions</p>
+            <div className="p-4 sm:p-5 pt-3 sm:pt-4">
+              <h3 className="text-lg sm:text-xl font-elegant text-foreground mb-3">Private Events</h3>
+              <p className="text-sm sm:text-base text-muted-foreground mb-5">Corporate conferences, family gatherings, and special occasions</p>
               <Link to="/menu#page-header" className="text-accent hover:text-accent/80 font-medium group inline-flex items-center gap-1">
                 View Menu 
                 <span className="group-hover:translate-x-1 transition-transform duration-200">→</span>
