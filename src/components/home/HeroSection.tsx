@@ -105,7 +105,7 @@ export const HeroSection = () => {
                               onClick={() => handleImageClick(index)}
                             >
                               <div className="aspect-[16/9] overflow-hidden rounded-lg">
-                                  <img src={image.src} alt={image.alt} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading={index < 2 ? "eager" : "lazy"} decoding="async" />
+                                  <img src={image.src} alt={image.alt} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 rounded-lg" loading={index < 2 ? "eager" : "lazy"} decoding="async" />
                                 </div>
                                 
                                 {/* Hover Overlay */}
