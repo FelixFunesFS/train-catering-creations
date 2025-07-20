@@ -1,9 +1,11 @@
+
 import { Link } from "react-router-dom";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Heart, Users, Crown, ChefHat, Award } from "lucide-react";
+import { FloatingCard } from "@/components/ui/floating-card";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
+
 export const AboutPreviewSection = () => {
   const {
     ref: titleRef,
@@ -84,11 +86,13 @@ export const AboutPreviewSection = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           <div ref={titleRef} className={titleAnimationClass}>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant text-foreground mb-6">Culinary Excellence</h2>
-            <p className="text-sm sm:text-base lg:text-lg text-muted-foreground mb-6 leading-relaxed">
-              Founded by Chef Dominick "Train" Ward and Pastry Chef Tanya Ward, Soul Train's Eatery is a family-run, community-rooted catering business serving Charleston's Lowcountry with love and precision.
-            </p>
-            <p className="text-sm sm:text-base lg:text-lg text-muted-foreground mb-8 leading-relaxed">From intimate gatherings to grand celebrations, we bring over two decades of culinary expertise, Southern hospitality, and ServSafe certified professionalism to every event. Taste the love in every bite.</p>
+            <FloatingCard variant="subtle" className="bg-transparent shadow-none">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant text-foreground mb-6">Culinary Excellence</h2>
+              <p className="text-sm sm:text-base lg:text-lg text-muted-foreground mb-6 leading-relaxed">
+                Founded by Chef Dominick "Train" Ward and Pastry Chef Tanya Ward, Soul Train's Eatery is a family-run, community-rooted catering business serving Charleston's Lowcountry with love and precision.
+              </p>
+              <p className="text-sm sm:text-base lg:text-lg text-muted-foreground mb-8 leading-relaxed">From intimate gatherings to grand celebrations, we bring over two decades of culinary expertise, Southern hospitality, and ServSafe certified professionalism to every event. Taste the love in every bite.</p>
+            </FloatingCard>
             <Link to="/about#page-header">
               <Button variant="cta" size="responsive-md" className="w-3/5 sm:w-auto sm:min-w-[14rem]">
                 Learn More About Us
@@ -96,34 +100,65 @@ export const AboutPreviewSection = () => {
             </Link>
           </div>
           <div className="grid grid-cols-2 gap-6 md:gap-10 lg:gap-12">
-            <Card ref={card1Ref} className={`shadow-elegant hover:shadow-elevated transition-all duration-200 overflow-hidden group bg-card ${card1AnimationClass}`}>
-              <CardContent className="p-4 sm:p-6 text-center">
+            <FloatingCard 
+              ref={card1Ref} 
+              variant="medium"
+              restingShadow="card"
+              hoverShadow="elevated"
+              highlightBorder
+              className={`overflow-hidden group bg-card ${card1AnimationClass}`}
+            >
+              <div className="p-4 sm:p-6 text-center">
                 <ChefHat className="h-8 w-8 sm:h-10 sm:w-10 text-primary mx-auto mb-4 group-hover:scale-110 transition-transform duration-200" />
                 <h3 className="font-elegant font-semibold text-foreground mb-2 text-sm sm:text-base">Chef Train</h3>
                 <p className="text-xs sm:text-sm text-muted-foreground">20+ Years Experience</p>
-              </CardContent>
-            </Card>
-            <Card ref={card2Ref} className={`shadow-elegant hover:shadow-elevated transition-all duration-200 overflow-hidden group bg-card ${card2AnimationClass}`}>
-              <CardContent className="p-4 sm:p-6 text-center">
+              </div>
+            </FloatingCard>
+            
+            <FloatingCard 
+              ref={card2Ref} 
+              variant="medium"
+              restingShadow="card"
+              hoverShadow="elevated"
+              highlightBorder
+              className={`overflow-hidden group bg-card ${card2AnimationClass}`}
+            >
+              <div className="p-4 sm:p-6 text-center">
                 <Heart className="h-8 w-8 sm:h-10 sm:w-10 text-primary mx-auto mb-4 group-hover:scale-110 transition-transform duration-200" />
                 <h3 className="font-elegant font-semibold text-foreground mb-2 text-sm sm:text-base">Tanya Ward</h3>
                 <p className="text-xs sm:text-sm text-muted-foreground">Pastry Chef</p>
-              </CardContent>
-            </Card>
-            <Card ref={card3Ref} className={`shadow-elegant hover:shadow-elevated transition-all duration-200 overflow-hidden group bg-card ${card3AnimationClass}`}>
-              <CardContent className="p-4 sm:p-6 text-center">
+              </div>
+            </FloatingCard>
+            
+            <FloatingCard 
+              ref={card3Ref} 
+              variant="medium"
+              restingShadow="card"
+              hoverShadow="elevated"
+              highlightBorder
+              className={`overflow-hidden group bg-card ${card3AnimationClass}`}
+            >
+              <div className="p-4 sm:p-6 text-center">
                 <Award className="h-8 w-8 sm:h-10 sm:w-10 text-primary mx-auto mb-4 group-hover:scale-110 transition-transform duration-200" />
                 <h3 className="font-elegant font-semibold text-foreground mb-2 text-sm sm:text-base">ServSafe</h3>
                 <p className="text-xs sm:text-sm text-muted-foreground">Certified</p>
-              </CardContent>
-            </Card>
-            <Card ref={card4Ref} className={`shadow-elegant hover:shadow-elevated transition-all duration-200 overflow-hidden group bg-card ${card4AnimationClass}`}>
-              <CardContent className="p-4 sm:p-6 text-center">
+              </div>
+            </FloatingCard>
+            
+            <FloatingCard 
+              ref={card4Ref} 
+              variant="medium"
+              restingShadow="card"
+              hoverShadow="elevated"
+              highlightBorder
+              className={`overflow-hidden group bg-card ${card4AnimationClass}`}
+            >
+              <div className="p-4 sm:p-6 text-center">
                 <Users className="h-8 w-8 sm:h-10 sm:w-10 text-primary mx-auto mb-4 group-hover:scale-110 transition-transform duration-200" />
                 <h3 className="font-elegant font-semibold text-foreground mb-2 text-sm sm:text-base">Family Run</h3>
                 <p className="text-xs sm:text-sm text-muted-foreground">Community Rooted</p>
-              </CardContent>
-            </Card>
+              </div>
+            </FloatingCard>
           </div>
         </div>
       </div>
