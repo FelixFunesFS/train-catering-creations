@@ -1,4 +1,3 @@
-
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
@@ -23,6 +22,8 @@ const buttonVariants = cva(
         accent: "bg-accent text-accent-foreground hover:bg-accent/80 neumorphic-card-2",
         gold: "neumorphic-button-gold transform hover:scale-[1.01]",
         navy: "bg-navy text-navy-foreground hover:bg-navy-light neumorphic-card-2 transform hover:scale-[1.01]",
+        platinum: "bg-platinum text-platinum-foreground hover:bg-platinum-light neumorphic-card-2 transform hover:scale-[1.01]",
+        "cta-platinum": "bg-platinum text-platinum-foreground hover:bg-platinum-dark neumorphic-card-2 hover:shadow-glow transform hover:scale-[1.02] font-bold",
       },
       size: {
         default: "h-10 px-4 py-2 text-sm font-medium",

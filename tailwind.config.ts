@@ -56,7 +56,7 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
-				// Luxury supporting colors
+				// Ruby & Pearl luxury supporting colors
 				gold: {
 					DEFAULT: 'hsl(var(--gold))',
 					foreground: 'hsl(var(--gold-foreground))',
@@ -68,6 +68,12 @@ export default {
 					foreground: 'hsl(var(--navy-foreground))',
 					light: 'hsl(var(--navy-light))',
 					dark: 'hsl(var(--navy-dark))'
+				},
+				platinum: {
+					DEFAULT: 'hsl(var(--platinum))',
+					foreground: 'hsl(var(--platinum-foreground))',
+					light: 'hsl(var(--platinum-light))',
+					dark: 'hsl(var(--platinum-dark))'
 				},
 				cream: {
 					DEFAULT: 'hsl(var(--cream))',
