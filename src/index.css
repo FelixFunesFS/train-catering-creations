@@ -6,35 +6,35 @@
 
 @layer base {
   :root {
-    --background: 38 10% 5%;
-    --foreground: 32 15% 95%;
-    --card: 40 12% 8%;
-    --card-foreground: 32 15% 95%;
-    --popover: 40 12% 8%;
-    --popover-foreground: 32 15% 95%;
+    --background: 0 0% 98%;
+    --foreground: 40 12% 8%;
+    --card: 0 0% 100%;
+    --card-foreground: 40 12% 8%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 40 12% 8%;
     --primary: 0 84% 60%;
     --primary-light: 0 84% 70%;
     --primary-glow: 0 84% 60%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 40 8% 15%;
-    --secondary-foreground: 32 15% 95%;
-    --muted: 40 8% 12%;
-    --muted-foreground: 32 8% 65%;
-    --accent: 40 8% 15%;
-    --accent-foreground: 32 15% 95%;
+    --secondary: 0 0% 95%;
+    --secondary-foreground: 40 12% 8%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 40 8% 45%;
+    --accent: 0 0% 95%;
+    --accent-foreground: 40 12% 8%;
     --destructive: 0 84% 60%;
-    --destructive-foreground: 210 20% 98%;
-    --border: 40 8% 15%;
-    --input: 40 8% 15%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 90%;
+    --input: 0 0% 95%;
     --ring: 0 84% 60%;
     --radius: 0.75rem;
 
     /* Enhanced accessibility colors - WCAG 2.1 AA compliant */
-    --text-high-contrast: 0 0% 100%;
-    --text-medium-contrast: 32 15% 85%;
-    --text-low-contrast: 32 8% 75%;
+    --text-high-contrast: 40 12% 8%;
+    --text-medium-contrast: 40 8% 25%;
+    --text-low-contrast: 40 8% 35%;
     --focus-ring: 0 84% 60%;
-    --focus-ring-offset: 40 12% 8%;
+    --focus-ring-offset: 0 0% 100%;
 
     /* Category colors for menu sections */
     --category-appetizers: 120 45% 55%;
@@ -55,29 +55,29 @@
     --service-family-foreground: 40 12% 8%;
 
     /* Enhanced alternating section gradients */
-    --gradient-pattern-a: linear-gradient(135deg, hsl(38, 10%, 5%) 0%, hsl(0, 84%, 60%, 0.08) 30%, hsl(0, 84%, 50%, 0.12) 70%, hsl(38, 10%, 5%) 100%);
-    --gradient-pattern-b: linear-gradient(225deg, hsl(0, 84%, 60%, 0.04) 0%, hsl(38, 10%, 5%) 40%, hsl(0, 84%, 50%, 0.06) 80%, hsl(40, 12%, 8%) 100%);
-    --gradient-pattern-c: linear-gradient(45deg, hsl(0, 84%, 50%, 0.10) 0%, hsl(40, 12%, 8%) 30%, hsl(0, 84%, 60%, 0.08) 70%, hsl(38, 10%, 5%) 100%);
-    --gradient-pattern-d: linear-gradient(315deg, hsl(38, 10%, 5%) 0%, hsl(0, 84%, 60%, 0.05) 40%, hsl(0, 84%, 50%, 0.05) 80%, hsl(40, 12%, 8%) 100%);
+    --gradient-pattern-a: linear-gradient(135deg, hsl(0, 0%, 98%) 0%, hsl(0, 84%, 60%, 0.08) 30%, hsl(0, 84%, 50%, 0.12) 70%, hsl(0, 0%, 98%) 100%);
+    --gradient-pattern-b: linear-gradient(225deg, hsl(0, 84%, 60%, 0.04) 0%, hsl(0, 0%, 98%) 40%, hsl(0, 84%, 50%, 0.06) 80%, hsl(0, 0%, 100%) 100%);
+    --gradient-pattern-c: linear-gradient(45deg, hsl(0, 84%, 50%, 0.10) 0%, hsl(0, 0%, 100%) 30%, hsl(0, 84%, 60%, 0.08) 70%, hsl(0, 0%, 98%) 100%);
+    --gradient-pattern-d: linear-gradient(315deg, hsl(0, 0%, 98%) 0%, hsl(0, 84%, 60%, 0.05) 40%, hsl(0, 84%, 50%, 0.05) 80%, hsl(0, 0%, 100%) 100%);
 
     /* Enhanced gradients */
     --gradient-primary: linear-gradient(135deg, hsl(0, 84%, 60%) 0%, hsl(0, 84%, 50%) 100%);
-    --gradient-hero: linear-gradient(180deg, hsl(38, 10%, 5%) 0%, hsl(40, 12%, 8%) 50%, hsl(38, 10%, 5%) 100%);
-    --gradient-card: linear-gradient(145deg, hsl(40, 12%, 8%) 0%, hsl(40, 8%, 12%) 100%);
-    --gradient-nav: linear-gradient(180deg, hsl(38, 10%, 5%, 0.95) 0%, hsl(40, 12%, 8%, 0.90) 100%);
+    --gradient-hero: linear-gradient(180deg, hsl(0, 0%, 98%) 0%, hsl(0, 0%, 100%) 50%, hsl(0, 0%, 98%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(0, 0%, 100%) 0%, hsl(0, 0%, 96%) 100%);
+    --gradient-nav: linear-gradient(180deg, hsl(0, 0%, 98%, 0.95) 0%, hsl(0, 0%, 100%, 0.90) 100%);
 
-    /* Enhanced neumorphic shadows with better visibility on dark backgrounds */
-    --shadow-neumorphic-1: 3px 3px 6px hsla(0, 0%, 0%, 0.5), -3px -3px 6px hsla(0, 0%, 100%, 0.1);
-    --shadow-neumorphic-2: 6px 6px 12px hsla(0, 0%, 0%, 0.6), -6px -6px 12px hsla(0, 0%, 100%, 0.12);
-    --shadow-neumorphic-3: 9px 9px 18px hsla(0, 0%, 0%, 0.7), -9px -9px 18px hsla(0, 0%, 100%, 0.15);
-    --shadow-neumorphic-4: 12px 12px 24px hsla(0, 0%, 0%, 0.8), -12px -12px 24px hsla(0, 0%, 100%, 0.18);
-    --shadow-neumorphic-5: 16px 16px 32px hsla(0, 0%, 0%, 0.85), -16px -16px 32px hsla(0, 0%, 100%, 0.2);
-    --shadow-neumorphic-6: 20px 20px 40px hsla(0, 0%, 0%, 0.9), -20px -20px 40px hsla(0, 0%, 100%, 0.22);
+    /* Enhanced neumorphic shadows for light theme */
+    --shadow-neumorphic-1: 3px 3px 6px hsla(0, 0%, 0%, 0.08), -3px -3px 6px hsla(0, 0%, 100%, 0.9);
+    --shadow-neumorphic-2: 6px 6px 12px hsla(0, 0%, 0%, 0.12), -6px -6px 12px hsla(0, 0%, 100%, 0.95);
+    --shadow-neumorphic-3: 9px 9px 18px hsla(0, 0%, 0%, 0.15), -9px -9px 18px hsla(0, 0%, 100%, 1);
+    --shadow-neumorphic-4: 12px 12px 24px hsla(0, 0%, 0%, 0.18), -12px -12px 24px hsla(0, 0%, 100%, 1);
+    --shadow-neumorphic-5: 16px 16px 32px hsla(0, 0%, 0%, 0.2), -16px -16px 32px hsla(0, 0%, 100%, 1);
+    --shadow-neumorphic-6: 20px 20px 40px hsla(0, 0%, 0%, 0.22), -20px -20px 40px hsla(0, 0%, 100%, 1);
 
     /* Inset shadows for pressed states */
-    --shadow-neumorphic-inset-1: inset 3px 3px 6px hsla(0, 0%, 0%, 0.5), inset -3px -3px 6px hsla(0, 0%, 100%, 0.1);
-    --shadow-neumorphic-inset-2: inset 6px 6px 12px hsla(0, 0%, 0%, 0.6), inset -6px -6px 12px hsla(0, 0%, 100%, 0.12);
-    --shadow-neumorphic-inset-3: inset 9px 9px 18px hsla(0, 0%, 0%, 0.7), inset -9px -9px 18px hsla(0, 0%, 100%, 0.15);
+    --shadow-neumorphic-inset-1: inset 3px 3px 6px hsla(0, 0%, 0%, 0.08), inset -3px -3px 6px hsla(0, 0%, 100%, 0.9);
+    --shadow-neumorphic-inset-2: inset 6px 6px 12px hsla(0, 0%, 0%, 0.12), inset -6px -6px 12px hsla(0, 0%, 100%, 0.95);
+    --shadow-neumorphic-inset-3: inset 9px 9px 18px hsla(0, 0%, 0%, 0.15), inset -9px -9px 18px hsla(0, 0%, 100%, 1);
 
     /* Focus and interaction shadows */
     --shadow-focus: 0 0 0 3px hsla(0, 84%, 60%, 0.3);
