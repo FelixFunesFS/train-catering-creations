@@ -89,7 +89,7 @@ export const HeroSection = () => {
                       Request Quote
                     </Link>
                   </Button>
-                  <Button asChild variant="cta-outline" size="responsive-lg" className="w-3/5 sm:w-auto sm:min-w-[14rem]">
+                  <Button asChild variant="cta-outline" size="responsive-lg" className="w-3/5 sm:w-auto sm:min-w-[14rem] box-border">
                     <Link to="/gallery#page-header">
                       Gallery
                     </Link>
