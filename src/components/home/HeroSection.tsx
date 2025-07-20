@@ -43,64 +43,8 @@ export const HeroSection = () => {
     description: "Elegant appetizer display with beverage service and professional presentation",
     category: "appetizer"
   }];
-
-  const newCarouselImages = [{
-    src: "/lovable-uploads/1923d181-eca9-4c42-ad11-d326882e76e6.png",
-    alt: "Professional buffet setup with chafing dishes and floral arrangements",
-    title: "Buffet Service",
-    description: "Professional buffet setup with chafing dishes and floral arrangements",
-    category: "buffet"
-  }, {
-    src: "/lovable-uploads/280923c4-2558-449c-ad58-ba126a47a483.png",
-    alt: "Formal corporate dining event with professional presentation",
-    title: "Corporate Events",
-    description: "Formal corporate dining event with professional presentation",
-    category: "corporate"
-  }, {
-    src: "/lovable-uploads/411de873-521e-4e4e-b3c7-5c7ee84afa58.png",
-    alt: "Elegant chafing dish setup with fresh floral decorations",
-    title: "Elegant Setup",
-    description: "Elegant chafing dish setup with fresh floral decorations",
-    category: "formal"
-  }, {
-    src: "/lovable-uploads/d4d8b044-bc80-493d-a58f-a458876787f4.png",
-    alt: "Diverse buffet spread with multiple course options and elegant presentation",
-    title: "Full Menu",
-    description: "Diverse buffet spread with multiple course options and elegant presentation",
-    category: "buffet"
-  }, {
-    src: "/lovable-uploads/75b58f89-c2b3-4caf-b735-9da472b8293c.png",
-    alt: "Family gathering around kitchen island with catered meal spread",
-    title: "Family Style",
-    description: "Family gathering around kitchen island with catered meal spread",
-    category: "family"
-  }, {
-    src: "/lovable-uploads/724b58b9-8c4e-4a94-878e-b7a0a42e78ea.png",
-    alt: "Elaborate charcuterie and grazing board with artisanal selections",
-    title: "Grazing Boards",
-    description: "Elaborate charcuterie and grazing board with artisanal selections",
-    category: "grazing"
-  }, {
-    src: "/lovable-uploads/4bfab73f-3d37-46d4-aa4b-4b4d159c91b2.png",
-    alt: "Outdoor wedding tent setup with elegant table arrangements",
-    title: "Outdoor Events",
-    description: "Outdoor wedding tent setup with elegant table arrangements",
-    category: "wedding"
-  }, {
-    src: "/lovable-uploads/0adf0de5-126b-4189-95c2-75704f5f18d3.png",
-    alt: "Elegant indoor event venue with crystal chandelier and formal table settings",
-    title: "Luxury Venues",
-    description: "Elegant indoor event venue with crystal chandelier and formal table settings",
-    category: "formal"
-  }, {
-    src: "/lovable-uploads/8e016abd-f55f-475d-9e0c-8c2e6fae8c81.png",
-    alt: "Professional catering staff providing excellent food service",
-    title: "Professional Service",
-    description: "Professional catering staff providing excellent food service",
-    category: "team"
-  }];
   
-  const allImages = [...heroImages, ...additionalImages, ...newCarouselImages];
+  const allImages = [...heroImages, ...additionalImages];
   
   const handleImageClick = (index: number) => {
     setSelectedImageIndex(index);
@@ -123,6 +67,13 @@ export const HeroSection = () => {
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 opacity-50 py-0 my-[25px]"></div>
               
               <div className="relative z-10 text-center pt-2 sm:pt-4 md:pt-12 sm:py-6 lg:py-0 py-0">
+                {/* Logo Icon - consistent with PageHeader styling */}
+                <div className="flex justify-center mb-4 my-[25px] animate-fade-in">
+                  <div className="h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14">
+                    <img src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" alt="Soul Train's Eatery Logo" className="w-full h-full object-contain hover:scale-110 transition-transform duration-300" />
+                  </div>
+                </div>
+                
                 {/* Main Heading */}
                 <div className="mb-2 sm:mb-4 animate-fade-in">
                   <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant text-foreground leading-tight sm:leading-tight lg:leading-tight">Charleston's Premier Catering Experience</h1>
@@ -183,184 +134,6 @@ export const HeroSection = () => {
                   </div>
                 </div>
 
-              </div>
-            </div>
-
-            {/* Additional Gallery Carousel Section */}
-            <div className="relative order-2 md:order-2 py-4 animate-fade-in">
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
-                <Carousel opts={{
-                  align: "start",
-                  loop: true
-                }} plugins={[Autoplay({
-                  delay: 3500
-                })]} className="w-full">
-                  <CarouselContent className="-ml-0 gap-1 md:gap-2">
-                    <CarouselItem className="pl-0 md:pl-1 basis-1/2 md:basis-1/4 lg:basis-1/5">
-                      <div 
-                        className="group relative rounded-2xl bg-gradient-card transition-all duration-300 cursor-pointer transform hover:scale-[1.02] animate-fade-in shadow-glow hover:shadow-glow-strong" 
-                        onClick={() => handleImageClick(5)}
-                      >
-                        <div className="aspect-[4/3] overflow-hidden rounded-2xl">
-                          <img src="/lovable-uploads/1923d181-eca9-4c42-ad11-d326882e76e6.png" alt="Professional buffet setup with chafing dishes and floral arrangements" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async" />
-                        </div>
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                          <div className="absolute bottom-4 left-4 right-4">
-                            <h3 className="text-white font-elegant font-semibold text-sm mb-1">Buffet Service</h3>
-                            <p className="text-white/90 text-xs leading-tight">Tap to view full size</p>
-                          </div>
-                        </div>
-                        <div className="absolute inset-0 border-2 border-transparent group-hover:border-primary/20 rounded-2xl transition-colors duration-300"></div>
-                      </div>
-                    </CarouselItem>
-                    
-                    <CarouselItem className="pl-0 md:pl-1 basis-1/2 md:basis-1/4 lg:basis-1/5">
-                      <div 
-                        className="group relative rounded-2xl bg-gradient-card transition-all duration-300 cursor-pointer transform hover:scale-[1.02] animate-fade-in shadow-glow hover:shadow-glow-strong" 
-                        onClick={() => handleImageClick(6)}
-                      >
-                        <div className="aspect-[4/3] overflow-hidden rounded-2xl">
-                          <img src="/lovable-uploads/280923c4-2558-449c-ad58-ba126a47a483.png" alt="Formal corporate dining event with professional presentation" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async" />
-                        </div>
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                          <div className="absolute bottom-4 left-4 right-4">
-                            <h3 className="text-white font-elegant font-semibold text-sm mb-1">Corporate Events</h3>
-                            <p className="text-white/90 text-xs leading-tight">Tap to view full size</p>
-                          </div>
-                        </div>
-                        <div className="absolute inset-0 border-2 border-transparent group-hover:border-primary/20 rounded-2xl transition-colors duration-300"></div>
-                      </div>
-                    </CarouselItem>
-
-                    <CarouselItem className="pl-0 md:pl-1 basis-1/2 md:basis-1/4 lg:basis-1/5">
-                      <div 
-                        className="group relative rounded-2xl bg-gradient-card transition-all duration-300 cursor-pointer transform hover:scale-[1.02] animate-fade-in shadow-glow hover:shadow-glow-strong" 
-                        onClick={() => handleImageClick(7)}
-                      >
-                        <div className="aspect-[4/3] overflow-hidden rounded-2xl">
-                          <img src="/lovable-uploads/411de873-521e-4e4e-b3c7-5c7ee84afa58.png" alt="Elegant chafing dish setup with fresh floral decorations" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async" />
-                        </div>
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                          <div className="absolute bottom-4 left-4 right-4">
-                            <h3 className="text-white font-elegant font-semibold text-sm mb-1">Elegant Setup</h3>
-                            <p className="text-white/90 text-xs leading-tight">Tap to view full size</p>
-                          </div>
-                        </div>
-                        <div className="absolute inset-0 border-2 border-transparent group-hover:border-primary/20 rounded-2xl transition-colors duration-300"></div>
-                      </div>
-                    </CarouselItem>
-
-                    <CarouselItem className="pl-0 md:pl-1 basis-1/2 md:basis-1/4 lg:basis-1/5">
-                      <div 
-                        className="group relative rounded-2xl bg-gradient-card transition-all duration-300 cursor-pointer transform hover:scale-[1.02] animate-fade-in shadow-glow hover:shadow-glow-strong" 
-                        onClick={() => handleImageClick(8)}
-                      >
-                        <div className="aspect-[4/3] overflow-hidden rounded-2xl">
-                          <img src="/lovable-uploads/d4d8b044-bc80-493d-a58f-a458876787f4.png" alt="Diverse buffet spread with multiple course options and elegant presentation" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async" />
-                        </div>
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                          <div className="absolute bottom-4 left-4 right-4">
-                            <h3 className="text-white font-elegant font-semibold text-sm mb-1">Full Menu</h3>
-                            <p className="text-white/90 text-xs leading-tight">Tap to view full size</p>
-                          </div>
-                        </div>
-                        <div className="absolute inset-0 border-2 border-transparent group-hover:border-primary/20 rounded-2xl transition-colors duration-300"></div>
-                      </div>
-                    </CarouselItem>
-
-                    <CarouselItem className="pl-0 md:pl-1 basis-1/2 md:basis-1/4 lg:basis-1/5">
-                      <div 
-                        className="group relative rounded-2xl bg-gradient-card transition-all duration-300 cursor-pointer transform hover:scale-[1.02] animate-fade-in shadow-glow hover:shadow-glow-strong" 
-                        onClick={() => handleImageClick(9)}
-                      >
-                        <div className="aspect-[4/3] overflow-hidden rounded-2xl">
-                          <img src="/lovable-uploads/75b58f89-c2b3-4caf-b735-9da472b8293c.png" alt="Family gathering around kitchen island with catered meal spread" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async" />
-                        </div>
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                          <div className="absolute bottom-4 left-4 right-4">
-                            <h3 className="text-white font-elegant font-semibold text-sm mb-1">Family Style</h3>
-                            <p className="text-white/90 text-xs leading-tight">Tap to view full size</p>
-                          </div>
-                        </div>
-                        <div className="absolute inset-0 border-2 border-transparent group-hover:border-primary/20 rounded-2xl transition-colors duration-300"></div>
-                      </div>
-                    </CarouselItem>
-
-                    <CarouselItem className="pl-0 md:pl-1 basis-1/2 md:basis-1/4 lg:basis-1/5">
-                      <div 
-                        className="group relative rounded-2xl bg-gradient-card transition-all duration-300 cursor-pointer transform hover:scale-[1.02] animate-fade-in shadow-glow hover:shadow-glow-strong" 
-                        onClick={() => handleImageClick(10)}
-                      >
-                        <div className="aspect-[4/3] overflow-hidden rounded-2xl">
-                          <img src="/lovable-uploads/724b58b9-8c4e-4a94-878e-b7a0a42e78ea.png" alt="Elaborate charcuterie and grazing board with artisanal selections" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async" />
-                        </div>
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                          <div className="absolute bottom-4 left-4 right-4">
-                            <h3 className="text-white font-elegant font-semibold text-sm mb-1">Grazing Boards</h3>
-                            <p className="text-white/90 text-xs leading-tight">Tap to view full size</p>
-                          </div>
-                        </div>
-                        <div className="absolute inset-0 border-2 border-transparent group-hover:border-primary/20 rounded-2xl transition-colors duration-300"></div>
-                      </div>
-                    </CarouselItem>
-
-                    <CarouselItem className="pl-0 md:pl-1 basis-1/2 md:basis-1/4 lg:basis-1/5">
-                      <div 
-                        className="group relative rounded-2xl bg-gradient-card transition-all duration-300 cursor-pointer transform hover:scale-[1.02] animate-fade-in shadow-glow hover:shadow-glow-strong" 
-                        onClick={() => handleImageClick(11)}
-                      >
-                        <div className="aspect-[4/3] overflow-hidden rounded-2xl">
-                          <img src="/lovable-uploads/4bfab73f-3d37-46d4-aa4b-4b4d159c91b2.png" alt="Outdoor wedding tent setup with elegant table arrangements" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async" />
-                        </div>
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                          <div className="absolute bottom-4 left-4 right-4">
-                            <h3 className="text-white font-elegant font-semibold text-sm mb-1">Outdoor Events</h3>
-                            <p className="text-white/90 text-xs leading-tight">Tap to view full size</p>
-                          </div>
-                        </div>
-                        <div className="absolute inset-0 border-2 border-transparent group-hover:border-primary/20 rounded-2xl transition-colors duration-300"></div>
-                      </div>
-                    </CarouselItem>
-
-                    <CarouselItem className="pl-0 md:pl-1 basis-1/2 md:basis-1/4 lg:basis-1/5">
-                      <div 
-                        className="group relative rounded-2xl bg-gradient-card transition-all duration-300 cursor-pointer transform hover:scale-[1.02] animate-fade-in shadow-glow hover:shadow-glow-strong" 
-                        onClick={() => handleImageClick(12)}
-                      >
-                        <div className="aspect-[4/3] overflow-hidden rounded-2xl">
-                          <img src="/lovable-uploads/0adf0de5-126b-4189-95c2-75704f5f18d3.png" alt="Elegant indoor event venue with crystal chandelier and formal table settings" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async" />
-                        </div>
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                          <div className="absolute bottom-4 left-4 right-4">
-                            <h3 className="text-white font-elegant font-semibold text-sm mb-1">Luxury Venues</h3>
-                            <p className="text-white/90 text-xs leading-tight">Tap to view full size</p>
-                          </div>
-                        </div>
-                        <div className="absolute inset-0 border-2 border-transparent group-hover:border-primary/20 rounded-2xl transition-colors duration-300"></div>
-                      </div>
-                    </CarouselItem>
-
-                    <CarouselItem className="pl-0 md:pl-1 basis-1/2 md:basis-1/4 lg:basis-1/5">
-                      <div 
-                        className="group relative rounded-2xl bg-gradient-card transition-all duration-300 cursor-pointer transform hover:scale-[1.02] animate-fade-in shadow-glow hover:shadow-glow-strong" 
-                        onClick={() => handleImageClick(13)}
-                      >
-                        <div className="aspect-[4/3] overflow-hidden rounded-2xl">
-                          <img src="/lovable-uploads/8e016abd-f55f-475d-9e0c-8c2e6fae8c81.png" alt="Professional catering staff providing excellent food service" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async" />
-                        </div>
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                          <div className="absolute bottom-4 left-4 right-4">
-                            <h3 className="text-white font-elegant font-semibold text-sm mb-1">Professional Service</h3>
-                            <p className="text-white/90 text-xs leading-tight">Tap to view full size</p>
-                          </div>
-                        </div>
-                        <div className="absolute inset-0 border-2 border-transparent group-hover:border-primary/20 rounded-2xl transition-colors duration-300"></div>
-                      </div>
-                    </CarouselItem>
-                  </CarouselContent>
-                  <CarouselPrevious className="hidden md:flex -left-12" />
-                  <CarouselNext className="hidden md:flex -right-12" />
-                </Carousel>
               </div>
             </div>
 
