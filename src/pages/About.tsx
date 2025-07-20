@@ -1,194 +1,177 @@
 
-import { Card, CardContent } from "@/components/ui/card";
-import { ChefHat, Award, Heart } from "lucide-react";
+import { PageSection } from "@/components/ui/page-section";
+import { NeumorphicCard } from "@/components/ui/neumorphic-card";
+import { NeumorphicButton } from "@/components/ui/neumorphic-button";
 import { PageHeader } from "@/components/ui/page-header";
-import { OptimizedImage } from "@/components/ui/optimized-image";
 import { CTASection } from "@/components/ui/cta-section";
-import { useScrollAnimation } from "@/hooks/useScrollAnimation";
-import { useAnimationClass } from "@/hooks/useAnimationClass";
+import { ChefHat, Heart, Award, Users, Clock, Star } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const About = () => {
-  const { ref: headerRef, isVisible: headerVisible, variant: headerVariant } = useScrollAnimation({ 
-    delay: 0, 
-    variant: 'fade-up',
-    mobile: { variant: 'fade-up', delay: 0 },
-    desktop: { variant: 'ios-spring', delay: 0 }
-  });
-  
-  const { ref: card1Ref, isVisible: card1Visible, variant: card1Variant } = useScrollAnimation({ 
-    delay: 200, 
-    variant: 'ios-spring',
-    mobile: { variant: 'medium', delay: 100 },
-    desktop: { variant: 'ios-spring', delay: 200 }
-  });
-  
-  const { ref: card2Ref, isVisible: card2Visible, variant: card2Variant } = useScrollAnimation({ 
-    delay: 400, 
-    variant: 'elastic',
-    mobile: { variant: 'medium', delay: 200 },
-    desktop: { variant: 'elastic', delay: 400 }
-  });
-  
-  const { ref: card3Ref, isVisible: card3Visible, variant: card3Variant } = useScrollAnimation({ 
-    delay: 600, 
-    variant: 'elastic',
-    mobile: { variant: 'medium', delay: 300 },
-    desktop: { variant: 'elastic', delay: 600 }
-  });
-  
-  const { ref: promiseRef, isVisible: promiseVisible, variant: promiseVariant } = useScrollAnimation({ 
-    delay: 800, 
-    variant: 'ios-spring',
-    mobile: { variant: 'medium', delay: 400 },
-    desktop: { variant: 'ios-spring', delay: 800 }
-  });
-  
-  const { ref: ctaRef, isVisible: ctaVisible, variant: ctaVariant } = useScrollAnimation({ 
-    delay: 1000, 
-    variant: 'strong',
-    mobile: { variant: 'medium', delay: 500 },
-    desktop: { variant: 'strong', delay: 1000 }
-  });
-
   return (
-    <div className="min-h-screen neumorphic-page">
-      {/* Header Section */}
-      <section className="py-8 lg:py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div ref={headerRef} className={useAnimationClass(headerVariant, headerVisible)}>
-            <PageHeader 
-              title="A Family Passion, Served on Every Plate" 
-              description="Soul Train's Eatery was founded by Chef Dominick 'Train' Ward and his wife Tanya, a gifted pastry chef. Together, they've built a family-run catering company deeply rooted in Southern hospitality, faith, and community. With over 20 years of culinary experience, Chef Train leads a team that's as dedicated to service as it is to flavor. Certified, trusted, and always on time—we're here to make your event unforgettable." 
-              icons={[<ChefHat className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />, <Award className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />, <Heart className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />]}
-              buttons={[{ text: "View Gallery", href: "/gallery#page-header", variant: "cta" }]}
-            />
-          </div>
-        </div>
-      </section>
+    <div className="min-h-screen">
+      <main id="main-content">
+        {/* Header Section - Pattern A */}
+        <PageSection pattern="a" skipToContentId="about-header">
+          <PageHeader
+            title="Meet the Heart Behind Soul Train's Eatery"
+            description="From family traditions to professional excellence, discover the passionate team that brings authentic Southern flavors and warm hospitality to every event across Charleston's beautiful Lowcountry."
+            icons={[
+              <ChefHat className="h-6 w-6 sm:h-8 sm:w-8" />,
+              <Heart className="h-6 w-6 sm:h-8 sm:w-8" />,
+              <Award className="h-6 w-6 sm:h-8 sm:w-8" />
+            ]}
+            buttons={[
+              { text: "Request Quote", href: "/request-quote#page-header", variant: "cta" }
+            ]}
+          />
+        </PageSection>
 
-      {/* Main Content Section */}
-      <section className="py-8 lg:py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div ref={card1Ref} className={`mb-8 sm:mb-12 ${useAnimationClass(card1Variant, card1Visible)}`}>
-            <Card className="hover-float">
-              <CardContent className="p-4 sm:p-6 lg:p-8 xl:p-12">
-                <div className="text-center mb-6 sm:mb-8">
-                  <div className="flex justify-center mb-4 sm:mb-6">
-                    <div className="relative w-48 h-48 sm:w-56 sm:h-56 lg:w-64 lg:h-64 shadow-glow border-4 sm:border-8 border-white rounded-full overflow-hidden">
-                      <OptimizedImage src="/lovable-uploads/7386b87d-cf31-4aad-a072-4dc06d9d2a3a.png" alt="Chef Dominick 'Train' Ward working in the kitchen with professional expertise" aspectRatio="aspect-square" className="object-center" priority />
-                    </div>
-                  </div>
-                  <div>
-                    <h2 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-elegant text-primary mb-2 sm:mb-3">
-                      Chef Dominick "Train" Ward
-                    </h2>
-                    <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-muted-foreground font-medium">
-                      Master Culinary Excellence
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="prose prose-lg max-w-none">
-                  <p className="text-sm sm:text-base lg:text-lg leading-relaxed mb-4 sm:mb-6">
-                    Soul Train's Eatery has been proudly serving the Lowcountry of South Carolina for over <strong>8 flavorful years!</strong> Founded by Chef Dominick "Train" Ward and his wife Tanya Ward—our talented Pastry Chef—Soul Train's is a family-run, community-rooted catering business where passion meets Southern hospitality.
-                  </p>
-
-                  <p className="text-sm sm:text-base lg:text-lg leading-relaxed mb-4 sm:mb-6">
-                    From elegant weddings and joyous baby showers to heartfelt bereavements and high-energy military promotions, we cater events of every kind with care, flavor, and professionalism. Whether it's a cozy backyard BBQ or a corporate conference for hundreds, Chef Train, with over <strong>two decades of grilling and culinary experience</strong>, leads our team with heart and precision.
-                  </p>
-
-                  <p className="text-sm sm:text-base lg:text-lg leading-relaxed mb-4 sm:mb-6">
-                    We're <strong>ServSafe certified</strong>, prompt, and polished—ensuring your event runs as smoothly as our creamy mac & cheese.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-          
-          <div className="grid md:grid-cols-2 gap-6 sm:gap-8 mb-8 sm:mb-12">
-            <div ref={card2Ref} className={useAnimationClass(card2Variant, card2Visible)}>
-              <Card className="hover-float">
-                <CardContent className="p-4 sm:p-6 lg:p-8">
-                  <h3 className="text-xl sm:text-2xl font-elegant font-semibold text-foreground mb-3 sm:mb-4">
-                    Signature Dishes
-                  </h3>
-                  <ul className="space-y-1.5 sm:space-y-2 text-sm sm:text-base text-muted-foreground">
-                    <li className="flex items-start"><span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 mr-3 flex-shrink-0"></span>Shrimp Alfredo</li>
-                    <li className="flex items-start"><span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 mr-3 flex-shrink-0"></span>Baked Salmon</li>
-                    <li className="flex items-start"><span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 mr-3 flex-shrink-0"></span>Slow-Smoked Brisket</li>
-                    <li className="flex items-start"><span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 mr-3 flex-shrink-0"></span>Good Old-Fashioned Ribs</li>
-                    <li className="flex items-start"><span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 mr-3 flex-shrink-0"></span>Red Beans & Rice</li>
-                    <li className="flex items-start"><span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 mr-3 flex-shrink-0"></span>Southern-Style Cabbage</li>
-                    <li className="flex items-start"><span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 mr-3 flex-shrink-0"></span>Jamaican Jerk Chicken</li>
-                    <li className="flex items-start"><span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 mr-3 flex-shrink-0"></span>Customizable Taco Platters</li>
-                    <li className="flex items-start"><span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 mr-3 flex-shrink-0"></span>Variety of Vegetarian Options</li>
-                  </ul>
-                </CardContent>
-              </Card>
-            </div>
-
-            <div ref={card3Ref} className={useAnimationClass(card3Variant, card3Visible)}>
-              <Card className="overflow-hidden hover-float">
-                <OptimizedImage src="/lovable-uploads/6fa5bcaf-1613-416b-babc-289ac84bb501.png" alt="Beautiful cupcake display by Tanya Ward featuring various flavors and elegant decorations" aspectRatio="aspect-[5/3]" />
-                
-                <CardContent className="p-4 sm:p-6 lg:p-8">
-                  <h3 className="text-xl sm:text-2xl font-elegant font-semibold text-foreground mb-3 sm:mb-4">
-                    Sweet Treats by Tanya
-                  </h3>
-                  <p className="text-sm sm:text-base text-muted-foreground mb-3 sm:mb-4">
-                    Don't forget our sweet side—Tanya's cupcakes, dessert shots, and pastry creations are the perfect finishing touch to any celebration.
-                  </p>
-                  <p className="text-xs sm:text-sm text-primary font-medium">
-                    Ask about our customizable menu options!
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-
-          <div ref={promiseRef} className={useAnimationClass(promiseVariant, promiseVisible)}>
-            <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 items-center">
-              <div className="relative">
-                <OptimizedImage src="/lovable-uploads/8268fc9a-93a0-4b72-a923-95fc0f10b0c0.png" alt="Chef Dominick 'Train' Ward and Tanya Ward, the founders of Soul Train's Eatery, wearing their signature red aprons" aspectRatio="aspect-[4/3]" containerClassName="w-full h-48 sm:h-64 md:h-80 lg:h-96 rounded-lg shadow-elegant" className="object-[center_20%]" />
+        {/* Our Story Section - Pattern B */}
+        <PageSection pattern="b" withBorder>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+              <div>
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant text-foreground mb-6">
+                  Our Story
+                </h2>
+                <p className="text-sm sm:text-base lg:text-lg text-muted-foreground mb-6 leading-relaxed">
+                  Soul Train's Eatery was born from a deep love of Southern cooking and a commitment to bringing families together around exceptional food. Founded by Chef Dominick "Train" Ward and Pastry Chef Tanya Ward, our family-run business has been serving Charleston's Lowcountry for over two decades.
+                </p>
+                <p className="text-sm sm:text-base lg:text-lg text-muted-foreground mb-8 leading-relaxed">
+                  What started as a passion for creating memorable meals has grown into a trusted name in catering, known for our authentic flavors, professional service, and genuine Southern hospitality.
+                </p>
+                <NeumorphicButton asChild variant="primary" size="lg">
+                  <Link to="/gallery#page-header">
+                    See Our Work
+                  </Link>
+                </NeumorphicButton>
               </div>
-
-              <Card className="min-h-48 sm:min-h-64 md:min-h-80 lg:min-h-96">
-                <CardContent className="p-4 sm:p-6 lg:p-8 text-center flex flex-col justify-center h-full">
-                  <h3 className="text-xl sm:text-2xl lg:text-3xl font-elegant text-foreground mb-4 sm:mb-6">
-                    Our Promise
-                  </h3>
-                  <p className="text-sm sm:text-base lg:text-xl text-muted-foreground leading-relaxed mb-4 sm:mb-6">
-                    We don't just bring food—we bring flavor, family, and unforgettable experiences. Let Soul Train's Eatery handle the kitchen while you enjoy the moment.
-                  </p>
-                  <div className="text-base sm:text-lg md:text-xl lg:text-2xl font-script text-primary leading-relaxed mt-4 sm:mt-6 lg:mt-8">
-                    🎉 Let Soul Train's Eatery take care of all your catering needs—so you can enjoy the celebration!
-                  </div>
-                </CardContent>
-              </Card>
+              
+              <NeumorphicCard level={3} className="overflow-hidden">
+                <img 
+                  src="/lovable-uploads/2bb3a6cf-e13c-4405-9b69-2cf610ae8411.png" 
+                  alt="Chef Train and team at a formal military catering event" 
+                  className="w-full h-64 object-cover rounded-lg"
+                />
+              </NeumorphicCard>
             </div>
           </div>
-        </div>
-      </section>
+        </PageSection>
 
-      <div ref={ctaRef} className={useAnimationClass(ctaVariant, ctaVisible)}>
-        <CTASection
-          title="Ready to Start Planning Your Event?"
-          description="Let Soul Train's Eatery handle the kitchen while you enjoy the moment. Contact us today for a personalized quote."
-          buttons={[
-            {
-              text: "Call (843) 970-0265",
-              href: "tel:8439700265",
-              variant: "cta"
-            },
-            {
-              text: "Email Us",
-              href: "mailto:soultrainseatery@gmail.com",
-              variant: "cta-white"
-            }
-          ]}
-          footer="📍 Charleston, SC"
-        />
-      </div>
+        {/* Team Section - Pattern C */}
+        <PageSection pattern="c" withBorder>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant text-foreground mb-6">
+                Meet Our Team
+              </h2>
+              <p className="text-sm sm:text-base lg:text-lg text-muted-foreground max-w-3xl mx-auto">
+                Behind every memorable meal is a dedicated team of culinary professionals who share a passion for excellence and Southern hospitality.
+              </p>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-12 lg:gap-16 max-w-5xl mx-auto">
+              <NeumorphicCard level={4} className="text-center">
+                <div className="mb-6">
+                  <img 
+                    src="/lovable-uploads/7b66dfbe-2aef-444a-97f3-9c2d0636404c.png" 
+                    alt="Chef Dominick 'Train' Ward" 
+                    className="w-32 h-32 rounded-full mx-auto mb-4 object-cover"
+                  />
+                  <ChefHat className="h-12 w-12 text-primary mx-auto mb-4" />
+                </div>
+                <h3 className="text-xl font-elegant font-semibold text-foreground mb-2">
+                  Chef Dominick "Train" Ward
+                </h3>
+                <p className="text-primary font-medium mb-4">Head Chef & Co-Founder</p>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  With over 20 years of culinary experience, Chef Train brings authentic Southern flavors and professional excellence to every event. His passion for food and commitment to quality has made Soul Train's Eatery a trusted name in Charleston catering.
+                </p>
+              </NeumorphicCard>
+              
+              <NeumorphicCard level={4} className="text-center">
+                <div className="mb-6">
+                  <img 
+                    src="/lovable-uploads/1dcbc1ee-eb25-4d89-8722-cb4904d1ba69.png" 
+                    alt="Pastry Chef Tanya Ward" 
+                    className="w-32 h-32 rounded-full mx-auto mb-4 object-cover"
+                  />
+                  <Heart className="h-12 w-12 text-primary mx-auto mb-4" />
+                </div>
+                <h3 className="text-xl font-elegant font-semibold text-foreground mb-2">
+                  Tanya Ward
+                </h3>
+                <p className="text-primary font-medium mb-4">Pastry Chef & Co-Founder</p>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Tanya's expertise in pastry arts and dessert creation adds the perfect sweet touch to every celebration. Her attention to detail and creative flair ensure that every dessert is both beautiful and delicious.
+                </p>
+              </NeumorphicCard>
+            </div>
+          </div>
+        </PageSection>
+
+        {/* Values Section - Pattern B */}
+        <PageSection pattern="b" withBorder>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant text-foreground mb-6">
+                Our Values
+              </h2>
+              <p className="text-sm sm:text-base lg:text-lg text-muted-foreground max-w-3xl mx-auto">
+                These core values guide everything we do, from sourcing ingredients to serving your guests.
+              </p>
+            </div>
+            
+            <div className="grid md:grid-cols-3 gap-8 lg:gap-12">
+              <NeumorphicCard level={2} className="text-center hover:scale-105 transition-transform duration-300">
+                <Award className="h-12 w-12 text-primary mx-auto mb-4" />
+                <h3 className="text-xl font-elegant font-semibold text-foreground mb-4">Quality First</h3>
+                <p className="text-sm text-muted-foreground">
+                  We source the finest ingredients and maintain the highest standards in food preparation and presentation.
+                </p>
+              </NeumorphicCard>
+              
+              <NeumorphicCard level={2} className="text-center hover:scale-105 transition-transform duration-300">
+                <Users className="h-12 w-12 text-primary mx-auto mb-4" />
+                <h3 className="text-xl font-elegant font-semibold text-foreground mb-4">Family Spirit</h3>
+                <p className="text-sm text-muted-foreground">
+                  As a family-run business, we treat every client like family and every event like our own celebration.
+                </p>
+              </NeumorphicCard>
+              
+              <NeumorphicCard level={2} className="text-center hover:scale-105 transition-transform duration-300">
+                <Clock className="h-12 w-12 text-primary mx-auto mb-4" />
+                <h3 className="text-xl font-elegant font-semibold text-foreground mb-4">Reliability</h3>
+                <p className="text-sm text-muted-foreground">
+                  Count on us to deliver exceptional service on time, every time, with the professionalism you deserve.
+                </p>
+              </NeumorphicCard>
+            </div>
+          </div>
+        </PageSection>
+
+        {/* CTA Section - Pattern A */}
+        <PageSection pattern="a" withBorder>
+          <CTASection
+            title="Ready to Experience Soul Train's Difference?"
+            description="Let our family serve yours with the authentic flavors and warm hospitality that have made us Charleston's trusted catering choice for over two decades."
+            buttons={[
+              {
+                text: "Request Quote",
+                href: "/request-quote#page-header",
+                variant: "cta"
+              },
+              {
+                text: "View Our Menu",
+                href: "/menu#page-header",
+                variant: "cta-white"
+              }
+            ]}
+            footer="ServSafe certified • Family owned • Community trusted"
+          />
+        </PageSection>
+      </main>
     </div>
   );
 };

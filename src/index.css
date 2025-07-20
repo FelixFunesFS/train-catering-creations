@@ -30,6 +30,13 @@
     --ring: 0 84% 60%;
     --radius: 0.75rem;
 
+    /* Enhanced accessibility colors - WCAG 2.1 AA compliant */
+    --text-high-contrast: 0 0% 100%;
+    --text-medium-contrast: 32 15% 85%;
+    --text-low-contrast: 32 8% 75%;
+    --focus-ring: 0 84% 60%;
+    --focus-ring-offset: 40 12% 8%;
+
     /* Category colors for menu sections */
     --category-appetizers: 120 45% 55%;
     --category-appetizers-foreground: 40 12% 8%;
@@ -48,39 +55,35 @@
     --service-family: 120 45% 55%;
     --service-family-foreground: 40 12% 8%;
 
-    /* Enhanced gradients - red themed with section patterns */
+    /* Enhanced alternating section gradients */
+    --gradient-pattern-a: linear-gradient(135deg, hsl(38, 10%, 5%) 0%, hsl(0, 84%, 60%, 0.08) 30%, hsl(0, 84%, 50%, 0.12) 70%, hsl(38, 10%, 5%) 100%);
+    --gradient-pattern-b: linear-gradient(225deg, hsl(0, 84%, 60%, 0.04) 0%, hsl(38, 10%, 5%) 40%, hsl(0, 84%, 50%, 0.06) 80%, hsl(40, 12%, 8%) 100%);
+    --gradient-pattern-c: linear-gradient(45deg, hsl(0, 84%, 50%, 0.10) 0%, hsl(40, 12%, 8%) 30%, hsl(0, 84%, 60%, 0.08) 70%, hsl(38, 10%, 5%) 100%);
+    --gradient-pattern-d: linear-gradient(315deg, hsl(38, 10%, 5%) 0%, hsl(0, 84%, 60%, 0.05) 40%, hsl(0, 84%, 50%, 0.05) 80%, hsl(40, 12%, 8%) 100%);
+
+    /* Enhanced gradients */
     --gradient-primary: linear-gradient(135deg, hsl(0, 84%, 60%) 0%, hsl(0, 84%, 50%) 100%);
     --gradient-hero: linear-gradient(180deg, hsl(38, 10%, 5%) 0%, hsl(40, 12%, 8%) 50%, hsl(38, 10%, 5%) 100%);
     --gradient-card: linear-gradient(145deg, hsl(40, 12%, 8%) 0%, hsl(40, 8%, 12%) 100%);
-    
-    /* New alternating section gradients */
-    --gradient-pattern-a: linear-gradient(135deg, hsl(38, 10%, 5%) 0%, hsl(0, 84%, 60%, 0.03) 50%, hsl(0, 84%, 50%, 0.05) 100%);
-    --gradient-pattern-b: linear-gradient(225deg, hsl(0, 84%, 60%, 0.02) 0%, hsl(38, 10%, 5%) 50%, hsl(0, 84%, 50%, 0.03) 100%);
-    --gradient-pattern-c: linear-gradient(45deg, hsl(0, 84%, 50%, 0.04) 0%, hsl(38, 10%, 5%) 50%, hsl(0, 84%, 60%, 0.03) 100%);
-    --gradient-pattern-d: linear-gradient(315deg, hsl(38, 10%, 5%) 0%, hsl(0, 84%, 60%, 0.02) 50%, hsl(0, 84%, 50%, 0.02) 100%);
-    
-    /* Navigation glassmorphic gradient */
     --gradient-nav: linear-gradient(180deg, hsl(38, 10%, 5%, 0.95) 0%, hsl(40, 12%, 8%, 0.90) 100%);
 
-    /* Enhanced shadows with neumorphic design */
-    --shadow-card: 0 4px 6px -1px hsla(0, 0%, 0%, 0.3), 0 2px 4px -1px hsla(0, 0%, 0%, 0.2);
-    --shadow-elegant: 0 10px 15px -3px hsla(0, 0%, 0%, 0.4), 0 4px 6px -2px hsla(0, 0%, 0%, 0.3);
-    --shadow-elevated: 0 20px 25px -5px hsla(0, 0%, 0%, 0.4), 0 10px 10px -5px hsla(0, 0%, 0%, 0.2);
-    --shadow-float: 0 25px 50px -12px hsla(0, 0%, 0%, 0.5);
-    --shadow-soft: 0 2px 8px hsla(0, 0%, 0%, 0.15);
+    /* Enhanced neumorphic shadows with accessibility considerations */
+    --shadow-neumorphic-1: 2px 2px 4px hsla(0, 0%, 0%, 0.3), -2px -2px 4px hsla(0, 0%, 100%, 0.05);
+    --shadow-neumorphic-2: 4px 4px 8px hsla(0, 0%, 0%, 0.4), -4px -4px 8px hsla(0, 0%, 100%, 0.08);
+    --shadow-neumorphic-3: 6px 6px 12px hsla(0, 0%, 0%, 0.5), -6px -6px 12px hsla(0, 0%, 100%, 0.1);
+    --shadow-neumorphic-4: 8px 8px 16px hsla(0, 0%, 0%, 0.6), -8px -8px 16px hsla(0, 0%, 100%, 0.12);
+    --shadow-neumorphic-5: 12px 12px 24px hsla(0, 0%, 0%, 0.7), -12px -12px 24px hsla(0, 0%, 100%, 0.15);
+    --shadow-neumorphic-6: 16px 16px 32px hsla(0, 0%, 0%, 0.8), -16px -16px 32px hsla(0, 0%, 100%, 0.18);
+
+    /* Inset shadows for pressed states */
+    --shadow-neumorphic-inset-1: inset 2px 2px 4px hsla(0, 0%, 0%, 0.3), inset -2px -2px 4px hsla(0, 0%, 100%, 0.05);
+    --shadow-neumorphic-inset-2: inset 4px 4px 8px hsla(0, 0%, 0%, 0.4), inset -4px -4px 8px hsla(0, 0%, 100%, 0.08);
+    --shadow-neumorphic-inset-3: inset 6px 6px 12px hsla(0, 0%, 0%, 0.5), inset -6px -6px 12px hsla(0, 0%, 100%, 0.1);
+
+    /* Focus and interaction shadows */
+    --shadow-focus: 0 0 0 3px hsla(0, 84%, 60%, 0.3);
     --shadow-glow: 0 0 20px hsla(0, 84%, 60%, 0.3);
     --shadow-glow-strong: 0 0 30px hsla(0, 84%, 60%, 0.5);
-
-    /* Enhanced neumorphic shadows */
-    --shadow-neumorphic-inset: inset 2px 2px 5px hsla(0, 0%, 0%, 0.3), inset -2px -2px 5px hsla(0, 0%, 100%, 0.1);
-    --shadow-neumorphic-outset: 4px 4px 8px hsla(0, 0%, 0%, 0.4), -4px -4px 8px hsla(0, 0%, 100%, 0.05);
-    --shadow-neumorphic-soft: 2px 2px 6px hsla(0, 0%, 0%, 0.2), -2px -2px 6px hsla(0, 0%, 100%, 0.03);
-    --shadow-neumorphic-elevated: 6px 6px 12px hsla(0, 0%, 0%, 0.5), -6px -6px 12px hsla(0, 0%, 100%, 0.08);
-    
-    /* Navigation specific shadows */
-    --shadow-nav-floating: 0 8px 32px hsla(0, 0%, 0%, 0.3), 0 2px 8px hsla(0, 0%, 0%, 0.2);
-    --shadow-nav-link: 1px 1px 3px hsla(0, 0%, 0%, 0.2), -1px -1px 3px hsla(0, 0%, 100%, 0.05);
-    --shadow-nav-active: inset 1px 1px 3px hsla(0, 0%, 0%, 0.3), inset -1px -1px 3px hsla(0, 0%, 100%, 0.08);
 
     /* Responsive spacing */
     --spacing-section: 4rem;
@@ -90,12 +93,13 @@
     --spacing-card-sm: 1rem;
     --spacing-card-lg: 2rem;
     
-    /* Touch targets */
+    /* Accessibility touch targets */
     --touch-target-min: 44px;
     --touch-target-comfortable: 48px;
     
     /* Animation durations */
     --floating-duration: 3s;
+    --transition-duration: 0.3s;
   }
 
   .dark {
@@ -130,8 +134,215 @@
   }
 }
 
-/* Custom styles for floating cards and animations */
+/* Enhanced accessibility and neumorphic components */
 @layer components {
+  /* Skip to content link for accessibility */
+  .skip-to-content {
+    @apply absolute -top-10 left-4 z-50 bg-primary text-primary-foreground px-4 py-2 rounded-md;
+    @apply focus:top-4 transition-all duration-300;
+    @apply font-medium text-sm;
+  }
+
+  /* Enhanced focus styles for accessibility */
+  .focus-visible-enhanced {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+  }
+
+  /* Neumorphic card system */
+  .neumorphic-card-1 {
+    @apply bg-gradient-to-br from-card to-muted border border-border/20;
+    box-shadow: var(--shadow-neumorphic-1);
+    transition: all var(--transition-duration) ease;
+  }
+
+  .neumorphic-card-2 {
+    @apply bg-gradient-to-br from-card to-muted border border-border/20;
+    box-shadow: var(--shadow-neumorphic-2);
+    transition: all var(--transition-duration) ease;
+  }
+
+  .neumorphic-card-3 {
+    @apply bg-gradient-to-br from-card to-muted border border-border/20;
+    box-shadow: var(--shadow-neumorphic-3);
+    transition: all var(--transition-duration) ease;
+  }
+
+  .neumorphic-card-4 {
+    @apply bg-gradient-to-br from-card to-muted border border-border/20;
+    box-shadow: var(--shadow-neumorphic-4);
+    transition: all var(--transition-duration) ease;
+  }
+
+  .neumorphic-card-5 {
+    @apply bg-gradient-to-br from-card to-muted border border-border/20;
+    box-shadow: var(--shadow-neumorphic-5);
+    transition: all var(--transition-duration) ease;
+  }
+
+  .neumorphic-card-6 {
+    @apply bg-gradient-to-br from-card to-muted border border-border/20;
+    box-shadow: var(--shadow-neumorphic-6);
+    transition: all var(--transition-duration) ease;
+  }
+
+  /* Interactive card states */
+  .neumorphic-card-1:hover {
+    box-shadow: var(--shadow-neumorphic-2);
+    transform: translateY(-2px);
+  }
+
+  .neumorphic-card-2:hover {
+    box-shadow: var(--shadow-neumorphic-3);
+    transform: translateY(-2px);
+  }
+
+  .neumorphic-card-3:hover {
+    box-shadow: var(--shadow-neumorphic-4);
+    transform: translateY(-2px);
+  }
+
+  .neumorphic-card-4:hover {
+    box-shadow: var(--shadow-neumorphic-5);
+    transform: translateY(-2px);
+  }
+
+  .neumorphic-card-5:hover {
+    box-shadow: var(--shadow-neumorphic-6);
+    transform: translateY(-3px);
+  }
+
+  .neumorphic-card-6:hover {
+    box-shadow: var(--shadow-neumorphic-6), var(--shadow-glow);
+    transform: translateY(-3px);
+  }
+
+  /* Neumorphic button system */
+  .neumorphic-button-primary {
+    @apply bg-gradient-to-br from-primary to-primary/90 text-primary-foreground;
+    box-shadow: var(--shadow-neumorphic-2);
+    transition: all var(--transition-duration) ease;
+  }
+
+  .neumorphic-button-primary:hover {
+    box-shadow: var(--shadow-neumorphic-3), var(--shadow-glow);
+    transform: translateY(-1px);
+  }
+
+  .neumorphic-button-primary:active {
+    box-shadow: var(--shadow-neumorphic-inset-2);
+    transform: translateY(0);
+  }
+
+  .neumorphic-button-secondary {
+    @apply bg-gradient-to-br from-secondary to-muted text-secondary-foreground border border-border/20;
+    box-shadow: var(--shadow-neumorphic-1);
+    transition: all var(--transition-duration) ease;
+  }
+
+  .neumorphic-button-secondary:hover {
+    box-shadow: var(--shadow-neumorphic-2);
+    transform: translateY(-1px);
+  }
+
+  .neumorphic-button-secondary:active {
+    box-shadow: var(--shadow-neumorphic-inset-1);
+    transform: translateY(0);
+  }
+
+  /* Enhanced form controls */
+  .neumorphic-input {
+    @apply bg-gradient-to-br from-input to-muted border border-border/20;
+    box-shadow: var(--shadow-neumorphic-inset-1);
+    transition: all var(--transition-duration) ease;
+  }
+
+  .neumorphic-input:focus {
+    box-shadow: var(--shadow-neumorphic-inset-2), var(--shadow-focus);
+    @apply border-ring/50;
+  }
+
+  /* Section pattern backgrounds */
+  .section-pattern-a {
+    background: var(--gradient-pattern-a);
+    position: relative;
+  }
+
+  .section-pattern-b {
+    background: var(--gradient-pattern-b);
+    position: relative;
+  }
+
+  .section-pattern-c {
+    background: var(--gradient-pattern-c);
+    position: relative;
+  }
+
+  .section-pattern-d {
+    background: var(--gradient-pattern-d);
+    position: relative;
+  }
+
+  /* Enhanced navigation styles */
+  .nav-glassmorphic {
+    background: var(--gradient-nav);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: var(--shadow-neumorphic-2);
+    border-bottom: 1px solid hsla(0, 0%, 100%, 0.1);
+    transition: all var(--transition-duration) ease;
+  }
+
+  .nav-glassmorphic.scrolled {
+    box-shadow: var(--shadow-neumorphic-3);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+  }
+
+  .nav-link-neumorphic {
+    @apply bg-gradient-to-br from-secondary to-muted text-secondary-foreground border border-border/10;
+    box-shadow: var(--shadow-neumorphic-1);
+    transition: all var(--transition-duration) ease;
+  }
+
+  .nav-link-neumorphic:hover {
+    box-shadow: var(--shadow-neumorphic-2);
+    transform: translateY(-1px);
+  }
+
+  .nav-link-neumorphic.active {
+    box-shadow: var(--shadow-neumorphic-inset-1);
+    @apply bg-gradient-to-br from-primary/10 to-primary/20 text-primary border-primary/20;
+  }
+
+  .logo-neumorphic {
+    @apply bg-gradient-to-br from-secondary to-muted border border-border/10;
+    box-shadow: var(--shadow-neumorphic-1);
+    transition: all var(--transition-duration) ease;
+  }
+
+  .logo-neumorphic:hover {
+    box-shadow: var(--shadow-neumorphic-2), var(--shadow-glow);
+    transform: translateY(-2px);
+  }
+
+  /* Section transitions with accessibility */
+  .section-border {
+    border-top: 1px solid hsla(0, 0%, 100%, 0.05);
+    box-shadow: 0 -1px 0 hsla(0, 0%, 0%, 0.1);
+    position: relative;
+  }
+
+  .section-border::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, hsla(0, 84%, 60%, 0.3), transparent);
+  }
+
+  /* Enhanced floating animations */
   .floating-card {
     animation: float 6s ease-in-out infinite;
   }
@@ -140,119 +351,33 @@
     animation-delay: -3s;
   }
 
+  /* Story link with accessibility */
   .story-link {
-    @apply relative inline-block after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-primary after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left;
+    @apply relative inline-block focus-visible-enhanced;
+    @apply after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-primary after:origin-bottom-right after:transition-transform after:duration-300;
+    @apply hover:after:scale-x-100 hover:after:origin-bottom-left;
   }
 
+  /* Enhanced hover effects */
   .hover-scale {
-    @apply transition-transform duration-200 hover:scale-105;
+    @apply transition-transform duration-200 hover:scale-105 focus-visible-enhanced;
   }
 
-  /* Enhanced neumorphic design utilities */
-  .neumorphic-inset {
-    box-shadow: var(--shadow-neumorphic-inset);
-  }
-
-  .neumorphic-outset {
-    box-shadow: var(--shadow-neumorphic-outset);
-  }
-
-  .neumorphic-soft {
-    box-shadow: var(--shadow-neumorphic-soft);
-  }
-
-  .neumorphic-elevated {
-    box-shadow: var(--shadow-neumorphic-elevated);
-  }
-
-  .neumorphic-page {
-    @apply bg-gradient-to-br from-background to-card;
-    box-shadow: var(--shadow-neumorphic-soft);
-  }
-
-  .neumorphic-card {
-    @apply bg-gradient-to-br from-card to-muted;
-    box-shadow: var(--shadow-neumorphic-outset);
-    border: 1px solid hsla(0, 0%, 100%, 0.05);
-  }
-
-  .neumorphic-button {
-    @apply bg-gradient-to-br from-secondary to-muted;
-    box-shadow: var(--shadow-neumorphic-outset);
-    border: 1px solid hsla(0, 0%, 100%, 0.1);
-    transition: all 0.2s ease;
-  }
-
-  .neumorphic-button:hover {
-    box-shadow: var(--shadow-neumorphic-elevated);
-    transform: translateY(-1px);
-  }
-
-  .neumorphic-button:active {
-    box-shadow: var(--shadow-neumorphic-inset);
-    transform: translateY(0);
-  }
-
-  /* New section pattern backgrounds */
-  .section-pattern-a {
-    background: var(--gradient-pattern-a);
-  }
-
-  .section-pattern-b {
-    background: var(--gradient-pattern-b);
-  }
-
-  .section-pattern-c {
-    background: var(--gradient-pattern-c);
-  }
-
-  .section-pattern-d {
-    background: var(--gradient-pattern-d);
-  }
-
-  /* Navigation specific styles */
-  .nav-glassmorphic {
-    background: var(--gradient-nav);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    box-shadow: var(--shadow-nav-floating);
-    border-bottom: 1px solid hsla(0, 0%, 100%, 0.1);
-  }
-
-  .nav-link-neumorphic {
-    box-shadow: var(--shadow-nav-link);
-    background: linear-gradient(145deg, hsl(40, 8%, 15%) 0%, hsl(40, 12%, 8%) 100%);
-    border: 1px solid hsla(0, 0%, 100%, 0.05);
-    transition: all 0.3s ease;
-  }
-
-  .nav-link-neumorphic:hover {
-    box-shadow: var(--shadow-neumorphic-elevated);
-    transform: translateY(-1px);
-  }
-
-  .nav-link-neumorphic.active {
-    box-shadow: var(--shadow-nav-active);
-    background: linear-gradient(145deg, hsl(0, 84%, 60%, 0.1) 0%, hsl(40, 12%, 8%) 100%);
-    border-color: hsl(0, 84%, 60%, 0.2);
-  }
-
-  .logo-neumorphic {
-    background: linear-gradient(145deg, hsl(40, 8%, 15%) 0%, hsl(40, 12%, 8%) 100%);
-    box-shadow: var(--shadow-neumorphic-soft);
-    border: 1px solid hsla(0, 0%, 100%, 0.05);
-    transition: all 0.3s ease;
-  }
-
-  .logo-neumorphic:hover {
-    box-shadow: var(--shadow-glow);
-    transform: translateY(-2px);
-  }
-
-  /* Section transitions */
-  .section-border {
-    border-top: 1px solid hsla(0, 0%, 100%, 0.05);
-    box-shadow: 0 -1px 0 hsla(0, 0%, 0%, 0.1);
+  /* High contrast support */
+  @media (prefers-contrast: high) {
+    .neumorphic-card-1,
+    .neumorphic-card-2,
+    .neumorphic-card-3,
+    .neumorphic-card-4,
+    .neumorphic-card-5,
+    .neumorphic-card-6 {
+      @apply border-2 border-foreground/20;
+    }
+    
+    .neumorphic-button-primary,
+    .neumorphic-button-secondary {
+      @apply border-2;
+    }
   }
 }
 
@@ -265,14 +390,15 @@
   }
 }
 
-/* Smooth scrolling */
+/* Enhanced accessibility features */
 html {
   scroll-behavior: smooth;
 }
 
 /* Focus styles for accessibility */
 *:focus-visible {
-  @apply ring-2 ring-ring ring-offset-2 ring-offset-background;
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
 }
 
 /* Selection styles */
@@ -280,7 +406,7 @@ html {
   @apply bg-primary/20 text-foreground;
 }
 
-/* Scrollbar styles for webkit browsers */
+/* Enhanced scrollbar styles */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -291,10 +417,12 @@ html {
 
 ::-webkit-scrollbar-thumb {
   @apply bg-border rounded-lg;
+  box-shadow: var(--shadow-neumorphic-1);
 }
 
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-border/80;
+  box-shadow: var(--shadow-neumorphic-2);
 }
 
 /* Reduced motion support */
@@ -306,5 +434,25 @@ html {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+  
+  .floating-card {
+    animation: none;
+  }
+}
+
+/* Print styles */
+@media print {
+  .nav-glassmorphic,
+  .skip-to-content {
+    display: none;
+  }
+  
+  .section-pattern-a,
+  .section-pattern-b,
+  .section-pattern-c,
+  .section-pattern-d {
+    background: white !important;
+    box-shadow: none !important;
   }
 }

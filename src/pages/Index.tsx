@@ -5,44 +5,47 @@ import { InteractiveGallerySection } from "@/components/home/InteractiveGalleryS
 import { CTASection } from "@/components/home/CTASection";
 import { TestimonialsStatsSection } from "@/components/home/TestimonialsStatsSection";
 import { BrandMarquee } from "@/components/home/BrandMarquee";
+import { PageSection } from "@/components/ui/page-section";
 
 const Index = () => {
   return (
     <div className="min-h-screen">
-      {/* Hero Section - Pattern A (Deep, dramatic) */}
-      <section className="section-pattern-a">
-        <HeroSection />
-      </section>
-      
-      {/* About Preview - Pattern B (Light, welcoming) */}
-      <section className="section-pattern-b section-border">
-        <AboutPreviewSection />
-      </section>
-      
-      {/* Brand Marquee - Pattern C (Elevated, prominent) */}
-      <section className="section-pattern-c section-border">
-        <BrandMarquee />
-      </section>
-      
-      {/* Services - Pattern D (Soft, muted) */}
-      <section className="section-pattern-d section-border">
-        <ServicesSection />
-      </section>
-      
-      {/* Testimonials & Stats - Pattern A (Credibility depth) */}
-      <section className="section-pattern-a section-border">
-        <TestimonialsStatsSection />
-      </section>
-      
-      {/* Interactive Gallery - Pattern B (Showcase lighting) */}
-      <section className="section-pattern-b section-border">
-        <InteractiveGallerySection />
-      </section>
-      
-      {/* CTA Section - Keep current red gradient */}
-      <section className="section-border">
-        <CTASection />
-      </section>
+      <main id="main-content">
+        {/* Hero Section - Pattern A (Deep, dramatic) */}
+        <PageSection pattern="a" skipToContentId="hero-section">
+          <HeroSection />
+        </PageSection>
+        
+        {/* About Preview - Pattern B (Light, welcoming) */}
+        <PageSection pattern="b" withBorder>
+          <AboutPreviewSection />
+        </PageSection>
+        
+        {/* Brand Marquee - Pattern C (Elevated, prominent) */}
+        <PageSection pattern="c" withBorder>
+          <BrandMarquee />
+        </PageSection>
+        
+        {/* Services - Pattern D (Soft, muted) */}
+        <PageSection pattern="d" withBorder>
+          <ServicesSection />
+        </PageSection>
+        
+        {/* Testimonials & Stats - Pattern A (Credibility depth) */}
+        <PageSection pattern="a" withBorder>
+          <TestimonialsStatsSection />
+        </PageSection>
+        
+        {/* Interactive Gallery - Pattern B (Showcase lighting) */}
+        <PageSection pattern="b" withBorder>
+          <InteractiveGallerySection />
+        </PageSection>
+        
+        {/* CTA Section - Keep current red gradient */}
+        <PageSection withBorder>
+          <CTASection />
+        </PageSection>
+      </main>
     </div>
   );
 };
