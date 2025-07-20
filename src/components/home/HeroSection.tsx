@@ -150,7 +150,7 @@ export const HeroSection = () => {
             {/* Subtext Above Image */}
             <div className="text-center mb-6 sm:mb-8">
               <div className="max-w-2xl mx-auto px-2 sm:px-4">
-                <p className="text-lg sm:text-xl lg:text-2xl font-elegant text-foreground leading-relaxed animate-fade-in">
+                <p className="text-base sm:text-lg lg:text-xl font-elegant text-foreground leading-relaxed animate-fade-in">
                   Charleston's premier catering experience- where every bit is made with love and served with soul.
                 </p>
               </div>
@@ -178,7 +178,7 @@ export const HeroSection = () => {
                       <img 
                         src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
                         alt="Soul Train's Eatery Logo" 
-                        className="w-full h-full object-contain hover:scale-110 transition-transform duration-300 drop-shadow-lg" 
+                        className="w-full h-full object-contain hover:scale-110 transition-transform duration-300 drop-shadow-lg brightness-0 invert" 
                       />
                     </div>
                   </div>
