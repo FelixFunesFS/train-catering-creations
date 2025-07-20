@@ -6,7 +6,6 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { ImageModal } from "@/components/gallery/ImageModal";
 import { OptimizedFloatingImage } from "@/components/ui/optimized-floating-image";
 import Autoplay from "embla-carousel-autoplay";
-
 const highQualityImages = [{
   src: "/lovable-uploads/894051bf-31c6-4930-bb88-e3e1d74f7ee1.png",
   title: "Rustic Wedding Venue",
@@ -58,53 +57,34 @@ const highQualityImages = [{
   description: "Perfectly seasoned roasted vegetables and chicken with colorful floral garnish",
   category: "signature"
 }];
-
 export const InteractiveGallerySection = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
-  
   const handleImageClick = (index: number) => {
     setSelectedImageIndex(index);
   };
-  
   const handleCloseModal = () => {
     setSelectedImageIndex(null);
   };
-  
-  return (
-    <section className="py-16 lg:py-20 bg-gradient-card/20 border-t border-border/10">
+  return <section className="py-16 lg:py-20 bg-gradient-card/20 border-t border-border/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8 lg:mb-12">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant text-foreground mb-4 text-fade-up">
             Our Gallery Showcase
           </h2>
-          <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto text-fade-up-delay-1">
-            Experience the artistry and elegance of Soul Train's catering through our finest moments captured at weddings, corporate events, and special celebrations.
-          </p>
+          <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto text-fade-up-delay-1">See how we turn food into an experience! Our gallery highlights the beauty, flavor, and joy behind every event we cater.</p>
         </div>
 
         <div className="relative">
           <Carousel opts={{
-            align: "start",
-            loop: true
-          }} plugins={[Autoplay({
-            delay: 4000
-          })]} className="w-full">
+          align: "start",
+          loop: true
+        }} plugins={[Autoplay({
+          delay: 4000
+        })]} className="w-full">
             <CarouselContent className="-ml-1 gap-2">
-              {highQualityImages.map((image, index) => (
-                <CarouselItem key={index} className="pl-1 basis-1/2 sm:basis-1/3 md:basis-1/4">
-                  <OptimizedFloatingImage
-                    src={image.src}
-                    alt={image.title}
-                    title={image.title}
-                    description={image.description}
-                    aspectRatio="aspect-[3/4]"
-                    variant="medium"
-                    priority={index < 4}
-                    onImageClick={() => handleImageClick(index)}
-                    className="bg-card/80 backdrop-blur-sm border border-border/50 shadow-elegant hover:shadow-elevated"
-                  />
-                </CarouselItem>
-              ))}
+              {highQualityImages.map((image, index) => <CarouselItem key={index} className="pl-1 basis-1/2 sm:basis-1/3 md:basis-1/4">
+                  <OptimizedFloatingImage src={image.src} alt={image.title} title={image.title} description={image.description} aspectRatio="aspect-[3/4]" variant="medium" priority={index < 4} onImageClick={() => handleImageClick(index)} className="bg-card/80 backdrop-blur-sm border border-border/50 shadow-elegant hover:shadow-elevated" />
+                </CarouselItem>)}
             </CarouselContent>
             <CarouselPrevious className="hidden md:flex" />
             <CarouselNext className="hidden md:flex" />
@@ -127,11 +107,6 @@ export const InteractiveGallerySection = () => {
         </div>
       </div>
 
-      <ImageModal 
-        images={highQualityImages}
-        selectedIndex={selectedImageIndex} 
-        onClose={handleCloseModal} 
-      />
-    </section>
-  );
+      <ImageModal images={highQualityImages} selectedIndex={selectedImageIndex} onClose={handleCloseModal} />
+    </section>;
 };
