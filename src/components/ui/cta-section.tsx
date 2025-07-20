@@ -36,7 +36,7 @@ export const CTASection = ({ title, description, buttons, footer }: CTASectionPr
   const buttonsAnimationClass = useAnimationClass(buttonsVariant, buttonsVisible);
 
   return (
-    <section className="py-section-sm md:py-section-lg bg-gradient-primary rounded-lg mx-4 sm:mx-6 lg:mx-8 my-section shadow-elevated hover:shadow-glow-strong transition-all duration-200">
+    <section className="py-16 lg:py-20 bg-gradient-primary rounded-lg mx-4 sm:mx-6 lg:mx-8 my-2 sm:my-3 lg:my-4 shadow-elevated hover:shadow-glow-strong transition-all duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <div ref={titleRef} className={titleAnimationClass}>
           <h2 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-elegant text-primary-foreground mb-4 sm:mb-6">
