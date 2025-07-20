@@ -70,9 +70,8 @@ export const HeroSection = () => {
                 
                 {/* Main Heading */}
                 <div className="mb-6 sm:mb-8">
-                  <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant text-foreground leading-tight sm:leading-tight lg:leading-tight animate-fade-in">
-                    Where Southern Flavor Meets Family & Celebration
-                  </h1>
+                  <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant text-foreground leading-tight sm:leading-tight lg:leading-tight animate-fade-in">Where Southern Flavor Meets
+Family & Celebration</h1>
                 </div>
                 
                 {/* Decorative line */}
