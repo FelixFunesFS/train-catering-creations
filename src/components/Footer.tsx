@@ -1,6 +1,7 @@
 
 import { Link } from "react-router-dom";
 import { Phone, Mail, MapPin, Clock, Facebook, Instagram, Twitter, Star } from "lucide-react";
+
 export const Footer = () => {
   const currentYear = new Date().getFullYear();
   const navigationLinks = [{
@@ -44,11 +45,11 @@ export const Footer = () => {
             </p>
             <div className="space-y-2">
               <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                <Star className="h-4 w-4 text-red-500" fill="currentColor" />
+                <Star className="h-4 w-4 text-accent" fill="currentColor" />
                 <span>Premium Catering Services</span>
               </div>
               <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                <Star className="h-4 w-4 text-red-500" fill="currentColor" />
+                <Star className="h-4 w-4 text-accent" fill="currentColor" />
                 <span>Licensed & Insured</span>
               </div>
             </div>
@@ -59,22 +60,22 @@ export const Footer = () => {
             <h3 className="text-lg font-elegant font-semibold text-foreground mb-4">Contact Us</h3>
             <div className="space-y-3">
               <a href="tel:8439700265" className="flex items-center space-x-3 text-sm text-muted-foreground hover:text-primary transition-all duration-200 group">
-                <Phone className="h-4 w-4 text-red-500" />
+                <Phone className="h-4 w-4 text-accent" />
                 <span>Call (843) 970-0265</span>
               </a>
               <a href="mailto:soultrainseatery@gmail.com" className="flex items-center space-x-3 text-sm text-muted-foreground hover:text-primary transition-all duration-200 group">
-                <Mail className="h-4 w-4 text-red-500" />
+                <Mail className="h-4 w-4 text-accent" />
                 <span>soultrainseatery@gmail.com</span>
               </a>
               <div className="flex items-start space-x-3 text-sm text-muted-foreground">
-                <MapPin className="h-4 w-4 mt-0.5 text-red-500" />
+                <MapPin className="h-4 w-4 mt-0.5 text-accent" />
                 <div>
                   <p>Charleston, SC Metro Area</p>
                   <p className="text-xs">Serving all surrounding areas</p>
                 </div>
               </div>
               <div className="flex items-center space-x-3 text-sm text-muted-foreground">
-                <Clock className="h-4 w-4 text-red-500" />
+                <Clock className="h-4 w-4 text-accent" />
                 <div>
                   <p>By Appointment</p>
                   <p className="text-xs">Call for availability</p>
@@ -137,17 +138,17 @@ export const Footer = () => {
       </div>
 
       {/* Enhanced Copyright Bar with better neutral balance */}
-      <div className="bg-red-600 border-t border-red-700 py-4">
+      <div className="bg-accent border-t border-accent/80 py-4">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-0">
-          <div className="flex flex-col sm:flex-row justify-between items-center text-sm text-white">
+          <div className="flex flex-col sm:flex-row justify-between items-center text-sm text-accent-foreground">
             <div className="flex items-center space-x-3">
               
               <p>© {currentYear} Soul Train's Eatery. All rights reserved.</p>
             </div>
             <div className="flex flex-wrap space-x-3 mt-2 sm:mt-0 text-center sm:text-right">
-              <Link to="/privacy-policy" className="text-white hover:text-red-200 transition-colors duration-200">Privacy Policy</Link>
-              <span className="text-white">|</span>
-              <Link to="/terms-conditions" className="text-white hover:text-red-200 transition-colors duration-200">Terms & Conditions</Link>
+              <Link to="/privacy-policy" className="text-accent-foreground hover:text-accent-foreground/80 transition-colors duration-200">Privacy Policy</Link>
+              <span className="text-accent-foreground">|</span>
+              <Link to="/terms-conditions" className="text-accent-foreground hover:text-accent-foreground/80 transition-colors duration-200">Terms & Conditions</Link>
             </div>
           </div>
         </div>
