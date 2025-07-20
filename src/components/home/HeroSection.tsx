@@ -70,8 +70,20 @@ export const HeroSection = () => {
   return (
     <>
       {/* Hero Section */}
-      <section className="mb-8 sm:mb-12 md:mb-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
+      <section className="mb-8 sm:mb-12 md:mb-16 relative">
+        {/* Watermark Icon - Behind all content for accessibility */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
+          <div className="opacity-5 transform scale-150 md:scale-200">
+            <img 
+              src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
+              alt="" 
+              className="w-48 h-48 sm:w-64 sm:h-64 md:w-80 md:h-80 object-contain" 
+              aria-hidden="true"
+            />
+          </div>
+        </div>
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 relative z-10">
           <div className="flex flex-col">
             
             {/* Brand Header Section */}

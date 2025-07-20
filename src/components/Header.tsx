@@ -32,7 +32,10 @@ export const Header = () => {
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
         <div className="flex justify-between items-center py-3 sm:py-6">
           {/* Logo */}
-          <Link to="/" className="flex items-center hover:scale-105 transition-transform duration-200">
+          <Link to="/" className="flex items-center hover:scale-105 transition-transform duration-200 gap-3">
+            <div className="h-8 w-8 lg:h-10 lg:w-10 flex-shrink-0">
+              <img src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" alt="Soul Train's Eatery Logo" className="w-full h-full object-contain" />
+            </div>
             <div className="text-2xl lg:text-3xl font-script font-bold text-primary">Soul Train's Eatery</div>
           </Link>
 
