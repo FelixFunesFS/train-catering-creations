@@ -52,7 +52,7 @@ export const MagneticTagline = ({ text, className = '', onAnimationComplete }: M
       y: 0,
       scale: 1,
       transition: {
-        type: "spring",
+        type: "spring" as const,
         damping: 12,
         stiffness: 200
       }
@@ -63,7 +63,7 @@ export const MagneticTagline = ({ text, className = '', onAnimationComplete }: M
     scale: 1.05,
     y: -2,
     transition: {
-      type: "spring",
+      type: "spring" as const,
       stiffness: 400,
       damping: 10
     }
