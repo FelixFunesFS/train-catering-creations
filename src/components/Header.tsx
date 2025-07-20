@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
@@ -83,7 +82,8 @@ export const Header = () => {
               <Button 
                 asChild 
                 variant="cta" 
-                className="text-sm font-medium px-4 py-2 rounded-lg neumorphic-button-primary h-[38px]"
+                size="sm"
+                className="text-sm font-medium px-4 py-2 rounded-lg neumorphic-button-primary"
               >
                 <Link to="/request-quote#page-header">Request Quote</Link>
               </Button>
