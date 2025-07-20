@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ImageModal } from "@/components/gallery/ImageModal";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
+
 export const HeroSection = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
 
@@ -43,6 +44,7 @@ export const HeroSection = () => {
     category: "appetizer"
   }];
   const allImages = [...heroImages, ...additionalImages];
+
   const handleImageClick = (index: number) => {
     setSelectedImageIndex(index);
   };
@@ -89,7 +91,19 @@ export const HeroSection = () => {
                     })]} className="w-full">
                         <CarouselContent className="-ml-1 gap-2">
                         {heroImages.map((image, index) => <CarouselItem key={index} className="pl-1 basis-full md:basis-1/2 lg:basis-1/3">
-                            <div className="group relative overflow-hidden rounded-lg bg-gradient-card transition-all duration-300 cursor-pointer transform hover:scale-[1.02] animate-fade-in" style={{boxShadow: '0 0 0 1px rgba(255,255,255,0.1), 0 8px 32px -8px rgba(0,0,0,0.3), 0 0 40px -10px rgba(59, 130, 246, 0.15)'}} onClick={() => handleImageClick(index)}>
+                            <div 
+                              className="group relative overflow-hidden rounded-lg bg-gradient-card transition-all duration-300 cursor-pointer transform hover:scale-[1.02] animate-fade-in" 
+                              style={{
+                                boxShadow: '0 0 0 1px rgba(255,255,255,0.2), 0 12px 40px -8px rgba(0,0,0,0.6), 0 0 50px -10px rgba(59, 130, 246, 0.3)'
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.boxShadow = '0 0 0 2px rgba(255,255,255,0.3), 0 20px 60px -8px rgba(0,0,0,0.8), 0 0 80px -10px rgba(59, 130, 246, 0.5)';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.boxShadow = '0 0 0 1px rgba(255,255,255,0.2), 0 12px 40px -8px rgba(0,0,0,0.6), 0 0 50px -10px rgba(59, 130, 246, 0.3)';
+                              }}
+                              onClick={() => handleImageClick(index)}
+                            >
                               <div className="aspect-[16/9] overflow-hidden">
                                   <img src={image.src} alt={image.alt} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading={index < 2 ? "eager" : "lazy"} decoding="async" />
                                 </div>
