@@ -89,7 +89,7 @@ export const HeroSection = () => {
                       Request Quote
                     </Link>
                   </Button>
-                  <Button asChild variant="cta-outline" size="responsive-lg" className="w-3/5 sm:w-auto sm:min-w-[12rem] hidden sm:flex">
+                  <Button asChild variant="cta-outline" size="responsive-lg" className="w-3/5 sm:w-auto sm:min-w-[12rem]">
                     <Link to="/gallery#page-header">
                       Gallery
                     </Link>
@@ -99,10 +99,10 @@ export const HeroSection = () => {
             </div>
 
             {/* Image Gallery Carousel Section */}
-            <div className="relative pt-4 sm:pt-4 pb-6 sm:pb-8 lg:pb-12 order-1 md:order-2">
+            <div className="relative pt-4 sm:pt-4 pb-4 sm:pb-6 lg:pb-8 order-1 md:order-2">
               <div className="max-w-7xl mx-auto">
                 {/* Responsive Carousel */}
-                <div className="relative mb-6 sm:mb-8">
+                <div className="relative">
                   <Carousel opts={{
                   align: "start",
                   loop: true
@@ -136,16 +136,6 @@ export const HeroSection = () => {
                     <CarouselPrevious className="hidden md:flex -left-12" />
                     <CarouselNext className="hidden md:flex -right-12" />
                   </Carousel>
-                </div>
-
-                {/* View More Link */}
-                <div className="text-center">
-                  <Link to="/gallery#page-header" className="inline-flex items-center gap-2 text-primary hover:text-primary-glow transition-colors duration-200 font-medium text-lg group min-h-touch">
-                    View Complete Gallery 
-                    <svg className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                    </svg>
-                  </Link>
                 </div>
               </div>
             </div>
