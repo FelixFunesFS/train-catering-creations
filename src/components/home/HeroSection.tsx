@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ImageModal } from "@/components/gallery/ImageModal";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
+
 export const HeroSection = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
 
@@ -89,27 +90,79 @@ export const HeroSection = () => {
                     })]} className="w-full">
                         <CarouselContent className="-ml-1 gap-2">
                         {heroImages.map((image, index) => <CarouselItem key={index} className="pl-1 basis-full md:basis-1/2 lg:basis-1/3">
-                            <div className="group relative overflow-hidden rounded-lg bg-gradient-card transition-all duration-300 cursor-pointer transform hover:scale-[1.02] animate-fade-in" style={{boxShadow: '0 8px 25px -5px rgba(0,0,0,0.15), 0 4px 10px -2px rgba(0,0,0,0.1), 0 0 0 1px rgba(255,255,255,0.05)'}} onClick={() => handleImageClick(index)}>
-                              <div className="aspect-[16/9] overflow-hidden">
-                                  <img src={image.src} alt={image.alt} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading={index < 2 ? "eager" : "lazy"} decoding="async" />
-                                </div>
+                            <div 
+                              className="group relative overflow-hidden rounded-xl cursor-pointer transform hover:scale-[1.02] animate-fade-in transition-all duration-300"
+                              style={{
+                                background: 'linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
+                                backdropFilter: 'blur(10px)',
+                                boxShadow: `
+                                  0 8px 32px rgba(0,0,0,0.12),
+                                  0 2px 16px rgba(0,0,0,0.08),
+                                  inset 0 1px 0 rgba(255,255,255,0.1),
+                                  0 1px 3px rgba(0,0,0,0.1)
+                                `,
+                                border: '1px solid rgba(255,255,255,0.1)'
+                              }}
+                              onClick={() => handleImageClick(index)}
+                            >
+                              <div className="aspect-[16/9] overflow-hidden rounded-xl relative">
+                                <img 
+                                  src={image.src} 
+                                  alt={image.alt} 
+                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                                  loading={index < 2 ? "eager" : "lazy"} 
+                                  decoding="async" 
+                                />
                                 
-                                {/* Hover Overlay */}
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                  <div className="absolute bottom-4 left-4 right-4">
-                                    <h3 className="text-white font-elegant font-semibold text-lg mb-2">
-                                      {image.title}
-                                    </h3>
-                                    <p className="text-white/90 text-sm leading-tight">
-                                      Click to view full size
-                                    </p>
-                                  </div>
-                                </div>
-
-                                {/* Subtle border effect */}
-                                <div className="absolute inset-0 border-2 border-transparent group-hover:border-primary/20 rounded-lg transition-colors duration-300"></div>
+                                {/* Inner shadow vignette for soft edges */}
+                                <div 
+                                  className="absolute inset-0 rounded-xl pointer-events-none"
+                                  style={{
+                                    background: `
+                                      radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.1) 100%),
+                                      linear-gradient(to bottom, transparent 60%, rgba(0,0,0,0.05) 100%)
+                                    `
+                                  }}
+                                />
+                                
+                                {/* Gradient border fade effect */}
+                                <div 
+                                  className="absolute inset-0 rounded-xl pointer-events-none opacity-60"
+                                  style={{
+                                    background: `
+                                      linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent),
+                                      linear-gradient(-45deg, transparent, rgba(255,255,255,0.05), transparent)
+                                    `,
+                                    mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                                    maskComposite: 'xor',
+                                    padding: '1px'
+                                  }}
+                                />
                               </div>
-                            </CarouselItem>)}
+                                
+                              {/* Hover Overlay */}
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl">
+                                <div className="absolute bottom-4 left-4 right-4">
+                                  <h3 className="text-white font-elegant font-semibold text-lg mb-2">
+                                    {image.title}
+                                  </h3>
+                                  <p className="text-white/90 text-sm leading-tight">
+                                    Click to view full size
+                                  </p>
+                                </div>
+                              </div>
+
+                              {/* Enhanced border highlight on hover */}
+                              <div 
+                                className="absolute inset-0 rounded-xl border-2 border-transparent group-hover:border-primary/30 transition-all duration-300"
+                                style={{
+                                  background: 'linear-gradient(45deg, transparent, rgba(var(--primary)/0.1), transparent) border-box',
+                                  mask: 'linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0)',
+                                  maskComposite: 'xor'
+                                }}
+                              />
+                            </div>
+                          </CarouselItem>)}
                         </CarouselContent>
                         <CarouselPrevious className="hidden md:flex -left-12" />
                         <CarouselNext className="hidden md:flex -right-12" />
@@ -124,7 +177,6 @@ export const HeroSection = () => {
                 </div>
               </div>
             </div>
-
 
             {/* Call-to-Action Buttons Section */}
             <div className="relative order-3 md:order-3 py-0">
