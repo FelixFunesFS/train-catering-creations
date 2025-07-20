@@ -12,13 +12,13 @@ import { useAnimationClass } from "@/hooks/useAnimationClass";
 export const HeroSection = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
 
-  // Scroll animations for text elements (without floating)
+  // Enhanced scroll animations with fluid-up effect
   const {
     ref: headingRef,
     isVisible: headingVisible,
     variant: headingVariant
   } = useScrollAnimation({
-    variant: 'ios-spring',
+    variant: 'fluid-up',
     delay: 0
   });
 
@@ -27,8 +27,8 @@ export const HeroSection = () => {
     isVisible: subtextVisible,
     variant: subtextVariant
   } = useScrollAnimation({
-    variant: 'subtle',
-    delay: 200
+    variant: 'fluid-up',
+    delay: 150
   });
 
   const {
@@ -36,8 +36,8 @@ export const HeroSection = () => {
     isVisible: ctaVisible,
     variant: ctaVariant
   } = useScrollAnimation({
-    variant: 'elastic',
-    delay: 400
+    variant: 'fluid-up',
+    delay: 300
   });
 
   const headingAnimationClass = useAnimationClass(headingVariant, headingVisible);
@@ -65,7 +65,6 @@ export const HeroSection = () => {
     category: "brunch"
   }];
 
-  // Additional images for rotation
   const additionalImages = [{
     src: "/lovable-uploads/5dd8930c-34cc-4b9e-84a6-beeeb540d35e.png",
     alt: "Wedding dessert table with custom neon sign and tiered cake",
@@ -79,14 +78,19 @@ export const HeroSection = () => {
     description: "Elegant appetizer display with beverage service and professional presentation",
     category: "appetizer"
   }];
+  
   const allImages = [...heroImages, ...additionalImages];
+  
   const handleImageClick = (index: number) => {
     setSelectedImageIndex(index);
   };
+  
   const handleCloseModal = () => {
     setSelectedImageIndex(null);
   };
-  return <>
+
+  return (
+    <>
       {/* Hero Section */}
       <section className="mb-8 sm:mb-12 md:mb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
@@ -98,14 +102,14 @@ export const HeroSection = () => {
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 opacity-50"></div>
               
               <div className="relative z-10 text-center pt-2 sm:pt-4 md:pt-12 py-4 sm:py-6 lg:py-8">
-                {/* Logo Icon - no floating, just simple hover effect */}
+                {/* Logo Icon - enhanced with fluid animation */}
                 <div className="flex justify-center mb-4 my-[25px]">
                   <div className="h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14">
                     <img src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" alt="Soul Train's Eatery Logo" className="w-full h-full object-contain hover:scale-110 transition-transform duration-300" />
                   </div>
                 </div>
                 
-                {/* Main Heading without FloatingCard */}
+                {/* Main Heading with fluid animation */}
                 <div className="mb-6 sm:mb-8">
                   <div 
                     ref={headingRef}
@@ -123,7 +127,6 @@ export const HeroSection = () => {
             {/* Image Gallery Carousel Section */}
             <div className="relative pt-2 sm:pt-3 pb-2 sm:pb-3 lg:pb-4 order-2">
               <div className="max-w-7xl mx-auto">
-                {/* Responsive Carousel */}
                 <div className="relative">
                   <Carousel opts={{
                   align: "start",
@@ -143,7 +146,6 @@ export const HeroSection = () => {
                               <img src={image.src} alt={image.alt} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading={index < 2 ? "eager" : "lazy"} decoding="async" />
                             </div>
                             
-                            {/* Hover Overlay */}
                             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                               <div className="absolute bottom-4 left-4 right-4">
                                 <h3 className="text-white font-elegant font-semibold text-lg mb-2">
@@ -167,7 +169,7 @@ export const HeroSection = () => {
             {/* Brand Header Section - Bottom Part */}
             <div className="relative order-3">
               <div className="relative z-10 text-center py-2 sm:py-3 lg:py-4">
-                {/* Descriptive Text without FloatingCard */}
+                {/* Descriptive Text with fluid animation */}
                 <div className="max-w-3xl mx-auto px-2 sm:px-4 mb-4 sm:mb-6">
                   <div 
                     ref={subtextRef}
@@ -177,7 +179,7 @@ export const HeroSection = () => {
                   </div>
                 </div>
                 
-                {/* Call-to-Action Buttons with Interactive Floating */}
+                {/* Call-to-Action Buttons with enhanced floating */}
                 <div ref={ctaRef} className={`flex flex-col sm:flex-row gap-2 sm:gap-4 justify-center items-center max-w-lg mx-auto ${ctaAnimationClass}`}>
                   <FloatingCard variant="interactive" className="w-3/5 sm:w-auto">
                     <Button asChild variant="cta" size="responsive-lg" className="w-full sm:min-w-[14rem] min-h-[44px] sm:min-h-[52px] box-border">
@@ -202,5 +204,6 @@ export const HeroSection = () => {
 
       {/* Image Modal */}
       <ImageModal images={allImages} selectedIndex={selectedImageIndex} onClose={handleCloseModal} />
-    </>;
+    </>
+  );
 };

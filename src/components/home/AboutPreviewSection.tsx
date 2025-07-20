@@ -12,77 +12,54 @@ export const AboutPreviewSection = () => {
     isVisible: titleVisible,
     variant: titleVariant
   } = useScrollAnimation({
-    variant: 'ios-spring',
-    delay: 0,
-    mobile: {
-      delay: 0
-    },
-    desktop: {
-      delay: 100
-    }
+    variant: 'fluid-up',
+    delay: 0
   });
+  
   const {
     ref: card1Ref,
     isVisible: card1Visible,
     variant: card1Variant
   } = useScrollAnimation({
-    variant: 'elastic',
-    delay: 200,
-    mobile: {
-      delay: 150
-    },
-    desktop: {
-      delay: 250
-    }
+    variant: 'fluid-up',
+    delay: 150
   });
+  
   const {
     ref: card2Ref,
     isVisible: card2Visible,
     variant: card2Variant
   } = useScrollAnimation({
-    variant: 'elastic',
-    delay: 300,
-    mobile: {
-      delay: 250
-    },
-    desktop: {
-      delay: 350
-    }
+    variant: 'fluid-up',
+    delay: 300
   });
+  
   const {
     ref: card3Ref,
     isVisible: card3Visible,
     variant: card3Variant
   } = useScrollAnimation({
-    variant: 'elastic',
-    delay: 400,
-    mobile: {
-      delay: 350
-    },
-    desktop: {
-      delay: 450
-    }
+    variant: 'fluid-up',
+    delay: 450
   });
+  
   const {
     ref: card4Ref,
     isVisible: card4Visible,
     variant: card4Variant
   } = useScrollAnimation({
-    variant: 'elastic',
-    delay: 500,
-    mobile: {
-      delay: 450
-    },
-    desktop: {
-      delay: 550
-    }
+    variant: 'fluid-up',
+    delay: 600
   });
+  
   const titleAnimationClass = useAnimationClass(titleVariant, titleVisible);
   const card1AnimationClass = useAnimationClass(card1Variant, card1Visible);
   const card2AnimationClass = useAnimationClass(card2Variant, card2Visible);
   const card3AnimationClass = useAnimationClass(card3Variant, card3Visible);
   const card4AnimationClass = useAnimationClass(card4Variant, card4Visible);
-  return <section className="py-16 lg:py-20 bg-muted/20 border-t border-border/10">
+
+  return (
+    <section className="py-16 lg:py-20 bg-muted/20 border-t border-border/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           <div ref={titleRef} className={titleAnimationClass}>
@@ -162,5 +139,6 @@ export const AboutPreviewSection = () => {
           </div>
         </div>
       </div>
-    </section>;
+    </section>
+  );
 };

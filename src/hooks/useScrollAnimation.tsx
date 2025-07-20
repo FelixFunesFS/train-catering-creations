@@ -1,6 +1,7 @@
+
 import { useEffect, useRef, useState } from 'react';
 
-export type AnimationVariant = 'subtle' | 'medium' | 'strong' | 'elastic' | 'ios-spring' | 'fade-up' | 'scale-fade' | 'slide-left' | 'slide-right' | 'slide-up' | 'slide-down' | 'zoom-fade' | 'bounce-in' | 'rotate-fade' | 'flip-in' | 'sticky-fade';
+export type AnimationVariant = 'subtle' | 'medium' | 'strong' | 'elastic' | 'ios-spring' | 'fade-up' | 'scale-fade' | 'slide-left' | 'slide-right' | 'slide-up' | 'slide-down' | 'zoom-fade' | 'bounce-in' | 'rotate-fade' | 'flip-in' | 'sticky-fade' | 'fluid-up';
 
 interface UseScrollAnimationOptions {
   threshold?: number;
@@ -22,11 +23,11 @@ interface UseScrollAnimationOptions {
 export const useScrollAnimation = (options: UseScrollAnimationOptions = {}) => {
   const {
     threshold = 0.1,
-    rootMargin = '0px 0px -50px 0px',
+    rootMargin = '0px 0px -30px 0px',
     triggerOnce = true,
     delay = 0,
-    variant = 'ios-spring',
-    stagger = 0,
+    variant = 'fluid-up',
+    stagger = 150,
     mobile,
     desktop
   } = options;

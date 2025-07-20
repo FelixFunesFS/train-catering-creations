@@ -7,48 +7,64 @@ import { useAnimationClass } from "@/hooks/useAnimationClass";
 
 export const ServicesSection = () => {
   const {
+    ref: titleRef,
+    isVisible: titleVisible,
+    variant: titleVariant
+  } = useScrollAnimation({
+    variant: 'fluid-up',
+    delay: 0
+  });
+
+  const {
     ref: card1Ref,
     isVisible: card1Visible,
     variant: card1Variant
   } = useScrollAnimation({
-    delay: 0,
-    variant: 'ios-spring'
+    delay: 150,
+    variant: 'fluid-up'
   });
+  
   const {
     ref: card2Ref,
     isVisible: card2Visible,
     variant: card2Variant
   } = useScrollAnimation({
-    delay: 150,
-    variant: 'ios-spring'
+    delay: 300,
+    variant: 'fluid-up'
   });
+  
   const {
     ref: card3Ref,
     isVisible: card3Visible,
     variant: card3Variant
   } = useScrollAnimation({
-    delay: 300,
-    variant: 'ios-spring'
+    delay: 450,
+    variant: 'fluid-up'
   });
+  
   const {
     ref: card4Ref,
     isVisible: card4Visible,
     variant: card4Variant
   } = useScrollAnimation({
-    delay: 450,
-    variant: 'ios-spring'
+    delay: 600,
+    variant: 'fluid-up'
   });
+  
+  const titleAnimationClass = useAnimationClass(titleVariant, titleVisible);
   const card1AnimationClass = useAnimationClass(card1Variant, card1Visible);
   const card2AnimationClass = useAnimationClass(card2Variant, card2Visible);
   const card3AnimationClass = useAnimationClass(card3Variant, card3Visible);
   const card4AnimationClass = useAnimationClass(card4Variant, card4Visible);
-  return <section className="py-16 lg:py-20 bg-gradient-card/30 border-t border-border/10">
+
+  return (
+    <section className="py-16 lg:py-20 bg-gradient-card/30 border-t border-border/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-6 sm:mb-8 lg:mb-12">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant text-foreground mb-4 text-fade-up">
+        <div ref={titleRef} className={`text-center mb-6 sm:mb-8 lg:mb-12 ${titleAnimationClass}`}>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant text-foreground mb-4">
             Our Catering Services
           </h2>
-          <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto text-fade-up-delay-1">Elegant weddings, heartfelt celebrations, and corporate events—catered with care, Southern soul, and impeccable service.</p>
+          <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">Elegant weddings, heartfelt celebrations, and corporate events—catered with care, Southern soul, and impeccable service.</p>
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-10 lg:gap-14">
@@ -125,5 +141,6 @@ export const ServicesSection = () => {
           </FloatingServiceCard>
         </div>
       </div>
-    </section>;
+    </section>
+  );
 };

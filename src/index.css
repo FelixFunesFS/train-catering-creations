@@ -1,812 +1,391 @@
-
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Soul Train's Eatery Design System - Clean White with Bold Red Accents
-All colors MUST be HSL. Designed for maximum accessibility with high contrast ratios.
-Enhanced 60-30-10 color scheme implementation.
-*/
-
-@layer base {
-  html {
-    scroll-behavior: smooth;
-  }
-  
-  :root {
-    /* Clean white base with high contrast - 60% */
-    --background: 0 0% 100%;
-    --foreground: 0 0% 8%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 8%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 8%;
-
-    /* Bold red primary - 10% accent */
-    --primary: 0 72% 50%;
-    --primary-foreground: 0 0% 100%;
-    --primary-light: 0 72% 95%;
-    --primary-glow: 0 72% 45%;
-
-    /* Light gray secondary with high contrast - 30% neutrals */
-    --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 8%;
-
-    /* Subtle grays with accessible contrast - 30% neutrals */
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 35%;
-
-    /* Refined accent for better balance */
-    --accent: 0 0% 94%;
-    --accent-foreground: 0 0% 8%;
-
-    --destructive: 0 72% 50%;
-    --destructive-foreground: 0 0% 100%;
-
-    /* Light borders for clean separation */
-    --border: 0 0% 90%;
-    --input: 0 0% 96%;
-    --ring: 0 72% 50%;
-
-    --radius: 0.75rem;
-
-    /* Enhanced category colors for menu sections */
-    --category-appetizers: 45 100% 60%; /* Warm amber */
-    --category-appetizers-foreground: 0 0% 8%;
-    --category-entrees: 0 50% 45%; /* Rich burgundy */
-    --category-entrees-foreground: 0 0% 100%;
-    --category-sides: 120 40% 50%; /* Fresh green */
-    --category-sides-foreground: 0 0% 100%;
-    --category-desserts: 320 60% 60%; /* Soft pink */
-    --category-desserts-foreground: 0 0% 8%;
-
-    /* Service type colors for events */
-    --service-wedding: 340 70% 85%; /* Soft rose */
-    --service-wedding-foreground: 0 0% 8%;
-    --service-corporate: 210 30% 25%; /* Professional navy */
-    --service-corporate-foreground: 0 0% 100%;
-    --service-family: 25 70% 70%; /* Warm peach */
-    --service-family-foreground: 0 0% 8%;
-
-    /* Clean gradients with subtle transitions */
-    --gradient-primary: linear-gradient(135deg, hsl(0 72% 50%), hsl(0 72% 45%));
-    --gradient-hero: linear-gradient(135deg, hsl(0 0% 100%), hsl(0 0% 98%));
-    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(0 0% 99%));
-
-    /* Enhanced neutral shadow hierarchy for cohesive design */
-    --shadow-card: 0 2px 8px -2px hsl(0 0% 0% / 0.05);
-    --shadow-elegant: 0 8px 24px -4px hsl(0 0% 0% / 0.12);
-    --shadow-elevated: 0 12px 32px -4px hsl(0 0% 0% / 0.15);
-    --shadow-float: 0 16px 48px -8px hsl(0 0% 0% / 0.18);
-    --shadow-soft: 0 4px 16px -2px hsl(0 0% 0% / 0.08);
-    
-    /* Updated neutral glow shadows */
-    --shadow-glow: 0 8px 32px -4px hsl(0 0% 0% / 0.15);
-    --shadow-glow-strong: 0 12px 40px -4px hsl(0 0% 0% / 0.20);
-  
-    /* Floating card optimizations */
-    --floating-duration: 250ms;
-    --floating-timing: cubic-bezier(0.4, 0, 0.2, 1);
-    
-    /* Mobile-optimized shadows (lighter for smaller screens) */
-    --shadow-card-mobile: 0 1px 4px -1px hsl(0 0% 0% / 0.05);
-    --shadow-elegant-mobile: 0 4px 12px -2px hsl(0 0% 0% / 0.08);
-    --shadow-elevated-mobile: 0 6px 16px -2px hsl(0 0% 0% / 0.1);
-    --shadow-float-mobile: 0 8px 24px -4px hsl(0 0% 0% / 0.12);
-    --shadow-soft-mobile: 0 2px 8px -1px hsl(0 0% 0% / 0.06);
-    
-    /* Responsive spacing tokens */
-    --spacing-section: 3rem;
-    --spacing-section-sm: 2.5rem;
-    --spacing-section-lg: 4rem;
-    --spacing-card: 1.5rem;
-    --spacing-card-sm: 2rem;
-    --spacing-card-lg: 2.5rem;
-    --spacing-card-grid: 1.5rem;
-    --spacing-card-grid-lg: 2.5rem;
-    
-    /* Mobile-optimized touch targets */
-    --touch-target-min: 48px;
-    --touch-target-mobile: 52px;
-    --touch-target-comfortable: 48px;
-    
-    /* Animation keyframes */
-    --shimmer-animation: shimmer 2s infinite;
-  }
-
-  .dark {
-    /* Light mode for dark theme toggle - high contrast inverse */
-    --background: 0 0% 95%;
-    --foreground: 0 0% 10%;
-
-    --card: 0 0% 98%;
-    --card-foreground: 0 0% 10%;
-
-    --popover: 0 0% 98%;
-    --popover-foreground: 0 0% 10%;
-
-    --primary: 0 84% 45%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 0 0% 90%;
-    --secondary-foreground: 0 0% 10%;
-
-    --muted: 0 0% 90%;
-    --muted-foreground: 0 0% 40%;
-
-    --accent: 0 65% 50%;
-    --accent-foreground: 0 0% 100%;
-
-    --destructive: 0 84% 45%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 0 0% 85%;
-    --input: 0 0% 85%;
-    --ring: 0 84% 45%;
-
-    /* Dark mode category colors */
-    --category-appetizers: 45 80% 50%;
-    --category-appetizers-foreground: 0 0% 100%;
-    --category-entrees: 0 40% 40%;
-    --category-entrees-foreground: 0 0% 100%;
-    --category-sides: 120 30% 40%;
-    --category-sides-foreground: 0 0% 100%;
-    --category-desserts: 320 50% 50%;
-    --category-desserts-foreground: 0 0% 100%;
-  }
+:root {
+  --font-elegant: "Playfair Display", serif;
+  --font-sans: "Inter", sans-serif;
 }
 
 @layer base {
   * {
     @apply border-border;
   }
-
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
 @layer utilities {
-  /* Enhanced category color utilities */
-  .category-appetizers { @apply bg-category-appetizers text-category-appetizers-foreground; }
-  .category-entrees { @apply bg-category-entrees text-category-entrees-foreground; }
-  .category-sides { @apply bg-category-sides text-category-sides-foreground; }
-  .category-desserts { @apply bg-category-desserts text-category-desserts-foreground; }
-
-  /* Service type utilities */
-  .service-wedding { @apply bg-service-wedding text-service-wedding-foreground; }
-  .service-corporate { @apply bg-service-corporate text-service-corporate-foreground; }
-  .service-family { @apply bg-service-family text-service-family-foreground; }
-
-  /* Touch-friendly minimum sizes */
-  .min-h-touch {
-    min-height: var(--touch-target-min);
-  }
-  
-  .min-w-touch {
-    min-width: var(--touch-target-min);
-  }
-
-  /* ... keep existing code (responsive text utilities, shadow utilities, keyframes, animations, hover effects, etc.) the same ... */
-  
-  /* Responsive text utilities */
-  .text-responsive-xs { @apply text-xs-mobile text-xs; }
-  .text-responsive-sm { @apply text-sm-mobile sm:text-sm; }
-  .text-responsive-base { @apply text-base-mobile sm:text-base; }
-  .text-responsive-lg { @apply text-lg-mobile sm:text-lg; }
-  .text-responsive-xl { @apply text-xl-mobile sm:text-xl; }
-
-  /* Mobile-optimized neutral shadow utilities */
-  .shadow-card { box-shadow: var(--shadow-card-mobile); }
-  .shadow-elegant { box-shadow: var(--shadow-elegant-mobile); }
-  .shadow-elevated { box-shadow: var(--shadow-elevated-mobile); }
-  .shadow-float { box-shadow: var(--shadow-float-mobile); }
-  .shadow-soft { box-shadow: var(--shadow-soft-mobile); }
-  .shadow-glow { box-shadow: var(--shadow-glow); }
-  .shadow-glow-strong { box-shadow: var(--shadow-glow-strong); }
-  
-  @media (min-width: 640px) {
-    .shadow-card { box-shadow: var(--shadow-card); }
-    .shadow-elegant { box-shadow: var(--shadow-elegant); }
-    .shadow-elevated { box-shadow: var(--shadow-elevated); }
-    .shadow-float { box-shadow: var(--shadow-float); }
-    .shadow-soft { box-shadow: var(--shadow-soft); }
-  }
-
-  @keyframes shimmer {
-    0% {
-      transform: translateX(-100%);
-    }
-    100% {
-      transform: translateX(100%);
-    }
-  }
-  
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  @keyframes fadeInLeft {
-    from {
-      opacity: 0;
-      transform: translateX(-30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-
-  @keyframes fadeInRight {
-    from {
-      opacity: 0;
-      transform: translateX(30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-
-  @keyframes scaleIn {
-    from {
-      opacity: 0;
-      transform: scale(0.95);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1);
-    }
-  }
-  
-  .animate-shimmer {
-    animation: shimmer 2s infinite;
-  }
-
-  .animate-fade-in-up {
-    animation: fadeInUp 0.6s ease-out forwards;
-  }
-
-  .animate-fade-in-left {
-    animation: fadeInLeft 0.6s ease-out forwards;
-  }
-
-  .animate-fade-in-right {
-    animation: fadeInRight 0.6s ease-out forwards;
-  }
-
-  .animate-scale-in {
-    animation: scaleIn 0.5s ease-out forwards;
-  }
-
-  /* iOS-style scroll animations */
-  .scroll-animate-hidden {
+  /* Enhanced Fluid Float-Up Animation */
+  .fluid-up-hidden {
     opacity: 0;
-    transform: translateY(40px) scale(0.95);
-    transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    transform: translateY(40px);
+    transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   }
   
-  .scroll-animate-visible {
+  .fluid-up-visible {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
+    transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  /* iOS-style animation variants - Mobile First */
+  /* iOS Spring Animation */
   .ios-spring-hidden {
     opacity: 0;
-    transform: translateY(20px) scale(0.95);
-    transition: opacity 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275), transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transform: translateY(30px) scale(0.95);
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
   
   .ios-spring-visible {
     opacity: 1;
     transform: translateY(0) scale(1);
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
 
+  /* Elastic Animation */
   .elastic-hidden {
     opacity: 0;
     transform: translateY(25px) scale(0.9);
-    transition: opacity 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55), transform 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   }
   
   .elastic-visible {
     opacity: 1;
     transform: translateY(0) scale(1);
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   }
 
+  /* Subtle Animation */
   .subtle-hidden {
     opacity: 0;
-    transform: translateY(15px) scale(0.98);
-    transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transform: translateY(20px);
+    transition: all 0.3s ease-out;
   }
   
   .subtle-visible {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
+    transition: all 0.3s ease-out;
   }
 
+  /* Medium Animation */
   .medium-hidden {
     opacity: 0;
-    transform: translateY(20px) scale(0.95);
-    transition: opacity 0.5s cubic-bezier(0.23, 1, 0.32, 1), transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    transform: translateY(25px) scale(0.98);
+    transition: all 0.4s ease-out;
   }
   
   .medium-visible {
     opacity: 1;
     transform: translateY(0) scale(1);
+    transition: all 0.4s ease-out;
   }
 
+  /* Strong Animation */
   .strong-hidden {
     opacity: 0;
-    transform: translateY(30px) scale(0.9);
-    transition: opacity 0.6s cubic-bezier(0.19, 1, 0.22, 1), transform 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+    transform: translateY(35px) scale(0.95);
+    transition: all 0.5s ease-out;
   }
   
   .strong-visible {
     opacity: 1;
     transform: translateY(0) scale(1);
+    transition: all 0.5s ease-out;
   }
 
-  /* Enhanced animation variants */
+  /* Fade-Up Animation */
   .fade-up-hidden {
     opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transform: translateY(30px);
+    transition: all 0.4s ease-out;
   }
   
   .fade-up-visible {
     opacity: 1;
     transform: translateY(0);
+    transition: all 0.4s ease-out;
   }
 
+  /* Scale-Fade Animation */
   .scale-fade-hidden {
     opacity: 0;
-    transform: scale(0.95);
-    transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transform: scale(0.9);
+    transition: all 0.3s ease-out;
   }
   
   .scale-fade-visible {
     opacity: 1;
     transform: scale(1);
+    transition: all 0.3s ease-out;
   }
 
-  /* Directional slide animations */
+  /* Slide-Left Animation */
   .slide-left-hidden {
     opacity: 0;
-    transform: translateX(-40px);
-    transition: opacity 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275), transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transform: translateX(-30px);
+    transition: all 0.4s ease-out;
   }
   
   .slide-left-visible {
     opacity: 1;
     transform: translateX(0);
+    transition: all 0.4s ease-out;
   }
 
+  /* Slide-Right Animation */
   .slide-right-hidden {
     opacity: 0;
-    transform: translateX(40px);
-    transition: opacity 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275), transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transform: translateX(30px);
+    transition: all 0.4s ease-out;
   }
   
   .slide-right-visible {
     opacity: 1;
     transform: translateX(0);
+    transition: all 0.4s ease-out;
   }
 
+  /* Slide-Up Animation */
   .slide-up-hidden {
     opacity: 0;
-    transform: translateY(40px);
-    transition: opacity 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275), transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transform: translateY(30px);
+    transition: all 0.4s ease-out;
   }
   
   .slide-up-visible {
     opacity: 1;
     transform: translateY(0);
+    transition: all 0.4s ease-out;
   }
 
+  /* Slide-Down Animation */
   .slide-down-hidden {
     opacity: 0;
-    transform: translateY(-40px);
-    transition: opacity 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275), transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transform: translateY(-30px);
+    transition: all 0.4s ease-out;
   }
   
   .slide-down-visible {
     opacity: 1;
     transform: translateY(0);
+    transition: all 0.4s ease-out;
   }
 
-  /* Image zoom effects */
+  /* Zoom-Fade Animation */
   .zoom-fade-hidden {
     opacity: 0;
-    transform: scale(1.1);
-    transition: opacity 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transform: scale(0.8);
+    transition: all 0.4s ease-out;
   }
   
   .zoom-fade-visible {
     opacity: 1;
     transform: scale(1);
+    transition: all 0.4s ease-out;
   }
 
-  /* Bounce animation */
+  /* Bounce-In Animation */
   .bounce-in-hidden {
     opacity: 0;
-    transform: translateY(40px) scale(0.8);
-    transition: opacity 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55), transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    transform: scale(0.3);
+    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   }
   
   .bounce-in-visible {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: scale(1);
+    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   }
 
-  /* Rotate fade animation */
+  /* Rotate-Fade Animation */
   .rotate-fade-hidden {
     opacity: 0;
-    transform: rotate(10deg) scale(0.95);
-    transition: opacity 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transform: rotate(-10deg) scale(0.9);
+    transition: all 0.4s ease-out;
   }
   
   .rotate-fade-visible {
     opacity: 1;
     transform: rotate(0deg) scale(1);
+    transition: all 0.4s ease-out;
   }
 
-  /* Flip animation */
+  /* Flip-In Animation */
   .flip-in-hidden {
     opacity: 0;
-    transform: rotateY(90deg) scale(0.9);
-    transition: opacity 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transform: rotateY(-90deg);
+    transition: all 0.5s ease-out;
   }
   
   .flip-in-visible {
     opacity: 1;
-    transform: rotateY(0deg) scale(1);
+    transform: rotateY(0deg);
+    transition: all 0.5s ease-out;
   }
 
-  /* Parallax background effect */
-  .parallax-bg {
-    will-change: transform;
-    transform: translateZ(0);
-  }
-
-  /* Sticky fade animation */
+  /* Sticky-Fade Animation */
   .sticky-fade-hidden {
     opacity: 0;
-    transform: translateY(-20px);
-    transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transform: translateY(20px);
+    transition: all 0.3s ease-out;
   }
   
   .sticky-fade-visible {
     opacity: 1;
     transform: translateY(0);
+    transition: all 0.3s ease-out;
   }
+}
 
-  /* Enhanced animations for larger screens */
-  @media (min-width: 768px) {
-    .ios-spring-hidden {
-      transform: translateY(40px) scale(0.9);
-    }
-    
-    .elastic-hidden {
-      transform: translateY(50px) scale(0.8);
-    }
-    
-    .strong-hidden {
-      transform: translateY(50px) scale(0.85);
-    }
-    
-    .fade-up-hidden {
-      transform: translateY(30px);
-    }
-
-    .slide-left-hidden {
-      transform: translateX(-60px);
-    }
-    
-    .slide-right-hidden {
-      transform: translateX(60px);
-    }
-    
-    .slide-up-hidden {
-      transform: translateY(60px);
-    }
-    
-    .slide-down-hidden {
-      transform: translateY(-60px);
-    }
-    
-    .bounce-in-hidden {
-      transform: translateY(60px) scale(0.7);
-    }
-    
-    .zoom-fade-hidden {
-      transform: scale(1.15);
-    }
-  }
-
-  /* Reduced motion support for floating cards */
-  @media (prefers-reduced-motion: reduce) {
-    .floating-card-subtle,
-    .floating-card-medium,
-    .floating-card-dramatic,
-    .floating-card-interactive {
-      transform: translateZ(0) !important;
-      will-change: auto !important;
-      transition: box-shadow var(--floating-duration) var(--floating-timing);
-    }
-    
-    .floating-card-subtle:hover,
-    .floating-card-medium:hover,
-    .floating-card-dramatic:hover,
-    .floating-card-interactive:hover {
-      transform: translateZ(0) !important;
-    }
-  }
-
-  /* Reduced motion support for scroll animations */
-  @media (prefers-reduced-motion: reduce) {
-    .ios-spring-hidden,
-    .elastic-hidden,
-    .subtle-hidden,
-    .medium-hidden,
-    .strong-hidden,
-    .fade-up-hidden,
-    .scale-fade-hidden,
-    .slide-left-hidden,
-    .slide-right-hidden,
-    .slide-up-hidden,
-    .slide-down-hidden,
-    .zoom-fade-hidden,
-    .bounce-in-hidden,
-    .rotate-fade-hidden,
-    .flip-in-hidden,
-    .sticky-fade-hidden {
-      transition: opacity 0.3s ease;
-      transform: none;
-    }
-  }
-
-  /* Enhanced hover effects with neutral shadows */
-  .hover-float {
-    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  }
+/* Custom HSL Color Variables - Design System */
+:root {
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 84% 4.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222.2 84% 4.9%;
+  --primary: 15 78% 54%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 210 40% 96%;
+  --secondary-foreground: 222.2 84% 4.9%;
+  --muted: 210 40% 96%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+  --accent: 210 40% 96%;
+  --accent-foreground: 222.2 84% 4.9%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 15 78% 54%;
+  --radius: 0.75rem;
   
-  .hover-float:hover {
-    transform: translateY(-8px);
-    box-shadow: var(--shadow-elevated);
-  }
-
-  /* Updated hover glow to use neutral shadow */
-  .hover-glow {
-    transition: box-shadow 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  }
-
-  .hover-glow:hover {
-    box-shadow: var(--shadow-elevated);
-  }
-
-  /* Text animation utilities */
-  .text-fade-up {
-    animation: textFadeUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-  }
+  /* Custom gradients */
+  --gradient-hero: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--muted)) 50%, hsl(var(--background)) 100%);
+  --gradient-card: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--muted)) 100%);
+  --gradient-primary: linear-gradient(90deg, hsl(var(--primary)) 0%, hsl(15 85% 60%) 100%);
   
-  .text-fade-up-delay-1 {
-    animation: textFadeUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.2s forwards;
+  /* Shadow system */
+  --shadow-elegant: 0 4px 20px -2px rgba(0, 0, 0, 0.1), 0 2px 8px -2px rgba(0, 0, 0, 0.06);
+  --shadow-elevated: 0 10px 40px -4px rgba(0, 0, 0, 0.15), 0 4px 16px -4px rgba(0, 0, 0, 0.1);
+  --shadow-card: 0 2px 10px -1px rgba(0, 0, 0, 0.08), 0 1px 4px -1px rgba(0, 0, 0, 0.05);
+}
+
+/* Dark theme */
+.dark {
+  --background: 222.2 84% 4.9%;
+  --foreground: 210 40% 98%;
+  --card: 222.2 84% 4.9%;
+  --card-foreground: 210 40% 98%;
+  --popover: 222.2 84% 4.9%;
+  --popover-foreground: 210 40% 98%;
+  --primary: 15 78% 54%;
+  --primary-foreground: 222.2 84% 4.9%;
+  --secondary: 217.2 32.6% 17.5%;
+  --secondary-foreground: 210 40% 98%;
+  --muted: 217.2 32.6% 17.5%;
+  --muted-foreground: 215 20.2% 65.1%;
+  --accent: 217.2 32.6% 17.5%;
+  --accent-foreground: 210 40% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 217.2 32.6% 17.5%;
+  --input: 217.2 32.6% 17.5%;
+  --ring: 15 78% 54%;
+}
+
+/* Typography */
+.font-elegant {
+  font-family: var(--font-elegant);
+}
+
+/* Custom gradients utilities */
+.bg-gradient-hero {
+  background: var(--gradient-hero);
+}
+
+.bg-gradient-card {
+  background: var(--gradient-card);
+}
+
+.bg-gradient-primary {
+  background: var(--gradient-primary);
+}
+
+/* Shadow utilities */
+.shadow-elegant {
+  box-shadow: var(--shadow-elegant);
+}
+
+.shadow-elevated {
+  box-shadow: var(--shadow-elevated);
+}
+
+.shadow-card {
+  box-shadow: var(--shadow-card);
+}
+
+/* Animation utilities */
+.text-fade-up {
+  animation: fadeUp 0.6s ease-out;
+}
+
+.text-fade-up-delay-1 {
+  animation: fadeUp 0.6s ease-out 0.2s both;
+}
+
+.text-fade-up-delay-2 {
+  animation: fadeUp 0.6s ease-out 0.4s both;
+}
+
+.hover-float:hover {
+  transform: translateY(-2px);
+  transition: transform 0.2s ease-out;
+}
+
+@keyframes fadeUp {
+  from {
     opacity: 0;
+    transform: translateY(20px);
   }
-  
-  .text-fade-up-delay-2 {
-    animation: textFadeUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.4s forwards;
-    opacity: 0;
-  }
-
-  @keyframes textFadeUp {
-    0% {
-      opacity: 0;
-      transform: translateY(30px);
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .scroll-animate-stagger-1 {
-    transition-delay: 0.1s;
-  }
-
-  .scroll-animate-stagger-2 {
-    transition-delay: 0.2s;
-  }
-
-  .scroll-animate-stagger-3 {
-    transition-delay: 0.3s;
-  }
-
-  .scroll-animate-stagger-4 {
-    transition-delay: 0.4s;
-  }
-
-  .scroll-animate-stagger-5 {
-    transition-delay: 0.5s;
-  }
-
-  .scroll-animate-stagger-6 {
-    transition-delay: 0.6s;
-  }
-
-  /* Marquee animation */
-  @keyframes marquee {
-    0% {
-      transform: translateX(0%);
-    }
-    100% {
-      transform: translateX(-100%);
-    }
-  }
-
-  .marquee {
-    animation: marquee 12s linear infinite;
-  }
-
-  .marquee-slow {
-    animation: marquee 20s linear infinite;
-  }
-
-  .marquee-fast {
-    animation: marquee 6s linear infinite;
-  }
-
-  /* Hover zoom effect for images */
-  .image-zoom {
-    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    overflow: hidden;
-  }
-
-  .image-zoom:hover {
-    transform: scale(1.05);
-  }
-
-  .image-zoom img {
-    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  }
-
-  .image-zoom:hover img {
-    transform: scale(1.1);
-  }
-
-  /* Advanced hover effects */
-  .hover-lift {
-    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  }
-
-  .hover-lift:hover {
-    transform: translateY(-12px);
-    box-shadow: 0 20px 40px -12px hsl(0 0% 0% / 0.25);
-  }
-
-  .hover-glow {
-    transition: box-shadow 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  }
-
-  .hover-glow:hover {
-    box-shadow: 0 0 30px hsl(0 72% 50% / 0.4);
-  }
-
-  /* Card stack effect */
-  .card-stack {
-    position: relative;
-  }
-
-  .card-stack::before {
-    content: '';
-    position: absolute;
-    top: 4px;
-    left: 4px;
-    right: 4px;
-    bottom: 4px;
-    background: hsl(var(--card));
-    border-radius: inherit;
-    z-index: -1;
-    opacity: 0.8;
-    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  }
-
-  .card-stack:hover::before {
-    top: 8px;
-    left: 8px;
-    opacity: 0.6;
-  }
-
-  /* Floating Card Utilities - Updated with neutral shadows */
-  .floating-card-subtle {
-    transform: translateZ(0);
-    will-change: transform;
-    transition: all var(--floating-duration) var(--floating-timing);
-  }
-  
-  .floating-card-subtle:hover {
-    transform: translateY(-2px) scale(1.005);
-    box-shadow: var(--shadow-elegant);
-  }
-  
-  .floating-card-medium {
-    transform: translateZ(0);
-    will-change: transform;
-    transition: all var(--floating-duration) var(--floating-timing);
-  }
-  
-  .floating-card-medium:hover {
-    transform: translateY(-4px) scale(1.01);
-    box-shadow: var(--shadow-elevated);
-  }
-  
-  .floating-card-dramatic {
-    transform: translateZ(0);
-    will-change: transform;
-    transition: all var(--floating-duration) var(--floating-timing);
-  }
-  
-  .floating-card-dramatic:hover {
-    transform: translateY(-8px) scale(1.02);
-    box-shadow: var(--shadow-float);
-  }
-  
-  .floating-card-interactive {
-    transform: translateZ(0);
-    will-change: transform;
-    transition: all var(--floating-duration) var(--floating-timing);
-    cursor: pointer;
-  }
-  
-  .floating-card-interactive:hover {
-    transform: translateY(-6px) scale(1.015);
-    box-shadow: var(--shadow-elevated);
-    border-color: hsl(var(--primary) / 0.2);
-  }
-  
-  /* Responsive floating - reduce effects on mobile */
-  @media (max-width: 640px) {
-    .floating-card-subtle:hover,
-    .floating-card-medium:hover,
-    .floating-card-dramatic:hover,
-    .floating-card-interactive:hover {
-      transform: translateY(-2px) scale(1.005);
-      box-shadow: var(--shadow-elegant-mobile);
-    }
-  }
-
-  /* Performance optimizations */
-  .gpu-accelerated {
-    transform: translateZ(0);
-    will-change: transform;
-  }
-
-  .smooth-scroll {
-    scroll-behavior: smooth;
-  }
-
-  /* Text reveal animation */
-  .text-reveal {
-    overflow: hidden;
-  }
-
-  .text-reveal-line {
-    transform: translateY(100%);
-    transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  }
-
-  .text-reveal-visible .text-reveal-line {
+  to {
+    opacity: 1;
     transform: translateY(0);
   }
 }
 
+/* Additional utility classes */
+.story-link {
+  position: relative;
+  display: inline-block;
+}
+
+.story-link::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  transform: scaleX(0);
+  height: 2px;
+  bottom: 0;
+  left: 0;
+  background-color: hsl(var(--primary));
+  transform-origin: bottom right;
+  transition: transform 0.3s ease-out;
+}
+
+.story-link:hover::after {
+  transform: scaleX(1);
+  transform-origin: bottom left;
+}
+
+.hover-scale {
+  transition: transform 0.2s ease-out;
+}
+
+.hover-scale:hover {
+  transform: scale(1.05);
+}
