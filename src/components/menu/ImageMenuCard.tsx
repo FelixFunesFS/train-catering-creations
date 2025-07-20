@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
@@ -23,7 +24,7 @@ const ImageMenuCard = ({
   overlayColor = "bg-black/40" 
 }: ImageMenuCardProps) => {
   return (
-    <Card className="overflow-hidden shadow-elegant hover:shadow-glow transition-all duration-500 border-primary/20">
+    <div className="neumorphic-card-3 overflow-hidden transition-all duration-500 border-primary/20 rounded-lg">
       {/* Header with background image */}
       <div className="relative h-48 overflow-hidden">
         <img 
@@ -45,7 +46,7 @@ const ImageMenuCard = ({
           <div className="space-y-8">
             {sections.map((section, index) => (
               <div key={index} className={cn(
-                "rounded-xl p-6 border transition-all duration-300 hover:shadow-md",
+                "neumorphic-card-1 rounded-xl p-6 transition-all duration-300",
                 section.color
               )}>
                 <h3 className="text-xl font-elegant text-center text-foreground mb-6 relative">
@@ -56,7 +57,7 @@ const ImageMenuCard = ({
                   {section.items.map((item, itemIndex) => (
                     <div 
                       key={itemIndex} 
-                      className="bg-background/50 backdrop-blur-sm p-4 rounded-lg border border-white/10 hover:bg-background/70 transition-all duration-200 group"
+                      className="neumorphic-card-1 p-4 rounded-lg hover:neumorphic-card-2 transition-all duration-200 group cursor-pointer"
                     >
                       <h4 className="text-base font-medium text-foreground group-hover:text-primary transition-colors">
                         {item}
@@ -72,7 +73,7 @@ const ImageMenuCard = ({
             {items.map((item, index) => (
               <div 
                 key={index} 
-                className="bg-primary/5 p-4 rounded-lg border border-primary/10 hover:bg-primary/10 transition-all duration-200 group"
+                className="neumorphic-card-1 p-4 rounded-lg hover:neumorphic-card-2 transition-all duration-200 group cursor-pointer"
               >
                 <h4 className="text-base font-medium text-foreground group-hover:text-primary transition-colors">
                   {item}
@@ -82,7 +83,7 @@ const ImageMenuCard = ({
           </div>
         )}
       </CardContent>
-    </Card>
+    </div>
   );
 };
 
