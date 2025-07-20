@@ -10,13 +10,14 @@ interface UseTaglineAnimationOptions {
 export const useTaglineAnimation = (options: UseTaglineAnimationOptions = {}) => {
   const {
     onLoadDelay = 1000,
-    staggerDelay = 150,
+    staggerDelay = 50,
     scrollThreshold = 200
   } = options;
 
   const [isLoaded, setIsLoaded] = useState(false);
   const [isScrolledOut, setIsScrolledOut] = useState(false);
-  const [visibleWords, setVisibleWords] = useState<boolean[]>([]);
+  const [visibleLetters, setVisibleLetters] = useState<boolean[]>([]);
+  const [shadowVisible, setShadowVisible] = useState(true);
   const ref = useRef<HTMLDivElement>(null);
 
   // Initialize on mount with delay
@@ -44,27 +45,34 @@ export const useTaglineAnimation = (options: UseTaglineAnimationOptions = {}) =>
     return () => window.removeEventListener('scroll', handleScroll);
   }, [scrollThreshold, isScrolledOut]);
 
-  // Stagger word animations
-  const triggerWordAnimation = (wordCount: number) => {
-    const newVisibleWords = new Array(wordCount).fill(false);
-    setVisibleWords(newVisibleWords);
+  // Stagger letter animations
+  const triggerLetterAnimation = (letterCount: number) => {
+    const newVisibleLetters = new Array(letterCount).fill(false);
+    setVisibleLetters(newVisibleLetters);
+    setShadowVisible(true);
 
     if (isLoaded && !isScrolledOut) {
-      // Stagger the word appearances
-      for (let i = 0; i < wordCount; i++) {
+      // Stagger the letter appearances
+      for (let i = 0; i < letterCount; i++) {
         setTimeout(() => {
-          setVisibleWords(prev => {
+          setVisibleLetters(prev => {
             const updated = [...prev];
             updated[i] = true;
             return updated;
           });
         }, i * staggerDelay);
       }
+
+      // Remove shadow after all animations complete
+      const totalAnimationTime = (letterCount * staggerDelay) + 600; // 600ms is the animation duration
+      setTimeout(() => {
+        setShadowVisible(false);
+      }, totalAnimationTime + 1000); // Extra 1 second delay after completion
     }
   };
 
-  const getWordClassName = (index: number, baseClasses: string = '') => {
-    const isVisible = visibleWords[index];
+  const getLetterClassName = (index: number, baseClasses: string = '') => {
+    const isVisible = visibleLetters[index];
     const shouldShow = isLoaded && !isScrolledOut && isVisible;
     
     let animationClass = '';
@@ -86,9 +94,10 @@ export const useTaglineAnimation = (options: UseTaglineAnimationOptions = {}) =>
     ref,
     isLoaded,
     isScrolledOut,
-    visibleWords,
-    triggerWordAnimation,
-    getWordClassName,
+    visibleLetters,
+    shadowVisible,
+    triggerLetterAnimation,
+    getLetterClassName,
     getContainerClassName
   };
 };

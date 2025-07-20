@@ -13,17 +13,31 @@ export const HeroSection = () => {
   // Tagline animation hook
   const taglineAnimation = useTaglineAnimation({
     onLoadDelay: 800,
-    staggerDelay: 180,
+    staggerDelay: 50,
     scrollThreshold: 150
   });
 
-  // Split tagline into words for staggered animation
-  const taglineWords = "Where every bite is made with love and served with soul!".split(" ");
+  // Split tagline into letters for staggered animation
+  const taglineText = "Where every bite is made with love and served with soul!";
+  const taglineLetters = taglineText.split("");
 
-  // Trigger word animations when component loads
+  // Trigger letter animations when component loads
   useEffect(() => {
-    taglineAnimation.triggerWordAnimation(taglineWords.length);
+    taglineAnimation.triggerLetterAnimation(taglineLetters.length);
   }, [taglineAnimation.isLoaded]);
+
+  // Function to determine if current character should have extra delay (word spacing)
+  const getLetterDelay = (index: number) => {
+    const baseDelay = index * 50;
+    const char = taglineLetters[index];
+    const prevChar = index > 0 ? taglineLetters[index - 1] : '';
+    
+    // Add extra delay after spaces to create word-by-word effect
+    if (prevChar === ' ') {
+      return baseDelay + 100;
+    }
+    return baseDelay;
+  };
 
   // Featured images for the grid display - taking the first 3 images for initial display
   const heroImages = [{
@@ -101,23 +115,24 @@ export const HeroSection = () => {
                 {/* Animated Tagline */}
                 <div 
                   ref={taglineAnimation.ref}
-                  className={taglineAnimation.getContainerClassName("mb-4 sm:mb-6 min-h-[4rem] sm:min-h-[5rem] flex flex-wrap justify-center items-center gap-x-1 sm:gap-x-2 perspective-1000")}
+                  className={taglineAnimation.getContainerClassName("mb-4 sm:mb-6 min-h-[4rem] sm:min-h-[5rem] flex flex-wrap justify-center items-center perspective-1000")}
                 >
-                  {taglineWords.map((word, index) => (
+                  {taglineLetters.map((letter, index) => (
                     <span
                       key={index}
-                      className={taglineAnimation.getWordClassName(
+                      className={taglineAnimation.getLetterClassName(
                         index,
-                        `inline-block text-lg sm:text-xl lg:text-2xl font-elegant leading-relaxed bg-gradient-tagline bg-clip-text text-transparent bg-[length:200%_200%] animate-gradient-shift transition-all duration-300 hover:scale-105 cursor-default select-none will-change-transform`
+                        `inline-block text-lg sm:text-xl lg:text-2xl font-elegant leading-relaxed bg-gradient-tagline bg-clip-text text-transparent bg-[length:200%_200%] animate-gradient-shift transition-all duration-300 hover:scale-105 cursor-default select-none will-change-transform ${letter === ' ' ? 'w-2' : ''}`
                       )}
                       style={{
-                        animationDelay: `${index * 180}ms`,
-                        filter: 'drop-shadow(0 0 3px hsl(0 72% 50% / 0.15))',
-                        textShadow: '0 0 8px hsl(0 72% 50% / 0.1)'
+                        animationDelay: `${getLetterDelay(index)}ms`,
+                        ...(taglineAnimation.shadowVisible && {
+                          filter: 'drop-shadow(0 0 3px hsl(0 72% 50% / 0.15))',
+                          textShadow: '0 0 8px hsl(0 72% 50% / 0.1)'
+                        })
                       }}
                     >
-                      {word}
-                      {index < taglineWords.length - 1 && ' '}
+                      {letter === ' ' ? '\u00A0' : letter}
                     </span>
                   ))}
                 </div>
