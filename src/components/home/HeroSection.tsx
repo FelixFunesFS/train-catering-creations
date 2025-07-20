@@ -92,12 +92,6 @@ export const HeroSection = () => {
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 opacity-50 py-0 my-[25px]"></div>
               
               <div className="relative z-10 text-center pt-2 sm:pt-4 md:pt-12 sm:py-6 lg:py-0 py-0">
-                {/* Logo Icon - consistent with PageHeader styling */}
-                <div className="flex justify-center mb-4 my-[25px] animate-fade-in">
-                  <div className="h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14">
-                    <img src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" alt="Soul Train's Eatery Logo" className="w-full h-full object-contain hover:scale-110 transition-transform duration-300" />
-                  </div>
-                </div>
                 
                 {/* Main Heading with Neumorph Shadow */}
                 <div className="mb-2 sm:mb-4 animate-fade-in">
