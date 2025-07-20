@@ -83,26 +83,8 @@ export const HeroSection = () => {
               </div>
             </div>
 
-            {/* Call-to-Action Buttons Section */}
-            <div className="relative order-2 md:order-2 py-0">
-              <div className="text-center pb-4 sm:pb-6 lg:pb-8">
-                <div className="flex flex-row gap-2 sm:gap-4 justify-center items-center animate-fade-in w-full sm:w-auto">
-                  <Button asChild variant="cta" size="default" className="flex-1 sm:flex-none sm:w-56 min-h-[44px] sm:min-h-[52px]">
-                    <Link to="/request-quote#page-header">
-                      Request Quote
-                    </Link>
-                  </Button>
-                  <Button asChild variant="cta-outline" size="default" className="flex-1 sm:flex-none sm:w-56 min-h-[44px] sm:min-h-[52px]">
-                    <Link to="/gallery#page-header">
-                      View Gallery
-                    </Link>
-                  </Button>
-                </div>
-              </div>
-            </div>
-
             {/* Image Gallery Carousel Section */}
-            <div className="relative pt-4 sm:pt-4 pb-4 sm:pb-6 lg:pb-8 order-3 md:order-3 my-0 py-0">
+            <div className="relative pt-4 sm:pt-4 pb-4 sm:pb-6 lg:pb-8 order-2 md:order-2 my-0 py-0">
               <div className="max-w-7xl mx-auto">
                 {/* Responsive Carousel */}
                 <div className="relative">
@@ -139,6 +121,24 @@ export const HeroSection = () => {
                     <CarouselPrevious className="hidden md:flex -left-12" />
                     <CarouselNext className="hidden md:flex -right-12" />
                   </Carousel>
+                </div>
+              </div>
+            </div>
+
+            {/* Call-to-Action Buttons Section */}
+            <div className="relative order-3 md:order-3 py-0">
+              <div className="text-center pb-4 sm:pb-6 lg:pb-8">
+                <div className="flex flex-row gap-2 sm:gap-4 justify-center items-center animate-fade-in w-full sm:w-auto">
+                  <Button asChild variant="cta" size="default" className="flex-1 sm:flex-none sm:w-56 min-h-[44px] sm:min-h-[52px]">
+                    <Link to="/request-quote#page-header">
+                      Request Quote
+                    </Link>
+                  </Button>
+                  <Button asChild variant="cta-outline" size="default" className="flex-1 sm:flex-none sm:w-56 min-h-[44px] sm:min-h-[52px]">
+                    <Link to="/gallery#page-header">
+                      View Gallery
+                    </Link>
+                  </Button>
                 </div>
               </div>
             </div>
