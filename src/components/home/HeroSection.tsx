@@ -75,17 +75,17 @@ export const HeroSection = () => {
                 </div>
                 
                 {/* Decorative line */}
-                <div className="w-16 sm:w-20 lg:w-24 xl:w-28 h-1 bg-gradient-primary mx-auto mb-2 animate-fade-in" />
+                <div className="w-16 sm:w-20 lg:w-24 xl:w-28 h-1 bg-gradient-primary mx-auto mb-4 sm:mb-6 animate-fade-in" />
 
                 {/* Descriptive Text */}
-                <div className="max-w-3xl mx-auto px-2 sm:px-4 mb-2 sm:mb-3">
-                  <p className="text-base sm:text-lg text-muted-foreground leading-relaxed animate-fade-in">Southern comfort, heartfelt connection, and Lowcountry flavor on every plate.</p>
+                <div className="max-w-3xl mx-auto px-2 sm:px-4 mb-6 sm:mb-8">
+                  <p className="text-base sm:text-lg text-muted-foreground leading-relaxed animate-fade-in">Culinary craftsmanship, heartfelt connection, and Lowcountry flavor on every plate.</p>
                 </div>
               </div>
             </div>
 
             {/* Image Gallery Carousel Section */}
-            <div className="relative pt-1 sm:pt-2 pb-1 sm:pb-2 order-2">
+            <div className="relative pt-4 sm:pt-6 pb-6 sm:pb-8 order-2">
               <div className="max-w-7xl mx-auto">
                 {/* Responsive Carousel */}
                 <div className="relative">
