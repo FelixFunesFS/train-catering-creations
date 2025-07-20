@@ -80,26 +80,28 @@ export const AboutPreviewSection = () => {
   const card2AnimationClass = useAnimationClass(card2Variant, card2Visible);
   const card3AnimationClass = useAnimationClass(card3Variant, card3Visible);
   const card4AnimationClass = useAnimationClass(card4Variant, card4Visible);
-  return <section className="py-16 lg:py-20 bg-muted/20 border-t border-border/10 relative">
-      {/* Watermark Icon - Behind the culinary excellence content */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
-        <div className="opacity-5 transform scale-150 md:scale-200">
-          <img 
-            src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
-            alt="" 
-            className="w-48 h-48 sm:w-64 sm:h-64 md:w-80 md:h-80 object-contain" 
-            aria-hidden="true"
-          />
-        </div>
-      </div>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+  return <section className="py-16 lg:py-20 bg-muted/20 border-t border-border/10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          <div ref={titleRef} className={titleAnimationClass}>
+          <div ref={titleRef} className={`${titleAnimationClass} relative`}>
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant text-foreground mb-6">Culinary Excellence</h2>
             <p className="text-sm sm:text-base lg:text-lg text-muted-foreground mb-6 leading-relaxed">
               Founded by Chef Dominick "Train" Ward and Pastry Chef Tanya Ward, Soul Train's Eatery is a family-run, community-rooted catering business serving Charleston's Lowcountry with love and precision.
             </p>
             <p className="text-sm sm:text-base lg:text-lg text-muted-foreground mb-8 leading-relaxed">From intimate gatherings to grand celebrations, we bring over two decades of culinary expertise, Southern hospitality, and ServSafe certified professionalism to every event. Taste the love in every bite.</p>
+            
+            {/* Watermark Icon - Centered above the button */}
+            <div className="flex justify-center mb-6 pointer-events-none">
+              <div className="opacity-10">
+                <img 
+                  src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
+                  alt="" 
+                  className="w-20 h-20 sm:w-24 sm:h-24 object-contain" 
+                  aria-hidden="true"
+                />
+              </div>
+            </div>
+            
             <Link to="/about#page-header">
               <Button variant="cta" size="responsive-md" className="w-3/5 sm:w-auto sm:min-w-[14rem]">
                 Learn More About Us
