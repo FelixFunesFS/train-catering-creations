@@ -57,7 +57,7 @@ export const HeroSection = () => {
           <div className="flex flex-col">
             
             {/* Brand Header Section */}
-            <div className="relative order-2 md:order-1">
+            <div className="relative order-1 md:order-1">
               {/* Subtle background pattern */}
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 opacity-50"></div>
               
@@ -99,7 +99,7 @@ export const HeroSection = () => {
             </div>
 
             {/* Image Gallery Carousel Section */}
-            <div className="relative pt-4 sm:pt-4 pb-4 sm:pb-6 lg:pb-8 order-1 md:order-2">
+            <div className="relative pt-4 sm:pt-4 pb-4 sm:pb-6 lg:pb-8 order-2 md:order-2">
               <div className="max-w-7xl mx-auto">
                 {/* Responsive Carousel */}
                 <div className="relative">
@@ -112,7 +112,7 @@ export const HeroSection = () => {
                     <CarouselContent className="-ml-1 gap-2">
                       {heroImages.map((image, index) => <CarouselItem key={index} className="pl-1 basis-full md:basis-1/2 lg:basis-1/3">
                           <div className="group relative overflow-hidden rounded-lg shadow-elegant hover:shadow-glow bg-gradient-card transition-all duration-300 cursor-pointer transform hover:scale-[1.02]" onClick={() => handleImageClick(index)}>
-                            <div className="aspect-[3/2] overflow-hidden">
+                            <div className="aspect-[16/9] overflow-hidden">
                               <img src={image.src} alt={image.alt} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading={index < 2 ? "eager" : "lazy"} decoding="async" />
                             </div>
                             
