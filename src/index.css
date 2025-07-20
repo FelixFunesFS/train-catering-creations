@@ -647,7 +647,7 @@ Enhanced 60-30-10 color scheme implementation.
   /* Marquee animation */
   @keyframes marquee {
     0% {
-      transform: translateX(100%);
+      transform: translateX(0%);
     }
     100% {
       transform: translateX(-100%);
@@ -655,15 +655,15 @@ Enhanced 60-30-10 color scheme implementation.
   }
 
   .marquee {
-    animation: marquee 15s linear infinite;
+    animation: marquee 12s linear infinite;
   }
 
   .marquee-slow {
-    animation: marquee 25s linear infinite;
+    animation: marquee 20s linear infinite;
   }
 
   .marquee-fast {
-    animation: marquee 8s linear infinite;
+    animation: marquee 6s linear infinite;
   }
 
   /* Hover zoom effect for images */
