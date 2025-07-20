@@ -67,14 +67,14 @@ export const ServicesSection = () => {
           <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">Elegant weddings, heartfelt celebrations, and corporate events—catered with care, Southern soul, and impeccable service.</p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-10 lg:gap-14">
           <Link to="/wedding-menu#page-header" className="block">
             <FloatingServiceCard 
               ref={card1Ref} 
               className={`text-center transition-all duration-200 overflow-hidden group flex flex-col cursor-pointer ${card1AnimationClass}`}
             >
               <div className="relative flex-1">
-                <OptimizedImage src="/lovable-uploads/546d7d1a-7987-4f44-a2d9-668efea60e51.png" alt="Wedding Reception Setup" aspectRatio="aspect-video" className="group-hover:scale-105 transition-transform duration-300 w-full h-full object-cover" />
+                <OptimizedImage src="/lovable-uploads/546d7d1a-7987-4f44-a2d9-668efea60e51.png" alt="Wedding Reception Setup" aspectRatio="aspect-video" className="group-hover:scale-105 transition-transform duration-300 h-full" />
               </div>
               <div className="p-4 sm:p-6">
                 <h3 className="text-lg sm:text-xl font-elegant text-foreground mb-4">Weddings</h3>
@@ -93,7 +93,7 @@ export const ServicesSection = () => {
               className={`text-center transition-all duration-200 overflow-hidden group flex flex-col cursor-pointer ${card2AnimationClass}`}
             >
               <div className="relative flex-1">
-                <OptimizedImage src="/lovable-uploads/63832488-46ff-4d71-ade5-f871173c28ab.png" alt="Black Tie Event Catering" aspectRatio="aspect-video" className="group-hover:scale-105 transition-transform duration-300 w-full h-full object-cover" />
+                <OptimizedImage src="/lovable-uploads/63832488-46ff-4d71-ade5-f871173c28ab.png" alt="Black Tie Event Catering" aspectRatio="aspect-video" className="group-hover:scale-105 transition-transform duration-300 h-full" />
               </div>
               <div className="p-4 sm:p-6">
                 <h3 className="text-lg sm:text-xl font-elegant text-foreground mb-4">Black Tie Events</h3>
@@ -111,7 +111,7 @@ export const ServicesSection = () => {
             className={`text-center transition-all duration-200 overflow-hidden group flex flex-col ${card3AnimationClass}`}
           >
             <div className="relative flex-1">
-              <OptimizedImage src="/lovable-uploads/3226c955-a9b7-4c8d-a4c2-e5e7fc206f6f.png" alt="Military Function Catering" aspectRatio="aspect-video" className="group-hover:scale-105 transition-transform duration-300 w-full h-full object-cover" />
+              <OptimizedImage src="/lovable-uploads/3226c955-a9b7-4c8d-a4c2-e5e7fc206f6f.png" alt="Military Function Catering" aspectRatio="aspect-video" className="group-hover:scale-105 transition-transform duration-300 h-full" />
             </div>
             <div className="p-4 sm:p-6">
               <h3 className="text-lg sm:text-xl font-elegant text-foreground mb-4">Military Functions</h3>
@@ -128,7 +128,7 @@ export const ServicesSection = () => {
             className={`text-center transition-all duration-200 overflow-hidden group flex flex-col ${card4AnimationClass}`}
           >
             <div className="relative flex-1">
-              <OptimizedImage src="/lovable-uploads/6cd766e3-21ce-4e88-a3a4-6c8835dc9654.png" alt="Private Event Catering" aspectRatio="aspect-video" className="group-hover:scale-105 transition-transform duration-300 w-full h-full object-cover" />
+              <OptimizedImage src="/lovable-uploads/6cd766e3-21ce-4e88-a3a4-6c8835dc9654.png" alt="Private Event Catering" aspectRatio="aspect-video" className="group-hover:scale-105 transition-transform duration-300 h-full" />
             </div>
             <div className="p-4 sm:p-6">
               <h3 className="text-lg sm:text-xl font-elegant text-foreground mb-4">Private Events</h3>
