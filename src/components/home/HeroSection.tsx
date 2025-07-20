@@ -140,7 +140,7 @@ export const HeroSection = () => {
             {/* Call-to-Action Buttons Section */}
             <div className="relative order-3 md:order-3 py-0 animate-fade-in">
               <div className="text-center pb-4 sm:pb-6 lg:pb-8">
-                <div className="flex flex-row gap-2 sm:gap-4 justify-center items-center animate-fade-in w-full sm:w-auto">
+                <div className="flex flex-col gap-2 sm:gap-4 justify-center items-center animate-fade-in w-full sm:w-auto">
                   <Button asChild variant="cta" size="default" className="flex-1 sm:flex-none sm:w-56 min-h-[44px] sm:min-h-[52px]">
                     <Link to="/request-quote#page-header">
                       Request Quote
