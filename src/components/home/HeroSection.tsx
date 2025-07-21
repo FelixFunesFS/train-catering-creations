@@ -115,7 +115,7 @@ export const HeroSection = () => {
       <section className="py-8 sm:py-12 lg:py-16">
         <ResponsiveWrapper hasFullWidthCard>
           {/* Brand Header Section */}
-          <div className="relative mb-12">
+          <div className="relative mb-12 pt-2 sm:pt-4 md:pt-12">
             <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 opacity-50 rounded-xl"></div>
             
             <div className="relative z-10 text-center">
