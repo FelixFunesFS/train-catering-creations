@@ -153,55 +153,51 @@ export const HeroSection = () => {
 
           {/* Image Gallery Carousel Section */}
           <div className="relative mb-8 animate-fade-in">
-            <SectionContentCard level={2} className="p-6">
-              <Carousel 
-                opts={{
-                  align: "start",
-                  loop: true
-                }} 
-                plugins={[Autoplay({
-                  delay: 4000
-                })]} 
-                className="w-full"
-              >
-                <CarouselContent className="-ml-1 gap-4">
-                  {heroImages.map((image, index) => (
-                    <CarouselItem key={index} className="pl-1 basis-full md:basis-1/2 lg:basis-1/3">
-                      <SectionContentCard 
-                        level={3}
-                        interactive
-                        className="group relative rounded-2xl overflow-hidden cursor-pointer" 
-                        onClick={() => handleImageClick(index)}
-                      >
-                        <div className="aspect-[16/9]">
-                          <img 
-                            src={image.src} 
-                            alt={image.alt} 
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
-                            loading={index < 2 ? "eager" : "lazy"} 
-                            decoding="async" 
-                          />
+            <Carousel 
+              opts={{
+                align: "start",
+                loop: true
+              }} 
+              plugins={[Autoplay({
+                delay: 4000
+              })]} 
+              className="w-full"
+            >
+              <CarouselContent className="-ml-1 gap-4">
+                {heroImages.map((image, index) => (
+                  <CarouselItem key={index} className="pl-1 basis-full md:basis-1/2 lg:basis-1/3">
+                    <div 
+                      className="group relative rounded-2xl overflow-hidden cursor-pointer border border-border/20 bg-card/50 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-300" 
+                      onClick={() => handleImageClick(index)}
+                    >
+                      <div className="aspect-[16/9]">
+                        <img 
+                          src={image.src} 
+                          alt={image.alt} 
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                          loading={index < 2 ? "eager" : "lazy"} 
+                          decoding="async" 
+                        />
+                      </div>
+                      
+                      {/* Hover Overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div className="absolute bottom-4 left-4 right-4 text-left">
+                          <h3 className="text-white font-elegant font-semibold text-lg mb-2">
+                            {image.title}
+                          </h3>
+                          <p className="text-white/90 text-sm leading-tight">
+                            {image.description}
+                          </p>
                         </div>
-                        
-                        {/* Hover Overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                          <div className="absolute bottom-4 left-4 right-4 text-left">
-                            <h3 className="text-white font-elegant font-semibold text-lg mb-2">
-                              {image.title}
-                            </h3>
-                            <p className="text-white/90 text-sm leading-tight">
-                              {image.description}
-                            </p>
-                          </div>
-                        </div>
-                      </SectionContentCard>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                <CarouselPrevious className="hidden md:flex -left-12" />
-                <CarouselNext className="hidden md:flex -right-12" />
-              </Carousel>
-            </SectionContentCard>
+                      </div>
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="hidden md:flex -left-12" />
+              <CarouselNext className="hidden md:flex -right-12" />
+            </Carousel>
           </div>
 
           {/* Call-to-Action Buttons Section */}
