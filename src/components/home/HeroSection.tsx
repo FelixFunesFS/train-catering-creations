@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -6,7 +5,6 @@ import { ImageModal } from "@/components/gallery/ImageModal";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { ResponsiveWrapper } from "@/components/ui/responsive-wrapper";
 import { SectionContentCard } from "@/components/ui/section-content-card";
-import { RotatingSphereLogo } from "@/components/ui/rotating-sphere-logo";
 import Autoplay from "embla-carousel-autoplay";
 
 export const HeroSection = () => {
@@ -121,14 +119,17 @@ export const HeroSection = () => {
             <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 opacity-50 rounded-xl"></div>
             
             <div className="relative z-10 text-center">
-              {/* 3D Rotating Sphere Logo */}
+              {/* Logo Icon */}
               <div className="flex justify-center mb-6 animate-fade-in">
-                <RotatingSphereLogo 
-                  logoSrc="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png"
-                  logoAlt="Soul Train's Eatery Logo"
-                  size="lg"
-                  className="neumorphic-card-2 p-4 rounded-full"
-                />
+                <div className="neumorphic-card-2 p-4 rounded-full">
+                  <div className="h-12 w-12 sm:h-16 sm:w-16">
+                    <img 
+                      src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
+                      alt="Soul Train's Eatery Logo" 
+                      className="w-full h-full object-contain hover:scale-110 transition-transform duration-300" 
+                    />
+                  </div>
+                </div>
               </div>
               
               {/* Main Heading */}
