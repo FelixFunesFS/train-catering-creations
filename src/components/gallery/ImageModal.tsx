@@ -93,43 +93,43 @@ export const ImageModal = ({
         <DialogTitle className="sr-only">Gallery Image</DialogTitle>
         <DialogDescription className="sr-only">Full size view of gallery image</DialogDescription>
         <div className="relative">
-          {/* Close button - Fixed positioning and accessibility */}
+          {/* Close button - Enhanced contrast with red accent */}
           <Button 
             variant="ghost" 
             size="icon" 
-            className="fixed top-4 right-4 text-white hover:text-gray-300 z-50 bg-black/50 hover:bg-black/70 min-h-touch min-w-touch rounded-xl border border-white/20 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black/50"
+            className="fixed top-4 right-4 text-white hover:text-white z-50 bg-red-600/80 hover:bg-red-600/90 backdrop-blur-sm min-h-touch min-w-touch rounded-xl border border-red-300/50 shadow-lg focus-visible:ring-2 focus-visible:ring-red-300 focus-visible:ring-offset-2 focus-visible:ring-offset-black/50"
             onClick={onClose}
             aria-label="Close gallery"
           >
-            <X className="h-5 w-5 sm:h-6 sm:w-6" />
+            <X className="h-6 w-6 stroke-2" />
           </Button>
           
-          {/* Image counter - Fixed positioning */}
-          <div className="fixed top-4 left-4 text-white text-sm z-40 bg-black/50 px-3 py-2 rounded-xl border border-white/20">
-            {currentIndex + 1} of {images.length}
+          {/* Image counter - Enhanced visibility */}
+          <div className="fixed top-4 left-4 text-white text-sm z-40 bg-black/60 backdrop-blur-sm px-4 py-2 rounded-xl border border-white/30 shadow-lg">
+            <span className="font-medium">{currentIndex + 1} of {images.length}</span>
           </div>
           
-          {/* Navigation buttons - Fixed positioning and improved accessibility */}
+          {/* Navigation buttons - Blurred see-through background */}
           <Button 
             variant="ghost" 
             size="icon" 
-            className="fixed left-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 z-40 bg-black/50 hover:bg-black/70 min-h-touch min-w-touch rounded-xl border border-white/20 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black/50"
+            className="fixed left-4 top-1/2 -translate-y-1/2 text-white hover:text-white z-40 backdrop-blur-md bg-white/10 hover:bg-white/20 min-h-touch min-w-touch rounded-xl border border-white/30 shadow-lg focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black/50 transition-all duration-200"
             onClick={handlePrevious}
             disabled={images.length <= 1}
             aria-label="Previous image"
           >
-            <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" />
+            <ChevronLeft className="h-6 w-6 stroke-2" />
           </Button>
           
           <Button 
             variant="ghost" 
             size="icon" 
-            className="fixed right-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 z-40 bg-black/50 hover:bg-black/70 min-h-touch min-w-touch rounded-xl border border-white/20 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black/50"
+            className="fixed right-4 top-1/2 -translate-y-1/2 text-white hover:text-white z-40 backdrop-blur-md bg-white/10 hover:bg-white/20 min-h-touch min-w-touch rounded-xl border border-white/30 shadow-lg focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black/50 transition-all duration-200"
             onClick={handleNext}
             disabled={images.length <= 1}
             aria-label="Next image"
           >
-            <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" />
+            <ChevronRight className="h-6 w-6 stroke-2" />
           </Button>
 
           {currentImage && (
@@ -144,7 +144,7 @@ export const ImageModal = ({
                 alt={currentImage.title} 
                 className="w-full h-auto max-h-[80vh] object-contain rounded-xl"
               />
-              <div className="absolute bottom-2 sm:bottom-4 left-2 sm:left-4 right-2 sm:right-4 text-white bg-black/60 rounded-xl p-2 sm:p-3">
+              <div className="absolute bottom-2 sm:bottom-4 left-2 sm:left-4 right-2 sm:right-4 text-white bg-black/70 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-white/20 shadow-lg">
                 <h3 className="font-elegant font-semibold text-sm sm:text-base md:text-lg">{currentImage.title}</h3>
                 <p className="text-xs sm:text-sm text-white/90">{currentImage.description}</p>
               </div>
