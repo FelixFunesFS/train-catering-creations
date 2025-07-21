@@ -63,7 +63,7 @@ export const RotatingSphereLogo = ({
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .sphere-container {
           transform-style: preserve-3d;
           animation: sphereFloat 4s ease-in-out infinite;
