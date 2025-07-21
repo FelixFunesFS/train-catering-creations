@@ -71,7 +71,7 @@ export const Header = () => {
                   key={item.name} 
                   to={item.href} 
                   className={cn(
-                    "text-sm font-medium px-4 py-2 rounded-lg transition-all duration-300 focus-visible-enhanced",
+                    "text-sm font-medium px-4 py-2 rounded-lg transition-all duration-300 focus-visible-enhanced hover:scale-105 hover:-translate-y-0.5",
                     isActive(item.href) 
                       ? "active text-primary-foreground bg-white/20 font-semibold" 
                       : "text-primary-foreground/80 hover:text-primary-foreground hover:bg-white/10"
