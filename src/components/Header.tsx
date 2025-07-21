@@ -93,9 +93,7 @@ export const Header = () => {
             {/* Mobile controls */}
             <div className="lg:hidden flex items-center">
               <Button 
-                variant="ghost" 
-                size="icon" 
-                className="text-primary-foreground hover:text-primary-foreground hover:bg-primary/10 transition-all duration-300 focus-visible-enhanced p-2"
+                className="neumorphic-button-primary text-primary-foreground hover:text-primary-foreground transition-all duration-300 focus-visible-enhanced p-2 h-auto w-auto"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
                 aria-expanded={isMenuOpen}
                 aria-controls="mobile-menu"
