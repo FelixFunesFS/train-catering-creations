@@ -25,7 +25,7 @@ export const RotatingSphereLogo = ({
       {/* Main sphere container */}
       <div 
         className={cn(
-          "relative mx-auto sphere-container",
+          "relative mx-auto glass-sphere-container",
           sizeClasses[size]
         )}
         style={{
@@ -33,22 +33,16 @@ export const RotatingSphereLogo = ({
           transformStyle: 'preserve-3d'
         }}
       >
-        {/* Outer rotating sphere */}
-        <div className="absolute inset-0 sphere-outer">
-          {/* Multiple sphere faces for 3D effect */}
-          <div className="sphere-face sphere-face-1"></div>
-          <div className="sphere-face sphere-face-2"></div>
-          <div className="sphere-face sphere-face-3"></div>
-          <div className="sphere-face sphere-face-4"></div>
-          <div className="sphere-face sphere-face-5"></div>
-          <div className="sphere-face sphere-face-6"></div>
-        </div>
-        
-        {/* Inner rotating ring */}
-        <div className="absolute inset-0 sphere-inner">
-          <div className="sphere-ring sphere-ring-1"></div>
-          <div className="sphere-ring sphere-ring-2"></div>
-          <div className="sphere-ring sphere-ring-3"></div>
+        {/* Single Glass Sphere */}
+        <div className="glass-sphere">
+          {/* Inner glass layer for depth */}
+          <div className="glass-sphere-inner"></div>
+          
+          {/* Outer glass layer */}
+          <div className="glass-sphere-outer"></div>
+          
+          {/* Subtle reflection highlights */}
+          <div className="glass-sphere-highlight"></div>
         </div>
         
         {/* Logo at center */}
@@ -64,76 +58,81 @@ export const RotatingSphereLogo = ({
       </div>
 
       <style>{`
-        .sphere-container {
+        .glass-sphere-container {
           transform-style: preserve-3d;
           animation: sphereFloat 4s ease-in-out infinite;
         }
 
-        .sphere-outer {
-          transform-style: preserve-3d;
-          animation: sphereRotateY 8s linear infinite;
-        }
-
-        .sphere-inner {
-          transform-style: preserve-3d;
-          animation: sphereRotateX 6s linear infinite reverse;
-        }
-
-        .sphere-face {
+        .glass-sphere {
           position: absolute;
-          width: 100%;
-          height: 100%;
+          inset: 0;
+          border-radius: 50%;
+          transform-style: preserve-3d;
+          animation: sphereRotate 12s linear infinite;
+        }
+
+        .glass-sphere-inner {
+          position: absolute;
+          inset: 4px;
           border-radius: 50%;
           background: linear-gradient(135deg, 
-            hsla(0, 80%, 45%, 0.1) 0%, 
-            hsla(0, 80%, 60%, 0.05) 50%, 
-            hsla(0, 80%, 45%, 0.1) 100%
+            hsla(0, 0%, 100%, 0.1) 0%, 
+            hsla(210, 5%, 85%, 0.05) 50%, 
+            hsla(0, 0%, 100%, 0.1) 100%
           );
-          border: 1px solid hsla(0, 80%, 45%, 0.2);
+          border: 1px solid hsla(210, 5%, 85%, 0.3);
+          backdrop-filter: blur(8px);
           box-shadow: 
-            0 0 20px hsla(0, 80%, 45%, 0.1),
-            inset 0 0 20px hsla(0, 80%, 45%, 0.05);
+            inset 0 0 20px hsla(0, 0%, 100%, 0.2),
+            inset 0 0 40px hsla(210, 5%, 85%, 0.1);
         }
 
-        .sphere-face-1 { transform: rotateY(0deg) translateZ(32px); }
-        .sphere-face-2 { transform: rotateY(60deg) translateZ(32px); }
-        .sphere-face-3 { transform: rotateY(120deg) translateZ(32px); }
-        .sphere-face-4 { transform: rotateY(180deg) translateZ(32px); }
-        .sphere-face-5 { transform: rotateY(240deg) translateZ(32px); }
-        .sphere-face-6 { transform: rotateY(300deg) translateZ(32px); }
-
-        .sphere-ring {
+        .glass-sphere-outer {
           position: absolute;
-          width: 120%;
-          height: 120%;
-          top: -10%;
-          left: -10%;
+          inset: 0;
           border-radius: 50%;
-          border: 1px solid hsla(45, 85%, 55%, 0.3);
-          box-shadow: 0 0 15px hsla(45, 85%, 55%, 0.2);
+          background: linear-gradient(135deg, 
+            hsla(0, 0%, 100%, 0.15) 0%, 
+            hsla(210, 5%, 85%, 0.08) 50%, 
+            hsla(0, 0%, 100%, 0.15) 100%
+          );
+          border: 1px solid hsla(210, 5%, 85%, 0.2);
+          backdrop-filter: blur(12px);
+          box-shadow: 
+            0 0 20px hsla(210, 5%, 85%, 0.15),
+            0 0 40px hsla(210, 5%, 85%, 0.08),
+            inset 0 2px 4px hsla(0, 0%, 100%, 0.3),
+            inset 0 -2px 4px hsla(210, 5%, 75%, 0.2);
         }
 
-        .sphere-ring-1 { 
-          transform: rotateX(0deg) rotateY(0deg);
-          animation: ringRotate1 10s linear infinite;
-        }
-        .sphere-ring-2 { 
-          transform: rotateX(60deg) rotateY(120deg);
-          animation: ringRotate2 12s linear infinite reverse;
-        }
-        .sphere-ring-3 { 
-          transform: rotateX(120deg) rotateY(240deg);
-          animation: ringRotate3 14s linear infinite;
-        }
-
-        @keyframes sphereRotateY {
-          0% { transform: rotateY(0deg); }
-          100% { transform: rotateY(360deg); }
+        .glass-sphere-highlight {
+          position: absolute;
+          top: 15%;
+          left: 15%;
+          width: 30%;
+          height: 30%;
+          border-radius: 50%;
+          background: linear-gradient(135deg, 
+            hsla(0, 0%, 100%, 0.4) 0%, 
+            hsla(0, 0%, 100%, 0.1) 100%
+          );
+          filter: blur(2px);
+          opacity: 0.6;
         }
 
-        @keyframes sphereRotateX {
-          0% { transform: rotateX(0deg); }
-          100% { transform: rotateX(360deg); }
+        @keyframes sphereRotate {
+          0% { 
+            transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+          }
+          33% { 
+            transform: rotateX(120deg) rotateY(120deg) rotateZ(120deg);
+          }
+          66% { 
+            transform: rotateX(240deg) rotateY(240deg) rotateZ(240deg);
+          }
+          100% { 
+            transform: rotateX(360deg) rotateY(360deg) rotateZ(360deg);
+          }
         }
 
         @keyframes sphereFloat {
@@ -141,48 +140,25 @@ export const RotatingSphereLogo = ({
           50% { transform: translateY(-8px); }
         }
 
-        @keyframes ringRotate1 {
-          0% { transform: rotateX(0deg) rotateY(0deg); }
-          100% { transform: rotateX(360deg) rotateY(360deg); }
+        .glass-sphere-container:hover .glass-sphere {
+          animation-duration: 4s;
         }
 
-        @keyframes ringRotate2 {
-          0% { transform: rotateX(60deg) rotateY(120deg); }
-          100% { transform: rotateX(420deg) rotateY(480deg); }
+        .glass-sphere-container:hover .glass-sphere-outer {
+          box-shadow: 
+            0 0 30px hsla(210, 5%, 85%, 0.25),
+            0 0 60px hsla(210, 5%, 85%, 0.15),
+            inset 0 2px 4px hsla(0, 0%, 100%, 0.4),
+            inset 0 -2px 4px hsla(210, 5%, 75%, 0.3);
         }
 
-        @keyframes ringRotate3 {
-          0% { transform: rotateX(120deg) rotateY(240deg); }
-          100% { transform: rotateX(480deg) rotateY(600deg); }
-        }
-
-        .sphere-container:hover .sphere-outer {
-          animation-duration: 2s;
-        }
-
-        .sphere-container:hover .sphere-inner {
-          animation-duration: 1.5s;
-        }
-
-        .sphere-container:hover .sphere-ring-1 {
-          animation-duration: 3s;
-        }
-
-        .sphere-container:hover .sphere-ring-2 {
-          animation-duration: 2.5s;
-        }
-
-        .sphere-container:hover .sphere-ring-3 {
-          animation-duration: 2s;
+        .glass-sphere-container:hover .glass-sphere-highlight {
+          opacity: 0.8;
         }
 
         @media (prefers-reduced-motion: reduce) {
-          .sphere-container,
-          .sphere-outer,
-          .sphere-inner,
-          .sphere-ring-1,
-          .sphere-ring-2,
-          .sphere-ring-3 {
+          .glass-sphere-container,
+          .glass-sphere {
             animation: none !important;
           }
         }
