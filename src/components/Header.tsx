@@ -1,10 +1,9 @@
 
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SkipToContent } from "@/components/ui/skip-to-content";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { cn } from "@/lib/utils";
 
 export const Header = () => {
@@ -89,24 +88,33 @@ export const Header = () => {
               >
                 <Link to="/request-quote#page-header">Request Quote</Link>
               </Button>
-              <ThemeToggle />
             </nav>
 
             {/* Mobile controls */}
-            <div className="lg:hidden flex items-center space-x-2">
-              <ThemeToggle />
+            <div className="lg:hidden flex items-center">
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="text-primary-foreground hover:text-primary-foreground hover:bg-white/10 transition-all duration-300 focus-visible-enhanced"
+                className="text-primary-foreground hover:text-primary-foreground hover:bg-primary/10 transition-all duration-300 focus-visible-enhanced p-2"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
                 aria-expanded={isMenuOpen}
                 aria-controls="mobile-menu"
                 aria-label={isMenuOpen ? "Close menu" : "Open menu"}
               >
                 {isMenuOpen ? 
-                  <X className="h-6 w-6" strokeWidth={2} /> : 
-                  <Menu className="h-6 w-6" strokeWidth={2} />
+                  <X className="h-7 w-7" strokeWidth={2.5} /> : 
+                  <svg
+                    className="h-7 w-7"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2.5}
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 12h16" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 18h16" />
+                  </svg>
                 }
               </Button>
             </div>
