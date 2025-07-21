@@ -27,13 +27,13 @@ export const PageHeader = ({
     <header 
       id="page-header" 
       className={cn(
-        "text-center max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16",
+        "text-center max-w-4xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 py-6 sm:py-8 lg:py-12 xl:py-16",
         className
       )}
     >
       {/* Icon cluster */}
       {icons.length > 0 && (
-        <div className="flex justify-center items-center space-x-4 mb-6 sm:mb-8">
+        <div className="flex justify-center items-center space-x-3 sm:space-x-4 mb-4 sm:mb-6 lg:mb-8">
           {icons.map((icon, index) => (
             <div 
               key={index} 
@@ -45,26 +45,26 @@ export const PageHeader = ({
         </div>
       )}
 
-      {/* Title with hover motion */}
-      <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-elegant font-bold text-foreground mb-4 sm:mb-6 leading-tight title-hover-motion">
+      {/* Title with mobile-optimized sizing */}
+      <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant font-bold text-foreground mb-3 sm:mb-4 lg:mb-6 leading-tight title-hover-motion">
         {title}
       </h1>
 
-      {/* Description with subtle hover motion */}
-      <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed mb-6 sm:mb-8 lg:mb-10 subtitle-hover-motion">
+      {/* Description with mobile-optimized sizing */}
+      <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed mb-4 sm:mb-6 lg:mb-8 xl:mb-10 subtitle-hover-motion">
         {description}
       </p>
 
-      {/* Action buttons */}
+      {/* Action buttons with mobile optimization */}
       {buttons.length > 0 && (
-        <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6">
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 lg:gap-6">
           {buttons.map((button, index) => (
             <Button
               key={index}
               asChild
               variant={button.variant || "default"}
-              size="lg"
-              className="w-full sm:w-auto min-w-[200px] text-base font-medium hover:scale-105 transition-transform duration-300"
+              size="responsive-md"
+              className="w-full sm:w-auto min-w-[180px] sm:min-w-[200px] text-sm sm:text-base font-medium hover:scale-105 transition-transform duration-300"
             >
               <a href={button.href} className="flex items-center justify-center space-x-2">
                 {button.icon && <span>{button.icon}</span>}

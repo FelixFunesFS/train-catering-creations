@@ -114,15 +114,15 @@ export const HeroSection = () => {
     <>
       <section>
         <ResponsiveWrapper hasFullWidthCard>
-          {/* Brand Header Section */}
-          <div className="relative mb-8">
+          {/* Brand Header Section with mobile-optimized typography */}
+          <div className="relative mb-6 sm:mb-8">
             <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 opacity-50 rounded-xl"></div>
             
             <div className="relative z-10 text-center">
               {/* Logo Icon */}
-              <div className="flex justify-center mb-6 animate-fade-in">
-                <div className="neumorphic-card-2 p-4 rounded-full">
-                  <div className="h-12 w-12 sm:h-16 sm:w-16">
+              <div className="flex justify-center mb-4 sm:mb-6 animate-fade-in">
+                <div className="neumorphic-card-2 p-3 sm:p-4 rounded-full">
+                  <div className="h-10 w-10 sm:h-12 sm:w-12 lg:h-16 lg:w-16">
                     <img 
                       src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
                       alt="Soul Train's Eatery Logo" 
@@ -132,19 +132,19 @@ export const HeroSection = () => {
                 </div>
               </div>
               
-              {/* Main Heading */}
-              <div className="mb-6 animate-fade-in">
-                <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-elegant font-bold text-foreground leading-tight">
+              {/* Main Heading with mobile-first typography */}
+              <div className="mb-4 sm:mb-6 animate-fade-in">
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant font-bold text-foreground leading-tight">
                   Charleston's Premier Catering Experience
                 </h1>
               </div>
               
               {/* Decorative line */}
-              <div className="w-24 sm:w-32 h-1 bg-gradient-primary mx-auto mb-6 animate-fade-in rounded-full" />
+              <div className="w-16 sm:w-24 lg:w-32 h-1 bg-gradient-primary mx-auto mb-4 sm:mb-6 animate-fade-in rounded-full" />
               
-              {/* Subtitle */}
-              <div className="mb-8 animate-fade-in">
-                <p className="text-base sm:text-lg lg:text-xl text-muted-foreground font-elegant leading-relaxed">
+              {/* Subtitle with mobile-optimized sizing */}
+              <div className="mb-6 sm:mb-8 animate-fade-in">
+                <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-muted-foreground font-elegant leading-relaxed">
                   Where every bite is made with love and served with soul!
                 </p>
               </div>
@@ -152,7 +152,7 @@ export const HeroSection = () => {
           </div>
 
           {/* Image Gallery Carousel Section */}
-          <div className="relative mb-8 animate-fade-in">
+          <div className="relative mb-6 sm:mb-8 animate-fade-in">
             <Carousel 
               opts={{
                 align: "start",
@@ -163,11 +163,11 @@ export const HeroSection = () => {
               })]} 
               className="w-full"
             >
-              <CarouselContent className="-ml-1 gap-4">
+              <CarouselContent className="-ml-1 gap-3 sm:gap-4">
                 {heroImages.map((image, index) => (
                   <CarouselItem key={index} className="pl-1 basis-full md:basis-1/2 lg:basis-1/3">
                     <div 
-                      className="group neumorphic-card-2 hover:neumorphic-card-3 p-4 rounded-2xl cursor-pointer transition-all duration-300" 
+                      className="group neumorphic-card-2 hover:neumorphic-card-3 p-3 sm:p-4 rounded-2xl cursor-pointer transition-all duration-300" 
                       onClick={() => handleImageClick(index)}
                     >
                       <div className="relative rounded-xl overflow-hidden">
@@ -181,13 +181,13 @@ export const HeroSection = () => {
                           />
                         </div>
                         
-                        {/* Hover Overlay */}
+                        {/* Hover Overlay with mobile-optimized text */}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                          <div className="absolute bottom-4 left-4 right-4 text-left">
-                            <h3 className="text-white font-elegant font-semibold text-lg mb-2">
+                          <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 right-3 sm:right-4 text-left">
+                            <h3 className="text-white font-elegant font-semibold text-base sm:text-lg mb-1 sm:mb-2">
                               {image.title}
                             </h3>
-                            <p className="text-white/90 text-sm leading-tight">
+                            <p className="text-white/90 text-xs sm:text-sm leading-tight">
                               {image.description}
                             </p>
                           </div>
@@ -202,15 +202,15 @@ export const HeroSection = () => {
             </Carousel>
           </div>
 
-          {/* Call-to-Action Buttons Section */}
+          {/* Call-to-Action Buttons Section with mobile optimization */}
           <div className="text-center animate-fade-in">
-            <div className="flex flex-col sm:flex-row justify-center items-center gap-6">
-              <Button asChild variant="cta" size="responsive-lg" className="w-3/5 sm:w-auto sm:min-w-[14rem]">
+            <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6">
+              <Button asChild variant="cta" size="responsive-lg" className="w-4/5 sm:w-auto sm:min-w-[14rem]">
                 <Link to="/request-quote#page-header">
                   Request Quote
                 </Link>
               </Button>
-              <Button asChild variant="cta-outline" size="responsive-lg" className="w-3/5 sm:w-auto sm:min-w-[14rem]">
+              <Button asChild variant="cta-outline" size="responsive-lg" className="w-4/5 sm:w-auto sm:min-w-[14rem]">
                 <Link to="/gallery#page-header">
                   View Gallery
                 </Link>
