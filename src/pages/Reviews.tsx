@@ -86,18 +86,21 @@ const Reviews = () => {
                 <ThumbsUp className="h-6 w-6 sm:h-8 sm:w-8" />
               ]}
               buttons={[{ text: "About Us", href: "/about#page-header", variant: "cta" }]}
-            >
+            />
+            
+            {/* Additional content that was previously children */}
+            <div className="text-center mt-6 max-w-4xl mx-auto">
               <div className="flex justify-center items-center space-x-2 mb-3 sm:mb-4">
                 {renderStars(5)}
                 <span className="text-xl sm:text-2xl font-bold text-primary ml-2">5.0</span>
               </div>
-              <p className="text-base sm:text-lg text-muted-foreground">
+              <p className="text-base sm:text-lg text-muted-foreground subtitle-hover-motion">
                 Based on {reviews.length}+ reviews from satisfied clients
               </p>
-              <p className="text-xs sm:text-sm text-muted-foreground mt-2">
+              <p className="text-xs sm:text-sm text-muted-foreground mt-2 subtitle-hover-motion">
                 Serving Charleston, SC and the Lowcountry for over 8 years
               </p>
-            </PageHeader>
+            </div>
           </div>
         </div>
       </section>
@@ -120,8 +123,8 @@ const Reviews = () => {
                   <CardHeader>
                     <div className="flex justify-between items-start">
                       <div>
-                        <CardTitle className="text-base sm:text-lg font-elegant">{review.name}</CardTitle>
-                        <p className="text-xs sm:text-sm text-muted-foreground">{review.event}</p>
+                        <CardTitle className="text-base sm:text-lg font-elegant card-title-hover-motion">{review.name}</CardTitle>
+                        <p className="text-xs sm:text-sm text-muted-foreground subtitle-hover-motion">{review.event}</p>
                       </div>
                       <div className="flex space-x-1">
                         {renderStars(review.rating)}
@@ -129,10 +132,10 @@ const Reviews = () => {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-sm sm:text-base text-foreground mb-2 sm:mb-3 leading-relaxed">
+                    <p className="text-sm sm:text-base text-foreground mb-2 sm:mb-3 leading-relaxed subtitle-hover-motion">
                       "{review.text}"
                     </p>
-                    <p className="text-xs text-muted-foreground">{review.date}</p>
+                    <p className="text-xs text-muted-foreground subtitle-hover-motion">{review.date}</p>
                   </CardContent>
                 </Card>
               );
@@ -147,10 +150,10 @@ const Reviews = () => {
           <div className="text-center">
             <Card className="shadow-card bg-primary-light">
               <CardContent className="p-4 sm:p-6">
-                <h4 className="text-base sm:text-lg font-elegant font-semibold text-primary mb-2">
+                <h4 className="text-base sm:text-lg font-elegant font-semibold text-primary mb-2 card-title-hover-motion">
                   Worked with us recently?
                 </h4>
-                <p className="text-primary text-xs sm:text-sm">
+                <p className="text-primary text-xs sm:text-sm subtitle-hover-motion">
                   We'd love to hear about your experience! Contact us to share your feedback.
                 </p>
               </CardContent>
