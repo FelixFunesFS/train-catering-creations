@@ -53,7 +53,7 @@ export const AboutPreviewSection = () => {
       <ResponsiveWrapper hasFullWidthCard>
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           <div ref={titleRef} className={titleAnimationClass}>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant text-foreground mb-6">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-elegant font-bold text-foreground mb-6 leading-tight">
               Culinary Excellence
             </h2>
             <p className="text-base sm:text-lg text-muted-foreground mb-6 leading-relaxed">

@@ -72,13 +72,12 @@ export const InteractiveGallerySection = () => {
 
   return (
     <section className="bg-gradient-card/20 border-t border-border/10">
-      <div className="neumorphic-card-3 mx-4 xl:mx-8 rounded-2xl overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6 xl:px-12 py-12 xl:py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 xl:py-16">
           <div className="text-center mb-8 lg:mb-12">
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant text-foreground mb-4 text-fade-up">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-elegant font-bold text-foreground mb-4 leading-tight text-fade-up">
               Our Gallery Showcase
             </h2>
-            <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto text-fade-up-delay-1">See how we turn food into an experience! Our gallery highlights the beauty, flavor, and joy behind every event we cater.</p>
+            <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed text-fade-up-delay-1">See how we turn food into an experience! Our gallery highlights the beauty, flavor, and joy behind every event we cater.</p>
           </div>
 
           <div className="relative">
@@ -125,7 +124,6 @@ export const InteractiveGallerySection = () => {
             </div>
           </div>
         </div>
-      </div>
 
       <ImageModal images={highQualityImages} selectedIndex={selectedImageIndex} onClose={handleCloseModal} />
     </section>

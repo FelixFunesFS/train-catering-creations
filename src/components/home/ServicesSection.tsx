@@ -47,10 +47,10 @@ export const ServicesSection = () => {
     <section className="bg-gradient-card/30 border-t border-border/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 xl:py-16">
         <div className="text-center mb-6 sm:mb-8 lg:mb-12">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant text-foreground mb-4 text-fade-up">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-elegant font-bold text-foreground mb-4 leading-tight text-fade-up">
             Our Catering Services
           </h2>
-          <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto text-fade-up-delay-1">Elegant weddings, heartfelt celebrations, and corporate events—catered with care, Southern soul, and impeccable service.</p>
+          <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed text-fade-up-delay-1">Elegant weddings, heartfelt celebrations, and corporate events—catered with care, Southern soul, and impeccable service.</p>
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-10 lg:gap-14">

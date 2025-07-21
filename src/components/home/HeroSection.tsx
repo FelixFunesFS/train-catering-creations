@@ -134,7 +134,7 @@ export const HeroSection = () => {
               
               {/* Main Heading */}
               <div className="mb-6 animate-fade-in">
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant text-foreground leading-tight">
+                <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-elegant font-bold text-foreground leading-tight">
                   Charleston's Premier Catering Experience
                 </h1>
               </div>
@@ -144,7 +144,7 @@ export const HeroSection = () => {
               
               {/* Subtitle */}
               <div className="mb-8 animate-fade-in">
-                <p className="text-lg sm:text-xl lg:text-2xl text-muted-foreground font-elegant leading-relaxed">
+                <p className="text-base sm:text-lg lg:text-xl text-muted-foreground font-elegant leading-relaxed">
                   Where every bite is made with love and served with soul!
                 </p>
               </div>

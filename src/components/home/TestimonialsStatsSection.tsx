@@ -40,10 +40,10 @@ export const TestimonialsStatsSection = () => {
           {/* Statistics Side */}
           <div ref={statsRef} className={`space-y-6 lg:space-y-8 ${statsAnimationClass}`}>
             <div className="text-center lg:text-left">
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant text-foreground mb-6 text-fade-up">
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-elegant font-bold text-foreground mb-6 leading-tight text-fade-up">
                 Proven Excellence
               </h2>
-              <p className="text-lg sm:text-xl text-muted-foreground text-fade-up-delay-1">It's not just about how many we've served—it's how well. Our reputation is built on flavor, service, and results.</p>
+              <p className="text-base sm:text-lg lg:text-xl text-muted-foreground leading-relaxed text-fade-up-delay-1">It's not just about how many we've served—it's how well. Our reputation is built on flavor, service, and results.</p>
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8 lg:gap-12">
