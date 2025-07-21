@@ -5,9 +5,10 @@ import { ResponsiveWrapper } from '@/components/ui/responsive-wrapper';
 
 export const BrandMarquee = () => {
   const isMobile = useIsMobile();
+  const isTablet = typeof window !== 'undefined' && window.innerWidth >= 768 && window.innerWidth < 1024;
   
   const { ref, className, style } = useMarqueeAnimation({
-    speed: isMobile ? 'fast' : 'slow',
+    speed: isMobile || isTablet ? 'fast' : 'slow',
     direction: 'left',
     pauseOnHover: false
   });
@@ -61,7 +62,7 @@ export const BrandMarquee = () => {
 
   return (
     <section>
-      <ResponsiveWrapper hasFullWidthCard>
+      <ResponsiveWrapper>
         <div className="w-full relative overflow-hidden py-6 lg:py-8">
           <div 
             ref={ref}
