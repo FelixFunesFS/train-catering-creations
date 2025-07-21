@@ -2,7 +2,6 @@ import { Calendar, Utensils, Trophy, Quote } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
-
 export const TestimonialsStatsSection = () => {
   const {
     ref: statsRef,
@@ -22,7 +21,6 @@ export const TestimonialsStatsSection = () => {
   });
   const statsAnimationClass = useAnimationClass(statsVariant, statsVisible);
   const reviewAnimationClass = useAnimationClass(reviewVariant, reviewVisible);
-  
   const stats = [{
     number: "750+",
     label: "Events Catered",
@@ -32,23 +30,18 @@ export const TestimonialsStatsSection = () => {
     label: "Meals Served",
     icon: Utensils
   }];
-
-  return (
-    <section className="bg-muted/30 border-t border-border/10">
+  return <section className="bg-muted/30 border-t border-border/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 xl:py-16">
         <div className="grid lg:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-stretch">
           {/* Statistics Side */}
           <div ref={statsRef} className={`space-y-6 lg:space-y-8 ${statsAnimationClass}`}>
             <div className="text-center lg:text-left">
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-elegant font-bold text-foreground mb-6 leading-tight text-fade-up">
-                Proven Excellence
-              </h2>
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-elegant font-bold text-foreground mb-6 leading-tight text-fade-up">Proven Performance</h2>
               <p className="text-base sm:text-lg lg:text-xl text-muted-foreground leading-relaxed text-fade-up-delay-1">It's not just about how many we've served—it's how well. Our reputation is built on flavor, service, and results.</p>
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8 lg:gap-12">
-              {stats.map((stat, index) => (
-                <div key={index} className="neumorphic-card-2 hover:neumorphic-card-3 transition-all duration-200 hover:scale-105 group rounded-lg">
+              {stats.map((stat, index) => <div key={index} className="neumorphic-card-2 hover:neumorphic-card-3 transition-all duration-200 hover:scale-105 group rounded-lg">
                   <div className="p-4 sm:p-6 lg:p-8 text-center">
                     <stat.icon className="h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 text-primary mx-auto mb-4 lg:mb-6 group-hover:scale-110 transition-transform duration-200" />
                     <div className="text-lg sm:text-xl font-elegant font-semibold text-foreground mb-4">
@@ -58,8 +51,7 @@ export const TestimonialsStatsSection = () => {
                       {stat.label}
                     </p>
                   </div>
-                </div>
-              ))}
+                </div>)}
             </div>
           </div>
 
@@ -86,6 +78,5 @@ export const TestimonialsStatsSection = () => {
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
