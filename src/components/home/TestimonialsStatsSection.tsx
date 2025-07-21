@@ -1,4 +1,3 @@
-
 import { Calendar, Utensils, Trophy, Quote } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
@@ -44,7 +43,7 @@ export const TestimonialsStatsSection = () => {
               <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant text-foreground mb-6 text-fade-up">
                 Proven Excellence
               </h2>
-              <p className="text-base sm:text-lg text-muted-foreground text-fade-up-delay-1">It's not just about how many we've served—it's how well. Our reputation is built on flavor, service, and results.</p>
+              <p className="text-lg sm:text-xl text-muted-foreground text-fade-up-delay-1">It's not just about how many we've served—it's how well. Our reputation is built on flavor, service, and results.</p>
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8 lg:gap-12">
@@ -55,7 +54,7 @@ export const TestimonialsStatsSection = () => {
                     <div className="text-lg sm:text-xl font-elegant font-semibold text-foreground mb-4">
                       {stat.number}
                     </div>
-                    <p className="text-sm sm:text-base text-muted-foreground font-medium">
+                    <p className="text-base sm:text-lg text-muted-foreground font-medium">
                       {stat.label}
                     </p>
                   </div>
@@ -87,7 +86,6 @@ export const TestimonialsStatsSection = () => {
           </div>
         </div>
       </div>
-
     </section>
   );
 };

@@ -78,7 +78,7 @@ export const InteractiveGallerySection = () => {
             <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant text-foreground mb-4 text-fade-up">
               Our Gallery Showcase
             </h2>
-            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto text-fade-up-delay-1">See how we turn food into an experience! Our gallery highlights the beauty, flavor, and joy behind every event we cater.</p>
+            <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto text-fade-up-delay-1">See how we turn food into an experience! Our gallery highlights the beauty, flavor, and joy behind every event we cater.</p>
           </div>
 
           <div className="relative">
@@ -126,7 +126,6 @@ export const InteractiveGallerySection = () => {
           </div>
         </div>
       </div>
-
 
       <ImageModal images={highQualityImages} selectedIndex={selectedImageIndex} onClose={handleCloseModal} />
     </section>

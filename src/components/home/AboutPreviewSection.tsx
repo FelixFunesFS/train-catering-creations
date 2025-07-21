@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { NeumorphicButton } from "@/components/ui/neumorphic-button";
 import { SectionContentCard } from "@/components/ui/section-content-card";
@@ -78,7 +77,7 @@ export const AboutPreviewSection = () => {
             >
               <ChefHat className="h-10 w-10 sm:h-12 sm:w-12 text-primary mx-auto mb-4 group-hover:scale-110 transition-transform duration-300" />
               <h3 className="text-lg sm:text-xl font-elegant font-semibold text-foreground mb-2">Chef Train</h3>
-              <p className="text-sm sm:text-base text-muted-foreground">20+ Years Experience</p>
+              <p className="text-base sm:text-lg text-muted-foreground">20+ Years Experience</p>
             </SectionContentCard>
             
             <SectionContentCard 
@@ -88,7 +87,7 @@ export const AboutPreviewSection = () => {
             >
               <Heart className="h-10 w-10 sm:h-12 sm:w-12 text-primary mx-auto mb-4 group-hover:scale-110 transition-transform duration-300" />
               <h3 className="text-lg sm:text-xl font-elegant font-semibold text-foreground mb-2">Tanya Ward</h3>
-              <p className="text-sm sm:text-base text-muted-foreground">Pastry Chef</p>
+              <p className="text-base sm:text-lg text-muted-foreground">Pastry Chef</p>
             </SectionContentCard>
             
             <SectionContentCard 
@@ -98,7 +97,7 @@ export const AboutPreviewSection = () => {
             >
               <Award className="h-10 w-10 sm:h-12 sm:w-12 text-primary mx-auto mb-4 group-hover:scale-110 transition-transform duration-300" />
               <h3 className="text-lg sm:text-xl font-elegant font-semibold text-foreground mb-2">ServSafe</h3>
-              <p className="text-sm sm:text-base text-muted-foreground">Certified</p>
+              <p className="text-base sm:text-lg text-muted-foreground">Certified</p>
             </SectionContentCard>
             
             <SectionContentCard 
@@ -108,7 +107,7 @@ export const AboutPreviewSection = () => {
             >
               <Users className="h-10 w-10 sm:h-12 sm:w-12 text-primary mx-auto mb-4 group-hover:scale-110 transition-transform duration-300" />
               <h3 className="text-lg sm:text-xl font-elegant font-semibold text-foreground mb-2">Family Run</h3>
-              <p className="text-sm sm:text-base text-muted-foreground">Community Rooted</p>
+              <p className="text-base sm:text-lg text-muted-foreground">Community Rooted</p>
             </SectionContentCard>
           </div>
         </div>

@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { OptimizedImage } from "@/components/ui/optimized-image";
@@ -50,7 +49,7 @@ export const ServicesSection = () => {
           <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant text-foreground mb-4 text-fade-up">
             Our Catering Services
           </h2>
-          <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto text-fade-up-delay-1">Elegant weddings, heartfelt celebrations, and corporate events—catered with care, Southern soul, and impeccable service.</p>
+          <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto text-fade-up-delay-1">Elegant weddings, heartfelt celebrations, and corporate events—catered with care, Southern soul, and impeccable service.</p>
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-10 lg:gap-14">
@@ -115,7 +114,6 @@ export const ServicesSection = () => {
           </div>
         </div>
       </div>
-
     </section>
   );
 };
