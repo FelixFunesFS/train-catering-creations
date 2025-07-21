@@ -29,21 +29,27 @@ export const GalleryCarousel = ({ images, onImageClick }: GalleryCarouselProps) 
               className="pl-1 basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5"
             >
               <div 
-                className="shadow-elegant hover:shadow-glow bg-gradient-card border-2 border-transparent hover:border-primary/20 transition-all duration-200 cursor-pointer group aspect-[5/4] rounded-lg overflow-hidden min-h-touch"
+                className="group neumorphic-card-2 hover:neumorphic-card-3 p-3 sm:p-4 rounded-2xl cursor-pointer transition-all duration-300 aspect-[5/4] min-h-touch"
                 onClick={() => onImageClick(image.src)}
               >
-                <div className="relative w-full h-full">
-                  <OptimizedImage
-                    src={image.src}
-                    alt={image.title}
-                    aspectRatio="aspect-[5/4]"
-                    className="group-hover:scale-105 transition-transform duration-200"
-                    priority={index < 8}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-end">
-                    <div className="p-2 sm:p-3 md:p-4 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                      <h3 className="font-elegant font-semibold text-white text-xs sm:text-sm md:text-base">{image.title}</h3>
-                      <p className="text-xs sm:text-sm text-white/90 hidden sm:block">{image.description}</p>
+                <div className="relative rounded-xl overflow-hidden">
+                  <div className="aspect-[5/4]">
+                    <img 
+                      src={image.src} 
+                      alt={image.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      loading={index < 8 ? "eager" : "lazy"}
+                      decoding="async"
+                    />
+                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 right-3 sm:right-4 text-left">
+                      <h3 className="text-white font-elegant font-semibold text-base sm:text-lg mb-1 sm:mb-2">
+                        {image.title}
+                      </h3>
+                      <p className="text-white/90 text-xs sm:text-sm leading-tight">
+                        {image.description}
+                      </p>
                     </div>
                   </div>
                 </div>

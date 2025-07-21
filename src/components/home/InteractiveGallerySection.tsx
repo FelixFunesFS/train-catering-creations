@@ -12,7 +12,8 @@ export const InteractiveGallerySection = () => {
   const isMobile = useIsMobile();
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
 
-  const handleImageClick = (index: number) => {
+  const handleImageClick = (imageSrc: string) => {
+    const index = galleryImages.findIndex(img => img.src === imageSrc);
     setSelectedImageIndex(index);
   };
 

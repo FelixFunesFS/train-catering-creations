@@ -67,28 +67,27 @@ export const MasonryGrid = ({ images, onImageClick }: MasonryGridProps) => {
         return (
           <div 
             key={`masonry-${index}`}
-            className={`shadow-elegant hover:shadow-elevated bg-gradient-card border-2 border-transparent hover:border-primary/20 transition-all duration-200 cursor-pointer group rounded-lg overflow-hidden ${containerClass}`}
+            className={`group neumorphic-card-2 hover:neumorphic-card-3 p-3 sm:p-4 rounded-2xl cursor-pointer transition-all duration-300 ${containerClass}`}
             onClick={() => onImageClick(image.src)}
           >
-            <div className="relative w-full">
-              <OptimizedImage
-                src={image.src}
-                alt={image.title}
-                aspectRatio={aspectRatio as any}
-                className="group-hover:scale-105 transition-transform duration-200"
-                priority={index < 8}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-end">
-                <div className="p-3 md:p-4 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                  <div className="flex items-center gap-2 mb-1">
-                    {image.quality >= 8 && (
-                      <span className="bg-primary/80 text-primary-foreground px-2 py-1 rounded text-xs font-medium">
-                        {image.quality >= 9 ? 'Premium' : 'High Quality'}
-                      </span>
-                    )}
-                  </div>
-                  <h3 className="font-elegant font-semibold text-white text-sm md:text-base leading-tight">{image.title}</h3>
-                  <p className="text-xs md:text-sm text-white/90 hidden md:block line-clamp-2">{image.description}</p>
+            <div className="relative rounded-xl overflow-hidden">
+              <div className={aspectRatio}>
+                <img 
+                  src={image.src} 
+                  alt={image.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  loading={index < 8 ? "eager" : "lazy"}
+                  decoding="async"
+                />
+              </div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 right-3 sm:right-4 text-left">
+                  <h3 className="text-white font-elegant font-semibold text-base sm:text-lg mb-1 sm:mb-2">
+                    {image.title}
+                  </h3>
+                  <p className="text-white/90 text-xs sm:text-sm leading-tight">
+                    {image.description}
+                  </p>
                 </div>
               </div>
             </div>
