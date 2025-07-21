@@ -141,8 +141,8 @@ export const Footer = () => {
         </div>
       </div>
 
-      {/* Enhanced Copyright Bar with primary red background */}
-      <div className="bg-primary border-t border-primary/20 py-4">
+      {/* Enhanced Copyright Bar with ruby red gradient background */}
+      <div className="bg-gradient-to-r from-primary to-primary-dark border-t border-primary/20 py-4">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-0">
           <div className="flex flex-col sm:flex-row justify-between items-center text-sm text-primary-foreground">
             <div className="flex items-center space-x-3">

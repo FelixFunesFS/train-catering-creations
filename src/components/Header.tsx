@@ -39,8 +39,8 @@ export const Header = () => {
       </SkipToContent>
       
       <header className={cn(
-        "bg-background/80 backdrop-blur-md border-b border-border/20 sticky top-0 z-50 transition-all duration-300 dark:bg-background/90 neumorphic-card-1",
-        isScrolled && "shadow-lg neumorphic-card-2"
+        "bg-gradient-to-r from-primary to-primary-dark backdrop-blur-md border-b border-primary/20 sticky top-0 z-50 transition-all duration-300 shadow-md",
+        isScrolled && "shadow-lg shadow-primary/10"
       )}>
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
           <div className="flex justify-between items-center py-2 sm:py-3">
@@ -59,7 +59,7 @@ export const Header = () => {
                   />
                 </div>
               </div>
-              <div className="text-2xl lg:text-3xl font-script font-bold text-foreground">
+              <div className="text-2xl lg:text-3xl font-script font-bold text-primary-foreground">
                 Soul Train's Eatery
               </div>
             </Link>
@@ -73,8 +73,8 @@ export const Header = () => {
                   className={cn(
                     "nav-link-neumorphic text-sm font-medium px-4 py-2 rounded-lg transition-all duration-300 focus-visible-enhanced",
                     isActive(item.href) 
-                      ? "active text-primary font-semibold" 
-                      : "text-muted-foreground hover:text-primary"
+                      ? "active text-primary-foreground bg-white/20 font-semibold" 
+                      : "text-primary-foreground/80 hover:text-primary-foreground hover:bg-white/10"
                   )}
                   aria-current={isActive(item.href) ? "page" : undefined}
                 >
@@ -83,9 +83,9 @@ export const Header = () => {
               ))}
               <Button 
                 asChild 
-                variant="cta" 
+                variant="secondary" 
                 size="sm"
-                className="text-sm font-medium px-4 py-2 rounded-lg neumorphic-button-primary"
+                className="text-sm font-medium px-4 py-2 rounded-lg bg-white text-primary hover:bg-white/90"
               >
                 <Link to="/request-quote#page-header">Request Quote</Link>
               </Button>
@@ -128,9 +128,9 @@ export const Header = () => {
                       className={cn(
                         "nav-link-neumorphic text-sm font-medium px-4 py-3 rounded-lg transition-all duration-300 focus-visible-enhanced",
                         isActive(item.href) 
-                          ? "active text-primary bg-primary/10 font-semibold border-l-2 border-primary" 
-                          : "text-muted-foreground hover:text-primary hover:translate-x-1"
-                      )} 
+                          ? "active text-primary bg-white text-primary font-semibold border-l-2 border-white" 
+                          : "text-primary-foreground/80 hover:text-primary-foreground hover:translate-x-1 hover:bg-white/10"
+                      )}
                       onClick={() => setIsMenuOpen(false)}
                       aria-current={isActive(item.href) ? "page" : undefined}
                     >
@@ -139,9 +139,9 @@ export const Header = () => {
                   ))}
                   <Button 
                     asChild 
-                    variant="cta" 
+                    variant="secondary" 
                     size="responsive-sm" 
-                    className="w-full mt-4 neumorphic-button-primary"
+                    className="w-full mt-4 bg-white text-primary hover:bg-white/90"
                   >
                     <Link to="/request-quote#page-header" onClick={() => setIsMenuOpen(false)}>
                       Request Quote
