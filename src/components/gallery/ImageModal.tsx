@@ -97,11 +97,11 @@ export const ImageModal = ({
           <Button 
             variant="ghost" 
             size="icon" 
-            className="absolute -top-12 right-0 text-white hover:text-white z-20 bg-red-600/80 hover:bg-red-700/90 border border-red-300/50 min-h-touch min-w-touch rounded-xl shadow-lg"
+            className="absolute -top-12 right-0 text-white hover:text-white z-20 bg-black/80 hover:bg-black/90 border border-white/30 min-h-touch min-w-touch rounded-xl shadow-xl"
             onClick={onClose}
             aria-label="Close gallery"
           >
-            <X className="h-5 w-5 sm:h-6 sm:w-6" strokeWidth={2.5} />
+            <X className="h-6 w-6" strokeWidth={2} fill="none" />
           </Button>
           
           {/* Image counter */}
@@ -113,23 +113,23 @@ export const ImageModal = ({
           <Button 
             variant="ghost" 
             size="icon" 
-            className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 text-white hover:text-white z-10 backdrop-blur-sm bg-white/20 hover:bg-white/30 border border-white/40 min-h-touch min-w-touch rounded-xl shadow-lg"
+            className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 text-white hover:text-white z-10 bg-black/80 hover:bg-black/90 border border-white/30 min-h-touch min-w-touch rounded-xl shadow-xl"
             onClick={handlePrevious}
             disabled={images.length <= 1}
             aria-label="Previous image"
           >
-            <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" strokeWidth={2.5} />
+            <ChevronLeft className="h-6 w-6" strokeWidth={2} fill="none" />
           </Button>
           
           <Button 
             variant="ghost" 
             size="icon" 
-            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 text-white hover:text-white z-10 backdrop-blur-sm bg-white/20 hover:bg-white/30 border border-white/40 min-h-touch min-w-touch rounded-xl shadow-lg"
+            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 text-white hover:text-white z-10 bg-black/80 hover:bg-black/90 border border-white/30 min-h-touch min-w-touch rounded-xl shadow-xl"
             onClick={handleNext}
             disabled={images.length <= 1}
             aria-label="Next image"
           >
-            <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" strokeWidth={2.5} />
+            <ChevronRight className="h-6 w-6" strokeWidth={2} fill="none" />
           </Button>
 
           {currentImage && (
