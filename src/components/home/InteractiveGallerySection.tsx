@@ -71,7 +71,7 @@ export const InteractiveGallerySection = () => {
   };
 
   return (
-    <section className="py-16 lg:py-20 bg-gradient-card/20 border-t border-border/10">
+    <section className="bg-gradient-card/20 border-t border-border/10">
       {/* Desktop Full-Width Card */}
       <div className="hidden lg:block">
         <div className="neumorphic-card-4 mx-4 xl:mx-8 rounded-2xl overflow-hidden">

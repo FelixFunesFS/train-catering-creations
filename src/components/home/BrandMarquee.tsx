@@ -60,7 +60,7 @@ export const BrandMarquee = () => {
   );
 
   return (
-    <section className="py-12 lg:py-16">
+    <section>
       <ResponsiveWrapper hasFullWidthCard>
         <div className="w-full relative overflow-hidden py-6 lg:py-8">
           <div 

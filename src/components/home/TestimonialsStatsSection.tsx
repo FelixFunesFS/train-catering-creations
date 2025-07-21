@@ -35,7 +35,7 @@ export const TestimonialsStatsSection = () => {
   }];
 
   return (
-    <section className="py-16 lg:py-20 bg-muted/30 border-t border-border/10">
+    <section className="bg-muted/30 border-t border-border/10">
       {/* Desktop Full-Width Card */}
       <div className="hidden lg:block">
         <div className="neumorphic-card-2 mx-4 xl:mx-8 rounded-2xl overflow-hidden">

@@ -50,9 +50,9 @@ export const AboutPreviewSection = () => {
   const card4AnimationClass = useAnimationClass(card4Variant, card4Visible);
 
   return (
-    <section className="py-12 lg:py-16">
+    <section>
       <ResponsiveWrapper hasFullWidthCard>
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           <div ref={titleRef} className={titleAnimationClass}>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-elegant text-foreground mb-6">
               Culinary Excellence

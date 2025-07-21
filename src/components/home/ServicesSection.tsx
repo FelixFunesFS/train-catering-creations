@@ -43,7 +43,7 @@ export const ServicesSection = () => {
   const card4AnimationClass = useAnimationClass(card4Variant, card4Visible);
 
   return (
-    <section className="py-16 lg:py-20 bg-gradient-card/30 border-t border-border/10">
+    <section className="bg-gradient-card/30 border-t border-border/10">
       {/* Desktop Full-Width Card */}
       <div className="hidden lg:block">
         <div className="neumorphic-card-3 mx-4 xl:mx-8 rounded-2xl overflow-hidden">
