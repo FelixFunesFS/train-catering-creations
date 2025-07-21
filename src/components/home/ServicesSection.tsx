@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { OptimizedImage } from "@/components/ui/optimized-image";
@@ -49,7 +50,7 @@ export const ServicesSection = () => {
         <div className="neumorphic-card-3 mx-4 xl:mx-8 rounded-2xl overflow-hidden">
           <div className="max-w-7xl mx-auto px-6 xl:px-12 py-12 xl:py-16">
             <div className="text-center mb-6 sm:mb-8 lg:mb-12">
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant text-foreground mb-4 text-fade-up">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant text-foreground mb-4 text-fade-up">
                 Our Catering Services
               </h2>
               <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto text-fade-up-delay-1">Elegant weddings, heartfelt celebrations, and corporate events—catered with care, Southern soul, and impeccable service.</p>
@@ -62,7 +63,7 @@ export const ServicesSection = () => {
                     <OptimizedImage src="/lovable-uploads/546d7d1a-7987-4f44-a2d9-668efea60e51.png" alt="Wedding Reception Setup" aspectRatio="aspect-video" className="group-hover:scale-105 transition-transform duration-300 h-full" />
                   </div>
                   <div className="p-4 sm:p-6">
-                    <h3 className="text-lg sm:text-xl font-elegant text-foreground mb-4">Weddings</h3>
+                    <h3 className="text-lg sm:text-xl font-elegant font-semibold text-foreground mb-4">Weddings</h3>
                     <p className="text-sm sm:text-base text-muted-foreground mb-6">Elegant receptions and intimate ceremonies with personalized menus</p>
                     <span className="text-primary hover:text-primary/80 font-medium group inline-flex items-center gap-1">
                       Learn More 
@@ -78,7 +79,7 @@ export const ServicesSection = () => {
                     <OptimizedImage src="/lovable-uploads/63832488-46ff-4d71-ade5-f871173c28ab.png" alt="Black Tie Event Catering" aspectRatio="aspect-video" className="group-hover:scale-105 transition-transform duration-300 h-full" />
                   </div>
                   <div className="p-4 sm:p-6">
-                    <h3 className="text-lg sm:text-xl font-elegant text-foreground mb-4">Black Tie Events</h3>
+                    <h3 className="text-lg sm:text-xl font-elegant font-semibold text-foreground mb-4">Black Tie Events</h3>
                     <p className="text-sm sm:text-base text-muted-foreground mb-6">Sophisticated catering for galas and formal celebrations</p>
                     <span className="text-primary hover:text-primary/80 font-medium group inline-flex items-center gap-1">
                       Learn More 
@@ -93,7 +94,7 @@ export const ServicesSection = () => {
                   <OptimizedImage src="/lovable-uploads/3226c955-a9b7-4c8d-a4c2-e5e7fc206f6f.png" alt="Military Function Catering" aspectRatio="aspect-video" className="group-hover:scale-105 transition-transform duration-300 h-full" />
                 </div>
                 <div className="p-4 sm:p-6">
-                  <h3 className="text-lg sm:text-xl font-elegant text-foreground mb-4">Military Functions</h3>
+                  <h3 className="text-lg sm:text-xl font-elegant font-semibold text-foreground mb-4">Military Functions</h3>
                   <p className="text-sm sm:text-base text-muted-foreground mb-6">Honoring service with promotions, ceremonies, and celebrations</p>
                   <Link to="/wedding-menu#page-header" className="text-primary hover:text-primary/80 font-medium group inline-flex items-center gap-1">
                     Learn More 
@@ -107,7 +108,7 @@ export const ServicesSection = () => {
                   <OptimizedImage src="/lovable-uploads/6cd766e3-21ce-4e88-a3a4-6c8835dc9654.png" alt="Private Event Catering" aspectRatio="aspect-video" className="group-hover:scale-105 transition-transform duration-300 h-full" />
                 </div>
                 <div className="p-4 sm:p-6">
-                  <h3 className="text-lg sm:text-xl font-elegant text-foreground mb-4">Private Events</h3>
+                  <h3 className="text-lg sm:text-xl font-elegant font-semibold text-foreground mb-4">Private Events</h3>
                   <p className="text-sm sm:text-base text-muted-foreground mb-6">Corporate conferences, family gatherings, and special occasions</p>
                   <Link to="/menu#page-header" className="text-primary hover:text-primary/80 font-medium group inline-flex items-center gap-1">
                     View Menu 
@@ -124,7 +125,7 @@ export const ServicesSection = () => {
       <div className="block lg:hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-6 sm:mb-8 lg:mb-12">
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant text-foreground mb-4 text-fade-up">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant text-foreground mb-4 text-fade-up">
               Our Catering Services
             </h2>
             <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto text-fade-up-delay-1">Elegant weddings, heartfelt celebrations, and corporate events—catered with care, Southern soul, and impeccable service.</p>
@@ -137,7 +138,7 @@ export const ServicesSection = () => {
                   <OptimizedImage src="/lovable-uploads/546d7d1a-7987-4f44-a2d9-668efea60e51.png" alt="Wedding Reception Setup" aspectRatio="aspect-video" className="group-hover:scale-105 transition-transform duration-300 h-full" />
                 </div>
                 <CardContent className="p-4 sm:p-6">
-                  <h3 className="text-lg sm:text-xl font-elegant text-foreground mb-4">Weddings</h3>
+                  <h3 className="text-lg sm:text-xl font-elegant font-semibold text-foreground mb-4">Weddings</h3>
                   <p className="text-sm sm:text-base text-muted-foreground mb-6">Elegant receptions and intimate ceremonies with personalized menus</p>
                   <span className="text-primary hover:text-primary/80 font-medium group inline-flex items-center gap-1">
                     Learn More 
@@ -153,7 +154,7 @@ export const ServicesSection = () => {
                   <OptimizedImage src="/lovable-uploads/63832488-46ff-4d71-ade5-f871173c28ab.png" alt="Black Tie Event Catering" aspectRatio="aspect-video" className="group-hover:scale-105 transition-transform duration-300 h-full" />
                 </div>
                 <CardContent className="p-4 sm:p-6">
-                  <h3 className="text-lg sm:text-xl font-elegant text-foreground mb-4">Black Tie Events</h3>
+                  <h3 className="text-lg sm:text-xl font-elegant font-semibold text-foreground mb-4">Black Tie Events</h3>
                   <p className="text-sm sm:text-base text-muted-foreground mb-6">Sophisticated catering for galas and formal celebrations</p>
                   <span className="text-primary hover:text-primary/80 font-medium group inline-flex items-center gap-1">
                     Learn More 
@@ -168,7 +169,7 @@ export const ServicesSection = () => {
                 <OptimizedImage src="/lovable-uploads/3226c955-a9b7-4c8d-a4c2-e5e7fc206f6f.png" alt="Military Function Catering" aspectRatio="aspect-video" className="group-hover:scale-105 transition-transform duration-300 h-full" />
               </div>
               <CardContent className="p-4 sm:p-6">
-                <h3 className="text-lg sm:text-xl font-elegant text-foreground mb-4">Military Functions</h3>
+                <h3 className="text-lg sm:text-xl font-elegant font-semibold text-foreground mb-4">Military Functions</h3>
                 <p className="text-sm sm:text-base text-muted-foreground mb-6">Honoring service with promotions, ceremonies, and celebrations</p>
                 <Link to="/wedding-menu#page-header" className="text-primary hover:text-primary/80 font-medium group inline-flex items-center gap-1">
                   Learn More 
@@ -182,7 +183,7 @@ export const ServicesSection = () => {
                 <OptimizedImage src="/lovable-uploads/6cd766e3-21ce-4e88-a3a4-6c8835dc9654.png" alt="Private Event Catering" aspectRatio="aspect-video" className="group-hover:scale-105 transition-transform duration-300 h-full" />
               </div>
               <CardContent className="p-4 sm:p-6">
-                <h3 className="text-lg sm:text-xl font-elegant text-foreground mb-4">Private Events</h3>
+                <h3 className="text-lg sm:text-xl font-elegant font-semibold text-foreground mb-4">Private Events</h3>
                 <p className="text-sm sm:text-base text-muted-foreground mb-6">Corporate conferences, family gatherings, and special occasions</p>
                 <Link to="/menu#page-header" className="text-primary hover:text-primary/80 font-medium group inline-flex items-center gap-1">
                   View Menu 

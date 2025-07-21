@@ -77,10 +77,10 @@ export const InteractiveGallerySection = () => {
         <div className="neumorphic-card-4 mx-4 xl:mx-8 rounded-2xl overflow-hidden">
           <div className="max-w-7xl mx-auto px-6 xl:px-12 py-12 xl:py-16">
             <div className="text-center mb-8 lg:mb-12">
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant text-foreground mb-4 text-fade-up">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant text-foreground mb-4 text-fade-up">
                 Our Gallery Showcase
               </h2>
-              <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto text-fade-up-delay-1">See how we turn food into an experience! Our gallery highlights the beauty, flavor, and joy behind every event we cater.</p>
+              <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto text-fade-up-delay-1">See how we turn food into an experience! Our gallery highlights the beauty, flavor, and joy behind every event we cater.</p>
             </div>
 
             <div className="relative">
@@ -134,10 +134,10 @@ export const InteractiveGallerySection = () => {
       <div className="block lg:hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8 lg:mb-12">
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant text-foreground mb-4 text-fade-up">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant text-foreground mb-4 text-fade-up">
               Our Gallery Showcase
             </h2>
-            <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto text-fade-up-delay-1">See how we turn food into an experience! Our gallery highlights the beauty, flavor, and joy behind every event we cater.</p>
+            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto text-fade-up-delay-1">See how we turn food into an experience! Our gallery highlights the beauty, flavor, and joy behind every event we cater.</p>
           </div>
 
           <div className="relative">

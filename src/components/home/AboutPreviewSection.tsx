@@ -54,7 +54,7 @@ export const AboutPreviewSection = () => {
       <ResponsiveWrapper hasFullWidthCard>
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           <div ref={titleRef} className={titleAnimationClass}>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-elegant text-foreground mb-6">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant text-foreground mb-6">
               Culinary Excellence
             </h2>
             <p className="text-base sm:text-lg text-muted-foreground mb-6 leading-relaxed">
@@ -77,7 +77,7 @@ export const AboutPreviewSection = () => {
               interactive
             >
               <ChefHat className="h-10 w-10 sm:h-12 sm:w-12 text-primary mx-auto mb-4 group-hover:scale-110 transition-transform duration-300" />
-              <h3 className="font-elegant font-semibold text-foreground mb-2 text-base sm:text-lg">Chef Train</h3>
+              <h3 className="text-lg sm:text-xl font-elegant font-semibold text-foreground mb-2">Chef Train</h3>
               <p className="text-sm sm:text-base text-muted-foreground">20+ Years Experience</p>
             </SectionContentCard>
             
@@ -87,7 +87,7 @@ export const AboutPreviewSection = () => {
               interactive
             >
               <Heart className="h-10 w-10 sm:h-12 sm:w-12 text-primary mx-auto mb-4 group-hover:scale-110 transition-transform duration-300" />
-              <h3 className="font-elegant font-semibold text-foreground mb-2 text-base sm:text-lg">Tanya Ward</h3>
+              <h3 className="text-lg sm:text-xl font-elegant font-semibold text-foreground mb-2">Tanya Ward</h3>
               <p className="text-sm sm:text-base text-muted-foreground">Pastry Chef</p>
             </SectionContentCard>
             
@@ -97,7 +97,7 @@ export const AboutPreviewSection = () => {
               interactive
             >
               <Award className="h-10 w-10 sm:h-12 sm:w-12 text-primary mx-auto mb-4 group-hover:scale-110 transition-transform duration-300" />
-              <h3 className="font-elegant font-semibold text-foreground mb-2 text-base sm:text-lg">ServSafe</h3>
+              <h3 className="text-lg sm:text-xl font-elegant font-semibold text-foreground mb-2">ServSafe</h3>
               <p className="text-sm sm:text-base text-muted-foreground">Certified</p>
             </SectionContentCard>
             
@@ -107,7 +107,7 @@ export const AboutPreviewSection = () => {
               interactive
             >
               <Users className="h-10 w-10 sm:h-12 sm:w-12 text-primary mx-auto mb-4 group-hover:scale-110 transition-transform duration-300" />
-              <h3 className="font-elegant font-semibold text-foreground mb-2 text-base sm:text-lg">Family Run</h3>
+              <h3 className="text-lg sm:text-xl font-elegant font-semibold text-foreground mb-2">Family Run</h3>
               <p className="text-sm sm:text-base text-muted-foreground">Community Rooted</p>
             </SectionContentCard>
           </div>

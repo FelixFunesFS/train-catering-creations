@@ -44,10 +44,10 @@ export const TestimonialsStatsSection = () => {
               {/* Statistics Side */}
               <div ref={statsRef} className={`space-y-6 lg:space-y-8 ${statsAnimationClass}`}>
                 <div className="text-center lg:text-left">
-                  <h2 className="text-xl sm:text-2xl lg:text-3xl font-elegant text-foreground mb-6 text-fade-up">
+                  <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant text-foreground mb-6 text-fade-up">
                     Proven Excellence
                   </h2>
-                  <p className="text-sm sm:text-base lg:text-lg text-muted-foreground text-fade-up-delay-1">It's not just about how many we've served—it's how well. Our reputation is built on flavor, service, and results.</p>
+                  <p className="text-base sm:text-lg text-muted-foreground text-fade-up-delay-1">It's not just about how many we've served—it's how well. Our reputation is built on flavor, service, and results.</p>
                 </div>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8 lg:gap-12">
@@ -55,10 +55,10 @@ export const TestimonialsStatsSection = () => {
                     <div key={index} className="neumorphic-card-2 hover:neumorphic-card-3 transition-all duration-200 hover:scale-105 group rounded-lg">
                       <div className="p-4 sm:p-6 lg:p-8 text-center">
                         <stat.icon className="h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 text-primary mx-auto mb-4 lg:mb-6 group-hover:scale-110 transition-transform duration-200" />
-                        <div className="text-xl sm:text-2xl lg:text-3xl font-elegant text-foreground mb-4">
+                        <div className="text-lg sm:text-xl font-elegant font-semibold text-foreground mb-4">
                           {stat.number}
                         </div>
-                        <p className="text-xs sm:text-sm lg:text-base text-muted-foreground font-medium">
+                        <p className="text-sm sm:text-base text-muted-foreground font-medium">
                           {stat.label}
                         </p>
                       </div>
@@ -70,7 +70,7 @@ export const TestimonialsStatsSection = () => {
               {/* Review Side */}
               <div ref={reviewRef} className={`neumorphic-card-2 hover:neumorphic-card-3 rounded-2xl p-6 lg:p-8 transition-all duration-200 hover:scale-105 group flex flex-col justify-between h-full ${reviewAnimationClass}`}>
                 <Quote className="h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 text-primary mb-6 group-hover:scale-110 transition-transform duration-200" />
-                <blockquote className="text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed mb-8">
+                <blockquote className="text-base sm:text-lg text-muted-foreground leading-relaxed mb-8">
                   "Soul Train's Eatery catered our wedding and it was absolutely perfect! The mac and cheese was the talk of the night, and every guest asked for the caterer's information."
                 </blockquote>
                 <div>
@@ -79,7 +79,7 @@ export const TestimonialsStatsSection = () => {
                   </div>
                   
                   <div className="border-t border-border pt-6">
-                    <p className="text-base sm:text-lg font-semibold text-foreground">
+                    <p className="text-lg sm:text-xl font-elegant font-semibold text-foreground">
                       Sarah & Michael's Wedding
                     </p>
                     <p className="text-sm sm:text-base text-muted-foreground">
@@ -100,10 +100,10 @@ export const TestimonialsStatsSection = () => {
             {/* Statistics Side */}
             <div ref={statsRef} className={`space-y-6 lg:space-y-8 ${statsAnimationClass}`}>
               <div className="text-center lg:text-left">
-                <h2 className="text-xl sm:text-2xl lg:text-3xl font-elegant text-foreground mb-6 text-fade-up">
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant text-foreground mb-6 text-fade-up">
                   Proven Excellence
                 </h2>
-                <p className="text-sm sm:text-base lg:text-lg text-muted-foreground text-fade-up-delay-1">It's not just about how many we've served—it's how well. Our reputation is built on flavor, service, and results.</p>
+                <p className="text-base sm:text-lg text-muted-foreground text-fade-up-delay-1">It's not just about how many we've served—it's how well. Our reputation is built on flavor, service, and results.</p>
               </div>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8 lg:gap-12">
@@ -111,10 +111,10 @@ export const TestimonialsStatsSection = () => {
                   <Card key={index} className="bg-card border-border shadow-elegant hover:shadow-elevated transition-all duration-200 hover:scale-105 group">
                     <CardContent className="p-4 sm:p-6 lg:p-8 text-center">
                       <stat.icon className="h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 text-primary mx-auto mb-4 lg:mb-6 group-hover:scale-110 transition-transform duration-200" />
-                      <div className="text-xl sm:text-2xl lg:text-3xl font-elegant text-foreground mb-4">
+                      <div className="text-lg sm:text-xl font-elegant font-semibold text-foreground mb-4">
                         {stat.number}
                       </div>
-                      <p className="text-xs sm:text-sm lg:text-base text-muted-foreground font-medium">
+                      <p className="text-sm sm:text-base text-muted-foreground font-medium">
                         {stat.label}
                       </p>
                     </CardContent>
@@ -126,7 +126,7 @@ export const TestimonialsStatsSection = () => {
             {/* Review Side */}
             <div ref={reviewRef} className={`bg-card rounded-2xl p-6 lg:p-8 border border-border shadow-elegant hover:shadow-elevated transition-all duration-200 hover:scale-105 group flex flex-col justify-between h-full ${reviewAnimationClass}`}>
               <Quote className="h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 text-primary mb-6 group-hover:scale-110 transition-transform duration-200" />
-              <blockquote className="text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed mb-8">
+              <blockquote className="text-base sm:text-lg text-muted-foreground leading-relaxed mb-8">
                 "Soul Train's Eatery catered our wedding and it was absolutely perfect! The mac and cheese was the talk of the night, and every guest asked for the caterer's information."
               </blockquote>
               <div>
@@ -135,7 +135,7 @@ export const TestimonialsStatsSection = () => {
                 </div>
                 
                 <div className="border-t border-border pt-6">
-                  <p className="text-base sm:text-lg font-semibold text-foreground">
+                  <p className="text-lg sm:text-xl font-elegant font-semibold text-foreground">
                     Sarah & Michael's Wedding
                   </p>
                   <p className="text-sm sm:text-base text-muted-foreground">
