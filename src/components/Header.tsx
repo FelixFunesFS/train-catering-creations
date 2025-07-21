@@ -65,13 +65,14 @@ export const Header = () => {
             </Link>
 
             {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center space-x-4" aria-label="Main navigation">
+            <nav className="hidden lg:flex items-center space-x-2" aria-label="Main navigation">
               {navigation.map(item => (
                 <Link 
                   key={item.name} 
                   to={item.href} 
                   className={cn(
                     "text-sm font-medium px-4 py-2 rounded-lg transition-all duration-300 focus-visible-enhanced",
+                    "neumorphic-card-1",
                     isActive(item.href) 
                       ? "active text-primary-foreground bg-white/20 font-semibold" 
                       : "text-primary-foreground/80 hover:text-primary-foreground hover:bg-white/10"
@@ -85,7 +86,7 @@ export const Header = () => {
                 asChild 
                 variant="secondary" 
                 size="sm"
-                className="text-sm font-medium px-4 py-2 rounded-lg bg-white text-primary hover:bg-white/90"
+                className="text-sm font-medium px-4 py-2 rounded-lg bg-white text-primary hover:bg-white/90 neumorphic-card-1"
               >
                 <Link to="/request-quote#page-header">Request Quote</Link>
               </Button>
@@ -126,7 +127,7 @@ export const Header = () => {
               className="lg:hidden pb-6" 
               aria-label="Mobile navigation"
             >
-              <div className="bg-background/95 backdrop-blur-sm rounded-xl p-4 mt-4 border border-border/20">
+              <div className="neumorphic-card-2 rounded-xl p-4 mt-4">
                 <div className="flex flex-col space-y-3">
                   {navigation.map(item => (
                     <Link 
@@ -134,6 +135,7 @@ export const Header = () => {
                       to={item.href} 
                       className={cn(
                         "text-base font-medium px-4 py-3 rounded-lg transition-all duration-300 focus-visible-enhanced",
+                        "neumorphic-card-1",
                         isActive(item.href) 
                           ? "active text-primary bg-muted font-semibold border-l-4 border-primary" 
                           : "text-foreground hover:text-primary hover:translate-x-1 hover:bg-muted/50"
@@ -149,7 +151,7 @@ export const Header = () => {
                       asChild 
                       variant="secondary" 
                       size="responsive-sm" 
-                      className="w-3/5 sm:w-auto sm:min-w-[14rem] bg-primary text-primary-foreground hover:bg-primary/90"
+                      className="w-3/5 sm:w-auto sm:min-w-[14rem] bg-primary text-primary-foreground hover:bg-primary/90 neumorphic-card-1"
                     >
                       <Link to="/request-quote#page-header" onClick={() => setIsMenuOpen(false)}>
                         Request Quote
