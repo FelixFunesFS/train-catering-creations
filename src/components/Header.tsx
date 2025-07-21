@@ -39,11 +39,11 @@ export const Header = () => {
       </SkipToContent>
       
       <header className={cn(
-        "nav-glassmorphic sticky top-0 z-50 transition-all duration-300",
-        isScrolled && "scrolled"
+        "bg-background/80 backdrop-blur-md border-b border-border/20 sticky top-0 z-50 transition-all duration-300 dark:bg-background/90",
+        isScrolled && "shadow-lg"
       )}>
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-          <div className="flex justify-between items-center py-3 sm:py-6">
+          <div className="flex justify-between items-center py-2 sm:py-3">
             {/* Logo */}
             <Link 
               to="/" 
