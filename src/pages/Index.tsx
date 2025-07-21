@@ -16,19 +16,19 @@ const Index = () => {
           <HeroSection />
         </PageSection>
         
-        {/* About Preview - Pattern B (Light, welcoming) */}
+        {/* Services - Pattern B (Light, showcasing offerings) */}
         <PageSection pattern="b" withBorder>
-          <AboutPreviewSection />
-        </PageSection>
-        
-        {/* Brand Marquee - Pattern C (Elevated, prominent) */}
-        <PageSection pattern="c" withBorder>
-          <BrandMarquee />
-        </PageSection>
-        
-        {/* Services - Pattern D (Soft, muted) */}
-        <PageSection pattern="d" withBorder>
           <ServicesSection />
+        </PageSection>
+        
+        {/* Interactive Gallery - Pattern C (Elevated, visual showcase) */}
+        <PageSection pattern="c" withBorder>
+          <InteractiveGallerySection />
+        </PageSection>
+        
+        {/* About Preview - Pattern D (Soft, personal) */}
+        <PageSection pattern="d" withBorder>
+          <AboutPreviewSection />
         </PageSection>
         
         {/* Testimonials & Stats - Pattern A (Credibility depth) */}
@@ -36,9 +36,9 @@ const Index = () => {
           <TestimonialsStatsSection />
         </PageSection>
         
-        {/* Interactive Gallery - Pattern B (Showcase lighting) */}
+        {/* Brand Marquee - Pattern B (Trust indicators) */}
         <PageSection pattern="b" withBorder>
-          <InteractiveGallerySection />
+          <BrandMarquee />
         </PageSection>
         
         {/* CTA Section - Keep current red gradient */}
