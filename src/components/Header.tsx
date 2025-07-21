@@ -50,7 +50,7 @@ export const Header = () => {
               className="flex items-center hover:scale-105 transition-transform duration-300 focus-visible-enhanced"
               aria-label="Soul Train's Eatery - Home"
             >
-              <div className="logo-neumorphic rounded-xl px-4 py-2 mr-3">
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 mr-3">
                 <div className="h-8 w-8 sm:h-10 sm:w-10">
                   <img 
                     src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
@@ -71,7 +71,7 @@ export const Header = () => {
                   key={item.name} 
                   to={item.href} 
                   className={cn(
-                    "nav-link-neumorphic text-sm font-medium px-4 py-2 rounded-lg transition-all duration-300 focus-visible-enhanced",
+                    "text-sm font-medium px-4 py-2 rounded-lg transition-all duration-300 focus-visible-enhanced",
                     isActive(item.href) 
                       ? "active text-primary-foreground bg-white/20 font-semibold" 
                       : "text-primary-foreground/80 hover:text-primary-foreground hover:bg-white/10"
@@ -137,16 +137,18 @@ export const Header = () => {
                       {item.name}
                     </Link>
                   ))}
-                  <Button 
-                    asChild 
-                    variant="secondary" 
-                    size="responsive-sm" 
-                    className="w-full mt-4 bg-primary text-primary-foreground hover:bg-primary/90"
-                  >
-                    <Link to="/request-quote#page-header" onClick={() => setIsMenuOpen(false)}>
-                      Request Quote
-                    </Link>
-                  </Button>
+                  <div className="flex justify-center mt-4">
+                    <Button 
+                      asChild 
+                      variant="secondary" 
+                      size="responsive-sm" 
+                      className="w-3/5 sm:w-auto sm:min-w-[14rem] bg-primary text-primary-foreground hover:bg-primary/90"
+                    >
+                      <Link to="/request-quote#page-header" onClick={() => setIsMenuOpen(false)}>
+                        Request Quote
+                      </Link>
+                    </Button>
+                  </div>
                 </div>
               </div>
             </nav>

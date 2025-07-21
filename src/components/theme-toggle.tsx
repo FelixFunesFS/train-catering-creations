@@ -22,7 +22,7 @@ export function ThemeToggle() {
         <Button 
           variant="ghost" 
           size="icon" 
-          className="nav-link-neumorphic hover:scale-110 transition-all duration-300 focus-visible-enhanced"
+          className="hover:scale-110 transition-all duration-300 focus-visible-enhanced"
           aria-label="Toggle theme"
         >
           <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
@@ -32,7 +32,7 @@ export function ThemeToggle() {
       </DropdownMenuTrigger>
       <DropdownMenuContent 
         align="end" 
-        className="neumorphic-card-2 border-border/20 backdrop-blur-sm"
+        className="bg-background/95 backdrop-blur-sm border border-border/20"
       >
         <DropdownMenuItem 
           onClick={() => setTheme("light")}
