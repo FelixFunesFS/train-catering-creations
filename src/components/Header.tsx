@@ -38,7 +38,8 @@ export const Header = () => {
       </SkipToContent>
       
       <header className={cn(
-        "bg-gradient-to-r from-primary to-primary-dark backdrop-blur-md border-b border-primary/20 sticky top-0 z-50 transition-all duration-300 shadow-md",
+        "bg-gradient-to-r from-primary to-primary-dark backdrop-blur-md border-b border-primary/20 sticky top-0 z-50 transition-all duration-300",
+        "neumorphic-card-2",
         isScrolled && "shadow-lg shadow-primary/10"
       )}>
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
