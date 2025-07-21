@@ -8,7 +8,7 @@ export const BrandMarquee = () => {
   const isTablet = typeof window !== 'undefined' && window.innerWidth >= 768 && window.innerWidth < 1024;
   
   const { ref, className, style } = useMarqueeAnimation({
-    speed: isMobile || isTablet ? 'fast' : 'slow',
+    speed: isMobile || isTablet ? 'slow' : 'normal',
     direction: 'left',
     pauseOnHover: false
   });

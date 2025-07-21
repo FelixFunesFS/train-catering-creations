@@ -451,7 +451,7 @@
 }
 
 .marquee-slow {
-  animation: marquee 40s linear infinite;
+  animation: marquee 50s linear infinite;
 }
 
 .marquee-fast {
