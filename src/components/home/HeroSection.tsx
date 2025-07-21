@@ -167,7 +167,7 @@ export const HeroSection = () => {
                 {heroImages.map((image, index) => (
                   <CarouselItem key={index} className="pl-1 basis-full md:basis-1/2 lg:basis-1/3">
                     <div 
-                      className="group relative rounded-2xl overflow-hidden cursor-pointer border border-border/20 bg-card/50 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-300" 
+                      className="group relative rounded-2xl overflow-hidden cursor-pointer neumorphic-card-2 hover:neumorphic-card-3 transition-all duration-300" 
                       onClick={() => handleImageClick(index)}
                     >
                       <div className="aspect-[16/9]">
