@@ -65,24 +65,6 @@
     --focus-ring: 0 80% 45%;
     --focus-ring-offset: 0 0% 100%;
 
-    /* Category colors for menu sections - adjusted for Ruby & Pearl */
-    --category-appetizers: 120 45% 45%;
-    --category-appetizers-foreground: 220 25% 20%;
-    --category-entrees: 0 80% 45%;
-    --category-entrees-foreground: 0 0% 100%;
-    --category-sides: 60 65% 50%;
-    --category-sides-foreground: 220 25% 20%;
-    --category-desserts: 340 70% 55%;
-    --category-desserts-foreground: 220 25% 20%;
-
-    /* Service type colors - refined for luxury palette */
-    --service-wedding: 340 70% 55%;
-    --service-wedding-foreground: 220 25% 20%;
-    --service-corporate: 220 25% 20%;
-    --service-corporate-foreground: 0 0% 100%;
-    --service-family: 120 45% 45%;
-    --service-family-foreground: 220 25% 20%;
-
     /* Enhanced alternating section gradients with pearl undertones */
     --gradient-pattern-a: linear-gradient(135deg, hsl(60, 8%, 96%) 0%, hsl(0, 80%, 45%, 0.04) 30%, hsl(0, 80%, 30%, 0.06) 70%, hsl(60, 8%, 96%) 100%);
     --gradient-pattern-b: linear-gradient(225deg, hsl(0, 80%, 45%, 0.02) 0%, hsl(0, 0%, 100%) 40%, hsl(210, 5%, 75%, 0.15) 80%, hsl(60, 8%, 96%) 100%);
@@ -96,7 +78,7 @@
     --gradient-card: linear-gradient(145deg, hsl(0, 0%, 100%) 0%, hsl(60, 6%, 92%) 100%);
     --gradient-nav: linear-gradient(180deg, hsl(60, 8%, 96%, 0.95) 0%, hsl(0, 0%, 100%, 0.90) 100%);
 
-    /* Enhanced neumorphic shadows with pearl undertones */
+    /* Standardized neumorphic shadows */
     --shadow-neumorphic-1: 3px 3px 6px hsla(210, 10%, 0%, 0.08), -3px -3px 6px hsla(60, 20%, 100%, 0.95);
     --shadow-neumorphic-2: 6px 6px 12px hsla(210, 10%, 0%, 0.12), -6px -6px 12px hsla(60, 20%, 100%, 1);
     --shadow-neumorphic-3: 9px 9px 18px hsla(210, 10%, 0%, 0.15), -9px -9px 18px hsla(60, 20%, 100%, 1);
@@ -104,31 +86,21 @@
     --shadow-neumorphic-5: 16px 16px 32px hsla(210, 10%, 0%, 0.20), -16px -16px 32px hsla(60, 20%, 100%, 1);
     --shadow-neumorphic-6: 20px 20px 40px hsla(210, 10%, 0%, 0.22), -20px -20px 40px hsla(60, 20%, 100%, 1);
 
-    /* Inset shadows for pressed states */
-    --shadow-neumorphic-inset-1: inset 3px 3px 6px hsla(210, 10%, 0%, 0.08), inset -3px -3px 6px hsla(60, 20%, 100%, 0.95);
-    --shadow-neumorphic-inset-2: inset 6px 6px 12px hsla(210, 10%, 0%, 0.12), inset -6px -6px 12px hsla(60, 20%, 100%, 1);
-    --shadow-neumorphic-inset-3: inset 9px 9px 18px hsla(210, 10%, 0%, 0.15), inset -9px -9px 18px hsla(60, 20%, 100%, 1);
-
-    /* Enhanced focus and interaction shadows with Ruby red */
+    /* Standardized interaction shadows */
     --shadow-focus: 0 0 0 3px hsla(0, 80%, 45%, 0.3);
     --shadow-glow: 0 0 20px hsla(0, 80%, 45%, 0.25);
     --shadow-glow-strong: 0 0 30px hsla(0, 80%, 45%, 0.4);
     --shadow-gold-glow: 0 0 20px hsla(45, 85%, 55%, 0.3);
 
-    /* Responsive spacing */
-    --spacing-section: 4rem;
+    /* Standardized spacing system */
+    --spacing-section: 3rem;
     --spacing-section-sm: 2rem;
-    --spacing-section-lg: 6rem;
+    --spacing-section-lg: 4rem;
     --spacing-card: 1.5rem;
     --spacing-card-sm: 1rem;
     --spacing-card-lg: 2rem;
     
-    /* Accessibility touch targets */
-    --touch-target-min: 44px;
-    --touch-target-comfortable: 48px;
-    
-    /* Animation durations */
-    --floating-duration: 3s;
+    /* Standardized transition duration */
     --transition-duration: 0.3s;
   }
 
@@ -183,44 +155,20 @@
     --cream: 60 8% 12%;
     --cream-foreground: 60 8% 95%;
 
-    /* Dark mode accessibility - Enhanced contrast */
+    /* Dark mode accessibility */
     --text-high-contrast: 60 8% 95%;
     --text-medium-contrast: 60 8% 85%;
     --text-low-contrast: 210 10% 65%;
     --focus-ring: 0 80% 60%;
     --focus-ring-offset: 220 25% 8%;
 
-    /* Category colors - Dark mode variants */
-    --category-appetizers: 120 45% 55%;
-    --category-appetizers-foreground: 220 25% 10%;
-    --category-entrees: 0 80% 60%;
-    --category-entrees-foreground: 0 0% 100%;
-    --category-sides: 60 65% 60%;
-    --category-sides-foreground: 220 25% 10%;
-    --category-desserts: 340 70% 65%;
-    --category-desserts-foreground: 220 25% 10%;
-
-    /* Service colors - Dark mode */
-    --service-wedding: 340 70% 65%;
-    --service-wedding-foreground: 220 25% 10%;
-    --service-corporate: 220 25% 80%;
-    --service-corporate-foreground: 220 25% 10%;
-    --service-family: 120 45% 55%;
-    --service-family-foreground: 220 25% 10%;
-
-    /* Dark mode gradients with luxury feel */
+    /* Dark mode gradients */
     --gradient-pattern-a: linear-gradient(135deg, hsl(220, 25%, 8%) 0%, hsl(0, 80%, 60%, 0.08) 30%, hsl(0, 80%, 45%, 0.12) 70%, hsl(220, 25%, 12%) 100%);
     --gradient-pattern-b: linear-gradient(225deg, hsl(0, 80%, 60%, 0.06) 0%, hsl(220, 25%, 12%) 40%, hsl(210, 15%, 25%, 0.20) 80%, hsl(220, 25%, 8%) 100%);
     --gradient-pattern-c: linear-gradient(45deg, hsl(210, 15%, 25%, 0.18) 0%, hsl(220, 25%, 12%) 30%, hsl(45, 85%, 65%, 0.10) 70%, hsl(220, 25%, 8%) 100%);
     --gradient-pattern-d: linear-gradient(315deg, hsl(220, 25%, 8%) 0%, hsl(0, 80%, 60%, 0.06) 40%, hsl(210, 15%, 25%, 0.12) 80%, hsl(220, 25%, 12%) 100%);
 
-    --gradient-primary: linear-gradient(135deg, hsl(0, 80%, 60%) 0%, hsl(0, 80%, 45%) 100%);
-    --gradient-gold: linear-gradient(135deg, hsl(45, 85%, 65%) 0%, hsl(45, 85%, 50%) 100%);
-    --gradient-hero: linear-gradient(180deg, hsl(220, 25%, 8%) 0%, hsl(220, 25%, 12%) 50%, hsl(220, 25%, 8%) 100%);
-    --gradient-card: linear-gradient(145deg, hsl(220, 25%, 12%) 0%, hsl(220, 15%, 18%) 100%);
-    --gradient-nav: linear-gradient(180deg, hsl(220, 25%, 8%, 0.95) 0%, hsl(220, 25%, 12%, 0.90) 100%);
-
-    /* Dark mode neumorphic shadows - Enhanced depth */
+    /* Dark mode neumorphic shadows */
     --shadow-neumorphic-1: 3px 3px 8px hsla(0, 0%, 0%, 0.4), -3px -3px 8px hsla(220, 25%, 25%, 0.1);
     --shadow-neumorphic-2: 6px 6px 16px hsla(0, 0%, 0%, 0.5), -6px -6px 16px hsla(220, 25%, 25%, 0.15);
     --shadow-neumorphic-3: 9px 9px 24px hsla(0, 0%, 0%, 0.6), -9px -9px 24px hsla(220, 25%, 25%, 0.2);
@@ -228,12 +176,7 @@
     --shadow-neumorphic-5: 16px 16px 40px hsla(0, 0%, 0%, 0.8), -16px -16px 40px hsla(220, 25%, 25%, 0.3);
     --shadow-neumorphic-6: 20px 20px 48px hsla(0, 0%, 0%, 0.9), -20px -20px 48px hsla(220, 25%, 25%, 0.35);
 
-    /* Dark mode inset shadows */
-    --shadow-neumorphic-inset-1: inset 3px 3px 8px hsla(0, 0%, 0%, 0.4), inset -3px -3px 8px hsla(220, 25%, 25%, 0.1);
-    --shadow-neumorphic-inset-2: inset 6px 6px 16px hsla(0, 0%, 0%, 0.5), inset -6px -6px 16px hsla(220, 25%, 25%, 0.15);
-    --shadow-neumorphic-inset-3: inset 9px 9px 24px hsla(0, 0%, 0%, 0.6), inset -9px -9px 24px hsla(220, 25%, 25%, 0.2);
-
-    /* Dark mode focus and glow effects */
+    /* Dark mode interaction shadows */
     --shadow-focus: 0 0 0 3px hsla(0, 80%, 60%, 0.4);
     --shadow-glow: 0 0 25px hsla(0, 80%, 60%, 0.3);
     --shadow-glow-strong: 0 0 35px hsla(0, 80%, 60%, 0.5);
@@ -250,21 +193,14 @@
   }
 }
 
-/* Enhanced accessibility and neumorphic components */
+/* Enhanced accessibility and standardized components */
 @layer components {
-  /* Skip to content link for accessibility */
-  .skip-to-content {
-    @apply absolute -top-10 left-4 z-50 bg-primary text-primary-foreground px-4 py-2 rounded-md;
-    @apply focus:top-4 transition-all duration-300;
-    @apply font-medium text-sm;
-  }
-
   /* Enhanced focus styles for accessibility */
   .focus-visible-enhanced {
     @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background;
   }
 
-  /* Enhanced neumorphic card system with better contrast */
+  /* Standardized neumorphic card system */
   .neumorphic-card-1 {
     @apply bg-gradient-to-br from-card to-muted border border-border/30;
     box-shadow: var(--shadow-neumorphic-1);
@@ -283,25 +219,7 @@
     transition: all var(--transition-duration) ease;
   }
 
-  .neumorphic-card-4 {
-    @apply bg-gradient-to-br from-card to-muted border border-border/30;
-    box-shadow: var(--shadow-neumorphic-4);
-    transition: all var(--transition-duration) ease;
-  }
-
-  .neumorphic-card-5 {
-    @apply bg-gradient-to-br from-card to-muted border border-border/30;
-    box-shadow: var(--shadow-neumorphic-5);
-    transition: all var(--transition-duration) ease;
-  }
-
-  .neumorphic-card-6 {
-    @apply bg-gradient-to-br from-card to-muted border border-border/30;
-    box-shadow: var(--shadow-neumorphic-6);
-    transition: all var(--transition-duration) ease;
-  }
-
-  /* Interactive card states with enhanced visibility */
+  /* Standardized interactive card states */
   .neumorphic-card-1:hover {
     box-shadow: var(--shadow-neumorphic-2), var(--shadow-glow);
     transform: translateY(-2px);
@@ -317,41 +235,7 @@
     transform: translateY(-3px);
   }
 
-  .neumorphic-card-4:hover {
-    box-shadow: var(--shadow-neumorphic-5), var(--shadow-glow);
-    transform: translateY(-4px);
-  }
-
-  .neumorphic-card-5:hover {
-    box-shadow: var(--shadow-neumorphic-6), var(--shadow-glow-strong);
-    transform: translateY(-4px);
-  }
-
-  .neumorphic-card-6:hover {
-    box-shadow: var(--shadow-neumorphic-6), var(--shadow-glow-strong);
-    transform: translateY(-5px);
-  }
-
-  /* Pressed states */
-  .neumorphic-card-1:active,
-  .neumorphic-card-1.pressed {
-    box-shadow: var(--shadow-neumorphic-inset-1);
-    transform: translateY(1px);
-  }
-
-  .neumorphic-card-2:active,
-  .neumorphic-card-2.pressed {
-    box-shadow: var(--shadow-neumorphic-inset-2);
-    transform: translateY(1px);
-  }
-
-  .neumorphic-card-3:active,
-  .neumorphic-card-3.pressed {
-    box-shadow: var(--shadow-neumorphic-inset-3);
-    transform: translateY(1px);
-  }
-
-  /* Enhanced neumorphic button system */
+  /* Standardized neumorphic button system */
   .neumorphic-button-primary {
     @apply bg-gradient-to-br from-primary to-primary-dark text-primary-foreground;
     box-shadow: var(--shadow-neumorphic-2);
@@ -361,11 +245,6 @@
   .neumorphic-button-primary:hover {
     box-shadow: var(--shadow-neumorphic-3), var(--shadow-glow);
     transform: translateY(-1px);
-  }
-
-  .neumorphic-button-primary:active {
-    box-shadow: var(--shadow-neumorphic-inset-2);
-    transform: translateY(0);
   }
 
   .neumorphic-button-secondary {
@@ -379,12 +258,6 @@
     transform: translateY(-1px);
   }
 
-  .neumorphic-button-secondary:active {
-    box-shadow: var(--shadow-neumorphic-inset-1);
-    transform: translateY(0);
-  }
-
-  /* Premium gold button variant */
   .neumorphic-button-gold {
     @apply bg-gradient-to-br from-gold to-gold-dark text-gold-foreground;
     box-shadow: var(--shadow-neumorphic-2);
@@ -394,23 +267,6 @@
   .neumorphic-button-gold:hover {
     box-shadow: var(--shadow-neumorphic-3), var(--shadow-gold-glow);
     transform: translateY(-1px);
-  }
-
-  .neumorphic-button-gold:active {
-    box-shadow: var(--shadow-neumorphic-inset-2);
-    transform: translateY(0);
-  }
-
-  /* Enhanced form controls */
-  .neumorphic-input {
-    @apply bg-gradient-to-br from-input to-muted border border-border/20;
-    box-shadow: var(--shadow-neumorphic-inset-1);
-    transition: all var(--transition-duration) ease;
-  }
-
-  .neumorphic-input:focus {
-    box-shadow: var(--shadow-neumorphic-inset-2), var(--shadow-focus);
-    @apply border-ring/50;
   }
 
   /* Section pattern backgrounds */
@@ -434,50 +290,7 @@
     position: relative;
   }
 
-  /* Enhanced navigation styles */
-  .nav-glassmorphic {
-    background: var(--gradient-nav);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    box-shadow: var(--shadow-neumorphic-2);
-    border-bottom: 1px solid hsla(var(--border), 0.1);
-    transition: all var(--transition-duration) ease;
-  }
-
-  .nav-glassmorphic.scrolled {
-    box-shadow: var(--shadow-neumorphic-3);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-  }
-
-  .nav-link-neumorphic {
-    @apply bg-gradient-to-br from-secondary to-muted text-secondary-foreground border border-border/10;
-    box-shadow: var(--shadow-neumorphic-1);
-    transition: all var(--transition-duration) ease;
-  }
-
-  .nav-link-neumorphic:hover {
-    box-shadow: var(--shadow-neumorphic-2);
-    transform: translateY(-1px);
-  }
-
-  .nav-link-neumorphic.active {
-    box-shadow: var(--shadow-neumorphic-inset-1);
-    @apply bg-gradient-to-br from-primary/10 to-primary/20 text-primary border-primary/20;
-  }
-
-  .logo-neumorphic {
-    @apply bg-gradient-to-br from-secondary to-muted border border-border/10;
-    box-shadow: var(--shadow-neumorphic-1);
-    transition: all var(--transition-duration) ease;
-  }
-
-  .logo-neumorphic:hover {
-    box-shadow: var(--shadow-neumorphic-2), var(--shadow-glow);
-    transform: translateY(-2px);
-  }
-
-  /* Section transitions with accessibility */
+  /* Standardized section transitions */
   .section-border {
     border-top: 1px solid hsla(var(--border), 0.05);
     box-shadow: 0 -1px 0 hsla(var(--border), 0.1);
@@ -494,7 +307,7 @@
     background: linear-gradient(90deg, transparent, hsla(var(--primary), 0.3), transparent);
   }
 
-  /* Enhanced floating animations */
+  /* Enhanced animations */
   .floating-card {
     animation: float 6s ease-in-out infinite;
   }
@@ -503,37 +316,19 @@
     animation-delay: -3s;
   }
 
+  .hover-scale {
+    @apply transition-transform duration-300 hover:scale-105 focus-visible-enhanced;
+  }
+
   /* Story link with accessibility */
   .story-link {
     @apply relative inline-block focus-visible-enhanced;
     @apply after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-primary after:origin-bottom-right after:transition-transform after:duration-300;
     @apply hover:after:scale-x-100 hover:after:origin-bottom-left;
   }
-
-  /* Enhanced hover effects */
-  .hover-scale {
-    @apply transition-transform duration-200 hover:scale-105 focus-visible-enhanced;
-  }
-
-  /* High contrast support */
-  @media (prefers-contrast: high) {
-    .neumorphic-card-1,
-    .neumorphic-card-2,
-    .neumorphic-card-3,
-    .neumorphic-card-4,
-    .neumorphic-card-5,
-    .neumorphic-card-6 {
-      @apply border-2 border-foreground/20;
-    }
-    
-    .neumorphic-button-primary,
-    .neumorphic-button-secondary,
-    .neumorphic-button-gold {
-      @apply border-2;
-    }
-  }
 }
 
+/* Standardized keyframes */
 @keyframes float {
   0%, 100% {
     transform: translateY(0px);
@@ -569,34 +364,13 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Focus styles for accessibility */
 *:focus-visible {
   outline: 2px solid hsl(var(--ring));
   outline-offset: 2px;
 }
 
-/* Selection styles */
 ::selection {
   @apply bg-primary/20 text-foreground;
-}
-
-/* Enhanced scrollbar styles */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  @apply bg-muted;
-}
-
-::-webkit-scrollbar-thumb {
-  @apply bg-border rounded-lg;
-  box-shadow: var(--shadow-neumorphic-1);
-}
-
-::-webkit-scrollbar-thumb:hover {
-  @apply bg-border/80;
-  box-shadow: var(--shadow-neumorphic-2);
 }
 
 /* Reduced motion support */
@@ -612,21 +386,5 @@ html {
   
   .floating-card {
     animation: none;
-  }
-}
-
-/* Print styles */
-@media print {
-  .nav-glassmorphic,
-  .skip-to-content {
-    display: none;
-  }
-  
-  .section-pattern-a,
-  .section-pattern-b,
-  .section-pattern-c,
-  .section-pattern-d {
-    background: white !important;
-    box-shadow: none !important;
   }
 }
