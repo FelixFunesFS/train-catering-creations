@@ -61,13 +61,6 @@ export const HeroSection = () => {
       category: "grazing"
     },
     {
-      src: "/lovable-uploads/6225467a-567b-4a4e-8f41-181db66e0aaf.png",
-      alt: "Elegant outdoor tent setup with sophisticated lighting and table arrangements",
-      title: "Outdoor Events",
-      description: "Elegant outdoor tent setup with sophisticated lighting and table arrangements",
-      category: "outdoor"
-    },
-    {
       src: "/lovable-uploads/cc798395-e8fa-49bd-9fc3-91300bad308d.png",
       alt: "Beautiful indoor venue with round table settings and autumn floral centerpieces",
       title: "Indoor Venues",

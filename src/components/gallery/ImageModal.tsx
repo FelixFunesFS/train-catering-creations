@@ -93,28 +93,30 @@ export const ImageModal = ({
         <DialogTitle className="sr-only">Gallery Image</DialogTitle>
         <DialogDescription className="sr-only">Full size view of gallery image</DialogDescription>
         <div className="relative">
-          {/* Close button */}
+          {/* Close button - Fixed positioning and accessibility */}
           <Button 
             variant="ghost" 
             size="icon" 
-            className="absolute -top-12 right-0 text-white hover:text-gray-300 z-20 bg-black/30 hover:bg-black/50 min-h-touch min-w-touch rounded-xl"
+            className="fixed top-4 right-4 text-white hover:text-gray-300 z-50 bg-black/50 hover:bg-black/70 min-h-touch min-w-touch rounded-xl border border-white/20 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black/50"
             onClick={onClose}
+            aria-label="Close gallery"
           >
             <X className="h-5 w-5 sm:h-6 sm:w-6" />
           </Button>
           
-          {/* Image counter */}
-          <div className="absolute -top-12 left-0 text-white text-sm z-10">
+          {/* Image counter - Fixed positioning */}
+          <div className="fixed top-4 left-4 text-white text-sm z-40 bg-black/50 px-3 py-2 rounded-xl border border-white/20">
             {currentIndex + 1} of {images.length}
           </div>
           
-          {/* Navigation buttons */}
+          {/* Navigation buttons - Fixed positioning and improved accessibility */}
           <Button 
             variant="ghost" 
             size="icon" 
-            className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 z-10 bg-black/30 hover:bg-black/50 min-h-touch min-w-touch rounded-xl"
+            className="fixed left-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 z-40 bg-black/50 hover:bg-black/70 min-h-touch min-w-touch rounded-xl border border-white/20 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black/50"
             onClick={handlePrevious}
             disabled={images.length <= 1}
+            aria-label="Previous image"
           >
             <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" />
           </Button>
@@ -122,9 +124,10 @@ export const ImageModal = ({
           <Button 
             variant="ghost" 
             size="icon" 
-            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 z-10 bg-black/30 hover:bg-black/50 min-h-touch min-w-touch rounded-xl"
+            className="fixed right-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 z-40 bg-black/50 hover:bg-black/70 min-h-touch min-w-touch rounded-xl border border-white/20 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black/50"
             onClick={handleNext}
             disabled={images.length <= 1}
+            aria-label="Next image"
           >
             <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" />
           </Button>
