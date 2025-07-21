@@ -119,17 +119,17 @@ export const Header = () => {
               className="lg:hidden pb-6" 
               aria-label="Mobile navigation"
             >
-              <div className="nav-glassmorphic rounded-xl p-4 mt-4 border border-border/20 neumorphic-card-2">
+              <div className="bg-background/95 backdrop-blur-sm rounded-xl p-4 mt-4 border border-border/20">
                 <div className="flex flex-col space-y-3">
                   {navigation.map(item => (
                     <Link 
                       key={item.name} 
                       to={item.href} 
                       className={cn(
-                        "nav-link-neumorphic text-sm font-medium px-4 py-3 rounded-lg transition-all duration-300 focus-visible-enhanced",
+                        "text-base font-medium px-4 py-3 rounded-lg transition-all duration-300 focus-visible-enhanced",
                         isActive(item.href) 
-                          ? "active text-primary bg-white text-primary font-semibold border-l-2 border-white" 
-                          : "text-primary-foreground/80 hover:text-primary-foreground hover:translate-x-1 hover:bg-white/10"
+                          ? "active text-primary bg-muted font-semibold border-l-4 border-primary" 
+                          : "text-foreground hover:text-primary hover:translate-x-1 hover:bg-muted/50"
                       )}
                       onClick={() => setIsMenuOpen(false)}
                       aria-current={isActive(item.href) ? "page" : undefined}
@@ -141,7 +141,7 @@ export const Header = () => {
                     asChild 
                     variant="secondary" 
                     size="responsive-sm" 
-                    className="w-full mt-4 bg-white text-primary hover:bg-white/90"
+                    className="w-full mt-4 bg-primary text-primary-foreground hover:bg-primary/90"
                   >
                     <Link to="/request-quote#page-header" onClick={() => setIsMenuOpen(false)}>
                       Request Quote
