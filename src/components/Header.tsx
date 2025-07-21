@@ -1,8 +1,10 @@
+
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SkipToContent } from "@/components/ui/skip-to-content";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { cn } from "@/lib/utils";
 
 export const Header = () => {
@@ -87,23 +89,27 @@ export const Header = () => {
               >
                 <Link to="/request-quote#page-header">Request Quote</Link>
               </Button>
+              <ThemeToggle />
             </nav>
 
-            {/* Mobile menu button */}
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="lg:hidden nav-link-neumorphic hover:scale-110 transition-all duration-300 focus-visible-enhanced" 
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              aria-expanded={isMenuOpen}
-              aria-controls="mobile-menu"
-              aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-            >
-              {isMenuOpen ? 
-                <X className="h-6 w-6" strokeWidth={2} /> : 
-                <Menu className="h-6 w-6" strokeWidth={2} />
-              }
-            </Button>
+            {/* Mobile controls */}
+            <div className="lg:hidden flex items-center space-x-2">
+              <ThemeToggle />
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="nav-link-neumorphic hover:scale-110 transition-all duration-300 focus-visible-enhanced" 
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                aria-expanded={isMenuOpen}
+                aria-controls="mobile-menu"
+                aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+              >
+                {isMenuOpen ? 
+                  <X className="h-6 w-6" strokeWidth={2} /> : 
+                  <Menu className="h-6 w-6" strokeWidth={2} />
+                }
+              </Button>
+            </div>
           </div>
 
           {/* Mobile Navigation */}
