@@ -98,7 +98,7 @@ export const Header = () => {
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="nav-link-neumorphic hover:scale-110 transition-all duration-300 focus-visible-enhanced" 
+                className="text-primary-foreground hover:text-primary-foreground hover:bg-white/10 transition-all duration-300 focus-visible-enhanced"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
                 aria-expanded={isMenuOpen}
                 aria-controls="mobile-menu"
