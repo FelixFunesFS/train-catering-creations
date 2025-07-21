@@ -167,28 +167,30 @@ export const HeroSection = () => {
                 {heroImages.map((image, index) => (
                   <CarouselItem key={index} className="pl-1 basis-full md:basis-1/2 lg:basis-1/3">
                     <div 
-                      className="group relative rounded-2xl overflow-hidden cursor-pointer neumorphic-card-2 hover:neumorphic-card-3 transition-all duration-300" 
+                      className="group neumorphic-card-2 hover:neumorphic-card-3 p-4 rounded-2xl cursor-pointer transition-all duration-300" 
                       onClick={() => handleImageClick(index)}
                     >
-                      <div className="aspect-[16/9]">
-                        <img 
-                          src={image.src} 
-                          alt={image.alt} 
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
-                          loading={index < 2 ? "eager" : "lazy"} 
-                          decoding="async" 
-                        />
-                      </div>
-                      
-                      {/* Hover Overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <div className="absolute bottom-4 left-4 right-4 text-left">
-                          <h3 className="text-white font-elegant font-semibold text-lg mb-2">
-                            {image.title}
-                          </h3>
-                          <p className="text-white/90 text-sm leading-tight">
-                            {image.description}
-                          </p>
+                      <div className="relative rounded-xl overflow-hidden">
+                        <div className="aspect-[16/9]">
+                          <img 
+                            src={image.src} 
+                            alt={image.alt} 
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                            loading={index < 2 ? "eager" : "lazy"} 
+                            decoding="async" 
+                          />
+                        </div>
+                        
+                        {/* Hover Overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                          <div className="absolute bottom-4 left-4 right-4 text-left">
+                            <h3 className="text-white font-elegant font-semibold text-lg mb-2">
+                              {image.title}
+                            </h3>
+                            <p className="text-white/90 text-sm leading-tight">
+                              {image.description}
+                            </p>
+                          </div>
                         </div>
                       </div>
                     </div>
