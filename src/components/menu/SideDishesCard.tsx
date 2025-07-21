@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const SideDishesCard = () => {
@@ -37,21 +38,21 @@ const SideDishesCard = () => {
             <div className="w-3 h-3 bg-secondary/40 rounded-full" />
           </div>
         </div>
-        <CardTitle className="text-2xl font-elegant text-foreground">Perfect Sides</CardTitle>
+        <CardTitle className="text-2xl font-elegant text-foreground title-hover-motion">Perfect Sides</CardTitle>
         <div className="w-16 h-0.5 bg-gradient-to-r from-secondary/40 to-accent/40 mx-auto mt-3 rounded-full"></div>
-        <p className="text-xs text-muted-foreground mt-2 italic">Complete your meal</p>
+        <p className="text-xs text-muted-foreground mt-2 italic subtitle-hover-motion">Complete your meal</p>
       </CardHeader>
       <CardContent className="space-y-8 relative z-10">
         {/* Comfort Classics */}
         <div className="bg-amber-500/5 rounded-lg p-6 border border-amber-500/15">
-          <h3 className="text-xl font-elegant text-center text-foreground mb-8 relative">
+          <h3 className="text-xl font-elegant text-center text-foreground mb-8 relative title-hover-motion">
             Comfort Classics
             <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-12 h-0.5 bg-amber-500/60 rounded-full" />
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {comfortClassics.map((item, index) => (
               <div key={index} className="text-center py-4 px-4 rounded-lg hover:bg-amber-500/15 transition-all duration-200 group cursor-default border border-transparent hover:border-amber-500/20">
-                <h4 className="text-base font-medium text-foreground group-hover:text-primary transition-colors">{item}</h4>
+                <h4 className="text-base font-medium text-foreground group-hover:text-primary transition-colors card-title-hover-motion">{item}</h4>
               </div>
             ))}
           </div>
@@ -59,14 +60,14 @@ const SideDishesCard = () => {
 
         {/* Fresh & Light */}
         <div className="bg-emerald-500/5 rounded-lg p-6 border border-emerald-500/15">
-          <h3 className="text-xl font-elegant text-center text-foreground mb-8 relative">
+          <h3 className="text-xl font-elegant text-center text-foreground mb-8 relative title-hover-motion">
             Fresh & Light
             <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-12 h-0.5 bg-emerald-500/60 rounded-full" />
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             {freshAndLight.map((item, index) => (
               <div key={index} className="text-center py-4 px-4 rounded-lg hover:bg-emerald-500/15 transition-all duration-200 group cursor-default border border-transparent hover:border-emerald-500/20">
-                <h4 className="text-base font-medium text-foreground group-hover:text-primary transition-colors">{item}</h4>
+                <h4 className="text-base font-medium text-foreground group-hover:text-primary transition-colors card-title-hover-motion">{item}</h4>
               </div>
             ))}
           </div>

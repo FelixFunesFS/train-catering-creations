@@ -36,8 +36,8 @@ const ImageMenuCard = ({
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
         
         <CardHeader className="absolute bottom-0 left-0 right-0 text-white p-6">
-          <CardTitle className="text-3xl font-elegant">{title}</CardTitle>
-          <p className="text-white/90 italic">{subtitle}</p>
+          <CardTitle className="text-3xl font-elegant title-hover-motion">{title}</CardTitle>
+          <p className="text-white/90 italic subtitle-hover-motion">{subtitle}</p>
         </CardHeader>
       </div>
 
@@ -49,7 +49,7 @@ const ImageMenuCard = ({
                 "neumorphic-card-1 rounded-xl p-6 transition-all duration-300",
                 section.color
               )}>
-                <h3 className="text-xl font-elegant text-center text-foreground mb-6 relative">
+                <h3 className="text-xl font-elegant text-center text-foreground mb-6 relative title-hover-motion">
                   {section.title}
                   <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-12 h-0.5 bg-current/60 rounded-full" />
                 </h3>
@@ -59,7 +59,7 @@ const ImageMenuCard = ({
                       key={itemIndex} 
                       className="neumorphic-card-1 p-4 rounded-lg hover:neumorphic-card-2 transition-all duration-200 group cursor-pointer"
                     >
-                      <h4 className="text-base font-medium text-foreground group-hover:text-primary transition-colors">
+                      <h4 className="text-base font-medium text-foreground group-hover:text-primary transition-colors card-title-hover-motion">
                         {item}
                       </h4>
                     </div>
@@ -75,7 +75,7 @@ const ImageMenuCard = ({
                 key={index} 
                 className="neumorphic-card-1 p-4 rounded-lg hover:neumorphic-card-2 transition-all duration-200 group cursor-pointer"
               >
-                <h4 className="text-base font-medium text-foreground group-hover:text-primary transition-colors">
+                <h4 className="text-base font-medium text-foreground group-hover:text-primary transition-colors card-title-hover-motion">
                   {item}
                 </h4>
               </div>

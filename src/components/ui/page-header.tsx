@@ -1,91 +1,79 @@
 
-import { ReactNode } from "react";
-import { cn } from "@/lib/utils";
+import React from "react";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { cn } from "@/lib/utils";
 
 interface PageHeaderProps {
   title: string;
-  description?: string;
-  icons?: ReactNode[];
-  className?: string;
-  children?: ReactNode;
+  description: string;
+  icons?: React.ReactNode[];
   buttons?: Array<{
     text: string;
     href: string;
-    variant?: string;
+    variant?: "default" | "secondary" | "outline" | "ghost" | "link" | "destructive" | "cta" | "cta-white";
+    icon?: React.ReactNode;
   }>;
+  className?: string;
 }
 
 export const PageHeader = ({ 
   title, 
   description, 
   icons = [], 
-  className,
-  children,
-  buttons = []
+  buttons = [], 
+  className 
 }: PageHeaderProps) => {
   return (
-    <div id="page-header" className={cn("text-center mb-8 sm:mb-12 md:mb-16 pt-2 sm:pt-4 md:pt-12", className)}>
-      {/* Icons */}
+    <header 
+      id="page-header" 
+      className={cn(
+        "text-center max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16",
+        className
+      )}
+    >
+      {/* Icon cluster */}
       {icons.length > 0 && (
-        <div id="page-icons" className="flex justify-center mb-4">
+        <div className="flex justify-center items-center space-x-4 mb-6 sm:mb-8">
           {icons.map((icon, index) => (
             <div 
               key={index} 
-              className={cn(
-                "h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8 text-primary",
-                index === 0 && "mr-2",
-                index === icons.length - 1 && "ml-2",
-                index > 0 && index < icons.length - 1 && "mx-2"
-              )}
+              className="text-primary/80 hover:text-primary transition-colors duration-300 hover:scale-110"
             >
               {icon}
             </div>
           ))}
         </div>
       )}
-      
-      {/* Title */}
-      <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant text-foreground mb-4 sm:mb-6 animate-fade-in">
+
+      {/* Title with hover motion */}
+      <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-elegant font-bold text-foreground mb-4 sm:mb-6 leading-tight title-hover-motion">
         {title}
       </h1>
-      
-      {/* Decorative line */}
-      <div className="w-12 sm:w-16 md:w-24 h-1 bg-gradient-primary mx-auto mb-6 sm:mb-8 animate-fade-in" />
-      
-      {/* Custom content (image cards) - positioned between title and description */}
-      {children && (
-        <div className="mb-6 sm:mb-8 animate-fade-in">
-          {children}
-        </div>
-      )}
-      
-      {/* Description */}
-      {description && (
-        <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-foreground max-w-2xl mx-auto leading-relaxed px-4 mb-6 sm:mb-8 animate-fade-in">
-          {description}
-        </p>
-      )}
-      
-      {/* Buttons */}
+
+      {/* Description with subtle hover motion */}
+      <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed mb-6 sm:mb-8 lg:mb-10 subtitle-hover-motion">
+        {description}
+      </p>
+
+      {/* Action buttons */}
       {buttons.length > 0 && (
-        <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center mt-6 sm:mt-8 animate-fade-in">
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6">
           {buttons.map((button, index) => (
-            <Button 
-              key={index} 
-              asChild 
-              variant={button.variant as any || "cta"} 
-              size="responsive-md" 
-              className="w-3/5 sm:w-auto sm:min-w-[14rem]"
+            <Button
+              key={index}
+              asChild
+              variant={button.variant || "default"}
+              size="lg"
+              className="w-full sm:w-auto min-w-[200px] text-base font-medium hover:scale-105 transition-transform duration-300"
             >
-              <Link to={button.href}>
-                {button.text}
-              </Link>
+              <a href={button.href} className="flex items-center justify-center space-x-2">
+                {button.icon && <span>{button.icon}</span>}
+                <span>{button.text}</span>
+              </a>
             </Button>
           ))}
         </div>
       )}
-    </div>
+    </header>
   );
 };

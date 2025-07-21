@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -38,7 +39,7 @@ const MenuNavigation = ({ activeCategory, onCategoryChange }: MenuNavigationProp
   return (
     <div className="space-y-3">
       <div className="mb-8">
-        <h2 className="text-2xl font-elegant text-foreground mb-2">Menu Categories</h2>
+        <h2 className="text-2xl font-elegant text-foreground mb-2 title-hover-motion">Menu Categories</h2>
         <div className="w-16 h-0.5 bg-gradient-primary rounded-full"></div>
       </div>
       
@@ -54,15 +55,15 @@ const MenuNavigation = ({ activeCategory, onCategoryChange }: MenuNavigationProp
           onClick={() => onCategoryChange(category.id)}
         >
           <div className="flex items-center space-x-4">
-            <div className="text-2xl">{category.icon}</div>
+            <div className="text-2xl transition-transform duration-300 hover:scale-110">{category.icon}</div>
             <div className="flex-1">
               <h3 className={cn(
-                "text-lg font-semibold transition-colors",
+                "text-lg font-semibold transition-all duration-300 card-title-hover-motion",
                 activeCategory === category.id ? "text-primary" : "text-foreground"
               )}>
                 {category.title}
               </h3>
-              <p className="text-sm text-muted-foreground">{category.subtitle}</p>
+              <p className="text-sm text-muted-foreground subtitle-hover-motion">{category.subtitle}</p>
             </div>
             <div className={cn(
               "w-2 h-8 rounded-full transition-all duration-300",

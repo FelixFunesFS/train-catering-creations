@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=Dancing+Script:wght@400;500;600;700&display=swap');
 
 @tailwind base;
@@ -325,6 +326,42 @@
     @apply after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-primary after:origin-bottom-right after:transition-transform after:duration-300;
     @apply hover:after:scale-x-100 hover:after:origin-bottom-left;
   }
+
+  /* Title and text hover motion utilities */
+  .title-hover-motion {
+    @apply transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5 cursor-default;
+  }
+
+  .title-hover-motion-small {
+    @apply transition-all duration-300 hover:scale-[1.015] hover:-translate-y-0.5 cursor-default;
+  }
+
+  .subtitle-hover-motion {
+    @apply transition-all duration-200 hover:text-foreground hover:translate-x-0.5 cursor-default;
+  }
+
+  .card-title-hover-motion {
+    @apply transition-all duration-300 hover:scale-[1.03] hover:text-primary/90 cursor-default;
+  }
+
+  .interactive-title-hover {
+    @apply transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5 hover:text-primary/90 cursor-pointer;
+  }
+
+  /* Desktop-only hover effects */
+  @media (hover: hover) and (pointer: fine) {
+    .desktop-title-hover {
+      @apply hover:scale-[1.02] hover:-translate-y-0.5;
+    }
+
+    .desktop-subtitle-hover {
+      @apply hover:text-foreground hover:translate-x-0.5;
+    }
+
+    .desktop-card-title-hover {
+      @apply hover:scale-[1.03] hover:text-primary/90;
+    }
+  }
 }
 
 /* Standardized keyframes */
@@ -385,5 +422,17 @@ html {
   
   .floating-card {
     animation: none;
+  }
+
+  .title-hover-motion,
+  .title-hover-motion-small,
+  .subtitle-hover-motion,
+  .card-title-hover-motion,
+  .interactive-title-hover,
+  .desktop-title-hover,
+  .desktop-subtitle-hover,
+  .desktop-card-title-hover {
+    transition: none !important;
+    transform: none !important;
   }
 }
