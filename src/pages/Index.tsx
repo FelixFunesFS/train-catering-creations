@@ -6,13 +6,11 @@ import { CTASection } from "@/components/home/CTASection";
 import { TestimonialsStatsSection } from "@/components/home/TestimonialsStatsSection";
 import { BrandMarquee } from "@/components/home/BrandMarquee";
 import { PageSection } from "@/components/ui/page-section";
-
 const Index = () => {
-  return (
-    <div className="min-h-screen">
+  return <div className="min-h-screen">
       <main id="main-content">
         {/* Hero Section - Pattern A (Deep, dramatic) */}
-        <PageSection pattern="a" skipToContentId="hero-section">
+        <PageSection pattern="a" skipToContentId="hero-section" className="py-0">
           <HeroSection />
         </PageSection>
         
@@ -46,8 +44,6 @@ const Index = () => {
           <CTASection />
         </PageSection>
       </main>
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
