@@ -75,8 +75,8 @@ const About = () => {
               <NeumorphicCard level={4} className="text-center">
                 <div className="mb-6">
                   <img 
-                    src="/lovable-uploads/7b66dfbe-2aef-444a-97f3-9c2d0636404c.png" 
-                    alt="Chef Dominick 'Train' Ward" 
+                    src="/lovable-uploads/ca9f1bb5-3b58-46fc-a5e4-cf2359a610ed.png" 
+                    alt="Chef Dominick 'Train' Ward"
                     className="w-32 h-32 rounded-full mx-auto mb-4 object-cover"
                   />
                   <ChefHat className="h-12 w-12 text-primary mx-auto mb-4" />
