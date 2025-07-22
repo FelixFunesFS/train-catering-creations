@@ -113,7 +113,7 @@ export const HeroSection = () => {
   return (
     <>
       <section className="bg-gradient-to-br from-red-800 via-red-700 to-red-900 neumorphic-card-3 rounded-3xl mx-4 sm:mx-6 lg:mx-8 my-6 sm:my-8">
-        <ResponsiveWrapper hasFullWidthCard>
+        <div className="max-w-7xl mx-auto px-6 xl:px-12 py-12 xl:py-16">
           {/* Brand Header Section with mobile-optimized typography */}
           <div className="relative mb-6 sm:mb-8 pt-8 sm:pt-12 lg:pt-16">
             <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-white/5 opacity-30 rounded-xl"></div>
@@ -233,7 +233,7 @@ export const HeroSection = () => {
               </Button>
             </div>
           </div>
-        </ResponsiveWrapper>
+        </div>
       </section>
 
       {/* Image Modal */}
