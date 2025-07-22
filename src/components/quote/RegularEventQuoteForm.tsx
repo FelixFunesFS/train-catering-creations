@@ -1,11 +1,9 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -13,6 +11,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { toast } from "@/hooks/use-toast";
 import { regularEventSchema, type RegularEventFormData } from "@/lib/schemas/quoteFormSchemas";
+import { MenuSelection } from "./MenuSelection";
+import { regularMenuItems } from "@/data/menuItems";
 
 const RegularEventQuoteForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -20,7 +20,6 @@ const RegularEventQuoteForm = () => {
   const form = useForm<RegularEventFormData>({
     resolver: zodResolver(regularEventSchema),
     defaultValues: {
-      doubleMeat: false,
       bussingTablesNeeded: false,
       separateServingArea: false,
       servingUtensils: false,
@@ -29,19 +28,19 @@ const RegularEventQuoteForm = () => {
       napkins: false,
       foodWarmers: false,
       ice: false,
+      bothProteinsAvailable: false,
+      dietaryRestrictions: [],
     }
   });
 
   const waitStaffRequested = form.watch("waitStaffRequested");
-  const serviceType = form.watch("serviceType");
+  const guestCount = parseInt(form.watch("guestCount") || "0");
 
   const onSubmit = async (data: RegularEventFormData) => {
     setIsSubmitting(true);
     try {
-      // Format email content
       const emailContent = formatEmailContent(data);
       
-      // Here you would integrate with your email service
       console.log("Form Data:", data);
       console.log("Email Content:", emailContent);
       
@@ -63,6 +62,9 @@ const RegularEventQuoteForm = () => {
   };
 
   const formatEmailContent = (data: RegularEventFormData) => {
+    const primaryProteinItem = regularMenuItems.find(item => item.id === data.primaryProtein);
+    const secondaryProteinItem = regularMenuItems.find(item => item.id === data.secondaryProtein);
+    
     return `
 Regular Event Quote Request
 
@@ -79,28 +81,18 @@ EVENT DETAILS:
 - Guest Count: ${data.guestCount}
 - Location: ${data.location}
 
+MENU SELECTION:
+- Primary Protein: ${primaryProteinItem?.name || 'Not selected'}
+${secondaryProteinItem ? `- Secondary Protein: ${secondaryProteinItem.name}` : ''}
+- Both Proteins Available to Guests: ${data.bothProteinsAvailable ? 'Yes' : 'No'}
+${data.customMenuRequests ? `- Custom Menu Requests: ${data.customMenuRequests}` : ''}
+
 SERVICE OPTIONS:
 - Service Type: ${data.serviceType}
 - Serving Start Time: ${data.servingStartTime}
-- Protein Choice: ${data.proteinChoice}
-- Double Meat: ${data.doubleMeat ? 'Yes' : 'No'}
 
-WAIT STAFF:
-- Wait Staff: ${data.waitStaffRequested}
-- Bussing Tables: ${data.bussingTablesNeeded ? 'Yes' : 'No'}
-${waitStaffRequested === 'yes-full-service' ? `
-- Wait Staff Setup Area: ${data.waitStaffSetupArea || 'Not specified'}
-- Separate Serving Area: ${data.separateServingArea ? 'Yes' : 'No'}
-- Serving Setup Area: ${data.servingSetupArea || 'Not specified'}
-` : ''}
-
-ADDITIONAL SERVICES:
-- Serving Utensils: ${data.servingUtensils ? 'Yes' : 'No'}
-- Cups: ${data.cups ? 'Yes' : 'No'}
-- Plates: ${data.plates ? 'Yes' : 'No'}
-- Napkins: ${data.napkins ? 'Yes' : 'No'}
-- Food Warmers: ${data.foodWarmers ? 'Yes' : 'No'}
-- Ice: ${data.ice ? 'Yes' : 'No'}
+DIETARY CONSIDERATIONS:
+${data.dietaryRestrictions?.length ? data.dietaryRestrictions.join(', ') : 'None specified'}
 
 SPECIAL REQUESTS:
 ${data.specialRequests || 'None'}
@@ -113,9 +105,9 @@ ${data.hearAboutUs}
   return (
     <Card className="shadow-elegant max-w-4xl mx-auto">
       <CardHeader>
-        <CardTitle className="text-3xl font-elegant text-center">Regular Event Quote Request</CardTitle>
+        <CardTitle className="text-3xl font-elegant text-center">Regular Event Quote</CardTitle>
         <p className="text-muted-foreground text-center">
-          Fill out the details below and we'll create a custom quote for your event
+          Let us cater your special event with our delicious Southern cuisine
         </p>
       </CardHeader>
       <CardContent>
@@ -146,7 +138,7 @@ ${data.hearAboutUs}
                     <FormItem>
                       <FormLabel>Name of Event *</FormLabel>
                       <FormControl>
-                        <Input {...field} className="h-12" />
+                        <Input {...field} placeholder="e.g. Company Holiday Party" className="h-12" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -253,6 +245,7 @@ ${data.hearAboutUs}
                   )}
                 />
               </div>
+              
               <FormField
                 control={form.control}
                 name="location"
@@ -284,16 +277,16 @@ ${data.hearAboutUs}
                         className="flex flex-col space-y-2"
                       >
                         <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="full-service" id="full-service" />
-                          <Label htmlFor="full-service">Full Service (including wait staff)</Label>
+                          <RadioGroupItem value="full-service" id="regular-full-service" />
+                          <FormLabel htmlFor="regular-full-service">Full Service (including wait staff)</FormLabel>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="delivery-only" id="delivery-only" />
-                          <Label htmlFor="delivery-only">Delivery Only</Label>
+                          <RadioGroupItem value="delivery-only" id="regular-delivery-only" />
+                          <FormLabel htmlFor="regular-delivery-only">Delivery Only</FormLabel>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="delivery-setup" id="delivery-setup" />
-                          <Label htmlFor="delivery-setup">Delivery and Set Up</Label>
+                          <RadioGroupItem value="delivery-setup" id="regular-delivery-setup" />
+                          <FormLabel htmlFor="regular-delivery-setup">Delivery and Set Up</FormLabel>
                         </div>
                       </RadioGroup>
                     </FormControl>
@@ -303,46 +296,32 @@ ${data.hearAboutUs}
               />
             </div>
 
+            {/* Menu Selection */}
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold text-primary">Menu Selection</h3>
+              <MenuSelection 
+                form={form} 
+                eventType="regular" 
+                guestCount={guestCount}
+              />
+            </div>
+
             {/* Serving Details */}
             <div className="space-y-4">
               <h3 className="text-xl font-semibold text-primary">Serving Details</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="servingStartTime"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Time Serving Should Start *</FormLabel>
-                      <FormControl>
-                        <Input {...field} type="time" className="h-12" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="proteinChoice"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Protein Choice *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger className="h-12">
-                            <SelectValue placeholder="Select protein option" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="option-1">Protein Option #1</SelectItem>
-                          <SelectItem value="option-2">Protein Option #2</SelectItem>
-                          <SelectItem value="both">Both Options Available</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+              <FormField
+                control={form.control}
+                name="servingStartTime"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Time Serving Should Start *</FormLabel>
+                    <FormControl>
+                      <Input {...field} type="time" className="h-12" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
             {/* Wait Staff Section */}
@@ -513,7 +492,7 @@ ${data.hearAboutUs}
 
             {/* Special Requests */}
             <div className="space-y-4">
-              <h3 className="text-xl font-semibold text-primary">Custom & Special Requests</h3>
+              <h3 className="text-xl font-semibold text-primary">Special Requests</h3>
               <FormField
                 control={form.control}
                 name="specialRequests"
@@ -523,7 +502,7 @@ ${data.hearAboutUs}
                     <FormControl>
                       <Textarea
                         {...field}
-                        placeholder="Tell us about double meat servings, dietary restrictions, special setup requirements, or any other custom requests..."
+                        placeholder="Tell us about any special requirements, setup needs, or other details we should know..."
                         className="min-h-[120px] resize-none"
                       />
                     </FormControl>
@@ -553,7 +532,6 @@ ${data.hearAboutUs}
                         <SelectItem value="word-of-mouth">Word of Mouth</SelectItem>
                         <SelectItem value="previous-client">Previous Client</SelectItem>
                         <SelectItem value="vendor-referral">Vendor Referral</SelectItem>
-                        <SelectItem value="wedding-show">Wedding Show/Event</SelectItem>
                         <SelectItem value="other">Other</SelectItem>
                       </SelectContent>
                     </Select>

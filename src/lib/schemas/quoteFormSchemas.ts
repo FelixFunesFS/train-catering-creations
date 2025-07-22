@@ -22,10 +22,16 @@ const baseQuoteSchema = z.object({
   
   // Serving Details
   servingStartTime: z.string().min(1, "Serving start time is required"),
-  proteinChoice: z.enum(["option-1", "option-2", "both"], {
-    required_error: "Please select protein option"
-  }),
-  doubleMeat: z.boolean().default(false),
+  
+  // Updated Protein Selection
+  primaryProtein: z.string().min(1, "Please select a primary protein"),
+  secondaryProtein: z.string().optional(),
+  bothProteinsAvailable: z.boolean().default(false),
+  customMenuRequests: z.string().optional(),
+  
+  // Dietary Considerations
+  dietaryRestrictions: z.array(z.string()).default([]),
+  guestCountWithRestrictions: z.string().optional(),
   
   // Wait Staff (conditional)
   waitStaffRequested: z.enum(["yes-full-service", "no"], {

@@ -1,11 +1,9 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -13,6 +11,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { toast } from "@/hooks/use-toast";
 import { weddingEventSchema, type WeddingEventFormData } from "@/lib/schemas/quoteFormSchemas";
+import { MenuSelection } from "./MenuSelection";
+import { weddingMenuItems } from "@/data/menuItems";
 
 const WeddingEventQuoteForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -20,7 +20,6 @@ const WeddingEventQuoteForm = () => {
   const form = useForm<WeddingEventFormData>({
     resolver: zodResolver(weddingEventSchema),
     defaultValues: {
-      doubleMeat: false,
       bussingTablesNeeded: false,
       separateServingArea: false,
       servingUtensils: false,
@@ -31,19 +30,21 @@ const WeddingEventQuoteForm = () => {
       ice: false,
       ceremonyIncluded: false,
       cocktailHour: false,
+      bothProteinsAvailable: false,
+      dietaryRestrictions: [],
     }
   });
 
   const waitStaffRequested = form.watch("waitStaffRequested");
-  const serviceType = form.watch("serviceType");
+  const guestCount = parseInt(form.watch("guestCount") || "0");
+  const primaryProtein = form.watch("primaryProtein");
+  const secondaryProtein = form.watch("secondaryProtein");
 
   const onSubmit = async (data: WeddingEventFormData) => {
     setIsSubmitting(true);
     try {
-      // Format email content
       const emailContent = formatEmailContent(data);
       
-      // Here you would integrate with your email service
       console.log("Form Data:", data);
       console.log("Email Content:", emailContent);
       
@@ -65,6 +66,9 @@ const WeddingEventQuoteForm = () => {
   };
 
   const formatEmailContent = (data: WeddingEventFormData) => {
+    const primaryProteinItem = weddingMenuItems.find(item => item.id === data.primaryProtein);
+    const secondaryProteinItem = weddingMenuItems.find(item => item.id === data.secondaryProtein);
+    
     return `
 Wedding/Black Tie Event Quote Request
 
@@ -83,11 +87,15 @@ EVENT DETAILS:
 - Ceremony Included: ${data.ceremonyIncluded ? 'Yes' : 'No'}
 - Cocktail Hour: ${data.cocktailHour ? 'Yes' : 'No'}
 
+MENU SELECTION:
+- Primary Protein: ${primaryProteinItem?.name || 'Not selected'}
+${secondaryProteinItem ? `- Secondary Protein: ${secondaryProteinItem.name}` : ''}
+- Both Proteins Available to Guests: ${data.bothProteinsAvailable ? 'Yes' : 'No'}
+${data.customMenuRequests ? `- Custom Menu Requests: ${data.customMenuRequests}` : ''}
+
 SERVICE OPTIONS:
 - Service Type: ${data.serviceType}
 - Serving Start Time: ${data.servingStartTime}
-- Protein Choice: ${data.proteinChoice}
-- Double Meat: ${data.doubleMeat ? 'Yes' : 'No'}
 
 WAIT STAFF:
 - Wait Staff: ${data.waitStaffRequested}
@@ -105,6 +113,9 @@ ADDITIONAL SERVICES:
 - Napkins: ${data.napkins ? 'Yes' : 'No'}
 - Food Warmers: ${data.foodWarmers ? 'Yes' : 'No'}
 - Ice: ${data.ice ? 'Yes' : 'No'}
+
+DIETARY CONSIDERATIONS:
+${data.dietaryRestrictions?.length ? data.dietaryRestrictions.join(', ') : 'None specified'}
 
 DIETARY NEEDS:
 ${data.specialDietaryNeeds || 'None specified'}
@@ -285,12 +296,8 @@ ${data.hearAboutUs}
                         />
                       </FormControl>
                       <div className="space-y-1 leading-none">
-                        <FormLabel>
-                          Ceremony Catering Included
-                        </FormLabel>
-                        <FormDescription>
-                          Light refreshments during ceremony
-                        </FormDescription>
+                        <FormLabel>Ceremony Catering Included</FormLabel>
+                        <FormDescription>Light refreshments during ceremony</FormDescription>
                       </div>
                     </FormItem>
                   )}
@@ -308,12 +315,8 @@ ${data.hearAboutUs}
                         />
                       </FormControl>
                       <div className="space-y-1 leading-none">
-                        <FormLabel>
-                          Cocktail Hour
-                        </FormLabel>
-                        <FormDescription>
-                          Appetizers and beverages before dinner
-                        </FormDescription>
+                        <FormLabel>Cocktail Hour</FormLabel>
+                        <FormDescription>Appetizers and beverages before dinner</FormDescription>
                       </div>
                     </FormItem>
                   )}
@@ -338,15 +341,15 @@ ${data.hearAboutUs}
                       >
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="full-service" id="wedding-full-service" />
-                          <Label htmlFor="wedding-full-service">Full Service (including wait staff)</Label>
+                          <FormLabel htmlFor="wedding-full-service">Full Service (including wait staff)</FormLabel>
                         </div>
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="delivery-only" id="wedding-delivery-only" />
-                          <Label htmlFor="wedding-delivery-only">Delivery Only</Label>
+                          <FormLabel htmlFor="wedding-delivery-only">Delivery Only</FormLabel>
                         </div>
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="delivery-setup" id="wedding-delivery-setup" />
-                          <Label htmlFor="wedding-delivery-setup">Delivery and Set Up</Label>
+                          <FormLabel htmlFor="wedding-delivery-setup">Delivery and Set Up</FormLabel>
                         </div>
                       </RadioGroup>
                     </FormControl>
@@ -356,46 +359,32 @@ ${data.hearAboutUs}
               />
             </div>
 
+            {/* Menu Selection */}
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold text-primary">Menu Selection</h3>
+              <MenuSelection 
+                form={form} 
+                eventType="wedding" 
+                guestCount={guestCount}
+              />
+            </div>
+
             {/* Serving Details */}
             <div className="space-y-4">
               <h3 className="text-xl font-semibold text-primary">Serving Details</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="servingStartTime"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Time Serving Should Start *</FormLabel>
-                      <FormControl>
-                        <Input {...field} type="time" className="h-12" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="proteinChoice"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Protein Choice *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger className="h-12">
-                            <SelectValue placeholder="Select protein option" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="option-1">Protein Option #1</SelectItem>
-                          <SelectItem value="option-2">Protein Option #2</SelectItem>
-                          <SelectItem value="both">Both Options Available</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+              <FormField
+                control={form.control}
+                name="servingStartTime"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Time Serving Should Start *</FormLabel>
+                    <FormControl>
+                      <Input {...field} type="time" className="h-12" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
             {/* Wait Staff Section */}
@@ -415,11 +404,11 @@ ${data.hearAboutUs}
                       >
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="yes-full-service" id="wedding-yes-full-service" />
-                          <Label htmlFor="wedding-yes-full-service">Yes - Full Service</Label>
+                          <FormLabel htmlFor="wedding-yes-full-service">Yes - Full Service</FormLabel>
                         </div>
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="no" id="wedding-no-wait-staff" />
-                          <Label htmlFor="wedding-no-wait-staff">No</Label>
+                          <FormLabel htmlFor="wedding-no-wait-staff">No</FormLabel>
                         </div>
                       </RadioGroup>
                     </FormControl>
@@ -598,7 +587,7 @@ ${data.hearAboutUs}
                     <FormControl>
                       <Textarea
                         {...field}
-                        placeholder="Tell us about double meat servings, special presentation requests, timing considerations, or any other custom requirements for your special day..."
+                        placeholder="Tell us about special presentation requests, timing considerations, or any other custom requirements for your special day..."
                         className="min-h-[120px] resize-none"
                       />
                     </FormControl>
