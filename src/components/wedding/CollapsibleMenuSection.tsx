@@ -14,6 +14,7 @@ interface MenuItem {
 }
 
 interface CollapsibleMenuSectionProps {
+  id: string;
   title: string;
   subtitle: string;
   items: MenuItem[];
@@ -22,6 +23,7 @@ interface CollapsibleMenuSectionProps {
 }
 
 export const CollapsibleMenuSection = ({
+  id,
   title,
   subtitle,
   items,
@@ -42,7 +44,7 @@ export const CollapsibleMenuSection = ({
   const headerAnimationClass = useAnimationClass(headerVariant, headerVisible);
 
   return (
-    <section className={cn("space-y-6 lg:space-y-8", className)}>
+    <section id={id} className={cn("space-y-6 lg:space-y-8", className)}>
       <div ref={headerRef} className={`text-center mb-6 lg:mb-8 ${headerAnimationClass}`}>
         <h2 className="text-2xl sm:text-3xl font-elegant text-foreground mb-3 sm:mb-4">
           {title}
