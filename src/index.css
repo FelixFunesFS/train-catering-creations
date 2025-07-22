@@ -277,6 +277,25 @@
     transform: translateY(-1px);
   }
 
+  /* High contrast white buttons for red backgrounds */
+  .cta-white-high-contrast {
+    @apply bg-white border-2 border-white;
+    color: hsl(var(--text-high-contrast)) !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  }
+
+  .cta-white-high-contrast:hover {
+    @apply bg-white/90;
+    color: hsl(var(--text-high-contrast)) !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  }
+
+  .cta-white-high-contrast:focus {
+    @apply bg-white;
+    color: hsl(var(--text-high-contrast)) !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15), 0 0 0 3px rgba(255, 255, 255, 0.5);
+  }
+
   /* Section pattern backgrounds */
   .section-pattern-a {
     background: var(--gradient-pattern-a);
