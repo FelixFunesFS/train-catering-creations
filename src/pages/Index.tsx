@@ -19,9 +19,9 @@ const Index = () => {
           <ServicesSection />
         </PageSection>
         
-        {/* Interactive Gallery - Pattern C (Elevated, visual showcase) */}
-        <PageSection pattern="c" withBorder>
-          <InteractiveGallerySection />
+        {/* Brand Marquee - Pattern B (Trust indicators) */}
+        <PageSection pattern="b" withBorder>
+          <BrandMarquee />
         </PageSection>
         
         {/* About Preview - Pattern D (Soft, personal) */}
@@ -29,14 +29,14 @@ const Index = () => {
           <AboutPreviewSection />
         </PageSection>
         
+        {/* Interactive Gallery - Pattern C (Elevated, visual showcase) */}
+        <PageSection pattern="c" withBorder>
+          <InteractiveGallerySection />
+        </PageSection>
+        
         {/* Testimonials & Stats - Pattern A (Credibility depth) */}
         <PageSection pattern="a" withBorder>
           <TestimonialsStatsSection />
-        </PageSection>
-        
-        {/* Brand Marquee - Pattern B (Trust indicators) */}
-        <PageSection pattern="b" withBorder>
-          <BrandMarquee />
         </PageSection>
         
         {/* CTA Section - Keep current red gradient */}
