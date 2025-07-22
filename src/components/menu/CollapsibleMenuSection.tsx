@@ -45,8 +45,8 @@ export const CollapsibleMenuSection = ({
         )}
       </div>
       
-      {/* Mobile-first dense grid layout */}
-      <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-2.5 md:gap-3 lg:gap-4">
+      {/* Mobile 2-column, larger screens expand to more columns */}
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-2.5 md:gap-3 lg:gap-4">
         {displayItems.map((item, index) => (
           <div 
             key={index} 
