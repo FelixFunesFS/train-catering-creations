@@ -129,16 +129,33 @@ export const HeroSection = () => {
                   Where every bite is made with love and served with soul!
                 </p>
               </div>
+
+              {/* Call-to-Action Buttons */}
+              <div className="text-center animate-fade-in">
+                <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6">
+                  <Button asChild size="lg">
+                    <Link to="/request-quote#page-header">
+                      Request Quote
+                    </Link>
+                  </Button>
+                  
+                  <Button asChild variant="outline" size="lg">
+                    <Link to="/gallery#page-header">
+                      View Gallery
+                    </Link>
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Gallery and CTA Section */}
+      {/* Gallery Section */}
       <section className="py-12 sm:py-16 lg:py-20 bg-background">
         <div className="max-w-7xl mx-auto px-6 xl:px-12">
           {/* Image Gallery Carousel Section */}
-          <div className="relative mb-8 sm:mb-12 animate-fade-in">
+          <div className="relative animate-fade-in">
             <Carousel opts={{
             align: "start",
             loop: true
@@ -171,25 +188,6 @@ export const HeroSection = () => {
               <CarouselPrevious className="hidden md:flex -left-12" />
               <CarouselNext className="hidden md:flex -right-12" />
             </Carousel>
-          </div>
-
-          {/* Call-to-Action Buttons Section */}
-          <div className="text-center animate-fade-in">
-            <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6">
-              {/* Primary CTA with silver gradient */}
-              <Button asChild variant="ghost" size="responsive-lg" className="w-4/5 sm:w-auto sm:min-w-[14rem] bg-gradient-to-r from-gray-200 via-gray-100 to-gray-300 text-gray-900 font-bold border-0 hover:from-gray-300 hover:via-gray-200 hover:to-gray-400 hover:text-gray-800 shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300">
-                <Link to="/request-quote#page-header">
-                  Request Quote
-                </Link>
-              </Button>
-              
-              {/* Secondary CTA */}
-              <Button asChild variant="ghost" size="responsive-lg" className="w-4/5 sm:w-auto sm:min-w-[14rem] bg-transparent border-2 border-primary text-primary font-semibold hover:bg-primary/10 hover:text-primary backdrop-blur-sm shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-300">
-                <Link to="/gallery#page-header">
-                  View Gallery
-                </Link>
-              </Button>
-            </div>
           </div>
         </div>
       </section>
