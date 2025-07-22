@@ -48,8 +48,12 @@ const OptimizedFloatingImage = React.forwardRef<HTMLDivElement, OptimizedFloatin
       hoverShadow="elegant"
       highlightBorder
       className={cn(
-        "overflow-hidden group bg-gradient-card p-3 sm:p-4",
-        hasClickHandler && "cursor-pointer",
+        "overflow-hidden group bg-gradient-card rounded-xl transition-all duration-300",
+        "p-2 sm:p-3 lg:p-4",
+        hasClickHandler && "cursor-pointer active:scale-95 sm:active:scale-98",
+        "border border-border/20 hover:border-primary/30",
+        "shadow-card hover:shadow-elevated",
+        "transform hover:scale-[1.02] sm:hover:scale-[1.01]",
         className
       )}
       onClick={onImageClick}
@@ -60,20 +64,20 @@ const OptimizedFloatingImage = React.forwardRef<HTMLDivElement, OptimizedFloatin
           src={src}
           alt={alt}
           aspectRatio={aspectRatio}
-          className="group-hover:scale-105 transition-transform duration-250"
+          className="group-hover:scale-105 transition-transform duration-300"
           priority={priority}
         />
         
         {showOverlay && (title || description) && (
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-250 flex items-end">
-            <div className="p-3 md:p-4 text-white">
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
+            <div className="p-2 sm:p-3 lg:p-4 text-white w-full">
               {title && (
-                <h3 className="font-elegant font-semibold text-white text-sm md:text-base mb-1">
+                <h3 className="font-elegant font-semibold text-white text-sm sm:text-base lg:text-lg mb-1 leading-tight">
                   {title}
                 </h3>
               )}
               {description && (
-                <p className="text-xs md:text-sm text-white/90 line-clamp-2">
+                <p className="text-xs sm:text-sm text-white/90 line-clamp-2 leading-tight">
                   {description}
                 </p>
               )}

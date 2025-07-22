@@ -24,12 +24,12 @@ export const InteractiveGallerySection = () => {
   return (
     <>
       <section className="bg-gradient-card/30 border-t border-border/10">
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 py-8 sm:py-10 lg:py-12 xl:py-16">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 py-6 sm:py-8 lg:py-12 xl:py-16">
           <div className="text-center mb-6 sm:mb-8 lg:mb-10 xl:mb-12">
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant font-bold text-foreground mb-3 sm:mb-4 leading-tight">
+            <h2 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-elegant font-bold text-foreground mb-3 sm:mb-4 leading-tight">
               Gallery Showcase
             </h2>
-            <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            <p className="text-sm sm:text-base lg:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed px-2 sm:px-0">
               Explore our portfolio of beautifully catered events, from intimate gatherings to grand celebrations. Each image tells a story of culinary excellence and impeccable service.
             </p>
           </div>
@@ -46,9 +46,9 @@ export const InteractiveGallerySection = () => {
             />
           )}
 
-          <div className="text-center mt-8 sm:mt-10 lg:mt-12">
+          <div className="text-center mt-6 sm:mt-8 lg:mt-10 px-2 sm:px-0">
             <Link to="/gallery#page-header">
-              <Button variant="cta" size="responsive-md" className="w-4/5 sm:w-auto">
+              <Button variant="cta" size="responsive-md" className="w-full sm:w-auto">
                 View Full Gallery
               </Button>
             </Link>

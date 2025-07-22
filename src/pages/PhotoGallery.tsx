@@ -52,70 +52,75 @@ const PhotoGallery = () => {
   
   return (
     <div className="min-h-screen bg-gradient-hero">
-      {/* Header Section */}
-      <section className="py-8 lg:py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Header Section - Enhanced mobile spacing */}
+      <section className="py-6 sm:py-8 lg:py-12">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8">
           <div ref={headerRef} className={useAnimationClass(headerVariant, headerVisible)}>
             <GalleryHeader />
           </div>
         </div>
       </section>
       
-      {/* Gallery Sections */}
-      <section className="py-8 lg:py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Gallery Sections - Mobile-first spacing */}
+      <section className="py-4 sm:py-6 lg:py-8">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8">
           <div ref={sectionsRef} className={useAnimationClass(sectionsVariant, sectionsVisible)}>
-            
-            {/* Wedding Section */}
-            {weddingImages.length > 0 && (
-              <GallerySection
-                title="Wedding Celebrations"
-                description="From intimate ceremonies to grand receptions, we create unforgettable wedding experiences with elegant cuisine and impeccable service that makes your special day truly magical."
-                heroImage={weddingImages[0]}
-                images={weddingImages.slice(1)}
-                onImageClick={handleImageClick}
-              />
-            )}
-            
-            {/* Formal Events Section */}
-            {formalImages.length > 0 && (
-              <GallerySection
-                title="Formal & Black Tie Events"
-                description="Sophisticated catering for corporate galas, military ceremonies, and upscale gatherings. Our refined presentation and premium service elevate every formal occasion."
-                heroImage={formalImages[0]}
-                images={formalImages.slice(1)}
-                onImageClick={handleImageClick}
-              />
-            )}
-            
-            {/* Desserts Section */}
-            {dessertImages.length > 0 && (
-              <GallerySection
-                title="Artisan Desserts & Sweet Treats"
-                description="Exquisite dessert displays featuring custom cakes, elegant pastries, and beautifully crafted sweet treats that provide the perfect finale to any celebration."
-                heroImage={dessertImages[0]}
-                images={dessertImages.slice(1)}
-                onImageClick={handleImageClick}
-              />
-            )}
-            
-            {/* Buffet Service Section */}
-            {buffetImages.length > 0 && (
-              <GallerySection
-                title="Buffet Service & Large Events"
-                description="Professional buffet service for large gatherings, featuring diverse menu options, elegant presentation, and seamless service that keeps your guests satisfied."
-                heroImage={buffetImages[0]}
-                images={buffetImages.slice(1)}
-                onImageClick={handleImageClick}
-              />
-            )}
-            
+            <div className="space-y-6 sm:space-y-8 lg:space-y-12">
+              
+              {/* Wedding Section */}
+              {weddingImages.length > 0 && (
+                <GallerySection
+                  title="Wedding Celebrations"
+                  description="From intimate ceremonies to grand receptions, we create unforgettable wedding experiences with elegant cuisine and impeccable service that makes your special day truly magical."
+                  heroImage={weddingImages[0]}
+                  images={weddingImages.slice(1)}
+                  onImageClick={handleImageClick}
+                />
+              )}
+              
+              {/* Formal Events Section */}
+              {formalImages.length > 0 && (
+                <GallerySection
+                  title="Formal & Black Tie Events"
+                  description="Sophisticated catering for corporate galas, military ceremonies, and upscale gatherings. Our refined presentation and premium service elevate every formal occasion."
+                  heroImage={formalImages[0]}
+                  images={formalImages.slice(1)}
+                  onImageClick={handleImageClick}
+                />
+              )}
+              
+              {/* Desserts Section */}
+              {dessertImages.length > 0 && (
+                <GallerySection
+                  title="Artisan Desserts & Sweet Treats"
+                  description="Exquisite dessert displays featuring custom cakes, elegant pastries, and beautifully crafted sweet treats that provide the perfect finale to any celebration."
+                  heroImage={dessertImages[0]}
+                  images={dessertImages.slice(1)}
+                  onImageClick={handleImageClick}
+                />
+              )}
+              
+              {/* Buffet Service Section */}
+              {buffetImages.length > 0 && (
+                <GallerySection
+                  title="Buffet Service & Large Events"
+                  description="Professional buffet service for large gatherings, featuring diverse menu options, elegant presentation, and seamless service that keeps your guests satisfied."
+                  heroImage={buffetImages[0]}
+                  images={buffetImages.slice(1)}
+                  onImageClick={handleImageClick}
+                />
+              )}
+              
+            </div>
           </div>
         </div>
       </section>
       
-      <div ref={ctaRef} className={useAnimationClass(ctaVariant, ctaVisible)}>
-        <GalleryCTA />
+      {/* CTA Section - Enhanced mobile spacing */}
+      <div className="px-3 sm:px-4 lg:px-6 xl:px-8">
+        <div ref={ctaRef} className={useAnimationClass(ctaVariant, ctaVisible)}>
+          <GalleryCTA />
+        </div>
       </div>
       
       <ImageModal images={allImages} selectedIndex={selectedImageIndex} onClose={handleCloseModal} />

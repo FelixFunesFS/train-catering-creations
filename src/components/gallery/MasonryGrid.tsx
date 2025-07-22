@@ -1,6 +1,6 @@
 
 import { GalleryImage } from "@/data/gallery/types";
-import { OptimizedImage } from "@/components/ui/optimized-image";
+import { OptimizedFloatingImage } from "@/components/ui/optimized-floating-image";
 
 interface MasonryGridProps {
   images: GalleryImage[];
@@ -11,45 +11,25 @@ export const MasonryGrid = ({ images, onImageClick }: MasonryGridProps) => {
   // Sort images by quality to prioritize high-quality ones for larger display
   const sortedImages = [...images].sort((a, b) => b.quality - a.quality);
   
-  // Create responsive column counts
-  const getColumnCount = () => {
-    if (typeof window !== 'undefined') {
-      if (window.innerWidth >= 1280) return 4; // xl
-      if (window.innerWidth >= 1024) return 3; // lg
-      if (window.innerWidth >= 768) return 2;  // md
-    }
-    return 2; // sm and below
-  };
-
-  const columnCount = getColumnCount();
-  const columns: GalleryImage[][] = Array(columnCount).fill(null).map(() => []);
-  
-  // Distribute images across columns with smart sizing
-  sortedImages.forEach((image, index) => {
-    const columnIndex = index % columns.length;
-    columns[columnIndex].push(image);
-  });
-
-  const getSizeClasses = (image: GalleryImage, imageIndex: number, columnIndex: number) => {
-    // Make high-quality images larger and some images span 2 columns on larger screens
+  const getSizeClasses = (image: GalleryImage, index: number) => {
+    // Mobile-first approach with better aspect ratios
     const isHighQuality = image.quality >= 9;
-    const shouldSpanColumns = isHighQuality && columnIndex === 0 && imageIndex < 2 && columnCount >= 3;
-    const isLargeImage = image.quality >= 8 && (imageIndex + columnIndex) % 7 === 0;
+    const isFeatured = index < 3; // First 3 images are featured on mobile
     
-    if (shouldSpanColumns) {
+    if (isFeatured && isHighQuality) {
       return {
-        containerClass: "col-span-2",
-        aspectRatio: "aspect-video" as const
+        containerClass: "sm:col-span-2",
+        aspectRatio: "aspect-[4/5]" as const // Better for mobile viewing
       };
-    } else if (isLargeImage) {
+    } else if (index % 7 === 0 && image.quality >= 8) {
       return {
         containerClass: "",
         aspectRatio: "aspect-[3/4]" as const
       };
     } else {
-      // Use only supported aspect ratios
-      const aspectRatios = ["aspect-[4/3]", "aspect-[5/4]", "aspect-[3/4]", "aspect-square"] as const;
-      const aspectRatio = aspectRatios[imageIndex % aspectRatios.length];
+      // Mobile-optimized aspect ratios
+      const aspectRatios = ["aspect-square", "aspect-[5/4]", "aspect-[4/3]"] as const;
+      const aspectRatio = aspectRatios[index % aspectRatios.length];
       return {
         containerClass: "",
         aspectRatio
@@ -58,36 +38,36 @@ export const MasonryGrid = ({ images, onImageClick }: MasonryGridProps) => {
   };
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3 md:gap-4 mb-8 sm:mb-12 auto-rows-max">
+    <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5 mb-8 sm:mb-12 px-1 sm:px-0 auto-rows-max">
       {sortedImages.map((image, index) => {
-        const columnIndex = index % columnCount;
-        const imageIndex = Math.floor(index / columnCount);
-        const { containerClass, aspectRatio } = getSizeClasses(image, imageIndex, columnIndex);
+        const { containerClass, aspectRatio } = getSizeClasses(image, index);
         
         return (
           <div 
             key={`masonry-${index}`}
-            className={`group bg-gradient-card p-3 sm:p-4 rounded-lg shadow-elegant hover:shadow-glow border-2 border-transparent hover:border-primary/20 cursor-pointer transition-all duration-300 overflow-hidden ${containerClass}`}
+            className={`group bg-gradient-card rounded-xl shadow-card hover:shadow-elevated border border-border/20 hover:border-primary/30 cursor-pointer transition-all duration-300 overflow-hidden transform hover:scale-[1.02] ${containerClass}`}
             onClick={() => onImageClick(image.src)}
           >
-            <div className="relative rounded-lg overflow-hidden">
-              <div className={aspectRatio}>
-                <img 
-                  src={image.src} 
-                  alt={image.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  loading={index < 8 ? "eager" : "lazy"}
-                  decoding="async"
-                />
-              </div>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 right-3 sm:right-4 text-left">
-                  <h3 className="text-white font-elegant font-semibold text-base sm:text-lg mb-1 sm:mb-2">
-                    {image.title}
-                  </h3>
-                  <p className="text-white/90 text-xs sm:text-sm leading-tight">
-                    {image.description}
-                  </p>
+            <div className="p-2 sm:p-3">
+              <div className="relative rounded-lg overflow-hidden">
+                <div className={aspectRatio}>
+                  <img 
+                    src={image.src} 
+                    alt={image.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    loading={index < 6 ? "eager" : "lazy"}
+                    decoding="async"
+                  />
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div className="absolute bottom-2 sm:bottom-3 left-2 sm:left-3 right-2 sm:right-3 text-left">
+                    <h3 className="text-white font-elegant font-semibold text-sm sm:text-base lg:text-lg mb-1 leading-tight">
+                      {image.title}
+                    </h3>
+                    <p className="text-white/90 text-xs sm:text-sm leading-tight line-clamp-2">
+                      {image.description}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
