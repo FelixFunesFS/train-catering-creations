@@ -17,10 +17,10 @@ export const SplitScreenHero = () => {
       category: "corporate"
     },
     {
-      src: "/lovable-uploads/1dcbc1ee-eb25-4d89-8722-cb4904d1ba69.png",
-      alt: "Elegant wedding dessert table with tiered cake, neon signage, and gourmet treats",
+      src: "/lovable-uploads/f6f0cdc2-cd71-4392-984e-ed9609103e42.png",
+      alt: "Elegant rustic venue with exposed beams, crystal chandeliers, and string lights for wedding reception",
       title: "Wedding Reception",
-      description: "Elegant wedding dessert table with tiered cake, neon signage, and gourmet treats",
+      description: "Elegant rustic venue with exposed beams, crystal chandeliers, and string lights for wedding reception",
       category: "wedding"
     },
     {
@@ -31,11 +31,11 @@ export const SplitScreenHero = () => {
       category: "grazing"
     },
     {
-      src: "/lovable-uploads/6225467a-567b-4a4e-8f41-181db66e0aaf.png",
-      alt: "Elegant outdoor tent setup with sophisticated lighting and table arrangements",
-      title: "Outdoor Events",
-      description: "Elegant outdoor tent setup with sophisticated lighting and table arrangements",
-      category: "outdoor"
+      src: "/lovable-uploads/adfb4ea8-c62c-4f6d-b7dd-b562466c2c31.png",
+      alt: "Elegant tiered dessert and appetizer display with gourmet presentation",
+      title: "Elegant Catering",
+      description: "Elegant tiered dessert and appetizer display with gourmet presentation",
+      category: "elegant"
     }
   ];
 
