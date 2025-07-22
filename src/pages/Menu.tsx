@@ -21,17 +21,17 @@ const Menu = () => {
   });
 
   const { ref: contentRef, isVisible: contentVisible, variant: contentVariant } = useScrollAnimation({ 
-    delay: 100, 
+    delay: 200, 
     variant: 'fade-up',
-    mobile: { variant: 'subtle', delay: 50 },
-    desktop: { variant: 'ios-spring', delay: 100 }
+    mobile: { variant: 'subtle', delay: 100 },
+    desktop: { variant: 'ios-spring', delay: 200 }
   });
   
   const { ref: contactRef, isVisible: contactVisible, variant: contactVariant } = useScrollAnimation({ 
-    delay: 200, 
+    delay: 400, 
     variant: 'elastic',
-    mobile: { variant: 'medium', delay: 150 },
-    desktop: { variant: 'elastic', delay: 200 }
+    mobile: { variant: 'medium', delay: 300 },
+    desktop: { variant: 'elastic', delay: 400 }
   });
 
   const menuData = {
@@ -230,29 +230,29 @@ const Menu = () => {
     const currentData = getCurrentMenuData();
     
     return (
-      <div className="space-y-3 sm:space-y-4 lg:space-y-5">
-        {/* Compact Hero Section */}
-        <div className="relative h-28 sm:h-36 lg:h-44 rounded-lg overflow-hidden mb-4 sm:mb-5 lg:mb-6">
+      <div className="space-y-6 lg:space-y-8">
+        {/* Hero Section with Background Image */}
+        <div className="relative h-48 sm:h-64 lg:h-80 rounded-xl overflow-hidden mb-6 lg:mb-8">
           <img 
             src={currentData.backgroundImage}
             alt={currentData.title}
             className="w-full h-full object-cover"
           />
           <div className={cn("absolute inset-0", currentData.overlayColor)} />
-          <div className="absolute inset-0 flex items-center justify-center text-center px-3">
-            <div className="text-white space-y-1 sm:space-y-2">
-              <h2 className="text-xl sm:text-2xl lg:text-3xl font-elegant font-bold">
+          <div className="absolute inset-0 flex items-center justify-center text-center">
+            <div className="text-white space-y-2 sm:space-y-4">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant font-bold">
                 {currentData.title}
               </h2>
-              <p className="text-xs sm:text-sm lg:text-base opacity-90 italic">
+              <p className="text-sm sm:text-base lg:text-lg opacity-90 italic">
                 {currentData.subtitle}
               </p>
             </div>
           </div>
         </div>
 
-        {/* Compact Menu Sections */}
-        <div className="space-y-3 sm:space-y-4 lg:space-y-5">
+        {/* Menu Sections */}
+        <div className="space-y-6 lg:space-y-8">
           {currentData.sections.map((section, index) => (
             <CollapsibleMenuSection
               key={`${section.title}-${index}`}
@@ -278,11 +278,11 @@ const Menu = () => {
       
       {/* Enhanced decorative background elements */}
       <div className="absolute inset-0 bg-gradient-to-br from-background/50 to-accent/5 pointer-events-none" />
-      <div className="absolute top-1/4 left-1/4 w-72 h-72 lg:w-96 lg:h-96 bg-primary/2 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/3 right-1/4 w-48 h-48 lg:w-64 lg:h-64 bg-accent/3 rounded-full blur-2xl pointer-events-none" />
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/2 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-1/3 right-1/4 w-64 h-64 bg-accent/3 rounded-full blur-2xl pointer-events-none" />
       
-      <section className="py-6 sm:py-8 lg:py-10">
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 relative">
+      <section className="py-8 lg:py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div ref={headerRef} className={useAnimationClass(headerVariant, headerVisible)}>
             <MenuHeader />
           </div>
@@ -295,30 +295,30 @@ const Menu = () => {
           <div className="w-full border-t border-muted/40" />
         </div>
         <div className="relative flex justify-center">
-          <span className="px-4 sm:px-6 bg-gradient-hero text-muted-foreground">
-            <div className="w-6 h-6 sm:w-8 sm:h-8 bg-primary/8 rounded-full flex items-center justify-center">
-              <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-primary rounded-full" />
+          <span className="px-6 bg-gradient-hero text-muted-foreground">
+            <div className="w-8 h-8 bg-primary/8 rounded-full flex items-center justify-center">
+              <div className="w-2 h-2 bg-primary rounded-full" />
             </div>
           </span>
         </div>
       </div>
 
       {/* Menu Content */}
-      <section className="py-6 sm:py-8 lg:py-10">
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 relative">
+      <section className="py-8 lg:py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div 
             ref={contentRef} 
             className={useAnimationClass(contentVariant, contentVisible)}
           >
             {/* Desktop Navigation Tabs */}
-            <div className="hidden lg:flex justify-center mb-6">
-              <div className="flex space-x-1 p-1.5 bg-muted/50 rounded-lg">
+            <div className="hidden lg:flex justify-center mb-8">
+              <div className="flex space-x-2 p-2 bg-muted/50 rounded-lg">
                 {Object.entries(menuData).map(([key, data]) => (
                   <button
                     key={key}
                     onClick={() => setActiveCategory(key)}
                     className={cn(
-                      "px-4 py-2.5 text-sm font-medium rounded-md transition-all duration-200 min-h-[44px]",
+                      "px-6 py-3 text-sm font-medium rounded-md transition-all duration-200",
                       activeCategory === key
                         ? "bg-primary text-primary-foreground shadow-sm"
                         : "text-muted-foreground hover:text-foreground hover:bg-background/50"
@@ -331,11 +331,11 @@ const Menu = () => {
             </div>
 
             {/* Mobile Category Selector */}
-            <div className="lg:hidden mb-4">
+            <div className="lg:hidden mb-6">
               <select
                 value={activeCategory}
                 onChange={(e) => setActiveCategory(e.target.value)}
-                className="w-full p-3 bg-card border border-border rounded-lg text-foreground min-h-[44px]"
+                className="w-full p-3 bg-card border border-border rounded-lg text-foreground"
               >
                 {Object.entries(menuData).map(([key, data]) => (
                   <option key={key} value={key}>
