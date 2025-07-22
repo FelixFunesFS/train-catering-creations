@@ -155,7 +155,7 @@ export const HeroSection = () => {
               
               {/* Subtitle with larger sizing */}
               <div className="mb-8 sm:mb-12 animate-fade-in">
-                <p className="text-lg sm:text-xl lg:text-2xl xl:text-3xl text-white/95 font-elegant leading-relaxed drop-shadow-md">
+                <p className="text-lg sm:text-xl lg:text-2xl xl:text-3xl text-white/95 font-elegant leading-relaxed drop-shadow-2xl shadow-black/60">
                   Where every bite is made with love and served with soul!
                 </p>
               </div>
