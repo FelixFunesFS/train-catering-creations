@@ -50,14 +50,12 @@ export const Header = () => {
               className="flex items-center hover:scale-105 transition-transform duration-300 focus-visible-enhanced"
               aria-label="Soul Train's Eatery - Home"
             >
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 mr-3">
-                <div className="h-8 w-8 sm:h-10 sm:w-10">
-                  <img 
-                    src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
-                    alt="Soul Train's Eatery Logo" 
-                    className="w-full h-full object-contain"
-                  />
-                </div>
+              <div className="h-8 w-8 sm:h-10 sm:w-10 mr-3">
+                <img 
+                  src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
+                  alt="Soul Train's Eatery Logo" 
+                  className="w-full h-full object-contain"
+                />
               </div>
               <div className="text-2xl lg:text-3xl font-script font-bold text-primary-foreground">
                 Soul Train's Eatery
@@ -101,9 +99,9 @@ export const Header = () => {
                 aria-label={isMenuOpen ? "Close menu" : "Open menu"}
               >
                 {isMenuOpen ? 
-                  <X className="h-8 w-8 md:h-9 md:w-9" strokeWidth={2.5} /> : 
+                  <X className="h-10 w-10 md:h-12 md:w-12" strokeWidth={2.5} /> : 
                   <svg
-                    className="h-8 w-8 md:h-9 md:w-9"
+                    className="h-10 w-10 md:h-12 md:w-12"
                     fill="none"
                     stroke="currentColor"
                     strokeWidth={2.5}
