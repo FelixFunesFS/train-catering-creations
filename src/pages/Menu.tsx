@@ -150,7 +150,7 @@ const Menu = () => {
     sides: {
       title: "Perfect Sides",
       subtitle: "Complete your meal",
-      backgroundImage: "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=800&h=400&fit=crop",
+      backgroundImage: "/lovable-uploads/d6dabca7-8f7b-45c8-bb6c-ef86311e92bd.png",
       overlayColor: "bg-black/40",
       sections: [
         {
