@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ImageModal } from "@/components/gallery/ImageModal";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { ResponsiveWrapper } from "@/components/ui/responsive-wrapper";
@@ -8,6 +8,28 @@ import { SectionContentCard } from "@/components/ui/section-content-card";
 import Autoplay from "embla-carousel-autoplay";
 export const HeroSection = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+  const [currentBackgroundIndex, setCurrentBackgroundIndex] = useState(0);
+
+  // Background carousel images
+  const backgroundImages = [
+    "/lovable-uploads/b52e1ea6-2b35-463d-b2ba-90641bc66be6.png", // Buffet setup with chafing dishes
+    "/lovable-uploads/f5ea2838-0780-419b-a0da-e0cde015d34a.png", // Outdoor catering trays
+    "/lovable-uploads/8d5642cf-b015-4144-8ef2-a3b9c653ae80.png", // Elegant buffet with flowers
+    "/lovable-uploads/8769fc5f-fed9-496b-811e-3de29597b9a7.png", // Military formal dining event
+    "/lovable-uploads/ad60d963-3131-4eda-a4af-0f8f94f6fd3f.png", // Wedding reception setup
+    "/lovable-uploads/ff498a11-b556-4e5f-abcb-f64625fda8b2.png", // Buffet with napkins
+    "/lovable-uploads/012a9a2c-c051-4276-8796-05539f03fcae.png", // Grazing table spread
+    "/lovable-uploads/dcb0b3c7-4c12-4449-96e5-73e185e94180.png", // Chafing dishes with flowers
+  ];
+
+  // Auto-rotate background images
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentBackgroundIndex((prev) => (prev + 1) % backgroundImages.length);
+    }, 5000); // Change every 5 seconds
+
+    return () => clearInterval(interval);
+  }, [backgroundImages.length]);
   const heroImages = [{
     src: "/lovable-uploads/0703365f-22eb-4c4d-b258-4a2c8a23b63a.png",
     alt: "Rustic venue buffet setup with chafing dishes and atmospheric lighting",
@@ -91,9 +113,21 @@ export const HeroSection = () => {
   };
   return <>
       {/* Hero Section - Brand Header Only */}
-      <section className="relative bg-cover bg-center bg-no-repeat" style={{
-      backgroundImage: `url('/lovable-uploads/27e4396c-2632-4541-94e0-f63f0499998c.png')`
-    }}>
+      <section className="relative bg-cover bg-center bg-no-repeat overflow-hidden">
+        {/* Background Carousel */}
+        <div className="absolute inset-0">
+          {backgroundImages.map((bgImage, index) => (
+            <div
+              key={index}
+              className={`absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-1000 ${
+                index === currentBackgroundIndex ? 'opacity-100' : 'opacity-0'
+              }`}
+              style={{
+                backgroundImage: `url('${bgImage}')`
+              }}
+            />
+          ))}
+        </div>
         {/* Dark overlay for text readability */}
         <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/50 to-black/70 my-0 py-0"></div>
         <div className="max-w-7xl mx-auto px-6 xl:px-12 py-16 xl:py-24">
