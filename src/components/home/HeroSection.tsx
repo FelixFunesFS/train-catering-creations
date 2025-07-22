@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { ImageModal } from "@/components/gallery/ImageModal";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { ResponsiveWrapper } from "@/components/ui/responsive-wrapper";
@@ -8,83 +8,65 @@ import { SectionContentCard } from "@/components/ui/section-content-card";
 import Autoplay from "embla-carousel-autoplay";
 export const HeroSection = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
-  const [currentBackgroundIndex, setCurrentBackgroundIndex] = useState(0);
-
-  // Background carousel images - using the 4 new uploaded images
-  const backgroundImages = [
-    "/lovable-uploads/65fe181d-cecf-4057-b1be-7e6f86970219.png", // Elegant buffet setup with chafing dishes and flowers
-    "/lovable-uploads/741ca496-e7de-4e42-b68f-484f65666b7b.png", // Elaborate grazing table with fruits and cheeses
-    "/lovable-uploads/e32cd95d-ef80-4603-af4c-4b08c3d0593c.png", // Elegant event venue with multiple round tables
-    "/lovable-uploads/40e903e4-1df5-4330-92d1-2b3f243aa734.png", // Appetizer station with gourmet hors d'oeuvres
-  ];
-
-  // Auto-rotate background images
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentBackgroundIndex((prev) => (prev + 1) % backgroundImages.length);
-    }, 5000); // Change every 5 seconds
-
-    return () => clearInterval(interval);
-  }, [backgroundImages.length]);
   const heroImages = [{
-    src: "/lovable-uploads/fab5b1da-b317-4374-b52e-46581108e4f2.png",
-    alt: "Elegant buffet setup with chafing dishes and beautiful floral arrangements",
-    title: "Elegant Buffet Service",
-    description: "Professional buffet setup with chafing dishes and beautiful floral arrangements",
-    category: "buffet"
+    src: "/lovable-uploads/0703365f-22eb-4c4d-b258-4a2c8a23b63a.png",
+    alt: "Rustic venue buffet setup with chafing dishes and atmospheric lighting",
+    title: "Formal Events",
+    description: "Rustic venue buffet setup with chafing dishes and atmospheric lighting",
+    category: "formal"
   }, {
-    src: "/lovable-uploads/c0634f86-f070-461c-b61c-70f2175524ba.png",
-    alt: "Close-up of professional chafing dish with red roses and elegant table setting",
-    title: "Professional Equipment",
-    description: "High-quality chafing dishes with elegant floral decorations",
-    category: "equipment"
-  }, {
-    src: "/lovable-uploads/a05776de-0777-4ed9-8e63-0828d6bdcc2b.png",
-    alt: "Wedding reception venue with gold chair covers and elegant table settings",
-    title: "Wedding Reception Setup",
-    description: "Beautiful wedding venue with gold accents and professional table arrangements",
+    src: "/lovable-uploads/1dcbc1ee-eb25-4d89-8722-cb4904d1ba69.png",
+    alt: "Elegant wedding dessert table with tiered cake, neon signage, and gourmet treats",
+    title: "Wedding Reception",
+    description: "Elegant wedding dessert table with tiered cake, neon signage, and gourmet treats",
     category: "wedding"
   }, {
-    src: "/lovable-uploads/76497407-a3da-4ff0-a4bd-6d44f6c6a291.png",
-    alt: "Elaborate grazing table with fresh fruits, artisanal cheeses, and gourmet selections",
-    title: "Gourmet Grazing Table",
-    description: "Stunning grazing table featuring fresh fruits, artisanal cheeses, and premium selections",
-    category: "grazing"
+    src: "/lovable-uploads/d2ed2f6e-a667-4bf2-9e28-30029d377f94.png",
+    alt: "Elegant formal event display with tiered appetizers and beverage service",
+    title: "Brunch Events",
+    description: "Elegant formal event display with tiered appetizers and beverage service",
+    category: "brunch"
   }, {
-    src: "/lovable-uploads/995f0f1c-4128-48ca-a653-ac0ef9667f0c.png",
-    alt: "Corporate catering setup with fresh vegetable display and chafing dishes",
+    src: "/lovable-uploads/92c3b6c8-61dc-4c37-afa8-a0a4db04c551.png",
+    alt: "Professional buffet setup with chafing dishes and elegant floral arrangements",
     title: "Corporate Catering",
-    description: "Professional corporate catering with fresh vegetable displays and hot food service",
+    description: "Professional buffet setup with chafing dishes and elegant floral arrangements",
     category: "corporate"
   }, {
-    src: "/lovable-uploads/dcb381d4-b913-4151-852c-dc149335f666.png",
-    alt: "Creative themed dessert table with custom decorations and specialty cupcakes",
-    title: "Themed Events",
-    description: "Custom themed catering with creative decorations and specialty desserts",
-    category: "themed"
+    src: "/lovable-uploads/2bb3a6cf-e13c-4405-9b69-2cf610ae8411.png",
+    alt: "Military formal ceremony with professional service and patriotic atmosphere",
+    title: "Military Events",
+    description: "Military formal ceremony with professional service and patriotic atmosphere",
+    category: "military"
   }, {
-    src: "/lovable-uploads/f569af07-9bdd-4e2f-8fa0-50f4f58284fc.png",
-    alt: "Elegant outdoor catering setup with chafing dishes and white floral arrangements",
-    title: "Outdoor Elegance",
-    description: "Sophisticated outdoor catering with professional equipment and floral design",
+    src: "/lovable-uploads/7b66dfbe-2aef-444a-97f3-9c2d0636404c.png",
+    alt: "Family gathering around kitchen island with abundant catered spread",
+    title: "Family Gatherings",
+    description: "Family gathering around kitchen island with abundant catered spread",
+    category: "family"
+  }, {
+    src: "/lovable-uploads/ce12a76f-20cf-449f-8755-4d84cbf1688a.png",
+    alt: "Elaborate grazing board with artisanal cheeses, charcuterie, and fresh fruits",
+    title: "Grazing Tables",
+    description: "Elaborate grazing board with artisanal cheeses, charcuterie, and fresh fruits",
+    category: "grazing"
+  }, {
+    src: "/lovable-uploads/6225467a-567b-4a4e-8f41-181db66e0aaf.png",
+    alt: "Elegant outdoor tent setup with sophisticated lighting and table arrangements",
+    title: "Outdoor Events",
+    description: "Elegant outdoor tent setup with sophisticated lighting and table arrangements",
     category: "outdoor"
   }, {
-    src: "/lovable-uploads/31e1538d-1b06-45be-bef9-619e023d3dc4.png",
-    alt: "Appetizer station with gourmet hors d'oeuvres and elegant presentation",
-    title: "Appetizer Service",
-    description: "Exquisite appetizer displays with gourmet hors d'oeuvres and professional presentation",
-    category: "appetizers"
+    src: "/lovable-uploads/cc798395-e8fa-49bd-9fc3-91300bad308d.png",
+    alt: "Beautiful indoor venue with round table settings and autumn floral centerpieces",
+    title: "Indoor Venues",
+    description: "Beautiful indoor venue with round table settings and autumn floral centerpieces",
+    category: "indoor"
   }, {
-    src: "/lovable-uploads/ba9526e9-a12e-4ea8-8e2a-450595002e23.png",
-    alt: "Memorial celebration dessert table with blue theme and decorative elements",
-    title: "Memorial Celebrations",
-    description: "Thoughtfully designed memorial celebration with custom themed dessert display",
-    category: "memorial"
-  }, {
-    src: "/lovable-uploads/c490314a-af9a-49e5-9951-8604a90471cc.png",
-    alt: "Professional catering staff showcasing buffet setup with multiple hot dishes",
-    title: "Full Service Team",
-    description: "Dedicated catering professionals providing full-service buffet management",
+    src: "/lovable-uploads/d26dfcdd-4b5b-4e1a-aca8-1cacbb2ad075.png",
+    alt: "Professional catering staff serving from elegant buffet display with variety of dishes",
+    title: "Full Service Catering",
+    description: "Professional catering staff serving from elegant buffet display with variety of dishes",
     category: "service"
   }];
   const additionalImages = [{
@@ -109,21 +91,9 @@ export const HeroSection = () => {
   };
   return <>
       {/* Hero Section - Brand Header Only */}
-      <section className="relative bg-cover bg-center bg-no-repeat overflow-hidden">
-        {/* Background Carousel */}
-        <div className="absolute inset-0">
-          {backgroundImages.map((bgImage, index) => (
-            <div
-              key={index}
-              className={`absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-1000 ${
-                index === currentBackgroundIndex ? 'opacity-100' : 'opacity-0'
-              }`}
-              style={{
-                backgroundImage: `url('${bgImage}')`
-              }}
-            />
-          ))}
-        </div>
+      <section className="relative bg-cover bg-center bg-no-repeat" style={{
+      backgroundImage: `url('/lovable-uploads/27e4396c-2632-4541-94e0-f63f0499998c.png')`
+    }}>
         {/* Dark overlay for text readability */}
         <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/50 to-black/70 my-0 py-0"></div>
         <div className="max-w-7xl mx-auto px-6 xl:px-12 py-16 xl:py-24">
@@ -155,7 +125,7 @@ export const HeroSection = () => {
               
               {/* Subtitle with larger sizing */}
               <div className="mb-8 sm:mb-12 animate-fade-in">
-                <p className="text-lg sm:text-xl lg:text-2xl xl:text-3xl text-white/95 font-elegant leading-relaxed drop-shadow-2xl shadow-black/60">
+                <p className="text-lg sm:text-xl lg:text-2xl xl:text-3xl text-white/95 font-elegant leading-relaxed drop-shadow-md py-0 my-0">
                   Where every bite is made with love and served with soul!
                 </p>
               </div>
