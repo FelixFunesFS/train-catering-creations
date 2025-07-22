@@ -112,21 +112,24 @@ export const HeroSection = () => {
 
   return (
     <>
-      <section className="bg-gradient-to-br from-primary to-primary-dark neumorphic-card-3 rounded-3xl mx-4 sm:mx-6 lg:mx-8 my-6 sm:my-8">
+      <section className="bg-gradient-to-br from-red-800 via-red-700 to-red-900 neumorphic-card-3 rounded-3xl mx-4 sm:mx-6 lg:mx-8 my-6 sm:my-8">
         <ResponsiveWrapper hasFullWidthCard>
           {/* Brand Header Section with mobile-optimized typography */}
           <div className="relative mb-6 sm:mb-8 pt-8 sm:pt-12 lg:pt-16">
             <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-white/5 opacity-30 rounded-xl"></div>
             
             <div className="relative z-10 text-center">
-              {/* Logo Icon */}
+              {/* Logo Icon - No background square, silver gradient effect */}
               <div className="flex justify-center mb-4 sm:mb-6 animate-fade-in">
-                <div className="bg-white/20 backdrop-blur-sm p-4 sm:p-5 lg:p-6 rounded-2xl border border-white/30 shadow-lg">
-                  <div className="h-12 w-12 sm:h-16 sm:w-16 lg:h-20 lg:w-20">
+                <div className="p-4 sm:p-5 lg:p-6">
+                  <div className="h-12 w-12 sm:h-16 sm:w-16 lg:h-20 lg:w-20 relative">
                     <img 
                       src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
                       alt="Soul Train's Eatery Logo" 
-                      className="w-full h-full object-contain hover:scale-110 transition-transform duration-300 filter brightness-0 invert" 
+                      className="w-full h-full object-contain hover:scale-110 transition-transform duration-300 filter brightness-0 invert"
+                      style={{
+                        filter: 'brightness(0) invert(1) drop-shadow(0 0 8px rgba(192, 192, 192, 0.8))'
+                      }}
                     />
                   </div>
                 </div>
@@ -140,11 +143,11 @@ export const HeroSection = () => {
               </div>
               
               {/* Decorative line */}
-              <div className="w-16 sm:w-24 lg:w-32 h-1 bg-white/80 mx-auto mb-4 sm:mb-6 animate-fade-in rounded-full shadow-sm" />
+              <div className="w-16 sm:w-24 lg:w-32 h-1 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-300 mx-auto mb-4 sm:mb-6 animate-fade-in rounded-full shadow-sm" />
               
               {/* Subtitle with mobile-optimized sizing and high contrast */}
               <div className="mb-6 sm:mb-8 animate-fade-in">
-                <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-white/90 font-elegant leading-relaxed drop-shadow-md">
+                <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-white/95 font-elegant leading-relaxed drop-shadow-md">
                   Where every bite is made with love and served with soul!
                 </p>
               </div>
@@ -202,15 +205,28 @@ export const HeroSection = () => {
             </Carousel>
           </div>
 
-          {/* Call-to-Action Buttons Section with mobile optimization */}
+          {/* Call-to-Action Buttons Section with improved accessibility */}
           <div className="text-center animate-fade-in pb-8 sm:pb-12 lg:pb-16">
             <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6">
-              <Button asChild variant="cta-white" size="responsive-lg" className="w-4/5 sm:w-auto sm:min-w-[14rem] border-2 border-white text-white bg-white/10 hover:bg-white hover:text-primary backdrop-blur-sm">
+              {/* Primary CTA with silver gradient for high contrast */}
+              <Button 
+                asChild 
+                variant="ghost" 
+                size="responsive-lg" 
+                className="w-4/5 sm:w-auto sm:min-w-[14rem] bg-gradient-to-r from-gray-200 via-gray-100 to-gray-300 text-gray-900 font-bold border-0 hover:from-gray-300 hover:via-gray-200 hover:to-gray-400 hover:text-gray-800 shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300"
+              >
                 <Link to="/request-quote#page-header">
                   Request Quote
                 </Link>
               </Button>
-              <Button asChild variant="cta-white" size="responsive-lg" className="w-4/5 sm:w-auto sm:min-w-[14rem] border-2 border-white/70 text-white/90 bg-transparent hover:bg-white/10 backdrop-blur-sm">
+              
+              {/* Secondary CTA with transparent background and white text */}
+              <Button 
+                asChild 
+                variant="ghost" 
+                size="responsive-lg" 
+                className="w-4/5 sm:w-auto sm:min-w-[14rem] bg-transparent border-2 border-white text-white font-semibold hover:bg-white/20 hover:text-white backdrop-blur-sm shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-300"
+              >
                 <Link to="/gallery#page-header">
                   View Gallery
                 </Link>
