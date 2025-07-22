@@ -1,9 +1,8 @@
-
 import { useState } from "react";
 import { galleryImages } from "@/data/galleryImages";
 import { GalleryHeader } from "@/components/gallery/GalleryHeader";
 import { GallerySection } from "@/components/gallery/GallerySection";
-import { ImageModal } from "@/components/gallery/ImageModal";
+import { EnhancedImageModal } from "@/components/gallery/EnhancedImageModal";
 import { GalleryCTA } from "@/components/gallery/GalleryCTA";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
@@ -32,13 +31,11 @@ const PhotoGallery = () => {
     desktop: { variant: 'elastic', delay: 400 }
   });
   
-  // Organize images by category and select best quality images
   const weddingImages = galleryImages.filter(img => img.category === "wedding").sort((a, b) => b.quality - a.quality);
   const formalImages = galleryImages.filter(img => img.category === "formal").sort((a, b) => b.quality - a.quality);
   const dessertImages = galleryImages.filter(img => img.category === "desserts").sort((a, b) => b.quality - a.quality);
   const buffetImages = galleryImages.filter(img => img.category === "buffet").sort((a, b) => b.quality - a.quality);
   
-  // All images for modal navigation
   const allImages = [...weddingImages, ...formalImages, ...dessertImages, ...buffetImages];
   
   const handleImageClick = (imageSrc: string) => {
@@ -52,7 +49,6 @@ const PhotoGallery = () => {
   
   return (
     <div className="min-h-screen bg-gradient-hero">
-      {/* Header Section - Enhanced mobile spacing */}
       <section className="py-6 sm:py-8 lg:py-12">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8">
           <div ref={headerRef} className={useAnimationClass(headerVariant, headerVisible)}>
@@ -61,13 +57,11 @@ const PhotoGallery = () => {
         </div>
       </section>
       
-      {/* Gallery Sections - Mobile-first spacing */}
       <section className="py-4 sm:py-6 lg:py-8">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8">
           <div ref={sectionsRef} className={useAnimationClass(sectionsVariant, sectionsVisible)}>
             <div className="space-y-6 sm:space-y-8 lg:space-y-12">
               
-              {/* Wedding Section */}
               {weddingImages.length > 0 && (
                 <GallerySection
                   title="Wedding Celebrations"
@@ -78,7 +72,6 @@ const PhotoGallery = () => {
                 />
               )}
               
-              {/* Formal Events Section */}
               {formalImages.length > 0 && (
                 <GallerySection
                   title="Formal & Black Tie Events"
@@ -89,7 +82,6 @@ const PhotoGallery = () => {
                 />
               )}
               
-              {/* Desserts Section */}
               {dessertImages.length > 0 && (
                 <GallerySection
                   title="Artisan Desserts & Sweet Treats"
@@ -100,7 +92,6 @@ const PhotoGallery = () => {
                 />
               )}
               
-              {/* Buffet Service Section */}
               {buffetImages.length > 0 && (
                 <GallerySection
                   title="Buffet Service & Large Events"
@@ -116,14 +107,13 @@ const PhotoGallery = () => {
         </div>
       </section>
       
-      {/* CTA Section - Enhanced mobile spacing */}
       <div className="px-3 sm:px-4 lg:px-6 xl:px-8">
         <div ref={ctaRef} className={useAnimationClass(ctaVariant, ctaVisible)}>
           <GalleryCTA />
         </div>
       </div>
       
-      <ImageModal images={allImages} selectedIndex={selectedImageIndex} onClose={handleCloseModal} />
+      <EnhancedImageModal images={allImages} selectedIndex={selectedImageIndex} onClose={handleCloseModal} />
     </div>
   );
 };
