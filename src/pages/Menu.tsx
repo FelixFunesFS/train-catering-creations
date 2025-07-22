@@ -1,8 +1,10 @@
+
 import { useState } from "react";
 import MenuHeader from "@/components/menu/MenuHeader";
-import MenuNavigation from "@/components/menu/MenuNavigation";
-import ImageMenuCard from "@/components/menu/ImageMenuCard";
 import MenuContact from "@/components/menu/MenuContact";
+import { MobileMenuNavigation } from "@/components/menu/MobileMenuNavigation";
+import { QuickActionButton } from "@/components/menu/QuickActionButton";
+import { CollapsibleMenuSection } from "@/components/menu/CollapsibleMenuSection";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 
@@ -39,6 +41,7 @@ const Menu = () => {
       sections: [
         {
           title: "Platters & Boards",
+          subtitle: "Perfect for sharing",
           color: "bg-category-appetizers/10 border-category-appetizers/30",
           items: [
             "Charcuterie Board",
@@ -51,6 +54,7 @@ const Menu = () => {
         },
         {
           title: "Signature Bites",
+          subtitle: "Chef's special creations",
           color: "bg-category-appetizers/15 border-category-appetizers/40",
           items: [
             "Shrimp Deviled Eggs w/Bacon Finish",
@@ -64,6 +68,7 @@ const Menu = () => {
         },
         {
           title: "Classic Starters",
+          subtitle: "Time-honored favorites",
           color: "bg-category-appetizers/8 border-category-appetizers/25",
           items: [
             "Chicken Sliders",
@@ -84,6 +89,7 @@ const Menu = () => {
       sections: [
         {
           title: "Poultry",
+          subtitle: "Farm-fresh selections",
           color: "bg-category-entrees/10 border-category-entrees/30",
           items: [
             "Baked/Smoked Chicken",
@@ -97,6 +103,7 @@ const Menu = () => {
         },
         {
           title: "Beef & Pork",
+          subtitle: "Premium cuts and classics",
           color: "bg-category-entrees/15 border-category-entrees/40",
           items: [
             "Smoked Sausage",
@@ -114,6 +121,7 @@ const Menu = () => {
         },
         {
           title: "Seafood",
+          subtitle: "Fresh from the coast",
           color: "bg-category-entrees/8 border-category-entrees/25",
           items: [
             "Baked Salmon",
@@ -125,6 +133,7 @@ const Menu = () => {
         },
         {
           title: "Plant-Based Options",
+          subtitle: "Wholesome vegetarian choices",
           color: "bg-category-sides/10 border-category-sides/30",
           items: [
             "Vegan Lasagna",
@@ -145,6 +154,7 @@ const Menu = () => {
       sections: [
         {
           title: "Comfort Classics",
+          subtitle: "Southern favorites",
           color: "bg-category-sides/10 border-category-sides/30",
           items: [
             "Macaroni & Cheese",
@@ -161,6 +171,7 @@ const Menu = () => {
         },
         {
           title: "Fresh & Light",
+          subtitle: "Garden-fresh options",
           color: "bg-category-sides/15 border-category-sides/40",
           items: [
             "Garden Salad",
@@ -183,6 +194,7 @@ const Menu = () => {
       sections: [
         {
           title: "Signature Cakes",
+          subtitle: "Made with love and tradition",
           color: "bg-category-desserts/10 border-category-desserts/30",
           items: [
             "Red Velvet Cake",
@@ -194,6 +206,7 @@ const Menu = () => {
         },
         {
           title: "Specialty Treats",
+          subtitle: "Sweet indulgences",
           color: "bg-category-desserts/15 border-category-desserts/40",
           items: [
             "Brownies",
@@ -211,74 +224,133 @@ const Menu = () => {
     return menuData[activeCategory as keyof typeof menuData];
   };
 
+  const renderMenuContent = () => {
+    const currentData = getCurrentMenuData();
+    
+    return (
+      <div className="space-y-6 lg:space-y-8">
+        {/* Hero Section with Background Image */}
+        <div className="relative h-48 sm:h-64 lg:h-80 rounded-xl overflow-hidden mb-6 lg:mb-8">
+          <img 
+            src={currentData.backgroundImage}
+            alt={currentData.title}
+            className="w-full h-full object-cover"
+          />
+          <div className={cn("absolute inset-0", currentData.overlayColor)} />
+          <div className="absolute inset-0 flex items-center justify-center text-center">
+            <div className="text-white space-y-2 sm:space-y-4">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant font-bold">
+                {currentData.title}
+              </h2>
+              <p className="text-sm sm:text-base lg:text-lg opacity-90 italic">
+                {currentData.subtitle}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Menu Sections */}
+        <div className="space-y-6 lg:space-y-8">
+          {currentData.sections.map((section, index) => (
+            <CollapsibleMenuSection
+              key={`${section.title}-${index}`}
+              title={section.title}
+              subtitle={section.subtitle}
+              color={section.color}
+              items={section.items}
+              defaultExpanded={index === 0}
+            />
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gradient-hero relative overflow-hidden">
-        {/* Enhanced decorative background elements with subtle color */}
-        <div className="absolute inset-0 bg-gradient-to-br from-background/50 to-accent/5 pointer-events-none" />
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/2 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-1/3 right-1/4 w-64 h-64 bg-accent/3 rounded-full blur-2xl pointer-events-none" />
-        
-        <section className="py-8 lg:py-12">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-            <div ref={headerRef} className={useAnimationClass(headerVariant, headerVisible)}>
-              <MenuHeader />
-            </div>
-          </div>
-        </section>
-
-        {/* Visual separator with subtle enhancement */}
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center" aria-hidden="true">
-            <div className="w-full border-t border-muted/40" />
-          </div>
-          <div className="relative flex justify-center">
-            <span className="px-6 bg-gradient-hero text-muted-foreground">
-              <div className="w-8 h-8 bg-primary/8 rounded-full flex items-center justify-center">
-                <div className="w-2 h-2 bg-primary rounded-full" />
-              </div>
-            </span>
+      <MobileMenuNavigation 
+        activeCategory={activeCategory}
+        onCategoryChange={setActiveCategory}
+      />
+      <QuickActionButton />
+      
+      {/* Enhanced decorative background elements */}
+      <div className="absolute inset-0 bg-gradient-to-br from-background/50 to-accent/5 pointer-events-none" />
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/2 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-1/3 right-1/4 w-64 h-64 bg-accent/3 rounded-full blur-2xl pointer-events-none" />
+      
+      <section className="py-8 lg:py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <div ref={headerRef} className={useAnimationClass(headerVariant, headerVisible)}>
+            <MenuHeader />
           </div>
         </div>
+      </section>
 
-        {/* Split-screen layout */}
-        <section className="py-8 lg:py-12">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-            <div 
-              ref={contentRef} 
-              className={useAnimationClass(contentVariant, contentVisible)}
-            >
-              <div className="grid lg:grid-cols-4 gap-8 py-8">
-                {/* Navigation Sidebar */}
-                <div className="lg:col-span-1">
-                  <div className="sticky top-8">
-                    <MenuNavigation 
-                      activeCategory={activeCategory}
-                      onCategoryChange={setActiveCategory}
-                    />
-                  </div>
-                </div>
+      {/* Visual separator */}
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center" aria-hidden="true">
+          <div className="w-full border-t border-muted/40" />
+        </div>
+        <div className="relative flex justify-center">
+          <span className="px-6 bg-gradient-hero text-muted-foreground">
+            <div className="w-8 h-8 bg-primary/8 rounded-full flex items-center justify-center">
+              <div className="w-2 h-2 bg-primary rounded-full" />
+            </div>
+          </span>
+        </div>
+      </div>
 
-                {/* Content Area */}
-                <div className="lg:col-span-3">
-                  <div className="transition-all duration-500 ease-in-out">
-                    <ImageMenuCard
-                      title={getCurrentMenuData().title}
-                      subtitle={getCurrentMenuData().subtitle}
-                      items={[]}
-                      sections={getCurrentMenuData().sections}
-                      backgroundImage={getCurrentMenuData().backgroundImage}
-                      overlayColor={getCurrentMenuData().overlayColor}
-                    />
-                  </div>
-                </div>
+      {/* Menu Content */}
+      <section className="py-8 lg:py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <div 
+            ref={contentRef} 
+            className={useAnimationClass(contentVariant, contentVisible)}
+          >
+            {/* Desktop Navigation Tabs */}
+            <div className="hidden lg:flex justify-center mb-8">
+              <div className="flex space-x-2 p-2 bg-muted/50 rounded-lg">
+                {Object.entries(menuData).map(([key, data]) => (
+                  <button
+                    key={key}
+                    onClick={() => setActiveCategory(key)}
+                    className={cn(
+                      "px-6 py-3 text-sm font-medium rounded-md transition-all duration-200",
+                      activeCategory === key
+                        ? "bg-primary text-primary-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground hover:bg-background/50"
+                    )}
+                  >
+                    {data.title}
+                  </button>
+                ))}
               </div>
             </div>
-          </div>
-        </section>
 
-        <div ref={contactRef} className={useAnimationClass(contactVariant, contactVisible)}>
-          <MenuContact />
+            {/* Mobile Category Selector */}
+            <div className="lg:hidden mb-6">
+              <select
+                value={activeCategory}
+                onChange={(e) => setActiveCategory(e.target.value)}
+                className="w-full p-3 bg-card border border-border rounded-lg text-foreground"
+              >
+                {Object.entries(menuData).map(([key, data]) => (
+                  <option key={key} value={key}>
+                    {data.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {renderMenuContent()}
+          </div>
         </div>
+      </section>
+
+      <div ref={contactRef} className={useAnimationClass(contactVariant, contactVisible)}>
+        <MenuContact />
+      </div>
     </div>
   );
 };
