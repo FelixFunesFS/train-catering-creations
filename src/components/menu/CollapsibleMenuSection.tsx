@@ -34,7 +34,7 @@ export const CollapsibleMenuSection = ({
   const headerAnimationClass = useAnimationClass(headerVariant, headerVisible);
 
   return (
-    <div className={cn("rounded-lg p-2 sm:p-2.5 md:p-3 lg:p-4 border transition-all duration-300", color)}>
+    <div className={cn("neumorphic-card-2 hover:neumorphic-card-3 rounded-lg p-2 sm:p-2.5 md:p-3 lg:p-4 transition-all duration-300", color)}>
       <div ref={headerRef} className={`text-center mb-2 sm:mb-3 md:mb-4 lg:mb-6 ${headerAnimationClass}`}>
         <h3 className="text-base sm:text-lg md:text-xl font-elegant text-foreground mb-1 sm:mb-2 relative">
           {title}
@@ -50,7 +50,7 @@ export const CollapsibleMenuSection = ({
         {displayItems.map((item, index) => (
           <div 
             key={index} 
-            className="text-center py-2 sm:py-2.5 md:py-3 px-2 sm:px-2.5 md:px-3 rounded-md sm:rounded-lg hover:bg-background/50 transition-all duration-200 group cursor-default border border-transparent hover:border-primary/20 min-h-[44px] flex items-center justify-center"
+            className="neumorphic-card-1 hover:neumorphic-card-2 text-center py-2 sm:py-2.5 md:py-3 px-2 sm:px-2.5 md:px-3 rounded-md sm:rounded-lg transition-all duration-200 group cursor-default min-h-[44px] flex items-center justify-center"
           >
             <h4 className="text-xs sm:text-sm md:text-base font-medium text-foreground group-hover:text-primary transition-colors leading-tight">{item}</h4>
           </div>
