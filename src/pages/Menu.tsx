@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import MenuHeader from "@/components/menu/MenuHeader";
 import MenuContact from "@/components/menu/MenuContact";
@@ -230,29 +229,29 @@ const Menu = () => {
     const currentData = getCurrentMenuData();
     
     return (
-      <div className="space-y-6 lg:space-y-8">
-        {/* Hero Section with Background Image */}
-        <div className="relative h-48 sm:h-64 lg:h-80 rounded-xl overflow-hidden mb-6 lg:mb-8">
+      <div className="space-y-3 sm:space-y-4 md:space-y-6 lg:space-y-8">
+        {/* Compact Hero Section with Mobile-First Heights */}
+        <div className="relative h-28 sm:h-32 md:h-40 lg:h-48 xl:h-64 rounded-lg sm:rounded-xl overflow-hidden mb-3 sm:mb-4 md:mb-6 lg:mb-8">
           <img 
             src={currentData.backgroundImage}
             alt={currentData.title}
             className="w-full h-full object-cover"
           />
           <div className={cn("absolute inset-0", currentData.overlayColor)} />
-          <div className="absolute inset-0 flex items-center justify-center text-center">
-            <div className="text-white space-y-2 sm:space-y-4">
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant font-bold">
+          <div className="absolute inset-0 flex items-center justify-center text-center px-4">
+            <div className="text-white space-y-1 sm:space-y-2 md:space-y-4">
+              <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-elegant font-bold">
                 {currentData.title}
               </h2>
-              <p className="text-sm sm:text-base lg:text-lg opacity-90 italic">
+              <p className="text-xs sm:text-sm md:text-base lg:text-lg opacity-90 italic">
                 {currentData.subtitle}
               </p>
             </div>
           </div>
         </div>
 
-        {/* Menu Sections */}
-        <div className="space-y-6 lg:space-y-8">
+        {/* Dense Menu Sections */}
+        <div className="space-y-3 sm:space-y-4 md:space-y-6 lg:space-y-8">
           {currentData.sections.map((section, index) => (
             <CollapsibleMenuSection
               key={`${section.title}-${index}`}
@@ -281,7 +280,7 @@ const Menu = () => {
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/2 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-1/3 right-1/4 w-64 h-64 bg-accent/3 rounded-full blur-2xl pointer-events-none" />
       
-      <section className="py-8 lg:py-12">
+      <section className="py-4 sm:py-6 md:py-8 lg:py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div ref={headerRef} className={useAnimationClass(headerVariant, headerVisible)}>
             <MenuHeader />
@@ -303,22 +302,22 @@ const Menu = () => {
         </div>
       </div>
 
-      {/* Menu Content */}
-      <section className="py-8 lg:py-12">
+      {/* Menu Content with Compact Spacing */}
+      <section className="py-4 sm:py-6 md:py-8 lg:py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div 
             ref={contentRef} 
             className={useAnimationClass(contentVariant, contentVisible)}
           >
-            {/* Desktop Navigation Tabs */}
-            <div className="hidden lg:flex justify-center mb-8">
-              <div className="flex space-x-2 p-2 bg-muted/50 rounded-lg">
+            {/* Desktop Navigation Tabs with Compact Spacing */}
+            <div className="hidden lg:flex justify-center mb-4 lg:mb-8">
+              <div className="flex space-x-1 sm:space-x-2 p-1.5 sm:p-2 bg-muted/50 rounded-lg">
                 {Object.entries(menuData).map(([key, data]) => (
                   <button
                     key={key}
                     onClick={() => setActiveCategory(key)}
                     className={cn(
-                      "px-6 py-3 text-sm font-medium rounded-md transition-all duration-200",
+                      "px-4 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-medium rounded-md transition-all duration-200",
                       activeCategory === key
                         ? "bg-primary text-primary-foreground shadow-sm"
                         : "text-muted-foreground hover:text-foreground hover:bg-background/50"
@@ -330,12 +329,12 @@ const Menu = () => {
               </div>
             </div>
 
-            {/* Mobile Category Selector */}
-            <div className="lg:hidden mb-6">
+            {/* Mobile Category Selector with Compact Spacing */}
+            <div className="lg:hidden mb-3 sm:mb-4 md:mb-6">
               <select
                 value={activeCategory}
                 onChange={(e) => setActiveCategory(e.target.value)}
-                className="w-full p-3 bg-card border border-border rounded-lg text-foreground"
+                className="w-full p-2.5 sm:p-3 bg-card border border-border rounded-lg text-foreground text-sm sm:text-base"
               >
                 {Object.entries(menuData).map(([key, data]) => (
                   <option key={key} value={key}>
