@@ -13,24 +13,28 @@ export const SplitScreenHero = () => {
       src: "/lovable-uploads/92c3b6c8-61dc-4c37-afa8-a0a4db04c551.png",
       alt: "Professional buffet setup with chafing dishes and elegant floral arrangements",
       title: "Corporate Catering",
+      description: "Professional buffet setup with chafing dishes and elegant floral arrangements",
       category: "corporate"
     },
     {
       src: "/lovable-uploads/1dcbc1ee-eb25-4d89-8722-cb4904d1ba69.png",
       alt: "Elegant wedding dessert table with tiered cake, neon signage, and gourmet treats",
       title: "Wedding Reception",
+      description: "Elegant wedding dessert table with tiered cake, neon signage, and gourmet treats",
       category: "wedding"
     },
     {
       src: "/lovable-uploads/ce12a76f-20cf-449f-8755-4d84cbf1688a.png",
       alt: "Elaborate grazing board with artisanal cheeses, charcuterie, and fresh fruits",
       title: "Grazing Tables",
+      description: "Elaborate grazing board with artisanal cheeses, charcuterie, and fresh fruits",
       category: "grazing"
     },
     {
       src: "/lovable-uploads/6225467a-567b-4a4e-8f41-181db66e0aaf.png",
       alt: "Elegant outdoor tent setup with sophisticated lighting and table arrangements",
       title: "Outdoor Events",
+      description: "Elegant outdoor tent setup with sophisticated lighting and table arrangements",
       category: "outdoor"
     }
   ];
