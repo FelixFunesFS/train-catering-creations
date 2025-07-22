@@ -2,12 +2,7 @@
 import { useState } from "react";
 import { galleryImages } from "@/data/galleryImages";
 import { GalleryHeader } from "@/components/gallery/GalleryHeader";
-import { CategoryFilter } from "@/components/gallery/CategoryFilter";
-import { ViewToggle } from "@/components/gallery/ViewToggle";
-import { ImageGrid } from "@/components/gallery/ImageGrid";
-import { FeaturedImageGrid } from "@/components/gallery/FeaturedImageGrid";
-import { MasonryGrid } from "@/components/gallery/MasonryGrid";
-import { GalleryCarousel } from "@/components/gallery/GalleryCarousel";
+import { GallerySection } from "@/components/gallery/GallerySection";
 import { ImageModal } from "@/components/gallery/ImageModal";
 import { GalleryCTA } from "@/components/gallery/GalleryCTA";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
@@ -15,8 +10,6 @@ import { useAnimationClass } from "@/hooks/useAnimationClass";
 
 const PhotoGallery = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
-  const [viewMode, setViewMode] = useState<"grid" | "carousel" | "featured" | "masonry">("masonry");
   
   const { ref: headerRef, isVisible: headerVisible, variant: headerVariant } = useScrollAnimation({ 
     delay: 0, 
@@ -25,25 +18,11 @@ const PhotoGallery = () => {
     desktop: { variant: 'ios-spring', delay: 0 }
   });
   
-  const { ref: filterRef, isVisible: filterVisible, variant: filterVariant } = useScrollAnimation({ 
-    delay: 100, 
-    variant: 'scale-fade',
-    mobile: { variant: 'subtle', delay: 100 },
-    desktop: { variant: 'scale-fade', delay: 100 }
-  });
-  
-  const { ref: toggleRef, isVisible: toggleVisible, variant: toggleVariant } = useScrollAnimation({ 
+  const { ref: sectionsRef, isVisible: sectionsVisible, variant: sectionsVariant } = useScrollAnimation({ 
     delay: 200, 
-    variant: 'scale-fade',
-    mobile: { variant: 'subtle', delay: 150 },
-    desktop: { variant: 'scale-fade', delay: 200 }
-  });
-  
-  const { ref: galleryRef, isVisible: galleryVisible, variant: galleryVariant } = useScrollAnimation({ 
-    delay: 300, 
     variant: 'ios-spring',
-    mobile: { variant: 'medium', delay: 200 },
-    desktop: { variant: 'ios-spring', delay: 300 }
+    mobile: { variant: 'medium', delay: 100 },
+    desktop: { variant: 'ios-spring', delay: 200 }
   });
   
   const { ref: ctaRef, isVisible: ctaVisible, variant: ctaVariant } = useScrollAnimation({ 
@@ -53,23 +32,22 @@ const PhotoGallery = () => {
     desktop: { variant: 'elastic', delay: 400 }
   });
   
-  const filteredImages = selectedCategory === "all" ? galleryImages : galleryImages.filter(img => img.category === selectedCategory);
+  // Organize images by category and select best quality images
+  const weddingImages = galleryImages.filter(img => img.category === "wedding").sort((a, b) => b.quality - a.quality);
+  const formalImages = galleryImages.filter(img => img.category === "formal").sort((a, b) => b.quality - a.quality);
+  const dessertImages = galleryImages.filter(img => img.category === "desserts").sort((a, b) => b.quality - a.quality);
+  const buffetImages = galleryImages.filter(img => img.category === "buffet").sort((a, b) => b.quality - a.quality);
+  
+  // All images for modal navigation
+  const allImages = [...weddingImages, ...formalImages, ...dessertImages, ...buffetImages];
   
   const handleImageClick = (imageSrc: string) => {
-    const index = filteredImages.findIndex(img => img.src === imageSrc);
+    const index = allImages.findIndex(img => img.src === imageSrc);
     setSelectedImageIndex(index);
   };
   
   const handleCloseModal = () => {
     setSelectedImageIndex(null);
-  };
-  
-  const handleCategoryChange = (category: string) => {
-    setSelectedCategory(category);
-  };
-
-  const handleViewChange = (view: "grid" | "carousel" | "featured" | "masonry") => {
-    setViewMode(view);
   };
   
   return (
@@ -83,33 +61,55 @@ const PhotoGallery = () => {
         </div>
       </section>
       
-      {/* Gallery Controls and Content Section */}
+      {/* Gallery Sections */}
       <section className="py-8 lg:py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div ref={filterRef} className={useAnimationClass(filterVariant, filterVisible)}>
-            <CategoryFilter selectedCategory={selectedCategory} onCategoryChange={handleCategoryChange} />
-          </div>
-          
-          <div ref={toggleRef} className={useAnimationClass(toggleVariant, toggleVisible)}>
-            <ViewToggle viewMode={viewMode} onViewChange={handleViewChange} />
-          </div>
-          
-          <div ref={galleryRef} className={useAnimationClass(galleryVariant, galleryVisible)}>
-            {viewMode === "grid" && (
-              <ImageGrid images={filteredImages} onImageClick={handleImageClick} />
+          <div ref={sectionsRef} className={useAnimationClass(sectionsVariant, sectionsVisible)}>
+            
+            {/* Wedding Section */}
+            {weddingImages.length > 0 && (
+              <GallerySection
+                title="Wedding Celebrations"
+                description="From intimate ceremonies to grand receptions, we create unforgettable wedding experiences with elegant cuisine and impeccable service that makes your special day truly magical."
+                heroImage={weddingImages[0]}
+                images={weddingImages.slice(1)}
+                onImageClick={handleImageClick}
+              />
             )}
             
-            {viewMode === "featured" && (
-              <FeaturedImageGrid images={filteredImages} onImageClick={handleImageClick} />
+            {/* Formal Events Section */}
+            {formalImages.length > 0 && (
+              <GallerySection
+                title="Formal & Black Tie Events"
+                description="Sophisticated catering for corporate galas, military ceremonies, and upscale gatherings. Our refined presentation and premium service elevate every formal occasion."
+                heroImage={formalImages[0]}
+                images={formalImages.slice(1)}
+                onImageClick={handleImageClick}
+              />
             )}
             
-            {viewMode === "masonry" && (
-              <MasonryGrid images={filteredImages} onImageClick={handleImageClick} />
+            {/* Desserts Section */}
+            {dessertImages.length > 0 && (
+              <GallerySection
+                title="Artisan Desserts & Sweet Treats"
+                description="Exquisite dessert displays featuring custom cakes, elegant pastries, and beautifully crafted sweet treats that provide the perfect finale to any celebration."
+                heroImage={dessertImages[0]}
+                images={dessertImages.slice(1)}
+                onImageClick={handleImageClick}
+              />
             )}
             
-            {viewMode === "carousel" && (
-              <GalleryCarousel images={filteredImages} onImageClick={handleImageClick} />
+            {/* Buffet Service Section */}
+            {buffetImages.length > 0 && (
+              <GallerySection
+                title="Buffet Service & Large Events"
+                description="Professional buffet service for large gatherings, featuring diverse menu options, elegant presentation, and seamless service that keeps your guests satisfied."
+                heroImage={buffetImages[0]}
+                images={buffetImages.slice(1)}
+                onImageClick={handleImageClick}
+              />
             )}
+            
           </div>
         </div>
       </section>
@@ -118,7 +118,7 @@ const PhotoGallery = () => {
         <GalleryCTA />
       </div>
       
-      <ImageModal images={filteredImages} selectedIndex={selectedImageIndex} onClose={handleCloseModal} />
+      <ImageModal images={allImages} selectedIndex={selectedImageIndex} onClose={handleCloseModal} />
     </div>
   );
 };
