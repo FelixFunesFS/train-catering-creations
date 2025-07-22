@@ -37,7 +37,7 @@ const Menu = () => {
     appetizers: {
       title: "Appetizers",
       subtitle: "Start your culinary journey",
-      backgroundImage: "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=800&h=400&fit=crop",
+      backgroundImage: "/lovable-uploads/02486e12-54f5-4b94-8d6e-f150546c6983.png",
       overlayColor: "bg-black/40",
       sections: [
         {
