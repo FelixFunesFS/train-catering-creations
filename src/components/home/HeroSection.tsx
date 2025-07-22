@@ -153,13 +153,11 @@ export const HeroSection = () => {
               {/* Decorative line */}
               <div className="w-20 sm:w-32 lg:w-40 h-1.5 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-300 mx-auto mb-6 sm:mb-8 animate-fade-in rounded-full shadow-sm" />
               
-              {/* Subtitle with larger sizing and neumorphic effect */}
+              {/* Subtitle with larger sizing */}
               <div className="mb-8 sm:mb-12 animate-fade-in">
-                <div className="inline-block px-8 py-4 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.3),0_8px_32px_rgba(0,0,0,0.3)]">
-                  <p className="text-lg sm:text-xl lg:text-2xl xl:text-3xl text-white/95 font-elegant leading-relaxed">
-                    Where every bite is made with love and served with soul!
-                  </p>
-                </div>
+                <p className="text-lg sm:text-xl lg:text-2xl xl:text-3xl text-white/95 font-elegant leading-relaxed drop-shadow-md">
+                  Where every bite is made with love and served with soul!
+                </p>
               </div>
 
               {/* Call-to-Action Buttons */}
