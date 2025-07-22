@@ -225,6 +225,12 @@ const Menu = () => {
     return menuData[activeCategory as keyof typeof menuData];
   };
 
+  const handleCategoryChange = (category: string) => {
+    setActiveCategory(category);
+    // Smooth scroll to top of menu content when category changes
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const renderMenuContent = () => {
     const currentData = getCurrentMenuData();
     
@@ -271,7 +277,7 @@ const Menu = () => {
     <div className="min-h-screen bg-gradient-hero relative overflow-hidden">
       <MobileMenuNavigation 
         activeCategory={activeCategory}
-        onCategoryChange={setActiveCategory}
+        onCategoryChange={handleCategoryChange}
       />
       <QuickActionButton />
       
@@ -315,7 +321,7 @@ const Menu = () => {
                 {Object.entries(menuData).map(([key, data]) => (
                   <button
                     key={key}
-                    onClick={() => setActiveCategory(key)}
+                    onClick={() => handleCategoryChange(key)}
                     className={cn(
                       "px-4 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-medium rounded-md transition-all duration-200",
                       activeCategory === key
@@ -329,19 +335,11 @@ const Menu = () => {
               </div>
             </div>
 
-            {/* Mobile Category Selector with Compact Spacing */}
-            <div className="lg:hidden mb-3 sm:mb-4 md:mb-6">
-              <select
-                value={activeCategory}
-                onChange={(e) => setActiveCategory(e.target.value)}
-                className="w-full p-2.5 sm:p-3 bg-card border border-border rounded-lg text-foreground text-sm sm:text-base"
-              >
-                {Object.entries(menuData).map(([key, data]) => (
-                  <option key={key} value={key}>
-                    {data.title}
-                  </option>
-                ))}
-              </select>
+            {/* Mobile hint text - subtle indicator that scrolling reveals navigation */}
+            <div className="lg:hidden mb-3 sm:mb-4 md:mb-6 text-center">
+              <p className="text-xs text-muted-foreground/70 italic">
+                Scroll down to access menu navigation
+              </p>
             </div>
 
             {renderMenuContent()}

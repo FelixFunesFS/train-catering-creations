@@ -25,7 +25,8 @@ export const MobileMenuNavigation = ({ activeCategory, onCategoryChange }: Mobil
 
   useEffect(() => {
     const handleScroll = () => {
-      const scrolled = window.scrollY > 400;
+      // Reduced scroll trigger from 400px to 200px for faster access
+      const scrolled = window.scrollY > 200;
       setIsVisible(scrolled);
     };
 
