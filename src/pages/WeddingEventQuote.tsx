@@ -1,11 +1,12 @@
 
 import QuoteHeader from "@/components/quote/QuoteHeader";
-import QuoteFormSelector from "@/components/quote/QuoteFormSelector";
+import WeddingEventQuoteForm from "@/components/quote/WeddingEventQuoteForm";
+import ContactInfoCards from "@/components/quote/ContactInfoCards";
 import { CTASection } from "@/components/ui/cta-section";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 
-const RequestQuote = () => {
+const WeddingEventQuote = () => {
   const { ref: headerRef, isVisible: headerVisible, variant: headerVariant } = useScrollAnimation({ 
     delay: 0, 
     variant: 'fade-up',
@@ -13,18 +14,25 @@ const RequestQuote = () => {
     desktop: { variant: 'ios-spring', delay: 0 }
   });
   
-  const { ref: selectorRef, isVisible: selectorVisible, variant: selectorVariant } = useScrollAnimation({ 
+  const { ref: contactRef, isVisible: contactVisible, variant: contactVariant } = useScrollAnimation({ 
     delay: 200, 
     variant: 'scale-fade',
     mobile: { variant: 'subtle', delay: 100 },
     desktop: { variant: 'scale-fade', delay: 200 }
   });
   
-  const { ref: ctaRef, isVisible: ctaVisible, variant: ctaVariant } = useScrollAnimation({ 
+  const { ref: formRef, isVisible: formVisible, variant: formVariant } = useScrollAnimation({ 
     delay: 400, 
-    variant: 'ios-spring',
+    variant: 'elastic',
     mobile: { variant: 'medium', delay: 200 },
-    desktop: { variant: 'ios-spring', delay: 400 }
+    desktop: { variant: 'elastic', delay: 400 }
+  });
+  
+  const { ref: ctaRef, isVisible: ctaVisible, variant: ctaVariant } = useScrollAnimation({ 
+    delay: 600, 
+    variant: 'ios-spring',
+    mobile: { variant: 'medium', delay: 300 },
+    desktop: { variant: 'ios-spring', delay: 600 }
   });
 
   return (
@@ -38,19 +46,29 @@ const RequestQuote = () => {
         </div>
       </section>
       
-      {/* Form Selector Section */}
+      {/* Main Content Section */}
       <section className="py-8 lg:py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div ref={selectorRef} className={useAnimationClass(selectorVariant, selectorVisible)}>
-            <QuoteFormSelector />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
+            <div className="order-2 lg:order-1">
+              <div ref={formRef} className={useAnimationClass(formVariant, formVisible)}>
+                <WeddingEventQuoteForm />
+              </div>
+            </div>
+            
+            <div className="order-1 lg:order-2">
+              <div ref={contactRef} className={useAnimationClass(contactVariant, contactVisible)}>
+                <ContactInfoCards />
+              </div>
+            </div>
           </div>
         </div>
       </section>
       
       <div ref={ctaRef} className={useAnimationClass(ctaVariant, ctaVisible)}>
         <CTASection
-          title="Questions About Your Quote?"
-          description="Our team is ready to help you plan the perfect event. Contact us directly for personalized assistance."
+          title="Questions About Your Wedding?"
+          description="Let us help make your special day perfect. Contact us directly for personalized wedding catering consultation."
           buttons={[
             {
               text: "Call (843) 970-0265",
@@ -63,11 +81,11 @@ const RequestQuote = () => {
               variant: "cta-white"
             }
           ]}
-          footer="Response time: Usually within 24 hours"
+          footer="Wedding consultation: Usually within 24 hours"
         />
       </div>
     </div>
   );
 };
 
-export default RequestQuote;
+export default WeddingEventQuote;

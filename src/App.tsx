@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -13,6 +12,8 @@ import About from "./pages/About";
 import Menu from "./pages/Menu";
 import WeddingMenu from "./pages/WeddingMenu";
 import RequestQuote from "./pages/RequestQuote";
+import RegularEventQuote from "./pages/RegularEventQuote";
+import WeddingEventQuote from "./pages/WeddingEventQuote";
 import Reviews from "./pages/Reviews";
 import PhotoGallery from "./pages/PhotoGallery";
 import NotFound from "./pages/NotFound";
@@ -30,6 +31,8 @@ const AppContent = () => {
           <Route path="/menu" element={<Menu />} />
           <Route path="/wedding-menu" element={<WeddingMenu />} />
           <Route path="/request-quote" element={<RequestQuote />} />
+          <Route path="/request-quote/regular" element={<RegularEventQuote />} />
+          <Route path="/request-quote/wedding" element={<WeddingEventQuote />} />
           <Route path="/reviews" element={<Reviews />} />
           <Route path="/gallery" element={<PhotoGallery />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
