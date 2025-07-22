@@ -94,16 +94,16 @@ export const Header = () => {
             {/* Mobile controls */}
             <div className="lg:hidden flex items-center">
               <Button 
-                className="neumorphic-button-primary text-primary-foreground hover:text-primary-foreground transition-all duration-300 focus-visible-enhanced p-2 h-auto w-auto"
+                className="bg-transparent hover:bg-transparent text-primary-foreground hover:text-primary-foreground transition-all duration-300 focus-visible-enhanced p-2 h-auto w-auto"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
                 aria-expanded={isMenuOpen}
                 aria-controls="mobile-menu"
                 aria-label={isMenuOpen ? "Close menu" : "Open menu"}
               >
                 {isMenuOpen ? 
-                  <X className="h-7 w-7" strokeWidth={2.5} /> : 
+                  <X className="h-8 w-8 md:h-9 md:w-9" strokeWidth={2.5} /> : 
                   <svg
-                    className="h-7 w-7"
+                    className="h-8 w-8 md:h-9 md:w-9"
                     fill="none"
                     stroke="currentColor"
                     strokeWidth={2.5}

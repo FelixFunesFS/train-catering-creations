@@ -121,7 +121,7 @@ export const HeroSection = () => {
             <div className="relative z-10 text-center">
               {/* Logo Icon */}
               <div className="flex justify-center mb-4 sm:mb-6 animate-fade-in">
-                <div className="neumorphic-card-2 p-3 sm:p-4 rounded-full">
+                <div className="neumorphic-card-1 p-3 sm:p-4 rounded-2xl">
                   <div className="h-10 w-10 sm:h-12 sm:w-12 lg:h-16 lg:w-16">
                     <img 
                       src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
