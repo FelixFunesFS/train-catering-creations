@@ -1,13 +1,52 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ImageModal } from "@/components/gallery/ImageModal";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { ResponsiveWrapper } from "@/components/ui/responsive-wrapper";
 import { SectionContentCard } from "@/components/ui/section-content-card";
 import Autoplay from "embla-carousel-autoplay";
+import type { CarouselApi } from "@/components/ui/carousel";
 export const HeroSection = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+  const [backgroundApi, setBackgroundApi] = useState<CarouselApi>();
+  const [currentBackground, setCurrentBackground] = useState(0);
+
+  // Hero background images
+  const heroBackgrounds = [
+    {
+      src: "/lovable-uploads/27e4396c-2632-4541-94e0-f63f0499998c.png",
+      alt: "Original hero background"
+    },
+    {
+      src: "/lovable-uploads/201379e8-1269-4f37-a2d2-002fe2f9fda7.png",
+      alt: "Elegant buffet setup with chafing dishes and floral arrangements"
+    },
+    {
+      src: "/lovable-uploads/827cb2cf-1d0b-43e0-ae41-b7ac83f14a70.png",
+      alt: "Elaborate grazing table with artisanal cheeses and fresh fruits"
+    },
+    {
+      src: "/lovable-uploads/8c816776-a723-4102-bd83-d38df0c77dfa.png",
+      alt: "Elegant event venue with crystal chandelier and formal table settings"
+    },
+    {
+      src: "/lovable-uploads/36237032-ff09-485e-9a44-179ac279864f.png",
+      alt: "Sophisticated appetizer display with elegant presentation"
+    }
+  ];
+
+  useEffect(() => {
+    if (!backgroundApi) {
+      return;
+    }
+
+    setCurrentBackground(backgroundApi.selectedScrollSnap());
+
+    backgroundApi.on("select", () => {
+      setCurrentBackground(backgroundApi.selectedScrollSnap());
+    });
+  }, [backgroundApi]);
   const heroImages = [{
     src: "/lovable-uploads/0703365f-22eb-4c4d-b258-4a2c8a23b63a.png",
     alt: "Rustic venue buffet setup with chafing dishes and atmospheric lighting",
@@ -90,65 +129,110 @@ export const HeroSection = () => {
     setSelectedImageIndex(null);
   };
   return <>
-      {/* Hero Section - Brand Header Only */}
-      <section className="relative bg-cover bg-center bg-no-repeat" style={{
-      backgroundImage: `url('/lovable-uploads/27e4396c-2632-4541-94e0-f63f0499998c.png')`
-    }}>
-        {/* Dark overlay for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/50 to-black/70 my-0 py-0"></div>
-        <div className="max-w-7xl mx-auto px-6 xl:px-12 py-16 xl:py-24">
-          {/* Brand Header Section with larger typography */}
-          <div className="relative text-center">
-            <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-white/5 opacity-30 rounded-xl"></div>
-            
-            <div className="relative z-10">
-              {/* Logo Icon - Silver gradient effect */}
-              <div className="flex justify-center mb-8 sm:mb-10 animate-fade-in">
-                <div className="p-6 sm:p-8 lg:p-10">
-                  <div className="h-16 w-16 sm:h-20 sm:w-20 lg:h-28 lg:w-28 relative">
-                    <img src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" alt="Soul Train's Eatery Logo" className="w-full h-full object-contain hover:scale-110 transition-transform duration-300 filter brightness-0 invert" style={{
-                    filter: 'brightness(0) invert(1) drop-shadow(0 0 12px rgba(192, 192, 192, 0.9))'
-                  }} />
+      {/* Hero Section with Carousel Background */}
+      <section className="relative overflow-hidden">
+        <Carousel 
+          setApi={setBackgroundApi}
+          opts={{
+            align: "start",
+            loop: true
+          }} 
+          plugins={[Autoplay({
+            delay: 6000
+          })]} 
+          className="w-full h-screen"
+        >
+          <CarouselContent className="-ml-0">
+            {heroBackgrounds.map((bg, index) => (
+              <CarouselItem key={index} className="pl-0 basis-full">
+                <div 
+                  className="relative h-screen bg-cover bg-center bg-no-repeat"
+                  style={{
+                    backgroundImage: `url('${bg.src}')`
+                  }}
+                >
+                  {/* Dark overlay for text readability */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/50 to-black/70"></div>
+                  
+                  <div className="relative z-10 max-w-7xl mx-auto px-6 xl:px-12 py-16 xl:py-24 h-full flex items-center">
+                    {/* Brand Header Section with larger typography */}
+                    <div className="text-center w-full">
+                      <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-white/5 opacity-30 rounded-xl"></div>
+                      
+                      <div className="relative z-10">
+                        {/* Logo Icon - Silver gradient effect */}
+                        <div className="flex justify-center mb-8 sm:mb-10 animate-fade-in">
+                          <div className="p-6 sm:p-8 lg:p-10">
+                            <div className="h-16 w-16 sm:h-20 sm:w-20 lg:h-28 lg:w-28 relative">
+                              <img 
+                                src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
+                                alt="Soul Train's Eatery Logo" 
+                                className="w-full h-full object-contain hover:scale-110 transition-transform duration-300 filter brightness-0 invert" 
+                                style={{
+                                  filter: 'brightness(0) invert(1) drop-shadow(0 0 12px rgba(192, 192, 192, 0.9))'
+                                }} 
+                              />
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Main Heading with larger typography */}
+                        <div className="mb-6 sm:mb-8 animate-fade-in">
+                          <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-elegant font-bold text-white leading-tight drop-shadow-lg">
+                            Charleston's Premier Catering Experience
+                          </h1>
+                        </div>
+                        
+                        {/* Decorative line */}
+                        <div className="w-20 sm:w-32 lg:w-40 h-1.5 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-300 mx-auto mb-6 sm:mb-8 animate-fade-in rounded-full shadow-sm" />
+                        
+                        {/* Subtitle with larger sizing */}
+                        <div className="mb-8 sm:mb-12 animate-fade-in">
+                          <p className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl text-white/95 font-elegant leading-relaxed drop-shadow-2xl shadow-black/60 py-0 my-0">
+                            Where every bite is made with love and served with soul!
+                          </p>
+                        </div>
+
+                        {/* Call-to-Action Buttons */}
+                        <div className="text-center animate-fade-in mb-8">
+                          <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6">
+                            <Button asChild size="lg">
+                              <Link to="/request-quote#page-header">
+                                Request Quote
+                              </Link>
+                            </Button>
+                            
+                            <Button asChild variant="outline" size="lg">
+                              <Link to="/gallery#page-header">
+                                View Gallery
+                              </Link>
+                            </Button>
+                          </div>
+                        </div>
+
+                        {/* Navigation Dots */}
+                        <div className="flex justify-center space-x-2 animate-fade-in">
+                          {heroBackgrounds.map((_, index) => (
+                            <button
+                              key={index}
+                              className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                                index === currentBackground 
+                                  ? 'bg-white scale-125 shadow-lg' 
+                                  : 'bg-white/50 hover:bg-white/70'
+                              }`}
+                              onClick={() => backgroundApi?.scrollTo(index)}
+                              aria-label={`Go to slide ${index + 1}`}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-              
-              {/* Main Heading with larger typography */}
-              <div className="mb-6 sm:mb-8 animate-fade-in">
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-elegant font-bold text-white leading-tight drop-shadow-lg">
-                  Charleston's Premier Catering Experience
-                </h1>
-              </div>
-              
-              {/* Decorative line */}
-              <div className="w-20 sm:w-32 lg:w-40 h-1.5 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-300 mx-auto mb-6 sm:mb-8 animate-fade-in rounded-full shadow-sm" />
-              
-              {/* Subtitle with larger sizing */}
-              <div className="mb-8 sm:mb-12 animate-fade-in">
-                <p className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl text-white/95 font-elegant leading-relaxed drop-shadow-2xl shadow-black/60 py-0 my-0">
-                  Where every bite is made with love and served with soul!
-                </p>
-              </div>
-
-              {/* Call-to-Action Buttons */}
-              <div className="text-center animate-fade-in">
-                <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6">
-                  <Button asChild size="lg">
-                    <Link to="/request-quote#page-header">
-                      Request Quote
-                    </Link>
-                  </Button>
-                  
-                  <Button asChild variant="outline" size="lg">
-                    <Link to="/gallery#page-header">
-                      View Gallery
-                    </Link>
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+        </Carousel>
       </section>
 
       {/* Gallery Section */}
