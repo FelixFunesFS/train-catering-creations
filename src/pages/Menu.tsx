@@ -315,15 +315,15 @@ const Menu = () => {
             ref={contentRef} 
             className={useAnimationClass(contentVariant, contentVisible)}
           >
-            {/* Desktop Navigation Tabs with Compact Spacing */}
-            <div className="hidden lg:flex justify-center mb-4 lg:mb-8">
-              <div className="flex space-x-1 sm:space-x-2 p-1.5 sm:p-2 bg-muted/50 rounded-lg">
+            {/* Navigation Tabs - Always Visible */}
+            <div className="flex justify-center mb-4 lg:mb-8">
+              <div className="flex space-x-1 sm:space-x-2 p-1.5 sm:p-2 bg-muted/50 rounded-lg overflow-x-auto">
                 {Object.entries(menuData).map(([key, data]) => (
                   <button
                     key={key}
                     onClick={() => handleCategoryChange(key)}
                     className={cn(
-                      "px-4 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-medium rounded-md transition-all duration-200",
+                      "px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-medium rounded-md transition-all duration-200 whitespace-nowrap flex-shrink-0",
                       activeCategory === key
                         ? "bg-primary text-primary-foreground shadow-sm"
                         : "text-muted-foreground hover:text-foreground hover:bg-background/50"
@@ -333,13 +333,6 @@ const Menu = () => {
                   </button>
                 ))}
               </div>
-            </div>
-
-            {/* Mobile hint text - subtle indicator that scrolling reveals navigation */}
-            <div className="lg:hidden mb-3 sm:mb-4 md:mb-6 text-center">
-              <p className="text-xs text-muted-foreground/70 italic">
-                Scroll down to access menu navigation
-              </p>
             </div>
 
             {renderMenuContent()}
