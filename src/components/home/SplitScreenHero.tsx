@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { ImageModal } from "@/components/gallery/ImageModal";
 import { OptimizedImage } from "@/components/ui/optimized-image";
+import { ServiceMarquee } from "./ServiceMarquee";
 
 export const SplitScreenHero = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
@@ -50,6 +51,9 @@ export const SplitScreenHero = () => {
   return (
     <>
       <section className="relative min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
+        {/* Service Marquee at the top */}
+        <ServiceMarquee />
+        
         <div className="max-w-7xl mx-auto px-6 xl:px-12 py-8 lg:py-16">
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center min-h-[calc(100vh-8rem)]">
             
@@ -69,7 +73,7 @@ export const SplitScreenHero = () => {
               </div>
 
               {/* Main Heading */}
-              <div className="mb-6 lg:mb-8">
+              <div className="mb-8 lg:mb-10">
                 <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-elegant font-bold text-foreground leading-tight mb-4">
                   Charleston's Premier Catering Experience
                 </h1>
@@ -77,24 +81,6 @@ export const SplitScreenHero = () => {
                 <p className="text-lg sm:text-xl lg:text-2xl text-muted-foreground font-elegant leading-relaxed">
                   Where every bite is made with love and served with soul!
                 </p>
-              </div>
-
-              {/* Service Categories */}
-              <div className="mb-8 lg:mb-10">
-                <div className="grid grid-cols-2 gap-3 lg:gap-4 text-sm lg:text-base">
-                  <div className="neumorphic-card p-3 lg:p-4 text-center hover:neumorphic-card-2 transition-all duration-300">
-                    <span className="font-medium text-foreground">Corporate Events</span>
-                  </div>
-                  <div className="neumorphic-card p-3 lg:p-4 text-center hover:neumorphic-card-2 transition-all duration-300">
-                    <span className="font-medium text-foreground">Wedding Catering</span>
-                  </div>
-                  <div className="neumorphic-card p-3 lg:p-4 text-center hover:neumorphic-card-2 transition-all duration-300">
-                    <span className="font-medium text-foreground">Family Gatherings</span>
-                  </div>
-                  <div className="neumorphic-card p-3 lg:p-4 text-center hover:neumorphic-card-2 transition-all duration-300">
-                    <span className="font-medium text-foreground">Special Events</span>
-                  </div>
-                </div>
               </div>
 
               {/* Call-to-Action Buttons */}
