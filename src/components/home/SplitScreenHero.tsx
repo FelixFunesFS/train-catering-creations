@@ -1,56 +1,44 @@
-
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { ImageModal } from "@/components/gallery/ImageModal";
 import { OptimizedImage } from "@/components/ui/optimized-image";
-
 export const SplitScreenHero = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
-
-  const showcaseImages = [
-    {
-      src: "/lovable-uploads/92c3b6c8-61dc-4c37-afa8-a0a4db04c551.png",
-      alt: "Professional buffet setup with chafing dishes and elegant floral arrangements",
-      title: "Corporate Catering",
-      description: "Professional buffet setup with chafing dishes and elegant floral arrangements",
-      category: "corporate"
-    },
-    {
-      src: "/lovable-uploads/f6f0cdc2-cd71-4392-984e-ed9609103e42.png",
-      alt: "Elegant rustic venue with exposed beams, crystal chandeliers, and string lights for wedding reception",
-      title: "Wedding Reception",
-      description: "Elegant rustic venue with exposed beams, crystal chandeliers, and string lights for wedding reception",
-      category: "wedding"
-    },
-    {
-      src: "/lovable-uploads/ce12a76f-20cf-449f-8755-4d84cbf1688a.png",
-      alt: "Elaborate grazing board with artisanal cheeses, charcuterie, and fresh fruits",
-      title: "Grazing Tables",
-      description: "Elaborate grazing board with artisanal cheeses, charcuterie, and fresh fruits",
-      category: "grazing"
-    },
-    {
-      src: "/lovable-uploads/adfb4ea8-c62c-4f6d-b7dd-b562466c2c31.png",
-      alt: "Elegant tiered dessert and appetizer display with gourmet presentation",
-      title: "Elegant Catering",
-      description: "Elegant tiered dessert and appetizer display with gourmet presentation",
-      category: "elegant"
-    }
-  ];
-
+  const showcaseImages = [{
+    src: "/lovable-uploads/92c3b6c8-61dc-4c37-afa8-a0a4db04c551.png",
+    alt: "Professional buffet setup with chafing dishes and elegant floral arrangements",
+    title: "Corporate Catering",
+    description: "Professional buffet setup with chafing dishes and elegant floral arrangements",
+    category: "corporate"
+  }, {
+    src: "/lovable-uploads/f6f0cdc2-cd71-4392-984e-ed9609103e42.png",
+    alt: "Elegant rustic venue with exposed beams, crystal chandeliers, and string lights for wedding reception",
+    title: "Wedding Reception",
+    description: "Elegant rustic venue with exposed beams, crystal chandeliers, and string lights for wedding reception",
+    category: "wedding"
+  }, {
+    src: "/lovable-uploads/ce12a76f-20cf-449f-8755-4d84cbf1688a.png",
+    alt: "Elaborate grazing board with artisanal cheeses, charcuterie, and fresh fruits",
+    title: "Grazing Tables",
+    description: "Elaborate grazing board with artisanal cheeses, charcuterie, and fresh fruits",
+    category: "grazing"
+  }, {
+    src: "/lovable-uploads/adfb4ea8-c62c-4f6d-b7dd-b562466c2c31.png",
+    alt: "Elegant tiered dessert and appetizer display with gourmet presentation",
+    title: "Elegant Catering",
+    description: "Elegant tiered dessert and appetizer display with gourmet presentation",
+    category: "elegant"
+  }];
   const handleImageClick = (index: number) => {
     setSelectedImageIndex(index);
   };
-
   const handleCloseModal = () => {
     setSelectedImageIndex(null);
   };
-
-  return (
-    <>
+  return <>
       <section className="relative min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
-        <div className="max-w-7xl mx-auto px-6 xl:px-12 py-8 lg:py-16">
+        <div className="max-w-7xl mx-auto px-6 xl:px-12 py-8 lg:py-0">
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center min-h-[calc(100vh-8rem)]">
             
             {/* Left Content Panel */}
@@ -59,11 +47,7 @@ export const SplitScreenHero = () => {
               <div className="flex justify-center lg:justify-start mb-6 lg:mb-8">
                 <div className="p-4 lg:p-6">
                   <div className="h-12 w-12 lg:h-16 lg:w-16 relative">
-                    <img 
-                      src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
-                      alt="Soul Train's Eatery Logo" 
-                      className="w-full h-full object-contain hover:scale-110 transition-transform duration-300" 
-                    />
+                    <img src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" alt="Soul Train's Eatery Logo" className="w-full h-full object-contain hover:scale-110 transition-transform duration-300" />
                   </div>
                 </div>
               </div>
@@ -98,23 +82,9 @@ export const SplitScreenHero = () => {
             {/* Right Image Showcase */}
             <div className="order-1 lg:order-2">
               <div className="grid grid-cols-2 gap-3 lg:gap-4 h-[400px] lg:h-[600px]">
-                {showcaseImages.map((image, index) => (
-                  <div 
-                    key={index}
-                    className={`group neumorphic-card hover:neumorphic-card-2 p-2 lg:p-3 rounded-2xl cursor-pointer transition-all duration-300 ${
-                      index === 0 ? 'col-span-2' : index === 1 ? 'row-span-2' : ''
-                    }`}
-                    onClick={() => handleImageClick(index)}
-                  >
+                {showcaseImages.map((image, index) => <div key={index} className={`group neumorphic-card hover:neumorphic-card-2 p-2 lg:p-3 rounded-2xl cursor-pointer transition-all duration-300 ${index === 0 ? 'col-span-2' : index === 1 ? 'row-span-2' : ''}`} onClick={() => handleImageClick(index)}>
                     <div className="relative rounded-xl overflow-hidden h-full">
-                      <OptimizedImage
-                        src={image.src}
-                        alt={image.alt}
-                        aspectRatio="aspect-video"
-                        className="group-hover:scale-105 transition-transform duration-300"
-                        containerClassName="h-full"
-                        priority={index < 2}
-                      />
+                      <OptimizedImage src={image.src} alt={image.alt} aspectRatio="aspect-video" className="group-hover:scale-105 transition-transform duration-300" containerClassName="h-full" priority={index < 2} />
                       
                       {/* Hover Overlay */}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -126,8 +96,7 @@ export const SplitScreenHero = () => {
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  </div>)}
               </div>
             </div>
           </div>
@@ -135,11 +104,6 @@ export const SplitScreenHero = () => {
       </section>
 
       {/* Image Modal */}
-      <ImageModal 
-        images={showcaseImages} 
-        selectedIndex={selectedImageIndex} 
-        onClose={handleCloseModal} 
-      />
-    </>
-  );
+      <ImageModal images={showcaseImages} selectedIndex={selectedImageIndex} onClose={handleCloseModal} />
+    </>;
 };
