@@ -10,7 +10,7 @@ const Index = () => {
   return <div className="min-h-screen">
       <main id="main-content">
         {/* Hero Section - Pattern A (Deep, dramatic) */}
-        <PageSection pattern="a" skipToContentId="hero-section" className="py-0">
+        <PageSection pattern="a" skipToContentId="hero-section" className="my-0 py-0">
           <HeroSection />
         </PageSection>
         
