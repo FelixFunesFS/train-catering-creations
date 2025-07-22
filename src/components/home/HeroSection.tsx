@@ -121,12 +121,14 @@ export const HeroSection = () => {
             <div className="relative z-10 text-center">
               {/* Logo Icon */}
               <div className="flex justify-center mb-4 sm:mb-6 animate-fade-in">
-                <div className="h-12 w-12 sm:h-16 sm:w-16 lg:h-20 lg:w-20">
-                  <img 
-                    src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
-                    alt="Soul Train's Eatery Logo" 
-                    className="w-full h-full object-contain hover:scale-110 transition-transform duration-300 filter brightness-0 saturate-100 hue-rotate-[345deg] contrast-125" 
-                  />
+                <div className="bg-gradient-to-br from-primary to-primary-dark p-4 sm:p-5 lg:p-6 rounded-2xl neumorphic-card-2 hover:neumorphic-card-3 transition-all duration-300">
+                  <div className="h-12 w-12 sm:h-16 sm:w-16 lg:h-20 lg:w-20">
+                    <img 
+                      src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
+                      alt="Soul Train's Eatery Logo" 
+                      className="w-full h-full object-contain hover:scale-110 transition-transform duration-300 filter brightness-0 invert" 
+                    />
+                  </div>
                 </div>
               </div>
               
