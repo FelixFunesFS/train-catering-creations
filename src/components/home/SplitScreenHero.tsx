@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { ImageModal } from "@/components/gallery/ImageModal";
 import { OptimizedImage } from "@/components/ui/optimized-image";
-import { ServiceMarquee } from "./ServiceMarquee";
 
 export const SplitScreenHero = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
@@ -51,9 +50,6 @@ export const SplitScreenHero = () => {
   return (
     <>
       <section className="relative min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
-        {/* Service Marquee at the top */}
-        <ServiceMarquee />
-        
         <div className="max-w-7xl mx-auto px-6 xl:px-12 py-8 lg:py-16">
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center min-h-[calc(100vh-8rem)]">
             
