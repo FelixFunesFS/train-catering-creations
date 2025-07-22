@@ -113,7 +113,14 @@ export const HeroSection = () => {
   return (
     <>
       {/* Hero Section - Brand Header Only */}
-      <section className="bg-gradient-to-br from-red-800 via-red-700 to-red-900">
+      <section 
+        className="relative bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `url('/lovable-uploads/27e4396c-2632-4541-94e0-f63f0499998c.png')`
+        }}
+      >
+        {/* Dark overlay for text readability */}
+        <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/50 to-black/70"></div>
         <div className="max-w-7xl mx-auto px-6 xl:px-12 py-16 xl:py-24">
           {/* Brand Header Section with larger typography */}
           <div className="relative text-center">
