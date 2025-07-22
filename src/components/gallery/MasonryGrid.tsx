@@ -39,16 +39,16 @@ export const MasonryGrid = ({ images, onImageClick }: MasonryGridProps) => {
     if (shouldSpanColumns) {
       return {
         containerClass: "col-span-2",
-        aspectRatio: "aspect-[16/10]"
+        aspectRatio: "aspect-video" as const
       };
     } else if (isLargeImage) {
       return {
         containerClass: "",
-        aspectRatio: "aspect-[4/6]"
+        aspectRatio: "aspect-[3/4]" as const
       };
     } else {
-      // Vary aspect ratios for visual interest
-      const aspectRatios = ["aspect-[4/5]", "aspect-[5/6]", "aspect-[3/4]", "aspect-[5/4]"];
+      // Use only supported aspect ratios
+      const aspectRatios = ["aspect-[4/3]", "aspect-[5/4]", "aspect-[3/4]", "aspect-square"] as const;
       const aspectRatio = aspectRatios[imageIndex % aspectRatios.length];
       return {
         containerClass: "",
@@ -67,10 +67,10 @@ export const MasonryGrid = ({ images, onImageClick }: MasonryGridProps) => {
         return (
           <div 
             key={`masonry-${index}`}
-            className={`group neumorphic-card-2 hover:neumorphic-card-3 p-3 sm:p-4 rounded-2xl cursor-pointer transition-all duration-300 ${containerClass}`}
+            className={`group bg-gradient-card p-3 sm:p-4 rounded-lg shadow-elegant hover:shadow-glow border-2 border-transparent hover:border-primary/20 cursor-pointer transition-all duration-300 overflow-hidden ${containerClass}`}
             onClick={() => onImageClick(image.src)}
           >
-            <div className="relative rounded-xl overflow-hidden">
+            <div className="relative rounded-lg overflow-hidden">
               <div className={aspectRatio}>
                 <img 
                   src={image.src} 

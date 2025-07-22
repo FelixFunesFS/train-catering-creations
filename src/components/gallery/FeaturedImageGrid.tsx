@@ -1,3 +1,4 @@
+
 import { GalleryImage } from "@/data/gallery/types";
 import { OptimizedImage } from "@/components/ui/optimized-image";
 
@@ -22,10 +23,10 @@ export const FeaturedImageGrid = ({ images, onImageClick }: FeaturedImageGridPro
               key={`featured-${index}`}
               className={`${
                 index === 0 ? 'col-span-3 row-span-2' : 'col-span-3'
-              } shadow-elegant hover:shadow-glow bg-gradient-card border-2 border-transparent hover:border-primary/20 transition-all duration-200 cursor-pointer group rounded-lg overflow-hidden`}
+              } bg-gradient-card p-3 sm:p-4 rounded-lg shadow-elegant hover:shadow-glow border-2 border-transparent hover:border-primary/20 transition-all duration-200 cursor-pointer group overflow-hidden`}
               onClick={() => onImageClick(image.src)}
             >
-              <div className="relative w-full h-full">
+              <div className="relative w-full h-full rounded-lg overflow-hidden">
                 <OptimizedImage
                   src={image.src}
                   alt={image.title}
@@ -58,10 +59,10 @@ export const FeaturedImageGrid = ({ images, onImageClick }: FeaturedImageGridPro
         {regularImages.map((image, index) => (
           <div 
             key={`regular-${index}`}
-            className="shadow-elegant hover:shadow-glow bg-gradient-card border-2 border-transparent hover:border-primary/20 transition-all duration-200 cursor-pointer group aspect-[5/4] rounded-lg overflow-hidden min-h-touch"
+            className="bg-gradient-card p-3 sm:p-4 rounded-lg shadow-elegant hover:shadow-glow border-2 border-transparent hover:border-primary/20 transition-all duration-200 cursor-pointer group min-h-touch overflow-hidden"
             onClick={() => onImageClick(image.src)}
           >
-            <div className="relative w-full h-full">
+            <div className="relative w-full h-full rounded-lg overflow-hidden">
               <OptimizedImage
                 src={image.src}
                 alt={image.title}

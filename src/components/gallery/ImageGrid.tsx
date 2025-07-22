@@ -1,3 +1,4 @@
+
 import { GalleryImage } from "@/data/gallery/types";
 import { OptimizedFloatingImage } from "@/components/ui/optimized-floating-image";
 
@@ -20,7 +21,7 @@ export const ImageGrid = ({ images, onImageClick }: ImageGridProps) => {
           variant="medium"
           priority={index < 8}
           onImageClick={() => onImageClick(image.src)}
-          className="bg-gradient-card border-2 border-transparent min-h-touch"
+          className="min-h-touch"
         />
       ))}
     </div>

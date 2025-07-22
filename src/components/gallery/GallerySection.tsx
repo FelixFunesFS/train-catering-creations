@@ -42,7 +42,7 @@ export const GallerySection = ({
             variant="medium"
             priority={true}
             onImageClick={() => onImageClick(heroImage.src)}
-            className="bg-gradient-card border-2 border-transparent min-h-touch"
+            className="min-h-touch"
           />
         </div>
         
@@ -60,7 +60,7 @@ export const GallerySection = ({
                 variant="subtle"
                 priority={index < 4}
                 onImageClick={() => onImageClick(image.src)}
-                className="bg-gradient-card border-2 border-transparent min-h-touch"
+                className="min-h-touch"
               />
             ))}
           </div>

@@ -1,3 +1,4 @@
+
 import * as React from "react"
 import { cn } from "@/lib/utils"
 import { FloatingCard } from "./floating-card"
@@ -13,7 +14,7 @@ interface OptimizedFloatingImageProps extends React.HTMLAttributes<HTMLDivElemen
   /** Image description */
   description?: string
   /** Aspect ratio class */
-  aspectRatio?: "aspect-square" | "aspect-video" | "aspect-[4/3]" | "aspect-[3/2]" | "aspect-[5/4]" | "aspect-[5/3]" | "aspect-[3/4]"
+  aspectRatio?: "aspect-square" | "aspect-video" | "aspect-[4/3]" | "aspect-[3/2]" | "aspect-[5/4]" | "aspect-[5/3]" | "aspect-[3/4]" | "aspect-[4/5]"
   /** Whether to show overlay content on hover */
   showOverlay?: boolean
   /** Loading priority for above-the-fold images */
@@ -47,14 +48,14 @@ const OptimizedFloatingImage = React.forwardRef<HTMLDivElement, OptimizedFloatin
       hoverShadow="elegant"
       highlightBorder
       className={cn(
-        "overflow-hidden group",
+        "overflow-hidden group bg-gradient-card p-3 sm:p-4",
         hasClickHandler && "cursor-pointer",
         className
       )}
       onClick={onImageClick}
       {...props}
     >
-      <div className={cn("relative", aspectRatio)}>
+      <div className={cn("relative rounded-lg overflow-hidden", aspectRatio)}>
         <OptimizedImage
           src={src}
           alt={alt}
