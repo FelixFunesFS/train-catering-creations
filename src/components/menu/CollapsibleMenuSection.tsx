@@ -50,7 +50,7 @@ export const CollapsibleMenuSection = ({
         {displayItems.map((item, index) => (
           <div 
             key={index} 
-            className="neumorphic-card-1 hover:neumorphic-card-2 text-center py-2 sm:py-2.5 md:py-3 px-2 sm:px-2.5 md:px-3 rounded-md sm:rounded-lg transition-all duration-200 group cursor-default min-h-[44px] flex items-center justify-center"
+            className="text-center py-2 sm:py-2.5 md:py-3 px-2 sm:px-2.5 md:px-3 rounded-md sm:rounded-lg hover:bg-background/50 transition-all duration-200 group cursor-default border border-transparent hover:border-primary/20 min-h-[44px] flex items-center justify-center"
           >
             <h4 className="text-xs sm:text-sm md:text-base font-medium text-foreground group-hover:text-primary transition-colors leading-tight">{item}</h4>
           </div>
