@@ -10,16 +10,18 @@ export const HeroSection = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const [currentBackgroundIndex, setCurrentBackgroundIndex] = useState(0);
 
-  // Background carousel images
+  // Background carousel images - using the same images as the gallery
   const backgroundImages = [
-    "/lovable-uploads/b52e1ea6-2b35-463d-b2ba-90641bc66be6.png", // Buffet setup with chafing dishes
-    "/lovable-uploads/f5ea2838-0780-419b-a0da-e0cde015d34a.png", // Outdoor catering trays
-    "/lovable-uploads/8d5642cf-b015-4144-8ef2-a3b9c653ae80.png", // Elegant buffet with flowers
-    "/lovable-uploads/8769fc5f-fed9-496b-811e-3de29597b9a7.png", // Military formal dining event
-    "/lovable-uploads/ad60d963-3131-4eda-a4af-0f8f94f6fd3f.png", // Wedding reception setup
-    "/lovable-uploads/ff498a11-b556-4e5f-abcb-f64625fda8b2.png", // Buffet with napkins
-    "/lovable-uploads/012a9a2c-c051-4276-8796-05539f03fcae.png", // Grazing table spread
-    "/lovable-uploads/dcb0b3c7-4c12-4449-96e5-73e185e94180.png", // Chafing dishes with flowers
+    "/lovable-uploads/fab5b1da-b317-4374-b52e-46581108e4f2.png", // Elegant buffet setup
+    "/lovable-uploads/c0634f86-f070-461c-b61c-70f2175524ba.png", // Professional chafing dish
+    "/lovable-uploads/a05776de-0777-4ed9-8e63-0828d6bdcc2b.png", // Wedding reception venue
+    "/lovable-uploads/76497407-a3da-4ff0-a4bd-6d44f6c6a291.png", // Gourmet grazing table
+    "/lovable-uploads/995f0f1c-4128-48ca-a653-ac0ef9667f0c.png", // Corporate catering setup
+    "/lovable-uploads/dcb381d4-b913-4151-852c-dc149335f666.png", // Creative themed dessert table
+    "/lovable-uploads/f569af07-9bdd-4e2f-8fa0-50f4f58284fc.png", // Elegant outdoor catering
+    "/lovable-uploads/31e1538d-1b06-45be-bef9-619e023d3dc4.png", // Appetizer station
+    "/lovable-uploads/ba9526e9-a12e-4ea8-8e2a-450595002e23.png", // Memorial celebration
+    "/lovable-uploads/c490314a-af9a-49e5-9951-8604a90471cc.png", // Professional catering staff
   ];
 
   // Auto-rotate background images
