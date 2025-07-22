@@ -6,10 +6,11 @@ import { PageHeader } from "@/components/ui/page-header";
 import { CTASection } from "@/components/ui/cta-section";
 import { ChefHat, Heart, Award, Users, Clock, Star } from "lucide-react";
 import { Link } from "react-router-dom";
+import { OptimizedImage } from "@/components/ui/optimized-image";
 
 const About = () => {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gradient-hero">
       <main id="main-content">
         {/* Header Section - Pattern A */}
         <PageSection pattern="a" skipToContentId="about-header">
@@ -48,11 +49,12 @@ const About = () => {
                 </NeumorphicButton>
               </div>
               
-              <NeumorphicCard level={3} className="overflow-hidden">
-                <img 
+              <NeumorphicCard level={3} className="overflow-hidden p-3">
+                <OptimizedImage 
                   src="/lovable-uploads/2bb3a6cf-e13c-4405-9b69-2cf610ae8411.png" 
                   alt="Chef Train and team at a formal military catering event" 
-                  className="w-full h-64 object-cover rounded-lg"
+                  aspectRatio="aspect-video"
+                  className="rounded-lg hover:scale-105 transition-transform duration-300"
                 />
               </NeumorphicCard>
             </div>
@@ -72,13 +74,16 @@ const About = () => {
             </div>
             
             <div className="grid md:grid-cols-2 gap-12 lg:gap-16 max-w-5xl mx-auto">
-              <NeumorphicCard level={4} className="text-center">
+              <NeumorphicCard level={4} className="text-center hover:scale-105 transition-transform duration-300">
                 <div className="mb-6">
-                  <img 
-                    src="/lovable-uploads/ca9f1bb5-3b58-46fc-a5e4-cf2359a610ed.png" 
-                    alt="Chef Dominick 'Train' Ward"
-                    className="w-32 h-32 rounded-full mx-auto mb-4 object-cover"
-                  />
+                  <div className="relative w-32 h-32 mx-auto mb-4">
+                    <OptimizedImage 
+                      src="/lovable-uploads/ca9f1bb5-3b58-46fc-a5e4-cf2359a610ed.png" 
+                      alt="Chef Dominick 'Train' Ward"
+                      aspectRatio="aspect-square"
+                      className="rounded-full object-cover"
+                    />
+                  </div>
                   <ChefHat className="h-12 w-12 text-primary mx-auto mb-4" />
                 </div>
                 <h3 className="text-xl font-elegant font-semibold text-foreground mb-2">
@@ -90,13 +95,16 @@ const About = () => {
                 </p>
               </NeumorphicCard>
               
-              <NeumorphicCard level={4} className="text-center">
+              <NeumorphicCard level={4} className="text-center hover:scale-105 transition-transform duration-300">
                 <div className="mb-6">
-                  <img 
-                    src="/lovable-uploads/1dcbc1ee-eb25-4d89-8722-cb4904d1ba69.png" 
-                    alt="Pastry Chef Tanya Ward" 
-                    className="w-32 h-32 rounded-full mx-auto mb-4 object-cover"
-                  />
+                  <div className="relative w-32 h-32 mx-auto mb-4">
+                    <OptimizedImage 
+                      src="/lovable-uploads/1dcbc1ee-eb25-4d89-8722-cb4904d1ba69.png" 
+                      alt="Pastry Chef Tanya Ward" 
+                      aspectRatio="aspect-square"
+                      className="rounded-full object-cover"
+                    />
+                  </div>
                   <Heart className="h-12 w-12 text-primary mx-auto mb-4" />
                 </div>
                 <h3 className="text-xl font-elegant font-semibold text-foreground mb-2">

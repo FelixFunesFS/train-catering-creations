@@ -1,5 +1,7 @@
+
 import { Link } from "react-router-dom";
 import { Phone, Mail, MapPin, Clock, Facebook, Instagram, Twitter, Star } from "lucide-react";
+import { NeumorphicCard } from "@/components/ui/neumorphic-card";
 
 export const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -28,13 +30,13 @@ export const Footer = () => {
   const services = ["Military Functions", "Corporate Catering", "Wedding Catering", "Private Events", "Holiday Parties", "Funeral Repasts", "Custom Menus"];
   
   return (
-    <footer className="neumorphic-card border-t border-border">
+    <footer className="bg-gradient-to-br from-background via-muted/20 to-background border-t border-border">
       {/* Main Footer Content */}
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           
           {/* Company Information */}
-          <div className="lg:col-span-1">
+          <NeumorphicCard level={2} className="lg:col-span-1">
             <div className="flex items-center space-x-3 mb-4">
               <img src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" alt="Soul Train's Eatery Logo" className="w-10 h-10 object-contain" />
               <div className="text-2xl font-script font-bold text-foreground">Soul Train's Eatery</div>
@@ -53,10 +55,10 @@ export const Footer = () => {
                 <span>Licensed & Insured</span>
               </div>
             </div>
-          </div>
+          </NeumorphicCard>
 
           {/* Contact Information */}
-          <div>
+          <NeumorphicCard level={2}>
             <h3 className="text-lg font-elegant font-semibold text-foreground mb-4">Contact Us</h3>
             <div className="space-y-3">
               <a href="tel:8439700265" className="flex items-center space-x-3 text-sm text-muted-foreground hover:text-primary transition-all duration-200 group">
@@ -82,10 +84,10 @@ export const Footer = () => {
                 </div>
               </div>
             </div>
-          </div>
+          </NeumorphicCard>
 
           {/* Quick Links */}
-          <div>
+          <NeumorphicCard level={2}>
             <h3 className="text-lg font-elegant font-semibold text-foreground mb-4">Quick Links</h3>
             <nav className="space-y-2">
               {navigationLinks.map(item => (
@@ -94,10 +96,10 @@ export const Footer = () => {
                 </Link>
               ))}
             </nav>
-          </div>
+          </NeumorphicCard>
 
           {/* Services */}
-          <div>
+          <NeumorphicCard level={2}>
             <h3 className="text-lg font-elegant font-semibold text-foreground mb-4">Our Services</h3>
             <ul className="space-y-2">
               {services.map((service, index) => (
@@ -107,7 +109,7 @@ export const Footer = () => {
                 </li>
               ))}
             </ul>
-          </div>
+          </NeumorphicCard>
         </div>
 
         {/* Social Media & Testimonial */}
@@ -131,17 +133,17 @@ export const Footer = () => {
             </div>
 
             {/* Customer Testimonial */}
-            <div className="text-center lg:text-right">
+            <NeumorphicCard level={1} className="text-center lg:text-right p-4">
               <p className="text-sm text-muted-foreground italic">
                 "Soul Train's Eatery made our wedding perfect with their amazing food!"
               </p>
               <p className="text-xs text-muted-foreground mt-1">- Happy Customer</p>
-            </div>
+            </NeumorphicCard>
           </div>
         </div>
       </div>
 
-      {/* Enhanced Copyright Bar with ruby red gradient background */}
+      {/* Enhanced Copyright Bar with softer red gradient integration */}
       <div className="bg-gradient-to-r from-primary to-primary-dark border-t border-primary/20 py-4">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-0">
           <div className="flex flex-col sm:flex-row justify-between items-center text-sm text-primary-foreground">

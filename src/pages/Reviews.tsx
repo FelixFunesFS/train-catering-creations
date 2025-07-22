@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Star, Heart, ThumbsUp } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { CTASection } from "@/components/ui/cta-section";
+import { NeumorphicCard } from "@/components/ui/neumorphic-card";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 
@@ -119,25 +120,23 @@ const Reviews = () => {
               const cardAnimationClass = useAnimationClass(cardVariant, cardVisible);
               
               return (
-                <Card key={index} ref={cardRef} className={`shadow-card ${cardAnimationClass}`}>
-                  <CardHeader>
-                    <div className="flex justify-between items-start">
+                <NeumorphicCard key={index} ref={cardRef} level={2} className={`hover:scale-105 transition-transform duration-300 ${cardAnimationClass}`}>
+                  <div className="p-6">
+                    <div className="flex justify-between items-start mb-4">
                       <div>
-                        <CardTitle className="text-base sm:text-lg font-elegant card-title-hover-motion">{review.name}</CardTitle>
-                        <p className="text-xs sm:text-sm text-muted-foreground subtitle-hover-motion">{review.event}</p>
+                        <h3 className="text-base sm:text-lg font-elegant font-semibold text-foreground">{review.name}</h3>
+                        <p className="text-xs sm:text-sm text-muted-foreground">{review.event}</p>
                       </div>
                       <div className="flex space-x-1">
                         {renderStars(review.rating)}
                       </div>
                     </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm sm:text-base text-foreground mb-2 sm:mb-3 leading-relaxed subtitle-hover-motion">
+                    <p className="text-sm sm:text-base text-foreground mb-2 sm:mb-3 leading-relaxed">
                       "{review.text}"
                     </p>
-                    <p className="text-xs text-muted-foreground subtitle-hover-motion">{review.date}</p>
-                  </CardContent>
-                </Card>
+                    <p className="text-xs text-muted-foreground">{review.date}</p>
+                  </div>
+                </NeumorphicCard>
               );
             })}
           </div>
@@ -148,16 +147,16 @@ const Reviews = () => {
       <section className="py-8 lg:py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <Card className="shadow-card bg-primary-light">
-              <CardContent className="p-4 sm:p-6">
-                <h4 className="text-base sm:text-lg font-elegant font-semibold text-primary mb-2 card-title-hover-motion">
+            <NeumorphicCard level={3} className="bg-primary-light">
+              <div className="p-4 sm:p-6">
+                <h4 className="text-base sm:text-lg font-elegant font-semibold text-primary mb-2">
                   Worked with us recently?
                 </h4>
-                <p className="text-primary text-xs sm:text-sm subtitle-hover-motion">
+                <p className="text-primary text-xs sm:text-sm">
                   We'd love to hear about your experience! Contact us to share your feedback.
                 </p>
-              </CardContent>
-            </Card>
+              </div>
+            </NeumorphicCard>
           </div>
         </div>
       </section>
