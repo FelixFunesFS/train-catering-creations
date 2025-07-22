@@ -7,6 +7,7 @@ import { QuickActionButton } from "@/components/menu/QuickActionButton";
 import { CollapsibleMenuSection } from "@/components/menu/CollapsibleMenuSection";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
+import { cn } from "@/lib/utils";
 
 const Menu = () => {
   const [activeCategory, setActiveCategory] = useState("appetizers");
