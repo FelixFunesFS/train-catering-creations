@@ -31,9 +31,9 @@ export const QuickActionButton = () => {
   ];
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 lg:hidden">
+    <div className="fixed bottom-4 sm:bottom-6 right-4 sm:right-6 z-50 lg:hidden">
       <div className={cn(
-        "flex flex-col-reverse space-y-reverse space-y-3 transition-all duration-300",
+        "flex flex-col-reverse space-y-reverse space-y-2 sm:space-y-3 transition-all duration-300",
         isExpanded ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
       )}>
         {actions.map((action, index) => (
@@ -42,23 +42,23 @@ export const QuickActionButton = () => {
               <a
                 href={action.href}
                 className={cn(
-                  "flex items-center justify-center w-12 h-12 rounded-full shadow-lg transition-all duration-200 hover:scale-110",
+                  "flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-full shadow-lg transition-all duration-200 hover:scale-110",
                   action.className
                 )}
                 title={action.label}
               >
-                <action.icon className="h-5 w-5" />
+                <action.icon className="h-4 w-4 sm:h-5 sm:w-5" />
               </a>
             ) : (
               <button
                 onClick={action.onClick}
                 className={cn(
-                  "flex items-center justify-center w-12 h-12 rounded-full shadow-lg transition-all duration-200 hover:scale-110",
+                  "flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-full shadow-lg transition-all duration-200 hover:scale-110",
                   action.className
                 )}
                 title={action.label}
               >
-                <action.icon className="h-5 w-5" />
+                <action.icon className="h-4 w-4 sm:h-5 sm:w-5" />
               </button>
             )}
           </div>
@@ -68,14 +68,14 @@ export const QuickActionButton = () => {
       <button
         onClick={() => setIsExpanded(!isExpanded)}
         className={cn(
-          "flex items-center justify-center w-14 h-14 bg-primary text-primary-foreground rounded-full shadow-lg transition-all duration-300 hover:scale-110 mt-3",
+          "flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 bg-primary text-primary-foreground rounded-full shadow-lg transition-all duration-300 hover:scale-110 mt-2 sm:mt-3",
           isExpanded && "rotate-45"
         )}
         aria-label="Quick Actions"
       >
         <div className="relative">
-          <div className="w-5 h-0.5 bg-current absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
-          <div className="w-0.5 h-5 bg-current absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+          <div className="w-4 h-0.5 sm:w-5 sm:h-0.5 bg-current absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+          <div className="w-0.5 h-4 sm:w-0.5 sm:h-5 bg-current absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
         </div>
       </button>
     </div>
