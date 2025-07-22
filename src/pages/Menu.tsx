@@ -8,6 +8,7 @@ import { CollapsibleMenuSection } from "@/components/menu/CollapsibleMenuSection
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 import { cn } from "@/lib/utils";
+import { PageSection } from "@/components/ui/page-section";
 
 const Menu = () => {
   const [activeCategory, setActiveCategory] = useState("appetizers");
@@ -349,9 +350,12 @@ const Menu = () => {
         </div>
       </section>
 
-      <div ref={contactRef} className={useAnimationClass(contactVariant, contactVisible)}>
-        <MenuContact />
-      </div>
+      {/* Custom Menu Planning Section - Full Width CTA */}
+      <PageSection withBorder>
+        <div ref={contactRef} className={useAnimationClass(contactVariant, contactVisible)}>
+          <MenuContact />
+        </div>
+      </PageSection>
     </div>
   );
 };
