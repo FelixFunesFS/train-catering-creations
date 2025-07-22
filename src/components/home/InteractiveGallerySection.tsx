@@ -34,10 +34,12 @@ export const InteractiveGallerySection = () => {
     setSelectedImageIndex(null);
   };
 
-  // Select more images for desktop/tablet experience
+  // Select images for different views - desktop shows sets of 5
   const displayImages = isMobile 
     ? galleryImages.slice(0, 12) 
-    : galleryImages.slice(0, 25);
+    : isTablet 
+    ? galleryImages.slice(0, 19)
+    : galleryImages.slice(0, 15); // Desktop: 3 sets of 5 images
 
   return (
     <>
@@ -68,7 +70,7 @@ export const InteractiveGallerySection = () => {
             />
           )}
 
-          {/* Desktop View */}
+          {/* Desktop View - Limited to 5 images at a time */}
           {!isMobile && !isTablet && (
             <DesktopGalleryGrid 
               images={displayImages} 

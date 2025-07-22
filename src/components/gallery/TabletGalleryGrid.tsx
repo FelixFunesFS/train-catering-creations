@@ -77,7 +77,7 @@ export const TabletGalleryGrid = ({ images, onImageClick }: TabletGalleryGridPro
                 alt={image.title}
                 title={image.title}
                 description={image.description}
-                aspectRatio={isLarge ? "aspect-[8/5]" : "aspect-[4/5]"}
+                aspectRatio={isLarge ? "aspect-[5/3]" : "aspect-[4/5]"}
                 variant="subtle"
                 priority={index < 6}
                 onImageClick={() => onImageClick(image.src)}
