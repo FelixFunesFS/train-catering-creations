@@ -44,47 +44,47 @@ const WeddingMenu = () => {
             </div>
             
             <div ref={eventCardsRef} className={`grid md:grid-cols-3 gap-6 lg:gap-8 mt-12 ${eventCardsAnimationClass}`}>
-          <Card className="shadow-elegant hover:shadow-glow bg-gradient-card overflow-hidden group transition-all duration-200">
-            <div className="relative h-48 overflow-hidden">
+          <div className="neumorphic-card-2 hover:neumorphic-card-3 rounded-lg p-3 sm:p-4 transition-all duration-300">
+            <div className="relative h-48 rounded-xl overflow-hidden mb-3 sm:mb-4 group">
               <img 
                 src="/lovable-uploads/269bd0e4-4a19-4f14-b966-7b3173a10b95.png" 
                 alt="Elegant wedding reception setup with beautiful floral arrangements and draped tables"
-                className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-6">
                 <h3 className="text-xl font-elegant font-semibold text-white mb-2">Weddings</h3>
               </div>
             </div>
-          </Card>
+          </div>
 
-          <Card className="shadow-elegant hover:shadow-glow bg-gradient-card overflow-hidden group transition-all duration-200">
-            <div className="relative h-48 overflow-hidden">
+          <div className="neumorphic-card-2 hover:neumorphic-card-3 rounded-lg p-3 sm:p-4 transition-all duration-300">
+            <div className="relative h-48 rounded-xl overflow-hidden mb-3 sm:mb-4 group">
               <img 
                 src="/lovable-uploads/d4bf7685-b46c-4c39-8a28-1d003b978403.png" 
                 alt="Elegant outdoor catering setup with chafing dishes and floral decorations"
-                className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-6">
                 <h3 className="text-xl font-elegant font-semibold text-white mb-2">Black Tie Events</h3>
               </div>
             </div>
-          </Card>
+          </div>
 
-          <Card className="shadow-elegant hover:shadow-glow bg-gradient-card overflow-hidden group transition-all duration-200">
-            <div className="relative h-48 overflow-hidden">
+          <div className="neumorphic-card-2 hover:neumorphic-card-3 rounded-lg p-3 sm:p-4 transition-all duration-300">
+            <div className="relative h-48 rounded-xl overflow-hidden mb-3 sm:mb-4 group">
               <img 
                 src="/lovable-uploads/cf6d0cd4-02bd-4607-b658-14a809d30275.png" 
                 alt="Military honor guard ceremony with elegant charcuterie board catering"
-                className="w-full h-full object-cover object-[50%_35%] transition-transform duration-200 group-hover:scale-105"
+                className="w-full h-full object-cover object-[50%_35%] transition-transform duration-300 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-6">
                 <h3 className="text-xl font-elegant font-semibold text-white mb-2">Military Functions</h3>
               </div>
             </div>
-          </Card>
+          </div>
             </div>
           </div>
         </section>
@@ -126,12 +126,12 @@ const WeddingMenu = () => {
                 const cardAnimationClass = useAnimationClass(cardVariant, cardVisible);
                 
                 return (
-                  <Card ref={cardRef} className={`shadow-elegant hover:shadow-glow bg-gradient-card ${cardAnimationClass}`}>
+                  <div ref={cardRef} className={`neumorphic-card-2 hover:neumorphic-card-3 rounded-lg p-3 sm:p-4 transition-all duration-300 ${cardAnimationClass}`}>
                     <CardContent className="p-6">
                       <h4 className="font-elegant font-semibold text-foreground mb-2">Fresh Local Fruit Platter</h4>
                       <p className="text-sm text-muted-foreground">An elegant arrangement of the season's finest locally sourced fruits, artfully displayed for visual and flavorful delight.</p>
                     </CardContent>
-                  </Card>
+                  </div>
                 );
               })()}
               

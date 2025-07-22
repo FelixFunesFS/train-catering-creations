@@ -26,19 +26,19 @@ export const SignatureDishesSection = () => {
         </div>
 
         <div className="grid md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-          <Card 
+          <div 
             ref={card1Ref}
-            className={`shadow-card overflow-hidden group hover:shadow-elegant transition-all duration-200 hover-float ${card1AnimationClass}`}
+            className={`neumorphic-card-2 hover:neumorphic-card-3 rounded-lg p-3 sm:p-4 transition-all duration-300 ${card1AnimationClass}`}
           >
-            <div className="relative h-40 sm:h-48 overflow-hidden">
+            <div className="relative h-40 sm:h-48 rounded-xl overflow-hidden mb-3 sm:mb-4 group">
               <img 
                 src="/lovable-uploads/ea7d03d8-7085-4847-b9d1-ebb3b0dd070a.png" 
                 alt="Perfectly sliced brisket showcase" 
-                className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
             </div>
-            <CardContent className="p-4 sm:p-6">
+            <div className="px-2 pb-2">
               <h3 className="text-base sm:text-lg lg:text-xl font-elegant font-semibold text-foreground mb-3 sm:mb-4">Southern Classics</h3>
               <ul className="space-y-2 sm:space-y-3 text-muted-foreground text-sm sm:text-base">
                 <li>• Slow-Smoked Brisket</li>
@@ -47,22 +47,22 @@ export const SignatureDishesSection = () => {
                 <li>• Southern-Style Cabbage</li>
                 <li>• Creamy Mac & Cheese</li>
               </ul>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
-          <Card 
+          <div 
             ref={card2Ref}
-            className={`shadow-card overflow-hidden group hover:shadow-elegant transition-all duration-200 hover-float ${card2AnimationClass}`}
+            className={`neumorphic-card-2 hover:neumorphic-card-3 rounded-lg p-3 sm:p-4 transition-all duration-300 ${card2AnimationClass}`}
           >
-            <div className="relative h-40 sm:h-48 overflow-hidden">
+            <div className="relative h-40 sm:h-48 rounded-xl overflow-hidden mb-3 sm:mb-4 group">
               <img 
                 src="/lovable-uploads/7f22e72c-441b-4b6c-9525-56748107fdd5.png" 
                 alt="Gourmet salmon and creamy casserole presentation" 
-                className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
             </div>
-            <CardContent className="p-4 sm:p-6">
+            <div className="px-2 pb-2">
               <h3 className="text-base sm:text-lg lg:text-xl font-elegant font-semibold text-foreground mb-3 sm:mb-4">Seafood & Specialties</h3>
               <ul className="space-y-2 sm:space-y-3 text-muted-foreground text-sm sm:text-base">
                 <li>• Shrimp Alfredo</li>
@@ -71,22 +71,22 @@ export const SignatureDishesSection = () => {
                 <li>• Customizable Taco Platters</li>
                 <li>• Vegetarian Options</li>
               </ul>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
-          <Card 
+          <div 
             ref={card3Ref}
-            className={`shadow-card overflow-hidden group hover:shadow-elegant transition-all duration-200 hover-float ${card3AnimationClass}`}
+            className={`neumorphic-card-2 hover:neumorphic-card-3 rounded-lg p-3 sm:p-4 transition-all duration-300 ${card3AnimationClass}`}
           >
-            <div className="relative h-40 sm:h-48 overflow-hidden">
+            <div className="relative h-40 sm:h-48 rounded-xl overflow-hidden mb-3 sm:mb-4 group">
               <img 
                 src="/lovable-uploads/eecf9726-8cce-48e5-8abb-f0dd78ebcb4e.png" 
                 alt="Elegant layered dessert cups arrangement" 
-                className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
             </div>
-            <CardContent className="p-4 sm:p-6">
+            <div className="px-2 pb-2">
               <h3 className="text-base sm:text-lg lg:text-xl font-elegant font-semibold text-foreground mb-3 sm:mb-4">Tanya's Desserts</h3>
               <ul className="space-y-2 sm:space-y-3 text-muted-foreground text-sm sm:text-base">
                 <li>• Custom Cupcakes</li>
@@ -95,8 +95,8 @@ export const SignatureDishesSection = () => {
                 <li>• Wedding Cakes</li>
                 <li>• Special Occasion Treats</li>
               </ul>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
 
         <div className="text-center mt-8 sm:mt-10 lg:mt-12 xl:mt-16">
