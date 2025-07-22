@@ -38,9 +38,9 @@ export const Header = () => {
       </SkipToContent>
       
       <header className={cn(
-        "bg-gradient-to-r from-primary to-primary-dark backdrop-blur-md border-b border-primary/20 sticky top-0 z-50 transition-all duration-300",
-        "neumorphic-card-2",
-        isScrolled && "shadow-lg shadow-primary/10"
+        "bg-gradient-to-br from-red-800 via-red-700 to-red-900 backdrop-blur-md border-b border-red-600/20 sticky top-0 z-50 transition-all duration-300",
+        "neumorphic-card-3",
+        isScrolled && "shadow-lg shadow-red-900/20"
       )}>
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
           <div className="flex justify-between items-center py-2 sm:py-3">
