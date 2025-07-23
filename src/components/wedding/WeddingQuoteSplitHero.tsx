@@ -50,19 +50,21 @@ export const WeddingQuoteSplitHero = () => {
   return (
     <>
       <section className="relative min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
-        <div className="max-w-7xl mx-auto px-6 xl:px-12 pt-2 sm:pt-3 lg:pt-4 pb-8 lg:pb-0">
-          <div className="grid md:grid-cols-2 gap-8 md:gap-10 lg:gap-12 items-center min-h-[calc(100vh-6rem)]">
+        <div className="max-w-7xl mx-auto px-6 xl:px-12 pt-6 sm:pt-8 lg:pt-12 xl:pt-16 pb-8 lg:pb-0">
+          <div className="grid md:grid-cols-2 gap-8 md:gap-10 lg:gap-12 items-center min-h-[calc(100vh-12rem)] lg:min-h-[calc(100vh-8rem)]">
             
             {/* Left Content Panel */}
             <div className="order-1 md:order-1 text-center md:text-left">
               {/* Logo */}
-              <div className="flex justify-center md:justify-start mb-3 sm:mb-4 lg:mb-5">
-                <div className="h-12 w-12 md:h-14 md:w-14 lg:h-16 lg:w-16 relative p-2 md:p-3 lg:p-4">
-                  <img 
-                    src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
-                    alt="Soul Train's Eatery Logo" 
-                    className="w-full h-full object-contain hover:scale-110 transition-transform duration-300" 
-                  />
+              <div className="flex justify-center md:justify-start mb-4 sm:mb-5 lg:mb-6">
+                <div className="p-4 md:p-5 lg:p-6">
+                  <div className="h-12 w-12 md:h-14 md:w-14 lg:h-16 lg:w-16 relative">
+                    <img 
+                      src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
+                      alt="Soul Train's Eatery Logo" 
+                      className="w-full h-full object-contain hover:scale-110 transition-transform duration-300" 
+                    />
+                  </div>
                 </div>
               </div>
 
