@@ -1,7 +1,8 @@
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { GalleryImage } from "@/data/gallery/types";
 import { ThemeSection } from "./ThemeSection";
+import { SectionNavigation } from "./SectionNavigation";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 
@@ -12,6 +13,7 @@ interface SectionedGalleryProps {
 
 export const SectionedGallery = ({ images, onImageClick }: SectionedGalleryProps) => {
   const [activeSection, setActiveSection] = useState<string | null>(null);
+  const sectionRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
   const { ref: sectionsRef, isVisible: sectionsVisible, variant: sectionsVariant } = useScrollAnimation({ 
     delay: 200, 
@@ -20,7 +22,7 @@ export const SectionedGallery = ({ images, onImageClick }: SectionedGalleryProps
     desktop: { variant: 'ios-spring', delay: 200 }
   });
 
-  // Organize images by theme
+  // Enhanced image categorization with fallbacks
   const eventCelebrations = images.filter(img => 
     img.category === 'wedding' || img.category === 'formal'
   );
@@ -78,19 +80,60 @@ export const SectionedGallery = ({ images, onImageClick }: SectionedGalleryProps
     }
   ];
 
+  // Filter out empty sections
+  const nonEmptySections = sections.filter(section => section.images.length > 0);
+
+  // Section intersection observer
+  useEffect(() => {
+    const observers = nonEmptySections.map(section => {
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            setActiveSection(section.id);
+          }
+        },
+        { threshold: 0.3, rootMargin: '-100px 0px -100px 0px' }
+      );
+
+      const element = sectionRefs.current[section.id];
+      if (element) {
+        observer.observe(element);
+      }
+
+      return observer;
+    });
+
+    return () => {
+      observers.forEach(observer => observer.disconnect());
+    };
+  }, [nonEmptySections]);
+
   return (
-    <div ref={sectionsRef} className={useAnimationClass(sectionsVariant, sectionsVisible)}>
-      <div className="space-y-16 lg:space-y-20">
-        {sections.map((section, index) => (
-          <ThemeSection
-            key={section.id}
-            {...section}
-            onImageClick={onImageClick}
-            isActive={activeSection === section.id}
-            onSectionFocus={() => setActiveSection(section.id)}
-            alternateLayout={index % 2 === 1}
-          />
-        ))}
+    <div className="space-y-8 sm:space-y-12">
+      <SectionNavigation 
+        sections={nonEmptySections.map(s => ({ id: s.id, title: s.title }))}
+        activeSection={activeSection}
+        onSectionClick={setActiveSection}
+      />
+      
+      <div ref={sectionsRef} className={useAnimationClass(sectionsVariant, sectionsVisible)}>
+        <div className="space-y-16 lg:space-y-20">
+          {nonEmptySections.map((section, index) => (
+            <div
+              key={section.id}
+              id={section.id}
+              ref={el => sectionRefs.current[section.id] = el}
+            >
+              <ThemeSection
+                {...section}
+                onImageClick={onImageClick}
+                isActive={activeSection === section.id}
+                onSectionFocus={() => setActiveSection(section.id)}
+                alternateLayout={index % 2 === 1}
+              />
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

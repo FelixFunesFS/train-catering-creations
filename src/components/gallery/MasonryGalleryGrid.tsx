@@ -2,6 +2,8 @@
 import { GalleryImage } from "@/data/gallery/types";
 import { OptimizedFloatingImage } from "@/components/ui/optimized-floating-image";
 import { useStaggeredAnimation } from "@/hooks/useStaggeredAnimation";
+import { GalleryLoadingState } from "./GalleryLoadingState";
+import { useState, useEffect } from "react";
 
 interface MasonryGalleryGridProps {
   images: GalleryImage[];
@@ -16,6 +18,8 @@ export const MasonryGalleryGrid = ({
   sectionId, 
   alternateLayout = false 
 }: MasonryGalleryGridProps) => {
+  const [isLoading, setIsLoading] = useState(true);
+  
   // Sort images by quality and select top 12 for display
   const sortedImages = [...images].sort((a, b) => b.quality - a.quality);
   const displayImages = sortedImages.slice(0, 12);
@@ -31,6 +35,15 @@ export const MasonryGalleryGrid = ({
     variant: 'ios-spring'
   });
 
+  useEffect(() => {
+    // Simulate loading delay
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   const getAspectRatio = (index: number, isFeatured: boolean): "aspect-square" | "aspect-[4/3]" | "aspect-[3/4]" | "aspect-[5/4]" | "aspect-[4/5]" => {
     if (isFeatured) {
       return "aspect-[4/3]";
@@ -41,13 +54,21 @@ export const MasonryGalleryGrid = ({
     return patterns[index % patterns.length];
   };
 
+  if (isLoading) {
+    return <GalleryLoadingState viewMode="masonry" itemCount={12} />;
+  }
+
   return (
     <div ref={ref} className="columns-1 xs:columns-2 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-3 sm:gap-4 md:gap-5 space-y-3 sm:space-y-4 md:space-y-5">
-      {/* Featured Images */}
+      {/* Featured Images with Enhanced Styling */}
       {featuredImages.map((image, index) => (
         <div 
           key={`featured-${sectionId}-${index}`}
-          className={`break-inside-avoid mb-3 sm:mb-4 md:mb-5 ${getItemClassName(index)}`}
+          className={`
+            break-inside-avoid mb-3 sm:mb-4 md:mb-5 
+            ${getItemClassName(index)}
+            ${alternateLayout && index === 0 ? 'md:col-span-2' : ''}
+          `}
           style={getItemStyle(index)}
         >
           <div className="relative group">
@@ -60,7 +81,7 @@ export const MasonryGalleryGrid = ({
               variant="dramatic"
               priority={true}
               onImageClick={() => onImageClick(image.src)}
-              className="w-full transform transition-all duration-300 hover:scale-[1.02]"
+              className="w-full transform transition-all duration-300 hover:scale-[1.02] shadow-lg hover:shadow-xl"
             />
             
             {/* Featured Badge */}
@@ -76,12 +97,15 @@ export const MasonryGalleryGrid = ({
                 <h3 className="font-elegant font-semibold text-lg mb-2 leading-tight">
                   {image.title}
                 </h3>
-                <p className="text-sm text-white/90 leading-tight">
+                <p className="text-sm text-white/90 leading-tight mb-2">
                   {image.description}
                 </p>
-                <div className="mt-2 flex items-center gap-2">
+                <div className="flex items-center gap-2">
                   <span className="text-xs bg-white/20 px-2 py-1 rounded">
                     Quality {image.quality}/10
+                  </span>
+                  <span className="text-xs bg-primary/80 px-2 py-1 rounded">
+                    Premium
                   </span>
                 </div>
               </div>
@@ -89,6 +113,17 @@ export const MasonryGalleryGrid = ({
           </div>
         </div>
       ))}
+
+      {/* Section Divider */}
+      {featuredImages.length > 0 && regularImages.length > 0 && (
+        <div className="break-inside-avoid mb-6 sm:mb-8 col-span-full">
+          <div className="flex items-center gap-4 my-4">
+            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-border to-transparent"></div>
+            <span className="text-sm text-muted-foreground font-medium">More from this collection</span>
+            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-border to-transparent"></div>
+          </div>
+        </div>
+      )}
 
       {/* Regular Images */}
       {regularImages.map((image, index) => (

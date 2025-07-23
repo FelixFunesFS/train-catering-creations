@@ -49,56 +49,75 @@ export const ThemeSection = ({
   if (images.length === 0) return null;
 
   return (
-    <SectionContentCard className="mb-0 overflow-hidden">
-      <div className={`absolute inset-0 bg-gradient-to-br ${accentColor} opacity-0 transition-opacity duration-500 ${isActive ? 'opacity-100' : ''}`} />
-      
-      <div className="relative z-10">
-        <div ref={headerRef} className={useAnimationClass(headerVariant, headerVisible)}>
-          <div className={`text-center mb-8 sm:mb-12 ${alternateLayout ? 'lg:text-right' : 'lg:text-left'}`}>
-            <div className="flex items-center justify-center gap-2 mb-3 sm:mb-4">
-              <div className="w-8 h-0.5 bg-primary"></div>
-              <span className="text-sm sm:text-base text-primary font-medium tracking-wide uppercase">
-                {subtitle}
-              </span>
-              <div className="w-8 h-0.5 bg-primary"></div>
-            </div>
-            
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-elegant font-bold text-foreground mb-4 sm:mb-6 leading-tight">
-              {title}
-            </h2>
-            
-            <p className="text-muted-foreground text-base sm:text-lg lg:text-xl leading-relaxed max-w-4xl mx-auto mb-4 sm:mb-6">
-              {description}
-            </p>
-            
-            <div className="relative">
-              <p className="text-primary font-elegant font-semibold text-lg sm:text-xl italic">
-                "{brandMessage}"
-              </p>
-              <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-24 h-0.5 bg-gradient-to-r from-primary to-primary/50"></div>
-            </div>
-          </div>
-        </div>
-
-        <div ref={galleryRef} className={useAnimationClass(galleryVariant, galleryVisible)}>
-          <MasonryGalleryGrid
-            images={images}
-            onImageClick={onImageClick}
-            sectionId={id}
-            alternateLayout={alternateLayout}
-          />
-        </div>
-
-        {images.length > 12 && (
-          <div className="text-center mt-8 sm:mt-12">
-            <div className="inline-flex items-center gap-2 text-sm text-muted-foreground">
-              <span>Showing {Math.min(12, images.length)} of {images.length} images</span>
-              <span className="text-primary">•</span>
-              <span className="text-primary font-medium">Click any image to view full gallery</span>
-            </div>
-          </div>
-        )}
+    <div className="relative">
+      {/* Section Divider */}
+      <div className="absolute -top-8 left-0 right-0 flex items-center justify-center">
+        <div className="w-full max-w-xs h-px bg-gradient-to-r from-transparent via-border to-transparent"></div>
       </div>
-    </SectionContentCard>
+
+      <SectionContentCard className="mb-0 overflow-hidden relative">
+        {/* Active Section Highlight */}
+        <div className={`absolute inset-0 bg-gradient-to-br ${accentColor} opacity-0 transition-opacity duration-500 ${isActive ? 'opacity-100' : ''}`} />
+        
+        {/* Section Pattern Overlay */}
+        <div className="absolute inset-0 opacity-5">
+          <div className={`w-full h-full bg-gradient-to-br ${alternateLayout ? 'from-primary/10 to-transparent' : 'from-transparent to-primary/10'}`}></div>
+        </div>
+        
+        <div className="relative z-10">
+          <div ref={headerRef} className={useAnimationClass(headerVariant, headerVisible)}>
+            <div className={`text-center mb-8 sm:mb-12 ${alternateLayout ? 'lg:text-right' : 'lg:text-left'}`}>
+              {/* Section Number & Subtitle */}
+              <div className="flex items-center justify-center gap-2 mb-3 sm:mb-4">
+                <div className="w-8 h-0.5 bg-primary"></div>
+                <span className="text-sm sm:text-base text-primary font-medium tracking-wide uppercase">
+                  {subtitle}
+                </span>
+                <div className="w-8 h-0.5 bg-primary"></div>
+              </div>
+              
+              {/* Section Title */}
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-elegant font-bold text-foreground mb-4 sm:mb-6 leading-tight">
+                {title}
+              </h2>
+              
+              {/* Description */}
+              <p className="text-muted-foreground text-base sm:text-lg lg:text-xl leading-relaxed max-w-4xl mx-auto mb-4 sm:mb-6">
+                {description}
+              </p>
+              
+              {/* Brand Message */}
+              <div className="relative">
+                <p className="text-primary font-elegant font-semibold text-lg sm:text-xl italic">
+                  "{brandMessage}"
+                </p>
+                <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-24 h-0.5 bg-gradient-to-r from-primary to-primary/50"></div>
+              </div>
+            </div>
+          </div>
+
+          {/* Gallery Grid */}
+          <div ref={galleryRef} className={useAnimationClass(galleryVariant, galleryVisible)}>
+            <MasonryGalleryGrid
+              images={images}
+              onImageClick={onImageClick}
+              sectionId={id}
+              alternateLayout={alternateLayout}
+            />
+          </div>
+
+          {/* Section Footer */}
+          {images.length > 12 && (
+            <div className="text-center mt-8 sm:mt-12">
+              <div className="inline-flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 px-4 py-2 rounded-full">
+                <span>Showing {Math.min(12, images.length)} of {images.length} images</span>
+                <span className="text-primary">•</span>
+                <span className="text-primary font-medium">Click any image to view full gallery</span>
+              </div>
+            </div>
+          )}
+        </div>
+      </SectionContentCard>
+    </div>
   );
 };

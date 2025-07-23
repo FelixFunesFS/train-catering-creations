@@ -41,6 +41,13 @@ const PhotoGallery = () => {
   const handleCloseModal = () => {
     setSelectedImageIndex(null);
   };
+
+  // Calculate category counts for stats
+  const categoryStats = {
+    totalImages: galleryImages.length,
+    categories: new Set(galleryImages.map(img => img.category)).size,
+    averageQuality: Math.round(galleryImages.reduce((sum, img) => sum + img.quality, 0) / galleryImages.length)
+  };
   
   return (
     <div className="min-h-screen bg-gradient-hero">
@@ -55,15 +62,15 @@ const PhotoGallery = () => {
       <PageSection pattern="b" withBorder>
         <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8">
           <div ref={contentRef} className={useAnimationClass(contentVariant, contentVisible)}>
-            {/* Gallery Stats */}
+            {/* Enhanced Gallery Stats */}
             <div className="text-center mb-8 sm:mb-12">
               <div className="flex flex-wrap justify-center gap-6 sm:gap-8">
                 <div className="text-center">
                   <div className="text-2xl sm:text-3xl font-elegant font-bold text-primary mb-1">
-                    {galleryImages.length}+
+                    {categoryStats.totalImages}+
                   </div>
                   <div className="text-sm sm:text-base text-muted-foreground">
-                    Images
+                    Premium Images
                   </div>
                 </div>
                 <div className="text-center">
@@ -71,7 +78,15 @@ const PhotoGallery = () => {
                     4
                   </div>
                   <div className="text-sm sm:text-base text-muted-foreground">
-                    Event Types
+                    Event Categories
+                  </div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl sm:text-3xl font-elegant font-bold text-primary mb-1">
+                    {categoryStats.averageQuality}/10
+                  </div>
+                  <div className="text-sm sm:text-base text-muted-foreground">
+                    Quality Rating
                   </div>
                 </div>
                 <div className="text-center">
@@ -85,7 +100,7 @@ const PhotoGallery = () => {
               </div>
             </div>
 
-            {/* Sectioned Gallery */}
+            {/* Enhanced Sectioned Gallery */}
             <SectionedGallery
               images={galleryImages}
               onImageClick={handleImageClick}
