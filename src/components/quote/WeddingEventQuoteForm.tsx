@@ -129,7 +129,7 @@ ${data.hearAboutUs}
   };
 
   return (
-    <Card className="shadow-elegant max-w-4xl mx-auto">
+    <Card className="shadow-elegant w-full">
       <CardHeader>
         <CardTitle className="text-3xl font-elegant text-center">Wedding & Black Tie Event Quote</CardTitle>
         <p className="text-muted-foreground text-center">

@@ -32,7 +32,9 @@ export const MenuSelection = ({ form, eventType, guestCount = 0 }: MenuSelection
     { id: 'poultry', name: 'Poultry', icon: '🐔' },
     { id: 'beef-pork', name: 'Beef & Pork', icon: '🥩' },
     { id: 'seafood', name: 'Seafood', icon: '🐟' },
-    { id: 'plant-based', name: 'Plant-Based', icon: '🌱' }
+    { id: 'appetizers', name: 'Appetizers', icon: '🧀' },
+    { id: 'sides', name: 'Sides', icon: '🥗' },
+    { id: 'desserts', name: 'Desserts', icon: '🍰' }
   ];
 
   const dietaryOptions = [
@@ -79,14 +81,19 @@ export const MenuSelection = ({ form, eventType, guestCount = 0 }: MenuSelection
     }
   };
 
+  const isProteinCategory = selectedCategory === 'poultry' || selectedCategory === 'beef-pork' || selectedCategory === 'seafood';
+
   return (
     <div className="space-y-6">
       <div className="text-center">
         <h3 className="text-xl font-elegant font-semibold text-foreground mb-2">
-          Select Your Proteins
+          {isProteinCategory ? 'Select Your Proteins' : `Select ${categories.find(c => c.id === selectedCategory)?.name}`}
         </h3>
         <p className="text-sm text-muted-foreground">
-          Choose up to 2 proteins for your event. Guests can select between options or you can offer both.
+          {isProteinCategory 
+            ? 'Choose up to 2 proteins for your event. Guests can select between options or you can offer both.'
+            : `Choose from our selection of ${categories.find(c => c.id === selectedCategory)?.name.toLowerCase()} to complement your meal.`
+          }
         </p>
       </div>
 
@@ -213,30 +220,32 @@ export const MenuSelection = ({ form, eventType, guestCount = 0 }: MenuSelection
                   )}
                 </div>
 
-                {/* Selection Buttons */}
-                <div className="flex gap-2">
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant={isPrimary ? "default" : "outline"}
-                    disabled={!canSelect || (secondaryProtein === item.id)}
-                    onClick={() => handleProteinSelection(item.id, true)}
-                    className="flex-1"
-                  >
-                    {isPrimary ? "Primary Protein" : "Select as Primary"}
-                  </Button>
-                  
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant={isSecondary ? "default" : "outline"}
-                    disabled={!canSelect || !primaryProtein || primaryProtein === item.id}
-                    onClick={() => handleProteinSelection(item.id, false)}
-                    className="flex-1"
-                  >
-                    {isSecondary ? "Secondary Protein" : "Add as Secondary"}
-                  </Button>
-                </div>
+                {/* Selection Buttons - Only show for protein categories */}
+                {isProteinCategory && (
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant={isPrimary ? "default" : "outline"}
+                      disabled={!canSelect || (secondaryProtein === item.id)}
+                      onClick={() => handleProteinSelection(item.id, true)}
+                      className="flex-1"
+                    >
+                      {isPrimary ? "Primary Protein" : "Select as Primary"}
+                    </Button>
+                    
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant={isSecondary ? "default" : "outline"}
+                      disabled={!canSelect || !primaryProtein || primaryProtein === item.id}
+                      onClick={() => handleProteinSelection(item.id, false)}
+                      className="flex-1"
+                    >
+                      {isSecondary ? "Secondary Protein" : "Add as Secondary"}
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           );
@@ -245,29 +254,31 @@ export const MenuSelection = ({ form, eventType, guestCount = 0 }: MenuSelection
 
       {/* Form Fields */}
       <div className="space-y-4 pt-4 border-t">
-        <FormField
-          control={form.control}
-          name="bothProteinsAvailable"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-              <FormControl>
-                <Checkbox
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                  disabled={!primaryProtein || !secondaryProtein}
-                />
-              </FormControl>
-              <div className="space-y-1 leading-none">
-                <FormLabel>
-                  Offer Both Proteins to Guests
-                </FormLabel>
-                <FormDescription>
-                  Allow guests to choose between both selected proteins (requires both selections above)
-                </FormDescription>
-              </div>
-            </FormItem>
-          )}
-        />
+        {isProteinCategory && (
+          <FormField
+            control={form.control}
+            name="bothProteinsAvailable"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                    disabled={!primaryProtein || !secondaryProtein}
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel>
+                    Offer Both Proteins to Guests
+                  </FormLabel>
+                  <FormDescription>
+                    Allow guests to choose between both selected proteins (requires both selections above)
+                  </FormDescription>
+                </div>
+              </FormItem>
+            )}
+          />
+        )}
 
         <FormField
           control={form.control}
