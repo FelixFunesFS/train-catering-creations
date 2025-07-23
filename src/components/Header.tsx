@@ -52,7 +52,7 @@ export const Header = () => {
         "neumorphic-card-3",
         isScrolled && "shadow-elegant"
       )}>
-        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-0 my-[3px]">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-0 my-0">
           <div className="flex justify-between items-center py-1 sm:py-2">
             {/* Logo */}
             <Link to="/" className="flex items-center hover:scale-105 transition-transform duration-300 focus-visible-enhanced" aria-label="Soul Train's Eatery - Home">
