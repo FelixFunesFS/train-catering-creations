@@ -20,33 +20,32 @@ export const MasonryGalleryGrid = ({
 }: MasonryGalleryGridProps) => {
   const [isLoading, setIsLoading] = useState(true);
   
-  // Sort images by quality and select top 12 for display
+  // Enhanced image selection with quality-based featuring
   const sortedImages = [...images].sort((a, b) => b.quality - a.quality);
   const displayImages = sortedImages.slice(0, 12);
   
-  // Select 2 featured images (highest quality)
-  const featuredImages = displayImages.slice(0, 2);
-  const regularImages = displayImages.slice(2);
+  // Select featured images (quality 8+ only)
+  const featuredImages = displayImages.filter(img => img.quality >= 8).slice(0, 2);
+  const regularImages = displayImages.filter(img => !featuredImages.includes(img));
 
   const { ref, getItemClassName, getItemStyle } = useStaggeredAnimation({
     itemCount: displayImages.length,
-    staggerDelay: 100,
-    baseDelay: 200,
+    staggerDelay: 80,
+    baseDelay: 150,
     variant: 'ios-spring'
   });
 
   useEffect(() => {
-    // Simulate loading delay
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 300);
+    }, 200);
 
     return () => clearTimeout(timer);
   }, []);
 
   const getAspectRatio = (index: number, isFeatured: boolean): "aspect-square" | "aspect-[4/3]" | "aspect-[3/4]" | "aspect-[5/4]" | "aspect-[4/5]" => {
     if (isFeatured) {
-      return "aspect-[4/3]";
+      return alternateLayout && index === 0 ? "aspect-[5/4]" : "aspect-[4/3]";
     }
     const patterns: ("aspect-square" | "aspect-[4/3]" | "aspect-[3/4]" | "aspect-[5/4]" | "aspect-[4/5]")[] = [
       "aspect-[4/5]", "aspect-square", "aspect-[3/4]", "aspect-[5/4]", "aspect-[4/3]"
@@ -55,96 +54,99 @@ export const MasonryGalleryGrid = ({
   };
 
   if (isLoading) {
-    return <GalleryLoadingState viewMode="masonry" itemCount={12} />;
+    return <GalleryLoadingState viewMode="masonry" itemCount={displayImages.length} />;
   }
 
   return (
-    <div ref={ref} className="columns-1 xs:columns-2 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-3 sm:gap-4 md:gap-5 space-y-3 sm:space-y-4 md:space-y-5">
-      {/* Featured Images with Enhanced Styling */}
-      {featuredImages.map((image, index) => (
-        <div 
-          key={`featured-${sectionId}-${index}`}
-          className={`
-            break-inside-avoid mb-3 sm:mb-4 md:mb-5 
-            ${getItemClassName(index)}
-            ${alternateLayout && index === 0 ? 'md:col-span-2' : ''}
-          `}
-          style={getItemStyle(index)}
-        >
-          <div className="relative group">
-            <OptimizedFloatingImage
-              src={image.src}
-              alt={image.title}
-              title={image.title}
-              description={image.description}
-              aspectRatio={getAspectRatio(index, true)}
-              variant="dramatic"
-              priority={true}
-              onImageClick={() => onImageClick(image.src)}
-              className="w-full transform transition-all duration-300 hover:scale-[1.02] shadow-lg hover:shadow-xl"
-            />
-            
-            {/* Featured Badge */}
-            <div className="absolute top-3 left-3 z-10">
-              <span className="bg-primary text-primary-foreground px-2 py-1 rounded-full text-xs font-medium shadow-lg">
-                Featured
-              </span>
-            </div>
-            
-            {/* Enhanced Overlay for Featured */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg">
-              <div className="absolute bottom-4 left-4 right-4 text-white">
-                <h3 className="font-elegant font-semibold text-lg mb-2 leading-tight">
-                  {image.title}
-                </h3>
-                <p className="text-sm text-white/90 leading-tight mb-2">
-                  {image.description}
-                </p>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs bg-white/20 px-2 py-1 rounded">
-                    Quality {image.quality}/10
-                  </span>
-                  <span className="text-xs bg-primary/80 px-2 py-1 rounded">
-                    Premium
-                  </span>
+    <div className="space-y-6 sm:space-y-8">
+      {/* Featured Images Section */}
+      {featuredImages.length > 0 && (
+        <div className="mb-8 sm:mb-12">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
+            <span className="text-sm font-medium text-primary px-3 py-1 bg-primary/10 rounded-full">
+              Featured Highlights
+            </span>
+            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+            {featuredImages.map((image, index) => (
+              <div 
+                key={`featured-${sectionId}-${index}`}
+                className={`
+                  ${getItemClassName(index)}
+                  ${alternateLayout && index === 0 ? 'md:col-span-2' : ''}
+                `}
+                style={getItemStyle(index)}
+              >
+                <div className="relative group">
+                  <OptimizedFloatingImage
+                    src={image.src}
+                    alt={image.title}
+                    title={image.title}
+                    description={image.description}
+                    aspectRatio={getAspectRatio(index, true)}
+                    variant="dramatic"
+                    priority={true}
+                    onImageClick={() => onImageClick(image.src)}
+                    className="w-full transform transition-all duration-300 hover:scale-[1.02] shadow-xl hover:shadow-2xl"
+                  />
+                  
+                  {/* Enhanced Featured Badge */}
+                  <div className="absolute top-4 left-4 z-10">
+                    <div className="flex items-center gap-2">
+                      <span className="bg-primary text-primary-foreground px-3 py-1 rounded-full text-xs font-semibold shadow-lg">
+                        Featured
+                      </span>
+                      <span className="bg-white/90 text-gray-800 px-2 py-1 rounded text-xs font-medium">
+                        {image.quality}/10
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-      ))}
-
-      {/* Section Divider */}
-      {featuredImages.length > 0 && regularImages.length > 0 && (
-        <div className="break-inside-avoid mb-6 sm:mb-8 col-span-full">
-          <div className="flex items-center gap-4 my-4">
-            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-border to-transparent"></div>
-            <span className="text-sm text-muted-foreground font-medium">More from this collection</span>
-            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-border to-transparent"></div>
+            ))}
           </div>
         </div>
       )}
 
-      {/* Regular Images */}
-      {regularImages.map((image, index) => (
-        <div 
-          key={`regular-${sectionId}-${index}`}
-          className={`break-inside-avoid mb-3 sm:mb-4 md:mb-5 ${getItemClassName(index + 2)}`}
-          style={getItemStyle(index + 2)}
-        >
-          <OptimizedFloatingImage
-            src={image.src}
-            alt={image.title}
-            title={image.title}
-            description={image.description}
-            aspectRatio={getAspectRatio(index, false)}
-            variant="medium"
-            priority={index < 4}
-            onImageClick={() => onImageClick(image.src)}
-            className="w-full transform transition-all duration-300 hover:scale-[1.02]"
-          />
+      {/* Regular Images Grid */}
+      {regularImages.length > 0 && (
+        <div>
+          {featuredImages.length > 0 && (
+            <div className="flex items-center gap-4 mb-6">
+              <div className="flex-1 h-px bg-gradient-to-r from-transparent via-border to-transparent"></div>
+              <span className="text-sm text-muted-foreground font-medium">
+                Collection Gallery
+              </span>
+              <div className="flex-1 h-px bg-gradient-to-r from-transparent via-border to-transparent"></div>
+            </div>
+          )}
+          
+          <div ref={ref} className="columns-1 xs:columns-2 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-3 sm:gap-4 md:gap-5 space-y-3 sm:space-y-4 md:space-y-5">
+            {regularImages.map((image, index) => (
+              <div 
+                key={`regular-${sectionId}-${index}`}
+                className={`break-inside-avoid mb-3 sm:mb-4 md:mb-5 ${getItemClassName(index + featuredImages.length)}`}
+                style={getItemStyle(index + featuredImages.length)}
+              >
+                <OptimizedFloatingImage
+                  src={image.src}
+                  alt={image.title}
+                  title={image.title}
+                  description={image.description}
+                  aspectRatio={getAspectRatio(index, false)}
+                  variant="medium"
+                  priority={index < 4}
+                  onImageClick={() => onImageClick(image.src)}
+                  className="w-full transform transition-all duration-300 hover:scale-[1.02]"
+                />
+              </div>
+            ))}
+          </div>
         </div>
-      ))}
+      )}
     </div>
   );
 };

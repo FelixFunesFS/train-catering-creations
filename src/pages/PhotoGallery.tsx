@@ -42,9 +42,12 @@ const PhotoGallery = () => {
     setSelectedImageIndex(null);
   };
 
-  // Calculate category counts for stats
+  // Enhanced category stats with quality filtering
+  const qualityImages = galleryImages.filter(img => img.quality >= 6);
+  const premiumImages = galleryImages.filter(img => img.quality >= 8);
   const categoryStats = {
-    totalImages: galleryImages.length,
+    totalImages: qualityImages.length,
+    premiumImages: premiumImages.length,
     categories: new Set(galleryImages.map(img => img.category)).size,
     averageQuality: Math.round(galleryImages.reduce((sum, img) => sum + img.quality, 0) / galleryImages.length)
   };
@@ -62,39 +65,39 @@ const PhotoGallery = () => {
       <PageSection pattern="b" withBorder>
         <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8">
           <div ref={contentRef} className={useAnimationClass(contentVariant, contentVisible)}>
-            {/* Enhanced Gallery Stats */}
+            {/* Enhanced Gallery Overview Stats */}
             <div className="text-center mb-8 sm:mb-12">
-              <div className="flex flex-wrap justify-center gap-6 sm:gap-8">
+              <div className="flex flex-wrap justify-center gap-6 sm:gap-8 lg:gap-12">
                 <div className="text-center">
-                  <div className="text-2xl sm:text-3xl font-elegant font-bold text-primary mb-1">
+                  <div className="text-2xl sm:text-3xl lg:text-4xl font-elegant font-bold text-primary mb-1">
                     {categoryStats.totalImages}+
                   </div>
                   <div className="text-sm sm:text-base text-muted-foreground">
-                    Premium Images
+                    Quality Images
                   </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl sm:text-3xl font-elegant font-bold text-primary mb-1">
-                    4
+                  <div className="text-2xl sm:text-3xl lg:text-4xl font-elegant font-bold text-primary mb-1">
+                    {categoryStats.premiumImages}
+                  </div>
+                  <div className="text-sm sm:text-base text-muted-foreground">
+                    Premium Collection
+                  </div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl sm:text-3xl lg:text-4xl font-elegant font-bold text-primary mb-1">
+                    {categoryStats.categories}
                   </div>
                   <div className="text-sm sm:text-base text-muted-foreground">
                     Event Categories
                   </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl sm:text-3xl font-elegant font-bold text-primary mb-1">
+                  <div className="text-2xl sm:text-3xl lg:text-4xl font-elegant font-bold text-primary mb-1">
                     {categoryStats.averageQuality}/10
                   </div>
                   <div className="text-sm sm:text-base text-muted-foreground">
                     Quality Rating
-                  </div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl sm:text-3xl font-elegant font-bold text-primary mb-1">
-                    100+
-                  </div>
-                  <div className="text-sm sm:text-base text-muted-foreground">
-                    Happy Clients
                   </div>
                 </div>
               </div>

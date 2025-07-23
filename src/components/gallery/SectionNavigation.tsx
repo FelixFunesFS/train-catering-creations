@@ -1,6 +1,7 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 
@@ -8,6 +9,8 @@ interface SectionNavigationProps {
   sections: Array<{
     id: string;
     title: string;
+    count: number;
+    completion: number;
   }>;
   activeSection: string | null;
   onSectionClick: (sectionId: string) => void;
@@ -29,7 +32,7 @@ export const SectionNavigation = ({
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsSticky(window.scrollY > 200);
+      setIsSticky(window.scrollY > 300);
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -53,7 +56,7 @@ export const SectionNavigation = ({
       ref={navRef}
       className={`
         ${useAnimationClass(navVariant, navVisible)}
-        transition-all duration-300 z-30
+        transition-all duration-300 z-40
         ${isSticky 
           ? 'fixed top-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-b border-border/20 shadow-lg' 
           : 'relative bg-transparent'
@@ -70,14 +73,26 @@ export const SectionNavigation = ({
                 size="sm"
                 onClick={() => scrollToSection(section.id)}
                 className={`
-                  text-xs sm:text-sm font-medium transition-all duration-300
+                  text-xs sm:text-sm font-medium transition-all duration-300 relative
                   ${activeSection === section.id 
-                    ? 'bg-primary text-primary-foreground shadow-md' 
-                    : 'hover:bg-primary/10 hover:border-primary/30'
+                    ? 'bg-primary text-primary-foreground shadow-md scale-105' 
+                    : 'hover:bg-primary/10 hover:border-primary/30 hover:scale-102'
                   }
                 `}
               >
-                {section.title}
+                <span className="mr-2">{section.title}</span>
+                <Badge 
+                  variant="secondary" 
+                  className={`
+                    text-xs px-1.5 py-0.5 
+                    ${activeSection === section.id 
+                      ? 'bg-primary-foreground/20 text-primary-foreground' 
+                      : 'bg-muted text-muted-foreground'
+                    }
+                  `}
+                >
+                  {section.count}
+                </Badge>
               </Button>
             ))}
           </div>
