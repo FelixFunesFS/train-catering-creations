@@ -9,31 +9,36 @@ import { Heart, Phone, Mail } from "lucide-react";
 export const WeddingQuoteSplitHero = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   
-  const consultationShowcaseImages = [{
-    src: "/lovable-uploads/84f43173-e79d-4c53-b5d4-e8a596d1d614.png",
-    alt: "Elegant venue setup with floral arrangements and formal place settings",
-    title: "Venue Consultation",
-    description: "Elegant venue setup with floral arrangements and formal place settings",
-    category: "wedding"
-  }, {
-    src: "/lovable-uploads/eca9632d-b79e-4584-8287-00cc36515fc6.png",
-    alt: "Beautiful round table setup for elegant wedding reception",
-    title: "Reception Planning",
-    description: "Beautiful round table setup for elegant wedding reception",
-    category: "wedding"
-  }, {
-    src: "/lovable-uploads/894051bf-31c6-4930-bb88-e3e1d74f7ee1.png",
-    alt: "Stunning rustic venue with chandeliers, string lights, and elegant dining setup",
-    title: "Custom Design",
-    description: "Stunning rustic venue with chandeliers, string lights, and elegant dining setup",
-    category: "wedding"
-  }, {
-    src: "/lovable-uploads/26d2d500-6017-41a2-99b2-b7050cefedba.png",
-    alt: "Elegant outdoor wedding tent with chandeliers, string lights, and formal table service",
-    title: "Full Service",
-    description: "Elegant outdoor wedding tent with chandeliers, string lights, and formal table service",
-    category: "wedding"
-  }];
+  const consultationShowcaseImages = [
+    {
+      src: "/lovable-uploads/84f43173-e79d-4c53-b5d4-e8a596d1d614.png",
+      alt: "Elegant venue setup with floral arrangements and formal place settings",
+      title: "Venue Consultation",
+      description: "Elegant venue setup with floral arrangements and formal place settings",
+      category: "wedding"
+    },
+    {
+      src: "/lovable-uploads/eca9632d-b79e-4584-8287-00cc36515fc6.png",
+      alt: "Beautiful round table setup for elegant wedding reception",
+      title: "Reception Planning",
+      description: "Beautiful round table setup for elegant wedding reception",
+      category: "wedding"
+    },
+    {
+      src: "/lovable-uploads/894051bf-31c6-4930-bb88-e3e1d74f7ee1.png",
+      alt: "Stunning rustic venue with chandeliers, string lights, and elegant dining setup",
+      title: "Custom Design",
+      description: "Stunning rustic venue with chandeliers, string lights, and elegant dining setup",
+      category: "wedding"
+    },
+    {
+      src: "/lovable-uploads/26d2d500-6017-41a2-99b2-b7050cefedba.png",
+      alt: "Elegant outdoor wedding tent with chandeliers, string lights, and formal table service",
+      title: "Full Service",
+      description: "Elegant outdoor wedding tent with chandeliers, string lights, and formal table service",
+      category: "wedding"
+    }
+  ];
 
   const handleImageClick = (index: number) => {
     setSelectedImageIndex(index);
@@ -47,14 +52,14 @@ export const WeddingQuoteSplitHero = () => {
     <>
       <section className="relative min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
         <div className="max-w-7xl mx-auto px-6 xl:px-12 py-8 lg:py-0">
-          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center min-h-[calc(100vh-8rem)]">
+          <div className="grid md:grid-cols-2 gap-8 md:gap-10 lg:gap-12 items-center min-h-[calc(100vh-8rem)]">
             
             {/* Left Content Panel */}
-            <div className="order-2 lg:order-1 text-center lg:text-left">
+            <div className="order-2 md:order-1 text-center md:text-left">
               {/* Logo */}
-              <div className="flex justify-center lg:justify-start mb-6 lg:mb-8">
-                <div className="p-4 lg:p-6">
-                  <div className="h-12 w-12 lg:h-16 lg:w-16 relative">
+              <div className="flex justify-center md:justify-start mb-6 md:mb-7 lg:mb-8">
+                <div className="p-4 md:p-5 lg:p-6">
+                  <div className="h-12 w-12 md:h-14 md:w-14 lg:h-16 lg:w-16 relative">
                     <img 
                       src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
                       alt="Soul Train's Eatery Logo" 
@@ -65,31 +70,31 @@ export const WeddingQuoteSplitHero = () => {
               </div>
 
               {/* Icons */}
-              <div className="flex justify-center lg:justify-start items-center gap-4 mb-6 lg:mb-8">
+              <div className="flex justify-center md:justify-start items-center gap-4 mb-6 md:mb-7 lg:mb-8">
                 <div className="p-3 rounded-full bg-primary/10 text-primary">
-                  <Heart className="h-6 w-6 sm:h-8 sm:w-8" />
+                  <Heart className="h-6 w-6 md:h-7 md:w-7 sm:h-8 sm:w-8" />
                 </div>
                 <div className="p-3 rounded-full bg-primary/10 text-primary">
-                  <Phone className="h-6 w-6 sm:h-8 sm:w-8" />
+                  <Phone className="h-6 w-6 md:h-7 md:w-7 sm:h-8 sm:w-8" />
                 </div>
                 <div className="p-3 rounded-full bg-primary/10 text-primary">
-                  <Mail className="h-6 w-6 sm:h-8 sm:w-8" />
+                  <Mail className="h-6 w-6 md:h-7 md:w-7 sm:h-8 sm:w-8" />
                 </div>
               </div>
 
               {/* Main Heading */}
-              <div className="mb-8 lg:mb-10">
-                <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-elegant font-bold text-foreground leading-tight mb-4">
+              <div className="mb-8 md:mb-9 lg:mb-10">
+                <h1 className="text-3xl sm:text-4xl md:text-4xl lg:text-5xl xl:text-6xl font-elegant font-bold text-foreground leading-tight mb-4">
                   Let's Plan Your Perfect Wedding
                 </h1>
-                <div className="w-16 lg:w-24 h-1 bg-gradient-to-r from-primary via-primary-light to-primary mx-auto lg:mx-0 mb-4 rounded-full" />
-                <p className="text-lg sm:text-xl lg:text-2xl text-muted-foreground font-elegant leading-relaxed">
+                <div className="w-16 md:w-20 lg:w-24 h-1 bg-gradient-to-r from-primary via-primary-light to-primary mx-auto md:mx-0 mb-4 rounded-full" />
+                <p className="text-lg sm:text-xl md:text-xl lg:text-2xl text-muted-foreground font-elegant leading-relaxed">
                   Personalized consultation and custom planning for your special day
                 </p>
               </div>
 
               {/* Call-to-Action Buttons */}
-              <div className="flex flex-col sm:flex-row justify-center lg:justify-start items-center gap-4 lg:gap-6">
+              <div className="flex flex-col sm:flex-row justify-center md:justify-start items-center gap-4 md:gap-5 lg:gap-6">
                 <Button asChild size="lg" className="w-full sm:w-auto min-w-[160px]">
                   <Link to="tel:8439700265">
                     Call (843) 970-0265
@@ -105,12 +110,12 @@ export const WeddingQuoteSplitHero = () => {
             </div>
 
             {/* Right Image Showcase */}
-            <div className="order-1 lg:order-2">
-              <div className="grid grid-cols-2 gap-3 lg:gap-4 h-[400px] lg:h-[600px]">
+            <div className="order-1 md:order-2">
+              <div className="grid grid-cols-2 gap-3 md:gap-3 lg:gap-4 h-[400px] md:h-[500px] lg:h-[600px]">
                 {consultationShowcaseImages.map((image, index) => (
                   <div 
                     key={index} 
-                    className={`group neumorphic-card hover:neumorphic-card-2 p-2 lg:p-3 rounded-2xl cursor-pointer transition-all duration-300 ${
+                    className={`group neumorphic-card hover:neumorphic-card-2 p-2 md:p-2 lg:p-3 rounded-2xl cursor-pointer transition-all duration-300 ${
                       index === 0 ? 'col-span-2' : 
                       index === 1 ? 'row-span-2' : ''
                     }`} 
@@ -128,8 +133,8 @@ export const WeddingQuoteSplitHero = () => {
                       
                       {/* Hover Overlay */}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <div className="absolute bottom-3 lg:bottom-4 left-3 lg:left-4 right-3 lg:right-4">
-                          <h3 className="text-white font-elegant font-semibold text-sm lg:text-base mb-1">
+                        <div className="absolute bottom-3 md:bottom-3 lg:bottom-4 left-3 md:left-3 lg:left-4 right-3 md:right-3 lg:right-4">
+                          <h3 className="text-white font-elegant font-semibold text-sm md:text-sm lg:text-base mb-1">
                             {image.title}
                           </h3>
                           <div className="w-8 h-0.5 bg-white/80 rounded-full" />
