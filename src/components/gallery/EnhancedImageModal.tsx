@@ -1,8 +1,10 @@
 
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, X, ZoomIn, ZoomOut, Maximize2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { ChevronLeft, ChevronRight, X, ZoomIn, ZoomOut, Maximize2, Share2, Download, Info } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Image {
   src: string;
@@ -24,14 +26,19 @@ export const EnhancedImageModal = ({
 }: EnhancedImageModalProps) => {
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [isZoomed, setIsZoomed] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(1);
+  const [showInfo, setShowInfo] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const touchStartX = useRef<number>(0);
   const touchEndX = useRef<number>(0);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (selectedIndex !== null) {
       setCurrentIndex(selectedIndex);
       setIsZoomed(false);
+      setZoomLevel(1);
+      setShowInfo(false);
     }
   }, [selectedIndex]);
 
@@ -51,21 +58,25 @@ export const EnhancedImageModal = ({
           break;
         case '+':
         case '=':
-          setIsZoomed(true);
+          handleZoomIn();
           break;
         case '-':
-          setIsZoomed(false);
+          handleZoomOut();
           break;
         case 'f':
         case 'F':
           toggleFullscreen();
+          break;
+        case 'i':
+        case 'I':
+          setShowInfo(!showInfo);
           break;
       }
     };
 
     document.addEventListener('keydown', handleKeyPress);
     return () => document.removeEventListener('keydown', handleKeyPress);
-  }, [selectedIndex, currentIndex]);
+  }, [selectedIndex, currentIndex, isZoomed, zoomLevel, showInfo]);
 
   const handleTouchStart = (event: React.TouchEvent) => {
     touchStartX.current = event.targetTouches[0].clientX;
@@ -96,11 +107,26 @@ export const EnhancedImageModal = ({
   const handlePrevious = () => {
     setCurrentIndex((prev) => prev === 0 ? images.length - 1 : prev - 1);
     setIsZoomed(false);
+    setZoomLevel(1);
   };
 
   const handleNext = () => {
     setCurrentIndex((prev) => prev === images.length - 1 ? 0 : prev + 1);
     setIsZoomed(false);
+    setZoomLevel(1);
+  };
+
+  const handleZoomIn = () => {
+    setZoomLevel(prev => Math.min(prev + 0.5, 3));
+    setIsZoomed(true);
+  };
+
+  const handleZoomOut = () => {
+    const newZoomLevel = Math.max(zoomLevel - 0.5, 1);
+    setZoomLevel(newZoomLevel);
+    if (newZoomLevel === 1) {
+      setIsZoomed(false);
+    }
   };
 
   const toggleFullscreen = () => {
@@ -113,6 +139,43 @@ export const EnhancedImageModal = ({
     }
   };
 
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: currentImage.title,
+          text: currentImage.description,
+          url: window.location.href
+        });
+      } catch (error) {
+        console.log('Error sharing:', error);
+      }
+    } else {
+      // Fallback: copy URL to clipboard
+      navigator.clipboard.writeText(window.location.href);
+    }
+  };
+
+  const handleDownload = () => {
+    const link = document.createElement('a');
+    link.href = currentImage.src;
+    link.download = `${currentImage.title}.jpg`;
+    link.click();
+  };
+
+  const getCategoryColor = (category: string) => {
+    const colors: Record<string, string> = {
+      wedding: "bg-pink-500/90",
+      formal: "bg-purple-500/90",
+      corporate: "bg-blue-500/90",
+      desserts: "bg-orange-500/90",
+      grazing: "bg-green-500/90",
+      team: "bg-indigo-500/90",
+      buffet: "bg-red-500/90",
+    };
+    return colors[category] || "bg-gray-500/90";
+  };
+
   const currentImage = images[currentIndex];
 
   return (
@@ -122,60 +185,111 @@ export const EnhancedImageModal = ({
         <DialogDescription className="sr-only">Full size view of gallery image</DialogDescription>
         
         <div className="relative">
+          {/* Mobile Controls */}
+          <div className="lg:hidden absolute top-4 left-4 right-4 z-20 flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="!text-white hover:!text-white bg-black/70 hover:bg-black/90 border border-white/20 min-h-[44px]"
+                onClick={() => setShowInfo(!showInfo)}
+              >
+                <Info className="h-4 w-4" />
+              </Button>
+              <div className="text-white text-sm bg-black/70 px-3 py-2 rounded-lg border border-white/20">
+                {currentIndex + 1} / {images.length}
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="!text-white hover:!text-white bg-black/70 hover:bg-black/90 border border-white/20 min-h-[44px]"
+                onClick={handleShare}
+              >
+                <Share2 className="h-4 w-4" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="!text-white hover:!text-white bg-black/70 hover:bg-black/90 border border-white/20 min-h-[44px]"
+                onClick={onClose}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+
           {/* Desktop Controls */}
           <div className="hidden lg:flex absolute top-4 right-4 gap-2 z-20">
             <Button 
               variant="ghost" 
-              size="icon" 
+              size="sm" 
               className="!text-white hover:!text-white bg-black/70 hover:bg-black/90 border border-white/20"
-              onClick={() => setIsZoomed(!isZoomed)}
-              aria-label={isZoomed ? "Zoom out" : "Zoom in"}
+              onClick={handleZoomOut}
+              disabled={zoomLevel <= 1}
             >
-              {isZoomed ? <ZoomOut className="h-5 w-5" /> : <ZoomIn className="h-5 w-5" />}
+              <ZoomOut className="h-4 w-4" />
             </Button>
             
             <Button 
               variant="ghost" 
-              size="icon" 
+              size="sm" 
+              className="!text-white hover:!text-white bg-black/70 hover:bg-black/90 border border-white/20"
+              onClick={handleZoomIn}
+              disabled={zoomLevel >= 3}
+            >
+              <ZoomIn className="h-4 w-4" />
+            </Button>
+            
+            <Button 
+              variant="ghost" 
+              size="sm" 
               className="!text-white hover:!text-white bg-black/70 hover:bg-black/90 border border-white/20"
               onClick={toggleFullscreen}
-              aria-label="Toggle fullscreen"
             >
-              <Maximize2 className="h-5 w-5" />
+              <Maximize2 className="h-4 w-4" />
             </Button>
             
             <Button 
               variant="ghost" 
-              size="icon" 
+              size="sm" 
+              className="!text-white hover:!text-white bg-black/70 hover:bg-black/90 border border-white/20"
+              onClick={handleShare}
+            >
+              <Share2 className="h-4 w-4" />
+            </Button>
+            
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="!text-white hover:!text-white bg-black/70 hover:bg-black/90 border border-white/20"
+              onClick={handleDownload}
+            >
+              <Download className="h-4 w-4" />
+            </Button>
+            
+            <Button 
+              variant="ghost" 
+              size="sm" 
               className="!text-white hover:!text-white bg-black/70 hover:bg-black/90 border border-white/20"
               onClick={onClose}
-              aria-label="Close gallery"
             >
-              <X className="h-5 w-5" />
+              <X className="h-4 w-4" />
             </Button>
           </div>
 
-          {/* Mobile Close Button */}
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="lg:hidden absolute -top-12 right-0 !text-white hover:!text-white z-20 bg-black/90 hover:bg-black/95 border border-white/40 min-h-touch min-w-touch rounded-xl shadow-xl"
-            onClick={onClose}
-            aria-label="Close gallery"
-          >
-            <X className="h-6 w-6" />
-          </Button>
-          
-          {/* Image counter */}
-          <div className="absolute -top-12 lg:top-4 left-0 lg:left-4 text-white text-sm z-20 bg-black/70 px-3 py-2 rounded-lg border border-white/20">
+          {/* Desktop Image Counter */}
+          <div className="hidden lg:block absolute top-4 left-4 text-white text-sm z-20 bg-black/70 px-3 py-2 rounded-lg border border-white/20">
             {currentIndex + 1} of {images.length}
           </div>
           
           {/* Navigation buttons */}
           <Button 
             variant="ghost" 
-            size="icon" 
-            className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 !text-white hover:!text-white z-10 bg-black/70 hover:bg-black/90 border border-white/20 min-h-touch min-w-touch rounded-xl shadow-xl"
+            size="sm" 
+            className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 !text-white hover:!text-white z-10 bg-black/70 hover:bg-black/90 border border-white/20 min-h-[44px] min-w-[44px] rounded-xl"
             onClick={handlePrevious}
             disabled={images.length <= 1}
             aria-label="Previous image"
@@ -185,8 +299,8 @@ export const EnhancedImageModal = ({
           
           <Button 
             variant="ghost" 
-            size="icon" 
-            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 !text-white hover:!text-white z-10 bg-black/70 hover:bg-black/90 border border-white/20 min-h-touch min-w-touch rounded-xl shadow-xl"
+            size="sm" 
+            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 !text-white hover:!text-white z-10 bg-black/70 hover:bg-black/90 border border-white/20 min-h-[44px] min-w-[44px] rounded-xl"
             onClick={handleNext}
             disabled={images.length <= 1}
             aria-label="Next image"
@@ -202,7 +316,7 @@ export const EnhancedImageModal = ({
                 return (
                   <button
                     key={actualIndex}
-                    className={`w-12 h-12 rounded overflow-hidden border-2 transition-all ${
+                    className={`w-12 h-12 rounded overflow-hidden border-2 transition-all min-w-[48px] ${
                       actualIndex === currentIndex 
                         ? 'border-white' 
                         : 'border-transparent hover:border-white/50'
@@ -231,20 +345,26 @@ export const EnhancedImageModal = ({
                 src={currentImage.src} 
                 alt={currentImage.title} 
                 className={`w-full h-auto max-h-[80vh] object-contain rounded-xl transition-transform duration-300 ${
-                  isZoomed ? 'scale-150 cursor-move' : 'cursor-pointer'
+                  isZoomed ? `scale-[${zoomLevel}] cursor-move` : 'cursor-pointer'
                 }`}
-                onClick={() => setIsZoomed(!isZoomed)}
+                onClick={() => isMobile ? setShowInfo(!showInfo) : setIsZoomed(!isZoomed)}
               />
               
               {/* Image Info */}
-              <div className="absolute bottom-2 sm:bottom-4 lg:bottom-20 left-2 sm:left-4 right-2 sm:right-4 text-white bg-black/70 rounded-xl p-3 sm:p-4 border border-white/20">
+              <div className={`absolute bottom-2 sm:bottom-4 lg:bottom-20 left-2 sm:left-4 right-2 sm:right-4 text-white bg-black/70 rounded-xl p-3 sm:p-4 border border-white/20 transition-all duration-300 ${
+                showInfo || !isMobile ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-full'
+              }`}>
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="bg-primary/80 text-primary-foreground px-2 py-1 rounded text-xs font-medium">
+                  <Badge className={`${getCategoryColor(currentImage.category)} text-white text-xs`}>
                     {currentImage.category}
-                  </span>
-                  <span className="text-xs text-white/70">
-                    Press 'F' for fullscreen, '+/-' to zoom
-                  </span>
+                  </Badge>
+                  <div className="hidden sm:flex items-center gap-2 text-xs text-white/70">
+                    <span>Press 'F' for fullscreen</span>
+                    <span>•</span>
+                    <span>'+/-' to zoom</span>
+                    <span>•</span>
+                    <span>Arrow keys to navigate</span>
+                  </div>
                 </div>
                 <h3 className="font-elegant font-semibold text-sm sm:text-base md:text-lg mb-1">
                   {currentImage.title}
