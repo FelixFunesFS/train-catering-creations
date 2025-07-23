@@ -57,7 +57,7 @@ export const MasonryGalleryGrid = ({
               title={image.title}
               description={image.description}
               aspectRatio={getAspectRatio(index, true)}
-              variant="large"
+              variant="dramatic"
               priority={true}
               onImageClick={() => onImageClick(image.src)}
               className="w-full transform transition-all duration-300 hover:scale-[1.02]"
