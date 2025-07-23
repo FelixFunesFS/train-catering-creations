@@ -1,20 +1,16 @@
-import { useState, Suspense } from "react";
+import { useState } from "react";
 import MenuHeader from "@/components/menu/MenuHeader";
 import MenuContact from "@/components/menu/MenuContact";
-import { EnhancedMobileNavigation } from "@/components/menu/EnhancedMobileNavigation";
+import { MobileMenuNavigation } from "@/components/menu/MobileMenuNavigation";
 import { QuickActionButton } from "@/components/menu/QuickActionButton";
-import { ResponsiveMenuSection } from "@/components/menu/ResponsiveMenuSection";
-import { RestaurantStyleMenuSection } from "@/components/menu/RestaurantStyleMenuSection";
-import { MenuSkeleton } from "@/components/menu/MenuSkeleton";
+import { EnhancedCollapsibleMenuSection } from "@/components/menu/EnhancedCollapsibleMenuSection";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { PageSection } from "@/components/ui/page-section";
 
 const Menu = () => {
   const [activeCategory, setActiveCategory] = useState("appetizers");
-  const isMobile = useIsMobile();
 
   const { ref: headerRef, isVisible: headerVisible, variant: headerVariant } = useScrollAnimation({ 
     delay: 0, 
@@ -24,17 +20,17 @@ const Menu = () => {
   });
 
   const { ref: contentRef, isVisible: contentVisible, variant: contentVariant } = useScrollAnimation({ 
-    delay: 100, 
+    delay: 200, 
     variant: 'fade-up',
-    mobile: { variant: 'subtle', delay: 50 },
-    desktop: { variant: 'ios-spring', delay: 100 }
+    mobile: { variant: 'subtle', delay: 100 },
+    desktop: { variant: 'ios-spring', delay: 200 }
   });
   
   const { ref: contactRef, isVisible: contactVisible, variant: contactVariant } = useScrollAnimation({ 
-    delay: 200, 
+    delay: 400, 
     variant: 'elastic',
-    mobile: { variant: 'medium', delay: 150 },
-    desktop: { variant: 'elastic', delay: 200 }
+    mobile: { variant: 'medium', delay: 300 },
+    desktop: { variant: 'elastic', delay: 400 }
   });
 
   const menuData = {
@@ -464,75 +460,46 @@ const Menu = () => {
 
   const handleCategoryChange = (category: string) => {
     setActiveCategory(category);
-    // Smooth scroll to top with mobile-friendly offset
-    const offset = isMobile ? 100 : 0;
-    window.scrollTo({ top: offset, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const renderMenuContent = () => {
     const currentData = getCurrentMenuData();
     
     return (
-      <div className="space-y-4 sm:space-y-6 lg:space-y-8">
-        {/* Mobile-optimized Hero Section */}
-        <div className={cn(
-          "relative rounded-xl overflow-hidden mb-4 sm:mb-6 lg:mb-8",
-          isMobile ? "h-24" : "h-32 sm:h-40 lg:h-48 xl:h-56"
-        )}>
+      <div className="space-y-6 lg:space-y-8">
+        {/* Hero Section */}
+        <div className="relative h-32 sm:h-40 lg:h-48 xl:h-56 rounded-xl overflow-hidden mb-6 lg:mb-8">
           <img 
             src={currentData.backgroundImage}
             alt={currentData.title}
             className="w-full h-full object-cover"
-            loading="lazy"
           />
           <div className={cn("absolute inset-0", currentData.overlayColor)} />
           <div className="absolute inset-0 flex items-center justify-center text-center px-4">
-            <div className="text-white space-y-1 sm:space-y-2 lg:space-y-4">
-              <h2 className={cn(
-                "font-elegant font-bold",
-                isMobile ? "text-lg" : "text-xl sm:text-2xl lg:text-3xl xl:text-4xl"
-              )}>
+            <div className="text-white space-y-2 lg:space-y-4">
+              <h2 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-elegant font-bold">
                 {currentData.title}
               </h2>
-              <p className={cn(
-                "opacity-90 italic",
-                isMobile ? "text-xs" : "text-sm sm:text-base lg:text-lg"
-              )}>
+              <p className="text-sm sm:text-base lg:text-lg opacity-90 italic">
                 {currentData.subtitle}
               </p>
             </div>
           </div>
         </div>
 
-        {/* Responsive Menu Sections with Mixed Layouts */}
-        <div className="space-y-4 sm:space-y-6 lg:space-y-8">
+        {/* Enhanced Menu Sections */}
+        <div className="space-y-6 lg:space-y-8">
           {currentData.sections.map((section, index) => (
-            <Suspense 
+            <EnhancedCollapsibleMenuSection
               key={`${section.title}-${index}`}
-              fallback={<MenuSkeleton itemCount={6} isMobile={isMobile} />}
-            >
-              {/* Use Restaurant Style for first section (signature items) and desserts */}
-              {(index === 0 || activeCategory === 'desserts') ? (
-                <RestaurantStyleMenuSection
-                  title={section.title}
-                  subtitle={section.subtitle}
-                  color={section.color}
-                  items={section.items}
-                  categoryType={index === 0 ? 'signature' : activeCategory === 'desserts' ? 'premium' : 'classic'}
-                  defaultExpanded={index === 0}
-                  showFilters={true}
-                />
-              ) : (
-                <ResponsiveMenuSection
-                  title={section.title}
-                  subtitle={section.subtitle}
-                  color={section.color}
-                  items={section.items}
-                  defaultExpanded={index === 0}
-                  showFilters={true}
-                />
-              )}
-            </Suspense>
+              title={section.title}
+              subtitle={section.subtitle}
+              color={section.color}
+              items={section.items}
+              defaultExpanded={index === 0}
+              showFilters={true}
+            />
           ))}
         </div>
       </div>
@@ -541,7 +508,7 @@ const Menu = () => {
 
   return (
     <div className="min-h-screen bg-gradient-hero relative overflow-hidden">
-      <EnhancedMobileNavigation 
+      <MobileMenuNavigation 
         activeCategory={activeCategory}
         onCategoryChange={handleCategoryChange}
       />
@@ -552,7 +519,7 @@ const Menu = () => {
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/2 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-1/3 right-1/4 w-64 h-64 bg-accent/3 rounded-full blur-2xl pointer-events-none" />
       
-      <section className={cn("py-4 sm:py-6 lg:py-12", isMobile && "pt-2")}>
+      <section className="py-6 lg:py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div ref={headerRef} className={useAnimationClass(headerVariant, headerVisible)}>
             <MenuHeader />
@@ -575,31 +542,27 @@ const Menu = () => {
       </div>
 
       {/* Enhanced Menu Content */}
-      <section className={cn("py-4 sm:py-6 lg:py-12", isMobile && "pt-2")}>
+      <section className="py-6 lg:py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div 
             ref={contentRef} 
             className={useAnimationClass(contentVariant, contentVisible)}
           >
-            {/* Mobile-optimized Navigation Tabs */}
-            <div className="flex justify-center mb-4 sm:mb-6 lg:mb-8">
-              <div className={cn(
-                "flex p-1 sm:p-2 bg-muted/50 rounded-lg",
-                isMobile ? "space-x-1 overflow-x-auto max-w-full" : "space-x-1 sm:space-x-2"
-              )}>
+            {/* Navigation Tabs */}
+            <div className="flex justify-center mb-6 lg:mb-8">
+              <div className="flex space-x-1 sm:space-x-2 p-2 bg-muted/50 rounded-lg overflow-x-auto">
                 {Object.entries(menuData).map(([key, data]) => (
                   <button
                     key={key}
                     onClick={() => handleCategoryChange(key)}
                     className={cn(
-                      "px-3 sm:px-4 lg:px-6 py-2 sm:py-3 text-sm font-medium rounded-md transition-all duration-200 whitespace-nowrap flex-shrink-0 touch-manipulation",
-                      isMobile ? "min-h-[44px]" : "",
+                      "px-4 sm:px-6 py-3 text-sm font-medium rounded-md transition-all duration-200 whitespace-nowrap flex-shrink-0",
                       activeCategory === key
                         ? "bg-primary text-primary-foreground shadow-sm"
-                        : "text-muted-foreground hover:text-foreground hover:bg-background/50 active:scale-95"
+                        : "text-muted-foreground hover:text-foreground hover:bg-background/50"
                     )}
                   >
-                    {isMobile ? data.title.split(' ')[0] : data.title}
+                    {data.title}
                   </button>
                 ))}
               </div>
