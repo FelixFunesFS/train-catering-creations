@@ -54,7 +54,7 @@ export const SplitScreenHero = () => {
           <div className="grid md:grid-cols-2 gap-8 md:gap-10 lg:gap-12 items-center min-h-[calc(100vh-8rem)]">
             
             {/* Left Content Panel */}
-            <div className="order-2 md:order-1 text-center md:text-left">
+            <div className="order-1 md:order-1 text-center md:text-left">
               {/* Logo */}
               <div className="flex justify-center md:justify-start mb-6 md:mb-7 lg:mb-8">
                 <div className="p-4 md:p-5 lg:p-6">
@@ -96,7 +96,7 @@ export const SplitScreenHero = () => {
             </div>
 
             {/* Right Image Showcase */}
-            <div className="order-1 md:order-2">
+            <div className="order-2 md:order-2">
               <div className="grid grid-cols-2 gap-3 md:gap-3 lg:gap-4 h-[400px] md:h-[500px] lg:h-[600px]">
                 {showcaseImages.map((image, index) => (
                   <div 
