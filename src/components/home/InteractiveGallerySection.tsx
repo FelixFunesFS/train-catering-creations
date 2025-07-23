@@ -4,14 +4,18 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { EnhancedImageModal } from "@/components/gallery/EnhancedImageModal";
 import { OptimizedImage } from "@/components/ui/optimized-image";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useState } from "react";
 import { galleryImages } from "@/data/galleryImages";
 import { Camera, Heart, Star, Eye, Clock, Briefcase, Cake, Utensils, Users } from "lucide-react";
+import Autoplay from "embla-carousel-autoplay";
 
 export const InteractiveGallerySection = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+  const isMobile = useIsMobile();
   
   const { ref: headerRef, isVisible: headerVisible, variant: headerVariant } = useScrollAnimation({ delay: 0, variant: 'fade-up' });
   const { ref: gridRef, isVisible: gridVisible, variant: gridVariant } = useScrollAnimation({ delay: 200, variant: 'ios-spring' });
@@ -48,6 +52,46 @@ export const InteractiveGallerySection = () => {
     return categoryMap[category as keyof typeof categoryMap] || { label: category, color: "bg-gray-500/90", icon: Camera };
   };
 
+  const renderImageCard = (image: any, index: number) => {
+    const categoryBadge = getCategoryBadge(image.category);
+    const IconComponent = categoryBadge.icon;
+    
+    return (
+      <div
+        key={index}
+        className="neumorphic-card-2 hover:neumorphic-card-3 rounded-xl p-3 sm:p-4 bg-card transition-all duration-300 cursor-pointer group hover:scale-[1.02] transform"
+        onClick={() => handleImageClick(image.src)}
+      >
+        <div className="relative rounded-lg overflow-hidden aspect-[4/3] sm:aspect-square lg:aspect-[4/3]">
+          <OptimizedImage
+            src={image.src}
+            alt={image.title}
+            containerClassName="w-full h-full"
+            className="group-hover:scale-105 transition-transform duration-300 w-full h-full object-cover"
+            priority={index < 3}
+          />
+          
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <div className="absolute top-3 left-3">
+              <Badge className={`${categoryBadge.color} text-white text-xs flex items-center gap-1`}>
+                <IconComponent className="w-3 h-3" />
+                {categoryBadge.label}
+              </Badge>
+            </div>
+            <div className="absolute bottom-3 left-3 right-3">
+              <h3 className="text-white font-elegant font-semibold text-sm sm:text-base lg:text-lg mb-1 leading-tight">
+                {image.title}
+              </h3>
+              <p className="text-white/90 text-xs sm:text-sm leading-tight line-clamp-2">
+                {image.description}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <>
       <section className="py-8 sm:py-12 lg:py-16 bg-gradient-card/30 border-t border-border/10">
@@ -68,49 +112,43 @@ export const InteractiveGallerySection = () => {
             </p>
           </div>
 
-          {/* Mobile-First Unified Responsive Grid */}
+          {/* Mobile Carousel / Desktop Grid */}
           <div ref={gridRef} className={gridAnimationClass}>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6 mb-8 sm:mb-10 lg:mb-12">
-              {showcaseImages.map((image, index) => {
-                const categoryBadge = getCategoryBadge(image.category);
-                const IconComponent = categoryBadge.icon;
-                
-                return (
-                  <div
-                    key={index}
-                    className="neumorphic-card-2 hover:neumorphic-card-3 rounded-xl p-3 sm:p-4 bg-card transition-all duration-300 cursor-pointer group hover:scale-[1.02] transform"
-                    onClick={() => handleImageClick(image.src)}
-                  >
-                    <div className="relative rounded-lg overflow-hidden aspect-[4/3] sm:aspect-square lg:aspect-[4/3]">
-                      <OptimizedImage
-                        src={image.src}
-                        alt={image.title}
-                        containerClassName="w-full h-full"
-                        className="group-hover:scale-105 transition-transform duration-300 w-full h-full object-cover"
-                        priority={index < 3}
-                      />
-                      
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <div className="absolute top-3 left-3">
-                          <Badge className={`${categoryBadge.color} text-white text-xs flex items-center gap-1`}>
-                            <IconComponent className="w-3 h-3" />
-                            {categoryBadge.label}
-                          </Badge>
-                        </div>
-                        <div className="absolute bottom-3 left-3 right-3">
-                          <h3 className="text-white font-elegant font-semibold text-sm sm:text-base lg:text-lg mb-1 leading-tight">
-                            {image.title}
-                          </h3>
-                          <p className="text-white/90 text-xs sm:text-sm leading-tight line-clamp-2">
-                            {image.description}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+            {isMobile ? (
+              /* Mobile Carousel */
+              <div className="mb-8 sm:mb-10 lg:mb-12">
+                <Carousel 
+                  opts={{
+                    align: "start",
+                    loop: true,
+                    dragFree: true
+                  }} 
+                  plugins={[Autoplay({
+                    delay: 4000,
+                    stopOnInteraction: true
+                  })]} 
+                  className="w-full"
+                >
+                  <CarouselContent className="-ml-2">
+                    {showcaseImages.map((image, index) => (
+                      <CarouselItem 
+                        key={index} 
+                        className="pl-2 basis-[85%]"
+                      >
+                        {renderImageCard(image, index)}
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                  <CarouselPrevious className="left-2 h-8 w-8 bg-background/80 backdrop-blur-sm border-border/50 hover:bg-background/90" />
+                  <CarouselNext className="right-2 h-8 w-8 bg-background/80 backdrop-blur-sm border-border/50 hover:bg-background/90" />
+                </Carousel>
+              </div>
+            ) : (
+              /* Desktop/Tablet Grid */
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6 mb-8 sm:mb-10 lg:mb-12">
+                {showcaseImages.map((image, index) => renderImageCard(image, index))}
+              </div>
+            )}
           </div>
 
           <div ref={ctaRef} className={`text-center ${ctaAnimationClass}`}>
