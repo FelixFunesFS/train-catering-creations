@@ -49,14 +49,14 @@ export const WeddingMenuSplitHero = () => {
 
   return (
     <>
-      <section className="relative min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
+      <section className="relative min-h-screen bg-gradient-to-br from-background via-muted/20 to-background -mt-4">
         <div className="max-w-7xl mx-auto px-6 xl:px-12 pb-8 lg:pb-0">
           <div className="grid md:grid-cols-2 gap-8 md:gap-10 lg:gap-12 items-center min-h-screen">
             
             {/* Left Content Panel */}
             <div className="order-1 md:order-1 text-center md:text-left">
               {/* Logo */}
-              <div className="flex justify-center md:justify-start mb-4 sm:mb-5 lg:mb-6">
+              <div className="flex justify-center md:justify-start mb-2">
                 <div className="p-4 md:p-5 lg:p-6">
                   <div className="h-12 w-12 md:h-14 md:w-14 lg:h-16 lg:w-16 relative">
                     <img 
