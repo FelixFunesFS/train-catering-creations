@@ -4,9 +4,9 @@ const TermsConditions = () => {
   return <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
       <PageHeader title="Terms & Conditions" description="Please read these terms carefully before using our catering services. They outline the agreement between you and Soul Train's Eatery." icons={[<FileText className="h-6 w-6 sm:h-8 sm:w-8" />, <Scale className="h-6 w-6 sm:h-8 sm:w-8" />, <Handshake className="h-6 w-6 sm:h-8 sm:w-8" />]} />
 
-      <div className="max-w-4xl mx-auto px-6 sm:px-8 lg:px-12 py-12">
+      <div className="w-full px-6 sm:px-8 lg:px-12 xl:px-16 py-12">
         <div className="prose prose-lg max-w-none">
-          <div className="bg-card/50 backdrop-blur-sm border border-border/20 rounded-lg p-8 space-y-8">
+          <div className="bg-card/50 backdrop-blur-sm border border-border/20 rounded-lg p-8 lg:p-12 xl:p-16 space-y-8">
             
             <section>
               <h2 className="text-2xl font-semibold text-foreground mb-4">Acceptance of Terms</h2>
