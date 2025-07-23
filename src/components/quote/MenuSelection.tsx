@@ -183,14 +183,6 @@ export const MenuSelection = ({ form, eventType, guestCount = 0 }: MenuSelection
                 </p>
                 
                 <div className="space-y-2 mb-4">
-                  {/* Dietary Info */}
-                  <div className="flex flex-wrap gap-1">
-                    {item.dietaryInfo.map((info) => (
-                      <Badge key={info} variant="outline" className="text-xs">
-                        {info}
-                      </Badge>
-                    ))}
-                  </div>
                   
 
                   {/* Warnings */}
