@@ -1,11 +1,11 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { GalleryImage } from "@/data/gallery/types";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, CarouselApi } from "@/components/ui/carousel";
 import { OptimizedImage } from "@/components/ui/optimized-image";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Play, Pause, SkipForward, SkipBack } from "lucide-react";
+import { Play, Pause } from "lucide-react";
 import Autoplay from "embla-carousel-autoplay";
 
 interface MobileGalleryCarouselProps {
@@ -23,6 +23,7 @@ export const MobileGalleryCarousel = ({
 }: MobileGalleryCarouselProps) => {
   const [isPlaying, setIsPlaying] = useState(autoPlay);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [api, setApi] = useState<CarouselApi>();
 
   const getCategoryBadge = (category: string) => {
     const categoryMap: Record<string, { label: string; color: string }> = {
@@ -42,6 +43,19 @@ export const MobileGalleryCarousel = ({
     stopOnInteraction: true,
     stopOnMouseEnter: true,
   });
+
+  useEffect(() => {
+    if (!api) return;
+
+    const onSelect = () => {
+      setCurrentIndex(api.selectedScrollSnap());
+    };
+
+    api.on("select", onSelect);
+    return () => {
+      api.off("select", onSelect);
+    };
+  }, [api]);
 
   useEffect(() => {
     if (isPlaying) {
@@ -83,6 +97,7 @@ export const MobileGalleryCarousel = ({
 
       {/* Carousel */}
       <Carousel 
+        setApi={setApi}
         opts={{
           align: "center",
           loop: true,
@@ -90,11 +105,6 @@ export const MobileGalleryCarousel = ({
         }} 
         plugins={isPlaying ? [autoplayPlugin] : []}
         className="w-full"
-        onSelect={(emblaApi) => {
-          if (emblaApi) {
-            setCurrentIndex(emblaApi.selectedScrollSnap());
-          }
-        }}
       >
         <CarouselContent className="-ml-2 sm:-ml-4">
           {images.map((image, index) => {
