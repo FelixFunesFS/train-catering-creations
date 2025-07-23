@@ -8,7 +8,7 @@ import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 import { useState } from "react";
 import { galleryImages } from "@/data/galleryImages";
-import { Camera, Heart, Star, Eye, Clock } from "lucide-react";
+import { Camera, Heart, Star, Eye, Clock, Briefcase, Cake, Utensils, Users } from "lucide-react";
 
 export const InteractiveGallerySection = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
