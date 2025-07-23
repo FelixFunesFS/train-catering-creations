@@ -32,18 +32,17 @@ const PhotoGallery = () => {
     desktop: { variant: 'elastic', delay: 400 }
   });
   
-  // Organize images by category and quality
+  // Organize images by category and quality - focused on 4 key sections
   const weddingImages = galleryImages.filter(img => img.category === "wedding").sort((a, b) => b.quality - a.quality);
   const formalImages = galleryImages.filter(img => img.category === "formal").sort((a, b) => b.quality - a.quality);
   const dessertImages = galleryImages.filter(img => img.category === "desserts").sort((a, b) => b.quality - a.quality);
-  const buffetImages = galleryImages.filter(img => img.category === "buffet").sort((a, b) => b.quality - a.quality);
-  const teamImages = galleryImages.filter(img => img.category === "team").sort((a, b) => b.quality - a.quality);
-  const signatureDishesImages = galleryImages.filter(img => img.category === "signature").sort((a, b) => b.quality - a.quality);
   const grazingImages = galleryImages.filter(img => img.category === "grazing").sort((a, b) => b.quality - a.quality);
-  const bbqImages = galleryImages.filter(img => img.category === "bbq").sort((a, b) => b.quality - a.quality);
-  const familyImages = galleryImages.filter(img => img.category === "family").sort((a, b) => b.quality - a.quality);
+  const teamImages = galleryImages.filter(img => img.category === "team").sort((a, b) => b.quality - a.quality);
   
-  const allImages = [...weddingImages, ...formalImages, ...dessertImages, ...buffetImages, ...teamImages, ...signatureDishesImages, ...grazingImages, ...bbqImages, ...familyImages];
+  // Combine desserts and appetizers/grazing for one section
+  const dessertsAndAppetizers = [...dessertImages, ...grazingImages].sort((a, b) => b.quality - a.quality);
+  
+  const allImages = [...weddingImages, ...formalImages, ...dessertsAndAppetizers, ...teamImages];
   
   const handleImageClick = (imageSrc: string) => {
     const index = allImages.findIndex(img => img.src === imageSrc);
@@ -72,89 +71,39 @@ const PhotoGallery = () => {
               {/* Wedding Celebrations */}
               {weddingImages.length > 0 && (
                 <MobileGallerySection
-                  title="Wedding Celebrations"
-                  description="From intimate ceremonies to grand receptions, we create unforgettable wedding experiences with elegant cuisine and impeccable service that makes your special day truly magical."
+                  title="Where Love Meets Celebration"
+                  description="From the Charleston Lowcountry to your heart's desire, we transform wedding dreams into culinary reality. With over 20 years of Southern hospitality, Chef 'Train' Ward and our family-run team create unforgettable moments where every bite tells your love story."
                   images={weddingImages}
                   onImageClick={handleImageClick}
                 />
               )}
               
-              {/* Corporate & Formal Events */}
+              {/* Formal & Military Events */}
               {formalImages.length > 0 && (
                 <MobileGallerySection
-                  title="Corporate & Formal Events"
-                  description="Sophisticated catering for business galas, military ceremonies, and upscale gatherings. Our refined presentation and premium service elevate every formal occasion."
+                  title="Honoring Service with Excellence"
+                  description="We take pride in serving those who serve. From military ceremonies to corporate galas, our professional team delivers with the respect and precision that formal occasions demand. Every detail honored, every guest celebrated."
                   images={formalImages}
                   onImageClick={handleImageClick}
                 />
               )}
               
-              {/* Desserts & Sweet Creations */}
-              {dessertImages.length > 0 && (
+              {/* Desserts & Appetizers */}
+              {dessertsAndAppetizers.length > 0 && (
                 <MobileGallerySection
-                  title="Desserts & Sweet Creations"
-                  description="Exquisite dessert displays featuring custom cakes, elegant pastries, and beautifully crafted sweet treats that provide the perfect finale to any celebration."
-                  images={dessertImages}
+                  title="Sweet Endings, Perfect Beginnings"
+                  description="Tanya Ward's artistry shines in every dessert creation and appetizer display. From custom wedding cakes to elegant grazing boards, we craft the sweet moments that bring people together and make celebrations complete."
+                  images={dessertsAndAppetizers}
                   onImageClick={handleImageClick}
                 />
               )}
               
-              {/* Buffet & Large Event Service */}
-              {buffetImages.length > 0 && (
-                <MobileGallerySection
-                  title="Buffet & Large Event Service"
-                  description="Professional buffet service for large gatherings, featuring diverse menu options, elegant presentation, and seamless service that keeps your guests satisfied."
-                  images={buffetImages}
-                  onImageClick={handleImageClick}
-                />
-              )}
-              
-              {/* Our Team in Action */}
+              {/* Our Team */}
               {teamImages.length > 0 && (
                 <MobileGallerySection
-                  title="Our Team in Action"
-                  description="Meet our professional catering team in action. From setup to service, our skilled staff ensures every event runs smoothly with attention to detail and exceptional hospitality."
+                  title="The Heart Behind Every Meal"
+                  description="Meet the Soul Train family—a dedicated team that brings Southern warmth to every event. Led by Chef 'Train' Ward, our professional staff treats every gathering as if it were our own family celebration, serving with genuine care and pride."
                   images={teamImages}
-                  onImageClick={handleImageClick}
-                />
-              )}
-              
-              {/* Signature Dishes & Culinary Art */}
-              {signatureDishesImages.length > 0 && (
-                <MobileGallerySection
-                  title="Signature Dishes & Culinary Art"
-                  description="Discover our most celebrated culinary creations. Each dish is crafted with premium ingredients and artistic presentation that showcases our commitment to culinary excellence."
-                  images={signatureDishesImages}
-                  onImageClick={handleImageClick}
-                />
-              )}
-              
-              {/* BBQ & Outdoor Events */}
-              {bbqImages.length > 0 && (
-                <MobileGallerySection
-                  title="BBQ & Outdoor Events"
-                  description="Casual outdoor catering featuring authentic BBQ flavors and rustic presentation. Perfect for outdoor gatherings, family reunions, and relaxed celebrations."
-                  images={bbqImages}
-                  onImageClick={handleImageClick}
-                />
-              )}
-              
-              {/* Grazing Tables & Appetizers */}
-              {grazingImages.length > 0 && (
-                <MobileGallerySection
-                  title="Grazing Tables & Appetizers"
-                  description="Elegant grazing displays and sophisticated appetizer presentations that create memorable first impressions and encourage social interaction among your guests."
-                  images={grazingImages}
-                  onImageClick={handleImageClick}
-                />
-              )}
-              
-              {/* Family Celebrations */}
-              {familyImages.length > 0 && (
-                <MobileGallerySection
-                  title="Family Celebrations"
-                  description="Intimate family gatherings and milestone celebrations. We understand the importance of family traditions and create warm, welcoming environments for your special moments."
-                  images={familyImages}
                   onImageClick={handleImageClick}
                 />
               )}
