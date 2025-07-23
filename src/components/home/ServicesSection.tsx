@@ -16,14 +16,14 @@ export const ServicesSection = () => {
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-5 gap-6 lg:gap-8">
-          {/* Featured Wedding Service - Takes up 3/5 on desktop */}
-          <div className="lg:col-span-3">
+        <div className="grid gap-6 lg:gap-8">
+          {/* Featured Wedding Service - Full width on desktop */}
+          <div className="w-full">
             <FeaturedServiceCard delay={0} />
           </div>
 
-          {/* Supporting Services - Takes up 2/5 on desktop, stacked */}
-          <div className="lg:col-span-2 grid gap-6">
+          {/* Supporting Services - 3 cards in horizontal row on desktop, 2x2 grid on tablet, vertical stack on mobile */}
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             <SupportingServiceCard
               title="Black Tie Events"
               description="Sophisticated catering for galas, fundraisers, and formal celebrations with impeccable presentation."
@@ -46,16 +46,18 @@ export const ServicesSection = () => {
               feature="Business Focused"
             />
             
-            <SupportingServiceCard
-              title="Military Functions"
-              description="Honoring service with specialized catering for promotions, ceremonies, and military celebrations."
-              image="/lovable-uploads/3226c955-a9b7-4c8d-a4c2-e5e7fc206f6f.png"
-              imageAlt="Military Function Catering"
-              link="/wedding-menu#page-header"
-              delay={450}
-              icon={Utensils}
-              feature="Honor & Respect"
-            />
+            <div className="md:col-span-2 lg:col-span-1">
+              <SupportingServiceCard
+                title="Military Functions"
+                description="Honoring service with specialized catering for promotions, ceremonies, and military celebrations."
+                image="/lovable-uploads/3226c955-a9b7-4c8d-a4c2-e5e7fc206f6f.png"
+                imageAlt="Military Function Catering"
+                link="/wedding-menu#page-header"
+                delay={450}
+                icon={Utensils}
+                feature="Honor & Respect"
+              />
+            </div>
           </div>
         </div>
 
