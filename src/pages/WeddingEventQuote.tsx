@@ -5,6 +5,7 @@ import ContactInfoCards from "@/components/quote/ContactInfoCards";
 import { CTASection } from "@/components/ui/cta-section";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
+import { ResponsiveWrapper } from "@/components/ui/responsive-wrapper";
 
 const WeddingEventQuote = () => {
   const { ref: headerRef, isVisible: headerVisible, variant: headerVariant } = useScrollAnimation({ 
@@ -39,30 +40,30 @@ const WeddingEventQuote = () => {
     <div className="min-h-screen bg-gradient-hero">
       {/* Header Section */}
       <section className="py-8 lg:py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <ResponsiveWrapper>
           <div ref={headerRef} className={useAnimationClass(headerVariant, headerVisible)}>
             <QuoteHeader />
           </div>
-        </div>
+        </ResponsiveWrapper>
       </section>
       
       {/* Main Content Section */}
       <section className="py-8 lg:py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <ResponsiveWrapper hasFullWidthCard>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
-            <div className="order-2 lg:order-1">
+            <div className="order-1 lg:order-1">
               <div ref={formRef} className={useAnimationClass(formVariant, formVisible)}>
                 <WeddingEventQuoteForm />
               </div>
             </div>
             
-            <div className="order-1 lg:order-2">
+            <div className="order-2 lg:order-2">
               <div ref={contactRef} className={useAnimationClass(contactVariant, contactVisible)}>
                 <ContactInfoCards />
               </div>
             </div>
           </div>
-        </div>
+        </ResponsiveWrapper>
       </section>
       
       <div ref={ctaRef} className={useAnimationClass(ctaVariant, ctaVisible)}>

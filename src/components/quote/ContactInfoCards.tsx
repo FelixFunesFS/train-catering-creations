@@ -1,10 +1,11 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar, Users, MapPin, Phone, Mail } from "lucide-react";
 
 const ContactInfoCards = () => {
   return (
-    <div className="order-1 lg:order-2 space-y-8">
+    <div className="space-y-8">
       <Card className="shadow-elegant border-primary/10">
         <CardHeader className="pb-8">
           <CardTitle className="text-2xl font-elegant text-center">Get In Touch</CardTitle>
