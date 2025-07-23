@@ -50,13 +50,13 @@ export const SplitScreenHero = () => {
   return (
     <>
       <section className="relative min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
-        <div className="max-w-7xl mx-auto px-6 xl:px-12 py-8 lg:py-0">
-          <div className="grid md:grid-cols-2 gap-8 md:gap-10 lg:gap-12 items-center min-h-[calc(100vh-8rem)]">
+        <div className="max-w-7xl mx-auto px-6 xl:px-12 pt-6 sm:pt-8 lg:pt-12 xl:pt-16 pb-8 lg:pb-0">
+          <div className="grid md:grid-cols-2 gap-8 md:gap-10 lg:gap-12 items-center min-h-[calc(100vh-12rem)] lg:min-h-[calc(100vh-8rem)]">
             
             {/* Left Content Panel */}
             <div className="order-1 md:order-1 text-center md:text-left">
               {/* Logo */}
-              <div className="flex justify-center md:justify-start mb-6 md:mb-7 lg:mb-8">
+              <div className="flex justify-center md:justify-start mb-4 sm:mb-5 lg:mb-6">
                 <div className="p-4 md:p-5 lg:p-6">
                   <div className="h-12 w-12 md:h-14 md:w-14 lg:h-16 lg:w-16 relative">
                     <img 
