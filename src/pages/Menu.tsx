@@ -3,7 +3,7 @@ import MenuHeader from "@/components/menu/MenuHeader";
 import MenuContact from "@/components/menu/MenuContact";
 import { MobileMenuNavigation } from "@/components/menu/MobileMenuNavigation";
 import { QuickActionButton } from "@/components/menu/QuickActionButton";
-import { CollapsibleMenuSection } from "@/components/menu/CollapsibleMenuSection";
+import { EnhancedCollapsibleMenuSection } from "@/components/menu/EnhancedCollapsibleMenuSection";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 import { cn } from "@/lib/utils";
@@ -45,12 +45,36 @@ const Menu = () => {
           subtitle: "Perfect for sharing",
           color: "bg-category-appetizers/10 border-category-appetizers/30",
           items: [
-            "Charcuterie Board",
-            "Grazing Table", 
-            "Fruit Platter",
-            "Cheese Platter",
+            {
+              name: "Charcuterie Board",
+              description: "Artisan meats, cheeses, and accompaniments",
+              isPopular: true,
+              isGlutenFree: true
+            },
+            {
+              name: "Grazing Table",
+              description: "Abundant selection for larger gatherings",
+              isPopular: true
+            },
+            {
+              name: "Fruit Platter",
+              description: "Fresh seasonal fruits beautifully arranged",
+              isVegetarian: true,
+              isGlutenFree: true
+            },
+            {
+              name: "Cheese Platter",
+              description: "Curated selection of artisan cheeses",
+              isVegetarian: true,
+              isGlutenFree: true
+            },
             "Meat Platter",
-            "Vegetable Platter"
+            {
+              name: "Vegetable Platter",
+              description: "Fresh vegetables with house-made dips",
+              isVegetarian: true,
+              isGlutenFree: true
+            }
           ]
         },
         {
@@ -58,13 +82,39 @@ const Menu = () => {
           subtitle: "Chef's special creations",
           color: "bg-category-appetizers/15 border-category-appetizers/40",
           items: [
-            "Shrimp Deviled Eggs w/Bacon Finish",
-            "Smoked Salmon Cucumber Bites",
-            "Tomato Caprese",
-            "Tomato Bruschetta",
-            "Mini Chicken & Waffles",
+            {
+              name: "Shrimp Deviled Eggs w/Bacon Finish",
+              description: "Elevated deviled eggs with premium shrimp",
+              isPopular: true,
+              isGlutenFree: true
+            },
+            {
+              name: "Smoked Salmon Cucumber Bites",
+              description: "Refreshing and elegant appetizer",
+              isGlutenFree: true
+            },
+            {
+              name: "Tomato Caprese",
+              description: "Fresh mozzarella, tomatoes, and basil",
+              isVegetarian: true,
+              isGlutenFree: true
+            },
+            {
+              name: "Tomato Bruschetta",
+              description: "Classic Italian appetizer on toasted bread",
+              isVegetarian: true
+            },
+            {
+              name: "Mini Chicken & Waffles",
+              description: "Southern comfort food in bite-sized portions",
+              isPopular: true
+            },
             "Mini Loaded Potatoes",
-            "Chocolate Covered Fruit Platter"
+            {
+              name: "Chocolate Covered Fruit Platter",
+              description: "Decadent fruit with chocolate drizzle",
+              isVegetarian: true
+            }
           ]
         },
         {
@@ -72,10 +122,19 @@ const Menu = () => {
           subtitle: "Time-honored favorites",
           color: "bg-category-appetizers/8 border-category-appetizers/25",
           items: [
-            "Chicken Sliders",
+            {
+              name: "Chicken Sliders",
+              description: "Mini sandwiches perfect for parties",
+              isPopular: true
+            },
             "Pulled Pork Sliders",
             "Meatballs",
-            "Deviled Eggs",
+            {
+              name: "Deviled Eggs",
+              description: "Southern classic with paprika",
+              isVegetarian: true,
+              isGlutenFree: true
+            },
             "Chicken Salad",
             "Tuna Salad"
           ]
@@ -93,12 +152,25 @@ const Menu = () => {
           subtitle: "Farm-fresh selections",
           color: "bg-category-entrees/10 border-category-entrees/30",
           items: [
-            "Baked/Smoked Chicken",
-            "Barbecue Chicken",
+            {
+              name: "Baked/Smoked Chicken",
+              description: "Tender chicken with aromatic herbs",
+              isPopular: true,
+              isGlutenFree: true
+            },
+            {
+              name: "Barbecue Chicken",
+              description: "Smoky BBQ chicken with house sauce",
+              isPopular: true
+            },
             "Chicken Tenders",
             "Turkey Wings",
             "Chicken Alfredo",
-            "Fried Chicken",
+            {
+              name: "Fried Chicken",
+              description: "Southern-style crispy fried chicken",
+              isPopular: true
+            },
             "Chicken Wings"
           ]
         },
@@ -110,10 +182,24 @@ const Menu = () => {
             "Smoked Sausage",
             "Fried Pork Chops",
             "Smothered Pork Chops",
-            "Pulled Pork",
-            "Ribs",
+            {
+              name: "Pulled Pork",
+              description: "Slow-smoked pork shoulder",
+              isPopular: true,
+              isGlutenFree: true
+            },
+            {
+              name: "Ribs",
+              description: "Fall-off-the-bone tender ribs",
+              isPopular: true
+            },
             "Meatloaf",
-            "Brisket",
+            {
+              name: "Brisket",
+              description: "Slow-smoked beef brisket",
+              isPopular: true,
+              isGlutenFree: true
+            },
             "Hamburgers",
             "Spaghetti",
             "Lasagna",
@@ -125,9 +211,18 @@ const Menu = () => {
           subtitle: "Fresh from the coast",
           color: "bg-category-entrees/8 border-category-entrees/25",
           items: [
-            "Baked Salmon",
+            {
+              name: "Baked Salmon",
+              description: "Fresh Atlantic salmon with herbs",
+              isGlutenFree: true
+            },
             "Shrimp Alfredo",
-            "Low Country Boil",
+            {
+              name: "Low Country Boil",
+              description: "Coastal celebration of seafood",
+              isPopular: true,
+              isSpicy: true
+            },
             "Crabs",
             "Fried Fish"
           ]
@@ -137,12 +232,40 @@ const Menu = () => {
           subtitle: "Wholesome vegetarian choices",
           color: "bg-category-sides/10 border-category-sides/30",
           items: [
-            "Vegan Lasagna",
-            "Quinoa Power Bowl",
-            "Stuffed Bell Peppers",
-            "Black Bean Burgers",
-            "Roasted Vegetable Medley",
-            "Grilled Portobello Mushrooms"
+            {
+              name: "Vegan Lasagna",
+              description: "Plant-based comfort food",
+              isVegetarian: true
+            },
+            {
+              name: "Quinoa Power Bowl",
+              description: "Nutritious and satisfying",
+              isVegetarian: true,
+              isGlutenFree: true
+            },
+            {
+              name: "Stuffed Bell Peppers",
+              description: "Colorful and flavorful",
+              isVegetarian: true,
+              isGlutenFree: true
+            },
+            {
+              name: "Black Bean Burgers",
+              description: "Hearty plant-based patties",
+              isVegetarian: true
+            },
+            {
+              name: "Roasted Vegetable Medley",
+              description: "Seasonal vegetables roasted to perfection",
+              isVegetarian: true,
+              isGlutenFree: true
+            },
+            {
+              name: "Grilled Portobello Mushrooms",
+              description: "Meaty mushrooms with herb marinade",
+              isVegetarian: true,
+              isGlutenFree: true
+            }
           ]
         }
       ]
@@ -158,16 +281,45 @@ const Menu = () => {
           subtitle: "Southern favorites",
           color: "bg-category-sides/10 border-category-sides/30",
           items: [
-            "Macaroni & Cheese",
-            "Mashed Potatoes & Gravy",
-            "White Rice",
+            {
+              name: "Macaroni & Cheese",
+              description: "Creamy, cheesy comfort food",
+              isPopular: true,
+              isVegetarian: true
+            },
+            {
+              name: "Mashed Potatoes & Gravy",
+              description: "Buttery potatoes with rich gravy",
+              isVegetarian: true
+            },
+            {
+              name: "White Rice",
+              description: "Perfect fluffy rice",
+              isVegetarian: true,
+              isGlutenFree: true
+            },
             "Yellow Rice",
             "Dirty Rice",
             "Rice w/ Peas",
             "Rice w/ Gravy",
-            "Yams",
-            "Baked Beans",
-            "Potato Salad"
+            {
+              name: "Yams",
+              description: "Sweet and savory glazed yams",
+              isVegetarian: true,
+              isGlutenFree: true
+            },
+            {
+              name: "Baked Beans",
+              description: "Sweet and tangy baked beans",
+              isVegetarian: true,
+              isGlutenFree: true
+            },
+            {
+              name: "Potato Salad",
+              description: "Creamy Southern-style potato salad",
+              isVegetarian: true,
+              isGlutenFree: true
+            }
           ]
         },
         {
@@ -175,14 +327,52 @@ const Menu = () => {
           subtitle: "Garden-fresh options",
           color: "bg-category-sides/15 border-category-sides/40",
           items: [
-            "Garden Salad",
-            "Caesar Salad",
-            "Macaroni Salad",
-            "Green Beans w/ Potatoes",
-            "Sweet Peas w/ Corn",
-            "Cabbage",
-            "Vegetable Medley",
-            "Corn"
+            {
+              name: "Garden Salad",
+              description: "Fresh mixed greens with vegetables",
+              isVegetarian: true,
+              isGlutenFree: true
+            },
+            {
+              name: "Caesar Salad",
+              description: "Classic Caesar with parmesan",
+              isVegetarian: true
+            },
+            {
+              name: "Macaroni Salad",
+              description: "Creamy pasta salad",
+              isVegetarian: true
+            },
+            {
+              name: "Green Beans w/ Potatoes",
+              description: "Southern-style green beans",
+              isVegetarian: true,
+              isGlutenFree: true
+            },
+            {
+              name: "Sweet Peas w/ Corn",
+              description: "Colorful vegetable medley",
+              isVegetarian: true,
+              isGlutenFree: true
+            },
+            {
+              name: "Cabbage",
+              description: "Seasoned and sautéed cabbage",
+              isVegetarian: true,
+              isGlutenFree: true
+            },
+            {
+              name: "Vegetable Medley",
+              description: "Seasonal mixed vegetables",
+              isVegetarian: true,
+              isGlutenFree: true
+            },
+            {
+              name: "Corn",
+              description: "Sweet corn kernels",
+              isVegetarian: true,
+              isGlutenFree: true
+            }
           ]
         }
       ]
@@ -198,11 +388,33 @@ const Menu = () => {
           subtitle: "Made with love and tradition",
           color: "bg-category-desserts/10 border-category-desserts/30",
           items: [
-            "Red Velvet Cake",
-            "Vanilla Cake",
-            "Chocolate Cake",
-            "Strawberry Cake",
-            "Carrot Cake"
+            {
+              name: "Red Velvet Cake",
+              description: "Classic Southern red velvet with cream cheese frosting",
+              isPopular: true,
+              isVegetarian: true
+            },
+            {
+              name: "Vanilla Cake",
+              description: "Light and fluffy vanilla cake",
+              isVegetarian: true
+            },
+            {
+              name: "Chocolate Cake",
+              description: "Rich and decadent chocolate cake",
+              isPopular: true,
+              isVegetarian: true
+            },
+            {
+              name: "Strawberry Cake",
+              description: "Fresh strawberry cake with berry frosting",
+              isVegetarian: true
+            },
+            {
+              name: "Carrot Cake",
+              description: "Moist carrot cake with cream cheese frosting",
+              isVegetarian: true
+            }
           ]
         },
         {
@@ -210,11 +422,32 @@ const Menu = () => {
           subtitle: "Sweet indulgences",
           color: "bg-category-desserts/15 border-category-desserts/40",
           items: [
-            "Brownies",
-            "Cheesecake",
-            "Cupcakes",
-            "Banana Pudding",
-            "Dessert Shooters"
+            {
+              name: "Brownies",
+              description: "Fudgy chocolate brownies",
+              isVegetarian: true
+            },
+            {
+              name: "Cheesecake",
+              description: "Creamy New York style cheesecake",
+              isVegetarian: true
+            },
+            {
+              name: "Cupcakes",
+              description: "Individual cakes in various flavors",
+              isVegetarian: true
+            },
+            {
+              name: "Banana Pudding",
+              description: "Traditional banana pudding with wafers",
+              isPopular: true,
+              isVegetarian: true
+            },
+            {
+              name: "Dessert Shooters",
+              description: "Mini desserts in shot glasses",
+              isVegetarian: true
+            }
           ]
         }
       ]
@@ -227,7 +460,6 @@ const Menu = () => {
 
   const handleCategoryChange = (category: string) => {
     setActiveCategory(category);
-    // Smooth scroll to top of menu content when category changes
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -235,9 +467,9 @@ const Menu = () => {
     const currentData = getCurrentMenuData();
     
     return (
-      <div className="space-y-3 sm:space-y-4 md:space-y-6 lg:space-y-8">
-        {/* Compact Hero Section with Mobile-First Heights */}
-        <div className="relative h-28 sm:h-32 md:h-40 lg:h-48 xl:h-64 rounded-lg sm:rounded-xl overflow-hidden mb-3 sm:mb-4 md:mb-6 lg:mb-8">
+      <div className="space-y-6 lg:space-y-8">
+        {/* Hero Section */}
+        <div className="relative h-32 sm:h-40 lg:h-48 xl:h-56 rounded-xl overflow-hidden mb-6 lg:mb-8">
           <img 
             src={currentData.backgroundImage}
             alt={currentData.title}
@@ -245,27 +477,28 @@ const Menu = () => {
           />
           <div className={cn("absolute inset-0", currentData.overlayColor)} />
           <div className="absolute inset-0 flex items-center justify-center text-center px-4">
-            <div className="text-white space-y-1 sm:space-y-2 md:space-y-4">
-              <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-elegant font-bold">
+            <div className="text-white space-y-2 lg:space-y-4">
+              <h2 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-elegant font-bold">
                 {currentData.title}
               </h2>
-              <p className="text-xs sm:text-sm md:text-base lg:text-lg opacity-90 italic">
+              <p className="text-sm sm:text-base lg:text-lg opacity-90 italic">
                 {currentData.subtitle}
               </p>
             </div>
           </div>
         </div>
 
-        {/* Dense Menu Sections */}
-        <div className="space-y-3 sm:space-y-4 md:space-y-6 lg:space-y-8">
+        {/* Enhanced Menu Sections */}
+        <div className="space-y-6 lg:space-y-8">
           {currentData.sections.map((section, index) => (
-            <CollapsibleMenuSection
+            <EnhancedCollapsibleMenuSection
               key={`${section.title}-${index}`}
               title={section.title}
               subtitle={section.subtitle}
               color={section.color}
               items={section.items}
               defaultExpanded={index === 0}
+              showFilters={true}
             />
           ))}
         </div>
@@ -286,7 +519,7 @@ const Menu = () => {
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/2 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-1/3 right-1/4 w-64 h-64 bg-accent/3 rounded-full blur-2xl pointer-events-none" />
       
-      <section className="py-4 sm:py-6 md:py-8 lg:py-12">
+      <section className="py-6 lg:py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div ref={headerRef} className={useAnimationClass(headerVariant, headerVisible)}>
             <MenuHeader />
@@ -308,22 +541,22 @@ const Menu = () => {
         </div>
       </div>
 
-      {/* Menu Content with Compact Spacing */}
-      <section className="py-4 sm:py-6 md:py-8 lg:py-12">
+      {/* Enhanced Menu Content */}
+      <section className="py-6 lg:py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div 
             ref={contentRef} 
             className={useAnimationClass(contentVariant, contentVisible)}
           >
-            {/* Navigation Tabs - Always Visible */}
-            <div className="flex justify-center mb-4 lg:mb-8">
-              <div className="flex space-x-1 sm:space-x-2 p-1.5 sm:p-2 bg-muted/50 rounded-lg overflow-x-auto">
+            {/* Navigation Tabs */}
+            <div className="flex justify-center mb-6 lg:mb-8">
+              <div className="flex space-x-1 sm:space-x-2 p-2 bg-muted/50 rounded-lg overflow-x-auto">
                 {Object.entries(menuData).map(([key, data]) => (
                   <button
                     key={key}
                     onClick={() => handleCategoryChange(key)}
                     className={cn(
-                      "px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-medium rounded-md transition-all duration-200 whitespace-nowrap flex-shrink-0",
+                      "px-4 sm:px-6 py-3 text-sm font-medium rounded-md transition-all duration-200 whitespace-nowrap flex-shrink-0",
                       activeCategory === key
                         ? "bg-primary text-primary-foreground shadow-sm"
                         : "text-muted-foreground hover:text-foreground hover:bg-background/50"
@@ -340,7 +573,7 @@ const Menu = () => {
         </div>
       </section>
 
-      {/* Custom Menu Planning Section - Full Width CTA */}
+      {/* Menu Planning Section */}
       <PageSection withBorder>
         <div ref={contactRef} className={useAnimationClass(contactVariant, contactVisible)}>
           <MenuContact />
