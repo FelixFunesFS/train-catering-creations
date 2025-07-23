@@ -37,7 +37,7 @@ export const SplitScreenHero = () => {
     setSelectedImageIndex(null);
   };
   return <>
-      <section className="relative min-h-screen bg-gradient-to-br from-background via-muted/20 to-background -mt-4 my-0">
+      <section className="relative min-h-screen bg-gradient-to-br from-background via-muted/20 to-background -mt-8 my-0">
         <div className="max-w-7xl mx-auto px-6 xl:px-12 pb-8 lg:pb-0 py-0">
           <div className="grid md:grid-cols-2 gap-8 md:gap-10 lg:gap-12 items-center min-h-screen py-0 my-0">
             
