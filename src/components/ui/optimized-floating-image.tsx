@@ -48,13 +48,12 @@ const OptimizedFloatingImage = React.forwardRef<HTMLDivElement, OptimizedFloatin
       hoverShadow="elegant"
       highlightBorder
       className={cn(
-        "overflow-hidden group bg-gradient-card rounded-xl transition-all duration-300",
-        "p-2 sm:p-3 lg:p-4",
+        "overflow-hidden group bg-transparent rounded-xl transition-all duration-300",
+        "p-1 sm:p-2",
         hasClickHandler && "cursor-pointer active:scale-95 sm:active:scale-98",
-        "border border-border/20 hover:border-primary/30",
-        "shadow-card hover:shadow-elevated",
+        "border border-border/10 hover:border-primary/20",
+        "shadow-sm hover:shadow-md",
         "transform hover:scale-[1.02] sm:hover:scale-[1.01]",
-        // Enhanced isolation and z-index management
         "isolate relative",
         className
       )}

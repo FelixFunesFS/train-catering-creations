@@ -17,7 +17,7 @@ interface ThemeSectionProps {
   onImageClick: (imageSrc: string) => void;
   isActive: boolean;
   onSectionFocus: () => void;
-  alternateLayout?: boolean;
+  sectionIndex: number;
   targetCount?: number;
   completionPercentage?: number;
 }
@@ -33,7 +33,7 @@ export const ThemeSection = ({
   onImageClick,
   isActive,
   onSectionFocus,
-  alternateLayout = false,
+  sectionIndex,
   targetCount = 12,
   completionPercentage = 100
 }: ThemeSectionProps) => {
@@ -56,26 +56,32 @@ export const ThemeSection = ({
   const highQualityCount = images.filter(img => img.quality >= 8).length;
   const averageQuality = Math.round(images.reduce((sum, img) => sum + img.quality, 0) / images.length);
 
+  // Section-specific gradient patterns
+  const getSectionGradient = (index: number) => {
+    const gradients = [
+      'section-pattern-a', // Event Celebrations
+      'section-pattern-b', // Military & Corporate 
+      'section-pattern-c', // Private Events
+      'section-pattern-d'  // Culinary Showcases
+    ];
+    return gradients[index % gradients.length];
+  };
+
   return (
     <div className="relative">
       {/* Enhanced Section Divider */}
       <div className="absolute -top-12 left-0 right-0 flex items-center justify-center">
-        <div className="w-full max-w-2xl h-px bg-gradient-to-r from-transparent via-border to-transparent"></div>
+        <div className="w-full max-w-3xl h-px bg-gradient-to-r from-transparent via-border/30 to-transparent"></div>
       </div>
 
-      <SectionContentCard className="mb-0 overflow-hidden relative">
-        {/* Active Section Highlight with Pulse Effect */}
-        <div className={`absolute inset-0 bg-gradient-to-br ${accentColor} opacity-0 transition-all duration-700 ${isActive ? 'opacity-100 animate-pulse' : ''}`} />
-        
-        {/* Enhanced Section Pattern Overlay */}
-        <div className="absolute inset-0 opacity-[0.03]">
-          <div className={`w-full h-full bg-gradient-to-br ${alternateLayout ? 'from-primary/20 via-transparent to-primary/10' : 'from-transparent via-primary/5 to-primary/15'}`}></div>
-        </div>
+      <SectionContentCard className={`mb-0 overflow-hidden relative ${getSectionGradient(sectionIndex)}`}>
+        {/* Active Section Highlight */}
+        <div className={`absolute inset-0 bg-gradient-to-br ${accentColor} opacity-0 transition-all duration-700 ${isActive ? 'opacity-100' : ''}`} />
         
         <div className="relative z-10">
           <div ref={headerRef} className={useAnimationClass(headerVariant, headerVisible)}>
-            <div className={`text-center mb-8 sm:mb-12 ${alternateLayout ? 'lg:text-right' : 'lg:text-left'}`}>
-              {/* Enhanced Section Header with Stats */}
+            <div className="text-center mb-8 sm:mb-12">
+              {/* Centered Section Header with Stats */}
               <div className="flex items-center justify-center gap-3 mb-4 sm:mb-6">
                 <div className="w-12 h-0.5 bg-gradient-to-r from-transparent to-primary"></div>
                 <div className="flex items-center gap-2">
@@ -89,12 +95,12 @@ export const ThemeSection = ({
                 <div className="w-12 h-0.5 bg-gradient-to-r from-primary to-transparent"></div>
               </div>
               
-              {/* Section Title with Quality Indicator */}
+              {/* Centered Section Title */}
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-elegant font-bold text-foreground mb-4 sm:mb-6 leading-tight">
                 {title}
               </h2>
               
-              {/* Quality Stats */}
+              {/* Centered Quality Stats */}
               <div className="flex justify-center gap-4 sm:gap-6 mb-4 sm:mb-6">
                 <div className="text-center">
                   <div className="text-lg sm:text-xl font-bold text-primary">
@@ -122,12 +128,12 @@ export const ThemeSection = ({
                 </div>
               </div>
               
-              {/* Description */}
+              {/* Centered Description */}
               <p className="text-muted-foreground text-base sm:text-lg lg:text-xl leading-relaxed max-w-4xl mx-auto mb-6 sm:mb-8">
                 {description}
               </p>
               
-              {/* Enhanced Brand Message */}
+              {/* Centered Brand Message */}
               <div className="relative">
                 <p className="text-primary font-elegant font-semibold text-lg sm:text-xl italic mb-2">
                   "{brandMessage}"
@@ -143,11 +149,11 @@ export const ThemeSection = ({
               images={images}
               onImageClick={onImageClick}
               sectionId={id}
-              alternateLayout={alternateLayout}
+              sectionIndex={sectionIndex}
             />
           </div>
 
-          {/* Enhanced Section Footer */}
+          {/* Centered Section Footer */}
           <div className="text-center mt-8 sm:mt-12">
             <div className="inline-flex items-center gap-3 text-sm text-muted-foreground bg-muted/30 px-6 py-3 rounded-full border border-border/20">
               <span>Displaying {Math.min(12, images.length)} of {images.length} total images</span>

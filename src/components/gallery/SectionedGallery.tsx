@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { GalleryImage } from "@/data/gallery/types";
 import { ThemeSection } from "./ThemeSection";
@@ -22,12 +21,11 @@ export const SectionedGallery = ({ images, onImageClick }: SectionedGalleryProps
     desktop: { variant: 'ios-spring', delay: 200 }
   });
 
-  // Enhanced image categorization with quality filtering and balanced distribution
   const filterHighQuality = (categoryImages: GalleryImage[], maxCount: number) => {
     return categoryImages
-      .filter(img => img.quality >= 6) // Filter out low quality images
-      .sort((a, b) => b.quality - a.quality) // Sort by quality descending
-      .slice(0, maxCount); // Limit to target count
+      .filter(img => img.quality >= 6)
+      .sort((a, b) => b.quality - a.quality)
+      .slice(0, maxCount);
   };
 
   const eventCelebrations = filterHighQuality(
@@ -97,13 +95,11 @@ export const SectionedGallery = ({ images, onImageClick }: SectionedGalleryProps
     }
   ];
 
-  // Filter out empty sections and add completion indicators
   const nonEmptySections = sections.filter(section => section.images.length > 0).map(section => ({
     ...section,
     completionPercentage: Math.round((section.images.length / section.targetCount) * 100)
   }));
 
-  // Section intersection observer
   useEffect(() => {
     const observers = nonEmptySections.map(section => {
       const observer = new IntersectionObserver(
@@ -170,7 +166,7 @@ export const SectionedGallery = ({ images, onImageClick }: SectionedGalleryProps
                 onImageClick={onImageClick}
                 isActive={activeSection === section.id}
                 onSectionFocus={() => setActiveSection(section.id)}
-                alternateLayout={index % 2 === 1}
+                sectionIndex={index}
               />
             </div>
           ))}

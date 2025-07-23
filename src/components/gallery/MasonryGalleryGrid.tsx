@@ -9,14 +9,14 @@ interface MasonryGalleryGridProps {
   images: GalleryImage[];
   onImageClick: (imageSrc: string) => void;
   sectionId: string;
-  alternateLayout?: boolean;
+  sectionIndex: number;
 }
 
 export const MasonryGalleryGrid = ({ 
   images, 
   onImageClick, 
   sectionId, 
-  alternateLayout = false 
+  sectionIndex 
 }: MasonryGalleryGridProps) => {
   const [isLoading, setIsLoading] = useState(true);
   
@@ -24,8 +24,14 @@ export const MasonryGalleryGrid = ({
   const sortedImages = [...images].sort((a, b) => b.quality - a.quality);
   const displayImages = sortedImages.slice(0, 12);
   
-  // Select featured images (quality 8+ only)
-  const featuredImages = displayImages.filter(img => img.quality >= 8).slice(0, 2);
+  // Alternating featured image pattern: 3, 2, 4, 2
+  const getFeaturedImageCount = (index: number) => {
+    const pattern = [3, 2, 4, 2];
+    return pattern[index % pattern.length];
+  };
+
+  const featuredCount = getFeaturedImageCount(sectionIndex);
+  const featuredImages = displayImages.filter(img => img.quality >= 8).slice(0, featuredCount);
   const regularImages = displayImages.filter(img => !featuredImages.includes(img));
 
   const { ref, getItemClassName, getItemStyle } = useStaggeredAnimation({
@@ -45,7 +51,7 @@ export const MasonryGalleryGrid = ({
 
   const getAspectRatio = (index: number, isFeatured: boolean): "aspect-square" | "aspect-[4/3]" | "aspect-[3/4]" | "aspect-[5/4]" | "aspect-[4/5]" => {
     if (isFeatured) {
-      return alternateLayout && index === 0 ? "aspect-[5/4]" : "aspect-[4/3]";
+      return featuredCount === 4 ? "aspect-[5/4]" : "aspect-[4/3]";
     }
     const patterns: ("aspect-square" | "aspect-[4/3]" | "aspect-[3/4]" | "aspect-[5/4]" | "aspect-[4/5]")[] = [
       "aspect-[4/5]", "aspect-square", "aspect-[3/4]", "aspect-[5/4]", "aspect-[4/3]"
@@ -70,14 +76,15 @@ export const MasonryGalleryGrid = ({
             <div className="flex-1 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+          <div className={`grid gap-4 sm:gap-6 ${
+            featuredCount === 3 ? 'grid-cols-1 md:grid-cols-3' :
+            featuredCount === 4 ? 'grid-cols-1 sm:grid-cols-2 md:grid-cols-4' :
+            'grid-cols-1 md:grid-cols-2'
+          }`}>
             {featuredImages.map((image, index) => (
               <div 
                 key={`featured-${sectionId}-${index}`}
-                className={`
-                  ${getItemClassName(index)}
-                  ${alternateLayout && index === 0 ? 'md:col-span-2' : ''}
-                `}
+                className={getItemClassName(index)}
                 style={getItemStyle(index)}
               >
                 <div className="relative group">
@@ -90,11 +97,11 @@ export const MasonryGalleryGrid = ({
                     variant="dramatic"
                     priority={true}
                     onImageClick={() => onImageClick(image.src)}
-                    className="w-full transform transition-all duration-300 hover:scale-[1.02] shadow-xl hover:shadow-2xl"
+                    className="w-full transform transition-all duration-300 hover:scale-[1.02] shadow-lg hover:shadow-xl"
                   />
                   
                   {/* Enhanced Featured Badge */}
-                  <div className="absolute top-4 left-4 z-10">
+                  <div className="absolute top-3 left-3 z-10">
                     <div className="flex items-center gap-2">
                       <span className="bg-primary text-primary-foreground px-3 py-1 rounded-full text-xs font-semibold shadow-lg">
                         Featured
