@@ -17,14 +17,11 @@ import WeddingEventQuote from "./pages/WeddingEventQuote";
 import Reviews from "./pages/Reviews";
 import PhotoGallery from "./pages/PhotoGallery";
 import NotFound from "./pages/NotFound";
-
 const AppContent = () => {
   useScrollToAnchor();
-  
-  return (
-    <div className="min-h-screen bg-background font-clean flex flex-col transition-colors duration-300">
+  return <div className="min-h-screen bg-background font-clean flex flex-col transition-colors duration-300 py-0 my-0">
       <Header />
-      <main className="flex-1">
+      <main className="flex-1 py-0 my-0">
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/about" element={<About />} />
@@ -40,29 +37,20 @@ const AppContent = () => {
         </Routes>
       </main>
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 const queryClient = new QueryClient();
-
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <ThemeProvider
-      attribute="class"
-      defaultTheme="system"
-      enableSystem
-      disableTransitionOnChange={false}
-    >
+const App = () => <QueryClientProvider client={queryClient}>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange={false}>
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter future={{ v7_startTransition: true }}>
+        <BrowserRouter future={{
+        v7_startTransition: true
+      }}>
           <AppContent />
         </BrowserRouter>
       </TooltipProvider>
     </ThemeProvider>
-  </QueryClientProvider>
-);
-
+  </QueryClientProvider>;
 export default App;

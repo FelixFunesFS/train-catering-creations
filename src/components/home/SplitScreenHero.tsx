@@ -37,9 +37,9 @@ export const SplitScreenHero = () => {
     setSelectedImageIndex(null);
   };
   return <>
-      <section className="relative min-h-screen bg-gradient-to-br from-background via-muted/20 to-background -mt-4">
-        <div className="max-w-7xl mx-auto px-6 xl:px-12 pb-8 lg:pb-0">
-          <div className="grid md:grid-cols-2 gap-8 md:gap-10 lg:gap-12 items-center min-h-screen">
+      <section className="relative min-h-screen bg-gradient-to-br from-background via-muted/20 to-background -mt-4 my-0">
+        <div className="max-w-7xl mx-auto px-6 xl:px-12 pb-8 lg:pb-0 py-0">
+          <div className="grid md:grid-cols-2 gap-8 md:gap-10 lg:gap-12 items-center min-h-screen py-0 my-0">
             
             {/* Left Content Panel */}
             <div className="order-1 md:order-1 text-center md:text-left">
@@ -87,7 +87,7 @@ export const SplitScreenHero = () => {
                       <OptimizedImage src={image.src} alt={image.alt} aspectRatio="aspect-video" className="group-hover:scale-105 transition-transform duration-300" containerClassName="h-full" priority={index < 2} />
                       
                       {/* Hover Overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 py-0 my-0">
                         <div className="absolute bottom-3 md:bottom-3 lg:bottom-4 left-3 md:left-3 lg:left-4 right-3 md:right-3 lg:right-4">
                           <h3 className="text-white font-elegant font-semibold text-sm md:text-sm lg:text-base mb-1">
                             {image.title}
