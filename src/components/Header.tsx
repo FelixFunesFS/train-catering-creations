@@ -56,7 +56,7 @@ export const Header = () => {
           <div className="flex justify-between items-center py-1 sm:py-2">
             {/* Logo */}
             <Link to="/" className="flex items-center hover:scale-105 transition-transform duration-300 focus-visible-enhanced" aria-label="Soul Train's Eatery - Home">
-              <div className="text-2xl lg:text-3xl font-bold text-foreground">
+              <div className="text-2xl lg:text-3xl font-script font-bold text-foreground">
                 Soul Train's Eatery
               </div>
             </Link>
