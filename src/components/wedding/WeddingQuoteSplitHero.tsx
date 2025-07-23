@@ -50,8 +50,8 @@ export const WeddingQuoteSplitHero = () => {
   return (
     <>
       <section className="relative min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
-        <div className="max-w-7xl mx-auto px-6 xl:px-12 pt-6 sm:pt-8 lg:pt-12 xl:pt-16 pb-8 lg:pb-0">
-          <div className="grid md:grid-cols-2 gap-8 md:gap-10 lg:gap-12 items-center min-h-[calc(100vh-12rem)] lg:min-h-[calc(100vh-8rem)]">
+        <div className="max-w-7xl mx-auto px-6 xl:px-12 pb-8 lg:pb-0">
+          <div className="grid md:grid-cols-2 gap-8 md:gap-10 lg:gap-12 items-center min-h-screen">
             
             {/* Left Content Panel */}
             <div className="order-1 md:order-1 text-center md:text-left">
