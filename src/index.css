@@ -153,7 +153,7 @@ body {
 
 .title-hover-motion:hover {
   transform: translateY(-3px);
-  color: theme(colors.primary);
+  color: theme(colors.primary.DEFAULT);
 }
 
 .card-title-hover-motion {
@@ -161,7 +161,7 @@ body {
 }
 
 .card-title-hover-motion:hover {
-  color: theme(colors.primary);
+  color: theme(colors.primary.DEFAULT);
 }
 
 .subtitle-hover-motion {
@@ -170,7 +170,7 @@ body {
 
 .subtitle-hover-motion:hover {
   transform: translateY(3px);
-  color: theme(colors.primary);
+  color: theme(colors.primary.DEFAULT);
 }
 
 .shadow-elegant {

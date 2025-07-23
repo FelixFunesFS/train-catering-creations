@@ -4,6 +4,7 @@ import MenuContact from "@/components/menu/MenuContact";
 import { EnhancedMobileNavigation } from "@/components/menu/EnhancedMobileNavigation";
 import { QuickActionButton } from "@/components/menu/QuickActionButton";
 import { ResponsiveMenuSection } from "@/components/menu/ResponsiveMenuSection";
+import { RestaurantStyleMenuSection } from "@/components/menu/RestaurantStyleMenuSection";
 import { MenuSkeleton } from "@/components/menu/MenuSkeleton";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
@@ -503,21 +504,34 @@ const Menu = () => {
           </div>
         </div>
 
-        {/* Responsive Menu Sections */}
+        {/* Responsive Menu Sections with Mixed Layouts */}
         <div className="space-y-4 sm:space-y-6 lg:space-y-8">
           {currentData.sections.map((section, index) => (
             <Suspense 
               key={`${section.title}-${index}`}
               fallback={<MenuSkeleton itemCount={6} isMobile={isMobile} />}
             >
-              <ResponsiveMenuSection
-                title={section.title}
-                subtitle={section.subtitle}
-                color={section.color}
-                items={section.items}
-                defaultExpanded={index === 0}
-                showFilters={true}
-              />
+              {/* Use Restaurant Style for first section (signature items) and desserts */}
+              {(index === 0 || activeCategory === 'desserts') ? (
+                <RestaurantStyleMenuSection
+                  title={section.title}
+                  subtitle={section.subtitle}
+                  color={section.color}
+                  items={section.items}
+                  categoryType={index === 0 ? 'signature' : activeCategory === 'desserts' ? 'premium' : 'classic'}
+                  defaultExpanded={index === 0}
+                  showFilters={true}
+                />
+              ) : (
+                <ResponsiveMenuSection
+                  title={section.title}
+                  subtitle={section.subtitle}
+                  color={section.color}
+                  items={section.items}
+                  defaultExpanded={index === 0}
+                  showFilters={true}
+                />
+              )}
             </Suspense>
           ))}
         </div>
