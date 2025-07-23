@@ -1,21 +1,13 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Heart, Star, Crown } from "lucide-react";
-import { PageHeader } from "@/components/ui/page-header";
 import { CTASection } from "@/components/ui/cta-section";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 import { CollapsibleMenuSection } from "@/components/wedding/CollapsibleMenuSection";
 import { MobileMenuNavigation } from "@/components/wedding/MobileMenuNavigation";
 import { QuickActionButton } from "@/components/wedding/QuickActionButton";
+import { WeddingMenuSplitHero } from "@/components/wedding/WeddingMenuSplitHero";
 
 const WeddingMenu = () => {
-  const { ref: headerRef, isVisible: headerVisible, variant: headerVariant } = useScrollAnimation({ 
-    variant: 'ios-spring', 
-    delay: 0,
-    mobile: { delay: 0 },
-    desktop: { delay: 100 }
-  });
-
   const { ref: eventCardsRef, isVisible: eventCardsVisible, variant: eventCardsVariant } = useScrollAnimation({ 
     variant: 'fade-up', 
     delay: 200,
@@ -23,7 +15,6 @@ const WeddingMenu = () => {
     desktop: { delay: 250 }
   });
 
-  const headerAnimationClass = useAnimationClass(headerVariant, headerVisible);
   const eventCardsAnimationClass = useAnimationClass(eventCardsVariant, eventCardsVisible);
 
   // Menu data organized for mobile-first approach
@@ -77,21 +68,11 @@ const WeddingMenu = () => {
       <MobileMenuNavigation />
       <QuickActionButton />
       
+      {/* Split Screen Hero */}
+      <WeddingMenuSplitHero />
+      
       <section className="py-6 sm:py-8 lg:py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div ref={headerRef} className={headerAnimationClass}>
-            <PageHeader
-              title="Elegant Events with Southern Soul"
-              description="Your special day deserves exceptional flavor and flawless presentation. At Soul Train's Eatery, we specialize in catering weddings and upscale black-tie events with grace, style, and warmth. From cocktail hour hors d'oeuvres to grand receptions, our team blends culinary excellence with genuine hospitality—making your celebration both sophisticated and soulful."
-              icons={[
-                <Heart className="h-6 w-6 sm:h-8 sm:w-8" />,
-                <Crown className="h-6 w-6 sm:h-8 sm:w-8" />,
-                <Star className="h-6 w-6 sm:h-8 sm:w-8" />
-              ]}
-              buttons={[{ text: "Request Quote", href: "/request-quote#page-header", variant: "cta" }]}
-            />
-          </div>
-          
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">          
           <div ref={eventCardsRef} className={`grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mt-8 sm:mt-12 ${eventCardsAnimationClass}`}>
             <div className="neumorphic-card-2 hover:neumorphic-card-3 rounded-lg p-3 sm:p-4 transition-all duration-300">
               <div className="relative h-48 rounded-xl overflow-hidden mb-3 sm:mb-4 group">

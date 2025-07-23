@@ -1,20 +1,13 @@
 
-import QuoteHeader from "@/components/quote/QuoteHeader";
 import WeddingEventQuoteForm from "@/components/quote/WeddingEventQuoteForm";
 import ContactInfoCards from "@/components/quote/ContactInfoCards";
 import { CTASection } from "@/components/ui/cta-section";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 import { ResponsiveWrapper } from "@/components/ui/responsive-wrapper";
+import { WeddingQuoteSplitHero } from "@/components/wedding/WeddingQuoteSplitHero";
 
 const WeddingEventQuote = () => {
-  const { ref: headerRef, isVisible: headerVisible, variant: headerVariant } = useScrollAnimation({ 
-    delay: 0, 
-    variant: 'fade-up',
-    mobile: { variant: 'fade-up', delay: 0 },
-    desktop: { variant: 'ios-spring', delay: 0 }
-  });
-  
   const { ref: contactRef, isVisible: contactVisible, variant: contactVariant } = useScrollAnimation({ 
     delay: 200, 
     variant: 'scale-fade',
@@ -38,14 +31,8 @@ const WeddingEventQuote = () => {
 
   return (
     <div className="min-h-screen bg-gradient-hero">
-      {/* Header Section */}
-      <section className="py-8 lg:py-12">
-        <ResponsiveWrapper>
-          <div ref={headerRef} className={useAnimationClass(headerVariant, headerVisible)}>
-            <QuoteHeader />
-          </div>
-        </ResponsiveWrapper>
-      </section>
+      {/* Split Screen Hero */}
+      <WeddingQuoteSplitHero />
       
       {/* Main Content Section */}
       <section className="py-8 lg:py-12">
