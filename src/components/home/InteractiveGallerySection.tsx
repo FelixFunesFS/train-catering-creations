@@ -30,29 +30,10 @@ export const InteractiveGallerySection = () => {
     setSelectedImageIndex(null);
   };
 
-  // Get best quality images for showcase - 12 images for balanced display
+  // Get best quality images for showcase - limited to 6 for optimal performance and UX
   const showcaseImages = galleryImages
     .sort((a, b) => b.quality - a.quality)
-    .slice(0, 12);
-
-  // Create balanced card sizes for desktop masonry layout
-  const getCardSize = (index: number): { height: string; span: string } => {
-    const pattern = [
-      { height: "h-80", span: "row-span-2" },    // Large
-      { height: "h-60", span: "row-span-1" },    // Medium  
-      { height: "h-48", span: "row-span-1" },    // Small
-      { height: "h-64", span: "row-span-1" },    // Medium
-      { height: "h-48", span: "row-span-1" },    // Small
-      { height: "h-72", span: "row-span-2" },    // Large
-      { height: "h-56", span: "row-span-1" },    // Medium
-      { height: "h-48", span: "row-span-1" },    // Small
-      { height: "h-68", span: "row-span-1" },    // Medium
-      { height: "h-80", span: "row-span-2" },    // Large
-      { height: "h-52", span: "row-span-1" },    // Medium
-      { height: "h-48", span: "row-span-1" },    // Small
-    ];
-    return pattern[index % pattern.length];
-  };
+    .slice(0, 6);
 
   const getCategoryBadge = (category: string) => {
     const categoryMap = {
@@ -87,142 +68,48 @@ export const InteractiveGallerySection = () => {
             </p>
           </div>
 
-          {/* Balanced Responsive Grid */}
+          {/* Mobile-First Unified Responsive Grid */}
           <div ref={gridRef} className={gridAnimationClass}>
-            {/* Mobile: Simple vertical stack */}
-            <div className="block sm:hidden">
-              <div className="grid grid-cols-1 gap-4 mb-8">
-                {showcaseImages.map((image, index) => {
-                  const categoryBadge = getCategoryBadge(image.category);
-                  const IconComponent = categoryBadge.icon;
-                  
-                  return (
-                    <div
-                      key={index}
-                      className="neumorphic-card-2 hover:neumorphic-card-3 rounded-xl p-3 bg-card transition-all duration-300 cursor-pointer group hover:scale-[1.02]"
-                      onClick={() => handleImageClick(image.src)}
-                    >
-                      <div className="relative rounded-lg overflow-hidden aspect-[4/3]">
-                        <OptimizedImage
-                          src={image.src}
-                          alt={image.title}
-                          aspectRatio="aspect-[4/3]"
-                          className="group-hover:scale-105 transition-transform duration-300"
-                          priority={index < 3}
-                        />
-                        
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                          <div className="absolute top-3 left-3">
-                            <Badge className={`${categoryBadge.color} text-white text-xs flex items-center gap-1`}>
-                              <IconComponent className="w-3 h-3" />
-                              {categoryBadge.label}
-                            </Badge>
-                          </div>
-                          <div className="absolute bottom-3 left-3 right-3">
-                            <h3 className="text-white font-elegant font-semibold text-base mb-1 leading-tight">
-                              {image.title}
-                            </h3>
-                            <p className="text-white/90 text-sm line-clamp-2 leading-tight">
-                              {image.description}
-                            </p>
-                          </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6 mb-8 sm:mb-10 lg:mb-12">
+              {showcaseImages.map((image, index) => {
+                const categoryBadge = getCategoryBadge(image.category);
+                const IconComponent = categoryBadge.icon;
+                
+                return (
+                  <div
+                    key={index}
+                    className="neumorphic-card-2 hover:neumorphic-card-3 rounded-xl p-3 sm:p-4 bg-card transition-all duration-300 cursor-pointer group hover:scale-[1.02] transform"
+                    onClick={() => handleImageClick(image.src)}
+                  >
+                    <div className="relative rounded-lg overflow-hidden aspect-[4/3] sm:aspect-square lg:aspect-[4/3]">
+                      <OptimizedImage
+                        src={image.src}
+                        alt={image.title}
+                        containerClassName="w-full h-full"
+                        className="group-hover:scale-105 transition-transform duration-300 w-full h-full object-cover"
+                        priority={index < 3}
+                      />
+                      
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div className="absolute top-3 left-3">
+                          <Badge className={`${categoryBadge.color} text-white text-xs flex items-center gap-1`}>
+                            <IconComponent className="w-3 h-3" />
+                            {categoryBadge.label}
+                          </Badge>
+                        </div>
+                        <div className="absolute bottom-3 left-3 right-3">
+                          <h3 className="text-white font-elegant font-semibold text-sm sm:text-base lg:text-lg mb-1 leading-tight">
+                            {image.title}
+                          </h3>
+                          <p className="text-white/90 text-xs sm:text-sm leading-tight line-clamp-2">
+                            {image.description}
+                          </p>
                         </div>
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Tablet: Consistent 2-3 column grid */}
-            <div className="hidden sm:block lg:hidden">
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mb-8">
-                {showcaseImages.map((image, index) => {
-                  const categoryBadge = getCategoryBadge(image.category);
-                  const IconComponent = categoryBadge.icon;
-                  
-                  return (
-                    <div
-                      key={index}
-                      className="neumorphic-card-2 hover:neumorphic-card-3 rounded-xl p-3 bg-card transition-all duration-300 cursor-pointer group hover:scale-[1.02]"
-                      onClick={() => handleImageClick(image.src)}
-                    >
-                      <div className="relative rounded-lg overflow-hidden aspect-square">
-                        <OptimizedImage
-                          src={image.src}
-                          alt={image.title}
-                          aspectRatio="aspect-square"
-                          className="group-hover:scale-105 transition-transform duration-300"
-                          priority={index < 6}
-                        />
-                        
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                          <div className="absolute top-2 left-2">
-                            <Badge className={`${categoryBadge.color} text-white text-xs flex items-center gap-1`}>
-                              <IconComponent className="w-3 h-3" />
-                              {categoryBadge.label}
-                            </Badge>
-                          </div>
-                          <div className="absolute bottom-2 left-2 right-2">
-                            <h3 className="text-white font-elegant font-semibold text-sm mb-1 leading-tight">
-                              {image.title}
-                            </h3>
-                            <p className="text-white/90 text-xs line-clamp-2 leading-tight">
-                              {image.description}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Desktop: Balanced masonry-style grid */}
-            <div className="hidden lg:block">
-              <div className="grid grid-cols-4 gap-6 auto-rows-min mb-8">
-                {showcaseImages.map((image, index) => {
-                  const categoryBadge = getCategoryBadge(image.category);
-                  const IconComponent = categoryBadge.icon;
-                  const cardSize = getCardSize(index);
-                  
-                  return (
-                    <div
-                      key={index}
-                      className={`neumorphic-card-2 hover:neumorphic-card-3 rounded-xl p-4 bg-card transition-all duration-300 cursor-pointer group hover:scale-[1.02] ${cardSize.span}`}
-                      onClick={() => handleImageClick(image.src)}
-                    >
-                      <div className={`relative rounded-lg overflow-hidden ${cardSize.height}`}>
-                        <OptimizedImage
-                          src={image.src}
-                          alt={image.title}
-                          containerClassName="w-full h-full"
-                          className="group-hover:scale-105 transition-transform duration-300 w-full h-full object-cover"
-                          priority={index < 8}
-                        />
-                        
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                          <div className="absolute top-3 left-3">
-                            <Badge className={`${categoryBadge.color} text-white text-xs flex items-center gap-1`}>
-                              <IconComponent className="w-3 h-3" />
-                              {categoryBadge.label}
-                            </Badge>
-                          </div>
-                          <div className="absolute bottom-3 left-3 right-3">
-                            <h3 className="text-white font-elegant font-semibold text-base mb-1 leading-tight">
-                              {image.title}
-                            </h3>
-                            <p className="text-white/90 text-sm line-clamp-2 leading-tight">
-                              {image.description}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
