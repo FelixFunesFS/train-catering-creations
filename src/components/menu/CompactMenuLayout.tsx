@@ -30,7 +30,7 @@ export const CompactMenuLayout = ({
   showFilters = true,
   className
 }: CompactMenuLayoutProps) => {
-  const [activeFilters, setActiveFilters] = useState<string[]>([]);
+  const [showPopularOnly, setShowPopularOnly] = useState(false);
   
   const { ref: headerRef, isVisible: headerVisible, variant: headerVariant } = useScrollAnimation({ 
     variant: 'ios-spring', 
@@ -41,101 +41,78 @@ export const CompactMenuLayout = ({
   
   const headerAnimationClass = useAnimationClass(headerVariant, headerVisible);
 
-  // Convert items to compact format
-  const compactItems: CompactMenuItem[] = useMemo(() => {
+  // Convert items to clean format (only popular flag)
+  const cleanItems: CompactMenuItem[] = useMemo(() => {
     return items.map(item => {
       if (typeof item === 'string') {
         return {
           name: item,
-          isPopular: Math.random() > 0.8,
-          isVegetarian: item.toLowerCase().includes('vegetable') || item.toLowerCase().includes('salad'),
-          isGlutenFree: item.toLowerCase().includes('rice') || item.toLowerCase().includes('potato'),
-          isSpicy: item.toLowerCase().includes('spicy') || item.toLowerCase().includes('hot')
+          isPopular: Math.random() > 0.8
         };
       }
-      return item;
+      return { name: item.name, isPopular: item.isPopular };
     });
   }, [items]);
 
-  // Filter items based on active filters
+  // Filter items - only show popular if filter is active
   const filteredItems = useMemo(() => {
-    if (activeFilters.length === 0) return compactItems;
-    
-    return compactItems.filter(item => {
-      return activeFilters.some(filter => {
-        switch (filter) {
-          case 'popular': return item.isPopular;
-          case 'vegetarian': return item.isVegetarian;
-          case 'gluten-free': return item.isGlutenFree;
-          case 'spicy': return item.isSpicy;
-          default: return true;
-        }
-      });
-    });
-  }, [compactItems, activeFilters]);
+    if (!showPopularOnly) return cleanItems;
+    return cleanItems.filter(item => item.isPopular);
+  }, [cleanItems, showPopularOnly]);
 
-  const handleFilterChange = (filterId: string) => {
-    setActiveFilters(prev => 
-      prev.includes(filterId) 
-        ? prev.filter(id => id !== filterId)
-        : [...prev, filterId]
-    );
-  };
-
-  // Calculate filter counts
-  const filterCounts = {
-    popular: compactItems.filter(item => item.isPopular).length,
-    vegetarian: compactItems.filter(item => item.isVegetarian).length,
-    'gluten-free': compactItems.filter(item => item.isGlutenFree).length,
-    spicy: compactItems.filter(item => item.isSpicy).length
-  };
+  const popularCount = cleanItems.filter(item => item.isPopular).length;
 
   return (
     <section className={cn("space-y-4", className)}>
       <div className={cn("neumorphic-card-1 rounded-lg p-3 sm:p-4 lg:p-6 transition-all duration-300", color)}>
-        <div ref={headerRef} className={`text-center mb-4 ${headerAnimationClass}`}>
-          <h3 className="text-base sm:text-lg lg:text-xl font-elegant text-foreground mb-2 relative">
+        <div ref={headerRef} className={`text-center mb-6 ${headerAnimationClass}`}>
+          <p className="text-xs text-muted-foreground/80 uppercase tracking-wider mb-2">Crafted with Care</p>
+          <h3 className="text-lg sm:text-xl lg:text-2xl font-elegant text-foreground mb-2 relative">
             {title}
-            <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-8 sm:w-10 h-0.5 bg-primary/60 rounded-full" />
+            <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-12 sm:w-16 h-0.5 bg-primary/60 rounded-full" />
           </h3>
           {subtitle && (
-            <p className="text-xs sm:text-sm text-muted-foreground italic">{subtitle}</p>
+            <p className="text-sm sm:text-base text-muted-foreground/70 mt-3">{subtitle}</p>
           )}
         </div>
 
-        {/* Compact Filters */}
-        {showFilters && (
-          <FilterQuickTags
-            activeFilters={activeFilters}
-            onFilterChange={handleFilterChange}
-            counts={filterCounts}
-            className="mb-4"
-          />
+        {/* Simple Popular Filter */}
+        {showFilters && popularCount > 0 && (
+          <div className="flex justify-center mb-6">
+            <button
+              onClick={() => setShowPopularOnly(!showPopularOnly)}
+              className={cn(
+                "px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 touch-target-comfortable",
+                showPopularOnly
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "bg-background/50 text-muted-foreground hover:text-foreground hover:bg-background/80 border border-border/30"
+              )}
+            >
+              Show Popular Only ({popularCount})
+            </button>
+          </div>
         )}
 
-        {/* Compact Items Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3">
+        {/* Clean List Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
           {filteredItems.map((item, index) => (
             <CompactMenuItem
               key={`${item.name}-${index}`}
               name={item.name}
               isPopular={item.isPopular}
-              isVegetarian={item.isVegetarian}
-              isGlutenFree={item.isGlutenFree}
-              isSpicy={item.isSpicy}
             />
           ))}
         </div>
 
         {/* No Results Message */}
-        {activeFilters.length > 0 && filteredItems.length === 0 && (
-          <div className="text-center py-6 text-muted-foreground">
-            <p className="text-sm">No items match the selected filters.</p>
+        {showPopularOnly && filteredItems.length === 0 && (
+          <div className="text-center py-8 text-muted-foreground">
+            <p className="text-sm">No popular items in this section.</p>
             <button
-              onClick={() => setActiveFilters([])}
+              onClick={() => setShowPopularOnly(false)}
               className="mt-2 text-primary hover:text-primary/80 text-xs underline"
             >
-              Clear filters
+              Show all items
             </button>
           </div>
         )}
