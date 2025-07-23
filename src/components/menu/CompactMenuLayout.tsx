@@ -30,7 +30,6 @@ export const CompactMenuLayout = ({
   showFilters = true,
   className
 }: CompactMenuLayoutProps) => {
-  const [showPopularOnly, setShowPopularOnly] = useState(false);
   
   const { ref: headerRef, isVisible: headerVisible, variant: headerVariant } = useScrollAnimation({ 
     variant: 'ios-spring', 
@@ -54,14 +53,6 @@ export const CompactMenuLayout = ({
     });
   }, [items]);
 
-  // Filter items - only show popular if filter is active
-  const filteredItems = useMemo(() => {
-    if (!showPopularOnly) return cleanItems;
-    return cleanItems.filter(item => item.isPopular);
-  }, [cleanItems, showPopularOnly]);
-
-  const popularCount = cleanItems.filter(item => item.isPopular).length;
-
   return (
     <section className={cn("space-y-4", className)}>
       <div className={cn("neumorphic-card-1 rounded-lg p-3 sm:p-4 lg:p-6 transition-all duration-300", color)}>
@@ -71,31 +62,11 @@ export const CompactMenuLayout = ({
             {title}
             <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-12 sm:w-16 h-0.5 bg-primary/60 rounded-full" />
           </h3>
-          {subtitle && (
-            <p className="text-sm sm:text-base text-muted-foreground/70 mt-3">{subtitle}</p>
-          )}
         </div>
-
-        {/* Simple Popular Filter */}
-        {showFilters && popularCount > 0 && (
-          <div className="flex justify-center mb-6">
-            <button
-              onClick={() => setShowPopularOnly(!showPopularOnly)}
-              className={cn(
-                "px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 touch-target-comfortable",
-                showPopularOnly
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "bg-background/50 text-muted-foreground hover:text-foreground hover:bg-background/80 border border-border/30"
-              )}
-            >
-              Show Popular Only ({popularCount})
-            </button>
-          </div>
-        )}
 
         {/* Clean List Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
-          {filteredItems.map((item, index) => (
+          {cleanItems.map((item, index) => (
             <CompactMenuItem
               key={`${item.name}-${index}`}
               name={item.name}
@@ -103,19 +74,6 @@ export const CompactMenuLayout = ({
             />
           ))}
         </div>
-
-        {/* No Results Message */}
-        {showPopularOnly && filteredItems.length === 0 && (
-          <div className="text-center py-8 text-muted-foreground">
-            <p className="text-sm">No popular items in this section.</p>
-            <button
-              onClick={() => setShowPopularOnly(false)}
-              className="mt-2 text-primary hover:text-primary/80 text-xs underline"
-            >
-              Show all items
-            </button>
-          </div>
-        )}
       </div>
     </section>
   );
