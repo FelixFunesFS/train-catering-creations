@@ -55,7 +55,12 @@ export const Header = () => {
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-0 my-0">
           <div className="flex justify-between items-center py-1 sm:py-2">
             {/* Logo */}
-            <Link to="/" className="flex items-center hover:scale-105 transition-transform duration-300 focus-visible-enhanced" aria-label="Soul Train's Eatery - Home">
+            <Link to="/" className="flex items-center space-x-3 hover:scale-105 transition-transform duration-300 focus-visible-enhanced" aria-label="Soul Train's Eatery - Home">
+              <img 
+                src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
+                alt="Soul Train's Eatery Logo" 
+                className="h-8 w-8 lg:h-10 lg:w-10 object-contain"
+              />
               <div className="text-2xl lg:text-3xl font-script font-bold text-foreground">
                 Soul Train's Eatery
               </div>

@@ -16,6 +16,8 @@ import RegularEventQuote from "./pages/RegularEventQuote";
 import WeddingEventQuote from "./pages/WeddingEventQuote";
 import Reviews from "./pages/Reviews";
 import PhotoGallery from "./pages/PhotoGallery";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsConditions from "./pages/TermsConditions";
 import NotFound from "./pages/NotFound";
 const AppContent = () => {
   useScrollToAnchor();
@@ -32,6 +34,8 @@ const AppContent = () => {
           <Route path="/request-quote/wedding" element={<WeddingEventQuote />} />
           <Route path="/reviews" element={<Reviews />} />
           <Route path="/gallery" element={<PhotoGallery />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/terms-conditions" element={<TermsConditions />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
