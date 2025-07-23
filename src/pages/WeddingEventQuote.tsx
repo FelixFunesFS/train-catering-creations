@@ -8,18 +8,18 @@ import { ResponsiveWrapper } from "@/components/ui/responsive-wrapper";
 import { WeddingQuoteSplitHero } from "@/components/wedding/WeddingQuoteSplitHero";
 
 const WeddingEventQuote = () => {
-  const { ref: contactRef, isVisible: contactVisible, variant: contactVariant } = useScrollAnimation({ 
+  const { ref: formRef, isVisible: formVisible, variant: formVariant } = useScrollAnimation({ 
     delay: 200, 
-    variant: 'scale-fade',
-    mobile: { variant: 'subtle', delay: 100 },
-    desktop: { variant: 'scale-fade', delay: 200 }
+    variant: 'elastic',
+    mobile: { variant: 'medium', delay: 100 },
+    desktop: { variant: 'elastic', delay: 200 }
   });
   
-  const { ref: formRef, isVisible: formVisible, variant: formVariant } = useScrollAnimation({ 
+  const { ref: contactRef, isVisible: contactVisible, variant: contactVariant } = useScrollAnimation({ 
     delay: 400, 
-    variant: 'elastic',
-    mobile: { variant: 'medium', delay: 200 },
-    desktop: { variant: 'elastic', delay: 400 }
+    variant: 'scale-fade',
+    mobile: { variant: 'subtle', delay: 200 },
+    desktop: { variant: 'scale-fade', delay: 400 }
   });
   
   const { ref: ctaRef, isVisible: ctaVisible, variant: ctaVariant } = useScrollAnimation({ 
@@ -34,21 +34,20 @@ const WeddingEventQuote = () => {
       {/* Split Screen Hero */}
       <WeddingQuoteSplitHero />
       
-      {/* Main Content Section */}
+      {/* Form Section */}
       <section className="py-8 lg:py-12">
-        <ResponsiveWrapper hasFullWidthCard>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
-            <div className="order-1 lg:order-1">
-              <div ref={formRef} className={useAnimationClass(formVariant, formVisible)}>
-                <WeddingEventQuoteForm />
-              </div>
-            </div>
-            
-            <div className="order-2 lg:order-2">
-              <div ref={contactRef} className={useAnimationClass(contactVariant, contactVisible)}>
-                <ContactInfoCards />
-              </div>
-            </div>
+        <ResponsiveWrapper>
+          <div ref={formRef} className={useAnimationClass(formVariant, formVisible)}>
+            <WeddingEventQuoteForm />
+          </div>
+        </ResponsiveWrapper>
+      </section>
+      
+      {/* Contact Cards Section */}
+      <section className="py-8 lg:py-12">
+        <ResponsiveWrapper>
+          <div ref={contactRef} className={useAnimationClass(contactVariant, contactVisible)}>
+            <ContactInfoCards />
           </div>
         </ResponsiveWrapper>
       </section>
