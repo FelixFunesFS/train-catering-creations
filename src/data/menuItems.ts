@@ -63,6 +63,42 @@ export const regularMenuItems: MenuItemDetails[] = [
     servingStyle: ['buffet', 'family-style'],
     popularity: 'high'
   },
+  {
+    id: 'turkey-wings',
+    name: 'Turkey Wings',
+    description: 'Slow-cooked turkey wings with savory seasonings',
+    category: 'poultry',
+    dietaryInfo: ['Gluten-Free Available'],
+    minimumGuests: 15,
+    leadTimeHours: 48,
+    equipmentRequired: ['chafing-dishes'],
+    servingStyle: ['buffet', 'family-style'],
+    popularity: 'medium'
+  },
+  {
+    id: 'chicken-alfredo',
+    name: 'Chicken Alfredo',
+    description: 'Creamy chicken alfredo pasta',
+    category: 'poultry',
+    dietaryInfo: ['Contains Gluten', 'Contains Dairy'],
+    minimumGuests: 15,
+    leadTimeHours: 24,
+    equipmentRequired: ['chafing-dishes'],
+    servingStyle: ['buffet', 'plated'],
+    popularity: 'medium'
+  },
+  {
+    id: 'chicken-wings',
+    name: 'Chicken Wings',
+    description: 'Crispy chicken wings with choice of sauce',
+    category: 'poultry',
+    dietaryInfo: ['Gluten-Free Available'],
+    minimumGuests: 20,
+    leadTimeHours: 24,
+    equipmentRequired: ['warming-trays'],
+    servingStyle: ['buffet'],
+    popularity: 'high'
+  },
   
   // Beef & Pork
   {
@@ -101,6 +137,102 @@ export const regularMenuItems: MenuItemDetails[] = [
     servingStyle: ['buffet', 'plated'],
     popularity: 'medium'
   },
+  {
+    id: 'smoked-sausage',
+    name: 'Smoked Sausage',
+    description: 'Premium smoked sausage with traditional seasonings',
+    category: 'beef-pork',
+    dietaryInfo: ['Gluten-Free'],
+    minimumGuests: 15,
+    leadTimeHours: 24,
+    equipmentRequired: ['chafing-dishes'],
+    servingStyle: ['buffet', 'family-style'],
+    popularity: 'high'
+  },
+  {
+    id: 'fried-pork-chops',
+    name: 'Fried Pork Chops',
+    description: 'Golden-fried pork chops with crispy coating',
+    category: 'beef-pork',
+    dietaryInfo: ['Contains Gluten'],
+    minimumGuests: 15,
+    leadTimeHours: 24,
+    equipmentRequired: ['warming-trays'],
+    servingStyle: ['buffet', 'plated'],
+    popularity: 'medium'
+  },
+  {
+    id: 'smothered-pork-chops',
+    name: 'Smothered Pork Chops',
+    description: 'Pork chops in rich gravy with onions',
+    category: 'beef-pork',
+    dietaryInfo: ['Contains Gluten'],
+    minimumGuests: 15,
+    leadTimeHours: 24,
+    equipmentRequired: ['chafing-dishes'],
+    servingStyle: ['buffet', 'plated'],
+    popularity: 'medium'
+  },
+  {
+    id: 'meatloaf',
+    name: 'Meatloaf',
+    description: 'Classic comfort food meatloaf',
+    category: 'beef-pork',
+    dietaryInfo: ['Contains Gluten', 'Contains Eggs'],
+    minimumGuests: 20,
+    leadTimeHours: 24,
+    equipmentRequired: ['chafing-dishes'],
+    servingStyle: ['buffet', 'plated'],
+    popularity: 'medium'
+  },
+  {
+    id: 'hamburgers',
+    name: 'Hamburgers',
+    description: 'Grilled hamburger patties for casual events',
+    category: 'beef-pork',
+    dietaryInfo: ['Contains Gluten'],
+    minimumGuests: 15,
+    leadTimeHours: 24,
+    equipmentRequired: ['grills'],
+    servingStyle: ['buffet'],
+    popularity: 'high'
+  },
+  {
+    id: 'spaghetti',
+    name: 'Spaghetti',
+    description: 'Classic spaghetti with meat sauce',
+    category: 'beef-pork',
+    dietaryInfo: ['Contains Gluten'],
+    minimumGuests: 15,
+    leadTimeHours: 24,
+    equipmentRequired: ['chafing-dishes'],
+    servingStyle: ['buffet', 'plated'],
+    popularity: 'high'
+  },
+  {
+    id: 'lasagna',
+    name: 'Lasagna',
+    description: 'Layered pasta with meat sauce and cheese',
+    category: 'beef-pork',
+    dietaryInfo: ['Contains Gluten', 'Contains Dairy'],
+    minimumGuests: 20,
+    leadTimeHours: 48,
+    equipmentRequired: ['chafing-dishes'],
+    servingStyle: ['buffet', 'plated'],
+    popularity: 'high'
+  },
+  {
+    id: 'tacos',
+    name: 'Tacos',
+    description: 'Build-your-own taco bar with seasoned meat',
+    category: 'beef-pork',
+    dietaryInfo: ['Contains Gluten'],
+    minimumGuests: 20,
+    leadTimeHours: 24,
+    equipmentRequired: ['serving-stations'],
+    servingStyle: ['buffet'],
+    popularity: 'high'
+  },
   
   // Seafood
   {
@@ -125,6 +257,44 @@ export const regularMenuItems: MenuItemDetails[] = [
     minimumGuests: 15,
     leadTimeHours: 24,
     equipmentRequired: ['warming-trays'],
+    servingStyle: ['buffet'],
+    popularity: 'medium'
+  },
+  {
+    id: 'shrimp-alfredo',
+    name: 'Shrimp Alfredo',
+    description: 'Creamy shrimp alfredo pasta dish',
+    category: 'seafood',
+    dietaryInfo: ['Contains Gluten', 'Contains Dairy', 'Contains Shellfish'],
+    minimumGuests: 20,
+    leadTimeHours: 24,
+    equipmentRequired: ['chafing-dishes'],
+    servingStyle: ['buffet', 'plated'],
+    popularity: 'medium'
+  },
+  {
+    id: 'lowcountry-boil',
+    name: 'Low Country Boil',
+    description: 'Coastal celebration of shrimp, sausage, corn, and potatoes',
+    category: 'seafood',
+    dietaryInfo: ['Gluten-Free', 'Contains Shellfish'],
+    minimumGuests: 25,
+    leadTimeHours: 48,
+    seasonal: true,
+    equipmentRequired: ['large-pots', 'serving-stations'],
+    servingStyle: ['buffet', 'family-style'],
+    popularity: 'high'
+  },
+  {
+    id: 'crabs',
+    name: 'Crabs',
+    description: 'Fresh steamed crabs with seasoning',
+    category: 'seafood',
+    dietaryInfo: ['Gluten-Free', 'Contains Shellfish'],
+    minimumGuests: 20,
+    leadTimeHours: 48,
+    seasonal: true,
+    equipmentRequired: ['serving-stations'],
     servingStyle: ['buffet'],
     popularity: 'medium'
   },
@@ -312,6 +482,164 @@ export const regularMenuItems: MenuItemDetails[] = [
     servingStyle: ['buffet', 'family-style'],
     popularity: 'medium'
   },
+  {
+    id: 'white-rice',
+    name: 'White Rice',
+    description: 'Perfect fluffy white rice',
+    category: 'sides',
+    dietaryInfo: ['Gluten-Free', 'Vegan'],
+    minimumGuests: 10,
+    leadTimeHours: 24,
+    equipmentRequired: ['chafing-dishes'],
+    servingStyle: ['buffet', 'family-style'],
+    popularity: 'high'
+  },
+  {
+    id: 'yellow-rice',
+    name: 'Yellow Rice',
+    description: 'Seasoned yellow rice with saffron',
+    category: 'sides',
+    dietaryInfo: ['Gluten-Free', 'Vegan'],
+    minimumGuests: 10,
+    leadTimeHours: 24,
+    equipmentRequired: ['chafing-dishes'],
+    servingStyle: ['buffet', 'family-style'],
+    popularity: 'medium'
+  },
+  {
+    id: 'dirty-rice',
+    name: 'Dirty Rice',
+    description: 'Cajun-style rice with herbs and spices',
+    category: 'sides',
+    dietaryInfo: ['Gluten-Free'],
+    minimumGuests: 10,
+    leadTimeHours: 24,
+    equipmentRequired: ['chafing-dishes'],
+    servingStyle: ['buffet', 'family-style'],
+    popularity: 'medium'
+  },
+  {
+    id: 'yams',
+    name: 'Yams',
+    description: 'Sweet and savory glazed yams',
+    category: 'sides',
+    dietaryInfo: ['Gluten-Free', 'Vegan'],
+    minimumGuests: 10,
+    leadTimeHours: 24,
+    equipmentRequired: ['chafing-dishes'],
+    servingStyle: ['buffet', 'family-style'],
+    popularity: 'high'
+  },
+  {
+    id: 'garden-salad',
+    name: 'Garden Salad',
+    description: 'Fresh mixed greens with vegetables',
+    category: 'sides',
+    dietaryInfo: ['Gluten-Free', 'Vegan'],
+    minimumGuests: 10,
+    leadTimeHours: 24,
+    equipmentRequired: ['serving-bowls'],
+    servingStyle: ['buffet'],
+    popularity: 'medium'
+  },
+  {
+    id: 'caesar-salad',
+    name: 'Caesar Salad',
+    description: 'Classic Caesar salad with parmesan',
+    category: 'sides',
+    dietaryInfo: ['Contains Gluten', 'Contains Dairy'],
+    minimumGuests: 10,
+    leadTimeHours: 24,
+    equipmentRequired: ['serving-bowls'],
+    servingStyle: ['buffet'],
+    popularity: 'medium'
+  },
+  {
+    id: 'macaroni-salad',
+    name: 'Macaroni Salad',
+    description: 'Creamy pasta salad with vegetables',
+    category: 'sides',
+    dietaryInfo: ['Contains Gluten'],
+    minimumGuests: 10,
+    leadTimeHours: 24,
+    equipmentRequired: ['serving-bowls'],
+    servingStyle: ['buffet', 'family-style'],
+    popularity: 'medium'
+  },
+
+  // Plant-Based Options
+  {
+    id: 'vegan-lasagna',
+    name: 'Vegan Lasagna',
+    description: 'Plant-based lasagna with cashew cheese',
+    category: 'plant-based',
+    dietaryInfo: ['Vegan', 'Contains Gluten'],
+    minimumGuests: 20,
+    leadTimeHours: 48,
+    equipmentRequired: ['chafing-dishes'],
+    servingStyle: ['buffet', 'plated'],
+    popularity: 'medium'
+  },
+  {
+    id: 'quinoa-power-bowl',
+    name: 'Quinoa Power Bowl',
+    description: 'Nutritious quinoa with roasted vegetables',
+    category: 'plant-based',
+    dietaryInfo: ['Vegan', 'Gluten-Free'],
+    minimumGuests: 15,
+    leadTimeHours: 24,
+    equipmentRequired: ['serving-bowls'],
+    servingStyle: ['buffet'],
+    popularity: 'medium'
+  },
+  {
+    id: 'stuffed-bell-peppers',
+    name: 'Stuffed Bell Peppers',
+    description: 'Bell peppers stuffed with quinoa and vegetables',
+    category: 'plant-based',
+    dietaryInfo: ['Vegan', 'Gluten-Free'],
+    minimumGuests: 15,
+    leadTimeHours: 24,
+    equipmentRequired: ['chafing-dishes'],
+    servingStyle: ['buffet', 'plated'],
+    popularity: 'medium'
+  },
+  {
+    id: 'black-bean-burgers',
+    name: 'Black Bean Burgers',
+    description: 'Hearty plant-based burger patties',
+    category: 'plant-based',
+    dietaryInfo: ['Vegan', 'Contains Gluten'],
+    minimumGuests: 15,
+    leadTimeHours: 24,
+    equipmentRequired: ['warming-trays'],
+    servingStyle: ['buffet'],
+    popularity: 'medium'
+  },
+  {
+    id: 'roasted-vegetable-medley',
+    name: 'Roasted Vegetable Medley',
+    description: 'Seasonal vegetables roasted to perfection',
+    category: 'plant-based',
+    dietaryInfo: ['Vegan', 'Gluten-Free'],
+    minimumGuests: 10,
+    leadTimeHours: 24,
+    equipmentRequired: ['chafing-dishes'],
+    servingStyle: ['buffet', 'family-style'],
+    popularity: 'high'
+  },
+  {
+    id: 'grilled-portobello-mushrooms',
+    name: 'Grilled Portobello Mushrooms',
+    description: 'Meaty mushrooms with herb marinade',
+    category: 'plant-based',
+    dietaryInfo: ['Vegan', 'Gluten-Free'],
+    minimumGuests: 15,
+    leadTimeHours: 24,
+    equipmentRequired: ['grills'],
+    servingStyle: ['buffet', 'plated'],
+    popularity: 'medium'
+  },
 
   // Desserts
   {
@@ -373,6 +701,90 @@ export const regularMenuItems: MenuItemDetails[] = [
     leadTimeHours: 24,
     equipmentRequired: ['serving-stands'],
     servingStyle: ['plated', 'buffet'],
+    popularity: 'medium'
+  },
+  {
+    id: 'vanilla-cake',
+    name: 'Vanilla Cake',
+    description: 'Light and fluffy vanilla cake',
+    category: 'desserts',
+    dietaryInfo: ['Contains Gluten', 'Contains Dairy', 'Contains Eggs'],
+    minimumGuests: 15,
+    leadTimeHours: 48,
+    equipmentRequired: ['cake-stands'],
+    servingStyle: ['plated', 'buffet'],
+    popularity: 'high'
+  },
+  {
+    id: 'strawberry-cake',
+    name: 'Strawberry Cake',
+    description: 'Fresh strawberry cake with berry frosting',
+    category: 'desserts',
+    dietaryInfo: ['Contains Gluten', 'Contains Dairy', 'Contains Eggs'],
+    minimumGuests: 15,
+    leadTimeHours: 48,
+    equipmentRequired: ['cake-stands'],
+    servingStyle: ['plated', 'buffet'],
+    popularity: 'medium'
+  },
+  {
+    id: 'carrot-cake',
+    name: 'Carrot Cake',
+    description: 'Moist carrot cake with cream cheese frosting',
+    category: 'desserts',
+    dietaryInfo: ['Contains Gluten', 'Contains Dairy', 'Contains Eggs'],
+    minimumGuests: 15,
+    leadTimeHours: 48,
+    equipmentRequired: ['cake-stands'],
+    servingStyle: ['plated', 'buffet'],
+    popularity: 'medium'
+  },
+  {
+    id: 'brownies',
+    name: 'Brownies',
+    description: 'Fudgy chocolate brownies',
+    category: 'desserts',
+    dietaryInfo: ['Contains Gluten', 'Contains Dairy', 'Contains Eggs'],
+    minimumGuests: 15,
+    leadTimeHours: 24,
+    equipmentRequired: ['serving-trays'],
+    servingStyle: ['buffet'],
+    popularity: 'high'
+  },
+  {
+    id: 'cheesecake',
+    name: 'Cheesecake',
+    description: 'Creamy New York style cheesecake',
+    category: 'desserts',
+    dietaryInfo: ['Contains Gluten', 'Contains Dairy', 'Contains Eggs'],
+    minimumGuests: 15,
+    leadTimeHours: 48,
+    equipmentRequired: ['cake-stands'],
+    servingStyle: ['plated', 'buffet'],
+    popularity: 'high'
+  },
+  {
+    id: 'cupcakes',
+    name: 'Cupcakes',
+    description: 'Individual cakes in various flavors',
+    category: 'desserts',
+    dietaryInfo: ['Contains Gluten', 'Contains Dairy', 'Contains Eggs'],
+    minimumGuests: 12,
+    leadTimeHours: 24,
+    equipmentRequired: ['serving-trays'],
+    servingStyle: ['buffet'],
+    popularity: 'high'
+  },
+  {
+    id: 'dessert-shooters',
+    name: 'Dessert Shooters',
+    description: 'Mini desserts in shot glasses',
+    category: 'desserts',
+    dietaryInfo: ['Contains Gluten', 'Contains Dairy'],
+    minimumGuests: 20,
+    leadTimeHours: 24,
+    equipmentRequired: ['serving-trays'],
+    servingStyle: ['buffet'],
     popularity: 'medium'
   }
 ];

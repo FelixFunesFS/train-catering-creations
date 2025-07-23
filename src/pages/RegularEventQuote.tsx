@@ -1,6 +1,6 @@
 
 import QuoteHeader from "@/components/quote/QuoteHeader";
-import RegularEventQuoteForm from "@/components/quote/RegularEventQuoteForm";
+import { MobileOptimizedQuoteForm } from "@/components/quote/MobileOptimizedQuoteForm";
 import ContactInfoCards from "@/components/quote/ContactInfoCards";
 import { CTASection } from "@/components/ui/cta-section";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
@@ -48,16 +48,16 @@ const RegularEventQuote = () => {
       </section>
       
       {/* Form Section */}
-      <section className="py-8 lg:py-12">
+      <section className="py-4 lg:py-8">
         <ResponsiveWrapper>
           <div ref={formRef} className={useAnimationClass(formVariant, formVisible)}>
-            <RegularEventQuoteForm />
+            <MobileOptimizedQuoteForm />
           </div>
         </ResponsiveWrapper>
       </section>
       
       {/* Contact Cards Section */}
-      <section className="py-8 lg:py-12">
+      <section className="py-4 lg:py-8">
         <ResponsiveWrapper>
           <div ref={contactRef} className={useAnimationClass(contactVariant, contactVisible)}>
             <ContactInfoCards />
