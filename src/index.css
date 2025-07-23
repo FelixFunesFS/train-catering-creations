@@ -65,11 +65,11 @@
     --focus-ring: 0 80% 45%;
     --focus-ring-offset: 0 0% 100%;
 
-    /* Enhanced alternating section gradients with pearl undertones */
-    --gradient-pattern-a: linear-gradient(135deg, hsl(60, 8%, 96%) 0%, hsl(0, 80%, 45%, 0.04) 30%, hsl(0, 80%, 30%, 0.06) 70%, hsl(60, 8%, 96%) 100%);
-    --gradient-pattern-b: linear-gradient(225deg, hsl(0, 80%, 45%, 0.02) 0%, hsl(0, 0%, 100%) 40%, hsl(210, 5%, 75%, 0.15) 80%, hsl(60, 8%, 96%) 100%);
-    --gradient-pattern-c: linear-gradient(45deg, hsl(210, 5%, 75%, 0.12) 0%, hsl(0, 0%, 100%) 30%, hsl(45, 85%, 55%, 0.06) 70%, hsl(60, 8%, 96%) 100%);
-    --gradient-pattern-d: linear-gradient(315deg, hsl(60, 8%, 96%) 0%, hsl(0, 80%, 45%, 0.03) 40%, hsl(210, 5%, 75%, 0.08) 80%, hsl(0, 0%, 100%) 100%);
+    /* Extremely subtle alternating section gradients for gallery */
+    --gradient-pattern-a: linear-gradient(135deg, hsl(60, 8%, 96%) 0%, hsl(0, 80%, 45%, 0.008) 30%, hsl(0, 80%, 30%, 0.012) 70%, hsl(60, 8%, 96%) 100%);
+    --gradient-pattern-b: linear-gradient(225deg, hsl(0, 80%, 45%, 0.004) 0%, hsl(0, 0%, 100%) 40%, hsl(210, 5%, 75%, 0.020) 80%, hsl(60, 8%, 96%) 100%);
+    --gradient-pattern-c: linear-gradient(45deg, hsl(210, 5%, 75%, 0.016) 0%, hsl(0, 0%, 100%) 30%, hsl(45, 85%, 55%, 0.008) 70%, hsl(60, 8%, 96%) 100%);
+    --gradient-pattern-d: linear-gradient(315deg, hsl(60, 8%, 96%) 0%, hsl(0, 80%, 45%, 0.006) 40%, hsl(210, 5%, 75%, 0.010) 80%, hsl(0, 0%, 100%) 100%);
 
     /* Enhanced gradients with Ruby & Pearl */
     --gradient-primary: linear-gradient(135deg, hsl(0, 80%, 45%) 0%, hsl(0, 80%, 30%) 100%);
@@ -170,11 +170,11 @@
     --focus-ring: 0 80% 60%;
     --focus-ring-offset: 220 25% 8%;
 
-    /* Dark mode gradients */
-    --gradient-pattern-a: linear-gradient(135deg, hsl(220, 25%, 8%) 0%, hsl(0, 80%, 60%, 0.08) 30%, hsl(0, 80%, 45%, 0.12) 70%, hsl(220, 25%, 12%) 100%);
-    --gradient-pattern-b: linear-gradient(225deg, hsl(0, 80%, 60%, 0.06) 0%, hsl(220, 25%, 12%) 40%, hsl(210, 15%, 25%, 0.20) 80%, hsl(220, 25%, 8%) 100%);
-    --gradient-pattern-c: linear-gradient(45deg, hsl(210, 15%, 25%, 0.18) 0%, hsl(220, 25%, 12%) 30%, hsl(45, 85%, 65%, 0.10) 70%, hsl(220, 25%, 8%) 100%);
-    --gradient-pattern-d: linear-gradient(315deg, hsl(220, 25%, 8%) 0%, hsl(0, 80%, 60%, 0.06) 40%, hsl(210, 15%, 25%, 0.12) 80%, hsl(220, 25%, 12%) 100%);
+    /* Extremely subtle dark mode gradients for gallery */
+    --gradient-pattern-a: linear-gradient(135deg, hsl(220, 25%, 8%) 0%, hsl(0, 80%, 60%, 0.012) 30%, hsl(0, 80%, 45%, 0.018) 70%, hsl(220, 25%, 12%) 100%);
+    --gradient-pattern-b: linear-gradient(225deg, hsl(0, 80%, 60%, 0.008) 0%, hsl(220, 25%, 12%) 40%, hsl(210, 15%, 25%, 0.025) 80%, hsl(220, 25%, 8%) 100%);
+    --gradient-pattern-c: linear-gradient(45deg, hsl(210, 15%, 25%, 0.022) 0%, hsl(220, 25%, 12%) 30%, hsl(45, 85%, 65%, 0.012) 70%, hsl(220, 25%, 8%) 100%);
+    --gradient-pattern-d: linear-gradient(315deg, hsl(220, 25%, 8%) 0%, hsl(0, 80%, 60%, 0.008) 40%, hsl(210, 15%, 25%, 0.015) 80%, hsl(220, 25%, 12%) 100%);
 
     /* Dark mode neumorphic shadows with subtle grey highlights */
     --shadow-neumorphic-1: 3px 3px 8px hsla(0, 0%, 0%, 0.4), -3px -3px 8px hsla(210, 15%, 25%, 0.15);
@@ -296,7 +296,7 @@
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15), 0 0 0 3px rgba(255, 255, 255, 0.5);
   }
 
-  /* Section pattern backgrounds */
+  /* Extremely subtle section pattern backgrounds for gallery */
   .section-pattern-a {
     background: var(--gradient-pattern-a);
     position: relative;

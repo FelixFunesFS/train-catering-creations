@@ -1,6 +1,6 @@
 
 import { GalleryImage } from "@/data/gallery/types";
-import { SectionContentCard } from "@/components/ui/section-content-card";
+import { GallerySectionCard } from "@/components/ui/gallery-section-card";
 import { MasonryGalleryGrid } from "./MasonryGalleryGrid";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
@@ -56,13 +56,13 @@ export const ThemeSection = ({
   const highQualityCount = images.filter(img => img.quality >= 8).length;
   const averageQuality = Math.round(images.reduce((sum, img) => sum + img.quality, 0) / images.length);
 
-  // Section-specific gradient patterns
+  // Very subtle section-specific gradient patterns
   const getSectionGradient = (index: number) => {
     const gradients = [
-      'section-pattern-a', // Event Celebrations
-      'section-pattern-b', // Military & Corporate 
-      'section-pattern-c', // Private Events
-      'section-pattern-d'  // Culinary Showcases
+      'bg-gradient-to-br from-background via-background to-background/95', // Event Celebrations
+      'bg-gradient-to-br from-background/95 via-background to-background/98', // Military & Corporate 
+      'bg-gradient-to-br from-background/98 via-background to-background/95', // Private Events
+      'bg-gradient-to-br from-background via-background/95 to-background'  // Culinary Showcases
     ];
     return gradients[index % gradients.length];
   };
@@ -71,19 +71,16 @@ export const ThemeSection = ({
     <div className="relative">
       {/* Enhanced Section Divider */}
       <div className="absolute -top-12 left-0 right-0 flex items-center justify-center">
-        <div className="w-full max-w-3xl h-px bg-gradient-to-r from-transparent via-border/30 to-transparent"></div>
+        <div className="w-full max-w-3xl h-px bg-gradient-to-r from-transparent via-border/10 to-transparent"></div>
       </div>
 
-      <SectionContentCard className={`mb-0 overflow-hidden relative ${getSectionGradient(sectionIndex)}`}>
-        {/* Active Section Highlight */}
-        <div className={`absolute inset-0 bg-gradient-to-br ${accentColor} opacity-0 transition-all duration-700 ${isActive ? 'opacity-100' : ''}`} />
-        
+      <GallerySectionCard className={`mb-0 overflow-hidden relative ${getSectionGradient(sectionIndex)}`}>
         <div className="relative z-10">
           <div ref={headerRef} className={useAnimationClass(headerVariant, headerVisible)}>
             <div className="text-center mb-8 sm:mb-12">
               {/* Centered Section Header with Stats */}
               <div className="flex items-center justify-center gap-3 mb-4 sm:mb-6">
-                <div className="w-12 h-0.5 bg-gradient-to-r from-transparent to-primary"></div>
+                <div className="w-12 h-0.5 bg-gradient-to-r from-transparent to-primary/30"></div>
                 <div className="flex items-center gap-2">
                   <span className="text-sm sm:text-base text-primary font-medium tracking-wide uppercase">
                     {subtitle}
@@ -92,7 +89,7 @@ export const ThemeSection = ({
                     {images.length} images
                   </Badge>
                 </div>
-                <div className="w-12 h-0.5 bg-gradient-to-r from-primary to-transparent"></div>
+                <div className="w-12 h-0.5 bg-gradient-to-r from-primary/30 to-transparent"></div>
               </div>
               
               {/* Centered Section Title */}
@@ -138,7 +135,7 @@ export const ThemeSection = ({
                 <p className="text-primary font-elegant font-semibold text-lg sm:text-xl italic mb-2">
                   "{brandMessage}"
                 </p>
-                <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-32 h-0.5 bg-gradient-to-r from-primary via-primary to-primary/50 rounded-full"></div>
+                <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-32 h-0.5 bg-gradient-to-r from-primary/30 via-primary to-primary/30 rounded-full"></div>
               </div>
             </div>
           </div>
@@ -155,14 +152,14 @@ export const ThemeSection = ({
 
           {/* Centered Section Footer */}
           <div className="text-center mt-8 sm:mt-12">
-            <div className="inline-flex items-center gap-3 text-sm text-muted-foreground bg-muted/30 px-6 py-3 rounded-full border border-border/20">
+            <div className="inline-flex items-center gap-3 text-sm text-muted-foreground bg-background/50 px-6 py-3 rounded-full border border-border/10">
               <span>Displaying {Math.min(12, images.length)} of {images.length} total images</span>
               <span className="text-primary">•</span>
               <span className="text-primary font-medium">Click any image to explore the full collection</span>
             </div>
           </div>
         </div>
-      </SectionContentCard>
+      </GallerySectionCard>
     </div>
   );
 };
