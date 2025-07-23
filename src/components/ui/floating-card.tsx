@@ -76,7 +76,9 @@ const FloatingCard = React.forwardRef<HTMLDivElement, FloatingCardProps>(({
     // Resting shadow
     shadowClasses[restingShadow],
     // Base transform for hardware acceleration
-    "translate-z-0"
+    "translate-z-0",
+    // Z-index management
+    "relative z-0"
   ]
   
   const hoverClasses = !disabled && variant !== "none" ? [
@@ -87,11 +89,14 @@ const FloatingCard = React.forwardRef<HTMLDivElement, FloatingCardProps>(({
     `hover:${shadowClasses[hoverShadow]}`,
     // Border highlight
     highlightBorder && "hover:border-primary/20",
+    // Z-index for hover state
+    "hover:z-10",
     // Focus handling
     "focus-visible:translate-y-[calc(-1*var(--lift-amount))]",
     "focus-visible:scale-[var(--scale-amount)]",
     `focus-visible:${shadowClasses[hoverShadow]}`,
-    highlightBorder && "focus-visible:border-primary/20"
+    highlightBorder && "focus-visible:border-primary/20",
+    "focus-visible:z-10"
   ].filter(Boolean) : []
   
   return (

@@ -33,7 +33,7 @@ export const DesktopGalleryGrid = ({ images, onImageClick }: DesktopGalleryGridP
   const supportingImages = currentImages.slice(1);
 
   return (
-    <div className="hidden lg:block space-y-6">
+    <div className="hidden lg:block space-y-8">
       {/* Navigation Header */}
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-4">
@@ -77,9 +77,9 @@ export const DesktopGalleryGrid = ({ images, onImageClick }: DesktopGalleryGridP
       </div>
 
       {/* Featured Layout: 1 Large + 4 Supporting */}
-      <div className="grid grid-cols-12 gap-4 h-[400px]">
+      <div className="grid grid-cols-12 gap-6 min-h-[400px] isolate">
         {/* Featured Hero Image */}
-        <div className="col-span-8">
+        <div className="col-span-8 relative z-0">
           <OptimizedFloatingImage
             src={featuredImage.src}
             alt={featuredImage.title}
@@ -94,7 +94,7 @@ export const DesktopGalleryGrid = ({ images, onImageClick }: DesktopGalleryGridP
         </div>
         
         {/* Supporting Images Grid */}
-        <div className="col-span-4 grid grid-rows-2 gap-4">
+        <div className="col-span-4 grid grid-rows-2 gap-6 relative z-0">
           {supportingImages.slice(0, 2).map((image, index) => (
             <OptimizedFloatingImage
               key={`supporting-top-${index}`}
@@ -112,23 +112,26 @@ export const DesktopGalleryGrid = ({ images, onImageClick }: DesktopGalleryGridP
         </div>
       </div>
 
-      {/* Bottom Row - Additional Supporting Images */}
+      {/* Bottom Row - Additional Supporting Images with improved spacing */}
       {supportingImages.length > 2 && (
-        <div className="grid grid-cols-3 gap-4 h-[200px]">
-          {supportingImages.slice(2, 5).map((image, index) => (
-            <OptimizedFloatingImage
-              key={`supporting-bottom-${index}`}
-              src={image.src}
-              alt={image.title}
-              title={image.title}
-              description={image.description}
-              aspectRatio="aspect-[4/3]"
-              variant="medium"
-              priority={true}
-              onImageClick={() => onImageClick(image.src)}
-              className="h-full w-full"
-            />
-          ))}
+        <div className="mt-10 pt-2 isolate">
+          <div className="grid grid-cols-3 gap-6 min-h-[200px]">
+            {supportingImages.slice(2, 5).map((image, index) => (
+              <div key={`supporting-bottom-${index}`} className="relative z-0">
+                <OptimizedFloatingImage
+                  src={image.src}
+                  alt={image.title}
+                  title={image.title}
+                  description={image.description}
+                  aspectRatio="aspect-[4/3]"
+                  variant="medium"
+                  priority={true}
+                  onImageClick={() => onImageClick(image.src)}
+                  className="h-full w-full"
+                />
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>

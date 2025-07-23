@@ -54,6 +54,8 @@ const OptimizedFloatingImage = React.forwardRef<HTMLDivElement, OptimizedFloatin
         "border border-border/20 hover:border-primary/30",
         "shadow-card hover:shadow-elevated",
         "transform hover:scale-[1.02] sm:hover:scale-[1.01]",
+        // Enhanced isolation and z-index management
+        "isolate relative",
         className
       )}
       onClick={onImageClick}
