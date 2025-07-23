@@ -35,8 +35,8 @@ export const GallerySection = ({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-6 sm:mb-8 lg:mb-10">
         {gridImages.map((image, index) => {
           // Create varied aspect ratios for masonry effect
-          const getAspectRatio = (idx: number) => {
-            const patterns = ["aspect-[4/5]", "aspect-[3/4]", "aspect-square", "aspect-[5/4]", "aspect-[3/2]"];
+          const getAspectRatio = (idx: number): "aspect-[4/5]" | "aspect-[3/4]" | "aspect-square" | "aspect-[5/4]" | "aspect-[3/2]" => {
+            const patterns: ("aspect-[4/5]" | "aspect-[3/4]" | "aspect-square" | "aspect-[5/4]" | "aspect-[3/2]")[] = ["aspect-[4/5]", "aspect-[3/4]", "aspect-square", "aspect-[5/4]", "aspect-[3/2]"];
             return patterns[idx % patterns.length];
           };
           
