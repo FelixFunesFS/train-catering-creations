@@ -3,7 +3,8 @@ import MenuHeader from "@/components/menu/MenuHeader";
 import MenuContact from "@/components/menu/MenuContact";
 import { MobileMenuNavigation } from "@/components/menu/MobileMenuNavigation";
 import { QuickActionButton } from "@/components/menu/QuickActionButton";
-import { EnhancedCollapsibleMenuSection } from "@/components/menu/EnhancedCollapsibleMenuSection";
+import { CompactMenuLayout } from "@/components/menu/CompactMenuLayout";
+import { HorizontalCategoryNav } from "@/components/menu/HorizontalCategoryNav";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 import { cn } from "@/lib/utils";
@@ -463,6 +464,13 @@ const Menu = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const categories = [
+    { id: "appetizers", label: "Appetizers", count: menuData.appetizers.sections.reduce((acc, section) => acc + section.items.length, 0) },
+    { id: "entrees", label: "Entrees", count: menuData.entrees.sections.reduce((acc, section) => acc + section.items.length, 0) },
+    { id: "sides", label: "Sides", count: menuData.sides.sections.reduce((acc, section) => acc + section.items.length, 0) },
+    { id: "desserts", label: "Desserts", count: menuData.desserts.sections.reduce((acc, section) => acc + section.items.length, 0) }
+  ];
+
   const renderMenuContent = () => {
     const currentData = getCurrentMenuData();
     
@@ -488,16 +496,15 @@ const Menu = () => {
           </div>
         </div>
 
-        {/* Enhanced Menu Sections */}
-        <div className="space-y-6 lg:space-y-8">
+        {/* Compact Menu Sections */}
+        <div className="space-y-4 lg:space-y-6">
           {currentData.sections.map((section, index) => (
-            <EnhancedCollapsibleMenuSection
+            <CompactMenuLayout
               key={`${section.title}-${index}`}
               title={section.title}
               subtitle={section.subtitle}
               color={section.color}
               items={section.items}
-              defaultExpanded={index === 0}
               showFilters={true}
             />
           ))}
@@ -548,25 +555,13 @@ const Menu = () => {
             ref={contentRef} 
             className={useAnimationClass(contentVariant, contentVisible)}
           >
-            {/* Navigation Tabs */}
-            <div className="flex justify-center mb-6 lg:mb-8">
-              <div className="flex space-x-1 sm:space-x-2 p-2 bg-muted/50 rounded-lg overflow-x-auto">
-                {Object.entries(menuData).map(([key, data]) => (
-                  <button
-                    key={key}
-                    onClick={() => handleCategoryChange(key)}
-                    className={cn(
-                      "px-4 sm:px-6 py-3 text-sm font-medium rounded-md transition-all duration-200 whitespace-nowrap flex-shrink-0",
-                      activeCategory === key
-                        ? "bg-primary text-primary-foreground shadow-sm"
-                        : "text-muted-foreground hover:text-foreground hover:bg-background/50"
-                    )}
-                  >
-                    {data.title}
-                  </button>
-                ))}
-              </div>
-            </div>
+            {/* Horizontal Category Navigation */}
+            <HorizontalCategoryNav
+              categories={categories}
+              activeCategory={activeCategory}
+              onCategoryChange={handleCategoryChange}
+              className="mb-6 lg:mb-8"
+            />
 
             {renderMenuContent()}
           </div>
