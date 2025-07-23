@@ -23,7 +23,7 @@ export const SectionContentCard = React.forwardRef<HTMLDivElement, SectionConten
       level={level}
       interactive={interactive}
       className={cn(
-        "transition-all duration-300",
+        "p-6 transition-all duration-300",
         interactive && "hover:scale-105 cursor-pointer",
         className
       )}
