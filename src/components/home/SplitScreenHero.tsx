@@ -6,11 +6,11 @@ import { OptimizedImage } from "@/components/ui/optimized-image";
 export const SplitScreenHero = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const showcaseImages = [{
-    src: "/lovable-uploads/92c3b6c8-61dc-4c37-afa8-a0a4db04c551.png",
-    alt: "Professional buffet setup with chafing dishes and elegant floral arrangements",
-    title: "Corporate Catering",
-    description: "Professional buffet setup with chafing dishes and elegant floral arrangements",
-    category: "corporate"
+    src: "/lovable-uploads/adfb4ea8-c62c-4f6d-b7dd-b562466c2c31.png",
+    alt: "Elegant tiered dessert and appetizer display with gourmet presentation",
+    title: "Elegant Catering",
+    description: "Elegant tiered dessert and appetizer display with gourmet presentation",
+    category: "elegant"
   }, {
     src: "/lovable-uploads/f6f0cdc2-cd71-4392-984e-ed9609103e42.png",
     alt: "Elegant rustic venue with exposed beams, crystal chandeliers, and string lights for wedding reception",
@@ -24,11 +24,11 @@ export const SplitScreenHero = () => {
     description: "Elaborate grazing board with artisanal cheeses, charcuterie, and fresh fruits",
     category: "grazing"
   }, {
-    src: "/lovable-uploads/adfb4ea8-c62c-4f6d-b7dd-b562466c2c31.png",
-    alt: "Elegant tiered dessert and appetizer display with gourmet presentation",
-    title: "Elegant Catering",
-    description: "Elegant tiered dessert and appetizer display with gourmet presentation",
-    category: "elegant"
+    src: "/lovable-uploads/92c3b6c8-61dc-4c37-afa8-a0a4db04c551.png",
+    alt: "Professional buffet setup with chafing dishes and elegant floral arrangements",
+    title: "Corporate Catering",
+    description: "Professional buffet setup with chafing dishes and elegant floral arrangements",
+    category: "corporate"
   }];
   const handleImageClick = (index: number) => {
     setSelectedImageIndex(index);
