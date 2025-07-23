@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Leaf, Gluten, Flame, Star } from "lucide-react";
+import { Leaf, Wheat, Flame, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface FilterOption {
@@ -63,7 +63,7 @@ export const commonFilters: FilterOption[] = [
   {
     id: "gluten-free",
     label: "Gluten-Free",
-    icon: <Gluten className="h-3 w-3" />
+    icon: <Wheat className="h-3 w-3" />
   },
   {
     id: "spicy",

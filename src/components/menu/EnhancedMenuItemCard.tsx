@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Star, Leaf, Gluten, Flame } from "lucide-react";
+import { Star, Leaf, Wheat, Flame } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -57,7 +57,7 @@ export const EnhancedMenuItemCard = ({
           )}
           {isGlutenFree && (
             <div className="p-1 bg-blue-100 text-blue-600 rounded-full" title="Gluten-Free">
-              <Gluten className="h-3 w-3" />
+              <Wheat className="h-3 w-3" />
             </div>
           )}
           {isSpicy && (
