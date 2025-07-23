@@ -1,18 +1,8 @@
 import { FileText, Scale, Handshake, AlertTriangle } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
-
 const TermsConditions = () => {
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
-      <PageHeader
-        title="Terms & Conditions"
-        description="Please read these terms carefully before using our catering services. They outline the agreement between you and Soul Train's Eatery."
-        icons={[
-          <FileText className="h-6 w-6 sm:h-8 sm:w-8" />,
-          <Scale className="h-6 w-6 sm:h-8 sm:w-8" />,
-          <Handshake className="h-6 w-6 sm:h-8 sm:w-8" />
-        ]}
-      />
+  return <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
+      <PageHeader title="Terms & Conditions" description="Please read these terms carefully before using our catering services. They outline the agreement between you and Soul Train's Eatery." icons={[<FileText className="h-6 w-6 sm:h-8 sm:w-8" />, <Scale className="h-6 w-6 sm:h-8 sm:w-8" />, <Handshake className="h-6 w-6 sm:h-8 sm:w-8" />]} />
 
       <div className="max-w-4xl mx-auto px-6 sm:px-8 lg:px-12 py-12">
         <div className="prose prose-lg max-w-none">
@@ -140,8 +130,8 @@ const TermsConditions = () => {
                 </p>
                 <div className="space-y-2">
                   <p><strong>Soul Train's Eatery</strong></p>
-                  <p>Email: info@soultrainseatery.com</p>
-                  <p>Phone: (843) 555-0123</p>
+                  <p>Email: soultrainseatery@gmail.com</p>
+                  <p>Phone: (843) 970-0265</p>
                 </div>
                 <div className="mt-6 p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg">
                   <div className="flex items-start gap-3">
@@ -163,8 +153,6 @@ const TermsConditions = () => {
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default TermsConditions;
