@@ -1,18 +1,8 @@
 import { Shield, Lock, Eye, Mail } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
-
 const PrivacyPolicy = () => {
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
-      <PageHeader
-        title="Privacy Policy"
-        description="Your privacy is important to us. This policy explains how we collect, use, and protect your personal information."
-        icons={[
-          <Shield className="h-6 w-6 sm:h-8 sm:w-8" />,
-          <Lock className="h-6 w-6 sm:h-8 sm:w-8" />,
-          <Eye className="h-6 w-6 sm:h-8 sm:w-8" />
-        ]}
-      />
+  return <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
+      <PageHeader title="Privacy Policy" description="Your privacy is important to us. This policy explains how we collect, use, and protect your personal information." icons={[<Shield className="h-6 w-6 sm:h-8 sm:w-8" />, <Lock className="h-6 w-6 sm:h-8 sm:w-8" />, <Eye className="h-6 w-6 sm:h-8 sm:w-8" />]} />
 
       <div className="max-w-4xl mx-auto px-6 sm:px-8 lg:px-12 py-12">
         <div className="prose prose-lg max-w-none">
@@ -109,7 +99,7 @@ const PrivacyPolicy = () => {
                 </p>
                 <div className="flex items-center gap-2 mt-4">
                   <Mail className="h-4 w-4" />
-                  <span>Email: info@soultrainseatery.com</span>
+                  <span>Email: soultrainseatery@gmail.com</span>
                 </div>
                 <div className="mt-4">
                   <p className="text-sm">
@@ -122,8 +112,6 @@ const PrivacyPolicy = () => {
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default PrivacyPolicy;
