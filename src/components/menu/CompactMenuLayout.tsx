@@ -1,16 +1,12 @@
-import React, { useState, useMemo } from "react";
+import React, { useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 import { CompactMenuItem } from "./CompactMenuItem";
-import { FilterQuickTags } from "./FilterQuickTags";
 
 interface CompactMenuItem {
   name: string;
   isPopular?: boolean;
-  isVegetarian?: boolean;
-  isGlutenFree?: boolean;
-  isSpicy?: boolean;
 }
 
 interface CompactMenuLayoutProps {
