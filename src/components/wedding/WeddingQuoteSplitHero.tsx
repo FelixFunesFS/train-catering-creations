@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { ImageModal } from "@/components/gallery/ImageModal";
 import { OptimizedImage } from "@/components/ui/optimized-image";
-import { Heart, Phone, Mail } from "lucide-react";
 
 export const WeddingQuoteSplitHero = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
@@ -66,19 +65,6 @@ export const WeddingQuoteSplitHero = () => {
                       className="w-full h-full object-contain hover:scale-110 transition-transform duration-300" 
                     />
                   </div>
-                </div>
-              </div>
-
-              {/* Icons */}
-              <div className="flex justify-center md:justify-start items-center gap-4 mb-6 md:mb-7 lg:mb-8">
-                <div className="p-3 rounded-full bg-primary/10 text-primary">
-                  <Heart className="h-6 w-6 md:h-7 md:w-7 sm:h-8 sm:w-8" />
-                </div>
-                <div className="p-3 rounded-full bg-primary/10 text-primary">
-                  <Phone className="h-6 w-6 md:h-7 md:w-7 sm:h-8 sm:w-8" />
-                </div>
-                <div className="p-3 rounded-full bg-primary/10 text-primary">
-                  <Mail className="h-6 w-6 md:h-7 md:w-7 sm:h-8 sm:w-8" />
                 </div>
               </div>
 
