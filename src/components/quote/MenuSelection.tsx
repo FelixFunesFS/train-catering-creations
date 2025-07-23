@@ -192,25 +192,6 @@ export const MenuSelection = ({ form, eventType, guestCount = 0 }: MenuSelection
                     ))}
                   </div>
                   
-                  {/* Requirements */}
-                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                    {item.minimumGuests && (
-                      <div className="flex items-center gap-1">
-                        <Users className="h-3 w-3" />
-                        Min {item.minimumGuests}
-                      </div>
-                    )}
-                    {item.leadTimeHours && (
-                      <div className="flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        {item.leadTimeHours}h notice
-                      </div>
-                    )}
-                    <div className="flex items-center gap-1">
-                      <Utensils className="h-3 w-3" />
-                      {item.servingStyle.join(', ')}
-                    </div>
-                  </div>
 
                   {/* Warnings */}
                   {warnings.length > 0 && (
