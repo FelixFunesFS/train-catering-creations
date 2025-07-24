@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { ImageModal } from "@/components/gallery/ImageModal";
 import { OptimizedImage } from "@/components/ui/optimized-image";
+import { UtensilsCrossed, Heart, Star } from "lucide-react";
 export const SplitScreenHero = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const showcaseImages = [{
@@ -43,9 +44,17 @@ export const SplitScreenHero = () => {
             
             {/* Left Content Panel */}
             <div className="order-1 md:order-1 text-center md:text-left">
-              {/* Logo */}
+              {/* Mobile Icons / Desktop Logo */}
               <div className="flex justify-center md:justify-start mb-2">
-                <div className="p-4 md:p-5 lg:p-6">
+                {/* Mobile Icons */}
+                <div className="flex md:hidden items-center justify-center gap-3 p-4">
+                  <UtensilsCrossed className="h-6 w-6 text-primary" aria-label="Quality catering" />
+                  <Heart className="h-6 w-6 text-primary" aria-label="Made with love" />
+                  <Star className="h-6 w-6 text-primary" aria-label="Excellence" />
+                </div>
+                
+                {/* Desktop Logo */}
+                <div className="hidden md:block p-4 md:p-5 lg:p-6">
                   <div className="h-12 w-12 md:h-14 md:w-14 lg:h-16 lg:w-16 relative">
                     <img src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" alt="Soul Train's Eatery Logo" className="w-full h-full object-contain hover:scale-110 transition-transform duration-300" />
                   </div>
