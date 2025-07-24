@@ -27,7 +27,7 @@ export const MobileTaglineSection = () => {
             
             {/* Tagline */}
             <h2 className="text-xl sm:text-2xl font-elegant font-semibold text-foreground leading-relaxed mb-6">
-              Where Every Bite Is Made With Love And Served With Soul!
+              Charleston's Premier Catering Experience
             </h2>
             
             {/* Decorative Divider */}
