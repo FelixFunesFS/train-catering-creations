@@ -50,12 +50,12 @@ export const WeddingQuoteSplitHero = () => {
 
   return (
     <>
-      <section className="relative min-h-screen bg-gradient-to-br from-background via-muted/20 to-background -mt-8">
-        <div className="max-w-7xl mx-auto px-6 xl:px-12 pb-0 lg:pb-0 pt-0">
-          <div className="grid md:grid-cols-2 gap-8 md:gap-10 lg:gap-12 items-center min-h-screen pt-0 mt-0">
+      <section className="relative min-h-screen bg-gradient-to-br from-background via-muted/20 to-background md:-mt-8 pt-4 md:pt-0">
+        <div className="max-w-7xl mx-auto px-6 xl:px-12 pb-8 md:pb-0">
+          <div className="flex flex-col md:grid md:grid-cols-2 gap-6 md:gap-10 lg:gap-12 items-center min-h-screen">
             
             {/* Left Content Panel */}
-            <div className="order-1 md:order-1 text-center md:text-left">
+            <div className="order-2 md:order-1 text-center md:text-left">
               {/* Mobile Icons / Desktop Logo */}
               <div className="flex justify-center md:justify-start mb-2">
                 {/* Mobile Icons */}
@@ -105,18 +105,18 @@ export const WeddingQuoteSplitHero = () => {
             </div>
 
             {/* Right Image Showcase */}
-            <div className="order-2 md:order-2">
-              <div className="grid grid-cols-2 gap-3 md:gap-3 lg:gap-4 h-[400px] md:h-[500px] lg:h-[600px]">
+            <div className="order-1 md:order-2 w-full">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-3 lg:gap-4 h-auto md:h-[500px] lg:h-[600px]">
                 {consultationShowcaseImages.map((image, index) => (
                   <div 
                     key={index} 
-                    className={`group neumorphic-card hover:neumorphic-card-2 p-2 md:p-2 lg:p-3 rounded-2xl cursor-pointer transition-all duration-300 ${
-                      index === 0 ? 'col-span-2' : 
-                      index === 1 ? 'row-span-2' : ''
-                    }`} 
+                    className={`group neumorphic-card hover:neumorphic-card-2 p-3 md:p-2 lg:p-3 rounded-2xl cursor-pointer transition-all duration-300 ${
+                      index === 0 ? 'sm:col-span-2' : 
+                      index === 1 ? 'md:row-span-2' : ''
+                    } ${index < 2 ? 'block' : 'hidden sm:block'}`}
                     onClick={() => handleImageClick(index)}
                   >
-                    <div className="relative rounded-xl overflow-hidden h-full">
+                    <div className="relative rounded-xl overflow-hidden h-48 md:h-full min-h-[180px]">
                       <OptimizedImage 
                         src={image.src} 
                         alt={image.alt} 
