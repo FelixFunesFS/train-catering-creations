@@ -171,7 +171,7 @@ export const WeddingMenuSplitHero = () => {
           </div>
 
           {/* Mobile Subtext - Below Image */}
-          <div className="md:hidden text-center px-6 mt-3 mb-3">
+          <div className="md:hidden text-center px-6 mb-3">
             <p className="text-lg sm:text-xl text-muted-foreground font-elegant leading-relaxed">
               Create unforgettable moments with sophisticated menus crafted for your special day
             </p>

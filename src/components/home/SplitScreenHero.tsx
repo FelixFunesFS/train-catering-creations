@@ -141,7 +141,7 @@ export const SplitScreenHero = () => {
           </div>
 
           {/* Mobile Subtext - Below Image */}
-          <div className="md:hidden text-center px-6 mt-3 mb-3">
+          <div className="md:hidden text-center px-6 mb-3">
             <p className="text-lg sm:text-xl text-muted-foreground font-elegant leading-relaxed">
               Where every bite is made with love and served with soul!
             </p>
