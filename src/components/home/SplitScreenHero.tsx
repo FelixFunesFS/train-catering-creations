@@ -40,7 +40,7 @@ export const SplitScreenHero = () => {
   return <>
       <section className="relative min-h-screen bg-gradient-to-br from-background via-muted/20 to-background md:-mt-8 pt-4 md:pt-0">
         <div className="max-w-7xl mx-auto px-6 xl:px-12 pb-8 md:pb-0">
-          <div className="flex flex-col md:grid md:grid-cols-2 gap-6 md:gap-10 lg:gap-12 items-center min-h-screen">
+          <div className="flex flex-col md:grid md:grid-cols-2 gap-4 md:gap-10 lg:gap-12 items-center min-h-screen">
             
             {/* Left Content Panel */}
             <div className="order-1 md:order-1 text-center md:text-left">
@@ -90,7 +90,7 @@ export const SplitScreenHero = () => {
             </div>
 
             {/* Right Image Showcase */}
-            <div className="order-2 md:order-2 w-full">
+            <div className="order-2 md:order-2 w-full -mt-2 md:mt-0">
               {/* Mobile: Single Image */}
               <div className="block md:hidden">
                 <div className="group neumorphic-card hover:neumorphic-card-2 p-3 rounded-2xl cursor-pointer transition-all duration-300" onClick={() => handleImageClick(1)}>
@@ -141,7 +141,7 @@ export const SplitScreenHero = () => {
           </div>
 
           {/* Mobile Subtext - Below Image */}
-          <div className="md:hidden text-center px-6 mt-4 mb-4">
+          <div className="md:hidden text-center px-6 mt-2 mb-4">
             <p className="text-lg sm:text-xl text-muted-foreground font-elegant leading-relaxed">
               Where every bite is made with love and served with soul!
             </p>
