@@ -79,12 +79,7 @@ export const WeddingMenuSplitHero = () => {
 
               {/* Main Heading */}
               <div className="mb-4 md:mb-9 lg:mb-10">
-                {/* Mobile: Show tagline as title */}
-                <h1 className="block md:hidden text-3xl sm:text-4xl font-elegant font-bold text-foreground leading-tight mb-4">
-                  Create Unforgettable Moments With Sophisticated Menus Crafted For Your Special Day
-                </h1>
-                {/* Desktop: Show original title */}
-                <h1 className="hidden md:block text-4xl lg:text-5xl xl:text-6xl font-elegant font-bold text-foreground leading-tight mb-4">
+                <h1 className="text-3xl sm:text-4xl md:text-4xl lg:text-5xl xl:text-6xl font-elegant font-bold text-foreground leading-tight mb-4">
                   Elegant Wedding Catering with Southern Soul
                 </h1>
                 <div className="w-16 md:w-20 lg:w-24 h-1 bg-gradient-to-r from-primary via-primary-light to-primary mx-auto md:mx-0 mb-4 rounded-full" />
@@ -176,7 +171,7 @@ export const WeddingMenuSplitHero = () => {
           </div>
 
           {/* Mobile Subtext - Below Image */}
-          <div className="hidden text-center px-6 mb-3">
+          <div className="md:hidden text-center px-6 mb-3">
             <p className="text-lg sm:text-xl text-muted-foreground font-elegant leading-relaxed">
               Create unforgettable moments with sophisticated menus crafted for your special day
             </p>

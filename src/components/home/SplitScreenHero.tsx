@@ -63,12 +63,7 @@ export const SplitScreenHero = () => {
 
               {/* Main Heading */}
               <div className="mb-4 md:mb-9 lg:mb-10">
-                {/* Mobile: Show tagline as title */}
-                <h1 className="block md:hidden text-3xl sm:text-4xl font-elegant font-bold text-foreground leading-tight mb-4">
-                  Where Every Bite Is Made With Love And Served With Soul!
-                </h1>
-                {/* Desktop: Show original title */}
-                <h1 className="hidden md:block text-4xl lg:text-5xl xl:text-6xl font-elegant font-bold text-foreground leading-tight mb-4">
+                <h1 className="text-3xl sm:text-4xl md:text-4xl lg:text-5xl xl:text-6xl font-elegant font-bold text-foreground leading-tight mb-4">
                   Charleston's Premier Catering Experience
                 </h1>
                 <div className="w-16 md:w-20 lg:w-24 h-1 bg-gradient-to-r from-primary via-primary-light to-primary mx-auto md:mx-0 mb-4 rounded-full" />
@@ -146,7 +141,7 @@ export const SplitScreenHero = () => {
           </div>
 
           {/* Mobile Subtext - Below Image */}
-          <div className="hidden text-center px-6 mb-3">
+          <div className="md:hidden text-center px-6 mb-3">
             <p className="text-lg sm:text-xl text-muted-foreground font-elegant leading-relaxed">
               Where every bite is made with love and served with soul!
             </p>
