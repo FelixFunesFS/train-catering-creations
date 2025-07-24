@@ -1,49 +1,22 @@
-import { HeroSection } from "@/components/home/HeroSection";
-import { AboutPreviewSection } from "@/components/home/AboutPreviewSection";
-import { ServicesSection } from "@/components/home/ServicesSection";
-import { InteractiveGallerySection } from "@/components/home/InteractiveGallerySection";
-import { CTASection } from "@/components/home/CTASection";
-import { TestimonialsStatsSection } from "@/components/home/TestimonialsStatsSection";
-import { BrandMarquee } from "@/components/home/BrandMarquee";
-import { PageSection } from "@/components/ui/page-section";
 const Index = () => {
-  return <div className="min-h-screen">
+  return (
+    <div className="min-h-screen bg-background">
       <main id="main-content">
-        {/* Hero Section - Pattern A (Deep, dramatic) */}
-        <PageSection pattern="a" skipToContentId="hero-section" className="py-[6px] my-0">
-          <HeroSection />
-        </PageSection>
-        
-        {/* Services - Pattern B (Light, showcasing offerings) */}
-        <PageSection pattern="b" withBorder>
-          <ServicesSection />
-        </PageSection>
-        
-        {/* Brand Marquee - Pattern B (Trust indicators) */}
-        <PageSection pattern="b" withBorder>
-          <BrandMarquee />
-        </PageSection>
-        
-        {/* About Preview - Pattern D (Soft, personal) */}
-        <PageSection pattern="d" withBorder>
-          <AboutPreviewSection />
-        </PageSection>
-        
-        {/* Interactive Gallery - Pattern C (Elevated, visual showcase) */}
-        <PageSection pattern="c" withBorder>
-          <InteractiveGallerySection />
-        </PageSection>
-        
-        {/* Testimonials & Stats - Pattern A (Credibility depth) */}
-        <PageSection pattern="a" withBorder>
-          <TestimonialsStatsSection />
-        </PageSection>
-        
-        {/* CTA Section - Keep current red gradient */}
-        <PageSection withBorder>
-          <CTASection />
-        </PageSection>
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center max-w-2xl mx-auto px-6">
+            <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-4">
+              Soul Train's Eatery
+            </h1>
+            <p className="text-xl text-muted-foreground mb-8">
+              Charleston's Premier Catering Experience
+            </p>
+            <div className="text-sm text-muted-foreground">
+              Testing minimal page load...
+            </div>
+          </div>
+        </div>
       </main>
-    </div>;
+    </div>
+  );
 };
 export default Index;
