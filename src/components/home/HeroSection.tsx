@@ -1,11 +1,11 @@
 
-import { SplitScreenHero } from "./SplitScreenHero";
+import { FullWidthHero } from "./FullWidthHero";
 import { MobileTaglineSection } from "./MobileTaglineSection";
 
 export const HeroSection = () => {
   return (
     <>
-      <SplitScreenHero />
+      <FullWidthHero />
       <MobileTaglineSection />
     </>
   );
