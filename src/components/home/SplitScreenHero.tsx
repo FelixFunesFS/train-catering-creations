@@ -43,7 +43,7 @@ export const SplitScreenHero = () => {
           <div className="flex flex-col md:grid md:grid-cols-2 gap-2 md:gap-10 lg:gap-12 items-center min-h-[50vh] md:min-h-screen">
             
             {/* Left Content Panel */}
-            <div className="order-1 md:order-1 text-center md:text-left">
+            <div className="order-2 md:order-1 text-center md:text-left">
               {/* Mobile Icons / Desktop Logo */}
               <div className="flex justify-center md:justify-start mb-2">
                 {/* Mobile Icons */}
@@ -90,7 +90,7 @@ export const SplitScreenHero = () => {
             </div>
 
             {/* Right Image Showcase */}
-            <div className="order-2 md:order-2 w-full -mt-2 md:mt-0">
+            <div className="order-1 md:order-2 w-full -mt-2 md:mt-0">
               {/* Mobile: Full-Width 4:5 Carousel */}
               <div className="block md:hidden">
                 <div className="relative w-full aspect-[4/5] overflow-hidden rounded-none -mx-6">
