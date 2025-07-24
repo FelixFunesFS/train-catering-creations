@@ -34,9 +34,7 @@ const baseQuoteSchema = z.object({
   guestCountWithRestrictions: z.string().optional(),
   
   // Wait Staff (conditional)
-  waitStaffRequested: z.enum(["yes-full-service", "no"], {
-    required_error: "Please specify wait staff requirements"
-  }),
+  waitStaffRequested: z.enum(["yes-full-service", "no"]).optional(),
   bussingTablesNeeded: z.boolean().default(false),
   
   // Setup Configuration

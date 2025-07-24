@@ -36,6 +36,7 @@ export const MobileOptimizedQuoteForm = () => {
       ice: false,
       bothProteinsAvailable: false,
       dietaryRestrictions: [],
+      waitStaffRequested: "no",
     }
   });
 
@@ -51,7 +52,8 @@ export const MobileOptimizedQuoteForm = () => {
       case 1: // Event
         return values.eventType && values.eventDate && values.eventStartTime && values.guestCount && values.location;
       case 2: // Menu
-        return values.primaryProtein && values.serviceType && values.servingStartTime;
+        const hasWaitStaff = values.serviceType === 'full-service' ? values.waitStaffRequested : true;
+        return values.primaryProtein && values.serviceType && values.servingStartTime && hasWaitStaff;
       case 3: // Details
         return true; // Optional fields
       default:
@@ -60,10 +62,30 @@ export const MobileOptimizedQuoteForm = () => {
   };
 
   const nextStep = async () => {
-    const isValid = await form.trigger();
+    // Get fields to validate for current step
+    const stepFields = getStepFields(currentStep);
+    
+    // Only trigger validation for current step fields
+    const isValid = stepFields.length > 0 ? await form.trigger(stepFields) : true;
+    
     if (isValid && validateCurrentStep()) {
       setCompletedSteps(prev => [...prev.filter(s => s !== currentStep), currentStep]);
       setCurrentStep(prev => Math.min(prev + 1, steps.length - 1));
+    }
+  };
+
+  const getStepFields = (step: number) => {
+    switch (step) {
+      case 0:
+        return ['contactName', 'eventName', 'email', 'phone'] as const;
+      case 1:
+        return ['eventType', 'eventDate', 'eventStartTime', 'guestCount', 'location'] as const;
+      case 2:
+        return ['primaryProtein', 'serviceType', 'servingStartTime'] as const;
+      case 3:
+        return [] as const; // Optional fields
+      default:
+        return [] as const;
     }
   };
 
@@ -364,6 +386,41 @@ ${data.hearAboutUs || 'Not specified'}
                   </FormItem>
                 )}
               />
+
+              {serviceType === 'full-service' && (
+                <FormField
+                  control={form.control}
+                  name="waitStaffRequested"
+                  render={({ field }) => (
+                    <FormItem className="space-y-3">
+                      <FormLabel className="text-base font-medium">Wait Staff Requirements *</FormLabel>
+                      <FormControl>
+                        <RadioGroup
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                          className="space-y-3"
+                        >
+                          <div className="flex items-center space-x-3 p-3 border rounded-lg">
+                            <RadioGroupItem value="yes-full-service" id="yes-full-service" />
+                            <Label htmlFor="yes-full-service" className="flex-1 text-base">
+                              <div className="font-medium">Yes, Full Service</div>
+                              <div className="text-sm text-muted-foreground">Professional wait staff included</div>
+                            </Label>
+                          </div>
+                          <div className="flex items-center space-x-3 p-3 border rounded-lg">
+                            <RadioGroupItem value="no" id="no-wait-staff" />
+                            <Label htmlFor="no-wait-staff" className="flex-1 text-base">
+                              <div className="font-medium">No Wait Staff</div>
+                              <div className="text-sm text-muted-foreground">Setup only, no service staff</div>
+                            </Label>
+                          </div>
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
             </div>
           </div>
         );
@@ -462,7 +519,7 @@ ${data.hearAboutUs || 'Not specified'}
   };
 
   return (
-    <Card className="shadow-elegant w-full max-w-2xl mx-auto">
+    <Card className="shadow-elegant w-full mx-auto">
       <CardHeader className="pb-4">
         <CardTitle className="text-2xl font-elegant text-center">Request a Quote</CardTitle>
         <p className="text-muted-foreground text-center">
