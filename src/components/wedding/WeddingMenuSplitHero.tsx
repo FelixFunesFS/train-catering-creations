@@ -81,7 +81,7 @@ export const WeddingMenuSplitHero = () => {
               <div className="mb-4 md:mb-9 lg:mb-10">
                 {/* Mobile: Show tagline as title */}
                 <h1 className="block md:hidden text-3xl sm:text-4xl font-elegant font-bold text-foreground leading-tight mb-4">
-                  Create unforgettable moments with sophisticated menus crafted for your special day
+                  Create Unforgettable Moments With Sophisticated Menus Crafted For Your Special Day
                 </h1>
                 {/* Desktop: Show original title */}
                 <h1 className="hidden md:block text-4xl lg:text-5xl xl:text-6xl font-elegant font-bold text-foreground leading-tight mb-4">
@@ -176,7 +176,7 @@ export const WeddingMenuSplitHero = () => {
           </div>
 
           {/* Mobile Subtext - Below Image */}
-          <div className="md:hidden text-center px-6 mb-3">
+          <div className="hidden text-center px-6 mb-3">
             <p className="text-lg sm:text-xl text-muted-foreground font-elegant leading-relaxed">
               Create unforgettable moments with sophisticated menus crafted for your special day
             </p>
