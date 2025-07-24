@@ -43,7 +43,7 @@ export const SplitScreenHero = () => {
           <div className="flex flex-col md:grid md:grid-cols-2 gap-6 md:gap-10 lg:gap-12 items-center min-h-screen">
             
             {/* Left Content Panel */}
-            <div className="order-2 md:order-1 text-center md:text-left">
+            <div className="order-1 md:order-1 text-center md:text-left">
               {/* Mobile Icons / Desktop Logo */}
               <div className="flex justify-center md:justify-start mb-2">
                 {/* Mobile Icons */}
@@ -72,8 +72,8 @@ export const SplitScreenHero = () => {
                 </p>
               </div>
 
-              {/* Call-to-Action Buttons */}
-              <div className="flex flex-col sm:flex-row justify-center md:justify-start items-center gap-4 md:gap-5 lg:gap-6">
+              {/* Call-to-Action Buttons - Desktop Only */}
+              <div className="hidden md:flex flex-col sm:flex-row justify-center md:justify-start items-center gap-4 md:gap-5 lg:gap-6">
                 <Button asChild size="lg" className="w-full sm:w-auto min-w-[160px]">
                   <Link to="/request-quote#page-header">
                     Request Quote
@@ -89,7 +89,7 @@ export const SplitScreenHero = () => {
             </div>
 
             {/* Right Image Showcase */}
-            <div className="order-1 md:order-2 w-full">
+            <div className="order-2 md:order-2 w-full">
               {/* Mobile: Single Image */}
               <div className="block md:hidden">
                 <div className="group neumorphic-card hover:neumorphic-card-2 p-3 rounded-2xl cursor-pointer transition-all duration-300" onClick={() => handleImageClick(1)}>
@@ -137,6 +137,21 @@ export const SplitScreenHero = () => {
                 ))}
               </div>
             </div>
+          </div>
+
+          {/* Mobile Buttons - Below Image */}
+          <div className="md:hidden flex flex-col sm:flex-row justify-center items-center gap-4 px-6 pb-8">
+            <Button asChild size="lg" className="w-full sm:w-auto min-w-[160px]">
+              <Link to="/request-quote#page-header">
+                Request Quote
+              </Link>
+            </Button>
+            
+            <Button asChild variant="outline" size="lg" className="w-full sm:w-auto min-w-[160px]">
+              <Link to="/gallery#page-header">
+                View Gallery
+              </Link>
+            </Button>
           </div>
         </div>
       </section>
