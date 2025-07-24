@@ -38,7 +38,7 @@ export const SplitScreenHero = () => {
     setSelectedImageIndex(null);
   };
   return <>
-      <section className="relative min-h-screen bg-gradient-to-br from-background via-muted/20 to-background md:-mt-8 pt-4 md:pt-0">
+      <section className="relative min-h-screen bg-gradient-to-br from-background via-muted/20 to-background md:-mt-8 md:pt-0">
         <div className="max-w-7xl mx-auto px-6 xl:px-12 pb-8 md:pb-0">
           <div className="flex flex-col md:grid md:grid-cols-2 gap-2 md:gap-10 lg:gap-12 items-center min-h-[50vh] md:min-h-screen">
             
@@ -64,7 +64,7 @@ export const SplitScreenHero = () => {
               {/* Main Heading */}
               <div className="mb-4 md:mb-9 lg:mb-10">
                 <h1 className="text-3xl sm:text-4xl md:text-4xl lg:text-5xl xl:text-6xl font-elegant font-bold text-foreground leading-tight mb-4">
-                  Exquisite Catering Excellence
+                  Wedding Reception
                 </h1>
                 <div className="w-16 md:w-20 lg:w-24 h-1 bg-gradient-to-r from-primary via-primary-light to-primary mx-auto md:mx-0 mb-4 rounded-full" />
                 {/* Desktop Subtext */}
@@ -90,7 +90,7 @@ export const SplitScreenHero = () => {
             </div>
 
             {/* Right Image Showcase */}
-            <div className="order-1 md:order-2 w-full -mt-2 md:mt-0">
+            <div className="order-1 md:order-2 w-full md:mt-0">
               {/* Mobile: Full-Width 4:5 Carousel */}
               <div className="block md:hidden">
                 <div className="relative w-full aspect-[4/5] overflow-hidden rounded-none -mx-6">
@@ -103,20 +103,8 @@ export const SplitScreenHero = () => {
                     priority={true} 
                   />
                   
-                  {/* Content Overlay with Gradient */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent">
-                    <div className="absolute bottom-0 left-0 right-0 p-6">
-                      <div className="text-white">
-                        <h3 className="text-xl font-elegant font-semibold mb-2 text-white">
-                          Exquisite Catering Excellence
-                        </h3>
-                        <p className="text-white/90 text-sm mb-4 leading-relaxed">
-                          Where culinary artistry meets Southern hospitality
-                        </p>
-                        <div className="w-12 h-0.5 bg-white/80 rounded-full" />
-                      </div>
-                    </div>
-                  </div>
+                  {/* Minimal Overlay for Visual Depth */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
                   
                   {/* Tap indicator for interaction */}
                   <button 
