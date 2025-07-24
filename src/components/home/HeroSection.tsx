@@ -1,6 +1,6 @@
 
-import { FullWidthHero } from "./FullWidthHero";
+import { MobileFirstHero } from "./MobileFirstHero";
 
 export const HeroSection = () => {
-  return <FullWidthHero />;
+  return <MobileFirstHero />;
 };
