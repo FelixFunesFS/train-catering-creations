@@ -62,12 +62,13 @@ export const SplitScreenHero = () => {
               </div>
 
               {/* Main Heading */}
-              <div className="mb-8 md:mb-9 lg:mb-10">
+              <div className="mb-4 md:mb-9 lg:mb-10">
                 <h1 className="text-3xl sm:text-4xl md:text-4xl lg:text-5xl xl:text-6xl font-elegant font-bold text-foreground leading-tight mb-4">
                   Charleston's Premier Catering Experience
                 </h1>
                 <div className="w-16 md:w-20 lg:w-24 h-1 bg-gradient-to-r from-primary via-primary-light to-primary mx-auto md:mx-0 mb-4 rounded-full" />
-                <p className="text-lg sm:text-xl md:text-xl lg:text-2xl text-muted-foreground font-elegant leading-relaxed">
+                {/* Desktop Subtext */}
+                <p className="hidden md:block text-lg sm:text-xl md:text-xl lg:text-2xl text-muted-foreground font-elegant leading-relaxed">
                   Where every bite is made with love and served with soul!
                 </p>
               </div>
@@ -139,8 +140,15 @@ export const SplitScreenHero = () => {
             </div>
           </div>
 
-          {/* Mobile Buttons - Below Image */}
-          <div className="md:hidden flex flex-col sm:flex-row justify-center items-center gap-4 px-6 pb-8">
+          {/* Mobile Subtext - Below Image */}
+          <div className="md:hidden text-center px-6 mt-4 mb-4">
+            <p className="text-lg sm:text-xl text-muted-foreground font-elegant leading-relaxed">
+              Where every bite is made with love and served with soul!
+            </p>
+          </div>
+
+          {/* Mobile Buttons - Below Subtext */}
+          <div className="md:hidden flex flex-col sm:flex-row justify-center items-center gap-4 px-6 pb-4">
             <Button asChild size="lg" className="w-full sm:w-auto min-w-[160px]">
               <Link to="/request-quote#page-header">
                 Request Quote
