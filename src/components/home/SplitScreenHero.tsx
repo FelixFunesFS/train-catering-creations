@@ -40,7 +40,7 @@ export const SplitScreenHero = () => {
   return <>
       <section className="relative min-h-screen bg-gradient-to-br from-background via-muted/20 to-background md:-mt-8 pt-4 md:pt-0">
         <div className="max-w-7xl mx-auto px-6 xl:px-12 pb-8 md:pb-0">
-          <div className="flex flex-col md:grid md:grid-cols-2 gap-4 md:gap-10 lg:gap-12 items-center min-h-screen">
+          <div className="flex flex-col md:grid md:grid-cols-2 gap-2 md:gap-10 lg:gap-12 items-center min-h-screen">
             
             {/* Left Content Panel */}
             <div className="order-1 md:order-1 text-center md:text-left">
