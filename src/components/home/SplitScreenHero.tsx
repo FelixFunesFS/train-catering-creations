@@ -90,13 +90,41 @@ export const SplitScreenHero = () => {
 
             {/* Right Image Showcase */}
             <div className="order-1 md:order-2 w-full">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-3 lg:gap-4 h-auto md:h-[500px] lg:h-[600px]">
-                {showcaseImages.map((image, index) => <div key={index} className={`group neumorphic-card hover:neumorphic-card-2 p-3 md:p-2 lg:p-3 rounded-2xl cursor-pointer transition-all duration-300 ${index === 0 ? 'sm:col-span-2' : index === 1 ? 'md:row-span-2' : ''} ${index < 2 ? 'block' : 'hidden sm:block'}`} onClick={() => handleImageClick(index)}>
+              {/* Mobile: Single Image */}
+              <div className="block md:hidden">
+                <div className="group neumorphic-card hover:neumorphic-card-2 p-3 rounded-2xl cursor-pointer transition-all duration-300" onClick={() => handleImageClick(1)}>
+                  <div className="relative rounded-xl overflow-hidden h-48 min-h-[180px]">
+                    <OptimizedImage 
+                      src={showcaseImages[1].src} 
+                      alt={showcaseImages[1].alt} 
+                      aspectRatio="aspect-video" 
+                      className="group-hover:scale-105 transition-transform duration-300" 
+                      containerClassName="h-full" 
+                      priority={true} 
+                    />
+                    
+                    {/* Hover Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <div className="absolute bottom-3 left-3 right-3">
+                        <h3 className="text-white font-elegant font-semibold text-sm mb-1">
+                          {showcaseImages[1].title}
+                        </h3>
+                        <div className="w-8 h-0.5 bg-white/80 rounded-full" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Desktop: Grid Layout */}
+              <div className="hidden md:grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-3 lg:gap-4 h-auto md:h-[500px] lg:h-[600px]">
+                {showcaseImages.map((image, index) => (
+                  <div key={index} className={`group neumorphic-card hover:neumorphic-card-2 p-3 md:p-2 lg:p-3 rounded-2xl cursor-pointer transition-all duration-300 ${index === 0 ? 'sm:col-span-2' : index === 1 ? 'md:row-span-2' : ''} ${index < 2 ? 'block' : 'hidden sm:block'}`} onClick={() => handleImageClick(index)}>
                     <div className="relative rounded-xl overflow-hidden h-48 md:h-full min-h-[180px]">
                       <OptimizedImage src={image.src} alt={image.alt} aspectRatio="aspect-video" className="group-hover:scale-105 transition-transform duration-300" containerClassName="h-full" priority={index < 2} />
                       
                       {/* Hover Overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 py-0 my-0">
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                         <div className="absolute bottom-3 md:bottom-3 lg:bottom-4 left-3 md:left-3 lg:left-4 right-3 md:right-3 lg:right-4">
                           <h3 className="text-white font-elegant font-semibold text-sm md:text-sm lg:text-base mb-1">
                             {image.title}
@@ -105,7 +133,8 @@ export const SplitScreenHero = () => {
                         </div>
                       </div>
                     </div>
-                  </div>)}
+                  </div>
+                ))}
               </div>
             </div>
           </div>
