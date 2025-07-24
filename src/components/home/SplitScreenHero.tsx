@@ -64,12 +64,12 @@ export const SplitScreenHero = () => {
               {/* Main Heading */}
               <div className="mb-4 md:mb-9 lg:mb-10">
                 <h1 className="text-3xl sm:text-4xl md:text-4xl lg:text-5xl xl:text-6xl font-elegant font-bold text-foreground leading-tight mb-4">
-                  Charleston's Premier Catering Experience
+                  Exquisite Catering Excellence
                 </h1>
                 <div className="w-16 md:w-20 lg:w-24 h-1 bg-gradient-to-r from-primary via-primary-light to-primary mx-auto md:mx-0 mb-4 rounded-full" />
                 {/* Desktop Subtext */}
                 <p className="hidden md:block text-lg sm:text-xl md:text-xl lg:text-2xl text-muted-foreground font-elegant leading-relaxed">
-                  Where every bite is made with love and served with soul!
+                  Where culinary artistry meets Southern hospitality in Charleston's most distinguished catering experience
                 </p>
               </div>
 
@@ -91,29 +91,39 @@ export const SplitScreenHero = () => {
 
             {/* Right Image Showcase */}
             <div className="order-2 md:order-2 w-full -mt-2 md:mt-0">
-              {/* Mobile: Single Image */}
+              {/* Mobile: Full-Width 4:5 Carousel */}
               <div className="block md:hidden">
-                <div className="group neumorphic-card hover:neumorphic-card-2 p-3 rounded-2xl cursor-pointer transition-all duration-300" onClick={() => handleImageClick(1)}>
-                  <div className="relative rounded-xl overflow-hidden h-48 min-h-[180px]">
-                    <OptimizedImage 
-                      src={showcaseImages[1].src} 
-                      alt={showcaseImages[1].alt} 
-                      aspectRatio="aspect-video" 
-                      className="group-hover:scale-105 transition-transform duration-300" 
-                      containerClassName="h-full" 
-                      priority={true} 
-                    />
-                    
-                    {/* Hover Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <div className="absolute bottom-3 left-3 right-3">
-                        <h3 className="text-white font-elegant font-semibold text-sm mb-1">
-                          {showcaseImages[1].title}
+                <div className="relative w-full aspect-[4/5] overflow-hidden rounded-none -mx-6">
+                  <OptimizedImage 
+                    src={showcaseImages[1].src} 
+                    alt={showcaseImages[1].alt} 
+                    aspectRatio="aspect-[4/5]" 
+                    className="transition-transform duration-500 hover:scale-105" 
+                    containerClassName="w-full h-full" 
+                    priority={true} 
+                  />
+                  
+                  {/* Content Overlay with Gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent">
+                    <div className="absolute bottom-0 left-0 right-0 p-6">
+                      <div className="text-white">
+                        <h3 className="text-xl font-elegant font-semibold mb-2 text-white">
+                          Exquisite Catering Excellence
                         </h3>
-                        <div className="w-8 h-0.5 bg-white/80 rounded-full" />
+                        <p className="text-white/90 text-sm mb-4 leading-relaxed">
+                          Where culinary artistry meets Southern hospitality
+                        </p>
+                        <div className="w-12 h-0.5 bg-white/80 rounded-full" />
                       </div>
                     </div>
                   </div>
+                  
+                  {/* Tap indicator for interaction */}
+                  <button 
+                    onClick={() => handleImageClick(1)}
+                    className="absolute inset-0 w-full h-full focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-inset"
+                    aria-label="View full gallery"
+                  />
                 </div>
               </div>
 
@@ -139,15 +149,15 @@ export const SplitScreenHero = () => {
               </div>
 
               {/* Mobile Call-to-Action Buttons - Below Image */}
-              <div className="block md:hidden mt-6">
-                <div className="flex flex-col gap-3">
-                  <Button asChild className="w-full min-w-[160px]">
+              <div className="block md:hidden mt-8">
+                <div className="flex flex-col gap-4 px-6">
+                  <Button asChild size="lg" className="w-full min-h-[48px] text-base font-semibold">
                     <Link to="/request-quote#page-header">
                       Request Quote
                     </Link>
                   </Button>
                   
-                  <Button asChild variant="outline" className="w-full min-w-[160px]">
+                  <Button asChild variant="outline" size="lg" className="w-full min-h-[48px] text-base font-semibold">
                     <Link to="/gallery#page-header">
                       View Gallery
                     </Link>
