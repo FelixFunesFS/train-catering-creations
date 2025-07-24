@@ -6,6 +6,7 @@ import { CollapsibleMenuSection } from "@/components/wedding/CollapsibleMenuSect
 import { MobileMenuNavigation } from "@/components/wedding/MobileMenuNavigation";
 import { QuickActionButton } from "@/components/wedding/QuickActionButton";
 import { WeddingMenuSplitHero } from "@/components/wedding/WeddingMenuSplitHero";
+import { MobileWeddingTaglineSection } from "@/components/wedding/MobileWeddingTaglineSection";
 const WeddingMenu = () => {
   const {
     ref: eventCardsRef,
@@ -185,6 +186,9 @@ const WeddingMenu = () => {
       
       {/* Split Screen Hero */}
       <WeddingMenuSplitHero />
+      
+      {/* Mobile Tagline Section */}
+      <MobileWeddingTaglineSection />
       
       
 

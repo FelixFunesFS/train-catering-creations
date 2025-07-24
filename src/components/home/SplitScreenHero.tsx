@@ -140,27 +140,6 @@ export const SplitScreenHero = () => {
             </div>
           </div>
 
-          {/* Mobile Subtext - Below Image */}
-          <div className="md:hidden text-center px-6 mb-3">
-            <p className="text-lg sm:text-xl text-muted-foreground font-elegant leading-relaxed">
-              Where every bite is made with love and served with soul!
-            </p>
-          </div>
-
-          {/* Mobile Buttons - Below Subtext */}
-          <div className="md:hidden flex flex-col sm:flex-row justify-center items-center gap-3 px-6 pb-3">
-            <Button asChild className="w-4/5 sm:w-auto px-6 py-2.5 sm:size-lg min-w-[160px] mx-auto sm:mx-0">
-              <Link to="/request-quote#page-header">
-                Request Quote
-              </Link>
-            </Button>
-            
-            <Button asChild variant="outline" className="w-4/5 sm:w-auto px-6 py-2.5 sm:size-lg min-w-[160px] mx-auto sm:mx-0">
-              <Link to="/gallery#page-header">
-                View Gallery
-              </Link>
-            </Button>
-          </div>
         </div>
       </section>
 
