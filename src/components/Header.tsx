@@ -104,7 +104,7 @@ export const Header = () => {
                 {isMenuOpen ? (
                   <X className="h-10 w-10 md:h-12 md:w-12" strokeWidth={2.5} />
                 ) : (
-                  <svg className="h-10 w-10 md:h-12 md:w-12" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24" aria-hidden="true">
+                  <svg className="h-10 w-10 md:h-12 md:w-12" fill="none" stroke="white" strokeWidth={2.5} viewBox="0 0 24 24" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16" />
                     <path strokeLinecap="round" strokeLinejoin="round" d="M4 12h16" />
                     <path strokeLinecap="round" strokeLinejoin="round" d="M4 18h16" />
