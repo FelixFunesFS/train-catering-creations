@@ -1,15 +1,13 @@
 import { HeroSection } from "@/components/home/HeroSection";
-import { SimplifiedAboutPreviewSection } from "@/components/home/SimplifiedAboutPreviewSection";
+import { AboutPreviewSection } from "@/components/home/AboutPreviewSection";
 import { ServicesSection } from "@/components/home/ServicesSection";
-import { SimplifiedInteractiveGallerySection } from "@/components/home/SimplifiedInteractiveGallerySection";
+import { InteractiveGallerySection } from "@/components/home/InteractiveGallerySection";
 import { CTASection } from "@/components/home/CTASection";
-import { SimplifiedTestimonialsStatsSection } from "@/components/home/SimplifiedTestimonialsStatsSection";
-import { SimplifiedBrandMarquee } from "@/components/home/SimplifiedBrandMarquee";
+import { TestimonialsStatsSection } from "@/components/home/TestimonialsStatsSection";
+import { BrandMarquee } from "@/components/home/BrandMarquee";
 import { PageSection } from "@/components/ui/page-section";
-
 const Index = () => {
-  return (
-    <div className="min-h-screen">
+  return <div className="min-h-screen">
       <main id="main-content">
         {/* Hero Section - Pattern A (Deep, dramatic) */}
         <PageSection pattern="a" skipToContentId="hero-section" className="py-[6px] my-0">
@@ -23,22 +21,22 @@ const Index = () => {
         
         {/* Brand Marquee - Pattern B (Trust indicators) */}
         <PageSection pattern="b" withBorder>
-          <SimplifiedBrandMarquee />
+          <BrandMarquee />
         </PageSection>
         
         {/* About Preview - Pattern D (Soft, personal) */}
         <PageSection pattern="d" withBorder>
-          <SimplifiedAboutPreviewSection />
+          <AboutPreviewSection />
         </PageSection>
         
         {/* Interactive Gallery - Pattern C (Elevated, visual showcase) */}
         <PageSection pattern="c" withBorder>
-          <SimplifiedInteractiveGallerySection />
+          <InteractiveGallerySection />
         </PageSection>
         
         {/* Testimonials & Stats - Pattern A (Credibility depth) */}
         <PageSection pattern="a" withBorder>
-          <SimplifiedTestimonialsStatsSection />
+          <TestimonialsStatsSection />
         </PageSection>
         
         {/* CTA Section - Keep current red gradient */}
@@ -46,7 +44,6 @@ const Index = () => {
           <CTASection />
         </PageSection>
       </main>
-    </div>
-  );
+    </div>;
 };
 export default Index;
