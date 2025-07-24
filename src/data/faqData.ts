@@ -1,0 +1,235 @@
+export interface FAQItem {
+  id: string;
+  question: string;
+  answer: string;
+  category: string;
+  keywords: string[];
+}
+
+export interface FAQCategory {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+}
+
+export const faqCategories: FAQCategory[] = [
+  {
+    id: "general",
+    name: "General Services",
+    description: "Basic information about our catering services",
+    icon: "Info"
+  },
+  {
+    id: "military",
+    name: "Military Base Services", 
+    description: "Specialized services for military installations",
+    icon: "Shield"
+  },
+  {
+    id: "menu",
+    name: "Menu & Dietary",
+    description: "Questions about our food offerings and dietary accommodations",
+    icon: "Utensils"
+  },
+  {
+    id: "pricing",
+    name: "Pricing & Payment",
+    description: "Information about costs, quotes, and payment options",
+    icon: "DollarSign"
+  },
+  {
+    id: "planning",
+    name: "Event Planning",
+    description: "Help with planning and coordinating your event",
+    icon: "Calendar"
+  },
+  {
+    id: "policies",
+    name: "Policies & Procedures",
+    description: "Cancellation policies, terms, and procedures",
+    icon: "FileText"
+  }
+];
+
+export const faqData: FAQItem[] = [
+  // General Services
+  {
+    id: "what-services",
+    question: "What types of catering services do you offer?",
+    answer: "We provide full-service catering for a wide variety of events including weddings, corporate functions, military base events, private parties, holiday celebrations, and funeral repasts. Our services include menu planning, food preparation, delivery, setup, and cleanup.",
+    category: "general",
+    keywords: ["services", "catering", "events", "weddings", "corporate", "private", "parties"]
+  },
+  {
+    id: "service-area",
+    question: "What areas do you serve?",
+    answer: "We proudly serve the Charleston, SC metro area and all surrounding communities. We also have special authorization to cater events on military bases throughout the region. For events outside our standard service area, please contact us to discuss arrangements.",
+    category: "general",
+    keywords: ["service area", "charleston", "delivery", "location", "travel"]
+  },
+  {
+    id: "group-sizes",
+    question: "What group sizes can you accommodate?",
+    answer: "We cater events of all sizes, from intimate gatherings of 10 people to large celebrations of 500+ guests. Our team will work with you to customize the service level and menu options based on your specific group size and needs.",
+    category: "general",
+    keywords: ["group size", "guests", "capacity", "small", "large", "events"]
+  },
+  {
+    id: "advance-notice",
+    question: "How far in advance should I book your services?",
+    answer: "We recommend booking at least 2-3 weeks in advance for most events. For large events (100+ guests), weddings, or holiday celebrations, we suggest booking 4-6 weeks ahead. However, we understand that sometimes events come up quickly, so please call us even for last-minute needs.",
+    category: "general",
+    keywords: ["booking", "advance notice", "scheduling", "timeline", "last minute"]
+  },
+
+  // Military Base Services
+  {
+    id: "military-access",
+    question: "Can you cater events on military bases?",
+    answer: "Yes! We are authorized to provide catering services on military base installations throughout the Charleston area. We have all necessary security clearances and documentation to access military facilities safely and efficiently.",
+    category: "military",
+    keywords: ["military", "base", "installation", "clearance", "access", "security"]
+  },
+  {
+    id: "military-documentation",
+    question: "What documentation do you need for military base events?",
+    answer: "For military base events, we need the event details, point of contact information, and any specific base requirements at least 72 hours in advance. We handle all security clearance documentation and coordinate with base personnel to ensure smooth access.",
+    category: "military",
+    keywords: ["documentation", "security", "clearance", "military", "base access", "requirements"]
+  },
+  {
+    id: "military-discounts",
+    question: "Do you offer military discounts?",
+    answer: "Yes, we proudly offer a 10% discount to active duty military personnel, veterans, and their families. We also provide special pricing for military unit events and base functions. Please mention your military status when requesting a quote.",
+    category: "military",
+    keywords: ["military discount", "veteran", "active duty", "special pricing", "military families"]
+  },
+  {
+    id: "base-restrictions",
+    question: "Are there any restrictions for military base catering?",
+    answer: "Each military base has specific guidelines regarding outside vendors. We're familiar with these requirements and ensure all our staff and equipment meet base standards. We coordinate directly with base personnel to handle any special protocols or security measures.",
+    category: "military",
+    keywords: ["restrictions", "guidelines", "military base", "security", "protocols", "standards"]
+  },
+
+  // Menu & Dietary
+  {
+    id: "menu-customization",
+    question: "Can you customize menus for dietary restrictions?",
+    answer: "Absolutely! We accommodate various dietary needs including vegetarian, vegan, gluten-free, dairy-free, and other allergies or restrictions. Our chefs can modify existing dishes or create special items to ensure all your guests can enjoy the meal.",
+    category: "menu",
+    keywords: ["dietary restrictions", "vegetarian", "vegan", "gluten-free", "allergies", "custom menu"]
+  },
+  {
+    id: "signature-dishes",
+    question: "What are your signature dishes?",
+    answer: "Our signature soul food dishes include our famous fried chicken, slow-cooked pulled pork, mac and cheese, collard greens, cornbread, and homemade desserts. We also offer seafood options, vegetarian dishes, and can prepare traditional comfort foods with our unique soul food twist.",
+    category: "menu",
+    keywords: ["signature dishes", "soul food", "fried chicken", "pulled pork", "mac and cheese", "specialties"]
+  },
+  {
+    id: "tasting-available",
+    question: "Do you offer tastings before the event?",
+    answer: "Yes, we offer tastings for events of 50+ guests or for weddings. Tastings are typically scheduled 2-3 weeks before your event and include samples of your selected menu items. There is a small fee for tastings that can be applied toward your final bill.",
+    category: "menu",
+    keywords: ["tasting", "food samples", "wedding", "large events", "menu preview"]
+  },
+  {
+    id: "alcohol-service",
+    question: "Do you provide alcohol service?",
+    answer: "We can coordinate beverage service including beer, wine, and signature cocktails through our licensed partners. We handle all permits and ensure responsible service. Please discuss your beverage needs when requesting your quote.",
+    category: "menu",
+    keywords: ["alcohol", "beverages", "beer", "wine", "cocktails", "bar service", "permits"]
+  },
+
+  // Pricing & Payment
+  {
+    id: "pricing-structure",
+    question: "How is your pricing structured?",
+    answer: "Our pricing is based on the number of guests, menu selections, service level, and event location. We provide detailed quotes that include food, service staff, equipment, and any additional services. All pricing is transparent with no hidden fees.",
+    category: "pricing",
+    keywords: ["pricing", "cost", "quote", "transparent", "no hidden fees", "guest count"]
+  },
+  {
+    id: "payment-terms",
+    question: "What are your payment terms?",
+    answer: "We require a 25% deposit to secure your date, with the balance due 48 hours before your event. We accept cash, check, and all major credit cards. For large events, we can discuss payment plan options.",
+    category: "pricing",
+    keywords: ["payment", "deposit", "balance", "credit cards", "payment plan", "terms"]
+  },
+  {
+    id: "additional-fees",
+    question: "Are there any additional fees I should know about?",
+    answer: "Our quotes include all standard services. Additional fees may apply for events outside our service area (travel fees), last-minute changes, or special requests like extended service hours or premium linens. All potential additional fees are discussed upfront.",
+    category: "pricing",
+    keywords: ["additional fees", "travel fees", "extra charges", "special requests", "service hours"]
+  },
+  {
+    id: "quote-validity",
+    question: "How long is my quote valid?",
+    answer: "Quotes are valid for 30 days from the date issued. Food costs can fluctuate with market prices, so we recommend securing your booking within this timeframe. We'll honor quoted prices once your deposit is received.",
+    category: "pricing",
+    keywords: ["quote validity", "price guarantee", "market prices", "booking deadline"]
+  },
+
+  // Event Planning
+  {
+    id: "planning-assistance",
+    question: "Do you help with event planning beyond the food?",
+    answer: "While we focus on the culinary experience, we can recommend trusted partners for rentals, decorations, and entertainment. Our team also provides guidance on timing, layout, and coordination to ensure your event runs smoothly.",
+    category: "planning",
+    keywords: ["event planning", "coordination", "timing", "layout", "vendor recommendations"]
+  },
+  {
+    id: "equipment-provided",
+    question: "What equipment and supplies do you provide?",
+    answer: "We provide all necessary serving equipment, chafing dishes, serving utensils, plates, napkins, and basic linens. For enhanced presentations, we can arrange upgraded linens, centerpieces, and specialty serving pieces for an additional fee.",
+    category: "planning",
+    keywords: ["equipment", "supplies", "serving", "plates", "linens", "chafing dishes"]
+  },
+  {
+    id: "setup-cleanup",
+    question: "Do you handle setup and cleanup?",
+    answer: "Yes! Our full-service catering includes setup before your event and complete cleanup afterward. We arrive early to set up the food stations and serving areas, and we handle all cleanup so you can focus on enjoying your event.",
+    category: "planning",
+    keywords: ["setup", "cleanup", "full service", "food stations", "serving areas"]
+  },
+  {
+    id: "staff-provided",
+    question: "Do you provide serving staff?",
+    answer: "Yes, we provide professional serving staff for all events. The number of staff depends on your guest count and service style. Our team is experienced, professionally dressed, and trained to provide excellent hospitality.",
+    category: "planning",
+    keywords: ["staff", "servers", "professional", "hospitality", "service style"]
+  },
+
+  // Policies & Procedures
+  {
+    id: "cancellation-policy",
+    question: "What is your cancellation policy?",
+    answer: "Cancellations made 14+ days before your event receive a full refund minus a $50 processing fee. Cancellations 7-13 days prior forfeit 50% of the deposit. Cancellations less than 7 days before the event forfeit the full deposit. We understand emergencies happen and will work with you when possible.",
+    category: "policies",
+    keywords: ["cancellation", "refund", "deposit", "emergency", "processing fee"]
+  },
+  {
+    id: "weather-policy",
+    question: "What happens if weather affects my outdoor event?",
+    answer: "For outdoor events, we recommend having a backup indoor location or tent rental. We monitor weather closely and will work with you to adjust plans if needed. Our equipment is suitable for covered outdoor areas, and we can modify service style to accommodate weather conditions.",
+    category: "policies",
+    keywords: ["weather", "outdoor events", "backup plan", "tent", "covered areas"]
+  },
+  {
+    id: "insurance-licensing",
+    question: "Are you licensed and insured?",
+    answer: "Yes, Soul Train's Eatery is fully licensed and insured. We carry comprehensive liability insurance and maintain all required health department certifications. We can provide certificates of insurance when required by venues.",
+    category: "policies",
+    keywords: ["licensed", "insured", "liability", "health department", "certifications"]
+  },
+  {
+    id: "food-safety",
+    question: "How do you ensure food safety?",
+    answer: "Food safety is our top priority. Our kitchen is health department certified, our staff is trained in safe food handling, and we follow strict temperature control and sanitation procedures. We use insulated transport equipment to maintain proper food temperatures during delivery and service.",
+    category: "policies",
+    keywords: ["food safety", "health department", "temperature control", "sanitation", "certified kitchen"]
+  }
+];

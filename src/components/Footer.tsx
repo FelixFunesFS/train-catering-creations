@@ -23,6 +23,9 @@ export const Footer = () => {
     name: "Reviews",
     href: "/reviews#page-header"
   }, {
+    name: "FAQ",
+    href: "/faq#faq-header"
+  }, {
     name: "Request Quote",
     href: "/request-quote#page-header"
   }];
