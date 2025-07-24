@@ -1,16 +1,23 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { OptimizedImage } from "@/components/ui/optimized-image";
 import { UtensilsCrossed, Heart, Star, ArrowDown } from "lucide-react";
 
 export const FullWidthHero = () => {
 
   return (
     <section className="relative min-h-screen w-full overflow-hidden">
-      {/* Background with fallback */}
-      <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
-        {/* Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70 md:bg-gradient-to-r md:from-black/70 md:via-black/50 md:to-black/30" />
-      </div>
+      {/* Hero Background Image */}
+      <OptimizedImage
+        src="/lovable-uploads/8d5642cf-b015-4144-8ef2-a3b9c653ae80.png"
+        alt="Soul Train's Eatery elegant catering spread"
+        className="absolute inset-0 w-full h-full object-cover"
+        priority={true}
+        containerClassName="absolute inset-0"
+      />
+      
+      {/* Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70 md:bg-gradient-to-r md:from-black/70 md:via-black/50 md:to-black/30" />
 
       {/* Content Container */}
       <div className="relative z-10 min-h-screen flex flex-col">
@@ -33,13 +40,13 @@ export const FullWidthHero = () => {
             {/* Desktop Logo */}
             <div className="hidden md:flex justify-start">
               <div className="p-4 rounded-full bg-white/10 backdrop-blur-sm border border-white/20">
-                <div className="h-12 w-12 lg:h-16 lg:w-16 relative">
-                  <img 
-                    src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
-                    alt="Soul Train's Eatery Logo" 
-                    className="w-full h-full object-contain hover:scale-110 transition-transform duration-300" 
-                  />
-                </div>
+                <OptimizedImage
+                  src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png"
+                  alt="Soul Train's Eatery Logo"
+                  className="w-12 h-12 lg:w-16 lg:h-16 object-contain hover:scale-110 transition-transform duration-300"
+                  priority={true}
+                  aspectRatio="aspect-square"
+                />
               </div>
             </div>
           </div>
@@ -88,9 +95,9 @@ export const FullWidthHero = () => {
           </div>
         </div>
 
-        {/* Mobile CTA Buttons - Bottom Fixed */}
-        <div className="flex-none md:hidden">
-          <div className="fixed bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/90 via-black/70 to-transparent backdrop-blur-sm p-6">
+        {/* Mobile CTA Buttons - Integrated */}
+        <div className="flex-none md:hidden pb-8">
+          <div className="max-w-7xl mx-auto px-6">
             <div className="max-w-lg mx-auto space-y-3">
               <Button asChild className="w-full h-12 text-base font-semibold bg-primary hover:bg-primary/90">
                 <Link to="/request-quote#page-header">
@@ -107,11 +114,15 @@ export const FullWidthHero = () => {
                   View Gallery
                 </Link>
               </Button>
+              
+              {/* Mobile Tagline Integration */}
+              <div className="text-center pt-4">
+                <p className="text-lg text-white/90 font-elegant leading-relaxed">
+                  Where every bite is made with love and served with soul!
+                </p>
+              </div>
             </div>
           </div>
-          
-          {/* Spacer for fixed buttons */}
-          <div className="h-32" />
         </div>
 
         {/* Scroll Indicator - Desktop Only */}
