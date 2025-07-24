@@ -29,6 +29,14 @@ const baseQuoteSchema = z.object({
   bothProteinsAvailable: z.boolean().default(false),
   customMenuRequests: z.string().optional(),
   
+  // Enhanced Menu Selection
+  selectedAppetizers: z.array(z.string()).default([]),
+  selectedSides: z.array(z.string()).default([]),
+  selectedDesserts: z.array(z.string()).default([]),
+  selectedDrinks: z.array(z.string()).default([]),
+  selectedUtensils: z.array(z.string()).default([]),
+  selectedExtras: z.array(z.string()).default([]),
+  
   // Dietary Considerations
   dietaryRestrictions: z.array(z.string()).default([]),
   guestCountWithRestrictions: z.string().optional(),

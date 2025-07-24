@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { regularEventSchema, type RegularEventFormData } from "@/lib/schemas/quoteFormSchemas";
 import { StepIndicator } from "./StepIndicator";
-import { SimplifiedMenuSelection } from "./SimplifiedMenuSelection";
+import { EnhancedMenuSelection } from "./EnhancedMenuSelection";
 import { regularMenuItems } from "@/data/menuItems";
 import { ArrowLeft, ArrowRight, Phone, Mail } from "lucide-react";
 
@@ -37,6 +37,12 @@ export const MobileOptimizedQuoteForm = () => {
       bothProteinsAvailable: false,
       dietaryRestrictions: [],
       waitStaffRequested: "no",
+      selectedAppetizers: [],
+      selectedSides: [],
+      selectedDesserts: [],
+      selectedDrinks: [],
+      selectedUtensils: [],
+      selectedExtras: [],
     }
   });
 
@@ -124,6 +130,15 @@ export const MobileOptimizedQuoteForm = () => {
     const primaryProteinItem = regularMenuItems.find(item => item.id === data.primaryProtein);
     const secondaryProteinItem = regularMenuItems.find(item => item.id === data.secondaryProtein);
     
+    // Format selected items for each category
+    const getItemNames = (ids: string[], items: typeof regularMenuItems) => {
+      return ids.map(id => items.find(item => item.id === id)?.name || id).join(', ');
+    };
+
+    const formatMenuSection = (items: string[], title: string) => {
+      return items.length > 0 ? `- ${title}: ${items.join(', ')}` : '';
+    };
+    
     return `
 Regular Event Quote Request
 
@@ -144,11 +159,18 @@ MENU SELECTION:
 - Primary Protein: ${primaryProteinItem?.name || 'Not selected'}
 ${secondaryProteinItem ? `- Secondary Protein: ${secondaryProteinItem.name}` : ''}
 - Both Proteins Available to Guests: ${data.bothProteinsAvailable ? 'Yes' : 'No'}
+${formatMenuSection(data.selectedAppetizers?.map(id => getItemNames([id], regularMenuItems)) || [], 'Selected Appetizers')}
+${formatMenuSection(data.selectedSides?.map(id => getItemNames([id], regularMenuItems)) || [], 'Selected Sides')}
+${formatMenuSection(data.selectedDesserts?.map(id => getItemNames([id], regularMenuItems)) || [], 'Selected Desserts')}
+${formatMenuSection(data.selectedDrinks || [], 'Selected Beverages')}
+${formatMenuSection(data.selectedUtensils || [], 'Selected Utensils')}
+${formatMenuSection(data.selectedExtras || [], 'Additional Items')}
 ${data.customMenuRequests ? `- Custom Menu Requests: ${data.customMenuRequests}` : ''}
 
 SERVICE OPTIONS:
 - Service Type: ${data.serviceType}
 - Serving Start Time: ${data.servingStartTime}
+${data.waitStaffRequested && data.serviceType === 'full-service' ? `- Wait Staff: ${data.waitStaffRequested}` : ''}
 
 SPECIAL REQUESTS:
 ${data.specialRequests || 'None'}
@@ -215,7 +237,7 @@ ${data.hearAboutUs || 'Not specified'}
                 control={form.control}
                 name="phone"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="mb-4">
                     <FormLabel className="text-base font-medium">Phone Number *</FormLabel>
                     <FormControl>
                       <Input {...field} type="tel" className="h-12 text-base" placeholder="(555) 123-4567" />
@@ -314,7 +336,7 @@ ${data.hearAboutUs || 'Not specified'}
                 control={form.control}
                 name="location"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="mt-4">
                     <FormLabel className="text-base font-medium">Event Location *</FormLabel>
                     <FormControl>
                       <Input {...field} placeholder="Full address or venue name" className="h-12 text-base" />
@@ -330,7 +352,7 @@ ${data.hearAboutUs || 'Not specified'}
       case 2:
         return (
           <div className="space-y-6">
-            <SimplifiedMenuSelection form={form} guestCount={guestCount} />
+            <EnhancedMenuSelection form={form} guestCount={guestCount} />
             
             <div className="space-y-4 pt-4 border-t">
               <FormField
@@ -468,6 +490,7 @@ ${data.hearAboutUs || 'Not specified'}
                         <SelectItem value="google">Google Search</SelectItem>
                         <SelectItem value="social-media">Social Media</SelectItem>
                         <SelectItem value="friend-referral">Friend/Family Referral</SelectItem>
+                        <SelectItem value="returning-customer">Returning Customer</SelectItem>
                         <SelectItem value="previous-customer">Previous Customer</SelectItem>
                         <SelectItem value="vendor-referral">Vendor Referral</SelectItem>
                         <SelectItem value="event-planner">Event Planner</SelectItem>
