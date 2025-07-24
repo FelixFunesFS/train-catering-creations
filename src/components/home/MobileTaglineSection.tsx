@@ -35,17 +35,11 @@ export const MobileTaglineSection = () => {
               <div className="w-20 h-0.5 bg-gradient-to-r from-transparent via-primary to-transparent rounded-full" />
             </div>
             
-            {/* Call-to-Action Buttons */}
-            <div className="flex flex-col sm:flex-row justify-center items-center gap-3">
-              <Button asChild className="w-4/5 sm:w-auto px-6 py-2.5 min-w-[160px]">
-                <Link to="/request-quote#page-header">
-                  Request Quote
-                </Link>
-              </Button>
-              
-              <Button asChild variant="outline" className="w-4/5 sm:w-auto px-6 py-2.5 min-w-[160px]">
-                <Link to="/gallery#page-header">
-                  View Gallery
+            {/* Call-to-Action Button */}
+            <div className="flex justify-center">
+              <Button asChild className="w-4/5 sm:w-auto px-8 py-3 min-w-[180px]">
+                <Link to="/menu#page-header">
+                  View Menu
                 </Link>
               </Button>
             </div>

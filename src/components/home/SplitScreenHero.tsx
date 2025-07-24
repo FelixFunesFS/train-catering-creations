@@ -137,6 +137,23 @@ export const SplitScreenHero = () => {
                   </div>
                 ))}
               </div>
+
+              {/* Mobile Call-to-Action Buttons - Below Image */}
+              <div className="block md:hidden mt-6">
+                <div className="flex flex-col gap-3">
+                  <Button asChild className="w-full min-w-[160px]">
+                    <Link to="/request-quote#page-header">
+                      Request Quote
+                    </Link>
+                  </Button>
+                  
+                  <Button asChild variant="outline" className="w-full min-w-[160px]">
+                    <Link to="/gallery#page-header">
+                      View Gallery
+                    </Link>
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
 
