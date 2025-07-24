@@ -64,8 +64,7 @@ export const SplitScreenHero = () => {
               {/* Main Heading */}
               <div className="mb-4 md:mb-9 lg:mb-10">
                 <h1 className="text-3xl sm:text-4xl md:text-4xl lg:text-5xl xl:text-6xl font-elegant font-bold text-foreground leading-tight mb-4">
-                  <span className="block md:hidden">Where Every Bite Is Made With Love And Served With Soul!</span>
-                  <span className="hidden md:block">Charleston's Premier Catering Experience</span>
+                  Charleston's Premier Catering Experience
                 </h1>
                 <div className="w-16 md:w-20 lg:w-24 h-1 bg-gradient-to-r from-primary via-primary-light to-primary mx-auto md:mx-0 mb-4 rounded-full" />
                 {/* Desktop Subtext */}
@@ -142,13 +141,13 @@ export const SplitScreenHero = () => {
               {/* Mobile Call-to-Action Buttons - Below Image */}
               <div className="block md:hidden mt-6">
                 <div className="flex flex-col gap-3">
-                  <Button asChild className="w-3/4 mx-auto min-w-[160px]">
+                  <Button asChild className="w-full min-w-[160px]">
                     <Link to="/request-quote#page-header">
                       Request Quote
                     </Link>
                   </Button>
                   
-                  <Button asChild variant="outline" className="w-3/4 mx-auto min-w-[160px]">
+                  <Button asChild variant="outline" className="w-full min-w-[160px]">
                     <Link to="/gallery#page-header">
                       View Gallery
                     </Link>
