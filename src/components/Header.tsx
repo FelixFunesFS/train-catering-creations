@@ -1,16 +1,13 @@
-
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SkipToContent } from "@/components/ui/skip-to-content";
 import { cn } from "@/lib/utils";
-
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
-  
   const navigation = [{
     name: "Home",
     href: "/"
@@ -33,9 +30,7 @@ export const Header = () => {
     name: "FAQ",
     href: "/faq#faq-header"
   }];
-  
   const isActive = (path: string) => location.pathname === path;
-  
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
@@ -43,27 +38,17 @@ export const Header = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-  
-  return (
-    <>
+  return <>
       <SkipToContent targetId="main-content">
         Skip to main content
       </SkipToContent>
       
-      <header className={cn(
-        "bg-gradient-to-br from-background via-muted/20 to-background backdrop-blur-md border-b border-border/20 sticky top-0 z-50 transition-all duration-300",
-        "neumorphic-card-3",
-        isScrolled && "shadow-elegant"
-      )}>
-        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-0 my-0">
+      <header className={cn("bg-gradient-to-br from-background via-muted/20 to-background backdrop-blur-md border-b border-border/20 sticky top-0 z-50 transition-all duration-300", "neumorphic-card-3", isScrolled && "shadow-elegant")}>
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 my-0 py-0">
           <div className="flex justify-between items-center py-1 sm:py-2">
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-3 hover:scale-105 transition-transform duration-300 focus-visible-enhanced" aria-label="Soul Train's Eatery - Home">
-              <img 
-                src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
-                alt="Soul Train's Eatery Logo" 
-                className="h-6 w-6 lg:h-8 lg:w-8 object-contain"
-              />
+              <img src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" alt="Soul Train's Eatery Logo" className="h-6 w-6 lg:h-8 lg:w-8 object-contain" />
               <div className="text-2xl lg:text-3xl font-script font-bold text-foreground">
                 Soul Train's Eatery
               </div>
@@ -71,22 +56,9 @@ export const Header = () => {
 
             {/* Desktop Navigation */}
             <nav className="hidden lg:flex items-center space-x-2" aria-label="Main navigation">
-              {navigation.map(item => (
-                <Link 
-                  key={item.name} 
-                  to={item.href} 
-                  className={cn(
-                    "text-sm font-medium px-4 py-2 rounded-lg transition-all duration-300 focus-visible-enhanced hover:scale-105 hover:-translate-y-0.5",
-                    "neumorphic-button",
-                    isActive(item.href) 
-                      ? "active text-foreground bg-muted/50 font-semibold neumorphic-card-2" 
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted/30"
-                  )} 
-                  aria-current={isActive(item.href) ? "page" : undefined}
-                >
+              {navigation.map(item => <Link key={item.name} to={item.href} className={cn("text-sm font-medium px-4 py-2 rounded-lg transition-all duration-300 focus-visible-enhanced hover:scale-105 hover:-translate-y-0.5", "neumorphic-button", isActive(item.href) ? "active text-foreground bg-muted/50 font-semibold neumorphic-card-2" : "text-muted-foreground hover:text-foreground hover:bg-muted/30")} aria-current={isActive(item.href) ? "page" : undefined}>
                   {item.name}
-                </Link>
-              ))}
+                </Link>)}
               <Button asChild variant="default" size="sm" className="text-sm font-medium px-4 py-2 rounded-lg neumorphic-button-primary">
                 <Link to="/request-quote#page-header">Request Quote</Link>
               </Button>
@@ -94,48 +66,23 @@ export const Header = () => {
 
             {/* Mobile controls */}
             <div className="lg:hidden flex items-center">
-              <Button 
-                className="neumorphic-button bg-transparent hover:bg-muted/30 text-foreground hover:text-foreground transition-all duration-300 focus-visible-enhanced p-2 h-auto w-auto" 
-                onClick={() => setIsMenuOpen(!isMenuOpen)} 
-                aria-expanded={isMenuOpen} 
-                aria-controls="mobile-menu" 
-                aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-              >
-                {isMenuOpen ? (
-                  <X className="h-10 w-10 md:h-12 md:w-12" strokeWidth={2.5} />
-                ) : (
-                  <svg className="h-10 w-10 md:h-12 md:w-12" fill="none" stroke="white" strokeWidth={2.5} viewBox="0 0 24 24" aria-hidden="true">
+              <Button className="neumorphic-button bg-transparent hover:bg-muted/30 text-foreground hover:text-foreground transition-all duration-300 focus-visible-enhanced p-2 h-auto w-auto" onClick={() => setIsMenuOpen(!isMenuOpen)} aria-expanded={isMenuOpen} aria-controls="mobile-menu" aria-label={isMenuOpen ? "Close menu" : "Open menu"}>
+                {isMenuOpen ? <X className="h-10 w-10 md:h-12 md:w-12" strokeWidth={2.5} /> : <svg className="h-10 w-10 md:h-12 md:w-12" fill="none" stroke="white" strokeWidth={2.5} viewBox="0 0 24 24" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16" />
                     <path strokeLinecap="round" strokeLinejoin="round" d="M4 12h16" />
                     <path strokeLinecap="round" strokeLinejoin="round" d="M4 18h16" />
-                  </svg>
-                )}
+                  </svg>}
               </Button>
             </div>
           </div>
 
           {/* Mobile Navigation */}
-          {isMenuOpen && (
-            <nav id="mobile-menu" className="lg:hidden pb-6" aria-label="Mobile navigation">
+          {isMenuOpen && <nav id="mobile-menu" className="lg:hidden pb-6" aria-label="Mobile navigation">
               <div className="neumorphic-card-2 rounded-xl p-4 mt-4">
                 <div className="flex flex-col space-y-3">
-                  {navigation.map(item => (
-                    <Link 
-                      key={item.name} 
-                      to={item.href} 
-                      className={cn(
-                        "text-base font-medium px-4 py-3 rounded-lg transition-all duration-300 focus-visible-enhanced",
-                        "neumorphic-card-1",
-                        isActive(item.href) 
-                          ? "active text-primary bg-muted font-semibold border-l-4 border-primary" 
-                          : "text-foreground hover:text-primary hover:translate-x-1 hover:bg-muted/50"
-                      )} 
-                      onClick={() => setIsMenuOpen(false)} 
-                      aria-current={isActive(item.href) ? "page" : undefined}
-                    >
+                  {navigation.map(item => <Link key={item.name} to={item.href} className={cn("text-base font-medium px-4 py-3 rounded-lg transition-all duration-300 focus-visible-enhanced", "neumorphic-card-1", isActive(item.href) ? "active text-primary bg-muted font-semibold border-l-4 border-primary" : "text-foreground hover:text-primary hover:translate-x-1 hover:bg-muted/50")} onClick={() => setIsMenuOpen(false)} aria-current={isActive(item.href) ? "page" : undefined}>
                       {item.name}
-                    </Link>
-                  ))}
+                    </Link>)}
                   <div className="flex justify-center mt-4">
                     <Button asChild variant="default" size="responsive-sm" className="w-3/5 sm:w-auto sm:min-w-[14rem] neumorphic-button-primary">
                       <Link to="/request-quote#page-header" onClick={() => setIsMenuOpen(false)}>
@@ -145,10 +92,8 @@ export const Header = () => {
                   </div>
                 </div>
               </div>
-            </nav>
-          )}
+            </nav>}
         </div>
       </header>
-    </>
-  );
+    </>;
 };
