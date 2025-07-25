@@ -62,7 +62,7 @@ export const Header = () => {
               <img 
                 src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
                 alt="Soul Train's Eatery Logo" 
-                className="h-8 w-8 lg:h-10 lg:w-10 object-contain"
+                className="h-6 w-6 lg:h-8 lg:w-8 object-contain"
               />
               <div className="text-2xl lg:text-3xl font-script font-bold text-foreground">
                 Soul Train's Eatery
