@@ -32,5 +32,32 @@ export const OptimizedImage = ({
     setHasError(true);
     onImageError?.();
   };
-  return;
+  return (
+    <div className={cn(aspectRatio, "relative overflow-hidden", containerClassName)}>
+      {isLoading && (
+        <div className="absolute inset-0 z-10">
+          <ImageSkeleton />
+        </div>
+      )}
+      {hasError ? (
+        <div className="w-full h-full bg-muted flex items-center justify-center">
+          <span className="text-muted-foreground text-sm">Failed to load image</span>
+        </div>
+      ) : (
+        <img
+          src={src}
+          alt={alt}
+          className={cn(
+            "w-full h-full object-cover transition-opacity duration-300",
+            isLoading ? "opacity-0" : "opacity-100",
+            className
+          )}
+          onLoad={handleLoad}
+          onError={handleError}
+          loading={priority ? "eager" : "lazy"}
+          {...props}
+        />
+      )}
+    </div>
+  );
 };
