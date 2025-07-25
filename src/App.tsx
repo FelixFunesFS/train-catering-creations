@@ -41,6 +41,7 @@ const AppContent = () => {
           <Route path="/gallery" element={<PhotoGallery />} />
           <Route path="/gallery-alt" element={<AlternativeGallery />} />
           <Route path="/home-alt" element={<SecondAlternativeHome />} />
+          <Route path="/home-alt-2" element={<SecondAlternativeHome />} />
           <Route path="/home-alt-3" element={<ThirdAlternativeHome />} />
           <Route path="/home-alt-4" element={<FourthAlternativeHome />} />
           <Route path="/faq" element={<FAQ />} />
