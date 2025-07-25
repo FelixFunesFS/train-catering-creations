@@ -20,6 +20,7 @@ import AlternativeGallery from "./pages/AlternativeGallery";
 import SecondAlternativeHome from "./pages/SecondAlternativeHome";
 import ThirdAlternativeHome from "./pages/ThirdAlternativeHome";
 import FourthAlternativeHome from "./pages/FourthAlternativeHome";
+import SixthAlternativeHome from "./pages/SixthAlternativeHome";
 import FAQ from "./pages/FAQ";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsConditions from "./pages/TermsConditions";
@@ -41,9 +42,10 @@ const AppContent = () => {
           <Route path="/gallery" element={<PhotoGallery />} />
           <Route path="/gallery-alt" element={<AlternativeGallery />} />
           <Route path="/home-alt" element={<SecondAlternativeHome />} />
-          <Route path="/home-alt-2" element={<SecondAlternativeHome />} />
-          <Route path="/home-alt-3" element={<ThirdAlternativeHome />} />
-          <Route path="/home-alt-4" element={<FourthAlternativeHome />} />
+            <Route path="/home-alt-2" element={<SecondAlternativeHome />} />
+            <Route path="/home-alt-3" element={<ThirdAlternativeHome />} />
+            <Route path="/home-alt-4" element={<FourthAlternativeHome />} />
+            <Route path="/home-alt-6" element={<SixthAlternativeHome />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-conditions" element={<TermsConditions />} />

@@ -1,0 +1,140 @@
+import { useState, useEffect } from "react";
+import { NeumorphicButton } from "@/components/ui/neumorphic-button";
+import { ResponsiveWrapper } from "@/components/ui/responsive-wrapper";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { Heart, ChevronDown, Star, Users, Award, Calendar } from "lucide-react";
+
+export const CulinaryJourneyHero = () => {
+  const { ref, isVisible } = useScrollAnimation({
+    threshold: 0.1,
+    variant: "fade-up"
+  });
+
+  const [currentMilestone, setCurrentMilestone] = useState(0);
+
+  const stats = [
+    { icon: Calendar, value: "25+", label: "Years" },
+    { icon: Users, value: "10k+", label: "Families Served" },
+    { icon: Star, value: "50+", label: "Venues" },
+    { icon: Award, value: "100%", label: "Family-Owned" },
+  ];
+
+  const milestones = [
+    { year: "1999", title: "Soul Train's Eatery Founded", description: "Charleston heritage begins" },
+    { year: "2005", title: "Mobile Catering Launch", description: "Bringing flavors to you" },
+    { year: "2015", title: "Lowcountry Expansion", description: "Serving the region" },
+    { year: "2024", title: "Culinary Innovation", description: "Modern meets tradition" },
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentMilestone((prev) => (prev + 1) % milestones.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="relative min-h-screen bg-gradient-to-br from-background via-background/95 to-ruby-50/20 overflow-hidden">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,hsl(var(--ruby-500))_0%,transparent_50%)]" />
+      </div>
+
+      <ResponsiveWrapper hasFullWidthCard>
+        <div ref={ref} className="relative z-10 pt-8 pb-16">
+          {/* Heritage Badge */}
+          <div className={`flex justify-center mb-8 ${isVisible ? 'fade-up-visible' : 'fade-up-hidden'}`}>
+            <div className="inline-flex items-center gap-2 bg-gradient-ruby-subtle px-6 py-3 rounded-full border border-ruby-200/30">
+              <Heart className="w-5 h-5 text-white" fill="currentColor" />
+              <span className="text-white font-elegant text-sm">Est. 1999 • Charleston Heritage</span>
+            </div>
+          </div>
+
+          {/* Logo & Main Title */}
+          <div className={`text-center mb-12 ${isVisible ? 'fade-up-visible' : 'fade-up-hidden'}`} style={{ animationDelay: '200ms' }}>
+            <div className="mb-6">
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-elegant font-bold mb-4">
+                <span className="bg-gradient-ruby-primary bg-clip-text text-transparent">
+                  Soul Train's Eatery
+                </span>
+              </h1>
+              <p className="text-2xl md:text-3xl lg:text-4xl font-script text-ruby-600 mb-6">
+                Start Your Culinary Journey Today
+              </p>
+            </div>
+            
+            <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+              From our Charleston roots to your special moments, we craft unforgettable culinary experiences 
+              that celebrate heritage, flavor, and the joy of bringing people together.
+            </p>
+          </div>
+
+          {/* Stats Grid */}
+          <div className={`grid grid-cols-2 lg:grid-cols-4 gap-6 mb-16 ${isVisible ? 'fade-up-visible' : 'fade-up-hidden'}`} style={{ animationDelay: '400ms' }}>
+            {stats.map((stat, index) => (
+              <div key={index} className="text-center">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-ruby-subtle mb-4">
+                  <stat.icon className="w-8 h-8 text-white" />
+                </div>
+                <div className="text-3xl md:text-4xl font-elegant font-bold text-foreground mb-2">
+                  {stat.value}
+                </div>
+                <div className="text-sm text-muted-foreground font-medium">
+                  {stat.label}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Interactive Timeline */}
+          <div className={`mb-12 ${isVisible ? 'fade-up-visible' : 'fade-up-hidden'}`} style={{ animationDelay: '600ms' }}>
+            <h3 className="text-xl font-elegant font-semibold text-center mb-8">Our Culinary Journey</h3>
+            <div className="max-w-4xl mx-auto">
+              <div className="flex justify-center items-center gap-4 mb-6">
+                {milestones.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentMilestone(index)}
+                    className={`w-4 h-4 rounded-full transition-all duration-300 ${
+                      index === currentMilestone 
+                        ? 'bg-gradient-ruby-primary scale-125' 
+                        : 'bg-muted-foreground/30 hover:bg-ruby-300'
+                    }`}
+                  />
+                ))}
+              </div>
+              <div className="text-center bg-background/80 backdrop-blur-sm rounded-xl p-6 border border-ruby-200/20">
+                <div className="text-2xl font-elegant font-bold text-ruby-600 mb-2">
+                  {milestones[currentMilestone].year}
+                </div>
+                <div className="text-lg font-semibold mb-2">
+                  {milestones[currentMilestone].title}
+                </div>
+                <div className="text-muted-foreground">
+                  {milestones[currentMilestone].description}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* CTA Buttons */}
+          <div className={`flex flex-col sm:flex-row gap-4 justify-center ${isVisible ? 'fade-up-visible' : 'fade-up-hidden'}`} style={{ animationDelay: '800ms' }}>
+            <NeumorphicButton size="lg" className="px-8 py-4">
+              Begin Your Journey
+            </NeumorphicButton>
+            <NeumorphicButton variant="outline" size="lg" className="px-8 py-4">
+              Explore Our Story
+            </NeumorphicButton>
+          </div>
+
+          {/* Scroll Indicator */}
+          <div className={`flex justify-center mt-16 ${isVisible ? 'fade-up-visible' : 'fade-up-hidden'}`} style={{ animationDelay: '1000ms' }}>
+            <div className="animate-bounce">
+              <ChevronDown className="w-6 h-6 text-ruby-500" />
+            </div>
+          </div>
+        </div>
+      </ResponsiveWrapper>
+    </div>
+  );
+};
