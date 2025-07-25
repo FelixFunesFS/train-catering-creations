@@ -52,6 +52,17 @@ export const MobileTaglineSection = () => {
               />
             </div>
             
+            {/* Featured Dessert Display */}
+            <div className="mb-6">
+              <OptimizedImage
+                src="/lovable-uploads/ce391a60-fbaa-47f3-93b4-14cb07407a02.png"
+                alt="Elegant wedding dessert table featuring tiered cake, champagne flutes, and beautiful floral arrangements"
+                aspectRatio="aspect-video"
+                className="rounded-lg shadow-md"
+                priority={true}
+              />
+            </div>
+            
             {/* Call-to-Action Button */}
             <div className="flex justify-center">
               <Button asChild className="w-4/5 sm:w-auto px-8 py-3 min-w-[180px]">
