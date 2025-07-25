@@ -1,4 +1,4 @@
-
+import React from "react";
 import { SplitScreenHero } from "./SplitScreenHero";
 import { MobileTaglineSection } from "./MobileTaglineSection";
 import Canvas3DHeroSection from "./Canvas3DHeroSection";
