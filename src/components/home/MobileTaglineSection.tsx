@@ -1,10 +1,8 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Heart, Star, Sparkles } from "lucide-react";
-
 export const MobileTaglineSection = () => {
-  return (
-    <section className="block md:hidden bg-gradient-to-b from-muted/30 via-background to-muted/30 py-8">
+  return <section className="block md:hidden bg-gradient-to-b from-muted/30 via-background to-muted/30 py-[30px]">
       <div className="max-w-7xl mx-auto px-6">
         <div className="neumorphic-card-2 rounded-2xl p-6 text-center relative overflow-hidden">
           {/* Decorative Background Elements */}
@@ -46,6 +44,5 @@ export const MobileTaglineSection = () => {
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };

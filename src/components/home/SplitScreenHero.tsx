@@ -38,9 +38,9 @@ export const SplitScreenHero = () => {
     setSelectedImageIndex(null);
   };
   return <>
-      <section className="relative min-h-screen bg-gradient-to-br from-background via-muted/20 to-background md:-mt-8 md:pt-0">
+      <section className="relative min-h-screen bg-gradient-to-br from-background via-muted/20 to-background md:-mt-8 md:pt-0 py-[240px]">
         <div className="max-w-7xl mx-auto px-6 xl:px-12 pb-8 md:pb-0">
-          <div className="flex flex-col md:grid md:grid-cols-2 gap-2 md:gap-10 lg:gap-12 items-center min-h-[50vh] md:min-h-screen">
+          <div className="flex flex-col md:grid md:grid-cols-2 gap-2 md:gap-10 lg:gap-12 items-center min-h-[50vh] md:min-h-screen py-0">
             
             {/* Left Content Panel */}
             <div className="order-2 md:order-1 text-center md:text-left">
@@ -93,32 +93,12 @@ export const SplitScreenHero = () => {
             <div className="order-1 md:order-2 w-full md:mt-0">
               {/* Mobile: Full-Width 4:5 Carousel */}
               <div className="block md:hidden">
-                <div className="relative w-full aspect-[4/5] overflow-hidden rounded-none -mx-6">
-                  <OptimizedImage 
-                    src={showcaseImages[1].src} 
-                    alt={showcaseImages[1].alt} 
-                    aspectRatio="aspect-[4/5]" 
-                    className="transition-transform duration-500 hover:scale-105" 
-                    containerClassName="w-full h-full" 
-                    priority={true} 
-                  />
-                  
-                  {/* Minimal Overlay for Visual Depth */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
-                  
-                  {/* Tap indicator for interaction */}
-                  <button 
-                    onClick={() => handleImageClick(1)}
-                    className="absolute inset-0 w-full h-full focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-inset"
-                    aria-label="View full gallery"
-                  />
-                </div>
+                
               </div>
 
               {/* Desktop: Grid Layout */}
               <div className="hidden md:grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-3 lg:gap-4 h-auto md:h-[500px] lg:h-[600px]">
-                {showcaseImages.map((image, index) => (
-                  <div key={index} className={`group neumorphic-card hover:neumorphic-card-2 p-3 md:p-2 lg:p-3 rounded-2xl cursor-pointer transition-all duration-300 ${index === 0 ? 'sm:col-span-2' : index === 1 ? 'md:row-span-2' : ''} ${index < 2 ? 'block' : 'hidden sm:block'}`} onClick={() => handleImageClick(index)}>
+                {showcaseImages.map((image, index) => <div key={index} className={`group neumorphic-card hover:neumorphic-card-2 p-3 md:p-2 lg:p-3 rounded-2xl cursor-pointer transition-all duration-300 ${index === 0 ? 'sm:col-span-2' : index === 1 ? 'md:row-span-2' : ''} ${index < 2 ? 'block' : 'hidden sm:block'}`} onClick={() => handleImageClick(index)}>
                     <div className="relative rounded-xl overflow-hidden h-48 md:h-full min-h-[180px]">
                       <OptimizedImage src={image.src} alt={image.alt} aspectRatio="aspect-video" className="group-hover:scale-105 transition-transform duration-300" containerClassName="h-full" priority={index < 2} />
                       
@@ -132,8 +112,7 @@ export const SplitScreenHero = () => {
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  </div>)}
               </div>
 
               {/* Mobile Call-to-Action Buttons - Below Image */}
