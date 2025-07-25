@@ -77,6 +77,12 @@
     --gradient-hero: linear-gradient(180deg, hsl(60, 8%, 96%) 0%, hsl(0, 0%, 100%) 50%, hsl(60, 8%, 96%) 100%);
     --gradient-card: linear-gradient(145deg, hsl(0, 0%, 100%) 0%, hsl(60, 6%, 92%) 100%);
     --gradient-nav: linear-gradient(180deg, hsl(60, 8%, 96%, 0.95) 0%, hsl(0, 0%, 100%, 0.90) 100%);
+    
+    /* Ruby Red Gradient System for Accents */
+    --gradient-ruby-primary: linear-gradient(135deg, hsl(0, 80%, 45%) 0%, hsl(0, 80%, 60%) 100%);
+    --gradient-ruby-accent: linear-gradient(45deg, hsl(0, 80%, 45%) 0%, hsl(0, 80%, 35%) 50%, hsl(0, 80%, 55%) 100%);
+    --gradient-ruby-subtle: linear-gradient(180deg, hsl(0, 80%, 45%, 0.1) 0%, hsl(0, 80%, 60%, 0.05) 100%);
+    --gradient-ruby-overlay: linear-gradient(135deg, hsl(0, 80%, 45%, 0.8) 0%, hsl(0, 80%, 30%, 0.9) 100%);
 
     /* Standardized neumorphic shadows with subtle grey highlights */
     --shadow-neumorphic-1: 3px 3px 6px hsla(210, 10%, 0%, 0.08), -3px -3px 6px hsla(210, 5%, 85%, 0.1);

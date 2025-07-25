@@ -67,18 +67,26 @@ export const CharlestonHeritageHero = () => {
             <span className="text-sm font-medium">Charleston Family Legacy Since 2002</span>
           </div>
 
-          {/* Main Title */}
-          <h1 className={`font-playfair text-4xl md:text-6xl lg:text-8xl font-bold mb-6 transition-all duration-700 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+          {/* Logo and Main Title */}
+          <div className="mb-8">
+            <img 
+              src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
+              alt="Soul Train's Eatery Logo - Charleston Heritage Catering"
+              className="h-20 md:h-24 lg:h-28 w-auto mx-auto mb-6"
+            />
+          </div>
+          
+          <h1 className={`font-elegant text-4xl md:text-6xl lg:text-8xl font-bold mb-6 transition-all duration-700 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             Soul Train's
-            <span className="block font-dancing text-red-400 text-3xl md:text-5xl lg:text-6xl mt-2">
+            <span className="block font-script bg-gradient-ruby-primary bg-clip-text text-transparent text-3xl md:text-5xl lg:text-6xl mt-2">
               Charleston Heritage
             </span>
           </h1>
 
           {/* Story Introduction */}
-          <p className={`text-lg md:text-xl lg:text-2xl max-w-4xl mx-auto mb-8 leading-relaxed transition-all duration-700 delay-400 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+          <p className={`font-clean text-lg md:text-xl lg:text-2xl max-w-4xl mx-auto mb-8 leading-relaxed transition-all duration-700 delay-400 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             Born from a deep love of Southern cooking and a commitment to bringing families together around exceptional food. 
-            <span className="block mt-2 font-dancing text-xl md:text-2xl lg:text-3xl text-red-400">
+            <span className="block mt-2 font-script text-xl md:text-2xl lg:text-3xl bg-gradient-ruby-accent bg-clip-text text-transparent">
               From Rainbow Row to Lowcountry plantations
             </span>
           </p>
@@ -140,7 +148,8 @@ export const CharlestonHeritageHero = () => {
             <NeumorphicButton
               size="lg"
               variant="primary"
-              className="bg-red-600 hover:bg-red-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 min-w-[200px]"
+              className="bg-gradient-ruby-primary text-white hover:bg-gradient-ruby-accent shadow-lg hover:shadow-xl transition-all duration-300 min-w-[200px] focus-visible-enhanced"
+              aria-label="Learn about our Charleston heritage and family story"
             >
               <Heart className="w-5 h-5" />
               Our Charleston Story
@@ -148,7 +157,8 @@ export const CharlestonHeritageHero = () => {
             <NeumorphicButton
               size="lg"
               variant="outline"
-              className="bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20 min-w-[200px]"
+              className="bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20 min-w-[200px] focus-visible-enhanced"
+              aria-label="Explore our Charleston venue locations and services"
             >
               <MapPin className="w-5 h-5" />
               Charleston Venues

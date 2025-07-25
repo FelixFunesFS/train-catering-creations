@@ -100,15 +100,23 @@ export const HeritageBookingSection = () => {
     <section className="py-16 lg:py-24 bg-gradient-to-b from-background to-red-600/5">
       <ResponsiveWrapper>
         
-        {/* Section Header */}
+        {/* Section Header with Logo */}
         <div ref={titleRef} className="text-center mb-16">
-          <h2 className={`font-playfair text-3xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 transition-all duration-700 ${titleVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+          <div className="mb-8">
+            <img 
+              src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
+              alt="Soul Train's Eatery - Charleston Event Planning"
+              className="h-16 md:h-20 w-auto mx-auto mb-4"
+            />
+          </div>
+          
+          <h2 className={`font-elegant text-3xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 transition-all duration-700 ${titleVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             Plan Your
-            <span className="block font-dancing text-red-600 text-2xl md:text-4xl lg:text-5xl mt-2">
+            <span className="block font-script bg-gradient-ruby-primary bg-clip-text text-transparent text-2xl md:text-4xl lg:text-5xl mt-2">
               Charleston Celebration
             </span>
           </h2>
-          <p className={`text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto transition-all duration-700 delay-200 ${titleVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+          <p className={`font-clean text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto transition-all duration-700 delay-200 ${titleVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             Let our family help create your perfect Charleston event. With over 20 years of experience 
             and deep knowledge of every venue, we'll make your celebration unforgettable.
           </p>
@@ -181,14 +189,16 @@ export const HeritageBookingSection = () => {
                   <div className="flex flex-col gap-3">
                     <NeumorphicButton
                       variant="primary"
-                      className="bg-red-600 hover:bg-red-700 text-white"
+                      className="bg-gradient-ruby-primary hover:bg-gradient-ruby-accent text-white focus-visible-enhanced"
+                      aria-label="Call Soul Train's Eatery directly"
                     >
                       <Phone className="w-4 h-4" />
                       Call (843) 555-0123
                     </NeumorphicButton>
                     <NeumorphicButton
                       variant="outline"
-                      className="border-red-600 text-red-600 hover:bg-red-600 hover:text-white"
+                      className="border-primary text-primary hover:bg-gradient-ruby-primary hover:text-white focus-visible-enhanced"
+                      aria-label="Schedule a consultation with our chefs"
                     >
                       <Calendar className="w-4 h-4" />
                       Schedule Consultation
@@ -340,7 +350,8 @@ export const HeritageBookingSection = () => {
                   type="submit"
                   size="lg"
                   variant="primary"
-                  className="bg-red-600 hover:bg-red-700 text-white px-8 py-4 min-w-[200px]"
+                  className="bg-gradient-ruby-primary hover:bg-gradient-ruby-accent text-white px-8 py-4 min-w-[200px] focus-visible-enhanced"
+                  aria-label="Submit event planning form"
                 >
                   <Heart className="w-5 h-5" />
                   Start Planning Your Event

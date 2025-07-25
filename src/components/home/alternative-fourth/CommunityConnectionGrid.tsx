@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { SectionContentCard } from "@/components/ui/section-content-card";
 import { ResponsiveWrapper } from "@/components/ui/responsive-wrapper";
+import { NeumorphicButton } from "@/components/ui/neumorphic-button";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useStaggeredAnimation } from "@/hooks/useStaggeredAnimation";
 import { Heart, Quote, Star, Calendar, Users, MapPin, Phone, ChevronLeft, ChevronRight } from "lucide-react";
@@ -115,15 +116,23 @@ export const CommunityConnectionGrid = () => {
     <section className="py-16 lg:py-24 bg-gradient-to-b from-accent/5 to-background">
       <ResponsiveWrapper>
         
-        {/* Section Header */}
+        {/* Section Header with Logo */}
         <div ref={titleRef} className="text-center mb-16">
-          <h2 className={`font-playfair text-3xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 transition-all duration-700 ${titleVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+          <div className="mb-8">
+            <img 
+              src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
+              alt="Soul Train's Eatery - Charleston Community Stories"
+              className="h-16 md:h-20 w-auto mx-auto mb-4"
+            />
+          </div>
+          
+          <h2 className={`font-elegant text-3xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 transition-all duration-700 ${titleVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             Charleston
-            <span className="block font-dancing text-red-600 text-2xl md:text-4xl lg:text-5xl mt-2">
+            <span className="block font-script bg-gradient-ruby-primary bg-clip-text text-transparent text-2xl md:text-4xl lg:text-5xl mt-2">
               Community Stories
             </span>
           </h2>
-          <p className={`text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto transition-all duration-700 delay-200 ${titleVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+          <p className={`font-clean text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto transition-all duration-700 delay-200 ${titleVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             For over two decades, we've had the honor of being part of Charleston's most meaningful moments. 
             Here are just a few stories from the families and venues we call home.
           </p>
@@ -282,9 +291,13 @@ export const CommunityConnectionGrid = () => {
               Whether you're planning a family celebration, corporate event, or intimate gathering, 
               we'd love to be part of your Charleston story.
             </p>
-            <button className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200">
+            <NeumorphicButton 
+              variant="primary" 
+              className="bg-gradient-ruby-primary text-white hover:bg-gradient-ruby-accent focus-visible-enhanced"
+              aria-label="Contact us to start planning your Charleston event"
+            >
               Start Planning Your Event
-            </button>
+            </NeumorphicButton>
           </SectionContentCard>
         </div>
       </ResponsiveWrapper>

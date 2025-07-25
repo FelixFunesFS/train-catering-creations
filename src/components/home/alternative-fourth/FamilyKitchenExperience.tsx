@@ -83,15 +83,23 @@ export const FamilyKitchenExperience = () => {
     <section className="py-16 lg:py-24 bg-gradient-to-b from-background/80 to-accent/5">
       <ResponsiveWrapper>
         
-        {/* Section Header */}
+        {/* Section Header with Logo */}
         <div ref={titleRef} className="text-center mb-16">
-          <h2 className={`font-playfair text-3xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 transition-all duration-700 ${titleVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+          <div className="mb-8">
+            <img 
+              src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
+              alt="Soul Train's Eatery - Family Kitchen Experience"
+              className="h-16 md:h-20 w-auto mx-auto mb-4"
+            />
+          </div>
+          
+          <h2 className={`font-elegant text-3xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 transition-all duration-700 ${titleVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             Our Family
-            <span className="block font-dancing text-red-600 text-2xl md:text-4xl lg:text-5xl mt-2">
+            <span className="block font-script bg-gradient-ruby-primary bg-clip-text text-transparent text-2xl md:text-4xl lg:text-5xl mt-2">
               Kitchen Stories
             </span>
           </h2>
-          <p className={`text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto transition-all duration-700 delay-200 ${titleVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+          <p className={`font-clean text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto transition-all duration-700 delay-200 ${titleVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             Meet the heart behind Soul Train's Eatery - Chef Train and Chef Tanya Ward, 
             where every recipe carries the warmth of family tradition and Charleston heritage.
           </p>

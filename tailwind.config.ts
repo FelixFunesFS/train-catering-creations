@@ -112,7 +112,11 @@ export default {
 				'gradient-pattern-b': 'var(--gradient-pattern-b)',
 				'gradient-pattern-c': 'var(--gradient-pattern-c)',
 				'gradient-pattern-d': 'var(--gradient-pattern-d)',
-				'gradient-nav': 'var(--gradient-nav)'
+				'gradient-nav': 'var(--gradient-nav)',
+				'gradient-ruby-primary': 'var(--gradient-ruby-primary)',
+				'gradient-ruby-accent': 'var(--gradient-ruby-accent)',
+				'gradient-ruby-subtle': 'var(--gradient-ruby-subtle)',
+				'gradient-ruby-overlay': 'var(--gradient-ruby-overlay)'
 			},
 			boxShadow: {
 				'card': 'var(--shadow-card)',

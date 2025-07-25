@@ -2,6 +2,7 @@ import { useState } from "react";
 import { OptimizedImage } from "@/components/ui/optimized-image";
 import { SectionContentCard } from "@/components/ui/section-content-card";
 import { ResponsiveWrapper } from "@/components/ui/responsive-wrapper";
+import { NeumorphicButton } from "@/components/ui/neumorphic-button";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useStaggeredAnimation } from "@/hooks/useStaggeredAnimation";
 import { MapPin, Star, Calendar, Users } from "lucide-react";
@@ -82,15 +83,23 @@ export const LowcountryLocationShowcase = () => {
     <section className="py-16 lg:py-24 bg-gradient-to-b from-background to-background/80">
       <ResponsiveWrapper>
         
-        {/* Section Header */}
+        {/* Section Header with Logo */}
         <div ref={titleRef} className="text-center mb-16">
-          <h2 className={`font-playfair text-3xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 transition-all duration-700 ${titleVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+          <div className="mb-8">
+            <img 
+              src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
+              alt="Soul Train's Eatery - Charleston Venues"
+              className="h-16 md:h-20 w-auto mx-auto mb-4"
+            />
+          </div>
+          
+          <h2 className={`font-elegant text-3xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 transition-all duration-700 ${titleVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             Charleston's Most
-            <span className="block font-dancing text-red-600 text-2xl md:text-4xl lg:text-5xl mt-2">
+            <span className="block font-script bg-gradient-ruby-primary bg-clip-text text-transparent text-2xl md:text-4xl lg:text-5xl mt-2">
               Cherished Locations
             </span>
           </h2>
-          <p className={`text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto transition-all duration-700 delay-200 ${titleVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+          <p className={`font-clean text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto transition-all duration-700 delay-200 ${titleVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             From the cobblestones of Rainbow Row to the grand plantations of the Lowcountry, 
             we bring authentic Southern hospitality to Charleston's most treasured venues.
           </p>
@@ -207,9 +216,13 @@ export const LowcountryLocationShowcase = () => {
               With over 20 years in Charleston, we have the insider knowledge and relationships 
               to make your event perfect at any Lowcountry location.
             </p>
-            <button className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200">
+            <NeumorphicButton 
+              variant="primary" 
+              className="bg-gradient-ruby-primary text-white hover:bg-gradient-ruby-accent focus-visible-enhanced"
+              aria-label="View all Charleston venue locations and details"
+            >
               Explore All Venues
-            </button>
+            </NeumorphicButton>
           </SectionContentCard>
         </div>
       </ResponsiveWrapper>
