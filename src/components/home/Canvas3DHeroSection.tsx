@@ -1,64 +1,37 @@
-import React, { Suspense, useRef } from 'react';
+import React, { Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Environment, Text, PerspectiveCamera } from '@react-three/drei';
-import { TrainCarScene } from './3d/TrainCarScene';
-import { FloatingFoodItems } from './3d/FloatingFoodItems';
-import { BrandElements } from './3d/BrandElements';
+import { OrbitControls, Environment } from '@react-three/drei';
 import { LoadingFallback } from './3d/LoadingFallback';
-import * as THREE from 'three';
+
+// Simple 3D Scene Component
+const Simple3DScene: React.FC = () => {
+  return (
+    <group>
+      {/* Simple rotating cube */}
+      <mesh position={[0, 0, 0]} castShadow>
+        <boxGeometry args={[2, 2, 2]} />
+        <meshPhongMaterial color="#FFD700" />
+      </mesh>
+      
+      {/* Simple lighting */}
+      <ambientLight intensity={0.5} />
+      <directionalLight position={[10, 10, 5]} intensity={1} castShadow />
+    </group>
+  );
+};
 
 const Canvas3DHeroSection: React.FC = () => {
-  const orbitRef = useRef<any>();
-
   return (
     <div className="relative w-full h-screen overflow-hidden bg-gradient-to-br from-background via-primary/5 to-accent/10">
       {/* 3D Canvas */}
       <Canvas
-        shadows
-        camera={{ position: [0, 2, 8], fov: 45 }}
-        gl={{ 
-          antialias: true, 
-          alpha: true,
-          powerPreference: "high-performance"
-        }}
+        camera={{ position: [0, 0, 5], fov: 45 }}
         className="absolute inset-0"
       >
         <Suspense fallback={null}>
-          {/* Camera Controls */}
-          <PerspectiveCamera makeDefault position={[0, 2, 8]} />
-          <OrbitControls
-            ref={orbitRef}
-            enablePan={false}
-            enableZoom={true}
-            minDistance={5}
-            maxDistance={20}
-            minPolarAngle={Math.PI / 6}
-            maxPolarAngle={Math.PI / 2}
-            autoRotate
-            autoRotateSpeed={0.3}
-            enableDamping
-            dampingFactor={0.1}
-          />
-
-          {/* Lighting Setup */}
-          <ambientLight intensity={0.4} color="#ffeaa7" />
-          <directionalLight
-            position={[10, 10, 5]}
-            intensity={1}
-            color="#fff"
-            castShadow
-            shadow-mapSize-width={2048}
-            shadow-mapSize-height={2048}
-          />
-          <pointLight position={[-10, -10, -5]} intensity={0.3} color="#fd79a8" />
-          
-          {/* Environment */}
+          <OrbitControls enablePan={false} enableZoom={true} autoRotate />
           <Environment preset="sunset" />
-          
-          {/* 3D Scene Components */}
-          <TrainCarScene />
-          <FloatingFoodItems />
-          <BrandElements />
+          <Simple3DScene />
         </Suspense>
       </Canvas>
 

@@ -30,15 +30,9 @@ export const BrandElements: React.FC = () => {
         color="#FFD700"
         anchorX="center"
         anchorY="middle"
-        font="/fonts/DancingScript-Bold.woff"
         castShadow
       >
         Soul Train's Eatery
-        <meshPhongMaterial 
-          color="#FFD700" 
-          emissive="#FFA500" 
-          emissiveIntensity={0.1}
-        />
       </Text>
 
       {/* Subtitle */}
@@ -52,7 +46,6 @@ export const BrandElements: React.FC = () => {
         maxWidth={10}
       >
         Charleston's Premier Catering Experience
-        <meshPhongMaterial color="#FFFFFF" />
       </Text>
 
       {/* Decorative Rails */}
