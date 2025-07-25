@@ -44,7 +44,7 @@ export const Header = () => {
       </SkipToContent>
       
       <header className={cn("bg-gradient-to-br from-background via-muted/20 to-background backdrop-blur-md border-b border-border/20 sticky top-0 z-50 transition-all duration-300", "neumorphic-card-3", isScrolled && "shadow-elegant")}>
-        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 my-0 py-0">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 my-0 py-[9px]">
           <div className="flex justify-between items-center py-1 sm:py-2">
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-3 hover:scale-105 transition-transform duration-300 focus-visible-enhanced" aria-label="Soul Train's Eatery - Home">
