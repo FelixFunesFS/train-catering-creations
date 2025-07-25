@@ -63,9 +63,7 @@ export const SplitScreenHero = () => {
 
               {/* Main Heading */}
               <div className="mb-4 md:mb-9 lg:mb-10">
-                <h1 className="text-3xl sm:text-4xl md:text-4xl lg:text-5xl xl:text-6xl font-elegant font-bold text-foreground leading-tight mb-4">
-                  Wedding Reception
-                </h1>
+                <h1 className="text-3xl sm:text-4xl md:text-4xl lg:text-5xl xl:text-6xl font-elegant font-bold text-foreground leading-tight mb-4">Charleston's Proemier Catering Services</h1>
                 <div className="w-16 md:w-20 lg:w-24 h-1 bg-gradient-to-r from-primary via-primary-light to-primary mx-auto md:mx-0 mb-4 rounded-full" />
                 {/* Desktop Subtext */}
                 <p className="hidden md:block text-lg sm:text-xl md:text-xl lg:text-2xl text-muted-foreground font-elegant leading-relaxed">
