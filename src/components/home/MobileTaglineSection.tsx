@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Heart, Star, Sparkles } from "lucide-react";
+import { OptimizedImage } from "@/components/ui/optimized-image";
 export const MobileTaglineSection = () => {
   return <section className="block md:hidden bg-gradient-to-b from-muted/30 via-background to-muted/30 py-[30px]">
       <div className="max-w-7xl mx-auto px-6">
@@ -31,6 +32,24 @@ export const MobileTaglineSection = () => {
             {/* Decorative Divider */}
             <div className="flex justify-center mb-6">
               <div className="w-20 h-0.5 bg-gradient-to-r from-transparent via-primary to-transparent rounded-full" />
+            </div>
+            
+            {/* Catering Gallery Images */}
+            <div className="space-y-4 mb-6">
+              <OptimizedImage
+                src="/lovable-uploads/40cb2280-5e07-4433-a4cd-dd8df5c5e472.png"
+                alt="Elegant catering setup with multiple dining tables featuring gourmet presentations and beautiful floral arrangements"
+                aspectRatio="aspect-video"
+                className="rounded-lg shadow-md"
+                priority={true}
+              />
+              <OptimizedImage
+                src="/lovable-uploads/f7202415-b63d-4ded-8a1d-4dd6b8af7def.png"
+                alt="Wedding dessert display featuring tiered cake, artisanal treats, and sophisticated presentation"
+                aspectRatio="aspect-video"
+                className="rounded-lg shadow-md"
+                priority={true}
+              />
             </div>
             
             {/* Call-to-Action Button */}
