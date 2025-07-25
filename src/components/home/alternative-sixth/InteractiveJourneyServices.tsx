@@ -57,11 +57,11 @@ export const InteractiveJourneyServices = () => {
           <div className="text-center max-w-4xl mx-auto">
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-elegant font-bold mb-6">
               <span className="bg-gradient-ruby-primary bg-clip-text text-transparent">
-                Start Your Culinary Journey
+                Premium Catering
               </span>
               <br />
               <span className="text-2xl md:text-3xl font-script text-ruby-600">
-                Today
+                Services
               </span>
             </h2>
             <p className="text-lg md:text-xl text-muted-foreground">
@@ -130,7 +130,7 @@ export const InteractiveJourneyServices = () => {
           {/* Journey Steps */}
           <div className="max-w-6xl mx-auto">
             <h3 className="text-2xl md:text-3xl font-elegant font-bold text-center mb-12">
-              Your Culinary Journey in <span className="font-script text-ruby-600">3 Simple Steps</span>
+              How We Work <span className="font-script text-ruby-600">3 Simple Steps</span>
             </h3>
             
             <div className="grid md:grid-cols-3 gap-8">
@@ -173,7 +173,7 @@ export const InteractiveJourneyServices = () => {
               className="px-12 py-4 text-lg min-h-[44px]"
               aria-label="Contact Soul Train's Eatery to start planning your event"
             >
-              Start Your Culinary Journey Today
+              Get Your Quote Today
             </NeumorphicButton>
           </div>
         </div>

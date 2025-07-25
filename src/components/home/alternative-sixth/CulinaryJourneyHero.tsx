@@ -78,7 +78,7 @@ export const CulinaryJourneyHero = () => {
                 </span>
               </h1>
               <p className="text-2xl md:text-3xl lg:text-4xl font-script text-ruby-600 mb-6">
-                Your Culinary Journey Awaits
+                Charleston's Premier Catering
               </p>
             </div>
             
@@ -107,7 +107,7 @@ export const CulinaryJourneyHero = () => {
 
           {/* Interactive Timeline */}
           <div className={`mb-12 ${isVisible ? 'fade-up-visible' : 'fade-up-hidden'}`} style={{ animationDelay: '600ms' }}>
-            <h3 className="text-xl font-elegant font-semibold text-center mb-8">Our Culinary Journey</h3>
+            <h3 className="text-xl font-elegant font-semibold text-center mb-8">Our Heritage</h3>
             <div className="max-w-4xl mx-auto">
               <div className="flex justify-center items-center gap-4 mb-6" role="tablist" aria-label="Timeline milestones">
                 {milestones.map((milestone, index) => (
@@ -159,7 +159,7 @@ export const CulinaryJourneyHero = () => {
               className="px-8 py-4 min-h-[44px]"
               aria-label="Start planning your culinary event with Soul Train's Eatery"
             >
-              Begin Your Journey
+              Get Started Today
             </NeumorphicButton>
             <NeumorphicButton 
               variant="outline" 

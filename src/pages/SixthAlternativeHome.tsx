@@ -1,7 +1,7 @@
 import { CulinaryJourneyHero } from "@/components/home/alternative-sixth/CulinaryJourneyHero";
 import { InteractiveJourneyServices } from "@/components/home/alternative-sixth/InteractiveJourneyServices";
 import { JourneyGalleryFusion } from "@/components/home/alternative-sixth/JourneyGalleryFusion";
-import { CulinaryJourneyBooking } from "@/components/home/alternative-sixth/CulinaryJourneyBooking";
+import { CulinaryJourneyStarter } from "@/components/home/alternative-sixth/CulinaryJourneyStarter";
 import { JourneyFooter } from "@/components/home/alternative-sixth/JourneyFooter";
 
 export default function SixthAlternativeHome() {
@@ -10,7 +10,7 @@ export default function SixthAlternativeHome() {
       <CulinaryJourneyHero />
       <InteractiveJourneyServices />
       <JourneyGalleryFusion />
-      <CulinaryJourneyBooking />
+      <CulinaryJourneyStarter />
       <JourneyFooter />
     </div>
   );

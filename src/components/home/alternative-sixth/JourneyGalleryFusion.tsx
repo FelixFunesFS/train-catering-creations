@@ -18,7 +18,7 @@ export const JourneyGalleryFusion = () => {
   });
 
   const categories = [
-    { value: "all", label: "All Journeys", icon: Heart },
+    { value: "all", label: "All Events", icon: Heart },
     { value: "wedding", label: "Weddings", icon: Heart },
     { value: "corporate", label: "Corporate", icon: Users },
     { value: "buffet", label: "Buffet Service", icon: Calendar },
@@ -63,7 +63,7 @@ export const JourneyGalleryFusion = () => {
               Curated Gallery of
               <br />
               <span className="font-script text-ruby-600 text-2xl md:text-3xl">
-                Culinary Experiences
+                Event Excellence
               </span>
             </h2>
             <p className="text-lg md:text-xl text-muted-foreground">
