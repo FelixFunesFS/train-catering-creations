@@ -16,6 +16,7 @@ import RegularEventQuote from "./pages/RegularEventQuote";
 import WeddingEventQuote from "./pages/WeddingEventQuote";
 import Reviews from "./pages/Reviews";
 import PhotoGallery from "./pages/PhotoGallery";
+import AlternativeGallery from "./pages/AlternativeGallery";
 import FAQ from "./pages/FAQ";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsConditions from "./pages/TermsConditions";
@@ -35,6 +36,7 @@ const AppContent = () => {
           <Route path="/request-quote/wedding" element={<WeddingEventQuote />} />
           <Route path="/reviews" element={<Reviews />} />
           <Route path="/gallery" element={<PhotoGallery />} />
+          <Route path="/gallery-alt" element={<AlternativeGallery />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-conditions" element={<TermsConditions />} />
