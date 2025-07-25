@@ -77,7 +77,7 @@ export const ModernFooterSection = () => {
           <div className="space-y-6">
             
             {/* Company Info */}
-            <NeumorphicCard level={1} className="p-6 !bg-navy-dark/40 border border-white/20 text-white">
+            <NeumorphicCard level={1} className="p-6 bg-navy-light/20 border border-white/10">
               <div className="text-center mb-6">
                 <div className="h-12 w-12 mx-auto mb-4">
                   <img 
@@ -86,8 +86,8 @@ export const ModernFooterSection = () => {
                     className="w-full h-full object-contain filter brightness-0 invert" 
                   />
                 </div>
-                <h3 className="text-xl font-elegant font-bold mb-2 text-white">Soul Train's Eatery</h3>
-                <p className="text-sm text-white/80 leading-relaxed">
+                <h3 className="text-xl font-elegant font-bold mb-2">Soul Train's Eatery</h3>
+                <p className="text-sm text-navy-foreground/80 leading-relaxed">
                   Charleston's premier catering service, bringing Southern hospitality 
                   and culinary excellence to your special occasions.
                 </p>
@@ -97,23 +97,23 @@ export const ModernFooterSection = () => {
               <div className="space-y-3 mb-6">
                 <div className="flex items-center gap-3">
                   <MapPin className="h-4 w-4 text-primary" />
-                  <span className="text-sm text-white">{contactInfo.address}</span>
+                  <span className="text-sm">{contactInfo.address}</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <Phone className="h-4 w-4 text-primary" />
-                  <a href={`tel:${contactInfo.phone}`} className="text-sm text-white hover:text-primary transition-colors">
+                  <a href={`tel:${contactInfo.phone}`} className="text-sm hover:text-primary transition-colors">
                     {contactInfo.phone}
                   </a>
                 </div>
                 <div className="flex items-center gap-3">
                   <Mail className="h-4 w-4 text-primary" />
-                  <a href={`mailto:${contactInfo.email}`} className="text-sm text-white hover:text-primary transition-colors">
+                  <a href={`mailto:${contactInfo.email}`} className="text-sm hover:text-primary transition-colors">
                     {contactInfo.email}
                   </a>
                 </div>
                 <div className="flex items-center gap-3">
                   <Clock className="h-4 w-4 text-primary" />
-                  <span className="text-sm text-white">{contactInfo.hours}</span>
+                  <span className="text-sm">{contactInfo.hours}</span>
                 </div>
               </div>
 
@@ -126,7 +126,7 @@ export const ModernFooterSection = () => {
                     className="p-2 bg-white/10 rounded-lg hover:bg-primary hover:scale-110 transition-all duration-200"
                     aria-label={social.label}
                   >
-                    <social.icon className="h-4 w-4 text-white" />
+                    <social.icon className="h-4 w-4" />
                   </a>
                 ))}
               </div>
@@ -134,17 +134,17 @@ export const ModernFooterSection = () => {
 
             {/* Collapsible Sections */}
             {footerSections.map((section) => (
-              <NeumorphicCard key={section.id} level={1} className="overflow-hidden !bg-navy-dark/40 border border-white/20 text-white">
+              <NeumorphicCard key={section.id} level={1} className="overflow-hidden bg-navy-light/20 border border-white/10">
                 <button
                   onClick={() => toggleSection(section.id)}
-                  className="w-full p-4 flex items-center justify-between text-left text-white"
+                  className="w-full p-4 flex items-center justify-between text-left"
                   aria-expanded={expandedSection === section.id}
                 >
-                  <h4 className="font-semibold text-white">{section.title}</h4>
+                  <h4 className="font-semibold">{section.title}</h4>
                   {expandedSection === section.id ? (
-                    <ChevronUp className="h-4 w-4 text-white" />
+                    <ChevronUp className="h-4 w-4" />
                   ) : (
-                    <ChevronDown className="h-4 w-4 text-white" />
+                    <ChevronDown className="h-4 w-4" />
                   )}
                 </button>
                 
@@ -154,7 +154,7 @@ export const ModernFooterSection = () => {
                       <Link
                         key={index}
                         to={link.href}
-                        className="block text-sm text-white/80 hover:text-primary transition-colors py-1"
+                        className="block text-sm text-navy-foreground/80 hover:text-primary transition-colors py-1"
                       >
                         {link.label}
                       </Link>
