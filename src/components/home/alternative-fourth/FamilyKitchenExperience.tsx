@@ -5,8 +5,7 @@ import { ResponsiveWrapper } from "@/components/ui/responsive-wrapper";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useStaggeredAnimation } from "@/hooks/useStaggeredAnimation";
 import { ChefHat, Heart, Clock, Award, Users, Utensils } from "lucide-react";
-import chefKitchenHeritage from "@/assets/chef-kitchen-heritage.jpg";
-import southernFamilyFeast from "@/assets/southern-family-feast.jpg";
+// Using existing uploaded images for kitchen and feast scenes
 
 export const FamilyKitchenExperience = () => {
   const { ref: titleRef, isVisible: titleVisible } = useScrollAnimation({
@@ -103,7 +102,7 @@ export const FamilyKitchenExperience = () => {
           <SectionContentCard>
             <div className="aspect-[4/3] mb-6 overflow-hidden rounded-lg">
               <OptimizedImage
-                src={chefKitchenHeritage}
+                src="/lovable-uploads/e61537fa-d421-490b-932f-402236a093aa.png"
                 alt="Chef Dominick Train Ward in the kitchen preparing traditional Lowcountry cuisine"
                 containerClassName="w-full h-full"
                 className="object-cover"
@@ -154,7 +153,7 @@ export const FamilyKitchenExperience = () => {
           <SectionContentCard>
             <div className="aspect-[4/3] mb-6 overflow-hidden rounded-lg">
               <OptimizedImage
-                src={southernFamilyFeast}
+                src="/lovable-uploads/1cd54e2e-3991-4795-ad2a-6e8c18fb530f.png"
                 alt="Pastry Chef Tanya Ward's beautiful Southern desserts and pastries"
                 containerClassName="w-full h-full"
                 className="object-cover"
@@ -307,7 +306,7 @@ export const FamilyKitchenExperience = () => {
             
             <div className="aspect-square overflow-hidden rounded-lg">
               <OptimizedImage
-                src={southernFamilyFeast}
+                src="/lovable-uploads/84f43173-e79d-4c53-b5d4-e8a596d1d614.png"
                 alt={`${familyRecipes[activeRecipe].name} - traditional Southern family recipe`}
                 containerClassName="w-full h-full"
                 className="object-cover"

@@ -5,7 +5,7 @@ import { ResponsiveWrapper } from "@/components/ui/responsive-wrapper";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useStaggeredAnimation } from "@/hooks/useStaggeredAnimation";
 import { MapPin, Star, Calendar, Users } from "lucide-react";
-import charlestonPlantationVenue from "@/assets/charleston-plantation-venue.jpg";
+// Using existing uploaded images for Charleston venues
 
 export const LowcountryLocationShowcase = () => {
   const { ref: titleRef, isVisible: titleVisible } = useScrollAnimation({
@@ -29,7 +29,7 @@ export const LowcountryLocationShowcase = () => {
       events: "45+ events",
       rating: 5.0,
       specialties: ["Historic Weddings", "Corporate Events", "Family Celebrations"],
-      image: charlestonPlantationVenue
+      image: "/lovable-uploads/894051bf-31c6-4930-bb88-e3e1d74f7ee1.png"
     },
     {
       name: "Lowcountry Plantation Estates",
@@ -38,7 +38,7 @@ export const LowcountryLocationShowcase = () => {
       events: "30+ events",
       rating: 5.0,
       specialties: ["Wedding Receptions", "Anniversary Celebrations", "Estate Events"],
-      image: charlestonPlantationVenue
+      image: "/lovable-uploads/26d2d500-6017-41a2-99b2-b7050cefedba.png"
     },
     {
       name: "Charleston Harbor Waterfront",
@@ -47,7 +47,7 @@ export const LowcountryLocationShowcase = () => {
       events: "25+ events",
       rating: 4.9,
       specialties: ["Seafood Events", "Corporate Retreats", "Sunset Dinners"],
-      image: charlestonPlantationVenue
+      image: "/lovable-uploads/84f43173-e79d-4c53-b5d4-e8a596d1d614.png"
     },
     {
       name: "Historic Downtown Mansions",
@@ -56,7 +56,7 @@ export const LowcountryLocationShowcase = () => {
       events: "35+ events",
       rating: 5.0,
       specialties: ["Garden Parties", "Intimate Weddings", "Historic Tours"],
-      image: charlestonPlantationVenue
+      image: "/lovable-uploads/eca9632d-b79e-4584-8287-00cc36515fc6.png"
     },
     {
       name: "Charleston Country Clubs",
@@ -65,7 +65,7 @@ export const LowcountryLocationShowcase = () => {
       events: "20+ events",
       rating: 4.8,
       specialties: ["Golf Tournaments", "Member Events", "Business Dinners"],
-      image: charlestonPlantationVenue
+      image: "/lovable-uploads/e61537fa-d421-490b-932f-402236a093aa.png"
     },
     {
       name: "Folly Beach Oceanfront",
@@ -74,7 +74,7 @@ export const LowcountryLocationShowcase = () => {
       events: "15+ events",
       rating: 4.9,
       specialties: ["Beach Weddings", "Seafood Festivals", "Sunset Events"],
-      image: charlestonPlantationVenue
+      image: "/lovable-uploads/1cd54e2e-3991-4795-ad2a-6e8c18fb530f.png"
     }
   ];
 

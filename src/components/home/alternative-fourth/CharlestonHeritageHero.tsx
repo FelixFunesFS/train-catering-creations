@@ -4,7 +4,7 @@ import { OptimizedImage } from "@/components/ui/optimized-image";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { ResponsiveWrapper } from "@/components/ui/responsive-wrapper";
 import { Heart, MapPin, Users, Clock } from "lucide-react";
-import charlestonRainbowRow from "@/assets/charleston-rainbow-row.jpg";
+// Using existing uploaded image for Charleston heritage background
 
 export const CharlestonHeritageHero = () => {
   const { ref, isVisible } = useScrollAnimation({
@@ -49,7 +49,7 @@ export const CharlestonHeritageHero = () => {
       {/* Charleston Background */}
       <div className="absolute inset-0">
         <OptimizedImage
-          src={charlestonRainbowRow}
+          src="/lovable-uploads/26d2d500-6017-41a2-99b2-b7050cefedba.png"
           alt="Historic Charleston Rainbow Row with cobblestone streets"
           containerClassName="w-full h-full"
           className="object-cover"
