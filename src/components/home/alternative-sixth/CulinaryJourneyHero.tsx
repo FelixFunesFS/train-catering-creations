@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { NeumorphicButton } from "@/components/ui/neumorphic-button";
 import { ResponsiveWrapper } from "@/components/ui/responsive-wrapper";
+import { OptimizedImage } from "@/components/ui/optimized-image";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { Heart, ChevronDown, Star, Users, Award, Calendar } from "lucide-react";
 
@@ -35,10 +36,18 @@ export const CulinaryJourneyHero = () => {
 
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-background via-background/95 to-ruby-50/20 overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,hsl(var(--ruby-500))_0%,transparent_50%)]" />
+      {/* Hero Background Image */}
+      <div className="absolute inset-0 opacity-10">
+        <OptimizedImage 
+          src="/lovable-uploads/26d2d500-6017-41a2-99b2-b7050cefedba.png"
+          alt="Elegant wedding reception setup showcasing Soul Train's Eatery catering expertise"
+          className="w-full h-full object-cover"
+          containerClassName="w-full h-full"
+        />
       </div>
+      
+      {/* Background Pattern */}
+      <div className="absolute inset-0 opacity-5 bg-[radial-gradient(circle_at_50%_50%,hsl(var(--ruby-500))_0%,transparent_50%)]" />
 
       <ResponsiveWrapper hasFullWidthCard>
         <div ref={ref} className="relative z-10 pt-8 pb-16">
@@ -52,20 +61,30 @@ export const CulinaryJourneyHero = () => {
 
           {/* Logo & Main Title */}
           <div className={`text-center mb-12 ${isVisible ? 'fade-up-visible' : 'fade-up-hidden'}`} style={{ animationDelay: '200ms' }}>
-            <div className="mb-6">
+            <div className="mb-6 flex flex-col items-center">
+              {/* Logo */}
+              <div className="mb-6 w-16 h-16 md:w-20 md:h-20">
+                <OptimizedImage 
+                  src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png"
+                  alt="Soul Train's Eatery Official Logo - Charleston Heritage Catering"
+                  className="w-full h-full object-contain hover:scale-110 transition-transform duration-300"
+                  aspectRatio="aspect-square"
+                />
+              </div>
+              
               <h1 className="text-4xl md:text-6xl lg:text-7xl font-elegant font-bold mb-4">
                 <span className="bg-gradient-ruby-primary bg-clip-text text-transparent">
                   Soul Train's Eatery
                 </span>
               </h1>
               <p className="text-2xl md:text-3xl lg:text-4xl font-script text-ruby-600 mb-6">
-                Start Your Culinary Journey Today
+                Your Culinary Journey Awaits
               </p>
             </div>
             
             <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              From our Charleston roots to your special moments, we craft unforgettable culinary experiences 
-              that celebrate heritage, flavor, and the joy of bringing people together.
+              Creating unforgettable culinary experiences in Charleston and the Lowcountry since 1999. 
+              Let us bring exceptional taste and heartfelt service to your next celebration.
             </p>
           </div>
 
@@ -90,12 +109,23 @@ export const CulinaryJourneyHero = () => {
           <div className={`mb-12 ${isVisible ? 'fade-up-visible' : 'fade-up-hidden'}`} style={{ animationDelay: '600ms' }}>
             <h3 className="text-xl font-elegant font-semibold text-center mb-8">Our Culinary Journey</h3>
             <div className="max-w-4xl mx-auto">
-              <div className="flex justify-center items-center gap-4 mb-6">
-                {milestones.map((_, index) => (
+              <div className="flex justify-center items-center gap-4 mb-6" role="tablist" aria-label="Timeline milestones">
+                {milestones.map((milestone, index) => (
                   <button
                     key={index}
                     onClick={() => setCurrentMilestone(index)}
-                    className={`w-4 h-4 rounded-full transition-all duration-300 ${
+                    onKeyDown={(e) => {
+                      if (e.key === 'ArrowLeft' && index > 0) {
+                        setCurrentMilestone(index - 1);
+                      } else if (e.key === 'ArrowRight' && index < milestones.length - 1) {
+                        setCurrentMilestone(index + 1);
+                      }
+                    }}
+                    role="tab"
+                    aria-selected={index === currentMilestone}
+                    aria-controls={`milestone-${index}`}
+                    aria-label={`${milestone.year} - ${milestone.title}`}
+                    className={`w-6 h-6 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-ruby-500 focus:ring-offset-2 ${
                       index === currentMilestone 
                         ? 'bg-gradient-ruby-primary scale-125' 
                         : 'bg-muted-foreground/30 hover:bg-ruby-300'
@@ -103,7 +133,12 @@ export const CulinaryJourneyHero = () => {
                   />
                 ))}
               </div>
-              <div className="text-center bg-background/80 backdrop-blur-sm rounded-xl p-6 border border-ruby-200/20">
+              <div 
+                className="text-center bg-background/80 backdrop-blur-sm rounded-xl p-6 border border-ruby-200/20"
+                role="tabpanel"
+                id={`milestone-${currentMilestone}`}
+                aria-live="polite"
+              >
                 <div className="text-2xl font-elegant font-bold text-ruby-600 mb-2">
                   {milestones[currentMilestone].year}
                 </div>
@@ -119,10 +154,19 @@ export const CulinaryJourneyHero = () => {
 
           {/* CTA Buttons */}
           <div className={`flex flex-col sm:flex-row gap-4 justify-center ${isVisible ? 'fade-up-visible' : 'fade-up-hidden'}`} style={{ animationDelay: '800ms' }}>
-            <NeumorphicButton size="lg" className="px-8 py-4">
+            <NeumorphicButton 
+              size="lg" 
+              className="px-8 py-4 min-h-[44px]"
+              aria-label="Start planning your culinary event with Soul Train's Eatery"
+            >
               Begin Your Journey
             </NeumorphicButton>
-            <NeumorphicButton variant="outline" size="lg" className="px-8 py-4">
+            <NeumorphicButton 
+              variant="outline" 
+              size="lg" 
+              className="px-8 py-4 min-h-[44px]"
+              aria-label="Learn more about our Charleston heritage and story"
+            >
               Explore Our Story
             </NeumorphicButton>
           </div>

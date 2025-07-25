@@ -114,9 +114,10 @@ export const InteractiveJourneyServices = () => {
 
                   {/* Service CTA */}
                   <div className="pt-4">
-                    <NeumorphicButton 
+                     <NeumorphicButton 
                       variant="outline" 
-                      className="w-full"
+                      className="w-full min-h-[44px]"
+                      aria-label={`Learn more about ${service.title} catering services`}
                     >
                       Explore {service.title}
                     </NeumorphicButton>
@@ -167,7 +168,11 @@ export const InteractiveJourneyServices = () => {
 
           {/* Main CTA */}
           <div className="text-center">
-            <NeumorphicButton size="lg" className="px-12 py-4 text-lg">
+            <NeumorphicButton 
+              size="lg" 
+              className="px-12 py-4 text-lg min-h-[44px]"
+              aria-label="Contact Soul Train's Eatery to start planning your event"
+            >
               Start Your Culinary Journey Today
             </NeumorphicButton>
           </div>

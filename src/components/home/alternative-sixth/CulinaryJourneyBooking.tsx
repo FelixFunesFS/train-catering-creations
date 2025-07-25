@@ -168,7 +168,10 @@ export const CulinaryJourneyBooking = () => {
                       </div>
                     </div>
                     
-                    <NeumorphicButton className="w-full">
+                    <NeumorphicButton 
+                      className="w-full min-h-[44px]"
+                      aria-label={`Get started with ${option.title} catering services`}
+                    >
                       Get Started
                     </NeumorphicButton>
                   </div>
@@ -197,7 +200,11 @@ export const CulinaryJourneyBooking = () => {
                 </div>
                 
                 <div className="pt-6">
-                  <NeumorphicButton size="lg" className="px-12 py-4 text-lg">
+                  <NeumorphicButton 
+                    size="lg" 
+                    className="px-12 py-4 text-lg min-h-[44px]"
+                    aria-label="Contact Soul Train's Eatery for a free consultation"
+                  >
                     Start Your Culinary Journey Now
                   </NeumorphicButton>
                   <p className="text-sm text-muted-foreground mt-4">

@@ -130,7 +130,10 @@ export const JourneyFooter = () => {
                 Get the latest updates on our culinary journeys and special offers.
               </p>
               <div className="space-y-3">
-                <NeumorphicButton className="w-full">
+                <NeumorphicButton 
+                  className="w-full min-h-[44px]"
+                  aria-label="Subscribe to Soul Train's Eatery newsletter for updates and offers"
+                >
                   Join Our Journey
                 </NeumorphicButton>
                 <div className="flex gap-3">

@@ -1,97 +1,56 @@
 import { useState } from "react";
+import { NeumorphicButton } from "@/components/ui/neumorphic-button";
 import { ResponsiveWrapper } from "@/components/ui/responsive-wrapper";
 import { SectionContentCard } from "@/components/ui/section-content-card";
-import { NeumorphicButton } from "@/components/ui/neumorphic-button";
+import { OptimizedImage } from "@/components/ui/optimized-image";
 import { useStaggeredAnimation } from "@/hooks/useStaggeredAnimation";
-import { Heart, Users, Star, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Eye, Star, Users, Calendar, Award, Heart } from "lucide-react";
+import { galleryImages } from "@/data/galleryImages";
 
 export const JourneyGalleryFusion = () => {
   const [activeCategory, setActiveCategory] = useState("all");
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const { ref, getItemClassName } = useStaggeredAnimation({
-    itemCount: 8,
+    itemCount: 12,
     staggerDelay: 100,
     variant: "scale-fade"
   });
 
   const categories = [
-    { id: "all", label: "All Journeys", icon: Heart },
-    { id: "wedding", label: "Weddings", icon: Heart },
-    { id: "corporate", label: "Corporate", icon: Users },
-    { id: "special", label: "Special Events", icon: Star },
-    { id: "catering", label: "Catering", icon: Calendar }
+    { value: "all", label: "All Journeys", icon: Heart },
+    { value: "wedding", label: "Weddings", icon: Heart },
+    { value: "corporate", label: "Corporate", icon: Users },
+    { value: "buffet", label: "Buffet Service", icon: Calendar },
+    { value: "formal", label: "Formal Events", icon: Star }
   ];
 
-  const galleryItems = [
-    {
-      id: 1,
-      title: "Elegant Wedding Reception",
-      category: "wedding",
-      image: "/placeholder.svg",
-      description: "A magical Charleston wedding celebration with Southern charm"
-    },
-    {
-      id: 2,
-      title: "Corporate Excellence", 
-      category: "corporate",
-      image: "/placeholder.svg",
-      description: "Professional catering that impresses and delights"
-    },
-    {
-      id: 3,
-      title: "Birthday Celebration",
-      category: "special", 
-      image: "/placeholder.svg",
-      description: "Milestone moments made memorable with exceptional cuisine"
-    },
-    {
-      id: 4,
-      title: "Gourmet Catering Setup",
-      category: "catering",
-      image: "/placeholder.svg", 
-      description: "Beautifully presented dishes ready to serve"
-    },
-    {
-      id: 5,
-      title: "Anniversary Dinner",
-      category: "special",
-      image: "/placeholder.svg",
-      description: "Intimate celebrations with personalized touches"
-    },
-    {
-      id: 6,
-      title: "Business Lunch",
-      category: "corporate",
-      image: "/placeholder.svg", 
-      description: "Sophisticated dining for professional occasions"
-    },
-    {
-      id: 7,
-      title: "Garden Wedding",
-      category: "wedding",
-      image: "/placeholder.svg",
-      description: "Outdoor elegance with Southern hospitality"
-    },
-    {
-      id: 8,
-      title: "Holiday Feast",
-      category: "special",
-      image: "/placeholder.svg",
-      description: "Seasonal celebrations with traditional flavors"
-    }
-  ];
+  // Get high-quality images from our gallery
+  const galleryItems = galleryImages
+    .filter(img => img.quality >= 7) // Only show high-quality images
+    .slice(0, 12) // Limit to 12 items for performance
+    .map(img => ({
+      category: img.category,
+      title: img.title,
+      description: img.description,
+      image: img.src,
+      featured: img.quality >= 8
+    }));
 
   const filteredItems = activeCategory === "all" 
     ? galleryItems 
     : galleryItems.filter(item => item.category === activeCategory);
 
   const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % Math.max(1, filteredItems.length - 2));
+    if (currentSlide < filteredItems.length - 1) {
+      setCurrentSlide(prev => prev + 1);
+    }
   };
 
   const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + Math.max(1, filteredItems.length - 2)) % Math.max(1, filteredItems.length - 2));
+    if (currentSlide > 0) {
+      setCurrentSlide(prev => prev - 1);
+    }
   };
 
   return (
@@ -101,28 +60,31 @@ export const JourneyGalleryFusion = () => {
           {/* Section Header */}
           <div className="text-center max-w-4xl mx-auto">
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-elegant font-bold mb-6">
-              Culinary Journey
+              Curated Gallery of
               <br />
               <span className="font-script text-ruby-600 text-2xl md:text-3xl">
-                Gallery & Experiences
+                Culinary Experiences
               </span>
             </h2>
             <p className="text-lg md:text-xl text-muted-foreground">
-              Discover the moments that make each celebration special, from intimate gatherings to grand occasions.
+              Explore the moments that make each celebration special, from intimate gatherings to grand occasions showcasing Soul Train's Eatery's heritage and expertise.
             </p>
           </div>
 
-          {/* Category Filter */}
-          <div className="flex flex-wrap justify-center gap-4">
-            {categories.map((category, index) => (
+          {/* Category Filter Buttons */}
+          <div className="flex flex-wrap justify-center gap-3 mb-8" role="tablist" aria-label="Gallery categories">
+            {categories.map((category) => (
               <NeumorphicButton
-                key={category.id}
-                variant={activeCategory === category.id ? "primary" : "outline"}
+                key={category.value}
+                variant={activeCategory === category.value ? "primary" : "outline"}
                 onClick={() => {
-                  setActiveCategory(category.id);
+                  setActiveCategory(category.value);
                   setCurrentSlide(0);
                 }}
-                className="flex items-center gap-2"
+                role="tab"
+                aria-selected={activeCategory === category.value}
+                aria-controls="gallery-content"
+                className="px-6 py-2 min-h-[44px] flex items-center gap-2"
               >
                 <category.icon className="w-4 h-4" />
                 {category.label}
@@ -133,107 +95,132 @@ export const JourneyGalleryFusion = () => {
           {/* Mobile Carousel */}
           <div className="block md:hidden">
             <div className="relative">
-              <div className="flex items-center justify-between mb-4">
-                <NeumorphicButton
-                  variant="outline"
-                  size="icon"
-                  onClick={prevSlide}
-                  disabled={filteredItems.length <= 1}
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                </NeumorphicButton>
-                
-                <span className="text-sm text-muted-foreground">
-                  {currentSlide + 1} / {Math.max(1, filteredItems.length)}
-                </span>
-                
-                <NeumorphicButton
-                  variant="outline"
-                  size="icon"
-                  onClick={nextSlide}
-                  disabled={filteredItems.length <= 1}
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </NeumorphicButton>
-              </div>
-              
               <div className="overflow-hidden">
                 <div 
-                  className="flex transition-transform duration-500 ease-in-out"
-                  style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+                  className="flex transition-transform duration-300 ease-in-out"
+                  style={{ transform: `translateX(-${Math.min(currentSlide, Math.max(0, filteredItems.length - 1)) * 100}%)` }}
                 >
                   {filteredItems.map((item, index) => (
-                    <div key={item.id} className="w-full flex-shrink-0 px-2">
-                      <SectionContentCard level={1} className="h-full">
-                        <div className="aspect-video bg-gradient-ruby-subtle rounded-lg mb-4 flex items-center justify-center">
-                          <span className="text-white font-script text-xl">
-                            {item.title}
-                          </span>
+                    <div key={index} className="w-full flex-shrink-0">
+                      <SectionContentCard level={1} className="mx-2 h-full">
+                        <div className="space-y-4">
+                          <div className="aspect-video rounded-lg overflow-hidden">
+                            <OptimizedImage 
+                              src={item.image}
+                              alt={item.title}
+                              className="w-full h-full object-cover"
+                              containerClassName="w-full h-full"
+                            />
+                          </div>
+                          <div>
+                            <h3 className="font-elegant font-semibold mb-2">
+                              {item.title}
+                            </h3>
+                            <p className="text-sm text-muted-foreground">
+                              {item.description}
+                            </p>
+                          </div>
                         </div>
-                        <h3 className="font-elegant font-semibold mb-2">
-                          {item.title}
-                        </h3>
-                        <p className="text-sm text-muted-foreground">
-                          {item.description}
-                        </p>
                       </SectionContentCard>
                     </div>
                   ))}
                 </div>
               </div>
+              
+              <button
+                onClick={prevSlide}
+                disabled={currentSlide === 0}
+                aria-label="Previous gallery image"
+                className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm rounded-full p-3 shadow-lg hover:bg-white transition-all disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] min-w-[44px] focus:outline-none focus:ring-2 focus:ring-ruby-500"
+              >
+                <ChevronLeft className="w-5 h-5 text-ruby-600" />
+              </button>
+              <button
+                onClick={nextSlide}
+                disabled={currentSlide >= filteredItems.length - 1}
+                aria-label="Next gallery image"
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm rounded-full p-3 shadow-lg hover:bg-white transition-all disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] min-w-[44px] focus:outline-none focus:ring-2 focus:ring-ruby-500"
+              >
+                <ChevronRight className="w-5 h-5 text-ruby-600" />
+              </button>
+              
+              {/* Slide Indicators */}
+              <div className="flex justify-center mt-4 gap-2" role="tablist" aria-label="Gallery slides">
+                {filteredItems.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentSlide(index)}
+                    role="tab"
+                    aria-selected={index === currentSlide}
+                    aria-label={`Go to slide ${index + 1}`}
+                    className={`w-3 h-3 rounded-full transition-all focus:outline-none focus:ring-2 focus:ring-ruby-500 focus:ring-offset-1 ${
+                      index === currentSlide ? 'bg-ruby-500' : 'bg-ruby-200'
+                    }`}
+                  />
+                ))}
+              </div>
             </div>
           </div>
 
           {/* Desktop Grid */}
-          <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div 
+            className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12" 
+            id="gallery-content"
+            role="tabpanel"
+            aria-live="polite"
+          >
             {filteredItems.map((item, index) => (
-              <SectionContentCard
-                key={item.id}
-                level={1}
-                interactive
-                className={`${getItemClassName(index)} group cursor-pointer hover:scale-105 transition-all duration-300`}
+              <div
+                key={index}
+                className={`${getItemClassName(index)} group cursor-pointer`}
+                style={{ animationDelay: `${index * 100}ms` }}
               >
-                <div className="space-y-4">
-                  <div className="aspect-video bg-gradient-ruby-subtle rounded-lg flex items-center justify-center overflow-hidden">
-                    <span className="text-white font-script text-lg group-hover:scale-110 transition-transform duration-300">
-                      {item.title}
-                    </span>
+                <SectionContentCard level={1} interactive className="h-full hover:scale-105 transition-all duration-300">
+                  <div className="space-y-4">
+                    <div className="aspect-video rounded-lg overflow-hidden">
+                      <OptimizedImage 
+                        src={item.image}
+                        alt={item.title}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                        containerClassName="w-full h-full"
+                      />
+                    </div>
+                    <div>
+                      <h3 className="font-elegant font-semibold mb-2 group-hover:text-ruby-600 transition-colors">
+                        {item.title}
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        {item.description}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-elegant font-semibold mb-2 group-hover:text-ruby-600 transition-colors">
-                      {item.title}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      {item.description}
-                    </p>
-                  </div>
-                </div>
-              </SectionContentCard>
+                </SectionContentCard>
+              </div>
             ))}
           </div>
 
           {/* Experience Highlights */}
           <div className="max-w-4xl mx-auto">
             <h3 className="text-2xl md:text-3xl font-elegant font-bold text-center mb-12">
-              What Makes Each Journey <span className="font-script text-ruby-600">Special</span>
+              Experience Highlights of <span className="font-script text-ruby-600">Soul Train's Eatery</span>
             </h3>
             
             <div className="grid md:grid-cols-3 gap-8">
               {[
                 {
                   icon: Heart,
-                  title: "Personal Touch",
-                  description: "Every event is crafted with care and attention to your unique story and preferences."
+                  title: "Charleston Heritage",
+                  description: "25+ years of authentic Lowcountry culinary tradition bringing families together since 1999."
                 },
                 {
                   icon: Star,
-                  title: "Exceptional Quality",
-                  description: "Premium ingredients and expert culinary techniques ensure outstanding taste and presentation."
+                  title: "Premium Quality",
+                  description: "Family-owned commitment to exceptional ingredients and expert culinary techniques for outstanding taste."
                 },
                 {
                   icon: Users,
-                  title: "Memorable Moments",
-                  description: "We create experiences that bring people together and create lasting memories."
+                  title: "10,000+ Families Served",
+                  description: "Creating memorable experiences across 50+ venues throughout Charleston and the Lowcountry."
                 }
               ].map((highlight, index) => (
                 <div key={index} className="text-center group">
@@ -251,9 +238,14 @@ export const JourneyGalleryFusion = () => {
             </div>
           </div>
 
-          {/* CTA */}
+          {/* Call to Action */}
           <div className="text-center">
-            <NeumorphicButton size="lg" className="px-8 py-4">
+            <NeumorphicButton 
+              size="lg" 
+              className="px-8 py-4 min-h-[44px]"
+              aria-label="View our complete gallery of catering work"
+            >
+              <Eye className="w-5 h-5 mr-2" />
               View Complete Gallery
             </NeumorphicButton>
           </div>
