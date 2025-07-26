@@ -222,6 +222,7 @@ export const StoryHero = () => {
             alt={currentImage.alt}
             className="w-full h-full object-cover transition-all duration-700 ease-out"
             containerClassName="w-full h-full"
+            disableFilters={true}
             priority
           />
           
@@ -345,6 +346,7 @@ export const StoryHero = () => {
           alt={currentImage.alt}
           className="w-full h-full object-cover transition-all duration-700 ease-out"
           containerClassName="w-full h-full"
+          disableFilters={true}
           priority
         />
         {/* Enhanced gradient overlay */}

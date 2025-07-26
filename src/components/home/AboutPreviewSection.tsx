@@ -146,6 +146,7 @@ export const AboutPreviewSection = () => {
                     src="/lovable-uploads/5f287525-fcce-46b6-9d7b-4d8ce488760f.png"
                     alt="Chef Train and Tanya Ward in Soul Train's Eatery aprons"
                     className="w-full aspect-[4/3] object-cover"
+                    disableFilters={true}
                   />
                 </Card>
               </div>

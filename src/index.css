@@ -497,6 +497,65 @@ html {
   @apply bg-primary/20 text-foreground;
 }
 
+/* Image Enhancement Effects */
+.image-vignette {
+  position: relative;
+}
+
+.image-vignette::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.08), 
+              inset 0 0 60px rgba(0,0,0,0.12),
+              inset 0 0 120px rgba(0,0,0,0.20);
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.image-vivid-cool {
+  filter: contrast(1.1) saturate(1.15) hue-rotate(-8deg) brightness(1.02);
+  will-change: filter;
+  transition: filter 0.3s ease;
+}
+
+.image-enhanced {
+  position: relative;
+  filter: contrast(1.1) saturate(1.15) hue-rotate(-8deg) brightness(1.02);
+  will-change: filter;
+  transition: filter 0.3s ease;
+}
+
+.image-enhanced::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.08), 
+              inset 0 0 60px rgba(0,0,0,0.12),
+              inset 0 0 120px rgba(0,0,0,0.20);
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* Dark mode adjustments for image effects */
+.dark .image-vignette::after,
+.dark .image-enhanced::after {
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05), 
+              inset 0 0 60px rgba(0,0,0,0.25),
+              inset 0 0 120px rgba(0,0,0,0.35);
+}
+
+.dark .image-vivid-cool,
+.dark .image-enhanced {
+  filter: contrast(1.08) saturate(1.12) hue-rotate(-6deg) brightness(1.01);
+}
+
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -522,5 +581,10 @@ html {
   .desktop-card-title-hover {
     transition: none !important;
     transform: none !important;
+  }
+
+  .image-vivid-cool,
+  .image-enhanced {
+    transition: none !important;
   }
 }
