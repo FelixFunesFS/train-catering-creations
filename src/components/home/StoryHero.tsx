@@ -169,8 +169,6 @@ export const StoryHero = () => {
           priority
         />
         
-        {/* Minimal overlay for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-t from-background/40 via-transparent to-transparent" />
       </div>
 
       {/* Story Progress Indicators */}
@@ -255,22 +253,22 @@ export const StoryHero = () => {
 
         {/* Main Heading */}
         <div className="mb-6">
-          <h1 className="text-2xl sm:text-3xl lg:text-5xl xl:text-6xl font-elegant font-bold text-white leading-tight mb-2">
+          <h1 className="text-2xl sm:text-3xl lg:text-5xl xl:text-6xl font-elegant font-bold text-white leading-tight mb-2" style={{ textShadow: '0 4px 8px rgba(0, 0, 0, 0.8), 0 2px 4px rgba(0, 0, 0, 0.6), 0 1px 2px rgba(0, 0, 0, 0.4)' }}>
             {typewriterText}
             <span className="animate-pulse">|</span>
           </h1>
           
-          <div className="text-xl sm:text-2xl lg:text-4xl xl:text-5xl font-script bg-gradient-ruby-primary bg-clip-text text-transparent mb-4">
+          <div className="text-xl sm:text-2xl lg:text-4xl xl:text-5xl font-script bg-gradient-ruby-primary bg-clip-text text-transparent mb-4" style={{ filter: 'drop-shadow(0 4px 8px rgba(0, 0, 0, 0.6)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4))' }}>
             Catering Experience
           </div>
           
           <div className="w-16 lg:w-24 h-1 bg-gradient-ruby-primary mb-4 rounded-full" />
           
-          <h2 className="text-lg sm:text-xl lg:text-2xl font-elegant font-semibold text-white mb-2">
+          <h2 className="text-lg sm:text-xl lg:text-2xl font-elegant font-semibold text-white mb-2" style={{ textShadow: '0 3px 6px rgba(0, 0, 0, 0.7), 0 1px 3px rgba(0, 0, 0, 0.5)' }}>
             {currentImage.title}
           </h2>
           
-          <p className="text-white/80 text-sm sm:text-base lg:text-lg max-w-lg">
+          <p className="text-white/80 text-sm sm:text-base lg:text-lg max-w-lg" style={{ textShadow: '0 2px 4px rgba(0, 0, 0, 0.6), 0 1px 2px rgba(0, 0, 0, 0.4)' }}>
             {currentImage.description}
           </p>
         </div>
