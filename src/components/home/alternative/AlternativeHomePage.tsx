@@ -1,9 +1,9 @@
 import { Suspense, lazy } from "react";
 import { PageSection } from "@/components/ui/page-section";
 import { GalleryLoadingState } from "@/components/gallery/GalleryLoadingState";
+import { HeroSection } from "@/components/home/HeroSection";
 
 // Lazy load components for better performance
-const MobileFirstHero = lazy(() => import("./MobileFirstHero").then(m => ({ default: m.MobileFirstHero })));
 const TrustIndicatorsSection = lazy(() => import("./TrustIndicatorsSection").then(m => ({ default: m.TrustIndicatorsSection })));
 const ServicesDiscoverySection = lazy(() => import("./ServicesDiscoverySection").then(m => ({ default: m.ServicesDiscoverySection })));
 const CharlestonFeaturedVenue = lazy(() => import("./CharlestonFeaturedVenue").then(m => ({ default: m.CharlestonFeaturedVenue })));
@@ -18,11 +18,9 @@ export const AlternativeHomePage = () => {
     <div className="min-h-screen">
       <main id="main-content">
         
-        {/* Mobile-First Hero */}
+        {/* Story Hero */}
         <PageSection pattern="a" skipToContentId="hero-section" className="py-0 my-0">
-          <Suspense fallback={<GalleryLoadingState viewMode="featured" itemCount={1} />}>
-            <MobileFirstHero />
-          </Suspense>
+          <HeroSection />
         </PageSection>
 
         {/* Trust Indicators */}
