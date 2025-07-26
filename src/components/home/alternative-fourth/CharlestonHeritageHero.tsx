@@ -7,54 +7,41 @@ import { Heart, MapPin, Users, Clock } from "lucide-react";
 // Using existing uploaded image for Charleston heritage background
 
 export const CharlestonHeritageHero = () => {
-  const { ref, isVisible } = useScrollAnimation({
+  const {
+    ref,
+    isVisible
+  } = useScrollAnimation({
     threshold: 0.1,
     variant: 'fade-up'
   });
-
   const [currentMilestone, setCurrentMilestone] = useState(0);
-
-  const milestones = [
-    {
-      year: "2002",
-      title: "Family Dream Begins",
-      description: "Chef Train & Tanya Ward start their Charleston journey"
-    },
-    {
-      year: "2005",
-      title: "First Rainbow Row Event",
-      description: "Catering our first historic Charleston venue"
-    },
-    {
-      year: "2010",
-      title: "Lowcountry Recognition",
-      description: "Becoming Charleston's trusted family caterer"
-    },
-    {
-      year: "2024",
-      title: "Two Decades Strong",
-      description: "Over 20 years of Charleston family traditions"
-    }
-  ];
-
+  const milestones = [{
+    year: "2002",
+    title: "Family Dream Begins",
+    description: "Chef Train & Tanya Ward start their Charleston journey"
+  }, {
+    year: "2005",
+    title: "First Rainbow Row Event",
+    description: "Catering our first historic Charleston venue"
+  }, {
+    year: "2010",
+    title: "Lowcountry Recognition",
+    description: "Becoming Charleston's trusted family caterer"
+  }, {
+    year: "2024",
+    title: "Two Decades Strong",
+    description: "Over 20 years of Charleston family traditions"
+  }];
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentMilestone((prev) => (prev + 1) % milestones.length);
+      setCurrentMilestone(prev => (prev + 1) % milestones.length);
     }, 4000);
     return () => clearInterval(interval);
   }, []);
-
-  return (
-    <section className="relative min-h-screen flex items-center overflow-hidden">
+  return <section className="relative min-h-screen flex items-center overflow-hidden">
       {/* Charleston Background */}
       <div className="absolute inset-0">
-        <OptimizedImage
-          src="/lovable-uploads/26d2d500-6017-41a2-99b2-b7050cefedba.png"
-          alt="Historic Charleston Rainbow Row with cobblestone streets"
-          containerClassName="w-full h-full"
-          className="object-cover"
-          priority
-        />
+        <OptimizedImage src="/lovable-uploads/26d2d500-6017-41a2-99b2-b7050cefedba.png" alt="Historic Charleston Rainbow Row with cobblestone streets" containerClassName="w-full h-full" className="object-cover" priority />
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60" />
       </div>
 
@@ -69,11 +56,7 @@ export const CharlestonHeritageHero = () => {
 
           {/* Logo and Main Title */}
           <div className="mb-8">
-            <img 
-              src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
-              alt="Soul Train's Eatery Logo - Charleston Heritage Catering"
-              className="h-20 md:h-24 lg:h-28 w-auto mx-auto mb-6"
-            />
+            <img src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" alt="Soul Train's Eatery Logo - Charleston Heritage Catering" className="h-20 md:h-24 lg:h-28 w-auto mx-auto mb-6" />
           </div>
           
           <h1 className={`font-elegant text-4xl md:text-6xl lg:text-8xl font-bold mb-6 transition-all duration-700 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
@@ -86,9 +69,7 @@ export const CharlestonHeritageHero = () => {
           {/* Story Introduction */}
           <p className={`font-clean text-lg md:text-xl lg:text-2xl max-w-4xl mx-auto mb-8 leading-relaxed transition-all duration-700 delay-400 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             Born from a deep love of Southern cooking and a commitment to bringing families together around exceptional food. 
-            <span className="block mt-2 font-script text-xl md:text-2xl lg:text-3xl bg-gradient-ruby-accent bg-clip-text text-transparent">
-              From Rainbow Row to Lowcountry plantations
-            </span>
+            
           </p>
 
           {/* Family Stats */}
@@ -119,15 +100,7 @@ export const CharlestonHeritageHero = () => {
           <div className={`max-w-2xl mx-auto mb-12 transition-all duration-700 delay-800 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
               <div className="flex justify-center mb-4">
-                {milestones.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentMilestone(index)}
-                    className={`w-3 h-3 rounded-full mx-1 transition-all duration-300 ${
-                      currentMilestone === index ? 'bg-red-400 scale-125' : 'bg-white/40 hover:bg-white/60'
-                    }`}
-                  />
-                ))}
+                {milestones.map((_, index) => <button key={index} onClick={() => setCurrentMilestone(index)} className={`w-3 h-3 rounded-full mx-1 transition-all duration-300 ${currentMilestone === index ? 'bg-red-400 scale-125' : 'bg-white/40 hover:bg-white/60'}`} />)}
               </div>
               <div className="text-center min-h-[120px] flex flex-col justify-center">
                 <div className="text-3xl font-bold text-red-400 font-playfair mb-2">
@@ -145,21 +118,11 @@ export const CharlestonHeritageHero = () => {
 
           {/* Heritage CTAs */}
           <div className={`flex flex-col sm:flex-row gap-4 justify-center items-center transition-all duration-700 delay-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-            <NeumorphicButton
-              size="lg"
-              variant="primary"
-              className="bg-gradient-ruby-primary text-white hover:bg-gradient-ruby-accent shadow-lg hover:shadow-xl transition-all duration-300 min-w-[200px] focus-visible-enhanced"
-              aria-label="Learn about our Charleston heritage and family story"
-            >
+            <NeumorphicButton size="lg" variant="primary" className="bg-gradient-ruby-primary text-white hover:bg-gradient-ruby-accent shadow-lg hover:shadow-xl transition-all duration-300 min-w-[200px] focus-visible-enhanced" aria-label="Learn about our Charleston heritage and family story">
               <Heart className="w-5 h-5" />
               Our Charleston Story
             </NeumorphicButton>
-            <NeumorphicButton
-              size="lg"
-              variant="outline"
-              className="bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20 min-w-[200px] focus-visible-enhanced"
-              aria-label="Explore our Charleston venue locations and services"
-            >
+            <NeumorphicButton size="lg" variant="outline" className="bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20 min-w-[200px] focus-visible-enhanced" aria-label="Explore our Charleston venue locations and services">
               <MapPin className="w-5 h-5" />
               Charleston Venues
             </NeumorphicButton>
@@ -173,6 +136,5 @@ export const CharlestonHeritageHero = () => {
           </div>
         </div>
       </ResponsiveWrapper>
-    </section>
-  );
+    </section>;
 };
