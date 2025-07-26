@@ -11,8 +11,8 @@ import { ChevronDown, Play, Pause, Sparkles, ChevronRight, UtensilsCrossed, Hear
 export const StoryHero = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
-  
   const [typewriterText, setTypewriterText] = useState("");
+  const [touchStart, setTouchStart] = useState<number | null>(null);
   
   const isMobile = useIsMobile();
   const fullText = "Charleston's Most Cherished";
@@ -131,18 +131,39 @@ export const StoryHero = () => {
     return () => clearInterval(timer);
   }, [isPlaying, heroImages.length]);
 
-  // Touch handlers for mobile story progression
+  // Enhanced touch handlers with swipe gestures
   const handleTouchStart = (e: React.TouchEvent) => {
-    const touch = e.touches[0];
-    const screenWidth = window.innerWidth;
-    const tapX = touch.clientX;
+    setTouchStart(e.touches[0].clientX);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (!touchStart) return;
     
-    if (tapX < screenWidth / 3) {
-      // Left third - previous image
+    const touchEnd = e.changedTouches[0].clientX;
+    const diff = touchStart - touchEnd;
+    const threshold = 50;
+
+    if (Math.abs(diff) > threshold) {
+      if (diff > 0) {
+        // Swipe left - next image
+        setCurrentIndex(prev => (prev + 1) % heroImages.length);
+      } else {
+        // Swipe right - previous image
+        setCurrentIndex(prev => prev > 0 ? prev - 1 : heroImages.length - 1);
+      }
+    }
+    
+    setTouchStart(null);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'ArrowLeft') {
       setCurrentIndex(prev => prev > 0 ? prev - 1 : heroImages.length - 1);
-    } else if (tapX > (screenWidth * 2) / 3) {
-      // Right third - next image
+    } else if (e.key === 'ArrowRight') {
       setCurrentIndex(prev => (prev + 1) % heroImages.length);
+    } else if (e.key === ' ') {
+      e.preventDefault();
+      togglePlayPause();
     }
   };
 
@@ -157,157 +178,296 @@ export const StoryHero = () => {
     }
   };
 
+  // Mobile first layout
+  if (isMobile) {
+    return (
+      <div 
+        className="relative min-h-[100dvh] bg-gradient-primary overflow-hidden"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        onKeyDown={handleKeyDown}
+        tabIndex={0}
+        role="region"
+        aria-label="Hero carousel"
+        aria-live="polite"
+      >
+        {/* Progress Indicators */}
+        <div className="absolute top-4 left-4 right-4 z-30">
+          <div className="flex gap-1">
+            {heroImages.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentIndex(index)}
+                className="h-1 bg-white/30 rounded-full flex-1 overflow-hidden focus:outline-none focus:ring-2 focus:ring-white/50"
+                aria-label={`Go to story ${index + 1}`}
+              >
+                <div
+                  className={`h-full bg-white transition-all duration-500 ${
+                    index === currentIndex 
+                      ? 'w-full' 
+                      : index < currentIndex 
+                        ? 'w-full opacity-100' 
+                        : 'w-0'
+                  }`}
+                />
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Image Container - Top Section */}
+        <div className="relative h-[60vh] overflow-hidden">
+          <OptimizedImage
+            src={currentImage.src}
+            alt={currentImage.alt}
+            className="w-full h-full object-cover transition-all duration-700 ease-out"
+            containerClassName="w-full h-full"
+            priority
+          />
+          
+          {/* Gradient Overlay for better text readability */}
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background/20" />
+          
+          {/* Controls Overlay */}
+          <div className="absolute top-6 right-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={togglePlayPause}
+              className="bg-black/20 text-white border border-white/20 backdrop-blur-md hover:bg-black/30 focus:ring-2 focus:ring-white/50"
+              aria-label={isPlaying ? "Pause slideshow" : "Play slideshow"}
+            >
+              {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+            </Button>
+          </div>
+
+          {/* Brand Icons */}
+          <div className="absolute top-6 left-1/2 transform -translate-x-1/2">
+            <div className="flex items-center gap-3 bg-black/20 backdrop-blur-md rounded-full px-4 py-2 border border-white/10">
+              <UtensilsCrossed className="h-4 w-4 text-white" aria-hidden="true" />
+              <Heart className="h-4 w-4 text-white" aria-hidden="true" />
+              <Star className="h-4 w-4 text-white" aria-hidden="true" />
+            </div>
+          </div>
+        </div>
+
+        {/* Content Card - Bottom Section */}
+        <div 
+          ref={overlayRef}
+          className={`relative h-[40vh] flex flex-col justify-center px-4 ${useAnimationClass(overlayVariant, overlayVisible)}`}
+        >
+          {/* Glassmorphic Content Card */}
+          <div className="bg-card/95 backdrop-blur-xl border border-border/50 rounded-3xl p-6 shadow-elegant mx-2">
+            {/* Category Badge */}
+            <div className="mb-4">
+              <Badge className={`${getCategoryBadge(currentImage.category).variant} backdrop-blur-sm border`}>
+                <Sparkles className="h-3 w-3 mr-1" />
+                {getCategoryBadge(currentImage.category).label}
+              </Badge>
+            </div>
+
+            {/* Typewriter Title */}
+            <h1 className="text-2xl font-elegant font-bold text-foreground leading-tight mb-2">
+              {typewriterText}
+              <span className="animate-pulse text-primary">|</span>
+            </h1>
+            
+            <div className="text-lg font-script bg-gradient-ruby-primary bg-clip-text text-transparent mb-4">
+              Catering Experience
+            </div>
+            
+            <div className="w-16 h-1 bg-gradient-ruby-primary mb-4 rounded-full" />
+
+            {/* Story Title */}
+            <h2 className="text-xl font-elegant font-semibold text-foreground mb-2">
+              {currentImage.title}
+            </h2>
+            
+            {/* Description */}
+            <p className="text-muted-foreground text-sm leading-relaxed mb-6">
+              {currentImage.description}
+            </p>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col gap-3">
+              <Button asChild size="lg" className="min-h-[48px] text-base font-semibold">
+                <Link to="/request-quote#page-header" className="flex items-center justify-center gap-2">
+                  Request Quote
+                  <ChevronRight className="h-4 w-4" />
+                </Link>
+              </Button>
+              
+              <Button
+                asChild
+                variant="outline"
+                size="lg"
+                className="min-h-[48px] text-base font-semibold bg-card/50 backdrop-blur-sm"
+              >
+                <Link to="/gallery#page-header" className="flex items-center justify-center gap-2">
+                  View Gallery
+                  <ChevronRight className="h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+          </div>
+
+          {/* Scroll Indicator */}
+          <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleScrollToDiscover}
+              className="text-muted-foreground hover:text-foreground animate-bounce focus:ring-2 focus:ring-primary/50"
+              aria-label="Scroll to next section"
+            >
+              <ChevronDown className="h-5 w-5" />
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Desktop layout
   return (
-    <div className="relative h-screen overflow-hidden bg-gradient-primary">
-      {/* Background Image with Parallax Effect */}
+    <div 
+      className="relative h-screen overflow-hidden bg-gradient-primary"
+      onKeyDown={handleKeyDown}
+      tabIndex={0}
+      role="region"
+      aria-label="Hero carousel"
+      aria-live="polite"
+    >
+      {/* Background Image */}
       <div className="absolute inset-0">
         <OptimizedImage
           src={currentImage.src}
           alt={currentImage.alt}
-          className="w-full h-full object-cover transition-transform duration-700"
+          className="w-full h-full object-cover transition-all duration-700 ease-out"
           containerClassName="w-full h-full"
           priority
         />
-        
+        {/* Enhanced gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-transparent" />
       </div>
 
-      {/* Story Progress Indicators */}
-      <div className="absolute top-4 left-4 right-4 z-20">
-        <div className="flex gap-1">
+      {/* Desktop Header */}
+      <div className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between p-8">
+        {/* Logo */}
+        <div className="h-16 w-16">
+          <img 
+            src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
+            alt="Soul Train's Eatery Logo" 
+            className="w-full h-full object-contain hover:scale-110 transition-transform duration-300" 
+          />
+        </div>
+
+        {/* Progress Indicators */}
+        <div className="flex gap-2 flex-1 max-w-md mx-8">
           {heroImages.map((_, index) => (
-            <div
+            <button
               key={index}
-              className="h-1 bg-white/30 rounded-full flex-1 overflow-hidden"
+              onClick={() => setCurrentIndex(index)}
+              className="h-1 bg-white/30 rounded-full flex-1 overflow-hidden focus:outline-none focus:ring-2 focus:ring-white/50"
+              aria-label={`Go to story ${index + 1}`}
             >
               <div
-                className={`h-full bg-white transition-all duration-200 ${
+                className={`h-full bg-white transition-all duration-500 ${
                   index === currentIndex 
                     ? 'w-full' 
                     : index < currentIndex 
-                      ? 'w-full' 
+                      ? 'w-full opacity-100' 
                       : 'w-0'
                 }`}
               />
-            </div>
+            </button>
           ))}
         </div>
-      </div>
 
-      {/* Touch Areas for Mobile Navigation */}
-      {isMobile && (
-        <div className="absolute inset-0 z-10 flex">
-          <div className="flex-1" onTouchStart={handleTouchStart} />
-          <div className="flex-1" onTouchStart={handleTouchStart} />
-          <div className="flex-1" onTouchStart={handleTouchStart} />
-        </div>
-      )}
-
-      {/* Play/Pause Control */}
-      <div className="absolute top-6 right-4 z-20">
+        {/* Controls */}
         <Button
           variant="ghost"
           size="sm"
           onClick={togglePlayPause}
-          className="bg-white/10 text-white border border-white/20 backdrop-blur-sm hover:bg-white/20"
+          className="bg-white/10 text-white border border-white/20 backdrop-blur-sm hover:bg-white/20 focus:ring-2 focus:ring-white/50"
+          aria-label={isPlaying ? "Pause slideshow" : "Play slideshow"}
         >
           {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
         </Button>
       </div>
 
-      {/* Brand Icons - Mobile */}
-      {isMobile && (
-        <div className="absolute top-16 left-1/2 transform -translate-x-1/2 z-20">
-          <div className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2">
-            <UtensilsCrossed className="h-4 w-4 text-white" aria-label="Quality catering" />
-            <Heart className="h-4 w-4 text-white" aria-label="Made with love" />
-            <Star className="h-4 w-4 text-white" aria-label="Excellence" />
-          </div>
-        </div>
-      )}
-
-      {/* Desktop Logo */}
-      {!isMobile && (
-        <div className="absolute top-8 left-8 z-20">
-          <div className="h-16 w-16 relative">
-            <img 
-              src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
-              alt="Soul Train's Eatery Logo" 
-              className="w-full h-full object-contain hover:scale-110 transition-transform duration-300" 
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Content Overlay */}
+      {/* Desktop Content - Floating Card */}
       <div 
         ref={overlayRef}
-        className={`absolute inset-0 z-15 flex flex-col justify-end p-4 sm:p-6 lg:p-8 ${useAnimationClass(overlayVariant, overlayVisible)}`}
+        className={`absolute bottom-12 left-12 z-20 max-w-2xl ${useAnimationClass(overlayVariant, overlayVisible)}`}
       >
-        {/* Category Badge */}
-        <div className="mb-4">
-          <Badge className={`${getCategoryBadge(currentImage.category).variant} backdrop-blur-sm`}>
-            <Sparkles className="h-3 w-3 mr-1" />
-            {getCategoryBadge(currentImage.category).label}
-          </Badge>
-        </div>
+        <div className="bg-card/90 backdrop-blur-xl border border-border/50 rounded-3xl p-8 shadow-elevated">
+          {/* Category Badge */}
+          <div className="mb-6">
+            <Badge className={`${getCategoryBadge(currentImage.category).variant} backdrop-blur-sm border text-sm`}>
+              <Sparkles className="h-4 w-4 mr-2" />
+              {getCategoryBadge(currentImage.category).label}
+            </Badge>
+          </div>
 
-        {/* Main Heading */}
-        <div className="mb-6">
-          <h1 className="text-2xl sm:text-3xl lg:text-5xl xl:text-6xl font-elegant font-bold text-white leading-tight mb-2" style={{ textShadow: '0 4px 8px rgba(0, 0, 0, 0.8), 0 2px 4px rgba(0, 0, 0, 0.6), 0 1px 2px rgba(0, 0, 0, 0.4)' }}>
+          {/* Typewriter Title */}
+          <h1 className="text-4xl xl:text-5xl font-elegant font-bold text-foreground leading-tight mb-3">
             {typewriterText}
-            <span className="animate-pulse">|</span>
+            <span className="animate-pulse text-primary">|</span>
           </h1>
           
-          <div className="text-xl sm:text-2xl lg:text-4xl xl:text-5xl font-script bg-gradient-ruby-primary bg-clip-text text-transparent mb-4" style={{ filter: 'drop-shadow(0 4px 8px rgba(0, 0, 0, 0.6)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4))' }}>
+          <div className="text-2xl xl:text-3xl font-script bg-gradient-ruby-primary bg-clip-text text-transparent mb-6">
             Catering Experience
           </div>
           
-          <div className="w-16 lg:w-24 h-1 bg-gradient-ruby-primary mb-4 rounded-full" />
-          
-          <h2 className="text-lg sm:text-xl lg:text-2xl font-elegant font-semibold text-white mb-2" style={{ textShadow: '0 3px 6px rgba(0, 0, 0, 0.7), 0 1px 3px rgba(0, 0, 0, 0.5)' }}>
+          <div className="w-24 h-1 bg-gradient-ruby-primary mb-6 rounded-full" />
+
+          {/* Story Title */}
+          <h2 className="text-xl xl:text-2xl font-elegant font-semibold text-foreground mb-3">
             {currentImage.title}
           </h2>
           
-          <p className="text-white/80 text-sm sm:text-base lg:text-lg max-w-lg" style={{ textShadow: '0 2px 4px rgba(0, 0, 0, 0.6), 0 1px 2px rgba(0, 0, 0, 0.4)' }}>
+          {/* Description */}
+          <p className="text-muted-foreground text-base xl:text-lg leading-relaxed mb-8 max-w-lg">
             {currentImage.description}
           </p>
-        </div>
 
-        {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-3 mb-8">
-          <Button asChild size="lg" className="min-h-[48px] text-base font-semibold">
-            <Link to="/request-quote#page-header" className="flex items-center justify-center gap-2">
-              Request Quote
-              <ChevronRight className="h-4 w-4" />
-            </Link>
-          </Button>
-          
-          <Button
-            asChild
-            variant="secondary"
-            size="lg"
-            className="min-h-[48px] text-base font-semibold"
-          >
-            <Link to="/gallery#page-header" className="flex items-center justify-center gap-2">
-              View Gallery
-              <ChevronRight className="h-4 w-4" />
-            </Link>
-          </Button>
-        </div>
-
-        {/* Scroll Indicator */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleScrollToDiscover}
-            className="text-white/60 hover:text-white animate-bounce"
-          >
-            <ChevronDown className="h-5 w-5" />
-          </Button>
+          {/* Action Buttons */}
+          <div className="flex gap-4">
+            <Button asChild size="lg" className="min-h-[48px] text-base font-semibold">
+              <Link to="/request-quote#page-header" className="flex items-center gap-2">
+                Request Quote
+                <ChevronRight className="h-4 w-4" />
+              </Link>
+            </Button>
+            
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+              className="min-h-[48px] text-base font-semibold bg-card/50 backdrop-blur-sm"
+            >
+              <Link to="/gallery#page-header" className="flex items-center gap-2">
+                View Gallery
+                <ChevronRight className="h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
         </div>
       </div>
 
+      {/* Scroll Indicator */}
+      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleScrollToDiscover}
+          className="text-white/60 hover:text-white animate-bounce focus:ring-2 focus:ring-white/50"
+          aria-label="Scroll to next section"
+        >
+          <ChevronDown className="h-5 w-5" />
+        </Button>
+      </div>
     </div>
   );
 };
