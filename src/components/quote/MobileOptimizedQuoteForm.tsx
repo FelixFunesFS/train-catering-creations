@@ -12,9 +12,10 @@ import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { regularEventSchema, type RegularEventFormData } from "@/lib/schemas/quoteFormSchemas";
 import { StepIndicator } from "./StepIndicator";
-import { EnhancedMenuSelection } from "./EnhancedMenuSelection";
+import { MobileMenuSelection } from "./MobileMenuSelection";
 import { regularMenuItems } from "@/data/menuItems";
-import { ArrowLeft, ArrowRight, Phone, Mail } from "lucide-react";
+import { ArrowLeft, ArrowRight, Phone, Mail, MapPin } from "lucide-react";
+import { formatPhoneNumber, parsePhoneNumber, isValidPhoneNumber } from "@/utils/phoneFormatter";
 
 const steps = ["Contact", "Event", "Menu", "Details"];
 
@@ -238,9 +239,26 @@ ${data.hearAboutUs || 'Not specified'}
                 name="phone"
                 render={({ field }) => (
                   <FormItem className="mb-4">
-                    <FormLabel className="text-base font-medium">Phone Number *</FormLabel>
+                    <FormLabel className="text-base font-medium flex items-center gap-2">
+                      <Phone className="w-4 h-4" />
+                      Phone Number *
+                    </FormLabel>
                     <FormControl>
-                      <Input {...field} type="tel" className="h-12 text-base" placeholder="(555) 123-4567" />
+                      <Input 
+                        {...field}
+                        type="tel" 
+                        className="h-12 text-base" 
+                        placeholder="(555) 123-4567"
+                        onChange={(e) => {
+                          const formatted = formatPhoneNumber(e.target.value);
+                          field.onChange(formatted);
+                        }}
+                        onBlur={(e) => {
+                          // Store the unformatted number for validation
+                          const parsed = parsePhoneNumber(e.target.value);
+                          field.onBlur();
+                        }}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -337,10 +355,20 @@ ${data.hearAboutUs || 'Not specified'}
                 name="location"
                 render={({ field }) => (
                   <FormItem className="mt-4">
-                    <FormLabel className="text-base font-medium">Event Location *</FormLabel>
+                    <FormLabel className="text-base font-medium flex items-center gap-2">
+                      <MapPin className="w-4 h-4" />
+                      Event Address / Venue *
+                    </FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="Full address or venue name" className="h-12 text-base" />
+                      <Input 
+                        {...field} 
+                        placeholder="123 Main St, City, State or Venue Name" 
+                        className="h-12 text-base" 
+                      />
                     </FormControl>
+                    <FormDescription className="text-sm text-muted-foreground">
+                      Full street address or venue name where the event will be held
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -352,7 +380,7 @@ ${data.hearAboutUs || 'Not specified'}
       case 2:
         return (
           <div className="space-y-6">
-            <EnhancedMenuSelection form={form} guestCount={guestCount} />
+            <MobileMenuSelection form={form} guestCount={guestCount} />
             
             <div className="space-y-4 pt-4 border-t">
               <FormField
