@@ -39,12 +39,12 @@ export const SplitHero = () => {
 
   const heroImages: HeroImage[] = [
     {
-      src: "/lovable-uploads/aaf2be76-85aa-4249-a220-70c29f94637a.png",
-      alt: "Professional catering setup with chafing dishes and elegant floral arrangements",
-      title: "Unforgettable Celebrations",
-      subtitle: "Crafted with Soul, Seasoned with Love",
-      category: "wedding",
-      description: "Since 2017, Charleston's Lowcountry families have trusted Soul Train's Eatery to bring authentic Southern flavors to their most cherished moments."
+      src: "/lovable-uploads/e3c0d1ae-fb6a-4700-8007-a8c8c8136e57.png",
+      alt: "Elegant event space with formal dining setup",
+      title: "Artisan Creations",
+      subtitle: "Every Detail Matters",
+      category: "culinary",
+      description: "From our signature charcuterie boards to custom wedding cakes, each dish is crafted with precision and passion."
     },
     {
       src: "/lovable-uploads/8e32f09d-a941-47b9-b25d-c514ca79ee22.png",
@@ -55,12 +55,12 @@ export const SplitHero = () => {
       description: "Chef Train and Tanya Ward combine decades of experience with family traditions to create memorable dining experiences."
     },
     {
-      src: "/lovable-uploads/e3c0d1ae-fb6a-4700-8007-a8c8c8136e57.png",
-      alt: "Elegant event space with formal dining setup",
-      title: "Artisan Creations",
-      subtitle: "Every Detail Matters",
-      category: "culinary",
-      description: "From our signature charcuterie boards to custom wedding cakes, each dish is crafted with precision and passion."
+      src: "/lovable-uploads/aaf2be76-85aa-4249-a220-70c29f94637a.png",
+      alt: "Professional catering setup with chafing dishes and elegant floral arrangements",
+      title: "Unforgettable Celebrations",
+      subtitle: "Crafted with Soul, Seasoned with Love",
+      category: "wedding",
+      description: "Since 2017, Charleston's Lowcountry families have trusted Soul Train's Eatery to bring authentic Southern flavors to their most cherished moments."
     }
   ];
 
