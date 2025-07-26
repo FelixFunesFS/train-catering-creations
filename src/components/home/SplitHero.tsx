@@ -52,7 +52,7 @@ export const SplitHero = () => {
       title: "Unforgettable Celebrations",
       subtitle: "Crafted with Soul, Seasoned with Love",
       category: "wedding",
-      description: "From intimate gatherings to grand celebrations, Soul Train's Eatery brings exceptional flavors and impeccable service to every occasion."
+      description: "Since 2017, Charleston's Lowcountry families have trusted Soul Train's Eatery to bring authentic Southern flavors to their most cherished moments."
     },
     {
       src: "/lovable-uploads/e61537fa-d421-490b-932f-402236a093aa.png",

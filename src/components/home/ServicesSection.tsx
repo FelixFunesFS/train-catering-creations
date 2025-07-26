@@ -12,7 +12,7 @@ export const ServicesSection = () => {
             Our Catering Services
           </h2>
           <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed text-fade-up-delay-1">
-            Elegant weddings, heartfelt celebrations, and corporate events—catered with care, Southern soul, and impeccable service.
+            Born in Charleston, raised on tradition. The Ward family has served the Lowcountry since 2017 with soul, substance, and unmatched culinary artistry.
           </p>
         </div>
 

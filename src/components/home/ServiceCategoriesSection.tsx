@@ -47,7 +47,7 @@ export const ServiceCategoriesSection = () => {
       icon: <Heart className="h-6 w-6" />,
       title: "Wedding Catering",
       subtitle: "Your Dream Day",
-      description: "From intimate ceremonies to grand receptions, we create unforgettable culinary experiences for your special day.",
+      description: "Charleston's premier wedding caterer since 2017. We turn your dream day into a flawless celebration with authentic Southern elegance.",
       image: "/lovable-uploads/26d2d500-6017-41a2-99b2-b7050cefedba.png",
       features: ["Custom Menu Planning", "Professional Service", "Elegant Presentation"],
       href: "/wedding-menu",
@@ -104,8 +104,8 @@ export const ServiceCategoriesSection = () => {
             20+ Years of Culinary Mastery
           </p>
           <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            From intimate family dinners to grand celebrations, Soul Train's Eatery brings the same 
-            level of passion, quality, and southern hospitality to every event we cater.
+            Chef Train and Tanya Ward have spent 20+ years perfecting the art of Charleston catering. 
+            From Magnolia Avenue to military bases, we've served the Lowcountry with soul, style, and unwavering quality.
           </p>
         </div>
 

@@ -48,9 +48,9 @@ export const FeaturedServiceCard = ({ delay = 0 }: FeaturedServiceCardProps) => 
                 Wedding Catering
               </h3>
               <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6 leading-relaxed">
-                Make your special day unforgettable with our elegant wedding catering services. 
-                From intimate ceremonies to grand receptions, we create personalized menus that 
-                reflect your love story.
+                Charleston's most trusted wedding caterer since 2017. Chef Train and Tanya Ward combine 
+                20+ years of expertise with family traditions to create personalized menus that honor 
+                your love story with authentic Southern elegance.
               </p>
 
               {/* Feature highlights */}

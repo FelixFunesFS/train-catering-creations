@@ -154,8 +154,8 @@ export const InteractiveGalleryPreview = () => {
             Every Event Tells a Story
           </p>
           <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            From intimate family gatherings to grand celebrations, explore the artistry and attention 
-            to detail that defines every Soul Train's Eatery experience.
+            Witness 20+ years of Charleston catering mastery. Each photo captures the Ward family's commitment 
+            to bringing authentic Southern hospitality to the Holy City's most treasured moments.
           </p>
         </div>
 
