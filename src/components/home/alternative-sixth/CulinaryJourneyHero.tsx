@@ -32,14 +32,17 @@ export const CulinaryJourneyHero = () => {
     }, 4000);
     return () => clearInterval(interval);
   }, []);
-  return <div className="relative min-h-screen bg-gradient-to-br from-background to-ruby/20 overflow-hidden">
+  return <div className="relative min-h-screen bg-gradient-to-br from-navy/90 to-background overflow-hidden">
       {/* Hero Background Image */}
-      <div className="absolute inset-0 opacity-60">
-        <OptimizedImage src="/lovable-uploads/26d2d500-6017-41a2-99b2-b7050cefedba.png" alt="Elegant wedding reception setup showcasing Soul Train's Eatery catering expertise" className="w-full h-full object-cover" containerClassName="w-full h-full" />
+      <div className="absolute inset-0 opacity-80">
+        <OptimizedImage src="/lovable-uploads/894051bf-31c6-4930-bb88-e3e1d74f7ee1.png" alt="Elegant rustic venue with dramatic lighting showcasing Soul Train's Eatery catering ambiance" className="w-full h-full object-cover object-center" containerClassName="w-full h-full" />
       </div>
       
-      {/* Background Overlay for Text Contrast */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background/90" />
+      {/* Subtle Dark Overlay for Better Contrast */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/10 to-black/30" />
+      
+      {/* Ruby Red Accent Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-transparent via-ruby/5 to-ruby/15" />
 
       <ResponsiveWrapper hasFullWidthCard>
         <div ref={ref} className="relative z-10 pt-8 pb-16">
@@ -61,17 +64,17 @@ export const CulinaryJourneyHero = () => {
                 <OptimizedImage src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" alt="Soul Train's Eatery Official Logo - Charleston Heritage Catering" className="w-full h-full object-contain hover:scale-110 transition-transform duration-300" aspectRatio="aspect-square" />
               </div>
               
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-elegant font-bold mb-4">
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-elegant font-bold mb-4" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>
                 <span className="bg-gradient-primary bg-clip-text text-transparent">
                   Soul Train's Eatery
                 </span>
               </h1>
-              <p className="text-2xl md:text-3xl lg:text-4xl font-script text-primary mb-6">
+              <p className="text-2xl md:text-3xl lg:text-4xl font-script text-primary mb-6" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}>
                 Charleston's Premier Catering
               </p>
             </div>
             
-            <p className="text-lg md:text-xl text-foreground/90 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-lg md:text-xl text-foreground max-w-3xl mx-auto leading-relaxed" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}>
               Creating unforgettable culinary experiences in Charleston and the Lowcountry since 2016. 
               8 years of exceptional service backed by 20+ years of culinary mastery, 
               bringing heartfelt service to your celebrations.
