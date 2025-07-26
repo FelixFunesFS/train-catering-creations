@@ -143,7 +143,7 @@ export const AboutPreviewSection = () => {
               <div className="col-span-2">
                 <Card className="overflow-hidden border-2 border-ruby/20">
                   <OptimizedImage
-                    src="/lovable-uploads/f6588bcc-9923-4a1c-b4ab-d9427afa379a.png"
+                    src="/lovable-uploads/5f287525-fcce-46b6-9d7b-4d8ce488760f.png"
                     alt="Chef Train and Tanya Ward in Soul Train's Eatery aprons"
                     className="w-full aspect-[4/3] object-cover"
                   />
