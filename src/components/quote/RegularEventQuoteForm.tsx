@@ -14,6 +14,7 @@ import { toast } from "@/hooks/use-toast";
 import { regularEventSchema, type RegularEventFormData } from "@/lib/schemas/quoteFormSchemas";
 import { MenuSelection } from "./MenuSelection";
 import { regularMenuItems } from "@/data/menuItems";
+import { supabase } from "@/integrations/supabase/client";
 
 const RegularEventQuoteForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -40,10 +41,47 @@ const RegularEventQuoteForm = () => {
   const onSubmit = async (data: RegularEventFormData) => {
     setIsSubmitting(true);
     try {
-      const emailContent = formatEmailContent(data);
-      
-      console.log("Form Data:", data);
-      console.log("Email Content:", emailContent);
+      // Transform form data to match database schema
+      const quoteData = {
+        contact_name: data.contactName,
+        event_name: data.eventName,
+        email: data.email,
+        phone: data.phone,
+        event_type: data.eventType,
+        event_date: data.eventDate,
+        start_time: data.eventStartTime,
+        guest_count: parseInt(data.guestCount),
+        location: data.location,
+        service_type: data.serviceType,
+        serving_start_time: data.servingStartTime,
+        wait_staff_requested: data.waitStaffRequested || false,
+        wait_staff_setup_areas: data.waitStaffSetupArea || null,
+        wait_staff_requirements: null,
+        primary_protein: data.primaryProtein || null,
+        secondary_protein: data.secondaryProtein || null,
+        appetizers: data.selectedAppetizers || [],
+        sides: data.selectedSides || [],
+        desserts: data.selectedDesserts || [],
+        drinks: data.selectedDrinks || [],
+        utensils: data.selectedUtensils || [],
+        extras: data.selectedExtras || [],
+        custom_menu_requests: data.customMenuRequests || null,
+        chafers_requested: data.foodWarmers || false,
+        tables_chairs_requested: false,
+        linens_requested: false,
+        dietary_restrictions: data.dietaryRestrictions || [],
+        special_requests: data.specialRequests || null,
+        referral_source: data.hearAboutUs || null,
+      };
+
+      const { error } = await supabase
+        .from('quote_requests')
+        .insert(quoteData);
+
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
       
       toast({
         title: "Quote Request Submitted!",
@@ -52,6 +90,7 @@ const RegularEventQuoteForm = () => {
       
       form.reset();
     } catch (error) {
+      console.error('Submit error:', error);
       toast({
         title: "Submission Error",
         description: "There was an issue submitting your request. Please try again or call us directly.",
