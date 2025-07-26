@@ -218,7 +218,11 @@ ${data.hearAboutUs || 'Not specified'}
                     </FormLabel>
                     <FormControl>
                       <Input 
+                        id="phone-input"
+                        name="phone"
                         type="tel"
+                        inputMode="tel"
+                        autoComplete="tel"
                         className="h-12 text-base" 
                         placeholder="(555) 123-4567"
                         value={formatPhoneNumber(field.value || '')}
@@ -306,7 +310,16 @@ ${data.hearAboutUs || 'Not specified'}
                       Event Address / Venue *
                     </FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="123 Main St, City, State or Venue Name" className="h-12 text-base" />
+                      <Input 
+                        {...field} 
+                        id="location-input"
+                        name="location"
+                        type="text"
+                        inputMode="text"
+                        autoComplete="street-address"
+                        placeholder="123 Main St, City, State or Venue Name" 
+                        className="h-12 text-base" 
+                      />
                     </FormControl>
                     <FormDescription className="text-sm text-muted-foreground">
                       Full street address or venue name where the event will be held
