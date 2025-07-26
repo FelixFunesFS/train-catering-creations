@@ -158,14 +158,15 @@ export const StoryHero = () => {
   };
 
   return (
-    <div className="relative h-screen overflow-hidden bg-gradient-primary">
+    <div className={`relative overflow-hidden bg-gradient-primary ${isMobile ? 'h-auto flex items-center justify-center min-h-screen py-8' : 'h-screen'}`}>
       {/* Background Image with Parallax Effect */}
-      <div className="absolute inset-0">
+      <div className={`${isMobile ? 'relative aspect-[5/4] w-full max-w-sm mx-auto' : 'absolute inset-0'}`}>
         <OptimizedImage
           src={currentImage.src}
           alt={currentImage.alt}
           className="w-full h-full object-cover transition-transform duration-700"
           containerClassName="w-full h-full"
+          aspectRatio={isMobile ? "aspect-[5/4]" : undefined}
           priority
         />
         
@@ -195,7 +196,7 @@ export const StoryHero = () => {
 
       {/* Touch Areas for Mobile Navigation */}
       {isMobile && (
-        <div className="absolute inset-0 z-10 flex">
+        <div className="absolute inset-0 z-10 flex max-w-sm mx-auto">
           <div className="flex-1" onTouchStart={handleTouchStart} />
           <div className="flex-1" onTouchStart={handleTouchStart} />
           <div className="flex-1" onTouchStart={handleTouchStart} />
@@ -241,7 +242,7 @@ export const StoryHero = () => {
       {/* Content Overlay */}
       <div 
         ref={overlayRef}
-        className={`absolute inset-0 z-15 flex flex-col justify-end p-4 sm:p-6 lg:p-8 ${useAnimationClass(overlayVariant, overlayVisible)}`}
+        className={`${isMobile ? 'relative mt-6 px-4' : 'absolute inset-0 flex flex-col justify-end p-4 sm:p-6 lg:p-8'} z-15 ${useAnimationClass(overlayVariant, overlayVisible)}`}
       >
         {/* Category Badge */}
         <div className="mb-4">
