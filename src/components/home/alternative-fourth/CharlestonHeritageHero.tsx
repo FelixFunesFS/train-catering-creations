@@ -98,22 +98,7 @@ export const CharlestonHeritageHero = () => {
 
           {/* Interactive Timeline */}
           <div className={`max-w-2xl mx-auto mb-12 transition-all duration-700 delay-800 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-              <div className="flex justify-center mb-4">
-                {milestones.map((_, index) => <button key={index} onClick={() => setCurrentMilestone(index)} className={`w-3 h-3 rounded-full mx-1 transition-all duration-300 ${currentMilestone === index ? 'bg-red-400 scale-125' : 'bg-white/40 hover:bg-white/60'}`} />)}
-              </div>
-              <div className="text-center min-h-[120px] flex flex-col justify-center">
-                <div className="text-3xl font-bold text-red-400 font-playfair mb-2">
-                  {milestones[currentMilestone].year}
-                </div>
-                <div className="text-xl font-semibold mb-2">
-                  {milestones[currentMilestone].title}
-                </div>
-                <div className="text-white/80">
-                  {milestones[currentMilestone].description}
-                </div>
-              </div>
-            </div>
+            
           </div>
 
           {/* Heritage CTAs */}
