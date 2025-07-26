@@ -41,58 +41,68 @@ export const CharlestonHeritageHero = () => {
   return <section className="relative min-h-screen flex items-center overflow-hidden">
       {/* Charleston Background */}
       <div className="absolute inset-0">
-        <OptimizedImage src="/lovable-uploads/26d2d500-6017-41a2-99b2-b7050cefedba.png" alt="Historic Charleston Rainbow Row with cobblestone streets" containerClassName="w-full h-full" className="object-cover" priority />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60" />
+        <OptimizedImage 
+          src="/lovable-uploads/a68ac24e-cf0d-4941-9059-568c9b92bebf.png" 
+          alt="Elegant Charleston banquet hall with golden accents and sophisticated lighting" 
+          containerClassName="w-full h-full" 
+          className="object-cover object-center" 
+          priority 
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/80" />
+        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-ruby-900/10 to-ruby-900/20" />
       </div>
 
       <ResponsiveWrapper>
-        <div ref={ref} className="relative z-10 text-center text-white py-12 lg:py-24">
+        <div ref={ref} className="relative z-10 text-center text-white py-8 md:py-12 lg:py-24" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>
           
           {/* Heritage Badge */}
-          <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 mb-6 transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-            <Heart className="w-4 h-4 text-red-400" />
-            <span className="text-sm font-medium">Charleston Family Legacy Since 2002</span>
+          <div className={`inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/15 backdrop-blur-sm border border-white/30 mb-6 md:mb-8 transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+            <Heart className="w-4 h-4 md:w-5 md:h-5 text-red-400" />
+            <span className="text-sm md:text-base font-medium">Charleston Family Legacy Since 2002</span>
           </div>
 
           {/* Logo and Main Title */}
-          <div className="mb-8">
-            <img src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" alt="Soul Train's Eatery Logo - Charleston Heritage Catering" className="h-20 md:h-24 lg:h-28 w-auto mx-auto mb-6" />
+          <div className="mb-6 md:mb-8">
+            <img 
+              src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
+              alt="Soul Train's Eatery Logo - Charleston Heritage Catering" 
+              className="h-16 md:h-20 lg:h-24 w-auto mx-auto mb-4 md:mb-6" 
+            />
           </div>
           
-          <h1 className={`font-elegant text-4xl md:text-6xl lg:text-8xl font-bold mb-6 transition-all duration-700 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+          <h1 className={`font-elegant text-3xl md:text-5xl lg:text-7xl font-bold mb-4 md:mb-6 transition-all duration-700 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`} style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>
             Soul Train's Eatery
-            <span className="block font-script bg-gradient-ruby-primary bg-clip-text text-transparent text-3xl md:text-5xl lg:text-6xl mt-2">
+            <span className="block font-script bg-gradient-ruby-primary bg-clip-text text-transparent text-xl md:text-2xl lg:text-3xl mt-2">
               Charleston Heritage
             </span>
           </h1>
 
           {/* Story Introduction */}
-          <p className={`font-clean text-lg md:text-xl lg:text-2xl max-w-4xl mx-auto mb-8 leading-relaxed transition-all duration-700 delay-400 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+          <p className={`font-clean text-base md:text-lg lg:text-xl max-w-4xl mx-auto mb-6 md:mb-8 leading-relaxed transition-all duration-700 delay-400 px-4 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`} style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.6)' }}>
             Born from a deep love of Southern cooking and a commitment to bringing families together around exceptional food. 
-            
           </p>
 
           {/* Family Stats */}
-          <div className={`grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto mb-12 transition-all duration-700 delay-600 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
-              <Clock className="w-6 h-6 text-red-400 mx-auto mb-2" />
-              <div className="text-2xl font-bold">20+</div>
-              <div className="text-sm opacity-80">Years</div>
+          <div className={`grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 max-w-3xl mx-auto mb-8 md:mb-12 px-4 transition-all duration-700 delay-600 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+            <div className="bg-white/15 backdrop-blur-sm rounded-lg p-6 md:p-4 border border-white/30 min-h-[120px] md:min-h-auto touch-target">
+              <Clock className="w-6 h-6 md:w-7 md:h-7 text-red-400 mx-auto mb-2" />
+              <div className="text-xl md:text-2xl font-bold">20+</div>
+              <div className="text-sm md:text-base opacity-90">Years</div>
             </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
-              <Users className="w-6 h-6 text-red-400 mx-auto mb-2" />
-              <div className="text-2xl font-bold">1000+</div>
-              <div className="text-sm opacity-80">Families Served</div>
+            <div className="bg-white/15 backdrop-blur-sm rounded-lg p-6 md:p-4 border border-white/30 min-h-[120px] md:min-h-auto touch-target">
+              <Users className="w-6 h-6 md:w-7 md:h-7 text-red-400 mx-auto mb-2" />
+              <div className="text-xl md:text-2xl font-bold">1000+</div>
+              <div className="text-sm md:text-base opacity-90">Families Served</div>
             </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
-              <MapPin className="w-6 h-6 text-red-400 mx-auto mb-2" />
-              <div className="text-2xl font-bold">50+</div>
-              <div className="text-sm opacity-80">Charleston Venues</div>
+            <div className="bg-white/15 backdrop-blur-sm rounded-lg p-6 md:p-4 border border-white/30 min-h-[120px] md:min-h-auto touch-target">
+              <MapPin className="w-6 h-6 md:w-7 md:h-7 text-red-400 mx-auto mb-2" />
+              <div className="text-xl md:text-2xl font-bold">50+</div>
+              <div className="text-sm md:text-base opacity-90">Charleston Venues</div>
             </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
-              <Heart className="w-6 h-6 text-red-400 mx-auto mb-2" />
-              <div className="text-2xl font-bold">100%</div>
-              <div className="text-sm opacity-80">Family-Owned</div>
+            <div className="bg-white/15 backdrop-blur-sm rounded-lg p-6 md:p-4 border border-white/30 min-h-[120px] md:min-h-auto touch-target">
+              <Heart className="w-6 h-6 md:w-7 md:h-7 text-red-400 mx-auto mb-2" />
+              <div className="text-xl md:text-2xl font-bold">100%</div>
+              <div className="text-sm md:text-base opacity-90">Family-Owned</div>
             </div>
           </div>
 
@@ -102,12 +112,22 @@ export const CharlestonHeritageHero = () => {
           </div>
 
           {/* Heritage CTAs */}
-          <div className={`flex flex-col sm:flex-row gap-4 justify-center items-center transition-all duration-700 delay-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-            <NeumorphicButton size="lg" variant="primary" className="bg-gradient-ruby-primary text-white hover:bg-gradient-ruby-accent shadow-lg hover:shadow-xl transition-all duration-300 min-w-[200px] focus-visible-enhanced" aria-label="Learn about our Charleston heritage and family story">
+          <div className={`flex flex-col sm:flex-row gap-6 md:gap-4 justify-center items-center px-4 transition-all duration-700 delay-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+            <NeumorphicButton 
+              size="lg" 
+              variant="primary" 
+              className="w-full sm:w-auto bg-gradient-ruby-primary text-white hover:bg-gradient-ruby-accent shadow-lg hover:shadow-xl transition-all duration-300 min-w-[200px] min-h-[48px] px-8 py-4 focus-visible-enhanced" 
+              aria-label="Learn about our Charleston heritage and family story"
+            >
               <Heart className="w-5 h-5" />
               Our Charleston Story
             </NeumorphicButton>
-            <NeumorphicButton size="lg" variant="outline" className="bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20 min-w-[200px] focus-visible-enhanced" aria-label="Explore our Charleston venue locations and services">
+            <NeumorphicButton 
+              size="lg" 
+              variant="outline" 
+              className="w-full sm:w-auto bg-white/15 backdrop-blur-sm border-white/30 text-white hover:bg-white/25 min-w-[200px] min-h-[48px] px-8 py-4 focus-visible-enhanced" 
+              aria-label="Explore our Charleston venue locations and services"
+            >
               <MapPin className="w-5 h-5" />
               Charleston Venues
             </NeumorphicButton>
