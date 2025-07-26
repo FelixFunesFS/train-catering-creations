@@ -1,12 +1,6 @@
 
-import { SplitScreenHero } from "./SplitScreenHero";
-import { MobileTaglineSection } from "./MobileTaglineSection";
+import { StoryHero } from "./StoryHero";
 
 export const HeroSection = () => {
-  return (
-    <>
-      <SplitScreenHero />
-      <MobileTaglineSection />
-    </>
-  );
+  return <StoryHero />;
 };
