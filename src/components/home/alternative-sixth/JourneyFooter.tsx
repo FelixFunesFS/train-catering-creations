@@ -58,7 +58,7 @@ export const JourneyFooter = () => {
   };
 
   return (
-    <footer className="bg-gradient-to-b from-primary/5 to-navy-900 text-white">
+    <footer className="bg-gradient-to-b from-background to-navy text-navy-foreground">
       <ResponsiveWrapper>
         {/* Main Footer Content */}
         <div className="py-16 space-y-12">
