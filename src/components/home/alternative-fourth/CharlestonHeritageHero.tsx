@@ -48,8 +48,6 @@ export const CharlestonHeritageHero = () => {
           className="object-cover object-center" 
           priority 
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/85" />
-        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-ruby-900/15 to-ruby-900/25" />
       </div>
 
       <ResponsiveWrapper>
