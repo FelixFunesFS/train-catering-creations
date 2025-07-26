@@ -23,7 +23,7 @@ export const CharlestonFeaturedVenue = () => {
     rating: 5.0,
     specialties: ["Historic Weddings", "Corporate Events", "Family Celebrations"],
     image: "/lovable-uploads/894051bf-31c6-4930-bb88-e3e1d74f7ee1.png",
-    fullDescription: "Nestled just outside Charleston in the heart of Moncks Corner, 108 W Main is more than just a venue; it's a historic two‑story house under a lush oak canopy that invites you to create your own story. The property offers an elegant front yard, spacious rooms and luxurious bridal and groom suites, plus an air‑conditioned pavilion with conversational seating around a wood‑burning fireplace and a beautifully landscaped ceremony garden. With a neutral aesthetic and lush greenery, the venue is a blank canvas that adapts to your boho‑chic, classic or modern style and, on your day, it's exclusively yours."
+    fullDescription: "A historic two-story house under a lush oak canopy, 108 W Main offers an intimate setting where your love story unfolds. With elegant spaces, luxurious bridal suites, and a beautifully landscaped ceremony garden, this neutral canvas adapts to your unique vision. On your special day, it's exclusively yours."
   };
 
   return (
