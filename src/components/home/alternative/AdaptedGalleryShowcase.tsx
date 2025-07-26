@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { NeumorphicCard } from "@/components/ui/neumorphic-card";
 import { Button } from "@/components/ui/button";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
@@ -11,7 +11,8 @@ import {
   Heart, 
   ArrowRight,
   Expand,
-  Play
+  Play,
+  Pause
 } from "lucide-react";
 
 const galleryCategories = [
@@ -47,10 +48,69 @@ const featuredImages = [
   "/lovable-uploads/eca9632d-b79e-4584-8287-00cc36515fc6.png"
 ];
 
+const culinaryStories = [
+  {
+    id: "wedding",
+    title: "Wedding Elegance",
+    description: "Romantic moments captured",
+    images: [
+      {
+        src: "/lovable-uploads/eca9632d-b79e-4584-8287-00cc36515fc6.png",
+        alt: "Elegant wedding reception venue",
+        caption: "Romantic venue setup"
+      },
+      {
+        src: "/lovable-uploads/26d2d500-6017-41a2-99b2-b7050cefedba.png",
+        alt: "Wedding dessert display",
+        caption: "Sweet celebration moments"
+      }
+    ]
+  },
+  {
+    id: "corporate",
+    title: "Corporate Excellence",
+    description: "Professional culinary artistry",
+    images: [
+      {
+        src: "/lovable-uploads/84f43173-e79d-4c53-b5d4-e8a596d1d614.png",
+        alt: "Corporate buffet setup",
+        caption: "Business dining elegance"
+      },
+      {
+        src: "/lovable-uploads/e61537fa-d421-490b-932f-402236a093aa.png",
+        alt: "Corporate event venue",
+        caption: "Professional presentation"
+      }
+    ]
+  },
+  {
+    id: "signature",
+    title: "Signature Dishes",
+    description: "Culinary masterpieces",
+    images: [
+      {
+        src: "/lovable-uploads/894051bf-31c6-4930-bb88-e3e1d74f7ee1.png",
+        alt: "Artfully plated signature dish",
+        caption: "Culinary artistry"
+      },
+      {
+        src: "/lovable-uploads/1cd54e2e-3991-4795-ad2a-6e8c18fb530f.png",
+        alt: "Gourmet presentation",
+        caption: "Masterful presentation"
+      }
+    ]
+  }
+];
+
 export const AdaptedGalleryShowcase = () => {
   const isMobile = useIsMobile();
   const [hoveredImage, setHoveredImage] = useState<number | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+  
+  // Story state for mobile
+  const [currentStory, setCurrentStory] = useState(0);
+  const [currentImageInStory, setCurrentImageInStory] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(true);
 
   const { ref: headerRef, isVisible: headerVisible, variant: headerVariant } = useScrollAnimation({
     variant: 'fade-up',
@@ -81,6 +141,37 @@ export const AdaptedGalleryShowcase = () => {
   });
 
   const headerAnimationClass = useAnimationClass(headerVariant, headerVisible);
+
+  // Auto-advance story images on mobile
+  useEffect(() => {
+    if (isPlaying && isMobile) {
+      const timer = setInterval(() => {
+        const currentStoryData = culinaryStories[currentStory];
+        const nextImageIndex = (currentImageInStory + 1) % currentStoryData.images.length;
+        
+        if (nextImageIndex === 0) {
+          // Move to next story
+          const nextStoryIndex = (currentStory + 1) % culinaryStories.length;
+          setCurrentStory(nextStoryIndex);
+          setCurrentImageInStory(0);
+        } else {
+          setCurrentImageInStory(nextImageIndex);
+        }
+      }, 3000);
+
+      return () => clearInterval(timer);
+    }
+  }, [isPlaying, currentStory, currentImageInStory, isMobile]);
+
+  const nextStory = () => {
+    setCurrentStory((prev) => (prev + 1) % culinaryStories.length);
+    setCurrentImageInStory(0);
+  };
+
+  const prevStory = () => {
+    setCurrentStory((prev) => (prev - 1 + culinaryStories.length) % culinaryStories.length);
+    setCurrentImageInStory(0);
+  };
 
   return (
     <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-gradient-pattern-d relative overflow-hidden">
@@ -173,53 +264,143 @@ export const AdaptedGalleryShowcase = () => {
           ))}
         </div>
 
-        {/* Featured Images Mosaic */}
+        {/* Our Culinary Stories */}
         <NeumorphicCard level={3} className="p-6 sm:p-8 lg:p-12">
           <div className="text-center mb-8 sm:mb-12">
             <h3 className="font-elegant text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-2 sm:mb-4">
-              Featured Moments
+              Our Culinary Stories
               <span className="block font-script text-ruby-primary text-lg sm:text-xl md:text-2xl lg:text-3xl mt-1 sm:mt-2">
-                From Recent Events
+                Moments That Matter
               </span>
             </h3>
             <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              A curated selection of our finest culinary presentations and memorable celebrations
+              Experience our culinary journey through interactive stories of memorable celebrations
             </p>
           </div>
           
-          {/* Responsive Image Grid */}
-          <div ref={featuredRef} className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3 lg:gap-4 mb-6 sm:mb-8">
-            {featuredImages.map((image, index) => (
-              <div
-                key={index}
-                className={`relative aspect-square overflow-hidden rounded-lg cursor-pointer group ${getFeaturedClassName(index)}`}
-                style={getFeaturedStyle(index)}
-                onMouseEnter={() => !isMobile && setHoveredImage(index)}
-                onMouseLeave={() => !isMobile && setHoveredImage(null)}
-                onClick={() => isMobile && setHoveredImage(hoveredImage === index ? null : index)}
-              >
-                <img
-                  src={image}
-                  alt={`Featured culinary moment ${index + 1}`}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  loading="lazy"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                
-                {/* Hover/Selected Overlay */}
-                <div className={`absolute inset-0 bg-ruby-primary/20 transition-opacity duration-300 ${
-                  hoveredImage === index ? 'opacity-100' : 'opacity-0'
-                }`} />
-                
-                {/* Expand Icon */}
-                <div className={`absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-full p-1 sm:p-2 transition-all duration-300 ${
-                  hoveredImage === index ? 'opacity-100 scale-100' : 'opacity-0 scale-75'
-                }`}>
-                  <Expand className="w-3 h-3 sm:w-4 sm:h-4 text-ruby-primary" />
-                </div>
+          {/* Mobile: Instagram-Style Stories */}
+          {isMobile ? (
+            <div className="space-y-6">
+              
+              {/* Story Progress Bars */}
+              <div className="flex gap-1">
+                {culinaryStories[currentStory].images.map((_, index) => (
+                  <div 
+                    key={index}
+                    className="h-1 bg-muted rounded-full flex-1 overflow-hidden"
+                  >
+                    <div 
+                      className={`h-full bg-ruby-primary transition-all duration-300 ${
+                        index < currentImageInStory ? 'w-full' : 
+                        index === currentImageInStory ? 'w-1/2' : 'w-0'
+                      }`}
+                    />
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+
+              {/* Current Story Display */}
+              <NeumorphicCard level={2} className="p-0 overflow-hidden">
+                <div className="relative aspect-[4/5]">
+                  <img
+                    src={culinaryStories[currentStory].images[currentImageInStory].src}
+                    alt={culinaryStories[currentStory].images[currentImageInStory].alt}
+                    className="w-full h-full object-cover transition-all duration-500"
+                  />
+                  
+                  {/* Story Info Overlay */}
+                  <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
+                    <div>
+                      <h3 className="text-white font-semibold text-lg mb-1">
+                        {culinaryStories[currentStory].title}
+                      </h3>
+                      <p className="text-white/80 text-sm">
+                        {culinaryStories[currentStory].description}
+                      </p>
+                    </div>
+                    
+                    <button
+                      onClick={() => setIsPlaying(!isPlaying)}
+                      className="p-2 bg-ruby-primary/30 backdrop-blur-sm rounded-full text-white hover:bg-ruby-primary/50 transition-colors"
+                      aria-label={isPlaying ? "Pause story" : "Play story"}
+                    >
+                      {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                    </button>
+                  </div>
+
+                  {/* Caption Overlay */}
+                  <div className="absolute bottom-4 left-4 right-4">
+                    <p className="text-white text-sm bg-ruby-primary/30 backdrop-blur-sm px-3 py-2 rounded-lg">
+                      {culinaryStories[currentStory].images[currentImageInStory].caption}
+                    </p>
+                  </div>
+
+                  {/* Touch Areas for Navigation */}
+                  <button
+                    onClick={prevStory}
+                    className="absolute left-0 top-0 bottom-0 w-1/3 bg-transparent"
+                    aria-label="Previous story"
+                  />
+                  <button
+                    onClick={nextStory}
+                    className="absolute right-0 top-0 bottom-0 w-1/3 bg-transparent"
+                    aria-label="Next story"
+                  />
+                </div>
+              </NeumorphicCard>
+
+              {/* Story Navigation */}
+              <div className="flex justify-center gap-2">
+                {culinaryStories.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => {
+                      setCurrentStory(index);
+                      setCurrentImageInStory(0);
+                    }}
+                    className={`w-2 h-2 rounded-full transition-colors ${
+                      index === currentStory ? 'bg-ruby-primary' : 'bg-muted'
+                    }`}
+                    aria-label={`View story ${index + 1}`}
+                  />
+                ))}
+              </div>
+            </div>
+          ) : (
+            
+            /* Desktop: Static Grid with Ruby Accents */
+            <div ref={featuredRef} className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3 lg:gap-4 mb-6 sm:mb-8">
+              {featuredImages.map((image, index) => (
+                <div
+                  key={index}
+                  className={`relative aspect-square overflow-hidden rounded-lg cursor-pointer group ${getFeaturedClassName(index)}`}
+                  style={getFeaturedStyle(index)}
+                  onMouseEnter={() => setHoveredImage(index)}
+                  onMouseLeave={() => setHoveredImage(null)}
+                >
+                  <img
+                    src={image}
+                    alt={`Featured culinary moment ${index + 1}`}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                  
+                  {/* Hover/Selected Overlay */}
+                  <div className={`absolute inset-0 bg-ruby-primary/20 transition-opacity duration-300 ${
+                    hoveredImage === index ? 'opacity-100' : 'opacity-0'
+                  }`} />
+                  
+                  {/* Expand Icon */}
+                  <div className={`absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-full p-1 sm:p-2 transition-all duration-300 ${
+                    hoveredImage === index ? 'opacity-100 scale-100' : 'opacity-0 scale-75'
+                  }`}>
+                    <Expand className="w-3 h-3 sm:w-4 sm:h-4 text-ruby-primary" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
           
           {/* CTA Button */}
           <div className="text-center">
