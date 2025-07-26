@@ -6,8 +6,9 @@ import { GalleryLoadingState } from "@/components/gallery/GalleryLoadingState";
 const MobileFirstHero = lazy(() => import("./MobileFirstHero").then(m => ({ default: m.MobileFirstHero })));
 const TrustIndicatorsSection = lazy(() => import("./TrustIndicatorsSection").then(m => ({ default: m.TrustIndicatorsSection })));
 const ServicesDiscoverySection = lazy(() => import("./ServicesDiscoverySection").then(m => ({ default: m.ServicesDiscoverySection })));
-const VisualStoryGallery = lazy(() => import("./VisualStoryGallery").then(m => ({ default: m.VisualStoryGallery })));
+const AdaptedGalleryShowcase = lazy(() => import("./AdaptedGalleryShowcase").then(m => ({ default: m.AdaptedGalleryShowcase })));
 const LocalConnectionSection = lazy(() => import("./LocalConnectionSection").then(m => ({ default: m.LocalConnectionSection })));
+const AdaptedBookingSection = lazy(() => import("./AdaptedBookingSection").then(m => ({ default: m.AdaptedBookingSection })));
 const SimplifiedQuoteFlow = lazy(() => import("./SimplifiedQuoteFlow").then(m => ({ default: m.SimplifiedQuoteFlow })));
 const ModernFooterSection = lazy(() => import("./ModernFooterSection").then(m => ({ default: m.ModernFooterSection })));
 
@@ -37,10 +38,10 @@ export const AlternativeHomePage = () => {
           </Suspense>
         </PageSection>
 
-        {/* Visual Story Gallery */}
+        {/* Culinary Artistry Gallery */}
         <PageSection pattern="d" withBorder>
           <Suspense fallback={<GalleryLoadingState viewMode="masonry" itemCount={8} />}>
-            <VisualStoryGallery />
+            <AdaptedGalleryShowcase />
           </Suspense>
         </PageSection>
 
@@ -48,6 +49,13 @@ export const AlternativeHomePage = () => {
         <PageSection pattern="a" withBorder>
           <Suspense fallback={<GalleryLoadingState viewMode="grid" itemCount={4} />}>
             <LocalConnectionSection />
+          </Suspense>
+        </PageSection>
+
+        {/* Start Your Culinary Journey */}
+        <PageSection pattern="b" withBorder>
+          <Suspense fallback={<GalleryLoadingState viewMode="grid" itemCount={4} />}>
+            <AdaptedBookingSection />
           </Suspense>
         </PageSection>
 
