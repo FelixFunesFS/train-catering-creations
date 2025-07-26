@@ -60,7 +60,7 @@ export const CharlestonHeritageHero = () => {
           </div>
           
           <h1 className={`font-elegant text-4xl md:text-6xl lg:text-8xl font-bold mb-6 transition-all duration-700 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-            Soul Train's
+            Soul Train's Eatery
             <span className="block font-script bg-gradient-ruby-primary bg-clip-text text-transparent text-3xl md:text-5xl lg:text-6xl mt-2">
               Charleston Heritage
             </span>
