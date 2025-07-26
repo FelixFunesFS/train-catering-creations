@@ -20,7 +20,7 @@ export const MobileFirstHero = () => {
   
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [typewriterText, setTypewriterText] = useState("");
-  const fullText = "Charleston's Premier Catering Services";
+  const fullText = "Charleston's Most Cherished";
 
   // Typewriter effect
   useEffect(() => {
@@ -108,17 +108,21 @@ export const MobileFirstHero = () => {
             </div>
           </div>
 
-          {/* Typewriter Heading */}
+          {/* Charleston Heritage Heading */}
           <div className="text-center lg:text-left mb-6 lg:mb-8">
-            <h1 className="text-2xl sm:text-3xl lg:text-5xl xl:text-6xl font-elegant font-bold text-foreground leading-tight mb-4">
+            <h1 className="text-2xl sm:text-3xl lg:text-5xl xl:text-6xl font-elegant font-bold text-foreground leading-tight mb-2">
               {typewriterText}
               <span className="animate-pulse">|</span>
             </h1>
             
-            <div className="w-16 lg:w-24 h-1 bg-gradient-to-r from-primary via-primary-light to-primary mx-auto lg:mx-0 mb-4 rounded-full" />
+            <div className="text-xl sm:text-2xl lg:text-4xl xl:text-5xl font-script bg-gradient-ruby-primary bg-clip-text text-transparent mb-4">
+              Catering Experience
+            </div>
+            
+            <div className="w-16 lg:w-24 h-1 bg-gradient-ruby-primary mx-auto lg:mx-0 mb-4 rounded-full" />
             
             {/* Mobile-Optimized Tagline */}
-            <p className="text-base sm:text-lg lg:text-xl text-muted-foreground font-elegant leading-relaxed max-w-lg mx-auto lg:mx-0">
+            <p className="text-base sm:text-lg lg:text-xl text-muted-foreground font-clean leading-relaxed max-w-lg mx-auto lg:mx-0">
               {isMobile 
                 ? "Where culinary artistry meets Southern hospitality" 
                 : "Where culinary artistry meets Southern hospitality in Charleston's most distinguished catering experience"

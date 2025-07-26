@@ -187,12 +187,12 @@ export const AdaptedGalleryShowcase = () => {
             <span className="text-ruby-dark text-xs sm:text-sm font-medium">Visual Gallery</span>
           </div>
           
-          <h2 className="font-elegant text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-foreground mb-4 sm:mb-6 leading-tight px-2">
-            Culinary Artistry
-            <span className="block font-script text-ruby-primary text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl mt-1 sm:mt-2">
-              in Focus
-            </span>
+          <h2 className="font-elegant text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-foreground mb-2 sm:mb-4 leading-tight px-2">
+            Charleston's Most
           </h2>
+          <div className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-script bg-gradient-ruby-primary bg-clip-text text-transparent mb-4 sm:mb-6">
+            Cherished Creations
+          </div>
           
           <p className="text-sm sm:text-base md:text-lg lg:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-4">
             Explore our portfolio of stunning events, from intimate celebrations to grand galas, 
@@ -268,9 +268,9 @@ export const AdaptedGalleryShowcase = () => {
         <NeumorphicCard level={3} className="p-6 sm:p-8 lg:p-12">
           <div className="text-center mb-8 sm:mb-12">
             <h3 className="font-elegant text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-2 sm:mb-4">
-              Our Culinary Stories
-              <span className="block font-script text-ruby-primary text-lg sm:text-xl md:text-2xl lg:text-3xl mt-1 sm:mt-2">
-                Moments That Matter
+              Charleston's Most
+              <span className="block font-script bg-gradient-ruby-primary bg-clip-text text-transparent text-lg sm:text-xl md:text-2xl lg:text-3xl mt-1 sm:mt-2">
+                Cherished Stories
               </span>
             </h3>
             <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed">

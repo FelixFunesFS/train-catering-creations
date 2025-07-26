@@ -6,6 +6,7 @@ import { GalleryLoadingState } from "@/components/gallery/GalleryLoadingState";
 const MobileFirstHero = lazy(() => import("./MobileFirstHero").then(m => ({ default: m.MobileFirstHero })));
 const TrustIndicatorsSection = lazy(() => import("./TrustIndicatorsSection").then(m => ({ default: m.TrustIndicatorsSection })));
 const ServicesDiscoverySection = lazy(() => import("./ServicesDiscoverySection").then(m => ({ default: m.ServicesDiscoverySection })));
+const CharlestonFeaturedVenue = lazy(() => import("./CharlestonFeaturedVenue").then(m => ({ default: m.CharlestonFeaturedVenue })));
 const AdaptedGalleryShowcase = lazy(() => import("./AdaptedGalleryShowcase").then(m => ({ default: m.AdaptedGalleryShowcase })));
 const LocalConnectionSection = lazy(() => import("./LocalConnectionSection").then(m => ({ default: m.LocalConnectionSection })));
 const AdaptedBookingSection = lazy(() => import("./AdaptedBookingSection").then(m => ({ default: m.AdaptedBookingSection })));
@@ -38,7 +39,14 @@ export const AlternativeHomePage = () => {
           </Suspense>
         </PageSection>
 
-        {/* Culinary Artistry Gallery */}
+        {/* Charleston's Most Cherished Location */}
+        <PageSection pattern="d" withBorder>
+          <Suspense fallback={<GalleryLoadingState viewMode="grid" itemCount={1} />}>
+            <CharlestonFeaturedVenue />
+          </Suspense>
+        </PageSection>
+
+        {/* Charleston's Most Cherished Creations */}
         <PageSection pattern="d" withBorder>
           <Suspense fallback={<GalleryLoadingState viewMode="masonry" itemCount={8} />}>
             <AdaptedGalleryShowcase />

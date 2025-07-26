@@ -85,15 +85,18 @@ export const ServicesDiscoverySection = () => {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Section Header */}
+        {/* Charleston Heritage Header */}
         <div className="text-center mb-12 lg:mb-16">
-          <h2 className="text-3xl lg:text-4xl xl:text-5xl font-elegant font-bold text-foreground mb-4">
-            Our Catering Services
+          <h2 className="text-3xl lg:text-4xl xl:text-5xl font-elegant font-bold text-foreground mb-2">
+            Charleston's Finest
           </h2>
-          <div className="w-24 h-1 bg-gradient-to-r from-primary via-primary-light to-primary mx-auto mb-6 rounded-full" />
+          <div className="text-2xl lg:text-3xl xl:text-4xl font-script bg-gradient-ruby-primary bg-clip-text text-transparent mb-4">
+            Catering Services
+          </div>
+          <div className="w-24 h-1 bg-gradient-ruby-primary mx-auto mb-6 rounded-full" />
           <p className="text-lg lg:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
             From intimate gatherings to grand celebrations, we bring culinary excellence 
-            and Southern hospitality to every occasion
+            and Southern hospitality to every Charleston occasion
           </p>
         </div>
 
