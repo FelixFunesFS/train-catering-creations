@@ -96,7 +96,11 @@ export const MobileMenuSelection = ({ form, guestCount = 0 }: MobileMenuSelectio
             <p className="text-sm text-muted-foreground">Choose one main protein for your event</p>
           </div>
           
-          <div className="space-y-0">
+          <RadioGroup 
+            value={primaryProtein} 
+            onValueChange={(value) => handleProteinSelection(value, true)}
+            className="space-y-0"
+          >
             {proteins.map((protein) => {
               const isSelectable = isItemSelectable(protein);
               const isSelected = primaryProtein === protein.id;
@@ -113,7 +117,6 @@ export const MobileMenuSelection = ({ form, guestCount = 0 }: MobileMenuSelectio
                 >
                   <RadioGroupItem
                     value={protein.id}
-                    checked={isSelected}
                     disabled={!isSelectable}
                     className="mt-1"
                   />
@@ -132,7 +135,7 @@ export const MobileMenuSelection = ({ form, guestCount = 0 }: MobileMenuSelectio
                 </div>
               );
             })}
-          </div>
+          </RadioGroup>
         </div>
 
         {/* Secondary Protein Option */}
