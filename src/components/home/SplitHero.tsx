@@ -39,14 +39,6 @@ export const SplitHero = () => {
 
   const heroImages: HeroImage[] = [
     {
-      src: "/lovable-uploads/894051bf-31c6-4930-bb88-e3e1d74f7ee1.png",
-      alt: "Rustic wedding venue with elegant dining setup",
-      title: "108 W Main Featured Venue",
-      subtitle: "Where Elegance Meets Southern Charm",
-      category: "featured",
-      description: "Experience the magic of your special day in this stunning rustic venue with chandeliers, string lights, and our exquisite catering services."
-    },
-    {
       src: "/lovable-uploads/26d2d500-6017-41a2-99b2-b7050cefedba.png",
       alt: "Elegant outdoor wedding tent setup",
       title: "Unforgettable Celebrations",
