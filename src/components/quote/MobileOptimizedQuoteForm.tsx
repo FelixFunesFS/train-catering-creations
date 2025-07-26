@@ -16,14 +16,11 @@ import { MobileMenuSelection } from "./MobileMenuSelection";
 import { regularMenuItems } from "@/data/menuItems";
 import { ArrowLeft, ArrowRight, Phone, Mail, MapPin } from "lucide-react";
 import { formatPhoneNumber, parsePhoneNumber, isValidPhoneNumber } from "@/utils/phoneFormatter";
-
 const steps = ["Contact", "Event", "Menu", "Details"];
-
 export const MobileOptimizedQuoteForm = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
   const form = useForm<RegularEventFormData>({
     resolver: zodResolver(regularEventSchema),
     defaultValues: {
@@ -43,44 +40,43 @@ export const MobileOptimizedQuoteForm = () => {
       selectedDesserts: [],
       selectedDrinks: [],
       selectedUtensils: [],
-      selectedExtras: [],
+      selectedExtras: []
     }
   });
-
   const guestCount = parseInt(form.watch("guestCount") || "0");
   const serviceType = form.watch("serviceType");
-
   const validateCurrentStep = () => {
     const values = form.getValues();
-    
     switch (currentStep) {
-      case 0: // Contact
+      case 0:
+        // Contact
         return values.contactName && values.eventName && values.email && values.phone;
-      case 1: // Event
+      case 1:
+        // Event
         return values.eventType && values.eventDate && values.eventStartTime && values.guestCount && values.location;
-      case 2: // Menu
+      case 2:
+        // Menu
         const hasWaitStaff = values.serviceType === 'full-service' ? values.waitStaffRequested : true;
         return values.primaryProtein && values.serviceType && values.servingStartTime && hasWaitStaff;
-      case 3: // Details
-        return true; // Optional fields
+      case 3:
+        // Details
+        return true;
+      // Optional fields
       default:
         return true;
     }
   };
-
   const nextStep = async () => {
     // Get fields to validate for current step
     const stepFields = getStepFields(currentStep);
-    
+
     // Only trigger validation for current step fields
     const isValid = stepFields.length > 0 ? await form.trigger(stepFields) : true;
-    
     if (isValid && validateCurrentStep()) {
       setCompletedSteps(prev => [...prev.filter(s => s !== currentStep), currentStep]);
       setCurrentStep(prev => Math.min(prev + 1, steps.length - 1));
     }
   };
-
   const getStepFields = (step: number) => {
     switch (step) {
       case 0:
@@ -90,29 +86,25 @@ export const MobileOptimizedQuoteForm = () => {
       case 2:
         return ['primaryProtein', 'serviceType', 'servingStartTime'] as const;
       case 3:
-        return [] as const; // Optional fields
+        return [] as const;
+      // Optional fields
       default:
         return [] as const;
     }
   };
-
   const prevStep = () => {
     setCurrentStep(prev => Math.max(prev - 1, 0));
   };
-
   const onSubmit = async (data: RegularEventFormData) => {
     setIsSubmitting(true);
     try {
       const emailContent = formatEmailContent(data);
-      
       console.log("Form Data:", data);
       console.log("Email Content:", emailContent);
-      
       toast({
         title: "Quote Request Submitted!",
-        description: "We'll contact you within 24 hours to discuss your event details.",
+        description: "We'll contact you within 24 hours to discuss your event details."
       });
-      
       form.reset();
       setCurrentStep(0);
       setCompletedSteps([]);
@@ -120,26 +112,23 @@ export const MobileOptimizedQuoteForm = () => {
       toast({
         title: "Submission Error",
         description: "There was an issue submitting your request. Please try again or call us directly.",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setIsSubmitting(false);
     }
   };
-
   const formatEmailContent = (data: RegularEventFormData) => {
     const primaryProteinItem = regularMenuItems.find(item => item.id === data.primaryProtein);
     const secondaryProteinItem = regularMenuItems.find(item => item.id === data.secondaryProtein);
-    
+
     // Format selected items for each category
     const getItemNames = (ids: string[], items: typeof regularMenuItems) => {
       return ids.map(id => items.find(item => item.id === id)?.name || id).join(', ');
     };
-
     const formatMenuSection = (items: string[], title: string) => {
       return items.length > 0 ? `- ${title}: ${items.join(', ')}` : '';
     };
-    
     return `
 Regular Event Quote Request
 
@@ -180,108 +169,71 @@ HOW DID YOU HEAR ABOUT US:
 ${data.hearAboutUs || 'Not specified'}
     `.trim();
   };
-
   const renderStepContent = () => {
     switch (currentStep) {
       case 0:
-        return (
-          <div className="space-y-6">
+        return <div className="space-y-6">
             <div className="text-center space-y-2">
               <h3 className="text-2xl font-elegant font-semibold">Contact Information</h3>
               <p className="text-muted-foreground">Let's start with your contact details</p>
             </div>
 
             <div className="space-y-4">
-              <FormField
-                control={form.control}
-                name="contactName"
-                render={({ field }) => (
-                  <FormItem>
+              <FormField control={form.control} name="contactName" render={({
+              field
+            }) => <FormItem>
                     <FormLabel className="text-base font-medium">Your Name *</FormLabel>
                     <FormControl>
                       <Input {...field} className="h-12 text-base" placeholder="Enter your full name" />
                     </FormControl>
                     <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  </FormItem>} />
 
-              <FormField
-                control={form.control}
-                name="eventName"
-                render={({ field }) => (
-                  <FormItem>
+              <FormField control={form.control} name="eventName" render={({
+              field
+            }) => <FormItem>
                     <FormLabel className="text-base font-medium">Event Name *</FormLabel>
                     <FormControl>
                       <Input {...field} placeholder="e.g. Company Holiday Party" className="h-12 text-base" />
                     </FormControl>
                     <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  </FormItem>} />
 
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
+              <FormField control={form.control} name="email" render={({
+              field
+            }) => <FormItem>
                     <FormLabel className="text-base font-medium">Email Address *</FormLabel>
                     <FormControl>
                       <Input {...field} type="email" className="h-12 text-base" placeholder="your@email.com" />
                     </FormControl>
                     <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  </FormItem>} />
 
-              <FormField
-                control={form.control}
-                name="phone"
-                render={({ field }) => (
-                  <FormItem className="mb-4">
+              <FormField control={form.control} name="phone" render={({
+              field
+            }) => <FormItem className="mb-4">
                     <FormLabel className="text-base font-medium flex items-center gap-2">
                       <Phone className="w-4 h-4" />
                       Phone Number *
                     </FormLabel>
                     <FormControl>
-                      <Input 
-                        {...field}
-                        type="tel" 
-                        className="h-12 text-base" 
-                        placeholder="(555) 123-4567"
-                        onChange={(e) => {
-                          const formatted = formatPhoneNumber(e.target.value);
-                          field.onChange(formatted);
-                        }}
-                        onBlur={(e) => {
-                          // Store the unformatted number for validation
-                          const parsed = parsePhoneNumber(e.target.value);
-                          field.onBlur();
-                        }}
-                      />
+                      
                     </FormControl>
                     <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  </FormItem>} />
             </div>
-          </div>
-        );
-
+          </div>;
       case 1:
-        return (
-          <div className="space-y-6">
+        return <div className="space-y-6">
             <div className="text-center space-y-2">
               <h3 className="text-2xl font-elegant font-semibold">Event Details</h3>
               <p className="text-muted-foreground">Tell us about your event</p>
             </div>
 
             <div className="space-y-4">
-              <FormField
-                control={form.control}
-                name="eventType"
-                render={({ field }) => (
-                  <FormItem>
+              <FormField control={form.control} name="eventType" render={({
+              field
+            }) => <FormItem>
                     <FormLabel className="text-base font-medium">Type of Event *</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
@@ -302,100 +254,68 @@ ${data.hearAboutUs || 'Not specified'}
                       </SelectContent>
                     </Select>
                     <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  </FormItem>} />
 
-              <FormField
-                control={form.control}
-                name="guestCount"
-                render={({ field }) => (
-                  <FormItem>
+              <FormField control={form.control} name="guestCount" render={({
+              field
+            }) => <FormItem>
                     <FormLabel className="text-base font-medium">Number of Guests *</FormLabel>
                     <FormControl>
                       <Input {...field} type="number" placeholder="e.g. 50" className="h-12 text-base" />
                     </FormControl>
                     <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  </FormItem>} />
 
               <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="eventDate"
-                  render={({ field }) => (
-                    <FormItem>
+                <FormField control={form.control} name="eventDate" render={({
+                field
+              }) => <FormItem>
                       <FormLabel className="text-base font-medium">Event Date *</FormLabel>
                       <FormControl>
                         <Input {...field} type="date" className="h-12 text-base" />
                       </FormControl>
                       <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                    </FormItem>} />
 
-                <FormField
-                  control={form.control}
-                  name="eventStartTime"
-                  render={({ field }) => (
-                    <FormItem>
+                <FormField control={form.control} name="eventStartTime" render={({
+                field
+              }) => <FormItem>
                       <FormLabel className="text-base font-medium">Start Time *</FormLabel>
                       <FormControl>
                         <Input {...field} type="time" className="h-12 text-base" />
                       </FormControl>
                       <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                    </FormItem>} />
               </div>
               
-              <FormField
-                control={form.control}
-                name="location"
-                render={({ field }) => (
-                  <FormItem className="mt-4">
+              <FormField control={form.control} name="location" render={({
+              field
+            }) => <FormItem className="mt-4">
                     <FormLabel className="text-base font-medium flex items-center gap-2">
-                      <MapPin className="w-4 h-4 text-primary" />
+                      <MapPin className="w-4 h-4" />
                       Event Address / Venue *
                     </FormLabel>
                     <FormControl>
-                      <Textarea
-                        {...field} 
-                        placeholder="Enter the full event address or venue name&#10;&#10;Example:&#10;123 Main Street, Charleston, SC 29401&#10;&#10;OR&#10;&#10;The Historic Rice Mill&#10;17 Lockwood Drive, Charleston, SC"
-                        className="min-h-[80px] resize-none text-base"
-                        rows={3}
-                      />
+                      <Input {...field} placeholder="123 Main St, City, State or Venue Name" className="h-12 text-base" />
                     </FormControl>
                     <FormDescription className="text-sm text-muted-foreground">
-                      Please provide the complete address or venue name where we'll be delivering/serving
+                      Full street address or venue name where the event will be held
                     </FormDescription>
                     <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  </FormItem>} />
             </div>
-          </div>
-        );
-
+          </div>;
       case 2:
-        return (
-          <div className="space-y-6">
+        return <div className="space-y-6">
             <MobileMenuSelection form={form} guestCount={guestCount} />
             
             <div className="space-y-4 pt-4 border-t">
-              <FormField
-                control={form.control}
-                name="serviceType"
-                render={({ field }) => (
-                  <FormItem className="space-y-3">
+              <FormField control={form.control} name="serviceType" render={({
+              field
+            }) => <FormItem className="space-y-3">
                     <FormLabel className="text-base font-medium">Service Type *</FormLabel>
                     <FormControl>
-                      <RadioGroup
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                        className="space-y-3"
-                      >
+                      <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="space-y-3">
                         <div className="flex items-center space-x-3 p-3 border rounded-lg">
                           <RadioGroupItem value="full-service" id="full-service" />
                           <Label htmlFor="full-service" className="flex-1 text-base">
@@ -420,37 +340,24 @@ ${data.hearAboutUs || 'Not specified'}
                       </RadioGroup>
                     </FormControl>
                     <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  </FormItem>} />
 
-              <FormField
-                control={form.control}
-                name="servingStartTime"
-                render={({ field }) => (
-                  <FormItem>
+              <FormField control={form.control} name="servingStartTime" render={({
+              field
+            }) => <FormItem>
                     <FormLabel className="text-base font-medium">Serving Start Time *</FormLabel>
                     <FormControl>
                       <Input {...field} type="time" className="h-12 text-base" />
                     </FormControl>
                     <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  </FormItem>} />
 
-              {serviceType === 'full-service' && (
-                <FormField
-                  control={form.control}
-                  name="waitStaffRequested"
-                  render={({ field }) => (
-                    <FormItem className="space-y-3">
+              {serviceType === 'full-service' && <FormField control={form.control} name="waitStaffRequested" render={({
+              field
+            }) => <FormItem className="space-y-3">
                       <FormLabel className="text-base font-medium">Wait Staff Requirements *</FormLabel>
                       <FormControl>
-                        <RadioGroup
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                          className="space-y-3"
-                        >
+                        <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="space-y-3">
                           <div className="flex items-center space-x-3 p-3 border rounded-lg">
                             <RadioGroupItem value="yes-full-service" id="yes-full-service" />
                             <Label htmlFor="yes-full-service" className="flex-1 text-base">
@@ -468,46 +375,30 @@ ${data.hearAboutUs || 'Not specified'}
                         </RadioGroup>
                       </FormControl>
                       <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
+                    </FormItem>} />}
             </div>
-          </div>
-        );
-
+          </div>;
       case 3:
-        return (
-          <div className="space-y-6">
+        return <div className="space-y-6">
             <div className="text-center space-y-2">
               <h3 className="text-2xl font-elegant font-semibold">Additional Details</h3>
               <p className="text-muted-foreground">Help us make your event perfect</p>
             </div>
 
             <div className="space-y-4">
-              <FormField
-                control={form.control}
-                name="specialRequests"
-                render={({ field }) => (
-                  <FormItem>
+              <FormField control={form.control} name="specialRequests" render={({
+              field
+            }) => <FormItem>
                     <FormLabel className="text-base font-medium">Special Requests</FormLabel>
                     <FormControl>
-                      <Textarea
-                        {...field}
-                        placeholder="Any special requirements, allergies, or requests..."
-                        className="min-h-[100px] resize-none text-base"
-                      />
+                      <Textarea {...field} placeholder="Any special requirements, allergies, or requests..." className="min-h-[100px] resize-none text-base" />
                     </FormControl>
                     <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  </FormItem>} />
 
-              <FormField
-                control={form.control}
-                name="hearAboutUs"
-                render={({ field }) => (
-                  <FormItem>
+              <FormField control={form.control} name="hearAboutUs" render={({
+              field
+            }) => <FormItem>
                     <FormLabel className="text-base font-medium">How did you hear about us?</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
@@ -527,9 +418,7 @@ ${data.hearAboutUs || 'Not specified'}
                       </SelectContent>
                     </Select>
                     <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  </FormItem>} />
             </div>
 
             {/* Contact CTAs */}
@@ -539,39 +428,23 @@ ${data.hearAboutUs || 'Not specified'}
                   Prefer to discuss your event over the phone?
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="lg"
-                    className="flex-1"
-                    onClick={() => window.open('tel:8439700265')}
-                  >
+                  <Button type="button" variant="outline" size="lg" className="flex-1" onClick={() => window.open('tel:8439700265')}>
                     <Phone className="h-4 w-4 mr-2" />
                     Call (843) 970-0265
                   </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="lg"
-                    className="flex-1"
-                    onClick={() => window.open('mailto:soultrainseatery@gmail.com')}
-                  >
+                  <Button type="button" variant="outline" size="lg" className="flex-1" onClick={() => window.open('mailto:soultrainseatery@gmail.com')}>
                     <Mail className="h-4 w-4 mr-2" />
                     Email Us
                   </Button>
                 </div>
               </div>
             </div>
-          </div>
-        );
-
+          </div>;
       default:
         return null;
     }
   };
-
-  return (
-    <Card className="shadow-elegant w-full mx-auto">
+  return <Card className="shadow-elegant w-full mx-auto">
       <CardHeader className="pb-4">
         <CardTitle className="text-2xl font-elegant text-center">Request a Quote</CardTitle>
         <p className="text-muted-foreground text-center">
@@ -588,41 +461,20 @@ ${data.hearAboutUs || 'Not specified'}
             
             {/* Navigation Buttons */}
             <div className="flex gap-3 pt-6 border-t sticky bottom-0 bg-background py-4">
-              {currentStep > 0 && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={prevStep}
-                  className="flex-1 h-12"
-                >
+              {currentStep > 0 && <Button type="button" variant="outline" onClick={prevStep} className="flex-1 h-12">
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Back
-                </Button>
-              )}
+                </Button>}
               
-              {currentStep < steps.length - 1 ? (
-                <Button
-                  type="button"
-                  onClick={nextStep}
-                  className="flex-1 h-12"
-                  disabled={!validateCurrentStep()}
-                >
+              {currentStep < steps.length - 1 ? <Button type="button" onClick={nextStep} className="flex-1 h-12" disabled={!validateCurrentStep()}>
                   Continue
                   <ArrowRight className="h-4 w-4 ml-2" />
-                </Button>
-              ) : (
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="flex-1 h-12"
-                >
+                </Button> : <Button type="submit" disabled={isSubmitting} className="flex-1 h-12">
                   {isSubmitting ? "Submitting..." : "Submit Quote Request"}
-                </Button>
-              )}
+                </Button>}
             </div>
           </form>
         </Form>
       </CardContent>
-    </Card>
-  );
+    </Card>;
 };
