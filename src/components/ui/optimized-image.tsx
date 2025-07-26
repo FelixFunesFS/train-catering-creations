@@ -55,6 +55,13 @@ export const OptimizedImage = ({
           onLoad={handleLoad}
           onError={handleError}
           loading={priority ? "eager" : "lazy"}
+          decoding="async"
+          fetchPriority={priority ? "high" : "auto"}
+          style={{ 
+            imageRendering: 'crisp-edges',
+            WebkitBackfaceVisibility: 'hidden',
+            backfaceVisibility: 'hidden'
+          }}
           {...props}
         />
       )}

@@ -164,7 +164,7 @@ export const StoryHero = () => {
         <OptimizedImage
           src={currentImage.src}
           alt={currentImage.alt}
-          className="w-full h-full object-cover scale-105 transition-transform duration-700"
+          className="w-full h-full object-cover transition-transform duration-700"
           containerClassName="w-full h-full"
           priority
         />
