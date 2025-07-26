@@ -14,7 +14,114 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      quote_requests: {
+        Row: {
+          appetizers: Json | null
+          chafers_requested: boolean | null
+          contact_name: string
+          created_at: string | null
+          custom_menu_requests: string | null
+          desserts: Json | null
+          dietary_restrictions: Json | null
+          drinks: Json | null
+          email: string
+          event_date: string
+          event_name: string
+          event_type: Database["public"]["Enums"]["event_type"]
+          extras: Json | null
+          guest_count: number
+          id: string
+          linens_requested: boolean | null
+          location: string
+          phone: string
+          primary_protein: string | null
+          referral_source: string | null
+          secondary_protein: string | null
+          service_type: Database["public"]["Enums"]["service_type"]
+          serving_start_time: string | null
+          sides: Json | null
+          special_requests: string | null
+          start_time: string
+          status: Database["public"]["Enums"]["quote_status"] | null
+          tables_chairs_requested: boolean | null
+          updated_at: string | null
+          utensils: Json | null
+          wait_staff_requested: boolean | null
+          wait_staff_requirements: string | null
+          wait_staff_setup_areas: string | null
+        }
+        Insert: {
+          appetizers?: Json | null
+          chafers_requested?: boolean | null
+          contact_name: string
+          created_at?: string | null
+          custom_menu_requests?: string | null
+          desserts?: Json | null
+          dietary_restrictions?: Json | null
+          drinks?: Json | null
+          email: string
+          event_date: string
+          event_name: string
+          event_type: Database["public"]["Enums"]["event_type"]
+          extras?: Json | null
+          guest_count: number
+          id?: string
+          linens_requested?: boolean | null
+          location: string
+          phone: string
+          primary_protein?: string | null
+          referral_source?: string | null
+          secondary_protein?: string | null
+          service_type: Database["public"]["Enums"]["service_type"]
+          serving_start_time?: string | null
+          sides?: Json | null
+          special_requests?: string | null
+          start_time: string
+          status?: Database["public"]["Enums"]["quote_status"] | null
+          tables_chairs_requested?: boolean | null
+          updated_at?: string | null
+          utensils?: Json | null
+          wait_staff_requested?: boolean | null
+          wait_staff_requirements?: string | null
+          wait_staff_setup_areas?: string | null
+        }
+        Update: {
+          appetizers?: Json | null
+          chafers_requested?: boolean | null
+          contact_name?: string
+          created_at?: string | null
+          custom_menu_requests?: string | null
+          desserts?: Json | null
+          dietary_restrictions?: Json | null
+          drinks?: Json | null
+          email?: string
+          event_date?: string
+          event_name?: string
+          event_type?: Database["public"]["Enums"]["event_type"]
+          extras?: Json | null
+          guest_count?: number
+          id?: string
+          linens_requested?: boolean | null
+          location?: string
+          phone?: string
+          primary_protein?: string | null
+          referral_source?: string | null
+          secondary_protein?: string | null
+          service_type?: Database["public"]["Enums"]["service_type"]
+          serving_start_time?: string | null
+          sides?: Json | null
+          special_requests?: string | null
+          start_time?: string
+          status?: Database["public"]["Enums"]["quote_status"] | null
+          tables_chairs_requested?: boolean | null
+          updated_at?: string | null
+          utensils?: Json | null
+          wait_staff_requested?: boolean | null
+          wait_staff_requirements?: string | null
+          wait_staff_setup_areas?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +130,22 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      event_type:
+        | "corporate"
+        | "private-party"
+        | "birthday"
+        | "anniversary"
+        | "graduation"
+        | "holiday-party"
+        | "other"
+      quote_status:
+        | "pending"
+        | "reviewed"
+        | "quoted"
+        | "confirmed"
+        | "completed"
+        | "cancelled"
+      service_type: "drop-off" | "full-service"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +272,25 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      event_type: [
+        "corporate",
+        "private-party",
+        "birthday",
+        "anniversary",
+        "graduation",
+        "holiday-party",
+        "other",
+      ],
+      quote_status: [
+        "pending",
+        "reviewed",
+        "quoted",
+        "confirmed",
+        "completed",
+        "cancelled",
+      ],
+      service_type: ["drop-off", "full-service"],
+    },
   },
 } as const
