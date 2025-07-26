@@ -78,5 +78,60 @@ export const SimplifiedQuoteFlow = () => {
       setEstimatedCost(calculateEstimate());
     }
   };
-  return;
+  return (
+    <section 
+      ref={ref}
+      className={`py-12 sm:py-16 lg:py-20 bg-gradient-subtle ${isVisible ? 'animate-fade-in' : ''}`}
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-12">
+          <h2 className="font-elegant text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-ruby-primary bg-clip-text text-transparent mb-4">
+            Get Your Quote in Minutes
+          </h2>
+          <p className="font-clean text-lg text-muted-foreground max-w-2xl mx-auto">
+            Start planning your perfect event with our simplified quote process
+          </p>
+        </div>
+        
+        <NeumorphicCard level={2} className="max-w-4xl mx-auto p-6 sm:p-8">
+          <div className="space-y-8">
+            {/* Event Type Selection */}
+            <div>
+              <h3 className="font-elegant text-xl font-semibold mb-4">Select Event Type</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {eventTypes.map((type) => {
+                  const Icon = type.icon;
+                  return (
+                    <button
+                      key={type.id}
+                      onClick={() => handleEventTypeSelect(type.id)}
+                      className={`p-4 rounded-xl border-2 transition-all duration-300 ${
+                        selectedEventType === type.id
+                          ? 'border-ruby-primary bg-ruby-primary/10'
+                          : 'border-border hover:border-ruby-light'
+                      }`}
+                    >
+                      <Icon className="w-8 h-8 mx-auto mb-2 text-ruby-primary" />
+                      <h4 className="font-semibold">{type.name}</h4>
+                      <p className="text-sm text-muted-foreground">{type.description}</p>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Quick Quote CTA */}
+            <div className="text-center">
+              <Button asChild variant="cta" size="lg">
+                <Link to="/request-quote">
+                  <Send className="w-5 h-5 mr-2" />
+                  Get Detailed Quote
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </NeumorphicCard>
+      </div>
+    </section>
+  );
 };
