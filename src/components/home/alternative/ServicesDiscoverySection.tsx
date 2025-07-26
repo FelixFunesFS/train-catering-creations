@@ -94,7 +94,7 @@ export const ServicesDiscoverySection = () => {
             Catering Services
           </div>
           <div className="w-24 h-1 bg-gradient-ruby-primary mx-auto mb-6 rounded-full" />
-          <p className="text-lg lg:text-xl font-script bg-gradient-ruby-primary bg-clip-text text-transparent max-w-3xl mx-auto leading-relaxed">
+          <p className="text-lg lg:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
             From intimate gatherings to grand celebrations, we bring culinary excellence 
             and Southern hospitality to every Charleston occasion
           </p>
