@@ -54,7 +54,7 @@ export const JourneyGalleryFusion = () => {
   };
 
   return (
-    <section className="py-20 bg-gradient-to-b from-primary/5 to-background">
+    <section className="py-20 bg-gradient-to-b from-ruby/10 to-background">
       <ResponsiveWrapper>
         <div ref={ref} className="space-y-16">
           {/* Section Header */}
@@ -66,7 +66,7 @@ export const JourneyGalleryFusion = () => {
                 Event Excellence
               </span>
             </h2>
-            <p className="text-lg md:text-xl text-muted-foreground">
+            <p className="text-lg md:text-xl text-foreground/80">
               8 years of creating unforgettable moments with 20+ years of culinary expertise. Explore the artistry and passion behind every event we cater.
             </p>
           </div>
@@ -84,7 +84,7 @@ export const JourneyGalleryFusion = () => {
                 role="tab"
                 aria-selected={activeCategory === category.value}
                 aria-controls="gallery-content"
-                className="px-6 py-2 min-h-[44px] flex items-center gap-2"
+                className="px-6 py-2 min-h-[48px] text-base flex items-center gap-2"
               >
                 <category.icon className="w-4 h-4" />
                 {category.label}
@@ -116,7 +116,7 @@ export const JourneyGalleryFusion = () => {
                             <h3 className="font-elegant font-semibold mb-2">
                               {item.title}
                             </h3>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-sm text-foreground/70">
                               {item.description}
                             </p>
                           </div>
@@ -131,7 +131,7 @@ export const JourneyGalleryFusion = () => {
                 onClick={prevSlide}
                 disabled={currentSlide === 0}
                 aria-label="Previous gallery image"
-                className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm rounded-full p-3 shadow-lg hover:bg-white transition-all disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] min-w-[44px] focus:outline-none focus:ring-2 focus:ring-primary"
+                className="absolute left-2 top-1/2 -translate-y-1/2 bg-background/90 backdrop-blur-sm rounded-full p-3 shadow-lg hover:bg-background transition-all disabled:opacity-50 disabled:cursor-not-allowed min-h-[48px] min-w-[48px] focus:outline-none focus:ring-2 focus:ring-ruby"
               >
                 <ChevronLeft className="w-5 h-5 text-primary" />
               </button>
@@ -139,7 +139,7 @@ export const JourneyGalleryFusion = () => {
                 onClick={nextSlide}
                 disabled={currentSlide >= filteredItems.length - 1}
                 aria-label="Next gallery image"
-                className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm rounded-full p-3 shadow-lg hover:bg-white transition-all disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] min-w-[44px] focus:outline-none focus:ring-2 focus:ring-primary"
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-background/90 backdrop-blur-sm rounded-full p-3 shadow-lg hover:bg-background transition-all disabled:opacity-50 disabled:cursor-not-allowed min-h-[48px] min-w-[48px] focus:outline-none focus:ring-2 focus:ring-ruby"
               >
                 <ChevronRight className="w-5 h-5 text-primary" />
               </button>
@@ -153,8 +153,8 @@ export const JourneyGalleryFusion = () => {
                     role="tab"
                     aria-selected={index === currentSlide}
                     aria-label={`Go to slide ${index + 1}`}
-                    className={`w-3 h-3 rounded-full transition-all focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 ${
-                      index === currentSlide ? 'bg-primary' : 'bg-primary/30'
+                    className={`w-3 h-3 rounded-full transition-all focus:outline-none focus:ring-2 focus:ring-ruby focus:ring-offset-1 ${
+                      index === currentSlide ? 'bg-ruby' : 'bg-ruby/30'
                     }`}
                   />
                 ))}
@@ -189,7 +189,7 @@ export const JourneyGalleryFusion = () => {
                     <h3 className="font-elegant font-semibold mb-2 group-hover:text-primary transition-colors">
                       {item.title}
                     </h3>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-foreground/70">
                         {item.description}
                       </p>
                     </div>
@@ -230,9 +230,9 @@ export const JourneyGalleryFusion = () => {
                   <h4 className="text-lg font-elegant font-semibold mb-3">
                     {highlight.title}
                   </h4>
-                  <p className="text-muted-foreground text-sm leading-relaxed">
-                    {highlight.description}
-                  </p>
+                   <p className="text-foreground/70 text-sm leading-relaxed">
+                     {highlight.description}
+                   </p>
                 </div>
               ))}
             </div>
@@ -242,7 +242,7 @@ export const JourneyGalleryFusion = () => {
           <div className="text-center">
             <NeumorphicButton 
               size="lg" 
-              className="px-8 py-4 min-h-[44px]"
+              className="px-8 py-4 min-h-[48px] text-base bg-gradient-ruby-primary text-white hover:scale-105 transition-all duration-300"
               aria-label="View our complete gallery of catering work"
             >
               <Eye className="w-5 h-5 mr-2" />

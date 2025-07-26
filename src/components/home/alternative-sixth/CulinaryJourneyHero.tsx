@@ -32,14 +32,14 @@ export const CulinaryJourneyHero = () => {
     }, 4000);
     return () => clearInterval(interval);
   }, []);
-  return <div className="relative min-h-screen bg-gradient-to-br from-background via-background/95 to-primary/5 overflow-hidden">
+  return <div className="relative min-h-screen bg-gradient-to-br from-background to-ruby/20 overflow-hidden">
       {/* Hero Background Image */}
-      <div className="absolute inset-0 opacity-30">
+      <div className="absolute inset-0 opacity-60">
         <OptimizedImage src="/lovable-uploads/26d2d500-6017-41a2-99b2-b7050cefedba.png" alt="Elegant wedding reception setup showcasing Soul Train's Eatery catering expertise" className="w-full h-full object-cover" containerClassName="w-full h-full" />
       </div>
       
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-5 bg-[radial-gradient(circle_at_50%_50%,hsl(var(--primary))_0%,transparent_50%)] py-0 px-0 mx-0" />
+      {/* Background Overlay for Text Contrast */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background/90" />
 
       <ResponsiveWrapper hasFullWidthCard>
         <div ref={ref} className="relative z-10 pt-8 pb-16">
@@ -71,7 +71,7 @@ export const CulinaryJourneyHero = () => {
               </p>
             </div>
             
-            <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+            <p className="text-lg md:text-xl text-foreground/90 max-w-3xl mx-auto leading-relaxed">
               Creating unforgettable culinary experiences in Charleston and the Lowcountry since 2016. 
               8 years of exceptional service backed by 20+ years of culinary mastery, 
               bringing heartfelt service to your celebrations.
@@ -102,10 +102,10 @@ export const CulinaryJourneyHero = () => {
           <div className={`flex flex-col sm:flex-row gap-4 justify-center ${isVisible ? 'fade-up-visible' : 'fade-up-hidden'}`} style={{
           animationDelay: '800ms'
         }}>
-            <NeumorphicButton size="lg" className="px-8 py-4 min-h-[44px]" aria-label="Start planning your culinary event with Soul Train's Eatery">
+            <NeumorphicButton size="lg" className="px-8 py-4 min-h-[48px] text-base sm:text-lg" aria-label="Start planning your culinary event with Soul Train's Eatery">
               Get Started Today
             </NeumorphicButton>
-            <NeumorphicButton variant="outline" size="lg" className="px-8 py-4 min-h-[44px]" aria-label="Learn more about our Charleston heritage and story">
+            <NeumorphicButton variant="outline" size="lg" className="px-8 py-4 min-h-[48px] text-base sm:text-lg border-ruby text-ruby hover:bg-ruby hover:text-white" aria-label="Learn more about our Charleston heritage and story">
               Explore Our Story
             </NeumorphicButton>
           </div>

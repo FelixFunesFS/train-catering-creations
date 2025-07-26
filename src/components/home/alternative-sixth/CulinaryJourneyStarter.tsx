@@ -80,13 +80,13 @@ export const CulinaryJourneyStarter = () => {
   const contentAnimationClass = useAnimationClass(contentVariant, contentVisible);
 
   return (
-    <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-gradient-to-br from-primary/5 via-background to-primary/10 relative overflow-hidden">
+    <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-gradient-to-br from-ruby/8 via-background to-ruby/12 relative overflow-hidden">
       {/* Primary Gradient Background */}
-      <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-primary/5" />
+      <div className="absolute inset-0 bg-gradient-to-r from-ruby/12 via-transparent to-ruby/8" />
       
       {/* Decorative Elements */}
-      <div className="absolute top-1/3 left-0 w-32 h-32 sm:w-48 sm:h-48 bg-primary/10 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute bottom-1/3 right-0 w-24 h-24 sm:w-36 sm:h-36 bg-primary/10 rounded-full blur-3xl animate-pulse delay-1000" />
+      <div className="absolute top-1/3 left-0 w-32 h-32 sm:w-48 sm:h-48 bg-ruby/12 rounded-full blur-3xl animate-pulse" />
+      <div className="absolute bottom-1/3 right-0 w-24 h-24 sm:w-36 sm:h-36 bg-ruby/12 rounded-full blur-3xl animate-pulse delay-1000" />
       
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
@@ -103,7 +103,7 @@ export const CulinaryJourneyStarter = () => {
             </span>
           </h2>
           
-          <p className="text-sm sm:text-base md:text-lg lg:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-4">
+          <p className="text-sm sm:text-base md:text-lg lg:text-xl text-foreground/80 max-w-3xl mx-auto leading-relaxed px-4">
             Join 10,000+ satisfied clients who've experienced the magic of Soul Train's Eatery. 
             8 years of exceptional service backed by 20+ years of culinary mastery. 
             From concept to celebration, we create extraordinary dining experiences.
@@ -163,8 +163,8 @@ export const CulinaryJourneyStarter = () => {
                         <h4 className="font-semibold text-sm sm:text-base text-foreground mb-1 sm:mb-2">
                           {step.title}
                         </h4>
-                        <p className={`text-xs sm:text-sm text-muted-foreground leading-relaxed transition-all duration-300 ${
-                          activeStep === index ? 'opacity-100 max-h-20' : 'opacity-70 max-h-12 overflow-hidden'
+                        <p className={`text-xs sm:text-sm text-foreground/70 leading-relaxed transition-all duration-300 ${
+                          activeStep === index ? 'opacity-100 max-h-20' : 'opacity-80 max-h-12 overflow-hidden'
                         }`}>
                           {step.description}
                         </p>
@@ -203,7 +203,7 @@ export const CulinaryJourneyStarter = () => {
                   </span>
                 </h3>
                 
-                <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+                <p className="text-sm sm:text-base text-foreground/80 leading-relaxed">
                   Book your complimentary consultation and start planning your perfect event today.
                 </p>
               </div>
@@ -241,15 +241,15 @@ export const CulinaryJourneyStarter = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm">
                   <div className="flex items-center justify-center space-x-2">
                     <Clock className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
-                    <span className="text-muted-foreground">Available 7 days/week</span>
+                    <span className="text-foreground/70">Available 7 days/week</span>
                   </div>
                   <div className="flex items-center justify-center space-x-2">
                     <Mail className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
-                    <span className="text-muted-foreground">hello@soultrainseatery.com</span>
+                    <span className="text-foreground/70">hello@soultrainseatery.com</span>
                   </div>
                   <div className="flex items-center justify-center space-x-2 sm:col-span-2">
                     <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
-                    <span className="text-muted-foreground">Serving Charleston & Surrounding Areas</span>
+                    <span className="text-foreground/70">Serving Charleston & Surrounding Areas</span>
                   </div>
                 </div>
                 

@@ -50,7 +50,7 @@ export const InteractiveJourneyServices = () => {
   ];
 
   return (
-    <section className="py-20 bg-gradient-to-b from-background to-primary/5">
+    <section className="py-20 bg-gradient-to-b from-background to-ruby/10">
       <ResponsiveWrapper>
         <div ref={ref} className="space-y-16">
           {/* Section Header */}
@@ -64,7 +64,7 @@ export const InteractiveJourneyServices = () => {
                 Services
               </span>
             </h2>
-            <p className="text-lg md:text-xl text-muted-foreground">
+            <p className="text-lg md:text-xl text-foreground/80">
               8 years of exceptional service backed by 20+ years of culinary mastery. From intimate gatherings to grand celebrations, we bring Charleston's finest flavors to your special moments.
             </p>
           </div>
@@ -98,7 +98,7 @@ export const InteractiveJourneyServices = () => {
                   </div>
 
                   {/* Service Description */}
-                  <p className="text-muted-foreground leading-relaxed">
+                  <p className="text-foreground/70 leading-relaxed">
                     {service.description}
                   </p>
 
@@ -116,7 +116,7 @@ export const InteractiveJourneyServices = () => {
                   <div className="pt-4">
                      <NeumorphicButton 
                       variant="outline" 
-                      className="w-full min-h-[44px]"
+                      className="w-full min-h-[48px] text-base border-ruby text-ruby hover:bg-ruby hover:text-white"
                       aria-label={`Learn more about ${service.title} catering services`}
                     >
                       Explore {service.title}
@@ -158,7 +158,7 @@ export const InteractiveJourneyServices = () => {
                   <h4 className="text-lg font-elegant font-semibold mb-3">
                     {step.title}
                   </h4>
-                  <p className="text-muted-foreground text-sm leading-relaxed">
+                  <p className="text-foreground/70 text-sm leading-relaxed">
                     {step.description}
                   </p>
                 </div>
@@ -170,7 +170,7 @@ export const InteractiveJourneyServices = () => {
           <div className="text-center">
             <NeumorphicButton 
               size="lg" 
-              className="px-12 py-4 text-lg min-h-[44px]"
+              className="px-12 py-4 text-lg min-h-[48px] bg-gradient-ruby-primary text-white hover:scale-105 transition-all duration-300"
               aria-label="Contact Soul Train's Eatery to start planning your event"
             >
               Get Your Quote Today
