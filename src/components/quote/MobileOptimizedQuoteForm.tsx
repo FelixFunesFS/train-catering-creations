@@ -356,18 +356,19 @@ ${data.hearAboutUs || 'Not specified'}
                 render={({ field }) => (
                   <FormItem className="mt-4">
                     <FormLabel className="text-base font-medium flex items-center gap-2">
-                      <MapPin className="w-4 h-4" />
+                      <MapPin className="w-4 h-4 text-primary" />
                       Event Address / Venue *
                     </FormLabel>
                     <FormControl>
-                      <Input 
+                      <Textarea
                         {...field} 
-                        placeholder="123 Main St, City, State or Venue Name" 
-                        className="h-12 text-base" 
+                        placeholder="Enter the full event address or venue name&#10;&#10;Example:&#10;123 Main Street, Charleston, SC 29401&#10;&#10;OR&#10;&#10;The Historic Rice Mill&#10;17 Lockwood Drive, Charleston, SC"
+                        className="min-h-[80px] resize-none text-base"
+                        rows={3}
                       />
                     </FormControl>
                     <FormDescription className="text-sm text-muted-foreground">
-                      Full street address or venue name where the event will be held
+                      Please provide the complete address or venue name where we'll be delivering/serving
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
