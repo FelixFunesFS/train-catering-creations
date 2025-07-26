@@ -64,15 +64,17 @@ export const AlternativeHomePage = () => {
         </PageSection>
 
         {/* Simplified Quote Flow */}
-        <PageSection pattern="b" withBorder>
-          <Suspense fallback={<GalleryLoadingState viewMode="grid" itemCount={2} />} className="py-0 my-0">
+        <PageSection pattern="b" withBorder className="py-0 my-0">
+          <Suspense fallback={<GalleryLoadingState viewMode="grid" itemCount={2} />}>
             <SimplifiedQuoteFlow />
           </Suspense>
         </PageSection>
 
         {/* Modern Footer */}
         <PageSection withBorder>
-          
+          <Suspense fallback={<GalleryLoadingState viewMode="grid" itemCount={4} />}>
+            <ModernFooterSection />
+          </Suspense>
         </PageSection>
         
       </main>
