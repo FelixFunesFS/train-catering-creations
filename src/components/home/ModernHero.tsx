@@ -49,7 +49,7 @@ export const ModernHero = () => {
       description: "From intimate gatherings to grand celebrations, Soul Train's Eatery brings exceptional flavors and impeccable service to every occasion."
     },
     {
-      src: "/lovable-uploads/e61537fa-d421-490b-932f-402236a093aa.png",
+      src: "/lovable-uploads/c6c2df94-6625-460e-a5a1-b75dd8c362ab.png",
       alt: "Beautiful outdoor wedding buffet",
       title: "Award-Winning Catering",
       subtitle: "20+ Years of Culinary Excellence",

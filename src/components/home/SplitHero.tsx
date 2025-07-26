@@ -47,7 +47,7 @@ export const SplitHero = () => {
       description: "From our signature charcuterie boards to custom wedding cakes, each dish is crafted with precision and passion."
     },
     {
-      src: "/lovable-uploads/8e32f09d-a941-47b9-b25d-c514ca79ee22.png",
+      src: "/lovable-uploads/c6c2df94-6625-460e-a5a1-b75dd8c362ab.png",
       alt: "Elegant appetizer spread with tiered displays",
       title: "Award-Winning Catering",
       subtitle: "20+ Years of Culinary Excellence",
