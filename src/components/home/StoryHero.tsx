@@ -131,9 +131,8 @@ export const StoryHero = () => {
           priority
         />
         
-        {/* Gradient Overlays */}
-        <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/30 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-r from-background/60 via-transparent to-background/40" />
+        {/* Minimal overlay for text readability */}
+        <div className="absolute inset-0 bg-gradient-to-t from-background/40 via-transparent to-transparent" />
       </div>
 
       {/* Story Progress Indicators */}
@@ -249,9 +248,9 @@ export const StoryHero = () => {
           
           <Button
             asChild
-            variant="outline"
+            variant="secondary"
             size="lg"
-            className="bg-white/10 text-white border-white/20 backdrop-blur-sm hover:bg-white/20 min-h-[48px] text-base font-semibold"
+            className="min-h-[48px] text-base font-semibold"
           >
             <Link to="/gallery#page-header" className="flex items-center justify-center gap-2">
               View Gallery
