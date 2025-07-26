@@ -7,7 +7,10 @@ const baseQuoteSchema = z.object({
   contactName: z.string().min(2, "Contact name is required"),
   eventName: z.string().min(2, "Event name is required"),
   email: z.string().email("Valid email is required"),
-  phone: z.string().min(10, "Valid phone number is required"),
+  phone: z.string().min(1, "Phone number is required").refine((val) => {
+    const cleaned = val.replace(/\D/g, '');
+    return cleaned.length === 10;
+  }, "Please enter a valid 10-digit phone number"),
   
   // Event Details
   eventDate: z.string().min(1, "Event date is required"),

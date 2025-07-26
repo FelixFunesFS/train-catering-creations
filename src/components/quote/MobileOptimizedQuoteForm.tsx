@@ -217,7 +217,17 @@ ${data.hearAboutUs || 'Not specified'}
                       Phone Number *
                     </FormLabel>
                     <FormControl>
-                      
+                      <Input 
+                        type="tel"
+                        className="h-12 text-base" 
+                        placeholder="(555) 123-4567"
+                        value={formatPhoneNumber(field.value || '')}
+                        onChange={(e) => {
+                          const formatted = formatPhoneNumber(e.target.value);
+                          const parsed = parsePhoneNumber(formatted);
+                          field.onChange(parsed);
+                        }}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>} />
