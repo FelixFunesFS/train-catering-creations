@@ -81,6 +81,13 @@ export const StoryHero = () => {
       category: "military",
       description: "Honored to serve our military with exceptional catering experiences"
     },
+    {
+      src: "/lovable-uploads/72e4931b-da81-474f-bd3c-a38945df3999.png",
+      alt: "Outdoor buffet catering",
+      title: "Outdoor Event Catering",
+      category: "outdoor",
+      description: "Professional outdoor catering with fresh presentation and quality service"
+    }
   ];
 
   const currentImage = heroImages[currentIndex];
@@ -151,15 +158,14 @@ export const StoryHero = () => {
   };
 
   return (
-    <div className={`relative overflow-hidden bg-gradient-primary ${isMobile ? 'h-auto flex items-center justify-center min-h-screen py-8' : 'h-screen'}`}>
+    <div className="relative h-screen overflow-hidden bg-gradient-primary">
       {/* Background Image with Parallax Effect */}
-      <div className={`${isMobile ? 'relative aspect-[5/4] w-full max-w-sm mx-auto' : 'absolute inset-0'}`}>
+      <div className="absolute inset-0">
         <OptimizedImage
           src={currentImage.src}
           alt={currentImage.alt}
           className="w-full h-full object-cover transition-transform duration-700"
           containerClassName="w-full h-full"
-          aspectRatio={isMobile ? "aspect-[5/4]" : undefined}
           priority
         />
         
@@ -189,7 +195,7 @@ export const StoryHero = () => {
 
       {/* Touch Areas for Mobile Navigation */}
       {isMobile && (
-        <div className="absolute inset-0 z-10 flex max-w-sm mx-auto">
+        <div className="absolute inset-0 z-10 flex">
           <div className="flex-1" onTouchStart={handleTouchStart} />
           <div className="flex-1" onTouchStart={handleTouchStart} />
           <div className="flex-1" onTouchStart={handleTouchStart} />
@@ -235,7 +241,7 @@ export const StoryHero = () => {
       {/* Content Overlay */}
       <div 
         ref={overlayRef}
-        className={`${isMobile ? 'relative mt-6 px-4' : 'absolute inset-0 flex flex-col justify-end p-4 sm:p-6 lg:p-8'} z-15 ${useAnimationClass(overlayVariant, overlayVisible)}`}
+        className={`absolute inset-0 z-15 flex flex-col justify-end p-4 sm:p-6 lg:p-8 ${useAnimationClass(overlayVariant, overlayVisible)}`}
       >
         {/* Category Badge */}
         <div className="mb-4">
@@ -252,7 +258,7 @@ export const StoryHero = () => {
             <span className="animate-pulse">|</span>
           </h1>
           
-          <div className="text-lg sm:text-xl md:text-2xl lg:text-4xl xl:text-5xl font-script text-white mb-4" style={{ textShadow: '0 4px 8px rgba(0, 0, 0, 0.8), 0 2px 4px rgba(0, 0, 0, 0.6), 0 1px 2px rgba(0, 0, 0, 0.4)' }}>
+          <div className="text-xl sm:text-2xl lg:text-4xl xl:text-5xl font-script bg-gradient-ruby-primary bg-clip-text text-transparent mb-4" style={{ filter: 'drop-shadow(0 4px 8px rgba(0, 0, 0, 0.6)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4))' }}>
             Catering Experience
           </div>
           
