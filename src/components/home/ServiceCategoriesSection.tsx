@@ -67,7 +67,7 @@ export const ServiceCategoriesSection = () => {
       title: "Family Gatherings",
       subtitle: "Comfort & Joy",
       description: "Bring families together with soul food that creates lasting memories and celebrates your heritage.",
-      image: "/lovable-uploads/0da99409-025b-4319-b332-ea32336ffce1.png",
+      image: "/lovable-uploads/166f817d-592c-4935-b38f-52efd5322e59.png",
       features: ["Family-Style Service", "Traditional Recipes", "Generous Portions"],
       href: "/menu"
     },
