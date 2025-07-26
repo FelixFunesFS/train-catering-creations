@@ -39,8 +39,8 @@ export const SplitHero = () => {
 
   const heroImages: HeroImage[] = [
     {
-      src: "/lovable-uploads/482f624b-c895-49b6-9f28-1417357a93fd.png",
-      alt: "Military formal dining event with professional service",
+      src: "/lovable-uploads/aaf2be76-85aa-4249-a220-70c29f94637a.png",
+      alt: "Professional catering setup with chafing dishes and elegant floral arrangements",
       title: "Unforgettable Celebrations",
       subtitle: "Crafted with Soul, Seasoned with Love",
       category: "wedding",
