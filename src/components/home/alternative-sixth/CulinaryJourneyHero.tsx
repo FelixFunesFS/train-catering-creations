@@ -60,7 +60,7 @@ export const CulinaryJourneyHero = () => {
       </div>
       
       {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-5 bg-[radial-gradient(circle_at_50%_50%,hsl(var(--primary))_0%,transparent_50%)]" />
+      <div className="absolute inset-0 opacity-5 bg-[radial-gradient(circle_at_50%_50%,hsl(var(--primary))_0%,transparent_50%)] py-0 px-0 mx-0" />
 
       <ResponsiveWrapper hasFullWidthCard>
         <div ref={ref} className="relative z-10 pt-8 pb-16">
