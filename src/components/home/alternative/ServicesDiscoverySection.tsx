@@ -80,7 +80,7 @@ export const ServicesDiscoverySection = () => {
   return (
     <section 
       ref={ref}
-      className="py-16 lg:py-24 bg-gradient-to-br from-ruby-dark/10 to-ruby-light/20"
+      className="py-16 lg:py-24 bg-gradient-pattern-c"
       aria-label="Our catering services"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -94,7 +94,7 @@ export const ServicesDiscoverySection = () => {
             Catering Services
           </div>
           <div className="w-24 h-1 bg-gradient-ruby-primary mx-auto mb-6 rounded-full" />
-          <p className="text-lg lg:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed font-clean">
+          <p className="text-lg lg:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
             From intimate gatherings to grand celebrations, we bring culinary excellence 
             and Southern hospitality to every Charleston occasion
           </p>
@@ -106,8 +106,8 @@ export const ServicesDiscoverySection = () => {
             {services.map((service, index) => (
               <NeumorphicCard 
                 key={service.id}
-                level={2}
-                className={`overflow-hidden transition-all duration-300 bg-white/5 backdrop-blur-sm ${getItemClassName(index)}`}
+                level={1}
+                className={`overflow-hidden transition-all duration-300 ${getItemClassName(index)}`}
                 style={getItemStyle(index)}
               >
                 {/* Service Header - Always Visible */}
@@ -117,11 +117,11 @@ export const ServicesDiscoverySection = () => {
                   aria-expanded={expandedService === index}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="p-2 bg-ruby-primary/10 rounded-lg">
-                      <service.icon className="h-5 w-5 text-ruby-primary" />
+                    <div className="p-2 bg-primary/10 rounded-lg">
+                      <service.icon className="h-5 w-5 text-primary" />
                     </div>
                     <div>
-                      <h3 className="font-elegant font-semibold text-foreground">{service.title}</h3>
+                      <h3 className="font-semibold text-foreground">{service.title}</h3>
                       <p className="text-sm font-script bg-gradient-ruby-primary bg-clip-text text-transparent">{service.description}</p>
                     </div>
                   </div>
@@ -145,15 +145,15 @@ export const ServicesDiscoverySection = () => {
                       />
                     </div>
                     
-                    <p className="text-muted-foreground leading-relaxed font-clean">
+                    <p className="text-muted-foreground leading-relaxed">
                       {service.fullDescription}
                     </p>
                     
                     <div className="grid grid-cols-2 gap-2">
                       {service.features.map((feature, i) => (
                         <div key={i} className="flex items-center gap-2 text-sm">
-                          <div className="w-1.5 h-1.5 bg-ruby-primary rounded-full" />
-                          <span className="text-muted-foreground font-clean">{feature}</span>
+                          <div className="w-1.5 h-1.5 bg-primary rounded-full" />
+                          <span className="text-muted-foreground">{feature}</span>
                         </div>
                       ))}
                     </div>
@@ -176,15 +176,15 @@ export const ServicesDiscoverySection = () => {
             {services.map((service, index) => (
               <NeumorphicCard
                 key={service.id}
-                level={2}
+                level={1}
                 interactive
-                className={`group p-6 lg:p-8 hover:neumorphic-card-3 transition-all duration-300 bg-white/5 backdrop-blur-sm ${getItemClassName(index)}`}
+                className={`group p-6 lg:p-8 hover:neumorphic-card-2 transition-all duration-300 ${getItemClassName(index)}`}
                 style={getItemStyle(index)}
               >
                 {/* Service Icon & Header */}
                 <div className="flex items-start gap-4 mb-6">
-                  <div className="p-3 bg-ruby-primary/10 rounded-xl group-hover:bg-ruby-primary/20 transition-colors duration-300">
-                    <service.icon className="h-8 w-8 text-ruby-primary" />
+                  <div className="p-3 bg-primary/10 rounded-xl group-hover:bg-primary/20 transition-colors duration-300">
+                    <service.icon className="h-8 w-8 text-primary" />
                   </div>
                   <div className="flex-1">
                     <h3 className="text-xl lg:text-2xl font-elegant font-bold text-foreground mb-2">
@@ -215,7 +215,7 @@ export const ServicesDiscoverySection = () => {
                 </div>
 
                 {/* Service Description */}
-                <p className="text-muted-foreground leading-relaxed mb-6 font-clean">
+                <p className="text-muted-foreground leading-relaxed mb-6">
                   {service.fullDescription}
                 </p>
 
@@ -223,14 +223,14 @@ export const ServicesDiscoverySection = () => {
                 <div className="grid grid-cols-2 gap-3 mb-6">
                   {service.features.map((feature, i) => (
                     <div key={i} className="flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 bg-ruby-primary rounded-full" />
-                      <span className="text-sm text-muted-foreground font-clean">{feature}</span>
+                      <div className="w-1.5 h-1.5 bg-primary rounded-full" />
+                      <span className="text-sm text-muted-foreground">{feature}</span>
                     </div>
                   ))}
                 </div>
 
                 {/* CTA Button */}
-                <Button asChild variant="outline" className="w-full group-hover:bg-ruby-primary group-hover:text-white transition-colors duration-300 font-elegant">
+                <Button asChild variant="outline" className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-300">
                   <Link to={service.ctaLink} className="flex items-center justify-center gap-2">
                     {service.ctaText}
                     <ChevronRight className="h-4 w-4" />

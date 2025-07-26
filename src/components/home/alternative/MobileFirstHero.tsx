@@ -1,84 +1,51 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { OptimizedImage } from "@/components/ui/optimized-image";
 import { NeumorphicCard } from "@/components/ui/neumorphic-card";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
-import { useParallaxEffect } from "@/hooks/useParallaxEffect";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { ChevronRight, ChefHat, ArrowDown, Star, Play, Pause, ChevronLeft } from "lucide-react";
+import { UtensilsCrossed, Heart, Star, ChevronRight } from "lucide-react";
 
 export const MobileFirstHero = () => {
   const isMobile = useIsMobile();
+  const { ref, isVisible } = useScrollAnimation({ 
+    variant: 'fade-up',
+    threshold: 0.1,
+    triggerOnce: true
+  });
   
-  // Story/Image state management
+  const animationClass = useAnimationClass('fade-up', isVisible);
+  
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(true);
-  const [touchStart, setTouchStart] = useState<number | null>(null);
-  
-  const { ref: heroRef, isVisible: heroVisible, variant: heroVariant } = useScrollAnimation({ 
-    variant: 'fade-up', 
-    delay: 0,
-    triggerOnce: false
-  });
-  
-  const { ref: titleRef, isVisible: titleVisible, variant: titleVariant } = useScrollAnimation({ 
-    variant: 'scale-fade', 
-    delay: isMobile ? 200 : 300 
-  });
-  
-  const { ref: ctaRef, isVisible: ctaVisible, variant: ctaVariant } = useScrollAnimation({ 
-    variant: 'bounce-in', 
-    delay: isMobile ? 400 : 600 
-  });
+  const [typewriterText, setTypewriterText] = useState("");
+  const fullText = "Charleston's Most Cherished";
 
-  const { ref: parallaxRef, style: parallaxStyle } = useParallaxEffect({ 
-    speed: isMobile ? 0.1 : 0.3, 
-    direction: 'up' 
-  });
-
-  const heroAnimationClass = useAnimationClass(heroVariant, heroVisible);
-  const titleAnimationClass = useAnimationClass(titleVariant, titleVisible);
-  const ctaAnimationClass = useAnimationClass(ctaVariant, ctaVisible);
-  
-  // Auto-advance functionality for stories/images
+  // Typewriter effect
   useEffect(() => {
-    if (!isPlaying) return;
-    
-    const interval = setInterval(() => {
-      setCurrentImageIndex((prev) => (prev + 1) % heroImages.length);
-    }, isMobile ? 4000 : 6000); // 4s mobile, 6s desktop
-    
-    return () => clearInterval(interval);
-  }, [isPlaying, isMobile]);
-  
-  // Touch handlers for mobile stories
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    if (!isMobile) return;
-    setTouchStart(e.touches[0].clientX);
-  }, [isMobile]);
-  
-  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
-    if (!isMobile || !touchStart) return;
-    
-    const touchEnd = e.changedTouches[0].clientX;
-    const diff = touchStart - touchEnd;
-    
-    if (Math.abs(diff) > 50) {
-      if (diff > 0) {
-        // Swipe left - next image
-        setCurrentImageIndex((prev) => (prev + 1) % heroImages.length);
-      } else {
-        // Swipe right - previous image
-        setCurrentImageIndex((prev) => (prev - 1 + heroImages.length) % heroImages.length);
-      }
+    if (isVisible) {
+      let index = 0;
+      const timer = setInterval(() => {
+        setTypewriterText(fullText.slice(0, index));
+        index++;
+        if (index > fullText.length) {
+          clearInterval(timer);
+        }
+      }, 50);
+      return () => clearInterval(timer);
     }
-    setTouchStart(null);
-  }, [touchStart, isMobile]);
-  
-  const togglePlayPause = () => setIsPlaying(!isPlaying);
-  
+  }, [isVisible]);
+
+  // Auto-advance carousel for mobile
+  useEffect(() => {
+    if (isMobile) {
+      const timer = setInterval(() => {
+        setCurrentImageIndex(prev => (prev + 1) % heroImages.length);
+      }, 4000);
+      return () => clearInterval(timer);
+    }
+  }, [isMobile]);
 
   const heroImages = [
     {
@@ -109,187 +76,162 @@ export const MobileFirstHero = () => {
 
   return (
     <section 
-      ref={heroRef}
-      className="relative min-h-screen flex flex-col overflow-hidden"
+      ref={ref}
+      className="relative min-h-screen flex flex-col bg-gradient-to-br from-background via-background/95 to-muted/30"
       aria-label="Hero section"
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
     >
-      {/* Dynamic Background Image */}
-      <div className="absolute inset-0">
-        <OptimizedImage
-          src={heroImages[currentImageIndex].src}
-          alt={heroImages[currentImageIndex].alt}
-          containerClassName="h-full w-full"
-          className="object-cover transition-all duration-1000 ease-in-out"
-          style={!isMobile ? parallaxStyle : {}}
-          priority={currentImageIndex === 0}
-        />
+      {/* Mobile-First Layout */}
+      <div className="flex-1 flex flex-col lg:grid lg:grid-cols-2 lg:gap-12 max-w-7xl mx-auto w-full">
         
-        {/* Gradient Overlays */}
-        <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/40 to-black/70" />
-        <div className="absolute inset-0 bg-gradient-primary opacity-60" />
-      </div>
-      
-      {/* Mobile: IG Stories Progress Bars */}
-      {isMobile && (
-        <div className="absolute top-4 left-4 right-4 z-20 flex gap-1">
-          {heroImages.map((_, index) => (
-            <div
-              key={index}
-              className="flex-1 h-1 bg-white/30 rounded-full overflow-hidden"
-            >
-              <div
-                className={`h-full bg-white transition-all duration-300 ${
-                  index === currentImageIndex ? 'animate-pulse' : ''
-                } ${index < currentImageIndex ? 'w-full' : index === currentImageIndex ? 'w-3/4' : 'w-0'}`}
-              />
+        {/* Content Section - Mobile First */}
+        <div className={`px-4 sm:px-6 lg:px-8 pt-8 pb-6 lg:py-16 flex flex-col justify-center ${animationClass}`}>
+          
+          {/* Brand Icons - Mobile */}
+          <div className="flex justify-center lg:justify-start mb-6 lg:mb-8">
+            <div className="flex items-center gap-4 p-4 lg:p-0">
+              <div className="lg:hidden flex items-center gap-3">
+                <UtensilsCrossed className="h-5 w-5 text-primary" aria-label="Quality catering" />
+                <Heart className="h-5 w-5 text-primary" aria-label="Made with love" />
+                <Star className="h-5 w-5 text-primary" aria-label="Excellence" />
+              </div>
+              
+              {/* Desktop Logo */}
+              <div className="hidden lg:block">
+                <div className="h-16 w-16 relative">
+                  <img 
+                    src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
+                    alt="Soul Train's Eatery Logo" 
+                    className="w-full h-full object-contain hover:scale-110 transition-transform duration-300" 
+                  />
+                </div>
+              </div>
             </div>
-          ))}
-        </div>
-      )}
-      
-      {/* Desktop: Image Indicators */}
-      {!isMobile && (
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 flex gap-2">
-          {heroImages.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentImageIndex(index)}
-              className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                index === currentImageIndex 
-                  ? 'bg-white scale-125' 
-                  : 'bg-white/50 hover:bg-white/80'
-              }`}
-              aria-label={`View image ${index + 1}`}
-            />
-          ))}
-        </div>
-      )}
-      
-      {/* Story Controls (Mobile) */}
-      {isMobile && (
-        <div className="absolute top-16 right-4 z-20 flex gap-2">
-          <button
-            onClick={togglePlayPause}
-            className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center"
-            aria-label={isPlaying ? 'Pause' : 'Play'}
-          >
-            {isPlaying ? (
-              <Pause className="w-4 h-4 text-white" />
-            ) : (
-              <Play className="w-4 h-4 text-white ml-0.5" />
-            )}
-          </button>
-        </div>
-      )}
-      {/* Content Layout */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center flex-1 flex items-center justify-center">
-        <div className={heroAnimationClass}>
-          {/* Category Badge with current image info */}
-          <div className="inline-flex items-center px-3 py-2 sm:px-4 sm:py-2 mb-6 sm:mb-8 bg-white/10 backdrop-blur-sm rounded-full border border-white/20">
-            <ChefHat className="w-3 h-3 sm:w-4 sm:h-4 mr-2 text-white" />
-            <span className="text-white text-xs sm:text-sm font-medium">
-              {isMobile ? heroImages[currentImageIndex].title : 'Culinary Excellence'}
-            </span>
           </div>
 
-          {/* Enhanced Hero Title */}
-          <div ref={titleRef} className={titleAnimationClass}>
-            <h1 className="font-elegant leading-tight mb-4 sm:mb-6">
-              <span className="block text-2xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-1 sm:mb-2">
-                Soul Train's
-              </span>
-              <span className="block font-script text-accent-light text-xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl mb-1 sm:mb-2 leading-relaxed">
-                Ruby Elegance
-              </span>
-              <span className="block text-xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white">
-                Catering
-              </span>
+          {/* Charleston Heritage Heading */}
+          <div className="text-center lg:text-left mb-6 lg:mb-8">
+            <h1 className="text-2xl sm:text-3xl lg:text-5xl xl:text-6xl font-elegant font-bold text-foreground leading-tight mb-2">
+              {typewriterText}
+              <span className="animate-pulse">|</span>
             </h1>
             
-            <p className="text-sm sm:text-lg md:text-xl lg:text-2xl text-white/90 mb-8 sm:mb-12 max-w-4xl mx-auto leading-relaxed font-light px-2">
-              {isMobile ? (
-                <>
-                  <span className="block font-script text-accent-light">
-                    {heroImages[currentImageIndex].category} • {heroImages[currentImageIndex].title}
-                  </span>
-                  <span className="block mt-2 text-sm">
-                    Swipe for more culinary showcases
-                  </span>
-                </>
-              ) : (
-                <>
-                  Where culinary artistry meets elegant presentation. 
-                  <span className="block mt-1 sm:mt-2 font-script text-base sm:text-xl md:text-2xl lg:text-3xl text-accent-light">
-                    Creating unforgettable dining experiences
-                  </span>
-                </>
-              )}
+            <div className="text-xl sm:text-2xl lg:text-4xl xl:text-5xl font-script bg-gradient-ruby-primary bg-clip-text text-transparent mb-4">
+              Catering Experience
+            </div>
+            
+            <div className="w-16 lg:w-24 h-1 bg-gradient-ruby-primary mx-auto lg:mx-0 mb-4 rounded-full" />
+            
+            {/* Mobile-Optimized Tagline */}
+            <p className="text-base sm:text-lg lg:text-xl text-muted-foreground font-clean leading-relaxed max-w-lg mx-auto lg:mx-0">
+              {isMobile 
+                ? "Where culinary artistry meets Southern hospitality" 
+                : "Where culinary artistry meets Southern hospitality in Charleston's most distinguished catering experience"
+              }
             </p>
           </div>
 
-          {/* Touch-Optimized CTA Buttons */}
-          <div ref={ctaRef} className={`flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 lg:gap-6 px-4 ${ctaAnimationClass}`}>
-            <Button 
-              asChild 
-              variant="cta-white" 
-              size="responsive-lg"
-              className="w-full sm:w-auto min-w-[240px] sm:min-w-[200px] min-h-[48px] shadow-elevated hover:shadow-glow-strong transition-all duration-300 text-base sm:text-lg font-semibold"
-            >
-              <Link to="/request-quote#page-header" className="flex items-center justify-center space-x-2">
-                <ChevronRight className="w-5 h-5" />
-                <span>Book Your Event</span>
+          {/* Mobile CTA Buttons - Always Visible */}
+          <div className="flex flex-col sm:flex-row lg:flex-row gap-3 lg:gap-4 px-2 sm:px-0">
+            <Button asChild size={isMobile ? "lg" : "lg"} className="w-full sm:flex-1 lg:w-auto lg:min-w-[160px] min-h-[48px] text-base font-semibold">
+              <Link to="/request-quote#page-header" className="flex items-center justify-center gap-2">
+                Request Quote
+                <ChevronRight className="h-4 w-4" />
               </Link>
             </Button>
             
-            <Button 
-              asChild 
-              variant="outline" 
-              size="responsive-lg"
-              className="w-full sm:w-auto min-w-[240px] sm:min-w-[200px] min-h-[48px] border-white/30 text-white hover:bg-white/10 hover:border-white/50 backdrop-blur-sm transition-all duration-300 text-base sm:text-lg font-semibold"
-            >
-              <Link to="/gallery#page-header" className="flex items-center justify-center space-x-2">
-                <Star className="w-5 h-5" />
-                <span>View Gallery</span>
+            <Button asChild variant="outline" size={isMobile ? "lg" : "lg"} className="w-full sm:flex-1 lg:w-auto lg:min-w-[160px] min-h-[48px] text-base font-semibold">
+              <Link to="/gallery#page-header" className="flex items-center justify-center gap-2">
+                View Gallery
+                <ChevronRight className="h-4 w-4" />
               </Link>
             </Button>
           </div>
+        </div>
+
+        {/* Visual Section */}
+        <div className="px-4 sm:px-6 lg:px-8 pb-8 lg:py-16 flex items-center">
           
-          {/* Mobile-Optimized Trust Indicator */}
-          <div className="mt-8 sm:mt-12 pt-6 sm:pt-8 border-t border-white/20">
-            <p className="text-white/80 text-xs sm:text-sm md:text-base font-medium px-2">
-              ✨ Over 500 successful events • 5-star rated • Fully licensed & insured
-            </p>
+          {/* Mobile: Single Image Carousel */}
+          <div className="block lg:hidden w-full">
+            <NeumorphicCard level={2} className="p-3 overflow-hidden">
+              <div className="relative aspect-[4/3] rounded-xl overflow-hidden">
+                <OptimizedImage
+                  src={heroImages[currentImageIndex].src}
+                  alt={heroImages[currentImageIndex].alt}
+                  aspectRatio="aspect-[4/3]"
+                  containerClassName="h-full"
+                  className="transition-all duration-500"
+                  priority
+                />
+                
+                {/* Image Overlay Info */}
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
+                  <h3 className="text-white font-elegant font-semibold text-lg mb-1">
+                    {heroImages[currentImageIndex].title}
+                  </h3>
+                  <div className="w-12 h-0.5 bg-white/80 rounded-full" />
+                </div>
+
+                {/* Carousel Indicators */}
+                <div className="absolute top-4 right-4 flex gap-1">
+                  {heroImages.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentImageIndex(index)}
+                      className={`w-2 h-2 rounded-full transition-colors ${
+                        index === currentImageIndex ? 'bg-white' : 'bg-white/50'
+                      }`}
+                      aria-label={`View image ${index + 1}`}
+                    />
+                  ))}
+                </div>
+              </div>
+            </NeumorphicCard>
+          </div>
+
+          {/* Desktop: Grid Layout */}
+          <div className="hidden lg:grid grid-cols-2 gap-4 w-full h-[500px] xl:h-[600px]">
+            {heroImages.map((image, index) => (
+              <NeumorphicCard
+                key={index}
+                level={1}
+                interactive
+                className={`group p-3 overflow-hidden transition-all duration-300 hover:neumorphic-card-2 ${
+                  index === 0 ? 'col-span-2' : index === 1 ? 'row-span-2' : ''
+                } ${index < 2 ? 'block' : 'hidden xl:block'}`}
+              >
+                <div className="relative h-full rounded-xl overflow-hidden">
+                  <OptimizedImage
+                    src={image.src}
+                    alt={image.alt}
+                    aspectRatio="aspect-video"
+                    containerClassName="h-full"
+                    className="group-hover:scale-105 transition-transform duration-300"
+                    priority={index < 2}
+                  />
+                  
+                  {/* Desktop Hover Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div className="absolute bottom-4 left-4 right-4">
+                      <h3 className="text-white font-elegant font-semibold text-base mb-1">
+                        {image.title}
+                      </h3>
+                      <div className="w-8 h-0.5 bg-white/80 rounded-full" />
+                    </div>
+                  </div>
+                </div>
+              </NeumorphicCard>
+            ))}
           </div>
         </div>
       </div>
 
-      
-      {/* Touch Instructions (Mobile) */}
-      {isMobile && (
-        <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 z-20">
-          <div className="text-center">
-            <p className="text-white/60 text-xs mb-2">Tap sides or swipe to navigate</p>
-            <div className="flex justify-center space-x-4">
-              <ChevronLeft className="w-4 h-4 text-white/40 animate-pulse" />
-              <ChevronRight className="w-4 h-4 text-white/40 animate-pulse" />
-            </div>
-          </div>
+      {/* Progressive Enhancement Indicator */}
+      <div className="hidden lg:block absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+        <div className="w-6 h-10 border-2 border-primary/30 rounded-full flex justify-center">
+          <div className="w-1 h-3 bg-primary rounded-full mt-2 animate-pulse" />
         </div>
-      )}
-      
-      {/* Enhanced Scroll Indicator */}
-      {!isMobile && (
-        <div className="absolute bottom-6 sm:bottom-12 left-1/2 transform -translate-x-1/2 z-20">
-          <div className="flex flex-col items-center space-y-2">
-            <ArrowDown className="w-4 h-4 sm:w-5 sm:h-5 text-white/60 animate-bounce" />
-            <div className="w-4 h-8 sm:w-6 sm:h-10 border-2 border-white/40 rounded-full flex justify-center">
-              <div className="w-0.5 h-2 sm:w-1 sm:h-3 bg-white/60 rounded-full mt-1 sm:mt-2 animate-pulse" />
-            </div>
-          </div>
-        </div>
-      )}
+      </div>
     </section>
   );
 };

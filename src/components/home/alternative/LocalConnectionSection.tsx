@@ -128,6 +128,106 @@ export const LocalConnectionSection = () => {
           ))}
         </div>
 
+        {/* Charleston Venues Showcase */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+          
+          {/* Mobile: Carousel */}
+          {isMobile ? (
+            <div className="lg:hidden col-span-full">
+              <NeumorphicCard level={2} className="p-4 overflow-hidden">
+                <div className="relative aspect-video rounded-xl overflow-hidden mb-4">
+                  <OptimizedImage
+                    src={charlestonVenues[currentVenue].image}
+                    alt={charlestonVenues[currentVenue].name}
+                    aspectRatio="aspect-video"
+                    containerClassName="h-full"
+                    className="transition-all duration-500"
+                  />
+                  
+                  {/* Venue Info Overlay */}
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                    <h3 className="text-white font-semibold text-lg mb-1">
+                      {charlestonVenues[currentVenue].name}
+                    </h3>
+                    <p className="text-white/80 text-sm">
+                      {charlestonVenues[currentVenue].description}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Features */}
+                <div className="space-y-2 mb-4">
+                  {charlestonVenues[currentVenue].features.map((feature, i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-primary rounded-full" />
+                      <span className="text-sm text-muted-foreground">{feature}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Venue Navigation */}
+                <div className="flex justify-center gap-2">
+                  {charlestonVenues.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentVenue(index)}
+                      className={`w-2 h-2 rounded-full transition-colors ${
+                        index === currentVenue ? 'bg-primary' : 'bg-muted'
+                      }`}
+                      aria-label={`View venue ${index + 1}`}
+                    />
+                  ))}
+                </div>
+              </NeumorphicCard>
+            </div>
+          ) : (
+            
+            /* Desktop: Grid Layout */
+            charlestonVenues.map((venue, index) => (
+              <NeumorphicCard
+                key={index}
+                level={1}
+                interactive
+                className="group p-6 hover:neumorphic-card-2 transition-all duration-300"
+              >
+                <div className="relative aspect-video rounded-xl overflow-hidden mb-6">
+                  <OptimizedImage
+                    src={venue.image}
+                    alt={venue.name}
+                    aspectRatio="aspect-video"
+                    containerClassName="h-full"
+                    className="group-hover:scale-105 transition-transform duration-300"
+                  />
+                  
+                  {/* Hover Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div className="absolute bottom-4 left-4 right-4">
+                      <div className="w-12 h-0.5 bg-white/80 rounded-full" />
+                    </div>
+                  </div>
+                </div>
+
+                <h3 className="text-xl font-elegant font-bold text-foreground mb-2">
+                  {venue.name}
+                </h3>
+                
+                <p className="text-muted-foreground mb-4 leading-relaxed">
+                  {venue.description}
+                </p>
+
+                {/* Features */}
+                <div className="space-y-2">
+                  {venue.features.map((feature, i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-primary rounded-full" />
+                      <span className="text-sm text-muted-foreground">{feature}</span>
+                    </div>
+                  ))}
+                </div>
+              </NeumorphicCard>
+            ))
+          )}
+        </div>
 
         {/* Community Involvement */}
         <div className="mt-16 text-center">
