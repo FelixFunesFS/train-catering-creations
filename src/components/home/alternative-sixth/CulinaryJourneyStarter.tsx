@@ -80,25 +80,25 @@ export const CulinaryJourneyStarter = () => {
   const contentAnimationClass = useAnimationClass(contentVariant, contentVisible);
 
   return (
-    <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-gradient-to-br from-ruby-light/5 via-background to-ruby-primary/5 relative overflow-hidden">
-      {/* Ruby Gradient Background */}
-      <div className="absolute inset-0 bg-gradient-to-r from-ruby-primary/10 via-transparent to-ruby-light/10" />
+    <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-gradient-to-br from-primary/5 via-background to-primary/10 relative overflow-hidden">
+      {/* Primary Gradient Background */}
+      <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-primary/5" />
       
       {/* Decorative Elements */}
-      <div className="absolute top-1/3 left-0 w-32 h-32 sm:w-48 sm:h-48 bg-ruby-light/10 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute bottom-1/3 right-0 w-24 h-24 sm:w-36 sm:h-36 bg-ruby-primary/10 rounded-full blur-3xl animate-pulse delay-1000" />
+      <div className="absolute top-1/3 left-0 w-32 h-32 sm:w-48 sm:h-48 bg-primary/10 rounded-full blur-3xl animate-pulse" />
+      <div className="absolute bottom-1/3 right-0 w-24 h-24 sm:w-36 sm:h-36 bg-primary/10 rounded-full blur-3xl animate-pulse delay-1000" />
       
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div ref={headerRef} className={`text-center mb-12 sm:mb-16 md:mb-20 ${headerAnimationClass}`}>
-          <div className="inline-flex items-center px-3 py-2 sm:px-4 sm:py-2 mb-4 sm:mb-6 bg-ruby-primary/10 rounded-full border border-ruby-primary/20">
-            <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 mr-2 text-ruby-primary" />
-            <span className="text-ruby-primary text-xs sm:text-sm font-medium">Premium Booking</span>
+          <div className="inline-flex items-center px-3 py-2 sm:px-4 sm:py-2 mb-4 sm:mb-6 bg-primary/10 rounded-full border border-primary/20">
+            <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 mr-2 text-primary" />
+            <span className="text-primary text-xs sm:text-sm font-medium">Premium Booking</span>
           </div>
           
           <h2 className="font-elegant text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-foreground mb-4 sm:mb-6 leading-tight px-2">
             Start Your Culinary
-            <span className="block font-script text-ruby-primary text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl mt-1 sm:mt-2">
+            <span className="block font-script text-primary text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl mt-1 sm:mt-2">
               Journey Today
             </span>
           </h2>
@@ -117,7 +117,7 @@ export const CulinaryJourneyStarter = () => {
             <NeumorphicCard level={2} className="p-6 sm:p-8">
               <h3 className="font-elegant text-lg sm:text-xl md:text-2xl font-semibold text-foreground mb-4 sm:mb-6">
                 How It Works
-                <span className="block font-script text-ruby-primary text-base sm:text-lg md:text-xl mt-1">
+                <span className="block font-script text-primary text-base sm:text-lg md:text-xl mt-1">
                   Simple & Seamless
                 </span>
               </h3>
@@ -142,11 +142,11 @@ export const CulinaryJourneyStarter = () => {
                     aria-label={`Step ${index + 1}: ${step.title}`}
                   >
                     <div className={`flex items-start space-x-3 sm:space-x-4 p-3 sm:p-4 rounded-lg transition-all duration-300 ${
-                      activeStep === index ? 'bg-ruby-light/10 border-l-4 border-ruby-primary' : 'hover:bg-muted/50 focus:bg-muted/50'
+                      activeStep === index ? 'bg-primary/10 border-l-4 border-primary' : 'hover:bg-muted/50 focus:bg-muted/50'
                     }`}>
                       <div className="flex-shrink-0">
                         <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-colors duration-300 ${
-                          activeStep === index ? 'bg-ruby-primary text-white' : 'bg-ruby-light/20 text-ruby-primary'
+                          activeStep === index ? 'bg-primary text-white' : 'bg-primary/20 text-primary'
                         }`}>
                           <step.icon className="w-4 h-4 sm:w-5 sm:h-5" />
                         </div>
@@ -154,7 +154,7 @@ export const CulinaryJourneyStarter = () => {
                       
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center space-x-2 mb-1 sm:mb-2">
-                          <span className="text-xs sm:text-sm font-medium text-ruby-primary">
+                          <span className="text-xs sm:text-sm font-medium text-primary">
                             Step {index + 1}
                           </span>
                           <div className="flex-1 h-px bg-border" />
@@ -175,11 +175,11 @@ export const CulinaryJourneyStarter = () => {
             </NeumorphicCard>
             
             {/* Urgency Indicators */}
-            <NeumorphicCard level={2} className="p-4 sm:p-6 bg-gradient-to-r from-ruby-light/5 to-ruby-primary/5">
+            <NeumorphicCard level={2} className="p-4 sm:p-6 bg-gradient-to-r from-primary/5 to-primary/10">
               <div className="space-y-2 sm:space-y-3">
                 {urgencyIndicators.map((indicator, index) => (
                   <div key={index} className="flex items-center space-x-2 sm:space-x-3 text-xs sm:text-sm">
-                    <div className="w-1.5 h-1.5 bg-ruby-primary rounded-full animate-pulse" />
+                    <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
                     <span className="text-foreground font-medium">{indicator}</span>
                   </div>
                 ))}
@@ -191,13 +191,13 @@ export const CulinaryJourneyStarter = () => {
           <div className="space-y-6 sm:space-y-8">
             <NeumorphicCard level={3} className="p-6 sm:p-8 lg:p-10 text-center">
               <div className="mb-6 sm:mb-8">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-ruby-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
-                  <Calendar className="w-6 h-6 sm:w-8 sm:h-8 text-ruby-primary" />
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+                  <Calendar className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
                 </div>
                 
                 <h3 className="font-elegant text-xl sm:text-2xl md:text-3xl font-bold text-foreground mb-2 sm:mb-4">
                   Ready to Begin?
-                  <span className="block font-script text-ruby-primary text-lg sm:text-xl md:text-2xl mt-1 sm:mt-2">
+                  <span className="block font-script text-primary text-lg sm:text-xl md:text-2xl mt-1 sm:mt-2">
                     Let's Create Magic
                   </span>
                 </h3>
@@ -225,7 +225,7 @@ export const CulinaryJourneyStarter = () => {
                 <Button
                   variant="outline"
                   size="responsive-lg"
-                  className="w-full min-h-[48px] sm:min-h-[52px] border-ruby-primary/30 text-ruby-primary hover:border-ruby-primary hover:bg-ruby-light/10 transition-all duration-300"
+                  className="w-full min-h-[48px] sm:min-h-[52px] border-primary/30 text-primary hover:border-primary hover:bg-primary/10 transition-all duration-300"
                   asChild
                 >
                   <a href="tel:+1234567890" className="flex items-center justify-center space-x-2 sm:space-x-3">
@@ -239,15 +239,15 @@ export const CulinaryJourneyStarter = () => {
               <div className="space-y-3 sm:space-y-4 border-t border-border/50 pt-6 sm:pt-8">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm">
                   <div className="flex items-center justify-center space-x-2">
-                    <Clock className="w-3 h-3 sm:w-4 sm:h-4 text-ruby-primary" />
+                    <Clock className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
                     <span className="text-muted-foreground">Available 7 days/week</span>
                   </div>
                   <div className="flex items-center justify-center space-x-2">
-                    <Mail className="w-3 h-3 sm:w-4 sm:h-4 text-ruby-primary" />
+                    <Mail className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
                     <span className="text-muted-foreground">hello@soultrainseatery.com</span>
                   </div>
                   <div className="flex items-center justify-center space-x-2 sm:col-span-2">
-                    <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-ruby-primary" />
+                    <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
                     <span className="text-muted-foreground">Serving Charleston & Surrounding Areas</span>
                   </div>
                 </div>
@@ -260,7 +260,7 @@ export const CulinaryJourneyStarter = () => {
                   </div>
                   <div className="w-px h-4 bg-border" />
                   <div className="flex items-center space-x-1">
-                    <Users className="w-3 h-3 sm:w-4 sm:h-4 text-ruby-primary" />
+                    <Users className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
                     <span className="text-xs sm:text-sm font-medium text-foreground">500+ Events</span>
                   </div>
                   <div className="w-px h-4 bg-border" />

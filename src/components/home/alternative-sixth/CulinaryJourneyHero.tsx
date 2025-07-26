@@ -35,9 +35,9 @@ export const CulinaryJourneyHero = () => {
   }, []);
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-background via-background/95 to-ruby-50/20 overflow-hidden">
+    <div className="relative min-h-screen bg-gradient-to-br from-background via-background/95 to-primary/5 overflow-hidden">
       {/* Hero Background Image */}
-      <div className="absolute inset-0 opacity-10">
+      <div className="absolute inset-0 opacity-30">
         <OptimizedImage 
           src="/lovable-uploads/26d2d500-6017-41a2-99b2-b7050cefedba.png"
           alt="Elegant wedding reception setup showcasing Soul Train's Eatery catering expertise"
@@ -47,15 +47,15 @@ export const CulinaryJourneyHero = () => {
       </div>
       
       {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-5 bg-[radial-gradient(circle_at_50%_50%,hsl(var(--ruby-500))_0%,transparent_50%)]" />
+      <div className="absolute inset-0 opacity-5 bg-[radial-gradient(circle_at_50%_50%,hsl(var(--primary))_0%,transparent_50%)]" />
 
       <ResponsiveWrapper hasFullWidthCard>
         <div ref={ref} className="relative z-10 pt-8 pb-16">
           {/* Heritage Badge */}
           <div className={`flex justify-center mb-8 ${isVisible ? 'fade-up-visible' : 'fade-up-hidden'}`}>
-            <div className="inline-flex items-center gap-2 bg-gradient-ruby-subtle px-6 py-3 rounded-full border border-ruby-200/30">
-              <Heart className="w-5 h-5 text-white" fill="currentColor" />
-              <span className="text-white font-elegant text-sm">Est. 1999 • Charleston Heritage</span>
+            <div className="inline-flex items-center gap-2 bg-primary/20 backdrop-blur-sm px-6 py-3 rounded-full border border-primary/30">
+              <Heart className="w-5 h-5 text-primary" fill="currentColor" />
+              <span className="text-primary font-elegant text-sm font-semibold">Est. 1999 • Charleston Heritage</span>
             </div>
           </div>
 
@@ -73,11 +73,11 @@ export const CulinaryJourneyHero = () => {
               </div>
               
               <h1 className="text-4xl md:text-6xl lg:text-7xl font-elegant font-bold mb-4">
-                <span className="bg-gradient-ruby-primary bg-clip-text text-transparent">
+                <span className="bg-gradient-primary bg-clip-text text-transparent">
                   Soul Train's Eatery
                 </span>
               </h1>
-              <p className="text-2xl md:text-3xl lg:text-4xl font-script text-ruby-600 mb-6">
+              <p className="text-2xl md:text-3xl lg:text-4xl font-script text-primary mb-6">
                 Charleston's Premier Catering
               </p>
             </div>
@@ -92,8 +92,8 @@ export const CulinaryJourneyHero = () => {
           <div className={`grid grid-cols-2 lg:grid-cols-4 gap-6 mb-16 ${isVisible ? 'fade-up-visible' : 'fade-up-hidden'}`} style={{ animationDelay: '400ms' }}>
             {stats.map((stat, index) => (
               <div key={index} className="text-center">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-ruby-subtle mb-4">
-                  <stat.icon className="w-8 h-8 text-white" />
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/20 backdrop-blur-sm border border-primary/30 mb-4">
+                  <stat.icon className="w-8 h-8 text-primary" />
                 </div>
                 <div className="text-3xl md:text-4xl font-elegant font-bold text-foreground mb-2">
                   {stat.value}
@@ -125,21 +125,21 @@ export const CulinaryJourneyHero = () => {
                     aria-selected={index === currentMilestone}
                     aria-controls={`milestone-${index}`}
                     aria-label={`${milestone.year} - ${milestone.title}`}
-                    className={`w-6 h-6 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-ruby-500 focus:ring-offset-2 ${
+                    className={`w-6 h-6 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
                       index === currentMilestone 
-                        ? 'bg-gradient-ruby-primary scale-125' 
-                        : 'bg-muted-foreground/30 hover:bg-ruby-300'
+                        ? 'bg-primary scale-125' 
+                        : 'bg-muted-foreground/30 hover:bg-primary/50'
                     }`}
                   />
                 ))}
               </div>
               <div 
-                className="text-center bg-background/80 backdrop-blur-sm rounded-xl p-6 border border-ruby-200/20"
+                className="text-center bg-background/80 backdrop-blur-sm rounded-xl p-6 border border-primary/20"
                 role="tabpanel"
                 id={`milestone-${currentMilestone}`}
                 aria-live="polite"
               >
-                <div className="text-2xl font-elegant font-bold text-ruby-600 mb-2">
+                <div className="text-2xl font-elegant font-bold text-primary mb-2">
                   {milestones[currentMilestone].year}
                 </div>
                 <div className="text-lg font-semibold mb-2">
@@ -174,7 +174,7 @@ export const CulinaryJourneyHero = () => {
           {/* Scroll Indicator */}
           <div className={`flex justify-center mt-16 ${isVisible ? 'fade-up-visible' : 'fade-up-hidden'}`} style={{ animationDelay: '1000ms' }}>
             <div className="animate-bounce">
-              <ChevronDown className="w-6 h-6 text-ruby-500" />
+              <ChevronDown className="w-6 h-6 text-primary" />
             </div>
           </div>
         </div>

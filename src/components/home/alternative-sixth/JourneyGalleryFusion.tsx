@@ -54,7 +54,7 @@ export const JourneyGalleryFusion = () => {
   };
 
   return (
-    <section className="py-20 bg-gradient-to-b from-ruby-50/10 to-background">
+    <section className="py-20 bg-gradient-to-b from-primary/5 to-background">
       <ResponsiveWrapper>
         <div ref={ref} className="space-y-16">
           {/* Section Header */}
@@ -62,7 +62,7 @@ export const JourneyGalleryFusion = () => {
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-elegant font-bold mb-6">
               Curated Gallery of
               <br />
-              <span className="font-script text-ruby-600 text-2xl md:text-3xl">
+              <span className="font-script text-primary text-2xl md:text-3xl">
                 Event Excellence
               </span>
             </h2>
@@ -131,17 +131,17 @@ export const JourneyGalleryFusion = () => {
                 onClick={prevSlide}
                 disabled={currentSlide === 0}
                 aria-label="Previous gallery image"
-                className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm rounded-full p-3 shadow-lg hover:bg-white transition-all disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] min-w-[44px] focus:outline-none focus:ring-2 focus:ring-ruby-500"
+                className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm rounded-full p-3 shadow-lg hover:bg-white transition-all disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] min-w-[44px] focus:outline-none focus:ring-2 focus:ring-primary"
               >
-                <ChevronLeft className="w-5 h-5 text-ruby-600" />
+                <ChevronLeft className="w-5 h-5 text-primary" />
               </button>
               <button
                 onClick={nextSlide}
                 disabled={currentSlide >= filteredItems.length - 1}
                 aria-label="Next gallery image"
-                className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm rounded-full p-3 shadow-lg hover:bg-white transition-all disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] min-w-[44px] focus:outline-none focus:ring-2 focus:ring-ruby-500"
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm rounded-full p-3 shadow-lg hover:bg-white transition-all disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] min-w-[44px] focus:outline-none focus:ring-2 focus:ring-primary"
               >
-                <ChevronRight className="w-5 h-5 text-ruby-600" />
+                <ChevronRight className="w-5 h-5 text-primary" />
               </button>
               
               {/* Slide Indicators */}
@@ -153,8 +153,8 @@ export const JourneyGalleryFusion = () => {
                     role="tab"
                     aria-selected={index === currentSlide}
                     aria-label={`Go to slide ${index + 1}`}
-                    className={`w-3 h-3 rounded-full transition-all focus:outline-none focus:ring-2 focus:ring-ruby-500 focus:ring-offset-1 ${
-                      index === currentSlide ? 'bg-ruby-500' : 'bg-ruby-200'
+                    className={`w-3 h-3 rounded-full transition-all focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 ${
+                      index === currentSlide ? 'bg-primary' : 'bg-primary/30'
                     }`}
                   />
                 ))}
@@ -186,9 +186,9 @@ export const JourneyGalleryFusion = () => {
                       />
                     </div>
                     <div>
-                      <h3 className="font-elegant font-semibold mb-2 group-hover:text-ruby-600 transition-colors">
-                        {item.title}
-                      </h3>
+                    <h3 className="font-elegant font-semibold mb-2 group-hover:text-primary transition-colors">
+                      {item.title}
+                    </h3>
                       <p className="text-sm text-muted-foreground">
                         {item.description}
                       </p>
@@ -202,7 +202,7 @@ export const JourneyGalleryFusion = () => {
           {/* Experience Highlights */}
           <div className="max-w-4xl mx-auto">
             <h3 className="text-2xl md:text-3xl font-elegant font-bold text-center mb-12">
-              Experience Highlights of <span className="font-script text-ruby-600">Soul Train's Eatery</span>
+              Experience Highlights of <span className="font-script text-primary">Soul Train's Eatery</span>
             </h3>
             
             <div className="grid md:grid-cols-3 gap-8">
@@ -222,10 +222,10 @@ export const JourneyGalleryFusion = () => {
                   title: "10,000+ Families Served",
                   description: "Creating memorable experiences across 50+ venues throughout Charleston and the Lowcountry."
                 }
-              ].map((highlight, index) => (
+               ].map((highlight, index) => (
                 <div key={index} className="text-center group">
-                  <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gradient-ruby-subtle flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <highlight.icon className="w-8 h-8 text-white" />
+                  <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-primary/20 backdrop-blur-sm border border-primary/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <highlight.icon className="w-8 h-8 text-primary" />
                   </div>
                   <h4 className="text-lg font-elegant font-semibold mb-3">
                     {highlight.title}

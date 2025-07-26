@@ -21,7 +21,7 @@ export const InteractiveJourneyServices = () => {
       subtitle: "Professional Excellence",
       description: "Elevate your business events with our sophisticated catering services, designed to impress clients and colleagues alike.",
       features: ["Custom menus", "Professional service", "Flexible scheduling"],
-      color: "ruby"
+      color: "primary"
     },
     {
       icon: Heart,
@@ -29,7 +29,7 @@ export const InteractiveJourneyServices = () => {
       subtitle: "Your Perfect Day",
       description: "Create unforgettable wedding memories with our elegant catering that reflects your unique love story.",
       features: ["Personalized menus", "Full-service planning", "Elegant presentation"],
-      color: "gold"
+      color: "primary"
     },
     {
       icon: Users,
@@ -37,7 +37,7 @@ export const InteractiveJourneyServices = () => {
       subtitle: "Intimate Gatherings",
       description: "Transform your private celebrations into extraordinary experiences with our personalized culinary approach.",
       features: ["Customized service", "Intimate settings", "Personal touch"],
-      color: "navy"
+      color: "primary"
     },
     {
       icon: Star,
@@ -45,22 +45,22 @@ export const InteractiveJourneyServices = () => {
       subtitle: "Memorable Moments",
       description: "Mark life's special moments with exceptional cuisine that brings people together in celebration.",
       features: ["Holiday catering", "Anniversary celebrations", "Milestone events"],
-      color: "ruby"
+      color: "primary"
     }
   ];
 
   return (
-    <section className="py-20 bg-gradient-to-b from-background to-ruby-50/10">
+    <section className="py-20 bg-gradient-to-b from-background to-primary/5">
       <ResponsiveWrapper>
         <div ref={ref} className="space-y-16">
           {/* Section Header */}
           <div className="text-center max-w-4xl mx-auto">
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-elegant font-bold mb-6">
-              <span className="bg-gradient-ruby-primary bg-clip-text text-transparent">
+              <span className="bg-gradient-primary bg-clip-text text-transparent">
                 Premium Catering
               </span>
               <br />
-              <span className="text-2xl md:text-3xl font-script text-ruby-600">
+              <span className="text-2xl md:text-3xl font-script text-primary">
                 Services
               </span>
             </h2>
@@ -77,21 +77,21 @@ export const InteractiveJourneyServices = () => {
                 level={2}
                 interactive
                 className={`${getItemClassName(index)} cursor-pointer transition-all duration-500 hover:scale-105 ${
-                  activeService === index ? 'ring-2 ring-ruby-300 shadow-lg' : ''
+                  activeService === index ? 'ring-2 ring-primary/30 shadow-lg' : ''
                 }`}
                 onClick={() => setActiveService(index)}
               >
                 <div className="space-y-6">
                   {/* Service Icon & Title */}
                   <div className="flex items-start gap-4">
-                    <div className="flex-shrink-0 w-16 h-16 rounded-full bg-gradient-ruby-subtle flex items-center justify-center">
-                      <service.icon className="w-8 h-8 text-white" />
+                    <div className="flex-shrink-0 w-16 h-16 rounded-full bg-primary/20 backdrop-blur-sm border border-primary/30 flex items-center justify-center">
+                      <service.icon className="w-8 h-8 text-primary" />
                     </div>
                     <div className="flex-1">
                       <h3 className="text-xl md:text-2xl font-elegant font-bold mb-2">
                         {service.title}
                       </h3>
-                      <p className="font-script text-ruby-600 text-lg">
+                      <p className="font-script text-primary text-lg">
                         {service.subtitle}
                       </p>
                     </div>
@@ -106,7 +106,7 @@ export const InteractiveJourneyServices = () => {
                   <div className="space-y-2">
                     {service.features.map((feature, featureIndex) => (
                       <div key={featureIndex} className="flex items-center gap-2">
-                        <ArrowRight className="w-4 h-4 text-ruby-500" />
+                        <ArrowRight className="w-4 h-4 text-primary" />
                         <span className="text-sm">{feature}</span>
                       </div>
                     ))}
@@ -130,7 +130,7 @@ export const InteractiveJourneyServices = () => {
           {/* Journey Steps */}
           <div className="max-w-6xl mx-auto">
             <h3 className="text-2xl md:text-3xl font-elegant font-bold text-center mb-12">
-              How We Work <span className="font-script text-ruby-600">3 Simple Steps</span>
+              How We Work <span className="font-script text-primary">3 Simple Steps</span>
             </h3>
             
             <div className="grid md:grid-cols-3 gap-8">
@@ -152,7 +152,7 @@ export const InteractiveJourneyServices = () => {
                 }
               ].map((step, index) => (
                 <div key={index} className="text-center group">
-                  <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-ruby-subtle flex items-center justify-center text-2xl font-elegant font-bold text-white group-hover:scale-110 transition-transform duration-300">
+                  <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-primary/20 backdrop-blur-sm border border-primary/30 flex items-center justify-center text-2xl font-elegant font-bold text-primary group-hover:scale-110 transition-transform duration-300">
                     {step.step}
                   </div>
                   <h4 className="text-lg font-elegant font-semibold mb-3">

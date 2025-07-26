@@ -57,6 +57,23 @@ export default {
 					foreground: 'hsl(var(--card-foreground))'
 				},
 				// Ruby & Pearl luxury supporting colors
+				ruby: {
+					DEFAULT: 'hsl(var(--primary))',
+					foreground: 'hsl(var(--primary-foreground))',
+					light: 'hsl(var(--primary-light))',
+					dark: 'hsl(var(--primary-dark))',
+					glow: 'hsl(var(--primary-glow))',
+					50: 'hsl(var(--primary-light))',
+					100: 'hsl(var(--primary-light))',
+					200: 'hsl(var(--primary-light))',
+					300: 'hsl(var(--primary))',
+					400: 'hsl(var(--primary))',
+					500: 'hsl(var(--primary))',
+					600: 'hsl(var(--primary-dark))',
+					700: 'hsl(var(--primary-dark))',
+					800: 'hsl(var(--primary-dark))',
+					900: 'hsl(var(--primary-dark))'
+				},
 				gold: {
 					DEFAULT: 'hsl(var(--gold))',
 					foreground: 'hsl(var(--gold-foreground))',
