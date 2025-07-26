@@ -88,25 +88,25 @@ export const InteractiveGalleryPreview = () => {
   return (
     <section 
       ref={ref}
-      className="py-12 sm:py-16 lg:py-20 bg-gradient-pattern-b"
+      className="py-8 sm:py-12 lg:py-16 bg-gradient-pattern-b"
     >
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-3 sm:px-4">
         {/* Section Header */}
-        <div className={`text-center mb-8 lg:mb-12 space-y-4 ${animationClass}`}>
-          <div className="flex items-center justify-center space-x-2 mb-4">
+        <div className={`text-center mb-6 lg:mb-10 space-y-3 ${animationClass}`}>
+          <div className="flex items-center justify-center space-x-2 mb-3">
             <Play className="h-5 w-5 text-ruby" />
-            <Badge variant="outline" className="border-ruby text-ruby font-script">
+            <Badge variant="outline" className="border-ruby text-ruby font-script text-sm">
               Visual Story
             </Badge>
           </div>
           
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant font-bold text-foreground">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-elegant font-bold text-foreground">
             A Gallery of Flavor & Style
           </h2>
-          <p className="text-lg sm:text-xl font-script text-ruby font-medium">
+          <p className="text-xl sm:text-2xl font-script text-ruby font-medium">
             Every Event Tells a Story
           </p>
-          <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+          <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             From intimate family gatherings to grand celebrations, explore the artistry and attention 
             to detail that defines every Soul Train's Eatery experience.
           </p>
@@ -115,7 +115,7 @@ export const InteractiveGalleryPreview = () => {
         {/* Interactive Gallery Grid */}
         <div 
           ref={staggered.ref}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mb-8"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-4 mb-6"
         >
           {galleryItems.map((item, index) => (
             <Card
@@ -125,7 +125,7 @@ export const InteractiveGalleryPreview = () => {
               onMouseLeave={() => setHoveredIndex(null)}
               style={staggered.getItemStyle(index)}
             >
-              <div className="relative aspect-square overflow-hidden">
+              <div className="relative aspect-[4/3] overflow-hidden">
                 <OptimizedImage
                   src={item.src}
                   alt={item.alt}
@@ -159,10 +159,10 @@ export const InteractiveGalleryPreview = () => {
                   hoveredIndex === index ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
                 }`}>
                   <div className="bg-white/95 backdrop-blur-sm rounded-lg p-3 w-full">
-                    <h3 className="font-elegant font-semibold text-foreground text-sm mb-1">
+                    <h3 className="font-elegant font-semibold text-foreground text-base mb-1">
                       {item.title}
                     </h3>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-sm text-muted-foreground">
                       View in gallery →
                     </p>
                   </div>

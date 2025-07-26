@@ -85,25 +85,25 @@ export const ServiceCategoriesSection = () => {
   return (
     <section 
       ref={ref}
-      className="py-12 sm:py-16 lg:py-20 bg-gradient-pattern-c"
+      className="py-8 sm:py-12 lg:py-16 bg-gradient-pattern-c"
     >
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-3 sm:px-4">
         {/* Section Header */}
-        <div className={`text-center mb-8 lg:mb-12 space-y-4 ${animationClass}`}>
-          <div className="flex items-center justify-center space-x-2 mb-4">
+        <div className={`text-center mb-6 lg:mb-10 space-y-3 ${animationClass}`}>
+          <div className="flex items-center justify-center space-x-2 mb-3">
             <Award className="h-5 w-5 text-ruby" />
-            <Badge variant="outline" className="border-ruby text-ruby font-script">
+            <Badge variant="outline" className="border-ruby text-ruby font-script text-sm">
               Our Services
             </Badge>
           </div>
           
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant font-bold text-foreground">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-elegant font-bold text-foreground">
             Catering Excellence for Every Occasion
           </h2>
-          <p className="text-lg sm:text-xl font-script text-ruby font-medium">
+          <p className="text-xl sm:text-2xl font-script text-ruby font-medium">
             20+ Years of Culinary Mastery
           </p>
-          <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+          <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             From intimate family dinners to grand celebrations, Soul Train's Eatery brings the same 
             level of passion, quality, and southern hospitality to every event we cater.
           </p>
@@ -112,7 +112,7 @@ export const ServiceCategoriesSection = () => {
         {/* Service Cards Grid */}
         <div 
           ref={staggered.ref}
-          className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 mb-8"
+          className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6 mb-6"
         >
           {serviceCategories.map((service, index) => (
             <Card
@@ -120,7 +120,7 @@ export const ServiceCategoriesSection = () => {
               className={`group relative overflow-hidden border-2 border-transparent hover:border-ruby/30 transition-all duration-500 cursor-pointer ${staggered.getItemClassName(index)}`}
               style={staggered.getItemStyle(index)}
             >
-              <div className="relative h-48 sm:h-56 overflow-hidden">
+              <div className="relative aspect-[4/3] overflow-hidden">
                 <OptimizedImage
                   src={service.image}
                   alt={service.title}
@@ -148,15 +148,15 @@ export const ServiceCategoriesSection = () => {
                 </div>
               </div>
 
-              <div className="p-6 space-y-4">
+              <div className="p-4 space-y-4">
                 <div className="space-y-2">
                   <h3 className="text-xl font-elegant font-bold text-foreground group-hover:text-ruby transition-colors">
                     {service.title}
                   </h3>
-                  <p className="text-sm font-script text-ruby font-medium">
+                  <p className="text-base font-script text-ruby font-medium">
                     {service.subtitle}
                   </p>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
+                  <p className="text-base text-muted-foreground leading-relaxed">
                     {service.description}
                   </p>
                 </div>
@@ -165,8 +165,8 @@ export const ServiceCategoriesSection = () => {
                 <div className="space-y-2">
                   {service.features.map((feature, featureIndex) => (
                     <div key={featureIndex} className="flex items-center space-x-2">
-                      <Clock className="h-3 w-3 text-ruby" />
-                      <span className="text-xs text-muted-foreground">{feature}</span>
+                      <Clock className="h-4 w-4 text-ruby" />
+                      <span className="text-sm text-muted-foreground">{feature}</span>
                     </div>
                   ))}
                 </div>
@@ -174,7 +174,8 @@ export const ServiceCategoriesSection = () => {
                 {/* CTA Button */}
                 <Button 
                   variant="outline" 
-                  className="w-full border-ruby text-ruby hover:bg-ruby hover:text-white group"
+                  size="lg"
+                  className="w-full border-ruby text-ruby hover:bg-ruby hover:text-white group min-h-[44px]"
                   asChild
                 >
                   <a href={service.href} className="flex items-center justify-center space-x-2">
@@ -189,17 +190,17 @@ export const ServiceCategoriesSection = () => {
 
         {/* Bottom CTA */}
         <div className={`text-center space-y-4 ${animationClass}`}>
-          <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 max-w-2xl mx-auto border border-ruby/20">
-            <h3 className="text-lg font-elegant font-bold text-foreground mb-2">
+          <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-5 max-w-2xl mx-auto border border-ruby/20">
+            <h3 className="text-xl font-elegant font-bold text-foreground mb-3">
               Need Something Custom?
             </h3>
-            <p className="text-sm text-muted-foreground mb-4">
+            <p className="text-base text-muted-foreground mb-4">
               Every event is unique. Let us create a customized catering solution that perfectly 
               matches your vision, dietary needs, and budget.
             </p>
             <Button 
               size="lg"
-              className="bg-gradient-ruby-primary hover:bg-gradient-ruby-accent text-white font-semibold"
+              className="bg-gradient-ruby-primary hover:bg-gradient-ruby-accent text-white font-semibold min-h-[44px]"
               asChild
             >
               <a href="/request-quote#page-header">Request Custom Quote</a>

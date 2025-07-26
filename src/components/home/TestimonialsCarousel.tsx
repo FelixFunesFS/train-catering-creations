@@ -111,22 +111,22 @@ export const TestimonialsCarousel = () => {
   return (
     <section 
       ref={ref}
-      className="py-12 sm:py-16 lg:py-20 bg-gradient-pattern-a"
+      className="py-8 sm:py-12 lg:py-16 bg-gradient-pattern-a"
     >
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-3 sm:px-4">
         {/* Section Header */}
-        <div className={`text-center mb-8 lg:mb-12 space-y-4 ${animationClass}`}>
-          <div className="flex items-center justify-center space-x-2 mb-4">
+        <div className={`text-center mb-6 lg:mb-10 space-y-3 ${animationClass}`}>
+          <div className="flex items-center justify-center space-x-2 mb-3">
             <Quote className="h-5 w-5 text-ruby" />
-            <Badge variant="outline" className="border-ruby text-ruby font-script">
+            <Badge variant="outline" className="border-ruby text-ruby font-script text-sm">
               Client Love
             </Badge>
           </div>
           
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant font-bold text-foreground">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-elegant font-bold text-foreground">
             What Our Clients Say
           </h2>
-          <p className="text-lg sm:text-xl font-script text-ruby font-medium">
+          <p className="text-xl sm:text-2xl font-script text-ruby font-medium">
             Real Stories, Real Satisfaction
           </p>
         </div>
@@ -134,17 +134,17 @@ export const TestimonialsCarousel = () => {
         {/* Testimonial Carousel */}
         <div className={`max-w-4xl mx-auto ${animationClass}`}>
           <Card 
-            className="relative p-6 lg:p-8 bg-white/95 backdrop-blur-sm border-2 border-ruby/20 overflow-hidden"
+            className="relative p-5 lg:p-6 bg-white/95 backdrop-blur-sm border-2 border-ruby/20 overflow-hidden"
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
           >
             {/* Quote Icon */}
             <div className="absolute top-4 left-4 opacity-10">
-              <Quote className="h-16 w-16 text-ruby" />
+              <Quote className="h-12 w-12 lg:h-16 lg:w-16 text-ruby" />
             </div>
 
-            <div className="relative z-10 space-y-6">
+            <div className="relative z-10 space-y-5">
               {/* Rating */}
               <div className="flex items-center justify-center space-x-1">
                 {[...Array(currentTestimonial.rating)].map((_, i) => (
@@ -153,13 +153,13 @@ export const TestimonialsCarousel = () => {
               </div>
 
               {/* Quote */}
-              <blockquote className="text-center text-lg lg:text-xl text-foreground leading-relaxed italic">
+              <blockquote className="text-center text-base lg:text-lg text-foreground leading-relaxed italic">
                 "{currentTestimonial.quote}"
               </blockquote>
 
               {/* Highlight Badge */}
               <div className="flex justify-center">
-                <Badge className="bg-gradient-ruby-primary text-white border-0">
+                <Badge className="bg-gradient-ruby-primary text-white border-0 text-sm">
                   <Heart className="h-3 w-3 mr-1 fill-white" />
                   {currentTestimonial.highlight}
                 </Badge>
@@ -167,13 +167,13 @@ export const TestimonialsCarousel = () => {
 
               {/* Author Info */}
               <div className="text-center space-y-2">
-                <h4 className="font-elegant font-bold text-foreground">
+                <h4 className="font-elegant font-bold text-foreground text-lg">
                   {currentTestimonial.name}
                 </h4>
-                <p className="text-sm text-ruby font-script">
+                <p className="text-base text-ruby font-script">
                   {currentTestimonial.role}
                 </p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-sm text-muted-foreground">
                   {currentTestimonial.event}
                 </p>
               </div>
@@ -226,18 +226,18 @@ export const TestimonialsCarousel = () => {
         </div>
 
         {/* Stats */}
-        <div className={`grid grid-cols-3 gap-4 mt-8 lg:mt-12 max-w-2xl mx-auto ${animationClass}`}>
-          <Card className="p-4 text-center bg-white/60 border-ruby/20">
-            <div className="text-xl lg:text-2xl font-bold text-ruby">500+</div>
-            <div className="text-xs text-muted-foreground">Events Catered</div>
+        <div className={`grid grid-cols-3 gap-3 mt-6 lg:mt-8 max-w-2xl mx-auto ${animationClass}`}>
+          <Card className="p-3 text-center bg-white/60 border-ruby/20">
+            <div className="text-lg lg:text-xl font-bold text-ruby">500+</div>
+            <div className="text-sm text-muted-foreground">Events Catered</div>
           </Card>
-          <Card className="p-4 text-center bg-white/60 border-ruby/20">
-            <div className="text-xl lg:text-2xl font-bold text-ruby">★ 4.9</div>
-            <div className="text-xs text-muted-foreground">Average Rating</div>
+          <Card className="p-3 text-center bg-white/60 border-ruby/20">
+            <div className="text-lg lg:text-xl font-bold text-ruby">★ 4.9</div>
+            <div className="text-sm text-muted-foreground">Average Rating</div>
           </Card>
-          <Card className="p-4 text-center bg-white/60 border-ruby/20">
-            <div className="text-xl lg:text-2xl font-bold text-ruby">98%</div>
-            <div className="text-xs text-muted-foreground">Would Recommend</div>
+          <Card className="p-3 text-center bg-white/60 border-ruby/20">
+            <div className="text-lg lg:text-xl font-bold text-ruby">98%</div>
+            <div className="text-sm text-muted-foreground">Would Recommend</div>
           </Card>
         </div>
       </div>

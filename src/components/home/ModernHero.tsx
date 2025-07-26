@@ -180,11 +180,11 @@ export const ModernHero = () => {
         </div>
 
         {/* Content Card - 30vh */}
-        <Card className={`relative h-[30vh] rounded-t-3xl -mt-8 z-10 p-6 bg-white/95 backdrop-blur-lg border-0 ${animationClass}`}>
+        <Card className={`relative h-[30vh] rounded-t-3xl -mt-8 z-10 p-4 bg-white/95 backdrop-blur-lg border-0 ${animationClass}`}>
           <div className="h-full flex flex-col justify-between">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <Badge variant={badge.variant} className="text-xs">
+                <Badge variant={badge.variant} className="text-sm">
                   {badge.label}
                 </Badge>
                 {currentImage.category === "featured" && (
@@ -193,28 +193,30 @@ export const ModernHero = () => {
               </div>
               
               <div className="space-y-2">
-                <h1 className="text-xl font-elegant font-bold text-foreground leading-tight">
+                <h1 className="text-2xl font-elegant font-bold text-foreground leading-tight">
                   {currentImage.title}
                 </h1>
-                <p className="text-sm font-script text-ruby font-medium">
+                <p className="text-base font-script text-ruby font-medium">
                   {currentImage.subtitle}
                 </p>
-                <p className="text-xs text-muted-foreground leading-relaxed">
+                <p className="text-sm text-muted-foreground leading-relaxed">
                   {currentImage.description}
                 </p>
               </div>
             </div>
 
-            <div className="flex space-x-3">
+            <div className="flex flex-col space-y-2 pt-2">
               <Button 
-                className="flex-1 bg-gradient-ruby-primary hover:bg-gradient-ruby-accent text-white font-semibold"
+                size="lg"
+                className="w-full bg-gradient-ruby-primary hover:bg-gradient-ruby-accent text-white font-semibold min-h-[44px]"
                 asChild
               >
                 <a href="/request-quote#page-header">Request Quote</a>
               </Button>
               <Button 
                 variant="outline" 
-                className="flex-1 border-ruby text-ruby hover:bg-ruby hover:text-white"
+                size="lg"
+                className="w-full border-ruby text-ruby hover:bg-ruby hover:text-white min-h-[44px]"
                 asChild
               >
                 <a href="/gallery">View Gallery</a>
@@ -291,8 +293,8 @@ export const ModernHero = () => {
       </div>
 
       {/* Content Panel - Bottom Left */}
-      <Card className={`absolute bottom-8 left-8 w-96 p-8 bg-white/95 backdrop-blur-lg border-0 shadow-2xl ${animationClass}`}>
-        <div className="space-y-6">
+      <Card className={`absolute bottom-8 left-8 w-96 p-6 bg-white/95 backdrop-blur-lg border-0 shadow-2xl ${animationClass}`}>
+        <div className="space-y-5">
           <div className="flex items-center justify-between">
             <Badge variant={badge.variant} className="text-sm">
               {badge.label}
@@ -302,22 +304,22 @@ export const ModernHero = () => {
             )}
           </div>
           
-          <div className="space-y-4">
+          <div className="space-y-3">
             <h1 className="text-3xl font-elegant font-bold text-foreground leading-tight">
               {currentImage.title}
             </h1>
             <p className="text-lg font-script text-ruby font-medium">
               {currentImage.subtitle}
             </p>
-            <p className="text-sm text-muted-foreground leading-relaxed">
+            <p className="text-base text-muted-foreground leading-relaxed">
               {currentImage.description}
             </p>
           </div>
 
-          <div className="flex space-x-4">
+          <div className="flex space-x-3">
             <Button 
               size="lg"
-              className="flex-1 bg-gradient-ruby-primary hover:bg-gradient-ruby-accent text-white font-semibold"
+              className="flex-1 bg-gradient-ruby-primary hover:bg-gradient-ruby-accent text-white font-semibold min-h-[44px]"
               asChild
             >
               <a href="/request-quote#page-header">Request Quote</a>
@@ -325,7 +327,7 @@ export const ModernHero = () => {
             <Button 
               variant="outline" 
               size="lg"
-              className="border-ruby text-ruby hover:bg-ruby hover:text-white"
+              className="border-ruby text-ruby hover:bg-ruby hover:text-white min-h-[44px]"
               asChild
             >
               <a href="/gallery">View Gallery</a>
