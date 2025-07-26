@@ -122,7 +122,7 @@ export const ServicesDiscoverySection = () => {
                     </div>
                     <div>
                       <h3 className="font-semibold text-foreground">{service.title}</h3>
-                      <p className="text-sm text-muted-foreground">{service.description}</p>
+                      <p className="text-sm font-script bg-gradient-ruby-primary bg-clip-text text-transparent">{service.description}</p>
                     </div>
                   </div>
                   <ChevronDown 
@@ -190,7 +190,7 @@ export const ServicesDiscoverySection = () => {
                     <h3 className="text-xl lg:text-2xl font-elegant font-bold text-foreground mb-2">
                       {service.title}
                     </h3>
-                    <p className="text-muted-foreground mb-4">
+                    <p className="font-script bg-gradient-ruby-primary bg-clip-text text-transparent mb-4">
                       {service.description}
                     </p>
                   </div>
