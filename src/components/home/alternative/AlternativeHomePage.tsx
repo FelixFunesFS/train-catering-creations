@@ -84,10 +84,16 @@ export const AlternativeHomePage = () => {
         </PageSection>
 
         {/* Simplified Quote Flow */}
-        
+        <PageSection pattern="c" withBorder>
+          <Suspense fallback={<GalleryLoadingState viewMode="grid" itemCount={1} />}>
+            <SimplifiedQuoteFlow />
+          </Suspense>
+        </PageSection>
 
         {/* Modern Footer */}
-        
+        <Suspense fallback={<div className="h-64 bg-muted animate-pulse" />}>
+          <ModernFooterSection />
+        </Suspense>
         
       </main>
     </div>;

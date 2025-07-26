@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { OptimizedImage } from "@/components/ui/optimized-image";
@@ -7,10 +7,15 @@ import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 import { useParallaxEffect } from "@/hooks/useParallaxEffect";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { ChevronRight, ChefHat, ArrowDown, Star } from "lucide-react";
+import { ChevronRight, ChefHat, ArrowDown, Star, Play, Pause, ChevronLeft } from "lucide-react";
 
 export const MobileFirstHero = () => {
   const isMobile = useIsMobile();
+  
+  // Story/Image state management
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
   
   const { ref: heroRef, isVisible: heroVisible, variant: heroVariant } = useScrollAnimation({ 
     variant: 'fade-up', 
@@ -36,6 +41,43 @@ export const MobileFirstHero = () => {
   const heroAnimationClass = useAnimationClass(heroVariant, heroVisible);
   const titleAnimationClass = useAnimationClass(titleVariant, titleVisible);
   const ctaAnimationClass = useAnimationClass(ctaVariant, ctaVisible);
+  
+  // Auto-advance functionality for stories/images
+  useEffect(() => {
+    if (!isPlaying) return;
+    
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % heroImages.length);
+    }, isMobile ? 4000 : 6000); // 4s mobile, 6s desktop
+    
+    return () => clearInterval(interval);
+  }, [isPlaying, isMobile]);
+  
+  // Touch handlers for mobile stories
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    if (!isMobile) return;
+    setTouchStart(e.touches[0].clientX);
+  }, [isMobile]);
+  
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (!isMobile || !touchStart) return;
+    
+    const touchEnd = e.changedTouches[0].clientX;
+    const diff = touchStart - touchEnd;
+    
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) {
+        // Swipe left - next image
+        setCurrentImageIndex((prev) => (prev + 1) % heroImages.length);
+      } else {
+        // Swipe right - previous image
+        setCurrentImageIndex((prev) => (prev - 1 + heroImages.length) % heroImages.length);
+      }
+    }
+    setTouchStart(null);
+  }, [touchStart, isMobile]);
+  
+  const togglePlayPause = () => setIsPlaying(!isPlaying);
   
 
   const heroImages = [
@@ -68,35 +110,93 @@ export const MobileFirstHero = () => {
   return (
     <section 
       ref={heroRef}
-      className="relative min-h-screen flex flex-col overflow-hidden bg-gradient-primary"
+      className="relative min-h-screen flex flex-col overflow-hidden"
       aria-label="Hero section"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
     >
-      {/* Optimized Parallax Background Layer */}
-      <div 
-        ref={parallaxRef}
-        style={!isMobile ? parallaxStyle : {}}
-        className="absolute inset-0 bg-gradient-to-br from-ruby-light/20 to-ruby-dark/40 opacity-60"
-      />
+      {/* Dynamic Background Image */}
+      <div className="absolute inset-0">
+        <OptimizedImage
+          src={heroImages[currentImageIndex].src}
+          alt={heroImages[currentImageIndex].alt}
+          containerClassName="h-full w-full"
+          className="object-cover transition-all duration-1000 ease-in-out"
+          style={!isMobile ? parallaxStyle : {}}
+          priority={currentImageIndex === 0}
+        />
+        
+        {/* Gradient Overlays */}
+        <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/40 to-black/70" />
+        <div className="absolute inset-0 bg-gradient-primary opacity-60" />
+      </div>
       
-      {/* Ruby Gradient Overlay - Mobile Optimized */}
-      <div className="absolute inset-0 bg-gradient-primary opacity-95" />
+      {/* Mobile: IG Stories Progress Bars */}
+      {isMobile && (
+        <div className="absolute top-4 left-4 right-4 z-20 flex gap-1">
+          {heroImages.map((_, index) => (
+            <div
+              key={index}
+              className="flex-1 h-1 bg-white/30 rounded-full overflow-hidden"
+            >
+              <div
+                className={`h-full bg-white transition-all duration-300 ${
+                  index === currentImageIndex ? 'animate-pulse' : ''
+                } ${index < currentImageIndex ? 'w-full' : index === currentImageIndex ? 'w-3/4' : 'w-0'}`}
+              />
+            </div>
+          ))}
+        </div>
+      )}
       
-      {/* Touch-Friendly Decorative Elements */}
-      <div className="absolute top-1/4 left-1/4 w-16 h-16 sm:w-24 sm:h-24 md:w-32 md:h-32 lg:w-48 lg:h-48 rounded-full bg-white/5 animate-pulse" />
-      <div className="absolute bottom-1/3 right-1/4 w-12 h-12 sm:w-18 sm:h-18 md:w-24 md:h-24 lg:w-36 lg:h-36 rounded-full bg-white/10 animate-pulse delay-1000" />
-      {/* Mobile-First Layout */}
+      {/* Desktop: Image Indicators */}
+      {!isMobile && (
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 flex gap-2">
+          {heroImages.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentImageIndex(index)}
+              className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                index === currentImageIndex 
+                  ? 'bg-white scale-125' 
+                  : 'bg-white/50 hover:bg-white/80'
+              }`}
+              aria-label={`View image ${index + 1}`}
+            />
+          ))}
+        </div>
+      )}
+      
+      {/* Story Controls (Mobile) */}
+      {isMobile && (
+        <div className="absolute top-16 right-4 z-20 flex gap-2">
+          <button
+            onClick={togglePlayPause}
+            className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center"
+            aria-label={isPlaying ? 'Pause' : 'Play'}
+          >
+            {isPlaying ? (
+              <Pause className="w-4 h-4 text-white" />
+            ) : (
+              <Play className="w-4 h-4 text-white ml-0.5" />
+            )}
+          </button>
+        </div>
+      )}
+      {/* Content Layout */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center flex-1 flex items-center justify-center">
         <div className={heroAnimationClass}>
-          {/* Mobile-Optimized Badge */}
+          {/* Category Badge with current image info */}
           <div className="inline-flex items-center px-3 py-2 sm:px-4 sm:py-2 mb-6 sm:mb-8 bg-white/10 backdrop-blur-sm rounded-full border border-white/20">
             <ChefHat className="w-3 h-3 sm:w-4 sm:h-4 mr-2 text-white" />
-            <span className="text-white text-xs sm:text-sm font-medium">Culinary Excellence</span>
+            <span className="text-white text-xs sm:text-sm font-medium">
+              {isMobile ? heroImages[currentImageIndex].title : 'Culinary Excellence'}
+            </span>
           </div>
 
-          {/* Enhanced Mobile-First Hero Title */}
+          {/* Enhanced Hero Title */}
           <div ref={titleRef} className={titleAnimationClass}>
             <h1 className="font-elegant leading-tight mb-4 sm:mb-6">
-              {/* Mobile: 2xl, Tablet: 4xl, Desktop: 6xl, Large: 8xl */}
               <span className="block text-2xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-1 sm:mb-2">
                 Soul Train's
               </span>
@@ -109,10 +209,23 @@ export const MobileFirstHero = () => {
             </h1>
             
             <p className="text-sm sm:text-lg md:text-xl lg:text-2xl text-white/90 mb-8 sm:mb-12 max-w-4xl mx-auto leading-relaxed font-light px-2">
-              Where culinary artistry meets elegant presentation. 
-              <span className="block mt-1 sm:mt-2 font-script text-base sm:text-xl md:text-2xl lg:text-3xl text-accent-light">
-                Creating unforgettable dining experiences
-              </span>
+              {isMobile ? (
+                <>
+                  <span className="block font-script text-accent-light">
+                    {heroImages[currentImageIndex].category} • {heroImages[currentImageIndex].title}
+                  </span>
+                  <span className="block mt-2 text-sm">
+                    Swipe for more culinary showcases
+                  </span>
+                </>
+              ) : (
+                <>
+                  Where culinary artistry meets elegant presentation. 
+                  <span className="block mt-1 sm:mt-2 font-script text-base sm:text-xl md:text-2xl lg:text-3xl text-accent-light">
+                    Creating unforgettable dining experiences
+                  </span>
+                </>
+              )}
             </p>
           </div>
 
@@ -153,15 +266,30 @@ export const MobileFirstHero = () => {
       </div>
 
       
-      {/* Enhanced Scroll Indicator */}
-      <div className="absolute bottom-6 sm:bottom-8 left-1/2 transform -translate-x-1/2">
-        <div className="flex flex-col items-center space-y-2">
-          <ArrowDown className="w-4 h-4 sm:w-5 sm:h-5 text-white/60 animate-bounce" />
-          <div className="w-4 h-8 sm:w-6 sm:h-10 border-2 border-white/40 rounded-full flex justify-center">
-            <div className="w-0.5 h-2 sm:w-1 sm:h-3 bg-white/60 rounded-full mt-1 sm:mt-2 animate-pulse" />
+      {/* Touch Instructions (Mobile) */}
+      {isMobile && (
+        <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 z-20">
+          <div className="text-center">
+            <p className="text-white/60 text-xs mb-2">Tap sides or swipe to navigate</p>
+            <div className="flex justify-center space-x-4">
+              <ChevronLeft className="w-4 h-4 text-white/40 animate-pulse" />
+              <ChevronRight className="w-4 h-4 text-white/40 animate-pulse" />
+            </div>
           </div>
         </div>
-      </div>
+      )}
+      
+      {/* Enhanced Scroll Indicator */}
+      {!isMobile && (
+        <div className="absolute bottom-6 sm:bottom-12 left-1/2 transform -translate-x-1/2 z-20">
+          <div className="flex flex-col items-center space-y-2">
+            <ArrowDown className="w-4 h-4 sm:w-5 sm:h-5 text-white/60 animate-bounce" />
+            <div className="w-4 h-8 sm:w-6 sm:h-10 border-2 border-white/40 rounded-full flex justify-center">
+              <div className="w-0.5 h-2 sm:w-1 sm:h-3 bg-white/60 rounded-full mt-1 sm:mt-2 animate-pulse" />
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 };
