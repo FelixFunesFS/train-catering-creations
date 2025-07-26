@@ -3,7 +3,7 @@ import { SectionContentCard } from "@/components/ui/section-content-card";
 import { ResponsiveWrapper } from "@/components/ui/responsive-wrapper";
 import { NeumorphicButton } from "@/components/ui/neumorphic-button";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
-import { MapPin, Star, Calendar, Users } from "lucide-react";
+import { MapPin, Star, Calendar, Users, Phone, Mail, ExternalLink } from "lucide-react";
 
 export const CharlestonFeaturedVenue = () => {
   const { ref: titleRef, isVisible: titleVisible } = useScrollAnimation({
@@ -12,14 +12,18 @@ export const CharlestonFeaturedVenue = () => {
   });
 
   const featuredVenue = {
-    name: "Rainbow Row Historic District",
-    type: "Historic Charleston",
-    description: "Cobblestone charm meets Southern elegance in Charleston's most iconic neighborhood",
+    name: "108 W Main Wedding + Event Venue",
+    type: "Moncks Corner Venue",
+    location: "Moncks Corner, SC 29461",
+    phone: "843-856-7177",
+    email: "108wmain@gmail.com",
+    website: "https://www.108wmain.com/",
+    description: "A historic two-story house under a lush oak canopy that invites you to create your own story",
     events: "45+ events",
     rating: 5.0,
     specialties: ["Historic Weddings", "Corporate Events", "Family Celebrations"],
     image: "/lovable-uploads/894051bf-31c6-4930-bb88-e3e1d74f7ee1.png",
-    fullDescription: "Step into Charleston's most photographed street and let us create an unforgettable culinary experience. Rainbow Row's pastel-painted Georgian houses provide a stunning backdrop for your special occasion, while our team brings authentic Lowcountry flavors and Southern hospitality to every gathering."
+    fullDescription: "Nestled just outside Charleston in the heart of Moncks Corner, 108 W Main is more than just a venue; it's a historic two‑story house under a lush oak canopy that invites you to create your own story. The property offers an elegant front yard, spacious rooms and luxurious bridal and groom suites, plus an air‑conditioned pavilion with conversational seating around a wood‑burning fireplace and a beautifully landscaped ceremony garden. With a neutral aesthetic and lush greenery, the venue is a blank canvas that adapts to your boho‑chic, classic or modern style and, on your day, it's exclusively yours."
   };
 
   return (
@@ -74,6 +78,27 @@ export const CharlestonFeaturedVenue = () => {
                 </div>
               </div>
 
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div className="flex items-center gap-2">
+                  <Phone className="w-4 h-4 text-ruby-primary" />
+                  <a 
+                    href={`tel:${featuredVenue.phone}`}
+                    className="text-sm font-medium hover:text-ruby-primary transition-colors"
+                  >
+                    {featuredVenue.phone}
+                  </a>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Mail className="w-4 h-4 text-ruby-primary" />
+                  <a 
+                    href={`mailto:${featuredVenue.email}`}
+                    className="text-sm font-medium hover:text-ruby-primary transition-colors"
+                  >
+                    {featuredVenue.email}
+                  </a>
+                </div>
+              </div>
+
               <div className="flex flex-wrap gap-2 mb-8">
                 {featuredVenue.specialties.map((specialty, index) => (
                   <span
@@ -87,10 +112,12 @@ export const CharlestonFeaturedVenue = () => {
 
               <NeumorphicButton 
                 variant="primary" 
-                className="bg-gradient-ruby-primary text-white hover:bg-gradient-ruby-accent focus-visible-enhanced"
-                aria-label="Explore all Charleston venue locations and details"
+                className="bg-gradient-ruby-primary text-white hover:bg-gradient-ruby-accent focus-visible-enhanced inline-flex items-center gap-2"
+                onClick={() => window.open(featuredVenue.website, '_blank')}
+                aria-label="Learn more about 108 W Main Wedding + Event Venue"
               >
-                Explore All Charleston Venues
+                Learn More
+                <ExternalLink className="w-4 h-4" />
               </NeumorphicButton>
             </div>
             
@@ -107,7 +134,7 @@ export const CharlestonFeaturedVenue = () => {
                 <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm rounded-lg px-3 py-2 shadow-lg">
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-ruby-primary rounded-full animate-pulse"></div>
-                    <span className="text-xs font-medium text-foreground">Historic Charleston</span>
+                    <span className="text-xs font-medium text-foreground">Moncks Corner</span>
                   </div>
                 </div>
               </div>
