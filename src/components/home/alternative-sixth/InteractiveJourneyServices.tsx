@@ -65,7 +65,7 @@ export const InteractiveJourneyServices = () => {
               </span>
             </h2>
             <p className="text-lg md:text-xl text-muted-foreground">
-              Discover how we can make your next event extraordinary with our signature Charleston-inspired cuisine and heartfelt service.
+              8 years of exceptional service backed by 20+ years of culinary mastery. From intimate gatherings to grand celebrations, we bring Charleston's finest flavors to your special moments.
             </p>
           </div>
 

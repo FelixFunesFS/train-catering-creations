@@ -72,8 +72,8 @@ export const JourneyFooter = () => {
               Your Culinary Journey Awaits
             </h3>
             <p className="text-white/80 max-w-2xl mx-auto">
-              Creating unforgettable culinary experiences in Charleston and the Lowcountry 
-              since 1999. Let us bring exceptional taste and heartfelt service to your next celebration.
+              Charleston's premier catering service. 8 years of exceptional service backed by 20+ years of culinary mastery, 
+              bringing extraordinary experiences to your special moments throughout the Lowcountry.
             </p>
           </div>
 

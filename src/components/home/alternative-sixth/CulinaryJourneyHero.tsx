@@ -13,40 +13,19 @@ export const CulinaryJourneyHero = () => {
     variant: "fade-up"
   });
   const [currentMilestone, setCurrentMilestone] = useState(0);
-  const stats = [{
-    icon: Calendar,
-    value: "25+",
-    label: "Years"
-  }, {
-    icon: Users,
-    value: "10k+",
-    label: "Families Served"
-  }, {
-    icon: Star,
-    value: "50+",
-    label: "Venues"
-  }, {
-    icon: Award,
-    value: "100%",
-    label: "Family-Owned"
-  }];
-  const milestones = [{
-    year: "1999",
-    title: "Soul Train's Eatery Founded",
-    description: "Charleston heritage begins"
-  }, {
-    year: "2005",
-    title: "Mobile Catering Launch",
-    description: "Bringing flavors to you"
-  }, {
-    year: "2015",
-    title: "Lowcountry Expansion",
-    description: "Serving the region"
-  }, {
-    year: "2024",
-    title: "Culinary Innovation",
-    description: "Modern meets tradition"
-  }];
+  const stats = [
+    { icon: Calendar, value: "8+", label: "Years in Business" },
+    { icon: Users, value: "20+", label: "Years Experience" },
+    { icon: Star, value: "10k+", label: "Families Served" },
+    { icon: Award, value: "100%", label: "Family-Owned" }
+  ];
+
+  const milestones = [
+    { year: "2016", title: "Soul Train's Eatery Founded", description: "Beginning our culinary journey with 20+ years of expertise" },
+    { year: "2018", title: "Mobile Catering Excellence", description: "Expanding to serve events across the Charleston region" },
+    { year: "2020", title: "Lowcountry Expansion", description: "Growing our presence throughout South Carolina" },
+    { year: "2024", title: "Culinary Innovation & Growth", description: "Continuing to elevate Southern cuisine for modern celebrations" }
+  ];
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentMilestone(prev => (prev + 1) % milestones.length);
@@ -68,7 +47,7 @@ export const CulinaryJourneyHero = () => {
           <div className={`flex justify-center mb-8 ${isVisible ? 'fade-up-visible' : 'fade-up-hidden'}`}>
             <div className="inline-flex items-center gap-2 bg-primary/20 backdrop-blur-sm px-6 py-3 rounded-full border border-primary/30">
               <Heart className="w-5 h-5 text-primary" fill="currentColor" />
-              <span className="text-primary font-elegant text-sm font-semibold">Est. 1999 • Charleston Heritage</span>
+              <span className="text-primary font-elegant text-sm font-semibold">Est. 2016 • 8 Years Strong</span>
             </div>
           </div>
 
@@ -93,8 +72,9 @@ export const CulinaryJourneyHero = () => {
             </div>
             
             <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              Creating unforgettable culinary experiences in Charleston and the Lowcountry since 1999. 
-              Let us bring exceptional taste and heartfelt service to your next celebration.
+              Creating unforgettable culinary experiences in Charleston and the Lowcountry since 2016. 
+              8 years of exceptional service backed by 20+ years of culinary mastery, 
+              bringing heartfelt service to your celebrations.
             </p>
           </div>
 

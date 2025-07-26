@@ -67,7 +67,7 @@ export const JourneyGalleryFusion = () => {
               </span>
             </h2>
             <p className="text-lg md:text-xl text-muted-foreground">
-              Explore the moments that make each celebration special, from intimate gatherings to grand occasions showcasing Soul Train's Eatery's heritage and expertise.
+              8 years of creating unforgettable moments with 20+ years of culinary expertise. Explore the artistry and passion behind every event we cater.
             </p>
           </div>
 

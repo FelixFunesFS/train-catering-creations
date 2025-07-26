@@ -104,8 +104,9 @@ export const CulinaryJourneyStarter = () => {
           </h2>
           
           <p className="text-sm sm:text-base md:text-lg lg:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-4">
-            From concept to celebration, we handle every detail to create an extraordinary 
-            dining experience that exceeds your expectations.
+            Join 10,000+ satisfied clients who've experienced the magic of Soul Train's Eatery. 
+            8 years of exceptional service backed by 20+ years of culinary mastery. 
+            From concept to celebration, we create extraordinary dining experiences.
           </p>
         </div>
 
