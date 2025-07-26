@@ -58,7 +58,7 @@ export const ServiceCategoriesSection = () => {
       title: "Corporate Events",
       subtitle: "Professional Excellence",
       description: "Impress clients and colleagues with sophisticated catering that reflects your company's commitment to quality.",
-      image: "/lovable-uploads/84f43173-e79d-4c53-b5d4-e8a596d1d614.png",
+      image: "/lovable-uploads/e8d1f833-d15b-4779-8141-cb7641a62227.png",
       features: ["Flexible Scheduling", "Dietary Accommodations", "Professional Setup"],
       href: "/request-quote#page-header"
     },
