@@ -18,7 +18,7 @@ export const CharlestonFeaturedVenue = () => {
     phone: "843-856-7177",
     email: "108wmain@gmail.com",
     website: "https://www.108wmain.com/",
-    description: "A historic two-story house under a lush oak canopy that invites you to create your own story",
+    description: "Where your love story begins under ancient oaks",
     events: "45+ events",
     rating: 5.0,
     specialties: ["Historic Weddings", "Corporate Events", "Family Celebrations"],
