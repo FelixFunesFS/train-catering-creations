@@ -4,46 +4,59 @@ import { ResponsiveWrapper } from "@/components/ui/responsive-wrapper";
 import { OptimizedImage } from "@/components/ui/optimized-image";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { Heart, ChevronDown, Star, Users, Award, Calendar } from "lucide-react";
-
 export const CulinaryJourneyHero = () => {
-  const { ref, isVisible } = useScrollAnimation({
+  const {
+    ref,
+    isVisible
+  } = useScrollAnimation({
     threshold: 0.1,
     variant: "fade-up"
   });
-
   const [currentMilestone, setCurrentMilestone] = useState(0);
-
-  const stats = [
-    { icon: Calendar, value: "25+", label: "Years" },
-    { icon: Users, value: "10k+", label: "Families Served" },
-    { icon: Star, value: "50+", label: "Venues" },
-    { icon: Award, value: "100%", label: "Family-Owned" },
-  ];
-
-  const milestones = [
-    { year: "1999", title: "Soul Train's Eatery Founded", description: "Charleston heritage begins" },
-    { year: "2005", title: "Mobile Catering Launch", description: "Bringing flavors to you" },
-    { year: "2015", title: "Lowcountry Expansion", description: "Serving the region" },
-    { year: "2024", title: "Culinary Innovation", description: "Modern meets tradition" },
-  ];
-
+  const stats = [{
+    icon: Calendar,
+    value: "25+",
+    label: "Years"
+  }, {
+    icon: Users,
+    value: "10k+",
+    label: "Families Served"
+  }, {
+    icon: Star,
+    value: "50+",
+    label: "Venues"
+  }, {
+    icon: Award,
+    value: "100%",
+    label: "Family-Owned"
+  }];
+  const milestones = [{
+    year: "1999",
+    title: "Soul Train's Eatery Founded",
+    description: "Charleston heritage begins"
+  }, {
+    year: "2005",
+    title: "Mobile Catering Launch",
+    description: "Bringing flavors to you"
+  }, {
+    year: "2015",
+    title: "Lowcountry Expansion",
+    description: "Serving the region"
+  }, {
+    year: "2024",
+    title: "Culinary Innovation",
+    description: "Modern meets tradition"
+  }];
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentMilestone((prev) => (prev + 1) % milestones.length);
+      setCurrentMilestone(prev => (prev + 1) % milestones.length);
     }, 4000);
     return () => clearInterval(interval);
   }, []);
-
-  return (
-    <div className="relative min-h-screen bg-gradient-to-br from-background via-background/95 to-primary/5 overflow-hidden">
+  return <div className="relative min-h-screen bg-gradient-to-br from-background via-background/95 to-primary/5 overflow-hidden">
       {/* Hero Background Image */}
       <div className="absolute inset-0 opacity-30">
-        <OptimizedImage 
-          src="/lovable-uploads/26d2d500-6017-41a2-99b2-b7050cefedba.png"
-          alt="Elegant wedding reception setup showcasing Soul Train's Eatery catering expertise"
-          className="w-full h-full object-cover"
-          containerClassName="w-full h-full"
-        />
+        <OptimizedImage src="/lovable-uploads/26d2d500-6017-41a2-99b2-b7050cefedba.png" alt="Elegant wedding reception setup showcasing Soul Train's Eatery catering expertise" className="w-full h-full object-cover" containerClassName="w-full h-full" />
       </div>
       
       {/* Background Pattern */}
@@ -60,16 +73,13 @@ export const CulinaryJourneyHero = () => {
           </div>
 
           {/* Logo & Main Title */}
-          <div className={`text-center mb-12 ${isVisible ? 'fade-up-visible' : 'fade-up-hidden'}`} style={{ animationDelay: '200ms' }}>
+          <div className={`text-center mb-12 ${isVisible ? 'fade-up-visible' : 'fade-up-hidden'}`} style={{
+          animationDelay: '200ms'
+        }}>
             <div className="mb-6 flex flex-col items-center">
               {/* Logo */}
               <div className="mb-6 w-16 h-16 md:w-20 md:h-20">
-                <OptimizedImage 
-                  src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png"
-                  alt="Soul Train's Eatery Official Logo - Charleston Heritage Catering"
-                  className="w-full h-full object-contain hover:scale-110 transition-transform duration-300"
-                  aspectRatio="aspect-square"
-                />
+                <OptimizedImage src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" alt="Soul Train's Eatery Official Logo - Charleston Heritage Catering" className="w-full h-full object-contain hover:scale-110 transition-transform duration-300" aspectRatio="aspect-square" />
               </div>
               
               <h1 className="text-4xl md:text-6xl lg:text-7xl font-elegant font-bold mb-4">
@@ -89,9 +99,10 @@ export const CulinaryJourneyHero = () => {
           </div>
 
           {/* Stats Grid */}
-          <div className={`grid grid-cols-2 lg:grid-cols-4 gap-6 mb-16 ${isVisible ? 'fade-up-visible' : 'fade-up-hidden'}`} style={{ animationDelay: '400ms' }}>
-            {stats.map((stat, index) => (
-              <div key={index} className="text-center">
+          <div className={`grid grid-cols-2 lg:grid-cols-4 gap-6 mb-16 ${isVisible ? 'fade-up-visible' : 'fade-up-hidden'}`} style={{
+          animationDelay: '400ms'
+        }}>
+            {stats.map((stat, index) => <div key={index} className="text-center">
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/20 backdrop-blur-sm border border-primary/30 mb-4">
                   <stat.icon className="w-8 h-8 text-primary" />
                 </div>
@@ -101,84 +112,33 @@ export const CulinaryJourneyHero = () => {
                 <div className="text-sm text-muted-foreground font-medium">
                   {stat.label}
                 </div>
-              </div>
-            ))}
+              </div>)}
           </div>
 
           {/* Interactive Timeline */}
-          <div className={`mb-12 ${isVisible ? 'fade-up-visible' : 'fade-up-hidden'}`} style={{ animationDelay: '600ms' }}>
-            <h3 className="text-xl font-elegant font-semibold text-center mb-8">Our Heritage</h3>
-            <div className="max-w-4xl mx-auto">
-              <div className="flex justify-center items-center gap-4 mb-6" role="tablist" aria-label="Timeline milestones">
-                {milestones.map((milestone, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentMilestone(index)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'ArrowLeft' && index > 0) {
-                        setCurrentMilestone(index - 1);
-                      } else if (e.key === 'ArrowRight' && index < milestones.length - 1) {
-                        setCurrentMilestone(index + 1);
-                      }
-                    }}
-                    role="tab"
-                    aria-selected={index === currentMilestone}
-                    aria-controls={`milestone-${index}`}
-                    aria-label={`${milestone.year} - ${milestone.title}`}
-                    className={`w-6 h-6 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
-                      index === currentMilestone 
-                        ? 'bg-primary scale-125' 
-                        : 'bg-muted-foreground/30 hover:bg-primary/50'
-                    }`}
-                  />
-                ))}
-              </div>
-              <div 
-                className="text-center bg-background/80 backdrop-blur-sm rounded-xl p-6 border border-primary/20"
-                role="tabpanel"
-                id={`milestone-${currentMilestone}`}
-                aria-live="polite"
-              >
-                <div className="text-2xl font-elegant font-bold text-primary mb-2">
-                  {milestones[currentMilestone].year}
-                </div>
-                <div className="text-lg font-semibold mb-2">
-                  {milestones[currentMilestone].title}
-                </div>
-                <div className="text-muted-foreground">
-                  {milestones[currentMilestone].description}
-                </div>
-              </div>
-            </div>
-          </div>
+          
 
           {/* CTA Buttons */}
-          <div className={`flex flex-col sm:flex-row gap-4 justify-center ${isVisible ? 'fade-up-visible' : 'fade-up-hidden'}`} style={{ animationDelay: '800ms' }}>
-            <NeumorphicButton 
-              size="lg" 
-              className="px-8 py-4 min-h-[44px]"
-              aria-label="Start planning your culinary event with Soul Train's Eatery"
-            >
+          <div className={`flex flex-col sm:flex-row gap-4 justify-center ${isVisible ? 'fade-up-visible' : 'fade-up-hidden'}`} style={{
+          animationDelay: '800ms'
+        }}>
+            <NeumorphicButton size="lg" className="px-8 py-4 min-h-[44px]" aria-label="Start planning your culinary event with Soul Train's Eatery">
               Get Started Today
             </NeumorphicButton>
-            <NeumorphicButton 
-              variant="outline" 
-              size="lg" 
-              className="px-8 py-4 min-h-[44px]"
-              aria-label="Learn more about our Charleston heritage and story"
-            >
+            <NeumorphicButton variant="outline" size="lg" className="px-8 py-4 min-h-[44px]" aria-label="Learn more about our Charleston heritage and story">
               Explore Our Story
             </NeumorphicButton>
           </div>
 
           {/* Scroll Indicator */}
-          <div className={`flex justify-center mt-16 ${isVisible ? 'fade-up-visible' : 'fade-up-hidden'}`} style={{ animationDelay: '1000ms' }}>
+          <div className={`flex justify-center mt-16 ${isVisible ? 'fade-up-visible' : 'fade-up-hidden'}`} style={{
+          animationDelay: '1000ms'
+        }}>
             <div className="animate-bounce">
               <ChevronDown className="w-6 h-6 text-primary" />
             </div>
           </div>
         </div>
       </ResponsiveWrapper>
-    </div>
-  );
+    </div>;
 };
