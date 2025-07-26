@@ -41,7 +41,7 @@ export const ModernHero = () => {
       description: "Experience the magic of your special day in this stunning rustic venue with chandeliers, string lights, and our exquisite catering services."
     },
     {
-      src: "/lovable-uploads/0a30f622-def6-4af2-8a0b-8b9210428d54.png",
+      src: "/lovable-uploads/f074b356-438e-43f1-9802-a5738a9944e0.png",
       alt: "Elegant outdoor wedding tent setup",
       title: "Unforgettable Celebrations",
       subtitle: "Crafted with Soul, Seasoned with Love",
