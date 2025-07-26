@@ -252,7 +252,7 @@ export const StoryHero = () => {
             <span className="animate-pulse">|</span>
           </h1>
           
-          <div className="text-xl sm:text-2xl lg:text-4xl xl:text-5xl font-script bg-gradient-ruby-primary bg-clip-text text-transparent mb-4" style={{ filter: 'drop-shadow(0 4px 8px rgba(0, 0, 0, 0.6)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4))' }}>
+          <div className="text-lg sm:text-xl md:text-2xl lg:text-4xl xl:text-5xl font-script text-white mb-4" style={{ textShadow: '0 4px 8px rgba(0, 0, 0, 0.8), 0 2px 4px rgba(0, 0, 0, 0.6), 0 1px 2px rgba(0, 0, 0, 0.4)' }}>
             Catering Experience
           </div>
           
