@@ -10,11 +10,11 @@ const HomePage = () => {
   return (
     <div className="min-h-screen">
       <SplitHero />
-      <FeaturedVenueSection />
       <InteractiveGalleryPreview />
       <ServiceCategoriesSection />
       <AboutPreviewSection />
       <TestimonialsCarousel />
+      <FeaturedVenueSection />
       <CTASection />
     </div>
   );
