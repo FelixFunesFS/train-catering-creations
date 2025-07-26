@@ -39,8 +39,8 @@ export const SplitHero = () => {
 
   const heroImages: HeroImage[] = [
     {
-      src: "/lovable-uploads/e3c0d1ae-fb6a-4700-8007-a8c8c8136e57.png",
-      alt: "Elegant event space with formal dining setup",
+      src: "/lovable-uploads/aaf2be76-85aa-4249-a220-70c29f94637a.png",
+      alt: "Professional catering setup with chafing dishes and elegant floral arrangements",
       title: "Artisan Creations",
       subtitle: "Every Detail Matters",
       category: "culinary",
@@ -55,8 +55,8 @@ export const SplitHero = () => {
       description: "Chef Train and Tanya Ward combine decades of experience with family traditions to create memorable dining experiences."
     },
     {
-      src: "/lovable-uploads/aaf2be76-85aa-4249-a220-70c29f94637a.png",
-      alt: "Professional catering setup with chafing dishes and elegant floral arrangements",
+      src: "/lovable-uploads/e3c0d1ae-fb6a-4700-8007-a8c8c8136e57.png",
+      alt: "Elegant event space with formal dining setup",
       title: "Unforgettable Celebrations",
       subtitle: "Crafted with Soul, Seasoned with Love",
       category: "wedding",
