@@ -1,6 +1,6 @@
-import { AlternativeHomePage } from "@/components/home/alternative/AlternativeHomePage";
+import HomePage from "./HomePage";
 
 const Index = () => {
-  return <AlternativeHomePage />;
+  return <HomePage />;
 };
 export default Index;
