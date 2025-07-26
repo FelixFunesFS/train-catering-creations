@@ -42,14 +42,14 @@ export const CharlestonHeritageHero = () => {
       {/* Charleston Background */}
       <div className="absolute inset-0">
         <OptimizedImage 
-          src="/lovable-uploads/a68ac24e-cf0d-4941-9059-568c9b92bebf.png" 
-          alt="Elegant Charleston banquet hall with golden accents and sophisticated lighting" 
+          src="/lovable-uploads/894051bf-31c6-4930-bb88-e3e1d74f7ee1.png" 
+          alt="Historic Rainbow Row Charleston colorful Georgian houses - iconic Charleston heritage district" 
           containerClassName="w-full h-full" 
           className="object-cover object-center" 
           priority 
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/80" />
-        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-ruby-900/10 to-ruby-900/20" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/85" />
+        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-ruby-900/15 to-ruby-900/25" />
       </div>
 
       <ResponsiveWrapper>
