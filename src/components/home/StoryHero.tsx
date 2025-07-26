@@ -87,6 +87,13 @@ export const StoryHero = () => {
       title: "Outdoor Event Catering",
       category: "outdoor",
       description: "Professional outdoor catering with fresh presentation and quality service"
+    },
+    {
+      src: "/lovable-uploads/6e73d4e4-5df8-4e9a-a27f-5b7789daf9f2.png",
+      alt: "Air Force hangar catering event",
+      title: "Military Base Catering",
+      category: "military",
+      description: "Proud to serve our Air Force with exceptional catering in unique venues"
     }
   ];
 
