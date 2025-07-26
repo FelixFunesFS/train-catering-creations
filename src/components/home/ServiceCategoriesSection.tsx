@@ -153,7 +153,7 @@ export const ServiceCategoriesSection = () => {
                   <h3 className="text-xl font-elegant font-bold text-foreground group-hover:text-ruby transition-colors">
                     {service.title}
                   </h3>
-                  <p className="text-base font-script text-ruby font-medium">
+                  <p className="text-lg font-script text-ruby font-medium">
                     {service.subtitle}
                   </p>
                   <p className="text-base text-muted-foreground leading-relaxed">
