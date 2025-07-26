@@ -1,117 +1,185 @@
-import { Link } from "react-router-dom";
-import { NeumorphicButton } from "@/components/ui/neumorphic-button";
-import { SectionContentCard } from "@/components/ui/section-content-card";
-import { ResponsiveWrapper } from "@/components/ui/responsive-wrapper";
-import { Heart, Users, Crown, ChefHat, Award } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { OptimizedImage } from "@/components/ui/optimized-image";
+import { 
+  ChefHat, 
+  Award, 
+  Heart, 
+  Users,
+  ArrowRight,
+  Shield,
+  Clock
+} from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 
 export const AboutPreviewSection = () => {
-  const { ref: titleRef, isVisible: titleVisible, variant: titleVariant } = useScrollAnimation({
-    variant: 'ios-spring',
-    delay: 0,
-    mobile: { delay: 0 },
-    desktop: { delay: 100 }
-  });
-  
-  const { ref: card1Ref, isVisible: card1Visible, variant: card1Variant } = useScrollAnimation({
-    variant: 'elastic',
-    delay: 200,
-    mobile: { delay: 150 },
-    desktop: { delay: 250 }
-  });
-  
-  const { ref: card2Ref, isVisible: card2Visible, variant: card2Variant } = useScrollAnimation({
-    variant: 'elastic',
-    delay: 300,
-    mobile: { delay: 250 },
-    desktop: { delay: 350 }
-  });
-  
-  const { ref: card3Ref, isVisible: card3Visible, variant: card3Variant } = useScrollAnimation({
-    variant: 'elastic',
-    delay: 400,
-    mobile: { delay: 350 },
-    desktop: { delay: 450 }
-  });
-  
-  const { ref: card4Ref, isVisible: card4Visible, variant: card4Variant } = useScrollAnimation({
-    variant: 'elastic',
-    delay: 500,
-    mobile: { delay: 450 },
-    desktop: { delay: 550 }
+  const { ref, isVisible } = useScrollAnimation({ 
+    variant: 'fade-up', 
+    delay: 0 
   });
 
-  const titleAnimationClass = useAnimationClass(titleVariant, titleVisible);
-  const card1AnimationClass = useAnimationClass(card1Variant, card1Visible);
-  const card2AnimationClass = useAnimationClass(card2Variant, card2Visible);
-  const card3AnimationClass = useAnimationClass(card3Variant, card3Visible);
-  const card4AnimationClass = useAnimationClass(card4Variant, card4Visible);
+  const animationClass = useAnimationClass('ios-spring', isVisible);
+
+  const credentials = [
+    {
+      icon: <Shield className="h-4 w-4" />,
+      text: "ServSafe Certified"
+    },
+    {
+      icon: <Clock className="h-4 w-4" />,
+      text: "20+ Years Experience"
+    },
+    {
+      icon: <Users className="h-4 w-4" />,
+      text: "Family-Owned Business"
+    },
+    {
+      icon: <Award className="h-4 w-4" />,
+      text: "Charleston's Trusted Caterer"
+    }
+  ];
 
   return (
-    <section>
-      <ResponsiveWrapper hasFullWidthCard>
-        <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 items-center">
-          <div ref={titleRef} className={titleAnimationClass}>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant font-bold text-foreground mb-4 sm:mb-6 leading-tight">
-              Culinary Excellence
-            </h2>
-            <p className="text-sm sm:text-base lg:text-lg text-muted-foreground mb-4 sm:mb-6 leading-relaxed">
-              Founded by Chef Dominick "Train" Ward and Pastry Chef Tanya Ward, Soul Train's Eatery is a family-run, community-rooted catering business serving Charleston's Lowcountry with love and precision.
-            </p>
-            <p className="text-sm sm:text-base lg:text-lg text-muted-foreground mb-6 sm:mb-8 leading-relaxed">
-              From intimate gatherings to grand celebrations, we bring over two decades of culinary expertise, Southern hospitality, and ServSafe certified professionalism to every event. Taste the love in every bite.
-            </p>
-            <NeumorphicButton asChild variant="primary" size="lg">
-              <Link to="/about#page-header">
-                Learn More About Us
-              </Link>
-            </NeumorphicButton>
+    <section 
+      ref={ref}
+      className="py-12 sm:py-16 lg:py-20 bg-gradient-pattern-d"
+    >
+      <div className="container mx-auto px-4">
+        {/* Section Header */}
+        <div className={`text-center mb-8 lg:mb-12 space-y-4 ${animationClass}`}>
+          <div className="flex items-center justify-center space-x-2 mb-4">
+            <Heart className="h-5 w-5 text-ruby fill-ruby" />
+            <Badge variant="outline" className="border-ruby text-ruby font-script">
+              Our Story
+            </Badge>
           </div>
           
-          <div className="grid grid-cols-2 gap-4 sm:gap-6 md:gap-8 lg:gap-12">
-            <SectionContentCard 
-              ref={card1Ref}
-              className={`text-center ${card1AnimationClass}`}
-              interactive
-            >
-              <ChefHat className="h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 text-primary mx-auto mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-300" />
-              <h3 className="text-base sm:text-lg lg:text-xl font-elegant font-semibold text-foreground mb-2">Chef Train</h3>
-              <p className="text-sm sm:text-base lg:text-lg text-muted-foreground">20+ Years Experience</p>
-            </SectionContentCard>
-            
-            <SectionContentCard 
-              ref={card2Ref}
-              className={`text-center ${card2AnimationClass}`}
-              interactive
-            >
-              <Heart className="h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 text-primary mx-auto mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-300" />
-              <h3 className="text-base sm:text-lg lg:text-xl font-elegant font-semibold text-foreground mb-2">Tanya Ward</h3>
-              <p className="text-sm sm:text-base lg:text-lg text-muted-foreground">Pastry Chef</p>
-            </SectionContentCard>
-            
-            <SectionContentCard 
-              ref={card3Ref}
-              className={`text-center ${card3AnimationClass}`}
-              interactive
-            >
-              <Award className="h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 text-primary mx-auto mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-300" />
-              <h3 className="text-base sm:text-lg lg:text-xl font-elegant font-semibold text-foreground mb-2">ServSafe</h3>
-              <p className="text-sm sm:text-base lg:text-lg text-muted-foreground">Certified</p>
-            </SectionContentCard>
-            
-            <SectionContentCard 
-              ref={card4Ref}
-              className={`text-center ${card4AnimationClass}`}
-              interactive
-            >
-              <Users className="h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 text-primary mx-auto mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-300" />
-              <h3 className="text-base sm:text-lg lg:text-xl font-elegant font-semibold text-foreground mb-2">Family Run</h3>
-              <p className="text-sm sm:text-base lg:text-lg text-muted-foreground">Community Rooted</p>
-            </SectionContentCard>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant font-bold text-foreground">
+            Meet the Soul Behind the Train
+          </h2>
+          <p className="text-lg sm:text-xl font-script text-ruby font-medium">
+            A Family Legacy of Flavor & Love
+          </p>
+        </div>
+
+        {/* Main Content */}
+        <div className={`grid lg:grid-cols-2 gap-8 lg:gap-12 items-center ${animationClass}`}>
+          {/* Content */}
+          <div className="space-y-6 order-2 lg:order-1">
+            <div className="space-y-4">
+              <h3 className="text-xl sm:text-2xl font-elegant font-bold text-foreground">
+                Chef Train & Tanya Ward
+              </h3>
+              
+              <p className="text-muted-foreground leading-relaxed">
+                For over two decades, Chef Train has been bringing the authentic flavors of the South 
+                to Charleston's tables. Together with pastry chef Tanya Ward, they've built Soul Train's 
+                Eatery on the foundation of family recipes, quality ingredients, and genuine hospitality.
+              </p>
+
+              <p className="text-muted-foreground leading-relaxed">
+                What started as a passion for cooking has grown into Charleston's trusted catering partner, 
+                serving families, couples, and businesses across the Lowcountry with the same care and 
+                attention we'd give our own family.
+              </p>
+            </div>
+
+            {/* Credentials Grid */}
+            <div className="grid grid-cols-2 gap-3">
+              {credentials.map((credential, index) => (
+                <Card key={index} className="p-3 bg-white/60 border-ruby/20">
+                  <div className="flex items-center space-x-2">
+                    <div className="text-ruby">
+                      {credential.icon}
+                    </div>
+                    <span className="text-xs font-medium text-foreground">
+                      {credential.text}
+                    </span>
+                  </div>
+                </Card>
+              ))}
+            </div>
+
+            {/* Quote */}
+            <div className="bg-gradient-ruby-subtle rounded-lg p-4 border-l-4 border-ruby">
+              <blockquote className="text-sm italic text-foreground">
+                "Every dish we create carries a piece of our heart. We're not just feeding people; 
+                we're creating memories that last a lifetime."
+              </blockquote>
+              <cite className="text-xs text-ruby font-medium mt-2 block">
+                — Chef Train, Founder & Head Chef
+              </cite>
+            </div>
+
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
+              <Button 
+                className="bg-gradient-ruby-primary hover:bg-gradient-ruby-accent text-white font-semibold group"
+                asChild
+              >
+                <a href="/about" className="flex items-center space-x-2">
+                  <span>Our Full Story</span>
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </a>
+              </Button>
+              <Button 
+                variant="outline" 
+                className="border-ruby text-ruby hover:bg-ruby hover:text-white"
+                asChild
+              >
+                <a href="/request-quote#page-header">Work With Us</a>
+              </Button>
+            </div>
+          </div>
+
+          {/* Images */}
+          <div className="relative order-1 lg:order-2">
+            <div className="grid grid-cols-2 gap-4">
+              {/* Main Chef Image */}
+              <div className="col-span-2">
+                <Card className="overflow-hidden border-2 border-ruby/20">
+                  <OptimizedImage
+                    src="/lovable-uploads/31195e1f-92d1-4d88-9466-00bb2d439661.png"
+                    alt="Chef Train and team in professional kitchen"
+                    className="w-full h-48 sm:h-56 object-cover"
+                  />
+                </Card>
+              </div>
+              
+              {/* Kitchen Scene */}
+              <Card className="overflow-hidden border border-border/20">
+                <OptimizedImage
+                  src="/lovable-uploads/36237032-ff09-485e-9a44-179ac279864f.png"
+                  alt="Professional kitchen in action"
+                  className="w-full h-32 sm:h-36 object-cover"
+                />
+              </Card>
+              
+              {/* Pastry Creation */}
+              <Card className="overflow-hidden border border-border/20">
+                <OptimizedImage
+                  src="/lovable-uploads/1cd54e2e-3991-4795-ad2a-6e8c18fb530f.png"
+                  alt="Tanya's custom dessert creation"
+                  className="w-full h-32 sm:h-36 object-cover"
+                />
+              </Card>
+            </div>
+
+            {/* Floating Badge */}
+            <div className="absolute -top-4 -right-4 bg-white rounded-xl p-3 shadow-xl border border-ruby/20">
+              <div className="flex items-center space-x-2">
+                <ChefHat className="h-5 w-5 text-ruby" />
+                <div className="text-center">
+                  <div className="text-sm font-bold text-ruby">20+</div>
+                  <div className="text-xs text-muted-foreground">Years</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </ResponsiveWrapper>
+      </div>
     </section>
   );
 };
