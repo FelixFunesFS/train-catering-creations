@@ -11,7 +11,7 @@ import { ChevronDown, Play, Pause, Sparkles, ChevronRight, UtensilsCrossed, Hear
 export const StoryHero = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
-  const [showDetails, setShowDetails] = useState(false);
+  
   const [typewriterText, setTypewriterText] = useState("");
   
   const isMobile = useIsMobile();
@@ -105,9 +105,6 @@ export const StoryHero = () => {
     } else if (tapX > (screenWidth * 2) / 3) {
       // Right third - next image
       setCurrentIndex(prev => (prev + 1) % heroImages.length);
-    } else {
-      // Center third - toggle details
-      setShowDetails(prev => !prev);
     }
   };
 
@@ -276,25 +273,6 @@ export const StoryHero = () => {
         </div>
       </div>
 
-      {/* Touch Instruction Overlay (shown briefly on mobile) */}
-      {isMobile && showDetails && (
-        <div className="absolute inset-0 z-30 bg-background/50 backdrop-blur-sm flex items-center justify-center p-6">
-          <div className="bg-white/10 backdrop-blur-md rounded-lg p-6 text-center text-white">
-            <h3 className="font-elegant text-lg mb-2">Story Navigation</h3>
-            <p className="text-sm text-white/80 mb-4">
-              Tap left/right to navigate • Tap center for details
-            </p>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => setShowDetails(false)}
-              className="bg-white/10 text-white border-white/20"
-            >
-              Got it
-            </Button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
