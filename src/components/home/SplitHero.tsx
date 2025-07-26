@@ -158,6 +158,15 @@ export const SplitHero = () => {
   const currentImage = heroImages[currentIndex];
   const badge = getCategoryBadge(currentImage.category);
 
+  // Dynamic object positioning based on image index
+  const getImageObjectPosition = (index: number) => {
+    // For the Award-Winning Catering image (index 1), show more of the center-left
+    if (index === 1) {
+      return "object-left-center";
+    }
+    return "object-center";
+  };
+
   // Mobile/Tablet Layout (Responsive stacked layout)
   if (isMobile) {
     return (
@@ -198,7 +207,7 @@ export const SplitHero = () => {
             src={currentImage.src}
             alt={currentImage.alt}
             aspectRatio="aspect-[5/4]"
-            className="w-full h-full object-cover object-center transition-transform duration-700"
+            className={`w-full h-full object-cover ${getImageObjectPosition(currentIndex)} transition-transform duration-700`}
             containerClassName="h-full"
             priority
           />
@@ -335,7 +344,7 @@ export const SplitHero = () => {
           src={currentImage.src}
           alt={currentImage.alt}
           aspectRatio="aspect-video"
-          className="w-full h-full object-cover object-center transition-all duration-1000"
+          className={`w-full h-full object-cover ${getImageObjectPosition(currentIndex)} transition-all duration-1000`}
           containerClassName="h-full"
           priority
         />
