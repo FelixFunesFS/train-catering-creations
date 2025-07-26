@@ -166,7 +166,7 @@ export const SplitHero = () => {
   const currentImage = heroImages[currentIndex];
   const badge = getCategoryBadge(currentImage.category);
 
-  // Mobile Layout (Stacked - 60vh visual, 40vh content)
+  // Mobile/Tablet Layout (Responsive stacked layout)
   if (isMobile) {
     return (
       <section 
@@ -174,10 +174,10 @@ export const SplitHero = () => {
         role="main"
         aria-label="Hero section with image carousel"
       >
-        {/* Visual Area - 60vh */}
+        {/* Visual Area - Responsive height */}
         <div 
           ref={visualRef}
-          className={`relative h-[60vh] overflow-hidden ${visualAnimationClass}`}
+          className={`relative h-[55vh] sm:h-[60vh] md:h-[65vh] overflow-hidden ${visualAnimationClass}`}
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
@@ -201,16 +201,18 @@ export const SplitHero = () => {
             ))}
           </div>
 
-          {/* Main Image */}
+          {/* Main Image with responsive aspect ratios */}
           <OptimizedImage
             src={currentImage.src}
             alt={currentImage.alt}
-            className="w-full h-full object-cover transition-transform duration-700"
+            aspectRatio="aspect-[5/4]"
+            className="w-full h-full object-cover object-center transition-transform duration-700"
+            containerClassName="h-full"
             priority
           />
           
-          {/* Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+          {/* Enhanced Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
 
           {/* Controls */}
           <div className="absolute top-4 right-4 z-20 flex space-x-2">
@@ -251,10 +253,10 @@ export const SplitHero = () => {
           </button>
         </div>
 
-        {/* Content Area - 40vh */}
+        {/* Content Area - Responsive with proper spacing */}
         <div 
           ref={contentRef}
-          className={`relative h-[40vh] bg-background p-6 flex flex-col justify-center ${contentAnimationClass}`}
+          className={`relative min-h-[45vh] sm:min-h-[40vh] md:min-h-[35vh] bg-background p-6 pb-20 flex flex-col justify-center ${contentAnimationClass}`}
           role="region"
           aria-label="Content section"
         >
@@ -269,13 +271,13 @@ export const SplitHero = () => {
             </div>
             
             <div className="space-y-3">
-              <h1 className="text-2xl sm:text-3xl font-elegant font-bold text-foreground leading-tight">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-elegant font-bold text-foreground leading-tight">
                 {currentImage.title}
               </h1>
-              <p className="text-lg sm:text-xl font-script text-ruby font-medium">
+              <p className="text-lg sm:text-xl md:text-2xl font-script text-ruby font-medium">
                 {currentImage.subtitle}
               </p>
-              <p className="text-base text-muted-foreground leading-relaxed">
+              <p className="text-base sm:text-lg md:text-xl text-muted-foreground leading-relaxed">
                 {currentImage.description}
               </p>
             </div>
@@ -303,20 +305,20 @@ export const SplitHero = () => {
                 </a>
               </Button>
             </div>
-          </div>
-        </div>
 
-        {/* Scroll Indicator */}
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleScrollToDiscover}
-            className="bg-black/10 backdrop-blur-sm text-foreground hover:bg-black/20 animate-bounce min-w-[44px] min-h-[44px]"
-            aria-label="Scroll to next section"
-          >
-            <ChevronDown className="h-4 w-4" />
-          </Button>
+            {/* Scroll Indicator - Integrated into content */}
+            <div className="pt-8 flex justify-center">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleScrollToDiscover}
+                className="bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground animate-bounce min-w-[44px] min-h-[44px]"
+                aria-label="Scroll to next section"
+              >
+                <ChevronDown className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
         </div>
       </section>
     );
@@ -336,11 +338,13 @@ export const SplitHero = () => {
         role="region"
         aria-label="Image carousel"
       >
-        {/* Main Image */}
+        {/* Main Image with cinematic aspect ratio */}
         <OptimizedImage
           src={currentImage.src}
           alt={currentImage.alt}
-          className="w-full h-full object-cover transition-all duration-1000"
+          aspectRatio="aspect-video"
+          className="w-full h-full object-cover object-center transition-all duration-1000"
+          containerClassName="h-full"
           priority
         />
         
