@@ -5,65 +5,44 @@ import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 import { useStaggeredAnimation } from "@/hooks/useStaggeredAnimation";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { 
-  Calendar, 
-  Phone, 
-  Mail, 
-  MapPin, 
-  Clock, 
-  Star,
-  CheckCircle,
-  Sparkles,
-  ArrowRight,
-  Heart,
-  Award,
-  Users
-} from "lucide-react";
-
-const bookingSteps = [
-  {
-    icon: Calendar,
-    title: "Consultation",
-    description: "Free personalized consultation to understand your vision and requirements"
-  },
-  {
-    icon: Heart,
-    title: "Menu Design",
-    description: "Custom menu creation tailored to your preferences and dietary needs"
-  },
-  {
-    icon: CheckCircle,
-    title: "Confirmation",
-    description: "Finalize details, timeline, and secure your date with our team"
-  },
-  {
-    icon: Award,
-    title: "Excellence",
-    description: "Flawless execution and memorable dining experience on your special day"
-  }
-];
-
-const urgencyIndicators = [
-  "📅 Limited availability for 2024",
-  "⭐ 5-star rated catering service",
-  "🎯 100% satisfaction guarantee",
-  "👨‍🍳 Award-winning culinary team"
-];
-
+import { Calendar, Phone, Mail, MapPin, Clock, Star, CheckCircle, Sparkles, ArrowRight, Heart, Award, Users } from "lucide-react";
+const bookingSteps = [{
+  icon: Calendar,
+  title: "Consultation",
+  description: "Free personalized consultation to understand your vision and requirements"
+}, {
+  icon: Heart,
+  title: "Menu Design",
+  description: "Custom menu creation tailored to your preferences and dietary needs"
+}, {
+  icon: CheckCircle,
+  title: "Confirmation",
+  description: "Finalize details, timeline, and secure your date with our team"
+}, {
+  icon: Award,
+  title: "Excellence",
+  description: "Flawless execution and memorable dining experience on your special day"
+}];
+const urgencyIndicators = ["📅 Limited availability for 2024", "⭐ 5-star rated catering service", "🎯 100% satisfaction guarantee", "👨‍🍳 Award-winning culinary team"];
 export const AdaptedBookingSection = () => {
   const isMobile = useIsMobile();
   const [activeStep, setActiveStep] = useState<number | null>(null);
-
-  const { ref: headerRef, isVisible: headerVisible, variant: headerVariant } = useScrollAnimation({
+  const {
+    ref: headerRef,
+    isVisible: headerVisible,
+    variant: headerVariant
+  } = useScrollAnimation({
     variant: 'fade-up',
     delay: 0
   });
-
-  const { ref: contentRef, isVisible: contentVisible, variant: contentVariant } = useScrollAnimation({
+  const {
+    ref: contentRef,
+    isVisible: contentVisible,
+    variant: contentVariant
+  } = useScrollAnimation({
     variant: 'slide-up',
     delay: 200
   });
-
   const {
     ref: stepsRef,
     visibleItems: stepsVisible,
@@ -75,12 +54,9 @@ export const AdaptedBookingSection = () => {
     baseDelay: 300,
     variant: 'scale-fade'
   });
-
   const headerAnimationClass = useAnimationClass(headerVariant, headerVisible);
   const contentAnimationClass = useAnimationClass(contentVariant, contentVisible);
-
-  return (
-    <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-gradient-pattern-b relative overflow-hidden">
+  return <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-gradient-pattern-b relative overflow-hidden">
       {/* Ruby Gradient Background */}
       <div className="absolute inset-0 bg-gradient-to-r from-ruby-primary/5 via-transparent to-ruby-light/5" />
       
@@ -124,20 +100,10 @@ export const AdaptedBookingSection = () => {
               
               {/* Touch-Optimized Steps */}
               <div ref={stepsRef} className="space-y-4 sm:space-y-6">
-                {bookingSteps.map((step, index) => (
-                  <div
-                    key={step.title}
-                    className={`group cursor-pointer ${getStepClassName(index)}`}
-                    style={getStepStyle(index)}
-                    onClick={() => setActiveStep(activeStep === index ? null : index)}
-                  >
-                    <div className={`flex items-start space-x-3 sm:space-x-4 p-3 sm:p-4 rounded-lg transition-all duration-300 ${
-                      activeStep === index ? 'bg-ruby-light/10 border-l-4 border-ruby-primary' : 'hover:bg-muted/50'
-                    }`}>
+                {bookingSteps.map((step, index) => <div key={step.title} className={`group cursor-pointer ${getStepClassName(index)}`} style={getStepStyle(index)} onClick={() => setActiveStep(activeStep === index ? null : index)}>
+                    <div className={`flex items-start space-x-3 sm:space-x-4 p-3 sm:p-4 rounded-lg transition-all duration-300 ${activeStep === index ? 'bg-ruby-light/10 border-l-4 border-ruby-primary' : 'hover:bg-muted/50'}`}>
                       <div className="flex-shrink-0">
-                        <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-colors duration-300 ${
-                          activeStep === index ? 'bg-ruby-primary text-white' : 'bg-ruby-light/20 text-ruby-primary'
-                        }`}>
+                        <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-colors duration-300 ${activeStep === index ? 'bg-ruby-primary text-white' : 'bg-ruby-light/20 text-ruby-primary'}`}>
                           <step.icon className="w-4 h-4 sm:w-5 sm:h-5" />
                         </div>
                       </div>
@@ -152,29 +118,17 @@ export const AdaptedBookingSection = () => {
                         <h4 className="font-semibold text-sm sm:text-base text-foreground mb-1 sm:mb-2">
                           {step.title}
                         </h4>
-                        <p className={`text-xs sm:text-sm text-muted-foreground leading-relaxed transition-all duration-300 ${
-                          activeStep === index ? 'opacity-100 max-h-20' : 'opacity-70 max-h-12 overflow-hidden'
-                        }`}>
+                        <p className={`text-xs sm:text-sm text-muted-foreground leading-relaxed transition-all duration-300 ${activeStep === index ? 'opacity-100 max-h-20' : 'opacity-70 max-h-12 overflow-hidden'}`}>
                           {step.description}
                         </p>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  </div>)}
               </div>
             </NeumorphicCard>
             
             {/* Urgency Indicators */}
-            <NeumorphicCard level={2} className="p-4 sm:p-6 bg-gradient-to-r from-ruby-light/5 to-ruby-primary/5">
-              <div className="space-y-2 sm:space-y-3">
-                {urgencyIndicators.map((indicator, index) => (
-                  <div key={index} className="flex items-center space-x-2 sm:space-x-3 text-xs sm:text-sm">
-                    <div className="w-1.5 h-1.5 bg-ruby-primary rounded-full animate-pulse" />
-                    <span className="text-foreground font-medium">{indicator}</span>
-                  </div>
-                ))}
-              </div>
-            </NeumorphicCard>
+            
           </div>
 
           {/* Right Column - CTA & Contact */}
@@ -199,12 +153,7 @@ export const AdaptedBookingSection = () => {
               
               {/* Primary CTAs */}
               <div className="space-y-3 sm:space-y-4 mb-6 sm:mb-8">
-                <Button
-                  variant="cta"
-                  size="responsive-lg"
-                  className="w-full min-h-[48px] sm:min-h-[52px] shadow-elevated hover:shadow-glow-strong transition-all duration-300"
-                  asChild
-                >
+                <Button variant="cta" size="responsive-lg" className="w-full min-h-[48px] sm:min-h-[52px] shadow-elevated hover:shadow-glow-strong transition-all duration-300" asChild>
                   <a href="/request-quote" className="flex items-center justify-center space-x-2 sm:space-x-3">
                     <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
                     <span className="font-semibold text-sm sm:text-base">Book Free Consultation</span>
@@ -212,12 +161,7 @@ export const AdaptedBookingSection = () => {
                   </a>
                 </Button>
                 
-                <Button
-                  variant="outline"
-                  size="responsive-lg"
-                  className="w-full min-h-[48px] sm:min-h-[52px] border-ruby-primary/30 text-ruby-primary hover:border-ruby-primary hover:bg-ruby-light/10 transition-all duration-300"
-                  asChild
-                >
+                <Button variant="outline" size="responsive-lg" className="w-full min-h-[48px] sm:min-h-[52px] border-ruby-primary/30 text-ruby-primary hover:border-ruby-primary hover:bg-ruby-light/10 transition-all duration-300" asChild>
                   <a href="tel:+1234567890" className="flex items-center justify-center space-x-2 sm:space-x-3">
                     <Phone className="w-4 h-4 sm:w-5 sm:h-5" />
                     <span className="font-semibold text-sm sm:text-base">Call Now: (123) 456-7890</span>
@@ -264,6 +208,5 @@ export const AdaptedBookingSection = () => {
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
