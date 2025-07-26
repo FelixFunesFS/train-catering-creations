@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { useStaggeredAnimation } from "@/hooks/useStaggeredAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { NeumorphicCard } from "@/components/ui/neumorphic-card";
@@ -8,12 +9,20 @@ import { Quote, Star, Users, Calendar, Award } from "lucide-react";
 export const TrustIndicatorsSection = () => {
   const isMobile = useIsMobile();
   const { ref, isVisible } = useScrollAnimation({ 
-    variant: 'slide-up',
-    threshold: 0.2,
+    variant: 'fade-up',
+    threshold: 0.1,
     triggerOnce: true
   });
   
-  const animationClass = useAnimationClass('slide-up', isVisible);
+  const { getItemClassName, getItemStyle } = useStaggeredAnimation({
+    itemCount: 3,
+    staggerDelay: 200,
+    baseDelay: 300,
+    variant: 'scale-fade',
+    threshold: 0.1
+  });
+  
+  const animationClass = useAnimationClass('fade-up', isVisible);
   
   // Animated counters
   const [animatedStats, setAnimatedStats] = useState({
@@ -113,10 +122,21 @@ export const TrustIndicatorsSection = () => {
   return (
     <section 
       ref={ref}
-      className="py-16 lg:py-24 bg-gradient-pattern-b"
+      className="py-16 lg:py-24 bg-gradient-to-br from-ruby-light/10 to-ruby-dark/20"
       aria-label="Trust indicators and testimonials"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {/* Section Header */}
+        <div className="text-center mb-12 lg:mb-16">
+          <h2 className="text-3xl lg:text-4xl xl:text-5xl font-elegant font-bold text-foreground mb-2">
+            Trusted Excellence
+          </h2>
+          <div className="text-2xl lg:text-3xl xl:text-4xl font-script bg-gradient-ruby-primary bg-clip-text text-transparent mb-4">
+            In Every Experience
+          </div>
+          <div className="w-24 h-1 bg-gradient-ruby-primary mx-auto mb-6 rounded-full" />
+        </div>
         
         {/* Mobile: Vertical Stack */}
         {isMobile ? (
@@ -125,9 +145,14 @@ export const TrustIndicatorsSection = () => {
             {/* Stats Row for Mobile */}
             <div className="grid grid-cols-3 gap-4">
               {stats.map((stat, index) => (
-                <NeumorphicCard key={index} level={1} className="p-4 text-center">
-                  <stat.icon className="h-5 w-5 text-primary mx-auto mb-2" />
-                  <div className="text-xl font-bold text-foreground">
+                <NeumorphicCard 
+                  key={index} 
+                  level={2} 
+                  className={`p-4 text-center bg-white/5 backdrop-blur-sm ${getItemClassName(index)}`}
+                  style={getItemStyle(index)}
+                >
+                  <stat.icon className="h-5 w-5 text-ruby-primary mx-auto mb-2" />
+                  <div className="text-xl font-bold bg-gradient-ruby-primary bg-clip-text text-transparent">
                     {stat.value}{stat.suffix}
                   </div>
                   <div className="text-xs text-muted-foreground leading-tight">
@@ -138,23 +163,23 @@ export const TrustIndicatorsSection = () => {
             </div>
 
             {/* Single Testimonial Carousel for Mobile */}
-            <NeumorphicCard level={2} className="p-6">
+            <NeumorphicCard level={3} className="p-6 bg-white/5 backdrop-blur-sm">
               <div className="text-center">
-                <Quote className="h-8 w-8 text-primary mx-auto mb-4 opacity-60" />
-                <blockquote className="text-base text-foreground mb-4 leading-relaxed">
+                <Quote className="h-8 w-8 text-ruby-primary mx-auto mb-4 opacity-60" />
+                <blockquote className="text-base text-foreground mb-4 leading-relaxed font-clean">
                   "{testimonials[currentTestimonial].text}"
                 </blockquote>
                 
                 <div className="flex justify-center mb-3">
                   {[...Array(testimonials[currentTestimonial].rating)].map((_, i) => (
-                    <Star key={i} className="h-4 w-4 text-gold fill-current" />
+                    <Star key={i} className="h-4 w-4 text-accent-light fill-current" />
                   ))}
                 </div>
                 
-                <cite className="text-sm font-semibold text-primary">
+                <cite className="text-sm font-semibold font-elegant text-ruby-primary">
                   {testimonials[currentTestimonial].author}
                 </cite>
-                <div className="text-xs text-muted-foreground">
+                <div className="text-xs text-muted-foreground font-script">
                   {testimonials[currentTestimonial].event}
                 </div>
               </div>
@@ -166,7 +191,7 @@ export const TrustIndicatorsSection = () => {
                     key={index}
                     onClick={() => setCurrentTestimonial(index)}
                     className={`w-2 h-2 rounded-full transition-colors ${
-                      index === currentTestimonial ? 'bg-primary' : 'bg-muted'
+                      index === currentTestimonial ? 'bg-ruby-primary' : 'bg-muted'
                     }`}
                     aria-label={`View testimonial ${index + 1}`}
                   />
@@ -184,18 +209,19 @@ export const TrustIndicatorsSection = () => {
               {stats.map((stat, index) => (
                 <NeumorphicCard 
                   key={index} 
-                  level={1} 
+                  level={2} 
                   interactive
-                  className="p-6 lg:p-8 text-center group hover:neumorphic-card-2 transition-all duration-300"
+                  className={`p-6 lg:p-8 text-center group hover:neumorphic-card-3 transition-all duration-300 bg-white/5 backdrop-blur-sm ${getItemClassName(index)}`}
+                  style={getItemStyle(index)}
                 >
-                  <stat.icon className="h-8 w-8 lg:h-10 lg:w-10 text-primary mx-auto mb-4 group-hover:scale-110 transition-transform duration-300" />
-                  <div className="text-3xl lg:text-4xl font-bold text-foreground mb-2">
+                  <stat.icon className="h-8 w-8 lg:h-10 lg:w-10 text-ruby-primary mx-auto mb-4 group-hover:scale-110 transition-transform duration-300" />
+                  <div className="text-3xl lg:text-4xl font-bold font-elegant bg-gradient-ruby-primary bg-clip-text text-transparent mb-2">
                     {stat.value}{stat.suffix}
                   </div>
-                  <div className="text-lg font-semibold text-foreground mb-1">
+                  <div className="text-lg font-semibold text-foreground mb-1 font-elegant">
                     {stat.label}
                   </div>
-                  <div className="text-sm text-muted-foreground">
+                  <div className="text-sm text-muted-foreground font-script">
                     {stat.description}
                   </div>
                 </NeumorphicCard>
@@ -207,27 +233,28 @@ export const TrustIndicatorsSection = () => {
               {testimonials.map((testimonial, index) => (
                 <NeumorphicCard 
                   key={index}
-                  level={1}
+                  level={2}
                   interactive
-                  className="p-6 lg:p-8 group hover:neumorphic-card-2 transition-all duration-300"
+                  className={`p-6 lg:p-8 group hover:neumorphic-card-3 transition-all duration-300 bg-white/5 backdrop-blur-sm ${getItemClassName(index)}`}
+                  style={getItemStyle(index)}
                 >
-                  <Quote className="h-8 w-8 text-primary mb-4 opacity-60 group-hover:opacity-100 transition-opacity duration-300" />
+                  <Quote className="h-8 w-8 text-ruby-primary mb-4 opacity-60 group-hover:opacity-100 transition-opacity duration-300" />
                   
-                  <blockquote className="text-foreground mb-6 leading-relaxed">
+                  <blockquote className="text-foreground mb-6 leading-relaxed font-clean">
                     "{testimonial.text}"
                   </blockquote>
                   
                   <div className="flex mb-4">
                     {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star key={i} className="h-4 w-4 text-gold fill-current" />
+                      <Star key={i} className="h-4 w-4 text-accent-light fill-current" />
                     ))}
                   </div>
                   
                   <div>
-                    <cite className="font-semibold text-primary block">
+                    <cite className="font-semibold font-elegant text-ruby-primary block">
                       {testimonial.author}
                     </cite>
-                    <div className="text-sm text-muted-foreground">
+                    <div className="text-sm text-muted-foreground font-script">
                       {testimonial.event}
                     </div>
                   </div>
