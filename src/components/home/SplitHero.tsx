@@ -39,24 +39,24 @@ export const SplitHero = () => {
 
   const heroImages: HeroImage[] = [
     {
-      src: "/lovable-uploads/26d2d500-6017-41a2-99b2-b7050cefedba.png",
-      alt: "Elegant outdoor wedding tent setup",
+      src: "/lovable-uploads/071f2e9b-bb69-4807-a31c-09b80c2d5f9c.png",
+      alt: "Elegant wedding dessert display with cake and treats",
       title: "Unforgettable Celebrations",
       subtitle: "Crafted with Soul, Seasoned with Love",
       category: "wedding",
       description: "Since 2017, Charleston's Lowcountry families have trusted Soul Train's Eatery to bring authentic Southern flavors to their most cherished moments."
     },
     {
-      src: "/lovable-uploads/e61537fa-d421-490b-932f-402236a093aa.png",
-      alt: "Beautiful outdoor wedding buffet",
+      src: "/lovable-uploads/8e32f09d-a941-47b9-b25d-c514ca79ee22.png",
+      alt: "Elegant appetizer spread with tiered displays",
       title: "Award-Winning Catering",
       subtitle: "20+ Years of Culinary Excellence",
       category: "service",
       description: "Chef Train and Tanya Ward combine decades of experience with family traditions to create memorable dining experiences."
     },
     {
-      src: "/lovable-uploads/02486e12-54f5-4b94-8d6e-f150546c6983.png",
-      alt: "Elegant grazing board display",
+      src: "/lovable-uploads/e3c0d1ae-fb6a-4700-8007-a8c8c8136e57.png",
+      alt: "Elegant event space with formal dining setup",
       title: "Artisan Creations",
       subtitle: "Every Detail Matters",
       category: "culinary",
