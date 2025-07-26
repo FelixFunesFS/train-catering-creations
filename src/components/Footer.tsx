@@ -1,14 +1,12 @@
-
 import { Link } from "react-router-dom";
 import { Phone, Mail, MapPin, Clock, Facebook, Instagram, Twitter, Star } from "lucide-react";
-
 export const Footer = () => {
   const currentYear = new Date().getFullYear();
   const navigationLinks = [{
     name: "Home",
     href: "/"
   }, {
-    name: "About Us", 
+    name: "About Us",
     href: "/about#page-header"
   }, {
     name: "Menu",
@@ -30,11 +28,9 @@ export const Footer = () => {
     href: "/request-quote#page-header"
   }];
   const services = ["Military Functions", "Corporate Catering", "Wedding Catering", "Private Events", "Holiday Parties", "Funeral Repasts", "Custom Menus"];
-  
-  return (
-    <footer className="bg-gradient-to-br from-background via-muted/20 to-background border-t border-border">
+  return <footer className="bg-gradient-to-br from-background via-muted/20 to-background border-t border-border">
       {/* Main Footer Content */}
-      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-12">
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-[38px] my-0">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
           
           {/* Company Information */}
@@ -92,15 +88,9 @@ export const Footer = () => {
           <div className="space-y-4">
             <h3 className="text-lg font-elegant font-semibold text-foreground border-b border-border pb-2">Quick Links</h3>
             <nav className="space-y-3">
-              {navigationLinks.map(item => (
-                <Link 
-                  key={item.name} 
-                  to={item.href} 
-                  className="block text-sm text-muted-foreground hover:text-primary hover:translate-x-1 transition-all duration-200"
-                >
+              {navigationLinks.map(item => <Link key={item.name} to={item.href} className="block text-sm text-muted-foreground hover:text-primary hover:translate-x-1 transition-all duration-200">
                   {item.name}
-                </Link>
-              ))}
+                </Link>)}
             </nav>
           </div>
 
@@ -108,12 +98,10 @@ export const Footer = () => {
           <div className="space-y-4">
             <h3 className="text-lg font-elegant font-semibold text-foreground border-b border-border pb-2">Our Services</h3>
             <ul className="space-y-3">
-              {services.map((service, index) => (
-                <li key={index} className="text-sm text-muted-foreground flex items-start">
+              {services.map((service, index) => <li key={index} className="text-sm text-muted-foreground flex items-start">
                   <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 mr-3 flex-shrink-0"></span>
                   {service}
-                </li>
-              ))}
+                </li>)}
             </ul>
           </div>
         </div>
@@ -164,6 +152,5 @@ export const Footer = () => {
           </div>
         </div>
       </div>
-    </footer>
-  );
+    </footer>;
 };
