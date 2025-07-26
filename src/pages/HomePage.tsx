@@ -1,4 +1,4 @@
-import { ModernHero } from "@/components/home/ModernHero";
+import { SplitHero } from "@/components/home/SplitHero";
 import { FeaturedVenueSection } from "@/components/home/FeaturedVenueSection";
 import { InteractiveGalleryPreview } from "@/components/home/InteractiveGalleryPreview";
 import { ServiceCategoriesSection } from "@/components/home/ServiceCategoriesSection";
@@ -9,7 +9,7 @@ import { CTASection } from "@/components/home/CTASection";
 const HomePage = () => {
   return (
     <div className="min-h-screen">
-      <ModernHero />
+      <SplitHero />
       <FeaturedVenueSection />
       <InteractiveGalleryPreview />
       <ServiceCategoriesSection />
