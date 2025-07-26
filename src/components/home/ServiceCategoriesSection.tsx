@@ -76,7 +76,7 @@ export const ServiceCategoriesSection = () => {
       title: "Special Occasions",
       subtitle: "Milestone Moments",
       description: "Celebrate life's important moments with catering that makes every occasion feel truly special.",
-      image: "/lovable-uploads/26d2d500-6017-41a2-99b2-b7050cefedba.png",
+      image: "/lovable-uploads/8accf218-af8c-47c0-8c08-ecac4a0d20f0.png",
       features: ["Custom Desserts", "Themed Presentations", "Memorable Service"],
       href: "/request-quote#page-header"
     }
