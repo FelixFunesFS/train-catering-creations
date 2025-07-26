@@ -52,6 +52,41 @@ export const StoryHero = () => {
       title: "Corporate Events",
       category: "corporate",
       description: "Professional catering services that impress clients and colleagues"
+    },
+    {
+      src: "/lovable-uploads/a9bff788-a96d-499b-8882-930193b96b07.png",
+      alt: "Elegant event setup with gold accents",
+      title: "Luxury Event Dining",
+      category: "formal",
+      description: "Sophisticated table settings with premium linens and elegant chair covers"
+    },
+    {
+      src: "/lovable-uploads/4ede73c0-f23a-4ae6-86f7-35f8961ddc83.png",
+      alt: "Beautiful indoor buffet setup",
+      title: "Elegant Indoor Receptions",
+      category: "formal",
+      description: "Stunning venue transformations with fresh florals and premium presentation"
+    },
+    {
+      src: "/lovable-uploads/598d7763-6faf-4a2c-9735-a4b3a594aad5.png",
+      alt: "Wedding cake and dessert display",
+      title: "Custom Wedding Celebrations",
+      category: "wedding",
+      description: "Personalized wedding cake displays and elegant dessert presentations"
+    },
+    {
+      src: "/lovable-uploads/804371da-dff9-48f4-af43-4316adbe52d1.png",
+      alt: "Military catering event",
+      title: "Military & Special Events",
+      category: "military",
+      description: "Honored to serve our military with exceptional catering experiences"
+    },
+    {
+      src: "/lovable-uploads/72e4931b-da81-474f-bd3c-a38945df3999.png",
+      alt: "Outdoor buffet catering",
+      title: "Outdoor Event Catering",
+      category: "outdoor",
+      description: "Professional outdoor catering with fresh presentation and quality service"
     }
   ];
 
@@ -63,6 +98,9 @@ export const StoryHero = () => {
       'corporate': { label: 'Corporate', variant: 'bg-accent/10 text-accent-foreground border-accent/20' },
       'desserts': { label: 'Desserts', variant: 'bg-secondary/10 text-secondary-foreground border-secondary/20' },
       'grazing': { label: 'Grazing Tables', variant: 'bg-muted/10 text-muted-foreground border-muted/20' },
+      'formal': { label: 'Formal Events', variant: 'bg-primary/10 text-primary border-primary/20' },
+      'military': { label: 'Military Events', variant: 'bg-accent/10 text-accent-foreground border-accent/20' },
+      'outdoor': { label: 'Outdoor Events', variant: 'bg-secondary/10 text-secondary-foreground border-secondary/20' },
     };
     return categoryMap[category] || { label: category, variant: 'bg-muted/10 text-muted-foreground border-muted/20' };
   };
