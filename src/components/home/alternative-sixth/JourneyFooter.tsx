@@ -58,17 +58,17 @@ export const JourneyFooter = () => {
   };
 
   return (
-    <footer className="bg-gradient-to-b from-ruby-50/10 to-navy-900 text-white">
+    <footer className="bg-gradient-to-b from-primary/5 to-navy-900 text-white">
       <ResponsiveWrapper>
         {/* Main Footer Content */}
         <div className="py-16 space-y-12">
           {/* Header Section */}
           <div className="text-center space-y-6">
             <div className="inline-flex items-center gap-3 mb-4">
-              <Heart className="w-8 h-8 text-ruby-400" fill="currentColor" />
+              <Heart className="w-8 h-8 text-primary" fill="currentColor" />
               <span className="text-2xl font-elegant font-bold">Soul Train's Eatery</span>
             </div>
-            <h3 className="text-2xl md:text-3xl font-script text-ruby-300">
+            <h3 className="text-2xl md:text-3xl font-script text-primary/80">
               Your Culinary Journey Awaits
             </h3>
             <p className="text-white/80 max-w-2xl mx-auto">
@@ -85,12 +85,12 @@ export const JourneyFooter = () => {
                 href={contact.href}
                 className="flex items-center gap-4 p-4 rounded-lg bg-white/5 hover:bg-white/10 transition-colors group"
               >
-                <div className="w-12 h-12 rounded-full bg-gradient-ruby-subtle flex items-center justify-center">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center">
                   <contact.icon className="w-6 h-6 text-white" />
                 </div>
                 <div>
                   <div className="text-sm text-white/60">{contact.label}</div>
-                  <div className="font-medium group-hover:text-ruby-300 transition-colors">
+                  <div className="font-medium group-hover:text-primary transition-colors">
                     {contact.value}
                   </div>
                 </div>
@@ -103,7 +103,7 @@ export const JourneyFooter = () => {
             {/* Footer Links */}
             {Object.entries(footerLinks).map(([category, links]) => (
               <div key={category}>
-                <h4 className="font-elegant font-semibold text-lg mb-4 text-ruby-300">
+                <h4 className="font-elegant font-semibold text-lg mb-4 text-primary/80">
                   {category}
                 </h4>
                 <ul className="space-y-2">
@@ -111,7 +111,7 @@ export const JourneyFooter = () => {
                     <li key={linkIndex}>
                       <a
                         href={`#${link.toLowerCase().replace(/\s+/g, '-')}`}
-                        className="text-white/70 hover:text-ruby-300 transition-colors text-sm"
+                        className="text-white/70 hover:text-primary transition-colors text-sm"
                       >
                         {link}
                       </a>
@@ -123,7 +123,7 @@ export const JourneyFooter = () => {
 
             {/* Newsletter Signup */}
             <div>
-              <h4 className="font-elegant font-semibold text-lg mb-4 text-ruby-300">
+              <h4 className="font-elegant font-semibold text-lg mb-4 text-primary/80">
                 Stay Connected
               </h4>
               <p className="text-white/70 text-sm mb-4">
@@ -142,7 +142,7 @@ export const JourneyFooter = () => {
                       key={index}
                       href={social.href}
                       aria-label={social.label}
-                      className="w-10 h-10 rounded-full bg-white/10 hover:bg-ruby-500/30 flex items-center justify-center transition-colors"
+                      className="w-10 h-10 rounded-full bg-white/10 hover:bg-primary/20 flex items-center justify-center transition-colors"
                     >
                       <social.icon className="w-5 h-5" />
                     </a>
@@ -160,17 +160,17 @@ export const JourneyFooter = () => {
               © 2024 Soul Train's Eatery. All rights reserved. 
               <span className="hidden md:inline"> | </span>
               <br className="md:hidden" />
-              Crafted with <Heart className="w-4 h-4 inline text-ruby-400" fill="currentColor" /> in Charleston, SC
+              Crafted with <Heart className="w-4 h-4 inline text-primary" fill="currentColor" /> in Charleston, SC
             </div>
             
             <div className="flex gap-6 text-sm">
-              <a href="#privacy" className="text-white/60 hover:text-ruby-300 transition-colors">
+              <a href="#privacy" className="text-white/60 hover:text-primary transition-colors">
                 Privacy Policy
               </a>
-              <a href="#terms" className="text-white/60 hover:text-ruby-300 transition-colors">
+              <a href="#terms" className="text-white/60 hover:text-primary transition-colors">
                 Terms of Service
               </a>
-              <a href="#accessibility" className="text-white/60 hover:text-ruby-300 transition-colors">
+              <a href="#accessibility" className="text-white/60 hover:text-primary transition-colors">
                 Accessibility
               </a>
             </div>
