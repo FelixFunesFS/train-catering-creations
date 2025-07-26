@@ -39,7 +39,7 @@ export const SplitHero = () => {
 
   const heroImages: HeroImage[] = [
     {
-      src: "/lovable-uploads/aaf2be76-85aa-4249-a220-70c29f94637a.png",
+      src: "/lovable-uploads/eb77404f-369f-484f-a9ce-786b7f1ddc94.png",
       alt: "Professional catering setup with chafing dishes and elegant floral arrangements",
       title: "Artisan Creations",
       subtitle: "Every Detail Matters",
