@@ -63,9 +63,9 @@ export const CharlestonHeritageHero = () => {
           backgroundColor: 'rgba(0, 0, 0, 0.4)',
           borderColor: 'rgba(255, 255, 255, 0.3)',
           textShadow: '2px 2px 4px rgba(0, 0, 0, 0.8)'
-        }} role="banner" aria-label="Charleston Family Legacy Badge">
+        }} role="complementary" aria-label="Business heritage and founding information">
             <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-red-400" aria-hidden="true" />
-            <span className="text-sm sm:text-base font-medium">Charleston Family Legacy Since 2002</span>
+            <span className="text-sm sm:text-base font-medium" id="heritage-badge">Charleston Family Legacy Since 2002</span>
           </div>
 
           {/* Logo and Main Title with Semantic HTML */}
@@ -78,13 +78,13 @@ export const CharlestonHeritageHero = () => {
             fontSize: 'clamp(1.875rem, 5vw, 4.5rem)',
             lineHeight: '1.1',
             textShadow: '3px 3px 6px rgba(0, 0, 0, 0.9)'
-          }}>
+          }} id="main-heading" aria-describedby="heritage-badge hero-description">
               Soul Train's Eatery
               <span className="block font-script text-primary mt-2" style={{
               fontSize: 'clamp(1.25rem, 3vw, 1.875rem)',
               textShadow: '2px 2px 4px rgba(0, 0, 0, 0.9)',
               color: 'hsl(var(--primary))'
-            }}>
+            }} role="text" aria-label="Charleston Heritage subtitle">
                 Charleston Heritage
               </span>
             </h1>
@@ -99,42 +99,10 @@ export const CharlestonHeritageHero = () => {
           backdropFilter: 'blur(8px)',
           borderRadius: '0.75rem',
           padding: 'clamp(1rem, 3vw, 1.5rem)'
-        }}>
+        }} id="hero-description" role="text">
             Born from a deep love of Southern cooking and a commitment to bringing families together around exceptional food.
           </p>
 
-          {/* Family Stats - Mobile-First Grid */}
-          <div className={`grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-4 max-w-4xl mx-auto mb-8 sm:mb-10 md:mb-12 px-4 transition-all duration-700 delay-600 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`} role="region" aria-label="Soul Train's Eatery Statistics">
-            {[{
-            icon: Clock,
-            value: "20+",
-            label: "Years",
-            desc: "Years of Charleston catering experience"
-          }, {
-            icon: Users,
-            value: "1000+",
-            label: "Families Served",
-            desc: "Families served across Charleston"
-          }, {
-            icon: MapPin,
-            value: "50+",
-            label: "Charleston Venues",
-            desc: "Charleston venues catered"
-          }, {
-            icon: Heart,
-            value: "100%",
-            label: "Family-Owned",
-            desc: "Family-owned and operated business"
-          }].map((stat, index) => <div key={index} className="rounded-lg p-4 sm:p-6 border border-white/30 min-h-[120px] sm:min-h-[140px] flex flex-col items-center justify-center text-center focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2" style={{
-            backgroundColor: 'rgba(0, 0, 0, 0.4)',
-            backdropFilter: 'blur(8px)',
-            textShadow: '1px 1px 2px rgba(0, 0, 0, 0.8)'
-          }} tabIndex={0} role="group" aria-label={stat.desc}>
-                <stat.icon className="w-6 h-6 sm:w-7 sm:h-7 text-primary mx-auto mb-2" aria-hidden="true" />
-                <div className="text-xl sm:text-2xl font-bold">{stat.value}</div>
-                <div className="text-sm sm:text-base opacity-90">{stat.label}</div>
-              </div>)}
-          </div>
 
           {/* Interactive Timeline Placeholder */}
           
