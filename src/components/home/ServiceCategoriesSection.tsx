@@ -48,7 +48,7 @@ export const ServiceCategoriesSection = () => {
       title: "Wedding Catering",
       subtitle: "Your Dream Day",
       description: "Charleston's premier wedding caterer since 2017. We turn your dream day into a flawless celebration with authentic Southern elegance.",
-      image: "/lovable-uploads/26d2d500-6017-41a2-99b2-b7050cefedba.png",
+      image: "/lovable-uploads/1cd54e2e-3991-4795-ad2a-6e8c18fb530f.png",
       features: ["Custom Menu Planning", "Professional Service", "Elegant Presentation"],
       href: "/wedding-menu",
       isPopular: true
@@ -76,7 +76,7 @@ export const ServiceCategoriesSection = () => {
       title: "Special Occasions",
       subtitle: "Milestone Moments",
       description: "Celebrate life's important moments with catering that makes every occasion feel truly special.",
-      image: "/lovable-uploads/1cd54e2e-3991-4795-ad2a-6e8c18fb530f.png",
+      image: "/lovable-uploads/26d2d500-6017-41a2-99b2-b7050cefedba.png",
       features: ["Custom Desserts", "Themed Presentations", "Memorable Service"],
       href: "/request-quote#page-header"
     }
