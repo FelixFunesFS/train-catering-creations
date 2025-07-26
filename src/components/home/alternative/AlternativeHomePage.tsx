@@ -3,18 +3,29 @@ import { PageSection } from "@/components/ui/page-section";
 import { GalleryLoadingState } from "@/components/gallery/GalleryLoadingState";
 
 // Lazy load components for better performance
-const MobileFirstHero = lazy(() => import("./MobileFirstHero").then(m => ({ default: m.MobileFirstHero })));
-const TrustIndicatorsSection = lazy(() => import("./TrustIndicatorsSection").then(m => ({ default: m.TrustIndicatorsSection })));
-const ServicesDiscoverySection = lazy(() => import("./ServicesDiscoverySection").then(m => ({ default: m.ServicesDiscoverySection })));
-const AdaptedGalleryShowcase = lazy(() => import("./AdaptedGalleryShowcase").then(m => ({ default: m.AdaptedGalleryShowcase })));
-const LocalConnectionSection = lazy(() => import("./LocalConnectionSection").then(m => ({ default: m.LocalConnectionSection })));
-const AdaptedBookingSection = lazy(() => import("./AdaptedBookingSection").then(m => ({ default: m.AdaptedBookingSection })));
-const SimplifiedQuoteFlow = lazy(() => import("./SimplifiedQuoteFlow").then(m => ({ default: m.SimplifiedQuoteFlow })));
-const ModernFooterSection = lazy(() => import("./ModernFooterSection").then(m => ({ default: m.ModernFooterSection })));
-
+const MobileFirstHero = lazy(() => import("./MobileFirstHero").then(m => ({
+  default: m.MobileFirstHero
+})));
+const TrustIndicatorsSection = lazy(() => import("./TrustIndicatorsSection").then(m => ({
+  default: m.TrustIndicatorsSection
+})));
+const ServicesDiscoverySection = lazy(() => import("./ServicesDiscoverySection").then(m => ({
+  default: m.ServicesDiscoverySection
+})));
+const VisualStoryGallery = lazy(() => import("./VisualStoryGallery").then(m => ({
+  default: m.VisualStoryGallery
+})));
+const LocalConnectionSection = lazy(() => import("./LocalConnectionSection").then(m => ({
+  default: m.LocalConnectionSection
+})));
+const SimplifiedQuoteFlow = lazy(() => import("./SimplifiedQuoteFlow").then(m => ({
+  default: m.SimplifiedQuoteFlow
+})));
+const ModernFooterSection = lazy(() => import("./ModernFooterSection").then(m => ({
+  default: m.ModernFooterSection
+})));
 export const AlternativeHomePage = () => {
-  return (
-    <div className="min-h-screen">
+  return <div className="min-h-screen">
       <main id="main-content">
         
         {/* Mobile-First Hero */}
@@ -38,10 +49,10 @@ export const AlternativeHomePage = () => {
           </Suspense>
         </PageSection>
 
-        {/* Culinary Artistry Gallery */}
+        {/* Visual Story Gallery */}
         <PageSection pattern="d" withBorder>
           <Suspense fallback={<GalleryLoadingState viewMode="masonry" itemCount={8} />}>
-            <AdaptedGalleryShowcase />
+            <VisualStoryGallery />
           </Suspense>
         </PageSection>
 
@@ -52,28 +63,18 @@ export const AlternativeHomePage = () => {
           </Suspense>
         </PageSection>
 
-        {/* Start Your Culinary Journey */}
-        <PageSection pattern="b" withBorder>
-          <Suspense fallback={<GalleryLoadingState viewMode="grid" itemCount={4} />}>
-            <AdaptedBookingSection />
-          </Suspense>
-        </PageSection>
-
         {/* Simplified Quote Flow */}
         <PageSection pattern="b" withBorder>
-          <Suspense fallback={<GalleryLoadingState viewMode="grid" itemCount={2} />}>
+          <Suspense fallback={<GalleryLoadingState viewMode="grid" itemCount={2} />} className="py-0 my-0">
             <SimplifiedQuoteFlow />
           </Suspense>
         </PageSection>
 
         {/* Modern Footer */}
         <PageSection withBorder>
-          <Suspense fallback={<GalleryLoadingState viewMode="grid" itemCount={4} />}>
-            <ModernFooterSection />
-          </Suspense>
+          
         </PageSection>
         
       </main>
-    </div>
-  );
+    </div>;
 };
