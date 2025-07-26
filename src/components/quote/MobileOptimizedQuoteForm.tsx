@@ -248,7 +248,7 @@ ${data.hearAboutUs || 'Not specified'}
                         <SelectItem value="baby-shower">Baby Shower</SelectItem>
                         <SelectItem value="bereavement">Bereavement</SelectItem>
                         <SelectItem value="graduation">Graduation</SelectItem>
-                        <SelectItem value="retirement">Retirement</SelectItem>
+                        
                         <SelectItem value="holiday-party">Holiday Party</SelectItem>
                         <SelectItem value="other">Other</SelectItem>
                       </SelectContent>
