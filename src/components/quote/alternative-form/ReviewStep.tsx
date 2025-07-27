@@ -194,7 +194,10 @@ export const ReviewStep = ({ form, estimatedCost }: ReviewStepProps) => {
                 <div>
                   <span className="text-sm font-medium text-muted-foreground">Main Protein:</span>
                   <Badge variant="secondary" className="ml-2">
-                    {formData.primary_protein.replace(/-/g, ' ')}
+                    {typeof formData.primary_protein === 'string' 
+                      ? formData.primary_protein.replace(/-/g, ' ')
+                      : formData.primary_protein
+                    }
                   </Badge>
                 </div>
               )}
