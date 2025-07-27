@@ -37,6 +37,7 @@ export const AlternativeQuoteForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [estimatedCost, setEstimatedCost] = useState<number | null>(null);
+  const [submittedQuoteId, setSubmittedQuoteId] = useState<string | null>(null);
   const { toast } = useToast();
 
   const { ref: formRef, isVisible: formVisible } = useScrollAnimation({
@@ -88,6 +89,7 @@ export const AlternativeQuoteForm = () => {
       bussing_tables_needed: false,
       special_requests: "",
       referral_source: "",
+      theme_colors: "",
     },
   });
 
@@ -168,9 +170,9 @@ export const AlternativeQuoteForm = () => {
       case 2:
         return ['service_type'];
       case 3:
-        return [];
+        return []; // Menu step - selections are optional
       case 4:
-        return [];
+        return ['contact_name', 'email', 'phone', 'event_name', 'event_type', 'event_date', 'start_time', 'guest_count', 'location', 'service_type']; // Review step - validate all required fields
       default:
         return [];
     }
@@ -180,8 +182,10 @@ export const AlternativeQuoteForm = () => {
     setIsSubmitting(true);
     
     try {
+      console.log('Starting quote submission...', data);
+      
       // Insert into database
-      const { error } = await supabase.from('quote_requests').insert({
+      const { data: insertedData, error } = await supabase.from('quote_requests').insert({
         contact_name: data.contact_name,
         email: data.email,
         phone: data.phone,
@@ -222,18 +226,32 @@ export const AlternativeQuoteForm = () => {
         special_requests: data.special_requests,
         referral_source: data.referral_source,
         theme_colors: data.theme_colors,
-      });
+      }).select();
 
       if (error) throw error;
+      
+      const quoteId = insertedData?.[0]?.id;
+      setSubmittedQuoteId(quoteId);
+      console.log('Quote inserted successfully with ID:', quoteId);
 
       // Send email notifications
       try {
-        await supabase.functions.invoke('send-quote-notification', {
-          body: data
+        const emailPayload = { ...data, quote_id: quoteId };
+        console.log('Sending email notification with payload:', emailPayload);
+        
+        const { data: emailData, error: emailError } = await supabase.functions.invoke('send-quote-notification', {
+          body: emailPayload
         });
+        
+        if (emailError) throw emailError;
+        console.log('Email notification sent successfully:', emailData);
       } catch (emailError) {
         console.error('Email notification failed:', emailError);
-        // Don't fail the submission if email fails
+        // Don't fail the submission if email fails - show toast warning
+        toast({
+          title: "Quote submitted successfully!",
+          description: "However, email confirmation may be delayed. We'll contact you within 48 hours.",
+        });
       }
 
       setIsSubmitted(true);
@@ -254,7 +272,7 @@ export const AlternativeQuoteForm = () => {
   };
 
   if (isSubmitted) {
-    return <SuccessStep estimatedCost={estimatedCost} />;
+    return <SuccessStep estimatedCost={estimatedCost} quoteId={submittedQuoteId} />;
   }
 
   const renderStepContent = () => {

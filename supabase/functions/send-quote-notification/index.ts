@@ -49,6 +49,7 @@ interface QuoteRequest {
   special_requests?: string;
   referral_source?: string;
   theme_colors?: string;
+  quote_id?: string;
 }
 
 const formatQuoteDetails = (quote: QuoteRequest) => {
@@ -56,6 +57,7 @@ const formatQuoteDetails = (quote: QuoteRequest) => {
   
   return `
     <h2>New Quote Request - ${quote.event_name}</h2>
+    ${quote.quote_id ? `<p><strong>Quote Reference ID:</strong> <span style="background-color: #f0f0f0; padding: 4px 8px; border-radius: 4px; font-family: monospace;">${quote.quote_id}</span></p>` : ''}
     
     <h3>Contact Information</h3>
     <p><strong>Name:</strong> ${quote.contact_name}</p>
@@ -150,6 +152,8 @@ const handler = async (req: Request): Promise<Response> => {
           <div style="background-color: #fff3cd; padding: 15px; border-radius: 8px; border-left: 4px solid #ffc107; margin: 20px 0;">
             <p style="margin: 0;"><strong>Important:</strong> If you don't hear back from us within 48 hours, please call us at <strong>(843) 970-0265</strong></p>
           </div>
+          
+          ${quoteData.quote_id ? `<p><strong>Your Reference ID:</strong> <span style="background-color: #f0f0f0; padding: 4px 8px; border-radius: 4px; font-family: monospace;">${quoteData.quote_id}</span></p>` : ''}
           
           <h3>Your Event Details:</h3>
           <p><strong>Event:</strong> ${quoteData.event_name}</p>

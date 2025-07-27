@@ -8,9 +8,10 @@ import { Link } from "react-router-dom";
 
 interface SuccessStepProps {
   estimatedCost: number | null;
+  quoteId?: string | null;
 }
 
-export const SuccessStep = ({ estimatedCost }: SuccessStepProps) => {
+export const SuccessStep = ({ estimatedCost, quoteId }: SuccessStepProps) => {
   const { ref, isVisible } = useScrollAnimation({
     threshold: 0.2,
     triggerOnce: true,
@@ -32,6 +33,16 @@ export const SuccessStep = ({ estimatedCost }: SuccessStepProps) => {
           <p className="text-lg text-muted-foreground leading-relaxed">
             Thank you for choosing Soul Train Seatery. We've received your request and will respond within 48 hours.
           </p>
+          {quoteId && (
+            <div className="bg-muted/30 rounded-lg p-4 mt-4">
+              <p className="text-sm text-muted-foreground">
+                <strong>Reference ID:</strong> <span className="font-mono text-primary">{quoteId}</span>
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Please save this reference ID for your records.
+              </p>
+            </div>
+          )}
         </CardHeader>
         
         <CardContent className="space-y-8">
