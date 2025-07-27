@@ -179,12 +179,29 @@ export const AlternativeQuoteForm = () => {
   };
 
   const onSubmit = async (data: FormData) => {
+    console.log('=== FORM SUBMISSION STARTED ===');
+    console.log('Form data:', data);
+    console.log('Form errors:', form.formState.errors);
+    console.log('Form is valid:', form.formState.isValid);
+    
+    // Check for validation errors
+    const errors = form.formState.errors;
+    if (Object.keys(errors).length > 0) {
+      console.error('Form validation errors:', errors);
+      toast({
+        title: "Please Fix Form Errors",
+        description: "Some required fields are missing or invalid. Please check your form.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     
     try {
-      console.log('Starting quote submission...', data);
+      console.log('Preparing database insertion...');
       
-      // Insert into database
+      // Insert into database with correct field mapping
       const { data: insertedData, error } = await supabase.from('quote_requests').insert({
         contact_name: data.contact_name,
         email: data.email,
@@ -203,11 +220,11 @@ export const AlternativeQuoteForm = () => {
         primary_protein: data.primary_protein,
         secondary_protein: data.secondary_protein,
         both_proteins_available: data.both_proteins_available,
-        appetizers: data.appetizers,
-        sides: data.sides,
-        desserts: data.desserts,
-        drinks: data.drinks,
-        dietary_restrictions: data.dietary_restrictions,
+        appetizers: data.appetizers || [],
+        sides: data.sides || [],
+        desserts: data.desserts || [],
+        drinks: data.drinks || [],
+        dietary_restrictions: data.dietary_restrictions || [],
         guest_count_with_restrictions: data.guest_count_with_restrictions,
         custom_menu_requests: data.custom_menu_requests,
         tables_chairs_requested: data.tables_chairs_requested,
@@ -218,14 +235,16 @@ export const AlternativeQuoteForm = () => {
         serving_utensils_requested: data.serving_utensils_requested,
         chafers_requested: data.chafers_requested,
         ice_requested: data.ice_requested,
-        utensils: data.utensils,
-        extras: data.extras,
+        utensils: data.utensils || [],
+        extras: data.extras || [],
         separate_serving_area: data.separate_serving_area,
         serving_setup_area: data.serving_setup_area,
         bussing_tables_needed: data.bussing_tables_needed,
         special_requests: data.special_requests,
         referral_source: data.referral_source,
         theme_colors: data.theme_colors,
+        quote_status: 'pending' as const,
+        estimated_cost: estimatedCost
       }).select();
 
       if (error) throw error;
@@ -400,6 +419,7 @@ export const AlternativeQuoteForm = () => {
                   type="submit"
                   disabled={isSubmitting}
                   className="flex items-center gap-2 neumorphic-button-primary"
+                  onClick={() => console.log('Submit button clicked!')}
                 >
                   {isSubmitting ? 'Submitting...' : 'Submit Quote Request'}
                   <ArrowRight className="h-4 w-4" />
