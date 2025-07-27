@@ -54,7 +54,7 @@ const RegularEventQuoteForm = () => {
         location: data.location,
         service_type: data.serviceType,
         serving_start_time: data.servingStartTime,
-        wait_staff_requested: data.waitStaffRequested || false,
+        wait_staff_requested: data.waitStaffRequested === 'yes-full-service',
         wait_staff_setup_areas: data.waitStaffSetupArea || null,
         wait_staff_requirements: null,
         primary_protein: data.primaryProtein || null,
@@ -72,6 +72,17 @@ const RegularEventQuoteForm = () => {
         dietary_restrictions: data.dietaryRestrictions || [],
         special_requests: data.specialRequests || null,
         referral_source: data.hearAboutUs || null,
+        // Map new fields added to database
+        both_proteins_available: data.bothProteinsAvailable || false,
+        guest_count_with_restrictions: data.guestCountWithRestrictions || null,
+        bussing_tables_needed: data.bussingTablesNeeded || false,
+        separate_serving_area: data.separateServingArea || false,
+        serving_setup_area: data.servingSetupArea || null,
+        serving_utensils_requested: data.servingUtensils || false,
+        cups_requested: data.cups || false,
+        plates_requested: data.plates || false,
+        napkins_requested: data.napkins || false,
+        ice_requested: data.ice || false,
       };
 
       const { error } = await supabase

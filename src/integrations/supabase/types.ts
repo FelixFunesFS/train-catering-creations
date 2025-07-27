@@ -17,9 +17,12 @@ export type Database = {
       quote_requests: {
         Row: {
           appetizers: Json | null
+          both_proteins_available: boolean | null
+          bussing_tables_needed: boolean | null
           chafers_requested: boolean | null
           contact_name: string
           created_at: string | null
+          cups_requested: boolean | null
           custom_menu_requests: string | null
           desserts: Json | null
           dietary_restrictions: Json | null
@@ -30,15 +33,22 @@ export type Database = {
           event_type: Database["public"]["Enums"]["event_type"]
           extras: Json | null
           guest_count: number
+          guest_count_with_restrictions: string | null
+          ice_requested: boolean | null
           id: string
           linens_requested: boolean | null
           location: string
+          napkins_requested: boolean | null
           phone: string
+          plates_requested: boolean | null
           primary_protein: string | null
           referral_source: string | null
           secondary_protein: string | null
+          separate_serving_area: boolean | null
           service_type: Database["public"]["Enums"]["service_type"]
+          serving_setup_area: string | null
           serving_start_time: string | null
+          serving_utensils_requested: boolean | null
           sides: Json | null
           special_requests: string | null
           start_time: string
@@ -52,9 +62,12 @@ export type Database = {
         }
         Insert: {
           appetizers?: Json | null
+          both_proteins_available?: boolean | null
+          bussing_tables_needed?: boolean | null
           chafers_requested?: boolean | null
           contact_name: string
           created_at?: string | null
+          cups_requested?: boolean | null
           custom_menu_requests?: string | null
           desserts?: Json | null
           dietary_restrictions?: Json | null
@@ -65,15 +78,22 @@ export type Database = {
           event_type: Database["public"]["Enums"]["event_type"]
           extras?: Json | null
           guest_count: number
+          guest_count_with_restrictions?: string | null
+          ice_requested?: boolean | null
           id?: string
           linens_requested?: boolean | null
           location: string
+          napkins_requested?: boolean | null
           phone: string
+          plates_requested?: boolean | null
           primary_protein?: string | null
           referral_source?: string | null
           secondary_protein?: string | null
+          separate_serving_area?: boolean | null
           service_type: Database["public"]["Enums"]["service_type"]
+          serving_setup_area?: string | null
           serving_start_time?: string | null
+          serving_utensils_requested?: boolean | null
           sides?: Json | null
           special_requests?: string | null
           start_time: string
@@ -87,9 +107,12 @@ export type Database = {
         }
         Update: {
           appetizers?: Json | null
+          both_proteins_available?: boolean | null
+          bussing_tables_needed?: boolean | null
           chafers_requested?: boolean | null
           contact_name?: string
           created_at?: string | null
+          cups_requested?: boolean | null
           custom_menu_requests?: string | null
           desserts?: Json | null
           dietary_restrictions?: Json | null
@@ -100,15 +123,22 @@ export type Database = {
           event_type?: Database["public"]["Enums"]["event_type"]
           extras?: Json | null
           guest_count?: number
+          guest_count_with_restrictions?: string | null
+          ice_requested?: boolean | null
           id?: string
           linens_requested?: boolean | null
           location?: string
+          napkins_requested?: boolean | null
           phone?: string
+          plates_requested?: boolean | null
           primary_protein?: string | null
           referral_source?: string | null
           secondary_protein?: string | null
+          separate_serving_area?: boolean | null
           service_type?: Database["public"]["Enums"]["service_type"]
+          serving_setup_area?: string | null
           serving_start_time?: string | null
+          serving_utensils_requested?: boolean | null
           sides?: Json | null
           special_requests?: string | null
           start_time?: string
