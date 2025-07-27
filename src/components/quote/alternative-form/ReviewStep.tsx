@@ -152,6 +152,12 @@ export const ReviewStep = ({ form, estimatedCost }: ReviewStepProps) => {
                 <MapPin className="h-4 w-4 text-muted-foreground" />
                 <span>{formData.location}</span>
               </div>
+              {formData.theme_colors && (
+                <div className="flex items-center gap-3">
+                  <span className="text-lg">🎨</span>
+                  <span>{formData.theme_colors}</span>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

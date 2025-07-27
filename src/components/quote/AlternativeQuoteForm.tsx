@@ -221,6 +221,7 @@ export const AlternativeQuoteForm = () => {
         bussing_tables_needed: data.bussing_tables_needed,
         special_requests: data.special_requests,
         referral_source: data.referral_source,
+        theme_colors: data.theme_colors,
       });
 
       if (error) throw error;

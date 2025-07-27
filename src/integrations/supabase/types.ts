@@ -54,6 +54,7 @@ export type Database = {
           start_time: string
           status: Database["public"]["Enums"]["quote_status"] | null
           tables_chairs_requested: boolean | null
+          theme_colors: string | null
           updated_at: string | null
           utensils: Json | null
           wait_staff_requested: boolean | null
@@ -99,6 +100,7 @@ export type Database = {
           start_time: string
           status?: Database["public"]["Enums"]["quote_status"] | null
           tables_chairs_requested?: boolean | null
+          theme_colors?: string | null
           updated_at?: string | null
           utensils?: Json | null
           wait_staff_requested?: boolean | null
@@ -144,6 +146,7 @@ export type Database = {
           start_time?: string
           status?: Database["public"]["Enums"]["quote_status"] | null
           tables_chairs_requested?: boolean | null
+          theme_colors?: string | null
           updated_at?: string | null
           utensils?: Json | null
           wait_staff_requested?: boolean | null

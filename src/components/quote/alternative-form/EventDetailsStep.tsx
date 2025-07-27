@@ -202,6 +202,27 @@ export const EventDetailsStep = ({ form }: EventDetailsStepProps) => {
                 </FormItem>
               )}
             />
+
+            <FormField
+              control={form.control}
+              name="theme_colors"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-base font-medium flex items-center gap-2">
+                    <span className="text-lg">🎨</span>
+                    Theme/Event Colors
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="e.g., Navy Blue & Gold, Pink & White"
+                      className="h-12 text-base neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </CardContent>
         </Card>
       </div>

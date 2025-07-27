@@ -48,6 +48,7 @@ interface QuoteRequest {
   bussing_tables_needed?: boolean;
   special_requests?: string;
   referral_source?: string;
+  theme_colors?: string;
 }
 
 const formatQuoteDetails = (quote: QuoteRequest) => {
@@ -68,6 +69,7 @@ const formatQuoteDetails = (quote: QuoteRequest) => {
     <p><strong>Start Time:</strong> ${quote.start_time}</p>
     <p><strong>Guest Count:</strong> ${quote.guest_count}</p>
     <p><strong>Location:</strong> ${quote.location}</p>
+    ${quote.theme_colors ? `<p><strong>Theme/Event Colors:</strong> ${quote.theme_colors}</p>` : ''}
     <p><strong>Service Type:</strong> ${quote.service_type}</p>
     ${quote.serving_start_time ? `<p><strong>Serving Start Time:</strong> ${quote.serving_start_time}</p>` : ''}
     
@@ -155,6 +157,7 @@ const handler = async (req: Request): Promise<Response> => {
           <p><strong>Time:</strong> ${quoteData.start_time}</p>
           <p><strong>Guests:</strong> ${quoteData.guest_count}</p>
           <p><strong>Location:</strong> ${quoteData.location}</p>
+          ${quoteData.theme_colors ? `<p><strong>Theme/Event Colors:</strong> ${quoteData.theme_colors}</p>` : ''}
           
           <hr style="margin: 30px 0;">
           

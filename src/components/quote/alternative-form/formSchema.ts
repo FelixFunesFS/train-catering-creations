@@ -64,4 +64,5 @@ export const formSchema = z.object({
   // Additional Information
   special_requests: z.string().optional(),
   referral_source: z.string().optional(),
+  theme_colors: z.string().optional(),
 });
