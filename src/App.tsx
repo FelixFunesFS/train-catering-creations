@@ -13,6 +13,7 @@ import Menu from "./pages/Menu";
 import WeddingMenu from "./pages/WeddingMenu";
 import RequestQuote from "./pages/RequestQuote";
 import RegularEventQuote from "./pages/RegularEventQuote";
+import RegularEventQuoteAlt from "./pages/RegularEventQuoteAlt";
 import WeddingEventQuote from "./pages/WeddingEventQuote";
 import Reviews from "./pages/Reviews";
 import PhotoGallery from "./pages/PhotoGallery";
@@ -33,6 +34,7 @@ const AppContent = () => {
           <Route path="/wedding-menu" element={<WeddingMenu />} />
           <Route path="/request-quote" element={<RequestQuote />} />
           <Route path="/request-quote/regular" element={<RegularEventQuote />} />
+          <Route path="/request-quote/regular-alt" element={<RegularEventQuoteAlt />} />
           <Route path="/request-quote/wedding" element={<WeddingEventQuote />} />
           <Route path="/reviews" element={<Reviews />} />
           <Route path="/gallery" element={<PhotoGallery />} />
