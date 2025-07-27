@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -329,7 +329,7 @@ export const AlternativeQuoteForm = () => {
       {/* Step Content */}
       <Card className="neumorphic-card-2 border-0 bg-gradient-to-br from-card via-card/95 to-muted/20">
         <CardContent className="p-6 md:p-8">
-          <Form {...form}>
+          <FormProvider {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               {renderStepContent()}
             
@@ -369,7 +369,7 @@ export const AlternativeQuoteForm = () => {
               )}
             </div>
             </form>
-          </Form>
+          </FormProvider>
         </CardContent>
       </Card>
     </div>
