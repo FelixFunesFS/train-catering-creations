@@ -25,8 +25,8 @@ export const formSchema = z.object({
   guest_count: z.number().min(1, "Guest count must be at least 1"),
   location: z.string().min(1, "Location is required"),
   
-  // Service Details
-  service_type: z.enum(["drop-off", "full-service"]),
+  // Service Details  
+  service_type: z.enum(["full-service", "delivery-only", "delivery-setup", "drop-off"]),
   serving_start_time: z.string().optional(),
   wait_staff_requested: z.boolean().default(false),
   wait_staff_requirements: z.string().optional(),

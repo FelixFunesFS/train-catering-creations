@@ -59,7 +59,7 @@ export const AlternativeQuoteForm = () => {
       start_time: "",
       guest_count: 1,
       location: "",
-      service_type: "drop-off",
+      service_type: "full-service",
       serving_start_time: "",
       wait_staff_requested: false,
       wait_staff_requirements: "",
@@ -179,15 +179,21 @@ export const AlternativeQuoteForm = () => {
   };
 
   const onSubmit = async (data: FormData) => {
-    console.log('=== FORM SUBMISSION STARTED ===');
-    console.log('Form data:', data);
-    console.log('Form errors:', form.formState.errors);
-    console.log('Form is valid:', form.formState.isValid);
+    console.log('🚀 === FORM SUBMISSION STARTED ===');
+    console.log('📋 Form data:', data);
+    console.log('🚨 Form errors:', form.formState.errors);
+    console.log('✅ Form is valid:', form.formState.isValid);
+    console.log('🔍 Current step:', currentStep);
+    console.log('💎 Service type value:', data.service_type);
+    
+    // Manual validation trigger to ensure we catch all errors
+    const validationResult = await form.trigger();
+    console.log('🔍 Manual validation result:', validationResult);
     
     // Check for validation errors
     const errors = form.formState.errors;
     if (Object.keys(errors).length > 0) {
-      console.error('Form validation errors:', errors);
+      console.error('❌ Form validation errors:', errors);
       toast({
         title: "Please Fix Form Errors",
         description: "Some required fields are missing or invalid. Please check your form.",
@@ -196,13 +202,24 @@ export const AlternativeQuoteForm = () => {
       return;
     }
 
+    if (!validationResult) {
+      console.error('❌ Form validation failed');
+      toast({
+        title: "Form Validation Failed",
+        description: "Please check all required fields and try again.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     
     try {
-      console.log('Preparing database insertion...');
+      console.log('💾 Preparing database insertion...');
+      console.log('🔗 Supabase client status:', !!supabase);
       
       // Insert into database with correct field mapping
-      const { data: insertedData, error } = await supabase.from('quote_requests').insert({
+      const insertPayload = {
         contact_name: data.contact_name,
         email: data.email,
         phone: data.phone,
@@ -244,13 +261,26 @@ export const AlternativeQuoteForm = () => {
         referral_source: data.referral_source,
         theme_colors: data.theme_colors,
         status: 'pending' as const
-      }).select();
+      };
+      
+      console.log('📝 Database insert payload:', insertPayload);
+      
+      const { data: insertedData, error } = await supabase.from('quote_requests').insert(insertPayload).select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Database insertion error:', error);
+        throw error;
+      }
       
       const quoteId = insertedData?.[0]?.id;
       setSubmittedQuoteId(quoteId);
-      console.log('Quote inserted successfully with ID:', quoteId);
+      console.log('✅ Quote inserted successfully with ID:', quoteId);
+      console.log('📊 Inserted data:', insertedData);
+      
+      toast({
+        title: "Quote Saved Successfully!",
+        description: "Your quote request has been saved. Sending notifications...",
+      });
 
       // Send email notifications with retry logic
       let emailSuccess = false;
@@ -259,19 +289,23 @@ export const AlternativeQuoteForm = () => {
       for (let attempt = 1; attempt <= maxRetries; attempt++) {
         try {
           const emailPayload = { ...data, quote_id: quoteId };
-          console.log(`Sending email notification (attempt ${attempt})...`, emailPayload);
+          console.log(`📧 Sending email notification (attempt ${attempt})...`);
+          console.log('📧 Email payload:', emailPayload);
           
           const { data: emailData, error: emailError } = await supabase.functions.invoke('send-quote-notification', {
             body: emailPayload
           });
           
-          if (emailError) throw emailError;
+          if (emailError) {
+            console.error(`❌ Email error (attempt ${attempt}):`, emailError);
+            throw emailError;
+          }
           
-          console.log('Email notification sent successfully:', emailData);
+          console.log('✅ Email notification sent successfully:', emailData);
           emailSuccess = true;
           break;
         } catch (emailError) {
-          console.error(`Email notification attempt ${attempt} failed:`, emailError);
+          console.error(`❌ Email notification attempt ${attempt} failed:`, emailError);
           
           if (attempt === maxRetries) {
             // Final attempt failed - show warning but don't fail submission
@@ -290,17 +324,20 @@ export const AlternativeQuoteForm = () => {
       
       if (emailSuccess) {
         toast({
-          title: "Quote request submitted!",
+          title: "✅ Quote Request Submitted!",
           description: "We'll respond within 48 hours. Check your email for confirmation.",
         });
       }
     } catch (error) {
-      console.error('Error submitting form:', error);
+      console.error('❌ Fatal error during form submission:', error);
       toast({
-        title: "Error submitting quote",
-        description: "Please try again or contact us at (843) 970-0265.",
+        title: "Submission Failed",
+        description: error instanceof Error ? error.message : "Please try again or contact us at (843) 970-0265.",
         variant: "destructive",
       });
+      // Reset submission state on error
+      setIsSubmitted(false);
+      setSubmittedQuoteId(null);
     } finally {
       setIsSubmitting(false);
     }
@@ -395,7 +432,11 @@ export const AlternativeQuoteForm = () => {
       <Card className="neumorphic-card-2 border-0 bg-gradient-to-br from-card via-card/95 to-muted/20">
         <CardContent className="p-6 md:p-8">
           <FormProvider {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <form onSubmit={(e) => {
+              console.log('📝 Form submit event triggered');
+              console.log('🎯 React Hook Form handleSubmit called');
+              form.handleSubmit(onSubmit)(e);
+            }} className="space-y-8">
               {renderStepContent()}
             
             <Separator className="my-8" />
@@ -418,7 +459,13 @@ export const AlternativeQuoteForm = () => {
                   type="submit"
                   disabled={isSubmitting}
                   className="flex items-center gap-2 neumorphic-button-primary"
-                  onClick={() => console.log('Submit button clicked!')}
+                  onClick={(e) => {
+                    console.log('🔴 Submit button clicked!');
+                    console.log('🔍 Form values:', form.getValues());
+                    console.log('🚨 Form errors:', form.formState.errors);
+                    console.log('✅ Form valid:', form.formState.isValid);
+                    console.log('🎯 Is submitting:', isSubmitting);
+                  }}
                 >
                   {isSubmitting ? 'Submitting...' : 'Submit Quote Request'}
                   <ArrowRight className="h-4 w-4" />
