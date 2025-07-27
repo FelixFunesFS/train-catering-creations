@@ -243,8 +243,7 @@ export const AlternativeQuoteForm = () => {
         special_requests: data.special_requests,
         referral_source: data.referral_source,
         theme_colors: data.theme_colors,
-        quote_status: 'pending' as const,
-        estimated_cost: estimatedCost
+        status: 'pending' as const
       }).select();
 
       if (error) throw error;
