@@ -179,6 +179,12 @@ export const AlternativeQuoteForm = () => {
   };
 
   const onSubmit = async (data: FormData) => {
+    // Only submit if we're on the final step (review step)
+    if (currentStep !== STEPS.length - 1) {
+      console.log('🚫 Blocking submission - not on review step. Current step:', currentStep);
+      return;
+    }
+    
     console.log('🚀 === FORM SUBMISSION STARTED ===');
     console.log('📋 Form data:', data);
     console.log('🚨 Form errors:', form.formState.errors);

@@ -80,8 +80,8 @@ const formatQuoteDetails = (quote: QuoteRequest) => {
     ${quote.serving_start_time ? `<p><strong>Serving Start Time:</strong> ${quote.serving_start_time}</p>` : ''}
     
     <h3>Menu Selections</h3>
-    ${quote.primary_protein ? `<p><strong>Primary Protein:</strong> ${quote.primary_protein.replace(/-/g, ' ')}</p>` : ''}
-    ${quote.secondary_protein ? `<p><strong>Secondary Protein:</strong> ${quote.secondary_protein.replace(/-/g, ' ')}</p>` : ''}
+    ${quote.primary_protein ? `<p><strong>Primary Protein:</strong> ${safeString(quote.primary_protein).replace(/-/g, ' ')}</p>` : ''}
+    ${quote.secondary_protein ? `<p><strong>Secondary Protein:</strong> ${safeString(quote.secondary_protein).replace(/-/g, ' ')}</p>` : ''}
     ${quote.both_proteins_available ? `<p><strong>Both Proteins Available:</strong> Yes</p>` : ''}
     <p><strong>Appetizers:</strong> ${formatArray(quote.appetizers)}</p>
     <p><strong>Sides:</strong> ${formatArray(quote.sides)}</p>
