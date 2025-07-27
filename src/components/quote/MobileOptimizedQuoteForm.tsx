@@ -302,7 +302,7 @@ ${data.hearAboutUs || 'Not specified'}
               field
             }) => <FormItem>
                     <FormLabel className="text-base font-medium">Type of Event *</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger className="h-12 text-base">
                           <SelectValue placeholder="Select event type" />
@@ -391,7 +391,7 @@ ${data.hearAboutUs || 'Not specified'}
             }) => <FormItem className="space-y-3">
                     <FormLabel className="text-base font-medium">Service Type *</FormLabel>
                     <FormControl>
-                      <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="space-y-3">
+                      <RadioGroup onValueChange={field.onChange} value={field.value} className="space-y-3">
                         <div className="flex items-center space-x-3 p-3 border rounded-lg">
                           <RadioGroupItem value="full-service" id="full-service" />
                           <Label htmlFor="full-service" className="flex-1 text-base">
@@ -433,7 +433,7 @@ ${data.hearAboutUs || 'Not specified'}
             }) => <FormItem className="space-y-3">
                       <FormLabel className="text-base font-medium">Wait Staff Requirements *</FormLabel>
                       <FormControl>
-                        <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="space-y-3">
+                        <RadioGroup onValueChange={field.onChange} value={field.value} className="space-y-3">
                           <div className="flex items-center space-x-3 p-3 border rounded-lg">
                             <RadioGroupItem value="yes-full-service" id="yes-full-service" />
                             <Label htmlFor="yes-full-service" className="flex-1 text-base">
@@ -476,7 +476,7 @@ ${data.hearAboutUs || 'Not specified'}
               field
             }) => <FormItem>
                     <FormLabel className="text-base font-medium">How did you hear about us?</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger className="h-12 text-base">
                           <SelectValue placeholder="Select an option" />
