@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -126,9 +126,9 @@ export const AlternativeQuoteForm = () => {
   }, [watchedValues]);
 
   // Update estimated cost when relevant fields change
-  useState(() => {
+  useEffect(() => {
     calculateEstimatedCost();
-  });
+  }, [calculateEstimatedCost]);
 
   const progress = ((currentStep + 1) / STEPS.length) * 100;
 
@@ -234,31 +234,48 @@ export const AlternativeQuoteForm = () => {
       setSubmittedQuoteId(quoteId);
       console.log('Quote inserted successfully with ID:', quoteId);
 
-      // Send email notifications
-      try {
-        const emailPayload = { ...data, quote_id: quoteId };
-        console.log('Sending email notification with payload:', emailPayload);
-        
-        const { data: emailData, error: emailError } = await supabase.functions.invoke('send-quote-notification', {
-          body: emailPayload
-        });
-        
-        if (emailError) throw emailError;
-        console.log('Email notification sent successfully:', emailData);
-      } catch (emailError) {
-        console.error('Email notification failed:', emailError);
-        // Don't fail the submission if email fails - show toast warning
-        toast({
-          title: "Quote submitted successfully!",
-          description: "However, email confirmation may be delayed. We'll contact you within 48 hours.",
-        });
+      // Send email notifications with retry logic
+      let emailSuccess = false;
+      const maxRetries = 3;
+      
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+          const emailPayload = { ...data, quote_id: quoteId };
+          console.log(`Sending email notification (attempt ${attempt})...`, emailPayload);
+          
+          const { data: emailData, error: emailError } = await supabase.functions.invoke('send-quote-notification', {
+            body: emailPayload
+          });
+          
+          if (emailError) throw emailError;
+          
+          console.log('Email notification sent successfully:', emailData);
+          emailSuccess = true;
+          break;
+        } catch (emailError) {
+          console.error(`Email notification attempt ${attempt} failed:`, emailError);
+          
+          if (attempt === maxRetries) {
+            // Final attempt failed - show warning but don't fail submission
+            toast({
+              title: "Quote submitted successfully!",
+              description: "However, email confirmation may be delayed. We'll contact you within 48 hours.",
+            });
+          } else {
+            // Wait before retry (exponential backoff)
+            await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
+          }
+        }
       }
 
       setIsSubmitted(true);
-      toast({
-        title: "Quote request submitted!",
-        description: "We'll respond within 48 hours. Check your email for confirmation.",
-      });
+      
+      if (emailSuccess) {
+        toast({
+          title: "Quote request submitted!",
+          description: "We'll respond within 48 hours. Check your email for confirmation.",
+        });
+      }
     } catch (error) {
       console.error('Error submitting form:', error);
       toast({

@@ -53,7 +53,11 @@ interface QuoteRequest {
 }
 
 const formatQuoteDetails = (quote: QuoteRequest) => {
-  const formatArray = (arr: string[] | undefined) => arr && arr.length > 0 ? arr.join(", ") : "None selected";
+  const formatArray = (arr: string[] | undefined) => {
+    if (!arr || !Array.isArray(arr)) return "None selected";
+    return arr.length > 0 ? arr.join(", ") : "None selected";
+  };
+  const safeString = (value: any): string => value || "Not specified";
   
   return `
     <h2>New Quote Request - ${quote.event_name}</h2>
@@ -118,20 +122,42 @@ const handler = async (req: Request): Promise<Response> => {
 
   try {
     const quoteData: QuoteRequest = await req.json();
-
-    // Send notification to business
-    const businessNotification = await resend.emails.send({
-      from: "Soul Train Seatery <noreply@soultrainseatery.com>",
-      to: ["soultrainseatery@gmail.com"],
-      subject: `New Quote Request - ${quoteData.event_name}`,
-      html: formatQuoteDetails(quoteData),
+    console.log("Processing quote request:", { 
+      quote_id: quoteData.quote_id, 
+      event_name: quoteData.event_name,
+      email: quoteData.email 
     });
 
-    // Send confirmation to customer
-    const customerConfirmation = await resend.emails.send({
-      from: "Soul Train Seatery <noreply@soultrainseatery.com>",
-      to: [quoteData.email],
-      subject: "Quote Request Received - Soul Train Seatery",
+    // Validate required fields
+    if (!quoteData.contact_name || !quoteData.email || !quoteData.event_name) {
+      throw new Error("Missing required fields: contact_name, email, or event_name");
+    }
+
+    let businessSuccess = false;
+    let customerSuccess = false;
+
+    // Send notification to business with retry
+    try {
+      console.log("Sending business notification...");
+      const businessNotification = await resend.emails.send({
+        from: "Soul Train Seatery <noreply@soultrainseatery.com>",
+        to: ["soultrainseatery@gmail.com"],
+        subject: `New Quote Request - ${quoteData.event_name} ${quoteData.quote_id ? `(ID: ${quoteData.quote_id})` : ''}`,
+        html: formatQuoteDetails(quoteData),
+      });
+      console.log("Business notification sent:", businessNotification.id);
+      businessSuccess = true;
+    } catch (businessError) {
+      console.error("Failed to send business notification:", businessError);
+    }
+
+    // Send confirmation to customer with retry
+    try {
+      console.log("Sending customer confirmation...");
+      const customerConfirmation = await resend.emails.send({
+        from: "Soul Train Seatery <noreply@soultrainseatery.com>",
+        to: [quoteData.email],
+        subject: "Quote Request Received - Soul Train Seatery",
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #333;">Thank you for your quote request!</h2>
@@ -175,15 +201,46 @@ const handler = async (req: Request): Promise<Response> => {
       `,
     });
 
-    console.log("Emails sent successfully:", { businessNotification, customerConfirmation });
+      console.log("Customer confirmation sent:", customerConfirmation.id);
+      customerSuccess = true;
+    } catch (customerError) {
+      console.error("Failed to send customer confirmation:", customerError);
+    }
 
-    return new Response(JSON.stringify({ success: true }), {
-      status: 200,
-      headers: {
-        "Content-Type": "application/json",
-        ...corsHeaders,
-      },
-    });
+    // Return status based on email success
+    const allSuccess = businessSuccess && customerSuccess;
+    const partialSuccess = businessSuccess || customerSuccess;
+    
+    console.log("Email sending completed:", { businessSuccess, customerSuccess, allSuccess });
+
+    if (allSuccess) {
+      return new Response(JSON.stringify({ 
+        success: true, 
+        message: "All emails sent successfully",
+        quote_id: quoteData.quote_id 
+      }), {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+          ...corsHeaders,
+        },
+      });
+    } else if (partialSuccess) {
+      return new Response(JSON.stringify({ 
+        success: false, 
+        partial: true,
+        message: "Some emails failed to send",
+        quote_id: quoteData.quote_id 
+      }), {
+        status: 207, // Multi-Status
+        headers: {
+          "Content-Type": "application/json",
+          ...corsHeaders,
+        },
+      });
+    } else {
+      throw new Error("All email notifications failed");
+    }
   } catch (error: any) {
     console.error("Error in send-quote-notification function:", error);
     return new Response(
