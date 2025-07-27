@@ -64,8 +64,8 @@ export const AlternativeQuoteForm = () => {
       wait_staff_requested: false,
       wait_staff_requirements: "",
       wait_staff_setup_areas: "",
-      primary_protein: "",
-      secondary_protein: "",
+      primary_protein: [],
+      secondary_protein: [],
       both_proteins_available: false,
       appetizers: [],
       sides: [],
@@ -100,7 +100,7 @@ export const AlternativeQuoteForm = () => {
   const calculateEstimatedCost = useCallback(() => {
     const guestCount = watchedValues.guest_count || 0;
     const serviceType = watchedValues.service_type;
-    const hasProteins = watchedValues.primary_protein || watchedValues.secondary_protein;
+    const hasProteins = (watchedValues.primary_protein?.length > 0) || (watchedValues.secondary_protein?.length > 0);
     const hasAppetizers = watchedValues.appetizers?.length > 0;
     const hasSides = watchedValues.sides?.length > 0;
     const hasDesserts = watchedValues.desserts?.length > 0;
@@ -234,8 +234,8 @@ export const AlternativeQuoteForm = () => {
         wait_staff_requested: data.wait_staff_requested,
         wait_staff_requirements: data.wait_staff_requirements,
         wait_staff_setup_areas: data.wait_staff_setup_areas,
-        primary_protein: data.primary_protein,
-        secondary_protein: data.secondary_protein,
+        primary_protein: data.primary_protein.join(', '),
+        secondary_protein: data.secondary_protein.join(', '),
         both_proteins_available: data.both_proteins_available,
         appetizers: data.appetizers || [],
         sides: data.sides || [],

@@ -33,8 +33,8 @@ export const formSchema = z.object({
   wait_staff_setup_areas: z.string().optional(),
   
   // Menu Selections
-  primary_protein: z.string().optional(),
-  secondary_protein: z.string().optional(),
+  primary_protein: z.array(z.string()).default([]),
+  secondary_protein: z.array(z.string()).default([]),
   both_proteins_available: z.boolean().default(false),
   appetizers: z.array(z.string()).default([]),
   sides: z.array(z.string()).default([]),
