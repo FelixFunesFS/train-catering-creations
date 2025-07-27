@@ -180,6 +180,7 @@ export const AlternativeQuoteForm = () => {
     setIsSubmitting(true);
     
     try {
+      // Insert into database
       const { error } = await supabase.from('quote_requests').insert({
         contact_name: data.contact_name,
         email: data.email,
@@ -224,16 +225,26 @@ export const AlternativeQuoteForm = () => {
 
       if (error) throw error;
 
+      // Send email notifications
+      try {
+        await supabase.functions.invoke('send-quote-notification', {
+          body: data
+        });
+      } catch (emailError) {
+        console.error('Email notification failed:', emailError);
+        // Don't fail the submission if email fails
+      }
+
       setIsSubmitted(true);
       toast({
         title: "Quote request submitted!",
-        description: "We'll get back to you within 24 hours with your custom quote.",
+        description: "We'll respond within 48 hours. Check your email for confirmation.",
       });
     } catch (error) {
       console.error('Error submitting form:', error);
       toast({
         title: "Error submitting quote",
-        description: "Please try again or contact us directly.",
+        description: "Please try again or contact us at (843) 970-0265.",
         variant: "destructive",
       });
     } finally {

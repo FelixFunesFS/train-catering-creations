@@ -30,7 +30,7 @@ export const SuccessStep = ({ estimatedCost }: SuccessStepProps) => {
             Quote Request Submitted!
           </CardTitle>
           <p className="text-lg text-muted-foreground leading-relaxed">
-            Thank you for choosing our catering services. We've received your request and our team is already reviewing the details.
+            Thank you for choosing Soul Train Seatery. We've received your request and will respond within 48 hours.
           </p>
         </CardHeader>
         
@@ -69,7 +69,7 @@ export const SuccessStep = ({ estimatedCost }: SuccessStepProps) => {
                   </Badge>
                   <div>
                     <p className="font-medium">Detailed Quote</p>
-                    <p className="text-sm text-muted-foreground">We'll send a comprehensive quote within 24 hours</p>
+                    <p className="text-sm text-muted-foreground">We'll send a comprehensive quote within 48 hours</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
@@ -99,13 +99,19 @@ export const SuccessStep = ({ estimatedCost }: SuccessStepProps) => {
                 <div className="flex justify-between items-center p-3 bg-muted/30 rounded-lg">
                   <span className="text-sm">Detailed quote</span>
                   <Badge variant="secondary" className="bg-blue-100 text-blue-700">
-                    Within 24hrs
+                    Within 48hrs
                   </Badge>
                 </div>
                 <div className="flex justify-between items-center p-3 bg-muted/30 rounded-lg">
                   <span className="text-sm">Follow-up call</span>
                   <Badge variant="secondary" className="bg-purple-100 text-purple-700">
                     2-3 days
+                  </Badge>
+                </div>
+                <div className="flex justify-between items-center p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                  <span className="text-sm font-medium">No response within 48hrs?</span>
+                  <Badge variant="secondary" className="bg-orange-100 text-orange-700">
+                    Call Us
                   </Badge>
                 </div>
               </div>
@@ -120,19 +126,19 @@ export const SuccessStep = ({ estimatedCost }: SuccessStepProps) => {
             <div className="grid md:grid-cols-2 gap-4 text-sm">
               <div className="flex items-center gap-2">
                 <Mail className="h-4 w-4 text-muted-foreground" />
-                <a href="mailto:info@tanyawardcatering.com" className="story-link">
-                  info@tanyawardcatering.com
+                <a href="mailto:soultrainseatery@gmail.com" className="story-link">
+                  soultrainseatery@gmail.com
                 </a>
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="h-4 w-4 text-muted-foreground" />
-                <a href="tel:+1234567890" className="story-link">
-                  (123) 456-7890
+                <a href="tel:8439700265" className="story-link">
+                  (843) 970-0265
                 </a>
               </div>
             </div>
             <p className="text-xs text-muted-foreground mt-3">
-              Feel free to contact us if you have any questions or need to make changes to your request.
+              <strong>Important:</strong> If you don't hear back within 48 hours, please call (843) 970-0265.
             </p>
           </div>
 
