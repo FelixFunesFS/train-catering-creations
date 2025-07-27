@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Form } from "@/components/ui/form";
 import { ContactStep } from "./alternative-form/ContactStep";
 import { EventDetailsStep } from "./alternative-form/EventDetailsStep";
 import { ServiceSelectionStep } from "./alternative-form/ServiceSelectionStep";
@@ -328,8 +329,9 @@ export const AlternativeQuoteForm = () => {
       {/* Step Content */}
       <Card className="neumorphic-card-2 border-0 bg-gradient-to-br from-card via-card/95 to-muted/20">
         <CardContent className="p-6 md:p-8">
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            {renderStepContent()}
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+              {renderStepContent()}
             
             <Separator className="my-8" />
             
@@ -366,7 +368,8 @@ export const AlternativeQuoteForm = () => {
                 </Button>
               )}
             </div>
-          </form>
+            </form>
+          </Form>
         </CardContent>
       </Card>
     </div>
