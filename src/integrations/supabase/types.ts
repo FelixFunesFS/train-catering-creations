@@ -148,7 +148,11 @@ export type Database = {
         | "confirmed"
         | "completed"
         | "cancelled"
-      service_type: "drop-off" | "full-service"
+      service_type:
+        | "full-service"
+        | "delivery-only"
+        | "delivery-setup"
+        | "drop-off"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -296,7 +300,12 @@ export const Constants = {
         "completed",
         "cancelled",
       ],
-      service_type: ["drop-off", "full-service"],
+      service_type: [
+        "full-service",
+        "delivery-only",
+        "delivery-setup",
+        "drop-off",
+      ],
     },
   },
 } as const
