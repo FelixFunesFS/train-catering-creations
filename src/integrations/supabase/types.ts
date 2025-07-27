@@ -132,11 +132,14 @@ export type Database = {
     Enums: {
       event_type:
         | "corporate"
-        | "private-party"
+        | "private_party"
         | "birthday"
-        | "anniversary"
+        | "baby_shower"
+        | "bereavement"
         | "graduation"
-        | "holiday-party"
+        | "retirement"
+        | "holiday_party"
+        | "anniversary"
         | "other"
       quote_status:
         | "pending"
@@ -275,11 +278,14 @@ export const Constants = {
     Enums: {
       event_type: [
         "corporate",
-        "private-party",
+        "private_party",
         "birthday",
-        "anniversary",
+        "baby_shower",
+        "bereavement",
         "graduation",
-        "holiday-party",
+        "retirement",
+        "holiday_party",
+        "anniversary",
         "other",
       ],
       quote_status: [

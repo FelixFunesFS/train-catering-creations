@@ -72,13 +72,13 @@ const baseQuoteSchema = z.object({
 export const regularEventSchema = baseQuoteSchema.extend({
   eventType: z.enum([
     "corporate",
-    "private-party", 
+    "private_party", 
     "birthday",
-    "baby-shower",
+    "baby_shower",
     "bereavement",
     "graduation",
     "retirement",
-    "holiday-party",
+    "holiday_party",
     "other"
   ], {
     required_error: "Please select an event type"
@@ -89,11 +89,11 @@ export const regularEventSchema = baseQuoteSchema.extend({
 export const weddingEventSchema = baseQuoteSchema.extend({
   eventType: z.enum([
     "wedding",
-    "black-tie",
-    "military-function",
+    "black_tie",
+    "military_function",
     "gala",
     "anniversary",
-    "engagement-party"
+    "engagement_party"
   ], {
     required_error: "Please select an event type"
   }),
