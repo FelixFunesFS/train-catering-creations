@@ -1,7 +1,4 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { Resend } from "npm:resend@2.0.0";
-
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -115,6 +112,108 @@ const formatQuoteDetails = (quote: QuoteRequest) => {
   `;
 };
 
+async function sendEmailViaSMTP(to: string, subject: string, html: string): Promise<boolean> {
+  try {
+    const gmailUser = Deno.env.get('GMAIL_USER');
+    const gmailPassword = Deno.env.get('GMAIL_APP_PASSWORD');
+    
+    if (!gmailUser || !gmailPassword) {
+      console.error('Gmail credentials not configured');
+      return false;
+    }
+
+    console.log(`Sending email via Gmail SMTP to: ${to}`);
+    
+    // Create SMTP connection
+    const conn = await Deno.connect({
+      hostname: "smtp.gmail.com",
+      port: 587,
+    });
+
+    const encoder = new TextEncoder();
+    const decoder = new TextDecoder();
+
+    async function writeAndRead(data: string): Promise<string> {
+      await conn.write(encoder.encode(data));
+      const buffer = new Uint8Array(1024);
+      const n = await conn.read(buffer);
+      return decoder.decode(buffer.subarray(0, n || 0));
+    }
+
+    // SMTP conversation
+    let response = await writeAndRead("");
+    console.log("Initial response:", response);
+
+    response = await writeAndRead("EHLO smtp.gmail.com\r\n");
+    console.log("EHLO response:", response);
+
+    response = await writeAndRead("STARTTLS\r\n");
+    console.log("STARTTLS response:", response);
+
+    // Upgrade to TLS
+    const tlsConn = await Deno.startTls(conn, { hostname: "smtp.gmail.com" });
+
+    async function tlsWriteAndRead(data: string): Promise<string> {
+      await tlsConn.write(encoder.encode(data));
+      const buffer = new Uint8Array(1024);
+      const n = await tlsConn.read(buffer);
+      return decoder.decode(buffer.subarray(0, n || 0));
+    }
+
+    response = await tlsWriteAndRead("EHLO smtp.gmail.com\r\n");
+    console.log("TLS EHLO response:", response);
+
+    response = await tlsWriteAndRead("AUTH LOGIN\r\n");
+    console.log("AUTH LOGIN response:", response);
+
+    // Send username (base64 encoded)
+    const encodedUser = btoa(gmailUser);
+    response = await tlsWriteAndRead(`${encodedUser}\r\n`);
+    console.log("Username response:", response);
+
+    // Send password (base64 encoded)
+    const encodedPassword = btoa(gmailPassword);
+    response = await tlsWriteAndRead(`${encodedPassword}\r\n`);
+    console.log("Password response:", response);
+
+    // Send mail
+    response = await tlsWriteAndRead(`MAIL FROM:<${gmailUser}>\r\n`);
+    console.log("MAIL FROM response:", response);
+
+    response = await tlsWriteAndRead(`RCPT TO:<${to}>\r\n`);
+    console.log("RCPT TO response:", response);
+
+    response = await tlsWriteAndRead("DATA\r\n");
+    console.log("DATA response:", response);
+
+    // Email headers and body
+    const emailContent = [
+      `From: Soul Train's Eatery <${gmailUser}>`,
+      `To: ${to}`,
+      `Subject: ${subject}`,
+      `Content-Type: text/html; charset=utf-8`,
+      ``,
+      html,
+      ``,
+      `.`
+    ].join('\r\n');
+
+    response = await tlsWriteAndRead(emailContent);
+    console.log("Email content response:", response);
+
+    response = await tlsWriteAndRead("QUIT\r\n");
+    console.log("QUIT response:", response);
+
+    tlsConn.close();
+    console.log(`Email sent successfully to: ${to}`);
+    return true;
+
+  } catch (error) {
+    console.error(`Failed to send email to ${to}:`, error);
+    return false;
+  }
+}
+
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -136,35 +235,33 @@ const handler = async (req: Request): Promise<Response> => {
     let businessSuccess = false;
     let customerSuccess = false;
 
-    // Send notification to business with retry
+    // Send notification to business
     try {
       console.log("Sending business notification...");
-      const businessNotification = await resend.emails.send({
-        from: "Soul Train Seatery <noreply@soultrainseatery.com>",
-        to: ["soultrainseatery@gmail.com"],
-        subject: `New Quote Request - ${quoteData.event_name} ${quoteData.quote_id ? `(ID: ${quoteData.quote_id})` : ''}`,
-        html: formatQuoteDetails(quoteData),
-      });
-      console.log("Business notification sent:", businessNotification.id);
-      businessSuccess = true;
+      const businessSubject = `New Quote Request - ${quoteData.event_name} ${quoteData.quote_id ? `(ID: ${quoteData.quote_id})` : ''}`;
+      const businessHtml = formatQuoteDetails(quoteData);
+      
+      businessSuccess = await sendEmailViaSMTP(
+        "soultrainseatery@gmail.com",
+        businessSubject,
+        businessHtml
+      );
+      console.log("Business notification sent:", businessSuccess);
     } catch (businessError) {
       console.error("Failed to send business notification:", businessError);
     }
 
-    // Send confirmation to customer with retry
+    // Send confirmation to customer
     try {
       console.log("Sending customer confirmation...");
-      const customerConfirmation = await resend.emails.send({
-        from: "Soul Train Seatery <noreply@soultrainseatery.com>",
-        to: [quoteData.email],
-        subject: "Quote Request Received - Soul Train Seatery",
-      html: `
+      const customerSubject = "Quote Request Received - Soul Train's Eatery";
+      const customerHtml = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #333;">Thank you for your quote request!</h2>
           
           <p>Dear ${quoteData.contact_name},</p>
           
-          <p>We have received your quote request for <strong>${quoteData.event_name}</strong> on ${quoteData.event_date}. Thank you for considering Soul Train Seatery for your special event!</p>
+          <p>We have received your quote request for <strong>${quoteData.event_name}</strong> on ${quoteData.event_date}. Thank you for considering Soul Train's Eatery for your special event!</p>
           
           <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <h3 style="margin-top: 0; color: #333;">What happens next?</h3>
@@ -192,17 +289,20 @@ const handler = async (req: Request): Promise<Response> => {
           <hr style="margin: 30px 0;">
           
           <div style="text-align: center; color: #666; font-size: 14px;">
-            <p><strong>Soul Train Seatery</strong></p>
+            <p><strong>Soul Train's Eatery</strong></p>
             <p>Phone: (843) 970-0265</p>
             <p>Email: soultrainseatery@gmail.com</p>
             <p>Proudly serving Charleston, SC and the surrounding Lowcountry</p>
           </div>
         </div>
-      `,
-    });
+      `;
 
-      console.log("Customer confirmation sent:", customerConfirmation.id);
-      customerSuccess = true;
+      customerSuccess = await sendEmailViaSMTP(
+        quoteData.email,
+        customerSubject,
+        customerHtml
+      );
+      console.log("Customer confirmation sent:", customerSuccess);
     } catch (customerError) {
       console.error("Failed to send customer confirmation:", customerError);
     }
