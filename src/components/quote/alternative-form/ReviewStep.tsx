@@ -294,6 +294,11 @@ export const ReviewStep = ({ form, estimatedCost }: ReviewStepProps) => {
                   <Textarea
                     placeholder="Any special requests, allergies to note, or additional information you'd like us to know..."
                     className="min-h-[100px] neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                      }
+                    }}
                     {...field}
                   />
                 </FormControl>
@@ -313,6 +318,11 @@ export const ReviewStep = ({ form, estimatedCost }: ReviewStepProps) => {
                   <Input
                     placeholder="e.g., Google search, friend referral, social media..."
                     className="h-12 text-base neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                      }
+                    }}
                     {...field}
                   />
                 </FormControl>

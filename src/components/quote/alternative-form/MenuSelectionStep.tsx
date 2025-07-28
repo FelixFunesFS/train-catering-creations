@@ -172,6 +172,11 @@ export const MenuSelectionStep = ({ form }: MenuSelectionStepProps) => {
                   <Textarea
                     placeholder="Tell us about any specific proteins or preparations you'd like..."
                     className="min-h-[80px] neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                      }
+                    }}
                     {...field}
                   />
                 </FormControl>
@@ -308,6 +313,11 @@ export const MenuSelectionStep = ({ form }: MenuSelectionStepProps) => {
                   <Input
                     placeholder="e.g., 3 vegetarian, 1 gluten-free"
                     className="h-12 text-base neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                      }
+                    }}
                     {...field}
                   />
                 </FormControl>

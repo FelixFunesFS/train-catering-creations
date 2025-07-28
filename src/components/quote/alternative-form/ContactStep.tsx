@@ -53,6 +53,11 @@ export const ContactStep = ({ form }: ContactStepProps) => {
                   <Input
                     placeholder="Enter your full name"
                     className="h-12 text-base neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                      }
+                    }}
                     {...field}
                   />
                 </FormControl>
@@ -75,6 +80,11 @@ export const ContactStep = ({ form }: ContactStepProps) => {
                     type="email"
                     placeholder="your.email@example.com"
                     className="h-12 text-base neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                      }
+                    }}
                     {...field}
                   />
                 </FormControl>
@@ -97,6 +107,11 @@ export const ContactStep = ({ form }: ContactStepProps) => {
                     type="tel"
                     placeholder="(555) 123-4567"
                     className="h-12 text-base neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                      }
+                    }}
                     {...field}
                   />
                 </FormControl>

@@ -119,6 +119,11 @@ export const ServiceSelectionStep = ({ form }: ServiceSelectionStepProps) => {
                       <Input
                         type="time"
                         className="h-12 text-base neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                          }
+                        }}
                         {...field}
                       />
                     </FormControl>
@@ -167,6 +172,11 @@ export const ServiceSelectionStep = ({ form }: ServiceSelectionStepProps) => {
                           <Textarea
                             placeholder="Describe your wait staff needs (e.g., number of servers, specific duties, dress code)"
                             className="min-h-[100px] neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30"
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault();
+                              }
+                            }}
                             {...field}
                           />
                         </FormControl>
@@ -187,6 +197,11 @@ export const ServiceSelectionStep = ({ form }: ServiceSelectionStepProps) => {
                           <Input
                             placeholder="e.g., main dining room, outdoor patio, cocktail area"
                             className="h-12 text-base neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30"
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                              }
+                            }}
                             {...field}
                           />
                         </FormControl>

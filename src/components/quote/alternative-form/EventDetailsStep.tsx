@@ -66,6 +66,11 @@ export const EventDetailsStep = ({ form }: EventDetailsStepProps) => {
                     <Input
                       placeholder="e.g., Sarah's 30th Birthday"
                       className="h-12 text-base neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                        }
+                      }}
                       {...field}
                     />
                   </FormControl>
@@ -117,6 +122,11 @@ export const EventDetailsStep = ({ form }: EventDetailsStepProps) => {
                       min="1"
                       placeholder="25"
                       className="h-12 text-base neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                        }
+                      }}
                       {...field}
                       onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
                     />
@@ -153,6 +163,11 @@ export const EventDetailsStep = ({ form }: EventDetailsStepProps) => {
                       type="date"
                       min={new Date().toISOString().split('T')[0]}
                       className="h-12 text-base neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                        }
+                      }}
                       {...field}
                     />
                   </FormControl>
@@ -174,6 +189,11 @@ export const EventDetailsStep = ({ form }: EventDetailsStepProps) => {
                     <Input
                       type="time"
                       className="h-12 text-base neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                        }
+                      }}
                       {...field}
                     />
                   </FormControl>
@@ -195,6 +215,11 @@ export const EventDetailsStep = ({ form }: EventDetailsStepProps) => {
                     <Input
                       placeholder="Address or venue name"
                       className="h-12 text-base neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                        }
+                      }}
                       {...field}
                     />
                   </FormControl>
@@ -216,6 +241,11 @@ export const EventDetailsStep = ({ form }: EventDetailsStepProps) => {
                     <Input
                       placeholder="e.g., Navy Blue & Gold, Pink & White"
                       className="h-12 text-base neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                        }
+                      }}
                       {...field}
                     />
                   </FormControl>
