@@ -16,7 +16,7 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline font-medium focus-visible-enhanced",
         cta: "bg-gradient-ruby-primary hover:bg-gradient-ruby-accent text-white shadow-glow hover:shadow-glow-strong transform hover:scale-[1.02] font-bold",
         "cta-outline": "border-2 border-primary text-primary bg-transparent hover:bg-gradient-ruby-primary hover:text-white neumorphic-card-2 hover:shadow-glow transform hover:scale-[1.02] font-bold",
-        "cta-white": "border-2 border-white !text-foreground bg-white hover:bg-white/90 hover:!text-foreground neumorphic-card-1 transform hover:scale-[1.01] font-bold shadow-lg",
+        "cta-white": "border-2 border-white text-foreground bg-white hover:bg-white/90 hover:text-primary neumorphic-card-1 transform hover:scale-[1.01] font-bold shadow-lg",
         "cta-secondary": "bg-gradient-ruby-subtle hover:bg-gradient-ruby-primary hover:text-white text-foreground hover:shadow-glow transform hover:scale-[1.01] font-bold",
         "cta-gold": "bg-gradient-to-r from-gold to-gold-dark text-gold-foreground shadow-gold-glow hover:shadow-gold-glow transform hover:scale-[1.02] font-bold",
         accent: "bg-accent text-accent-foreground hover:bg-accent/80 neumorphic-card-2",
