@@ -1,47 +1,97 @@
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { ResponsiveWrapper } from "@/components/ui/responsive-wrapper";
+import { supabase } from "@/integrations/supabase/client";
 
-export default function TestEmail() {
+const TestEmail = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [isAuthLoading, setIsAuthLoading] = useState(false);
   const [fromEmail, setFromEmail] = useState("soultrainseatery@gmail.com");
   const [toEmail, setToEmail] = useState("felixfunes2001.ff@gmail.com");
   const { toast } = useToast();
 
+  const handleGmailAuth = async () => {
+    setIsAuthLoading(true);
+    try {
+      console.log("Initiating Gmail OAuth...");
+      
+      const { data, error } = await supabase.functions.invoke('gmail-oauth-init');
+
+      if (error) {
+        console.error("OAuth init error:", error);
+        throw error;
+      }
+
+      if (data?.authUrl) {
+        // Open OAuth URL in a new window
+        const authWindow = window.open(
+          data.authUrl,
+          'gmail-auth',
+          'width=500,height=600,scrollbars=yes,resizable=yes'
+        );
+
+        if (authWindow) {
+          // Check if the window is closed (user completed auth)
+          const checkClosed = setInterval(() => {
+            if (authWindow.closed) {
+              clearInterval(checkClosed);
+              toast({
+                title: "Authorization Complete",
+                description: "Gmail account has been connected. You can now send emails.",
+              });
+            }
+          }, 1000);
+        }
+      } else {
+        throw new Error("No authorization URL received");
+      }
+    } catch (error: any) {
+      console.error("Error initiating Gmail auth:", error);
+      toast({
+        title: "Authorization Error",
+        description: `Failed to initiate Gmail authorization: ${error.message}`,
+        variant: "destructive",
+      });
+    } finally {
+      setIsAuthLoading(false);
+    }
+  };
+
   const sendTestEmail = async () => {
     setIsLoading(true);
-    
     try {
-      console.log('🧪 Testing email delivery...');
+      console.log("Sending test email...");
       
       const { data, error } = await supabase.functions.invoke('send-test-email', {
         body: {
           from: fromEmail,
-          to: toEmail
-        }
+          to: toEmail,
+        },
       });
 
       if (error) {
+        console.error("Supabase function error:", error);
         throw error;
       }
 
-      console.log('✅ Test email response:', data);
-      
-      toast({
-        title: "Test Email Sent!",
-        description: `Test email sent from ${fromEmail} to ${toEmail}`,
-      });
+      console.log("Test email response:", data);
 
+      if (data?.success) {
+        toast({
+          title: "Success!",
+          description: `Test email sent successfully from ${fromEmail} to ${toEmail}`,
+        });
+      } else {
+        throw new Error(data?.error || "Unknown error occurred");
+      }
     } catch (error: any) {
-      console.error('❌ Test email failed:', error);
-      
+      console.error("Error sending test email:", error);
       toast({
-        title: "Email Test Failed",
-        description: error.message || "Failed to send test email",
+        title: "Error",
+        description: `Failed to send test email: ${error.message}`,
         variant: "destructive",
       });
     } finally {
@@ -50,59 +100,74 @@ export default function TestEmail() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background pt-20">
-      <ResponsiveWrapper>
-        <div className="max-w-2xl mx-auto">
-          <Card className="neumorphic-card-1 border-0">
-            <CardHeader>
-              <CardTitle className="text-2xl font-elegant text-center">
-                Email Delivery Test
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium">From Email:</label>
-                  <Input
-                    value={fromEmail}
-                    onChange={(e) => setFromEmail(e.target.value)}
-                    placeholder="sender@domain.com"
-                    className="mt-1"
-                  />
-                </div>
-                
-                <div>
-                  <label className="text-sm font-medium">To Email:</label>
-                  <Input
-                    value={toEmail}
-                    onChange={(e) => setToEmail(e.target.value)}
-                    placeholder="recipient@domain.com"
-                    className="mt-1"
-                  />
-                </div>
-              </div>
+    <div className="container mx-auto py-8 space-y-6">
+      <Card className="max-w-2xl mx-auto">
+        <CardHeader>
+          <CardTitle>Gmail OAuth Setup</CardTitle>
+          <CardDescription>
+            First, authorize Gmail access to enable email sending.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button 
+            onClick={handleGmailAuth} 
+            disabled={isAuthLoading}
+            className="w-full mb-4"
+          >
+            {isAuthLoading ? "Authorizing..." : "Authorize Gmail Access"}
+          </Button>
+          <p className="text-sm text-muted-foreground">
+            This will open a new window to authorize Gmail access for sending emails from your account.
+          </p>
+        </CardContent>
+      </Card>
 
-              <Button
-                onClick={sendTestEmail}
-                disabled={isLoading || !fromEmail || !toEmail}
-                className="w-full neumorphic-button-primary"
-              >
-                {isLoading ? 'Sending Test Email...' : 'Send Test Email'}
-              </Button>
-
-              <div className="text-sm text-muted-foreground bg-muted/30 p-4 rounded-lg">
-                <h4 className="font-medium mb-2">Test Details:</h4>
-                <ul className="space-y-1">
-                  <li>• This will test the Gmail SMTP configuration</li>
-                  <li>• Check console logs for detailed error information</li>
-                  <li>• Verify both sender and recipient receive emails</li>
-                  <li>• Check spam folders if emails don't arrive</li>
-                </ul>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </ResponsiveWrapper>
+      <Card className="max-w-2xl mx-auto">
+        <CardHeader>
+          <CardTitle>Test Email System</CardTitle>
+          <CardDescription>
+            Send a test email to verify the email delivery system is working correctly.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="from">From Email</Label>
+            <Input
+              id="from"
+              type="email"
+              value={fromEmail}
+              onChange={(e) => setFromEmail(e.target.value)}
+              placeholder="sender@example.com"
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="to">To Email</Label>
+            <Input
+              id="to"
+              type="email"
+              value={toEmail}
+              onChange={(e) => setToEmail(e.target.value)}
+              placeholder="recipient@example.com"
+            />
+          </div>
+          
+          <Button 
+            onClick={sendTestEmail} 
+            disabled={isLoading || !fromEmail || !toEmail}
+            className="w-full"
+          >
+            {isLoading ? "Sending..." : "Send Test Email"}
+          </Button>
+          
+          <p className="text-sm text-muted-foreground">
+            This will send a test email using the Gmail API to verify 
+            that email delivery is working correctly.
+          </p>
+        </CardContent>
+      </Card>
     </div>
   );
-}
+};
+
+export default TestEmail;
