@@ -19,11 +19,15 @@ const TestEmail = () => {
   const checkTokenStatus = async () => {
     setIsCheckingTokens(true);
     try {
+      console.log("Checking token status for:", fromEmail);
+      
       const { data, error } = await supabase
         .from('gmail_tokens')
         .select('id, email, expires_at')
         .eq('email', fromEmail)
         .maybeSingle();
+
+      console.log("Token query result:", { data, error });
 
       if (error) {
         console.error("Error checking token status:", error);
@@ -31,9 +35,21 @@ const TestEmail = () => {
       } else if (data) {
         const expiresAt = new Date(data.expires_at);
         const now = new Date();
-        setHasTokens(expiresAt > now);
+        console.log("Token expires at:", expiresAt.toISOString());
+        console.log("Current time:", now.toISOString());
+        console.log("Is token valid?", expiresAt > now);
+        
+        const isValid = expiresAt > now;
+        setHasTokens(isValid);
+        
+        if (isValid) {
+          toast({
+            title: "Gmail Connected",
+            description: "Gmail authorization is valid and ready to send emails.",
+          });
+        }
       } else {
-        // No tokens found for this email
+        console.log("No tokens found for this email");
         setHasTokens(false);
       }
     } catch (error) {
