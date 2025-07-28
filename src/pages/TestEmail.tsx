@@ -23,13 +23,17 @@ const TestEmail = () => {
         .from('gmail_tokens')
         .select('id, email, expires_at')
         .eq('email', fromEmail)
-        .single();
+        .maybeSingle();
 
-      if (data && !error) {
+      if (error) {
+        console.error("Error checking token status:", error);
+        setHasTokens(false);
+      } else if (data) {
         const expiresAt = new Date(data.expires_at);
         const now = new Date();
         setHasTokens(expiresAt > now);
       } else {
+        // No tokens found for this email
         setHasTokens(false);
       }
     } catch (error) {
