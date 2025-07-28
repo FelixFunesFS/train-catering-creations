@@ -1,17 +1,48 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 
 const TestEmail = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isAuthLoading, setIsAuthLoading] = useState(false);
+  const [isCheckingTokens, setIsCheckingTokens] = useState(false);
+  const [hasTokens, setHasTokens] = useState(false);
   const [fromEmail, setFromEmail] = useState("soultrainseatery@gmail.com");
   const [toEmail, setToEmail] = useState("felixfunes2001.ff@gmail.com");
   const { toast } = useToast();
+
+  const checkTokenStatus = async () => {
+    setIsCheckingTokens(true);
+    try {
+      const { data, error } = await supabase
+        .from('gmail_tokens')
+        .select('id, email, expires_at')
+        .eq('email', fromEmail)
+        .single();
+
+      if (data && !error) {
+        const expiresAt = new Date(data.expires_at);
+        const now = new Date();
+        setHasTokens(expiresAt > now);
+      } else {
+        setHasTokens(false);
+      }
+    } catch (error) {
+      console.error("Error checking token status:", error);
+      setHasTokens(false);
+    } finally {
+      setIsCheckingTokens(false);
+    }
+  };
+
+  useEffect(() => {
+    checkTokenStatus();
+  }, [fromEmail]);
 
   const handleGmailAuth = async () => {
     setIsAuthLoading(true);
@@ -38,10 +69,14 @@ const TestEmail = () => {
           const checkClosed = setInterval(() => {
             if (authWindow.closed) {
               clearInterval(checkClosed);
-              toast({
-                title: "Authorization Complete",
-                description: "Gmail account has been connected. You can now send emails.",
-              });
+              // Re-check token status after auth
+              setTimeout(() => {
+                checkTokenStatus();
+                toast({
+                  title: "Authorization Complete",
+                  description: "Gmail account has been connected. You can now send emails.",
+                });
+              }, 1000);
             }
           }, 1000);
         }
@@ -103,18 +138,31 @@ const TestEmail = () => {
     <div className="container mx-auto py-8 space-y-6">
       <Card className="max-w-2xl mx-auto">
         <CardHeader>
-          <CardTitle>Gmail OAuth Setup</CardTitle>
+          <CardTitle className="flex items-center justify-between">
+            Gmail OAuth Setup
+            {isCheckingTokens ? (
+              <Badge variant="secondary">Checking...</Badge>
+            ) : hasTokens ? (
+              <Badge variant="default">Connected</Badge>
+            ) : (
+              <Badge variant="destructive">Not Connected</Badge>
+            )}
+          </CardTitle>
           <CardDescription>
-            First, authorize Gmail access to enable email sending.
+            {hasTokens 
+              ? "Gmail is connected and ready to send emails."
+              : "First, authorize Gmail access to enable email sending."
+            }
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Button 
             onClick={handleGmailAuth} 
-            disabled={isAuthLoading}
+            disabled={isAuthLoading || isCheckingTokens}
             className="w-full mb-4"
+            variant={hasTokens ? "outline" : "default"}
           >
-            {isAuthLoading ? "Authorizing..." : "Authorize Gmail Access"}
+            {isAuthLoading ? "Authorizing..." : hasTokens ? "Re-authorize Gmail" : "Authorize Gmail Access"}
           </Button>
           <p className="text-sm text-muted-foreground">
             This will open a new window to authorize Gmail access for sending emails from your account.
@@ -154,11 +202,17 @@ const TestEmail = () => {
           
           <Button 
             onClick={sendTestEmail} 
-            disabled={isLoading || !fromEmail || !toEmail}
+            disabled={isLoading || !fromEmail || !toEmail || !hasTokens || isCheckingTokens}
             className="w-full"
           >
             {isLoading ? "Sending..." : "Send Test Email"}
           </Button>
+          
+          {!hasTokens && (
+            <p className="text-sm text-orange-600 dark:text-orange-400">
+              ⚠️ Gmail authorization required before sending emails.
+            </p>
+          )}
           
           <p className="text-sm text-muted-foreground">
             This will send a test email using the Gmail API to verify 
