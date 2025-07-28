@@ -41,7 +41,7 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const projectId = supabaseUrl?.split('//')[1]?.split('.')[0];
-    const redirectUri = `https://${projectId}.functions.supabase.co/gmail/oauth/callback`;
+    const redirectUri = `https://${projectId}.functions.supabase.co/gmail-oauth-callback`;
 
     // Exchange code for tokens
     const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
