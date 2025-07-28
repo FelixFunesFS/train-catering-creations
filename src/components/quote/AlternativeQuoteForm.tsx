@@ -38,6 +38,8 @@ export const AlternativeQuoteForm = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [estimatedCost, setEstimatedCost] = useState<number | null>(null);
   const [submittedQuoteId, setSubmittedQuoteId] = useState<string | null>(null);
+  const [isReadyToSubmit, setIsReadyToSubmit] = useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const { toast } = useToast();
 
   const { ref: formRef, isVisible: formVisible } = useScrollAnimation({
@@ -179,9 +181,21 @@ export const AlternativeQuoteForm = () => {
   };
 
   const onSubmit = async (data: FormData) => {
-    // Only submit if we're on the final step (review step)
+    console.log('🚀 onSubmit called with currentStep:', currentStep, 'isReadyToSubmit:', isReadyToSubmit);
+    
+    // Multiple layers of protection against unwanted submission
     if (currentStep !== STEPS.length - 1) {
-      console.log('🚫 Blocking submission - not on review step. Current step:', currentStep);
+      console.log('🚫 GUARD 1: Blocking submission - not on review step. Current step:', currentStep);
+      return;
+    }
+    
+    if (!isReadyToSubmit) {
+      console.log('🚫 GUARD 2: Blocking submission - not ready to submit');
+      return;
+    }
+    
+    if (isSubmitting) {
+      console.log('🚫 GUARD 3: Blocking submission - already submitting');
       return;
     }
     
@@ -439,15 +453,25 @@ export const AlternativeQuoteForm = () => {
         <CardContent className="p-6 md:p-8">
           <FormProvider {...form}>
             <form onSubmit={(e) => {
-              // Only allow submission on the final review step
+              console.log('🚨 Form onSubmit triggered:', { currentStep, isReadyToSubmit, isSubmitting });
+              
+              // Prevent all automatic form submissions
+              e.preventDefault();
+              e.stopPropagation();
+              
+              // Only allow manual submission on final step when ready
               if (currentStep !== STEPS.length - 1) {
-                console.log('🚫 Preventing form submission - not on final step');
-                e.preventDefault();
-                return;
+                console.log('🚫 FORM GUARD: Preventing submission - not on final step');
+                return false;
               }
-              console.log('📝 Form submit event triggered on final step');
-              console.log('🎯 React Hook Form handleSubmit called');
-              form.handleSubmit(onSubmit)(e);
+              
+              if (!isReadyToSubmit) {
+                console.log('🚫 FORM GUARD: Preventing submission - not ready to submit');
+                return false;
+              }
+              
+              console.log('✅ Form submission allowed - calling handleSubmit');
+              return form.handleSubmit(onSubmit)(e);
             }} className="space-y-8">
               {renderStepContent()}
             
@@ -467,21 +491,51 @@ export const AlternativeQuoteForm = () => {
               </Button>
               
               {currentStep === STEPS.length - 1 ? (
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="flex items-center gap-2 neumorphic-button-primary"
-                  onClick={(e) => {
-                    console.log('🔴 Submit button clicked!');
-                    console.log('🔍 Form values:', form.getValues());
-                    console.log('🚨 Form errors:', form.formState.errors);
-                    console.log('✅ Form valid:', form.formState.isValid);
-                    console.log('🎯 Is submitting:', isSubmitting);
-                  }}
-                >
-                  {isSubmitting ? 'Submitting...' : 'Submit Quote Request'}
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
+                <div className="flex flex-col gap-3">
+                  {!isReadyToSubmit ? (
+                    <Button
+                      type="button"
+                      onClick={() => {
+                        console.log('📋 User clicked "Review & Confirm" button');
+                        setIsReadyToSubmit(true);
+                      }}
+                      className="flex items-center gap-2 neumorphic-button-primary bg-gradient-primary hover:shadow-glow transition-all duration-300"
+                    >
+                      Review & Confirm Quote Request
+                      <Check className="h-4 w-4" />
+                    </Button>
+                  ) : (
+                    <Button
+                      type="button"
+                      onClick={() => {
+                        console.log('🚀 User clicked "Submit Quote Request" button');
+                        if (isSubmitting) {
+                          console.log('🚫 Already submitting, ignoring click');
+                          return;
+                        }
+                        form.handleSubmit(onSubmit)();
+                      }}
+                      disabled={isSubmitting}
+                      className="flex items-center gap-2 neumorphic-button-primary bg-gradient-primary hover:shadow-glow transition-all duration-300"
+                    >
+                      {isSubmitting ? "Submitting..." : "Submit Quote Request"}
+                      <Sparkles className="h-4 w-4" />
+                    </Button>
+                  )}
+                  {isReadyToSubmit && !isSubmitting && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        console.log('📝 User clicked "Edit Details" button');
+                        setIsReadyToSubmit(false);
+                      }}
+                      className="text-xs"
+                    >
+                      Edit Details
+                    </Button>
+                  )}
+                </div>
               ) : (
                 <Button
                   type="button"
