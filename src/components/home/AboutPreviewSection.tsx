@@ -138,34 +138,14 @@ export const AboutPreviewSection = () => {
 
           {/* Images */}
           <div className="relative order-1 lg:order-2">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3">
               {/* Main Chef Image */}
-              <div className="col-span-2">
-                <Card className="overflow-hidden border-2 border-ruby/20">
-                  <OptimizedImage
-                    src="/lovable-uploads/5f287525-fcce-46b6-9d7b-4d8ce488760f.png"
-                    alt="Chef Train and Tanya Ward in Soul Train's Eatery aprons"
-                    className="w-full aspect-[4/3] object-cover"
-                    disableFilters={true}
-                  />
-                </Card>
-              </div>
-              
-              {/* Kitchen Scene */}
-              <Card className="overflow-hidden border border-border/20">
+              <Card className="overflow-hidden border-2 border-ruby/20">
                 <OptimizedImage
-                  src="/lovable-uploads/36237032-ff09-485e-9a44-179ac279864f.png"
-                  alt="Professional kitchen in action"
+                  src="/lovable-uploads/5f287525-fcce-46b6-9d7b-4d8ce488760f.png"
+                  alt="Chef Train and Tanya Ward in Soul Train's Eatery aprons"
                   className="w-full aspect-[4/3] object-cover"
-                />
-              </Card>
-              
-              {/* Pastry Creation */}
-              <Card className="overflow-hidden border border-border/20">
-                <OptimizedImage
-                  src="/lovable-uploads/1cd54e2e-3991-4795-ad2a-6e8c18fb530f.png"
-                  alt="Tanya's custom dessert creation"
-                  className="w-full aspect-[4/3] object-cover"
+                  disableFilters={true}
                 />
               </Card>
             </div>
