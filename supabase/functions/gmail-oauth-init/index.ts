@@ -17,7 +17,8 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error('GMAIL_CLIENT_ID not configured');
     }
 
-    const redirectUri = `${Deno.env.get('SUPABASE_URL')}/functions/v1/gmail-oauth-callback`;
+    const projectId = Deno.env.get('SUPABASE_URL')?.split('//')[1]?.split('.')[0];
+    const redirectUri = `https://${projectId}.functions.supabase.co/gmail/oauth/callback`;
     
     const authUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
     authUrl.searchParams.set('client_id', clientId);
