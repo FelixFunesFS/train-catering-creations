@@ -1,7 +1,7 @@
 
 import { PageSection } from "@/components/ui/page-section";
 import { NeumorphicCard } from "@/components/ui/neumorphic-card";
-import { NeumorphicButton } from "@/components/ui/neumorphic-button";
+import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
 import { CTASection } from "@/components/ui/cta-section";
 import { ChefHat, Heart, Award, Users, Clock, Star } from "lucide-react";
@@ -42,11 +42,11 @@ const About = () => {
                 <p className="text-sm sm:text-base lg:text-lg text-muted-foreground mb-8 leading-relaxed">
                   What started as a passion for creating memorable meals has grown into a trusted name in catering, known for our authentic flavors, professional service, and genuine Southern hospitality.
                 </p>
-                <NeumorphicButton asChild variant="primary" size="lg">
+                <Button asChild variant="cta" size="lg">
                   <Link to="/gallery#page-header">
                     See Our Work
                   </Link>
-                </NeumorphicButton>
+                </Button>
               </div>
               
               <NeumorphicCard level={3} className="overflow-hidden p-3">

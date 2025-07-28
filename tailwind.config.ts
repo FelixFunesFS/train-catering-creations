@@ -121,8 +121,10 @@ export default {
 				'script': ['Dancing Script', 'cursive']
 			},
 			backgroundImage: {
-				'gradient-primary': 'var(--gradient-primary)',
+				'gradient-primary': 'var(--gradient-ruby-primary)',
 				'gradient-gold': 'var(--gradient-gold)',
+				'gradient-navy': 'var(--gradient-navy)',
+				'gradient-platinum': 'var(--gradient-platinum)',
 				'gradient-hero': 'var(--gradient-hero)',
 				'gradient-card': 'var(--gradient-card)',
 				'gradient-pattern-a': 'var(--gradient-pattern-a)',
