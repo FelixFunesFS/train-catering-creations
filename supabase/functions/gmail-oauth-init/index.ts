@@ -26,6 +26,7 @@ const handler = async (req: Request): Promise<Response> => {
     authUrl.searchParams.set('scope', 'https://www.googleapis.com/auth/gmail.send');
     authUrl.searchParams.set('access_type', 'offline');
     authUrl.searchParams.set('prompt', 'consent');
+    authUrl.searchParams.set('login_hint', 'soultrainseatery@gmail.com');
 
     console.log('Generated OAuth URL:', authUrl.toString());
 
