@@ -2,9 +2,12 @@ import { UseFormReturn } from "react-hook-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { FormField, FormItem, FormLabel, FormControl } from "@/components/ui/form";
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
   Calendar, 
   Clock, 
@@ -104,19 +107,55 @@ export const ReviewStep = ({ form, estimatedCost }: ReviewStepProps) => {
                 Contact Information
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex items-center gap-3">
-                <User className="h-4 w-4 text-muted-foreground" />
-                <span className="font-medium">{formData.contact_name}</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Mail className="h-4 w-4 text-muted-foreground" />
-                <span>{formData.email}</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Phone className="h-4 w-4 text-muted-foreground" />
-                <span>{formData.phone}</span>
-              </div>
+            <CardContent className="space-y-4">
+              <FormField
+                control={form.control}
+                name="contact_name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium flex items-center gap-2">
+                      <User className="h-4 w-4" />
+                      Contact Name
+                    </FormLabel>
+                    <FormControl>
+                      <Input {...field} className="neumorphic-card-1 border-0" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium flex items-center gap-2">
+                      <Mail className="h-4 w-4" />
+                      Email Address
+                    </FormLabel>
+                    <FormControl>
+                      <Input {...field} type="email" className="neumorphic-card-1 border-0" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium flex items-center gap-2">
+                      <Phone className="h-4 w-4" />
+                      Phone Number
+                    </FormLabel>
+                    <FormControl>
+                      <Input {...field} className="neumorphic-card-1 border-0" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </CardContent>
           </Card>
 
@@ -129,35 +168,134 @@ export const ReviewStep = ({ form, estimatedCost }: ReviewStepProps) => {
                 Event Details
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <div>
-                <span className="font-medium text-lg">{formData.event_name}</span>
-                <Badge variant="outline" className="ml-2">
-                  {formatEventType(formData.event_type)}
-                </Badge>
-              </div>
-              <div className="flex items-center gap-3">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                <span>{formatDate(formData.event_date)}</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Clock className="h-4 w-4 text-muted-foreground" />
-                <span>{formatTime(formData.start_time)}</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Users className="h-4 w-4 text-muted-foreground" />
-                <span>{formData.guest_count} guests</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <MapPin className="h-4 w-4 text-muted-foreground" />
-                <span>{formData.location}</span>
-              </div>
-              {formData.theme_colors && (
-                <div className="flex items-center gap-3">
-                  <span className="text-lg">🎨</span>
-                  <span>{formData.theme_colors}</span>
-                </div>
-              )}
+            <CardContent className="space-y-4">
+              <FormField
+                control={form.control}
+                name="event_name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium">Event Name</FormLabel>
+                    <FormControl>
+                      <Input {...field} className="neumorphic-card-1 border-0" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="event_type"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium">Event Type</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="neumorphic-card-1 border-0">
+                          <SelectValue />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="birthday">Birthday Party</SelectItem>
+                        <SelectItem value="corporate">Corporate Event</SelectItem>
+                        <SelectItem value="anniversary">Anniversary</SelectItem>
+                        <SelectItem value="graduation">Graduation</SelectItem>
+                        <SelectItem value="baby-shower">Baby Shower</SelectItem>
+                        <SelectItem value="retirement">Retirement Party</SelectItem>
+                        <SelectItem value="holiday-party">Holiday Party</SelectItem>
+                        <SelectItem value="memorial">Memorial Service</SelectItem>
+                        <SelectItem value="other">Other Event</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="event_date"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium flex items-center gap-2">
+                      <Calendar className="h-4 w-4" />
+                      Event Date
+                    </FormLabel>
+                    <FormControl>
+                      <Input {...field} type="date" className="neumorphic-card-1 border-0" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="start_time"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium flex items-center gap-2">
+                      <Clock className="h-4 w-4" />
+                      Start Time
+                    </FormLabel>
+                    <FormControl>
+                      <Input {...field} type="time" className="neumorphic-card-1 border-0" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="guest_count"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium flex items-center gap-2">
+                      <Users className="h-4 w-4" />
+                      Guest Count
+                    </FormLabel>
+                    <FormControl>
+                      <Input {...field} type="number" min="1" className="neumorphic-card-1 border-0" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="location"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium flex items-center gap-2">
+                      <MapPin className="h-4 w-4" />
+                      Event Location
+                    </FormLabel>
+                    <FormControl>
+                      <Textarea {...field} className="neumorphic-card-1 border-0 min-h-[60px]" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="theme_colors"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium flex items-center gap-2">
+                      <span className="text-lg">🎨</span>
+                      Theme/Event Colors (Optional)
+                    </FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="e.g., Navy blue and gold" className="neumorphic-card-1 border-0" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </CardContent>
           </Card>
         </div>
@@ -174,77 +312,117 @@ export const ReviewStep = ({ form, estimatedCost }: ReviewStepProps) => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div>
-                <span className="font-medium">{formatServiceType(formData.service_type)}</span>
-                {formData.wait_staff_requested && (
-                  <Badge variant="outline" className="ml-2 bg-gold/10 text-gold">
-                    + Wait Staff
-                  </Badge>
+              <FormField
+                control={form.control}
+                name="service_type"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium">Service Type</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="neumorphic-card-1 border-0">
+                          <SelectValue />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="drop-off">Drop-Off Service</SelectItem>
+                        <SelectItem value="full-service">Full-Service Catering</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="wait_staff_requested"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel className="text-sm font-medium">
+                        Wait Staff Service
+                      </FormLabel>
+                    </div>
+                  </FormItem>
+                )}
+              />
+
+              <div className="space-y-3">
+                <h4 className="font-medium text-sm text-muted-foreground">Selected Menu Items</h4>
+                <p className="text-xs text-muted-foreground">
+                  Go back to the Menu Selection step to modify your choices.
+                </p>
+                
+                {getSelectedItems('appetizers').length > 0 && (
+                  <div>
+                    <span className="text-sm font-medium text-muted-foreground">Appetizers:</span>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {getSelectedItems('appetizers').map((item: string) => (
+                        <Badge key={item} variant="secondary" className="text-xs">
+                          {item.replace(/-/g, ' ')}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {formData.primary_protein && formData.primary_protein.length > 0 && (
+                  <div>
+                    <span className="text-sm font-medium text-muted-foreground">Main Protein:</span>
+                    {formData.primary_protein.map((protein: string) => (
+                      <Badge key={protein} variant="secondary" className="ml-2">
+                        {protein.replace(/-/g, ' ')}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+
+                {getSelectedItems('sides').length > 0 && (
+                  <div>
+                    <span className="text-sm font-medium text-muted-foreground">Sides:</span>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {getSelectedItems('sides').map((item: string) => (
+                        <Badge key={item} variant="secondary" className="text-xs">
+                          {item.replace(/-/g, ' ')}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {getSelectedItems('desserts').length > 0 && (
+                  <div>
+                    <span className="text-sm font-medium text-muted-foreground">Desserts:</span>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {getSelectedItems('desserts').map((item: string) => (
+                        <Badge key={item} variant="secondary" className="text-xs">
+                          {item.replace(/-/g, ' ')}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {getSelectedItems('drinks').length > 0 && (
+                  <div>
+                    <span className="text-sm font-medium text-muted-foreground">Beverages:</span>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {getSelectedItems('drinks').map((item: string) => (
+                        <Badge key={item} variant="secondary" className="text-xs">
+                          {item.replace(/-/g, ' ')}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
                 )}
               </div>
-
-              {getSelectedItems('appetizers').length > 0 && (
-                <div>
-                  <span className="text-sm font-medium text-muted-foreground">Appetizers:</span>
-                  <div className="flex flex-wrap gap-1 mt-1">
-                    {getSelectedItems('appetizers').map((item: string) => (
-                      <Badge key={item} variant="secondary" className="text-xs">
-                        {item.replace(/-/g, ' ')}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {formData.primary_protein && formData.primary_protein.length > 0 && (
-                <div>
-                  <span className="text-sm font-medium text-muted-foreground">Main Protein:</span>
-                  {formData.primary_protein.map((protein: string) => (
-                    <Badge key={protein} variant="secondary" className="ml-2">
-                      {protein.replace(/-/g, ' ')}
-                    </Badge>
-                  ))}
-                </div>
-              )}
-
-              {getSelectedItems('sides').length > 0 && (
-                <div>
-                  <span className="text-sm font-medium text-muted-foreground">Sides:</span>
-                  <div className="flex flex-wrap gap-1 mt-1">
-                    {getSelectedItems('sides').map((item: string) => (
-                      <Badge key={item} variant="secondary" className="text-xs">
-                        {item.replace(/-/g, ' ')}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {getSelectedItems('desserts').length > 0 && (
-                <div>
-                  <span className="text-sm font-medium text-muted-foreground">Desserts:</span>
-                  <div className="flex flex-wrap gap-1 mt-1">
-                    {getSelectedItems('desserts').map((item: string) => (
-                      <Badge key={item} variant="secondary" className="text-xs">
-                        {item.replace(/-/g, ' ')}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {getSelectedItems('drinks').length > 0 && (
-                <div>
-                  <span className="text-sm font-medium text-muted-foreground">Beverages:</span>
-                  <div className="flex flex-wrap gap-1 mt-1">
-                    {getSelectedItems('drinks').map((item: string) => (
-                      <Badge key={item} variant="secondary" className="text-xs">
-                        {item.replace(/-/g, ' ')}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
             </CardContent>
           </Card>
 

@@ -54,7 +54,7 @@ const formatQuoteDetails = (quote: QuoteRequest) => {
     if (!arr || !Array.isArray(arr)) return "None selected";
     return arr.length > 0 ? arr.join(", ") : "None selected";
   };
-  const safeString = (value: any): string => value || "Not specified";
+  const safeString = (value: any): string => String(value || "Not specified");
   
   return `
     <h2>New Quote Request - ${quote.event_name}</h2>

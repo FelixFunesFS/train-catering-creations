@@ -9,62 +9,27 @@ import { Separator } from "@/components/ui/separator";
 import { UtensilsCrossed, Heart, Cake, Coffee, Apple } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
+import { getMenuItems, additionalMenuItems, dietaryRestrictions } from "@/data/menuData";
 
 interface MenuSelectionStepProps {
   form: UseFormReturn<any>;
 }
 
+// Get menu items from shared data source
+const menuItems = getMenuItems();
+
+// Extract proteins from entrees
 const PROTEINS = [
-  { id: "bbq-chicken", name: "BBQ Chicken", popular: true },
-  { id: "grilled-salmon", name: "Grilled Salmon", premium: true },
-  { id: "beef-brisket", name: "Beef Brisket", popular: true },
-  { id: "pork-tenderloin", name: "Pork Tenderloin" },
-  { id: "vegetarian-lasagna", name: "Vegetarian Lasagna", vegetarian: true },
-  { id: "grilled-portobello", name: "Grilled Portobello", vegetarian: true },
+  ...menuItems.entrees.filter(item => 
+    ['baked-smoked-chicken', 'barbecue-chicken', 'fried-chicken', 'pulled-pork', 'ribs', 'brisket', 'baked-salmon', 'vegan-lasagna', 'grilled-portobello'].includes(item.id)
+  )
 ];
 
-const APPETIZERS = [
-  { id: "spinach-artichoke-dip", name: "Spinach Artichoke Dip", popular: true },
-  { id: "bruschetta", name: "Bruschetta", vegetarian: true },
-  { id: "chicken-wings", name: "Chicken Wings", popular: true },
-  { id: "shrimp-cocktail", name: "Shrimp Cocktail", premium: true },
-  { id: "cheese-board", name: "Artisan Cheese Board", premium: true },
-  { id: "deviled-eggs", name: "Deviled Eggs" },
-];
-
-const SIDES = [
-  { id: "mac-cheese", name: "Mac & Cheese", popular: true },
-  { id: "roasted-vegetables", name: "Roasted Vegetables", vegetarian: true },
-  { id: "garlic-mashed-potatoes", name: "Garlic Mashed Potatoes", popular: true },
-  { id: "caesar-salad", name: "Caesar Salad" },
-  { id: "coleslaw", name: "Coleslaw" },
-  { id: "rice-pilaf", name: "Rice Pilaf", vegetarian: true },
-];
-
-const DESSERTS = [
-  { id: "chocolate-cake", name: "Chocolate Cake", popular: true },
-  { id: "cheesecake", name: "New York Cheesecake" },
-  { id: "fruit-tart", name: "Seasonal Fruit Tart" },
-  { id: "cookies", name: "Assorted Cookies" },
-  { id: "tiramisu", name: "Tiramisu", premium: true },
-];
-
-const DRINKS = [
-  { id: "iced-tea", name: "Sweet & Unsweet Tea", popular: true },
-  { id: "lemonade", name: "Fresh Lemonade" },
-  { id: "coffee", name: "Coffee Service" },
-  { id: "soft-drinks", name: "Assorted Soft Drinks" },
-  { id: "water", name: "Bottled Water" },
-];
-
-const DIETARY_RESTRICTIONS = [
-  { id: "vegetarian", name: "Vegetarian" },
-  { id: "vegan", name: "Vegan" },
-  { id: "gluten-free", name: "Gluten-Free" },
-  { id: "dairy-free", name: "Dairy-Free" },
-  { id: "nut-free", name: "Nut-Free" },
-  { id: "diabetic-friendly", name: "Diabetic-Friendly" },
-];
+const APPETIZERS = menuItems.appetizers;
+const SIDES = menuItems.sides;
+const DESSERTS = menuItems.desserts;
+const DRINKS = additionalMenuItems.drinks;
+const DIETARY_RESTRICTIONS = dietaryRestrictions;
 
 export const MenuSelectionStep = ({ form }: MenuSelectionStepProps) => {
   const { ref, isVisible } = useScrollAnimation({
@@ -105,19 +70,24 @@ export const MenuSelectionStep = ({ form }: MenuSelectionStepProps) => {
             <div className="flex items-center gap-2">
               {icon}
               <span className="font-medium">{item.name}</span>
-              {item.popular && (
+              {item.isPopular && (
                 <Badge variant="secondary" className="text-xs bg-primary/10 text-primary">
                   Popular
                 </Badge>
               )}
-              {item.premium && (
+              {item.isPremium && (
                 <Badge variant="secondary" className="text-xs bg-gold/10 text-gold">
                   Premium
                 </Badge>
               )}
-              {item.vegetarian && (
+              {item.isVegetarian && (
                 <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">
                   🌱 V
+                </Badge>
+              )}
+              {item.isGlutenFree && (
+                <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700">
+                  GF
                 </Badge>
               )}
             </div>
