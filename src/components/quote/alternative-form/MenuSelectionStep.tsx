@@ -173,8 +173,20 @@ export const MenuSelectionStep = ({ form }: MenuSelectionStepProps) => {
                     placeholder="Tell us about any specific proteins or preparations you'd like..."
                     className="min-h-[80px] neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30"
                     onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
+                      // Prevent any form submission from Enter key
+                      if (e.key === 'Enter') {
                         e.preventDefault();
+                        e.stopPropagation();
+                        // Allow line breaks with Shift+Enter
+                        if (e.shiftKey) {
+                          const textarea = e.target as HTMLTextAreaElement;
+                          const start = textarea.selectionStart;
+                          const end = textarea.selectionEnd;
+                          const value = textarea.value;
+                          const newValue = value.substring(0, start) + '\n' + value.substring(end);
+                          textarea.value = newValue;
+                          textarea.selectionStart = textarea.selectionEnd = start + 1;
+                        }
                       }
                     }}
                     {...field}

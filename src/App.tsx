@@ -18,6 +18,7 @@ import Reviews from "./pages/Reviews";
 import PhotoGallery from "./pages/PhotoGallery";
 import AlternativeGallery from "./pages/AlternativeGallery";
 import FAQ from "./pages/FAQ";
+import TestEmail from "./pages/TestEmail";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsConditions from "./pages/TermsConditions";
 import NotFound from "./pages/NotFound";
@@ -38,6 +39,7 @@ const AppContent = () => {
           <Route path="/gallery" element={<PhotoGallery />} />
           <Route path="/gallery-alt" element={<AlternativeGallery />} />
           <Route path="/faq" element={<FAQ />} />
+          <Route path="/test-email" element={<TestEmail />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-conditions" element={<TermsConditions />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

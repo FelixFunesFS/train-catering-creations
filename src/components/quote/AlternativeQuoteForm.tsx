@@ -439,7 +439,13 @@ export const AlternativeQuoteForm = () => {
         <CardContent className="p-6 md:p-8">
           <FormProvider {...form}>
             <form onSubmit={(e) => {
-              console.log('📝 Form submit event triggered');
+              // Only allow submission on the final review step
+              if (currentStep !== STEPS.length - 1) {
+                console.log('🚫 Preventing form submission - not on final step');
+                e.preventDefault();
+                return;
+              }
+              console.log('📝 Form submit event triggered on final step');
               console.log('🎯 React Hook Form handleSubmit called');
               form.handleSubmit(onSubmit)(e);
             }} className="space-y-8">
