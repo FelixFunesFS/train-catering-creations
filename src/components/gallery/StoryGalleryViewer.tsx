@@ -268,40 +268,32 @@ export const StoryGalleryViewer = ({
               <div className="flex items-center gap-2">
                 <Button
                   size="sm"
-                  variant="outline"
+                  variant="glass-white"
                   onClick={togglePlayPause}
-                  className="bg-white/10 text-white border-white/20 backdrop-blur-sm"
                 >
                   {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
                 </Button>
                 
                 <Button
                   size="sm"
-                  variant="outline"
+                  variant={favorites.has(currentImage.src) ? "default" : "glass-white"}
                   onClick={() => toggleFavorite(currentImage.src)}
-                  className={`border-white/20 backdrop-blur-sm ${
-                    favorites.has(currentImage.src)
-                      ? 'bg-primary text-white'
-                      : 'bg-white/10 text-white'
-                  }`}
                 >
                   <Heart className="h-4 w-4" />
                 </Button>
                 
                 <Button
                   size="sm"
-                  variant="outline"
+                  variant="glass-white"
                   onClick={() => onImageClick(currentImage.src)}
-                  className="bg-white/10 text-white border-white/20 backdrop-blur-sm"
                 >
                   <Maximize2 className="h-4 w-4" />
                 </Button>
                 
                 <Button
                   size="sm"
-                  variant="outline"
+                  variant="glass-white"
                   onClick={handleShare}
-                  className="bg-white/10 text-white border-white/20 backdrop-blur-sm"
                 >
                   <Share2 className="h-4 w-4" />
                 </Button>
@@ -338,10 +330,9 @@ export const StoryGalleryViewer = ({
                 {/* Navigation */}
                 <div className="absolute inset-y-0 left-4 flex items-center">
                   <Button
-                    variant="outline"
+                    variant="glass-white"
                     size="sm"
                     onClick={handlePrevious}
-                    className="bg-white/10 text-white border-white/20 backdrop-blur-sm hover:bg-white/20"
                     disabled={currentIndex === 0}
                   >
                     <ChevronLeft className="h-4 w-4" />
@@ -350,10 +341,9 @@ export const StoryGalleryViewer = ({
                 
                 <div className="absolute inset-y-0 right-4 flex items-center">
                   <Button
-                    variant="outline"
+                    variant="glass-white"
                     size="sm"
                     onClick={handleNext}
-                    className="bg-white/10 text-white border-white/20 backdrop-blur-sm hover:bg-white/20"
                     disabled={currentIndex === totalImages - 1}
                   >
                     <ChevronRight className="h-4 w-4" />

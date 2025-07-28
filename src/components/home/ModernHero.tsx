@@ -228,10 +228,10 @@ export const ModernHero = () => {
         {/* Scroll Indicator */}
         <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20">
           <Button
-            variant="ghost"
+            variant="glass-white"
             size="icon"
             onClick={handleScrollToDiscover}
-            className="bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 animate-bounce"
+            className="animate-bounce"
           >
             <ChevronDown className="h-4 w-4" />
           </Button>
@@ -339,10 +339,10 @@ export const ModernHero = () => {
       {/* Scroll Indicator */}
       <div className="absolute bottom-8 right-8 z-20">
         <Button
-          variant="ghost"
+          variant="glass-white"
           size="icon"
           onClick={handleScrollToDiscover}
-          className="bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 animate-bounce"
+          className="animate-bounce"
         >
           <ChevronDown className="h-5 w-5" />
         </Button>

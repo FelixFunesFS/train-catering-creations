@@ -189,9 +189,8 @@ export const EnhancedImageModal = ({
           <div className="lg:hidden absolute top-4 left-4 right-4 z-20 flex justify-between items-center">
             <div className="flex items-center gap-2">
               <Button 
-                variant="ghost" 
+                variant="modal-control" 
                 size="sm" 
-                className="!text-white hover:!text-white bg-black/70 hover:bg-black/90 border border-white/20 min-h-[44px]"
                 onClick={() => setShowInfo(!showInfo)}
               >
                 <Info className="h-4 w-4" />
@@ -203,17 +202,15 @@ export const EnhancedImageModal = ({
             
             <div className="flex items-center gap-2">
               <Button 
-                variant="ghost" 
+                variant="modal-control" 
                 size="sm" 
-                className="!text-white hover:!text-white bg-black/70 hover:bg-black/90 border border-white/20 min-h-[44px]"
                 onClick={handleShare}
               >
                 <Share2 className="h-4 w-4" />
               </Button>
               <Button 
-                variant="ghost" 
+                variant="modal-control" 
                 size="sm" 
-                className="!text-white hover:!text-white bg-black/70 hover:bg-black/90 border border-white/20 min-h-[44px]"
                 onClick={onClose}
               >
                 <X className="h-4 w-4" />
@@ -224,9 +221,8 @@ export const EnhancedImageModal = ({
           {/* Desktop Controls */}
           <div className="hidden lg:flex absolute top-4 right-4 gap-2 z-20">
             <Button 
-              variant="ghost" 
+              variant="modal-control" 
               size="sm" 
-              className="!text-white hover:!text-white bg-black/70 hover:bg-black/90 border border-white/20"
               onClick={handleZoomOut}
               disabled={zoomLevel <= 1}
             >
@@ -234,9 +230,8 @@ export const EnhancedImageModal = ({
             </Button>
             
             <Button 
-              variant="ghost" 
+              variant="modal-control" 
               size="sm" 
-              className="!text-white hover:!text-white bg-black/70 hover:bg-black/90 border border-white/20"
               onClick={handleZoomIn}
               disabled={zoomLevel >= 3}
             >
@@ -244,36 +239,32 @@ export const EnhancedImageModal = ({
             </Button>
             
             <Button 
-              variant="ghost" 
+              variant="modal-control" 
               size="sm" 
-              className="!text-white hover:!text-white bg-black/70 hover:bg-black/90 border border-white/20"
               onClick={toggleFullscreen}
             >
               <Maximize2 className="h-4 w-4" />
             </Button>
             
             <Button 
-              variant="ghost" 
+              variant="modal-control" 
               size="sm" 
-              className="!text-white hover:!text-white bg-black/70 hover:bg-black/90 border border-white/20"
               onClick={handleShare}
             >
               <Share2 className="h-4 w-4" />
             </Button>
             
             <Button 
-              variant="ghost" 
+              variant="modal-control" 
               size="sm" 
-              className="!text-white hover:!text-white bg-black/70 hover:bg-black/90 border border-white/20"
               onClick={handleDownload}
             >
               <Download className="h-4 w-4" />
             </Button>
             
             <Button 
-              variant="ghost" 
+              variant="modal-control" 
               size="sm" 
-              className="!text-white hover:!text-white bg-black/70 hover:bg-black/90 border border-white/20"
               onClick={onClose}
             >
               <X className="h-4 w-4" />
@@ -287,9 +278,9 @@ export const EnhancedImageModal = ({
           
           {/* Navigation buttons */}
           <Button 
-            variant="ghost" 
+            variant="modal-control" 
             size="sm" 
-            className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 !text-white hover:!text-white z-10 bg-black/70 hover:bg-black/90 border border-white/20 min-h-[44px] min-w-[44px] rounded-xl"
+            className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-10 rounded-xl"
             onClick={handlePrevious}
             disabled={images.length <= 1}
             aria-label="Previous image"
@@ -298,9 +289,9 @@ export const EnhancedImageModal = ({
           </Button>
           
           <Button 
-            variant="ghost" 
+            variant="modal-control" 
             size="sm" 
-            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 !text-white hover:!text-white z-10 bg-black/70 hover:bg-black/90 border border-white/20 min-h-[44px] min-w-[44px] rounded-xl"
+            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-10 rounded-xl"
             onClick={handleNext}
             disabled={images.length <= 1}
             aria-label="Next image"

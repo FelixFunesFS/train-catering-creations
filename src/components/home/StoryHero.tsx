@@ -388,10 +388,10 @@ export const StoryHero = () => {
 
         {/* Controls */}
         <Button
-          variant="ghost"
+          variant="glass-white"
           size="sm"
           onClick={togglePlayPause}
-          className="bg-white/10 text-white border border-white/20 backdrop-blur-sm hover:bg-white/20 focus:ring-2 focus:ring-white/50"
+          className="focus:ring-2 focus:ring-white/50"
           aria-label={isPlaying ? "Pause slideshow" : "Play slideshow"}
         >
           {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}

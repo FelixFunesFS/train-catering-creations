@@ -143,10 +143,9 @@ export const ImmersiveMobileHero = ({
       {/* Play/Pause Control */}
       <div className="absolute top-6 right-4 z-20">
         <Button
-          variant="ghost"
+          variant="glass-white"
           size="sm"
           onClick={togglePlayPause}
-          className="bg-white/10 text-white border border-white/20 backdrop-blur-sm hover:bg-white/20"
         >
           {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
         </Button>
@@ -186,9 +185,8 @@ export const ImmersiveMobileHero = ({
           </Button>
           
           <Button
-            variant="outline"
+            variant="glass-white"
             onClick={() => onImageClick(currentImage.src)}
-            className="bg-white/10 text-white border-white/20 backdrop-blur-sm hover:bg-white/20"
           >
             <Calendar className="h-4 w-4 mr-2" />
             View Full Image
@@ -218,9 +216,8 @@ export const ImmersiveMobileHero = ({
             </p>
             <Button
               size="sm"
-              variant="outline"
+              variant="glass-white"
               onClick={() => setShowDetails(false)}
-              className="bg-white/10 text-white border-white/20"
             >
               Got it
             </Button>

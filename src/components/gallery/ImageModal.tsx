@@ -95,9 +95,9 @@ export const ImageModal = ({
         <div className="relative">
           {/* Close button */}
           <Button 
-            variant="ghost" 
+            variant="modal-control" 
             size="icon" 
-            className="absolute -top-12 right-0 !text-white hover:!text-white z-20 bg-black/90 hover:bg-black/95 border border-white/40 min-h-touch min-w-touch rounded-xl shadow-xl [&>svg]:!w-6 [&>svg]:!h-6"
+            className="absolute -top-12 right-0 z-20 rounded-xl shadow-xl [&>svg]:!w-6 [&>svg]:!h-6"
             onClick={onClose}
             aria-label="Close gallery"
           >
@@ -111,9 +111,9 @@ export const ImageModal = ({
           
           {/* Navigation buttons */}
           <Button 
-            variant="ghost" 
+            variant="modal-control" 
             size="icon" 
-            className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 !text-white hover:!text-white z-10 bg-black/90 hover:bg-black/95 border border-white/40 min-h-touch min-w-touch rounded-xl shadow-xl [&>svg]:!w-6 [&>svg]:!h-6"
+            className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-10 rounded-xl shadow-xl [&>svg]:!w-6 [&>svg]:!h-6"
             onClick={handlePrevious}
             disabled={images.length <= 1}
             aria-label="Previous image"
@@ -122,9 +122,9 @@ export const ImageModal = ({
           </Button>
           
           <Button 
-            variant="ghost" 
+            variant="modal-control" 
             size="icon" 
-            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 !text-white hover:!text-white z-10 bg-black/90 hover:bg-black/95 border border-white/40 min-h-touch min-w-touch rounded-xl shadow-xl [&>svg]:!w-6 [&>svg]:!h-6"
+            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-10 rounded-xl shadow-xl [&>svg]:!w-6 [&>svg]:!h-6"
             onClick={handleNext}
             disabled={images.length <= 1}
             aria-label="Next image"
