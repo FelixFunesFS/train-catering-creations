@@ -112,100 +112,123 @@ const formatQuoteDetails = (quote: QuoteRequest) => {
   `;
 };
 
-async function sendEmailViaSMTP(to: string, subject: string, html: string): Promise<boolean> {
+async function sendEmailViaGmailAPI(to: string, subject: string, html: string): Promise<boolean> {
   try {
-    const gmailUser = Deno.env.get('GMAIL_USER');
-    const gmailPassword = Deno.env.get('GMAIL_APP_PASSWORD');
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
     
-    if (!gmailUser || !gmailPassword) {
-      console.error('Gmail credentials not configured');
+    if (!supabaseUrl || !serviceRoleKey) {
+      console.error('Supabase credentials not configured');
       return false;
     }
 
-    console.log(`Sending email via Gmail SMTP to: ${to}`);
-    
-    // Create SMTP connection
-    const conn = await Deno.connect({
-      hostname: "smtp.gmail.com",
-      port: 587,
-    });
+    // Import Supabase client
+    const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2.52.1');
+    const supabase = createClient(supabaseUrl, serviceRoleKey);
 
-    const encoder = new TextEncoder();
-    const decoder = new TextDecoder();
+    console.log(`Sending email via Gmail API to: ${to}`);
 
-    async function writeAndRead(data: string): Promise<string> {
-      await conn.write(encoder.encode(data));
-      const buffer = new Uint8Array(1024);
-      const n = await conn.read(buffer);
-      return decoder.decode(buffer.subarray(0, n || 0));
+    // Get Gmail tokens from database
+    const { data: tokenData, error: tokenError } = await supabase
+      .from('gmail_tokens')
+      .select('access_token, refresh_token, expires_at')
+      .eq('email', 'soultrainseatery@gmail.com')
+      .single();
+
+    if (tokenError || !tokenData) {
+      console.error('No Gmail tokens found for soultrainseatery@gmail.com:', tokenError);
+      return false;
     }
 
-    // SMTP conversation
-    let response = await writeAndRead("");
-    console.log("Initial response:", response);
+    let accessToken = tokenData.access_token;
+    const refreshToken = tokenData.refresh_token;
+    const expiresAt = new Date(tokenData.expires_at);
 
-    response = await writeAndRead("EHLO smtp.gmail.com\r\n");
-    console.log("EHLO response:", response);
+    // Check if token is expired and refresh if needed
+    if (expiresAt <= new Date()) {
+      console.log('Access token expired, refreshing...');
+      
+      const clientId = Deno.env.get('GMAIL_CLIENT_ID');
+      const clientSecret = Deno.env.get('GMAIL_CLIENT_SECRET');
+      
+      if (!clientId || !clientSecret) {
+        console.error('Gmail OAuth credentials not configured');
+        return false;
+      }
 
-    response = await writeAndRead("STARTTLS\r\n");
-    console.log("STARTTLS response:", response);
+      const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          grant_type: 'refresh_token',
+          refresh_token: refreshToken,
+          client_id: clientId,
+          client_secret: clientSecret,
+        }),
+      });
 
-    // Upgrade to TLS
-    const tlsConn = await Deno.startTls(conn, { hostname: "smtp.gmail.com" });
+      if (!tokenResponse.ok) {
+        console.error('Failed to refresh access token:', await tokenResponse.text());
+        return false;
+      }
 
-    async function tlsWriteAndRead(data: string): Promise<string> {
-      await tlsConn.write(encoder.encode(data));
-      const buffer = new Uint8Array(1024);
-      const n = await tlsConn.read(buffer);
-      return decoder.decode(buffer.subarray(0, n || 0));
+      const tokens = await tokenResponse.json();
+      accessToken = tokens.access_token;
+      
+      // Update token in database
+      const newExpiresAt = new Date(Date.now() + (tokens.expires_in * 1000)).toISOString();
+      await supabase
+        .from('gmail_tokens')
+        .update({
+          access_token: accessToken,
+          expires_at: newExpiresAt,
+        })
+        .eq('email', 'soultrainseatery@gmail.com');
+
+      console.log('Access token refreshed successfully');
     }
 
-    response = await tlsWriteAndRead("EHLO smtp.gmail.com\r\n");
-    console.log("TLS EHLO response:", response);
-
-    response = await tlsWriteAndRead("AUTH LOGIN\r\n");
-    console.log("AUTH LOGIN response:", response);
-
-    // Send username (base64 encoded)
-    const encodedUser = btoa(gmailUser);
-    response = await tlsWriteAndRead(`${encodedUser}\r\n`);
-    console.log("Username response:", response);
-
-    // Send password (base64 encoded)
-    const encodedPassword = btoa(gmailPassword);
-    response = await tlsWriteAndRead(`${encodedPassword}\r\n`);
-    console.log("Password response:", response);
-
-    // Send mail
-    response = await tlsWriteAndRead(`MAIL FROM:<${gmailUser}>\r\n`);
-    console.log("MAIL FROM response:", response);
-
-    response = await tlsWriteAndRead(`RCPT TO:<${to}>\r\n`);
-    console.log("RCPT TO response:", response);
-
-    response = await tlsWriteAndRead("DATA\r\n");
-    console.log("DATA response:", response);
-
-    // Email headers and body
-    const emailContent = [
-      `From: Soul Train's Eatery <${gmailUser}>`,
+    // Create email message
+    const emailMessage = [
+      'Content-Type: text/html; charset=utf-8',
+      'MIME-Version: 1.0',
+      `From: Soul Train's Eatery <soultrainseatery@gmail.com>`,
       `To: ${to}`,
       `Subject: ${subject}`,
-      `Content-Type: text/html; charset=utf-8`,
-      ``,
-      html,
-      ``,
-      `.`
+      '',
+      html
     ].join('\r\n');
 
-    response = await tlsWriteAndRead(emailContent);
-    console.log("Email content response:", response);
+    // Base64url encode the message
+    const base64urlEncode = (str: string) => {
+      return btoa(str)
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=/g, '');
+    };
 
-    response = await tlsWriteAndRead("QUIT\r\n");
-    console.log("QUIT response:", response);
+    const encodedMessage = base64urlEncode(emailMessage);
 
-    tlsConn.close();
-    console.log(`Email sent successfully to: ${to}`);
+    // Send email via Gmail API
+    const gmailResponse = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        raw: encodedMessage,
+      }),
+    });
+
+    if (!gmailResponse.ok) {
+      const errorText = await gmailResponse.text();
+      console.error('Gmail API error:', errorText);
+      return false;
+    }
+
+    const result = await gmailResponse.json();
+    console.log(`Email sent successfully via Gmail API to: ${to}`, result.id);
     return true;
 
   } catch (error) {
@@ -241,7 +264,7 @@ const handler = async (req: Request): Promise<Response> => {
       const businessSubject = `New Quote Request - ${quoteData.event_name} ${quoteData.quote_id ? `(ID: ${quoteData.quote_id})` : ''}`;
       const businessHtml = formatQuoteDetails(quoteData);
       
-      businessSuccess = await sendEmailViaSMTP(
+      businessSuccess = await sendEmailViaGmailAPI(
         "soultrainseatery@gmail.com",
         businessSubject,
         businessHtml
@@ -297,7 +320,7 @@ const handler = async (req: Request): Promise<Response> => {
         </div>
       `;
 
-      customerSuccess = await sendEmailViaSMTP(
+      customerSuccess = await sendEmailViaGmailAPI(
         quoteData.email,
         customerSubject,
         customerHtml
