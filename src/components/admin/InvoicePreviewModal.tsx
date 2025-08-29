@@ -19,6 +19,7 @@ import { convertMenuIdToReadableText, createMealBundleDescription } from '@/util
 
 interface LineItem {
   id?: string;
+  title: string;
   description: string;
   category: string;
   quantity: number;
@@ -119,6 +120,7 @@ export function InvoicePreviewModal({
     if (proteins.length > 0) {
       items.push({
         id: 'meal-package',
+        title: 'Meals',
         description: createMealBundleDescription(proteins, sides.slice(0, 2), drinks.slice(0, 1), quote.guest_count),
         category: 'meal',
         quantity: quote.guest_count,
@@ -132,7 +134,8 @@ export function InvoicePreviewModal({
       const appetizerText = quote.appetizers.map(convertMenuIdToReadableText).join(', ');
       items.push({
         id: 'appetizers',
-        description: `Appetizers: ${appetizerText} for ${quote.guest_count} guests`,
+        title: 'Appetizers',
+        description: `${appetizerText} for ${quote.guest_count} guests`,
         category: 'appetizer',
         quantity: 1,
         unit_price: 0,
@@ -146,7 +149,8 @@ export function InvoicePreviewModal({
       const sidesText = additionalSides.map(convertMenuIdToReadableText).join(', ');
       items.push({
         id: 'additional-sides',
-        description: `Additional Sides: ${sidesText} for ${quote.guest_count} guests`,
+        title: 'Additional Sides',
+        description: `${sidesText} for ${quote.guest_count} guests`,
         category: 'side',
         quantity: 1,
         unit_price: 0,
@@ -159,7 +163,8 @@ export function InvoicePreviewModal({
       const dessertText = quote.desserts.map(convertMenuIdToReadableText).join(', ');
       items.push({
         id: 'desserts',
-        description: `Desserts: ${dessertText} for ${quote.guest_count} guests`,
+        title: 'Desserts',
+        description: `${dessertText} for ${quote.guest_count} guests`,
         category: 'dessert',
         quantity: 1,
         unit_price: 0,
@@ -173,7 +178,8 @@ export function InvoicePreviewModal({
       const drinksText = additionalDrinks.map(convertMenuIdToReadableText).join(', ');
       items.push({
         id: 'additional-beverages',
-        description: `Additional Beverages: ${drinksText} for ${quote.guest_count} guests`,
+        title: 'Additional Beverages',
+        description: `${drinksText} for ${quote.guest_count} guests`,
         category: 'drink',
         quantity: 1,
         unit_price: 0,
@@ -187,7 +193,8 @@ export function InvoicePreviewModal({
       const restrictionsText = quote.dietary_restrictions.map(convertMenuIdToReadableText).join(', ');
       items.push({
         id: 'dietary-accommodations',
-        description: `Dietary Accommodations: ${restrictionsText} options for ${restrictionCount} guests`,
+        title: 'Dietary Accommodations',
+        description: `${restrictionsText} options for ${restrictionCount} guests`,
         category: 'dietary',
         quantity: 1,
         unit_price: 0,
@@ -212,6 +219,7 @@ export function InvoicePreviewModal({
     
     items.push({
       id: 'service',
+      title: quote.service_type === 'drop-off' ? 'Drop-off Service' : 'Full Service',
       description: `${serviceDescription} for ${quote.guest_count} guests`,
       category: 'service',
       quantity: 1,
@@ -244,7 +252,8 @@ export function InvoicePreviewModal({
       
       items.push({
         id: 'equipment-rental',
-        description: `Equipment Rental: ${equipmentText.charAt(0).toUpperCase() + equipmentText.slice(1)}`,
+        title: 'Equipment Rental',
+        description: `${equipmentText.charAt(0).toUpperCase() + equipmentText.slice(1)}`,
         category: 'equipment',
         quantity: 1,
         unit_price: 0,
@@ -296,7 +305,8 @@ export function InvoicePreviewModal({
   const handleAddCustomItem = () => {
     const newItem: LineItem = {
       id: `custom-${Date.now()}`,
-      description: 'Custom Item',
+      title: 'Custom Item',
+      description: 'Custom Item Description',
       category: 'custom',
       quantity: 1,
       unit_price: 0,
@@ -348,9 +358,9 @@ export function InvoicePreviewModal({
         name: 'Wedding Basic Package',
         service_type: 'plated',
         default_items: [
-          { description: 'Appetizer Service', category: 'appetizer', quantity: 1, unit_price: 500, total_price: 500 },
-          { description: 'Main Course Service', category: 'protein', quantity: 1, unit_price: 1500, total_price: 1500 },
-          { description: 'Wedding Cake Service', category: 'dessert', quantity: 1, unit_price: 750, total_price: 750 }
+          { title: 'Appetizers', description: 'Appetizer Service', category: 'appetizer', quantity: 1, unit_price: 500, total_price: 500 },
+          { title: 'Main Course', description: 'Main Course Service', category: 'protein', quantity: 1, unit_price: 1500, total_price: 1500 },
+          { title: 'Wedding Cake', description: 'Wedding Cake Service', category: 'dessert', quantity: 1, unit_price: 750, total_price: 750 }
         ],
         default_discount: 0
       },
@@ -358,9 +368,9 @@ export function InvoicePreviewModal({
         name: 'Corporate Lunch Package',
         service_type: 'buffet',
         default_items: [
-          { description: 'Buffet Setup', category: 'service', quantity: 1, unit_price: 300, total_price: 300 },
-          { description: 'Main Proteins', category: 'protein', quantity: 1, unit_price: 800, total_price: 800 },
-          { description: 'Sides Selection', category: 'side', quantity: 1, unit_price: 400, total_price: 400 }
+          { title: 'Buffet Setup', description: 'Buffet Setup', category: 'service', quantity: 1, unit_price: 300, total_price: 300 },
+          { title: 'Main Proteins', description: 'Main Proteins', category: 'protein', quantity: 1, unit_price: 800, total_price: 800 },
+          { title: 'Sides Selection', description: 'Sides Selection', category: 'side', quantity: 1, unit_price: 400, total_price: 400 }
         ],
         default_discount: 10
       }
@@ -653,7 +663,14 @@ export function InvoicePreviewModal({
                         <div className="flex items-start justify-between">
                           <div className="flex-1 space-y-2">
                             {isEditing ? (
-                              <div className="grid grid-cols-4 gap-3">
+                              <div className="grid grid-cols-5 gap-3">
+                                <div>
+                                  <Label>Title</Label>
+                                  <Input
+                                    value={item.title}
+                                    onChange={(e) => handleEditItem(itemId, 'title', e.target.value)}
+                                  />
+                                </div>
                                 <div>
                                   <Label>Description</Label>
                                   <Input
@@ -686,9 +703,9 @@ export function InvoicePreviewModal({
                                 </div>
                               </div>
                             ) : (
-                              <div className="grid grid-cols-4 gap-3 items-center">
+                              <div className="grid grid-cols-5 gap-3 items-center">
                                 <div>
-                                  <div className="font-medium">{item.description}</div>
+                                  <div className="font-bold text-foreground">{item.title}</div>
                                   <Badge variant="secondary" className="text-xs">
                                     {item.category}
                                   </Badge>
@@ -697,6 +714,9 @@ export function InvoicePreviewModal({
                                       Modified
                                     </Badge>
                                   )}
+                                </div>
+                                <div className="text-sm text-muted-foreground">
+                                  {item.description}
                                 </div>
                                 <div className="text-center">{item.quantity}</div>
                                 <div className="text-center">{formatCurrency(item.unit_price)}</div>

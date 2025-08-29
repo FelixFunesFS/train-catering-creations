@@ -124,6 +124,7 @@ serve(async (req) => {
     
     if (proteins.length > 0) {
       lineItems.push({
+        title: 'Meals',
         description: createMealBundleDescription(proteins, sides.slice(0, 2), drinks.slice(0, 1), quoteData.guest_count),
         category: 'meal',
         quantity: quoteData.guest_count,
@@ -137,7 +138,8 @@ serve(async (req) => {
     if (quoteData.appetizers && Array.isArray(quoteData.appetizers) && quoteData.appetizers.length > 0) {
       const appetizerText = quoteData.appetizers.map(convertMenuIdToReadableText).join(', ');
       lineItems.push({
-        description: `Appetizers: ${appetizerText} for ${quoteData.guest_count} guests`,
+        title: 'Appetizers',
+        description: `${appetizerText} for ${quoteData.guest_count} guests`,
         category: 'appetizer',
         quantity: 1,
         unit_price: 0,
@@ -151,7 +153,8 @@ serve(async (req) => {
       const additionalSides = sides.slice(2);
       const sidesText = additionalSides.map(convertMenuIdToReadableText).join(', ');
       lineItems.push({
-        description: `Additional Sides: ${sidesText} for ${quoteData.guest_count} guests`,
+        title: 'Additional Sides',
+        description: `${sidesText} for ${quoteData.guest_count} guests`,
         category: 'side',
         quantity: 1,
         unit_price: 0,
@@ -164,7 +167,8 @@ serve(async (req) => {
     if (quoteData.desserts && Array.isArray(quoteData.desserts) && quoteData.desserts.length > 0) {
       const dessertText = quoteData.desserts.map(convertMenuIdToReadableText).join(', ');
       lineItems.push({
-        description: `Desserts: ${dessertText} for ${quoteData.guest_count} guests`,
+        title: 'Desserts',
+        description: `${dessertText} for ${quoteData.guest_count} guests`,
         category: 'dessert',
         quantity: 1,
         unit_price: 0,
@@ -178,7 +182,8 @@ serve(async (req) => {
       const additionalDrinks = drinks.slice(1);
       const drinksText = additionalDrinks.map(convertMenuIdToReadableText).join(', ');
       lineItems.push({
-        description: `Additional Beverages: ${drinksText} for ${quoteData.guest_count} guests`,
+        title: 'Additional Beverages',
+        description: `${drinksText} for ${quoteData.guest_count} guests`,
         category: 'drink',
         quantity: 1,
         unit_price: 0,
@@ -192,7 +197,8 @@ serve(async (req) => {
       const restrictionCount = parseInt(quoteData.guest_count_with_restrictions) || Math.ceil(quoteData.guest_count * 0.1);
       const restrictionsText = quoteData.dietary_restrictions.map(convertMenuIdToReadableText).join(', ');
       lineItems.push({
-        description: `Dietary Accommodations: ${restrictionsText} options for ${restrictionCount} guests`,
+        title: 'Dietary Accommodations',
+        description: `${restrictionsText} options for ${restrictionCount} guests`,
         category: 'dietary',
         quantity: 1,
         unit_price: 0,
@@ -217,6 +223,7 @@ serve(async (req) => {
     }
     
     lineItems.push({
+      title: quoteData.service_type === 'drop-off' ? 'Drop-off Service' : 'Full Service',
       description: `${serviceDescription} for ${quoteData.guest_count} guests`,
       category: 'service',
       quantity: 1,
@@ -252,7 +259,8 @@ serve(async (req) => {
         equipment.slice(0, -1).join(', ') + ', and ' + equipment[equipment.length - 1];
       
       lineItems.push({
-        description: `Equipment Rental: ${equipmentText.charAt(0).toUpperCase() + equipmentText.slice(1)}`,
+        title: 'Equipment Rental',
+        description: `${equipmentText.charAt(0).toUpperCase() + equipmentText.slice(1)}`,
         category: 'equipment',
         quantity: 1,
         unit_price: 0,
@@ -278,6 +286,7 @@ serve(async (req) => {
     if (manual_overrides?.discount) {
       const discount = manual_overrides.discount;
       lineItems.push({
+        title: 'Discount',
         description: discount.description || 'Discount',
         category: 'discount',
         quantity: 1,
