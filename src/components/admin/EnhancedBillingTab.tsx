@@ -399,13 +399,21 @@ export function EnhancedBillingTab({ quote, onGenerateInvoice, onResendInvoice }
             </div>
             <div className="flex gap-2">
               <Button
-                onClick={handleGenerateDraft}
-                disabled={loadingActions.generateDraft}
+                onClick={() => navigate(`/admin/estimate/create/${quote.id}`)}
                 className="flex items-center gap-2"
                 size="lg"
               >
                 <Plus className="h-4 w-4" />
-                {loadingActions.generateDraft ? 'Generating...' : '1. Generate Draft Invoice'}
+                Create Invoice Estimate
+              </Button>
+              <Button
+                onClick={handleGenerateDraft}
+                disabled={loadingActions.generateDraft}
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                {loadingActions.generateDraft ? 'Generating...' : 'Auto-Generate Draft'}
               </Button>
               {invoices.length > 0 && (
                 <Button
