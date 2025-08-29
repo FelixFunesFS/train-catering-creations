@@ -10,7 +10,7 @@ import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Plus, Trash2, Edit3, Save, X, AlertTriangle, RefreshCw, Copy, Percent, DollarSign, FileText, History, Send, Calculator, Utensils, ChevronUp, ChevronDown, CheckSquare, Square } from 'lucide-react';
+import { Plus, Trash2, Edit3, Save, X, AlertTriangle, RefreshCw, Copy, Percent, DollarSign, FileText, History, Send, Calculator, Utensils, ChevronUp, ChevronDown, CheckSquare, Square, Maximize2, Minimize2, Settings } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { QuoteReferencePanel } from './QuoteReferencePanel';
@@ -85,6 +85,8 @@ export function InvoicePreviewModal({
   const [bulkPrice, setBulkPrice] = useState<string>('');
   const [bulkQuantity, setBulkQuantity] = useState<string>('');
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+  const [toolsCollapsed, setToolsCollapsed] = useState(false);
+  const [focusMode, setFocusMode] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -530,9 +532,46 @@ export function InvoicePreviewModal({
         </DialogHeader>
 
         <ScrollArea className="flex-1 overflow-auto">
-          <div className="grid grid-cols-1 xl:grid-cols-5 gap-6 h-full">
-            {/* Main Content - Takes 3/5 of space on xl screens */}
-            <div className="xl:col-span-3 space-y-6">
+          <div className={`grid gap-6 h-full transition-all duration-300 ${
+            focusMode 
+              ? 'grid-cols-1' 
+              : 'grid-cols-1 lg:grid-cols-3 xl:grid-cols-4'
+          }`}>
+            {/* Main Content - Takes 75% of space on xl screens */}
+            <div className={`space-y-6 ${
+              focusMode 
+                ? 'col-span-1' 
+                : 'lg:col-span-2 xl:col-span-3'
+            }`}>
+              
+              {/* Focus Mode Toggle */}
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant={focusMode ? "default" : "outline"}
+                    onClick={() => setFocusMode(!focusMode)}
+                    className="flex items-center gap-2"
+                  >
+                    {focusMode ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+                    {focusMode ? 'Exit Focus' : 'Focus Mode'}
+                  </Button>
+                  {!focusMode && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setToolsCollapsed(!toolsCollapsed)}
+                      className="lg:hidden"
+                    >
+                      <Settings className="h-4 w-4" />
+                      Tools
+                    </Button>
+                  )}
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  {lineItems.filter(item => item.unit_price > 0).length} of {lineItems.length} items priced
+                </div>
+              </div>
               
               {/* Pricing Progress Indicator */}
               {mode === 'edit' && (
@@ -901,32 +940,40 @@ export function InvoicePreviewModal({
             </div>
 
             {/* Quote Reference Panel + Pricing Tools - 1 column */}
-            <div className="lg:col-span-1 space-y-4">
-              <QuoteReferencePanel quote={quote} />
-              
-              {/* Quick Pricing Tools */}
-              {mode === 'edit' && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-sm flex items-center gap-2">
-                      <Calculator className="h-4 w-4" />
-                      Quick Pricing Tools
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
+            {!focusMode && (
+              <div className={`lg:col-span-1 space-y-4 ${toolsCollapsed ? 'hidden lg:block' : ''}`}>
+                <QuoteReferencePanel quote={quote} />
+                
+                {/* Quick Pricing Tools */}
+                {mode === 'edit' && (
+                  <Card className="sticky top-4">
+                    <CardHeader 
+                      className="cursor-pointer"
+                      onClick={() => setToolsCollapsed(!toolsCollapsed)}
+                    >
+                      <CardTitle className="text-sm flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Calculator className="h-4 w-4" />
+                          Quick Pricing Tools
+                        </div>
+                        {toolsCollapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+                      </CardTitle>
+                    </CardHeader>
+                    {!toolsCollapsed && (
+                      <CardContent className="space-y-3">
+                    {/* Per-Person Calculator */}
                     <div className="space-y-2">
-                      <Label className="text-xs">Per-Person Calculator</Label>
-                      <div className="flex gap-2">
+                      <Label className="text-xs font-medium">Per-Person Pricing</Label>
+                      <div className="flex gap-1">
                         <Input
                           type="number"
-                          placeholder="$0.00"
-                          className="text-xs"
+                          placeholder="25.00"
+                          className="text-xs h-8"
                           step="0.01"
                           onChange={(e) => {
                             const perPersonPrice = parseFloat(e.target.value) || 0;
-                            // Apply to all food items
                             setLineItems(items => items.map(item => {
-                              if (['protein', 'appetizer', 'side', 'dessert', 'drink'].includes(item.category)) {
+                              if (['meal', 'appetizer', 'side', 'dessert', 'drink'].includes(item.category)) {
                                 return {
                                   ...item,
                                   unit_price: Math.round(perPersonPrice * quote.guest_count * 100),
@@ -938,11 +985,45 @@ export function InvoicePreviewModal({
                             }));
                           }}
                         />
-                        <Button size="sm" variant="outline" className="text-xs">
-                          Apply to Food
+                        <Button size="sm" variant="outline" className="text-xs px-2 h-8">
+                          Apply
                         </Button>
                       </div>
                     </div>
+
+                    {/* Bulk Item Pricing */}
+                    {selectedItems.size > 0 && (
+                      <div className="space-y-2 border-t pt-2">
+                        <Label className="text-xs font-medium">Bulk Edit ({selectedItems.size} items)</Label>
+                        <div className="grid grid-cols-2 gap-1">
+                          <div className="flex gap-1">
+                            <Input
+                              type="number"
+                              placeholder="Price"
+                              value={bulkPrice}
+                              onChange={(e) => setBulkPrice(e.target.value)}
+                              className="text-xs h-8"
+                              step="0.01"
+                            />
+                            <Button size="sm" variant="outline" className="text-xs px-2 h-8" onClick={handleBulkPriceApply}>
+                              $
+                            </Button>
+                          </div>
+                          <div className="flex gap-1">
+                            <Input
+                              type="number"
+                              placeholder="Qty"
+                              value={bulkQuantity}
+                              onChange={(e) => setBulkQuantity(e.target.value)}
+                              className="text-xs h-8"
+                            />
+                            <Button size="sm" variant="outline" className="text-xs px-2 h-8" onClick={handleBulkQuantityApply}>
+                              #
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                     
                     <div className="space-y-2">
                       <Label className="text-xs">Service Charges</Label>
@@ -1031,11 +1112,13 @@ export function InvoicePreviewModal({
                         </Button>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
+                        </CardContent>
+                      )}
+                    </Card>
+                  )}
+                </div>
               )}
             </div>
-          </div>
         </ScrollArea>
 
         {/* Pricing Summary */}
