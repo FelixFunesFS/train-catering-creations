@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { InvoicePreviewModal } from './InvoicePreviewModal';
 import {
   DollarSign,
   FileText,
@@ -20,7 +21,8 @@ import {
   ExternalLink,
   User,
   Mail,
-  Phone
+  Phone,
+  Edit3
 } from 'lucide-react';
 
 interface BillingTabProps {
@@ -55,6 +57,8 @@ export function EnhancedBillingTab({ quote, onGenerateInvoice, onResendInvoice }
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [previewInvoiceData, setPreviewInvoiceData] = useState<any>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -136,10 +140,15 @@ export function EnhancedBillingTab({ quote, onGenerateInvoice, onResendInvoice }
     });
   };
 
-  const generateInvoice = async () => {
+  const generateInvoice = async (overrides?: any) => {
     await handleAction('generateInvoice', async () => {
+      const body: any = { quote_request_id: quote.id };
+      if (overrides) {
+        body.manual_overrides = overrides;
+      }
+
       const { data, error } = await supabase.functions.invoke('generate-invoice-from-quote', {
-        body: { quote_request_id: quote.id }
+        body
       });
 
       if (error) throw error;
@@ -152,6 +161,17 @@ export function EnhancedBillingTab({ quote, onGenerateInvoice, onResendInvoice }
       await fetchBillingData();
       onGenerateInvoice?.();
     });
+  };
+
+  const handlePreviewInvoice = () => {
+    // Set mock data for preview - in real app this would come from a draft generation
+    setPreviewInvoiceData({
+      subtotal: quote.estimated_total || 0,
+      tax_amount: Math.round((quote.estimated_total || 0) * 0.08),
+      total_amount: Math.round((quote.estimated_total || 0) * 1.08),
+      line_items: []
+    });
+    setShowPreviewModal(true);
   };
 
   const sendInvoice = async (invoiceId: string) => {
@@ -287,14 +307,24 @@ export function EnhancedBillingTab({ quote, onGenerateInvoice, onResendInvoice }
               <FileText className="h-5 w-5" />
               Invoice Management
             </CardTitle>
-            <Button
-              onClick={generateInvoice}
-              disabled={loadingActions.generateInvoice}
-              className="flex items-center gap-2"
-            >
-              <Plus className="h-4 w-4" />
-              {loadingActions.generateInvoice ? 'Generating...' : 'Generate Invoice'}
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                onClick={handlePreviewInvoice}
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                <Edit3 className="h-4 w-4" />
+                Review & Edit
+              </Button>
+              <Button
+                onClick={generateInvoice}
+                disabled={loadingActions.generateInvoice}
+                className="flex items-center gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                {loadingActions.generateInvoice ? 'Generating...' : 'Quick Generate'}
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             {invoices.length > 0 ? (
@@ -436,6 +466,15 @@ export function EnhancedBillingTab({ quote, onGenerateInvoice, onResendInvoice }
           </div>
         </CardContent>
       </Card>
+
+      <InvoicePreviewModal
+        quote={quote}
+        invoiceData={previewInvoiceData}
+        isOpen={showPreviewModal}
+        onClose={() => setShowPreviewModal(false)}
+        onGenerate={generateInvoice}
+        onSend={sendInvoice}
+      />
     </div>
   );
 }

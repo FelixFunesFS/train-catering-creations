@@ -181,13 +181,20 @@ export type Database = {
           created_at: string
           currency: string | null
           customer_id: string | null
+          draft_data: Json | null
           due_date: string | null
           id: string
           invoice_number: string | null
+          is_draft: boolean | null
+          last_quote_sync: string | null
+          manual_overrides: Json | null
           notes: string | null
+          override_reason: string | null
           paid_at: string | null
           pdf_url: string | null
           quote_request_id: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
           sent_at: string | null
           status: string
           stripe_invoice_id: string | null
@@ -201,13 +208,20 @@ export type Database = {
           created_at?: string
           currency?: string | null
           customer_id?: string | null
+          draft_data?: Json | null
           due_date?: string | null
           id?: string
           invoice_number?: string | null
+          is_draft?: boolean | null
+          last_quote_sync?: string | null
+          manual_overrides?: Json | null
           notes?: string | null
+          override_reason?: string | null
           paid_at?: string | null
           pdf_url?: string | null
           quote_request_id?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           sent_at?: string | null
           status?: string
           stripe_invoice_id?: string | null
@@ -221,13 +235,20 @@ export type Database = {
           created_at?: string
           currency?: string | null
           customer_id?: string | null
+          draft_data?: Json | null
           due_date?: string | null
           id?: string
           invoice_number?: string | null
+          is_draft?: boolean | null
+          last_quote_sync?: string | null
+          manual_overrides?: Json | null
           notes?: string | null
+          override_reason?: string | null
           paid_at?: string | null
           pdf_url?: string | null
           quote_request_id?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           sent_at?: string | null
           status?: string
           stripe_invoice_id?: string | null

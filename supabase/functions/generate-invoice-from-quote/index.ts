@@ -107,6 +107,43 @@ serve(async (req) => {
       return rule;
     };
 
+    // Helper function to add menu items
+    const addMenuItems = (items: any[], category: string) => {
+      if (Array.isArray(items) && items.length > 0) {
+        items.forEach(item => {
+          const rule = findPricingRule(category, item, quoteData.service_type);
+          if (rule) {
+            const unitPrice = rule.base_price + (rule.price_per_person * quoteData.guest_count);
+            lineItems.push({
+              description: `${item} for ${quoteData.guest_count} guests`,
+              category,
+              quantity: 1,
+              unit_price: unitPrice,
+              total_price: unitPrice,
+            });
+            subtotal += unitPrice;
+            logStep(`${category} added`, { item, unitPrice });
+          } else {
+            // Fallback pricing for unmatched items
+            const fallbackPrice = category === 'appetizer' ? 400 : 
+                                 category === 'side' ? 250 : 
+                                 category === 'dessert' ? 350 : 
+                                 category === 'drink' ? 175 : 300;
+            const unitPrice = fallbackPrice * quoteData.guest_count;
+            lineItems.push({
+              description: `${item} for ${quoteData.guest_count} guests`,
+              category,
+              quantity: 1,
+              unit_price: unitPrice,
+              total_price: unitPrice,
+            });
+            subtotal += unitPrice;
+            logStep(`${category} added with fallback pricing`, { item, unitPrice });
+          }
+        });
+      }
+    };
+
     // Add proteins
     if (quoteData.primary_protein) {
       const rule = findPricingRule('protein', quoteData.primary_protein, quoteData.service_type);
@@ -132,6 +169,47 @@ serve(async (req) => {
         total_price: unitPrice,
       });
       subtotal += unitPrice;
+    }
+
+    // Add all menu selections
+    addMenuItems(quoteData.appetizers || [], 'appetizer');
+    addMenuItems(quoteData.sides || [], 'side');
+    addMenuItems(quoteData.desserts || [], 'dessert');
+    addMenuItems(quoteData.drinks || [], 'drink');
+
+    // Add dietary restrictions as upcharges
+    if (quoteData.dietary_restrictions && Array.isArray(quoteData.dietary_restrictions)) {
+      quoteData.dietary_restrictions.forEach((restriction: string) => {
+        const dietaryRule = findPricingRule('dietary', `${restriction} Option`, quoteData.service_type);
+        if (dietaryRule) {
+          const restrictionCount = parseInt(quoteData.guest_count_with_restrictions) || Math.ceil(quoteData.guest_count * 0.1);
+          const unitPrice = dietaryRule.base_price + (dietaryRule.price_per_person * restrictionCount);
+          lineItems.push({
+            description: `${restriction} Option for ${restrictionCount} guests`,
+            category: 'dietary',
+            quantity: 1,
+            unit_price: unitPrice,
+            total_price: unitPrice,
+          });
+          subtotal += unitPrice;
+          logStep("Dietary restriction added", { restriction, restrictionCount, unitPrice });
+        }
+      });
+    }
+
+    // Add wait staff if requested
+    if (quoteData.wait_staff_requested) {
+      const staffRule = findPricingRule('service', 'Wait Staff', quoteData.service_type);
+      const staffCost = staffRule ? (staffRule.base_price + (staffRule.price_per_person * quoteData.guest_count)) : quoteData.guest_count * 2500;
+      lineItems.push({
+        description: `Wait Staff Service for ${quoteData.guest_count} guests`,
+        category: 'service',
+        quantity: 1,
+        unit_price: staffCost,
+        total_price: staffCost,
+      });
+      subtotal += staffCost;
+      logStep("Wait staff service added", { staffCost });
     }
 
     // Add service charge based on service type mapping
