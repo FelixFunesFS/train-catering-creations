@@ -32,6 +32,7 @@ export interface QuoteRequest {
   special_requests?: string;
   estimated_total: number;
   both_proteins_available?: boolean;
+  bussing_tables_needed?: boolean;
 }
 
 // Professional name formatting
@@ -66,9 +67,13 @@ export const formatMenuDescription = (description: string): string => {
 // Format service type professionally
 export const formatServiceType = (serviceType: string): string => {
   const serviceTypes: Record<string, string> = {
+    'full-service': 'Full Service Catering',
+    'delivery-setup': 'Delivery with Setup',
+    'drop-off': 'Drop Off Delivery',
+    // Legacy support
     'full_service': 'Full Service Catering',
-    'drop_off': 'Drop Off Service',
-    'drop_off_with_setup': 'Drop Off with Setup Service'
+    'drop_off': 'Drop Off Delivery',
+    'drop_off_with_setup': 'Delivery with Setup'
   };
   
   return serviceTypes[serviceType] || 'Catering Service';
@@ -159,12 +164,39 @@ export const createServiceCharge = (serviceType: string): LineItem => {
   };
 };
 
+// Create bussing tables service add-on
+export const createBussingTablesService = (): LineItem => {
+  return {
+    id: `bussing_service_${Date.now()}`,
+    title: 'Table Bussing Service',
+    description: 'Professional table clearing and maintenance during event',
+    quantity: 1,
+    unit_price: 0,
+    total_price: 0,
+    category: 'service_addon'
+  };
+};
+
 // Main function to generate professional line items
 export const generateProfessionalLineItems = (quote: QuoteRequest): LineItem[] => {
   const lineItems: LineItem[] = [];
   
-  // Check if we have 2 proteins for meal bundle
-  const hasTwoProteins = quote.primary_protein && quote.secondary_protein;
+  // Check if we have 2 proteins for meal bundle - handle both string and array formats
+  const primaryProtein = Array.isArray(quote.primary_protein) 
+    ? quote.primary_protein[0] 
+    : quote.primary_protein;
+  const secondaryProtein = Array.isArray(quote.secondary_protein) 
+    ? quote.secondary_protein[0] 
+    : quote.secondary_protein;
+    
+  // Also check if comma-separated values exist in string format
+  const hasPrimaryComma = typeof quote.primary_protein === 'string' && quote.primary_protein.includes(',');
+  const hasSecondaryComma = typeof quote.secondary_protein === 'string' && quote.secondary_protein.includes(',');
+  
+  const hasTwoProteins = (primaryProtein && secondaryProtein) || 
+                         hasPrimaryComma || 
+                         hasSecondaryComma || 
+                         quote.both_proteins_available;
   
   if (hasTwoProteins) {
     // Create meal bundle for 2 proteins
@@ -177,11 +209,11 @@ export const generateProfessionalLineItems = (quote: QuoteRequest): LineItem[] =
     }
   } else {
     // Single protein - handle individually
-    if (quote.primary_protein) {
+    if (primaryProtein) {
       lineItems.push({
         id: `protein_${Date.now()}`,
         title: 'Entree',
-        description: formatMenuDescription(quote.primary_protein),
+        description: formatMenuDescription(primaryProtein),
         quantity: quote.guest_count,
         unit_price: 0,
         total_price: 0,
@@ -228,6 +260,11 @@ export const generateProfessionalLineItems = (quote: QuoteRequest): LineItem[] =
   
   // Add service charge
   lineItems.push(createServiceCharge(quote.service_type));
+  
+  // Add bussing tables service if full-service and bussing is needed
+  if (quote.service_type === 'full-service' && quote.bussing_tables_needed) {
+    lineItems.push(createBussingTablesService());
+  }
   
   return lineItems;
 };
