@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -54,8 +54,11 @@ export function QuoteDetailModal({ quote, onClose, onUpdate }: QuoteDetailModalP
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [showHistory, setShowHistory] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [historyLoading, setHistoryLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('details');
   const [isEditingMenu, setIsEditingMenu] = useState(false);
+  const [historyFilter, setHistoryFilter] = useState('');
+  const [historyFieldFilter, setHistoryFieldFilter] = useState('all');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -63,6 +66,7 @@ export function QuoteDetailModal({ quote, onClose, onUpdate }: QuoteDetailModalP
   }, [quote.id]);
 
   const fetchHistory = async () => {
+    setHistoryLoading(true);
     try {
       const { data, error } = await supabase
         .from('quote_request_history')
@@ -74,8 +78,35 @@ export function QuoteDetailModal({ quote, onClose, onUpdate }: QuoteDetailModalP
       setHistory(data || []);
     } catch (error: any) {
       console.error('Error fetching history:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load change history",
+        variant: "destructive"
+      });
+    } finally {
+      setHistoryLoading(false);
     }
   };
+
+  // Filtered history based on search and field filters
+  const filteredHistory = useMemo(() => {
+    return history.filter(entry => {
+      const matchesSearch = !historyFilter || 
+        entry.field_name.toLowerCase().includes(historyFilter.toLowerCase()) ||
+        entry.old_value?.toLowerCase().includes(historyFilter.toLowerCase()) ||
+        entry.new_value?.toLowerCase().includes(historyFilter.toLowerCase());
+      
+      const matchesField = historyFieldFilter === 'all' || entry.field_name === historyFieldFilter;
+      
+      return matchesSearch && matchesField;
+    });
+  }, [history, historyFilter, historyFieldFilter]);
+
+  // Get unique field names for filter dropdown
+  const uniqueFields = useMemo(() => {
+    const fields = history.map(entry => entry.field_name);
+    return Array.from(new Set(fields)).sort();
+  }, [history]);
 
   const handleSave = async () => {
     setLoading(true);
@@ -237,38 +268,76 @@ export function QuoteDetailModal({ quote, onClose, onUpdate }: QuoteDetailModalP
           {showHistory && (
             <Card className="mb-6">
               <CardHeader className="pb-3">
-                <CardTitle className="text-lg">Change History</CardTitle>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <CardTitle className="text-lg">Change History</CardTitle>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <Input
+                      placeholder="Search history..."
+                      value={historyFilter}
+                      onChange={(e) => setHistoryFilter(e.target.value)}
+                      className="h-8 max-w-48"
+                    />
+                    <Select value={historyFieldFilter} onValueChange={setHistoryFieldFilter}>
+                      <SelectTrigger className="h-8 max-w-40">
+                        <SelectValue placeholder="Filter by field" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Fields</SelectItem>
+                        {uniqueFields.map((field) => (
+                          <SelectItem key={field} value={field}>
+                            {field.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
-                <ScrollArea className="max-h-48">
-                  {history.length === 0 ? (
-                    <p className="text-muted-foreground text-center py-4 text-sm">
-                      No changes recorded yet.
+                <ScrollArea className="max-h-96">
+                  {historyLoading ? (
+                    <div className="flex items-center justify-center py-8">
+                      <RefreshCw className="h-4 w-4 animate-spin mr-2" />
+                      <span className="text-sm text-muted-foreground">Loading history...</span>
+                    </div>
+                  ) : filteredHistory.length === 0 ? (
+                    <p className="text-muted-foreground text-center py-8 text-sm">
+                      {history.length === 0 ? 'No changes recorded yet.' : 'No changes match your filters.'}
                     </p>
                   ) : (
-                    <div className="space-y-3 pr-4">
-                      {history.map((entry) => (
-                        <div key={entry.id} className="border-l-2 border-primary pl-3 py-2">
-                          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
-                            <div className="flex-1 min-w-0">
-                              <p className="font-medium text-sm">
-                                {entry.field_name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                              </p>
-                              <div className="text-xs text-muted-foreground mt-1 space-y-1">
-                                <div className="truncate">
-                                  <span className="font-medium">From:</span> {entry.old_value || 'Empty'}
+                    <div className="space-y-4 pr-4">
+                      {filteredHistory.map((entry, index) => (
+                        <Card key={entry.id} className="relative border-l-4 border-l-primary/50">
+                          <CardContent className="pt-4 pb-3">
+                            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <Badge variant="outline" className="text-xs">
+                                    #{history.length - index}
+                                  </Badge>
+                                  <p className="font-semibold text-sm">
+                                    {entry.field_name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                                  </p>
                                 </div>
-                                <div className="truncate">
-                                  <span className="font-medium">To:</span> {entry.new_value || 'Empty'}
+                                <div className="space-y-2">
+                                  <div className="bg-destructive/10 border border-destructive/20 rounded p-2">
+                                    <p className="text-xs font-medium text-destructive mb-1">Previous Value:</p>
+                                    <p className="text-sm break-words">{entry.old_value || <em className="text-muted-foreground">Empty</em>}</p>
+                                  </div>
+                                  <div className="bg-success/10 border border-success/20 rounded p-2">
+                                    <p className="text-xs font-medium text-success mb-1">New Value:</p>
+                                    <p className="text-sm break-words">{entry.new_value || <em className="text-muted-foreground">Empty</em>}</p>
+                                  </div>
                                 </div>
                               </div>
+                              <div className="text-right text-xs text-muted-foreground flex-shrink-0 space-y-1">
+                                <p className="font-medium">{entry.changed_by}</p>
+                                <p>{format(new Date(entry.change_timestamp), 'MMM dd, yyyy')}</p>
+                                <p>{format(new Date(entry.change_timestamp), 'HH:mm:ss')}</p>
+                              </div>
                             </div>
-                            <div className="text-right text-xs text-muted-foreground flex-shrink-0">
-                              <p className="font-medium">{entry.changed_by}</p>
-                              <p>{format(new Date(entry.change_timestamp), 'MMM dd, HH:mm')}</p>
-                            </div>
-                          </div>
-                        </div>
+                          </CardContent>
+                        </Card>
                       ))}
                     </div>
                   )}
@@ -347,7 +416,7 @@ export function QuoteDetailModal({ quote, onClose, onUpdate }: QuoteDetailModalP
                 </Button>
               </div>
 
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 auto-rows-min">
                 {/* Contact Information */}
                 <Card className="h-fit">
                   <CardHeader className="pb-3">
@@ -548,7 +617,7 @@ export function QuoteDetailModal({ quote, onClose, onUpdate }: QuoteDetailModalP
               </Card>
 
                 {/* Service & Status - Compact Row */}
-                <Card className="xl:col-span-2">
+                <Card className="lg:col-span-2 h-fit">
                   <CardHeader className="pb-3">
                     <CardTitle className="flex items-center gap-2 text-lg">
                       <Utensils className="h-5 w-5" />
@@ -630,7 +699,7 @@ export function QuoteDetailModal({ quote, onClose, onUpdate }: QuoteDetailModalP
                 </Card>
 
                 {/* Special Requests & Notes - Full Width */}
-                <Card className="xl:col-span-2">
+                <Card className="lg:col-span-2 xl:col-span-3 h-fit">
                   <CardHeader className="pb-3">
                     <CardTitle className="flex items-center gap-2 text-lg">
                       <Settings className="h-5 w-5" />
