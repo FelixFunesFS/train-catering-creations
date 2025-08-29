@@ -6,7 +6,7 @@ import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { InvoicePreviewModal } from './InvoicePreviewModal';
+import { StreamlinedInvoiceModal } from './invoice/StreamlinedInvoiceModal';
 import { InvoiceDraftManager } from './InvoiceDraftManager';
 import { InvoiceQuoteSyncManager } from './InvoiceQuoteSyncManager';
 import {
@@ -651,14 +651,15 @@ export function EnhancedBillingTab({ quote, onGenerateInvoice, onResendInvoice }
         </TabsContent>
       </Tabs>
 
-      <InvoicePreviewModal
+      <StreamlinedInvoiceModal
         quote={quote}
+        customer={customer}
         invoiceData={previewInvoiceData}
         isOpen={showPreviewModal}
         onClose={() => setShowPreviewModal(false)}
         onGenerate={generateInvoice}
         onSend={sendInvoice}
-        mode={modalMode}
+        mode={modalMode === 'preview' ? 'view' : modalMode === 'edit' ? 'edit' : 'status'}
       />
     </div>
   );
