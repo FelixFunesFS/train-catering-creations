@@ -1,17 +1,44 @@
-import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { format } from "date-fns";
-import { Edit2, Save, X, History, Calendar, Clock, Users, MapPin, Utensils, Settings } from "lucide-react";
-import type { Database } from "@/integrations/supabase/types";
+import React, { useState, useEffect } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { 
+  CalendarPlus, 
+  CalendarMinus, 
+  RefreshCw, 
+  Save, 
+  X, 
+  Edit,
+  History,
+  Phone,
+  Mail,
+  MapPin,
+  Calendar,
+  Users,
+  Clock,
+  ChefHat,
+  Utensils,
+  Settings,
+  StickyNote,
+  MessageSquare
+} from 'lucide-react';
+import { format } from 'date-fns';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import { MenuEditForm } from './MenuEditForm';
+import { AdminNotesSection } from './AdminNotesSection';
+import { CommunicationPanel } from './CommunicationPanel';
+import type { Database } from '@/integrations/supabase/types';
 
 type QuoteRequest = Database['public']['Tables']['quote_requests']['Row'];
+
 type HistoryEntry = Database['public']['Tables']['quote_request_history']['Row'];
 
 interface QuoteDetailModalProps {
@@ -20,12 +47,14 @@ interface QuoteDetailModalProps {
   onUpdate: (updatedQuote: QuoteRequest) => void;
 }
 
-export const QuoteDetailModal = ({ quote, onClose, onUpdate }: QuoteDetailModalProps) => {
+export function QuoteDetailModal({ quote, onClose, onUpdate }: QuoteDetailModalProps) {
   const [isEditing, setIsEditing] = useState(false);
-  const [editedQuote, setEditedQuote] = useState<QuoteRequest>(quote);
+  const [editedQuote, setEditedQuote] = useState(quote);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [showHistory, setShowHistory] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState('details');
+  const [isEditingMenu, setIsEditingMenu] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -42,7 +71,7 @@ export const QuoteDetailModal = ({ quote, onClose, onUpdate }: QuoteDetailModalP
 
       if (error) throw error;
       setHistory(data || []);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching history:', error);
     }
   };
@@ -59,18 +88,45 @@ export const QuoteDetailModal = ({ quote, onClose, onUpdate }: QuoteDetailModalP
 
       onUpdate(editedQuote);
       setIsEditing(false);
-      await fetchHistory(); // Refresh history after update
-      
       toast({
-        title: "Quote Updated",
-        description: "Quote request has been successfully updated",
+        title: "Success",
+        description: "Quote request updated successfully"
       });
-    } catch (error) {
-      console.error('Error updating quote:', error);
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: "Failed to update quote request",
-        variant: "destructive",
+        description: "Failed to update quote request: " + error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleMenuSave = async (menuData: any) => {
+    setLoading(true);
+    try {
+      const updatedQuote = { ...editedQuote, ...menuData };
+      
+      const { error } = await supabase
+        .from('quote_requests')
+        .update(menuData)
+        .eq('id', quote.id);
+
+      if (error) throw error;
+
+      setEditedQuote(updatedQuote);
+      onUpdate(updatedQuote);
+      setIsEditingMenu(false);
+      toast({
+        title: "Success",
+        description: "Menu updated successfully"
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to update menu: " + error.message,
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
@@ -91,29 +147,15 @@ export const QuoteDetailModal = ({ quote, onClose, onUpdate }: QuoteDetailModalP
 
       if (error) throw error;
 
-      // Refresh the quote data to get updated calendar sync status
-      const { data: updatedQuote, error: fetchError } = await supabase
-        .from('quote_requests')
-        .select('*')
-        .eq('id', quote.id)
-        .single();
-
-      if (fetchError) throw fetchError;
-
-      if (updatedQuote) {
-        onUpdate(updatedQuote);
-      }
-
       toast({
-        title: "Calendar Action Completed",
-        description: data?.message || "Calendar action completed successfully",
+        title: "Calendar Action",
+        description: data?.message || "Calendar action completed"
       });
-    } catch (error) {
-      console.error('Calendar action error:', error);
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: "Failed to perform calendar action",
-        variant: "destructive",
+        description: "Failed to perform calendar action: " + error.message,
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
@@ -121,12 +163,11 @@ export const QuoteDetailModal = ({ quote, onClose, onUpdate }: QuoteDetailModalP
   };
 
   const formatArrayField = (field: any) => {
-    if (!field) return 'None selected';
+    if (!field) return [];
     try {
-      const parsed = typeof field === 'string' ? JSON.parse(field) : field;
-      return Array.isArray(parsed) ? parsed.join(', ') : 'None selected';
+      return Array.isArray(field) ? field : JSON.parse(field);
     } catch {
-      return 'None selected';
+      return [];
     }
   };
 
@@ -136,472 +177,586 @@ export const QuoteDetailModal = ({ quote, onClose, onUpdate }: QuoteDetailModalP
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <Card className="w-full max-w-6xl max-h-[90vh] overflow-y-auto">
-        <CardHeader>
+    <Dialog open={true} onOpenChange={onClose}>
+      <DialogContent className="max-w-6xl max-h-[95vh] overflow-hidden">
+        <DialogHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="flex items-center gap-2">
-                <Utensils className="h-5 w-5" />
-                Quote Request Details - {quote.event_name}
-              </CardTitle>
-              <div className="flex items-center gap-2 mt-2">
-                <Badge variant="outline">{quote.status}</Badge>
-                <Badge variant="secondary">{quote.service_type}</Badge>
-                <span className="text-sm text-muted-foreground">
-                  ID: {quote.id.slice(0, 8)}...
-                </span>
-              </div>
+              <DialogTitle className="text-2xl font-bold">
+                {editedQuote.event_name}
+              </DialogTitle>
+              <p className="text-muted-foreground mt-1">
+                Quote Request Details
+              </p>
             </div>
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setShowHistory(!showHistory)}
-                className="gap-2"
               >
-                <History className="h-4 w-4" />
-                History ({history.length})
+                <History className="h-4 w-4 mr-2" />
+                History
               </Button>
-              {!isEditing ? (
-                <Button onClick={() => setIsEditing(true)} className="gap-2">
-                  <Edit2 className="h-4 w-4" />
-                  Edit
-                </Button>
-              ) : (
-                <div className="flex gap-2">
-                  <Button onClick={handleSave} disabled={loading} className="gap-2">
-                    <Save className="h-4 w-4" />
-                    Save
-                  </Button>
-                  <Button variant="outline" onClick={handleCancel} className="gap-2">
-                    <X className="h-4 w-4" />
-                    Cancel
-                  </Button>
-                </div>
-              )}
-              <Button variant="outline" onClick={onClose}>
-                Close
+              
+              <Button variant="outline" size="sm" onClick={onClose}>
+                <X className="h-4 w-4" />
               </Button>
             </div>
           </div>
-        </CardHeader>
+        </DialogHeader>
 
-        <CardContent className="space-y-6">
-          {/* History Panel */}
-          {showHistory && (
-            <Card className="bg-muted/50">
-              <CardHeader>
-                <CardTitle className="text-lg">Change History</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {history.length > 0 ? (
-                  <div className="space-y-3 max-h-48 overflow-y-auto">
-                    {history.map((entry) => (
-                      <div key={entry.id} className="flex items-center justify-between p-3 bg-background rounded-lg">
+        {showHistory && (
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle>Change History</CardTitle>
+            </CardHeader>
+            <CardContent className="max-h-60 overflow-y-auto">
+              {history.length === 0 ? (
+                <p className="text-muted-foreground text-center py-4">
+                  No changes recorded yet.
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {history.map((entry) => (
+                    <div key={entry.id} className="border-l-2 border-primary pl-4 py-2">
+                      <div className="flex justify-between items-start">
                         <div>
                           <p className="font-medium">
-                            {entry.field_name.replace('_', ' ')} changed
+                            {entry.field_name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
                           </p>
-                          <p className="text-sm text-muted-foreground">
-                            From: <span className="font-mono">{entry.old_value || 'empty'}</span> → 
-                            To: <span className="font-mono">{entry.new_value || 'empty'}</span>
-                          </p>
+                          <div className="text-sm text-muted-foreground mt-1">
+                            <span className="font-medium">From:</span> {entry.old_value || 'Empty'} <br />
+                            <span className="font-medium">To:</span> {entry.new_value || 'Empty'}
+                          </div>
                         </div>
                         <div className="text-right text-sm text-muted-foreground">
                           <p>{entry.changed_by}</p>
-                          <p>{format(new Date(entry.change_timestamp), 'MMM dd, HH:mm')}</p>
+                          <p>{format(new Date(entry.change_timestamp), 'MMM dd, yyyy HH:mm')}</p>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-muted-foreground">No changes recorded yet</p>
-                )}
-              </CardContent>
-            </Card>
-          )}
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Contact Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Users className="h-4 w-4" />
-                  Contact Information
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium">Name</label>
-                  {isEditing ? (
-                    <Input
-                      value={editedQuote.contact_name}
-                      onChange={(e) => setEditedQuote({...editedQuote, contact_name: e.target.value})}
-                    />
-                  ) : (
-                    <p className="text-sm">{quote.contact_name}</p>
-                  )}
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Email</label>
-                  {isEditing ? (
-                    <Input
-                      type="email"
-                      value={editedQuote.email}
-                      onChange={(e) => setEditedQuote({...editedQuote, email: e.target.value})}
-                    />
-                  ) : (
-                    <p className="text-sm">{quote.email}</p>
-                  )}
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Phone</label>
-                  {isEditing ? (
-                    <Input
-                      value={editedQuote.phone}
-                      onChange={(e) => setEditedQuote({...editedQuote, phone: e.target.value})}
-                    />
-                  ) : (
-                    <p className="text-sm">{quote.phone}</p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Event Details */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4" />
-                  Event Details
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium">Event Name</label>
-                  {isEditing ? (
-                    <Input
-                      value={editedQuote.event_name}
-                      onChange={(e) => setEditedQuote({...editedQuote, event_name: e.target.value})}
-                    />
-                  ) : (
-                    <p className="text-sm">{quote.event_name}</p>
-                  )}
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Event Type</label>
-                  {isEditing ? (
-                    <Select 
-                      value={editedQuote.event_type} 
-                      onValueChange={(value) => setEditedQuote({...editedQuote, event_type: value as any})}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="wedding">Wedding</SelectItem>
-                        <SelectItem value="corporate">Corporate Event</SelectItem>
-                        <SelectItem value="birthday">Birthday Party</SelectItem>
-                        <SelectItem value="graduation">Graduation</SelectItem>
-                        <SelectItem value="anniversary">Anniversary</SelectItem>
-                        <SelectItem value="military">Military Function</SelectItem>
-                        <SelectItem value="social">Social Gathering</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  ) : (
-                    <p className="text-sm">{quote.event_type}</p>
-                  )}
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Date</label>
-                  {isEditing ? (
-                    <Input
-                      type="date"
-                      value={editedQuote.event_date}
-                      onChange={(e) => setEditedQuote({...editedQuote, event_date: e.target.value})}
-                    />
-                  ) : (
-                    <p className="text-sm">{format(new Date(quote.event_date), 'MMMM dd, yyyy')}</p>
-                  )}
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Start Time</label>
-                  {isEditing ? (
-                    <Input
-                      type="time"
-                      value={editedQuote.start_time || ''}
-                      onChange={(e) => setEditedQuote({...editedQuote, start_time: e.target.value})}
-                    />
-                  ) : (
-                    <p className="text-sm">{formatTimeField(quote.start_time)}</p>
-                  )}
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Serving Start Time</label>
-                  {isEditing ? (
-                    <Input
-                      type="time"
-                      value={editedQuote.serving_start_time || ''}
-                      onChange={(e) => setEditedQuote({...editedQuote, serving_start_time: e.target.value || null})}
-                    />
-                  ) : (
-                    <p className="text-sm">{formatTimeField(quote.serving_start_time)}</p>
-                  )}
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Guest Count</label>
-                  {isEditing ? (
-                    <Input
-                      type="number"
-                      value={editedQuote.guest_count}
-                      onChange={(e) => setEditedQuote({...editedQuote, guest_count: parseInt(e.target.value)})}
-                    />
-                  ) : (
-                    <p className="text-sm">{quote.guest_count} guests</p>
-                  )}
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Location</label>
-                  {isEditing ? (
-                    <Textarea
-                      value={editedQuote.location}
-                      onChange={(e) => setEditedQuote({...editedQuote, location: e.target.value})}
-                      rows={2}
-                    />
-                  ) : (
-                    <p className="text-sm">{quote.location}</p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Service & Menu Details */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Settings className="h-4 w-4" />
-                  Service Details
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium">Service Type</label>
-                  {isEditing ? (
-                    <Select 
-                      value={editedQuote.service_type} 
-                      onValueChange={(value) => setEditedQuote({...editedQuote, service_type: value as any})}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="full-service">Full Service Catering</SelectItem>
-                        <SelectItem value="delivery-setup">Delivery + Setup</SelectItem>
-                        <SelectItem value="drop-off">Drop-Off Service</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  ) : (
-                    <p className="text-sm">{quote.service_type}</p>
-                  )}
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Status</label>
-                  {isEditing ? (
-                    <Select 
-                      value={editedQuote.status} 
-                      onValueChange={(value) => setEditedQuote({...editedQuote, status: value as any})}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="pending">Pending</SelectItem>
-                        <SelectItem value="reviewed">Reviewed</SelectItem>
-                        <SelectItem value="quoted">Quoted</SelectItem>
-                        <SelectItem value="confirmed">Confirmed</SelectItem>
-                        <SelectItem value="completed">Completed</SelectItem>
-                        <SelectItem value="cancelled">Cancelled</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  ) : (
-                    <p className="text-sm">{quote.status}</p>
-                  )}
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Calendar Sync Status</label>
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm">{quote.calendar_sync_status || 'Not synced'}</p>
-                    {quote.calendar_sync_status === 'synced' ? (
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleCalendarAction('update_event')}
-                          className="gap-1"
-                        >
-                          <Calendar className="h-3 w-3" />
-                          Update
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          onClick={() => handleCalendarAction('delete_event')}
-                          className="gap-1"
-                        >
-                          <X className="h-3 w-3" />
-                          Remove
-                        </Button>
-                      </div>
-                    ) : (
-                      <Button
-                        size="sm"
-                        onClick={() => handleCalendarAction('create_event')}
-                        className="gap-1"
-                      >
-                        <Calendar className="h-3 w-3" />
-                        Sync to Calendar
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Utensils className="h-4 w-4" />
-                  Menu Selections
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium">Primary Protein</label>
-                  <p className="text-sm">{quote.primary_protein || 'Not specified'}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Secondary Protein</label>
-                  <p className="text-sm">{quote.secondary_protein || 'Not specified'}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Appetizers</label>
-                  <p className="text-sm">{formatArrayField(quote.appetizers)}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Sides</label>
-                  <p className="text-sm">{formatArrayField(quote.sides)}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Desserts</label>
-                  <p className="text-sm">{formatArrayField(quote.desserts)}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Drinks</label>
-                  <p className="text-sm">{formatArrayField(quote.drinks)}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Dietary Restrictions</label>
-                  <p className="text-sm">{formatArrayField(quote.dietary_restrictions)}</p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Equipment & Setup Requests */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Equipment & Setup Requests</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {[
-                  { field: 'tables_chairs_requested', label: 'Tables & Chairs' },
-                  { field: 'linens_requested', label: 'Linens' },
-                  { field: 'chafers_requested', label: 'Chafing Dishes' },
-                  { field: 'serving_utensils_requested', label: 'Serving Utensils' },
-                  { field: 'plates_requested', label: 'Plates' },
-                  { field: 'cups_requested', label: 'Cups' },
-                  { field: 'napkins_requested', label: 'Napkins' },
-                  { field: 'ice_requested', label: 'Ice' },
-                  { field: 'wait_staff_requested', label: 'Wait Staff' },
-                  { field: 'separate_serving_area', label: 'Separate Serving Area' },
-                  { field: 'bussing_tables_needed', label: 'Table Bussing' },
-                ].map(({ field, label }) => (
-                  <div key={field} className="flex items-center space-x-2">
-                    <div className={`w-3 h-3 rounded-full ${quote[field as keyof QuoteRequest] ? 'bg-green-500' : 'bg-gray-300'}`} />
-                    <span className="text-sm">{label}</span>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Special Requests */}
-          {(quote.special_requests || quote.custom_menu_requests || quote.theme_colors) && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Special Requests & Notes</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {quote.special_requests && (
-                  <div>
-                    <label className="text-sm font-medium">Special Requests</label>
-                    <p className="text-sm">{quote.special_requests}</p>
-                  </div>
-                )}
-                {quote.custom_menu_requests && (
-                  <div>
-                    <label className="text-sm font-medium">Custom Menu Requests</label>
-                    <p className="text-sm">{quote.custom_menu_requests}</p>
-                  </div>
-                )}
-                {quote.theme_colors && (
-                  <div>
-                    <label className="text-sm font-medium">Theme Colors</label>
-                    <p className="text-sm">{quote.theme_colors}</p>
-                  </div>
-                )}
-                {quote.referral_source && (
-                  <div>
-                    <label className="text-sm font-medium">Referral Source</label>
-                    <p className="text-sm">{quote.referral_source}</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Timestamps */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Clock className="h-4 w-4" />
-                Request Information
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="text-sm font-medium">Submitted</label>
-                <p className="text-sm">{format(new Date(quote.created_at), 'MMM dd, yyyy HH:mm')}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium">Last Updated</label>
-                <p className="text-sm">{format(new Date(quote.updated_at), 'MMM dd, yyyy HH:mm')}</p>
-              </div>
-              {quote.last_calendar_sync && (
-                <div>
-                  <label className="text-sm font-medium">Last Calendar Sync</label>
-                  <p className="text-sm">{format(new Date(quote.last_calendar_sync), 'MMM dd, yyyy HH:mm')}</p>
+                    </div>
+                  ))}
                 </div>
               )}
             </CardContent>
           </Card>
-        </CardContent>
-      </Card>
-    </div>
+        )}
+
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="details" className="flex items-center gap-2">
+              <Settings className="h-4 w-4" />
+              Details
+            </TabsTrigger>
+            <TabsTrigger value="menu" className="flex items-center gap-2">
+              <ChefHat className="h-4 w-4" />
+              Menu
+            </TabsTrigger>
+            <TabsTrigger value="notes" className="flex items-center gap-2">
+              <StickyNote className="h-4 w-4" />
+              Notes
+            </TabsTrigger>
+            <TabsTrigger value="communication" className="flex items-center gap-2">
+              <MessageSquare className="h-4 w-4" />
+              Messages
+            </TabsTrigger>
+            <TabsTrigger value="calendar" className="flex items-center gap-2">
+              <Calendar className="h-4 w-4" />
+              Calendar
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="details" className="space-y-6">
+            <div className="flex justify-end mb-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsEditing(!isEditing)}
+              >
+                <Edit className="h-4 w-4 mr-2" />
+                {isEditing ? 'Cancel' : 'Edit Details'}
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Contact Information */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Users className="h-5 w-5" />
+                    Contact Information
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label>Contact Name</Label>
+                    {isEditing ? (
+                      <Input
+                        value={editedQuote.contact_name}
+                        onChange={(e) => setEditedQuote({...editedQuote, contact_name: e.target.value})}
+                      />
+                    ) : (
+                      <p className="text-sm bg-muted p-3 rounded-md">{editedQuote.contact_name}</p>
+                    )}
+                  </div>
+                  
+                  <div>
+                    <Label>Email</Label>
+                    {isEditing ? (
+                      <Input
+                        type="email"
+                        value={editedQuote.email}
+                        onChange={(e) => setEditedQuote({...editedQuote, email: e.target.value})}
+                      />
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <Mail className="h-4 w-4 text-muted-foreground" />
+                        <p className="text-sm">{editedQuote.email}</p>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div>
+                    <Label>Phone</Label>
+                    {isEditing ? (
+                      <Input
+                        value={editedQuote.phone}
+                        onChange={(e) => setEditedQuote({...editedQuote, phone: e.target.value})}
+                      />
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <Phone className="h-4 w-4 text-muted-foreground" />
+                        <p className="text-sm">{editedQuote.phone}</p>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Event Details */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Calendar className="h-5 w-5" />
+                    Event Details
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label>Event Name</Label>
+                    {isEditing ? (
+                      <Input
+                        value={editedQuote.event_name}
+                        onChange={(e) => setEditedQuote({...editedQuote, event_name: e.target.value})}
+                      />
+                    ) : (
+                      <p className="text-sm bg-muted p-3 rounded-md">{editedQuote.event_name}</p>
+                    )}
+                  </div>
+                  
+                  <div>
+                    <Label>Event Type</Label>
+                    {isEditing ? (
+                      <Select 
+                        value={editedQuote.event_type} 
+                        onValueChange={(value) => setEditedQuote({...editedQuote, event_type: value})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="wedding">Wedding</SelectItem>
+                          <SelectItem value="corporate">Corporate Event</SelectItem>
+                          <SelectItem value="birthday">Birthday Party</SelectItem>
+                          <SelectItem value="graduation">Graduation</SelectItem>
+                          <SelectItem value="anniversary">Anniversary</SelectItem>
+                          <SelectItem value="military">Military Function</SelectItem>
+                          <SelectItem value="social">Social Gathering</SelectItem>
+                          <SelectItem value="other">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <p className="text-sm bg-muted p-3 rounded-md">{editedQuote.event_type}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <Label>Event Date</Label>
+                    {isEditing ? (
+                      <Input
+                        type="date"
+                        value={editedQuote.event_date}
+                        onChange={(e) => setEditedQuote({...editedQuote, event_date: e.target.value})}
+                      />
+                    ) : (
+                      <p className="text-sm bg-muted p-3 rounded-md">
+                        {format(new Date(editedQuote.event_date), 'MMMM dd, yyyy')}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label>Start Time</Label>
+                      {isEditing ? (
+                        <Input
+                          type="time"
+                          value={editedQuote.start_time || ''}
+                          onChange={(e) => setEditedQuote({...editedQuote, start_time: e.target.value})}
+                        />
+                      ) : (
+                        <p className="text-sm bg-muted p-3 rounded-md">
+                          {formatTimeField(editedQuote.start_time)}
+                        </p>
+                      )}
+                    </div>
+
+                    <div>
+                      <Label>Serving Time</Label>
+                      {isEditing ? (
+                        <Input
+                          type="time"
+                          value={editedQuote.serving_start_time || ''}
+                          onChange={(e) => setEditedQuote({...editedQuote, serving_start_time: e.target.value})}
+                        />
+                      ) : (
+                        <p className="text-sm bg-muted p-3 rounded-md">
+                          {formatTimeField(editedQuote.serving_start_time)}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label>Guest Count</Label>
+                    {isEditing ? (
+                      <Input
+                        type="number"
+                        value={editedQuote.guest_count}
+                        onChange={(e) => setEditedQuote({...editedQuote, guest_count: parseInt(e.target.value)})}
+                      />
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <Users className="h-4 w-4 text-muted-foreground" />
+                        <p className="text-sm">{editedQuote.guest_count} guests</p>
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    <Label>Location</Label>
+                    {isEditing ? (
+                      <Textarea
+                        value={editedQuote.location}
+                        onChange={(e) => setEditedQuote({...editedQuote, location: e.target.value})}
+                        rows={2}
+                      />
+                    ) : (
+                      <div className="flex items-start gap-2">
+                        <MapPin className="h-4 w-4 text-muted-foreground mt-1" />
+                        <p className="text-sm">{editedQuote.location}</p>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Service Details */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Utensils className="h-5 w-5" />
+                    Service Details
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label>Service Type</Label>
+                    {isEditing ? (
+                      <Select 
+                        value={editedQuote.service_type} 
+                        onValueChange={(value) => setEditedQuote({...editedQuote, service_type: value})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="full-service">Full Service Catering</SelectItem>
+                          <SelectItem value="delivery-setup">Delivery + Setup</SelectItem>
+                          <SelectItem value="drop-off">Drop-Off Service</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <p className="text-sm bg-muted p-3 rounded-md">{editedQuote.service_type}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <Label>Status</Label>
+                    {isEditing ? (
+                      <Select 
+                        value={editedQuote.status} 
+                        onValueChange={(value) => setEditedQuote({...editedQuote, status: value})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="pending">Pending</SelectItem>
+                          <SelectItem value="reviewed">Reviewed</SelectItem>
+                          <SelectItem value="quoted">Quoted</SelectItem>
+                          <SelectItem value="confirmed">Confirmed</SelectItem>
+                          <SelectItem value="completed">Completed</SelectItem>
+                          <SelectItem value="cancelled">Cancelled</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <Badge variant="outline" className="text-sm">
+                        {editedQuote.status}
+                      </Badge>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Special Requests & Notes */}
+              <Card className="lg:col-span-2">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Settings className="h-5 w-5" />
+                    Special Requests & Additional Information
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label>Special Requests</Label>
+                    {isEditing ? (
+                      <Textarea
+                        value={editedQuote.special_requests || ''}
+                        onChange={(e) => setEditedQuote({...editedQuote, special_requests: e.target.value})}
+                        placeholder="Any special requests or notes..."
+                      />
+                    ) : (
+                      <p className="text-sm bg-muted p-3 rounded-md min-h-[60px]">
+                        {editedQuote.special_requests || 'No special requests'}
+                      </p>
+                    )}
+                  </div>
+                  
+                  <div>
+                    <Label>Referral Source</Label>
+                    {isEditing ? (
+                      <Input
+                        value={editedQuote.referral_source || ''}
+                        onChange={(e) => setEditedQuote({...editedQuote, referral_source: e.target.value})}
+                        placeholder="How did you hear about us?"
+                      />
+                    ) : (
+                      <p className="text-sm bg-muted p-3 rounded-md">
+                        {editedQuote.referral_source || 'Not specified'}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <Label>Theme Colors</Label>
+                    {isEditing ? (
+                      <Input
+                        value={editedQuote.theme_colors || ''}
+                        onChange={(e) => setEditedQuote({...editedQuote, theme_colors: e.target.value})}
+                        placeholder="Event color scheme..."
+                      />
+                    ) : (
+                      <p className="text-sm bg-muted p-3 rounded-md">
+                        {editedQuote.theme_colors || 'Not specified'}
+                      </p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {isEditing && (
+              <div className="flex justify-end gap-2 pt-4">
+                <Button variant="outline" onClick={handleCancel}>
+                  Cancel
+                </Button>
+                <Button onClick={handleSave} disabled={loading}>
+                  <Save className="h-4 w-4 mr-2" />
+                  {loading ? 'Saving...' : 'Save Changes'}
+                </Button>
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="menu" className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-semibold">Menu Management</h3>
+              <Button
+                variant="outline"
+                onClick={() => setIsEditingMenu(!isEditingMenu)}
+              >
+                <Edit className="h-4 w-4 mr-2" />
+                {isEditingMenu ? 'Cancel' : 'Edit Menu'}
+              </Button>
+            </div>
+
+            {isEditingMenu ? (
+              <MenuEditForm
+                quote={editedQuote}
+                onSave={handleMenuSave}
+                onCancel={() => setIsEditingMenu(false)}
+              />
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Current Menu Display */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Proteins</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    {editedQuote.primary_protein && (
+                      <Badge variant="default">Primary: {editedQuote.primary_protein}</Badge>
+                    )}
+                    {editedQuote.secondary_protein && (
+                      <Badge variant="secondary">Secondary: {editedQuote.secondary_protein}</Badge>
+                    )}
+                    {editedQuote.both_proteins_available && (
+                      <Badge variant="outline">Both proteins for all guests</Badge>
+                    )}
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Dietary Restrictions</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex flex-wrap gap-2">
+                      {formatArrayField(editedQuote.dietary_restrictions).map((restriction, index) => (
+                        <Badge key={index} variant="outline">{restriction}</Badge>
+                      ))}
+                    </div>
+                    {editedQuote.guest_count_with_restrictions && (
+                      <p className="text-sm text-muted-foreground mt-2">
+                        Count: {editedQuote.guest_count_with_restrictions}
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {['appetizers', 'sides', 'desserts', 'drinks'].map((category) => (
+                  <Card key={category}>
+                    <CardHeader>
+                      <CardTitle className="capitalize">{category}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex flex-wrap gap-2">
+                        {formatArrayField(editedQuote[category]).map((item, index) => (
+                          <Badge key={index} variant="secondary">{item}</Badge>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+
+                {editedQuote.custom_menu_requests && (
+                  <Card className="md:col-span-2">
+                    <CardHeader>
+                      <CardTitle>Custom Menu Requests</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm bg-muted p-3 rounded-md">
+                        {editedQuote.custom_menu_requests}
+                      </p>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="notes">
+            <AdminNotesSection quoteId={quote.id} />
+          </TabsContent>
+
+          <TabsContent value="communication">
+            <CommunicationPanel 
+              quoteId={quote.id}
+              customerName={editedQuote.contact_name}
+              customerEmail={editedQuote.email}
+            />
+          </TabsContent>
+
+          <TabsContent value="calendar" className="space-y-6">
+            {/* Calendar Integration */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Calendar className="h-5 w-5" />
+                  Calendar Integration
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">Calendar Status</p>
+                    <p className="text-sm text-muted-foreground">
+                      {editedQuote.calendar_sync_status === 'synced' ? 'Event synced to calendar' : 'Not synced'}
+                    </p>
+                  </div>
+                  <Badge variant={editedQuote.calendar_sync_status === 'synced' ? 'default' : 'outline'}>
+                    {editedQuote.calendar_sync_status || 'not_synced'}
+                  </Badge>
+                </div>
+
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleCalendarAction('create')}
+                    disabled={loading}
+                  >
+                    <CalendarPlus className="h-4 w-4 mr-2" />
+                    Add to Calendar
+                  </Button>
+                  
+                  {editedQuote.calendar_event_id && (
+                    <>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleCalendarAction('update')}
+                        disabled={loading}
+                      >
+                        <RefreshCw className="h-4 w-4 mr-2" />
+                        Update Event
+                      </Button>
+                      
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleCalendarAction('delete')}
+                        disabled={loading}
+                      >
+                        <CalendarMinus className="h-4 w-4 mr-2" />
+                        Remove Event
+                      </Button>
+                    </>
+                  )}
+                </div>
+
+                {editedQuote.last_calendar_sync && (
+                  <p className="text-xs text-muted-foreground">
+                    Last sync: {format(new Date(editedQuote.last_calendar_sync), 'MMM dd, yyyy HH:mm')}
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </DialogContent>
+    </Dialog>
   );
-};
+}
