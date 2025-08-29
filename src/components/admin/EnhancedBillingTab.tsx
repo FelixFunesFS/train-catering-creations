@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { StreamlinedInvoiceModal } from './invoice/StreamlinedInvoiceModal';
+import { useNavigate } from 'react-router-dom';
 import { InvoiceDraftManager } from './InvoiceDraftManager';
 import { InvoiceQuoteSyncManager } from './InvoiceQuoteSyncManager';
 import {
@@ -56,6 +57,7 @@ interface Customer {
 }
 
 export function EnhancedBillingTab({ quote, onGenerateInvoice, onResendInvoice }: BillingTabProps) {
+  const navigate = useNavigate();
   const [loadingActions, setLoadingActions] = useState<{ [key: string]: boolean }>({});
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [customer, setCustomer] = useState<Customer | null>(null);
@@ -462,41 +464,50 @@ export function EnhancedBillingTab({ quote, onGenerateInvoice, onResendInvoice }
                       )}
                     </div>
 
-                    <div className="flex flex-wrap gap-2">
-                      {invoice.status === 'draft' && (
+                      <div className="flex flex-wrap gap-2">
                         <Button
                           size="sm"
-                          onClick={() => sendInvoice(invoice.id)}
-                          disabled={loadingActions[`sendInvoice-${invoice.id}`]}
-                          className="flex items-center gap-2"
-                        >
-                          <Send className="h-3 w-3" />
-                          {loadingActions[`sendInvoice-${invoice.id}`] ? 'Sending...' : 'Send Invoice'}
-                        </Button>
-                      )}
-                      {invoice.pdf_url && (
-                        <Button
-                          size="sm"
+                          onClick={() => navigate(`/admin/invoice/${invoice.id}`)}
                           variant="outline"
-                          onClick={() => window.open(invoice.pdf_url, '_blank')}
                           className="flex items-center gap-2"
                         >
-                          <Download className="h-3 w-3" />
-                          Download PDF
+                          <Edit3 className="h-3 w-3" />
+                          Open Full View
                         </Button>
-                      )}
-                      {invoice.stripe_invoice_id && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => window.open(`https://dashboard.stripe.com/invoices/${invoice.stripe_invoice_id}`, '_blank')}
-                          className="flex items-center gap-2"
-                        >
-                          <ExternalLink className="h-3 w-3" />
-                          View in Stripe
-                        </Button>
-                      )}
-                    </div>
+                        {invoice.status === 'draft' && (
+                          <Button
+                            size="sm"
+                            onClick={() => sendInvoice(invoice.id)}
+                            disabled={loadingActions[`sendInvoice-${invoice.id}`]}
+                            className="flex items-center gap-2"
+                          >
+                            <Send className="h-3 w-3" />
+                            {loadingActions[`sendInvoice-${invoice.id}`] ? 'Sending...' : 'Send Invoice'}
+                          </Button>
+                        )}
+                        {invoice.pdf_url && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => window.open(invoice.pdf_url, '_blank')}
+                            className="flex items-center gap-2"
+                          >
+                            <Download className="h-3 w-3" />
+                            Download PDF
+                          </Button>
+                        )}
+                        {invoice.stripe_invoice_id && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => window.open(`https://dashboard.stripe.com/invoices/${invoice.stripe_invoice_id}`, '_blank')}
+                            className="flex items-center gap-2"
+                          >
+                            <ExternalLink className="h-3 w-3" />
+                            View in Stripe
+                          </Button>
+                        )}
+                      </div>
                   </div>
                 ))}
               </div>
