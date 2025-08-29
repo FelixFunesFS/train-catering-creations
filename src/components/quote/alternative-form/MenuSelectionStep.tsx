@@ -90,15 +90,27 @@ export const MenuSelectionStep = ({ form }: MenuSelectionStepProps) => {
   }));
 
   // Appetizer options
-  const appetizerOptions: Option[] = ADDITIONAL_ITEMS.appetizers.map(app => ({
+  const appetizerOptions: Option[] = menuItems.appetizers.map(app => ({
     label: app.name,
     value: app.id
   }));
 
   // Sides options  
-  const sidesOptions: Option[] = ADDITIONAL_ITEMS.sides.map(side => ({
+  const sidesOptions: Option[] = menuItems.sides.map(side => ({
     label: side.name,
     value: side.id
+  }));
+
+  // Dessert options
+  const dessertOptions: Option[] = menuItems.desserts.map(dessert => ({
+    label: dessert.name,
+    value: dessert.id
+  }));
+
+  // Drinks options
+  const drinkOptions: Option[] = ADDITIONAL_ITEMS.drinks.map(drink => ({
+    label: drink.name,
+    value: drink.id
   }));
 
   // Watch both proteins available toggle
@@ -308,20 +320,29 @@ export const MenuSelectionStep = ({ form }: MenuSelectionStepProps) => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              {ADDITIONAL_ITEMS.desserts.map((dessert) => (
-                <MenuItemCard 
-                  key={dessert.id} 
-                  item={dessert} 
-                  isSelected={form.watch("desserts")?.includes(dessert.id)}
-                  onToggle={() => handleMenuItemToggle("desserts", dessert.id)}
-                />
-              ))}
-            </div>
+            <FormField
+              control={form.control}
+              name="desserts"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm font-medium">Select Desserts</FormLabel>
+                  <FormControl>
+                    <MultiSelect
+                      options={dessertOptions}
+                      selected={field.value || []}
+                      onChange={field.onChange}
+                      placeholder="Choose desserts for your event..."
+                      searchPlaceholder="Search desserts..."
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </CardContent>
         </Card>
 
-        {/* Drinks */}
+        {/* Beverages */}
         <Card className="neumorphic-card-1 border-0 bg-gradient-to-br from-card via-card/95 to-muted/10">
           <CardHeader>
             <CardTitle className="flex items-center gap-3 text-xl font-elegant">
@@ -332,16 +353,25 @@ export const MenuSelectionStep = ({ form }: MenuSelectionStepProps) => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              {ADDITIONAL_ITEMS.drinks.map((drink) => (
-                <MenuItemCard 
-                  key={drink.id} 
-                  item={drink} 
-                  isSelected={form.watch("drinks")?.includes(drink.id)}
-                  onToggle={() => handleMenuItemToggle("drinks", drink.id)}
-                />
-              ))}
-            </div>
+            <FormField
+              control={form.control}
+              name="drinks"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm font-medium">Select Beverages</FormLabel>
+                  <FormControl>
+                    <MultiSelect
+                      options={drinkOptions}
+                      selected={field.value || []}
+                      onChange={field.onChange}
+                      placeholder="Choose beverages for your event..."
+                      searchPlaceholder="Search drinks..."
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </CardContent>
         </Card>
       </div>
