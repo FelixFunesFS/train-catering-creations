@@ -53,10 +53,10 @@ interface QuoteRequest {
   service_type: string;
   primary_protein?: string;
   secondary_protein?: string;
-  appetizers: string[];
-  sides: string[];
-  desserts: string[];
-  drinks: string[];
+  appetizers: any; // Json type from database
+  sides: any; // Json type from database
+  desserts: any; // Json type from database
+  drinks: any; // Json type from database
   special_requests?: string;
   estimated_total: number;
 }
@@ -110,14 +110,23 @@ export default function InvoiceEstimateCreation() {
 
       if (error) throw error;
 
-      setQuote(quoteData);
+      // Convert Json arrays to string arrays for our interface
+      const processedQuote = {
+        ...quoteData,
+        appetizers: Array.isArray(quoteData.appetizers) ? quoteData.appetizers : [],
+        sides: Array.isArray(quoteData.sides) ? quoteData.sides : [],
+        desserts: Array.isArray(quoteData.desserts) ? quoteData.desserts : [],
+        drinks: Array.isArray(quoteData.drinks) ? quoteData.drinks : []
+      };
+      
+      setQuote(processedQuote);
       
       // Check if government contract based on email domain
       const isGovEmail = checkGovernmentEmail(quoteData.email);
       setIsGovernmentContract(isGovEmail);
       
       // Initialize estimate with quote data
-      initializeEstimate(quoteData, isGovEmail);
+      initializeEstimate(processedQuote, isGovEmail);
     } catch (error) {
       console.error('Error fetching quote:', error);
       toast({
@@ -404,7 +413,7 @@ export default function InvoiceEstimateCreation() {
       await supabase
         .from('quote_requests')
         .update({ 
-          status: 'estimate_created',
+          status: 'quoted',
           estimated_total: estimate.total_amount
         })
         .eq('id', estimate.quote_request_id);
