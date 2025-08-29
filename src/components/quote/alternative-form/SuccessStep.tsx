@@ -46,11 +46,11 @@ export const SuccessStep = ({ estimatedCost, quoteId }: SuccessStepProps) => {
         </CardHeader>
         
         <CardContent className="space-y-8">
-          {estimatedCost && (
+          {false && (
             <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 rounded-lg p-6">
               <h3 className="text-lg font-elegant mb-2">Preliminary Estimate</h3>
               <div className="text-3xl font-bold text-primary mb-2">
-                ${estimatedCost.toLocaleString()}
+                ${estimatedCost?.toLocaleString()}
               </div>
               <p className="text-sm text-muted-foreground">
                 Your detailed quote may vary based on final menu selections and service requirements.

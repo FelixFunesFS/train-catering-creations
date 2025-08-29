@@ -18,11 +18,44 @@ interface MenuSelectionStepProps {
 // Get menu items from shared data source
 const menuItems = getMenuItems();
 
-// Extract proteins from entrees
+// Extract proteins from entrees with expanded selection
 const PROTEINS = [
-  ...menuItems.entrees.filter(item => 
-    ['baked-smoked-chicken', 'barbecue-chicken', 'fried-chicken', 'pulled-pork', 'ribs', 'brisket', 'baked-salmon', 'vegan-lasagna', 'grilled-portobello'].includes(item.id)
-  )
+  // Poultry
+  { id: 'baked-smoked-chicken', name: 'Baked/Smoked Chicken', isPopular: true },
+  { id: 'barbecue-chicken', name: 'Barbecue Chicken', isPopular: true },
+  { id: 'chicken-tenders', name: 'Chicken Tenders' },
+  { id: 'fried-chicken', name: 'Fried Chicken', isPopular: true },
+  { id: 'turkey-wings', name: 'Turkey Wings' },
+  { id: 'chicken-alfredo', name: 'Chicken Alfredo' },
+  { id: 'chicken-wings', name: 'Chicken Wings', isPopular: true },
+  
+  // Beef & Pork
+  { id: 'pulled-pork', name: 'Pulled Pork', isPopular: true },
+  { id: 'ribs', name: 'Ribs', isPopular: true },
+  { id: 'brisket', name: 'Brisket', isPopular: true },
+  { id: 'smoked-sausage', name: 'Smoked Sausage', isPopular: true },
+  { id: 'fried-pork-chops', name: 'Fried Pork Chops' },
+  { id: 'smothered-pork-chops', name: 'Smothered Pork Chops' },
+  { id: 'meatloaf', name: 'Meatloaf' },
+  { id: 'hamburgers', name: 'Hamburgers', isPopular: true },
+  { id: 'spaghetti', name: 'Spaghetti' },
+  { id: 'lasagna', name: 'Lasagna' },
+  { id: 'tacos', name: 'Tacos' },
+  
+  // Seafood
+  { id: 'baked-salmon', name: 'Baked Salmon', isPremium: true },
+  { id: 'shrimp-alfredo', name: 'Shrimp Alfredo' },
+  { id: 'low-country-boil', name: 'Low Country Boil', isPopular: true },
+  { id: 'crabs', name: 'Crabs' },
+  { id: 'fried-fish', name: 'Fried Fish' },
+  
+  // Plant-Based
+  { id: 'vegan-lasagna', name: 'Vegan Lasagna', isDietary: true },
+  { id: 'quinoa-power-bowl', name: 'Quinoa Power Bowl', isDietary: true },
+  { id: 'stuffed-bell-peppers', name: 'Stuffed Bell Peppers', isDietary: true },
+  { id: 'black-bean-burgers', name: 'Black Bean Burgers', isDietary: true },
+  { id: 'roasted-vegetable-medley', name: 'Roasted Vegetable Medley', isDietary: true },
+  { id: 'grilled-portobello', name: 'Grilled Portobello Mushrooms', isDietary: true }
 ];
 
 const APPETIZERS = menuItems.appetizers;

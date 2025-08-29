@@ -399,9 +399,9 @@ export const AlternativeQuoteForm = () => {
                 <p className="text-sm text-muted-foreground">Step {currentStep + 1} of {STEPS.length}</p>
               </div>
             </div>
-            {false && estimatedCost && (
+            {false && (
               <Badge variant="outline" className="bg-gradient-primary text-primary-foreground border-0 px-4 py-2">
-                Est. ${estimatedCost.toLocaleString()}
+                Est. ${estimatedCost?.toLocaleString()}
               </Badge>
             )}
           </div>

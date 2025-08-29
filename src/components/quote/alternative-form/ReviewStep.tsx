@@ -432,7 +432,7 @@ export const ReviewStep = ({ form, estimatedCost }: ReviewStepProps) => {
             </CardContent>
           </Card>
 
-          {false && estimatedCost && (
+          {false && (
             <Card className="neumorphic-card-1 border-0 bg-gradient-to-br from-primary/5 via-primary/3 to-primary/5">
               <CardHeader>
                 <CardTitle className="flex items-center gap-3 text-xl font-elegant">

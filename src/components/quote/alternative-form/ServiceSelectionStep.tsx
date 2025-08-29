@@ -107,10 +107,10 @@ export const ServiceSelectionStep = ({ form }: ServiceSelectionStepProps) => {
                             <span className="text-sm text-gold bg-gold/10 px-2 py-1 rounded-full">Premium</span>
                           </Label>
                           <p className="text-sm text-muted-foreground mt-2 ml-8">
-                            Complete catering experience with professional setup, service, optional wait staff, and cleanup. Includes chafing dishes, linens, and full presentation.
+                            Complete catering experience with professional setup, service, wait staff, and cleanup. Includes chafing dishes, linens, and full presentation.
                           </p>
                           <div className="flex items-center gap-4 mt-3 ml-8 text-xs text-muted-foreground">
-                            <span>✓ Professional wait staff available</span>
+                            <span>✓ Professional wait staff included</span>
                             <span>✓ Complete setup & cleanup</span>
                             <span>✓ Chafing dishes & linens</span>
                           </div>
@@ -152,85 +152,55 @@ export const ServiceSelectionStep = ({ form }: ServiceSelectionStepProps) => {
                 )}
               />
 
-              <div className="flex items-center justify-between p-4 neumorphic-card-1 rounded-lg">
-                <div className="space-y-1">
-                  <Label htmlFor="wait-staff" className="text-base font-medium">
-                    Professional Wait Staff
-                  </Label>
-                  <p className="text-sm text-muted-foreground">
-                    Add experienced servers to assist your guests (optional)
-                  </p>
-                </div>
-                <FormField
-                  control={form.control}
-                  name="wait_staff_requested"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Switch
-                          id="wait-staff"
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              </div>
+              <FormField
+                control={form.control}
+                name="wait_staff_requirements"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-base font-medium">
+                      Wait Staff Requirements
+                    </FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Describe your wait staff needs (e.g., number of servers, specific duties, dress code)"
+                        className="min-h-[100px] neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                          }
+                        }}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-              {waitStaffRequested && (
-                <div className="space-y-4 animate-fade-in-up">
-                  <FormField
-                    control={form.control}
-                    name="wait_staff_requirements"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-base font-medium">
-                          Wait Staff Requirements
-                        </FormLabel>
-                        <FormControl>
-                          <Textarea
-                            placeholder="Describe your wait staff needs (e.g., number of servers, specific duties, dress code)"
-                            className="min-h-[100px] neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30"
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter' && !e.shiftKey) {
-                                e.preventDefault();
-                              }
-                            }}
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="wait_staff_setup_areas"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-base font-medium">
-                          Setup Areas for Wait Staff
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="e.g., main dining room, outdoor patio, cocktail area"
-                            className="h-12 text-base neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30"
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
-                                e.preventDefault();
-                              }
-                            }}
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              )}
+              <FormField
+                control={form.control}
+                name="wait_staff_setup_areas"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-base font-medium">
+                      Setup Areas for Wait Staff
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="e.g., main dining room, outdoor patio, cocktail area"
+                        className="h-12 text-base neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                          }
+                        }}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
           )}
         </CardContent>

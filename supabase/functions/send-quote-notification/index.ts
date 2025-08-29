@@ -247,9 +247,12 @@ async function sendEmailViaGmailAPI(to: string, subject: string, html: string): 
       html
     ].join('\r\n');
 
-    // Base64url encode the message
+    // Base64url encode the message with proper UTF-8 handling
     const base64urlEncode = (str: string) => {
-      return btoa(str)
+      // First convert string to UTF-8 bytes, then to Latin1 for btoa
+      const utf8Bytes = new TextEncoder().encode(str);
+      const latin1String = Array.from(utf8Bytes, byte => String.fromCharCode(byte)).join('');
+      return btoa(latin1String)
         .replace(/\+/g, '-')
         .replace(/\//g, '_')
         .replace(/=/g, '');
