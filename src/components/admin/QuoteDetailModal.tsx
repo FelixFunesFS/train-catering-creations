@@ -360,19 +360,21 @@ export function QuoteDetailModal({ quote, onClose, onUpdate }: QuoteDetailModalP
                     {isEditing ? (
                       <Select 
                         value={editedQuote.event_type} 
-                        onValueChange={(value) => setEditedQuote({...editedQuote, event_type: value})}
+                        onValueChange={(value) => setEditedQuote({...editedQuote, event_type: value as Database['public']['Enums']['event_type']})}
                       >
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="wedding">Wedding</SelectItem>
                           <SelectItem value="corporate">Corporate Event</SelectItem>
+                          <SelectItem value="private_party">Private Party</SelectItem>
                           <SelectItem value="birthday">Birthday Party</SelectItem>
+                          <SelectItem value="baby_shower">Baby Shower</SelectItem>
+                          <SelectItem value="bereavement">Bereavement</SelectItem>
                           <SelectItem value="graduation">Graduation</SelectItem>
+                          <SelectItem value="retirement">Retirement</SelectItem>
+                          <SelectItem value="holiday_party">Holiday Party</SelectItem>
                           <SelectItem value="anniversary">Anniversary</SelectItem>
-                          <SelectItem value="military">Military Function</SelectItem>
-                          <SelectItem value="social">Social Gathering</SelectItem>
                           <SelectItem value="other">Other</SelectItem>
                         </SelectContent>
                       </Select>
@@ -476,13 +478,14 @@ export function QuoteDetailModal({ quote, onClose, onUpdate }: QuoteDetailModalP
                     {isEditing ? (
                       <Select 
                         value={editedQuote.service_type} 
-                        onValueChange={(value) => setEditedQuote({...editedQuote, service_type: value})}
+                        onValueChange={(value) => setEditedQuote({...editedQuote, service_type: value as Database['public']['Enums']['service_type']})}
                       >
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="full-service">Full Service Catering</SelectItem>
+                          <SelectItem value="delivery-only">Delivery Only</SelectItem>
                           <SelectItem value="delivery-setup">Delivery + Setup</SelectItem>
                           <SelectItem value="drop-off">Drop-Off Service</SelectItem>
                         </SelectContent>
@@ -497,7 +500,7 @@ export function QuoteDetailModal({ quote, onClose, onUpdate }: QuoteDetailModalP
                     {isEditing ? (
                       <Select 
                         value={editedQuote.status} 
-                        onValueChange={(value) => setEditedQuote({...editedQuote, status: value})}
+                        onValueChange={(value) => setEditedQuote({...editedQuote, status: value as Database['public']['Enums']['quote_status']})}
                       >
                         <SelectTrigger>
                           <SelectValue />
