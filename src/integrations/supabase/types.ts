@@ -14,6 +14,50 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_notes: {
+        Row: {
+          category: string | null
+          created_at: string
+          created_by: string
+          id: string
+          is_internal: boolean
+          note_content: string
+          priority_level: string | null
+          quote_request_id: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          is_internal?: boolean
+          note_content: string
+          priority_level?: string | null
+          quote_request_id: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          is_internal?: boolean
+          note_content?: string
+          priority_level?: string | null
+          quote_request_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_notes_quote_request_id_fkey"
+            columns: ["quote_request_id"]
+            isOneToOne: false
+            referencedRelation: "quote_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       gmail_tokens: {
         Row: {
           access_token: string
@@ -46,6 +90,100 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      message_threads: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          last_message_at: string
+          quote_request_id: string
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          last_message_at?: string
+          quote_request_id: string
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          last_message_at?: string
+          quote_request_id?: string
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_threads_quote_request_id_fkey"
+            columns: ["quote_request_id"]
+            isOneToOne: false
+            referencedRelation: "quote_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          attachments: Json | null
+          created_at: string
+          id: string
+          is_template_used: boolean | null
+          message_content: string
+          message_type: string | null
+          read_status: boolean
+          sender_email: string
+          sender_name: string
+          sender_type: string
+          template_name: string | null
+          thread_id: string
+          updated_at: string
+        }
+        Insert: {
+          attachments?: Json | null
+          created_at?: string
+          id?: string
+          is_template_used?: boolean | null
+          message_content: string
+          message_type?: string | null
+          read_status?: boolean
+          sender_email: string
+          sender_name: string
+          sender_type: string
+          template_name?: string | null
+          thread_id: string
+          updated_at?: string
+        }
+        Update: {
+          attachments?: Json | null
+          created_at?: string
+          id?: string
+          is_template_used?: boolean | null
+          message_content?: string
+          message_type?: string | null
+          read_status?: boolean
+          sender_email?: string
+          sender_name?: string
+          sender_type?: string
+          template_name?: string | null
+          thread_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "message_threads"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       quote_request_history: {
         Row: {
