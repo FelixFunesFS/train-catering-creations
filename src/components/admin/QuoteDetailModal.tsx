@@ -376,11 +376,11 @@ export function QuoteDetailModal({ quote, onClose, onUpdate }: QuoteDetailModalP
             </Card>
           )}
 
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             {/* Sticky Tab Navigation */}
             <div className="sticky top-0 z-40 bg-background border-b -mx-6 px-6 pb-4">
               <ScrollArea className="w-full whitespace-nowrap">
-                <TabsList className="inline-flex h-12 w-auto min-w-full sm:grid sm:grid-cols-6 gap-1">
+                <TabsList className="inline-flex h-12 w-auto min-w-full sm:grid sm:grid-cols-5 gap-1">
                   <TabsTrigger 
                     value="details" 
                     className="flex items-center gap-2 px-4 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
@@ -394,13 +394,6 @@ export function QuoteDetailModal({ quote, onClose, onUpdate }: QuoteDetailModalP
                   >
                     <ChefHat className="h-4 w-4" />
                     <span className="hidden sm:inline">Menu</span>
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="billing" 
-                    className="flex items-center gap-2 px-4 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                  >
-                    <DollarSign className="h-4 w-4" />
-                    <span className="hidden sm:inline">Billing</span>
                   </TabsTrigger>
                   <TabsTrigger 
                     value="notes" 
@@ -518,25 +511,6 @@ export function QuoteDetailModal({ quote, onClose, onUpdate }: QuoteDetailModalP
             )}
           </TabsContent>
 
-            <TabsContent value="billing" className="mt-0">
-              <EnhancedBillingTab 
-                quote={editedQuote}
-                onGenerateInvoice={() => {
-                  fetchHistory();
-                  toast({
-                    title: "Invoice Generated",
-                    description: "Invoice has been created and sent to customer"
-                  });
-                }}
-                onResendInvoice={() => {
-                  fetchHistory();
-                  toast({
-                    title: "Invoice Resent",
-                    description: "Invoice has been resent to customer"
-                  });
-                }}
-              />
-            </TabsContent>
 
             <TabsContent value="notes" className="mt-0">
               <AdminNotesSection quoteId={quote.id} />

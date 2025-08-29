@@ -7,10 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Eye, Filter, Download, Calendar, MapPin, Users, Mail, Phone } from "lucide-react";
+import { Search, Eye, Filter, Download, Calendar, MapPin, Users, Mail, Phone, FileText, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { QuoteDetailModal } from "@/components/admin/QuoteDetailModal";
+import { QuoteViewModal } from "@/components/admin/QuoteViewModal";
+import { useNavigate } from "react-router-dom";
 
 type QuoteRequest = Database['public']['Tables']['quote_requests']['Row'];
 
@@ -18,11 +20,13 @@ const AdminDashboard = () => {
   const [quotes, setQuotes] = useState<QuoteRequest[]>([]);
   const [filteredQuotes, setFilteredQuotes] = useState<QuoteRequest[]>([]);
   const [selectedQuote, setSelectedQuote] = useState<QuoteRequest | null>(null);
+  const [viewQuote, setViewQuote] = useState<QuoteRequest | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [serviceFilter, setServiceFilter] = useState<string>("all");
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchQuotes();
@@ -339,12 +343,22 @@ const AdminDashboard = () => {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => setSelectedQuote(quote)}
+                            onClick={() => setViewQuote(quote)}
                             className="gap-1"
                           >
                             <Eye className="h-3 w-3" />
                             View
                           </Button>
+                          {quote.status === 'pending' && (
+                            <Button
+                              size="sm"
+                              onClick={() => navigate(`/invoice-estimate-creation/${quote.id}`)}
+                              className="gap-1"
+                            >
+                              <FileText className="h-3 w-3" />
+                              Generate Estimate
+                            </Button>
+                          )}
                           <Select 
                             value={quote.status} 
                             onValueChange={(value) => updateQuoteStatus(quote.id, value)}
@@ -380,6 +394,14 @@ const AdminDashboard = () => {
               setQuotes(quotes.map(q => q.id === updatedQuote.id ? updatedQuote : q));
               setSelectedQuote(updatedQuote);
             }}
+          />
+        )}
+
+        {/* Quote View Modal */}
+        {viewQuote && (
+          <QuoteViewModal
+            quote={viewQuote}
+            onClose={() => setViewQuote(null)}
           />
         )}
       </div>
