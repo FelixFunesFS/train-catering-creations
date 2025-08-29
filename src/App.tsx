@@ -22,6 +22,7 @@ import TestEmail from "./pages/TestEmail";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsConditions from "./pages/TermsConditions";
 import NotFound from "./pages/NotFound";
+import AdminDashboard from "./pages/AdminDashboard";
 const AppContent = () => {
   useScrollToAnchor();
   return <div className="min-h-screen bg-background font-clean flex flex-col transition-colors duration-300 py-0 my-0">
@@ -42,6 +43,7 @@ const AppContent = () => {
           <Route path="/test-email" element={<TestEmail />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-conditions" element={<TermsConditions />} />
+          <Route path="/admin" element={<AdminDashboard />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
