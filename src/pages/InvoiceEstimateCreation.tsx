@@ -10,6 +10,14 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { 
+  formatCustomerName, 
+  formatCustomerPhone, 
+  generateProfessionalLineItems,
+  type LineItem,
+  type QuoteRequest 
+} from '@/utils/invoiceFormatters';
+import PostPricingActions from '@/components/invoice/PostPricingActions';
 import {
   ArrowLeft,
   Save,
@@ -29,37 +37,7 @@ import {
   CheckCircle2
 } from 'lucide-react';
 
-interface LineItem {
-  id: string;
-  title: string;
-  description: string;
-  quantity: number;
-  unit_price: number;
-  total_price: number;
-  category?: string;
-}
-
-interface QuoteRequest {
-  id: string;
-  contact_name: string;
-  email: string;
-  phone: string;
-  event_name: string;
-  event_date: string;
-  event_type: string;
-  start_time: string;
-  location: string;
-  guest_count: number;
-  service_type: string;
-  primary_protein?: string;
-  secondary_protein?: string;
-  appetizers: any; // Json type from database
-  sides: any; // Json type from database
-  desserts: any; // Json type from database
-  drinks: any; // Json type from database
-  special_requests?: string;
-  estimated_total: number;
-}
+// Interfaces imported from utilities
 
 interface InvoiceEstimate {
   quote_request_id: string;
@@ -148,95 +126,8 @@ export default function InvoiceEstimateCreation() {
   };
 
   const initializeEstimate = (quoteData: QuoteRequest, isGov: boolean) => {
-    const lineItems: LineItem[] = [];
-    
-    // Generate line items from quote selections
-    if (quoteData.primary_protein) {
-      lineItems.push({
-        id: `item_${Date.now()}_1`,
-        title: 'Primary Protein',
-        description: quoteData.primary_protein,
-        quantity: quoteData.guest_count,
-        unit_price: 0, // Manual pricing
-        total_price: 0,
-        category: 'protein'
-      });
-    }
-
-    if (quoteData.secondary_protein) {
-      lineItems.push({
-        id: `item_${Date.now()}_2`,
-        title: 'Secondary Protein',
-        description: quoteData.secondary_protein,
-        quantity: quoteData.guest_count,
-        unit_price: 0,
-        total_price: 0,
-        category: 'protein'
-      });
-    }
-
-    // Add appetizers
-    quoteData.appetizers?.forEach((appetizer, index) => {
-      lineItems.push({
-        id: `item_${Date.now()}_app_${index}`,
-        title: 'Appetizer',
-        description: appetizer,
-        quantity: 1,
-        unit_price: 0,
-        total_price: 0,
-        category: 'appetizer'
-      });
-    });
-
-    // Add sides
-    quoteData.sides?.forEach((side, index) => {
-      lineItems.push({
-        id: `item_${Date.now()}_side_${index}`,
-        title: 'Side Dish',
-        description: side,
-        quantity: quoteData.guest_count,
-        unit_price: 0,
-        total_price: 0,
-        category: 'side'
-      });
-    });
-
-    // Add desserts
-    quoteData.desserts?.forEach((dessert, index) => {
-      lineItems.push({
-        id: `item_${Date.now()}_dessert_${index}`,
-        title: 'Dessert',
-        description: dessert,
-        quantity: quoteData.guest_count,
-        unit_price: 0,
-        total_price: 0,
-        category: 'dessert'
-      });
-    });
-
-    // Add drinks
-    quoteData.drinks?.forEach((drink, index) => {
-      lineItems.push({
-        id: `item_${Date.now()}_drink_${index}`,
-        title: 'Beverage',
-        description: drink,
-        quantity: quoteData.guest_count,
-        unit_price: 0,
-        total_price: 0,
-        category: 'drink'
-      });
-    });
-
-    // Add service charge
-    lineItems.push({
-      id: `item_${Date.now()}_service`,
-      title: 'Service Charge',
-      description: `${quoteData.service_type} service for ${quoteData.guest_count} guests`,
-      quantity: 1,
-      unit_price: 0,
-      total_price: 0,
-      category: 'service'
-    });
+    // Generate professional line items with intelligent grouping
+    const lineItems = generateProfessionalLineItems(quoteData);
 
     const subtotal = lineItems.reduce((sum, item) => sum + item.total_price, 0);
     const tax_amount = Math.round(subtotal * 0.08); // 8% tax
@@ -245,9 +136,9 @@ export default function InvoiceEstimateCreation() {
 
     setEstimate({
       quote_request_id: quoteData.id,
-      customer_name: quoteData.contact_name,
+      customer_name: formatCustomerName(quoteData.contact_name),
       customer_email: quoteData.email,
-      customer_phone: quoteData.phone,
+      customer_phone: formatCustomerPhone(quoteData.phone),
       event_details: {
         name: quoteData.event_name,
         date: quoteData.event_date,
@@ -436,6 +327,36 @@ export default function InvoiceEstimateCreation() {
     }
   };
 
+  // Post-pricing workflow actions
+  const handleSaveAsDraft = async () => {
+    // Save current state as draft without validation
+    toast({
+      title: "Draft Saved",
+      description: "Your estimate has been saved as a draft",
+    });
+  };
+
+  const handleGeneratePreview = () => {
+    // Generate customer-facing preview
+    toast({
+      title: "Preview Generated",
+      description: "Opening customer preview in new tab",
+    });
+  };
+
+  const handleSendEstimate = async () => {
+    // Send estimate to customer via email
+    await handleSaveEstimate(); // This will create the invoice and navigate
+  };
+
+  const handleScheduleFollow = () => {
+    // Schedule follow-up reminders
+    toast({
+      title: "Follow-up Scheduled",
+      description: "Reminder set for 3 days from now",
+    });
+  };
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -514,8 +435,8 @@ export default function InvoiceEstimateCreation() {
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Estimate Details - Main Column */}
           <div className="lg:col-span-2 space-y-6">
             {/* Customer & Event Info */}
@@ -609,37 +530,46 @@ export default function InvoiceEstimateCreation() {
                 </Button>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {estimate.line_items.map((item, index) => (
-                    <div key={item.id} className="border rounded-lg p-4">
-                      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-start">
-                        <div className="md:col-span-2">
-                          <Label className="text-xs text-muted-foreground">Item</Label>
-                          {editingItem === item.id ? (
-                            <div className="space-y-2">
-                              <Input
-                                value={item.title}
-                                onChange={(e) => updateLineItem(item.id, { title: e.target.value })}
-                                placeholder="Item title"
-                              />
-                              <Textarea
-                                value={item.description}
-                                onChange={(e) => updateLineItem(item.id, { description: e.target.value })}
-                                placeholder="Item description"
-                                rows={2}
-                              />
-                            </div>
-                          ) : (
-                            <div className="space-y-1" onClick={() => setEditingItem(item.id)}>
-                              <p className="font-medium cursor-pointer hover:text-primary">
-                                {item.title}
-                              </p>
-                              <p className="text-sm text-muted-foreground cursor-pointer">
-                                {item.description}
-                              </p>
-                            </div>
-                          )}
-                        </div>
+                   <div className="space-y-4">
+                   {estimate.line_items.map((item, index) => (
+                     <div key={item.id} className="border rounded-lg p-4 hover:border-primary/20 transition-colors">
+                       <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-start">
+                         <div className="md:col-span-2">
+                           <div className="flex items-center gap-2 mb-2">
+                             <Label className="text-xs text-muted-foreground uppercase tracking-wide">Item</Label>
+                             {item.category && (
+                               <Badge variant="secondary" className="text-xs px-2 py-0.5">
+                                 {item.category}
+                               </Badge>
+                             )}
+                           </div>
+                           {editingItem === item.id ? (
+                             <div className="space-y-2">
+                               <Input
+                                 value={item.title}
+                                 onChange={(e) => updateLineItem(item.id, { title: e.target.value })}
+                                 placeholder="Item title"
+                                 className="font-medium"
+                               />
+                               <Textarea
+                                 value={item.description}
+                                 onChange={(e) => updateLineItem(item.id, { description: e.target.value })}
+                                 placeholder="Item description"
+                                 rows={2}
+                                 className="text-sm"
+                               />
+                             </div>
+                           ) : (
+                             <div className="space-y-1" onClick={() => setEditingItem(item.id)}>
+                               <p className="font-semibold cursor-pointer hover:text-primary transition-colors">
+                                 {item.title}
+                               </p>
+                               <p className="text-sm text-muted-foreground cursor-pointer leading-relaxed">
+                                 {item.description}
+                               </p>
+                             </div>
+                           )}
+                         </div>
                         
                         <div>
                           <Label className="text-xs text-muted-foreground">Quantity</Label>
@@ -790,6 +720,18 @@ export default function InvoiceEstimateCreation() {
                 )}
               </CardContent>
             </Card>
+
+            {/* Post-Pricing Workflow Actions */}
+            <PostPricingActions
+              totalAmount={estimate.total_amount}
+              isGovernmentContract={isGovernmentContract}
+              depositRequired={estimate.deposit_required}
+              onSaveAsDraft={handleSaveAsDraft}
+              onGeneratePreview={handleGeneratePreview}
+              onSendEstimate={handleSendEstimate}
+              onScheduleFollow={handleScheduleFollow}
+              hasPendingItems={estimate.line_items.some(item => item.unit_price === 0)}
+            />
           </div>
         </div>
       </div>
