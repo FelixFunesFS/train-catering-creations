@@ -73,83 +73,135 @@ serve(async (req) => {
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
 
-    // Generate line items from quote data without pricing
+    // Helper functions for NLP text conversion
+    const convertMenuIdToReadableText = (menuId: string): string => {
+      if (!menuId) return '';
+      
+      const conversions: Record<string, string> = {
+        'fried-chicken': 'Fried Chicken', 'baked-chicken': 'Baked Chicken', 'grilled-chicken': 'Grilled Chicken',
+        'chicken-alfredo': 'Chicken Alfredo', 'bbq-chicken': 'BBQ Chicken', 'chicken-tenders': 'Chicken Tenders',
+        'black-bean-burgers': 'Black Bean Burgers', 'turkey-breast': 'Turkey Breast', 'ham-glazed': 'Glazed Ham',
+        'pork-ribs': 'Pork Ribs', 'beef-brisket': 'Beef Brisket', 'pulled-pork': 'Pulled Pork',
+        'mac-and-cheese': 'Mac & Cheese', 'mashed-potatoes-gravy': 'Mashed Potatoes with Gravy',
+        'green-beans': 'Green Beans', 'collard-greens': 'Collard Greens', 'corn-on-cob': 'Corn on the Cob',
+        'black-eyed-peas': 'Black-Eyed Peas', 'cornbread': 'Cornbread', 'dinner-rolls': 'Dinner Rolls',
+        'chicken-sliders': 'Chicken Sliders', 'meatballs': 'Meatballs', 'deviled-eggs': 'Deviled Eggs',
+        'vanilla-cake': 'Vanilla Cake', 'chocolate-cake': 'Chocolate Cake', 'cheesecake': 'Cheesecake',
+        'sweet-tea': 'Sweet Tea', 'lemonade': 'Fresh Lemonade', 'water': 'Water', 'coffee': 'Coffee',
+        'vegetarian': 'Vegetarian', 'vegan': 'Vegan', 'gluten-free': 'Gluten-Free'
+      };
+
+      return conversions[menuId] || menuId.split('-').map(word => 
+        word.charAt(0).toUpperCase() + word.slice(1)
+      ).join(' ');
+    };
+
+    const createMealBundleDescription = (proteins: string[], sides: string[], drinks: string[], guestCount: number): string => {
+      const proteinText = proteins.map(convertMenuIdToReadableText).join(' & ');
+      const sidesText = sides.slice(0, 2).map(convertMenuIdToReadableText).join(' and ');
+      const drinkText = drinks.length > 0 ? convertMenuIdToReadableText(drinks[0]) : '';
+      
+      let description = `Meal Package: ${proteinText}`;
+      if (sidesText) description += ` with ${sidesText}`;
+      description += ', dinner rolls';
+      if (drinkText) description += ` and ${drinkText}`;
+      description += ` for ${guestCount} guests`;
+      
+      return description;
+    };
+
+    // Generate intelligent line items from quote data
     const lineItems: any[] = [];
     let subtotal = 0;
 
-    // Helper function to add menu items with descriptions only
-    const addMenuItems = (items: any[], category: string) => {
-      if (Array.isArray(items) && items.length > 0) {
-        items.forEach(item => {
-          lineItems.push({
-            description: `${item} for ${quoteData.guest_count} guests`,
-            category,
-            quantity: 1,
-            unit_price: 0, // No pricing until manually set
-            total_price: 0,
-          });
-          logStep(`${category} line item added`, { item, pricing: 'manual required' });
-        });
-      }
-    };
-
-    // Add proteins without pricing
-    if (quoteData.primary_protein) {
+    // 1. MEALS - Bundle primary proteins, sides, rolls, and drinks
+    const proteins: string[] = [];
+    if (quoteData.primary_protein) proteins.push(quoteData.primary_protein);
+    if (quoteData.secondary_protein) proteins.push(quoteData.secondary_protein);
+    
+    const sides = quoteData.sides || [];
+    const drinks = quoteData.drinks || [];
+    
+    if (proteins.length > 0) {
       lineItems.push({
-        description: `${quoteData.primary_protein} (Primary Protein) for ${quoteData.guest_count} guests`,
-        category: 'protein',
+        description: createMealBundleDescription(proteins, sides.slice(0, 2), drinks.slice(0, 1), quoteData.guest_count),
+        category: 'meal',
+        quantity: quoteData.guest_count,
+        unit_price: 0,
+        total_price: 0,
+      });
+      logStep('Meal package created', { proteins: proteins.join(', '), sides: sides.slice(0, 2).join(', ') });
+    }
+
+    // 2. APPETIZERS - If any appetizers selected
+    if (quoteData.appetizers && Array.isArray(quoteData.appetizers) && quoteData.appetizers.length > 0) {
+      const appetizerText = quoteData.appetizers.map(convertMenuIdToReadableText).join(', ');
+      lineItems.push({
+        description: `Appetizers: ${appetizerText} for ${quoteData.guest_count} guests`,
+        category: 'appetizer',
         quantity: 1,
         unit_price: 0,
         total_price: 0,
       });
-      logStep('Primary protein added', { protein: quoteData.primary_protein });
+      logStep('Appetizers added', { items: appetizerText });
     }
 
-    if (quoteData.secondary_protein) {
+    // 3. ADDITIONAL SIDES - If more than 2 sides selected
+    if (sides.length > 2) {
+      const additionalSides = sides.slice(2);
+      const sidesText = additionalSides.map(convertMenuIdToReadableText).join(', ');
       lineItems.push({
-        description: `${quoteData.secondary_protein} (Secondary Protein) for ${quoteData.guest_count} guests`,
-        category: 'protein',
+        description: `Additional Sides: ${sidesText} for ${quoteData.guest_count} guests`,
+        category: 'side',
         quantity: 1,
         unit_price: 0,
         total_price: 0,
       });
-      logStep('Secondary protein added', { protein: quoteData.secondary_protein });
+      logStep('Additional sides added', { items: sidesText });
     }
 
-    // Add all menu selections
-    addMenuItems(quoteData.appetizers || [], 'appetizer');
-    addMenuItems(quoteData.sides || [], 'side');
-    addMenuItems(quoteData.desserts || [], 'dessert');
-    addMenuItems(quoteData.drinks || [], 'drink');
-
-    // Add dietary restrictions without pricing
-    if (quoteData.dietary_restrictions && Array.isArray(quoteData.dietary_restrictions)) {
-      quoteData.dietary_restrictions.forEach((restriction: string) => {
-        const restrictionCount = parseInt(quoteData.guest_count_with_restrictions) || Math.ceil(quoteData.guest_count * 0.1);
-        lineItems.push({
-          description: `${restriction} Option for ${restrictionCount} guests`,
-          category: 'dietary',
-          quantity: 1,
-          unit_price: 0,
-          total_price: 0,
-        });
-        logStep("Dietary restriction added", { restriction, restrictionCount });
-      });
-    }
-
-    // Add wait staff if requested (without pricing)
-    if (quoteData.wait_staff_requested) {
+    // 4. DESSERTS - If any desserts selected
+    if (quoteData.desserts && Array.isArray(quoteData.desserts) && quoteData.desserts.length > 0) {
+      const dessertText = quoteData.desserts.map(convertMenuIdToReadableText).join(', ');
       lineItems.push({
-        description: `Wait Staff Service for ${quoteData.guest_count} guests`,
-        category: 'service',
+        description: `Desserts: ${dessertText} for ${quoteData.guest_count} guests`,
+        category: 'dessert',
         quantity: 1,
         unit_price: 0,
         total_price: 0,
       });
-      logStep("Wait staff service added", { pricing: 'manual required' });
+      logStep('Desserts added', { items: dessertText });
     }
 
-    // Add service charge based on service type (without pricing)
+    // 5. ADDITIONAL BEVERAGES - If more than 1 drink selected
+    if (drinks.length > 1) {
+      const additionalDrinks = drinks.slice(1);
+      const drinksText = additionalDrinks.map(convertMenuIdToReadableText).join(', ');
+      lineItems.push({
+        description: `Additional Beverages: ${drinksText} for ${quoteData.guest_count} guests`,
+        category: 'drink',
+        quantity: 1,
+        unit_price: 0,
+        total_price: 0,
+      });
+      logStep('Additional beverages added', { items: drinksText });
+    }
+
+    // 6. DIETARY RESTRICTIONS - As separate accommodations
+    if (quoteData.dietary_restrictions && Array.isArray(quoteData.dietary_restrictions) && quoteData.dietary_restrictions.length > 0) {
+      const restrictionCount = parseInt(quoteData.guest_count_with_restrictions) || Math.ceil(quoteData.guest_count * 0.1);
+      const restrictionsText = quoteData.dietary_restrictions.map(convertMenuIdToReadableText).join(', ');
+      lineItems.push({
+        description: `Dietary Accommodations: ${restrictionsText} options for ${restrictionCount} guests`,
+        category: 'dietary',
+        quantity: 1,
+        unit_price: 0,
+        total_price: 0,
+      });
+      logStep('Dietary accommodations added', { restrictions: restrictionsText, count: restrictionCount });
+    }
+
+    // 7. SERVICE - Combined service offering
     const serviceTypeMap: Record<string, string> = {
       'drop-off': 'Drop-off Service',
       'buffet': 'Buffet Service', 
@@ -158,129 +210,55 @@ serve(async (req) => {
     };
     
     const serviceName = serviceTypeMap[quoteData.service_type] || 'Catering Service';
+    let serviceDescription = serviceName;
+    
+    if (quoteData.wait_staff_requested) {
+      serviceDescription = `${serviceName} with Professional Wait Staff`;
+    }
+    
     lineItems.push({
-      description: `${serviceName} for ${quoteData.guest_count} guests`,
+      description: `${serviceDescription} for ${quoteData.guest_count} guests`,
       category: 'service',
       quantity: 1,
       unit_price: 0,
       total_price: 0,
     });
-    logStep("Service charge line item added", { serviceName });
+    logStep('Service added', { service: serviceDescription });
 
-    // Add event details as informational line items
-    lineItems.push({
-      description: `Event: ${quoteData.event_name} on ${quoteData.event_date}`,
-      category: 'event_info',
-      quantity: 1,
-      unit_price: 0,
-      total_price: 0,
-    });
-
-    if (quoteData.location) {
-      lineItems.push({
-        description: `Location: ${quoteData.location}`,
-        category: 'event_info',
-        quantity: 1,
-        unit_price: 0,
-        total_price: 0,
-      });
-    }
-
-    if (quoteData.start_time) {
-      lineItems.push({
-        description: `Service Time: ${quoteData.start_time}${quoteData.serving_start_time ? ` - ${quoteData.serving_start_time}` : ''}`,
-        category: 'event_info',
-        quantity: 1,
-        unit_price: 0,
-        total_price: 0,
-      });
-    }
-
-    // Add equipment rentals without pricing
+    // 8. EQUIPMENT RENTALS - Bundled together
+    const equipment: string[] = [];
+    let equipmentQuantities: any = {};
+    
     if (quoteData.chafers_requested) {
-      const chaferQuantity = Math.ceil(quoteData.guest_count / 25); // Estimate 1 chafer per 25 guests
-      lineItems.push({
-        description: `Chafer Rental (estimated ${chaferQuantity} units needed)`,
-        category: 'equipment',
-        quantity: chaferQuantity,
-        unit_price: 0,
-        total_price: 0,
-      });
-      logStep("Chafer rental added", { estimatedQuantity: chaferQuantity });
+      const chaferQty = Math.ceil(quoteData.guest_count / 25);
+      equipment.push(`${chaferQty} chafing dishes`);
+      equipmentQuantities.chafers = chaferQty;
     }
-
-    if (quoteData.linens_requested) {
-      lineItems.push({
-        description: 'Linen Rental',
-        category: 'equipment',
-        quantity: 1,
-        unit_price: 0,
-        total_price: 0,
-      });
-      logStep("Linen rental added");
-    }
-
+    if (quoteData.linens_requested) equipment.push('table linens');
     if (quoteData.tables_chairs_requested) {
-      const tableQuantity = Math.ceil(quoteData.guest_count / 8); // Estimate 1 table per 8 guests
-      lineItems.push({
-        description: `Table & Chair Rental (estimated ${tableQuantity} tables)`,
-        category: 'equipment',
-        quantity: tableQuantity,
-        unit_price: 0,
-        total_price: 0,
-      });
-      logStep("Table rental added", { estimatedQuantity: tableQuantity });
+      const tableQty = Math.ceil(quoteData.guest_count / 8);
+      equipment.push(`${tableQty} tables & chairs`);
+      equipmentQuantities.tables = tableQty;
     }
-
-    // Add other equipment requests
-    if (quoteData.serving_utensils_requested) {
+    if (quoteData.serving_utensils_requested) equipment.push('serving utensils');
+    if (quoteData.plates_requested) equipment.push('disposable plates');
+    if (quoteData.cups_requested) equipment.push('disposable cups');
+    if (quoteData.napkins_requested) equipment.push('napkins');
+    if (quoteData.ice_requested) equipment.push('ice service');
+    
+    if (equipment.length > 0) {
+      const equipmentText = equipment.length === 1 ? equipment[0] : 
+        equipment.length === 2 ? equipment.join(' and ') :
+        equipment.slice(0, -1).join(', ') + ', and ' + equipment[equipment.length - 1];
+      
       lineItems.push({
-        description: 'Serving Utensils',
+        description: `Equipment Rental: ${equipmentText.charAt(0).toUpperCase() + equipmentText.slice(1)}`,
         category: 'equipment',
         quantity: 1,
         unit_price: 0,
         total_price: 0,
       });
-    }
-
-    if (quoteData.plates_requested) {
-      lineItems.push({
-        description: `Plates for ${quoteData.guest_count} guests`,
-        category: 'equipment',
-        quantity: quoteData.guest_count,
-        unit_price: 0,
-        total_price: 0,
-      });
-    }
-
-    if (quoteData.cups_requested) {
-      lineItems.push({
-        description: `Cups for ${quoteData.guest_count} guests`,
-        category: 'equipment',
-        quantity: quoteData.guest_count,
-        unit_price: 0,
-        total_price: 0,
-      });
-    }
-
-    if (quoteData.napkins_requested) {
-      lineItems.push({
-        description: `Napkins for ${quoteData.guest_count} guests`,
-        category: 'equipment',
-        quantity: quoteData.guest_count,
-        unit_price: 0,
-        total_price: 0,
-      });
-    }
-
-    if (quoteData.ice_requested) {
-      lineItems.push({
-        description: 'Ice Service',
-        category: 'equipment',
-        quantity: 1,
-        unit_price: 0,
-        total_price: 0,
-      });
+      logStep('Equipment rental added', { items: equipmentText });
     }
 
     // Apply manual overrides if provided (for pricing)

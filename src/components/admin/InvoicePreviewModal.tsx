@@ -10,11 +10,12 @@ import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Plus, Trash2, Edit3, Save, X, AlertTriangle, RefreshCw, Copy, Percent, DollarSign, FileText, History, Send, Calculator, Utensils } from 'lucide-react';
+import { Plus, Trash2, Edit3, Save, X, AlertTriangle, RefreshCw, Copy, Percent, DollarSign, FileText, History, Send, Calculator, Utensils, ChevronUp, ChevronDown, CheckSquare, Square } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { QuoteReferencePanel } from './QuoteReferencePanel';
 import { PricingProgressCard } from './PricingProgressCard';
+import { convertMenuIdToReadableText, createMealBundleDescription } from '@/utils/menuNLP';
 
 interface LineItem {
   id?: string;
@@ -80,6 +81,9 @@ export function InvoicePreviewModal({
   const [bulkEditMode, setBulkEditMode] = useState(false);
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const [showVersionHistory, setShowVersionHistory] = useState(false);
+  const [bulkPrice, setBulkPrice] = useState<string>('');
+  const [bulkQuantity, setBulkQuantity] = useState<string>('');
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
   const { toast } = useToast();
 
   useEffect(() => {
@@ -101,69 +105,97 @@ export function InvoicePreviewModal({
   }, [invoiceData, isOpen, quote]);
 
   const generateInitialLineItemsNoPricing = async () => {
-    // Generate line items from quote data without pricing (manual entry required)
+    // Generate intelligent line items from quote data using NLP and smart bundling
     const items: LineItem[] = [];
     
-    // Add proteins without pricing
-    if (quote.primary_protein) {
+    // 1. MEALS - Bundle primary proteins, sides, rolls, and drinks
+    const proteins: string[] = [];
+    if (quote.primary_protein) proteins.push(quote.primary_protein);
+    if (quote.secondary_protein) proteins.push(quote.secondary_protein);
+    
+    const sides = quote.sides || [];
+    const drinks = quote.drinks || [];
+    
+    if (proteins.length > 0) {
       items.push({
-        id: `protein-primary`,
-        description: `${quote.primary_protein} (Primary Protein) for ${quote.guest_count} guests`,
-        category: 'protein',
-        quantity: 1,
-        unit_price: 0, // Manual pricing required
+        id: 'meal-package',
+        description: createMealBundleDescription(proteins, sides.slice(0, 2), drinks.slice(0, 1), quote.guest_count),
+        category: 'meal',
+        quantity: quote.guest_count,
+        unit_price: 0,
         total_price: 0,
       });
     }
-    
-    if (quote.secondary_protein) {
+
+    // 2. APPETIZERS - If any appetizers selected
+    if (quote.appetizers && Array.isArray(quote.appetizers) && quote.appetizers.length > 0) {
+      const appetizerText = quote.appetizers.map(convertMenuIdToReadableText).join(', ');
       items.push({
-        id: `protein-secondary`,
-        description: `${quote.secondary_protein} (Secondary Protein) for ${quote.guest_count} guests`,
-        category: 'protein',
+        id: 'appetizers',
+        description: `Appetizers: ${appetizerText} for ${quote.guest_count} guests`,
+        category: 'appetizer',
         quantity: 1,
         unit_price: 0,
         total_price: 0,
       });
     }
-    
-    // Add menu items from quote selections without pricing
-    const addQuoteItems = (quoteItems: any[], category: string) => {
-      if (Array.isArray(quoteItems)) {
-        quoteItems.forEach(item => {
-          items.push({
-            id: `${category}-${item.replace(/\s+/g, '-').toLowerCase()}`,
-            description: `${item} for ${quote.guest_count} guests`,
-            category,
-            quantity: 1,
-            unit_price: 0, // Manual pricing required
-            total_price: 0,
-          });
-        });
-      }
-    };
-    
-    addQuoteItems(quote.appetizers, 'appetizer');
-    addQuoteItems(quote.sides, 'side');
-    addQuoteItems(quote.desserts, 'dessert');
-    addQuoteItems(quote.drinks, 'drink');
-    
-    // Add dietary restrictions
-    if (quote.dietary_restrictions && Array.isArray(quote.dietary_restrictions)) {
-      quote.dietary_restrictions.forEach((restriction: string) => {
-        const restrictionCount = parseInt(quote.guest_count_with_restrictions) || Math.ceil(quote.guest_count * 0.1);
-        items.push({
-          id: `dietary-${restriction.replace(/\s+/g, '-').toLowerCase()}`,
-          description: `${restriction} Option for ${restrictionCount} guests`,
-          category: 'dietary',
-          quantity: 1,
-          unit_price: 0,
-          total_price: 0,
-        });
+
+    // 3. ADDITIONAL SIDES - If more than 2 sides selected
+    if (sides.length > 2) {
+      const additionalSides = sides.slice(2);
+      const sidesText = additionalSides.map(convertMenuIdToReadableText).join(', ');
+      items.push({
+        id: 'additional-sides',
+        description: `Additional Sides: ${sidesText} for ${quote.guest_count} guests`,
+        category: 'side',
+        quantity: 1,
+        unit_price: 0,
+        total_price: 0,
       });
     }
-    
-    // Add service items
+
+    // 4. DESSERTS - If any desserts selected
+    if (quote.desserts && Array.isArray(quote.desserts) && quote.desserts.length > 0) {
+      const dessertText = quote.desserts.map(convertMenuIdToReadableText).join(', ');
+      items.push({
+        id: 'desserts',
+        description: `Desserts: ${dessertText} for ${quote.guest_count} guests`,
+        category: 'dessert',
+        quantity: 1,
+        unit_price: 0,
+        total_price: 0,
+      });
+    }
+
+    // 5. ADDITIONAL BEVERAGES - If more than 1 drink selected
+    if (drinks.length > 1) {
+      const additionalDrinks = drinks.slice(1);
+      const drinksText = additionalDrinks.map(convertMenuIdToReadableText).join(', ');
+      items.push({
+        id: 'additional-beverages',
+        description: `Additional Beverages: ${drinksText} for ${quote.guest_count} guests`,
+        category: 'drink',
+        quantity: 1,
+        unit_price: 0,
+        total_price: 0,
+      });
+    }
+
+    // 6. DIETARY RESTRICTIONS - As separate accommodations
+    if (quote.dietary_restrictions && Array.isArray(quote.dietary_restrictions) && quote.dietary_restrictions.length > 0) {
+      const restrictionCount = parseInt(quote.guest_count_with_restrictions) || Math.ceil(quote.guest_count * 0.1);
+      const restrictionsText = quote.dietary_restrictions.map(convertMenuIdToReadableText).join(', ');
+      items.push({
+        id: 'dietary-accommodations',
+        description: `Dietary Accommodations: ${restrictionsText} options for ${restrictionCount} guests`,
+        category: 'dietary',
+        quantity: 1,
+        unit_price: 0,
+        total_price: 0,
+      });
+    }
+
+    // 7. SERVICE - Combined service offering
     const serviceTypeMap: Record<string, string> = {
       'drop-off': 'Drop-off Service',
       'buffet': 'Buffet Service', 
@@ -172,84 +204,53 @@ export function InvoicePreviewModal({
     };
     
     const serviceName = serviceTypeMap[quote.service_type] || 'Catering Service';
+    let serviceDescription = serviceName;
+    
+    if (quote.wait_staff_requested) {
+      serviceDescription = `${serviceName} with Professional Wait Staff`;
+    }
+    
     items.push({
-      id: 'service-main',
-      description: `${serviceName} for ${quote.guest_count} guests`,
+      id: 'service',
+      description: `${serviceDescription} for ${quote.guest_count} guests`,
       category: 'service',
       quantity: 1,
       unit_price: 0,
       total_price: 0,
     });
+
+    // 8. EQUIPMENT RENTALS - Bundled together
+    const equipment: string[] = [];
     
-    // Add wait staff if requested
-    if (quote.wait_staff_requested) {
-      items.push({
-        id: 'service-wait-staff',
-        description: `Wait Staff Service for ${quote.guest_count} guests`,
-        category: 'service',
-        quantity: 1,
-        unit_price: 0,
-        total_price: 0,
-      });
-    }
-    
-    // Add equipment rentals
     if (quote.chafers_requested) {
-      const chaferQuantity = Math.ceil(quote.guest_count / 25);
-      items.push({
-        id: 'equipment-chafers',
-        description: `Chafer Rental (estimated ${chaferQuantity} units)`,
-        category: 'equipment',
-        quantity: chaferQuantity,
-        unit_price: 0,
-        total_price: 0,
-      });
+      const chaferQty = Math.ceil(quote.guest_count / 25);
+      equipment.push(`${chaferQty} chafing dishes`);
     }
+    if (quote.linens_requested) equipment.push('table linens');
+    if (quote.tables_chairs_requested) {
+      const tableQty = Math.ceil(quote.guest_count / 8);
+      equipment.push(`${tableQty} tables & chairs`);
+    }
+    if (quote.serving_utensils_requested) equipment.push('serving utensils');
+    if (quote.plates_requested) equipment.push('disposable plates');
+    if (quote.cups_requested) equipment.push('disposable cups');
+    if (quote.napkins_requested) equipment.push('napkins');
+    if (quote.ice_requested) equipment.push('ice service');
     
-    if (quote.linens_requested) {
+    if (equipment.length > 0) {
+      const equipmentText = equipment.length === 1 ? equipment[0] : 
+        equipment.length === 2 ? equipment.join(' and ') :
+        equipment.slice(0, -1).join(', ') + ', and ' + equipment[equipment.length - 1];
+      
       items.push({
-        id: 'equipment-linens',
-        description: 'Linen Rental',
+        id: 'equipment-rental',
+        description: `Equipment Rental: ${equipmentText.charAt(0).toUpperCase() + equipmentText.slice(1)}`,
         category: 'equipment',
         quantity: 1,
         unit_price: 0,
         total_price: 0,
       });
     }
-    
-    if (quote.tables_chairs_requested) {
-      const tableQuantity = Math.ceil(quote.guest_count / 8);
-      items.push({
-        id: 'equipment-tables',
-        description: `Table & Chair Rental (estimated ${tableQuantity} tables)`,
-        category: 'equipment',
-        quantity: tableQuantity,
-        unit_price: 0,
-        total_price: 0,
-      });
-    }
-    
-    // Add other equipment requests
-    const equipmentRequests = [
-      { condition: quote.serving_utensils_requested, name: 'Serving Utensils', id: 'equipment-utensils' },
-      { condition: quote.plates_requested, name: `Plates for ${quote.guest_count} guests`, id: 'equipment-plates', qty: quote.guest_count },
-      { condition: quote.cups_requested, name: `Cups for ${quote.guest_count} guests`, id: 'equipment-cups', qty: quote.guest_count },
-      { condition: quote.napkins_requested, name: `Napkins for ${quote.guest_count} guests`, id: 'equipment-napkins', qty: quote.guest_count },
-      { condition: quote.ice_requested, name: 'Ice Service', id: 'equipment-ice' }
-    ];
-    
-    equipmentRequests.forEach(req => {
-      if (req.condition) {
-        items.push({
-          id: req.id,
-          description: req.name,
-          category: 'equipment',
-          quantity: req.qty || 1,
-          unit_price: 0,
-          total_price: 0,
-        });
-      }
-    });
     
     setLineItems(items);
     setOriginalItems([...items]);
@@ -393,6 +394,56 @@ export function InvoicePreviewModal({
     }));
   };
 
+  const toggleItemSelection = (itemId: string) => {
+    setSelectedItems(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(itemId)) {
+        newSet.delete(itemId);
+      } else {
+        newSet.add(itemId);
+      }
+      return newSet;
+    });
+  };
+
+  const handleBulkPriceApply = () => {
+    if (bulkPrice && selectedItems.size > 0) {
+      const priceInCents = Math.round(parseFloat(bulkPrice) * 100);
+      bulkUpdateSelected('unit_price', priceInCents);
+      setBulkPrice('');
+      toast({
+        title: "Bulk Price Applied",
+        description: `Applied $${bulkPrice} to ${selectedItems.size} selected items`
+      });
+    }
+  };
+
+  const handleBulkQuantityApply = () => {
+    if (bulkQuantity && selectedItems.size > 0) {
+      const quantity = parseInt(bulkQuantity);
+      bulkUpdateSelected('quantity', quantity);
+      setBulkQuantity('');
+      toast({
+        title: "Bulk Quantity Applied",
+        description: `Applied quantity ${quantity} to ${selectedItems.size} selected items`
+      });
+    }
+  };
+
+  const getCategoryIcon = (category: string) => {
+    switch (category) {
+      case 'meal': return <Utensils className="h-4 w-4" />;
+      case 'appetizer': return <Plus className="h-4 w-4" />;
+      case 'side': return <Plus className="h-4 w-4" />;
+      case 'dessert': return <Plus className="h-4 w-4" />;
+      case 'drink': return <Plus className="h-4 w-4" />;
+      case 'service': return <Send className="h-4 w-4" />;
+      case 'equipment': return <Plus className="h-4 w-4" />;
+      case 'dietary': return <AlertTriangle className="h-4 w-4" />;
+      default: return <FileText className="h-4 w-4" />;
+    }
+  };
+
   const handleGenerateInvoice = async () => {
     if (lineItems.some(item => item.is_override) && !overrideReason.trim()) {
       toast({
@@ -454,7 +505,7 @@ export function InvoicePreviewModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl max-h-[90vh]">
+      <DialogContent className="max-w-[95vw] w-full max-h-[95vh] h-full">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FileText className="h-5 w-5" />
@@ -468,10 +519,10 @@ export function InvoicePreviewModal({
           </p>
         </DialogHeader>
 
-        <ScrollArea className="max-h-[70vh]">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            {/* Main Content - 4 columns now */}
-            <div className="lg:col-span-3 space-y-6">
+        <ScrollArea className="flex-1 overflow-auto">
+          <div className="grid grid-cols-1 xl:grid-cols-5 gap-6 h-full">
+            {/* Main Content - Takes 3/5 of space on xl screens */}
+            <div className="xl:col-span-3 space-y-6">
               
               {/* Pricing Progress Indicator */}
               {mode === 'edit' && (
