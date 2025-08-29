@@ -186,7 +186,8 @@ export function CommunicationPanel({ quoteId, customerName, customerEmail }: Com
 
     setSending(true);
     try {
-      const { data, error } = await supabase
+      // First save message to database
+      const { data: messageData, error: messageError } = await supabase
         .from('messages')
         .insert({
           thread_id: activeThread,
@@ -200,16 +201,74 @@ export function CommunicationPanel({ quoteId, customerName, customerEmail }: Com
         .select()
         .single();
 
-      if (error) throw error;
+      if (messageError) throw messageError;
 
-      setMessages(prev => [...prev, data]);
+      // Now send actual email via Gmail API
+      try {
+        const { data: emailData, error: emailError } = await supabase.functions.invoke('send-gmail-email', {
+          body: {
+            to: customerEmail,
+            subject: threads.find(t => t.id === activeThread)?.subject || 'Message from Soul Train\'s Eatery',
+            html: `
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <div style="background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); color: white; padding: 20px; text-align: center;">
+                  <h1 style="margin: 0; font-size: 24px;">Soul Train's Eatery</h1>
+                  <p style="margin: 5px 0 0 0; opacity: 0.9;">Authentic Southern Catering</p>
+                </div>
+                
+                <div style="padding: 30px 20px; background: #f9fafb;">
+                  <p style="margin: 0 0 20px 0; color: #374151; font-size: 16px;">Hello ${customerName},</p>
+                  
+                  <div style="background: white; padding: 20px; border-radius: 8px; border-left: 4px solid #dc2626; margin: 20px 0;">
+                    <div style="white-space: pre-wrap; color: #374151; line-height: 1.6;">${newMessage.trim()}</div>
+                  </div>
+                  
+                  <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+                    <p style="margin: 0; color: #6b7280; font-size: 14px;">
+                      Best regards,<br>
+                      <strong>Soul Train's Eatery Team</strong><br>
+                      📞 (843) 970-0265<br>
+                      📧 soultrainseatery@gmail.com<br>
+                      🍽️ Charleston's trusted catering partner
+                    </p>
+                  </div>
+                </div>
+                
+                <div style="background: #374151; color: #d1d5db; padding: 15px 20px; text-align: center; font-size: 12px;">
+                  <p style="margin: 0;">Proudly serving Charleston's Lowcountry and surrounding areas</p>
+                </div>
+              </div>
+            `
+          }
+        });
+
+        if (emailError) {
+          console.warn('Email sending failed:', emailError);
+          toast({
+            title: "Warning",
+            description: "Message saved but email delivery failed. Customer may not receive notification.",
+            variant: "destructive"
+          });
+        } else {
+          toast({
+            title: "Success",
+            description: "Message sent and email delivered successfully"
+          });
+        }
+      } catch (emailError) {
+        console.warn('Email sending failed:', emailError);
+        toast({
+          title: "Warning", 
+          description: "Message saved but email delivery failed. Customer may not receive notification.",
+          variant: "destructive"
+        });
+      }
+
+      // Update UI regardless of email success
+      setMessages(prev => [...prev, messageData]);
       setNewMessage('');
       setSelectedTemplate('');
       
-      toast({
-        title: "Success",
-        description: "Message sent successfully"
-      });
     } catch (error: any) {
       toast({
         title: "Error",
