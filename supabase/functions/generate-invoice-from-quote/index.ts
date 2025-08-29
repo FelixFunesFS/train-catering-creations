@@ -79,11 +79,32 @@ serve(async (req) => {
 
     // Helper function to find pricing rule
     const findPricingRule = (category: string, itemName: string, serviceType?: string) => {
-      return pricingRules?.find(rule => 
+      // First try exact match
+      let rule = pricingRules?.find(rule => 
         rule.category === category && 
         rule.item_name === itemName &&
         (!rule.service_type || rule.service_type === serviceType)
       );
+      
+      // If no exact match, try flexible matching for proteins
+      if (!rule && category === 'protein') {
+        rule = pricingRules?.find(rule => 
+          rule.category === 'protein' &&
+          (rule.item_name.toLowerCase().includes(itemName.toLowerCase()) ||
+           itemName.toLowerCase().includes(rule.item_name.toLowerCase())) &&
+          (!rule.service_type || rule.service_type === serviceType)
+        );
+      }
+      
+      // If still no match, try without service type constraint
+      if (!rule) {
+        rule = pricingRules?.find(rule => 
+          rule.category === category && 
+          rule.item_name === itemName
+        );
+      }
+      
+      return rule;
     };
 
     // Add proteins
@@ -113,21 +134,40 @@ serve(async (req) => {
       subtotal += unitPrice;
     }
 
-    // Add service charge
-    const serviceRule = findPricingRule('service', 
-      quoteData.service_type === 'buffet' ? 'Buffet Service' : 'Plated Service', 
-      quoteData.service_type
-    );
+    // Add service charge based on service type mapping
+    const serviceTypeMap: Record<string, string> = {
+      'drop-off': 'Drop-off Service',
+      'buffet': 'Buffet Service', 
+      'plated': 'Plated Service',
+      'full-service': 'Full Service'
+    };
+    
+    const serviceName = serviceTypeMap[quoteData.service_type] || 'Catering Service';
+    const serviceRule = findPricingRule('service', serviceName, quoteData.service_type);
+    
     if (serviceRule) {
       const serviceCharge = serviceRule.base_price + (serviceRule.price_per_person * quoteData.guest_count);
       lineItems.push({
-        description: `${quoteData.service_type} Service for ${quoteData.guest_count} guests`,
+        description: `${serviceName} for ${quoteData.guest_count} guests`,
         category: 'service',
         quantity: 1,
         unit_price: serviceCharge,
         total_price: serviceCharge,
       });
       subtotal += serviceCharge;
+      logStep("Service charge applied", { serviceName, serviceCharge });
+    } else {
+      // Fallback pricing if no rule found
+      const fallbackCharge = quoteData.guest_count * 500; // $5 per person fallback
+      lineItems.push({
+        description: `${serviceName} for ${quoteData.guest_count} guests`,
+        category: 'service',
+        quantity: 1,
+        unit_price: fallbackCharge,
+        total_price: fallbackCharge,
+      });
+      subtotal += fallbackCharge;
+      logStep("Fallback service charge applied", { serviceName, fallbackCharge });
     }
 
     // Add equipment rentals
@@ -231,7 +271,7 @@ serve(async (req) => {
         customer: customerData.stripe_customer_id,
         invoice: stripeInvoice.id,
         description: item.description,
-        amount: item.total_price,
+        unit_amount: item.unit_price,
         currency: 'usd',
         quantity: item.quantity,
       });
