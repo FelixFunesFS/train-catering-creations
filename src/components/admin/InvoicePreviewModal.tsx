@@ -10,9 +10,10 @@ import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Plus, Trash2, Edit3, Save, X, AlertTriangle, RefreshCw, Copy, Percent, DollarSign, FileText, History, Send } from 'lucide-react';
+import { Plus, Trash2, Edit3, Save, X, AlertTriangle, RefreshCw, Copy, Percent, DollarSign, FileText, History, Send, Calculator } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { QuoteReferencePanel } from './QuoteReferencePanel';
 
 interface LineItem {
   id?: string;
@@ -93,29 +94,40 @@ export function InvoicePreviewModal({
         setQuoteHasChanged(quoteUpdated > lastSync);
       }
     } else if (isOpen) {
-      // Generate initial line items from quote
-      generateInitialLineItems();
+      // Generate initial line items from quote without pricing
+      generateInitialLineItemsNoPricing();
     }
   }, [invoiceData, isOpen, quote]);
 
-  const generateInitialLineItems = async () => {
-    // This would fetch current pricing and generate items from quote
+  const generateInitialLineItemsNoPricing = async () => {
+    // Generate line items from quote data without pricing (manual entry required)
     const items: LineItem[] = [];
     
-    // Add proteins
+    // Add proteins without pricing
     if (quote.primary_protein) {
       items.push({
         id: `protein-primary`,
         description: `${quote.primary_protein} (Primary Protein) for ${quote.guest_count} guests`,
         category: 'protein',
         quantity: 1,
-        unit_price: 1200 * quote.guest_count,
-        total_price: 1200 * quote.guest_count,
+        unit_price: 0, // Manual pricing required
+        total_price: 0,
       });
     }
     
-    // Add menu items from quote selections
-    const addQuoteItems = (quoteItems: any[], category: string, basePrice: number) => {
+    if (quote.secondary_protein) {
+      items.push({
+        id: `protein-secondary`,
+        description: `${quote.secondary_protein} (Secondary Protein) for ${quote.guest_count} guests`,
+        category: 'protein',
+        quantity: 1,
+        unit_price: 0,
+        total_price: 0,
+      });
+    }
+    
+    // Add menu items from quote selections without pricing
+    const addQuoteItems = (quoteItems: any[], category: string) => {
       if (Array.isArray(quoteItems)) {
         quoteItems.forEach(item => {
           items.push({
@@ -123,17 +135,120 @@ export function InvoicePreviewModal({
             description: `${item} for ${quote.guest_count} guests`,
             category,
             quantity: 1,
-            unit_price: basePrice * quote.guest_count,
-            total_price: basePrice * quote.guest_count,
+            unit_price: 0, // Manual pricing required
+            total_price: 0,
           });
         });
       }
     };
     
-    addQuoteItems(quote.appetizers, 'appetizer', 400);
-    addQuoteItems(quote.sides, 'side', 250);
-    addQuoteItems(quote.desserts, 'dessert', 350);
-    addQuoteItems(quote.drinks, 'drink', 175);
+    addQuoteItems(quote.appetizers, 'appetizer');
+    addQuoteItems(quote.sides, 'side');
+    addQuoteItems(quote.desserts, 'dessert');
+    addQuoteItems(quote.drinks, 'drink');
+    
+    // Add dietary restrictions
+    if (quote.dietary_restrictions && Array.isArray(quote.dietary_restrictions)) {
+      quote.dietary_restrictions.forEach((restriction: string) => {
+        const restrictionCount = parseInt(quote.guest_count_with_restrictions) || Math.ceil(quote.guest_count * 0.1);
+        items.push({
+          id: `dietary-${restriction.replace(/\s+/g, '-').toLowerCase()}`,
+          description: `${restriction} Option for ${restrictionCount} guests`,
+          category: 'dietary',
+          quantity: 1,
+          unit_price: 0,
+          total_price: 0,
+        });
+      });
+    }
+    
+    // Add service items
+    const serviceTypeMap: Record<string, string> = {
+      'drop-off': 'Drop-off Service',
+      'buffet': 'Buffet Service', 
+      'plated': 'Plated Service',
+      'full-service': 'Full Service'
+    };
+    
+    const serviceName = serviceTypeMap[quote.service_type] || 'Catering Service';
+    items.push({
+      id: 'service-main',
+      description: `${serviceName} for ${quote.guest_count} guests`,
+      category: 'service',
+      quantity: 1,
+      unit_price: 0,
+      total_price: 0,
+    });
+    
+    // Add wait staff if requested
+    if (quote.wait_staff_requested) {
+      items.push({
+        id: 'service-wait-staff',
+        description: `Wait Staff Service for ${quote.guest_count} guests`,
+        category: 'service',
+        quantity: 1,
+        unit_price: 0,
+        total_price: 0,
+      });
+    }
+    
+    // Add equipment rentals
+    if (quote.chafers_requested) {
+      const chaferQuantity = Math.ceil(quote.guest_count / 25);
+      items.push({
+        id: 'equipment-chafers',
+        description: `Chafer Rental (estimated ${chaferQuantity} units)`,
+        category: 'equipment',
+        quantity: chaferQuantity,
+        unit_price: 0,
+        total_price: 0,
+      });
+    }
+    
+    if (quote.linens_requested) {
+      items.push({
+        id: 'equipment-linens',
+        description: 'Linen Rental',
+        category: 'equipment',
+        quantity: 1,
+        unit_price: 0,
+        total_price: 0,
+      });
+    }
+    
+    if (quote.tables_chairs_requested) {
+      const tableQuantity = Math.ceil(quote.guest_count / 8);
+      items.push({
+        id: 'equipment-tables',
+        description: `Table & Chair Rental (estimated ${tableQuantity} tables)`,
+        category: 'equipment',
+        quantity: tableQuantity,
+        unit_price: 0,
+        total_price: 0,
+      });
+    }
+    
+    // Add other equipment requests
+    const equipmentRequests = [
+      { condition: quote.serving_utensils_requested, name: 'Serving Utensils', id: 'equipment-utensils' },
+      { condition: quote.plates_requested, name: `Plates for ${quote.guest_count} guests`, id: 'equipment-plates', qty: quote.guest_count },
+      { condition: quote.cups_requested, name: `Cups for ${quote.guest_count} guests`, id: 'equipment-cups', qty: quote.guest_count },
+      { condition: quote.napkins_requested, name: `Napkins for ${quote.guest_count} guests`, id: 'equipment-napkins', qty: quote.guest_count },
+      { condition: quote.ice_requested, name: 'Ice Service', id: 'equipment-ice' }
+    ];
+    
+    equipmentRequests.forEach(req => {
+      if (req.condition) {
+        items.push({
+          id: req.id,
+          description: req.name,
+          category: 'equipment',
+          quantity: req.qty || 1,
+          unit_price: 0,
+          total_price: 0,
+        });
+      }
+    });
     
     setLineItems(items);
     setOriginalItems([...items]);
@@ -208,7 +323,7 @@ export function InvoicePreviewModal({
   const refreshFromQuote = async () => {
     setLoading(true);
     try {
-      await generateInitialLineItems();
+      await generateInitialLineItemsNoPricing();
       setQuoteHasChanged(false);
       toast({
         title: "Refreshed from Quote",
@@ -347,7 +462,9 @@ export function InvoicePreviewModal({
         </DialogHeader>
 
         <ScrollArea className="max-h-[70vh]">
-          <div className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            {/* Main Content - 3 columns */}
+            <div className="lg:col-span-3 space-y-6">
             {/* Quote Status & Controls */}
             {quoteHasChanged && (
               <Alert>
@@ -679,39 +796,44 @@ export function InvoicePreviewModal({
                 </CardContent>
               </Card>
             )}
+
+            </div>
+
+            {/* Quote Reference Panel - 1 column */}
+            <div className="lg:col-span-1">
+              <QuoteReferencePanel quote={quote} />
+            </div>
           </div>
         </ScrollArea>
 
-        <div className="flex justify-between pt-4">
+        {/* Pricing Summary */}
+        <Separator />
+        <div className="bg-muted/50 p-4 rounded-lg">
+          <div className="flex justify-between items-center mb-2">
+            <span className="font-medium">Manual Pricing Required</span>
+            <Button size="sm" variant="outline" className="flex items-center gap-2">
+              <Calculator className="h-3 w-3" />
+              Pricing Helper
+            </Button>
+          </div>
+          <div className="text-sm text-muted-foreground">
+            All line items require manual pricing. Use the quote reference panel to determine appropriate pricing for each menu selection and service.
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <Separator />
+        <div className="flex justify-end gap-2 pt-4">
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              onClick={() => handleGenerateInvoice()}
-              disabled={loading}
-            >
-              <FileText className="h-4 w-4 mr-2" />
-              {loading ? 'Saving...' : mode === 'edit' ? 'Save Draft' : 'Create Draft'}
-            </Button>
-            <Button
-              onClick={handleGenerateInvoice}
-              disabled={loading || (approvalRequired && !overrideReason.includes('APPROVED:'))}
-            >
-              {loading ? 'Generating...' : 'Generate & Send'}
-            </Button>
-            {invoiceData?.id && onSend && (
-              <Button
-                variant="default"
-                onClick={() => onSend(invoiceData.id!)}
-                disabled={loading}
-              >
-                <Send className="h-4 w-4 mr-2" />
-                Send Now
-              </Button>
-            )}
-          </div>
+          <Button variant="outline" onClick={() => console.log('Save as draft')}>
+            <FileText className="h-4 w-4 mr-2" />
+            Save Draft
+          </Button>
+          <Button onClick={handleGenerateInvoice} disabled={loading || calculateTotal() === 0}>
+            {loading ? 'Generating...' : calculateTotal() === 0 ? 'Add Pricing First' : 'Generate Invoice'}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

@@ -73,102 +73,47 @@ serve(async (req) => {
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
 
-    // Calculate line items from quote data
+    // Generate line items from quote data without pricing
     const lineItems: any[] = [];
     let subtotal = 0;
 
-    // Helper function to find pricing rule
-    const findPricingRule = (category: string, itemName: string, serviceType?: string) => {
-      // First try exact match
-      let rule = pricingRules?.find(rule => 
-        rule.category === category && 
-        rule.item_name === itemName &&
-        (!rule.service_type || rule.service_type === serviceType)
-      );
-      
-      // If no exact match, try flexible matching for proteins
-      if (!rule && category === 'protein') {
-        rule = pricingRules?.find(rule => 
-          rule.category === 'protein' &&
-          (rule.item_name.toLowerCase().includes(itemName.toLowerCase()) ||
-           itemName.toLowerCase().includes(rule.item_name.toLowerCase())) &&
-          (!rule.service_type || rule.service_type === serviceType)
-        );
-      }
-      
-      // If still no match, try without service type constraint
-      if (!rule) {
-        rule = pricingRules?.find(rule => 
-          rule.category === category && 
-          rule.item_name === itemName
-        );
-      }
-      
-      return rule;
-    };
-
-    // Helper function to add menu items
+    // Helper function to add menu items with descriptions only
     const addMenuItems = (items: any[], category: string) => {
       if (Array.isArray(items) && items.length > 0) {
         items.forEach(item => {
-          const rule = findPricingRule(category, item, quoteData.service_type);
-          if (rule) {
-            const unitPrice = rule.base_price + (rule.price_per_person * quoteData.guest_count);
-            lineItems.push({
-              description: `${item} for ${quoteData.guest_count} guests`,
-              category,
-              quantity: 1,
-              unit_price: unitPrice,
-              total_price: unitPrice,
-            });
-            subtotal += unitPrice;
-            logStep(`${category} added`, { item, unitPrice });
-          } else {
-            // Fallback pricing for unmatched items
-            const fallbackPrice = category === 'appetizer' ? 400 : 
-                                 category === 'side' ? 250 : 
-                                 category === 'dessert' ? 350 : 
-                                 category === 'drink' ? 175 : 300;
-            const unitPrice = fallbackPrice * quoteData.guest_count;
-            lineItems.push({
-              description: `${item} for ${quoteData.guest_count} guests`,
-              category,
-              quantity: 1,
-              unit_price: unitPrice,
-              total_price: unitPrice,
-            });
-            subtotal += unitPrice;
-            logStep(`${category} added with fallback pricing`, { item, unitPrice });
-          }
+          lineItems.push({
+            description: `${item} for ${quoteData.guest_count} guests`,
+            category,
+            quantity: 1,
+            unit_price: 0, // No pricing until manually set
+            total_price: 0,
+          });
+          logStep(`${category} line item added`, { item, pricing: 'manual required' });
         });
       }
     };
 
-    // Add proteins
+    // Add proteins without pricing
     if (quoteData.primary_protein) {
-      const rule = findPricingRule('protein', quoteData.primary_protein, quoteData.service_type);
-      const unitPrice = rule ? (rule.base_price + (rule.price_per_person * quoteData.guest_count)) : 1200 * quoteData.guest_count;
       lineItems.push({
-        description: `${quoteData.primary_protein} (Primary Protein)`,
+        description: `${quoteData.primary_protein} (Primary Protein) for ${quoteData.guest_count} guests`,
         category: 'protein',
         quantity: 1,
-        unit_price: unitPrice,
-        total_price: unitPrice,
+        unit_price: 0,
+        total_price: 0,
       });
-      subtotal += unitPrice;
+      logStep('Primary protein added', { protein: quoteData.primary_protein });
     }
 
     if (quoteData.secondary_protein) {
-      const rule = findPricingRule('protein', quoteData.secondary_protein, quoteData.service_type);
-      const unitPrice = rule ? (rule.base_price + (rule.price_per_person * quoteData.guest_count)) : 1100 * quoteData.guest_count;
       lineItems.push({
-        description: `${quoteData.secondary_protein} (Secondary Protein)`,
+        description: `${quoteData.secondary_protein} (Secondary Protein) for ${quoteData.guest_count} guests`,
         category: 'protein',
         quantity: 1,
-        unit_price: unitPrice,
-        total_price: unitPrice,
+        unit_price: 0,
+        total_price: 0,
       });
-      subtotal += unitPrice;
+      logStep('Secondary protein added', { protein: quoteData.secondary_protein });
     }
 
     // Add all menu selections
@@ -177,42 +122,34 @@ serve(async (req) => {
     addMenuItems(quoteData.desserts || [], 'dessert');
     addMenuItems(quoteData.drinks || [], 'drink');
 
-    // Add dietary restrictions as upcharges
+    // Add dietary restrictions without pricing
     if (quoteData.dietary_restrictions && Array.isArray(quoteData.dietary_restrictions)) {
       quoteData.dietary_restrictions.forEach((restriction: string) => {
-        const dietaryRule = findPricingRule('dietary', `${restriction} Option`, quoteData.service_type);
-        if (dietaryRule) {
-          const restrictionCount = parseInt(quoteData.guest_count_with_restrictions) || Math.ceil(quoteData.guest_count * 0.1);
-          const unitPrice = dietaryRule.base_price + (dietaryRule.price_per_person * restrictionCount);
-          lineItems.push({
-            description: `${restriction} Option for ${restrictionCount} guests`,
-            category: 'dietary',
-            quantity: 1,
-            unit_price: unitPrice,
-            total_price: unitPrice,
-          });
-          subtotal += unitPrice;
-          logStep("Dietary restriction added", { restriction, restrictionCount, unitPrice });
-        }
+        const restrictionCount = parseInt(quoteData.guest_count_with_restrictions) || Math.ceil(quoteData.guest_count * 0.1);
+        lineItems.push({
+          description: `${restriction} Option for ${restrictionCount} guests`,
+          category: 'dietary',
+          quantity: 1,
+          unit_price: 0,
+          total_price: 0,
+        });
+        logStep("Dietary restriction added", { restriction, restrictionCount });
       });
     }
 
-    // Add wait staff if requested
+    // Add wait staff if requested (without pricing)
     if (quoteData.wait_staff_requested) {
-      const staffRule = findPricingRule('service', 'Wait Staff', quoteData.service_type);
-      const staffCost = staffRule ? (staffRule.base_price + (staffRule.price_per_person * quoteData.guest_count)) : quoteData.guest_count * 2500;
       lineItems.push({
         description: `Wait Staff Service for ${quoteData.guest_count} guests`,
         category: 'service',
         quantity: 1,
-        unit_price: staffCost,
-        total_price: staffCost,
+        unit_price: 0,
+        total_price: 0,
       });
-      subtotal += staffCost;
-      logStep("Wait staff service added", { staffCost });
+      logStep("Wait staff service added", { pricing: 'manual required' });
     }
 
-    // Add service charge based on service type mapping
+    // Add service charge based on service type (without pricing)
     const serviceTypeMap: Record<string, string> = {
       'drop-off': 'Drop-off Service',
       'buffet': 'Buffet Service', 
@@ -221,90 +158,143 @@ serve(async (req) => {
     };
     
     const serviceName = serviceTypeMap[quoteData.service_type] || 'Catering Service';
-    const serviceRule = findPricingRule('service', serviceName, quoteData.service_type);
-    
-    if (serviceRule) {
-      const serviceCharge = serviceRule.base_price + (serviceRule.price_per_person * quoteData.guest_count);
+    lineItems.push({
+      description: `${serviceName} for ${quoteData.guest_count} guests`,
+      category: 'service',
+      quantity: 1,
+      unit_price: 0,
+      total_price: 0,
+    });
+    logStep("Service charge line item added", { serviceName });
+
+    // Add event details as informational line items
+    lineItems.push({
+      description: `Event: ${quoteData.event_name} on ${quoteData.event_date}`,
+      category: 'event_info',
+      quantity: 1,
+      unit_price: 0,
+      total_price: 0,
+    });
+
+    if (quoteData.location) {
       lineItems.push({
-        description: `${serviceName} for ${quoteData.guest_count} guests`,
-        category: 'service',
+        description: `Location: ${quoteData.location}`,
+        category: 'event_info',
         quantity: 1,
-        unit_price: serviceCharge,
-        total_price: serviceCharge,
+        unit_price: 0,
+        total_price: 0,
       });
-      subtotal += serviceCharge;
-      logStep("Service charge applied", { serviceName, serviceCharge });
-    } else {
-      // Fallback pricing if no rule found
-      const fallbackCharge = quoteData.guest_count * 500; // $5 per person fallback
-      lineItems.push({
-        description: `${serviceName} for ${quoteData.guest_count} guests`,
-        category: 'service',
-        quantity: 1,
-        unit_price: fallbackCharge,
-        total_price: fallbackCharge,
-      });
-      subtotal += fallbackCharge;
-      logStep("Fallback service charge applied", { serviceName, fallbackCharge });
     }
 
-    // Add equipment rentals
+    if (quoteData.start_time) {
+      lineItems.push({
+        description: `Service Time: ${quoteData.start_time}${quoteData.serving_start_time ? ` - ${quoteData.serving_start_time}` : ''}`,
+        category: 'event_info',
+        quantity: 1,
+        unit_price: 0,
+        total_price: 0,
+      });
+    }
+
+    // Add equipment rentals without pricing
     if (quoteData.chafers_requested) {
-      const chaferRule = findPricingRule('equipment', 'Chafer Rental');
-      const chaferCost = chaferRule?.base_price || 2500;
       const chaferQuantity = Math.ceil(quoteData.guest_count / 25); // Estimate 1 chafer per 25 guests
       lineItems.push({
-        description: `Chafer Rental (${chaferQuantity} units)`,
+        description: `Chafer Rental (estimated ${chaferQuantity} units needed)`,
         category: 'equipment',
         quantity: chaferQuantity,
-        unit_price: chaferCost,
-        total_price: chaferCost * chaferQuantity,
+        unit_price: 0,
+        total_price: 0,
       });
-      subtotal += chaferCost * chaferQuantity;
+      logStep("Chafer rental added", { estimatedQuantity: chaferQuantity });
     }
 
     if (quoteData.linens_requested) {
-      const linenRule = findPricingRule('equipment', 'Linen Rental');
-      const linenCost = linenRule?.base_price || 1500;
       lineItems.push({
         description: 'Linen Rental',
         category: 'equipment',
         quantity: 1,
-        unit_price: linenCost,
-        total_price: linenCost,
+        unit_price: 0,
+        total_price: 0,
       });
-      subtotal += linenCost;
+      logStep("Linen rental added");
     }
 
     if (quoteData.tables_chairs_requested) {
-      const tableRule = findPricingRule('equipment', 'Table Rental');
-      const tableCost = tableRule?.base_price || 1000;
       const tableQuantity = Math.ceil(quoteData.guest_count / 8); // Estimate 1 table per 8 guests
       lineItems.push({
-        description: `Table Rental (${tableQuantity} tables)`,
+        description: `Table & Chair Rental (estimated ${tableQuantity} tables)`,
         category: 'equipment',
         quantity: tableQuantity,
-        unit_price: tableCost,
-        total_price: tableCost * tableQuantity,
+        unit_price: 0,
+        total_price: 0,
       });
-      subtotal += tableCost * tableQuantity;
+      logStep("Table rental added", { estimatedQuantity: tableQuantity });
     }
 
-    // Apply manual overrides if provided
-    if (manual_overrides?.line_items) {
-      manual_overrides.line_items.forEach((override: any) => {
-        const existingIndex = lineItems.findIndex(item => item.description === override.description);
-        if (existingIndex >= 0) {
-          // Update existing item
-          subtotal -= lineItems[existingIndex].total_price;
-          lineItems[existingIndex] = { ...lineItems[existingIndex], ...override };
-          subtotal += override.total_price;
-        } else {
-          // Add new item
-          lineItems.push(override);
-          subtotal += override.total_price;
-        }
+    // Add other equipment requests
+    if (quoteData.serving_utensils_requested) {
+      lineItems.push({
+        description: 'Serving Utensils',
+        category: 'equipment',
+        quantity: 1,
+        unit_price: 0,
+        total_price: 0,
       });
+    }
+
+    if (quoteData.plates_requested) {
+      lineItems.push({
+        description: `Plates for ${quoteData.guest_count} guests`,
+        category: 'equipment',
+        quantity: quoteData.guest_count,
+        unit_price: 0,
+        total_price: 0,
+      });
+    }
+
+    if (quoteData.cups_requested) {
+      lineItems.push({
+        description: `Cups for ${quoteData.guest_count} guests`,
+        category: 'equipment',
+        quantity: quoteData.guest_count,
+        unit_price: 0,
+        total_price: 0,
+      });
+    }
+
+    if (quoteData.napkins_requested) {
+      lineItems.push({
+        description: `Napkins for ${quoteData.guest_count} guests`,
+        category: 'equipment',
+        quantity: quoteData.guest_count,
+        unit_price: 0,
+        total_price: 0,
+      });
+    }
+
+    if (quoteData.ice_requested) {
+      lineItems.push({
+        description: 'Ice Service',
+        category: 'equipment',
+        quantity: 1,
+        unit_price: 0,
+        total_price: 0,
+      });
+    }
+
+    // Apply manual overrides if provided (for pricing)
+    if (manual_overrides?.line_items) {
+      // Replace all line items with manually priced ones
+      lineItems.length = 0;
+      subtotal = 0;
+      
+      manual_overrides.line_items.forEach((override: any) => {
+        lineItems.push(override);
+        subtotal += override.total_price || 0;
+      });
+      
+      logStep("Manual pricing applied", { lineItemsCount: lineItems.length, subtotal });
     }
 
     if (manual_overrides?.discount) {
@@ -319,6 +309,7 @@ serve(async (req) => {
       subtotal -= discount.amount;
     }
 
+    // Calculate tax and total (will be 0 for initial drafts)
     const taxRate = 0.08; // 8% tax rate - make configurable
     const taxAmount = Math.round(subtotal * taxRate);
     const totalAmount = subtotal + taxAmount;
@@ -328,37 +319,46 @@ serve(async (req) => {
     // Generate invoice number
     const invoiceNumber = `STE-${new Date().getFullYear()}-${String(Date.now()).slice(-6)}`;
 
-    // Create Stripe invoice
-    const stripeInvoice = await stripe.invoices.create({
-      customer: customerData.stripe_customer_id,
-      description: `Catering services for ${quoteData.event_name}`,
-      metadata: {
-        quote_request_id: quote_request_id,
-        event_name: quoteData.event_name,
-        event_date: quoteData.event_date,
-        guest_count: quoteData.guest_count.toString(),
-      },
-      auto_advance: false, // Manual sending
-      collection_method: 'send_invoice',
-      days_until_due: 30,
-    });
-
-    // Add line items to Stripe invoice
-    for (const item of lineItems) {
-      await stripe.invoiceItems.create({
+    // Only create Stripe invoice if we have pricing (manual overrides)
+    let stripeInvoice = null;
+    let finalizedInvoice = null;
+    
+    if (manual_overrides?.line_items && subtotal > 0) {
+      // Create Stripe invoice with pricing
+      stripeInvoice = await stripe.invoices.create({
         customer: customerData.stripe_customer_id,
-        invoice: stripeInvoice.id,
-        description: item.description,
-        unit_amount: item.unit_price,
-        currency: 'usd',
-        quantity: item.quantity,
+        description: `Catering services for ${quoteData.event_name}`,
+        metadata: {
+          quote_request_id: quote_request_id,
+          event_name: quoteData.event_name,
+          event_date: quoteData.event_date,
+          guest_count: quoteData.guest_count.toString(),
+        },
+        auto_advance: false, // Manual sending
+        collection_method: 'send_invoice',
+        days_until_due: 30,
       });
+
+      // Add line items to Stripe invoice
+      for (const item of lineItems) {
+        if (item.unit_price > 0) { // Only add items with pricing
+          await stripe.invoiceItems.create({
+            customer: customerData.stripe_customer_id,
+            invoice: stripeInvoice.id,
+            description: item.description,
+            unit_amount: item.unit_price,
+            currency: 'usd',
+            quantity: item.quantity,
+          });
+        }
+      }
+
+      // Finalize the invoice to make it ready to send
+      finalizedInvoice = await stripe.invoices.finalizeInvoice(stripeInvoice.id);
+      logStep("Stripe invoice created with pricing", { invoiceId: stripeInvoice.id, status: finalizedInvoice.status });
+    } else {
+      logStep("Draft invoice created without Stripe integration", { reason: "no pricing" });
     }
-
-    // Finalize the invoice to make it ready to send
-    const finalizedInvoice = await stripe.invoices.finalizeInvoice(stripeInvoice.id);
-
-    logStep("Stripe invoice created", { invoiceId: stripeInvoice.id, status: finalizedInvoice.status });
 
     // Save invoice and line items to Supabase
     const { data: invoiceData, error: invoiceError } = await supabaseClient
@@ -366,15 +366,41 @@ serve(async (req) => {
       .insert({
         customer_id: customerData.id,
         quote_request_id: quote_request_id,
-        stripe_invoice_id: stripeInvoice.id,
+        stripe_invoice_id: stripeInvoice?.id || null,
         invoice_number: invoiceNumber,
-        status: 'draft',
+        status: manual_overrides?.line_items ? 'draft' : 'pending_pricing',
+        is_draft: !manual_overrides?.line_items,
         subtotal: subtotal,
         tax_amount: taxAmount,
         total_amount: totalAmount,
         due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 days from now
-        pdf_url: finalizedInvoice.invoice_pdf,
+        pdf_url: finalizedInvoice?.invoice_pdf || null,
         notes: manual_overrides?.notes,
+        draft_data: {
+          quote_selections: {
+            primary_protein: quoteData.primary_protein,
+            secondary_protein: quoteData.secondary_protein,
+            appetizers: quoteData.appetizers,
+            sides: quoteData.sides,
+            desserts: quoteData.desserts,
+            drinks: quoteData.drinks,
+            dietary_restrictions: quoteData.dietary_restrictions,
+            service_type: quoteData.service_type,
+            guest_count: quoteData.guest_count,
+            equipment_requests: {
+              chafers: quoteData.chafers_requested,
+              linens: quoteData.linens_requested,
+              tables_chairs: quoteData.tables_chairs_requested,
+              serving_utensils: quoteData.serving_utensils_requested,
+              plates: quoteData.plates_requested,
+              cups: quoteData.cups_requested,
+              napkins: quoteData.napkins_requested,
+              ice: quoteData.ice_requested
+            },
+            wait_staff: quoteData.wait_staff_requested,
+            special_requests: quoteData.special_requests
+          }
+        }
       })
       .select()
       .single();
@@ -411,11 +437,14 @@ serve(async (req) => {
     return new Response(JSON.stringify({
       success: true,
       invoice_id: invoiceData.id,
-      stripe_invoice_id: stripeInvoice.id,
+      stripe_invoice_id: stripeInvoice?.id || null,
       invoice_number: invoiceNumber,
       total_amount: totalAmount,
-      pdf_url: finalizedInvoice.invoice_pdf,
-      hosted_invoice_url: finalizedInvoice.hosted_invoice_url,
+      line_items_count: lineItems.length,
+      requires_pricing: !manual_overrides?.line_items,
+      pdf_url: finalizedInvoice?.invoice_pdf || null,
+      hosted_invoice_url: finalizedInvoice?.hosted_invoice_url || null,
+      quote_selections_captured: true,
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
