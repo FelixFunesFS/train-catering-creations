@@ -28,7 +28,8 @@ import {
   Utensils,
   Settings,
   StickyNote,
-  MessageSquare
+  MessageSquare,
+  DollarSign
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
@@ -36,6 +37,7 @@ import { useToast } from '@/hooks/use-toast';
 import { MenuEditForm } from './MenuEditForm';
 import { AdminNotesSection } from './AdminNotesSection';
 import { CommunicationPanel } from './CommunicationPanel';
+import { BillingTab } from './BillingTab';
 import type { Database } from '@/integrations/supabase/types';
 
 type QuoteRequest = Database['public']['Tables']['quote_requests']['Row'];
@@ -232,7 +234,30 @@ export function QuoteDetailModal({ quote, onClose, onUpdate }: QuoteDetailModalP
                 </div>
               </div>
               <div className="flex items-center gap-2 ml-4">
-                {/* Quick Actions Toolbar */}
+                {/* Mobile Actions */}
+                <div className="flex sm:hidden items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowHistory(!showHistory)}
+                  >
+                    <History className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsEditing(!isEditing)}
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  {isEditing && (
+                    <Button size="sm" onClick={handleSave} disabled={loading}>
+                      <Save className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+                
+                {/* Desktop Actions Toolbar */}
                 <div className="hidden sm:flex items-center gap-2">
                   <Button
                     variant="outline"
@@ -242,16 +267,19 @@ export function QuoteDetailModal({ quote, onClose, onUpdate }: QuoteDetailModalP
                     <History className="h-4 w-4 mr-2" />
                     History
                   </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsEditing(!isEditing)}
+                  >
+                    <Edit className="h-4 w-4 mr-2" />
+                    {isEditing ? 'Cancel Edit' : 'Edit Details'}
+                  </Button>
                   {isEditing && (
-                    <>
-                      <Button variant="outline" size="sm" onClick={handleCancel}>
-                        Cancel
-                      </Button>
-                      <Button size="sm" onClick={handleSave} disabled={loading}>
-                        <Save className="h-4 w-4 mr-2" />
-                        Save
-                      </Button>
-                    </>
+                    <Button size="sm" onClick={handleSave} disabled={loading}>
+                      <Save className="h-4 w-4 mr-2" />
+                      Save
+                    </Button>
                   )}
                 </div>
                 
@@ -350,7 +378,7 @@ export function QuoteDetailModal({ quote, onClose, onUpdate }: QuoteDetailModalP
             {/* Sticky Tab Navigation */}
             <div className="sticky top-0 z-40 bg-background border-b -mx-6 px-6 pb-4">
               <ScrollArea className="w-full whitespace-nowrap">
-                <TabsList className="inline-flex h-12 w-auto min-w-full sm:grid sm:grid-cols-5 gap-1">
+                <TabsList className="inline-flex h-12 w-auto min-w-full sm:grid sm:grid-cols-6 gap-1">
                   <TabsTrigger 
                     value="details" 
                     className="flex items-center gap-2 px-4 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
@@ -364,6 +392,13 @@ export function QuoteDetailModal({ quote, onClose, onUpdate }: QuoteDetailModalP
                   >
                     <ChefHat className="h-4 w-4" />
                     <span className="hidden sm:inline">Menu</span>
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="billing" 
+                    className="flex items-center gap-2 px-4 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                  >
+                    <DollarSign className="h-4 w-4" />
+                    <span className="hidden sm:inline">Billing</span>
                   </TabsTrigger>
                   <TabsTrigger 
                     value="notes" 
@@ -391,29 +426,9 @@ export function QuoteDetailModal({ quote, onClose, onUpdate }: QuoteDetailModalP
             </div>
 
             <TabsContent value="details" className="space-y-6 mt-0">
-              {/* Mobile Edit Button */}
+              {/* Mobile header */}
               <div className="flex justify-between items-center sm:hidden mb-4">
                 <h3 className="text-lg font-semibold">Quote Details</h3>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsEditing(!isEditing)}
-                >
-                  <Edit className="h-4 w-4 mr-2" />
-                  {isEditing ? 'Cancel' : 'Edit'}
-                </Button>
-              </div>
-              
-              {/* Desktop Edit Button */}
-              <div className="hidden sm:flex justify-end mb-4">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsEditing(!isEditing)}
-                >
-                  <Edit className="h-4 w-4 mr-2" />
-                  {isEditing ? 'Cancel' : 'Edit Details'}
-                </Button>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 auto-rows-min">
@@ -845,6 +860,24 @@ export function QuoteDetailModal({ quote, onClose, onUpdate }: QuoteDetailModalP
               </div>
             )}
           </TabsContent>
+
+            <TabsContent value="billing" className="mt-0">
+              <BillingTab 
+                quote={editedQuote}
+                onGenerateInvoice={() => {
+                  toast({
+                    title: "Invoice Generated",
+                    description: "Invoice has been created and sent to customer"
+                  });
+                }}
+                onResendInvoice={() => {
+                  toast({
+                    title: "Invoice Resent",
+                    description: "Invoice has been resent to customer"
+                  });
+                }}
+              />
+            </TabsContent>
 
             <TabsContent value="notes" className="mt-0">
               <AdminNotesSection quoteId={quote.id} />
