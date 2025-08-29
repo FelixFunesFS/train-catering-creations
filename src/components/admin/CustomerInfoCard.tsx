@@ -2,7 +2,8 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { User, Mail, Phone, MapPin, Calendar, Clock, Users, Utensils, Star, CalendarDays, Copy } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Calendar, Clock, Users, Utensils, Star, CalendarDays, Copy, ChefHat, DollarSign } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 
 interface CustomerInfoCardProps {
@@ -32,6 +33,30 @@ export function CustomerInfoCard({ quote, isCompact = false }: CustomerInfoCardP
     } catch {
       return timeString;
     }
+  };
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD'
+    }).format(amount / 100);
+  };
+
+  const getMenuSummary = () => {
+    const menuItems = [];
+    if (quote.primary_protein) menuItems.push(quote.primary_protein);
+    if (quote.secondary_protein) menuItems.push(quote.secondary_protein);
+    
+    const sides = quote.sides || [];
+    const appetizers = quote.appetizers || [];
+    const desserts = quote.desserts || [];
+    
+    return {
+      proteins: [quote.primary_protein, quote.secondary_protein].filter(Boolean),
+      totalItems: menuItems.length + sides.length + appetizers.length + desserts.length,
+      dietary: quote.dietary_restrictions || [],
+      special: quote.special_requests
+    };
   };
 
   if (isCompact) {
@@ -84,154 +109,307 @@ export function CustomerInfoCard({ quote, isCompact = false }: CustomerInfoCardP
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Contact Information Section */}
-          <div className="space-y-4">
-            <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide border-b pb-2">
-              Contact Details
-            </h4>
-            <div className="space-y-3">
-              <div className="flex items-start gap-3">
-                <User className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                <div className="min-w-0 flex-1">
-                  <label className="text-xs font-medium text-muted-foreground">Name</label>
-                  <p className="text-sm font-medium mt-1 truncate">{quote.contact_name}</p>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Contact & Event Information Combined */}
+          <div className="space-y-6">
+            {/* Contact Details */}
+            <div className="space-y-4">
+              <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide border-b pb-2">
+                Contact Information
+              </h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex items-start gap-3">
+                  <User className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <label className="text-xs font-medium text-muted-foreground">Customer Name</label>
+                    <p className="text-sm font-medium mt-1 truncate">{quote.contact_name}</p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => copyToClipboard(quote.contact_name, 'Name')}
+                    className="h-6 w-6 p-0"
+                  >
+                    <Copy className="h-3 w-3" />
+                  </Button>
                 </div>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => copyToClipboard(quote.contact_name, 'Name')}
-                  className="h-6 w-6 p-0"
-                >
-                  <Copy className="h-3 w-3" />
-                </Button>
-              </div>
-              <div className="flex items-start gap-3">
-                <Mail className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                <div className="min-w-0 flex-1">
-                  <label className="text-xs font-medium text-muted-foreground">Email</label>
-                  <p className="text-sm font-medium mt-1 truncate">{quote.email}</p>
+                <div className="flex items-start gap-3">
+                  <Mail className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <label className="text-xs font-medium text-muted-foreground">Email</label>
+                    <p className="text-sm font-medium mt-1 truncate">{quote.email}</p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => window.open(`mailto:${quote.email}`, '_blank')}
+                    className="h-6 w-6 p-0"
+                  >
+                    <Mail className="h-3 w-3" />
+                  </Button>
                 </div>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => window.open(`mailto:${quote.email}`, '_blank')}
-                  className="h-6 w-6 p-0"
-                >
-                  <Mail className="h-3 w-3" />
-                </Button>
-              </div>
-              <div className="flex items-start gap-3">
-                <Phone className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                <div className="min-w-0 flex-1">
-                  <label className="text-xs font-medium text-muted-foreground">Phone</label>
-                  <p className="text-sm font-medium mt-1">{quote.phone}</p>
+                <div className="flex items-start gap-3">
+                  <Phone className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <label className="text-xs font-medium text-muted-foreground">Phone</label>
+                    <p className="text-sm font-medium mt-1">{quote.phone}</p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => window.open(`tel:${quote.phone}`, '_self')}
+                    className="h-6 w-6 p-0"
+                  >
+                    <Phone className="h-3 w-3" />
+                  </Button>
                 </div>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => window.open(`tel:${quote.phone}`, '_self')}
-                  className="h-6 w-6 p-0"
-                >
-                  <Phone className="h-3 w-3" />
-                </Button>
-              </div>
-              <div className="flex items-start gap-3">
-                <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                <div className="min-w-0 flex-1">
-                  <label className="text-xs font-medium text-muted-foreground">Location</label>
-                  <p className="text-sm font-medium mt-1">{quote.location}</p>
-                </div>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => copyToClipboard(quote.location, 'Location')}
-                  className="h-6 w-6 p-0"
-                >
-                  <Copy className="h-3 w-3" />
-                </Button>
-              </div>
-            </div>
-          </div>
-
-          {/* Event Information Section */}
-          <div className="space-y-4">
-            <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide border-b pb-2">
-              Event Details
-            </h4>
-            <div className="space-y-3">
-              <div className="flex items-start gap-3">
-                <Calendar className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                <div className="min-w-0 flex-1">
-                  <label className="text-xs font-medium text-muted-foreground">Event Name</label>
-                  <p className="text-sm font-medium mt-1 truncate">{quote.event_name}</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <Star className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                <div className="min-w-0 flex-1">
-                  <label className="text-xs font-medium text-muted-foreground">Event Type</label>
-                  <p className="text-sm font-medium mt-1 capitalize">{quote.event_type.replace('_', ' ')}</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <CalendarDays className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                <div className="min-w-0 flex-1">
-                  <label className="text-xs font-medium text-muted-foreground">Date</label>
-                  <p className="text-sm font-medium mt-1">{new Date(quote.event_date).toLocaleDateString()}</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <Clock className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                <div className="min-w-0 flex-1">
-                  <label className="text-xs font-medium text-muted-foreground">Start Time</label>
-                  <p className="text-sm font-medium mt-1">{formatTimeField(quote.start_time)}</p>
+                <div className="flex items-start gap-3">
+                  <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <label className="text-xs font-medium text-muted-foreground">Event Location</label>
+                    <p className="text-sm font-medium mt-1">{quote.location}</p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => copyToClipboard(quote.location, 'Location')}
+                    className="h-6 w-6 p-0"
+                  >
+                    <Copy className="h-3 w-3" />
+                  </Button>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Service & Status Section */}
-          <div className="space-y-4">
-            <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide border-b pb-2">
-              Service & Status
-            </h4>
-            <div className="space-y-3">
-              <div className="flex items-start gap-3">
-                <Users className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                <div className="min-w-0 flex-1">
-                  <label className="text-xs font-medium text-muted-foreground">Guest Count</label>
-                  <p className="text-sm font-medium mt-1">{quote.guest_count} guests</p>
+            <Separator />
+
+            {/* Event Details */}
+            <div className="space-y-4">
+              <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide border-b pb-2">
+                Event Information
+              </h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex items-start gap-3">
+                  <Calendar className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <label className="text-xs font-medium text-muted-foreground">Event Name</label>
+                    <p className="text-sm font-medium mt-1 truncate">{quote.event_name}</p>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <Utensils className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                <div className="min-w-0 flex-1">
-                  <label className="text-xs font-medium text-muted-foreground">Service Type</label>
-                  <p className="text-sm font-medium mt-1 capitalize">{quote.service_type.replace('_', ' ')}</p>
+                <div className="flex items-start gap-3">
+                  <Star className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <label className="text-xs font-medium text-muted-foreground">Event Type</label>
+                    <p className="text-sm font-medium mt-1 capitalize">{quote.event_type.replace('_', ' ')}</p>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <Calendar className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                <div className="min-w-0 flex-1">
-                  <label className="text-xs font-medium text-muted-foreground">Calendar Status</label>
-                  <div className="flex items-center gap-2 mt-1">
-                    <div className={`h-2 w-2 rounded-full ${
-                      quote.calendar_sync_status === 'synced' ? 'bg-green-500' : 
-                      quote.calendar_sync_status === 'pending' ? 'bg-yellow-500' : 'bg-gray-400'
-                    }`} />
-                    <span className="text-sm font-medium capitalize">
-                      {quote.calendar_sync_status?.replace('_', ' ') || 'Not Synced'}
-                    </span>
+                <div className="flex items-start gap-3">
+                  <CalendarDays className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <label className="text-xs font-medium text-muted-foreground">Event Date</label>
+                    <p className="text-sm font-medium mt-1">{new Date(quote.event_date).toLocaleDateString()}</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Clock className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <label className="text-xs font-medium text-muted-foreground">Start Time</label>
+                    <p className="text-sm font-medium mt-1">{formatTimeField(quote.start_time)}</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Users className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <label className="text-xs font-medium text-muted-foreground">Guest Count</label>
+                    <p className="text-sm font-medium mt-1">{quote.guest_count} guests</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Utensils className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <label className="text-xs font-medium text-muted-foreground">Service Type</label>
+                    <p className="text-sm font-medium mt-1 capitalize">{quote.service_type.replace('_', ' ')}</p>
                   </div>
                 </div>
               </div>
-              <div className="flex items-start gap-3">
-                <Clock className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                <div className="min-w-0 flex-1">
-                  <label className="text-xs font-medium text-muted-foreground">Created</label>
-                  <p className="text-sm font-medium mt-1">{new Date(quote.created_at).toLocaleDateString()}</p>
+            </div>
+
+            <Separator />
+
+            {/* Menu Summary */}
+            <div className="space-y-4">
+              <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide border-b pb-2 flex items-center gap-2">
+                <ChefHat className="h-4 w-4" />
+                Menu Summary
+              </h4>
+              <div className="space-y-3">
+                {getMenuSummary().proteins.length > 0 && (
+                  <div className="flex items-start gap-3">
+                    <div className="min-w-0 flex-1">
+                      <label className="text-xs font-medium text-muted-foreground">Main Proteins</label>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {getMenuSummary().proteins.map((protein, index) => (
+                          <Badge key={index} variant="outline" className="text-xs">
+                            {protein}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {quote.appetizers && quote.appetizers.length > 0 && (
+                  <div className="flex items-start gap-3">
+                    <div className="min-w-0 flex-1">
+                      <label className="text-xs font-medium text-muted-foreground">Appetizers</label>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {quote.appetizers.slice(0, 3).map((item: string, index: number) => (
+                          <Badge key={index} variant="secondary" className="text-xs">
+                            {item}
+                          </Badge>
+                        ))}
+                        {quote.appetizers.length > 3 && (
+                          <Badge variant="secondary" className="text-xs">
+                            +{quote.appetizers.length - 3} more
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {getMenuSummary().dietary.length > 0 && (
+                  <div className="flex items-start gap-3">
+                    <div className="min-w-0 flex-1">
+                      <label className="text-xs font-medium text-muted-foreground">Dietary Restrictions</label>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {getMenuSummary().dietary.map((restriction: string, index: number) => (
+                          <Badge key={index} variant="destructive" className="text-xs">
+                            {restriction}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {quote.special_requests && (
+                  <div className="flex items-start gap-3">
+                    <div className="min-w-0 flex-1">
+                      <label className="text-xs font-medium text-muted-foreground">Special Requests</label>
+                      <p className="text-sm mt-1 text-muted-foreground italic">{quote.special_requests}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Service Status & Financial Info */}
+          <div className="space-y-6">
+            {/* Status Information */}
+            <div className="space-y-4">
+              <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide border-b pb-2">
+                Status & Management
+              </h4>
+              <div className="space-y-3">
+                <div className="flex items-start gap-3">
+                  <Calendar className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <label className="text-xs font-medium text-muted-foreground">Quote Status</label>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Badge variant={
+                        quote.status === 'confirmed' ? 'default' : 
+                        quote.status === 'pending' ? 'secondary' : 'outline'
+                      }>
+                        {quote.status}
+                      </Badge>
+                    </div>
+                  </div>
                 </div>
+                <div className="flex items-start gap-3">
+                  <Calendar className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <label className="text-xs font-medium text-muted-foreground">Calendar Sync</label>
+                    <div className="flex items-center gap-2 mt-1">
+                      <div className={`h-2 w-2 rounded-full ${
+                        quote.calendar_sync_status === 'synced' ? 'bg-green-500' : 
+                        quote.calendar_sync_status === 'pending' ? 'bg-yellow-500' : 'bg-gray-400'
+                      }`} />
+                      <span className="text-sm font-medium capitalize">
+                        {quote.calendar_sync_status?.replace('_', ' ') || 'Not Synced'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <DollarSign className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <label className="text-xs font-medium text-muted-foreground">Invoice Status</label>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Badge variant={
+                        quote.invoice_status === 'sent' ? 'default' : 
+                        quote.invoice_status === 'generated' ? 'secondary' : 'outline'
+                      }>
+                        {quote.invoice_status || 'pending'}
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+                {quote.estimated_total > 0 && (
+                  <div className="flex items-start gap-3">
+                    <DollarSign className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <label className="text-xs font-medium text-muted-foreground">Estimated Total</label>
+                      <p className="text-sm font-medium mt-1">{formatCurrency(quote.estimated_total)}</p>
+                    </div>
+                  </div>
+                )}
+                <div className="flex items-start gap-3">
+                  <Clock className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <label className="text-xs font-medium text-muted-foreground">Created</label>
+                    <p className="text-sm font-medium mt-1">{new Date(quote.created_at).toLocaleDateString()}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Equipment & Services */}
+            <div className="space-y-4">
+              <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide border-b pb-2">
+                Requested Services
+              </h4>
+              <div className="grid grid-cols-2 gap-2">
+                {quote.chafers_requested && (
+                  <Badge variant="outline" className="justify-start text-xs">
+                    Chafers
+                  </Badge>
+                )}
+                {quote.linens_requested && (
+                  <Badge variant="outline" className="justify-start text-xs">
+                    Linens
+                  </Badge>
+                )}
+                {quote.tables_chairs_requested && (
+                  <Badge variant="outline" className="justify-start text-xs">
+                    Tables & Chairs
+                  </Badge>
+                )}
+                {quote.wait_staff_requested && (
+                  <Badge variant="outline" className="justify-start text-xs">
+                    Wait Staff
+                  </Badge>
+                )}
+                {quote.serving_utensils_requested && (
+                  <Badge variant="outline" className="justify-start text-xs">
+                    Serving Utensils
+                  </Badge>
+                )}
+                {quote.bussing_tables_needed && (
+                  <Badge variant="outline" className="justify-start text-xs">
+                    Bussing Service
+                  </Badge>
+                )}
               </div>
             </div>
           </div>

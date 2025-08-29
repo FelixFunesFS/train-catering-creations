@@ -38,6 +38,7 @@ import { MenuEditForm } from './MenuEditForm';
 import { AdminNotesSection } from './AdminNotesSection';
 import { CommunicationPanel } from './CommunicationPanel';
 import { BillingTab } from './BillingTab';
+import { EnhancedBillingTab } from './EnhancedBillingTab';
 import { CustomerInfoCard } from './CustomerInfoCard';
 import type { Database } from '@/integrations/supabase/types';
 
@@ -518,15 +519,17 @@ export function QuoteDetailModal({ quote, onClose, onUpdate }: QuoteDetailModalP
           </TabsContent>
 
             <TabsContent value="billing" className="mt-0">
-              <BillingTab 
+              <EnhancedBillingTab 
                 quote={editedQuote}
                 onGenerateInvoice={() => {
+                  fetchHistory();
                   toast({
                     title: "Invoice Generated",
                     description: "Invoice has been created and sent to customer"
                   });
                 }}
                 onResendInvoice={() => {
+                  fetchHistory();
                   toast({
                     title: "Invoice Resent",
                     description: "Invoice has been resent to customer"

@@ -50,6 +50,15 @@ verify_jwt = false
 [functions.send-gmail-email]
 verify_jwt = false
 
+[functions.create-stripe-customer]
+verify_jwt = false
+
+[functions.generate-invoice-from-quote]
+verify_jwt = false
+
+[functions.send-invoice]
+verify_jwt = false
+
 [edge-runtime]
 enabled = true
 ip_version = "dual"
