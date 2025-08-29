@@ -7,10 +7,10 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "12.2.12 (cd3cf9e)"
+    PostgrestVersion: "13.0.4"
   }
   public: {
     Tables: {
@@ -47,11 +47,57 @@ export type Database = {
         }
         Relationships: []
       }
+      quote_request_history: {
+        Row: {
+          change_reason: string | null
+          change_timestamp: string
+          changed_by: string | null
+          created_at: string
+          field_name: string
+          id: string
+          new_value: string | null
+          old_value: string | null
+          quote_request_id: string
+        }
+        Insert: {
+          change_reason?: string | null
+          change_timestamp?: string
+          changed_by?: string | null
+          created_at?: string
+          field_name: string
+          id?: string
+          new_value?: string | null
+          old_value?: string | null
+          quote_request_id: string
+        }
+        Update: {
+          change_reason?: string | null
+          change_timestamp?: string
+          changed_by?: string | null
+          created_at?: string
+          field_name?: string
+          id?: string
+          new_value?: string | null
+          old_value?: string | null
+          quote_request_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_request_history_quote_request_id_fkey"
+            columns: ["quote_request_id"]
+            isOneToOne: false
+            referencedRelation: "quote_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       quote_requests: {
         Row: {
           appetizers: Json | null
           both_proteins_available: boolean | null
           bussing_tables_needed: boolean | null
+          calendar_event_id: string | null
+          calendar_sync_status: string | null
           chafers_requested: boolean | null
           contact_name: string
           created_at: string | null
@@ -69,6 +115,7 @@ export type Database = {
           guest_count_with_restrictions: string | null
           ice_requested: boolean | null
           id: string
+          last_calendar_sync: string | null
           linens_requested: boolean | null
           location: string
           napkins_requested: boolean | null
@@ -98,6 +145,8 @@ export type Database = {
           appetizers?: Json | null
           both_proteins_available?: boolean | null
           bussing_tables_needed?: boolean | null
+          calendar_event_id?: string | null
+          calendar_sync_status?: string | null
           chafers_requested?: boolean | null
           contact_name: string
           created_at?: string | null
@@ -115,6 +164,7 @@ export type Database = {
           guest_count_with_restrictions?: string | null
           ice_requested?: boolean | null
           id?: string
+          last_calendar_sync?: string | null
           linens_requested?: boolean | null
           location: string
           napkins_requested?: boolean | null
@@ -144,6 +194,8 @@ export type Database = {
           appetizers?: Json | null
           both_proteins_available?: boolean | null
           bussing_tables_needed?: boolean | null
+          calendar_event_id?: string | null
+          calendar_sync_status?: string | null
           chafers_requested?: boolean | null
           contact_name?: string
           created_at?: string | null
@@ -161,6 +213,7 @@ export type Database = {
           guest_count_with_restrictions?: string | null
           ice_requested?: boolean | null
           id?: string
+          last_calendar_sync?: string | null
           linens_requested?: boolean | null
           location?: string
           napkins_requested?: boolean | null
