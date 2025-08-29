@@ -52,63 +52,111 @@ interface QuoteRequest {
 const formatQuoteDetails = (quote: QuoteRequest) => {
   const formatArray = (arr: string[] | undefined) => {
     if (!arr || !Array.isArray(arr)) return "None selected";
-    return arr.length > 0 ? arr.join(", ") : "None selected";
+    return arr.length > 0 ? arr.map(item => item.replace(/-/g, ' ')).join(", ") : "None selected";
   };
   const safeString = (value: any): string => String(value || "Not specified");
   
+  const formatServiceType = (type: string) => {
+    const types: { [key: string]: string } = {
+      "drop-off": "Drop-Off Service",
+      "delivery-setup": "Delivery + Setup", 
+      "full-service": "Full-Service Catering"
+    };
+    return types[type] || type;
+  };
+  
   return `
-    <h2>New Quote Request - ${quote.event_name}</h2>
-    ${quote.quote_id ? `<p><strong>Quote Reference ID:</strong> <span style="background-color: #f0f0f0; padding: 4px 8px; border-radius: 4px; font-family: monospace;">${quote.quote_id}</span></p>` : ''}
-    
-    <h3>Contact Information</h3>
-    <p><strong>Name:</strong> ${quote.contact_name}</p>
-    <p><strong>Email:</strong> ${quote.email}</p>
-    <p><strong>Phone:</strong> ${quote.phone}</p>
-    
-    <h3>Event Details</h3>
-    <p><strong>Event Name:</strong> ${quote.event_name}</p>
-    <p><strong>Event Type:</strong> ${quote.event_type}</p>
-    <p><strong>Date:</strong> ${quote.event_date}</p>
-    <p><strong>Start Time:</strong> ${quote.start_time}</p>
-    <p><strong>Guest Count:</strong> ${quote.guest_count}</p>
-    <p><strong>Location:</strong> ${quote.location}</p>
-    ${quote.theme_colors ? `<p><strong>Theme/Event Colors:</strong> ${quote.theme_colors}</p>` : ''}
-    <p><strong>Service Type:</strong> ${quote.service_type}</p>
-    ${quote.serving_start_time ? `<p><strong>Serving Start Time:</strong> ${quote.serving_start_time}</p>` : ''}
-    
-    <h3>Menu Selections</h3>
-    ${quote.primary_protein ? `<p><strong>Primary Protein:</strong> ${safeString(quote.primary_protein).replace(/-/g, ' ')}</p>` : ''}
-    ${quote.secondary_protein ? `<p><strong>Secondary Protein:</strong> ${safeString(quote.secondary_protein).replace(/-/g, ' ')}</p>` : ''}
-    ${quote.both_proteins_available ? `<p><strong>Both Proteins Available:</strong> Yes</p>` : ''}
-    <p><strong>Appetizers:</strong> ${formatArray(quote.appetizers)}</p>
-    <p><strong>Sides:</strong> ${formatArray(quote.sides)}</p>
-    <p><strong>Desserts:</strong> ${formatArray(quote.desserts)}</p>
-    <p><strong>Drinks:</strong> ${formatArray(quote.drinks)}</p>
-    
-    <h3>Service Requirements</h3>
-    <p><strong>Wait Staff Requested:</strong> ${quote.wait_staff_requested ? 'Yes' : 'No'}</p>
-    ${quote.wait_staff_requirements ? `<p><strong>Wait Staff Requirements:</strong> ${quote.wait_staff_requirements}</p>` : ''}
-    ${quote.wait_staff_setup_areas ? `<p><strong>Wait Staff Setup Areas:</strong> ${quote.wait_staff_setup_areas}</p>` : ''}
-    <p><strong>Tables & Chairs:</strong> ${quote.tables_chairs_requested ? 'Yes' : 'No'}</p>
-    <p><strong>Linens:</strong> ${quote.linens_requested ? 'Yes' : 'No'}</p>
-    <p><strong>Plates:</strong> ${quote.plates_requested ? 'Yes' : 'No'}</p>
-    <p><strong>Cups:</strong> ${quote.cups_requested ? 'Yes' : 'No'}</p>
-    <p><strong>Napkins:</strong> ${quote.napkins_requested ? 'Yes' : 'No'}</p>
-    <p><strong>Serving Utensils:</strong> ${quote.serving_utensils_requested ? 'Yes' : 'No'}</p>
-    <p><strong>Chafers:</strong> ${quote.chafers_requested ? 'Yes' : 'No'}</p>
-    <p><strong>Ice:</strong> ${quote.ice_requested ? 'Yes' : 'No'}</p>
-    <p><strong>Utensils:</strong> ${formatArray(quote.utensils)}</p>
-    <p><strong>Extras:</strong> ${formatArray(quote.extras)}</p>
-    <p><strong>Separate Serving Area:</strong> ${quote.separate_serving_area ? 'Yes' : 'No'}</p>
-    ${quote.serving_setup_area ? `<p><strong>Serving Setup Area:</strong> ${quote.serving_setup_area}</p>` : ''}
-    <p><strong>Bussing Tables Needed:</strong> ${quote.bussing_tables_needed ? 'Yes' : 'No'}</p>
-    
-    <h3>Additional Information</h3>
-    <p><strong>Dietary Restrictions:</strong> ${formatArray(quote.dietary_restrictions)}</p>
-    ${quote.guest_count_with_restrictions ? `<p><strong>Guests with Restrictions:</strong> ${quote.guest_count_with_restrictions}</p>` : ''}
-    ${quote.custom_menu_requests ? `<p><strong>Custom Menu Requests:</strong> ${quote.custom_menu_requests}</p>` : ''}
-    ${quote.special_requests ? `<p><strong>Special Requests:</strong> ${quote.special_requests}</p>` : ''}
-    ${quote.referral_source ? `<p><strong>Referral Source:</strong> ${quote.referral_source}</p>` : ''}
+    <div style="font-family: 'Georgia', serif; max-width: 800px; margin: 0 auto; background: #fafafa; padding: 30px; border-radius: 10px;">
+      <div style="background: linear-gradient(135deg, #8B4513, #D2691E); color: white; padding: 25px; border-radius: 10px; text-align: center; margin-bottom: 30px;">
+        <h1 style="margin: 0; font-size: 28px; font-weight: bold;">Soul Train's Eatery</h1>
+        <p style="margin: 5px 0 0 0; font-size: 16px; opacity: 0.9;">New Quote Request</p>
+      </div>
+      
+      ${quote.quote_id ? `<div style="background: #e8f5e8; padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 25px;"><strong>Quote Reference ID:</strong> <span style="background-color: #fff; padding: 8px 12px; border-radius: 4px; font-family: monospace; font-weight: bold;">${quote.quote_id}</span></div>` : ''}
+      
+      <div style="background: white; padding: 25px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <h2 style="color: #8B4513; border-bottom: 2px solid #D2691E; padding-bottom: 10px; margin-top: 0;">📋 Event Overview</h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px;">
+          <div><strong>Event Name:</strong> ${quote.event_name}</div>
+          <div><strong>Event Type:</strong> ${quote.event_type.replace(/-/g, ' ')}</div>
+          <div><strong>Date:</strong> ${quote.event_date}</div>
+          <div><strong>Start Time:</strong> ${quote.start_time}</div>
+          <div><strong>Guest Count:</strong> ${quote.guest_count}</div>
+          <div><strong>Service:</strong> ${formatServiceType(quote.service_type)}</div>
+        </div>
+        <div style="margin-top: 15px;"><strong>Location:</strong> ${quote.location}</div>
+        ${quote.theme_colors ? `<div style="margin-top: 10px;"><strong>Theme/Event Colors:</strong> ${quote.theme_colors}</div>` : ''}
+      </div>
+
+      <div style="background: white; padding: 25px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <h2 style="color: #8B4513; border-bottom: 2px solid #D2691E; padding-bottom: 10px; margin-top: 0;">👥 Contact Information</h2>
+        <div style="margin-top: 20px;">
+          <div style="margin-bottom: 10px;"><strong>Name:</strong> ${quote.contact_name}</div>
+          <div style="margin-bottom: 10px;"><strong>Email:</strong> <a href="mailto:${quote.email}" style="color: #D2691E;">${quote.email}</a></div>
+          <div><strong>Phone:</strong> <a href="tel:${quote.phone}" style="color: #D2691E;">${quote.phone}</a></div>
+        </div>
+      </div>
+      
+      <div style="background: white; padding: 25px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <h2 style="color: #8B4513; border-bottom: 2px solid #D2691E; padding-bottom: 10px; margin-top: 0;">🍽️ Menu Selections</h2>
+        <div style="margin-top: 20px;">
+          ${quote.primary_protein ? `<div style="margin-bottom: 10px;"><strong>Primary Protein:</strong> ${safeString(quote.primary_protein).replace(/-/g, ' ')}</div>` : ''}
+          ${quote.secondary_protein ? `<div style="margin-bottom: 10px;"><strong>Secondary Protein:</strong> ${safeString(quote.secondary_protein).replace(/-/g, ' ')}</div>` : ''}
+          ${quote.both_proteins_available ? `<div style="margin-bottom: 10px;"><strong>Both Proteins Available:</strong> Yes</div>` : ''}
+          <div style="margin-bottom: 10px;"><strong>Appetizers:</strong> ${formatArray(quote.appetizers)}</div>
+          <div style="margin-bottom: 10px;"><strong>Sides:</strong> ${formatArray(quote.sides)}</div>
+          <div style="margin-bottom: 10px;"><strong>Desserts:</strong> ${formatArray(quote.desserts)}</div>
+          <div style="margin-bottom: 10px;"><strong>Beverages:</strong> ${formatArray(quote.drinks)}</div>
+          ${quote.custom_menu_requests ? `<div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-top: 15px;"><strong>Custom Menu Requests:</strong><br>${quote.custom_menu_requests}</div>` : ''}
+        </div>
+      </div>
+
+      <div style="background: white; padding: 25px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <h2 style="color: #8B4513; border-bottom: 2px solid #D2691E; padding-bottom: 10px; margin-top: 0;">⚙️ Service Details</h2>
+        <div style="margin-top: 20px;">
+          <div style="margin-bottom: 10px;"><strong>Service Type:</strong> ${formatServiceType(quote.service_type)}</div>
+          ${quote.serving_start_time ? `<div style="margin-bottom: 10px;"><strong>Serving Start Time:</strong> ${quote.serving_start_time}</div>` : ''}
+          <div style="margin-bottom: 10px;"><strong>Professional Wait Staff:</strong> ${quote.wait_staff_requested ? 'Yes' : 'No'}</div>
+          ${quote.wait_staff_requirements ? `<div style="margin-bottom: 10px;"><strong>Wait Staff Requirements:</strong> ${quote.wait_staff_requirements}</div>` : ''}
+          ${quote.wait_staff_setup_areas ? `<div style="margin-bottom: 10px;"><strong>Wait Staff Setup Areas:</strong> ${quote.wait_staff_setup_areas}</div>` : ''}
+        </div>
+        
+        <h3 style="color: #8B4513; margin-top: 25px; margin-bottom: 15px;">Additional Services Requested:</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div>• Tables & Chairs: ${quote.tables_chairs_requested ? 'Yes' : 'No'}</div>
+          <div>• Linens: ${quote.linens_requested ? 'Yes' : 'No'}</div>
+          <div>• Plates: ${quote.plates_requested ? 'Yes' : 'No'}</div>
+          <div>• Cups: ${quote.cups_requested ? 'Yes' : 'No'}</div>
+          <div>• Napkins: ${quote.napkins_requested ? 'Yes' : 'No'}</div>
+          <div>• Serving Utensils: ${quote.serving_utensils_requested ? 'Yes' : 'No'}</div>
+          <div>• Chafing Dishes: ${quote.chafers_requested ? 'Yes' : 'No'}</div>
+          <div>• Ice: ${quote.ice_requested ? 'Yes' : 'No'}</div>
+        </div>
+        
+        ${quote.separate_serving_area ? `<div style="margin-top: 15px;"><strong>Separate Serving Area:</strong> Yes</div>` : ''}
+        ${quote.serving_setup_area ? `<div style="margin-top: 10px;"><strong>Serving Setup Area:</strong> ${quote.serving_setup_area}</div>` : ''}
+        ${quote.bussing_tables_needed ? `<div style="margin-top: 10px;"><strong>Bussing Tables Needed:</strong> Yes</div>` : ''}
+      </div>
+
+      ${(quote.dietary_restrictions && quote.dietary_restrictions.length > 0) || quote.guest_count_with_restrictions || quote.special_requests || quote.referral_source ? `
+      <div style="background: white; padding: 25px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <h2 style="color: #8B4513; border-bottom: 2px solid #D2691E; padding-bottom: 10px; margin-top: 0;">📝 Additional Information</h2>
+        <div style="margin-top: 20px;">
+          ${quote.dietary_restrictions && quote.dietary_restrictions.length > 0 ? `<div style="margin-bottom: 15px;"><strong>Dietary Restrictions:</strong> ${formatArray(quote.dietary_restrictions)}</div>` : ''}
+          ${quote.guest_count_with_restrictions ? `<div style="margin-bottom: 15px;"><strong>Guests with Dietary Restrictions:</strong> ${quote.guest_count_with_restrictions}</div>` : ''}
+          ${quote.special_requests ? `<div style="background: #e8f4fd; padding: 15px; border-radius: 8px; margin-bottom: 15px;"><strong>Special Requests:</strong><br>${quote.special_requests}</div>` : ''}
+          ${quote.referral_source ? `<div style="margin-bottom: 10px;"><strong>How did you hear about us:</strong> ${quote.referral_source}</div>` : ''}
+        </div>
+      </div>` : ''}
+
+      <div style="background: linear-gradient(135deg, #8B4513, #D2691E); color: white; padding: 20px; border-radius: 10px; text-align: center;">
+        <h3 style="margin: 0 0 10px 0;">Next Steps</h3>
+        <p style="margin: 0; opacity: 0.9;">Our team will review this request and respond within 48 hours with a detailed quote.</p>
+        <div style="margin-top: 15px; font-size: 14px;">
+          <p style="margin: 0;">Soul Train's Eatery • (843) 970-0265 • soultrainseatery@gmail.com</p>
+        </div>
+      </div>
+    </div>
   `;
 };
 
@@ -278,44 +326,96 @@ const handler = async (req: Request): Promise<Response> => {
     try {
       console.log("Sending customer confirmation...");
       const customerSubject = "Quote Request Received - Soul Train's Eatery";
+      
+      const formatServiceType = (type: string) => {
+        const types: { [key: string]: string } = {
+          "drop-off": "Drop-Off Service",
+          "delivery-setup": "Delivery + Setup", 
+          "full-service": "Full-Service Catering"
+        };
+        return types[type] || type;
+      };
+      
+      const formatArray = (arr: string[] | undefined) => {
+        if (!arr || !Array.isArray(arr)) return "None selected";
+        return arr.length > 0 ? arr.map(item => item.replace(/-/g, ' ')).join(", ") : "None selected";
+      };
+      
       const customerHtml = `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #333;">Thank you for your quote request!</h2>
-          
-          <p>Dear ${quoteData.contact_name},</p>
-          
-          <p>We have received your quote request for <strong>${quoteData.event_name}</strong> on ${quoteData.event_date}. Thank you for considering Soul Train's Eatery for your special event!</p>
-          
-          <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <h3 style="margin-top: 0; color: #333;">What happens next?</h3>
-            <ul style="margin: 0; padding-left: 20px;">
-              <li>Our team will review your request within 48 hours</li>
-              <li>We'll prepare a customized quote for your event</li>
-              <li>You'll receive a detailed proposal via email</li>
-            </ul>
+        <div style="font-family: 'Georgia', serif; max-width: 700px; margin: 0 auto; background: #fafafa; padding: 20px;">
+          <div style="background: linear-gradient(135deg, #8B4513, #D2691E); color: white; padding: 25px; border-radius: 10px; text-align: center; margin-bottom: 25px;">
+            <h1 style="margin: 0; font-size: 24px; font-weight: bold;">Soul Train's Eatery</h1>
+            <p style="margin: 8px 0 0 0; font-size: 16px; opacity: 0.9;">Charleston's Authentic Southern Catering</p>
           </div>
           
-          <div style="background-color: #fff3cd; padding: 15px; border-radius: 8px; border-left: 4px solid #ffc107; margin: 20px 0;">
-            <p style="margin: 0;"><strong>Important:</strong> If you don't hear back from us within 48 hours, please call us at <strong>(843) 970-0265</strong></p>
+          <div style="background: white; padding: 25px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <h2 style="color: #8B4513; margin-top: 0;">Thank You, ${quoteData.contact_name}!</h2>
+            
+            <p style="font-size: 16px; line-height: 1.6;">We have received your quote request for <strong>${quoteData.event_name}</strong> and are excited about the opportunity to cater your special event! Our family-run business takes pride in bringing people together around exceptional Southern food.</p>
+            
+            ${quoteData.quote_id ? `<div style="background: #e8f5e8; padding: 15px; border-radius: 8px; text-align: center; margin: 20px 0;"><strong>Your Reference ID:</strong> <span style="background-color: #fff; padding: 8px 12px; border-radius: 4px; font-family: monospace; font-weight: bold;">${quoteData.quote_id}</span></div>` : ''}
+            
+            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <h3 style="margin-top: 0; color: #8B4513;">What Happens Next?</h3>
+              <ul style="margin: 0; padding-left: 20px; line-height: 1.8;">
+                <li>Our catering team will review your request within <strong>48 hours</strong></li>
+                <li>We'll prepare a customized quote tailored to your event</li>
+                <li>You'll receive a detailed proposal via email with pricing and options</li>
+                <li>We'll schedule a call to discuss any questions and finalize details</li>
+              </ul>
+            </div>
+          </div>
+
+          <div style="background: white; padding: 25px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <h3 style="color: #8B4513; margin-top: 0; border-bottom: 2px solid #D2691E; padding-bottom: 10px;">📋 Your Event Summary</h3>
+            <div style="margin-top: 20px;">
+              <div style="margin-bottom: 12px;"><strong>Event:</strong> ${quoteData.event_name}</div>
+              <div style="margin-bottom: 12px;"><strong>Date:</strong> ${quoteData.event_date}</div>
+              <div style="margin-bottom: 12px;"><strong>Time:</strong> ${quoteData.start_time}</div>
+              <div style="margin-bottom: 12px;"><strong>Guests:</strong> ${quoteData.guest_count}</div>
+              <div style="margin-bottom: 12px;"><strong>Service Type:</strong> ${formatServiceType(quoteData.service_type)}</div>
+              <div style="margin-bottom: 12px;"><strong>Location:</strong> ${quoteData.location}</div>
+              ${quoteData.theme_colors ? `<div style="margin-bottom: 12px;"><strong>Theme/Event Colors:</strong> ${quoteData.theme_colors}</div>` : ''}
+              ${quoteData.wait_staff_requested ? `<div style="margin-bottom: 12px;"><strong>Professional Wait Staff:</strong> Requested</div>` : ''}
+            </div>
+          </div>
+
+          <div style="background: white; padding: 25px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <h3 style="color: #8B4513; margin-top: 0; border-bottom: 2px solid #D2691E; padding-bottom: 10px;">🍽️ Your Menu Selections</h3>
+            <div style="margin-top: 20px;">
+              ${quoteData.primary_protein ? `<div style="margin-bottom: 12px;"><strong>Primary Protein:</strong> ${String(quoteData.primary_protein).replace(/-/g, ' ')}</div>` : ''}
+              ${quoteData.secondary_protein ? `<div style="margin-bottom: 12px;"><strong>Secondary Protein:</strong> ${String(quoteData.secondary_protein).replace(/-/g, ' ')}</div>` : ''}
+              ${quoteData.appetizers && quoteData.appetizers.length > 0 ? `<div style="margin-bottom: 12px;"><strong>Appetizers:</strong> ${formatArray(quoteData.appetizers)}</div>` : ''}
+              ${quoteData.sides && quoteData.sides.length > 0 ? `<div style="margin-bottom: 12px;"><strong>Sides:</strong> ${formatArray(quoteData.sides)}</div>` : ''}
+              ${quoteData.desserts && quoteData.desserts.length > 0 ? `<div style="margin-bottom: 12px;"><strong>Desserts:</strong> ${formatArray(quoteData.desserts)}</div>` : ''}
+              ${quoteData.drinks && quoteData.drinks.length > 0 ? `<div style="margin-bottom: 12px;"><strong>Beverages:</strong> ${formatArray(quoteData.drinks)}</div>` : ''}
+              ${quoteData.custom_menu_requests ? `<div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-top: 15px;"><strong>Custom Menu Requests:</strong><br>${quoteData.custom_menu_requests}</div>` : ''}
+            </div>
+          </div>
+
+          ${(quoteData.dietary_restrictions && quoteData.dietary_restrictions.length > 0) || quoteData.guest_count_with_restrictions || quoteData.special_requests ? `
+          <div style="background: white; padding: 25px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <h3 style="color: #8B4513; margin-top: 0; border-bottom: 2px solid #D2691E; padding-bottom: 10px;">📝 Special Notes & Dietary Needs</h3>
+            <div style="margin-top: 20px;">
+              ${quoteData.dietary_restrictions && quoteData.dietary_restrictions.length > 0 ? `<div style="margin-bottom: 12px;"><strong>Dietary Restrictions:</strong> ${formatArray(quoteData.dietary_restrictions)}</div>` : ''}
+              ${quoteData.guest_count_with_restrictions ? `<div style="margin-bottom: 12px;"><strong>Number of Guests with Restrictions:</strong> ${quoteData.guest_count_with_restrictions}</div>` : ''}
+              ${quoteData.special_requests ? `<div style="background: #e8f4fd; padding: 15px; border-radius: 8px; margin-top: 15px;"><strong>Special Requests:</strong><br>${quoteData.special_requests}</div>` : ''}
+            </div>
+          </div>` : ''}
+          
+          <div style="background-color: #fff3cd; padding: 20px; border-radius: 8px; border-left: 4px solid #ffc107; margin: 20px 0;">
+            <p style="margin: 0; font-weight: bold;">🕐 Response Time Commitment</p>
+            <p style="margin: 10px 0 0 0;">If you don't hear back from us within 48 hours, please call us directly at <strong>(843) 970-0265</strong>. Your event is important to us!</p>
           </div>
           
-          ${quoteData.quote_id ? `<p><strong>Your Reference ID:</strong> <span style="background-color: #f0f0f0; padding: 4px 8px; border-radius: 4px; font-family: monospace;">${quoteData.quote_id}</span></p>` : ''}
-          
-          <h3>Your Event Details:</h3>
-          <p><strong>Event:</strong> ${quoteData.event_name}</p>
-          <p><strong>Date:</strong> ${quoteData.event_date}</p>
-          <p><strong>Time:</strong> ${quoteData.start_time}</p>
-          <p><strong>Guests:</strong> ${quoteData.guest_count}</p>
-          <p><strong>Location:</strong> ${quoteData.location}</p>
-          ${quoteData.theme_colors ? `<p><strong>Theme/Event Colors:</strong> ${quoteData.theme_colors}</p>` : ''}
-          
-          <hr style="margin: 30px 0;">
-          
-          <div style="text-align: center; color: #666; font-size: 14px;">
-            <p><strong>Soul Train's Eatery</strong></p>
-            <p>Phone: (843) 970-0265</p>
-            <p>Email: soultrainseatery@gmail.com</p>
-            <p>Proudly serving Charleston, SC and the surrounding Lowcountry</p>
+          <div style="background: linear-gradient(135deg, #8B4513, #D2691E); color: white; padding: 20px; border-radius: 10px; text-align: center;">
+            <h3 style="margin: 0 0 15px 0;">Contact Soul Train's Eatery</h3>
+            <div style="font-size: 16px; line-height: 1.8;">
+              <p style="margin: 0;"><strong>📞 Phone:</strong> (843) 970-0265</p>
+              <p style="margin: 0;"><strong>📧 Email:</strong> soultrainseatery@gmail.com</p>
+              <p style="margin: 10px 0 0 0; opacity: 0.9; font-size: 14px;">Proudly serving Charleston's Lowcountry and surrounding areas</p>
+              <p style="margin: 5px 0 0 0; opacity: 0.9; font-size: 14px; font-style: italic;">Family-run • Authentic Southern Cooking • Bringing People Together</p>
+            </div>
           </div>
         </div>
       `;

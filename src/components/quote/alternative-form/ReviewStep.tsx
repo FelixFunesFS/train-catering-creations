@@ -56,7 +56,12 @@ export const ReviewStep = ({ form, estimatedCost }: ReviewStepProps) => {
   };
 
   const formatServiceType = (type: string) => {
-    return type === "drop-off" ? "Drop-Off Service" : "Full-Service Catering";
+    const types: { [key: string]: string } = {
+      "drop-off": "Drop-Off Service",
+      "delivery-setup": "Delivery + Setup", 
+      "full-service": "Full-Service Catering"
+    };
+    return types[type] || type;
   };
 
   const formatDate = (dateString: string) => {
@@ -326,6 +331,7 @@ export const ReviewStep = ({ form, estimatedCost }: ReviewStepProps) => {
                       </FormControl>
                       <SelectContent>
                         <SelectItem value="drop-off">Drop-Off Service</SelectItem>
+                        <SelectItem value="delivery-setup">Delivery + Setup</SelectItem>
                         <SelectItem value="full-service">Full-Service Catering</SelectItem>
                       </SelectContent>
                     </Select>
@@ -426,7 +432,7 @@ export const ReviewStep = ({ form, estimatedCost }: ReviewStepProps) => {
             </CardContent>
           </Card>
 
-          {estimatedCost && (
+          {false && estimatedCost && (
             <Card className="neumorphic-card-1 border-0 bg-gradient-to-br from-primary/5 via-primary/3 to-primary/5">
               <CardHeader>
                 <CardTitle className="flex items-center gap-3 text-xl font-elegant">

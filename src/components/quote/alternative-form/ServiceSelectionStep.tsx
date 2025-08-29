@@ -63,7 +63,6 @@ export const ServiceSelectionStep = ({ form }: ServiceSelectionStepProps) => {
                           <Label htmlFor="drop-off" className="flex items-center gap-3 text-base font-medium cursor-pointer">
                             <Truck className="h-5 w-5 text-primary" />
                             Drop-Off Service
-                            <span className="text-sm text-primary bg-primary/10 px-2 py-1 rounded-full">Most Popular</span>
                           </Label>
                           <p className="text-sm text-muted-foreground mt-2 ml-8">
                             We deliver beautifully prepared food in disposable containers. Perfect for casual events and budget-conscious hosts.
@@ -79,6 +78,27 @@ export const ServiceSelectionStep = ({ form }: ServiceSelectionStepProps) => {
 
                     <div className="neumorphic-card-1 p-4 rounded-lg hover:shadow-glow transition-all duration-300">
                       <div className="flex items-start space-x-3">
+                        <RadioGroupItem value="delivery-setup" id="delivery-setup" className="mt-1" />
+                        <div className="flex-1">
+                          <Label htmlFor="delivery-setup" className="flex items-center gap-3 text-base font-medium cursor-pointer">
+                            <Truck className="h-5 w-5 text-secondary" />
+                            Delivery + Setup
+                            <span className="text-sm text-primary bg-primary/10 px-2 py-1 rounded-full">Most Popular</span>
+                          </Label>
+                          <p className="text-sm text-muted-foreground mt-2 ml-8">
+                            We deliver and professionally set up your food with chafing dishes and professional presentation, then you take it from there.
+                          </p>
+                          <div className="flex items-center gap-4 mt-3 ml-8 text-xs text-muted-foreground">
+                            <span>✓ Professional food setup</span>
+                            <span>✓ Chafing dishes included</span>
+                            <span>✓ Elegant presentation</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="neumorphic-card-1 p-4 rounded-lg hover:shadow-glow transition-all duration-300">
+                      <div className="flex items-start space-x-3">
                         <RadioGroupItem value="full-service" id="full-service" className="mt-1" />
                         <div className="flex-1">
                           <Label htmlFor="full-service" className="flex items-center gap-3 text-base font-medium cursor-pointer">
@@ -87,12 +107,12 @@ export const ServiceSelectionStep = ({ form }: ServiceSelectionStepProps) => {
                             <span className="text-sm text-gold bg-gold/10 px-2 py-1 rounded-full">Premium</span>
                           </Label>
                           <p className="text-sm text-muted-foreground mt-2 ml-8">
-                            Complete catering experience with setup, service, and cleanup. Includes chafing dishes, linens, and professional presentation.
+                            Complete catering experience with professional setup, service, optional wait staff, and cleanup. Includes chafing dishes, linens, and full presentation.
                           </p>
                           <div className="flex items-center gap-4 mt-3 ml-8 text-xs text-muted-foreground">
-                            <span>✓ Professional setup & service</span>
+                            <span>✓ Professional wait staff available</span>
+                            <span>✓ Complete setup & cleanup</span>
                             <span>✓ Chafing dishes & linens</span>
-                            <span>✓ Complete cleanup</span>
                           </div>
                         </div>
                       </div>
@@ -138,7 +158,7 @@ export const ServiceSelectionStep = ({ form }: ServiceSelectionStepProps) => {
                     Professional Wait Staff
                   </Label>
                   <p className="text-sm text-muted-foreground">
-                    Add experienced servers to assist your guests
+                    Add experienced servers to assist your guests (optional)
                   </p>
                 </div>
                 <FormField
@@ -218,7 +238,7 @@ export const ServiceSelectionStep = ({ form }: ServiceSelectionStepProps) => {
 
       <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 rounded-lg p-4 text-center">
         <p className="text-sm text-muted-foreground">
-          <span className="text-primary font-medium">🍽️ Service Tip:</span> Full-service includes all setup, service, and cleanup - perfect for stress-free hosting.
+          <span className="text-primary font-medium">🍽️ Service Tip:</span> Need just delivery? Choose Drop-Off. Want setup help? Choose Delivery + Setup. Want the full experience? Choose Full-Service with optional wait staff.
         </p>
       </div>
     </div>
