@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Search, Eye, Filter, Download, Calendar, MapPin, Users, Mail, Phone } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
+import { QuoteDetailModal } from "@/components/admin/QuoteDetailModal";
 
 type QuoteRequest = Database['public']['Tables']['quote_requests']['Row'];
 
@@ -370,72 +371,16 @@ const AdminDashboard = () => {
           </CardContent>
         </Card>
 
-        {/* Quote Detail Modal/Panel */}
+        {/* Quote Detail Modal */}
         {selectedQuote && (
-          <Card className="neumorphic-card-2 border-primary/20">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>Quote Request Details</CardTitle>
-                <Button variant="outline" onClick={() => setSelectedQuote(null)}>
-                  Close
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="font-semibold mb-2">Contact Information</h3>
-                    <div className="space-y-2 text-sm">
-                      <p><strong>Name:</strong> {selectedQuote.contact_name}</p>
-                      <p><strong>Email:</strong> {selectedQuote.email}</p>
-                      <p><strong>Phone:</strong> {selectedQuote.phone}</p>
-                    </div>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-2">Event Details</h3>
-                    <div className="space-y-2 text-sm">
-                      <p><strong>Event Name:</strong> {selectedQuote.event_name}</p>
-                      <p><strong>Event Type:</strong> {selectedQuote.event_type}</p>
-                      <p><strong>Date:</strong> {format(new Date(selectedQuote.event_date), 'MMMM dd, yyyy')}</p>
-                      <p><strong>Guest Count:</strong> {selectedQuote.guest_count}</p>
-                      <p><strong>Location:</strong> {selectedQuote.location}</p>
-                      <p><strong>Service Type:</strong> {getServiceTypeDisplay(selectedQuote.service_type)}</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="font-semibold mb-2">Menu Selections</h3>
-                    <div className="space-y-2 text-sm">
-                      {selectedQuote.primary_protein && (
-                        <p><strong>Primary Protein:</strong> {selectedQuote.primary_protein}</p>
-                      )}
-                      {selectedQuote.secondary_protein && (
-                        <p><strong>Secondary Protein:</strong> {selectedQuote.secondary_protein}</p>
-                      )}
-                    </div>
-                  </div>
-                  {selectedQuote.dietary_restrictions && Array.isArray(selectedQuote.dietary_restrictions) && selectedQuote.dietary_restrictions.length > 0 && (
-                    <div>
-                      <h3 className="font-semibold mb-2">Dietary Restrictions</h3>
-                      <div className="flex flex-wrap gap-2">
-                        {Array.isArray(selectedQuote.dietary_restrictions) && selectedQuote.dietary_restrictions.map((restriction, index) => (
-                          <Badge key={index} variant="outline">{String(restriction)}</Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  {selectedQuote.special_requests && (
-                    <div>
-                      <h3 className="font-semibold mb-2">Special Requests</h3>
-                      <p className="text-sm bg-muted p-3 rounded">{selectedQuote.special_requests}</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <QuoteDetailModal
+            quote={selectedQuote}
+            onClose={() => setSelectedQuote(null)}
+            onUpdate={(updatedQuote) => {
+              setQuotes(quotes.map(q => q.id === updatedQuote.id ? updatedQuote : q));
+              setSelectedQuote(updatedQuote);
+            }}
+          />
         )}
       </div>
     </div>
