@@ -58,6 +58,50 @@ export type Database = {
           },
         ]
       }
+      customers: {
+        Row: {
+          address: string | null
+          created_at: string
+          email: string
+          id: string
+          name: string
+          phone: string | null
+          quote_request_id: string | null
+          stripe_customer_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          name: string
+          phone?: string | null
+          quote_request_id?: string | null
+          stripe_customer_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          phone?: string | null
+          quote_request_id?: string | null
+          stripe_customer_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customers_quote_request_id_fkey"
+            columns: ["quote_request_id"]
+            isOneToOne: false
+            referencedRelation: "quote_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       gmail_tokens: {
         Row: {
           access_token: string
@@ -90,6 +134,125 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      invoice_line_items: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string
+          id: string
+          invoice_id: string | null
+          quantity: number
+          total_price: number
+          unit_price: number
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          invoice_id?: string | null
+          quantity?: number
+          total_price: number
+          unit_price: number
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          invoice_id?: string | null
+          quantity?: number
+          total_price?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_line_items_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invoices: {
+        Row: {
+          created_at: string
+          currency: string | null
+          customer_id: string | null
+          due_date: string | null
+          id: string
+          invoice_number: string | null
+          notes: string | null
+          paid_at: string | null
+          pdf_url: string | null
+          quote_request_id: string | null
+          sent_at: string | null
+          status: string
+          stripe_invoice_id: string | null
+          subtotal: number
+          tax_amount: number | null
+          total_amount: number
+          updated_at: string
+          viewed_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          currency?: string | null
+          customer_id?: string | null
+          due_date?: string | null
+          id?: string
+          invoice_number?: string | null
+          notes?: string | null
+          paid_at?: string | null
+          pdf_url?: string | null
+          quote_request_id?: string | null
+          sent_at?: string | null
+          status?: string
+          stripe_invoice_id?: string | null
+          subtotal?: number
+          tax_amount?: number | null
+          total_amount?: number
+          updated_at?: string
+          viewed_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          currency?: string | null
+          customer_id?: string | null
+          due_date?: string | null
+          id?: string
+          invoice_number?: string | null
+          notes?: string | null
+          paid_at?: string | null
+          pdf_url?: string | null
+          quote_request_id?: string | null
+          sent_at?: string | null
+          status?: string
+          stripe_invoice_id?: string | null
+          subtotal?: number
+          tax_amount?: number | null
+          total_amount?: number
+          updated_at?: string
+          viewed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_quote_request_id_fkey"
+            columns: ["quote_request_id"]
+            isOneToOne: false
+            referencedRelation: "quote_requests"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       message_threads: {
         Row: {
@@ -185,6 +348,92 @@ export type Database = {
           },
         ]
       }
+      payment_history: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string | null
+          id: string
+          invoice_id: string | null
+          notes: string | null
+          payment_method: string | null
+          status: string
+          stripe_payment_intent_id: string | null
+          transaction_date: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string | null
+          id?: string
+          invoice_id?: string | null
+          notes?: string | null
+          payment_method?: string | null
+          status: string
+          stripe_payment_intent_id?: string | null
+          transaction_date?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string | null
+          id?: string
+          invoice_id?: string | null
+          notes?: string | null
+          payment_method?: string | null
+          status?: string
+          stripe_payment_intent_id?: string | null
+          transaction_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_history_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pricing_rules: {
+        Row: {
+          base_price: number
+          category: string
+          created_at: string
+          id: string
+          is_active: boolean | null
+          item_name: string
+          minimum_quantity: number | null
+          price_per_person: number | null
+          service_type: string | null
+          updated_at: string
+        }
+        Insert: {
+          base_price: number
+          category: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          item_name: string
+          minimum_quantity?: number | null
+          price_per_person?: number | null
+          service_type?: string | null
+          updated_at?: string
+        }
+        Update: {
+          base_price?: number
+          category?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          item_name?: string
+          minimum_quantity?: number | null
+          price_per_person?: number | null
+          service_type?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       quote_request_history: {
         Row: {
           change_reason: string | null
@@ -245,14 +494,17 @@ export type Database = {
           dietary_restrictions: Json | null
           drinks: Json | null
           email: string
+          estimated_total: number | null
           event_date: string
           event_name: string
           event_type: Database["public"]["Enums"]["event_type"]
           extras: Json | null
+          final_total: number | null
           guest_count: number
           guest_count_with_restrictions: string | null
           ice_requested: boolean | null
           id: string
+          invoice_status: string | null
           last_calendar_sync: string | null
           linens_requested: boolean | null
           location: string
@@ -294,14 +546,17 @@ export type Database = {
           dietary_restrictions?: Json | null
           drinks?: Json | null
           email: string
+          estimated_total?: number | null
           event_date: string
           event_name: string
           event_type: Database["public"]["Enums"]["event_type"]
           extras?: Json | null
+          final_total?: number | null
           guest_count: number
           guest_count_with_restrictions?: string | null
           ice_requested?: boolean | null
           id?: string
+          invoice_status?: string | null
           last_calendar_sync?: string | null
           linens_requested?: boolean | null
           location: string
@@ -343,14 +598,17 @@ export type Database = {
           dietary_restrictions?: Json | null
           drinks?: Json | null
           email?: string
+          estimated_total?: number | null
           event_date?: string
           event_name?: string
           event_type?: Database["public"]["Enums"]["event_type"]
           extras?: Json | null
+          final_total?: number | null
           guest_count?: number
           guest_count_with_restrictions?: string | null
           ice_requested?: boolean | null
           id?: string
+          invoice_status?: string | null
           last_calendar_sync?: string | null
           linens_requested?: boolean | null
           location?: string
