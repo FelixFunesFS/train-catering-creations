@@ -3,9 +3,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { InvoicePreviewModal } from './InvoicePreviewModal';
+import { InvoiceDraftManager } from './InvoiceDraftManager';
+import { InvoiceQuoteSyncManager } from './InvoiceQuoteSyncManager';
 import {
   DollarSign,
   FileText,
@@ -59,6 +62,8 @@ export function EnhancedBillingTab({ quote, onGenerateInvoice, onResendInvoice }
   const [refreshing, setRefreshing] = useState(false);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [previewInvoiceData, setPreviewInvoiceData] = useState<any>(null);
+  const [modalMode, setModalMode] = useState<'preview' | 'edit' | 'template'>('preview');
+  const [activeTab, setActiveTab] = useState('overview');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -163,15 +168,45 @@ export function EnhancedBillingTab({ quote, onGenerateInvoice, onResendInvoice }
     });
   };
 
-  const handlePreviewInvoice = () => {
+  const handlePreviewInvoice = (mode: 'preview' | 'edit' | 'template' = 'preview') => {
+    setModalMode(mode);
     // Set mock data for preview - in real app this would come from a draft generation
     setPreviewInvoiceData({
       subtotal: quote.estimated_total || 0,
       tax_amount: Math.round((quote.estimated_total || 0) * 0.08),
       total_amount: Math.round((quote.estimated_total || 0) * 1.08),
-      line_items: []
+      line_items: [],
+      is_draft: mode === 'edit'
     });
     setShowPreviewModal(true);
+  };
+
+  const handleEditDraft = (draft: any) => {
+    setPreviewInvoiceData(draft);
+    setModalMode('edit');
+    setShowPreviewModal(true);
+  };
+
+  const handleDeleteDraft = (draftId: string) => {
+    // Refresh invoice list after deletion
+    fetchBillingData();
+  };
+
+  const handleGenerateFromDraft = async (draftId: string) => {
+    await handleAction('generateFromDraft', async () => {
+      const { data, error } = await supabase.functions.invoke('generate-invoice-from-draft', {
+        body: { draft_id: draftId }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Invoice generated from draft successfully"
+      });
+
+      await fetchBillingData();
+    });
   };
 
   const sendInvoice = async (invoiceId: string) => {
@@ -231,8 +266,22 @@ export function EnhancedBillingTab({ quote, onGenerateInvoice, onResendInvoice }
 
   return (
     <div className="space-y-6">
-      {/* Customer Information */}
-      <Card>
+      {/* Quote-Invoice Sync Status */}
+      <InvoiceQuoteSyncManager 
+        quoteId={quote.id} 
+        onSyncComplete={fetchBillingData}
+      />
+
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="drafts">Draft Manager</TabsTrigger>
+          <TabsTrigger value="invoices">Invoice History</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="overview" className="space-y-6">
+          {/* Customer Information */}
+          <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <User className="h-5 w-5" />
@@ -309,7 +358,15 @@ export function EnhancedBillingTab({ quote, onGenerateInvoice, onResendInvoice }
             </CardTitle>
             <div className="flex gap-2">
               <Button
-                onClick={handlePreviewInvoice}
+                onClick={() => handlePreviewInvoice('edit')}
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                <Edit3 className="h-4 w-4" />
+                Create Draft
+              </Button>
+              <Button
+                onClick={() => handlePreviewInvoice('preview')}
                 variant="outline"
                 className="flex items-center gap-2"
               >
@@ -466,6 +523,99 @@ export function EnhancedBillingTab({ quote, onGenerateInvoice, onResendInvoice }
           </div>
         </CardContent>
       </Card>
+        </TabsContent>
+
+        <TabsContent value="drafts">
+          <InvoiceDraftManager 
+            onEditDraft={handleEditDraft}
+            onDeleteDraft={handleDeleteDraft}
+            onGenerateFromDraft={handleGenerateFromDraft}
+          />
+        </TabsContent>
+
+        <TabsContent value="invoices" className="space-y-6">
+          {/* Invoice History - existing invoice management content */}
+          {customer && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  Invoice History
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {invoices.length > 0 ? (
+                  <div className="space-y-4">
+                    {invoices.map((invoice) => (
+                      <div key={invoice.id} className="border rounded-lg p-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-3">
+                            {getStatusIcon(invoice.status)}
+                            <div>
+                              <h4 className="font-medium">{invoice.invoice_number}</h4>
+                              <p className="text-sm text-muted-foreground">
+                                {formatCurrency(invoice.total_amount)}
+                              </p>
+                            </div>
+                          </div>
+                          <Badge className={getStatusColor(invoice.status)}>
+                            {invoice.status}
+                          </Badge>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
+                          <div>
+                            <label className="text-muted-foreground">Due Date</label>
+                            <p>{new Date(invoice.due_date).toLocaleDateString()}</p>
+                          </div>
+                          {invoice.sent_at && (
+                            <div>
+                              <label className="text-muted-foreground">Sent</label>
+                              <p>{new Date(invoice.sent_at).toLocaleDateString()}</p>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="flex flex-wrap gap-2">
+                          {invoice.status === 'draft' && (
+                            <Button
+                              size="sm"
+                              onClick={() => sendInvoice(invoice.id)}
+                              disabled={loadingActions[`sendInvoice-${invoice.id}`]}
+                              className="flex items-center gap-2"
+                            >
+                              <Send className="h-3 w-3" />
+                              {loadingActions[`sendInvoice-${invoice.id}`] ? 'Sending...' : 'Send Invoice'}
+                            </Button>
+                          )}
+                          {invoice.stripe_invoice_id && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => window.open(`https://dashboard.stripe.com/invoices/${invoice.stripe_invoice_id}`, '_blank')}
+                              className="flex items-center gap-2"
+                            >
+                              <ExternalLink className="h-3 w-3" />
+                              View in Stripe
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <p className="text-muted-foreground">
+                      No invoices generated yet.
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+      </Tabs>
 
       <InvoicePreviewModal
         quote={quote}
@@ -474,6 +624,7 @@ export function EnhancedBillingTab({ quote, onGenerateInvoice, onResendInvoice }
         onClose={() => setShowPreviewModal(false)}
         onGenerate={generateInvoice}
         onSend={sendInvoice}
+        mode={modalMode}
       />
     </div>
   );
