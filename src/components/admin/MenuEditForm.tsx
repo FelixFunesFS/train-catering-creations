@@ -97,12 +97,12 @@ export function MenuEditForm({ quote, onSave, onCancel }: MenuEditFormProps) {
           
           <div>
             <Label>Secondary Protein</Label>
-            <Select value={watchedValues.secondary_protein} onValueChange={(value) => setValue('secondary_protein', value)}>
+            <Select value={watchedValues.secondary_protein || 'none'} onValueChange={(value) => setValue('secondary_protein', value === 'none' ? null : value)}>
               <SelectTrigger>
                 <SelectValue placeholder="Select secondary protein" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">None</SelectItem>
+                <SelectItem value="none">None</SelectItem>
                 {MENU_OPTIONS.proteins.map((protein) => (
                   <SelectItem key={protein} value={protein}>{protein}</SelectItem>
                 ))}
