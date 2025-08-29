@@ -27,7 +27,7 @@ export const formSchema = z.object({
   
   // Service Details  
   service_type: z.enum(["full-service", "delivery-setup", "drop-off"]).optional(),
-  serving_start_time: z.string().optional(),
+  serving_start_time: z.string().optional().nullable(),
   
   // Menu Selections
   primary_protein: z.array(z.string()).default([]),

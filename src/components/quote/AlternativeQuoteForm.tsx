@@ -250,7 +250,7 @@ export const AlternativeQuoteForm = () => {
         guest_count: data.guest_count,
         location: data.location,
         service_type: data.service_type,
-        serving_start_time: data.serving_start_time,
+        serving_start_time: data.serving_start_time || null,
         // wait_staff_requested: data.wait_staff_requested,
         // wait_staff_requirements: data.wait_staff_requirements,
         // wait_staff_setup_areas: data.wait_staff_setup_areas,
