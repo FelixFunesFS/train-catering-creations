@@ -168,16 +168,45 @@ export function EnhancedBillingTab({ quote, onGenerateInvoice, onResendInvoice }
     });
   };
 
-  const handlePreviewInvoice = (mode: 'preview' | 'edit' | 'template' = 'preview') => {
-    setModalMode(mode);
-    // Set mock data for preview - in real app this would come from a draft generation
-    setPreviewInvoiceData({
-      subtotal: quote.estimated_total || 0,
-      tax_amount: Math.round((quote.estimated_total || 0) * 0.08),
-      total_amount: Math.round((quote.estimated_total || 0) * 1.08),
-      line_items: [],
-      is_draft: mode === 'edit'
+  const handleGenerateDraft = async () => {
+    await handleAction('generateDraft', async () => {
+      const { data, error } = await supabase.functions.invoke('generate-invoice-from-quote', {
+        body: { quote_request_id: quote.id }
+      });
+
+      if (error) throw error;
+
+      // Set the generated invoice data to the modal
+      setPreviewInvoiceData({
+        ...data,
+        is_draft: true,
+        line_items: data.line_items || []
+      });
+      setModalMode('edit');
+      setShowPreviewModal(true);
+
+      toast({
+        title: "Draft Generated",
+        description: "Invoice draft created with all menu selections. Set pricing to continue.",
+      });
     });
+  };
+
+  const handlePreviewInvoice = (invoiceData?: any) => {
+    if (invoiceData) {
+      setPreviewInvoiceData(invoiceData);
+      setModalMode('preview');
+    } else {
+      // Generate a quick preview from existing quote data
+      setPreviewInvoiceData({
+        subtotal: quote.estimated_total || 0,
+        tax_amount: Math.round((quote.estimated_total || 0) * 0.08),
+        total_amount: Math.round((quote.estimated_total || 0) * 1.08),
+        line_items: [],
+        is_draft: false
+      });
+      setModalMode('preview');
+    }
     setShowPreviewModal(true);
   };
 
@@ -356,31 +385,36 @@ export function EnhancedBillingTab({ quote, onGenerateInvoice, onResendInvoice }
               <FileText className="h-5 w-5" />
               Invoice Management
             </CardTitle>
+            <div className="bg-muted/30 p-4 rounded-lg mb-4">
+              <h3 className="font-medium mb-2 text-primary">3-Step Invoice Process</h3>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Badge variant="outline" className="bg-background">1. Generate Draft</Badge>
+                <span>→</span>
+                <Badge variant="outline" className="bg-background">2. Set Pricing</Badge>
+                <span>→</span>
+                <Badge variant="outline" className="bg-background">3. Review & Send</Badge>
+              </div>
+            </div>
             <div className="flex gap-2">
               <Button
-                onClick={() => handlePreviewInvoice('edit')}
-                variant="outline"
+                onClick={handleGenerateDraft}
+                disabled={loadingActions.generateDraft}
                 className="flex items-center gap-2"
-              >
-                <Edit3 className="h-4 w-4" />
-                Create Draft
-              </Button>
-              <Button
-                onClick={() => handlePreviewInvoice('preview')}
-                variant="outline"
-                className="flex items-center gap-2"
-              >
-                <Edit3 className="h-4 w-4" />
-                Review & Edit
-              </Button>
-              <Button
-                onClick={generateInvoice}
-                disabled={loadingActions.generateInvoice}
-                className="flex items-center gap-2"
+                size="lg"
               >
                 <Plus className="h-4 w-4" />
-                {loadingActions.generateInvoice ? 'Generating...' : 'Quick Generate'}
+                {loadingActions.generateDraft ? 'Generating...' : '1. Generate Draft Invoice'}
               </Button>
+              {invoices.length > 0 && (
+                <Button
+                  onClick={() => handlePreviewInvoice()}
+                  variant="outline"
+                  className="flex items-center gap-2"
+                >
+                  <FileText className="h-4 w-4" />
+                  Preview Latest
+                </Button>
+              )}
             </div>
           </CardHeader>
           <CardContent>

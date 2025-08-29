@@ -440,11 +440,16 @@ serve(async (req) => {
       stripe_invoice_id: stripeInvoice?.id || null,
       invoice_number: invoiceNumber,
       total_amount: totalAmount,
+      subtotal: subtotal,
+      tax_amount: taxAmount,
+      line_items: lineItems, // Return the generated line items
       line_items_count: lineItems.length,
       requires_pricing: !manual_overrides?.line_items,
       pdf_url: finalizedInvoice?.invoice_pdf || null,
       hosted_invoice_url: finalizedInvoice?.hosted_invoice_url || null,
       quote_selections_captured: true,
+      status: manual_overrides?.line_items ? 'draft' : 'pending_pricing',
+      is_draft: !manual_overrides?.line_items,
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,

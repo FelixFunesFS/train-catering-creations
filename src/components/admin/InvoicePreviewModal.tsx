@@ -10,10 +10,11 @@ import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Plus, Trash2, Edit3, Save, X, AlertTriangle, RefreshCw, Copy, Percent, DollarSign, FileText, History, Send, Calculator } from 'lucide-react';
+import { Plus, Trash2, Edit3, Save, X, AlertTriangle, RefreshCw, Copy, Percent, DollarSign, FileText, History, Send, Calculator, Utensils } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { QuoteReferencePanel } from './QuoteReferencePanel';
+import { PricingProgressCard } from './PricingProgressCard';
 
 interface LineItem {
   id?: string;
@@ -453,18 +454,47 @@ export function InvoicePreviewModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh]">
+      <DialogContent className="max-w-6xl max-h-[90vh]">
         <DialogHeader>
-          <DialogTitle>Invoice Preview & Edit</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            <FileText className="h-5 w-5" />
+            {mode === 'edit' ? '2. Set Invoice Pricing' : 'Invoice Preview'}
+          </DialogTitle>
           <p className="text-sm text-muted-foreground">
-            Review and modify invoice details before generating
+            {mode === 'edit' 
+              ? 'Set pricing for each line item. All menu selections from the quote are included below.'
+              : 'Review invoice details and make adjustments as needed'
+            }
           </p>
         </DialogHeader>
 
         <ScrollArea className="max-h-[70vh]">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            {/* Main Content - 3 columns */}
+            {/* Main Content - 4 columns now */}
             <div className="lg:col-span-3 space-y-6">
+              
+              {/* Pricing Progress Indicator */}
+              {mode === 'edit' && (
+                <Card className="bg-gradient-to-r from-primary/5 to-secondary/5 border-primary/20">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2">
+                          <Badge variant="secondary">Step 2 of 3</Badge>
+                          <Calculator className="h-4 w-4 text-primary" />
+                          <span className="font-medium">Manual Pricing Required</span>
+                        </div>
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        {lineItems.filter(item => item.unit_price > 0).length} of {lineItems.length} items priced
+                      </div>
+                    </div>
+                    <div className="mt-2 text-sm text-muted-foreground">
+                      Enter pricing for each menu item and service. Use the quick pricing tools on the right for faster entry.
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             {/* Quote Status & Controls */}
             {quoteHasChanged && (
               <Alert>
@@ -799,9 +829,140 @@ export function InvoicePreviewModal({
 
             </div>
 
-            {/* Quote Reference Panel - 1 column */}
-            <div className="lg:col-span-1">
+            {/* Quote Reference Panel + Pricing Tools - 1 column */}
+            <div className="lg:col-span-1 space-y-4">
               <QuoteReferencePanel quote={quote} />
+              
+              {/* Quick Pricing Tools */}
+              {mode === 'edit' && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-sm flex items-center gap-2">
+                      <Calculator className="h-4 w-4" />
+                      Quick Pricing Tools
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="space-y-2">
+                      <Label className="text-xs">Per-Person Calculator</Label>
+                      <div className="flex gap-2">
+                        <Input
+                          type="number"
+                          placeholder="$0.00"
+                          className="text-xs"
+                          step="0.01"
+                          onChange={(e) => {
+                            const perPersonPrice = parseFloat(e.target.value) || 0;
+                            // Apply to all food items
+                            setLineItems(items => items.map(item => {
+                              if (['protein', 'appetizer', 'side', 'dessert', 'drink'].includes(item.category)) {
+                                return {
+                                  ...item,
+                                  unit_price: Math.round(perPersonPrice * quote.guest_count * 100),
+                                  total_price: Math.round(perPersonPrice * quote.guest_count * 100),
+                                  is_override: true
+                                };
+                              }
+                              return item;
+                            }));
+                          }}
+                        />
+                        <Button size="sm" variant="outline" className="text-xs">
+                          Apply to Food
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label className="text-xs">Service Charges</Label>
+                      <div className="grid grid-cols-2 gap-1">
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="text-xs"
+                          onClick={() => {
+                            setLineItems(items => items.map(item => {
+                              if (item.category === 'service') {
+                                const servicePrice = quote.service_type === 'full-service' ? 500 : 
+                                                   quote.service_type === 'plated' ? 300 :
+                                                   quote.service_type === 'buffet' ? 200 : 100;
+                                return {
+                                  ...item,
+                                  unit_price: servicePrice * 100,
+                                  total_price: servicePrice * 100,
+                                  is_override: true
+                                };
+                              }
+                              return item;
+                            }));
+                          }}
+                        >
+                          Service Fee
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="text-xs"
+                          onClick={() => {
+                            setLineItems(items => items.map(item => {
+                              if (item.category === 'equipment') {
+                                const equipmentPrice = item.description.includes('Chafer') ? 25 :
+                                                     item.description.includes('Table') ? 15 :
+                                                     item.description.includes('Linen') ? 10 : 5;
+                                return {
+                                  ...item,
+                                  unit_price: equipmentPrice * 100,
+                                  total_price: (equipmentPrice * item.quantity) * 100,
+                                  is_override: true
+                                };
+                              }
+                              return item;
+                            }));
+                          }}
+                        >
+                          Equipment
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label className="text-xs">Quick Actions</Label>
+                      <div className="space-y-1">
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="w-full text-xs"
+                          onClick={() => {
+                            // Set all items to zero (start over)
+                            setLineItems(items => items.map(item => ({
+                              ...item,
+                              unit_price: 0,
+                              total_price: 0,
+                              is_override: false
+                            })));
+                          }}
+                        >
+                          Clear All Pricing
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="w-full text-xs"
+                          onClick={() => {
+                            // Copy pricing from last similar event (placeholder)
+                            toast({
+                              title: "Feature Coming Soon",
+                              description: "Copy from previous events will be available soon.",
+                            });
+                          }}
+                        >
+                          Copy from Last Event
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </div>
         </ScrollArea>
