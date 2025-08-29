@@ -14,6 +14,7 @@ import { ServiceSelectionStep } from "./alternative-form/ServiceSelectionStep";
 import { MenuSelectionStep } from "./alternative-form/MenuSelectionStep";
 import { ReviewStep } from "./alternative-form/ReviewStep";
 import { SuccessStep } from "./alternative-form/SuccessStep";
+import { FinalStep } from "./alternative-form/FinalStep";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 import { ArrowLeft, ArrowRight, Check, Sparkles } from "lucide-react";
@@ -28,6 +29,7 @@ const STEPS = [
   { id: 'event', title: 'Event', description: 'Date & type' },
   { id: 'service', title: 'Service', description: 'How we help' },
   { id: 'menu', title: 'Menu', description: 'Perfect selections' },
+  { id: 'final', title: 'Final', description: 'Additional info' },
   { id: 'review', title: 'Review', description: 'Final check' },
 ];
 
@@ -61,11 +63,8 @@ export const AlternativeQuoteForm = () => {
       start_time: "",
       guest_count: 1,
       location: "",
-      service_type: "full-service",
+      service_type: undefined,
       serving_start_time: "",
-      wait_staff_requested: false,
-      wait_staff_requirements: "",
-      wait_staff_setup_areas: "",
       primary_protein: [],
       secondary_protein: [],
       both_proteins_available: false,
@@ -90,7 +89,7 @@ export const AlternativeQuoteForm = () => {
       serving_setup_area: "",
       bussing_tables_needed: false,
       special_requests: "",
-      referral_source: "",
+      referral_source: undefined,
       theme_colors: "",
     },
   });
@@ -106,7 +105,7 @@ export const AlternativeQuoteForm = () => {
     const hasAppetizers = watchedValues.appetizers?.length > 0;
     const hasSides = watchedValues.sides?.length > 0;
     const hasDesserts = watchedValues.desserts?.length > 0;
-    const waitStaff = watchedValues.wait_staff_requested;
+    // const waitStaff = watchedValues.wait_staff_requested;
 
     let baseCost = 0;
     
@@ -122,7 +121,6 @@ export const AlternativeQuoteForm = () => {
     if (hasAppetizers) baseCost += guestCount * 4;
     if (hasSides) baseCost += guestCount * 3;
     if (hasDesserts) baseCost += guestCount * 4;
-    if (waitStaff) baseCost += 150;
 
     setEstimatedCost(baseCost);
   }, [watchedValues]);
@@ -174,6 +172,8 @@ export const AlternativeQuoteForm = () => {
       case 3:
         return []; // Menu step - selections are optional
       case 4:
+        return []; // Final step - additional info is optional
+      case 5:
         return ['contact_name', 'email', 'phone', 'event_name', 'event_type', 'event_date', 'start_time', 'guest_count', 'location', 'service_type']; // Review step - validate all required fields
       default:
         return [];
@@ -251,9 +251,9 @@ export const AlternativeQuoteForm = () => {
         location: data.location,
         service_type: data.service_type,
         serving_start_time: data.serving_start_time,
-        wait_staff_requested: data.wait_staff_requested,
-        wait_staff_requirements: data.wait_staff_requirements,
-        wait_staff_setup_areas: data.wait_staff_setup_areas,
+        // wait_staff_requested: data.wait_staff_requested,
+        // wait_staff_requirements: data.wait_staff_requirements,
+        // wait_staff_setup_areas: data.wait_staff_setup_areas,
         primary_protein: data.primary_protein.join(', '),
         secondary_protein: data.secondary_protein.join(', '),
         both_proteins_available: data.both_proteins_available,
@@ -378,6 +378,8 @@ export const AlternativeQuoteForm = () => {
       case 3:
         return <MenuSelectionStep form={form} />;
       case 4:
+        return <FinalStep form={form} />;
+      case 5:
         return <ReviewStep form={form} estimatedCost={estimatedCost} />;
       default:
         return null;

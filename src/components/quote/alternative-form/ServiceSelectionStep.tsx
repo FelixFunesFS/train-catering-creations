@@ -22,7 +22,7 @@ export const ServiceSelectionStep = ({ form }: ServiceSelectionStepProps) => {
   });
 
   const animationClass = useAnimationClass('fade-up', isVisible);
-  const waitStaffRequested = form.watch("wait_staff_requested");
+  const watchServiceType = form.watch("service_type");
 
   return (
     <div ref={ref} className={`space-y-6 ${animationClass}`}>
@@ -106,9 +106,9 @@ export const ServiceSelectionStep = ({ form }: ServiceSelectionStepProps) => {
                             Full-Service Catering
                             <span className="text-sm text-gold bg-gold/10 px-2 py-1 rounded-full">Premium</span>
                           </Label>
-                          <p className="text-sm text-muted-foreground mt-2 ml-8">
-                            Complete catering experience with professional setup, service, wait staff, and cleanup. Includes chafing dishes, linens, and full presentation.
-                          </p>
+          <p className="text-sm text-muted-foreground mt-2 ml-8">
+            Complete catering service with professional setup, serving, and cleanup. Wait staff available for enhanced service.
+          </p>
                           <div className="flex items-center gap-4 mt-3 ml-8 text-xs text-muted-foreground">
                             <span>✓ Professional wait staff included</span>
                             <span>✓ Complete setup & cleanup</span>
@@ -124,7 +124,7 @@ export const ServiceSelectionStep = ({ form }: ServiceSelectionStepProps) => {
             )}
           />
 
-          {form.watch("service_type") === "full-service" && (
+          {watchServiceType === "full-service" && (
             <div className="space-y-4 animate-fade-in-up">
               <FormField
                 control={form.control}
@@ -133,61 +133,11 @@ export const ServiceSelectionStep = ({ form }: ServiceSelectionStepProps) => {
                   <FormItem>
                     <FormLabel className="text-base font-medium flex items-center gap-2">
                       <Clock className="h-4 w-4 text-muted-foreground" />
-                      Preferred Serving Start Time
+                      Preferred Serving Start Time (Optional)
                     </FormLabel>
                     <FormControl>
                       <Input
                         type="time"
-                        className="h-12 text-base neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30"
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault();
-                          }
-                        }}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="wait_staff_requirements"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-base font-medium">
-                      Wait Staff Requirements
-                    </FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Describe your wait staff needs (e.g., number of servers, specific duties, dress code)"
-                        className="min-h-[100px] neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30"
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' && !e.shiftKey) {
-                            e.preventDefault();
-                          }
-                        }}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="wait_staff_setup_areas"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-base font-medium">
-                      Setup Areas for Wait Staff
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="e.g., main dining room, outdoor patio, cocktail area"
                         className="h-12 text-base neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30"
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {

@@ -340,25 +340,6 @@ export const ReviewStep = ({ form, estimatedCost }: ReviewStepProps) => {
                 )}
               />
               
-              <FormField
-                control={form.control}
-                name="wait_staff_requested"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel className="text-sm font-medium">
-                        Wait Staff Service
-                      </FormLabel>
-                    </div>
-                  </FormItem>
-                )}
-              />
 
               <div className="space-y-3">
                 <h4 className="font-medium text-sm text-muted-foreground">Selected Menu Items</h4>

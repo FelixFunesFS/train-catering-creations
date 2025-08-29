@@ -26,11 +26,8 @@ export const formSchema = z.object({
   location: z.string().min(1, "Location is required"),
   
   // Service Details  
-  service_type: z.enum(["full-service", "delivery-setup", "drop-off"]),
+  service_type: z.enum(["full-service", "delivery-setup", "drop-off"]).optional(),
   serving_start_time: z.string().optional(),
-  wait_staff_requested: z.boolean().default(false),
-  wait_staff_requirements: z.string().optional(),
-  wait_staff_setup_areas: z.string().optional(),
   
   // Menu Selections
   primary_protein: z.array(z.string()).default([]),
@@ -63,6 +60,14 @@ export const formSchema = z.object({
   
   // Additional Information
   special_requests: z.string().optional(),
-  referral_source: z.string().optional(),
+  referral_source: z.enum([
+    "google_search",
+    "social_media", 
+    "friend_family_referral",
+    "previous_customer",
+    "local_business_referral",
+    "website",
+    "other"
+  ]).optional(),
   theme_colors: z.string().optional(),
 });
