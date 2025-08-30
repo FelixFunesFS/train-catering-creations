@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -26,6 +27,7 @@ export function NewRequestsWorkflow({
   selectedItems, 
   onSelectionChange 
 }: NewRequestsWorkflowProps) {
+  const navigate = useNavigate();
   
   // Organize quotes into workflow queues
   const newRequests = quotes.filter(q => q.status === 'pending');
@@ -121,7 +123,7 @@ export function NewRequestsWorkflow({
                     <Button 
                       size="sm" 
                       className="ml-4"
-                      onClick={() => window.location.href = `/quote-detail/${quote.id}`}
+                      onClick={() => navigate(`/admin/quotes/${quote.id}`)}
                     >
                       <PlayCircle className="h-4 w-4 mr-1" />
                       Process Now
