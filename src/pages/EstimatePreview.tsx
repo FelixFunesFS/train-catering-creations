@@ -16,6 +16,27 @@ import {
   Loader2
 } from 'lucide-react';
 
+interface LineItem {
+  id: string;
+  title: string;
+  description: string;
+  quantity: number;
+  unit_price: number;
+  total_price: number;
+  category: string;
+}
+
+interface PaymentSchedule {
+  deposit_amount: number;
+  deposit_percentage: number;
+  balance_due: number;
+  payment_schedule: Array<{
+    amount: number;
+    due_date: string;
+    description: string;
+  }>;
+}
+
 interface EstimateData {
   id: string;
   invoice_number: string;
@@ -28,6 +49,7 @@ interface EstimateData {
   created_at: string;
   notes: string;
   draft_data: any;
+  is_government_contract?: boolean;
   customers: {
     id: string;
     name: string;
@@ -53,6 +75,7 @@ export default function EstimatePreview() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [estimate, setEstimate] = useState<EstimateData | null>(null);
+  const [lineItems, setLineItems] = useState<LineItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [approving, setApproving] = useState(false);
 
@@ -93,7 +116,17 @@ export default function EstimatePreview() {
       if (error) throw error;
       if (!data) throw new Error('Estimate not found');
 
+      // Fetch line items separately
+      const { data: lineItemsData, error: lineItemsError } = await supabase
+        .from('invoice_line_items')
+        .select('*')
+        .eq('invoice_id', invoiceId)
+        .order('created_at');
+
+      if (lineItemsError) throw lineItemsError;
+
       setEstimate(data);
+      setLineItems(lineItemsData || []);
     } catch (error) {
       console.error('Error fetching estimate:', error);
       toast({
@@ -122,9 +155,19 @@ export default function EstimatePreview() {
 
       if (error) throw error;
 
+      // Trigger post-approval workflow
+      const { error: workflowError } = await supabase.functions.invoke('send-approval-workflow', {
+        body: { invoice_id: estimate.id }
+      });
+
+      if (workflowError) {
+        console.warn('Workflow automation failed:', workflowError);
+        // Don't block approval if workflow fails
+      }
+
       toast({
         title: "Estimate Approved",
-        description: "Thank you! We'll contact you soon to arrange the details.",
+        description: "Thank you! Contract and payment details will be sent to your email shortly.",
       });
 
       // Refresh the data
@@ -143,33 +186,40 @@ export default function EstimatePreview() {
 
   const handleDownloadPDF = async () => {
     try {
-      const { data, error } = await supabase.functions.invoke('generate-invoice-from-quote', {
+      const { data, error } = await supabase.functions.invoke('generate-invoice-pdf', {
         body: { 
-          invoice_id: invoiceId,
-          format: 'pdf' 
+          invoice_id: invoiceId
         }
       });
 
       if (error) throw error;
 
-      // Create download link
-      const link = document.createElement('a');
-      link.href = data.pdf_url;
-      link.download = `estimate-${estimate?.invoice_number}.pdf`;
-      link.click();
+      if (data.pdf_url) {
+        // Create download link
+        const link = document.createElement('a');
+        link.href = data.pdf_url;
+        link.download = `estimate-${estimate?.invoice_number}.pdf`;
+        link.click();
 
-      toast({
-        title: "Download Started",
-        description: "Your estimate PDF is being downloaded",
-      });
+        toast({
+          title: "Download Started",
+          description: "Your estimate PDF is being downloaded",
+        });
+      } else {
+        throw new Error('PDF URL not provided');
+      }
     } catch (error) {
       console.error('Error downloading PDF:', error);
       toast({
         title: "Error",
-        description: "Failed to download PDF",
+        description: "Failed to download PDF. Please try again.",
         variant: "destructive"
       });
     }
+  };
+
+  const handleEditEstimate = () => {
+    navigate(`/admin/invoice-creation/${estimate?.quote_requests.id}`);
   };
 
   const formatCurrency = (amount: number) => {
@@ -177,6 +227,82 @@ export default function EstimatePreview() {
       style: 'currency',
       currency: 'USD'
     }).format(amount / 100);
+  };
+
+  const calculatePaymentSchedule = (totalAmount: number, eventDate: string, isGovernment = false): PaymentSchedule => {
+    const eventDateTime = new Date(eventDate);
+    const today = new Date();
+    const daysUntilEvent = Math.ceil((eventDateTime.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+    if (isGovernment) {
+      // Government contracts: Custom terms, typically full payment after event
+      return {
+        deposit_amount: 0,
+        deposit_percentage: 0,
+        balance_due: totalAmount,
+        payment_schedule: [{
+          amount: totalAmount,
+          due_date: new Date(eventDateTime.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          description: "Full payment due 30 days after event completion"
+        }]
+      };
+    }
+
+    if (daysUntilEvent <= 30) {
+      // Short notice events: 50% deposit, 50% 10 days prior
+      const depositAmount = Math.round(totalAmount * 0.5);
+      const finalAmount = totalAmount - depositAmount;
+      const finalDueDate = new Date(eventDateTime.getTime() - 10 * 24 * 60 * 60 * 1000);
+
+      return {
+        deposit_amount: depositAmount,
+        deposit_percentage: 50,
+        balance_due: finalAmount,
+        payment_schedule: [
+          {
+            amount: depositAmount,
+            due_date: today.toISOString().split('T')[0],
+            description: "Deposit to secure event date (50%)"
+          },
+          {
+            amount: finalAmount,
+            due_date: finalDueDate.toISOString().split('T')[0],
+            description: "Final payment due 10 days prior to event"
+          }
+        ]
+      };
+    } else {
+      // Standard events: 25% deposit, 50% at 30 days prior, 25% at 10 days prior
+      const depositAmount = Math.round(totalAmount * 0.25);
+      const secondPayment = Math.round(totalAmount * 0.5);
+      const finalAmount = totalAmount - depositAmount - secondPayment;
+      
+      const secondDueDate = new Date(eventDateTime.getTime() - 30 * 24 * 60 * 60 * 1000);
+      const finalDueDate = new Date(eventDateTime.getTime() - 10 * 24 * 60 * 60 * 1000);
+
+      return {
+        deposit_amount: depositAmount,
+        deposit_percentage: 25,
+        balance_due: totalAmount - depositAmount,
+        payment_schedule: [
+          {
+            amount: depositAmount,
+            due_date: today.toISOString().split('T')[0],
+            description: "Deposit to secure event date (25%)"
+          },
+          {
+            amount: secondPayment,
+            due_date: secondDueDate.toISOString().split('T')[0],
+            description: "Second payment due 30 days prior (50%)"
+          },
+          {
+            amount: finalAmount,
+            due_date: finalDueDate.toISOString().split('T')[0],
+            description: "Final payment due 10 days prior (25%)"
+          }
+        ]
+      };
+    }
   };
 
   if (loading) {
@@ -211,7 +337,11 @@ export default function EstimatePreview() {
   }
 
   const isApproved = estimate.status === 'approved';
-  const depositAmount = Math.round(estimate.total_amount * 0.25); // 25% deposit
+  const paymentSchedule = calculatePaymentSchedule(
+    estimate.total_amount, 
+    estimate.quote_requests.event_date,
+    estimate.draft_data?.is_government_contract
+  );
 
   return (
     <div className="min-h-screen bg-background">
@@ -231,6 +361,10 @@ export default function EstimatePreview() {
               <Badge variant={isApproved ? "default" : "secondary"}>
                 {isApproved ? 'Approved' : 'Pending Review'}
               </Badge>
+              <Button variant="outline" onClick={handleEditEstimate}>
+                <FileText className="h-4 w-4 mr-2" />
+                Edit Estimate
+              </Button>
               <Button variant="outline" onClick={handleDownloadPDF}>
                 <Download className="h-4 w-4 mr-2" />
                 Download PDF
@@ -253,7 +387,7 @@ export default function EstimatePreview() {
                 subtotal: estimate.subtotal,
                 tax_amount: estimate.tax_amount,
                 due_date: estimate.due_date,
-                line_items: estimate.draft_data?.line_items || []
+                line_items: lineItems
               }}
               customer={estimate.customers}
               quote={{
@@ -263,6 +397,31 @@ export default function EstimatePreview() {
               }}
               showActions={false}
             />
+
+            {/* Missing Line Items Warning */}
+            {lineItems.length === 0 && estimate.draft_data?.line_items?.length > 0 && (
+              <Card className="mt-6 border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-950">
+                <CardContent className="pt-6">
+                  <div className="flex items-center gap-2 mb-3">
+                    <FileText className="h-5 w-5 text-yellow-600" />
+                    <h3 className="font-semibold text-yellow-800 dark:text-yellow-200">
+                      Line Items Not Finalized
+                    </h3>
+                  </div>
+                  <p className="text-sm text-yellow-700 dark:text-yellow-300 mb-3">
+                    The following items from your quote are pending pricing and haven't been added to the final estimate:
+                  </p>
+                  <ul className="text-sm text-yellow-700 dark:text-yellow-300 space-y-1">
+                    {estimate.draft_data?.line_items?.map((item: any, index: number) => (
+                      <li key={index} className="flex items-center gap-2">
+                        <span className="w-2 h-2 bg-yellow-500 rounded-full"></span>
+                        {item.title}: {item.description}
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           {/* Action Sidebar */}
@@ -351,17 +510,22 @@ export default function EstimatePreview() {
                   <span>{formatCurrency(estimate.total_amount)}</span>
                 </div>
                 <div className="bg-blue-50 dark:bg-blue-950 p-3 rounded-lg">
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-between items-center mb-2">
                     <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
-                      Deposit Required (25%)
+                      Deposit Required ({paymentSchedule.deposit_percentage}%)
                     </span>
                     <span className="font-bold text-blue-700 dark:text-blue-300">
-                      {formatCurrency(depositAmount)}
+                      {formatCurrency(paymentSchedule.deposit_amount)}
                     </span>
                   </div>
-                  <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
-                    Remaining balance due on event date
-                  </p>
+                  <div className="space-y-1">
+                    {paymentSchedule.payment_schedule.map((payment, index) => (
+                      <div key={index} className="flex justify-between text-xs text-blue-600 dark:text-blue-400">
+                        <span>{payment.description}</span>
+                        <span>{formatCurrency(payment.amount)}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </CardContent>
             </Card>
