@@ -7,7 +7,7 @@ import { Breadcrumb } from '@/components/ui/breadcrumb';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CustomerInfoCard } from '@/components/admin/CustomerInfoCard';
 import { MenuEditForm } from '@/components/admin/MenuEditForm';
-import { CustomerWorkflowManager } from '@/components/admin/CustomerWorkflowManager';
+import { EnhancedQuoteWorkflow } from '@/components/admin/EnhancedQuoteWorkflow';
 import { AutomatedPricingEngine } from '@/components/admin/AutomatedPricingEngine';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -307,9 +307,9 @@ export default function QuoteDetails() {
           </Tabs>
         </div>
         
-        {/* Sidebar - Customer Workflow */}
+        {/* Sidebar - Enhanced Admin Workflow */}
         <div className="lg:col-span-1">
-          <CustomerWorkflowManager 
+          <EnhancedQuoteWorkflow 
             quote={quote} 
             invoice={invoice}
             onRefresh={fetchQuote}

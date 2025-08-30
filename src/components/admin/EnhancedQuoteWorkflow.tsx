@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { StatusBadge } from '@/components/admin/StatusBadge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -14,17 +15,20 @@ import {
   FileText,
   Send,
   CreditCard,
-  Star
+  Star,
+  RefreshCw,
+  AlertTriangle
 } from 'lucide-react';
 
-interface QuoteWorkflowManagerProps {
+interface EnhancedQuoteWorkflowProps {
   quote: any;
   invoice?: any;
   onRefresh?: () => void;
 }
 
-export function QuoteWorkflowManager({ quote, invoice, onRefresh }: QuoteWorkflowManagerProps) {
+export function EnhancedQuoteWorkflow({ quote, invoice, onRefresh }: EnhancedQuoteWorkflowProps) {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
   const getWorkflowSteps = () => {
@@ -38,7 +42,7 @@ export function QuoteWorkflowManager({ quote, invoice, onRefresh }: QuoteWorkflo
       { 
         id: 'under_review', 
         title: 'Under Review', 
-        status: quote?.workflow_status === 'pending' ? 'current' : 'completed',
+        status: quote?.workflow_status === 'pending' ? 'current' : getStepStatus('under_review'),
         description: 'Admin reviewing quote details'
       },
       { 
@@ -63,7 +67,7 @@ export function QuoteWorkflowManager({ quote, invoice, onRefresh }: QuoteWorkflo
         id: 'confirmed', 
         title: 'Event Confirmed', 
         status: getStepStatus('confirmed'),
-        description: 'Event details finalized'
+        description: 'Event details finalized and ready for execution'
       }
     ];
 
@@ -92,7 +96,8 @@ export function QuoteWorkflowManager({ quote, invoice, onRefresh }: QuoteWorkflo
           title: 'Mark as Reviewed',
           description: 'Mark this quote as reviewed to proceed with estimation',
           icon: CheckCircle,
-          variant: 'default' as const
+          variant: 'default' as const,
+          canExecute: true
         };
       case 'under_review':
         return {
@@ -100,7 +105,8 @@ export function QuoteWorkflowManager({ quote, invoice, onRefresh }: QuoteWorkflo
           title: 'Create Estimate',
           description: 'Generate pricing estimate for this quote',
           icon: FileText,
-          variant: 'default' as const
+          variant: 'default' as const,
+          canExecute: validateQuoteForEstimate()
         };
       case 'quoted':
         return {
@@ -108,7 +114,8 @@ export function QuoteWorkflowManager({ quote, invoice, onRefresh }: QuoteWorkflo
           title: 'Send Quote to Customer',
           description: 'Email the quote to customer for approval',
           icon: Send,
-          variant: 'default' as const
+          variant: 'default' as const,
+          canExecute: quote?.estimated_total > 0
         };
       case 'sent':
         return {
@@ -116,7 +123,8 @@ export function QuoteWorkflowManager({ quote, invoice, onRefresh }: QuoteWorkflo
           title: 'Awaiting Customer Approval',
           description: 'Waiting for customer to approve the quote',
           icon: Clock,
-          variant: 'outline' as const
+          variant: 'outline' as const,
+          canExecute: false
         };
       case 'approved':
         return {
@@ -124,85 +132,66 @@ export function QuoteWorkflowManager({ quote, invoice, onRefresh }: QuoteWorkflo
           title: 'Confirm Event Details',
           description: 'Finalize event logistics and generate invoice',
           icon: Star,
-          variant: 'default' as const
+          variant: 'default' as const,
+          canExecute: true
         };
       default:
         return null;
     }
   };
 
+  const validateQuoteForEstimate = () => {
+    return quote?.guest_count > 0 && quote?.event_date && quote?.service_type;
+  };
+
   const handleWorkflowAction = async (action: string) => {
+    if (!action || action === 'await_approval') return;
+    
     setLoading(true);
+    setError(null);
+    
     try {
-      switch (action) {
-        case 'mark_reviewed':
-          await supabase.functions.invoke('update-quote-workflow', {
-            body: { 
-              quote_id: quote.id,
-              action: 'mark_reviewed'
-            }
-          });
-          
-          toast({
-            title: "Quote Reviewed",
-            description: "Quote has been marked as reviewed",
-          });
-          break;
+      const { data, error: functionError } = await supabase.functions.invoke('update-quote-workflow', {
+        body: { 
+          quote_id: quote.id,
+          action: action,
+          user_id: 'admin'
+        }
+      });
 
-        case 'create_estimate':
-          await supabase.functions.invoke('update-quote-workflow', {
-            body: { 
-              quote_id: quote.id,
-              action: 'create_estimate'
-            }
-          });
-          
-          toast({
-            title: "Estimate Created",
-            description: "Pricing estimate has been generated",
-          });
-          break;
-
-        case 'send_quote':
-          await supabase.functions.invoke('update-quote-workflow', {
-            body: { 
-              quote_id: quote.id,
-              action: 'send_quote'
-            }
-          });
-          
-          toast({
-            title: "Quote Sent",
-            description: "Quote has been sent to customer",
-          });
-          break;
-
-        case 'confirm_event':
-          await supabase.functions.invoke('update-quote-workflow', {
-            body: { 
-              quote_id: quote.id,
-              action: 'confirm_event'
-            }
-          });
-          
-          toast({
-            title: "Event Confirmed",
-            description: "Event details have been confirmed",
-          });
-          break;
-      }
+      if (functionError) throw functionError;
+      
+      const actionMessages = {
+        'mark_reviewed': 'Quote has been marked as reviewed',
+        'create_estimate': 'Pricing estimate has been generated successfully',
+        'send_quote': 'Quote has been sent to customer via email',
+        'confirm_event': 'Event details have been confirmed'
+      };
+      
+      toast({
+        title: "Success",
+        description: actionMessages[action as keyof typeof actionMessages] || "Action completed successfully",
+      });
       
       onRefresh?.();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Workflow action error:', error);
+      const errorMessage = error.message || 'Failed to complete action. Please try again.';
+      setError(errorMessage);
+      
       toast({
         title: "Error",
-        description: "Failed to complete action. Please try again.",
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleRetry = () => {
+    setError(null);
+    onRefresh?.();
   };
 
   const steps = getWorkflowSteps();
@@ -215,14 +204,33 @@ export function QuoteWorkflowManager({ quote, invoice, onRefresh }: QuoteWorkflo
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <ArrowRight className="h-5 w-5" />
-          Quote Workflow Progress
+          Admin Workflow Manager
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
+        {/* Error Alert */}
+        {error && (
+          <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription className="flex items-center justify-between">
+              <span>{error}</span>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleRetry}
+                className="ml-2"
+              >
+                <RefreshCw className="h-3 w-3 mr-1" />
+                Retry
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* Progress Bar */}
         <div>
           <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-medium">Overall Progress</span>
+            <span className="text-sm font-medium">Workflow Progress</span>
             <span className="text-sm text-muted-foreground">{Math.round(progress)}%</span>
           </div>
           <Progress value={progress} className="h-2" />
@@ -256,7 +264,7 @@ export function QuoteWorkflowManager({ quote, invoice, onRefresh }: QuoteWorkflo
                     {step.title}
                   </h4>
                   {step.status === 'current' && (
-                    <Badge variant="default" className="text-xs">Current</Badge>
+                    <Badge variant="default" className="text-xs">Active</Badge>
                   )}
                 </div>
                 <p className="text-sm text-muted-foreground">{step.description}</p>
@@ -266,32 +274,64 @@ export function QuoteWorkflowManager({ quote, invoice, onRefresh }: QuoteWorkflo
         </div>
 
         {/* Next Action */}
-        {nextAction && nextAction.action !== 'await_approval' && (
+        {nextAction && (
           <div className="pt-4 border-t">
-            <div className="flex items-center justify-between">
+            <div className="space-y-3">
               <div>
-                <h4 className="font-medium">Next Action</h4>
+                <h4 className="font-medium">Next Action Required</h4>
                 <p className="text-sm text-muted-foreground">{nextAction.description}</p>
               </div>
-              <Button
-                onClick={() => handleWorkflowAction(nextAction.action)}
-                disabled={loading}
-                variant={nextAction.variant}
-                size="sm"
-              >
-                <nextAction.icon className="h-4 w-4 mr-2" />
-                {nextAction.title}
-              </Button>
+              
+              {!nextAction.canExecute && nextAction.action !== 'await_approval' && (
+                <Alert>
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    Please ensure all required fields are completed before proceeding.
+                  </AlertDescription>
+                </Alert>
+              )}
+              
+              {nextAction.action !== 'await_approval' && (
+                <Button
+                  onClick={() => handleWorkflowAction(nextAction.action)}
+                  disabled={loading || !nextAction.canExecute}
+                  variant={nextAction.variant}
+                  className="w-full"
+                >
+                  {loading ? (
+                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <nextAction.icon className="h-4 w-4 mr-2" />
+                  )}
+                  {nextAction.title}
+                </Button>
+              )}
             </div>
           </div>
         )}
 
-        {/* Current Status */}
-        <div className="pt-4 border-t">
+        {/* Status and Info */}
+        <div className="pt-4 border-t space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium">Current Status:</span>
             <StatusBadge status={quote?.workflow_status || quote?.status || 'pending'} />
           </div>
+          
+          {quote?.estimated_total && (
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">Estimated Total:</span>
+              <span className="text-sm font-semibold text-green-600">
+                ${(quote.estimated_total / 100).toFixed(2)}
+              </span>
+            </div>
+          )}
+          
+          {invoice && (
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">Invoice Status:</span>
+              <StatusBadge status={invoice.status} />
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
