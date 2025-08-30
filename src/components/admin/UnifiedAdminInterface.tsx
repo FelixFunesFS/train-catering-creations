@@ -9,6 +9,9 @@ import { BatchOperations } from '@/components/admin/BatchOperations';
 import { AutomatedStatusManager } from '@/components/admin/AutomatedStatusManager';
 import { InvoiceManagementTab } from '@/components/admin/InvoiceManagementTab';
 import { QuoteManagementTab } from '@/components/admin/QuoteManagementTab';
+import { ProcessAutomationTab } from '@/components/admin/ProcessAutomationTab';
+import { BusinessIntelligenceTab } from '@/components/admin/BusinessIntelligenceTab';
+import { IntegrationManagementTab } from '@/components/admin/IntegrationManagementTab';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { 
@@ -19,7 +22,10 @@ import {
   Settings,
   TrendingUp,
   Users,
-  Calendar
+  Calendar,
+  Zap,
+  BarChart3,
+  Plug
 } from 'lucide-react';
 
 interface UnifiedAdminData {
@@ -278,7 +284,7 @@ export function UnifiedAdminInterface() {
       <div className="max-w-7xl mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           {/* Tab Navigation */}
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-8">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <LayoutDashboard className="h-4 w-4" />
               <span className="hidden sm:inline">Overview</span>
@@ -301,9 +307,17 @@ export function UnifiedAdminInterface() {
                 </Badge>
               )}
             </TabsTrigger>
+            <TabsTrigger value="automation" className="flex items-center gap-2">
+              <Zap className="h-4 w-4" />
+              <span className="hidden sm:inline">Automation</span>
+            </TabsTrigger>
             <TabsTrigger value="analytics" className="flex items-center gap-2">
-              <TrendingUp className="h-4 w-4" />
+              <BarChart3 className="h-4 w-4" />
               <span className="hidden sm:inline">Analytics</span>
+            </TabsTrigger>
+            <TabsTrigger value="integrations" className="flex items-center gap-2">
+              <Plug className="h-4 w-4" />
+              <span className="hidden sm:inline">Integrations</span>
             </TabsTrigger>
             <TabsTrigger value="notifications" className="flex items-center gap-2">
               <Bell className="h-4 w-4" />
@@ -429,8 +443,16 @@ export function UnifiedAdminInterface() {
             />
           </TabsContent>
 
+          <TabsContent value="automation">
+            <ProcessAutomationTab />
+          </TabsContent>
+
           <TabsContent value="analytics">
-            <AdminAnalyticsDashboard data={data.analytics} />
+            <BusinessIntelligenceTab />
+          </TabsContent>
+
+          <TabsContent value="integrations">
+            <IntegrationManagementTab />
           </TabsContent>
 
           <TabsContent value="notifications">
