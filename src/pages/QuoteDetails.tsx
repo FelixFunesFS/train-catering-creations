@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CustomerInfoCard } from '@/components/admin/CustomerInfoCard';
 import { MenuEditForm } from '@/components/admin/MenuEditForm';
 import { EnhancedQuoteWorkflow } from '@/components/admin/EnhancedQuoteWorkflow';
-import { AutomatedPricingEngine } from '@/components/admin/AutomatedPricingEngine';
+import { ManualPricingForm } from '@/components/admin/ManualPricingForm';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { 
@@ -271,13 +271,10 @@ export default function QuoteDetails() {
         </TabsContent>
 
         <TabsContent value="pricing">
-          <AutomatedPricingEngine
+          <ManualPricingForm
             quote={quote}
-            onPricingUpdate={(pricing) => {
-              console.log('Pricing updated:', pricing);
-            }}
-            onValidationComplete={(validation) => {
-              console.log('Validation complete:', validation);
+            onPricingUpdate={(total) => {
+              console.log('Pricing total updated:', total);
             }}
           />
         </TabsContent>

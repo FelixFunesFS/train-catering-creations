@@ -6,8 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { QuoteWorkflowManager } from '@/components/admin/QuoteWorkflowManager';
-import { InvoiceWorkflowManager } from '@/components/admin/InvoiceWorkflowManager';
+import { EnhancedQuoteWorkflow } from '@/components/admin/EnhancedQuoteWorkflow';
 import { StatusBadge } from '@/components/admin/StatusBadge';
 import { 
   ArrowLeft,
@@ -413,21 +412,12 @@ export default function QuoteDetailPage() {
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* Quote Workflow */}
-            <QuoteWorkflowManager 
+            {/* Streamlined Workflow */}
+            <EnhancedQuoteWorkflow 
               quote={quote} 
               invoice={relatedInvoices[0]} 
               onRefresh={fetchQuoteDetails}
             />
-
-            {/* Invoice Workflow (if exists) */}
-            {relatedInvoices.length > 0 && (
-              <InvoiceWorkflowManager 
-                quote={quote}
-                invoice={relatedInvoices[0]} 
-                onRefresh={fetchQuoteDetails}
-              />
-            )}
 
             {/* Pricing Summary */}
             <Card>
