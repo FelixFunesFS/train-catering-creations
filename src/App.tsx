@@ -70,6 +70,9 @@ const AppContent = () => {
           <Route path="/admin/invoice-management" element={<InvoiceManagement />} />
           <Route path="/admin/estimate-preview/:invoiceId" element={<EstimatePreview />} />
           <Route path="/admin/estimate-preview/preview" element={<EstimatePreview />} />
+          <Route path="/estimate-preview/:id" element={<EstimatePreview />} />
+          <Route path="/estimate-preview/preview" element={<EstimatePreview />} />
+          <Route path="/estimate-print/:id" element={<EstimatePrintView />} />
           <Route path="/admin/estimate-preview/:invoiceId/print" element={<EstimatePrintView />} />
           <Route path="/admin/*" element={<UnifiedAdminDashboard />} />
           

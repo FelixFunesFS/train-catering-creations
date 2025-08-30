@@ -4,11 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { ArrowLeft, Calculator } from 'lucide-react';
-import { EstimateStatusIndicator } from '@/components/admin/workflow/EstimateStatusIndicator';
-import { ChangeRequestManager } from '@/components/admin/workflow/ChangeRequestManager';
-import { EstimateActions } from '@/components/admin/workflow/EstimateActions';
-import { InvoicePricingPanel } from '@/components/admin/invoice/InvoicePricingPanel';
+import { DollarSign, ArrowLeft, CheckCircle, Calculator } from "lucide-react";
+import { EstimateStatusIndicator } from "@/components/admin/workflow/EstimateStatusIndicator";
+import { ChangeRequestManager } from "@/components/admin/workflow/ChangeRequestManager";
+import { EstimateActions } from "@/components/admin/workflow/EstimateActions";
+import { InvoicePricingPanel } from "@/components/admin/invoice/InvoicePricingPanel";
+import { WorkflowBreadcrumb } from "@/components/admin/workflow/WorkflowBreadcrumb";
 
 export default function EstimateWorkflow() {
   const { invoiceId } = useParams();
@@ -38,9 +39,10 @@ export default function EstimateWorkflow() {
         .single();
 
       if (invoiceError) throw invoiceError;
+      
       setInvoice(invoiceData);
 
-      // Fetch related quote request
+      // Fetch related quote data
       if (invoiceData.quote_request_id) {
         const { data: quoteData, error: quoteError } = await supabase
           .from('quote_requests')
@@ -48,10 +50,14 @@ export default function EstimateWorkflow() {
           .eq('id', invoiceData.quote_request_id)
           .single();
 
-        if (quoteError) throw quoteError;
-        setQuote(quoteData);
+        if (quoteError) {
+          console.warn('Quote not found:', quoteError);
+        } else {
+          setQuote(quoteData);
+        }
       }
-    } catch (error) {
+
+    } catch (error: any) {
       console.error('Error fetching data:', error);
       toast({
         title: "Error",
@@ -63,31 +69,34 @@ export default function EstimateWorkflow() {
     }
   };
 
-  const handlePricingUpdate = async (overrides: any) => {
+  const handlePricingUpdate = async (updatedPricing: {
+    subtotal: number;
+    tax: number;
+    total: number;
+    overrides?: { reason: string; amount: number; type: string }[];
+  }) => {
     try {
-      // Update invoice with new pricing from overrides
-      const { error: invoiceError } = await supabase
+      const { error } = await supabase
         .from('invoices')
         .update({
-          subtotal: overrides.subtotal,
-          tax_amount: overrides.tax_amount,
-          total_amount: overrides.total_amount,
-          manual_overrides: overrides.manual_overrides || {},
-          override_reason: overrides.override_reason,
-          status: 'draft'
+          subtotal: updatedPricing.subtotal,
+          tax: updatedPricing.tax,
+          total: updatedPricing.total,
+          manual_overrides: updatedPricing.overrides || []
         })
         .eq('id', invoiceId);
 
-      if (invoiceError) throw invoiceError;
+      if (error) throw error;
 
       toast({
         title: "Pricing Updated",
-        description: "Estimate pricing has been saved successfully",
+        description: "Estimate pricing has been updated successfully",
       });
 
-      setShowPricingPanel(false);
+      // Refresh data
       await fetchData();
-    } catch (error) {
+      setShowPricingPanel(false);
+    } catch (error: any) {
       console.error('Error updating pricing:', error);
       toast({
         title: "Error",
@@ -157,6 +166,7 @@ export default function EstimateWorkflow() {
                 variant="outline"
                 className="flex items-center gap-2"
               >
+                <DollarSign className="h-4 w-4" />
                 Edit Pricing
               </Button>
             </div>
@@ -165,86 +175,155 @@ export default function EstimateWorkflow() {
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-          {/* Main Workflow Column */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Status Overview */}
+      <div className="container mx-auto px-6 py-8 space-y-8">
+        
+        {/* Workflow Progress */}
+        <WorkflowBreadcrumb 
+          currentStep={invoice?.status || 'draft'} 
+          invoiceStatus={invoice?.status || 'draft'} 
+        />
+
+        {/* What's Next Section */}
+        <Card className="border-primary/20 bg-primary/5">
+          <CardContent className="p-6">
+            <div className="flex items-start gap-4">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <CheckCircle className="h-5 w-5 text-primary" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-lg mb-2">What's Next?</h3>
+                {invoice?.status === 'draft' && (
+                  <div>
+                    <p className="text-muted-foreground mb-3">
+                      Your estimate is ready to send. Review the details below and click "Send Estimate" to deliver it via email.
+                    </p>
+                    <div className="flex items-center gap-2 text-sm text-green-600">
+                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                      Ready to send estimate
+                    </div>
+                  </div>
+                )}
+                {invoice?.status === 'sent' && (
+                  <div>
+                    <p className="text-muted-foreground mb-3">
+                      Estimate has been sent to the customer. You can now follow up or wait for their response.
+                    </p>
+                    <div className="flex items-center gap-2 text-sm text-blue-600">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                      Awaiting customer response
+                    </div>
+                  </div>
+                )}
+                {(invoice?.status === 'approved' || invoice?.status === 'contract_generated') && (
+                  <div>
+                    <p className="text-muted-foreground mb-3">
+                      Great! The estimate has been approved. You can now generate a contract or start planning the event.
+                    </p>
+                    <div className="flex items-center gap-2 text-sm text-purple-600">
+                      <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
+                      Ready for next phase
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Status and Actions Grid */}
+        <div className="grid md:grid-cols-2 gap-8">
+          
+          {/* Left Column */}
+          <div className="space-y-6">
+            
+            {/* Status Indicator */}
             <EstimateStatusIndicator 
-              status={invoice.status || 'draft'}
-              hasChangeRequests={false} // Will be calculated
-              hasManualOverrides={invoice.manual_overrides && Object.keys(invoice.manual_overrides).length > 0}
+              status={invoice?.status || 'draft'}
+              hasChangeRequests={false}
+              hasManualOverrides={!!invoice?.manual_overrides?.length}
               showProgress={true}
             />
 
-            {/* Change Request Management */}
+            {/* Change Request Manager */}
             <ChangeRequestManager 
-              invoiceId={invoice.id}
+              invoiceId={invoiceId!}
               onChangeProcessed={fetchData}
             />
-
-            {/* Customer & Event Info */}
-            {quote && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Customer & Event Details</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <h4 className="font-medium">Customer</h4>
-                      <p>{quote.contact_name}</p>
-                      <p className="text-sm text-muted-foreground">{quote.email}</p>
-                      <p className="text-sm text-muted-foreground">{quote.phone}</p>
-                    </div>
-                    <div className="space-y-2">
-                      <h4 className="font-medium">Event</h4>
-                      <p>{quote.event_name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {new Date(quote.event_date).toLocaleDateString()}
-                      </p>
-                      <p className="text-sm text-muted-foreground">{quote.location}</p>
-                      <p className="text-sm text-muted-foreground">{quote.guest_count} guests</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+            
           </div>
 
-          {/* Actions Sidebar */}
+          {/* Right Column */}
           <div className="space-y-6">
-            <EstimateActions
+            
+            {/* Actions */}
+            <EstimateActions 
               invoice={invoice}
               quote={quote}
               onStatusChange={fetchData}
             />
 
-            {/* Estimate Summary */}
+            {/* Customer and Event Details */}
             <Card>
               <CardHeader>
-                <CardTitle>Estimate Summary</CardTitle>
+                <CardTitle>Customer & Event Details</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span>Subtotal</span>
-                    <span>${(invoice.subtotal / 100).toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Tax</span>
-                    <span>${(invoice.tax_amount / 100).toFixed(2)}</span>
-                  </div>
-                  <hr />
-                  <div className="flex justify-between font-semibold">
-                    <span>Total</span>
-                    <span>${(invoice.total_amount / 100).toFixed(2)}</span>
-                  </div>
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Customer</p>
+                  <p className="text-base">{quote?.contact_name || 'N/A'}</p>
+                  <p className="text-sm text-muted-foreground">{quote?.email || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Event</p>
+                  <p className="text-base">{quote?.event_name || 'N/A'}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {quote?.event_date ? new Date(quote.event_date).toLocaleDateString() : 'No date set'}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Guest Count</p>
+                  <p className="text-base">{quote?.guest_count || 'N/A'} guests</p>
                 </div>
               </CardContent>
             </Card>
+
           </div>
         </div>
+
+        {/* Estimate Summary */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Estimate Summary</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <div className="flex justify-between">
+                <span>Subtotal:</span>
+                <span>${invoice?.subtotal?.toFixed(2) || '0.00'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Tax:</span>
+                <span>${invoice?.tax?.toFixed(2) || '0.00'}</span>
+              </div>
+              <div className="flex justify-between font-bold text-lg border-t pt-3">
+                <span>Total:</span>
+                <span>${invoice?.total?.toFixed(2) || '0.00'}</span>
+              </div>
+            </div>
+            
+            {invoice?.manual_overrides?.length > 0 && (
+              <div className="mt-4 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                <p className="text-sm font-medium text-yellow-800 mb-2">Manual Overrides Applied:</p>
+                {invoice.manual_overrides.map((override: any, index: number) => (
+                  <div key={index} className="text-sm text-yellow-700">
+                    {override.reason}: ${override.amount?.toFixed(2)} ({override.type})
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
       </div>
 
       {/* Pricing Panel Modal */}
@@ -252,7 +331,7 @@ export default function EstimateWorkflow() {
         <InvoicePricingPanel
           isOpen={showPricingPanel}
           onClose={() => setShowPricingPanel(false)}
-          lineItems={[]} // Will be fetched from invoice_line_items
+          lineItems={invoice?.line_items || []}
           onUpdateLineItems={() => {}}
           onSave={handlePricingUpdate}
         />

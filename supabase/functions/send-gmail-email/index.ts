@@ -110,7 +110,9 @@ const handler = async (req: Request): Promise<Response> => {
     // Base64url encode the message (handle UTF-8 properly)
     const encoder = new TextEncoder();
     const messageBytes = encoder.encode(message);
-    const base64String = btoa(String.fromCharCode(...messageBytes));
+    
+    // Use Deno's built-in base64 encoding which handles UTF-8 correctly
+    const base64String = btoa(Array.from(messageBytes, byte => String.fromCharCode(byte)).join(''));
     const encodedMessage = base64String
       .replace(/\+/g, '-')
       .replace(/\//g, '_')

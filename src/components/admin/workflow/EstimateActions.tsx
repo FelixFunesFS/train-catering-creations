@@ -133,7 +133,7 @@ export const EstimateActions = ({ invoice, quote, onStatusChange }: EstimateActi
 
     if (error) throw error;
 
-    // Update status to sent
+    // Update invoice status to sent
     await supabase
       .from('invoices')
       .update({ 
@@ -143,20 +143,39 @@ export const EstimateActions = ({ invoice, quote, onStatusChange }: EstimateActi
       })
       .eq('id', invoice.id);
 
+    // Also update the quote request status
+    if (quote?.id) {
+      await supabase
+        .from('quote_requests')
+        .update({ status: 'quoted' })
+        .eq('id', quote.id);
+    }
+
     toast({
-      title: "Estimate Sent",
-      description: "The estimate has been sent to the customer.",
+      title: "Estimate Sent Successfully!",
+      description: "Your customer will receive the estimate via email shortly. You can now follow up or wait for their response.",
     });
 
     onStatusChange?.();
   };
 
   const handleFollowUp = async () => {
-    // Create a follow-up message or reminder
-    toast({
-      title: "Follow-up sent",
-      description: "A follow-up reminder has been sent to the customer.",
+    // Send follow-up email using the same email function
+    const { error } = await supabase.functions.invoke('send-invoice-email', {
+      body: { 
+        invoice_id: invoice.id,
+        follow_up: true
+      }
     });
+
+    if (error) throw error;
+
+    toast({
+      title: "Follow-up Sent",
+      description: "A friendly reminder has been sent to the customer",
+    });
+
+    onStatusChange?.();
   };
 
   const handleDownload = async () => {
