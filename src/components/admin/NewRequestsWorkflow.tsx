@@ -116,17 +116,22 @@ export function NewRequestsWorkflow({
                       <p className="text-sm text-muted-foreground">
                         {quote.contact_name} • {quote.guest_count} guests • {new Date(quote.event_date).toLocaleDateString()}
                       </p>
+                      {quote.special_requests && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Special: {quote.special_requests.substring(0, 50)}...
+                        </p>
+                      )}
                       <p className="text-xs text-red-600">
                         Submitted {Math.floor((Date.now() - new Date(quote.created_at).getTime()) / (1000 * 60 * 60))} hours ago
                       </p>
                     </div>
                     <Button 
                       size="sm" 
-                      className="ml-4"
-                      onClick={() => navigate(`/admin/invoice-creation/${quote.id}`)}
+                      className="ml-4 bg-primary hover:bg-primary/90 text-primary-foreground"
+                      onClick={() => navigate(`/admin/estimate-creation/${quote.id}`)}
                     >
                       <PlayCircle className="h-4 w-4 mr-1" />
-                      Process Now
+                      Start Estimate
                     </Button>
                   </div>
                 );

@@ -144,11 +144,12 @@ export function StandardizedActions({
         {(item.status === 'pending' || item.workflow_status === 'pending') && (
           <Button
             size={size}
-            onClick={handleMarkReviewed}
-            title="Mark as Reviewed"
+            onClick={() => navigate(`/admin/estimate-creation/${item.id}`)}
+            title="Create Estimate with Pricing"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground"
           >
-            <CheckCircle className="h-3 w-3" />
-            {size !== 'sm' && <span className="ml-2">Review</span>}
+            <FileText className="h-3 w-3" />
+            {size !== 'sm' && <span className="ml-2">Start Estimate</span>}
           </Button>
         )}
         
@@ -207,8 +208,8 @@ export function StandardizedActions({
           <Button
             size={size}
             variant={variant}
-            onClick={() => navigate(`/admin/invoice-creation/${item.quote_request_id || item.id}`)}
-            title="Edit Draft"
+            onClick={() => navigate(`/admin/estimate-creation/${item.quote_request_id || item.id}`)}
+            title="Edit Estimate"
           >
             <Edit className="h-3 w-3" />
             {size !== 'sm' && <span className="ml-2">Edit</span>}
