@@ -17,8 +17,8 @@ import {
   type LineItem,
   type QuoteRequest 
 } from '@/utils/invoiceFormatters';
-import PostPricingActions from '@/components/invoice/PostPricingActions';
-import { ConsolidatedWorkflowManager } from '@/components/admin/ConsolidatedWorkflowManager';
+import { CompactWorkflowProgress } from '@/components/admin/CompactWorkflowProgress';
+import { ConsolidatedPhaseCard } from '@/components/admin/ConsolidatedPhaseCard';
 import {
   ArrowLeft,
   Save,
@@ -61,7 +61,7 @@ interface InvoiceEstimate {
   notes?: string;
 }
 
-export default function InvoiceEstimateCreation() {
+export default function EstimateCreation() {
   const { quoteId } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -535,7 +535,7 @@ export default function InvoiceEstimateCreation() {
                 <Calculator className="h-5 w-5 text-primary" />
                 <div>
                   <h1 className="text-xl font-semibold">
-                    Invoice Estimate Creation
+                    Estimate Creation
                   </h1>
                   <p className="text-sm text-muted-foreground">
                     {quote.event_name} - {new Date(quote.event_date).toLocaleDateString()}
@@ -547,7 +547,21 @@ export default function InvoiceEstimateCreation() {
               </div>
             </div>
             
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-4">
+              {/* Compact Workflow Progress */}
+              <CompactWorkflowProgress 
+                progress={75}
+                currentPhase="quote"
+                nextAction={{
+                  action: 'set_pricing',
+                  title: 'Set Pricing',
+                  description: 'Complete pricing to continue',
+                  icon: DollarSign,
+                  canExecute: true,
+                  estimatedTime: '10-15 min'
+                }}
+              />
+              
               <Button
                 variant="outline"
                 onClick={handleSaveAsDraft}
@@ -784,6 +798,58 @@ export default function InvoiceEstimateCreation() {
 
           {/* Estimate Summary - Sidebar */}
           <div className="space-y-6">
+            {/* Consolidated Phase & Next Steps */}
+            <ConsolidatedPhaseCard
+              currentPhase="quote"
+              currentPhaseSteps={[
+                {
+                  id: 'pricing_completed',
+                  title: 'Set Pricing',
+                  description: 'Create detailed pricing breakdown',
+                  icon: DollarSign,
+                  phase: 'quote',
+                  required: true,
+                  estimatedTime: '10-15 min'
+                },
+                {
+                  id: 'quote_reviewed',
+                  title: 'Review Quote',
+                  description: 'Verify all details and pricing',
+                  icon: CheckCircle2,
+                  phase: 'quote',
+                  required: true,
+                  estimatedTime: '5-10 min'
+                }
+              ]}
+              getStepStatus={(stepId) => {
+                if (stepId === 'pricing_completed') {
+                  return estimate.line_items.some(item => item.unit_price === 0) ? 'current' : 'completed';
+                }
+                return 'upcoming';
+              }}
+              nextAction={estimate.line_items.some(item => item.unit_price === 0) ? {
+                action: 'set_pricing',
+                title: 'Complete Pricing',
+                description: 'Set prices for all line items to continue',
+                icon: DollarSign,
+                canExecute: true,
+                requirements: ['Add prices to all line items'],
+                estimatedTime: '10-15 minutes'
+              } : {
+                action: 'send_estimate',
+                title: 'Send Estimate',
+                description: 'Ready to send to customer',
+                icon: Send,
+                canExecute: true,
+                estimatedTime: '2-3 minutes'
+              }}
+              onActionClick={(action) => {
+                if (action === 'send_estimate') {
+                  handleSendEstimate();
+                }
+              }}
+            />
+
             <Card className="sticky top-32">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -854,26 +920,41 @@ export default function InvoiceEstimateCreation() {
                     </p>
                   </div>
                 )}
+
+                {/* Primary Actions */}
+                {!estimate.line_items.some(item => item.unit_price === 0) && (
+                  <div className="space-y-2 pt-3 border-t">
+                    <Button 
+                      onClick={handleSendEstimate} 
+                      className="w-full"
+                      size="sm"
+                    >
+                      <Send className="h-4 w-4 mr-2" />
+                      Send Estimate to Customer
+                    </Button>
+                    
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button 
+                        onClick={handleGeneratePreview} 
+                        variant="outline"
+                        size="sm"
+                      >
+                        <CheckCircle2 className="h-4 w-4 mr-2" />
+                        Preview
+                      </Button>
+                      <Button 
+                        onClick={handleScheduleFollow} 
+                        variant="outline"
+                        size="sm"
+                      >
+                        <Calendar className="h-4 w-4 mr-2" />
+                        Follow-up
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
-
-            {/* Workflow Progress */}
-            <ConsolidatedWorkflowManager 
-              quote={quote}
-              onRefresh={fetchQuoteData}
-            />
-
-            {/* Post-Pricing Workflow Actions */}
-            <PostPricingActions
-              totalAmount={estimate.total_amount}
-              isGovernmentContract={isGovernmentContract}
-              depositRequired={estimate.deposit_required}
-              onSaveAsDraft={handleSaveAsDraft}
-              onGeneratePreview={handleGeneratePreview}
-              onSendEstimate={handleSendEstimate}
-              onScheduleFollow={handleScheduleFollow}
-              hasPendingItems={estimate.line_items.some(item => item.unit_price === 0)}
-            />
           </div>
         </div>
       </div>
