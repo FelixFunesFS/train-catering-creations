@@ -136,13 +136,12 @@ export function QuoteWorkflowManager({ quote, invoice, onRefresh }: QuoteWorkflo
     try {
       switch (action) {
         case 'mark_reviewed':
-          await supabase
-            .from('quote_requests')
-            .update({ 
-              workflow_status: 'under_review',
-              status_changed_by: 'admin'
-            })
-            .eq('id', quote.id);
+          await supabase.functions.invoke('update-quote-workflow', {
+            body: { 
+              quote_id: quote.id,
+              action: 'mark_reviewed'
+            }
+          });
           
           toast({
             title: "Quote Reviewed",
@@ -151,8 +150,11 @@ export function QuoteWorkflowManager({ quote, invoice, onRefresh }: QuoteWorkflo
           break;
 
         case 'create_estimate':
-          await supabase.functions.invoke('generate-estimate', {
-            body: { quote_request_id: quote.id }
+          await supabase.functions.invoke('update-quote-workflow', {
+            body: { 
+              quote_id: quote.id,
+              action: 'create_estimate'
+            }
           });
           
           toast({
@@ -162,8 +164,11 @@ export function QuoteWorkflowManager({ quote, invoice, onRefresh }: QuoteWorkflo
           break;
 
         case 'send_quote':
-          await supabase.functions.invoke('send-quote-email', {
-            body: { quote_request_id: quote.id }
+          await supabase.functions.invoke('update-quote-workflow', {
+            body: { 
+              quote_id: quote.id,
+              action: 'send_quote'
+            }
           });
           
           toast({
@@ -173,13 +178,12 @@ export function QuoteWorkflowManager({ quote, invoice, onRefresh }: QuoteWorkflo
           break;
 
         case 'confirm_event':
-          await supabase
-            .from('quote_requests')
-            .update({ 
-              workflow_status: 'confirmed',
-              status_changed_by: 'admin'
-            })
-            .eq('id', quote.id);
+          await supabase.functions.invoke('update-quote-workflow', {
+            body: { 
+              quote_id: quote.id,
+              action: 'confirm_event'
+            }
+          });
           
           toast({
             title: "Event Confirmed",

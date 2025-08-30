@@ -8,8 +8,8 @@ import { Badge } from '@/components/ui/badge';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { AdminAnalyticsDashboard } from '@/components/admin/AdminAnalyticsDashboard';
 import { NotificationCenter } from '@/components/admin/NotificationCenter';
-import { BatchOperations } from '@/components/admin/BatchOperations';
-import { AutomatedStatusManager } from '@/components/admin/AutomatedStatusManager';
+import { BatchOperationsDropdown } from '@/components/admin/BatchOperationsDropdown';
+import { AutomatedStatusManagerDropdown } from '@/components/admin/AutomatedStatusManagerDropdown';
 import { MobileAdminActions } from '@/components/admin/MobileAdminActions';
 import { InvoiceManagementTab } from '@/components/admin/InvoiceManagementTab';
 import { QuoteManagementTab } from '@/components/admin/QuoteManagementTab';
@@ -301,14 +301,16 @@ export function UnifiedAdminInterface() {
             
             <div className="flex items-center gap-1 lg:gap-2 shrink-0">
               <div className="hidden lg:flex gap-2">
-                <AutomatedStatusManager 
+                {selectedItems.length > 0 && (
+                  <BatchOperationsDropdown
+                    selectedItems={selectedItems}
+                    onAction={handleBatchAction}
+                    itemType={activeTab}
+                  />
+                )}
+                <AutomatedStatusManagerDropdown 
                   onStatusUpdate={handleStatusProgression}
                   data={data}
-                />
-                <BatchOperations
-                  selectedItems={selectedItems}
-                  onAction={handleBatchAction}
-                  itemType={activeTab}
                 />
               </div>
               <MobileAdminActions
