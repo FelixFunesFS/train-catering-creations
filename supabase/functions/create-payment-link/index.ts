@@ -13,6 +13,12 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey);
 interface CreatePaymentLinkRequest {
   invoice_id: string;
   amount: number;
+  quote_id?: string;
+  payment_type?: string;
+  customer_email?: string;
+  description?: string;
+  terms_accepted?: boolean;
+  terms_accepted_at?: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -21,7 +27,15 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { invoice_id, amount }: CreatePaymentLinkRequest = await req.json();
+    const { 
+      invoice_id, 
+      amount, 
+      payment_type = 'payment',
+      customer_email,
+      description,
+      terms_accepted = false,
+      terms_accepted_at 
+    }: CreatePaymentLinkRequest = await req.json();
     
     console.log('Creating payment link for invoice:', invoice_id);
 
@@ -50,10 +64,17 @@ const handler = async (req: Request): Promise<Response> => {
       .insert({
         invoice_id: invoice_id,
         amount: amount,
-        customer_email: invoice.customers?.email || '',
-        payment_type: 'link',
+        customer_email: customer_email || invoice.customers?.email || '',
+        payment_type: payment_type,
         status: 'pending',
-        description: `Payment for invoice ${invoice.invoice_number}`
+        description: description || `Payment for invoice ${invoice.invoice_number}`,
+        // Store terms acceptance in metadata if needed
+        ...(terms_accepted && { 
+          metadata: { 
+            terms_accepted: true, 
+            terms_accepted_at: terms_accepted_at 
+          } 
+        })
       })
       .select()
       .single();

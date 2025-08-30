@@ -57,8 +57,8 @@ serve(async (req) => {
         break;
 
       case 'create_estimate':
-        updateData.workflow_status = 'estimated';
-        updateData.status = 'estimated';
+        updateData.workflow_status = 'quoted';
+        updateData.status = 'quoted';
         responseMessage = 'Estimate created';
         
         // Generate automated pricing if not already set

@@ -6,6 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { CreditCard, CheckCircle, Clock, AlertTriangle, DollarSign, Calendar, FileText, ExternalLink } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { PaymentTermsModal } from './PaymentTermsModal';
 
 interface PaymentPortalProps {
   quote: any;
@@ -16,6 +17,8 @@ export function PaymentPortal({ quote, invoice }: PaymentPortalProps) {
   const [isCreatingPayment, setIsCreatingPayment] = useState(false);
   const [paymentTransactions, setPaymentTransactions] = useState([]);
   const [isLoadingTransactions, setIsLoadingTransactions] = useState(true);
+  const [showTermsModal, setShowTermsModal] = useState(false);
+  const [pendingPaymentType, setPendingPaymentType] = useState<'deposit' | 'full' | 'remaining' | null>(null);
 
   useEffect(() => {
     fetchPaymentTransactions();
@@ -43,8 +46,14 @@ export function PaymentPortal({ quote, invoice }: PaymentPortalProps) {
     }
   };
 
+  const initiatePayment = (paymentType: 'deposit' | 'full' | 'remaining') => {
+    setPendingPaymentType(paymentType);
+    setShowTermsModal(true);
+  };
+
   const createPaymentSession = async (paymentType: 'deposit' | 'full' | 'remaining') => {
     setIsCreatingPayment(true);
+    setShowTermsModal(false);
     
     try {
       let amount = 0;
@@ -71,7 +80,9 @@ export function PaymentPortal({ quote, invoice }: PaymentPortalProps) {
           amount: amount,
           payment_type: paymentType,
           customer_email: quote.email,
-          description: `${paymentType.charAt(0).toUpperCase() + paymentType.slice(1)} payment for ${quote.event_name}`
+          description: `${paymentType.charAt(0).toUpperCase() + paymentType.slice(1)} payment for ${quote.event_name}`,
+          terms_accepted: true,
+          terms_accepted_at: new Date().toISOString()
         }
       });
 
@@ -210,7 +221,7 @@ export function PaymentPortal({ quote, invoice }: PaymentPortalProps) {
                   A 50% deposit is required to secure your booking.
                 </p>
                 <Button
-                  onClick={() => createPaymentSession('deposit')}
+                  onClick={() => initiatePayment('deposit')}
                   disabled={isCreatingPayment}
                   className="bg-blue-600 hover:bg-blue-700"
                 >
@@ -229,7 +240,7 @@ export function PaymentPortal({ quote, invoice }: PaymentPortalProps) {
                       Complete your payment with the remaining balance.
                     </p>
                     <Button
-                      onClick={() => createPaymentSession('remaining')}
+                      onClick={() => initiatePayment('remaining')}
                       disabled={isCreatingPayment}
                       variant="outline"
                       className="w-full border-orange-300 text-orange-700 hover:bg-orange-50"
@@ -248,7 +259,7 @@ export function PaymentPortal({ quote, invoice }: PaymentPortalProps) {
                       Pay the complete amount now.
                     </p>
                     <Button
-                      onClick={() => createPaymentSession('full')}
+                      onClick={() => initiatePayment('full')}
                       disabled={isCreatingPayment}
                       className="w-full bg-green-600 hover:bg-green-700"
                     >
@@ -337,6 +348,20 @@ export function PaymentPortal({ quote, invoice }: PaymentPortalProps) {
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* Payment Terms Modal */}
+      {showTermsModal && pendingPaymentType && (
+        <PaymentTermsModal
+          isOpen={showTermsModal}
+          onClose={() => {
+            setShowTermsModal(false);
+            setPendingPaymentType(null);
+          }}
+          onAccept={() => createPaymentSession(pendingPaymentType)}
+          totalAmount={totalAmount}
+          paymentType={pendingPaymentType}
+        />
       )}
     </div>
   );
