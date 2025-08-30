@@ -232,7 +232,7 @@ export default function EstimateCreation() {
     }
   };
 
-  const handleSaveEstimate = async () => {
+  const handleSaveAsEstimate = async () => {
     if (!estimate) return;
 
     setIsSaving(true);
@@ -264,7 +264,7 @@ export default function EstimateCreation() {
         setCustomerId(customerId);
       }
 
-      // Create invoice estimate
+      // Create final estimate
       const { data: invoiceData, error: invoiceError } = await supabase
         .from('invoices')
         .insert({
@@ -272,10 +272,11 @@ export default function EstimateCreation() {
           quote_request_id: estimate.quote_request_id,
           invoice_number: `EST-${Date.now()}`,
           status: 'estimate',
+          is_draft: false,
           subtotal: estimate.subtotal,
           tax_amount: estimate.tax_amount,
           total_amount: estimate.total_amount,
-          due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 days
+          due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
           notes: estimate.notes,
           manual_overrides: {
             is_government_contract: estimate.is_government_contract,
@@ -316,17 +317,18 @@ export default function EstimateCreation() {
 
       toast({
         title: "Success",
-        description: "Invoice estimate created successfully",
+        description: "Estimate saved successfully",
       });
 
-      navigate(`/admin/invoice/${invoiceData.id}`);
+      return invoiceData.id;
     } catch (error) {
       console.error('Error saving estimate:', error);
       toast({
         title: "Error",
-        description: "Failed to save invoice estimate",
+        description: "Failed to save estimate",
         variant: "destructive",
       });
+      throw error;
     } finally {
       setIsSaving(false);
     }
@@ -417,41 +419,45 @@ export default function EstimateCreation() {
     }
   };
 
-  const handleGeneratePreview = async () => {
-    try {
-      // First save the current state
-      await handleSaveEstimate();
-      
-      // Open preview in new tab
-      const previewUrl = `/estimate-preview/${invoiceId}`;
-      window.open(previewUrl, '_blank');
-      
-      toast({
-        title: "Preview Generated",
-        description: "Opening customer preview in new tab",
-      });
-    } catch (error) {
-      console.error('Error generating preview:', error);
-      toast({
-        title: "Error",
-        description: "Failed to generate preview",
-        variant: "destructive"
-      });
-    }
+  const handleGeneratePreview = () => {
+    if (!estimate) return;
+
+    // Create a preview URL with estimate data as query params
+    const previewData = {
+      customer_name: estimate.customer_name,
+      customer_email: estimate.customer_email,
+      event_details: estimate.event_details,
+      line_items: estimate.line_items,
+      subtotal: estimate.subtotal,
+      tax_amount: estimate.tax_amount,
+      total_amount: estimate.total_amount,
+      deposit_required: estimate.deposit_required,
+      is_government_contract: estimate.is_government_contract,
+      notes: estimate.notes
+    };
+
+    // Open preview in new tab without saving
+    const previewUrl = `/estimate-preview?data=${encodeURIComponent(JSON.stringify(previewData))}`;
+    window.open(previewUrl, '_blank');
+    
+    toast({
+      title: "Preview Generated",
+      description: "Opening estimate preview in new tab",
+    });
   };
 
   const handleSendEstimate = async () => {
     try {
       // First save the estimate
-      await handleSaveEstimate();
+      const savedInvoiceId = await handleSaveAsEstimate();
       
-      if (!invoiceId) {
-        throw new Error('Invoice ID not available');
+      if (!savedInvoiceId) {
+        throw new Error('Failed to save estimate');
       }
 
       // Send the estimate via email
       const { data, error } = await supabase.functions.invoke('send-invoice-email', {
-        body: { invoice_id: invoiceId }
+        body: { invoice_id: savedInvoiceId }
       });
 
       if (error) throw error;
@@ -572,12 +578,12 @@ export default function EstimateCreation() {
               </Button>
               
               <Button
-                onClick={handleSaveEstimate}
+                onClick={handleSaveAsEstimate}
                 disabled={isSaving || estimate.line_items.some(item => item.unit_price === 0)}
                 className="flex items-center gap-2"
               >
                 <Save className="h-4 w-4" />
-                {isSaving ? 'Creating...' : 'Create Invoice Estimate'}
+                {isSaving ? 'Creating...' : 'Save as Estimate'}
               </Button>
             </div>
           </div>
@@ -921,38 +927,30 @@ export default function EstimateCreation() {
                   </div>
                 )}
 
-                {/* Primary Actions */}
-                {!estimate.line_items.some(item => item.unit_price === 0) && (
-                  <div className="space-y-2 pt-3 border-t">
-                    <Button 
-                      onClick={handleSendEstimate} 
-                      className="w-full"
-                      size="sm"
-                    >
-                      <Send className="h-4 w-4 mr-2" />
-                      Send Estimate to Customer
-                    </Button>
-                    
-                    <div className="grid grid-cols-2 gap-2">
-                      <Button 
-                        onClick={handleGeneratePreview} 
-                        variant="outline"
-                        size="sm"
-                      >
-                        <CheckCircle2 className="h-4 w-4 mr-2" />
-                        Preview
-                      </Button>
-                      <Button 
-                        onClick={handleScheduleFollow} 
-                        variant="outline"
-                        size="sm"
-                      >
-                        <Calendar className="h-4 w-4 mr-2" />
-                        Follow-up
-                      </Button>
-                    </div>
-                  </div>
-                )}
+                 {/* Primary Actions */}
+                 {!estimate.line_items.some(item => item.unit_price === 0) && (
+                   <div className="space-y-3 pt-4 border-t">
+                     <div className="grid grid-cols-2 gap-3">
+                       <Button 
+                         onClick={handleGeneratePreview} 
+                         variant="outline"
+                         size="sm"
+                         className="w-full"
+                       >
+                         <CheckCircle2 className="h-4 w-4 mr-2" />
+                         Preview
+                       </Button>
+                       <Button 
+                         onClick={handleSendEstimate} 
+                         size="sm"
+                         className="w-full"
+                       >
+                         <Send className="h-4 w-4 mr-2" />
+                         Send to Customer
+                       </Button>
+                     </div>
+                   </div>
+                 )}
               </CardContent>
             </Card>
           </div>

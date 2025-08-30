@@ -26,7 +26,7 @@ import NotFound from "./pages/NotFound";
 
 import InvoiceManagement from "./pages/InvoiceManagement";
 import InvoicePublic from "./pages/InvoicePublic";
-import InvoiceEstimateCreation from "./pages/InvoiceEstimateCreation";
+import EstimateCreation from "./pages/EstimateCreation";
 import EstimatePreview from "./pages/EstimatePreview";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import ContractManagement from "./pages/ContractManagement";
@@ -61,10 +61,10 @@ const AppContent = () => {
           <Route path="/terms-conditions" element={<TermsConditions />} />
           <Route path="/admin" element={<UnifiedAdminDashboard />} />
           <Route path="/admin/quotes/:quoteId" element={<QuoteDetailPage />} />
-          <Route path="/admin/invoice-creation/:quoteId" element={<InvoiceEstimateCreation />} />
+          <Route path="/admin/invoice-creation/:quoteId" element={<EstimateCreation />} />
           <Route path="/admin/*" element={<UnifiedAdminDashboard />} />
           <Route path="/invoice/public/:invoiceToken" element={<InvoicePublic />} />
-          <Route path="/invoice-estimate-creation/:quoteId" element={<InvoiceEstimateCreation />} />
+          <Route path="/estimate-creation/:quoteId" element={<EstimateCreation />} />
           <Route path="/estimate-preview/:invoiceId" element={<EstimatePreview />} />
           <Route path="/customer/portal" element={<OptimizedCustomerPortal />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
