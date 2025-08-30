@@ -263,6 +263,15 @@ export default function EstimateCreation() {
   const handleSaveAsEstimate = async () => {
     if (!estimate) return;
 
+    // If we already have an invoice ID, don't create a new one
+    if (invoiceId) {
+      toast({
+        title: "Estimate Already Saved",
+        description: "This estimate has already been saved",
+      });
+      return invoiceId;
+    }
+
     setIsSaving(true);
     try {
       // Create customer if doesn't exist
@@ -363,34 +372,41 @@ export default function EstimateCreation() {
   };
 
 
-  const handleGeneratePreview = () => {
+  const handleGeneratePreview = async () => {
     if (!estimate) return;
 
-    // Create a preview URL with estimate data as query params
-    const previewData = {
-      customer_name: estimate.customer_name,
-      customer_email: estimate.customer_email,
-      customer_phone: estimate.customer_phone,
-      event_details: estimate.event_details,
-      line_items: estimate.line_items,
-      subtotal: estimate.subtotal,
-      tax_amount: estimate.tax_amount,
-      total_amount: estimate.total_amount,
-      deposit_required: estimate.deposit_required,
-      is_government_contract: estimate.is_government_contract,
-      notes: estimate.notes,
-      invoice_number: `EST-${Date.now()}`
-    };
+    try {
+      // First save the estimate if not already saved
+      let previewInvoiceId = invoiceId;
+      if (!previewInvoiceId) {
+        previewInvoiceId = await handleSaveAsEstimate();
+      }
 
-    // Open preview in new tab without saving (use admin route for preview)
-    const previewUrl = `/admin/estimate-preview/preview?data=${encodeURIComponent(JSON.stringify(previewData))}`;
-    window.open(previewUrl, '_blank');
+      if (!previewInvoiceId) {
+        throw new Error('Failed to save estimate for preview');
+      }
+
+      // Open preview using the saved invoice ID
+      const previewUrl = `/admin/estimate-preview/${previewInvoiceId}`;
+      window.open(previewUrl, '_blank');
+      
+    } catch (error) {
+      console.error('Error generating preview:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate preview",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleSendEstimate = async () => {
     try {
-      // First save the estimate
-      const savedInvoiceId = await handleSaveAsEstimate();
+      // First save the estimate if not already saved
+      let savedInvoiceId = invoiceId;
+      if (!savedInvoiceId) {
+        savedInvoiceId = await handleSaveAsEstimate();
+      }
       
       if (!savedInvoiceId) {
         throw new Error('Failed to save estimate');
@@ -498,18 +514,18 @@ export default function EstimateCreation() {
                   <Button 
                     onClick={handleGeneratePreview} 
                     variant="outline"
-                    className="flex items-center gap-2"
-                  >
-                    <CheckCircle2 className="h-4 w-4" />
-                    Preview
-                  </Button>
-                  <Button 
-                    onClick={handleSendEstimate} 
-                    className="flex items-center gap-2"
-                  >
-                    <Send className="h-4 w-4" />
-                    Continue to Workflow
-                  </Button>
+                     className="flex items-center gap-2"
+                   >
+                     <CheckCircle2 className="h-4 w-4" />
+                     Preview
+                   </Button>
+                   <Button 
+                     onClick={handleSendEstimate} 
+                     className="flex items-center gap-2"
+                   >
+                     <Send className="h-4 w-4" />
+                     Save & Start Workflow
+                   </Button>
                 </>
               )}
             </div>

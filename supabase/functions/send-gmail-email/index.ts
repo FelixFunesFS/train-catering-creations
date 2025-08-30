@@ -111,8 +111,28 @@ const handler = async (req: Request): Promise<Response> => {
     const encoder = new TextEncoder();
     const messageBytes = encoder.encode(message);
     
-    // Use Deno's built-in base64 encoding which handles UTF-8 correctly
-    const base64String = btoa(Array.from(messageBytes, byte => String.fromCharCode(byte)).join(''));
+    // Convert to base64 using proper UTF-8 handling
+    let base64String = '';
+    try {
+      // Use btoa for binary string conversion
+      const binaryString = String.fromCharCode(...messageBytes);
+      base64String = btoa(binaryString);
+    } catch (error) {
+      console.error('Base64 encoding error:', error);
+      // Fallback: use manual base64 encoding
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+      let result = '';
+      for (let i = 0; i < messageBytes.length; i += 3) {
+        const a = messageBytes[i];
+        const b = messageBytes[i + 1] || 0;
+        const c = messageBytes[i + 2] || 0;
+        const encoded = (a << 16) | (b << 8) | c;
+        result += chars[(encoded >> 18) & 63] + chars[(encoded >> 12) & 63] + 
+                 chars[(encoded >> 6) & 63] + chars[encoded & 63];
+      }
+      base64String = result;
+    }
+    
     const encodedMessage = base64String
       .replace(/\+/g, '-')
       .replace(/\//g, '_')
