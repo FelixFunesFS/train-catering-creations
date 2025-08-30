@@ -22,10 +22,35 @@ import {
 } from 'lucide-react';
 
 interface CustomerData {
-  quote?: any;
-  invoice?: any;
-  customer?: any;
-  changeRequests?: any[];
+  quote?: {
+    id: string;
+    contact_name: string;
+    email: string;
+    event_name: string;
+    event_date: string;
+    guest_count: number;
+    location: string;
+    service_type: string;
+    estimated_total: number;
+    status: string;
+    [key: string]: any;
+  };
+  invoice?: {
+    id: string;
+    invoice_number: string;
+    total_amount: number;
+    due_date: string;
+    status: string;
+    quote_request_id?: string;
+    [key: string]: any;
+  };
+  customer?: {
+    id: string;
+    name: string;
+    email: string;
+    [key: string]: any;
+  };
+  
 }
 
 export function OptimizedCustomerPortal() {
@@ -51,48 +76,51 @@ export function OptimizedCustomerPortal() {
       let customerData: CustomerData = {};
 
       if (quoteId) {
-        const { data: quote } = await supabase
+        const quoteResponse = await supabase
           .from('quote_requests')
           .select('*')
           .eq('id', quoteId)
           .single();
-        customerData.quote = quote;
-
-        // Fetch related invoice if exists
-        if (quote) {
-          const { data: invoice } = await supabase
+        
+        if (quoteResponse.data) {
+          customerData.quote = quoteResponse.data;
+          
+          // Fetch related invoice if exists
+          const invoiceResponse = await supabase
             .from('invoices')
             .select('*')
-            .eq('quote_request_id', quote.id)
+            .eq('quote_request_id', quoteResponse.data.id)
             .single();
-          customerData.invoice = invoice;
-        }
+          
+          if (invoiceResponse.data) {
+            customerData.invoice = invoiceResponse.data;
+          }
 
-        // Fetch change requests
-        const { data: changeRequests } = await supabase
-          .from('change_requests')
-          .select('*')
-          .eq('quote_request_id', quoteId)
-          .order('created_at', { ascending: false });
-        customerData.changeRequests = changeRequests || [];
+        }
       }
 
       if (invoiceId && !customerData.invoice) {
-        const { data: invoice } = await supabase
+        const invoiceResponse = await supabase
           .from('invoices')
           .select('*')
           .eq('id', invoiceId)
           .single();
-        customerData.invoice = invoice;
+        
+        if (invoiceResponse.data) {
+          customerData.invoice = invoiceResponse.data;
 
-        // Fetch related quote if exists
-        if (invoice?.quote_request_id) {
-          const { data: quote } = await supabase
-            .from('quote_requests')
-            .select('*')
-            .eq('id', invoice.quote_request_id)
-            .single();
-          customerData.quote = quote;
+          // Fetch related quote if exists
+          if (invoiceResponse.data.quote_request_id) {
+            const quoteResponse = await supabase
+              .from('quote_requests')
+              .select('*')
+              .eq('id', invoiceResponse.data.quote_request_id)
+              .single();
+            
+            if (quoteResponse.data) {
+              customerData.quote = quoteResponse.data;
+            }
+          }
         }
       }
 
