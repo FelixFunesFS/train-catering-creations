@@ -21,7 +21,8 @@ import {
   Clock,
   CheckCircle,
   AlertTriangle,
-  Plus
+  Plus,
+  CreditCard
 } from 'lucide-react';
 
 interface InvoiceRecord {
@@ -164,8 +165,37 @@ export default function InvoiceManagement() {
     navigate(`/admin/invoice-creation/${invoice.quote_request_id}?invoice_id=${invoice.id}`);
   };
 
+  const handleViewSubmission = (invoice: InvoiceRecord) => {
+    navigate(`/admin/quote-details/${invoice.quote_request_id}`);
+  };
+
   const handleViewInvoice = (invoice: InvoiceRecord) => {
     navigate(`/estimate-preview/${invoice.id}`);
+  };
+
+  const handleGenerateInvoice = async (invoice: InvoiceRecord) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-invoice-from-quote', {
+        body: { quote_request_id: invoice.quote_request_id }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Invoice Generated",
+        description: "Invoice has been generated and is ready for review",
+      });
+
+      // Navigate to the invoice creation page
+      navigate(`/admin/invoice-creation/${invoice.quote_request_id}?invoice_id=${data.invoice_id}`);
+    } catch (error) {
+      console.error('Error generating invoice:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate invoice",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleSendInvoice = async (invoice: InvoiceRecord) => {
@@ -188,6 +218,62 @@ export default function InvoiceManagement() {
       toast({
         title: "Error",
         description: "Failed to send estimate",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleCreatePaymentLink = async (invoice: InvoiceRecord) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('create-payment-link', {
+        body: { 
+          invoice_id: invoice.id,
+          type: 'deposit' 
+        }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Payment Link Created",
+        description: "Deposit payment link has been generated and sent to customer",
+      });
+
+      // Refresh the list
+      fetchInvoices();
+    } catch (error) {
+      console.error('Error creating payment link:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create payment link",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleMarkDeposited = async (invoice: InvoiceRecord) => {
+    try {
+      const { error } = await supabase
+        .from('invoices')
+        .update({
+          status: 'deposit_paid',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', invoice.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Deposit Marked",
+        description: "Invoice marked as deposit paid",
+      });
+
+      fetchInvoices();
+    } catch (error) {
+      console.error('Error marking deposit:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update invoice status",
         variant: "destructive"
       });
     }
@@ -372,19 +458,61 @@ export default function InvoiceManagement() {
                     <p className="text-xs text-muted-foreground">{invoice.customer_email}</p>
                   </div>
 
-                  <div className="flex gap-2">
-                    <Button size="sm" variant="outline" onClick={() => handleEditInvoice(invoice)}>
-                      <Edit3 className="h-3 w-3 mr-1" />
-                      Edit
+                  <div className="flex gap-2 flex-wrap">
+                    {/* Always show View Submission for quote details */}
+                    <Button size="sm" variant="outline" onClick={() => handleViewSubmission(invoice)}>
+                      <FileText className="h-3 w-3 mr-1" />
+                      View Submission
                     </Button>
-                    <Button size="sm" variant="outline" onClick={() => handleViewInvoice(invoice)}>
-                      <Eye className="h-3 w-3 mr-1" />
-                      View
-                    </Button>
-                    {!invoice.is_draft && invoice.status !== 'sent' && (
-                      <Button size="sm" onClick={() => handleSendInvoice(invoice)}>
-                        <Send className="h-3 w-3 mr-1" />
-                        Send
+
+                    {/* Status-based action buttons */}
+                    {invoice.is_draft && (
+                      <Button size="sm" variant="outline" onClick={() => handleEditInvoice(invoice)}>
+                        <Edit3 className="h-3 w-3 mr-1" />
+                        Edit Draft
+                      </Button>
+                    )}
+
+                    {invoice.status === 'pending_pricing' && (
+                      <Button size="sm" onClick={() => handleGenerateInvoice(invoice)}>
+                        <Plus className="h-3 w-3 mr-1" />
+                        Generate Invoice
+                      </Button>
+                    )}
+
+                    {(invoice.status === 'draft' || invoice.status === 'pending_pricing') && !invoice.is_draft && (
+                      <>
+                        <Button size="sm" variant="outline" onClick={() => handleEditInvoice(invoice)}>
+                          <Edit3 className="h-3 w-3 mr-1" />
+                          Edit
+                        </Button>
+                        <Button size="sm" onClick={() => handleSendInvoice(invoice)}>
+                          <Send className="h-3 w-3 mr-1" />
+                          Send Estimate
+                        </Button>
+                      </>
+                    )}
+
+                    {(invoice.status === 'sent' || invoice.status === 'viewed' || invoice.status === 'approved' || 
+                      invoice.status === 'contract_sent' || invoice.status === 'deposit_paid' || 
+                      invoice.status === 'confirmed' || invoice.status === 'completed') && (
+                      <Button size="sm" variant="outline" onClick={() => handleViewInvoice(invoice)}>
+                        <Eye className="h-3 w-3 mr-1" />
+                        View Invoice
+                      </Button>
+                    )}
+
+                    {invoice.status === 'approved' && (
+                      <Button size="sm" onClick={() => handleCreatePaymentLink(invoice)}>
+                        <CreditCard className="h-3 w-3 mr-1" />
+                        Create Payment Link
+                      </Button>
+                    )}
+
+                    {invoice.status === 'contract_sent' && (
+                      <Button size="sm" variant="outline" onClick={() => handleMarkDeposited(invoice)}>
+                        <CheckCircle className="h-3 w-3 mr-1" />
+                        Mark Deposited
                       </Button>
                     )}
                   </div>

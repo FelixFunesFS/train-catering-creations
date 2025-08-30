@@ -68,6 +68,9 @@ verify_jwt = false
 [functions.send-approval-workflow]
 verify_jwt = false
 
+[functions.create-payment-link]
+verify_jwt = false
+
 [edge-runtime]
 enabled = true
 ip_version = "dual"

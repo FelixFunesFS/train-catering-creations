@@ -18,7 +18,7 @@ serve(async (req) => {
   }
 
   try {
-    logStep("Function started");
+    logStep("Payment link creation started");
 
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
@@ -29,20 +29,29 @@ serve(async (req) => {
       { auth: { persistSession: false } }
     );
 
-    const { invoice_id } = await req.json();
+    const { invoice_id, type = 'deposit' } = await req.json();
     if (!invoice_id) throw new Error("invoice_id is required");
 
-    logStep("Fetching invoice data", { invoice_id });
+    logStep("Fetching invoice data", { invoice_id, type });
 
-    // Fetch invoice with customer and line items
+    // Fetch invoice with customer and quote data
     const { data: invoiceData, error: invoiceError } = await supabaseClient
       .from("invoices")
       .select(`
         *,
         customers (
-          stripe_customer_id,
+          id,
+          name,
           email,
-          name
+          phone,
+          stripe_customer_id
+        ),
+        quote_requests (
+          id,
+          event_name,
+          event_date,
+          location,
+          guest_count
         )
       `)
       .eq("id", invoice_id)
@@ -52,95 +61,100 @@ serve(async (req) => {
       throw new Error("Invoice not found");
     }
 
-    // Fetch line items
-    const { data: lineItems, error: lineItemsError } = await supabaseClient
-      .from("invoice_line_items")
-      .select("*")
-      .eq("invoice_id", invoice_id);
-
-    if (lineItemsError) {
-      throw new Error("Failed to fetch line items");
-    }
-
-    logStep("Invoice found", { 
+    logStep("Invoice data fetched", { 
       invoiceNumber: invoiceData.invoice_number,
-      customerEmail: invoiceData.customers?.email,
-      lineItemsCount: lineItems?.length || 0
+      customerEmail: invoiceData.customers.email,
+      totalAmount: invoiceData.total_amount 
     });
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
 
-    // Check if customer exists in Stripe
-    let customerId = invoiceData.customers?.stripe_customer_id;
-    if (!customerId) {
-      // Create customer in Stripe
-      const customer = await stripe.customers.create({
-        email: invoiceData.customers?.email,
-        name: invoiceData.customers?.name,
-        metadata: {
-          invoice_id: invoice_id,
-          source: 'soul_trains_eatery'
-        }
-      });
-      customerId = customer.id;
-      
-      // Update customer with Stripe ID
-      await supabaseClient
-        .from("customers")
-        .update({ stripe_customer_id: customerId })
-        .eq("id", invoiceData.customer_id);
+    // Calculate payment amount based on type
+    let paymentAmount: number;
+    let description: string;
+
+    if (type === 'deposit') {
+      // Calculate deposit based on payment schedule
+      const eventDate = new Date(invoiceData.quote_requests.event_date);
+      const today = new Date();
+      const daysUntilEvent = Math.ceil((eventDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+      const isGovernment = invoiceData.draft_data?.is_government_contract;
+
+      if (isGovernment) {
+        throw new Error("Government contracts don't require deposit payments");
+      }
+
+      if (daysUntilEvent <= 30) {
+        paymentAmount = Math.round(invoiceData.total_amount * 0.5); // 50% for short notice
+        description = `Deposit Payment (50%) - ${invoiceData.quote_requests.event_name}`;
+      } else {
+        paymentAmount = Math.round(invoiceData.total_amount * 0.25); // 25% for standard
+        description = `Deposit Payment (25%) - ${invoiceData.quote_requests.event_name}`;
+      }
+    } else {
+      paymentAmount = invoiceData.total_amount;
+      description = `Full Payment - ${invoiceData.quote_requests.event_name}`;
     }
 
-    // Create line items for Stripe
-    const stripeLineItems = (lineItems || []).map((item: any) => ({
-      price_data: {
-        currency: 'usd',
-        product_data: {
-          name: item.title,
-          description: item.description || undefined,
-        },
-        unit_amount: item.unit_price,
-      },
-      quantity: item.quantity,
-    }));
+    logStep("Payment amount calculated", { paymentAmount, description });
 
-    logStep("Creating Stripe payment link", { lineItemsCount: stripeLineItems.length });
+    // Get or create Stripe customer
+    let stripeCustomerId = invoiceData.customers.stripe_customer_id;
+
+    if (!stripeCustomerId) {
+      const customer = await stripe.customers.create({
+        email: invoiceData.customers.email,
+        name: invoiceData.customers.name,
+        phone: invoiceData.customers.phone,
+        metadata: {
+          invoice_id: invoice_id,
+          quote_request_id: invoiceData.quote_request_id
+        }
+      });
+
+      stripeCustomerId = customer.id;
+
+      // Update customer with Stripe ID
+      await supabaseClient
+        .from('customers')
+        .update({ stripe_customer_id: stripeCustomerId })
+        .eq('id', invoiceData.customers.id);
+
+      logStep("Created new Stripe customer", { customerId: stripeCustomerId });
+    }
 
     // Create payment link
     const paymentLink = await stripe.paymentLinks.create({
-      line_items: stripeLineItems,
+      line_items: [
+        {
+          price_data: {
+            currency: "usd",
+            product_data: {
+              name: description,
+              description: `Event: ${invoiceData.quote_requests.event_name} on ${new Date(invoiceData.quote_requests.event_date).toLocaleDateString()}`,
+              metadata: {
+                invoice_id: invoice_id,
+                quote_request_id: invoiceData.quote_request_id,
+                payment_type: type
+              }
+            },
+            unit_amount: paymentAmount,
+          },
+          quantity: 1,
+        },
+      ],
       metadata: {
         invoice_id: invoice_id,
-        invoice_number: invoiceData.invoice_number,
-        customer_id: invoiceData.customer_id,
+        quote_request_id: invoiceData.quote_request_id,
+        payment_type: type,
+        customer_email: invoiceData.customers.email
       },
       after_completion: {
-        type: 'redirect',
+        type: "redirect",
         redirect: {
-          url: `${req.headers.get("origin")}/invoice/public/${invoice_id}?payment=success`,
-        },
-      },
-      automatic_tax: {
-        enabled: false, // We're handling tax manually
-      },
-      billing_address_collection: 'auto',
-      customer_creation: 'if_required',
-      invoice_creation: {
-        enabled: true,
-        invoice_data: {
-          description: `Invoice ${invoiceData.invoice_number} - Soul Train's Eatery`,
-          metadata: {
-            invoice_id: invoice_id,
-            invoice_number: invoiceData.invoice_number,
-          },
-          custom_fields: [
-            {
-              name: 'Event Details',
-              value: invoiceData.quote_request?.event_name || 'Catering Service',
-            },
-          ],
-        },
-      },
+          url: `${req.headers.get("origin")}/payment-success?invoice_id=${invoice_id}&type=${type}`
+        }
+      }
     });
 
     logStep("Payment link created", { 
@@ -148,38 +162,121 @@ serve(async (req) => {
       url: paymentLink.url 
     });
 
-    // Update invoice with payment link
-    const { error: updateError } = await supabaseClient
-      .from("invoices")
-      .update({
-        stripe_payment_link: paymentLink.url,
-        status: 'sent',
-        sent_at: new Date().toISOString(),
-      })
-      .eq("id", invoice_id);
+    // Send payment link email to customer
+    const formatCurrency = (amount: number) => {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD'
+      }).format(amount / 100);
+    };
 
-    if (updateError) {
-      logStep("Warning: Failed to update invoice", { error: updateError });
+    const emailContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { text-align: center; padding: 20px; background-color: #2563eb; color: white; margin-bottom: 30px; }
+        .content { padding: 20px; }
+        .payment-box { background-color: #f0fdf4; border: 2px solid #22c55e; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center; }
+        .cta-button { display: inline-block; background-color: #22c55e; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; margin: 20px 0; }
+        .footer { text-align: center; color: #666; margin-top: 40px; padding-top: 20px; border-top: 1px solid #e5e7eb; }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <h1>Soul Train's Eatery</h1>
+        <p>Payment Link for Your Event</p>
+      </div>
+      
+      <div class="content">
+        <p>Dear ${invoiceData.customers.name},</p>
+        
+        <p>Your payment link is ready! You can now securely pay for your catering services online.</p>
+        
+        <div class="payment-box">
+          <h3>Payment Details</h3>
+          <p><strong>Event:</strong> ${invoiceData.quote_requests.event_name}</p>
+          <p><strong>Date:</strong> ${new Date(invoiceData.quote_requests.event_date).toLocaleDateString()}</p>
+          <p><strong>Amount Due:</strong> ${formatCurrency(paymentAmount)}</p>
+          <p><strong>Payment Type:</strong> ${type === 'deposit' ? 'Event Deposit' : 'Full Payment'}</p>
+          
+          <a href="${paymentLink.url}" class="cta-button">Pay Now - ${formatCurrency(paymentAmount)}</a>
+          
+          <p style="font-size: 14px; color: #666; margin-top: 15px;">
+            This secure payment link is valid for 30 days and accepts all major credit cards.
+          </p>
+        </div>
+        
+        ${type === 'deposit' ? `
+        <p><strong>What happens after your deposit?</strong></p>
+        <ol>
+          <li>Your event date is officially secured</li>
+          <li>We'll send you a detailed service agreement</li>
+          <li>Final menu and guest count confirmation one week prior</li>
+          <li>Remaining balance due 10 days before your event</li>
+        </ol>
+        ` : `
+        <p><strong>Thank you for your full payment!</strong> Your event is now fully paid and confirmed. We'll contact you one week before your event to confirm final details.</p>
+        `}
+        
+        <p>Questions about your payment? Contact us at (843) 970-0265 or reply to this email.</p>
+        
+        <p>We're excited to make your event delicious and memorable!</p>
+        
+        <p>Best regards,<br>
+        The Soul Train's Eatery Team</p>
+      </div>
+      
+      <div class="footer">
+        <p><strong>Soul Train's Eatery</strong><br>
+        Phone: (843) 970-0265 | Email: soultrainseatery@gmail.com<br>
+        Proudly serving Charleston's Lowcountry and surrounding areas</p>
+      </div>
+    </body>
+    </html>
+    `;
+
+    // Send email with payment link
+    const { data: emailResult, error: emailError } = await supabaseClient.functions.invoke('send-gmail-email', {
+      body: {
+        to: invoiceData.customers.email,
+        subject: `💳 Payment Link Ready - ${description}`,
+        html: emailContent
+      }
+    });
+
+    if (emailError) {
+      logStep("Warning: Failed to send payment link email", { error: emailError.message });
+    } else {
+      logStep("Payment link email sent successfully");
     }
 
-    // Update quote request status
-    const { error: quoteUpdateError } = await supabaseClient
-      .from("quote_requests")
-      .update({
-        invoice_status: 'sent',
-      })
-      .eq("id", invoiceData.quote_request_id);
+    // Update invoice with payment link info
+    const updateData: any = {
+      notes: `${type} payment link created and sent to customer`,
+      updated_at: new Date().toISOString()
+    };
 
-    if (quoteUpdateError) {
-      logStep("Warning: Failed to update quote status", { error: quoteUpdateError });
+    if (type === 'deposit') {
+      updateData.status = 'payment_pending';
     }
 
-    logStep("Payment link created successfully");
+    await supabaseClient
+      .from('invoices')
+      .update(updateData)
+      .eq('id', invoice_id);
+
+    logStep("Payment link creation completed successfully");
 
     return new Response(JSON.stringify({
       success: true,
-      payment_link: paymentLink.url,
-      public_invoice_url: `${req.headers.get("origin")}/invoice/public/${invoice_id}`,
+      payment_link_url: paymentLink.url,
+      payment_link_id: paymentLink.id,
+      amount: paymentAmount,
+      description: description,
+      email_sent: !!emailResult
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,

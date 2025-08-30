@@ -27,6 +27,7 @@ import InvoiceManagement from "./pages/InvoiceManagement";
 import InvoicePublic from "./pages/InvoicePublic";
 import InvoiceEstimateCreation from "./pages/InvoiceEstimateCreation";
 import EstimatePreview from "./pages/EstimatePreview";
+import PaymentSuccess from "./pages/PaymentSuccess";
 const AppContent = () => {
   useScrollToAnchor();
   return <div className="min-h-screen bg-background font-clean flex flex-col transition-colors duration-300 py-0 my-0">
@@ -52,6 +53,7 @@ const AppContent = () => {
           <Route path="/invoice/public/:invoiceToken" element={<InvoicePublic />} />
           <Route path="/invoice-estimate-creation/:quoteId" element={<InvoiceEstimateCreation />} />
           <Route path="/estimate-preview/:invoiceId" element={<EstimatePreview />} />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
