@@ -151,6 +151,32 @@ export const ServiceSelectionStep = ({ form }: ServiceSelectionStepProps) => {
                   </FormItem>
                 )}
               />
+
+              <FormField
+                control={form.control}
+                name="bussing_tables_needed"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="flex items-center justify-between space-x-2">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-base font-medium">
+                          Bussing Tables Service
+                        </FormLabel>
+                        <div className="text-sm text-muted-foreground">
+                          Professional table clearing and cleaning during your event
+                        </div>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
           )}
         </CardContent>
