@@ -473,6 +473,27 @@ export default function EstimateCreation() {
                 <Save className="h-4 w-4" />
                 {isSaving ? 'Creating...' : 'Save as Estimate'}
               </Button>
+              
+              {!estimate.line_items.some(item => item.unit_price === 0) && (
+                <>
+                  <Button 
+                    onClick={handleGeneratePreview} 
+                    variant="outline"
+                    className="flex items-center gap-2"
+                  >
+                    <CheckCircle2 className="h-4 w-4" />
+                    Preview
+                  </Button>
+                  <Button 
+                    onClick={handleSendEstimate} 
+                    variant="outline"
+                    className="flex items-center gap-2"
+                  >
+                    <Send className="h-4 w-4" />
+                    Send to Customer
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -703,35 +724,35 @@ export default function EstimateCreation() {
               <CardContent className="space-y-4">
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Subtotal</span>
-                    <span className="font-medium">{formatCurrency(estimate.subtotal)}</span>
+                    <span className="text-destructive">Subtotal</span>
+                    <span className="font-medium text-destructive">{formatCurrency(estimate.subtotal)}</span>
                   </div>
                   
                   <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Tax (8%)</span>
-                    <span className="font-medium">{formatCurrency(estimate.tax_amount)}</span>
+                    <span className="text-destructive">Tax (8%)</span>
+                    <span className="font-medium text-destructive">{formatCurrency(estimate.tax_amount)}</span>
                   </div>
                   
                   <Separator />
                   
                   <div className="flex justify-between items-center text-lg font-semibold">
-                    <span>Total Amount</span>
-                    <span>{formatCurrency(estimate.total_amount)}</span>
+                    <span className="text-destructive">Total Amount</span>
+                    <span className="text-destructive">{formatCurrency(estimate.total_amount)}</span>
                   </div>
                   
                   {!isGovernmentContract && (
                     <>
                       <Separator />
-                      <div className="bg-primary/5 p-3 rounded-lg">
+                      <div className="bg-yellow-50 dark:bg-yellow-950 p-3 rounded-lg">
                         <div className="flex justify-between items-center">
-                          <span className="text-sm font-medium text-primary">
+                          <span className="text-sm font-medium text-yellow-700 dark:text-yellow-300">
                             Required Deposit (25%)
                           </span>
-                          <span className="font-semibold text-primary">
+                          <span className="font-semibold text-yellow-700 dark:text-yellow-300">
                             {formatCurrency(estimate.deposit_required)}
                           </span>
                         </div>
-                        <p className="text-xs text-muted-foreground mt-1">
+                        <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">
                           Due upon approval
                         </p>
                       </div>
@@ -753,41 +774,16 @@ export default function EstimateCreation() {
 
                 {/* Validation Warning */}
                 {estimate.line_items.some(item => item.unit_price === 0) && (
-                  <div className="bg-yellow-50 dark:bg-yellow-950 p-3 rounded-lg">
-                    <div className="flex items-center gap-2 text-yellow-700 dark:text-yellow-300">
+                  <div className="bg-destructive/10 p-3 rounded-lg">
+                    <div className="flex items-center gap-2 text-destructive">
                       <AlertTriangle className="h-4 w-4" />
                       <span className="text-sm font-medium">Pricing Required</span>
                     </div>
-                    <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">
+                    <p className="text-xs text-destructive/80 mt-1">
                       Please set prices for all items before creating the estimate
                     </p>
                   </div>
                 )}
-
-                 {/* Primary Actions */}
-                 {!estimate.line_items.some(item => item.unit_price === 0) && (
-                   <div className="space-y-3 pt-4 border-t">
-                     <div className="grid grid-cols-2 gap-3">
-                       <Button 
-                         onClick={handleGeneratePreview} 
-                         variant="outline"
-                         size="sm"
-                         className="w-full"
-                       >
-                         <CheckCircle2 className="h-4 w-4 mr-2" />
-                         Preview
-                       </Button>
-                       <Button 
-                         onClick={handleSendEstimate} 
-                         size="sm"
-                         className="w-full"
-                       >
-                         <Send className="h-4 w-4 mr-2" />
-                         Send to Customer
-                       </Button>
-                     </div>
-                   </div>
-                 )}
               </CardContent>
             </Card>
           </div>
