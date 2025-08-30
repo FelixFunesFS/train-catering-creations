@@ -32,7 +32,7 @@ import PaymentSuccess from "./pages/PaymentSuccess";
 import ContractManagement from "./pages/ContractManagement";
 import { OptimizedCustomerPortal } from "./components/customer/OptimizedCustomerPortal";
 import UnifiedAdminDashboard from "./pages/UnifiedAdminDashboard";
-import QuoteDetails from "./pages/QuoteDetails";
+import QuoteDetailPage from "./pages/QuoteDetailPage";
 import AdminReports from "./pages/AdminReports";
 import AdminMessages from "./pages/AdminMessages";
 import AdminSettings from "./pages/AdminSettings";
@@ -60,6 +60,8 @@ const AppContent = () => {
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-conditions" element={<TermsConditions />} />
           <Route path="/admin" element={<UnifiedAdminDashboard />} />
+          <Route path="/admin/quotes/:quoteId" element={<QuoteDetailPage />} />
+          <Route path="/admin/invoice-creation/:quoteId" element={<InvoiceEstimateCreation />} />
           <Route path="/admin/*" element={<UnifiedAdminDashboard />} />
           <Route path="/invoice/public/:invoiceToken" element={<InvoicePublic />} />
           <Route path="/invoice-estimate-creation/:quoteId" element={<InvoiceEstimateCreation />} />

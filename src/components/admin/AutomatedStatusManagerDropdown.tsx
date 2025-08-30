@@ -130,7 +130,7 @@ export function AutomatedStatusManagerDropdown({ onStatusUpdate, data }: Automat
           <ChevronDown className="h-3 w-3 ml-1" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-96" align="end">
+      <PopoverContent className="w-96 bg-background border shadow-lg z-50" align="end">
         <div className="space-y-4">
           <div className="flex items-center gap-2">
             <Bot className="h-5 w-5 text-blue-600" />

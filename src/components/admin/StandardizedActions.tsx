@@ -31,7 +31,7 @@ export function StandardizedActions({
   const { toast } = useToast();
 
   const handleViewQuote = () => {
-    navigate(`/admin/quotes/${item.id}?tab=quotes`);
+    navigate(`/admin/quotes/${item.id}`);
   };
 
   const handleViewEstimate = () => {
@@ -207,7 +207,7 @@ export function StandardizedActions({
           <Button
             size={size}
             variant={variant}
-            onClick={() => navigate(`/admin/invoice-creation/${item.quote_request_id}`)}
+            onClick={() => navigate(`/admin/invoice-creation/${item.quote_request_id || item.id}`)}
             title="Edit Draft"
           >
             <Edit className="h-3 w-3" />

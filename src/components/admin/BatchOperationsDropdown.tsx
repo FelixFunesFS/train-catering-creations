@@ -102,7 +102,7 @@ export function BatchOperationsDropdown({ selectedItems, onAction, itemType }: B
           <ChevronDown className="h-3 w-3 ml-1" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-64" align="end">
+      <PopoverContent className="w-64 bg-background border shadow-lg z-50" align="end">
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <Settings className="h-4 w-4" />
