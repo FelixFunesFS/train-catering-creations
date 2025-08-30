@@ -31,7 +31,7 @@ export function StandardizedActions({
   const { toast } = useToast();
 
   const handleViewQuote = () => {
-    navigate(`/admin/quotes/${item.id}`);
+    navigate(`/admin/quotes/${item.id}?tab=quotes`);
   };
 
   const handleViewEstimate = () => {
@@ -141,7 +141,7 @@ export function StandardizedActions({
           {size !== 'sm' && <span className="ml-2">View Quote</span>}
         </Button>
         
-        {item.status === 'pending' && (
+        {(item.status === 'pending' || item.workflow_status === 'pending') && (
           <Button
             size={size}
             onClick={handleMarkReviewed}
@@ -152,7 +152,7 @@ export function StandardizedActions({
           </Button>
         )}
         
-        {item.status === 'reviewed' && (
+        {(item.status === 'reviewed' || item.workflow_status === 'under_review') && (
           <Button
             size={size}
             onClick={handleCreateInvoice}

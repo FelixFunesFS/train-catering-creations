@@ -91,13 +91,13 @@ export function UnifiedAdminInterface() {
           .order('updated_at', { ascending: false })
           .limit(50),
         
-        // Fetch invoices with related data
+        // Fetch invoices with related data  
         supabase
           .from('invoices')
           .select(`
             *,
             customers!inner(name, email),
-            quote_requests!inner(event_name, event_date, contact_name)
+            quote_requests!quote_request_id(event_name, event_date, contact_name)
           `)
           .order('updated_at', { ascending: false })
           .limit(50),
@@ -288,9 +288,9 @@ export function UnifiedAdminInterface() {
       <div className="min-h-screen flex w-full bg-background">
         <AdminSidebar data={data} />
         
-        <div className="flex-1 flex flex-col min-w-0">
-          {/* Header - Proper z-index and contained positioning */}
-          <header className="relative z-30 shrink-0 h-14 lg:h-16 flex items-center justify-between border-b bg-background px-3 lg:px-6">
+        <div className="flex-1 flex flex-col min-w-0 relative">
+          {/* Header - Fixed z-index hierarchy */}
+          <header className="sticky top-0 z-40 shrink-0 h-14 lg:h-16 flex items-center justify-between border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-3 lg:px-6">
             <div className="flex items-center gap-2 lg:gap-4 min-w-0">
               <SidebarTrigger className="lg:hidden p-1 shrink-0 h-8 w-8" />
               <div className="min-w-0">
@@ -322,9 +322,9 @@ export function UnifiedAdminInterface() {
           </header>
 
           {/* Main Content Container */}
-          <main className="flex-1 relative">
+          <main className="flex-1 relative overflow-hidden">
             {/* Mobile Tab Navigation */}
-            <div className="lg:hidden relative z-20 border-b bg-background">
+            <div className="lg:hidden sticky top-14 z-30 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
               <div className="px-3 py-2">
                 <div className="grid grid-cols-3 gap-1 bg-muted rounded-lg p-1">
                   <button
@@ -378,10 +378,10 @@ export function UnifiedAdminInterface() {
               </div>
             </div>
 
-            {/* Content Container - Isolated scroll context */}
-            <div className="relative z-10 h-full">
-              <div className="h-full overflow-y-auto">
-                <div className="p-3 lg:p-6">
+            {/* Content Container - Proper scroll management */}
+            <div className="relative z-10 flex-1 overflow-hidden">
+              <div className="h-full overflow-y-auto scrollbar-thin scrollbar-track-muted scrollbar-thumb-muted-foreground/20">
+                <div className="p-3 lg:p-6 min-h-full">
                 {/* Desktop Tab Navigation */}
                 <Tabs value={activeTab} onValueChange={handleTabChange} className="hidden lg:block">
                   <TabsList className="grid w-full grid-cols-8 mb-6">

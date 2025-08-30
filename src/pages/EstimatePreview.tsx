@@ -97,14 +97,14 @@ export default function EstimatePreview() {
         .from('invoices')
         .select(`
           *,
-          customers (
+          customers!customer_id (
             id,
             name,
             email,
             phone,
             address
           ),
-          quote_requests (
+          quote_requests!quote_request_id (
             id,
             event_name,
             event_date,

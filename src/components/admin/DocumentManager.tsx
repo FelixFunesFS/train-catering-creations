@@ -63,7 +63,7 @@ export function DocumentManager() {
           created_at,
           pdf_url,
           is_draft,
-          quote_requests(event_name, contact_name)
+          quote_requests!quote_request_id(event_name, contact_name)
         `)
         .order('created_at', { ascending: false });
 
@@ -93,7 +93,7 @@ export function DocumentManager() {
           created_at,
           invoice_id,
           signed_at,
-          invoices(quote_requests(event_name, contact_name))
+          invoices!invoice_id(quote_requests!quote_request_id(event_name, contact_name))
         `)
         .order('created_at', { ascending: false });
 

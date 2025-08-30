@@ -54,13 +54,13 @@ export default function ContractManagement() {
         .from('contracts')
         .select(`
           *,
-          invoices (
+          invoices!invoice_id (
             invoice_number,
-            customers (
+            customers!customer_id (
               name,
               email
             ),
-            quote_requests (
+            quote_requests!quote_request_id (
               event_name,
               event_date
             )
