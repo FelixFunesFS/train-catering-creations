@@ -57,7 +57,7 @@ serve(async (req) => {
         break;
 
       case 'create_estimate':
-        updateData.workflow_status = 'quoted';
+        updateData.workflow_status = 'estimated';
         updateData.status = 'quoted';
         responseMessage = 'Estimate created';
         
@@ -65,6 +65,12 @@ serve(async (req) => {
         if (!quote.estimated_total || quote.estimated_total === 0) {
           updateData.estimated_total = await calculateEstimatedTotal(quote, supabaseClient);
         }
+        
+        // Create or update customer record
+        await ensureCustomerExists(quote, supabaseClient);
+        
+        // Create draft invoice
+        await createDraftInvoice(quote, updateData.estimated_total, supabaseClient);
         break;
 
       case 'send_quote':
@@ -156,6 +162,84 @@ async function calculateEstimatedTotal(quote: any, supabaseClient: any): Promise
   } catch (error) {
     console.error('Error calculating estimated total:', error);
     return quote.guest_count * 3500; // Fallback pricing
+  }
+}
+
+async function ensureCustomerExists(quote: any, supabaseClient: any): Promise<string> {
+  try {
+    // Check if customer already exists
+    const { data: existingCustomer } = await supabaseClient
+      .from('customers')
+      .select('id')
+      .eq('email', quote.email)
+      .single();
+
+    if (existingCustomer) {
+      return existingCustomer.id;
+    }
+
+    // Create new customer
+    const { data: newCustomer, error } = await supabaseClient
+      .from('customers')
+      .insert({
+        name: quote.contact_name,
+        email: quote.email,
+        phone: quote.phone,
+        quote_request_id: quote.id
+      })
+      .select('id')
+      .single();
+
+    if (error) throw error;
+    return newCustomer.id;
+  } catch (error) {
+    console.error('Error ensuring customer exists:', error);
+    throw error;
+  }
+}
+
+async function createDraftInvoice(quote: any, estimatedTotal: number, supabaseClient: any): Promise<void> {
+  try {
+    // Check if draft invoice already exists
+    const { data: existingInvoice } = await supabaseClient
+      .from('invoices')
+      .select('id')
+      .eq('quote_request_id', quote.id)
+      .eq('is_draft', true)
+      .single();
+
+    if (existingInvoice) {
+      // Update existing draft
+      await supabaseClient
+        .from('invoices')
+        .update({
+          total_amount: estimatedTotal,
+          subtotal: estimatedTotal,
+          updated_at: new Date().toISOString(),
+          status: 'draft',
+          workflow_status: 'draft'
+        })
+        .eq('id', existingInvoice.id);
+    } else {
+      // Create new draft invoice
+      const invoiceData = {
+        quote_request_id: quote.id,
+        subtotal: estimatedTotal,
+        total_amount: estimatedTotal,
+        is_draft: true,
+        status: 'draft',
+        workflow_status: 'draft',
+        invoice_number: `DRAFT-${quote.id.slice(0, 8)}`,
+        due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+      };
+
+      await supabaseClient
+        .from('invoices')
+        .insert(invoiceData);
+    }
+  } catch (error) {
+    console.error('Error creating draft invoice:', error);
+    // Don't throw here, draft creation is not critical for workflow progression
   }
 }
 

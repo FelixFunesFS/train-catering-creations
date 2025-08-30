@@ -1,23 +1,20 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { StatusBadge } from '@/components/admin/StatusBadge';
+import { WorkflowStepsDisplay } from './WorkflowStepsDisplay';
+import { NextStepsGuidance } from './NextStepsGuidance';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { 
   CheckCircle,
   Clock,
-  AlertCircle,
   ArrowRight,
   FileText,
   Send,
-  CreditCard,
   Star,
-  RefreshCw,
-  AlertTriangle
+  Eye,
+  Settings
 } from 'lucide-react';
 
 interface EnhancedQuoteWorkflowProps {
@@ -29,6 +26,8 @@ interface EnhancedQuoteWorkflowProps {
 export function EnhancedQuoteWorkflow({ quote, invoice, onRefresh }: EnhancedQuoteWorkflowProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showAllSteps, setShowAllSteps] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
   const { toast } = useToast();
 
   const getWorkflowSteps = () => {
@@ -36,19 +35,19 @@ export function EnhancedQuoteWorkflow({ quote, invoice, onRefresh }: EnhancedQuo
       { 
         id: 'pending', 
         title: 'Quote Submitted', 
-        status: 'completed', 
+        status: 'completed' as const, 
         description: 'Customer submitted quote request'
       },
       { 
         id: 'under_review', 
         title: 'Under Review', 
-        status: quote?.workflow_status === 'pending' ? 'current' : getStepStatus('under_review'),
+        status: quote?.workflow_status === 'pending' ? 'current' as const : getStepStatus('under_review'),
         description: 'Admin reviewing quote details'
       },
       { 
-        id: 'quoted', 
+        id: 'estimated', 
         title: 'Estimate Created', 
-        status: getStepStatus('quoted'),
+        status: getStepStatus('estimated'),
         description: 'Pricing calculated and estimate generated'
       },
       { 
@@ -74,9 +73,9 @@ export function EnhancedQuoteWorkflow({ quote, invoice, onRefresh }: EnhancedQuo
     return steps;
   };
 
-  const getStepStatus = (stepId: string) => {
+  const getStepStatus = (stepId: string): 'completed' | 'current' | 'upcoming' => {
     const currentStep = quote?.workflow_status || 'pending';
-    const stepOrder = ['pending', 'under_review', 'quoted', 'sent', 'approved', 'confirmed', 'in_progress', 'completed'];
+    const stepOrder = ['pending', 'under_review', 'estimated', 'sent', 'approved', 'confirmed', 'in_progress', 'completed'];
     
     const currentIndex = stepOrder.indexOf(currentStep);
     const stepIndex = stepOrder.indexOf(stepId);
@@ -97,7 +96,9 @@ export function EnhancedQuoteWorkflow({ quote, invoice, onRefresh }: EnhancedQuo
           description: 'Mark this quote as reviewed to proceed with estimation',
           icon: CheckCircle,
           variant: 'default' as const,
-          canExecute: true
+          canExecute: true,
+          requirements: ['Quote details have been reviewed'],
+          helpText: 'This step confirms that an admin has reviewed the quote request details.'
         };
       case 'under_review':
         return {
@@ -106,16 +107,24 @@ export function EnhancedQuoteWorkflow({ quote, invoice, onRefresh }: EnhancedQuo
           description: 'Generate pricing estimate for this quote',
           icon: FileText,
           variant: 'default' as const,
-          canExecute: validateQuoteForEstimate()
+          canExecute: validateQuoteForEstimate(),
+          requirements: [
+            'Guest count must be specified',
+            'Event date must be set',
+            'Service type must be selected'
+          ],
+          helpText: 'This will calculate pricing and create a draft invoice for the quote.'
         };
-      case 'quoted':
+      case 'estimated':
         return {
           action: 'send_quote',
           title: 'Send Quote to Customer',
           description: 'Email the quote to customer for approval',
           icon: Send,
           variant: 'default' as const,
-          canExecute: quote?.estimated_total > 0
+          canExecute: quote?.estimated_total > 0,
+          requirements: ['Estimated total must be calculated'],
+          helpText: 'This will send the quote details and pricing to the customer via email.'
         };
       case 'sent':
         return {
@@ -124,7 +133,8 @@ export function EnhancedQuoteWorkflow({ quote, invoice, onRefresh }: EnhancedQuo
           description: 'Waiting for customer to approve the quote',
           icon: Clock,
           variant: 'outline' as const,
-          canExecute: false
+          canExecute: false,
+          helpText: 'No action needed. Customer will respond via their portal or direct communication.'
         };
       case 'approved':
         return {
@@ -133,7 +143,9 @@ export function EnhancedQuoteWorkflow({ quote, invoice, onRefresh }: EnhancedQuo
           description: 'Finalize event logistics and generate invoice',
           icon: Star,
           variant: 'default' as const,
-          canExecute: true
+          canExecute: true,
+          requirements: ['Customer has approved the quote'],
+          helpText: 'This finalizes all event details and creates the official invoice.'
         };
       default:
         return null;
@@ -200,140 +212,75 @@ export function EnhancedQuoteWorkflow({ quote, invoice, onRefresh }: EnhancedQuo
   const progress = currentStepIndex >= 0 ? (currentStepIndex / (steps.length - 1)) * 100 : 0;
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <ArrowRight className="h-5 w-5" />
-          Admin Workflow Manager
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        {/* Error Alert */}
-        {error && (
-          <Alert variant="destructive">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertDescription className="flex items-center justify-between">
-              <span>{error}</span>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={handleRetry}
-                className="ml-2"
+    <div className="space-y-6">
+      {/* Main Workflow Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <ArrowRight className="h-5 w-5" />
+              Admin Workflow Manager
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowHelp(!showHelp)}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
-                <RefreshCw className="h-3 w-3 mr-1" />
-                Retry
-              </Button>
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {/* Progress Bar */}
-        <div>
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-medium">Workflow Progress</span>
-            <span className="text-sm text-muted-foreground">{Math.round(progress)}%</span>
+                <Eye className="h-4 w-4" />
+              </button>
+              <StatusBadge status={quote?.workflow_status || quote?.status || 'pending'} />
+            </div>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Progress Bar */}
+          <div>
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm font-medium">Workflow Progress</span>
+              <span className="text-sm text-muted-foreground">{Math.round(progress)}%</span>
+            </div>
+            <Progress value={progress} className="h-2" />
           </div>
-          <Progress value={progress} className="h-2" />
-        </div>
 
-        {/* Workflow Steps */}
-        <div className="space-y-4">
-          {steps.map((step, index) => (
-            <div key={step.id} className="flex items-start gap-3">
-              <div className={`flex-shrink-0 w-8 h-8 rounded-full border-2 flex items-center justify-center ${
-                step.status === 'completed' 
-                  ? 'bg-green-100 border-green-500 text-green-700'
-                  : step.status === 'current'
-                  ? 'bg-blue-100 border-blue-500 text-blue-700'
-                  : 'bg-gray-100 border-gray-300 text-gray-500'
-              }`}>
-                {step.status === 'completed' ? (
-                  <CheckCircle className="h-4 w-4" />
-                ) : step.status === 'current' ? (
-                  <Clock className="h-4 w-4" />
-                ) : (
-                  <span className="text-xs font-bold">{index + 1}</span>
-                )}
-              </div>
-              
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <h4 className={`font-medium ${
-                    step.status === 'current' ? 'text-blue-700' : ''
-                  }`}>
-                    {step.title}
-                  </h4>
-                  {step.status === 'current' && (
-                    <Badge variant="default" className="text-xs">Active</Badge>
-                  )}
+          {/* Workflow Steps */}
+          <WorkflowStepsDisplay 
+            steps={steps}
+            showHidden={showAllSteps}
+            onToggleHidden={() => setShowAllSteps(!showAllSteps)}
+          />
+
+          {/* Status and Info */}
+          <div className="pt-4 border-t space-y-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {quote?.estimated_total && (
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">Estimated Total:</span>
+                  <span className="text-sm font-semibold text-green-600">
+                    ${(quote.estimated_total / 100).toFixed(2)}
+                  </span>
                 </div>
-                <p className="text-sm text-muted-foreground">{step.description}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Next Action */}
-        {nextAction && (
-          <div className="pt-4 border-t">
-            <div className="space-y-3">
-              <div>
-                <h4 className="font-medium">Next Action Required</h4>
-                <p className="text-sm text-muted-foreground">{nextAction.description}</p>
-              </div>
-              
-              {!nextAction.canExecute && nextAction.action !== 'await_approval' && (
-                <Alert>
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>
-                    Please ensure all required fields are completed before proceeding.
-                  </AlertDescription>
-                </Alert>
               )}
               
-              {nextAction.action !== 'await_approval' && (
-                <Button
-                  onClick={() => handleWorkflowAction(nextAction.action)}
-                  disabled={loading || !nextAction.canExecute}
-                  variant={nextAction.variant}
-                  className="w-full"
-                >
-                  {loading ? (
-                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                  ) : (
-                    <nextAction.icon className="h-4 w-4 mr-2" />
-                  )}
-                  {nextAction.title}
-                </Button>
+              {invoice && (
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">Invoice Status:</span>
+                  <StatusBadge status={invoice.status} />
+                </div>
               )}
             </div>
           </div>
-        )}
+        </CardContent>
+      </Card>
 
-        {/* Status and Info */}
-        <div className="pt-4 border-t space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">Current Status:</span>
-            <StatusBadge status={quote?.workflow_status || quote?.status || 'pending'} />
-          </div>
-          
-          {quote?.estimated_total && (
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Estimated Total:</span>
-              <span className="text-sm font-semibold text-green-600">
-                ${(quote.estimated_total / 100).toFixed(2)}
-              </span>
-            </div>
-          )}
-          
-          {invoice && (
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Invoice Status:</span>
-              <StatusBadge status={invoice.status} />
-            </div>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+      {/* Next Steps Card */}
+      <NextStepsGuidance
+        nextAction={nextAction}
+        loading={loading}
+        error={error}
+        onExecuteAction={handleWorkflowAction}
+        onRetry={handleRetry}
+        showHelp={showHelp}
+      />
+    </div>
   );
 }
