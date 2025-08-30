@@ -87,19 +87,22 @@ const AppContent = () => {
     </div>;
 };
 const queryClient = new QueryClient();
-const App = () => <QueryClientProvider client={queryClient}>
+
+const App = () => (
+  <QueryClientProvider client={queryClient}>
     <ErrorBoundary>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange={false}>
         <TooltipProvider>
           <Toaster />
           <Sonner />
           <BrowserRouter future={{
-          v7_startTransition: true
-        }}>
+            v7_startTransition: true
+          }}>
             <AppContent />
           </BrowserRouter>
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>
-  </QueryClientProvider>;
+  </QueryClientProvider>
+);
 export default App;
