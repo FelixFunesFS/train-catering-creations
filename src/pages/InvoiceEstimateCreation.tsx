@@ -333,28 +333,67 @@ export default function InvoiceEstimateCreation() {
 
   // Post-pricing workflow actions
   const handleSaveAsDraft = async () => {
+    if (!estimate) return;
+    
     try {
+      // Create or find customer first (like in handleSaveEstimate)
+      let draftCustomerId = customerId;
+      
+      if (!draftCustomerId) {
+        const { data: existingCustomer } = await supabase
+          .from('customers')
+          .select('id')
+          .eq('email', estimate.customer_email)
+          .maybeSingle();
+
+        if (existingCustomer) {
+          draftCustomerId = existingCustomer.id;
+          setCustomerId(draftCustomerId);
+        } else {
+          const { data: newCustomer, error: customerError } = await supabase
+            .from('customers')
+            .insert({
+              name: estimate.customer_name,
+              email: estimate.customer_email,
+              phone: estimate.customer_phone,
+              quote_request_id: estimate.quote_request_id
+            })
+            .select('id')
+            .single();
+
+          if (customerError) throw customerError;
+          draftCustomerId = newCustomer.id;
+          setCustomerId(draftCustomerId);
+        }
+      }
+
       const estimateData = {
         line_items: estimate.line_items,
         subtotal: estimate.subtotal,
         tax_amount: estimate.tax_amount,
         total_amount: estimate.total_amount,
         deposit_required: estimate.deposit_required,
-        is_government_contract: isGovernmentContract
+        is_government_contract: isGovernmentContract,
+        customer_name: estimate.customer_name,
+        customer_email: estimate.customer_email,
+        customer_phone: estimate.customer_phone,
+        event_details: estimate.event_details
       };
 
       const { data, error } = await supabase
         .from('invoices')
         .upsert({
           id: invoiceId || undefined,
-          quote_request_id: quoteId,
-          customer_id: customerId,
+          customer_id: draftCustomerId,
+          quote_request_id: estimate.quote_request_id,
+          invoice_number: invoiceId ? undefined : `DRAFT-${Date.now()}`,
           is_draft: true,
           status: 'draft',
           draft_data: estimateData as any,
           subtotal: estimate.subtotal,
           tax_amount: estimate.tax_amount,
           total_amount: estimate.total_amount,
+          due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
           updated_at: new Date().toISOString()
         })
         .select('id')
@@ -500,11 +539,23 @@ export default function InvoiceEstimateCreation() {
                   <p className="text-sm text-muted-foreground">
                     {quote.event_name} - {new Date(quote.event_date).toLocaleDateString()}
                   </p>
+                  <p className="text-xs text-muted-foreground">
+                    Created: {new Date().toLocaleString()} • Last saved: Auto-saving...
+                  </p>
                 </div>
               </div>
             </div>
             
             <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                onClick={handleSaveAsDraft}
+                className="flex items-center gap-2"
+              >
+                <Save className="h-4 w-4" />
+                Save Draft
+              </Button>
+              
               <Button
                 onClick={handleSaveEstimate}
                 disabled={isSaving || estimate.line_items.some(item => item.unit_price === 0)}

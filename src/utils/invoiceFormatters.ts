@@ -106,18 +106,55 @@ export const createMealBundle = (quote: QuoteRequest): LineItem => {
   };
 };
 
-// Group multiple appetizers
+// Group multiple appetizers with proper quantity logic
 export const createAppetizersGroup = (appetizers: string[], guestCount: number): LineItem => {
-  const formattedAppetizers = appetizers.map(formatMenuDescription);
+  // Separate vegan/vegetarian items from regular appetizers
+  const veganVegItems = appetizers.filter(app => 
+    app.toLowerCase().includes('vegan') || 
+    app.toLowerCase().includes('vegetarian') ||
+    app.toLowerCase().includes('veggie')
+  );
+  
+  const regularItems = appetizers.filter(app => 
+    !app.toLowerCase().includes('vegan') && 
+    !app.toLowerCase().includes('vegetarian') &&
+    !app.toLowerCase().includes('veggie')
+  );
+  
+  // Use regular items for main appetizer group
+  const formattedAppetizers = regularItems.map(formatMenuDescription);
   
   return {
     id: `appetizers_group_${Date.now()}`,
     title: formattedAppetizers.length > 1 ? 'Appetizers' : 'Appetizer',
     description: formattedAppetizers.join(', '),
-    quantity: 1,
+    quantity: guestCount, // Updated to use guest count
     unit_price: 0,
     total_price: 0,
     category: 'appetizer'
+  };
+};
+
+// Create separate line item for vegan/vegetarian appetizers
+export const createVeganVegAppetizersGroup = (appetizers: string[], restrictionCount: number): LineItem | null => {
+  const veganVegItems = appetizers.filter(app => 
+    app.toLowerCase().includes('vegan') || 
+    app.toLowerCase().includes('vegetarian') ||
+    app.toLowerCase().includes('veggie')
+  );
+  
+  if (veganVegItems.length === 0) return null;
+  
+  const formattedAppetizers = veganVegItems.map(formatMenuDescription);
+  
+  return {
+    id: `vegan_veg_appetizers_${Date.now()}`,
+    title: formattedAppetizers.length > 1 ? 'Vegan/Vegetarian Appetizers' : 'Vegan/Vegetarian Appetizer',
+    description: formattedAppetizers.join(', '),
+    quantity: restrictionCount, // Use restriction count
+    unit_price: 0,
+    total_price: 0,
+    category: 'appetizer_dietary'
   };
 };
 
@@ -248,9 +285,25 @@ export const generateProfessionalLineItems = (quote: QuoteRequest): LineItem[] =
     });
   }
   
-  // Add appetizers (grouped if multiple)
+  // Add appetizers (grouped if multiple, with separate vegan/vegetarian handling)
   if (quote.appetizers && quote.appetizers.length > 0) {
-    lineItems.unshift(createAppetizersGroup(quote.appetizers, quote.guest_count));
+    // Add regular appetizers
+    const regularAppetizers = quote.appetizers.filter(app => 
+      !app.toLowerCase().includes('vegan') && 
+      !app.toLowerCase().includes('vegetarian') &&
+      !app.toLowerCase().includes('veggie')
+    );
+    
+    if (regularAppetizers.length > 0) {
+      lineItems.unshift(createAppetizersGroup(regularAppetizers, quote.guest_count));
+    }
+    
+    // Add vegan/vegetarian appetizers separately
+    const restrictionCount = Math.max(1, Math.floor(quote.guest_count * 0.1)); // Assume 10% have restrictions
+    const veganVegAppetizerItem = createVeganVegAppetizersGroup(quote.appetizers, restrictionCount);
+    if (veganVegAppetizerItem) {
+      lineItems.unshift(veganVegAppetizerItem);
+    }
   }
   
   // Add desserts (grouped if multiple)
