@@ -282,9 +282,9 @@ export function UnifiedAdminInterface() {
       <div className="min-h-screen flex w-full bg-background">
         <AdminSidebar data={data} />
         
-        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-          {/* Header - Fixed positioning to prevent overlap */}
-          <header className="sticky top-0 z-50 shrink-0 h-14 lg:h-16 flex items-center justify-between border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60 px-3 lg:px-6">
+        <div className="flex-1 flex flex-col min-w-0">
+          {/* Header - Proper z-index and contained positioning */}
+          <header className="relative z-30 shrink-0 h-14 lg:h-16 flex items-center justify-between border-b bg-background px-3 lg:px-6">
             <div className="flex items-center gap-2 lg:gap-4 min-w-0">
               <SidebarTrigger className="lg:hidden p-1 shrink-0 h-8 w-8" />
               <div className="min-w-0">
@@ -315,10 +315,10 @@ export function UnifiedAdminInterface() {
             </div>
           </header>
 
-          {/* Main Content Container - Proper scrolling */}
-          <main className="flex-1 flex flex-col min-h-0 overflow-hidden">
-            {/* Mobile Tab Navigation - Fixed positioning */}
-            <div className="lg:hidden sticky top-0 z-40 shrink-0 border-b bg-background">
+          {/* Main Content Container */}
+          <main className="flex-1 relative">
+            {/* Mobile Tab Navigation */}
+            <div className="lg:hidden relative z-20 border-b bg-background">
               <div className="px-3 py-2">
                 <div className="grid grid-cols-3 gap-1 bg-muted rounded-lg p-1">
                   <button
@@ -372,9 +372,10 @@ export function UnifiedAdminInterface() {
               </div>
             </div>
 
-            {/* Scrollable Content Area */}
-            <div className="flex-1 overflow-auto">
-              <div className="p-3 lg:p-6">
+            {/* Content Container - Isolated scroll context */}
+            <div className="relative z-10 h-full">
+              <div className="h-full overflow-y-auto">
+                <div className="p-3 lg:p-6">
                 {/* Desktop Tab Navigation */}
                 <Tabs value={activeTab} onValueChange={handleTabChange} className="hidden lg:block">
                   <TabsList className="grid w-full grid-cols-6 mb-6">
@@ -556,6 +557,7 @@ export function UnifiedAdminInterface() {
                       <p className="text-muted-foreground">Automation manager coming soon...</p>
                     </div>
                   )}
+                </div>
                 </div>
               </div>
             </div>
