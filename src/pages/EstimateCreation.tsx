@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { EstimateNextSteps } from '@/components/admin/EstimateNextSteps';
 import { 
   formatCustomerName, 
   formatCustomerPhone, 
@@ -72,6 +73,8 @@ export default function EstimateCreation() {
   const [editingItem, setEditingItem] = useState<string | null>(null);
   const [invoiceId, setInvoiceId] = useState<string | null>(null);
   const [customerId, setCustomerId] = useState<string | null>(null);
+  const [showNextSteps, setShowNextSteps] = useState(false);
+  const [currentStatus, setCurrentStatus] = useState('draft');
 
   useEffect(() => {
     if (quoteId) {
@@ -91,12 +94,11 @@ export default function EstimateCreation() {
       if (invoiceCheckError) throw invoiceCheckError;
 
       if (existingInvoice) {
-        // Invoice already exists, redirect to workflow page
-        navigate(`/admin/estimate-workflow/${existingInvoice.id}`);
-        return;
+        // Invoice exists, set the ID and continue with current flow
+        setInvoiceId(existingInvoice.id);
       }
 
-      // No existing invoice, proceed with normal flow
+      // Always proceed to fetch quote data and show estimate creation
       await fetchQuoteData();
     } catch (error) {
       console.error('Error checking existing invoice:', error);
@@ -358,6 +360,8 @@ export default function EstimateCreation() {
         description: "Estimate saved successfully",
       });
 
+      setShowNextSteps(true);
+      setCurrentStatus('draft');
       return invoiceData.id;
     } catch (error) {
       console.error('Error saving estimate:', error);
@@ -413,14 +417,36 @@ export default function EstimateCreation() {
         throw new Error('Failed to save estimate');
       }
 
-      // Redirect to workflow page where sending happens
-      navigate(`/admin/estimate-workflow/${savedInvoiceId}`);
+      // Send the estimate directly using edge function
+      const { error } = await supabase.functions.invoke('send-invoice-email', {
+        body: { invoice_id: savedInvoiceId }
+      });
+
+      if (error) throw error;
+
+      // Update invoice status
+      await supabase
+        .from('invoices')
+        .update({ 
+          status: 'sent',
+          is_draft: false,
+          sent_at: new Date().toISOString()
+        })
+        .eq('id', savedInvoiceId);
+
+      toast({
+        title: "Success",
+        description: "Estimate sent to customer successfully",
+      });
+
+      // Refresh the page to show updated status
+      window.location.reload();
       
     } catch (error) {
-      console.error('Error preparing estimate:', error);
+      console.error('Error sending estimate:', error);
       toast({
         title: "Error",
-        description: "Failed to prepare estimate for sending",
+        description: "Failed to send estimate",
         variant: "destructive"
       });
     }
@@ -823,6 +849,22 @@ export default function EstimateCreation() {
             </Card>
           </div>
         </div>
+
+        {/* Next Steps Section */}
+        {showNextSteps && invoiceId && (
+          <div className="mt-8">
+            <EstimateNextSteps
+              invoiceId={invoiceId}
+              status={currentStatus}
+              customerEmail={estimate.customer_email}
+              totalAmount={estimate.total_amount}
+              onStatusChange={() => {
+                // Refresh or update status as needed
+                setCurrentStatus('sent');
+              }}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
