@@ -676,14 +676,6 @@ export default function EstimatePreview() {
           onClose={() => setShowChangeRequest(false)}
           invoiceId={estimate.id}
           customerEmail={estimate.customers.email}
-          currentDetails={{
-            event_name: estimate.quote_requests.event_name,
-            event_date: estimate.quote_requests.event_date,
-            guest_count: estimate.quote_requests.guest_count,
-            location: estimate.quote_requests.location,
-            service_type: estimate.quote_requests.service_type,
-            special_requests: estimate.quote_requests.special_requests
-          }}
         />
       )}
     </div>
