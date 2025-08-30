@@ -58,6 +58,75 @@ export type Database = {
           },
         ]
       }
+      automated_workflows: {
+        Row: {
+          actions: Json
+          created_at: string | null
+          description: string | null
+          enabled: boolean | null
+          error_count: number | null
+          id: string
+          last_run_at: string | null
+          name: string
+          success_count: number | null
+          trigger_conditions: Json | null
+          trigger_event: string
+          updated_at: string | null
+        }
+        Insert: {
+          actions?: Json
+          created_at?: string | null
+          description?: string | null
+          enabled?: boolean | null
+          error_count?: number | null
+          id?: string
+          last_run_at?: string | null
+          name: string
+          success_count?: number | null
+          trigger_conditions?: Json | null
+          trigger_event: string
+          updated_at?: string | null
+        }
+        Update: {
+          actions?: Json
+          created_at?: string | null
+          description?: string | null
+          enabled?: boolean | null
+          error_count?: number | null
+          id?: string
+          last_run_at?: string | null
+          name?: string
+          success_count?: number | null
+          trigger_conditions?: Json | null
+          trigger_event?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      business_config: {
+        Row: {
+          config_key: string
+          config_value: Json
+          created_at: string | null
+          id: string
+          updated_at: string | null
+        }
+        Insert: {
+          config_key: string
+          config_value: Json
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+        }
+        Update: {
+          config_key?: string
+          config_value?: Json
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       calendar_events: {
         Row: {
           calendar_provider: string
