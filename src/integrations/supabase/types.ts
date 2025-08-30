@@ -117,6 +117,71 @@ export type Database = {
           },
         ]
       }
+      change_requests: {
+        Row: {
+          admin_response: string | null
+          completed_at: string | null
+          created_at: string
+          customer_comments: string | null
+          customer_email: string
+          estimated_cost_change: number | null
+          id: string
+          invoice_id: string | null
+          original_details: Json | null
+          priority: string
+          request_type: string
+          requested_changes: Json
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          admin_response?: string | null
+          completed_at?: string | null
+          created_at?: string
+          customer_comments?: string | null
+          customer_email: string
+          estimated_cost_change?: number | null
+          id?: string
+          invoice_id?: string | null
+          original_details?: Json | null
+          priority?: string
+          request_type?: string
+          requested_changes: Json
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          admin_response?: string | null
+          completed_at?: string | null
+          created_at?: string
+          customer_comments?: string | null
+          customer_email?: string
+          estimated_cost_change?: number | null
+          id?: string
+          invoice_id?: string | null
+          original_details?: Json | null
+          priority?: string
+          request_type?: string
+          requested_changes?: Json
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "change_requests_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contracts: {
         Row: {
           contract_html: string | null
@@ -204,6 +269,66 @@ export type Database = {
             columns: ["quote_request_id"]
             isOneToOne: false
             referencedRelation: "quote_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      estimate_versions: {
+        Row: {
+          change_request_id: string | null
+          created_at: string
+          created_by: string
+          id: string
+          invoice_id: string | null
+          line_items: Json
+          notes: string | null
+          status: string
+          subtotal: number
+          tax_amount: number
+          total_amount: number
+          version_number: number
+        }
+        Insert: {
+          change_request_id?: string | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          invoice_id?: string | null
+          line_items?: Json
+          notes?: string | null
+          status?: string
+          subtotal?: number
+          tax_amount?: number
+          total_amount?: number
+          version_number?: number
+        }
+        Update: {
+          change_request_id?: string | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          invoice_id?: string | null
+          line_items?: Json
+          notes?: string | null
+          status?: string
+          subtotal?: number
+          tax_amount?: number
+          total_amount?: number
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "estimate_versions_change_request_id_fkey"
+            columns: ["change_request_id"]
+            isOneToOne: false
+            referencedRelation: "change_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "estimate_versions_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
             referencedColumns: ["id"]
           },
         ]
@@ -568,6 +693,68 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "payment_history_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payment_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          customer_email: string
+          description: string | null
+          failed_reason: string | null
+          id: string
+          invoice_id: string | null
+          payment_method: string | null
+          payment_type: string
+          processed_at: string | null
+          status: string
+          stripe_payment_intent_id: string | null
+          stripe_session_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          customer_email: string
+          description?: string | null
+          failed_reason?: string | null
+          id?: string
+          invoice_id?: string | null
+          payment_method?: string | null
+          payment_type: string
+          processed_at?: string | null
+          status?: string
+          stripe_payment_intent_id?: string | null
+          stripe_session_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          customer_email?: string
+          description?: string | null
+          failed_reason?: string | null
+          id?: string
+          invoice_id?: string | null
+          payment_method?: string | null
+          payment_type?: string
+          processed_at?: string | null
+          status?: string
+          stripe_payment_intent_id?: string | null
+          stripe_session_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_transactions_invoice_id_fkey"
             columns: ["invoice_id"]
             isOneToOne: false
             referencedRelation: "invoices"

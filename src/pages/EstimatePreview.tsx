@@ -7,13 +7,16 @@ import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { InvoiceViewer } from '@/components/admin/invoice/InvoiceViewer';
+import { ChangeRequestModal } from '@/components/customer/ChangeRequestModal';
 import { 
   FileText, 
   Download, 
   CheckCircle, 
   CreditCard,
   ArrowLeft,
-  Loader2
+  Loader2,
+  MessageSquare,
+  Edit3
 } from 'lucide-react';
 
 interface LineItem {
@@ -79,6 +82,8 @@ export default function EstimatePreview() {
   const [loading, setLoading] = useState(true);
   const [approving, setApproving] = useState(false);
   const [emailingCustomer, setEmailingCustomer] = useState(false);
+  const [showChangeRequest, setShowChangeRequest] = useState(false);
+  const [processingPayment, setProcessingPayment] = useState(false);
 
   useEffect(() => {
     if (invoiceId) {
@@ -251,6 +256,42 @@ export default function EstimatePreview() {
       });
     } finally {
       setEmailingCustomer(false);
+    }
+  };
+
+  const handlePayDeposit = async () => {
+    if (!estimate) return;
+    
+    setProcessingPayment(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('create-checkout-session', {
+        body: { 
+          invoice_id: estimate.id,
+          payment_type: 'deposit'
+        }
+      });
+
+      if (error) throw error;
+
+      if (data?.url) {
+        // Open payment in new tab
+        window.open(data.url, '_blank');
+        toast({
+          title: "Payment Link Opened",
+          description: "Complete your payment in the new tab to secure your event date.",
+        });
+      } else {
+        throw new Error('Payment URL not provided');
+      }
+    } catch (error) {
+      console.error('Error creating payment session:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create payment session. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setProcessingPayment(false);
     }
   };
 
@@ -503,18 +544,12 @@ export default function EstimatePreview() {
                           Sending...
                         </>
                       ) : (
-                        <>
-                          <FileText className="h-4 w-4 mr-2" />
-                          Email Customer
-                        </>
+                        "Email Copy"
                       )}
                     </Button>
                   </div>
                 ) : (
-                  <div className="space-y-4">
-                    <p className="text-sm text-muted-foreground">
-                      Please review the estimate details and approve if everything looks correct.
-                    </p>
+                  <div className="space-y-3">
                     <Button 
                       onClick={handleApproveEstimate}
                       disabled={approving}
@@ -530,6 +565,34 @@ export default function EstimatePreview() {
                         <>
                           <CheckCircle className="h-4 w-4 mr-2" />
                           Approve Estimate
+                        </>
+                      )}
+                    </Button>
+                    
+                    <Button 
+                      onClick={() => setShowChangeRequest(true)}
+                      variant="outline"
+                      className="w-full"
+                    >
+                      <MessageSquare className="h-4 w-4 mr-2" />
+                      Request Changes
+                    </Button>
+
+                    <Button 
+                      onClick={handlePayDeposit}
+                      disabled={processingPayment}
+                      variant="outline"
+                      className="w-full"
+                    >
+                      {processingPayment ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Processing...
+                        </>
+                      ) : (
+                        <>
+                          <CreditCard className="h-4 w-4 mr-2" />
+                          Pay Deposit Online
                         </>
                       )}
                     </Button>
@@ -605,6 +668,24 @@ export default function EstimatePreview() {
           </div>
         </div>
       </div>
+
+      {/* Change Request Modal */}
+      {estimate && (
+        <ChangeRequestModal
+          isOpen={showChangeRequest}
+          onClose={() => setShowChangeRequest(false)}
+          invoiceId={estimate.id}
+          customerEmail={estimate.customers.email}
+          currentDetails={{
+            event_name: estimate.quote_requests.event_name,
+            event_date: estimate.quote_requests.event_date,
+            guest_count: estimate.quote_requests.guest_count,
+            location: estimate.quote_requests.location,
+            service_type: estimate.quote_requests.service_type,
+            special_requests: estimate.quote_requests.special_requests
+          }}
+        />
+      )}
     </div>
   );
 }
