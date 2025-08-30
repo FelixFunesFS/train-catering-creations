@@ -413,6 +413,46 @@ export const ReviewStep = ({ form, estimatedCost }: ReviewStepProps) => {
             </CardContent>
           </Card>
 
+          {/* Additional Services */}
+          <Card className="neumorphic-card-1 border-0 bg-gradient-to-br from-card via-card/95 to-muted/10">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-3 text-xl font-elegant">
+                <div className="w-8 h-8 bg-gradient-primary rounded-full flex items-center justify-center">
+                  <UtensilsCrossed className="h-4 w-4 text-primary-foreground" />
+                </div>
+                Additional Services
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Plates:</span>
+                  <span className="font-medium">{formData.plates_requested ? 'Yes' : 'No'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Cups:</span>
+                  <span className="font-medium">{formData.cups_requested ? 'Yes' : 'No'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Napkins:</span>
+                  <span className="font-medium">{formData.napkins_requested ? 'Yes' : 'No'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Serving Utensils:</span>
+                  <span className="font-medium">{formData.serving_utensils_requested ? 'Yes' : 'No'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Chafing Dishes:</span>
+                  <span className="font-medium">{formData.chafers_requested ? 'Yes' : 'No'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Ice:</span>
+                  <span className="font-medium">{formData.ice_requested ? 'Yes' : 'No'}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {false && (
             <Card className="neumorphic-card-1 border-0 bg-gradient-to-br from-primary/5 via-primary/3 to-primary/5">
               <CardHeader>
