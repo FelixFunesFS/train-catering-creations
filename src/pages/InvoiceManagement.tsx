@@ -24,7 +24,8 @@ import {
   AlertTriangle,
   Plus,
   CreditCard,
-  ArrowLeft
+  ArrowLeft,
+  Mail
 } from 'lucide-react';
 
 interface InvoiceRecord {
@@ -171,8 +172,33 @@ export default function InvoiceManagement() {
     navigate(`/admin/dashboard`);
   };
 
-  const handleViewInvoice = (invoice: InvoiceRecord) => {
-    window.open(`/estimate-preview/${invoice.id}`, '_blank');
+  const handleViewInvoice = async (invoice: InvoiceRecord) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-invoice-pdf', {
+        body: { invoice_id: invoice.id }
+      });
+
+      if (error) throw error;
+
+      // Open the PDF URL in a new tab
+      if (data.pdf_url) {
+        const newWindow = window.open(data.pdf_url, '_blank');
+        if (newWindow) {
+          // Trigger print dialog after content loads
+          newWindow.onload = () => {
+            setTimeout(() => {
+              newWindow.print();
+            }, 1000);
+          };
+        }
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to generate invoice PDF",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleGenerateInvoice = async (invoice: InvoiceRecord) => {
@@ -249,6 +275,30 @@ export default function InvoiceManagement() {
         title: "Error",
         description: "Failed to create payment link",
         variant: "destructive"
+      });
+    }
+  };
+
+  const handleSendManualEmail = async (invoice: InvoiceRecord, emailType: string) => {
+    try {
+      const { error } = await supabase.functions.invoke('send-manual-email', {
+        body: { 
+          invoice_id: invoice.id,
+          email_type: emailType
+        }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Email sent successfully",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to send email",
+        variant: "destructive",
       });
     }
   };
@@ -519,6 +569,19 @@ export default function InvoiceManagement() {
                       </Button>
                     )}
 
+                    {invoice.status === 'sent' && (
+                      <>
+                        <Button size="sm" onClick={() => handleCreatePaymentLink(invoice)}>
+                          <CreditCard className="h-3 w-3 mr-1" />
+                          Payment Link
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => handleSendManualEmail(invoice, 'payment_reminder')}>
+                          <Mail className="h-3 w-3 mr-1" />
+                          Remind
+                        </Button>
+                      </>
+                    )}
+
                     {invoice.status === 'approved' && (
                       <Button size="sm" onClick={() => handleCreatePaymentLink(invoice)}>
                         <CreditCard className="h-3 w-3 mr-1" />
@@ -526,11 +589,17 @@ export default function InvoiceManagement() {
                       </Button>
                     )}
 
-                    {invoice.status === 'contract_sent' && (
-                      <Button size="sm" variant="outline" onClick={() => handleMarkDeposited(invoice)}>
-                        <CheckCircle className="h-3 w-3 mr-1" />
-                        Mark Deposited
-                      </Button>
+                    {(invoice.status === 'approved' || invoice.status === 'contract_sent') && (
+                      <>
+                        <Button size="sm" variant="outline" onClick={() => handleMarkDeposited(invoice)}>
+                          <CheckCircle className="h-3 w-3 mr-1" />
+                          Mark Deposited
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => handleSendManualEmail(invoice, 'follow_up')}>
+                          <Mail className="h-3 w-3 mr-1" />
+                          Follow Up
+                        </Button>
+                      </>
                     )}
                   </div>
                 </div>
