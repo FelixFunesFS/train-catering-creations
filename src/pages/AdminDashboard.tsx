@@ -589,6 +589,9 @@ const AdminDashboard = () => {
           <QuoteDetailModal
             quote={selectedQuote}
             onClose={() => setSelectedQuote(null)}
+            onUpdate={(updatedQuote) => {
+              setQuotes(quotes.map(q => q.id === updatedQuote.id ? updatedQuote : q));
+            }}
           />
         )}
 
