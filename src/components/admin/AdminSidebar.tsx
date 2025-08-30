@@ -59,29 +59,29 @@ export function AdminSidebar({ data }: AdminSidebarProps) {
   const mainItems = [
     { 
       title: "Overview", 
-      url: "/admin/unified", 
+      url: "/admin", 
       icon: LayoutDashboard 
     },
     { 
       title: "Quotes", 
-      url: "/admin/unified?tab=quotes", 
+      url: "/admin?tab=quotes", 
       icon: FileText,
       badge: pendingQuotes > 0 ? pendingQuotes : undefined
     },
     { 
       title: "Invoices", 
-      url: "/admin/unified?tab=invoices", 
+      url: "/admin?tab=invoices", 
       icon: CreditCard,
       badge: draftInvoices > 0 ? draftInvoices : undefined
     },
     { 
       title: "Events", 
-      url: "/admin/unified?tab=events", 
+      url: "/admin?tab=events", 
       icon: Calendar 
     },
     { 
       title: "Customers", 
-      url: "/admin/unified?tab=customers", 
+      url: "/admin?tab=customers", 
       icon: Users 
     },
   ];
@@ -89,17 +89,17 @@ export function AdminSidebar({ data }: AdminSidebarProps) {
   const automationItems = [
     { 
       title: "Workflow Automation", 
-      url: "/admin/unified?tab=automation", 
+      url: "/admin?tab=automation", 
       icon: Zap 
     },
     { 
       title: "Business Intelligence", 
-      url: "/admin/unified?tab=analytics", 
+      url: "/admin?tab=analytics", 
       icon: BarChart3 
     },
     { 
       title: "Notifications", 
-      url: "/admin/unified?tab=notifications", 
+      url: "/admin?tab=notifications", 
       icon: Bell,
       badge: unreadNotifications > 0 ? unreadNotifications : undefined
     },

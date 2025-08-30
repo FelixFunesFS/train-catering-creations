@@ -142,8 +142,7 @@ export function CustomerWorkflowManager({ quote, invoice, onRefresh }: CustomerW
   };
 
   const openCustomerPortal = () => {
-    const accessCode = quote.id.substring(0, 8).toUpperCase();
-    const portalUrl = `/customer/portal-v2?email=${encodeURIComponent(quote.email)}&code=${accessCode}`;
+    const portalUrl = `/customer/portal?quote=${quote.id}&email=${encodeURIComponent(quote.email)}`;
     window.open(portalUrl, '_blank');
   };
 
