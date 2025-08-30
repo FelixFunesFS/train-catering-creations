@@ -378,8 +378,8 @@ export default function EstimateCreation() {
         description: "Estimate has been sent to the customer",
       });
 
-      // Navigate to invoice management
-      navigate('/admin/invoice-management');
+      // Navigate to estimate preview
+      navigate(`/estimate-preview/${savedInvoiceId}`);
     } catch (error) {
       console.error('Error sending estimate:', error);
       toast({

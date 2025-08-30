@@ -539,6 +539,7 @@ export default function EstimatePreview() {
                 email: estimate.quote_requests.email
               }}
               showActions={false}
+              documentType={estimate.status === 'approved' ? 'invoice' : 'estimate'}
             />
 
             {/* Missing Line Items Warning */}

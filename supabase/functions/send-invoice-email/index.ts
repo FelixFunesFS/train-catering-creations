@@ -39,13 +39,68 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error('Invoice not found');
     }
 
+    // Determine if this is an estimate or invoice based on current status
+    const isEstimate = invoice.status === 'draft' || invoice.status === 'estimate';
+    const documentType = isEstimate ? 'estimate' : 'invoice';
+    
+    // Send email via Gmail API
+    const emailBody = {
+      to: invoice.customers?.email,
+      subject: `Your ${documentType} from Soul Train's Eatery - ${invoice.quote_requests?.event_name}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #2563eb;">Soul Train's Eatery</h2>
+          <p>Dear ${invoice.customers?.name || invoice.quote_requests?.contact_name},</p>
+          
+          <p>Thank you for choosing Soul Train's Eatery for your upcoming event!</p>
+          
+          <p>Please find your ${documentType} attached. Here are the details:</p>
+          
+          <div style="background-color: #f8f9fa; padding: 16px; border-radius: 8px; margin: 16px 0;">
+            <h3 style="margin: 0 0 8px 0;">Event Details</h3>
+            <p><strong>Event:</strong> ${invoice.quote_requests?.event_name}</p>
+            <p><strong>Date:</strong> ${invoice.quote_requests?.event_date}</p>
+            <p><strong>Location:</strong> ${invoice.quote_requests?.location}</p>
+            <p><strong>Total Amount:</strong> $${(invoice.total_amount / 100).toFixed(2)}</p>
+          </div>
+          
+          ${isEstimate ? `
+            <p>Please review the ${documentType} and let us know if you'd like to proceed. You can approve this ${documentType} by clicking the link below:</p>
+            <p><a href="${Deno.env.get('SUPABASE_URL')?.replace('supabase.co', 'supabase.app')}/estimate-preview/${invoice_id}" style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Review & Approve ${documentType.charAt(0).toUpperCase() + documentType.slice(1)}</a></p>
+          ` : `
+            <p>Your ${documentType} is ready for payment. You can view and pay online using the link below:</p>
+            <p><a href="${Deno.env.get('SUPABASE_URL')?.replace('supabase.co', 'supabase.app')}/estimate-preview/${invoice_id}" style="background-color: #16a34a; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">View ${documentType.charAt(0).toUpperCase() + documentType.slice(1)} & Pay</a></p>
+          `}
+          
+          <p>If you have any questions, please don't hesitate to contact us:</p>
+          <p>📞 (843) 970-0265<br>
+          📧 soultrainseatery@gmail.com</p>
+          
+          <p>We look forward to making your event memorable!</p>
+          
+          <p>Best regards,<br>
+          The Soul Train's Eatery Team</p>
+        </div>
+      `
+    };
+
+    // Send via Gmail API
+    const { error: emailError } = await supabase.functions.invoke('send-gmail-email', {
+      body: emailBody
+    });
+
+    if (emailError) {
+      console.error('Email sending failed:', emailError);
+      throw new Error('Failed to send email: ' + emailError.message);
+    }
+
     // Update invoice status
     await supabase
       .from('invoices')
       .update({ 
         sent_at: new Date().toISOString(),
         workflow_status: 'sent',
-        status: 'sent',
+        status: isEstimate ? 'estimate' : 'sent',
         is_draft: false
       })
       .eq('id', invoice_id);
@@ -61,12 +116,12 @@ const handler = async (req: Request): Promise<Response> => {
         .eq('id', invoice.quote_request_id);
     }
 
-    console.log('Invoice email sent successfully for:', invoice_id);
+    console.log(`${documentType} email sent successfully for:`, invoice_id);
 
     return new Response(
       JSON.stringify({ 
         success: true,
-        message: `Invoice sent to ${invoice.customers?.email}`,
+        message: `${documentType.charAt(0).toUpperCase() + documentType.slice(1)} sent to ${invoice.customers?.email}`,
         sent_at: new Date().toISOString()
       }),
       { 

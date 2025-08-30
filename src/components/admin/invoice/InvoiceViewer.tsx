@@ -54,6 +54,7 @@ interface InvoiceViewerProps {
   onViewInStripe?: (stripeInvoiceId: string) => void;
   showActions?: boolean;
   className?: string;
+  documentType?: 'estimate' | 'invoice';
 }
 
 export function InvoiceViewer({
@@ -64,7 +65,8 @@ export function InvoiceViewer({
   onDownload,
   onViewInStripe,
   showActions = true,
-  className = ""
+  className = "",
+  documentType = 'invoice'
 }: InvoiceViewerProps) {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -99,7 +101,7 @@ export function InvoiceViewer({
             </p>
           </div>
           <div className="text-right">
-            <h2 className="text-2xl font-semibold">INVOICE</h2>
+            <h2 className="text-2xl font-semibold">{documentType.toUpperCase()}</h2>
             {invoice.invoice_number && (
               <p className="text-muted-foreground">#{invoice.invoice_number}</p>
             )}
@@ -222,7 +224,7 @@ export function InvoiceViewer({
             {invoice.status === 'draft' && onSend && invoice.id && (
               <Button onClick={() => onSend(invoice.id!)} className="flex items-center gap-2">
                 <Send className="h-4 w-4" />
-                Send Invoice
+                Send {documentType === 'estimate' ? 'Estimate' : 'Invoice'}
               </Button>
             )}
             {invoice.pdf_url && onDownload && invoice.id && (
