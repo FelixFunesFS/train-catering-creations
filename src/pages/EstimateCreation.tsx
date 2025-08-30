@@ -17,8 +17,6 @@ import {
   type LineItem,
   type QuoteRequest 
 } from '@/utils/invoiceFormatters';
-import { CompactWorkflowProgress } from '@/components/admin/CompactWorkflowProgress';
-import { ConsolidatedPhaseCard } from '@/components/admin/ConsolidatedPhaseCard';
 import {
   ArrowLeft,
   Save,
@@ -334,90 +332,6 @@ export default function EstimateCreation() {
     }
   };
 
-  // Post-pricing workflow actions
-  const handleSaveAsDraft = async () => {
-    if (!estimate) return;
-    
-    try {
-      // Create or find customer first (like in handleSaveEstimate)
-      let draftCustomerId = customerId;
-      
-      if (!draftCustomerId) {
-        const { data: existingCustomer } = await supabase
-          .from('customers')
-          .select('id')
-          .eq('email', estimate.customer_email)
-          .maybeSingle();
-
-        if (existingCustomer) {
-          draftCustomerId = existingCustomer.id;
-          setCustomerId(draftCustomerId);
-        } else {
-          const { data: newCustomer, error: customerError } = await supabase
-            .from('customers')
-            .insert({
-              name: estimate.customer_name,
-              email: estimate.customer_email,
-              phone: estimate.customer_phone,
-              quote_request_id: estimate.quote_request_id
-            })
-            .select('id')
-            .single();
-
-          if (customerError) throw customerError;
-          draftCustomerId = newCustomer.id;
-          setCustomerId(draftCustomerId);
-        }
-      }
-
-      const estimateData = {
-        line_items: estimate.line_items,
-        subtotal: estimate.subtotal,
-        tax_amount: estimate.tax_amount,
-        total_amount: estimate.total_amount,
-        deposit_required: estimate.deposit_required,
-        is_government_contract: isGovernmentContract,
-        customer_name: estimate.customer_name,
-        customer_email: estimate.customer_email,
-        customer_phone: estimate.customer_phone,
-        event_details: estimate.event_details
-      };
-
-      const { data, error } = await supabase
-        .from('invoices')
-        .upsert({
-          id: invoiceId || undefined,
-          customer_id: draftCustomerId,
-          quote_request_id: estimate.quote_request_id,
-          invoice_number: invoiceId ? undefined : `DRAFT-${Date.now()}`,
-          is_draft: true,
-          status: 'draft',
-          draft_data: estimateData as any,
-          subtotal: estimate.subtotal,
-          tax_amount: estimate.tax_amount,
-          total_amount: estimate.total_amount,
-          due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          updated_at: new Date().toISOString()
-        })
-        .select('id')
-        .single();
-
-      if (error) throw error;
-      if (data?.id) setInvoiceId(data.id);
-
-      toast({
-        title: "Draft Saved",
-        description: "Your estimate has been saved as a draft",
-      });
-    } catch (error) {
-      console.error('Error saving draft:', error);
-      toast({
-        title: "Error",
-        description: "Failed to save draft",
-        variant: "destructive"
-      });
-    }
-  };
 
   const handleGeneratePreview = () => {
     if (!estimate) return;
@@ -426,6 +340,7 @@ export default function EstimateCreation() {
     const previewData = {
       customer_name: estimate.customer_name,
       customer_email: estimate.customer_email,
+      customer_phone: estimate.customer_phone,
       event_details: estimate.event_details,
       line_items: estimate.line_items,
       subtotal: estimate.subtotal,
@@ -433,17 +348,13 @@ export default function EstimateCreation() {
       total_amount: estimate.total_amount,
       deposit_required: estimate.deposit_required,
       is_government_contract: estimate.is_government_contract,
-      notes: estimate.notes
+      notes: estimate.notes,
+      invoice_number: `EST-${Date.now()}`
     };
 
     // Open preview in new tab without saving
     const previewUrl = `/estimate-preview?data=${encodeURIComponent(JSON.stringify(previewData))}`;
     window.open(previewUrl, '_blank');
-    
-    toast({
-      title: "Preview Generated",
-      description: "Opening estimate preview in new tab",
-    });
   };
 
   const handleSendEstimate = async () => {
@@ -554,29 +465,6 @@ export default function EstimateCreation() {
             </div>
             
             <div className="flex items-center gap-4">
-              {/* Compact Workflow Progress */}
-              <CompactWorkflowProgress 
-                progress={75}
-                currentPhase="quote"
-                nextAction={{
-                  action: 'set_pricing',
-                  title: 'Set Pricing',
-                  description: 'Complete pricing to continue',
-                  icon: DollarSign,
-                  canExecute: true,
-                  estimatedTime: '10-15 min'
-                }}
-              />
-              
-              <Button
-                variant="outline"
-                onClick={handleSaveAsDraft}
-                className="flex items-center gap-2"
-              >
-                <Save className="h-4 w-4" />
-                Save Draft
-              </Button>
-              
               <Button
                 onClick={handleSaveAsEstimate}
                 disabled={isSaving || estimate.line_items.some(item => item.unit_price === 0)}
@@ -804,57 +692,6 @@ export default function EstimateCreation() {
 
           {/* Estimate Summary - Sidebar */}
           <div className="space-y-6">
-            {/* Consolidated Phase & Next Steps */}
-            <ConsolidatedPhaseCard
-              currentPhase="quote"
-              currentPhaseSteps={[
-                {
-                  id: 'pricing_completed',
-                  title: 'Set Pricing',
-                  description: 'Create detailed pricing breakdown',
-                  icon: DollarSign,
-                  phase: 'quote',
-                  required: true,
-                  estimatedTime: '10-15 min'
-                },
-                {
-                  id: 'quote_reviewed',
-                  title: 'Review Quote',
-                  description: 'Verify all details and pricing',
-                  icon: CheckCircle2,
-                  phase: 'quote',
-                  required: true,
-                  estimatedTime: '5-10 min'
-                }
-              ]}
-              getStepStatus={(stepId) => {
-                if (stepId === 'pricing_completed') {
-                  return estimate.line_items.some(item => item.unit_price === 0) ? 'current' : 'completed';
-                }
-                return 'upcoming';
-              }}
-              nextAction={estimate.line_items.some(item => item.unit_price === 0) ? {
-                action: 'set_pricing',
-                title: 'Complete Pricing',
-                description: 'Set prices for all line items to continue',
-                icon: DollarSign,
-                canExecute: true,
-                requirements: ['Add prices to all line items'],
-                estimatedTime: '10-15 minutes'
-              } : {
-                action: 'send_estimate',
-                title: 'Send Estimate',
-                description: 'Ready to send to customer',
-                icon: Send,
-                canExecute: true,
-                estimatedTime: '2-3 minutes'
-              }}
-              onActionClick={(action) => {
-                if (action === 'send_estimate') {
-                  handleSendEstimate();
-                }
-              }}
-            />
 
             <Card className="sticky top-32">
               <CardHeader>

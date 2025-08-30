@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -76,6 +76,7 @@ interface EstimateData {
 export default function EstimatePreview() {
   const { invoiceId } = useParams<{ invoiceId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const [estimate, setEstimate] = useState<EstimateData | null>(null);
   const [lineItems, setLineItems] = useState<LineItem[]>([]);
@@ -85,11 +86,63 @@ export default function EstimatePreview() {
   const [showChangeRequest, setShowChangeRequest] = useState(false);
   const [processingPayment, setProcessingPayment] = useState(false);
 
+  // Check for preview data in URL params (client-side preview)
+  const urlParams = new URLSearchParams(location.search);
+  const previewData = urlParams.get('data');
+
   useEffect(() => {
-    if (invoiceId) {
+    if (previewData) {
+      // Handle client-side preview data
+      try {
+        const data = JSON.parse(decodeURIComponent(previewData));
+        const mockEstimate = {
+          id: 'preview',
+          invoice_number: data.invoice_number || 'EST-PREVIEW',
+          status: 'estimate',
+          total_amount: data.total_amount,
+          subtotal: data.subtotal,
+          tax_amount: data.tax_amount,
+          due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          sent_at: null,
+          created_at: new Date().toISOString(),
+          notes: data.notes || '',
+          draft_data: data,
+          is_government_contract: data.is_government_contract,
+          customers: {
+            id: 'preview',
+            name: data.customer_name,
+            email: data.customer_email,
+            phone: data.customer_phone || '',
+            address: ''
+          },
+          quote_requests: {
+            id: 'preview',
+            event_name: data.event_details.name,
+            event_date: data.event_details.date,
+            location: data.event_details.location,
+            service_type: data.event_details.service_type,
+            guest_count: data.event_details.guest_count,
+            special_requests: data.notes || '',
+            contact_name: data.customer_name,
+            email: data.customer_email
+          }
+        };
+        setEstimate(mockEstimate);
+        setLineItems(data.line_items || []);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error parsing preview data:', error);
+        toast({
+          title: "Error",
+          description: "Invalid preview data",
+          variant: "destructive"
+        });
+        setLoading(false);
+      }
+    } else if (invoiceId) {
       fetchEstimate();
     }
-  }, [invoiceId]);
+  }, [invoiceId, previewData]);
 
   const fetchEstimate = async () => {
     try {
@@ -146,7 +199,7 @@ export default function EstimatePreview() {
   };
 
   const handleApproveEstimate = async () => {
-    if (!estimate) return;
+    if (!estimate || estimate.id === 'preview') return;
     
     setApproving(true);
     try {
@@ -191,6 +244,12 @@ export default function EstimatePreview() {
   };
 
   const handleDownloadPDF = async () => {
+    if (estimate?.id === 'preview') {
+      // For preview mode, just show the print dialog
+      window.print();
+      return;
+    }
+
     try {
       const { data, error } = await supabase.functions.invoke('generate-invoice-pdf', {
         body: { 
@@ -229,11 +288,16 @@ export default function EstimatePreview() {
   };
 
   const handleEditEstimate = () => {
+    if (estimate?.id === 'preview') {
+      // Go back to previous page for preview mode
+      window.close();
+      return;
+    }
     navigate(`/admin/invoice-creation/${estimate?.quote_requests.id}`);
   };
 
   const handleEmailCustomer = async () => {
-    if (!estimate) return;
+    if (!estimate || estimate.id === 'preview') return;
     
     setEmailingCustomer(true);
     try {
@@ -260,7 +324,7 @@ export default function EstimatePreview() {
   };
 
   const handlePayDeposit = async () => {
-    if (!estimate) return;
+    if (!estimate || estimate.id === 'preview') return;
     
     setProcessingPayment(true);
     try {
@@ -410,6 +474,7 @@ export default function EstimatePreview() {
   }
 
   const isApproved = estimate.status === 'approved';
+  const isPreview = estimate.id === 'preview';
   const paymentSchedule = calculatePaymentSchedule(
     estimate.total_amount, 
     estimate.quote_requests.event_date,
@@ -424,19 +489,24 @@ export default function EstimatePreview() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-foreground">
-                Catering Estimate
+                {isPreview ? 'Estimate Preview' : 'Catering Estimate'}
               </h1>
               <p className="text-muted-foreground">
                 From Soul Train's Eatery
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <Badge variant={isApproved ? "default" : "secondary"}>
-                {isApproved ? 'Approved' : 'Pending Review'}
-              </Badge>
+              {isPreview && (
+                <Badge variant="outline">Preview Mode</Badge>
+              )}
+              {!isPreview && (
+                <Badge variant={isApproved ? "default" : "secondary"}>
+                  {isApproved ? 'Approved' : 'Pending Review'}
+                </Badge>
+              )}
               <Button variant="outline" onClick={handleEditEstimate}>
                 <FileText className="h-4 w-4 mr-2" />
-                Edit Estimate
+                {isPreview ? 'Close Preview' : 'Edit Estimate'}
               </Button>
               <Button variant="outline" onClick={handleDownloadPDF}>
                 <Download className="h-4 w-4 mr-2" />
@@ -499,170 +569,128 @@ export default function EstimatePreview() {
 
           {/* Action Sidebar */}
           <div className="space-y-6">
-            {/* Status Card */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  {isApproved ? (
-                    <>
-                      <CheckCircle className="h-5 w-5 text-green-500" />
-                      Approved
-                    </>
-                  ) : (
-                    <>
-                      <FileText className="h-5 w-5 text-yellow-500" />
-                      Awaiting Approval
-                    </>
-                  )}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {isApproved ? (
-                  <div className="space-y-3">
-                    <p className="text-sm text-muted-foreground">
-                      Thank you for approving this estimate! We'll contact you soon to finalize the details.
-                    </p>
-                    <div className="bg-green-50 dark:bg-green-950 p-3 rounded-lg">
-                      <p className="text-sm font-medium text-green-700 dark:text-green-300">
-                        Next Steps:
-                      </p>
-                      <ul className="text-xs text-green-600 dark:text-green-400 mt-1 space-y-1">
-                        <li>• Contract will be sent for signature</li>
-                        <li>• Deposit payment link will be provided</li>
-                        <li>• Event details will be confirmed</li>
-                      </ul>
+            {!isPreview && (
+              <>
+                {/* Quick Stats */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Quick Stats</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Total Amount</span>
+                      <span className="font-semibold">{formatCurrency(estimate.total_amount)}</span>
                     </div>
-                    <Button 
-                      onClick={handleEmailCustomer}
-                      disabled={emailingCustomer}
-                      variant="outline"
-                      className="w-full"
-                    >
-                      {emailingCustomer ? (
-                        <>
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                          Sending...
-                        </>
-                      ) : (
-                        "Email Copy"
-                      )}
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    <Button 
-                      onClick={handleApproveEstimate}
-                      disabled={approving}
-                      className="w-full"
-                      size="lg"
-                    >
-                      {approving ? (
-                        <>
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                          Approving...
-                        </>
-                      ) : (
-                        <>
-                          <CheckCircle className="h-4 w-4 mr-2" />
-                          Approve Estimate
-                        </>
-                      )}
-                    </Button>
-                    
-                    <Button 
-                      onClick={() => setShowChangeRequest(true)}
-                      variant="outline"
-                      className="w-full"
-                    >
-                      <MessageSquare className="h-4 w-4 mr-2" />
-                      Request Changes
-                    </Button>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Event Date</span>
+                      <span>{new Date(estimate.quote_requests.event_date).toLocaleDateString()}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Customer</span>
+                      <span className="text-right">{estimate.customers.name}</span>
+                    </div>
+                  </CardContent>
+                </Card>
 
-                    <Button 
-                      onClick={handlePayDeposit}
-                      disabled={processingPayment}
-                      variant="outline"
-                      className="w-full"
-                    >
-                      {processingPayment ? (
-                        <>
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                          Processing...
-                        </>
-                      ) : (
-                        <>
-                          <CreditCard className="h-4 w-4 mr-2" />
-                          Pay Deposit Online
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Pricing Summary */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Pricing Summary</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Subtotal</span>
-                  <span className="font-medium">{formatCurrency(estimate.subtotal)}</span>
-                </div>
-                {estimate.tax_amount > 0 && (
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Tax</span>
-                    <span className="font-medium">{formatCurrency(estimate.tax_amount)}</span>
-                  </div>
-                )}
-                <Separator />
-                <div className="flex justify-between text-lg font-bold">
-                  <span>Total</span>
-                  <span>{formatCurrency(estimate.total_amount)}</span>
-                </div>
-                <div className="bg-blue-50 dark:bg-blue-950 p-3 rounded-lg">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
-                      Deposit Required ({paymentSchedule.deposit_percentage}%)
-                    </span>
-                    <span className="font-bold text-blue-700 dark:text-blue-300">
-                      {formatCurrency(paymentSchedule.deposit_amount)}
-                    </span>
-                  </div>
-                  <div className="space-y-1">
+                {/* Payment Schedule */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Payment Schedule</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
                     {paymentSchedule.payment_schedule.map((payment, index) => (
-                      <div key={index} className="flex justify-between text-xs text-blue-600 dark:text-blue-400">
-                        <span>{payment.description}</span>
-                        <span>{formatCurrency(payment.amount)}</span>
+                      <div key={index} className="border rounded-lg p-3">
+                        <div className="flex justify-between items-center mb-1">
+                          <span className="font-medium">{formatCurrency(payment.amount)}</span>
+                          <span className="text-sm text-muted-foreground">
+                            {new Date(payment.due_date).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <p className="text-sm text-muted-foreground">{payment.description}</p>
                       </div>
                     ))}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                  </CardContent>
+                </Card>
+              </>
+            )}
 
-            {/* Contact Information */}
+            {/* Actions */}
             <Card>
               <CardHeader>
-                <CardTitle>Contact Information</CardTitle>
+                <CardTitle className="text-lg">Actions</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-2">
-                <div>
-                  <p className="font-medium">Soul Train's Eatery</p>
-                  <p className="text-sm text-muted-foreground">
-                    Charleston's Premier Catering Service
-                  </p>
-                </div>
-                <Separator />
-                <div className="space-y-1 text-sm">
-                  <p><strong>Phone:</strong> (843) 970-0265</p>
-                  <p><strong>Email:</strong> soultrainseatery@gmail.com</p>
-                  <p className="text-muted-foreground">
-                    Proudly serving Charleston's Lowcountry and surrounding areas
-                  </p>
-                </div>
+              <CardContent className="space-y-3">
+                {!isPreview && !isApproved && (
+                  <Button 
+                    onClick={handleApproveEstimate} 
+                    disabled={approving}
+                    className="w-full"
+                  >
+                    {approving ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Approving...
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Approve Estimate
+                      </>
+                    )}
+                  </Button>
+                )}
+
+                {!isPreview && !isApproved && (
+                  <Button 
+                    onClick={() => setShowChangeRequest(true)} 
+                    variant="outline"
+                    className="w-full"
+                  >
+                    <MessageSquare className="h-4 w-4 mr-2" />
+                    Request Changes
+                  </Button>
+                )}
+
+                {!isPreview && isApproved && paymentSchedule.deposit_amount > 0 && (
+                  <Button 
+                    onClick={handlePayDeposit} 
+                    disabled={processingPayment}
+                    className="w-full"
+                  >
+                    {processingPayment ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Processing...
+                      </>
+                    ) : (
+                      <>
+                        <CreditCard className="h-4 w-4 mr-2" />
+                        Pay Deposit ({formatCurrency(paymentSchedule.deposit_amount)})
+                      </>
+                    )}
+                  </Button>
+                )}
+
+                {!isPreview && (
+                  <Button 
+                    onClick={handleEmailCustomer} 
+                    disabled={emailingCustomer}
+                    variant="outline"
+                    className="w-full"
+                  >
+                    {emailingCustomer ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        <Edit3 className="h-4 w-4 mr-2" />
+                        Email Customer
+                      </>
+                    )}
+                  </Button>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -670,7 +698,7 @@ export default function EstimatePreview() {
       </div>
 
       {/* Change Request Modal */}
-      {estimate && (
+      {!isPreview && (
         <ChangeRequestModal
           isOpen={showChangeRequest}
           onClose={() => setShowChangeRequest(false)}
