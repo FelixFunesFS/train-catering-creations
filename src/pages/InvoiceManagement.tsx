@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
+import { Breadcrumb } from '@/components/ui/breadcrumb';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { 
@@ -22,7 +23,8 @@ import {
   CheckCircle,
   AlertTriangle,
   Plus,
-  CreditCard
+  CreditCard,
+  ArrowLeft
 } from 'lucide-react';
 
 interface InvoiceRecord {
@@ -289,6 +291,16 @@ export default function InvoiceManagement() {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      {/* Breadcrumb */}
+      <div className="mb-6">
+        <Breadcrumb 
+          items={[
+            { label: "Dashboard", href: "/admin" },
+            { label: "Invoice Management", current: true }
+          ]} 
+        />
+      </div>
+      
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
@@ -298,7 +310,8 @@ export default function InvoiceManagement() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button onClick={() => navigate('/admin/dashboard')} variant="outline">
+          <Button onClick={() => navigate('/admin')} variant="outline">
+            <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Dashboard
           </Button>
           <Button onClick={() => navigate('/admin/invoice-creation')}>

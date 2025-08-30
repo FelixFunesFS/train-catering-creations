@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { Search, Eye, Filter, Download, Calendar, MapPin, Users, Mail, Phone, FileText, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
@@ -229,6 +230,13 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-7xl mx-auto space-y-6">
+        {/* Breadcrumb */}
+        <Breadcrumb 
+          items={[
+            { label: "Dashboard", current: true }
+          ]} 
+        />
+        
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>

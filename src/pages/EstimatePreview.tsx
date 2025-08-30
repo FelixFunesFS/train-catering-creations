@@ -78,6 +78,7 @@ export default function EstimatePreview() {
   const [lineItems, setLineItems] = useState<LineItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [approving, setApproving] = useState(false);
+  const [emailingCustomer, setEmailingCustomer] = useState(false);
 
   useEffect(() => {
     if (invoiceId) {
@@ -195,15 +196,19 @@ export default function EstimatePreview() {
       if (error) throw error;
 
       if (data.pdf_url) {
-        // Create download link
-        const link = document.createElement('a');
-        link.href = data.pdf_url;
-        link.download = `estimate-${estimate?.invoice_number}.pdf`;
-        link.click();
+        // Open the HTML in a new window for printing/saving
+        const newWindow = window.open('', '_blank');
+        if (newWindow) {
+          newWindow.document.write(data.html_content);
+          newWindow.document.close();
+          newWindow.focus();
+          // Trigger print dialog which allows saving as PDF
+          setTimeout(() => newWindow.print(), 500);
+        }
 
         toast({
-          title: "Download Started",
-          description: "Your estimate PDF is being downloaded",
+          title: "PDF Ready",
+          description: "Your estimate has opened in a new window. Use the print dialog to save as PDF.",
         });
       } else {
         throw new Error('PDF URL not provided');
@@ -212,7 +217,7 @@ export default function EstimatePreview() {
       console.error('Error downloading PDF:', error);
       toast({
         title: "Error",
-        description: "Failed to download PDF. Please try again.",
+        description: "Failed to generate PDF. Please try again.",
         variant: "destructive"
       });
     }
@@ -220,6 +225,33 @@ export default function EstimatePreview() {
 
   const handleEditEstimate = () => {
     navigate(`/admin/invoice-creation/${estimate?.quote_requests.id}`);
+  };
+
+  const handleEmailCustomer = async () => {
+    if (!estimate) return;
+    
+    setEmailingCustomer(true);
+    try {
+      const { error } = await supabase.functions.invoke('send-invoice-email', {
+        body: { invoice_id: estimate.id }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Email Sent",
+        description: "Estimate has been emailed to the customer",
+      });
+    } catch (error) {
+      console.error('Error sending email:', error);
+      toast({
+        title: "Error",
+        description: "Failed to send email. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setEmailingCustomer(false);
+    }
   };
 
   const formatCurrency = (amount: number) => {
@@ -459,6 +491,24 @@ export default function EstimatePreview() {
                         <li>• Event details will be confirmed</li>
                       </ul>
                     </div>
+                    <Button 
+                      onClick={handleEmailCustomer}
+                      disabled={emailingCustomer}
+                      variant="outline"
+                      className="w-full"
+                    >
+                      {emailingCustomer ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Sending...
+                        </>
+                      ) : (
+                        <>
+                          <FileText className="h-4 w-4 mr-2" />
+                          Email Customer
+                        </>
+                      )}
+                    </Button>
                   </div>
                 ) : (
                   <div className="space-y-4">

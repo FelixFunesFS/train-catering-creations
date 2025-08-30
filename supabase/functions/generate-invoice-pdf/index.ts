@@ -248,9 +248,9 @@ serve(async (req) => {
     </html>
     `;
 
-    // For now, we'll return the HTML content and a placeholder PDF URL
-    // In a real implementation, you'd use a service like Puppeteer to generate the actual PDF
-    const pdfUrl = `data:text/html;base64,${btoa(htmlContent)}`;
+    // Create a proper PDF blob URL
+    const htmlBlob = new Blob([htmlContent], { type: 'text/html' });
+    const pdfUrl = `data:text/html;charset=utf-8,${encodeURIComponent(htmlContent)}`;
 
     logStep("PDF generation completed", { pdfUrl: "Generated" });
 
@@ -258,7 +258,8 @@ serve(async (req) => {
       success: true,
       pdf_url: pdfUrl,
       html_content: htmlContent,
-      invoice_number: invoiceData.invoice_number
+      invoice_number: invoiceData.invoice_number,
+      filename: `estimate-${invoiceData.invoice_number}.html`
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
