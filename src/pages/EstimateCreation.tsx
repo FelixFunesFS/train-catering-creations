@@ -724,20 +724,20 @@ export default function EstimateCreation() {
               <CardContent className="space-y-4">
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <span className="text-destructive">Subtotal</span>
-                    <span className="font-medium text-destructive">{formatCurrency(estimate.subtotal)}</span>
+                    <span>Subtotal</span>
+                    <span className="font-medium">{formatCurrency(estimate.subtotal)}</span>
                   </div>
                   
                   <div className="flex justify-between items-center">
-                    <span className="text-destructive">Tax (8%)</span>
-                    <span className="font-medium text-destructive">{formatCurrency(estimate.tax_amount)}</span>
+                    <span>Tax (8%)</span>
+                    <span className="font-medium">{formatCurrency(estimate.tax_amount)}</span>
                   </div>
                   
                   <Separator />
                   
                   <div className="flex justify-between items-center text-lg font-semibold">
-                    <span className="text-destructive">Total Amount</span>
-                    <span className="text-destructive">{formatCurrency(estimate.total_amount)}</span>
+                    <span>Total Amount</span>
+                    <span>{formatCurrency(estimate.total_amount)}</span>
                   </div>
                   
                   {!isGovernmentContract && (
