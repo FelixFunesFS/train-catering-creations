@@ -283,24 +283,22 @@ export function UnifiedAdminInterface() {
         <AdminSidebar data={data} />
         
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-          {/* Header */}
-          <header className="shrink-0 h-16 flex items-center justify-between border-b bg-card px-4 lg:px-6">
+          {/* Header - Fixed positioning to prevent overlap */}
+          <header className="sticky top-0 z-50 shrink-0 h-14 lg:h-16 flex items-center justify-between border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60 px-3 lg:px-6">
             <div className="flex items-center gap-2 lg:gap-4 min-w-0">
-              <SidebarTrigger className="lg:hidden p-2 shrink-0" />
+              <SidebarTrigger className="lg:hidden p-1 shrink-0 h-8 w-8" />
               <div className="min-w-0">
-                <h1 className="text-lg lg:text-2xl font-bold text-foreground truncate">Admin Dashboard</h1>
-                <p className="text-xs lg:text-sm text-muted-foreground hidden sm:block truncate">Unified catering business management</p>
+                <h1 className="text-base lg:text-xl font-bold text-foreground truncate">Admin Dashboard</h1>
+                <p className="text-xs text-muted-foreground hidden sm:block truncate">Catering Management</p>
               </div>
             </div>
             
-            <div className="flex items-center gap-1 lg:gap-3 shrink-0">
-              <div className="hidden lg:block">
+            <div className="flex items-center gap-1 lg:gap-2 shrink-0">
+              <div className="hidden lg:flex gap-2">
                 <AutomatedStatusManager 
                   onStatusUpdate={handleStatusProgression}
                   data={data}
                 />
-              </div>
-              <div className="hidden lg:block">
                 <BatchOperations
                   selectedItems={selectedItems}
                   onAction={handleBatchAction}
@@ -317,137 +315,208 @@ export function UnifiedAdminInterface() {
             </div>
           </header>
 
-          {/* Main Content with Scroll */}
-          <main className="flex-1 overflow-auto">
-            <div className="p-3 lg:p-6 h-full">
-              <Tabs value={activeTab} onValueChange={handleTabChange} className="h-full flex flex-col">
-                {/* Mobile Tab Navigation */}
-                <div className="lg:hidden shrink-0 mb-4">
-                  <TabsList className="grid w-full grid-cols-3 h-12">
-                    <TabsTrigger value="overview" className="flex flex-col items-center gap-1 px-2 py-2">
+          {/* Main Content Container - Proper scrolling */}
+          <main className="flex-1 flex flex-col min-h-0 overflow-hidden">
+            {/* Mobile Tab Navigation - Fixed positioning */}
+            <div className="lg:hidden sticky top-0 z-40 shrink-0 border-b bg-background">
+              <div className="px-3 py-2">
+                <div className="grid grid-cols-3 gap-1 bg-muted rounded-lg p-1">
+                  <button
+                    onClick={() => handleTabChange('overview')}
+                    className={`flex flex-col items-center gap-1 px-2 py-2 rounded-md text-xs transition-all ${
+                      activeTab === 'overview' 
+                        ? 'bg-background text-foreground shadow-sm' 
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    <LayoutDashboard className="h-4 w-4" />
+                    <span>Overview</span>
+                  </button>
+                  <button
+                    onClick={() => handleTabChange('quotes')}
+                    className={`flex flex-col items-center gap-1 px-2 py-2 rounded-md text-xs transition-all relative ${
+                      activeTab === 'quotes' 
+                        ? 'bg-background text-foreground shadow-sm' 
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    <div className="relative">
+                      <FileText className="h-4 w-4" />
+                      {tabCounts.quotes > 0 && (
+                        <Badge variant="secondary" className="absolute -top-1 -right-1 h-4 w-4 p-0 text-xs flex items-center justify-center">
+                          {tabCounts.quotes}
+                        </Badge>
+                      )}
+                    </div>
+                    <span>Quotes</span>
+                  </button>
+                  <button
+                    onClick={() => handleTabChange('invoices')}
+                    className={`flex flex-col items-center gap-1 px-2 py-2 rounded-md text-xs transition-all relative ${
+                      activeTab === 'invoices' 
+                        ? 'bg-background text-foreground shadow-sm' 
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    <div className="relative">
+                      <CreditCard className="h-4 w-4" />
+                      {tabCounts.invoices > 0 && (
+                        <Badge variant="secondary" className="absolute -top-1 -right-1 h-4 w-4 p-0 text-xs flex items-center justify-center">
+                          {tabCounts.invoices}
+                        </Badge>
+                      )}
+                    </div>
+                    <span>Invoices</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Scrollable Content Area */}
+            <div className="flex-1 overflow-auto">
+              <div className="p-3 lg:p-6">
+                {/* Desktop Tab Navigation */}
+                <Tabs value={activeTab} onValueChange={handleTabChange} className="hidden lg:block">
+                  <TabsList className="grid w-full grid-cols-6 mb-6">
+                    <TabsTrigger value="overview" className="flex items-center gap-2">
                       <LayoutDashboard className="h-4 w-4" />
-                      <span className="text-xs">Overview</span>
+                      Overview
                     </TabsTrigger>
-                    <TabsTrigger value="quotes" className="flex flex-col items-center gap-1 px-2 py-2">
-                      <div className="relative">
-                        <FileText className="h-4 w-4" />
-                        {tabCounts.quotes > 0 && (
-                          <Badge variant="secondary" className="absolute -top-2 -right-2 h-5 w-5 p-0 text-xs flex items-center justify-center">
-                            {tabCounts.quotes}
-                          </Badge>
-                        )}
-                      </div>
-                      <span className="text-xs">Quotes</span>
+                    <TabsTrigger value="quotes" className="flex items-center gap-2">
+                      <FileText className="h-4 w-4" />
+                      Quotes
+                      {tabCounts.quotes > 0 && (
+                        <Badge variant="secondary" className="ml-1">
+                          {tabCounts.quotes}
+                        </Badge>
+                      )}
                     </TabsTrigger>
-                    <TabsTrigger value="invoices" className="flex flex-col items-center gap-1 px-2 py-2">
-                      <div className="relative">
-                        <CreditCard className="h-4 w-4" />
-                        {tabCounts.invoices > 0 && (
-                          <Badge variant="secondary" className="absolute -top-2 -right-2 h-5 w-5 p-0 text-xs flex items-center justify-center">
-                            {tabCounts.invoices}
-                          </Badge>
-                        )}
-                      </div>
-                      <span className="text-xs">Invoices</span>
+                    <TabsTrigger value="invoices" className="flex items-center gap-2">
+                      <CreditCard className="h-4 w-4" />
+                      Invoices
+                      {tabCounts.invoices > 0 && (
+                        <Badge variant="secondary" className="ml-1">
+                          {tabCounts.invoices}
+                        </Badge>
+                      )}
+                    </TabsTrigger>
+                    <TabsTrigger value="notifications" className="flex items-center gap-2">
+                      <Bell className="h-4 w-4" />
+                      Notifications
+                      {tabCounts.notifications > 0 && (
+                        <Badge variant="destructive" className="ml-1">
+                          {tabCounts.notifications}
+                        </Badge>
+                      )}
+                    </TabsTrigger>
+                    <TabsTrigger value="analytics" className="flex items-center gap-2">
+                      <BarChart3 className="h-4 w-4" />
+                      Analytics
+                    </TabsTrigger>
+                    <TabsTrigger value="automation" className="flex items-center gap-2">
+                      <Zap className="h-4 w-4" />
+                      Automation
                     </TabsTrigger>
                   </TabsList>
-                </div>
+                </Tabs>
 
-                {/* Tab Contents */}
-                <div className="flex-1 overflow-auto">
-                  <TabsContent value="overview" className="space-y-4 lg:space-y-6 h-full overflow-auto m-0 p-0 data-[state=active]:block data-[state=inactive]:hidden">
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6">
-                      {/* Quick Stats */}
-                      <Card>
-                        <CardContent className="pt-3 lg:pt-6">
-                          <div className="flex items-center gap-1 lg:gap-2">
-                            <TrendingUp className="h-3 w-3 lg:h-4 lg:w-4 text-green-600" />
-                            <span className="text-xs lg:text-sm font-medium">Total Revenue</span>
-                          </div>
-                          <div className="text-lg lg:text-2xl font-bold">
-                            ${((data.analytics.totalRevenue || 0) / 100).toLocaleString()}
-                          </div>
-                        </CardContent>
-                      </Card>
-                      
-                      <Card>
-                        <CardContent className="pt-3 lg:pt-6">
-                          <div className="flex items-center gap-1 lg:gap-2">
-                            <Calendar className="h-3 w-3 lg:h-4 lg:w-4 text-blue-600" />
-                            <span className="text-xs lg:text-sm font-medium">This Month</span>
-                          </div>
-                          <div className="text-lg lg:text-2xl font-bold">
-                            ${((data.analytics.monthlyRevenue || 0) / 100).toLocaleString()}
-                          </div>
-                        </CardContent>
-                      </Card>
-                      
-                      <Card>
-                        <CardContent className="pt-3 lg:pt-6">
-                          <div className="flex items-center gap-1 lg:gap-2">
-                            <FileText className="h-3 w-3 lg:h-4 lg:w-4 text-purple-600" />
-                            <span className="text-xs lg:text-sm font-medium">Active Quotes</span>
-                          </div>
-                          <div className="text-lg lg:text-2xl font-bold">{data.quotes.length}</div>
-                        </CardContent>
-                      </Card>
-                      
-                      <Card>
-                        <CardContent className="pt-3 lg:pt-6">
-                          <div className="flex items-center gap-1 lg:gap-2">
-                            <Users className="h-3 w-3 lg:h-4 lg:w-4 text-orange-600" />
-                            <span className="text-xs lg:text-sm font-medium">Upcoming Events</span>
-                          </div>
-                          <div className="text-lg lg:text-2xl font-bold">{data.analytics.upcomingEvents || 0}</div>
-                        </CardContent>
-                      </Card>
-                    </div>
+                {/* Tab Content */}
+                <div className="min-h-0">
+                  {activeTab === 'overview' && (
+                    <div className="space-y-4 lg:space-y-6">
+                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6">
+                        {/* Quick Stats */}
+                        <Card>
+                          <CardContent className="pt-3 lg:pt-6">
+                            <div className="flex items-center gap-1 lg:gap-2">
+                              <TrendingUp className="h-3 w-3 lg:h-4 lg:w-4 text-green-600" />
+                              <span className="text-xs lg:text-sm font-medium">Total Revenue</span>
+                            </div>
+                            <div className="text-lg lg:text-2xl font-bold">
+                              ${((data.analytics.totalRevenue || 0) / 100).toLocaleString()}
+                            </div>
+                          </CardContent>
+                        </Card>
+                        
+                        <Card>
+                          <CardContent className="pt-3 lg:pt-6">
+                            <div className="flex items-center gap-1 lg:gap-2">
+                              <Calendar className="h-3 w-3 lg:h-4 lg:w-4 text-blue-600" />
+                              <span className="text-xs lg:text-sm font-medium">This Month</span>
+                            </div>
+                            <div className="text-lg lg:text-2xl font-bold">
+                              ${((data.analytics.monthlyRevenue || 0) / 100).toLocaleString()}
+                            </div>
+                          </CardContent>
+                        </Card>
+                        
+                        <Card>
+                          <CardContent className="pt-3 lg:pt-6">
+                            <div className="flex items-center gap-1 lg:gap-2">
+                              <FileText className="h-3 w-3 lg:h-4 lg:w-4 text-purple-600" />
+                              <span className="text-xs lg:text-sm font-medium">Active Quotes</span>
+                            </div>
+                            <div className="text-lg lg:text-2xl font-bold">{data.quotes.length}</div>
+                          </CardContent>
+                        </Card>
+                        
+                        <Card>
+                          <CardContent className="pt-3 lg:pt-6">
+                            <div className="flex items-center gap-1 lg:gap-2">
+                              <Users className="h-3 w-3 lg:h-4 lg:w-4 text-orange-600" />
+                              <span className="text-xs lg:text-sm font-medium">Upcoming Events</span>
+                            </div>
+                            <div className="text-lg lg:text-2xl font-bold">{data.analytics.upcomingEvents || 0}</div>
+                          </CardContent>
+                        </Card>
+                      </div>
 
-                    {/* Recent Activity */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
-                      <Card>
-                        <CardHeader>
-                          <CardTitle>Recent Quotes</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="space-y-3">
-                            {data.quotes.slice(0, 5).map((quote) => (
-                              <div key={quote.id} className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                                <div>
-                                  <p className="font-medium">{quote.event_name}</p>
-                                  <p className="text-sm text-muted-foreground">{quote.contact_name}</p>
+                      {/* Recent Activity */}
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+                        <Card>
+                          <CardHeader>
+                            <CardTitle>Recent Quotes</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="space-y-3">
+                              {data.quotes.slice(0, 5).map((quote) => (
+                                <div key={quote.id} className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                                  <div>
+                                    <p className="font-medium">{quote.event_name}</p>
+                                    <p className="text-sm text-muted-foreground">{quote.contact_name}</p>
+                                  </div>
+                                  <Badge variant="outline">{quote.status}</Badge>
                                 </div>
-                                <Badge variant="outline">{quote.status}</Badge>
-                              </div>
-                            ))}
-                          </div>
-                        </CardContent>
-                      </Card>
+                              ))}
+                            </div>
+                          </CardContent>
+                        </Card>
 
-                      <Card>
-                        <CardHeader>
-                          <CardTitle>Recent Invoices</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="space-y-3">
-                            {data.invoices.slice(0, 5).map((invoice) => (
-                              <div key={invoice.id} className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                                <div>
-                                  <p className="font-medium">{invoice.invoice_number}</p>
-                                  <p className="text-sm text-muted-foreground">
-                                    ${(invoice.total_amount / 100).toLocaleString()}
-                                  </p>
+                        <Card>
+                          <CardHeader>
+                            <CardTitle>Recent Invoices</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="space-y-3">
+                              {data.invoices.slice(0, 5).map((invoice) => (
+                                <div key={invoice.id} className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                                  <div>
+                                    <p className="font-medium">{invoice.invoice_number}</p>
+                                    <p className="text-sm text-muted-foreground">
+                                      ${(invoice.total_amount / 100).toLocaleString()}
+                                    </p>
+                                  </div>
+                                  <Badge variant="outline">{invoice.status}</Badge>
                                 </div>
-                                <Badge variant="outline">{invoice.status}</Badge>
-                              </div>
-                            ))}
-                          </div>
-                        </CardContent>
-                      </Card>
+                              ))}
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </div>
                     </div>
-                  </TabsContent>
+                  )}
 
-                  <TabsContent value="quotes" className="h-full overflow-auto m-0 p-0 data-[state=active]:block data-[state=inactive]:hidden">
+                  {activeTab === 'quotes' && (
                     <QuoteManagementTab 
                       quotes={data.quotes}
                       loading={loading}
@@ -455,9 +524,9 @@ export function UnifiedAdminInterface() {
                       selectedItems={selectedItems}
                       onSelectionChange={setSelectedItems}
                     />
-                  </TabsContent>
+                  )}
 
-                  <TabsContent value="invoices" className="h-full overflow-auto m-0 p-0 data-[state=active]:block data-[state=inactive]:hidden">
+                  {activeTab === 'invoices' && (
                     <InvoiceManagementTab 
                       invoices={data.invoices}
                       loading={loading}
@@ -465,30 +534,30 @@ export function UnifiedAdminInterface() {
                       selectedItems={selectedItems}
                       onSelectionChange={setSelectedItems}
                     />
-                  </TabsContent>
+                  )}
 
-                  <TabsContent value="notifications" className="h-full overflow-auto m-0 p-0 data-[state=active]:block data-[state=inactive]:hidden">
+                  {activeTab === 'notifications' && (
                     <div className="p-6">
                       <h2 className="text-xl font-semibold mb-4">Notifications</h2>
                       <p className="text-muted-foreground">Notification center coming soon...</p>
                     </div>
-                  </TabsContent>
+                  )}
 
-                  <TabsContent value="analytics" className="h-full overflow-auto m-0 p-0 data-[state=active]:block data-[state=inactive]:hidden">
+                  {activeTab === 'analytics' && (
                     <div className="p-6">
                       <h2 className="text-xl font-semibold mb-4">Business Intelligence</h2>
                       <p className="text-muted-foreground">Analytics dashboard coming soon...</p>
                     </div>
-                  </TabsContent>
+                  )}
 
-                  <TabsContent value="automation" className="h-full overflow-auto m-0 p-0 data-[state=active]:block data-[state=inactive]:hidden">
+                  {activeTab === 'automation' && (
                     <div className="p-6">
                       <h2 className="text-xl font-semibold mb-4">Workflow Automation</h2>
                       <p className="text-muted-foreground">Automation manager coming soon...</p>
                     </div>
-                  </TabsContent>
+                  )}
                 </div>
-              </Tabs>
+              </div>
             </div>
           </main>
         </div>

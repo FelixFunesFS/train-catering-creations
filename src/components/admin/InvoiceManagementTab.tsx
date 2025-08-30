@@ -181,30 +181,30 @@ export function InvoiceManagementTab({
   const statusCounts = getStatusCounts();
 
   return (
-    <div className="space-y-6">
-      {/* Filters and Search */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1">
+    <div className="space-y-4 lg:space-y-6">
+      {/* Filters and Search - Contained properly */}
+      <Card className="bg-background border shadow-sm">
+        <CardContent className="p-4 lg:p-6">
+          <div className="flex flex-col sm:flex-row gap-3 lg:gap-4">
+            <div className="flex-1 min-w-0">
               <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                 <Input
                   placeholder="Search invoices, customers, events..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 h-10"
                 />
               </div>
             </div>
             
-            <div className="flex gap-2">
+            <div className="flex gap-2 shrink-0">
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-3 py-2 border rounded-md bg-background"
+                className="px-3 py-2 h-10 border border-input rounded-md bg-background text-sm"
               >
-                <option value="all">All Status ({invoices.length})</option>
+                <option value="all">All ({invoices.length})</option>
                 {Object.entries(statusCounts).map(([status, count]) => (
                   <option key={status} value={status}>
                     {status} ({count})
@@ -217,135 +217,190 @@ export function InvoiceManagementTab({
                 onClick={onRefresh}
                 disabled={loading}
                 size="sm"
+                className="h-10"
               >
-                <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-                Refresh
+                <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''} sm:mr-2`} />
+                <span className="hidden sm:inline">Refresh</span>
               </Button>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Invoices Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
+      {/* Invoices Table - Mobile responsive */}
+      <Card className="bg-background border shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center justify-between text-lg">
             <span>Invoices & Estimates</span>
-            <Badge variant="outline">
+            <Badge variant="outline" className="text-xs">
               {filteredAndSortedInvoices.length} of {invoices.length}
             </Badge>
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0">
           {loading ? (
-            <div className="text-center py-8">
+            <div className="text-center py-8 px-4">
               <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-4 text-muted-foreground" />
               <p className="text-muted-foreground">Loading invoices...</p>
             </div>
           ) : (
-            <div className="space-y-4">
-              {/* Table Header */}
-              <div className="flex items-center gap-4 py-2 border-b font-medium text-sm">
-                <div className="w-8">
-                  <Checkbox
-                    checked={selectedItems.length === filteredAndSortedInvoices.length}
-                    onCheckedChange={handleSelectAll}
-                  />
-                </div>
-                <div className="flex-1 grid grid-cols-5 gap-4">
-                  <button
-                    onClick={() => handleSort('invoice_number')}
-                    className="flex items-center gap-1 text-left hover:text-primary"
-                  >
-                    Invoice #
-                    {sortField === 'invoice_number' && (
-                      sortDirection === 'asc' ? <SortAsc className="h-3 w-3" /> : <SortDesc className="h-3 w-3" />
-                    )}
-                  </button>
-                  <button
-                    onClick={() => handleSort('customer_name')}
-                    className="flex items-center gap-1 text-left hover:text-primary"
-                  >
-                    Customer
-                    {sortField === 'customer_name' && (
-                      sortDirection === 'asc' ? <SortAsc className="h-3 w-3" /> : <SortDesc className="h-3 w-3" />
-                    )}
-                  </button>
-                  <button
-                    onClick={() => handleSort('total_amount')}
-                    className="flex items-center gap-1 text-left hover:text-primary"
-                  >
-                    Amount
-                    {sortField === 'total_amount' && (
-                      sortDirection === 'asc' ? <SortAsc className="h-3 w-3" /> : <SortDesc className="h-3 w-3" />
-                    )}
-                  </button>
-                  <button
-                    onClick={() => handleSort('status')}
-                    className="flex items-center gap-1 text-left hover:text-primary"
-                  >
-                    Status
-                    {sortField === 'status' && (
-                      sortDirection === 'asc' ? <SortAsc className="h-3 w-3" /> : <SortDesc className="h-3 w-3" />
-                    )}
-                  </button>
-                  <div>Actions</div>
+            <>
+              {/* Desktop Table View */}
+              <div className="hidden lg:block">
+                <div className="space-y-0">
+                  {/* Table Header */}
+                  <div className="flex items-center gap-4 py-3 px-4 border-b bg-muted/50 font-medium text-sm">
+                    <div className="w-8">
+                      <Checkbox
+                        checked={selectedItems.length === filteredAndSortedInvoices.length && filteredAndSortedInvoices.length > 0}
+                        onCheckedChange={handleSelectAll}
+                      />
+                    </div>
+                    <div className="flex-1 grid grid-cols-5 gap-4">
+                      <button
+                        onClick={() => handleSort('invoice_number')}
+                        className="flex items-center gap-1 text-left hover:text-primary transition-colors"
+                      >
+                        Invoice #
+                        {sortField === 'invoice_number' && (
+                          sortDirection === 'asc' ? <SortAsc className="h-3 w-3" /> : <SortDesc className="h-3 w-3" />
+                        )}
+                      </button>
+                      <button
+                        onClick={() => handleSort('customer_name')}
+                        className="flex items-center gap-1 text-left hover:text-primary transition-colors"
+                      >
+                        Customer
+                        {sortField === 'customer_name' && (
+                          sortDirection === 'asc' ? <SortAsc className="h-3 w-3" /> : <SortDesc className="h-3 w-3" />
+                        )}
+                      </button>
+                      <button
+                        onClick={() => handleSort('total_amount')}
+                        className="flex items-center gap-1 text-left hover:text-primary transition-colors"
+                      >
+                        Amount
+                        {sortField === 'total_amount' && (
+                          sortDirection === 'asc' ? <SortAsc className="h-3 w-3" /> : <SortDesc className="h-3 w-3" />
+                        )}
+                      </button>
+                      <button
+                        onClick={() => handleSort('status')}
+                        className="flex items-center gap-1 text-left hover:text-primary transition-colors"
+                      >
+                        Status
+                        {sortField === 'status' && (
+                          sortDirection === 'asc' ? <SortAsc className="h-3 w-3" /> : <SortDesc className="h-3 w-3" />
+                        )}
+                      </button>
+                      <div>Actions</div>
+                    </div>
+                  </div>
+
+                  {/* Invoice Rows */}
+                  {filteredAndSortedInvoices.map((invoice) => (
+                    <div key={invoice.id} className="flex items-center gap-4 py-3 px-4 border-b hover:bg-muted/30 transition-colors">
+                      <div className="w-8">
+                        <Checkbox
+                          checked={selectedItems.includes(invoice.id)}
+                          onCheckedChange={(checked) => handleSelectItem(invoice.id, !!checked)}
+                        />
+                      </div>
+                      <div className="flex-1 grid grid-cols-5 gap-4 items-center">
+                        <div>
+                          <p className="font-medium">{invoice.invoice_number || 'Draft'}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {formatDate(invoice.created_at)}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="font-medium">{invoice.customers?.name}</p>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {invoice.quote_requests?.event_name}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="font-semibold">{formatCurrency(invoice.total_amount)}</p>
+                          {invoice.quote_requests?.event_date && (
+                            <p className="text-xs text-muted-foreground">
+                              Event: {formatDate(invoice.quote_requests.event_date)}
+                            </p>
+                          )}
+                        </div>
+                        <div>
+                          <StatusBadge 
+                            status={invoice.status} 
+                            isDraft={invoice.is_draft}
+                            size="sm"
+                          />
+                        </div>
+                        <StandardizedActions 
+                          type="invoice" 
+                          item={invoice} 
+                          onRefresh={onRefresh}
+                          size="sm"
+                        />
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
 
-              {/* Invoice Rows */}
-              {filteredAndSortedInvoices.map((invoice) => (
-                <div key={invoice.id} className="flex items-center gap-4 py-3 border-b hover:bg-muted/50">
-                  <div className="w-8">
-                    <Checkbox
-                      checked={selectedItems.includes(invoice.id)}
-                      onCheckedChange={(checked) => handleSelectItem(invoice.id, !!checked)}
-                    />
-                  </div>
-                  <div className="flex-1 grid grid-cols-5 gap-4 items-center">
-                    <div>
-                      <p className="font-medium">{invoice.invoice_number || 'Draft'}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {formatDate(invoice.created_at)}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="font-medium">{invoice.customers?.name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {invoice.quote_requests?.event_name}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="font-semibold">{formatCurrency(invoice.total_amount)}</p>
-                      {invoice.quote_requests?.event_date && (
-                        <p className="text-xs text-muted-foreground">
-                          Event: {formatDate(invoice.quote_requests.event_date)}
-                        </p>
-                      )}
-                    </div>
-                    <div>
-                      <StatusBadge 
-                        status={invoice.status} 
-                        isDraft={invoice.is_draft}
+              {/* Mobile Card View */}
+              <div className="lg:hidden space-y-3 p-4">
+                {filteredAndSortedInvoices.map((invoice) => (
+                  <Card key={invoice.id} className="shadow-sm">
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <Checkbox
+                            checked={selectedItems.includes(invoice.id)}
+                            onCheckedChange={(checked) => handleSelectItem(invoice.id, !!checked)}
+                          />
+                          <div>
+                            <p className="font-semibold text-sm">{invoice.invoice_number || 'Draft'}</p>
+                            <p className="text-xs text-muted-foreground">{formatDate(invoice.created_at)}</p>
+                          </div>
+                        </div>
+                        <StatusBadge 
+                          status={invoice.status} 
+                          isDraft={invoice.is_draft}
+                          size="sm"
+                        />
+                      </div>
+                      
+                      <div className="space-y-2 mb-3">
+                        <div>
+                          <p className="font-medium text-sm">{invoice.customers?.name}</p>
+                          <p className="text-xs text-muted-foreground">{invoice.quote_requests?.event_name}</p>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-lg font-bold">{formatCurrency(invoice.total_amount)}</span>
+                          {invoice.quote_requests?.event_date && (
+                            <span className="text-xs text-muted-foreground">
+                              Event: {formatDate(invoice.quote_requests.event_date)}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <StandardizedActions 
+                        type="invoice" 
+                        item={invoice} 
+                        onRefresh={onRefresh}
                         size="sm"
                       />
-                    </div>
-                    <StandardizedActions 
-                      type="invoice" 
-                      item={invoice} 
-                      onRefresh={onRefresh}
-                      size="sm"
-                    />
-                  </div>
-                </div>
-              ))}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
 
               {filteredAndSortedInvoices.length === 0 && (
-                <div className="text-center py-8">
+                <div className="text-center py-8 px-4">
                   <p className="text-muted-foreground">No invoices found matching your criteria.</p>
                 </div>
               )}
-            </div>
+            </>
           )}
         </CardContent>
       </Card>

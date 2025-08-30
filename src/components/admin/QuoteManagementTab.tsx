@@ -118,30 +118,30 @@ export function QuoteManagementTab({
 
 
   return (
-    <div className="space-y-6">
-      {/* Filters and Search */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1">
+    <div className="space-y-4 lg:space-y-6">
+      {/* Filters and Search - Contained properly */}
+      <Card className="bg-background border shadow-sm">
+        <CardContent className="p-4 lg:p-6">
+          <div className="flex flex-col sm:flex-row gap-3 lg:gap-4">
+            <div className="flex-1 min-w-0">
               <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                 <Input
-                  placeholder="Search quotes, customers, events, locations..."
+                  placeholder="Search quotes, customers, events..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 h-10"
                 />
               </div>
             </div>
             
-            <div className="flex gap-2">
+            <div className="flex gap-2 shrink-0">
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-3 py-2 border rounded-md bg-background"
+                className="px-3 py-2 h-10 border border-input rounded-md bg-background text-sm"
               >
-                <option value="all">All Status ({quotes.length})</option>
+                <option value="all">All ({quotes.length})</option>
                 {Object.entries(statusCounts).map(([status, count]) => (
                   <option key={status} value={status}>
                     {status} ({count})
@@ -154,17 +154,18 @@ export function QuoteManagementTab({
                 onClick={onRefresh}
                 disabled={loading}
                 size="sm"
+                className="h-10"
               >
-                <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-                Refresh
+                <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''} sm:mr-2`} />
+                <span className="hidden sm:inline">Refresh</span>
               </Button>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Quotes Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+      {/* Quotes Grid - Responsive and contained */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
         {loading ? (
           <div className="col-span-full text-center py-8">
             <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-4 text-muted-foreground" />
