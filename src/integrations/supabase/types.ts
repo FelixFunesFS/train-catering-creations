@@ -58,6 +58,112 @@ export type Database = {
           },
         ]
       }
+      calendar_events: {
+        Row: {
+          calendar_provider: string
+          created_at: string
+          description: string | null
+          end_time: string | null
+          event_date: string
+          event_title: string
+          external_event_id: string | null
+          id: string
+          last_synced_at: string | null
+          location: string | null
+          quote_request_id: string | null
+          start_time: string | null
+          sync_status: string | null
+          updated_at: string
+        }
+        Insert: {
+          calendar_provider?: string
+          created_at?: string
+          description?: string | null
+          end_time?: string | null
+          event_date: string
+          event_title: string
+          external_event_id?: string | null
+          id?: string
+          last_synced_at?: string | null
+          location?: string | null
+          quote_request_id?: string | null
+          start_time?: string | null
+          sync_status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          calendar_provider?: string
+          created_at?: string
+          description?: string | null
+          end_time?: string | null
+          event_date?: string
+          event_title?: string
+          external_event_id?: string | null
+          id?: string
+          last_synced_at?: string | null
+          location?: string | null
+          quote_request_id?: string | null
+          start_time?: string | null
+          sync_status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_events_quote_request_id_fkey"
+            columns: ["quote_request_id"]
+            isOneToOne: false
+            referencedRelation: "quote_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contracts: {
+        Row: {
+          contract_html: string | null
+          contract_type: string
+          created_at: string
+          generated_at: string | null
+          id: string
+          invoice_id: string | null
+          signed_at: string | null
+          signed_by: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          contract_html?: string | null
+          contract_type?: string
+          created_at?: string
+          generated_at?: string | null
+          id?: string
+          invoice_id?: string | null
+          signed_at?: string | null
+          signed_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          contract_html?: string | null
+          contract_type?: string
+          created_at?: string
+          generated_at?: string | null
+          id?: string
+          invoice_id?: string | null
+          signed_at?: string | null
+          signed_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contracts_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       customers: {
         Row: {
           address: string | null
@@ -134,6 +240,56 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      government_contracts: {
+        Row: {
+          approved_at: string | null
+          compliance_checklist: Json | null
+          compliance_documentation: Json | null
+          contract_status: string
+          created_at: string
+          id: string
+          quote_request_id: string | null
+          required_documents: string[] | null
+          special_requirements: Json | null
+          submitted_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          approved_at?: string | null
+          compliance_checklist?: Json | null
+          compliance_documentation?: Json | null
+          contract_status?: string
+          created_at?: string
+          id?: string
+          quote_request_id?: string | null
+          required_documents?: string[] | null
+          special_requirements?: Json | null
+          submitted_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          approved_at?: string | null
+          compliance_checklist?: Json | null
+          compliance_documentation?: Json | null
+          contract_status?: string
+          created_at?: string
+          id?: string
+          quote_request_id?: string | null
+          required_documents?: string[] | null
+          special_requirements?: Json | null
+          submitted_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "government_contracts_quote_request_id_fkey"
+            columns: ["quote_request_id"]
+            isOneToOne: false
+            referencedRelation: "quote_requests"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       invoice_line_items: {
         Row: {
@@ -660,6 +816,44 @@ export type Database = {
           wait_staff_setup_areas?: string | null
         }
         Relationships: []
+      }
+      reminder_logs: {
+        Row: {
+          created_at: string
+          id: string
+          invoice_id: string | null
+          recipient_email: string
+          reminder_type: string
+          sent_at: string
+          urgency: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          invoice_id?: string | null
+          recipient_email: string
+          reminder_type: string
+          sent_at?: string
+          urgency?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          invoice_id?: string | null
+          recipient_email?: string
+          reminder_type?: string
+          sent_at?: string
+          urgency?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reminder_logs_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
