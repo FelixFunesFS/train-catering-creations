@@ -17,6 +17,8 @@ import { BusinessIntelligenceDashboard } from '@/components/admin/BusinessIntell
 import { WorkflowAutomationManager } from '@/components/admin/WorkflowAutomationManager';
 import { BusinessInsightsDashboard } from '@/components/admin/BusinessInsightsDashboard';
 import { SystemHealthMonitor } from '@/components/admin/SystemHealthMonitor';
+import { FinancialDashboard } from '@/components/admin/FinancialDashboard';
+import { QuoteToCashMetrics } from '@/components/admin/QuoteToCashMetrics';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { 
@@ -30,7 +32,9 @@ import {
   Calendar,
   Zap,
   BarChart3,
-  Menu
+  Menu,
+  DollarSign,
+  Target
 } from 'lucide-react';
 
 interface UnifiedAdminData {
@@ -380,7 +384,7 @@ export function UnifiedAdminInterface() {
                 <div className="p-3 lg:p-6">
                 {/* Desktop Tab Navigation */}
                 <Tabs value={activeTab} onValueChange={handleTabChange} className="hidden lg:block">
-                  <TabsList className="grid w-full grid-cols-6 mb-6">
+                  <TabsList className="grid w-full grid-cols-8 mb-6">
                     <TabsTrigger value="overview" className="flex items-center gap-2">
                       <LayoutDashboard className="h-4 w-4" />
                       Overview
@@ -419,6 +423,14 @@ export function UnifiedAdminInterface() {
                     <TabsTrigger value="automation" className="flex items-center gap-2">
                       <Zap className="h-4 w-4" />
                       Automation
+                    </TabsTrigger>
+                    <TabsTrigger value="financial" className="flex items-center gap-2">
+                      <DollarSign className="h-4 w-4" />
+                      Financial
+                    </TabsTrigger>
+                    <TabsTrigger value="conversion" className="flex items-center gap-2">
+                      <Target className="h-4 w-4" />
+                      Conversion
                     </TabsTrigger>
                   </TabsList>
                 </Tabs>
@@ -559,16 +571,24 @@ export function UnifiedAdminInterface() {
                      </div>
                    )}
 
-                   {activeTab === 'reports' && (
-                     <BusinessInsightsDashboard />
-                   )}
-                </div>
-                </div>
-              </div>
-            </div>
-          </main>
-        </div>
-      </div>
-    </SidebarProvider>
-  );
-}
+                    {activeTab === 'financial' && (
+                      <FinancialDashboard />
+                    )}
+
+                    {activeTab === 'conversion' && (
+                      <QuoteToCashMetrics />
+                    )}
+
+                    {activeTab === 'reports' && (
+                      <BusinessInsightsDashboard />
+                    )}
+                 </div>
+                 </div>
+               </div>
+             </div>
+           </main>
+         </div>
+       </div>
+     </SidebarProvider>
+   );
+ }
