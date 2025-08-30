@@ -10,7 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { toast } from "@/hooks/use-toast";
-import { weddingEventSchema, type WeddingEventFormData } from "@/lib/schemas/quoteFormSchemas";
+import { weddingEventSchema, type WeddingEventFormData } from "@/lib/schemas/tempFormSchemas";
 import { MenuSelection } from "./MenuSelection";
 import { weddingMenuItems } from "@/data/menuItems";
 

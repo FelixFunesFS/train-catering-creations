@@ -3,7 +3,8 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/comp
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MessageSquare, Users } from "lucide-react";
+import { MessageSquare, Users, UtensilsCrossed } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 
@@ -30,6 +31,135 @@ export const FinalStep = ({ form }: FinalStepProps) => {
           Help us serve you better with a few final details.
         </p>
       </div>
+
+      {/* Additional Services */}
+      <Card className="neumorphic-card-1 border-0 bg-gradient-to-br from-card via-card/95 to-muted/10 mb-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-3 text-xl font-elegant">
+            <div className="w-8 h-8 bg-gradient-primary rounded-full flex items-center justify-center">
+              <UtensilsCrossed className="h-4 w-4 text-primary-foreground" />
+            </div>
+            Additional Services
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <FormField
+              control={form.control}
+              name="plates_requested"
+              render={({ field }) => (
+                <FormItem className="flex items-center space-x-3 space-y-0">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel className="text-sm font-medium">Plates</FormLabel>
+                    <p className="text-xs text-muted-foreground">Disposable serving plates</p>
+                  </div>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="cups_requested"
+              render={({ field }) => (
+                <FormItem className="flex items-center space-x-3 space-y-0">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel className="text-sm font-medium">Cups</FormLabel>
+                    <p className="text-xs text-muted-foreground">Disposable drinking cups</p>
+                  </div>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="napkins_requested"
+              render={({ field }) => (
+                <FormItem className="flex items-center space-x-3 space-y-0">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel className="text-sm font-medium">Napkins</FormLabel>
+                    <p className="text-xs text-muted-foreground">Premium paper napkins</p>
+                  </div>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="serving_utensils_requested"
+              render={({ field }) => (
+                <FormItem className="flex items-center space-x-3 space-y-0">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel className="text-sm font-medium">Serving Utensils</FormLabel>
+                    <p className="text-xs text-muted-foreground">Spoons, tongs, and serving forks</p>
+                  </div>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="chafers_requested"
+              render={({ field }) => (
+                <FormItem className="flex items-center space-x-3 space-y-0">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel className="text-sm font-medium">Chafing Dishes</FormLabel>
+                    <p className="text-xs text-muted-foreground">Keep food warm during service</p>
+                  </div>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="ice_requested"
+              render={({ field }) => (
+                <FormItem className="flex items-center space-x-3 space-y-0">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel className="text-sm font-medium">Ice</FormLabel>
+                    <p className="text-xs text-muted-foreground">Fresh ice for beverages</p>
+                  </div>
+                </FormItem>
+              )}
+            />
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid md:grid-cols-2 gap-6">
         {/* Special Requests */}

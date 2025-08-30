@@ -1,9 +1,9 @@
 import { ResponsiveWrapper } from "@/components/ui/responsive-wrapper";
-import { AlternativeQuoteForm } from "@/components/quote/AlternativeQuoteForm";
+import { RegularEventQuoteForm } from "@/components/quote/RegularEventQuoteForm";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 
-export default function RegularEventQuoteAlt() {
+export default function RegularEventQuote() {
   const { ref: heroRef, isVisible: heroVisible } = useScrollAnimation({
     threshold: 0.1,
     triggerOnce: true
@@ -37,7 +37,7 @@ export default function RegularEventQuoteAlt() {
       {/* Form Section */}
       <ResponsiveWrapper>
         <div className="max-w-4xl mx-auto pb-20">
-          <AlternativeQuoteForm />
+          <RegularEventQuoteForm />
         </div>
       </ResponsiveWrapper>
     </div>

@@ -10,7 +10,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import { regularEventSchema, type RegularEventFormData } from "@/lib/schemas/quoteFormSchemas";
+import { regularEventSchema, type RegularEventFormData } from "@/lib/schemas/tempFormSchemas";
 import { StepIndicator } from "./StepIndicator";
 import { MobileMenuSelection } from "./MobileMenuSelection";
 import { regularMenuItems } from "@/data/menuItems";
