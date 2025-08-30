@@ -33,6 +33,9 @@ import { CustomerPortal } from "./pages/CustomerPortal";
 import CustomerPortalEnhanced from "./pages/CustomerPortalEnhanced";
 import UnifiedAdminDashboard from "./pages/UnifiedAdminDashboard";
 import QuoteDetails from "./pages/QuoteDetails";
+import AdminReports from "./pages/AdminReports";
+import AdminMessages from "./pages/AdminMessages";
+import AdminSettings from "./pages/AdminSettings";
 const AppContent = () => {
   useScrollToAnchor();
   return <div className="min-h-screen bg-background font-clean flex flex-col transition-colors duration-300 py-0 my-0">
@@ -53,11 +56,14 @@ const AppContent = () => {
           <Route path="/test-email" element={<TestEmail />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-conditions" element={<TermsConditions />} />
-          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin" element={<UnifiedAdminDashboard />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/unified" element={<UnifiedAdminDashboard />} />
           <Route path="/admin/quotes/:quoteId" element={<QuoteDetails />} />
           <Route path="/admin/invoices" element={<InvoiceManagement />} />
+          <Route path="/admin/reports" element={<AdminReports />} />
+          <Route path="/admin/messages" element={<AdminMessages />} />
+          <Route path="/admin/settings" element={<AdminSettings />} />
           <Route path="/admin/contracts" element={<ContractManagement />} />
           <Route path="/invoice/public/:invoiceToken" element={<InvoicePublic />} />
           <Route path="/invoice-estimate-creation/:quoteId" element={<InvoiceEstimateCreation />} />

@@ -6,6 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { DocumentManager } from './DocumentManager';
 import { 
   BarChart3,
   TrendingUp,
@@ -235,7 +237,7 @@ export function ReportsAndAnalytics() {
   const growthColor = reportData.revenue.growth > 0 ? 'text-green-600' : 'text-red-600';
 
   return (
-    <div className="space-y-6">
+    <Tabs defaultValue="overview" className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -260,6 +262,16 @@ export function ReportsAndAnalytics() {
           </Button>
         </div>
       </div>
+
+      {/* Tab Navigation */}
+      <TabsList className="grid w-full grid-cols-4">
+        <TabsTrigger value="overview">Overview</TabsTrigger>
+        <TabsTrigger value="financial">Financial</TabsTrigger>
+        <TabsTrigger value="operational">Operational</TabsTrigger>
+        <TabsTrigger value="documents">Documents</TabsTrigger>
+      </TabsList>
+
+      <TabsContent value="overview" className="space-y-6">
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -462,6 +474,33 @@ export function ReportsAndAnalytics() {
           </div>
         </CardContent>
       </Card>
-    </div>
+      </TabsContent>
+
+      <TabsContent value="financial">
+        <Card>
+          <CardHeader>
+            <CardTitle>Financial Reports</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground">Detailed financial analysis coming soon.</p>
+          </CardContent>
+        </Card>
+      </TabsContent>
+
+      <TabsContent value="operational">
+        <Card>
+          <CardHeader>
+            <CardTitle>Operational Reports</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground">Operational metrics and analysis coming soon.</p>
+          </CardContent>
+        </Card>
+      </TabsContent>
+
+      <TabsContent value="documents">
+        <DocumentManager />
+      </TabsContent>
+    </Tabs>
   );
 }

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -37,7 +38,8 @@ interface UnifiedAdminData {
 }
 
 export function UnifiedAdminInterface() {
-  const [activeTab, setActiveTab] = useState('overview');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState(() => searchParams.get('tab') || 'overview');
   const [data, setData] = useState<UnifiedAdminData>({
     quotes: [],
     invoices: [],
@@ -51,6 +53,24 @@ export function UnifiedAdminInterface() {
   useEffect(() => {
     fetchAllData();
   }, []);
+
+  // Listen for URL parameter changes
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab && tab !== activeTab) {
+      setActiveTab(tab);
+    }
+  }, [searchParams, activeTab]);
+
+  // Update URL when tab changes
+  const handleTabChange = (newTab: string) => {
+    setActiveTab(newTab);
+    if (newTab === 'overview') {
+      setSearchParams({});
+    } else {
+      setSearchParams({ tab: newTab });
+    }
+  };
 
   const fetchAllData = async () => {
     setLoading(true);
@@ -240,9 +260,9 @@ export function UnifiedAdminInterface() {
   const handleNotificationAction = (notification: any) => {
     // Handle notification clicks
     if (notification.action_url === '#invoices') {
-      setActiveTab('invoices');
+      handleTabChange('invoices');
     } else if (notification.action_url === '#quotes') {
-      setActiveTab('quotes');
+      handleTabChange('quotes');
     }
   };
 
@@ -287,7 +307,7 @@ export function UnifiedAdminInterface() {
 
           {/* Main Content */}
           <main className="flex-1 p-6">
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+            <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
               {/* Tab Navigation - Only show on smaller screens */}
               <div className="lg:hidden">
                 <TabsList className="grid w-full grid-cols-3">
@@ -435,6 +455,78 @@ export function UnifiedAdminInterface() {
 
               <TabsContent value="analytics">
                 <BusinessIntelligenceDashboard />
+              </TabsContent>
+
+              <TabsContent value="events">
+                <div className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Event Management</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        {data.quotes.filter(q => q.status === 'confirmed').map((event) => (
+                          <div key={event.id} className="flex items-center justify-between p-4 border rounded-lg">
+                            <div>
+                              <h4 className="font-medium">{event.event_name}</h4>
+                              <p className="text-sm text-muted-foreground">{event.contact_name}</p>
+                              <p className="text-sm text-muted-foreground">
+                                {new Date(event.event_date).toLocaleDateString()} at {event.start_time}
+                              </p>
+                            </div>
+                            <Badge variant="secondary">Confirmed</Badge>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="customers">
+                <div className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Customer Management</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        {data.quotes.reduce((customers, quote) => {
+                          const existing = customers.find(c => c.email === quote.email);
+                          if (!existing) {
+                            customers.push({
+                              name: quote.contact_name,
+                              email: quote.email,
+                              phone: quote.phone,
+                              events: 1,
+                              lastEvent: quote.event_date
+                            });
+                          } else {
+                            existing.events += 1;
+                            if (new Date(quote.event_date) > new Date(existing.lastEvent)) {
+                              existing.lastEvent = quote.event_date;
+                            }
+                          }
+                          return customers;
+                        }, []).map((customer, index) => (
+                          <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
+                            <div>
+                              <h4 className="font-medium">{customer.name}</h4>
+                              <p className="text-sm text-muted-foreground">{customer.email}</p>
+                              <p className="text-sm text-muted-foreground">{customer.phone}</p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-sm font-medium">{customer.events} events</p>
+                              <p className="text-xs text-muted-foreground">
+                                Last: {new Date(customer.lastEvent).toLocaleDateString()}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
               </TabsContent>
 
               <TabsContent value="reports">

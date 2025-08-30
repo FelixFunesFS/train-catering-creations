@@ -40,7 +40,14 @@ export function AdminSidebar({ data }: AdminSidebarProps) {
   const location = useLocation();
   const currentPath = location.pathname;
 
-  const isActive = (path: string) => currentPath === path || currentPath.startsWith(path);
+  const isActive = (path: string) => {
+    if (path.includes('?tab=')) {
+      const [basePath, tabParam] = path.split('?tab=');
+      return currentPath === basePath && location.search.includes(`tab=${tabParam}`);
+    }
+    return currentPath === path || currentPath.startsWith(path);
+  };
+  
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
     isActive ? "bg-primary text-primary-foreground font-medium" : "hover:bg-muted/50";
 
