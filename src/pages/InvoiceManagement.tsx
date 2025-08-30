@@ -1,32 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
 import { Breadcrumb } from '@/components/ui/breadcrumb';
+import { InvoicePreviewModal } from '@/components/admin/InvoicePreviewModal';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { 
-  FileText, 
-  Search, 
-  RefreshCw,
-  Edit3,
-  Send,
-  Eye,
-  Calendar,
-  User,
-  DollarSign,
-  Clock,
-  CheckCircle,
-  AlertTriangle,
+import {
+  FileText,
+  Search,
   Plus,
+  Edit3,
+  Eye,
+  Send,
   CreditCard,
+  CheckCircle,
+  AlertCircle,
+  Clock,
+  DollarSign,
   ArrowLeft,
-  Mail
+  Filter,
+  TrendingUp,
+  Users,
+  Calendar,
+  Loader2,
+  User,
+  Mail,
+  RefreshCw,
+  AlertTriangle
 } from 'lucide-react';
+import { Label } from '@/components/ui/label';
 
 interface InvoiceRecord {
   id: string;
@@ -46,14 +52,16 @@ interface InvoiceRecord {
   due_date: string | null;
 }
 
-export default function InvoiceManagement() {
+const InvoiceManagement = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [invoices, setInvoices] = useState<InvoiceRecord[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [typeFilter, setTypeFilter] = useState<string>('all');
+  const [selectedInvoice, setSelectedInvoice] = useState<InvoiceRecord | null>(null);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
 
   useEffect(() => {
     fetchInvoices();
@@ -173,8 +181,8 @@ export default function InvoiceManagement() {
   };
 
   const handleViewInvoice = async (invoice: InvoiceRecord) => {
-    // Navigate to estimate preview page for proper viewing
-    navigate(`/estimate-preview/${invoice.id}`);
+    setSelectedInvoice(invoice);
+    setShowPreviewModal(true);
   };
 
   const handleGenerateInvoice = async (invoice: InvoiceRecord) => {
@@ -609,6 +617,21 @@ export default function InvoiceManagement() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Preview Modal */}
+      {selectedInvoice && (
+        <InvoicePreviewModal
+          isOpen={showPreviewModal}
+          onClose={() => {
+            setShowPreviewModal(false);
+            setSelectedInvoice(null);
+          }}
+          invoice={selectedInvoice}
+          onRefresh={fetchInvoices}
+        />
+      )}
     </div>
   );
-}
+};
+
+export default InvoiceManagement;

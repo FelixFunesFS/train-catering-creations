@@ -1,21 +1,55 @@
-import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import type { Database } from "@/integrations/supabase/types";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
-import { Search, Eye, Filter, Download, Calendar, MapPin, Users, Mail, Phone, FileText, Plus } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { Database } from "@/integrations/supabase/types";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { QuoteDetailModal } from "@/components/admin/QuoteDetailModal";
 import { QuoteViewModal } from "@/components/admin/QuoteViewModal";
+import { AdminAnalyticsDashboard } from "@/components/admin/AdminAnalyticsDashboard";
+import { NotificationCenter } from "@/components/admin/NotificationCenter";
 import { useNavigate } from "react-router-dom";
+import {
+  FileText,
+  Search,
+  Plus,
+  Eye,
+  Edit,
+  Calendar,
+  Phone,
+  Mail,
+  User,
+  MapPin,
+  UtensilsCrossed,
+  Users,
+  Clock,
+  Filter,
+  Download,
+  TrendingUp,
+  Bell,
+  BarChart3,
+  Settings
+} from "lucide-react";
 
 type QuoteRequest = Database['public']['Tables']['quote_requests']['Row'];
+
+interface Notification {
+  id: string;
+  type: 'payment_overdue' | 'change_request' | 'approval_pending' | 'event_reminder' | 'system';
+  title: string;
+  message: string;
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  created_at: string;
+  read: boolean;
+  action_url?: string;
+  action_label?: string;
+  metadata?: any;
+}
 
 const AdminDashboard = () => {
   const [quotes, setQuotes] = useState<QuoteRequest[]>([]);
@@ -26,12 +60,17 @@ const AdminDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [serviceFilter, setServiceFilter] = useState<string>("all");
+  const [activeTab, setActiveTab] = useState<'overview' | 'quotes' | 'analytics' | 'notifications'>('overview');
   const [invoiceStatus, setInvoiceStatus] = useState<Record<string, string>>({});
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [analyticsData, setAnalyticsData] = useState<any>({});
   const { toast } = useToast();
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchQuotes();
+    fetchAnalyticsData();
+    fetchNotifications();
   }, []);
 
   useEffect(() => {
@@ -96,34 +135,125 @@ const AdminDashboard = () => {
     setFilteredQuotes(filtered);
   };
 
-  const updateQuoteStatus = async (id: string, newStatus: string) => {
+  const fetchAnalyticsData = async () => {
     try {
-      const { error } = await supabase
+      // Fetch revenue data
+      const { data: invoices, error: invoicesError } = await supabase
+        .from('invoices')
+        .select('total_amount, status, created_at, is_draft')
+        .not('is_draft', 'eq', true);
+
+      if (invoicesError) throw invoicesError;
+
+      // Fetch payment data
+      const { data: payments, error: paymentsError } = await supabase
+        .from('payment_transactions')
+        .select('amount, status, created_at')
+        .eq('status', 'succeeded');
+
+      if (paymentsError) throw paymentsError;
+
+      // Calculate analytics
+      const totalRevenue = payments?.reduce((sum, payment) => sum + payment.amount, 0) || 0;
+      
+      const currentMonth = new Date().getMonth();
+      const monthlyRevenue = payments?.filter(payment => 
+        new Date(payment.created_at).getMonth() === currentMonth
+      ).reduce((sum, payment) => sum + payment.amount, 0) || 0;
+
+      const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+      const lastMonthRevenue = payments?.filter(payment => 
+        new Date(payment.created_at).getMonth() === lastMonth
+      ).reduce((sum, payment) => sum + payment.amount, 0) || 0;
+
+      const revenueGrowth = lastMonthRevenue > 0 
+        ? ((monthlyRevenue - lastMonthRevenue) / lastMonthRevenue) * 100 
+        : 0;
+
+      const totalInvoices = invoices?.length || 0;
+      const pendingInvoices = invoices?.filter(inv => inv.status === 'draft' || inv.status === 'pending').length || 0;
+      const approvedInvoices = invoices?.filter(inv => inv.status === 'approved').length || 0;
+
+      // Calculate upcoming events (next 30 days)
+      const thirtyDaysFromNow = new Date();
+      thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
+      
+      const { data: upcomingQuotes } = await supabase
         .from('quote_requests')
-        .update({ status: newStatus as QuoteRequest['status'] })
-        .eq('id', id);
+        .select('event_date')
+        .gte('event_date', new Date().toISOString().split('T')[0])
+        .lte('event_date', thirtyDaysFromNow.toISOString().split('T')[0]);
 
-      if (error) throw error;
+      const averageOrderValue = totalInvoices > 0 
+        ? invoices.reduce((sum, inv) => sum + inv.total_amount, 0) / totalInvoices 
+        : 0;
 
-      setQuotes(quotes.map(quote => 
-        quote.id === id ? { ...quote, status: newStatus as QuoteRequest['status'] } : quote
-      ));
+      const conversionRate = quotes.length > 0 
+        ? (approvedInvoices / quotes.length) * 100 
+        : 0;
 
-      toast({
-        title: "Status Updated",
-        description: `Quote status changed to ${newStatus}`,
+      setAnalyticsData({
+        totalRevenue,
+        monthlyRevenue,
+        revenueGrowth,
+        totalInvoices,
+        pendingInvoices,
+        approvedInvoices,
+        overduePauments: 0,
+        upcomingEvents: upcomingQuotes?.length || 0,
+        averageOrderValue,
+        conversionRate
       });
+
     } catch (error) {
-      console.error('Error updating status:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update quote status",
-        variant: "destructive",
-      });
+      console.error('Error fetching analytics:', error);
     }
   };
 
-  const getStatusBadgeVariant = (status: string) => {
+  const fetchNotifications = async () => {
+    const mockNotifications: Notification[] = [
+      {
+        id: '1',
+        type: 'change_request',
+        title: 'New Change Request',
+        message: 'Customer requested changes for Corporate Lunch event',
+        priority: 'high',
+        created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+        read: false,
+        action_url: '/admin/invoices',
+        action_label: 'Review'
+      },
+      {
+        id: '2',
+        type: 'approval_pending',
+        title: 'Estimate Awaiting Approval',
+        message: 'Wedding reception estimate ready for customer review',
+        priority: 'medium',
+        created_at: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
+        read: false,
+        action_url: '/admin/invoices',
+        action_label: 'View'
+      }
+    ];
+
+    setNotifications(mockNotifications);
+  };
+
+  const handleMarkNotificationAsRead = (id: string) => {
+    setNotifications(prev => 
+      prev.map(notification => 
+        notification.id === id 
+          ? { ...notification, read: true }
+          : notification
+      )
+    );
+  };
+
+  const handleDismissNotification = (id: string) => {
+    setNotifications(prev => prev.filter(notification => notification.id !== id));
+  };
+
+  const getStatusVariant = (status: string) => {
     switch (status) {
       case 'pending': return 'secondary';
       case 'reviewed': return 'default';
@@ -191,29 +321,185 @@ const AdminDashboard = () => {
     return null;
   };
 
-  const exportToCSV = () => {
-    const headers = ['Contact Name', 'Email', 'Phone', 'Event Name', 'Event Type', 'Event Date', 'Guests', 'Service Type', 'Location', 'Status', 'Created'];
-    const csvData = filteredQuotes.map(quote => [
-      quote.contact_name,
-      quote.email,
-      quote.phone,
-      quote.event_name,
-      quote.event_type,
-      format(new Date(quote.event_date), 'MMM dd, yyyy'),
-      quote.guest_count,
-      getServiceTypeDisplay(quote.service_type),
-      quote.location,
-      quote.status,
-      format(new Date(quote.created_at), 'MMM dd, yyyy HH:mm')
-    ]);
+  const renderQuoteCard = (quote: QuoteRequest) => (
+    <div key={quote.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+      <div className="flex items-start justify-between mb-3">
+        <div className="flex-1">
+          <h3 className="font-semibold text-lg">{quote.event_name}</h3>
+          <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
+            <div className="flex items-center gap-1">
+              <User className="h-4 w-4" />
+              {quote.contact_name}
+            </div>
+            <div className="flex items-center gap-1">
+              <Mail className="h-4 w-4" />
+              {quote.email}
+            </div>
+            <div className="flex items-center gap-1">
+              <Phone className="h-4 w-4" />
+              {quote.phone}
+            </div>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <Badge variant={getStatusVariant(quote.status as any)}>
+            {quote.status}
+          </Badge>
+          {getActionButton(quote)}
+        </div>
+      </div>
 
-    const csvContent = [headers, ...csvData].map(row => row.join(',')).join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `quote-requests-${format(new Date(), 'yyyy-MM-dd')}.csv`;
-    a.click();
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+        <div className="flex items-center gap-2">
+          <Calendar className="h-4 w-4 text-muted-foreground" />
+          <span>{format(new Date(quote.event_date), "MMM d, yyyy")}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Users className="h-4 w-4 text-muted-foreground" />
+          <span>{quote.guest_count} guests</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <UtensilsCrossed className="h-4 w-4 text-muted-foreground" />
+          <span>{getServiceTypeDisplay(quote.service_type as any)}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <MapPin className="h-4 w-4 text-muted-foreground" />
+          <span className="truncate">{quote.location}</span>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between mt-4 pt-3 border-t">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Clock className="h-4 w-4" />
+          <span>Submitted {format(new Date(quote.created_at), "MMM d, h:mm a")}</span>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setViewQuote(quote)}
+          >
+            <Eye className="h-4 w-4 mr-1" />
+            View Details
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setSelectedQuote(quote)}
+          >
+            <Edit className="h-4 w-4 mr-1" />
+            Edit
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'analytics':
+        return (
+          <AdminAnalyticsDashboard 
+            data={analyticsData}
+            className="animate-fade-in"
+          />
+        );
+      
+      case 'notifications':
+        return (
+          <NotificationCenter
+            notifications={notifications}
+            onMarkAsRead={handleMarkNotificationAsRead}
+            onDismiss={handleDismissNotification}
+            onRefresh={fetchNotifications}
+            className="animate-fade-in"
+          />
+        );
+      
+      case 'overview':
+      default:
+        return (
+          <div className="space-y-6 animate-fade-in">
+            {/* Quick Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card className="hover-scale">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Total Quotes</CardTitle>
+                  <FileText className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{quotes.length}</div>
+                  <p className="text-xs text-muted-foreground">
+                    {quotes.filter(q => q.status === 'pending').length} pending review
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="hover-scale">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">This Month</CardTitle>
+                  <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {quotes.filter(q => 
+                      new Date(q.created_at).getMonth() === new Date().getMonth()
+                    ).length}
+                  </div>
+                  <p className="text-xs text-muted-foreground">New quote requests</p>
+                </CardContent>
+              </Card>
+
+              <Card className="hover-scale">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Notifications</CardTitle>
+                  <Bell className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {notifications.filter(n => !n.read).length}
+                  </div>
+                  <p className="text-xs text-muted-foreground">Unread notifications</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Recent quotes */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle>Recent Quote Requests</CardTitle>
+                  <div className="flex items-center gap-2">
+                    <Button onClick={() => navigate('/admin/invoices')} variant="outline" size="sm">
+                      <FileText className="h-4 w-4 mr-2" />
+                      Manage Invoices
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-4">
+                  {loading ? (
+                    <div className="text-center py-8">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                      <p className="mt-2 text-muted-foreground">Loading quotes...</p>
+                    </div>
+                  ) : filteredQuotes.length === 0 ? (
+                    <div className="text-center py-8">
+                      <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold mb-2">No quotes found</h3>
+                      <p className="text-muted-foreground">Quote requests will appear here when submitted</p>
+                    </div>
+                  ) : (
+                    filteredQuotes.slice(0, 5).map((quote) => renderQuoteCard(quote))
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        );
+    }
   };
 
   if (loading) {
@@ -237,236 +523,75 @@ const AdminDashboard = () => {
           ]} 
         />
         
-        {/* Header */}
+        {/* Header with Tabs */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-elegant font-bold text-foreground">Admin Dashboard</h1>
-            <p className="text-muted-foreground">Manage quote requests for Soul Train's Eatery</p>
+            <p className="text-muted-foreground">Manage catering operations for Soul Train's Eatery</p>
           </div>
+          
+          {/* Tab Navigation */}
           <div className="flex items-center gap-2">
-            <Button onClick={() => navigate('/admin/invoices')} variant="default" className="gap-2">
-              <FileText className="h-4 w-4" />
-              Invoice Management
+            <Button
+              variant={activeTab === 'overview' ? 'default' : 'outline'}
+              onClick={() => setActiveTab('overview')}
+              size="sm"
+            >
+              <BarChart3 className="h-4 w-4 mr-2" />
+              Overview
             </Button>
-            <Button onClick={() => navigate('/admin/contracts')} variant="outline" className="gap-2">
-              <FileText className="h-4 w-4" />
-              Contracts
+            <Button
+              variant={activeTab === 'analytics' ? 'default' : 'outline'}
+              onClick={() => setActiveTab('analytics')}
+              size="sm"
+            >
+              <TrendingUp className="h-4 w-4 mr-2" />
+              Analytics
             </Button>
-            <Button onClick={exportToCSV} variant="outline" className="gap-2">
-              <Download className="h-4 w-4" />
-              Export CSV
+            <Button
+              variant={activeTab === 'notifications' ? 'default' : 'outline'}
+              onClick={() => setActiveTab('notifications')}
+              size="sm"
+              className="relative"
+            >
+              <Bell className="h-4 w-4 mr-2" />
+              Notifications
+              {notifications.filter(n => !n.read).length > 0 && (
+                <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                  {notifications.filter(n => !n.read).length}
+                </span>
+              )}
             </Button>
           </div>
         </div>
 
-        {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card className="neumorphic-card-1">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-2">
-                <Badge variant="secondary" className="bg-secondary">Total</Badge>
-                <span className="text-2xl font-bold">{quotes.length}</span>
-              </div>
-              <p className="text-sm text-muted-foreground mt-1">All Requests</p>
-            </CardContent>
-          </Card>
-          <Card className="neumorphic-card-1">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-2">
-                <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">Pending</Badge>
-                <span className="text-2xl font-bold">{quotes.filter(q => q.status === 'pending').length}</span>
-              </div>
-              <p className="text-sm text-muted-foreground mt-1">Need Review</p>
-            </CardContent>
-          </Card>
-          <Card className="neumorphic-card-1">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-2">
-                <Badge className="bg-blue-100 text-blue-800">In Progress</Badge>
-                <span className="text-2xl font-bold">{quotes.filter(q => q.status === 'reviewed').length}</span>
-              </div>
-              <p className="text-sm text-muted-foreground mt-1">Under Review</p>
-            </CardContent>
-          </Card>
-          <Card className="neumorphic-card-1">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-2">
-                <Badge className="bg-green-100 text-green-800">Completed</Badge>
-                <span className="text-2xl font-bold">{quotes.filter(q => q.status === 'completed').length}</span>
-              </div>
-              <p className="text-sm text-muted-foreground mt-1">Finalized</p>
-            </CardContent>
-          </Card>
+        {/* Action Buttons */}
+        <div className="flex items-center gap-2">
+          <Button onClick={() => navigate('/admin/invoices')} variant="default" className="gap-2">
+            <FileText className="h-4 w-4" />
+            Invoice Management
+          </Button>
+          <Button onClick={() => navigate('/admin/contracts')} variant="outline" className="gap-2">
+            <Settings className="h-4 w-4" />
+            Contract Management
+          </Button>
+          <Button onClick={() => navigate('/admin/invoice-creation')} variant="outline" className="gap-2">
+            <Plus className="h-4 w-4" />
+            Create Estimate
+          </Button>
         </div>
 
-        {/* Filters */}
-        <Card className="neumorphic-card-1">
-          <CardContent className="p-6">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-1">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search by name, email, event, or location..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="md:w-48">
-                  <SelectValue placeholder="Filter by status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Statuses</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="reviewed">Reviewed</SelectItem>
-                  <SelectItem value="quoted">Quoted</SelectItem>
-                  <SelectItem value="completed">Completed</SelectItem>
-                  <SelectItem value="confirmed">Confirmed</SelectItem>
-                  <SelectItem value="cancelled">Cancelled</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={serviceFilter} onValueChange={setServiceFilter}>
-                <SelectTrigger className="md:w-48">
-                  <SelectValue placeholder="Filter by service" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Services</SelectItem>
-                  <SelectItem value="full-service">Full Service</SelectItem>
-                  <SelectItem value="delivery-setup">Delivery + Setup</SelectItem>
-                  <SelectItem value="drop-off">Drop-Off</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Tab Content */}
+        {renderTabContent()}
 
-        {/* Quote Requests Table */}
-        <Card className="neumorphic-card-1">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Filter className="h-5 w-5" />
-              Quote Requests ({filteredQuotes.length})
-            </CardTitle>
-            <CardDescription>
-              Manage and track all quote requests from customers
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Contact</TableHead>
-                    <TableHead>Event Details</TableHead>
-                    <TableHead>Service</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Date Requested</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredQuotes.map((quote) => (
-                    <TableRow key={quote.id}>
-                      <TableCell>
-                        <div className="space-y-1">
-                          <p className="font-medium">{quote.contact_name}</p>
-                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                            <Mail className="h-3 w-3" />
-                            {quote.email}
-                          </div>
-                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                            <Phone className="h-3 w-3" />
-                            {quote.phone}
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="space-y-1">
-                          <p className="font-medium">{quote.event_name}</p>
-                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                            <Calendar className="h-3 w-3" />
-                            {format(new Date(quote.event_date), 'MMM dd, yyyy')}
-                          </div>
-                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                            <Users className="h-3 w-3" />
-                            {quote.guest_count} guests
-                          </div>
-                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                            <MapPin className="h-3 w-3" />
-                            {quote.location}
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">
-                          {getServiceTypeDisplay(quote.service_type)}
-                        </Badge>
-                        <div className="text-xs text-muted-foreground mt-1">
-                          {quote.event_type}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={getStatusBadgeVariant(quote.status)}>
-                          {quote.status.replace('_', ' ')}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {format(new Date(quote.created_at), 'MMM dd, yyyy')}
-                      </TableCell>
-                       <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setViewQuote(quote)}
-                            className="gap-1"
-                          >
-                            <Eye className="h-3 w-3" />
-                            View Submission
-                          </Button>
-                          {getActionButton(quote)}
-                          <Select 
-                            value={quote.status} 
-                            onValueChange={(value) => updateQuoteStatus(quote.id, value)}
-                          >
-                            <SelectTrigger className="w-32 h-8">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="pending">Pending</SelectItem>
-                              <SelectItem value="reviewed">Reviewed</SelectItem>
-                              <SelectItem value="quoted">Quoted</SelectItem>
-                              <SelectItem value="completed">Completed</SelectItem>
-                              <SelectItem value="confirmed">Confirmed</SelectItem>
-                              <SelectItem value="cancelled">Cancelled</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Quote Detail Modal */}
+        {/* Modals */}
         {selectedQuote && (
           <QuoteDetailModal
             quote={selectedQuote}
             onClose={() => setSelectedQuote(null)}
-            onUpdate={(updatedQuote) => {
-              setQuotes(quotes.map(q => q.id === updatedQuote.id ? updatedQuote : q));
-              setSelectedQuote(updatedQuote);
-            }}
           />
         )}
 
-        {/* Quote View Modal */}
         {viewQuote && (
           <QuoteViewModal
             quote={viewQuote}
