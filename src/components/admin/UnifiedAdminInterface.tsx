@@ -539,26 +539,29 @@ export function UnifiedAdminInterface() {
                     />
                   )}
 
-                  {activeTab === 'notifications' && (
-                    <div className="p-6">
-                      <h2 className="text-xl font-semibold mb-4">Notifications</h2>
-                      <p className="text-muted-foreground">Notification center coming soon...</p>
-                    </div>
-                  )}
+                   {activeTab === 'insights' && (
+                     <BusinessInsightsDashboard />
+                   )}
 
-                  {activeTab === 'analytics' && (
-                    <div className="p-6">
-                      <h2 className="text-xl font-semibold mb-4">Business Intelligence</h2>
-                      <p className="text-muted-foreground">Analytics dashboard coming soon...</p>
-                    </div>
-                  )}
+                   {activeTab === 'system' && (
+                     <SystemHealthMonitor />
+                   )}
 
-                  {activeTab === 'automation' && (
-                    <div className="p-6">
-                      <h2 className="text-xl font-semibold mb-4">Workflow Automation</h2>
-                      <p className="text-muted-foreground">Automation manager coming soon...</p>
-                    </div>
-                  )}
+                   {activeTab === 'analytics' && (
+                     <div className="p-6">
+                       <BusinessIntelligenceDashboard />
+                     </div>
+                   )}
+
+                   {activeTab === 'automation' && (
+                     <div className="p-6">
+                       <WorkflowAutomationManager />
+                     </div>
+                   )}
+
+                   {activeTab === 'reports' && (
+                     <BusinessInsightsDashboard />
+                   )}
                 </div>
                 </div>
               </div>
