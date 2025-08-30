@@ -7,6 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Breadcrumb } from '@/components/ui/breadcrumb';
 import { InvoicePreviewModal } from '@/components/admin/InvoicePreviewModal';
+import { StatusBadge } from '@/components/admin/StatusBadge';
+import { PaymentLinkModal } from '@/components/admin/PaymentLinkModal';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import {
@@ -62,6 +64,8 @@ const InvoiceManagement = () => {
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [selectedInvoice, setSelectedInvoice] = useState<InvoiceRecord | null>(null);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [paymentLink, setPaymentLink] = useState<string>('');
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
 
   useEffect(() => {
     fetchInvoices();
@@ -246,22 +250,21 @@ const InvoiceManagement = () => {
 
       if (error) throw error;
 
-      // Display the payment link to admin
+      // Display the payment link with improved UX
       if (data?.url) {
+        navigator.clipboard.writeText(data.url);
+        
+        // Use the new PaymentLinkModal for better UX
+        setPaymentLink(data.url);
+        setSelectedInvoice(invoice);
+        setShowPaymentModal(true);
+        
+        // Also copy to clipboard immediately
         navigator.clipboard.writeText(data.url);
         toast({
           title: "Payment Link Created",
-          description: `Payment link copied to clipboard: ${data.url}`,
+          description: "Link copied to clipboard and ready to share",
         });
-        
-        // Show the link in a popup for easy access
-        const confirmed = window.confirm(
-          `Payment link created successfully!\n\nLink: ${data.url}\n\nThe link has been copied to your clipboard. Click OK to open in new tab.`
-        );
-        
-        if (confirmed) {
-          window.open(data.url, '_blank');
-        }
       } else {
         toast({
           title: "Payment Link Created",
@@ -494,9 +497,11 @@ const InvoiceManagement = () => {
                       <div className="flex items-center gap-2">
                         {getStatusIcon(invoice.status, invoice.is_draft)}
                         <h4 className="font-medium">{invoice.invoice_number}</h4>
-                        <Badge className={getStatusColor(invoice.status, invoice.is_draft)}>
-                          {invoice.is_draft ? 'Draft' : invoice.status}
-                        </Badge>
+                        <StatusBadge 
+                          status={invoice.status} 
+                          isDraft={invoice.is_draft}
+                          size="sm"
+                        />
                       </div>
                       <div className="text-sm text-muted-foreground flex items-center gap-4">
                         <span className="flex items-center gap-1">
@@ -628,6 +633,22 @@ const InvoiceManagement = () => {
           }}
           invoice={selectedInvoice}
           onRefresh={fetchInvoices}
+        />
+      )}
+
+      {/* Payment Link Modal */}
+      {showPaymentModal && selectedInvoice && paymentLink && (
+        <PaymentLinkModal
+          isOpen={showPaymentModal}
+          onClose={() => {
+            setShowPaymentModal(false);
+            setPaymentLink('');
+            setSelectedInvoice(null);
+          }}
+          paymentUrl={paymentLink}
+          customerEmail={selectedInvoice.customer_email}
+          invoiceNumber={selectedInvoice.invoice_number}
+          amount={selectedInvoice.total_amount}
         />
       )}
     </div>

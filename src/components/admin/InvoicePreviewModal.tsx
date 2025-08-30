@@ -241,15 +241,16 @@ export function InvoicePreviewModal({ isOpen, onClose, invoice, onRefresh }: Inv
                   Email Customer
                 </Button>
 
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleCreatePaymentLink}
-                  disabled={loading}
-                >
-                  <CreditCard className="h-4 w-4 mr-2" />
-                  Payment Link
-                </Button>
+            <Button
+              variant="default"
+              size="sm"
+              onClick={handleCreatePaymentLink}
+              disabled={loading}
+              className="bg-green-600 hover:bg-green-700 text-white"
+            >
+              <CreditCard className="h-4 w-4 mr-2" />
+              Create Payment Link
+            </Button>
               </>
             )}
 
