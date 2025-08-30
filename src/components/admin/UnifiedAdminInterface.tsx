@@ -15,10 +15,7 @@ import { InvoiceManagementTab } from '@/components/admin/InvoiceManagementTab';
 import { QuoteManagementTab } from '@/components/admin/QuoteManagementTab';
 import { BusinessIntelligenceDashboard } from '@/components/admin/BusinessIntelligenceDashboard';
 import { WorkflowAutomationManager } from '@/components/admin/WorkflowAutomationManager';
-import { BusinessInsightsDashboard } from '@/components/admin/BusinessInsightsDashboard';
 import { SystemHealthMonitor } from '@/components/admin/SystemHealthMonitor';
-import { FinancialDashboard } from '@/components/admin/FinancialDashboard';
-import { QuoteToCashMetrics } from '@/components/admin/QuoteToCashMetrics';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { 
@@ -425,14 +422,6 @@ export function UnifiedAdminInterface() {
                     <TabsTrigger value="automation" className="flex items-center gap-2">
                       <Zap className="h-4 w-4" />
                       Automation
-                    </TabsTrigger>
-                    <TabsTrigger value="financial" className="flex items-center gap-2">
-                      <DollarSign className="h-4 w-4" />
-                      Financial
-                    </TabsTrigger>
-                    <TabsTrigger value="conversion" className="flex items-center gap-2">
-                      <Target className="h-4 w-4" />
-                      Conversion
                     </TabsTrigger>
                   </TabsList>
                 </Tabs>
