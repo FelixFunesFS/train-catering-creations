@@ -8,6 +8,13 @@ export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
+  
+  // Hide header on admin routes
+  const isAdminRoute = location.pathname.startsWith('/admin');
+  
+  if (isAdminRoute) {
+    return null;
+  }
   const navigation = [{
     name: "Home",
     href: "/"

@@ -143,16 +143,16 @@ export function AdminSidebar({ data }: AdminSidebarProps) {
   );
 
   return (
-    <Sidebar>
+    <Sidebar className="border-r border-border">
       {/* Header */}
-      <div className="p-4 border-b">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-primary rounded-lg">
-            <CheckCircle className="h-5 w-5 text-primary-foreground" />
+      <div className="p-3 lg:p-4 border-b border-border">
+        <div className="flex items-center gap-2 lg:gap-3">
+          <div className="p-1.5 lg:p-2 bg-primary rounded-lg">
+            <CheckCircle className="h-4 w-4 lg:h-5 lg:w-5 text-primary-foreground" />
           </div>
-          <div>
-            <h2 className="font-semibold text-sm">Soul Train's Eatery</h2>
-            <p className="text-xs text-muted-foreground">Admin Dashboard</p>
+          <div className="min-w-0">
+            <h2 className="font-semibold text-xs lg:text-sm truncate">Soul Train's Eatery</h2>
+            <p className="text-xs text-muted-foreground hidden lg:block">Admin Dashboard</p>
           </div>
         </div>
       </div>

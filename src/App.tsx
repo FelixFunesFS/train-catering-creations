@@ -2,10 +2,11 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useScrollToAnchor } from "@/hooks/useScrollToAnchor";
 import Index from "./pages/Index";
 import About from "./pages/About";
@@ -31,6 +32,7 @@ import PaymentSuccess from "./pages/PaymentSuccess";
 import ContractManagement from "./pages/ContractManagement";
 import { CustomerPortal } from "./pages/CustomerPortal";
 import CustomerPortalEnhanced from "./pages/CustomerPortalEnhanced";
+import { OptimizedCustomerPortal } from "./components/customer/OptimizedCustomerPortal";
 import UnifiedAdminDashboard from "./pages/UnifiedAdminDashboard";
 import QuoteDetails from "./pages/QuoteDetails";
 import AdminReports from "./pages/AdminReports";
@@ -38,9 +40,12 @@ import AdminMessages from "./pages/AdminMessages";
 import AdminSettings from "./pages/AdminSettings";
 const AppContent = () => {
   useScrollToAnchor();
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin');
+  
   return <div className="min-h-screen bg-background font-clean flex flex-col transition-colors duration-300 py-0 my-0">
       <Header />
-      <main className="flex-1 py-0 my-0">
+      <main className={`flex-1 ${isAdminRoute ? 'p-0' : 'py-0 my-0'}`}>
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/about" element={<About />} />
@@ -71,27 +76,30 @@ const AppContent = () => {
           <Route path="/estimate-preview/:invoiceId" element={<EstimatePreview />} />
           <Route path="/customer/portal" element={<CustomerPortal />} />
           <Route path="/customer/portal-v2" element={<CustomerPortalEnhanced />} />
+          <Route path="/customer/optimized" element={<OptimizedCustomerPortal />} />
           <Route path="/customer/estimate-preview/:invoiceId" element={<EstimatePreview />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
-      <Footer />
+      {!isAdminRoute && <Footer />}
     </div>;
 };
 const queryClient = new QueryClient();
 const App = () => <QueryClientProvider client={queryClient}>
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange={false}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter future={{
-        v7_startTransition: true
-      }}>
-          <AppContent />
-        </BrowserRouter>
-      </TooltipProvider>
-    </ThemeProvider>
+    <ErrorBoundary>
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange={false}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter future={{
+          v7_startTransition: true
+        }}>
+            <AppContent />
+          </BrowserRouter>
+        </TooltipProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
   </QueryClientProvider>;
 export default App;

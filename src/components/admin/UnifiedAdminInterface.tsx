@@ -10,6 +10,7 @@ import { AdminAnalyticsDashboard } from '@/components/admin/AdminAnalyticsDashbo
 import { NotificationCenter } from '@/components/admin/NotificationCenter';
 import { BatchOperations } from '@/components/admin/BatchOperations';
 import { AutomatedStatusManager } from '@/components/admin/AutomatedStatusManager';
+import { MobileAdminActions } from '@/components/admin/MobileAdminActions';
 import { InvoiceManagementTab } from '@/components/admin/InvoiceManagementTab';
 import { QuoteManagementTab } from '@/components/admin/QuoteManagementTab';
 import { BusinessIntelligenceDashboard } from '@/components/admin/BusinessIntelligenceDashboard';
@@ -278,115 +279,130 @@ export function UnifiedAdminInterface() {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-gray-50">
+      <div className="min-h-screen flex w-full bg-background">
         <AdminSidebar data={data} />
         
         <div className="flex-1 flex flex-col">
           {/* Header */}
-          <header className="h-16 flex items-center justify-between border-b bg-white px-6">
-            <div className="flex items-center gap-4">
-              <SidebarTrigger className="lg:hidden" />
+          <header className="h-16 flex items-center justify-between border-b bg-card px-4 lg:px-6">
+            <div className="flex items-center gap-2 lg:gap-4">
+              <SidebarTrigger className="lg:hidden p-2" />
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
-                <p className="text-sm text-gray-600 hidden sm:block">Unified catering business management</p>
+                <h1 className="text-lg lg:text-2xl font-bold text-foreground">Admin Dashboard</h1>
+                <p className="text-xs lg:text-sm text-muted-foreground hidden sm:block">Unified catering business management</p>
               </div>
             </div>
             
-            <div className="flex items-center gap-3">
-              <AutomatedStatusManager 
-                onStatusUpdate={handleStatusProgression}
-                data={data}
-              />
-              <BatchOperations
+            <div className="flex items-center gap-1 lg:gap-3">
+              <div className="hidden lg:block">
+                <AutomatedStatusManager 
+                  onStatusUpdate={handleStatusProgression}
+                  data={data}
+                />
+              </div>
+              <div className="hidden lg:block">
+                <BatchOperations
+                  selectedItems={selectedItems}
+                  onAction={handleBatchAction}
+                  itemType={activeTab}
+                />
+              </div>
+              <MobileAdminActions
                 selectedItems={selectedItems}
-                onAction={handleBatchAction}
+                onBatchAction={handleBatchAction}
+                onStatusUpdate={handleStatusProgression}
                 itemType={activeTab}
+                data={data}
               />
             </div>
           </header>
 
           {/* Main Content */}
-          <main className="flex-1 p-6">
-            <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
-              {/* Tab Navigation - Only show on smaller screens */}
+          <main className="flex-1 p-3 lg:p-6 overflow-auto">
+            <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-4 lg:space-y-6">
+              {/* Mobile Tab Navigation */}
               <div className="lg:hidden">
-                <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="overview" className="flex items-center gap-2">
+                <TabsList className="grid w-full grid-cols-3 h-12">
+                  <TabsTrigger value="overview" className="flex flex-col items-center gap-1 px-2 py-2">
                     <LayoutDashboard className="h-4 w-4" />
-                    <span className="hidden sm:inline">Overview</span>
+                    <span className="text-xs">Overview</span>
                   </TabsTrigger>
-                  <TabsTrigger value="quotes" className="flex items-center gap-2">
-                    <FileText className="h-4 w-4" />
-                    <span className="hidden sm:inline">Quotes</span>
-                    {tabCounts.quotes > 0 && (
-                      <Badge variant="secondary" className="ml-1">
-                        {tabCounts.quotes}
-                      </Badge>
-                    )}
+                  <TabsTrigger value="quotes" className="flex flex-col items-center gap-1 px-2 py-2">
+                    <div className="relative">
+                      <FileText className="h-4 w-4" />
+                      {tabCounts.quotes > 0 && (
+                        <Badge variant="secondary" className="absolute -top-2 -right-2 h-5 w-5 p-0 text-xs flex items-center justify-center">
+                          {tabCounts.quotes}
+                        </Badge>
+                      )}
+                    </div>
+                    <span className="text-xs">Quotes</span>
                   </TabsTrigger>
-                  <TabsTrigger value="invoices" className="flex items-center gap-2">
-                    <CreditCard className="h-4 w-4" />
-                    <span className="hidden sm:inline">Invoices</span>
-                    {tabCounts.invoices > 0 && (
-                      <Badge variant="secondary" className="ml-1">
-                        {tabCounts.invoices}
-                      </Badge>
-                    )}
+                  <TabsTrigger value="invoices" className="flex flex-col items-center gap-1 px-2 py-2">
+                    <div className="relative">
+                      <CreditCard className="h-4 w-4" />
+                      {tabCounts.invoices > 0 && (
+                        <Badge variant="secondary" className="absolute -top-2 -right-2 h-5 w-5 p-0 text-xs flex items-center justify-center">
+                          {tabCounts.invoices}
+                        </Badge>
+                      )}
+                    </div>
+                    <span className="text-xs">Invoices</span>
                   </TabsTrigger>
                 </TabsList>
               </div>
 
               {/* Tab Contents */}
-              <TabsContent value="overview" className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <TabsContent value="overview" className="space-y-4 lg:space-y-6">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6">
                   {/* Quick Stats */}
                   <Card>
-                    <CardContent className="pt-6">
-                      <div className="flex items-center gap-2">
-                        <TrendingUp className="h-4 w-4 text-green-600" />
-                        <span className="text-sm font-medium">Total Revenue</span>
+                    <CardContent className="pt-3 lg:pt-6">
+                      <div className="flex items-center gap-1 lg:gap-2">
+                        <TrendingUp className="h-3 w-3 lg:h-4 lg:w-4 text-green-600" />
+                        <span className="text-xs lg:text-sm font-medium">Total Revenue</span>
                       </div>
-                      <div className="text-2xl font-bold">
+                      <div className="text-lg lg:text-2xl font-bold">
                         ${((data.analytics.totalRevenue || 0) / 100).toLocaleString()}
                       </div>
                     </CardContent>
                   </Card>
                   
                   <Card>
-                    <CardContent className="pt-6">
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-blue-600" />
-                        <span className="text-sm font-medium">This Month</span>
+                    <CardContent className="pt-3 lg:pt-6">
+                      <div className="flex items-center gap-1 lg:gap-2">
+                        <Calendar className="h-3 w-3 lg:h-4 lg:w-4 text-blue-600" />
+                        <span className="text-xs lg:text-sm font-medium">This Month</span>
                       </div>
-                      <div className="text-2xl font-bold">
+                      <div className="text-lg lg:text-2xl font-bold">
                         ${((data.analytics.monthlyRevenue || 0) / 100).toLocaleString()}
                       </div>
                     </CardContent>
                   </Card>
                   
                   <Card>
-                    <CardContent className="pt-6">
-                      <div className="flex items-center gap-2">
-                        <FileText className="h-4 w-4 text-purple-600" />
-                        <span className="text-sm font-medium">Active Quotes</span>
+                    <CardContent className="pt-3 lg:pt-6">
+                      <div className="flex items-center gap-1 lg:gap-2">
+                        <FileText className="h-3 w-3 lg:h-4 lg:w-4 text-purple-600" />
+                        <span className="text-xs lg:text-sm font-medium">Active Quotes</span>
                       </div>
-                      <div className="text-2xl font-bold">{data.quotes.length}</div>
+                      <div className="text-lg lg:text-2xl font-bold">{data.quotes.length}</div>
                     </CardContent>
                   </Card>
                   
                   <Card>
-                    <CardContent className="pt-6">
-                      <div className="flex items-center gap-2">
-                        <Users className="h-4 w-4 text-orange-600" />
-                        <span className="text-sm font-medium">Upcoming Events</span>
+                    <CardContent className="pt-3 lg:pt-6">
+                      <div className="flex items-center gap-1 lg:gap-2">
+                        <Users className="h-3 w-3 lg:h-4 lg:w-4 text-orange-600" />
+                        <span className="text-xs lg:text-sm font-medium">Upcoming Events</span>
                       </div>
-                      <div className="text-2xl font-bold">{data.analytics.upcomingEvents || 0}</div>
+                      <div className="text-lg lg:text-2xl font-bold">{data.analytics.upcomingEvents || 0}</div>
                     </CardContent>
                   </Card>
                 </div>
 
                 {/* Recent Activity */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
                   <Card>
                     <CardHeader>
                       <CardTitle>Recent Quotes</CardTitle>
