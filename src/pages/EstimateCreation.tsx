@@ -75,9 +75,39 @@ export default function EstimateCreation() {
 
   useEffect(() => {
     if (quoteId) {
-      fetchQuoteData();
+      checkExistingInvoiceAndFetch();
     }
   }, [quoteId]);
+
+  const checkExistingInvoiceAndFetch = async () => {
+    try {
+      // First check if an invoice already exists for this quote
+      const { data: existingInvoice, error: invoiceCheckError } = await supabase
+        .from('invoices')
+        .select('id, status')
+        .eq('quote_request_id', quoteId)
+        .maybeSingle();
+
+      if (invoiceCheckError) throw invoiceCheckError;
+
+      if (existingInvoice) {
+        // Invoice already exists, redirect to workflow page
+        navigate(`/admin/estimate-workflow/${existingInvoice.id}`);
+        return;
+      }
+
+      // No existing invoice, proceed with normal flow
+      await fetchQuoteData();
+    } catch (error) {
+      console.error('Error checking existing invoice:', error);
+      toast({
+        title: "Error", 
+        description: "Failed to load quote data",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+    }
+  };
 
   const fetchQuoteData = async () => {
     try {
@@ -366,25 +396,14 @@ export default function EstimateCreation() {
         throw new Error('Failed to save estimate');
       }
 
-      // Send the estimate via email
-      const { data, error } = await supabase.functions.invoke('send-invoice-email', {
-        body: { invoice_id: savedInvoiceId }
-      });
-
-      if (error) throw error;
-
-      toast({
-        title: "Estimate Sent",
-        description: "Estimate has been sent to the customer",
-      });
-
-      // Navigate to admin estimate preview
-      navigate(`/admin/estimate-preview/${savedInvoiceId}`);
+      // Redirect to workflow page where sending happens
+      navigate(`/admin/estimate-workflow/${savedInvoiceId}`);
+      
     } catch (error) {
-      console.error('Error sending estimate:', error);
+      console.error('Error preparing estimate:', error);
       toast({
         title: "Error",
-        description: "Failed to send estimate",
+        description: "Failed to prepare estimate for sending",
         variant: "destructive"
       });
     }
@@ -486,11 +505,10 @@ export default function EstimateCreation() {
                   </Button>
                   <Button 
                     onClick={handleSendEstimate} 
-                    variant="outline"
                     className="flex items-center gap-2"
                   >
                     <Send className="h-4 w-4" />
-                    Send to Customer
+                    Continue to Workflow
                   </Button>
                 </>
               )}

@@ -582,9 +582,15 @@ export default function EstimatePreview() {
                   {isApproved ? 'Approved' : 'Pending Review'}
                 </Badge>
               )}
-              <Button variant="outline" onClick={handleEditEstimate}>
-                <FileText className="h-4 w-4 mr-2" />
-                {isPreview ? 'Close Preview' : 'Edit Estimate'}
+              <Button variant="outline" onClick={() => {
+                if (isPreview) {
+                  window.close();
+                } else {
+                  navigate(`/admin/estimate-workflow/${estimate.id}`);
+                }
+              }}>
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                {isPreview ? 'Close Preview' : 'Back to Workflow'}
               </Button>
               <Button variant="outline" onClick={handleDownloadPDF}>
                 <Download className="h-4 w-4 mr-2" />
