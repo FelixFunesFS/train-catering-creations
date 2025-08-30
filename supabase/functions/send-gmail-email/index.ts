@@ -107,8 +107,11 @@ const handler = async (req: Request): Promise<Response> => {
       html
     ].join('\r\n');
 
-    // Base64url encode the message
-    const encodedMessage = btoa(message)
+    // Base64url encode the message (handle UTF-8 properly)
+    const encoder = new TextEncoder();
+    const messageBytes = encoder.encode(message);
+    const base64String = btoa(String.fromCharCode(...messageBytes));
+    const encodedMessage = base64String
       .replace(/\+/g, '-')
       .replace(/\//g, '_')
       .replace(/=+$/, '');
