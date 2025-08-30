@@ -537,10 +537,10 @@ const InvoiceManagement = () => {
                       View Quote
                     </Button>
 
-                    {/* Preview invoice */}
-                    <Button size="sm" variant="outline" onClick={() => handleViewInvoice(invoice)}>
+                    {/* Primary View Details Button */}
+                    <Button size="sm" variant="default" onClick={() => handleViewInvoice(invoice)}>
                       <Eye className="h-3 w-3 mr-1" />
-                      Preview
+                      View Details
                     </Button>
 
                     {/* Status-based action buttons */}
