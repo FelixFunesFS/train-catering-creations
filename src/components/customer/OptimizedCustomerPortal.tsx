@@ -1,35 +1,38 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { QuoteApprovalFlow } from './QuoteApprovalFlow';
+import { ChangeRequestForm } from './ChangeRequestForm';
+import { PaymentPortal } from './PaymentPortal';
 import { 
   CheckCircle, 
   Clock, 
-  DollarSign, 
   FileText, 
-  Calendar,
-  ArrowRight,
   Download,
   CreditCard,
   MessageSquare,
-  Star
+  Star,
+  Edit
 } from 'lucide-react';
 
 interface CustomerData {
   quote?: any;
   invoice?: any;
   customer?: any;
+  changeRequests?: any[];
 }
 
 export function OptimizedCustomerPortal() {
   const [searchParams] = useSearchParams();
   const [data, setData] = useState<CustomerData>({});
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('overview');
   const { toast } = useToast();
 
   const quoteId = searchParams.get('quote');
@@ -54,15 +57,43 @@ export function OptimizedCustomerPortal() {
           .eq('id', quoteId)
           .single();
         customerData.quote = quote;
+
+        // Fetch related invoice if exists
+        if (quote) {
+          const { data: invoice } = await supabase
+            .from('invoices')
+            .select('*')
+            .eq('quote_request_id', quote.id)
+            .single();
+          customerData.invoice = invoice;
+        }
+
+        // Fetch change requests
+        const { data: changeRequests } = await supabase
+          .from('change_requests')
+          .select('*')
+          .eq('quote_request_id', quoteId)
+          .order('created_at', { ascending: false });
+        customerData.changeRequests = changeRequests || [];
       }
 
-      if (invoiceId) {
+      if (invoiceId && !customerData.invoice) {
         const { data: invoice } = await supabase
           .from('invoices')
           .select('*')
           .eq('id', invoiceId)
           .single();
         customerData.invoice = invoice;
+
+        // Fetch related quote if exists
+        if (invoice?.quote_request_id) {
+          const { data: quote } = await supabase
+            .from('quote_requests')
+            .select('*')
+            .eq('id', invoice.quote_request_id)
+            .single();
+          customerData.quote = quote;
+        }
       }
 
       setData(customerData);
@@ -243,153 +274,232 @@ export function OptimizedCustomerPortal() {
           </CardContent>
         </Card>
 
-        {/* Current Status */}
-        {data.quote && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span>Quote Details</span>
-                <Badge className={getStatusColor(data.quote.status)}>
-                  {data.quote.status.charAt(0).toUpperCase() + data.quote.status.slice(1)}
-                </Badge>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Event Name</p>
-                  <p className="font-medium">{data.quote.event_name}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Event Date</p>
-                  <p className="font-medium">{new Date(data.quote.event_date).toLocaleDateString()}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Guest Count</p>
-                  <p className="font-medium">{data.quote.guest_count} guests</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Service Type</p>
-                  <p className="font-medium">{data.quote.service_type}</p>
-                </div>
-              </div>
+        {/* Main Content Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="overview" className="flex items-center gap-2">
+              <Star className="h-4 w-4" />
+              Overview
+            </TabsTrigger>
+            <TabsTrigger value="quote" className="flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              Quote Details
+            </TabsTrigger>
+            {data.quote?.status === 'pending' && (
+              <TabsTrigger value="changes" className="flex items-center gap-2">
+                <Edit className="h-4 w-4" />
+                Request Changes
+              </TabsTrigger>
+            )}
+            {(data.invoice || data.quote?.status === 'confirmed') && (
+              <TabsTrigger value="payment" className="flex items-center gap-2">
+                <CreditCard className="h-4 w-4" />
+                Payment
+              </TabsTrigger>
+            )}
+          </TabsList>
 
-              {data.quote.estimated_total && (
-                <div className="pt-4 border-t">
-                  <div className="flex justify-between items-center">
-                    <span className="text-lg font-medium">Estimated Total</span>
-                    <span className="text-2xl font-bold text-primary">
-                      ${(data.quote.estimated_total / 100).toLocaleString()}
+          <TabsContent value="overview" className="space-y-6">
+            {/* Current Status Card */}
+            {data.quote && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between">
+                    <span>Quote Summary</span>
+                    <Badge className={getStatusColor(data.quote.status)}>
+                      {data.quote.status.charAt(0).toUpperCase() + data.quote.status.slice(1)}
+                    </Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Event Name</p>
+                      <p className="font-medium">{data.quote.event_name}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Event Date</p>
+                      <p className="font-medium">{new Date(data.quote.event_date).toLocaleDateString()}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Guest Count</p>
+                      <p className="font-medium">{data.quote.guest_count} guests</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Service Type</p>
+                      <p className="font-medium">{data.quote.service_type}</p>
+                    </div>
+                  </div>
+
+                  {data.quote.estimated_total && (
+                    <div className="pt-4 border-t">
+                      <div className="flex justify-between items-center">
+                        <span className="text-lg font-medium">Estimated Total</span>
+                        <span className="text-2xl font-bold text-primary">
+                          ${(data.quote.estimated_total / 100).toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  {data.quote.status === 'quoted' && (
+                    <div className="flex gap-3 pt-4">
+                      <Button onClick={handleApproveQuote} className="flex-1">
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Approve Quote
+                      </Button>
+                      <Button variant="outline" onClick={() => setActiveTab('changes')}>
+                        <MessageSquare className="h-4 w-4 mr-2" />
+                        Request Changes
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Invoice Summary */}
+            {data.invoice && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between">
+                    <span>Invoice Summary</span>
+                    <Badge className={getStatusColor(data.invoice.status)}>
+                      {data.invoice.status.charAt(0).toUpperCase() + data.invoice.status.slice(1)}
+                    </Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex justify-between items-center text-lg">
+                    <span>Total Amount</span>
+                    <span className="font-bold text-2xl text-primary">
+                      ${(data.invoice.total_amount / 100).toLocaleString()}
                     </span>
                   </div>
-                </div>
-              )}
 
-              {data.quote.status === 'quoted' && (
-                <div className="flex gap-3 pt-4">
-                  <Button onClick={handleApproveQuote} className="flex-1">
-                    <CheckCircle className="h-4 w-4 mr-2" />
-                    Approve Quote
-                  </Button>
-                  <Button variant="outline">
-                    <MessageSquare className="h-4 w-4 mr-2" />
-                    Ask Questions
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        )}
+                  {data.invoice.due_date && (
+                    <div className="flex justify-between items-center">
+                      <span>Due Date</span>
+                      <span className="font-medium">
+                        {new Date(data.invoice.due_date).toLocaleDateString()}
+                      </span>
+                    </div>
+                  )}
 
-        {/* Invoice Section */}
-        {data.invoice && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span>Invoice</span>
-                <Badge className={getStatusColor(data.invoice.status)}>
-                  {data.invoice.status.charAt(0).toUpperCase() + data.invoice.status.slice(1)}
-                </Badge>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex justify-between items-center text-lg">
-                <span>Total Amount</span>
-                <span className="font-bold text-2xl text-primary">
-                  ${(data.invoice.total_amount / 100).toLocaleString()}
-                </span>
-              </div>
+                  <div className="flex gap-3 pt-4">
+                    {data.invoice.status !== 'paid' && (
+                      <Button onClick={() => setActiveTab('payment')} className="flex-1">
+                        <CreditCard className="h-4 w-4 mr-2" />
+                        Make Payment
+                      </Button>
+                    )}
+                    <Button variant="outline">
+                      <Download className="h-4 w-4 mr-2" />
+                      Download PDF
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
-              {data.invoice.due_date && (
-                <div className="flex justify-between items-center">
-                  <span>Due Date</span>
-                  <span className="font-medium">
-                    {new Date(data.invoice.due_date).toLocaleDateString()}
-                  </span>
-                </div>
-              )}
-
-              <Separator />
-
-              <div className="flex gap-3">
-                {data.invoice.status !== 'paid' && (
-                  <Button onClick={handlePayInvoice} className="flex-1">
-                    <CreditCard className="h-4 w-4 mr-2" />
-                    Pay Now
-                  </Button>
+            {/* Next Steps */}
+            <Card>
+              <CardHeader>
+                <CardTitle>What's Next?</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {data.quote?.status === 'pending' && (
+                  <div className="flex items-start gap-3">
+                    <Clock className="h-5 w-5 text-yellow-500 mt-0.5" />
+                    <div>
+                      <p className="font-medium">We're reviewing your quote</p>
+                      <p className="text-sm text-muted-foreground">
+                        Our team will prepare a detailed quote within 24 hours and email it to you.
+                      </p>
+                    </div>
+                  </div>
                 )}
-                <Button variant="outline">
-                  <Download className="h-4 w-4 mr-2" />
-                  Download PDF
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
 
-        {/* Next Steps */}
-        <Card>
-          <CardHeader>
-            <CardTitle>What's Next?</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {data.quote?.status === 'pending' && (
-              <div className="flex items-start gap-3">
-                <Clock className="h-5 w-5 text-yellow-500 mt-0.5" />
-                <div>
-                  <p className="font-medium">We're reviewing your quote</p>
-                  <p className="text-sm text-muted-foreground">
-                    Our team will prepare a detailed quote within 24 hours and email it to you.
-                  </p>
-                </div>
-              </div>
-            )}
+                {data.quote?.status === 'confirmed' && (
+                  <div className="flex items-start gap-3">
+                    <FileText className="h-5 w-5 text-blue-500 mt-0.5" />
+                    <div>
+                      <p className="font-medium">Invoice preparation</p>
+                      <p className="text-sm text-muted-foreground">
+                        We're preparing your invoice and contract. You'll receive them within 2 business days.
+                      </p>
+                    </div>
+                  </div>
+                )}
 
-            {data.quote?.status === 'confirmed' && (
-              <div className="flex items-start gap-3">
-                <FileText className="h-5 w-5 text-blue-500 mt-0.5" />
-                <div>
-                  <p className="font-medium">Invoice preparation</p>
-                  <p className="text-sm text-muted-foreground">
-                    We're preparing your invoice and contract. You'll receive them within 2 business days.
-                  </p>
-                </div>
-              </div>
-            )}
+                {data.invoice?.status === 'paid' && (
+                  <div className="flex items-start gap-3">
+                    <Star className="h-5 w-5 text-green-500 mt-0.5" />
+                    <div>
+                      <p className="font-medium">You're all set!</p>
+                      <p className="text-sm text-muted-foreground">
+                        Your event is confirmed. We'll contact you a few days before your event to confirm final details.
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-            {data.invoice?.status === 'paid' && (
-              <div className="flex items-start gap-3">
-                <Star className="h-5 w-5 text-green-500 mt-0.5" />
-                <div>
-                  <p className="font-medium">You're all set!</p>
-                  <p className="text-sm text-muted-foreground">
-                    Your event is confirmed. We'll contact you a few days before your event to confirm final details.
-                  </p>
-                </div>
-              </div>
+          <TabsContent value="quote">
+            {data.quote ? (
+              <QuoteApprovalFlow
+                quote={data.quote}
+                onApprovalChange={(approved, comments) => {
+                  fetchCustomerData();
+                  if (approved) {
+                    setActiveTab('overview');
+                  }
+                }}
+              />
+            ) : (
+              <Card>
+                <CardContent className="py-8 text-center">
+                  <p className="text-muted-foreground">No quote information available.</p>
+                </CardContent>
+              </Card>
             )}
-          </CardContent>
-        </Card>
+          </TabsContent>
+
+          <TabsContent value="changes">
+            {data.quote ? (
+              <ChangeRequestForm
+                quote={data.quote}
+                onRequestSubmitted={() => {
+                  fetchCustomerData();
+                  setActiveTab('overview');
+                }}
+              />
+            ) : (
+              <Card>
+                <CardContent className="py-8 text-center">
+                  <p className="text-muted-foreground">No quote available for change requests.</p>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          <TabsContent value="payment">
+            {(data.quote || data.invoice) ? (
+              <PaymentPortal
+                quote={data.quote}
+                invoice={data.invoice}
+              />
+            ) : (
+              <Card>
+                <CardContent className="py-8 text-center">
+                  <p className="text-muted-foreground">No payment information available.</p>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+        </Tabs>
 
         {/* Contact Section */}
         <Card>
