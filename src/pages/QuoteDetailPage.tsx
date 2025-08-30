@@ -187,11 +187,11 @@ export default function QuoteDetailPage() {
             <div className="flex items-center gap-3">
               <StatusBadge status={quote.workflow_status || quote.status} />
               <Button 
-                onClick={() => navigate(`/admin/invoice-creation/${quote.id}`)}
+                onClick={() => navigate(`/admin/estimate-creation/${quote.id}`)}
                 variant="outline"
               >
                 <FileText className="h-4 w-4 mr-2" />
-                Create Invoice
+                Create Estimate
               </Button>
             </div>
           </div>

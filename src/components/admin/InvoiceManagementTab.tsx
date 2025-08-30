@@ -24,18 +24,24 @@ import {
 
 interface InvoiceManagementTabProps {
   invoices: any[];
+  quotes?: any[];
   loading: boolean;
   onRefresh: () => Promise<void>;
-  selectedItems: string[];
-  onSelectionChange: (items: string[]) => void;
+  selectedItems?: string[];
+  onSelectionChange?: (items: string[]) => void;
+  title?: string;
+  description?: string;
 }
 
 export function InvoiceManagementTab({ 
   invoices, 
+  quotes = [],
   loading, 
   onRefresh, 
-  selectedItems, 
-  onSelectionChange 
+  selectedItems = [],
+  onSelectionChange = () => {},
+  title = "Invoice Management",
+  description = "Manage and track all invoices"
 }: InvoiceManagementTabProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -227,13 +233,19 @@ export function InvoiceManagementTab({
         </CardContent>
       </Card>
 
-      {/* Invoices Table - Mobile responsive */}
+      {/* Content Header */}
+      <div className="space-y-2">
+        <h2 className="text-2xl font-bold">{title}</h2>
+        <p className="text-muted-foreground">{description}</p>
+      </div>
+
+      {/* Items Table - Mobile responsive */}
       <Card className="bg-background border shadow-sm">
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center justify-between text-lg">
-            <span>Invoices & Estimates</span>
+            <span>{title}</span>
             <Badge variant="outline" className="text-xs">
-              {filteredAndSortedInvoices.length} of {invoices.length}
+              {filteredAndSortedInvoices.length + quotes.length} items
             </Badge>
           </CardTitle>
         </CardHeader>
@@ -348,6 +360,47 @@ export function InvoiceManagementTab({
 
               {/* Mobile Card View */}
               <div className="lg:hidden space-y-3 p-4">
+                {/* Quotes under review */}
+                {quotes.map((quote) => (
+                  <Card key={`quote-${quote.id}`} className="shadow-sm border-orange-200">
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between mb-3">
+                        <div>
+                          <p className="font-semibold text-sm">{quote.event_name}</p>
+                          <p className="text-xs text-muted-foreground">Quote Request</p>
+                        </div>
+                        <StatusBadge 
+                          status={quote.status} 
+                          size="sm"
+                        />
+                      </div>
+                      
+                      <div className="space-y-2 mb-3">
+                        <div>
+                          <p className="font-medium text-sm">{quote.contact_name}</p>
+                          <p className="text-xs text-muted-foreground">{quote.guest_count} guests</p>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-lg font-bold">
+                            {quote.estimated_total ? formatCurrency(quote.estimated_total) : 'Pending'}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            Event: {formatDate(quote.event_date)}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <StandardizedActions 
+                        type="quote" 
+                        item={quote} 
+                        onRefresh={onRefresh}
+                        size="sm"
+                      />
+                    </CardContent>
+                  </Card>
+                ))}
+                
+                {/* Invoices */}
                 {filteredAndSortedInvoices.map((invoice) => (
                   <Card key={invoice.id} className="shadow-sm">
                     <CardContent className="p-4">
@@ -395,9 +448,9 @@ export function InvoiceManagementTab({
                 ))}
               </div>
 
-              {filteredAndSortedInvoices.length === 0 && (
+              {filteredAndSortedInvoices.length === 0 && quotes.length === 0 && (
                 <div className="text-center py-8 px-4">
-                  <p className="text-muted-foreground">No invoices found matching your criteria.</p>
+                  <p className="text-muted-foreground">No items found matching your criteria.</p>
                 </div>
               )}
             </>

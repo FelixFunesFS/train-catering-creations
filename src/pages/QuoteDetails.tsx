@@ -74,7 +74,7 @@ export default function QuoteDetails() {
 
   const handleCreateInvoice = () => {
     // Navigate directly to invoice creation page for pricing
-    navigate(`/admin/invoice-creation/${quoteId}`);
+    navigate(`/admin/estimate-creation/${quoteId}`);
   };
 
   const handleStatusUpdate = async (newStatus: 'pending' | 'reviewed' | 'quoted' | 'confirmed' | 'completed' | 'cancelled') => {

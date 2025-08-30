@@ -27,7 +27,7 @@ interface UnifiedAdminData {
 
 export function UnifiedAdminInterface() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState(() => searchParams.get('tab') || 'overview');
+  const [activeTab, setActiveTab] = useState(() => searchParams.get('tab') || 'new-requests');
   const [data, setData] = useState<UnifiedAdminData>({
     quotes: [],
     invoices: [],
@@ -53,7 +53,7 @@ export function UnifiedAdminInterface() {
   // Update URL when tab changes
   const handleTabChange = (newTab: string) => {
     setActiveTab(newTab);
-    if (newTab === 'overview') {
+    if (newTab === 'new-requests') {
       setSearchParams({});
     } else {
       setSearchParams({ tab: newTab });
@@ -226,9 +226,11 @@ export function UnifiedAdminInterface() {
 
   const getTabCounts = () => {
     return {
-      quotes: data.quotes.filter(q => ['pending', 'reviewed'].includes(q.status)).length,
-      invoices: data.invoices.length,
-      notifications: data.notifications.filter(n => !n.read).length
+      newRequests: data.quotes.filter(q => q.status === 'pending').length,
+      estimatesInProgress: data.invoices.filter(i => i.is_draft === true || i.status === 'draft').length + 
+                          data.quotes.filter(q => q.status === 'reviewed').length,
+      invoicesActive: data.invoices.filter(i => ['sent', 'viewed', 'approved'].includes(i.status)).length,
+      paymentTracking: data.invoices.filter(i => ['paid', 'completed'].includes(i.status)).length
     };
   };
 
@@ -256,53 +258,78 @@ export function UnifiedAdminInterface() {
             {/* Mobile Tab Navigation */}
             <div className="lg:hidden sticky top-14 z-30 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
               <div className="px-3 py-2">
-                <div className="grid grid-cols-3 gap-1 bg-muted rounded-lg p-1">
+                <div className="grid grid-cols-4 gap-1 bg-muted rounded-lg p-1">
                   <button
-                    onClick={() => handleTabChange('overview')}
-                    className={`flex flex-col items-center gap-1 px-2 py-2 rounded-md text-xs transition-all ${
-                      activeTab === 'overview' 
-                        ? 'bg-background text-foreground shadow-sm' 
-                        : 'text-muted-foreground hover:text-foreground'
-                    }`}
-                  >
-                    <LayoutDashboard className="h-4 w-4" />
-                    <span>Overview</span>
-                  </button>
-                  <button
-                    onClick={() => handleTabChange('requests')}
-                    className={`flex flex-col items-center gap-1 px-2 py-2 rounded-md text-xs transition-all relative ${
-                      activeTab === 'requests' 
+                    onClick={() => handleTabChange('new-requests')}
+                    className={`flex flex-col items-center gap-1 px-1 py-2 rounded-md text-xs transition-all relative ${
+                      activeTab === 'new-requests' 
                         ? 'bg-background text-foreground shadow-sm' 
                         : 'text-muted-foreground hover:text-foreground'
                     }`}
                   >
                     <div className="relative">
                       <FileText className="h-4 w-4" />
-                      {tabCounts.quotes > 0 && (
+                      {tabCounts.newRequests > 0 && (
                         <Badge variant="secondary" className="absolute -top-1 -right-1 h-4 w-4 p-0 text-xs flex items-center justify-center">
-                          {tabCounts.quotes}
+                          {tabCounts.newRequests}
                         </Badge>
                       )}
                     </div>
-                    <span>Requests</span>
+                    <span>New</span>
                   </button>
                   <button
-                    onClick={() => handleTabChange('in-progress')}
-                    className={`flex flex-col items-center gap-1 px-2 py-2 rounded-md text-xs transition-all relative ${
-                      activeTab === 'in-progress' 
+                    onClick={() => handleTabChange('estimates-progress')}
+                    className={`flex flex-col items-center gap-1 px-1 py-2 rounded-md text-xs transition-all relative ${
+                      activeTab === 'estimates-progress' 
                         ? 'bg-background text-foreground shadow-sm' 
                         : 'text-muted-foreground hover:text-foreground'
                     }`}
                   >
                     <div className="relative">
                       <Target className="h-4 w-4" />
-                      {tabCounts.invoices > 0 && (
+                      {tabCounts.estimatesInProgress > 0 && (
                         <Badge variant="secondary" className="absolute -top-1 -right-1 h-4 w-4 p-0 text-xs flex items-center justify-center">
-                          {tabCounts.invoices}
+                          {tabCounts.estimatesInProgress}
                         </Badge>
                       )}
                     </div>
-                    <span>Progress</span>
+                    <span>Estimate</span>
+                  </button>
+                  <button
+                    onClick={() => handleTabChange('invoices-active')}
+                    className={`flex flex-col items-center gap-1 px-1 py-2 rounded-md text-xs transition-all relative ${
+                      activeTab === 'invoices-active' 
+                        ? 'bg-background text-foreground shadow-sm' 
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    <div className="relative">
+                      <DollarSign className="h-4 w-4" />
+                      {tabCounts.invoicesActive > 0 && (
+                        <Badge variant="secondary" className="absolute -top-1 -right-1 h-4 w-4 p-0 text-xs flex items-center justify-center">
+                          {tabCounts.invoicesActive}
+                        </Badge>
+                      )}
+                    </div>
+                    <span>Invoice</span>
+                  </button>
+                  <button
+                    onClick={() => handleTabChange('payment-tracking')}
+                    className={`flex flex-col items-center gap-1 px-1 py-2 rounded-md text-xs transition-all relative ${
+                      activeTab === 'payment-tracking' 
+                        ? 'bg-background text-foreground shadow-sm' 
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    <div className="relative">
+                      <Users className="h-4 w-4" />
+                      {tabCounts.paymentTracking > 0 && (
+                        <Badge variant="secondary" className="absolute -top-1 -right-1 h-4 w-4 p-0 text-xs flex items-center justify-center">
+                          {tabCounts.paymentTracking}
+                        </Badge>
+                      )}
+                    </div>
+                    <span>Payment</span>
                   </button>
                 </div>
               </div>
@@ -314,26 +341,40 @@ export function UnifiedAdminInterface() {
                 <div className="p-3 lg:p-6 min-h-full">
                   {/* Desktop Tab Navigation */}
                   <Tabs value={activeTab} onValueChange={handleTabChange} className="hidden lg:block">
-                    <TabsList className="grid w-full grid-cols-3 mb-6">
-                      <TabsTrigger value="overview" className="flex items-center gap-2">
-                        <LayoutDashboard className="h-4 w-4" />
-                        Overview
-                      </TabsTrigger>
-                      <TabsTrigger value="requests" className="flex items-center gap-2">
+                    <TabsList className="grid w-full grid-cols-4 mb-6">
+                      <TabsTrigger value="new-requests" className="flex items-center gap-2">
                         <FileText className="h-4 w-4" />
                         New Requests
-                        {tabCounts.quotes > 0 && (
+                        {tabCounts.newRequests > 0 && (
                           <Badge variant="secondary" className="ml-1">
-                            {tabCounts.quotes}
+                            {tabCounts.newRequests}
                           </Badge>
                         )}
                       </TabsTrigger>
-                      <TabsTrigger value="in-progress" className="flex items-center gap-2">
+                      <TabsTrigger value="estimates-progress" className="flex items-center gap-2">
                         <Target className="h-4 w-4" />
-                        In Progress
-                        {tabCounts.invoices > 0 && (
+                        Estimates in Progress
+                        {tabCounts.estimatesInProgress > 0 && (
                           <Badge variant="secondary" className="ml-1">
-                            {tabCounts.invoices}
+                            {tabCounts.estimatesInProgress}
+                          </Badge>
+                        )}
+                      </TabsTrigger>
+                      <TabsTrigger value="invoices-active" className="flex items-center gap-2">
+                        <DollarSign className="h-4 w-4" />
+                        Invoices Active
+                        {tabCounts.invoicesActive > 0 && (
+                          <Badge variant="secondary" className="ml-1">
+                            {tabCounts.invoicesActive}
+                          </Badge>
+                        )}
+                      </TabsTrigger>
+                      <TabsTrigger value="payment-tracking" className="flex items-center gap-2">
+                        <Users className="h-4 w-4" />
+                        Payment Tracking
+                        {tabCounts.paymentTracking > 0 && (
+                          <Badge variant="secondary" className="ml-1">
+                            {tabCounts.paymentTracking}
                           </Badge>
                         )}
                       </TabsTrigger>
@@ -342,109 +383,9 @@ export function UnifiedAdminInterface() {
 
                   {/* Tab Content */}
                   <div className="min-h-0">
-                    {activeTab === 'overview' && (
-                      <div className="space-y-4 lg:space-y-6">
-                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6">
-                          {/* Quick Stats */}
-                          <Card>
-                            <CardContent className="pt-3 lg:pt-6">
-                              <div className="flex items-center gap-1 lg:gap-2">
-                                <DollarSign className="h-3 w-3 lg:h-4 lg:w-4 text-green-600" />
-                                <span className="text-xs lg:text-sm font-medium">Total Revenue</span>
-                              </div>
-                              <div className="text-lg lg:text-2xl font-bold">
-                                ${((data.analytics.totalRevenue || 0) / 100).toLocaleString()}
-                              </div>
-                            </CardContent>
-                          </Card>
-                          
-                          <Card>
-                            <CardContent className="pt-3 lg:pt-6">
-                              <div className="flex items-center gap-1 lg:gap-2">
-                                <Calendar className="h-3 w-3 lg:h-4 lg:w-4 text-blue-600" />
-                                <span className="text-xs lg:text-sm font-medium">This Month</span>
-                              </div>
-                              <div className="text-lg lg:text-2xl font-bold">
-                                ${((data.analytics.monthlyRevenue || 0) / 100).toLocaleString()}
-                              </div>
-                            </CardContent>
-                          </Card>
-                          
-                          <Card>
-                            <CardContent className="pt-3 lg:pt-6">
-                              <div className="flex items-center gap-1 lg:gap-2">
-                                <Target className="h-3 w-3 lg:h-4 lg:w-4 text-orange-600" />
-                                <span className="text-xs lg:text-sm font-medium">Active Invoices</span>
-                              </div>
-                              <div className="text-lg lg:text-2xl font-bold">
-                                {data.analytics.activeInvoices || 0}
-                              </div>
-                            </CardContent>
-                          </Card>
-                          
-                          <Card>
-                            <CardContent className="pt-3 lg:pt-6">
-                              <div className="flex items-center gap-1 lg:gap-2">
-                                <Users className="h-3 w-3 lg:h-4 lg:w-4 text-purple-600" />
-                                <span className="text-xs lg:text-sm font-medium">Upcoming Events</span>
-                              </div>
-                              <div className="text-lg lg:text-2xl font-bold">
-                                {data.analytics.upcomingEvents || 0}
-                              </div>
-                            </CardContent>
-                          </Card>
-                        </div>
-
-                        {/* Recent Activity */}
-                        <div className="grid lg:grid-cols-2 gap-4 lg:gap-6">
-                          <Card>
-                            <CardHeader>
-                              <CardTitle>Recent Quote Requests</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                              <div className="space-y-3">
-                                {data.quotes.slice(0, 5).map((quote) => (
-                                  <div key={quote.id} className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                                    <div>
-                                      <p className="font-medium">{quote.event_name || 'Untitled Event'}</p>
-                                      <p className="text-sm text-muted-foreground">
-                                        {quote.contact_name} • {quote.guest_count} guests
-                                      </p>
-                                    </div>
-                                    <Badge variant="outline">{quote.status}</Badge>
-                                  </div>
-                                ))}
-                              </div>
-                            </CardContent>
-                          </Card>
-
-                          <Card>
-                            <CardHeader>
-                              <CardTitle>Recent Invoices</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                              <div className="space-y-3">
-                                {data.invoices.slice(0, 5).map((invoice) => (
-                                  <div key={invoice.id} className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                                    <div>
-                                      <p className="font-medium">{invoice.invoice_number}</p>
-                                      <p className="text-sm text-muted-foreground">
-                                        ${(invoice.total_amount / 100).toLocaleString()}
-                                      </p>
-                                    </div>
-                                    <Badge variant="outline">{invoice.status}</Badge>
-                                  </div>
-                                ))}
-                              </div>
-                            </CardContent>
-                          </Card>
-                        </div>
-                      </div>
-                    )}
-
-                    {activeTab === 'requests' && (
+                    {activeTab === 'new-requests' && (
                       <NewRequestsWorkflow 
-                        quotes={data.quotes.filter(q => ['pending', 'reviewed'].includes(q.status))}
+                        quotes={data.quotes.filter(q => q.status === 'pending')}
                         loading={loading}
                         onRefresh={fetchAllData}
                         selectedItems={selectedItems}
@@ -452,13 +393,34 @@ export function UnifiedAdminInterface() {
                       />
                     )}
 
-                    {activeTab === 'in-progress' && (
+                    {activeTab === 'estimates-progress' && (
                       <InvoiceManagementTab 
-                        invoices={data.invoices}
+                        invoices={data.invoices.filter(i => i.is_draft === true || i.status === 'draft')}
+                        quotes={data.quotes.filter(q => q.status === 'reviewed')}
                         loading={loading}
                         onRefresh={fetchAllData}
-                        selectedItems={selectedItems}
-                        onSelectionChange={setSelectedItems}
+                        title="Estimates in Progress"
+                        description="Continue working on draft estimates and quotes under review"
+                      />
+                    )}
+
+                    {activeTab === 'invoices-active' && (
+                      <InvoiceManagementTab 
+                        invoices={data.invoices.filter(i => ['sent', 'viewed', 'approved'].includes(i.status))}
+                        loading={loading}
+                        onRefresh={fetchAllData}
+                        title="Active Invoices"
+                        description="Sent invoices awaiting customer response or payment"
+                      />
+                    )}
+
+                    {activeTab === 'payment-tracking' && (
+                      <InvoiceManagementTab 
+                        invoices={data.invoices.filter(i => ['paid', 'completed'].includes(i.status))}
+                        loading={loading}
+                        onRefresh={fetchAllData}
+                        title="Payment Tracking"
+                        description="Completed payments and finalized events"
                       />
                     )}
                   </div>

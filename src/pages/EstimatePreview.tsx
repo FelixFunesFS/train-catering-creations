@@ -313,7 +313,7 @@ export default function EstimatePreview() {
       window.close();
       return;
     }
-    navigate(`/admin/invoice-creation/${estimate?.quote_requests.id}`);
+    navigate(`/admin/estimate-creation/${estimate?.quote_requests.id}`);
   };
 
   const handleEmailCustomer = async () => {
