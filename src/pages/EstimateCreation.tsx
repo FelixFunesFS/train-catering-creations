@@ -308,8 +308,8 @@ export default function EstimateCreation() {
           customer_id: customerId,
           quote_request_id: estimate.quote_request_id,
           invoice_number: `EST-${Date.now()}`,
-          status: 'estimate',
-          is_draft: false,
+          status: 'draft',
+          is_draft: true,
           subtotal: estimate.subtotal,
           tax_amount: estimate.tax_amount,
           total_amount: estimate.total_amount,
@@ -343,12 +343,13 @@ export default function EstimateCreation() {
 
       if (lineItemsError) throw lineItemsError;
 
-      // Update quote status
+      // Update quote status to show estimate in progress
       await supabase
         .from('quote_requests')
         .update({ 
-          status: 'quoted',
-          estimated_total: estimate.total_amount
+          status: 'pending', // Keep as pending since estimate is just a draft
+          estimated_total: estimate.total_amount,
+          workflow_status: 'estimated'
         })
         .eq('id', estimate.quote_request_id);
 

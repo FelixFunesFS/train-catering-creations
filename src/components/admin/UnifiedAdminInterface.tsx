@@ -226,10 +226,24 @@ export function UnifiedAdminInterface() {
 
   const getTabCounts = () => {
     return {
-      newRequests: data.quotes.filter(q => q.status === 'pending').length,
-      estimatesInProgress: data.invoices.filter(i => i.is_draft === true || i.status === 'draft').length,
-      invoicesActive: data.invoices.filter(i => ['sent', 'viewed', 'approved'].includes(i.status)).length,
-      paymentTracking: data.invoices.filter(i => ['paid', 'completed'].includes(i.status)).length
+      newRequests: data.quotes.filter(q => q.status === 'pending' && !data.invoices.some(inv => inv.quote_request_id === q.id)).length,
+      estimatesInProgress: data.quotes.filter(q => 
+        q.status === 'pending' && 
+        data.invoices.some(inv => inv.quote_request_id === q.id && inv.is_draft)
+      ).length,
+      invoicesActive: data.quotes.filter(q => 
+        data.invoices.some(inv => 
+          inv.quote_request_id === q.id && 
+          !inv.is_draft && 
+          ['sent', 'viewed', 'approved'].includes(inv.status)
+        )
+      ).length,
+      paymentTracking: data.quotes.filter(q => 
+        data.invoices.some(inv => 
+          inv.quote_request_id === q.id && 
+          ['paid', 'completed'].includes(inv.status)
+        )
+      ).length
     };
   };
 
@@ -384,7 +398,7 @@ export function UnifiedAdminInterface() {
                   <div className="min-h-0">
                     {activeTab === 'new-requests' && (
                       <NewRequestsWorkflow 
-                        quotes={data.quotes.filter(q => q.status === 'pending')}
+                        quotes={data.quotes.filter(q => q.status === 'pending' && !data.invoices.some(inv => inv.quote_request_id === q.id))}
                         loading={loading}
                         onRefresh={fetchAllData}
                         selectedItems={selectedItems}
@@ -394,11 +408,11 @@ export function UnifiedAdminInterface() {
 
                     {activeTab === 'estimates-progress' && (
                       <InvoiceManagementTab 
-                        invoices={data.invoices.filter(i => i.is_draft === true || i.status === 'draft')}
+                        invoices={data.invoices.filter(i => i.is_draft === true)}
                         loading={loading}
                         onRefresh={fetchAllData}
                         title="Estimates in Progress"
-                        description="Draft estimates awaiting completion or customer approval"
+                        description="Draft estimates awaiting completion or sending to customer"
                       />
                     )}
 
