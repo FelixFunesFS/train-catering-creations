@@ -123,7 +123,7 @@ export function NewRequestsWorkflow({
                     <Button 
                       size="sm" 
                       className="ml-4"
-                      onClick={() => navigate(`/admin/quotes/${quote.id}`)}
+                      onClick={() => navigate(`/admin/invoice-creation/${quote.id}`)}
                     >
                       <PlayCircle className="h-4 w-4 mr-1" />
                       Process Now

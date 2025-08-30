@@ -7,8 +7,6 @@ import { Breadcrumb } from '@/components/ui/breadcrumb';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CustomerInfoCard } from '@/components/admin/CustomerInfoCard';
 import { MenuEditForm } from '@/components/admin/MenuEditForm';
-import { ConsolidatedWorkflowManager } from '@/components/admin/ConsolidatedWorkflowManager';
-import { ManualPricingForm } from '@/components/admin/ManualPricingForm';
 import { RevisionHistoryPanel } from '@/components/admin/RevisionHistoryPanel';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -32,7 +30,7 @@ export default function QuoteDetails() {
   const [invoice, setInvoice] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
-  const [activeTab, setActiveTab] = useState('pricing'); // Default to pricing for new requests
+  const [activeTab, setActiveTab] = useState('details'); // Default to details for read-only view
   const { toast } = useToast();
 
   useEffect(() => {
@@ -41,23 +39,6 @@ export default function QuoteDetails() {
     }
   }, [quoteId]);
 
-  // Auto-set tab based on quote status and whether pricing is complete
-  useEffect(() => {
-    if (quote) {
-      // For new/pending requests without pricing, default to pricing tab
-      if ((quote.status === 'pending' || quote.status === 'under_review') && (!quote.estimated_total || quote.estimated_total === 0)) {
-        setActiveTab('pricing');
-      }
-      // For requests with pricing but not reviewed, default to workflow
-      else if (quote.status === 'pending' && quote.estimated_total > 0) {
-        setActiveTab('workflow');
-      }
-      // For other statuses, keep current tab or default to details
-      else if (activeTab === 'pricing' && quote.estimated_total > 0) {
-        setActiveTab('workflow');
-      }
-    }
-  }, [quote?.status, quote?.estimated_total]);
 
   const fetchQuote = async () => {
     try {
@@ -91,26 +72,9 @@ export default function QuoteDetails() {
     }
   };
 
-  const handleCreateInvoice = async () => {
-    try {
-      await supabase.functions.invoke('generate-invoice-from-quote', {
-        body: { quote_request_id: quoteId }
-      });
-      
-      toast({
-        title: "Invoice Created",
-        description: "Invoice has been generated from the quote",
-      });
-      
-      // Navigate to invoice creation page
-      navigate(`/admin/invoice-creation/${quoteId}`);
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to create invoice. Please try again.",
-        variant: "destructive"
-      });
-    }
+  const handleCreateInvoice = () => {
+    // Navigate directly to invoice creation page for pricing
+    navigate(`/admin/invoice-creation/${quoteId}`);
   };
 
   const handleStatusUpdate = async (newStatus: 'pending' | 'reviewed' | 'quoted' | 'confirmed' | 'completed' | 'cancelled') => {
@@ -205,12 +169,10 @@ export default function QuoteDetails() {
         </div>
         
         <div className="flex items-center gap-2">
-          {nextAction && (
-            <Button onClick={nextAction.action}>
-              <nextAction.icon className="h-4 w-4 mr-2" />
-              {nextAction.label}
-            </Button>
-          )}
+          <Button onClick={handleCreateInvoice} className="flex items-center gap-2">
+            <CreditCard className="h-4 w-4" />
+            Edit Pricing
+          </Button>
           <Button variant="outline" onClick={() => setIsEditing(!isEditing)}>
             <Edit className="h-4 w-4 mr-2" />
             {isEditing ? 'Cancel Edit' : 'Edit Quote'}
@@ -222,18 +184,7 @@ export default function QuoteDetails() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-6">
-              <TabsTrigger value="pricing" className="flex items-center gap-2">
-                <CreditCard className="h-4 w-4" />
-                Pricing
-                {(!quote?.estimated_total || quote.estimated_total === 0) && (
-                  <span className="w-2 h-2 bg-primary rounded-full ml-1"></span>
-                )}
-              </TabsTrigger>
-              <TabsTrigger value="workflow" className="flex items-center gap-2">
-                <ArrowLeft className="h-4 w-4" />
-                Workflow
-              </TabsTrigger>
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="details" className="flex items-center gap-2">
                 <Settings className="h-4 w-4" />
                 Details
@@ -252,43 +203,6 @@ export default function QuoteDetails() {
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="pricing">
-              <div className="space-y-6">
-                <ManualPricingForm
-                  quote={quote}
-                  onPricingUpdate={(total) => {
-                    setQuote({ ...quote, estimated_total: total });
-                    // Auto-switch to workflow tab after pricing is complete
-                    if (total > 0) {
-                      setTimeout(() => setActiveTab('workflow'), 1500);
-                    }
-                  }}
-                />
-                
-                {/* Pricing completion hint */}
-                {(!quote?.estimated_total || quote.estimated_total === 0) && (
-                  <Card className="border-primary/20 bg-primary/5">
-                    <CardContent className="pt-6">
-                      <div className="flex items-center gap-3 text-primary">
-                        <CreditCard className="h-5 w-5" />
-                        <div>
-                          <p className="font-medium">Complete pricing to continue</p>
-                          <p className="text-sm text-muted-foreground">Add line items and save to proceed with the workflow</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
-            </TabsContent>
-
-            <TabsContent value="workflow">
-              <ConsolidatedWorkflowManager 
-                quote={quote} 
-                invoice={invoice}
-                onRefresh={fetchQuote}
-              />
-            </TabsContent>
 
             <TabsContent value="details">
               <CustomerInfoCard quote={quote} />
@@ -393,43 +307,8 @@ export default function QuoteDetails() {
                 </div>
               </div>
 
-              {/* Pricing Status Indicator */}
-              {(!quote?.estimated_total || quote.estimated_total === 0) && (
-                <div className="p-3 bg-primary/10 rounded-lg border border-primary/20">
-                  <div className="flex items-center gap-2 text-primary text-sm">
-                    <CreditCard className="h-4 w-4" />
-                    <span className="font-medium">Pricing Required</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Complete pricing to continue workflow
-                  </p>
-                </div>
-              )}
             </CardContent>
           </Card>
-
-          {/* Workflow shortcut when pricing is complete */}
-          {quote?.estimated_total > 0 && activeTab === 'pricing' && (
-            <Card className="border-green-200 bg-green-50 dark:bg-green-950 dark:border-green-800">
-              <CardContent className="pt-6">
-                <div className="text-center space-y-3">
-                  <CheckCircle className="h-8 w-8 text-green-600 mx-auto" />
-                  <div>
-                    <p className="font-medium text-green-900 dark:text-green-100">Pricing Complete!</p>
-                    <p className="text-sm text-green-700 dark:text-green-200">Ready for next steps</p>
-                  </div>
-                  <Button 
-                    onClick={() => setActiveTab('workflow')}
-                    className="w-full"
-                    variant="outline"
-                  >
-                    <ArrowLeft className="h-4 w-4 mr-2" />
-                    View Workflow
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          )}
         </div>
       </div>
     </div>

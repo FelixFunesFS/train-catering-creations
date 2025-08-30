@@ -18,6 +18,7 @@ import {
   type QuoteRequest 
 } from '@/utils/invoiceFormatters';
 import PostPricingActions from '@/components/invoice/PostPricingActions';
+import { ConsolidatedWorkflowManager } from '@/components/admin/ConsolidatedWorkflowManager';
 import {
   ArrowLeft,
   Save,
@@ -855,6 +856,12 @@ export default function InvoiceEstimateCreation() {
                 )}
               </CardContent>
             </Card>
+
+            {/* Workflow Progress */}
+            <ConsolidatedWorkflowManager 
+              quote={quote}
+              onRefresh={fetchQuoteData}
+            />
 
             {/* Post-Pricing Workflow Actions */}
             <PostPricingActions
