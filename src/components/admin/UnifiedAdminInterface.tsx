@@ -15,6 +15,8 @@ import { InvoiceManagementTab } from '@/components/admin/InvoiceManagementTab';
 import { QuoteManagementTab } from '@/components/admin/QuoteManagementTab';
 import { BusinessIntelligenceDashboard } from '@/components/admin/BusinessIntelligenceDashboard';
 import { WorkflowAutomationManager } from '@/components/admin/WorkflowAutomationManager';
+import { BusinessInsightsDashboard } from '@/components/admin/BusinessInsightsDashboard';
+import { SystemHealthMonitor } from '@/components/admin/SystemHealthMonitor';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { 

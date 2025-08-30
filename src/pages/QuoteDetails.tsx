@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CustomerInfoCard } from '@/components/admin/CustomerInfoCard';
 import { MenuEditForm } from '@/components/admin/MenuEditForm';
 import { CustomerWorkflowManager } from '@/components/admin/CustomerWorkflowManager';
+import { AutomatedPricingEngine } from '@/components/admin/AutomatedPricingEngine';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { 
@@ -202,7 +203,7 @@ export default function QuoteDetails() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="details" className="flex items-center gap-2">
                 <Settings className="h-4 w-4" />
                 Details
@@ -210,6 +211,10 @@ export default function QuoteDetails() {
               <TabsTrigger value="menu" className="flex items-center gap-2">
                 <ChefHat className="h-4 w-4" />
                 Menu
+              </TabsTrigger>
+              <TabsTrigger value="pricing" className="flex items-center gap-2">
+                <CreditCard className="h-4 w-4" />
+                Pricing
               </TabsTrigger>
               <TabsTrigger value="notes" className="flex items-center gap-2">
                 <StickyNote className="h-4 w-4" />
@@ -263,6 +268,18 @@ export default function QuoteDetails() {
               )}
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="pricing">
+          <AutomatedPricingEngine
+            quote={quote}
+            onPricingUpdate={(pricing) => {
+              console.log('Pricing updated:', pricing);
+            }}
+            onValidationComplete={(validation) => {
+              console.log('Validation complete:', validation);
+            }}
+          />
         </TabsContent>
 
         <TabsContent value="notes">
