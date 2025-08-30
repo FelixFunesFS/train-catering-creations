@@ -30,6 +30,7 @@ import EstimatePreview from "./pages/EstimatePreview";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import ContractManagement from "./pages/ContractManagement";
 import { CustomerPortal } from "./pages/CustomerPortal";
+import UnifiedAdminDashboard from "./pages/UnifiedAdminDashboard";
 const AppContent = () => {
   useScrollToAnchor();
   return <div className="min-h-screen bg-background font-clean flex flex-col transition-colors duration-300 py-0 my-0">
@@ -52,6 +53,7 @@ const AppContent = () => {
           <Route path="/terms-conditions" element={<TermsConditions />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/unified" element={<UnifiedAdminDashboard />} />
           <Route path="/admin/invoices" element={<InvoiceManagement />} />
           <Route path="/admin/contracts" element={<ContractManagement />} />
           <Route path="/invoice/public/:invoiceToken" element={<InvoicePublic />} />

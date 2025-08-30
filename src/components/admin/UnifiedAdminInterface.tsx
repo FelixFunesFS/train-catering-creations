@@ -1,0 +1,460 @@
+import React, { useState, useEffect } from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { AdminAnalyticsDashboard } from '@/components/admin/AdminAnalyticsDashboard';
+import { NotificationCenter } from '@/components/admin/NotificationCenter';
+import { BatchOperations } from '@/components/admin/BatchOperations';
+import { AutomatedStatusManager } from '@/components/admin/AutomatedStatusManager';
+import { InvoiceManagementTab } from '@/components/admin/InvoiceManagementTab';
+import { QuoteManagementTab } from '@/components/admin/QuoteManagementTab';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { 
+  LayoutDashboard, 
+  FileText, 
+  CreditCard, 
+  Bell, 
+  Settings,
+  TrendingUp,
+  Users,
+  Calendar
+} from 'lucide-react';
+
+interface UnifiedAdminData {
+  quotes: any[];
+  invoices: any[];
+  notifications: any[];
+  analytics: any;
+}
+
+export function UnifiedAdminInterface() {
+  const [activeTab, setActiveTab] = useState('overview');
+  const [data, setData] = useState<UnifiedAdminData>({
+    quotes: [],
+    invoices: [],
+    notifications: [],
+    analytics: {}
+  });
+  const [loading, setLoading] = useState(true);
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    fetchAllData();
+  }, []);
+
+  const fetchAllData = async () => {
+    setLoading(true);
+    try {
+      // Fetch all data in parallel for better performance
+      const [quotesResult, invoicesResult, analyticsResult] = await Promise.all([
+        // Fetch quotes
+        supabase
+          .from('quote_requests')
+          .select('*')
+          .order('updated_at', { ascending: false })
+          .limit(50),
+        
+        // Fetch invoices with related data
+        supabase
+          .from('invoices')
+          .select(`
+            *,
+            customers!inner(name, email),
+            quote_requests!inner(event_name, event_date, contact_name)
+          `)
+          .order('updated_at', { ascending: false })
+          .limit(50),
+        
+        // Calculate analytics
+        calculateAnalytics()
+      ]);
+
+      if (quotesResult.error) throw quotesResult.error;
+      if (invoicesResult.error) throw invoicesResult.error;
+
+      // Generate mock notifications based on data
+      const notifications = generateNotifications(quotesResult.data, invoicesResult.data);
+
+      setData({
+        quotes: quotesResult.data,
+        invoices: invoicesResult.data,
+        notifications,
+        analytics: analyticsResult
+      });
+
+    } catch (error) {
+      console.error('Error fetching admin data:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load admin data. Please refresh the page.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const calculateAnalytics = async () => {
+    try {
+      // Get summary statistics
+      const [invoiceStats, quoteStats] = await Promise.all([
+        supabase
+          .from('invoices')
+          .select('total_amount, status, created_at'),
+        
+        supabase
+          .from('quote_requests')
+          .select('status, created_at, estimated_total')
+      ]);
+
+      const today = new Date();
+      const thirtyDaysAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+      const totalRevenue = invoiceStats.data?.reduce((sum, inv) => sum + (inv.total_amount || 0), 0) || 0;
+      const monthlyRevenue = invoiceStats.data?.filter(inv => 
+        new Date(inv.created_at) >= thirtyDaysAgo
+      ).reduce((sum, inv) => sum + (inv.total_amount || 0), 0) || 0;
+
+      const activeInvoices = invoiceStats.data?.filter(inv => 
+        ['sent', 'viewed', 'approved'].includes(inv.status)
+      ).length || 0;
+
+      const upcomingEvents = quoteStats.data?.filter(quote => 
+        quote.status === 'confirmed'
+      ).length || 0;
+
+      return {
+        totalRevenue,
+        monthlyRevenue,
+        activeInvoices,
+        upcomingEvents,
+        totalQuotes: quoteStats.data?.length || 0,
+        totalInvoices: invoiceStats.data?.length || 0
+      };
+
+    } catch (error) {
+      console.error('Error calculating analytics:', error);
+      return {};
+    }
+  };
+
+  const generateNotifications = (quotes: any[], invoices: any[]) => {
+    const notifications = [];
+    
+    // Overdue invoices
+    const overdue = invoices.filter(inv => 
+      inv.due_date && new Date(inv.due_date) < new Date() && inv.status !== 'paid'
+    );
+    
+    if (overdue.length > 0) {
+      notifications.push({
+        id: 'overdue-invoices',
+        type: 'payment',
+        title: 'Overdue Invoices',
+        message: `${overdue.length} invoice(s) are overdue and require attention`,
+        priority: 'high',
+        read: false,
+        created_at: new Date().toISOString(),
+        action_url: '#invoices',
+        action_label: 'Review Invoices'
+      });
+    }
+
+    // New quote requests
+    const newQuotes = quotes.filter(quote => 
+      quote.status === 'pending' && 
+      new Date(quote.created_at) > new Date(Date.now() - 24 * 60 * 60 * 1000)
+    );
+
+    if (newQuotes.length > 0) {
+      notifications.push({
+        id: 'new-quotes',
+        type: 'quote',
+        title: 'New Quote Requests',
+        message: `${newQuotes.length} new quote request(s) received in the last 24 hours`,
+        priority: 'medium',
+        read: false,
+        created_at: new Date().toISOString(),
+        action_url: '#quotes',
+        action_label: 'Review Quotes'
+      });
+    }
+
+    // Upcoming events
+    const upcoming = quotes.filter(quote => {
+      if (!quote.event_date) return false;
+      const eventDate = new Date(quote.event_date);
+      const now = new Date();
+      const threeDaysFromNow = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
+      return eventDate <= threeDaysFromNow && eventDate > now;
+    });
+
+    if (upcoming.length > 0) {
+      notifications.push({
+        id: 'upcoming-events',
+        type: 'event',
+        title: 'Upcoming Events',
+        message: `${upcoming.length} event(s) happening in the next 3 days`,
+        priority: 'medium',
+        read: false,
+        created_at: new Date().toISOString(),
+        action_url: '#quotes',
+        action_label: 'View Events'
+      });
+    }
+
+    return notifications;
+  };
+
+  const handleBatchAction = async (action: string, itemIds: string[]) => {
+    console.log('Batch action:', action, 'Items:', itemIds);
+    // Implementation would depend on the specific action
+    toast({
+      title: "Batch Action",
+      description: `Applied ${action} to ${itemIds.length} items`,
+    });
+    setSelectedItems([]);
+    await fetchAllData(); // Refresh data
+  };
+
+  const handleStatusProgression = async (itemId: string, newStatus: string) => {
+    console.log('Status progression:', itemId, 'to', newStatus);
+    // Implementation would update the item status
+    toast({
+      title: "Status Updated",
+      description: `Item status updated to ${newStatus}`,
+    });
+    await fetchAllData(); // Refresh data
+  };
+
+  const handleNotificationAction = (notification: any) => {
+    // Handle notification clicks
+    if (notification.action_url === '#invoices') {
+      setActiveTab('invoices');
+    } else if (notification.action_url === '#quotes') {
+      setActiveTab('quotes');
+    }
+  };
+
+  const getTabCounts = () => {
+    return {
+      quotes: data.quotes.length,
+      invoices: data.invoices.length,
+      notifications: data.notifications.filter(n => !n.read).length
+    };
+  };
+
+  const tabCounts = getTabCounts();
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white border-b">
+        <div className="max-w-7xl mx-auto px-4 py-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+              <p className="text-gray-600">Unified catering business management</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <AutomatedStatusManager 
+                onStatusUpdate={handleStatusProgression}
+                data={data}
+              />
+              <BatchOperations
+                selectedItems={selectedItems}
+                onAction={handleBatchAction}
+                itemType={activeTab}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          {/* Tab Navigation */}
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="overview" className="flex items-center gap-2">
+              <LayoutDashboard className="h-4 w-4" />
+              <span className="hidden sm:inline">Overview</span>
+            </TabsTrigger>
+            <TabsTrigger value="quotes" className="flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              <span className="hidden sm:inline">Quotes</span>
+              {tabCounts.quotes > 0 && (
+                <Badge variant="secondary" className="ml-1">
+                  {tabCounts.quotes}
+                </Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="invoices" className="flex items-center gap-2">
+              <CreditCard className="h-4 w-4" />
+              <span className="hidden sm:inline">Invoices</span>
+              {tabCounts.invoices > 0 && (
+                <Badge variant="secondary" className="ml-1">
+                  {tabCounts.invoices}
+                </Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="flex items-center gap-2">
+              <TrendingUp className="h-4 w-4" />
+              <span className="hidden sm:inline">Analytics</span>
+            </TabsTrigger>
+            <TabsTrigger value="notifications" className="flex items-center gap-2">
+              <Bell className="h-4 w-4" />
+              <span className="hidden sm:inline">Alerts</span>
+              {tabCounts.notifications > 0 && (
+                <Badge variant="destructive" className="ml-1">
+                  {tabCounts.notifications}
+                </Badge>
+              )}
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Tab Contents */}
+          <TabsContent value="overview" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              {/* Quick Stats */}
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex items-center gap-2">
+                    <TrendingUp className="h-4 w-4 text-green-600" />
+                    <span className="text-sm font-medium">Total Revenue</span>
+                  </div>
+                  <div className="text-2xl font-bold">
+                    ${((data.analytics.totalRevenue || 0) / 100).toLocaleString()}
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4 text-blue-600" />
+                    <span className="text-sm font-medium">This Month</span>
+                  </div>
+                  <div className="text-2xl font-bold">
+                    ${((data.analytics.monthlyRevenue || 0) / 100).toLocaleString()}
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex items-center gap-2">
+                    <FileText className="h-4 w-4 text-purple-600" />
+                    <span className="text-sm font-medium">Active Quotes</span>
+                  </div>
+                  <div className="text-2xl font-bold">{data.quotes.length}</div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex items-center gap-2">
+                    <Users className="h-4 w-4 text-orange-600" />
+                    <span className="text-sm font-medium">Upcoming Events</span>
+                  </div>
+                  <div className="text-2xl font-bold">{data.analytics.upcomingEvents || 0}</div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Recent Activity */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Recent Quotes</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {data.quotes.slice(0, 5).map((quote) => (
+                      <div key={quote.id} className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                        <div>
+                          <p className="font-medium">{quote.event_name}</p>
+                          <p className="text-sm text-muted-foreground">{quote.contact_name}</p>
+                        </div>
+                        <Badge variant="outline">{quote.status}</Badge>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Recent Invoices</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {data.invoices.slice(0, 5).map((invoice) => (
+                      <div key={invoice.id} className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                        <div>
+                          <p className="font-medium">{invoice.invoice_number}</p>
+                          <p className="text-sm text-muted-foreground">
+                            ${(invoice.total_amount / 100).toLocaleString()}
+                          </p>
+                        </div>
+                        <Badge variant="outline">{invoice.status}</Badge>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="quotes">
+            <QuoteManagementTab 
+              quotes={data.quotes}
+              loading={loading}
+              onRefresh={fetchAllData}
+              selectedItems={selectedItems}
+              onSelectionChange={setSelectedItems}
+            />
+          </TabsContent>
+
+          <TabsContent value="invoices">
+            <InvoiceManagementTab 
+              invoices={data.invoices}
+              loading={loading}
+              onRefresh={fetchAllData}
+              selectedItems={selectedItems}
+              onSelectionChange={setSelectedItems}
+            />
+          </TabsContent>
+
+          <TabsContent value="analytics">
+            <AdminAnalyticsDashboard data={data.analytics} />
+          </TabsContent>
+
+          <TabsContent value="notifications">
+            <NotificationCenter 
+              notifications={data.notifications}
+              onMarkAsRead={(id) => {
+                setData(prev => ({
+                  ...prev,
+                  notifications: prev.notifications.map(n => 
+                    n.id === id ? { ...n, read: true } : n
+                  )
+                }));
+              }}
+              onDismiss={(id) => {
+                setData(prev => ({
+                  ...prev,
+                  notifications: prev.notifications.filter(n => n.id !== id)
+                }));
+              }}
+              onRefresh={fetchAllData}
+            />
+          </TabsContent>
+        </Tabs>
+      </div>
+    </div>
+  );
+}
