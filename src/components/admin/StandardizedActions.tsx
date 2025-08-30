@@ -35,8 +35,8 @@ export function StandardizedActions({
   };
 
   const handleViewEstimate = () => {
-    // Open estimate preview modal or navigate to estimate page
-    navigate(`/estimate-preview/${item.id}`);
+    // Navigate to admin workflow page for estimates/invoices
+    navigate(`/admin/estimate-workflow/${item.id}`);
   };
 
   const handleCreateInvoice = async () => {
@@ -250,7 +250,7 @@ export function ActionButton({
           break;
           
         case 'view-estimate':
-          navigate(`/estimate-preview/${item.id}`);
+          navigate(`/admin/estimate-workflow/${item.id}`);
           break;
           
         case 'create-invoice':

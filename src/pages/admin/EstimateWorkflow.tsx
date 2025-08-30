@@ -180,7 +180,8 @@ export default function EstimateWorkflow() {
         {/* Workflow Progress */}
         <WorkflowBreadcrumb 
           currentStep={invoice?.status || 'draft'} 
-          invoiceStatus={invoice?.status || 'draft'} 
+          invoiceStatus={invoice?.status || 'draft'}
+          invoiceId={invoiceId}
         />
 
         {/* What's Next Section */}
