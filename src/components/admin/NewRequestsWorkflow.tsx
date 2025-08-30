@@ -31,7 +31,6 @@ export function NewRequestsWorkflow({
   
   // Organize quotes into workflow queues
   const newRequests = quotes.filter(q => q.status === 'pending');
-  const underReview = quotes.filter(q => q.status === 'reviewed');
   const needsAttention = quotes.filter(q => 
     q.status === 'pending' && 
     new Date(q.created_at) < new Date(Date.now() - 24 * 60 * 60 * 1000) // Older than 24 hours
@@ -56,7 +55,7 @@ export function NewRequestsWorkflow({
   return (
     <div className="space-y-6">
       {/* Workflow Status Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-2">
@@ -75,18 +74,7 @@ export function NewRequestsWorkflow({
               <span className="text-sm font-medium">New Requests</span>
             </div>
             <div className="text-2xl font-bold">{newRequests.length}</div>
-            <p className="text-xs text-muted-foreground">Awaiting initial review</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-2">
-              <FileText className="h-4 w-4 text-blue-600" />
-              <span className="text-sm font-medium">Under Review</span>
-            </div>
-            <div className="text-2xl font-bold">{underReview.length}</div>
-            <p className="text-xs text-muted-foreground">Being processed</p>
+            <p className="text-xs text-muted-foreground">Ready for pricing</p>
           </CardContent>
         </Card>
       </div>
@@ -131,7 +119,7 @@ export function NewRequestsWorkflow({
                       onClick={() => navigate(`/admin/estimate-creation/${quote.id}`)}
                     >
                       <PlayCircle className="h-4 w-4 mr-1" />
-                      Start Estimate
+                      Set Pricing
                     </Button>
                   </div>
                 );

@@ -106,27 +106,6 @@ export function StandardizedActions({
     }
   };
 
-  const handleMarkReviewed = async () => {
-    try {
-      await supabase
-        .from('quote_requests')
-        .update({ status: 'reviewed' })
-        .eq('id', item.id);
-      
-      toast({
-        title: "Quote Reviewed",
-        description: `Quote for ${item.event_name} has been marked as reviewed`,
-      });
-      
-      onRefresh?.();
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update status. Please try again.",
-        variant: "destructive"
-      });
-    }
-  };
 
   if (type === 'quote') {
     return (
@@ -145,22 +124,11 @@ export function StandardizedActions({
           <Button
             size={size}
             onClick={() => navigate(`/admin/estimate-creation/${item.id}`)}
-            title="Create Estimate with Pricing"
+            title="Set pricing and create estimate"
             className="bg-primary hover:bg-primary/90 text-primary-foreground"
           >
             <FileText className="h-3 w-3" />
-            {size !== 'sm' && <span className="ml-2">Start Estimate</span>}
-          </Button>
-        )}
-        
-        {(item.status === 'reviewed' || item.workflow_status === 'under_review') && (
-          <Button
-            size={size}
-            onClick={handleCreateInvoice}
-            title="Create Invoice"
-          >
-            <FileText className="h-3 w-3" />
-            {size !== 'sm' && <span className="ml-2">Create Invoice</span>}
+            {size !== 'sm' && <span className="ml-2">Set Pricing</span>}
           </Button>
         )}
       </div>
@@ -224,7 +192,7 @@ export function StandardizedActions({
 
 // Helper component for consistent action buttons
 interface ActionButtonProps {
-  action: 'view-quote' | 'view-estimate' | 'create-invoice' | 'send-invoice' | 'payment-link' | 'mark-reviewed';
+  action: 'view-quote' | 'view-estimate' | 'create-invoice' | 'send-invoice' | 'payment-link';
   item: any;
   variant?: 'default' | 'outline' | 'ghost';
   size?: 'default' | 'sm' | 'lg';
@@ -290,18 +258,6 @@ export function ActionButton({
               description: "Link copied to clipboard",
             });
           }
-          break;
-          
-        case 'mark-reviewed':
-          await supabase
-            .from('quote_requests')
-            .update({ status: 'reviewed' })
-            .eq('id', item.id);
-          toast({
-            title: "Quote Reviewed",
-            description: `Quote has been marked as reviewed`,
-          });
-          onRefresh?.();
           break;
       }
     } catch (error) {

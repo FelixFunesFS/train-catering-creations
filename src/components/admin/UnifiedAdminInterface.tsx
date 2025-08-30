@@ -227,8 +227,7 @@ export function UnifiedAdminInterface() {
   const getTabCounts = () => {
     return {
       newRequests: data.quotes.filter(q => q.status === 'pending').length,
-      estimatesInProgress: data.invoices.filter(i => i.is_draft === true || i.status === 'draft').length + 
-                          data.quotes.filter(q => q.status === 'reviewed').length,
+      estimatesInProgress: data.invoices.filter(i => i.is_draft === true || i.status === 'draft').length,
       invoicesActive: data.invoices.filter(i => ['sent', 'viewed', 'approved'].includes(i.status)).length,
       paymentTracking: data.invoices.filter(i => ['paid', 'completed'].includes(i.status)).length
     };
@@ -396,11 +395,10 @@ export function UnifiedAdminInterface() {
                     {activeTab === 'estimates-progress' && (
                       <InvoiceManagementTab 
                         invoices={data.invoices.filter(i => i.is_draft === true || i.status === 'draft')}
-                        quotes={data.quotes.filter(q => q.status === 'reviewed')}
                         loading={loading}
                         onRefresh={fetchAllData}
                         title="Estimates in Progress"
-                        description="Continue working on draft estimates and quotes under review"
+                        description="Draft estimates awaiting completion or customer approval"
                       />
                     )}
 

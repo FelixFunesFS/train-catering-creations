@@ -78,25 +78,16 @@ export function ConsolidatedWorkflowManager({ quote, invoice, onRefresh }: Conso
     {
       id: 'pricing_completed',
       title: 'Set Pricing',
-      description: 'Create detailed pricing breakdown',
+      description: 'Create detailed pricing breakdown and estimate',
       icon: DollarSign,
       phase: 'quote',
       required: true,
       estimatedTime: '10-15 min'
     },
     {
-      id: 'quote_reviewed',
-      title: 'Review Quote',
-      description: 'Verify all details and pricing',
-      icon: FileText,
-      phase: 'quote',
-      required: true,
-      estimatedTime: '5-10 min'
-    },
-    {
-      id: 'quote_sent',
-      title: 'Send Quote',
-      description: 'Send quote to customer for approval',
+      id: 'estimate_sent',
+      title: 'Send Estimate',
+      description: 'Send estimate to customer for approval',
       icon: Send,
       phase: 'quote',
       required: true,
@@ -133,7 +124,7 @@ export function ConsolidatedWorkflowManager({ quote, invoice, onRefresh }: Conso
 
   const getCurrentPhase = () => {
     const status = quote?.workflow_status || quote?.status;
-    if (['pending', 'under_review', 'quoted'].includes(status)) return 'quote';
+    if (['pending', 'quoted'].includes(status)) return 'quote';
     if (['confirmed', 'approved'].includes(status)) return 'approved';
     return 'execution';
   };
@@ -150,8 +141,7 @@ export function ConsolidatedWorkflowManager({ quote, invoice, onRefresh }: Conso
     // Phase-based logic for current step
     if (step.phase === 'quote' && currentPhase === 'quote') {
       if (stepId === 'pricing_completed') return quote?.estimated_total > 0 ? 'completed' : 'current';
-      if (stepId === 'quote_reviewed') return quote?.status === 'reviewed' ? 'current' : 'upcoming';
-      if (stepId === 'quote_sent') return quote?.status === 'quoted' ? 'current' : 'upcoming';
+      if (stepId === 'estimate_sent') return quote?.status === 'quoted' ? 'current' : 'upcoming';
     }
     
     if (step.phase === currentPhase) return 'current';
@@ -165,7 +155,7 @@ export function ConsolidatedWorkflowManager({ quote, invoice, onRefresh }: Conso
       return {
         action: 'set_pricing',
         title: 'Set Pricing',
-        description: 'Complete the pricing breakdown to continue',
+        description: 'Complete the pricing breakdown and create estimate',
         icon: DollarSign,
         canExecute: true,
         requirements: ['Add line items with quantities and prices'],
@@ -175,23 +165,12 @@ export function ConsolidatedWorkflowManager({ quote, invoice, onRefresh }: Conso
     
     if (status === 'pending' && quote?.estimated_total > 0) {
       return {
-        action: 'mark_reviewed',
-        title: 'Mark as Reviewed',
-        description: 'Confirm quote is ready to send',
-        icon: CheckCircle,
+        action: 'send_estimate',
+        title: 'Send Estimate',
+        description: 'Send estimate to customer for approval',
+        icon: Send,
         canExecute: true,
         estimatedTime: '2-3 minutes'
-      };
-    }
-    
-    if (status === 'reviewed') {
-      return {
-        action: 'create_estimate',
-        title: 'Create Estimate',
-        description: 'Generate professional estimate document',
-        icon: FileText,
-        canExecute: true,
-        estimatedTime: '5-10 minutes'
       };
     }
     
