@@ -17,14 +17,6 @@ import {
   LayoutDashboard, 
   FileText, 
   CreditCard, 
-  Users,
-  Calendar,
-  Settings,
-  BarChart3,
-  Zap,
-  Bell,
-  MessageSquare,
-  DollarSign,
   CheckCircle
 } from 'lucide-react';
 
@@ -66,63 +58,16 @@ export function AdminSidebar({ data }: AdminSidebarProps) {
       icon: LayoutDashboard 
     },
     { 
-      title: "Quotes", 
-      url: "/admin?tab=quotes", 
+      title: "New Requests", 
+      url: "/admin?tab=requests", 
       icon: FileText,
       badge: pendingQuotes > 0 ? pendingQuotes : undefined
     },
     { 
-      title: "Invoices", 
-      url: "/admin?tab=invoices", 
+      title: "In Progress", 
+      url: "/admin?tab=in-progress", 
       icon: CreditCard,
       badge: draftInvoices > 0 ? draftInvoices : undefined
-    },
-    { 
-      title: "Events", 
-      url: "/admin?tab=events", 
-      icon: Calendar 
-    },
-    { 
-      title: "Customers", 
-      url: "/admin?tab=customers", 
-      icon: Users 
-    },
-  ];
-
-  const automationItems = [
-    { 
-      title: "Workflow Automation", 
-      url: "/admin?tab=automation", 
-      icon: Zap 
-    },
-    { 
-      title: "Business Intelligence", 
-      url: "/admin?tab=analytics", 
-      icon: BarChart3 
-    },
-    { 
-      title: "Notifications", 
-      url: "/admin?tab=notifications", 
-      icon: Bell,
-      badge: unreadNotifications > 0 ? unreadNotifications : undefined
-    },
-  ];
-
-  const managementItems = [
-    { 
-      title: "Reports", 
-      url: "/admin/reports", 
-      icon: DollarSign 
-    },
-    { 
-      title: "Messages", 
-      url: "/admin/messages", 
-      icon: MessageSquare 
-    },
-    { 
-      title: "Settings", 
-      url: "/admin/settings", 
-      icon: Settings 
     },
   ];
 
@@ -161,32 +106,12 @@ export function AdminSidebar({ data }: AdminSidebarProps) {
       </div>
 
       <SidebarContent>
-        {/* Main Navigation */}
+        {/* Core Workflow Navigation */}
         <SidebarGroup>
-          <SidebarGroupLabel>Main</SidebarGroupLabel>
+          <SidebarGroupLabel>Workflow</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {mainItems.map(renderMenuItem)}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {/* Automation & Analytics */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Automation</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {automationItems.map(renderMenuItem)}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {/* Management */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Management</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {managementItems.map(renderMenuItem)}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

@@ -6,32 +6,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
-import { AdminAnalyticsDashboard } from '@/components/admin/AdminAnalyticsDashboard';
-import { NotificationCenter } from '@/components/admin/NotificationCenter';
-import { BatchOperationsDropdown } from '@/components/admin/BatchOperationsDropdown';
-import { AutomatedStatusManagerDropdown } from '@/components/admin/AutomatedStatusManagerDropdown';
-import { MobileAdminActions } from '@/components/admin/MobileAdminActions';
 import { InvoiceManagementTab } from '@/components/admin/InvoiceManagementTab';
-import { QuoteManagementTab } from '@/components/admin/QuoteManagementTab';
 import { NewRequestsWorkflow } from '@/components/admin/NewRequestsWorkflow';
-import { BusinessIntelligenceDashboard } from '@/components/admin/BusinessIntelligenceDashboard';
-import { WorkflowAutomationManager } from '@/components/admin/WorkflowAutomationManager';
-import { SystemHealthMonitor } from '@/components/admin/SystemHealthMonitor';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { 
   LayoutDashboard, 
   FileText, 
-  CreditCard, 
-  Bell, 
-  Settings,
   TrendingUp,
   Users,
   Calendar,
-  Zap,
-  BarChart3,
-  Menu,
-  DollarSign,
   Target
 } from 'lucide-react';
 
@@ -298,26 +282,7 @@ export function UnifiedAdminInterface() {
             </div>
             
             <div className="flex items-center gap-1 lg:gap-2 shrink-0">
-              <div className="hidden lg:flex gap-2">
-                {selectedItems.length > 0 && (
-                  <BatchOperationsDropdown
-                    selectedItems={selectedItems}
-                    onAction={handleBatchAction}
-                    itemType={activeTab}
-                  />
-                )}
-                <AutomatedStatusManagerDropdown 
-                  onStatusUpdate={handleStatusProgression}
-                  data={data}
-                />
-              </div>
-              <MobileAdminActions
-                selectedItems={selectedItems}
-                onBatchAction={handleBatchAction}
-                onStatusUpdate={handleStatusProgression}
-                itemType={activeTab}
-                data={data}
-              />
+              {/* Simplified header actions */}
             </div>
           </header>
 
@@ -382,9 +347,9 @@ export function UnifiedAdminInterface() {
             <div className="relative z-10 flex-1 overflow-hidden">
               <div className="h-full overflow-y-auto scrollbar-thin scrollbar-track-muted scrollbar-thumb-muted-foreground/20">
                 <div className="p-3 lg:p-6 min-h-full">
-                {/* Desktop Tab Navigation */}
+                 {/* Desktop Tab Navigation */}
                 <Tabs value={activeTab} onValueChange={handleTabChange} className="hidden lg:block">
-                  <TabsList className="grid w-full grid-cols-8 mb-6">
+                  <TabsList className="grid w-full grid-cols-3 mb-6">
                     <TabsTrigger value="overview" className="flex items-center gap-2">
                       <LayoutDashboard className="h-4 w-4" />
                       Overview
@@ -406,23 +371,6 @@ export function UnifiedAdminInterface() {
                           {tabCounts.invoices}
                         </Badge>
                       )}
-                    </TabsTrigger>
-                    <TabsTrigger value="notifications" className="flex items-center gap-2">
-                      <Bell className="h-4 w-4" />
-                      Notifications
-                      {tabCounts.notifications > 0 && (
-                        <Badge variant="destructive" className="ml-1">
-                          {tabCounts.notifications}
-                        </Badge>
-                      )}
-                    </TabsTrigger>
-                    <TabsTrigger value="analytics" className="flex items-center gap-2">
-                      <BarChart3 className="h-4 w-4" />
-                      Analytics
-                    </TabsTrigger>
-                    <TabsTrigger value="automation" className="flex items-center gap-2">
-                      <Zap className="h-4 w-4" />
-                      Automation
                     </TabsTrigger>
                   </TabsList>
                 </Tabs>
@@ -543,16 +491,6 @@ export function UnifiedAdminInterface() {
                     />
                   )}
 
-                  {activeTab === 'analytics' && (
-                    <div className="space-y-6">
-                      <BusinessIntelligenceDashboard />
-                      <SystemHealthMonitor />
-                    </div>
-                  )}
-
-                  {activeTab === 'automation' && (
-                    <WorkflowAutomationManager />
-                  )}
                  </div>
                  </div>
                </div>
