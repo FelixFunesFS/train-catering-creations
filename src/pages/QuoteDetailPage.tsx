@@ -423,6 +423,7 @@ export default function QuoteDetailPage() {
             {/* Invoice Workflow (if exists) */}
             {relatedInvoices.length > 0 && (
               <InvoiceWorkflowManager 
+                quote={quote}
                 invoice={relatedInvoices[0]} 
                 onRefresh={fetchQuoteDetails}
               />
