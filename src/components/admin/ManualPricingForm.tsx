@@ -38,7 +38,7 @@ export function ManualPricingForm({ quote, onPricingUpdate }: ManualPricingFormP
   const [taxRate, setTaxRate] = useState(8.5); // Default 8.5% tax
   const [taxAmount, setTaxAmount] = useState(0);
   const [total, setTotal] = useState(0);
-  const [loading, setSaving] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [notes, setNotes] = useState('');
   const { toast } = useToast();
 
@@ -141,9 +141,109 @@ export function ManualPricingForm({ quote, onPricingUpdate }: ManualPricingFormP
     ]);
   };
 
-  const savePricing = async () => {
-    setSaving(true);
+  // Load existing line items from database
+  useEffect(() => {
+    const loadLineItems = async () => {
+      if (!quote?.id) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('quote_line_items')
+          .select('*')
+          .eq('quote_request_id', quote.id)
+          .order('created_at', { ascending: true });
+
+        if (error) throw error;
+        
+        if (data && data.length > 0) {
+          setLineItems(data.map(item => ({
+            id: item.id,
+            title: item.title,
+            description: item.description || '',
+            quantity: item.quantity,
+            unit_price: item.unit_price,
+            total_price: item.total_price,
+            category: item.category as PricingLineItem['category']
+          })));
+        }
+      } catch (error) {
+        console.error('Error loading line items:', error);
+      }
+    };
+
+    loadLineItems();
+  }, [quote?.id]);
+
+  // Auto-save line items to database
+  const saveLineItemsToDatabase = async (items: PricingLineItem[]) => {
+    if (!quote?.id) return;
+
     try {
+      // Delete existing line items
+      await supabase
+        .from('quote_line_items')
+        .delete()
+        .eq('quote_request_id', quote.id);
+
+      // Insert new line items if any exist
+      if (items.length > 0) {
+        const itemsToInsert = items.map(item => ({
+          quote_request_id: quote.id,
+          title: item.title,
+          description: item.description,
+          quantity: item.quantity,
+          unit_price: item.unit_price,
+          total_price: item.total_price,
+          category: item.category
+        }));
+
+        const { error } = await supabase
+          .from('quote_line_items')
+          .insert(itemsToInsert);
+
+        if (error) throw error;
+      }
+    } catch (error) {
+      console.error('Error saving line items:', error);
+    }
+  };
+
+  // Auto-save when line items change (debounced)
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (lineItems.length > 0) {
+        saveLineItemsToDatabase(lineItems);
+      }
+    }, 1000); // 1 second debounce
+
+    return () => clearTimeout(timeoutId);
+  }, [lineItems, quote?.id]);
+
+  const markStepCompleted = async (stepId: string, stepName: string) => {
+    if (!quote?.id) return;
+
+    try {
+      await supabase
+        .from('workflow_step_completion')
+        .upsert({
+          quote_request_id: quote.id,
+          step_id: stepId,
+          step_name: stepName,
+          completed_by: 'admin'
+        }, {
+          onConflict: 'quote_request_id,step_id'
+        });
+    } catch (error) {
+      console.error('Error marking step completed:', error);
+    }
+  };
+
+  const savePricing = async () => {
+    setLoading(true);
+    try {
+      // Save line items to database
+      await saveLineItemsToDatabase(lineItems);
+      
       // Update quote with estimated total
       const { error } = await supabase
         .from('quote_requests')
@@ -155,10 +255,16 @@ export function ManualPricingForm({ quote, onPricingUpdate }: ManualPricingFormP
 
       if (error) throw error;
 
+      // Mark pricing step as completed
+      await markStepCompleted('pricing_completed', 'Pricing Completed');
+
       toast({
         title: "Pricing Saved",
         description: "Pricing information has been saved successfully",
       });
+
+      // Trigger pricing completion callback
+      onPricingUpdate?.(total);
     } catch (error: any) {
       console.error('Error saving pricing:', error);
       toast({
@@ -167,7 +273,7 @@ export function ManualPricingForm({ quote, onPricingUpdate }: ManualPricingFormP
         variant: "destructive"
       });
     } finally {
-      setSaving(false);
+      setLoading(false);
     }
   };
 

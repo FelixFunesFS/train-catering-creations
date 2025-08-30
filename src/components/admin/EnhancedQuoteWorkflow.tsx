@@ -1,5 +1,5 @@
 import React from 'react';
-import { StreamlinedWorkflowManager } from './StreamlinedWorkflowManager';
+import { ConsolidatedWorkflowManager } from './ConsolidatedWorkflowManager';
 
 interface EnhancedQuoteWorkflowProps {
   quote: any;
@@ -9,7 +9,7 @@ interface EnhancedQuoteWorkflowProps {
 
 export function EnhancedQuoteWorkflow({ quote, invoice, onRefresh }: EnhancedQuoteWorkflowProps) {
   return (
-    <StreamlinedWorkflowManager 
+    <ConsolidatedWorkflowManager 
       quote={quote} 
       invoice={invoice}
       onRefresh={onRefresh}

@@ -898,6 +898,45 @@ export type Database = {
         }
         Relationships: []
       }
+      quote_line_items: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          quantity: number
+          quote_request_id: string
+          title: string
+          total_price: number
+          unit_price: number
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          quantity?: number
+          quote_request_id: string
+          title: string
+          total_price?: number
+          unit_price?: number
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          quantity?: number
+          quote_request_id?: string
+          title?: string
+          total_price?: number
+          unit_price?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       quote_request_history: {
         Row: {
           change_reason: string | null
@@ -1187,6 +1226,39 @@ export type Database = {
           metadata?: Json | null
           new_status?: string
           previous_status?: string | null
+        }
+        Relationships: []
+      }
+      workflow_step_completion: {
+        Row: {
+          completed_at: string
+          completed_by: string
+          created_at: string
+          id: string
+          notes: string | null
+          quote_request_id: string
+          step_id: string
+          step_name: string
+        }
+        Insert: {
+          completed_at?: string
+          completed_by?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          quote_request_id: string
+          step_id: string
+          step_name: string
+        }
+        Update: {
+          completed_at?: string
+          completed_by?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          quote_request_id?: string
+          step_id?: string
+          step_name?: string
         }
         Relationships: []
       }
