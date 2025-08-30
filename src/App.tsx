@@ -28,6 +28,7 @@ import InvoicePublic from "./pages/InvoicePublic";
 import InvoiceEstimateCreation from "./pages/InvoiceEstimateCreation";
 import EstimatePreview from "./pages/EstimatePreview";
 import PaymentSuccess from "./pages/PaymentSuccess";
+import ContractManagement from "./pages/ContractManagement";
 const AppContent = () => {
   useScrollToAnchor();
   return <div className="min-h-screen bg-background font-clean flex flex-col transition-colors duration-300 py-0 my-0">
@@ -49,9 +50,12 @@ const AppContent = () => {
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-conditions" element={<TermsConditions />} />
           <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/invoice/:invoiceId" element={<InvoiceManagement />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/invoices" element={<InvoiceManagement />} />
+          <Route path="/admin/contracts" element={<ContractManagement />} />
           <Route path="/invoice/public/:invoiceToken" element={<InvoicePublic />} />
           <Route path="/invoice-estimate-creation/:quoteId" element={<InvoiceEstimateCreation />} />
+          <Route path="/admin/invoice-creation/:quoteId" element={<InvoiceEstimateCreation />} />
           <Route path="/estimate-preview/:invoiceId" element={<EstimatePreview />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

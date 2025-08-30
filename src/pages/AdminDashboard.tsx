@@ -25,6 +25,7 @@ const AdminDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [serviceFilter, setServiceFilter] = useState<string>("all");
+  const [invoiceStatus, setInvoiceStatus] = useState<Record<string, string>>({});
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -45,6 +46,20 @@ const AdminDashboard = () => {
 
       if (error) throw error;
       setQuotes(data as QuoteRequest[] || []);
+
+      // Fetch invoice status for each quote
+      const { data: invoiceData } = await supabase
+        .from('invoices')
+        .select('quote_request_id, status, is_draft')
+        .in('quote_request_id', data?.map(q => q.id) || []);
+
+      const statusMap: Record<string, string> = {};
+      invoiceData?.forEach(invoice => {
+        if (invoice.quote_request_id) {
+          statusMap[invoice.quote_request_id] = invoice.is_draft ? 'draft' : invoice.status;
+        }
+      });
+      setInvoiceStatus(statusMap);
     } catch (error) {
       console.error('Error fetching quotes:', error);
       toast({
@@ -128,6 +143,53 @@ const AdminDashboard = () => {
     }
   };
 
+  const getActionButton = (quote: QuoteRequest) => {
+    const hasInvoice = invoiceStatus[quote.id];
+    
+    if (!hasInvoice && quote.status === 'pending') {
+      return (
+        <Button
+          size="sm"
+          onClick={() => navigate(`/admin/invoice-creation/${quote.id}`)}
+          className="gap-1"
+        >
+          <FileText className="h-3 w-3" />
+          Generate Estimate
+        </Button>
+      );
+    }
+    
+    if (hasInvoice === 'draft') {
+      return (
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => navigate(`/admin/invoices`)}
+          className="gap-1"
+        >
+          <FileText className="h-3 w-3" />
+          View Estimate
+        </Button>
+      );
+    }
+    
+    if (hasInvoice && hasInvoice !== 'draft') {
+      return (
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => navigate(`/admin/invoices`)}
+          className="gap-1"
+        >
+          <FileText className="h-3 w-3" />
+          View Invoice
+        </Button>
+      );
+    }
+    
+    return null;
+  };
+
   const exportToCSV = () => {
     const headers = ['Contact Name', 'Email', 'Phone', 'Event Name', 'Event Type', 'Event Date', 'Guests', 'Service Type', 'Location', 'Status', 'Created'];
     const csvData = filteredQuotes.map(quote => [
@@ -174,6 +236,14 @@ const AdminDashboard = () => {
             <p className="text-muted-foreground">Manage quote requests for Soul Train's Eatery</p>
           </div>
           <div className="flex items-center gap-2">
+            <Button onClick={() => navigate('/admin/invoices')} variant="default" className="gap-2">
+              <FileText className="h-4 w-4" />
+              Invoice Management
+            </Button>
+            <Button onClick={() => navigate('/admin/contracts')} variant="outline" className="gap-2">
+              <FileText className="h-4 w-4" />
+              Contracts
+            </Button>
             <Button onClick={exportToCSV} variant="outline" className="gap-2">
               <Download className="h-4 w-4" />
               Export CSV
@@ -338,7 +408,7 @@ const AdminDashboard = () => {
                       <TableCell className="text-sm text-muted-foreground">
                         {format(new Date(quote.created_at), 'MMM dd, yyyy')}
                       </TableCell>
-                      <TableCell>
+                       <TableCell>
                         <div className="flex items-center gap-2">
                           <Button
                             variant="outline"
@@ -347,18 +417,9 @@ const AdminDashboard = () => {
                             className="gap-1"
                           >
                             <Eye className="h-3 w-3" />
-                            View
+                            View Submission
                           </Button>
-                          {quote.status === 'pending' && (
-                            <Button
-                              size="sm"
-                              onClick={() => navigate(`/invoice-estimate-creation/${quote.id}`)}
-                              className="gap-1"
-                            >
-                              <FileText className="h-3 w-3" />
-                              Generate Estimate
-                            </Button>
-                          )}
+                          {getActionButton(quote)}
                           <Select 
                             value={quote.status} 
                             onValueChange={(value) => updateQuoteStatus(quote.id, value)}

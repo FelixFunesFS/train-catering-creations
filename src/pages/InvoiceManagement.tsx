@@ -166,11 +166,11 @@ export default function InvoiceManagement() {
   };
 
   const handleViewSubmission = (invoice: InvoiceRecord) => {
-    navigate(`/admin/quote-details/${invoice.quote_request_id}`);
+    navigate(`/admin/dashboard`);
   };
 
   const handleViewInvoice = (invoice: InvoiceRecord) => {
-    navigate(`/estimate-preview/${invoice.id}`);
+    window.open(`/estimate-preview/${invoice.id}`, '_blank');
   };
 
   const handleGenerateInvoice = async (invoice: InvoiceRecord) => {
@@ -297,10 +297,15 @@ export default function InvoiceManagement() {
             Manage all estimates and invoices from one central location
           </p>
         </div>
-        <Button onClick={() => navigate('/admin/dashboard')}>
-          <Plus className="h-4 w-4 mr-2" />
-          Create New Estimate
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={() => navigate('/admin/dashboard')} variant="outline">
+            Back to Dashboard
+          </Button>
+          <Button onClick={() => navigate('/admin/invoice-creation')}>
+            <Plus className="h-4 w-4 mr-2" />
+            Create New Estimate
+          </Button>
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -459,30 +464,29 @@ export default function InvoiceManagement() {
                   </div>
 
                   <div className="flex gap-2 flex-wrap">
-                    {/* Always show View Submission for quote details */}
+                    {/* Always show View Quote for quote details */}
                     <Button size="sm" variant="outline" onClick={() => handleViewSubmission(invoice)}>
                       <FileText className="h-3 w-3 mr-1" />
-                      View Submission
+                      View Quote
+                    </Button>
+
+                    {/* Preview invoice */}
+                    <Button size="sm" variant="outline" onClick={() => handleViewInvoice(invoice)}>
+                      <Eye className="h-3 w-3 mr-1" />
+                      Preview
                     </Button>
 
                     {/* Status-based action buttons */}
                     {invoice.is_draft && (
-                      <Button size="sm" variant="outline" onClick={() => handleEditInvoice(invoice)}>
+                      <Button size="sm" onClick={() => handleEditInvoice(invoice)}>
                         <Edit3 className="h-3 w-3 mr-1" />
                         Edit Draft
                       </Button>
                     )}
 
-                    {invoice.status === 'pending_pricing' && (
-                      <Button size="sm" onClick={() => handleGenerateInvoice(invoice)}>
-                        <Plus className="h-3 w-3 mr-1" />
-                        Generate Invoice
-                      </Button>
-                    )}
-
-                    {(invoice.status === 'draft' || invoice.status === 'pending_pricing') && !invoice.is_draft && (
+                    {!invoice.is_draft && invoice.status === 'draft' && (
                       <>
-                        <Button size="sm" variant="outline" onClick={() => handleEditInvoice(invoice)}>
+                        <Button size="sm" onClick={() => handleEditInvoice(invoice)}>
                           <Edit3 className="h-3 w-3 mr-1" />
                           Edit
                         </Button>
