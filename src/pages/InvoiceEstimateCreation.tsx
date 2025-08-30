@@ -71,6 +71,8 @@ export default function InvoiceEstimateCreation() {
   const [isSaving, setIsSaving] = useState(false);
   const [isGovernmentContract, setIsGovernmentContract] = useState(false);
   const [editingItem, setEditingItem] = useState<string | null>(null);
+  const [invoiceId, setInvoiceId] = useState<string | null>(null);
+  const [customerId, setCustomerId] = useState<string | null>(null);
 
   useEffect(() => {
     if (quoteId) {
@@ -258,6 +260,7 @@ export default function InvoiceEstimateCreation() {
 
         if (customerError) throw customerError;
         customerId = newCustomer.id;
+        setCustomerId(customerId);
       }
 
       // Create invoice estimate
@@ -281,7 +284,8 @@ export default function InvoiceEstimateCreation() {
         .select('id')
         .single();
 
-      if (invoiceError) throw invoiceError;
+        if (invoiceError) throw invoiceError;
+        setInvoiceId(invoiceData.id);
 
       // Create line items
       const lineItemsToInsert = estimate.line_items.map(item => ({
@@ -329,24 +333,104 @@ export default function InvoiceEstimateCreation() {
 
   // Post-pricing workflow actions
   const handleSaveAsDraft = async () => {
-    // Save current state as draft without validation
-    toast({
-      title: "Draft Saved",
-      description: "Your estimate has been saved as a draft",
-    });
+    try {
+      const estimateData = {
+        line_items: estimate.line_items,
+        subtotal: estimate.subtotal,
+        tax_amount: estimate.tax_amount,
+        total_amount: estimate.total_amount,
+        deposit_required: estimate.deposit_required,
+        is_government_contract: isGovernmentContract
+      };
+
+      const { data, error } = await supabase
+        .from('invoices')
+        .upsert({
+          id: invoiceId || undefined,
+          quote_request_id: quoteId,
+          customer_id: customerId,
+          is_draft: true,
+          status: 'draft',
+          draft_data: estimateData as any,
+          subtotal: estimate.subtotal,
+          tax_amount: estimate.tax_amount,
+          total_amount: estimate.total_amount,
+          updated_at: new Date().toISOString()
+        })
+        .select('id')
+        .single();
+
+      if (error) throw error;
+      if (data?.id) setInvoiceId(data.id);
+
+      toast({
+        title: "Draft Saved",
+        description: "Your estimate has been saved as a draft",
+      });
+    } catch (error) {
+      console.error('Error saving draft:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save draft",
+        variant: "destructive"
+      });
+    }
   };
 
-  const handleGeneratePreview = () => {
-    // Generate customer-facing preview
-    toast({
-      title: "Preview Generated",
-      description: "Opening customer preview in new tab",
-    });
+  const handleGeneratePreview = async () => {
+    try {
+      // First save the current state
+      await handleSaveEstimate();
+      
+      // Open preview in new tab
+      const previewUrl = `/estimate-preview/${invoiceId}`;
+      window.open(previewUrl, '_blank');
+      
+      toast({
+        title: "Preview Generated",
+        description: "Opening customer preview in new tab",
+      });
+    } catch (error) {
+      console.error('Error generating preview:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate preview",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleSendEstimate = async () => {
-    // Send estimate to customer via email
-    await handleSaveEstimate(); // This will create the invoice and navigate
+    try {
+      // First save the estimate
+      await handleSaveEstimate();
+      
+      if (!invoiceId) {
+        throw new Error('Invoice ID not available');
+      }
+
+      // Send the estimate via email
+      const { data, error } = await supabase.functions.invoke('send-invoice-email', {
+        body: { invoice_id: invoiceId }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Estimate Sent",
+        description: "Estimate has been sent to the customer",
+      });
+
+      // Navigate to invoice management
+      navigate('/admin/invoice-management');
+    } catch (error) {
+      console.error('Error sending estimate:', error);
+      toast({
+        title: "Error",
+        description: "Failed to send estimate",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleScheduleFollow = () => {

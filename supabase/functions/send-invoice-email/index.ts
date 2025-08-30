@@ -154,12 +154,24 @@ serve(async (req) => {
       </div>
     `;
 
-    // Here you would integrate with your email service (Resend, SendGrid, etc.)
-    // For now, we'll just log the email content and update the invoice status
+    // Send email using Gmail integration
+    const { data: emailResult, error: emailError } = await supabaseClient.functions.invoke('send-gmail-email', {
+      body: {
+        to: invoiceData.customers.email,
+        subject: emailSubject,
+        html: emailContent,
+        from: 'soultrainseatery@gmail.com'
+      }
+    });
+
+    if (emailError) {
+      logStep("Email sending failed", { error: emailError });
+      throw new Error(`Failed to send email: ${emailError.message}`);
+    }
     
-    logStep("Email content prepared", { 
+    logStep("Email sent successfully", { 
       to: invoiceData.customers.email,
-      subject: emailSubject 
+      messageId: emailResult?.messageId 
     });
 
     // Update invoice status to sent
