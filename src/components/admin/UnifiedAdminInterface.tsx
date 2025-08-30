@@ -13,6 +13,7 @@ import { AutomatedStatusManagerDropdown } from '@/components/admin/AutomatedStat
 import { MobileAdminActions } from '@/components/admin/MobileAdminActions';
 import { InvoiceManagementTab } from '@/components/admin/InvoiceManagementTab';
 import { QuoteManagementTab } from '@/components/admin/QuoteManagementTab';
+import { NewRequestsWorkflow } from '@/components/admin/NewRequestsWorkflow';
 import { BusinessIntelligenceDashboard } from '@/components/admin/BusinessIntelligenceDashboard';
 import { WorkflowAutomationManager } from '@/components/admin/WorkflowAutomationManager';
 import { SystemHealthMonitor } from '@/components/admin/SystemHealthMonitor';
@@ -264,15 +265,15 @@ export function UnifiedAdminInterface() {
   const handleNotificationAction = (notification: any) => {
     // Handle notification clicks
     if (notification.action_url === '#invoices') {
-      handleTabChange('invoices');
+      handleTabChange('in-progress');
     } else if (notification.action_url === '#quotes') {
-      handleTabChange('quotes');
+      handleTabChange('requests');
     }
   };
 
   const getTabCounts = () => {
     return {
-      quotes: data.quotes.length,
+      quotes: data.quotes.filter(q => ['pending', 'reviewed'].includes(q.status)).length,
       invoices: data.invoices.length,
       notifications: data.notifications.filter(n => !n.read).length
     };
@@ -338,9 +339,9 @@ export function UnifiedAdminInterface() {
                     <span>Overview</span>
                   </button>
                   <button
-                    onClick={() => handleTabChange('quotes')}
+                    onClick={() => handleTabChange('requests')}
                     className={`flex flex-col items-center gap-1 px-2 py-2 rounded-md text-xs transition-all relative ${
-                      activeTab === 'quotes' 
+                      activeTab === 'requests' 
                         ? 'bg-background text-foreground shadow-sm' 
                         : 'text-muted-foreground hover:text-foreground'
                     }`}
@@ -353,25 +354,25 @@ export function UnifiedAdminInterface() {
                         </Badge>
                       )}
                     </div>
-                    <span>Quotes</span>
+                    <span>Requests</span>
                   </button>
                   <button
-                    onClick={() => handleTabChange('invoices')}
+                    onClick={() => handleTabChange('in-progress')}
                     className={`flex flex-col items-center gap-1 px-2 py-2 rounded-md text-xs transition-all relative ${
-                      activeTab === 'invoices' 
+                      activeTab === 'in-progress' 
                         ? 'bg-background text-foreground shadow-sm' 
                         : 'text-muted-foreground hover:text-foreground'
                     }`}
                   >
                     <div className="relative">
-                      <CreditCard className="h-4 w-4" />
+                      <Target className="h-4 w-4" />
                       {tabCounts.invoices > 0 && (
                         <Badge variant="secondary" className="absolute -top-1 -right-1 h-4 w-4 p-0 text-xs flex items-center justify-center">
                           {tabCounts.invoices}
                         </Badge>
                       )}
                     </div>
-                    <span>Invoices</span>
+                    <span>Progress</span>
                   </button>
                 </div>
               </div>
@@ -388,18 +389,18 @@ export function UnifiedAdminInterface() {
                       <LayoutDashboard className="h-4 w-4" />
                       Overview
                     </TabsTrigger>
-                    <TabsTrigger value="quotes" className="flex items-center gap-2">
+                    <TabsTrigger value="requests" className="flex items-center gap-2">
                       <FileText className="h-4 w-4" />
-                      Quotes
+                      New Requests
                       {tabCounts.quotes > 0 && (
                         <Badge variant="secondary" className="ml-1">
                           {tabCounts.quotes}
                         </Badge>
                       )}
                     </TabsTrigger>
-                    <TabsTrigger value="invoices" className="flex items-center gap-2">
-                      <CreditCard className="h-4 w-4" />
-                      Invoices
+                    <TabsTrigger value="in-progress" className="flex items-center gap-2">
+                      <Target className="h-4 w-4" />
+                      In Progress
                       {tabCounts.invoices > 0 && (
                         <Badge variant="secondary" className="ml-1">
                           {tabCounts.invoices}
@@ -522,9 +523,9 @@ export function UnifiedAdminInterface() {
                     </div>
                   )}
 
-                  {activeTab === 'quotes' && (
-                    <QuoteManagementTab 
-                      quotes={data.quotes}
+                  {activeTab === 'requests' && (
+                    <NewRequestsWorkflow 
+                      quotes={data.quotes.filter(q => ['pending', 'reviewed'].includes(q.status))}
                       loading={loading}
                       onRefresh={fetchAllData}
                       selectedItems={selectedItems}
@@ -532,7 +533,7 @@ export function UnifiedAdminInterface() {
                     />
                   )}
 
-                  {activeTab === 'invoices' && (
+                  {activeTab === 'in-progress' && (
                     <InvoiceManagementTab 
                       invoices={data.invoices}
                       loading={loading}

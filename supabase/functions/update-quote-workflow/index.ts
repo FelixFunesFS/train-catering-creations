@@ -74,7 +74,7 @@ serve(async (req) => {
         break;
 
       case 'send_quote':
-        updateData.workflow_status = 'sent';
+        updateData.workflow_status = 'quoted';
         updateData.status = 'quoted';
         responseMessage = 'Quote sent to customer';
         
