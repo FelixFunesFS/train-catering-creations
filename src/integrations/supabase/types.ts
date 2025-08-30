@@ -540,22 +540,29 @@ export type Database = {
           invoice_number: string | null
           is_draft: boolean | null
           last_quote_sync: string | null
+          last_status_change: string | null
           manual_overrides: Json | null
           notes: string | null
+          original_quote_id: string | null
           override_reason: string | null
           paid_at: string | null
           pdf_url: string | null
           quote_request_id: string | null
+          quote_version: number | null
           reviewed_at: string | null
           reviewed_by: string | null
           sent_at: string | null
           status: string
+          status_changed_by: string | null
           stripe_invoice_id: string | null
           subtotal: number
           tax_amount: number | null
           total_amount: number
           updated_at: string
           viewed_at: string | null
+          workflow_status:
+            | Database["public"]["Enums"]["invoice_workflow_status"]
+            | null
         }
         Insert: {
           created_at?: string
@@ -567,22 +574,29 @@ export type Database = {
           invoice_number?: string | null
           is_draft?: boolean | null
           last_quote_sync?: string | null
+          last_status_change?: string | null
           manual_overrides?: Json | null
           notes?: string | null
+          original_quote_id?: string | null
           override_reason?: string | null
           paid_at?: string | null
           pdf_url?: string | null
           quote_request_id?: string | null
+          quote_version?: number | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           sent_at?: string | null
           status?: string
+          status_changed_by?: string | null
           stripe_invoice_id?: string | null
           subtotal?: number
           tax_amount?: number | null
           total_amount?: number
           updated_at?: string
           viewed_at?: string | null
+          workflow_status?:
+            | Database["public"]["Enums"]["invoice_workflow_status"]
+            | null
         }
         Update: {
           created_at?: string
@@ -594,22 +608,29 @@ export type Database = {
           invoice_number?: string | null
           is_draft?: boolean | null
           last_quote_sync?: string | null
+          last_status_change?: string | null
           manual_overrides?: Json | null
           notes?: string | null
+          original_quote_id?: string | null
           override_reason?: string | null
           paid_at?: string | null
           pdf_url?: string | null
           quote_request_id?: string | null
+          quote_version?: number | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           sent_at?: string | null
           status?: string
+          status_changed_by?: string | null
           stripe_invoice_id?: string | null
           subtotal?: number
           tax_amount?: number | null
           total_amount?: number
           updated_at?: string
           viewed_at?: string | null
+          workflow_status?:
+            | Database["public"]["Enums"]["invoice_workflow_status"]
+            | null
         }
         Relationships: [
           {
@@ -617,6 +638,13 @@ export type Database = {
             columns: ["customer_id"]
             isOneToOne: false
             referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_original_quote_id_fkey"
+            columns: ["original_quote_id"]
+            isOneToOne: false
+            referencedRelation: "quote_requests"
             referencedColumns: ["id"]
           },
           {
@@ -942,6 +970,7 @@ export type Database = {
           id: string
           invoice_status: string | null
           last_calendar_sync: string | null
+          last_status_change: string | null
           linens_requested: boolean | null
           location: string
           napkins_requested: boolean | null
@@ -959,6 +988,7 @@ export type Database = {
           special_requests: string | null
           start_time: string
           status: Database["public"]["Enums"]["quote_status"] | null
+          status_changed_by: string | null
           tables_chairs_requested: boolean | null
           theme_colors: string | null
           updated_at: string | null
@@ -966,6 +996,9 @@ export type Database = {
           wait_staff_requested: boolean | null
           wait_staff_requirements: string | null
           wait_staff_setup_areas: string | null
+          workflow_status:
+            | Database["public"]["Enums"]["quote_workflow_status"]
+            | null
         }
         Insert: {
           appetizers?: Json | null
@@ -994,6 +1027,7 @@ export type Database = {
           id?: string
           invoice_status?: string | null
           last_calendar_sync?: string | null
+          last_status_change?: string | null
           linens_requested?: boolean | null
           location: string
           napkins_requested?: boolean | null
@@ -1011,6 +1045,7 @@ export type Database = {
           special_requests?: string | null
           start_time: string
           status?: Database["public"]["Enums"]["quote_status"] | null
+          status_changed_by?: string | null
           tables_chairs_requested?: boolean | null
           theme_colors?: string | null
           updated_at?: string | null
@@ -1018,6 +1053,9 @@ export type Database = {
           wait_staff_requested?: boolean | null
           wait_staff_requirements?: string | null
           wait_staff_setup_areas?: string | null
+          workflow_status?:
+            | Database["public"]["Enums"]["quote_workflow_status"]
+            | null
         }
         Update: {
           appetizers?: Json | null
@@ -1046,6 +1084,7 @@ export type Database = {
           id?: string
           invoice_status?: string | null
           last_calendar_sync?: string | null
+          last_status_change?: string | null
           linens_requested?: boolean | null
           location?: string
           napkins_requested?: boolean | null
@@ -1063,6 +1102,7 @@ export type Database = {
           special_requests?: string | null
           start_time?: string
           status?: Database["public"]["Enums"]["quote_status"] | null
+          status_changed_by?: string | null
           tables_chairs_requested?: boolean | null
           theme_colors?: string | null
           updated_at?: string | null
@@ -1070,6 +1110,9 @@ export type Database = {
           wait_staff_requested?: boolean | null
           wait_staff_requirements?: string | null
           wait_staff_setup_areas?: string | null
+          workflow_status?:
+            | Database["public"]["Enums"]["quote_workflow_status"]
+            | null
         }
         Relationships: []
       }
@@ -1111,6 +1154,42 @@ export type Database = {
           },
         ]
       }
+      workflow_state_log: {
+        Row: {
+          change_reason: string | null
+          changed_by: string | null
+          created_at: string | null
+          entity_id: string
+          entity_type: string
+          id: string
+          metadata: Json | null
+          new_status: string
+          previous_status: string | null
+        }
+        Insert: {
+          change_reason?: string | null
+          changed_by?: string | null
+          created_at?: string | null
+          entity_id: string
+          entity_type: string
+          id?: string
+          metadata?: Json | null
+          new_status: string
+          previous_status?: string | null
+        }
+        Update: {
+          change_reason?: string | null
+          changed_by?: string | null
+          created_at?: string | null
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          metadata?: Json | null
+          new_status?: string
+          previous_status?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -1130,11 +1209,30 @@ export type Database = {
         | "holiday_party"
         | "anniversary"
         | "other"
+      invoice_workflow_status:
+        | "draft"
+        | "pending_review"
+        | "sent"
+        | "viewed"
+        | "approved"
+        | "paid"
+        | "overdue"
+        | "cancelled"
       quote_status:
         | "pending"
         | "reviewed"
         | "quoted"
         | "confirmed"
+        | "completed"
+        | "cancelled"
+      quote_workflow_status:
+        | "pending"
+        | "under_review"
+        | "estimated"
+        | "quoted"
+        | "approved"
+        | "confirmed"
+        | "in_progress"
         | "completed"
         | "cancelled"
       service_type:
@@ -1281,11 +1379,32 @@ export const Constants = {
         "anniversary",
         "other",
       ],
+      invoice_workflow_status: [
+        "draft",
+        "pending_review",
+        "sent",
+        "viewed",
+        "approved",
+        "paid",
+        "overdue",
+        "cancelled",
+      ],
       quote_status: [
         "pending",
         "reviewed",
         "quoted",
         "confirmed",
+        "completed",
+        "cancelled",
+      ],
+      quote_workflow_status: [
+        "pending",
+        "under_review",
+        "estimated",
+        "quoted",
+        "approved",
+        "confirmed",
+        "in_progress",
         "completed",
         "cancelled",
       ],
