@@ -542,37 +542,16 @@ export function UnifiedAdminInterface() {
                     />
                   )}
 
-                   {activeTab === 'insights' && (
-                     <BusinessInsightsDashboard />
-                   )}
+                  {activeTab === 'analytics' && (
+                    <div className="space-y-6">
+                      <BusinessIntelligenceDashboard />
+                      <SystemHealthMonitor />
+                    </div>
+                  )}
 
-                   {activeTab === 'system' && (
-                     <SystemHealthMonitor />
-                   )}
-
-                   {activeTab === 'analytics' && (
-                     <div className="p-6">
-                       <BusinessIntelligenceDashboard />
-                     </div>
-                   )}
-
-                   {activeTab === 'automation' && (
-                     <div className="p-6">
-                       <WorkflowAutomationManager />
-                     </div>
-                   )}
-
-                    {activeTab === 'financial' && (
-                      <FinancialDashboard />
-                    )}
-
-                    {activeTab === 'conversion' && (
-                      <QuoteToCashMetrics />
-                    )}
-
-                    {activeTab === 'reports' && (
-                      <BusinessInsightsDashboard />
-                    )}
+                  {activeTab === 'automation' && (
+                    <WorkflowAutomationManager />
+                  )}
                  </div>
                  </div>
                </div>
