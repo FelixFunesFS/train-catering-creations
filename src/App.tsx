@@ -24,7 +24,6 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsConditions from "./pages/TermsConditions";
 import NotFound from "./pages/NotFound";
 
-import InvoiceManagement from "./pages/InvoiceManagement";
 import InvoicePublic from "./pages/InvoicePublic";
 import EstimateCreation from "./pages/EstimateCreation";
 import EstimateWorkflow from "./pages/admin/EstimateWorkflow";
@@ -34,9 +33,6 @@ import ContractManagement from "./pages/ContractManagement";
 import { OptimizedCustomerPortal } from "./components/customer/OptimizedCustomerPortal";
 import UnifiedAdminDashboard from "./pages/UnifiedAdminDashboard";
 import QuoteDetailPage from "./pages/QuoteDetailPage";
-import AdminReports from "./pages/AdminReports";
-import AdminMessages from "./pages/AdminMessages";
-import AdminSettings from "./pages/AdminSettings";
 import EstimatePrintView from "./pages/EstimatePrintView";
 const AppContent = () => {
   useScrollToAnchor();
@@ -64,14 +60,11 @@ const AppContent = () => {
           {/* Admin Dashboard and Management */}
           <Route path="/admin" element={<UnifiedAdminDashboard />} />
           <Route path="/admin/quotes/:quoteId" element={<QuoteDetailPage />} />
-          <Route path="/admin/invoice-creation" element={<EstimateCreation />} />
-          <Route path="/admin/invoice-creation/:quoteId" element={<EstimateCreation />} />
+          <Route path="/admin/estimate-creation" element={<EstimateCreation />} />
+          <Route path="/admin/estimate-creation/:quoteId" element={<EstimateCreation />} />
           <Route path="/admin/estimate-workflow/:invoiceId" element={<EstimateWorkflow />} />
-          <Route path="/admin/invoice-management" element={<InvoiceManagement />} />
           <Route path="/admin/estimate-preview/:invoiceId" element={<EstimatePreview />} />
-          <Route path="/admin/estimate-preview/preview" element={<EstimatePreview />} />
           <Route path="/estimate-preview/:id" element={<EstimatePreview />} />
-          <Route path="/estimate-preview/preview" element={<EstimatePreview />} />
           <Route path="/estimate-print/:id" element={<EstimatePrintView />} />
           <Route path="/admin/estimate-preview/:invoiceId/print" element={<EstimatePrintView />} />
           <Route path="/admin/*" element={<UnifiedAdminDashboard />} />
