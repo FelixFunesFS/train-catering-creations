@@ -24,6 +24,19 @@ const handler = async (req: Request): Promise<Response> => {
     
     console.log('Sending invoice email for:', invoice_id);
 
+    // Check if Gmail tokens are configured
+    const { data: gmailTokens, error: tokenError } = await supabase
+      .from('gmail_tokens')
+      .select('email')
+      .limit(1);
+
+    if (tokenError || !gmailTokens || gmailTokens.length === 0) {
+      console.error('Gmail tokens not configured:', tokenError);
+      throw new Error('Gmail integration not configured. Please set up Gmail OAuth first.');
+    }
+
+    console.log('Gmail tokens found, proceeding with email send');
+
     // Get invoice with customer details
     const { data: invoice, error: invoiceError } = await supabase
       .from('invoices')

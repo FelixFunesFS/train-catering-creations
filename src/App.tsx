@@ -36,6 +36,7 @@ import QuoteDetailPage from "./pages/QuoteDetailPage";
 import AdminReports from "./pages/AdminReports";
 import AdminMessages from "./pages/AdminMessages";
 import AdminSettings from "./pages/AdminSettings";
+import EstimatePrintView from "./pages/EstimatePrintView";
 const AppContent = () => {
   useScrollToAnchor();
   const location = useLocation();
@@ -62,6 +63,8 @@ const AppContent = () => {
           <Route path="/admin" element={<UnifiedAdminDashboard />} />
           <Route path="/admin/quotes/:quoteId" element={<QuoteDetailPage />} />
           <Route path="/admin/invoice-creation/:quoteId" element={<EstimateCreation />} />
+          <Route path="/admin/estimate-preview/:invoiceId" element={<EstimatePreview />} />
+          <Route path="/admin/estimate-preview/:invoiceId/print" element={<EstimatePrintView />} />
           <Route path="/admin/*" element={<UnifiedAdminDashboard />} />
           <Route path="/invoice/public/:invoiceToken" element={<InvoicePublic />} />
           <Route path="/estimate-creation/:quoteId" element={<EstimateCreation />} />

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -250,6 +251,23 @@ export default function EstimatePreview() {
       return;
     }
 
+    // Check if we're in admin context to use the print route
+    const currentPath = location.pathname;
+    const isAdminContext = currentPath.startsWith('/admin');
+    
+    if (isAdminContext) {
+      // Open the dedicated print route for admin users
+      const printUrl = `/admin/estimate-preview/${invoiceId}/print`;
+      window.open(printUrl, '_blank');
+      
+      toast({
+        title: "PDF Ready",
+        description: "Your estimate has opened in a new window. Use the print dialog to save as PDF.",
+      });
+      return;
+    }
+
+    // Fallback to edge function for non-admin users
     try {
       const { data, error } = await supabase.functions.invoke('generate-invoice-pdf', {
         body: { 
@@ -301,16 +319,41 @@ export default function EstimatePreview() {
     
     setEmailingCustomer(true);
     try {
-      const { error } = await supabase.functions.invoke('send-invoice-email', {
+      const { data, error } = await supabase.functions.invoke('send-invoice-email', {
         body: { invoice_id: estimate.id }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Email error:', error);
+        // Check if this is a Gmail token issue
+        if (error.message?.includes('Gmail') || error.message?.includes('token')) {
+          toast({
+            title: "Email Setup Required",
+            description: "Gmail integration needs to be configured. Please contact your administrator.",
+            variant: "destructive"
+          });
+        } else {
+          toast({
+            title: "Email Failed",
+            description: `Failed to send email: ${error.message}`,
+            variant: "destructive"
+          });
+        }
+        return;
+      }
 
-      toast({
-        title: "Email Sent",
-        description: "Estimate has been emailed to the customer",
-      });
+      if (data?.success) {
+        toast({
+          title: "Email Sent",
+          description: data.message || "Estimate has been emailed to the customer",
+        });
+      } else {
+        toast({
+          title: "Email Warning",
+          description: "Email may not have been sent successfully",
+          variant: "destructive"
+        });
+      }
     } catch (error) {
       console.error('Error sending email:', error);
       toast({
@@ -475,12 +518,44 @@ export default function EstimatePreview() {
 
   const isApproved = estimate.status === 'approved';
   const isPreview = estimate.id === 'preview';
+  const isAdminContext = location.pathname.startsWith('/admin');
   const paymentSchedule = calculatePaymentSchedule(
     estimate.total_amount, 
     estimate.quote_requests.event_date,
     estimate.draft_data?.is_government_contract
   );
 
+  // If this is an admin context, wrap in AdminLayout
+  if (isAdminContext) {
+    return (
+      <AdminLayout 
+        title={isPreview ? 'Estimate Preview' : 'Catering Estimate'}
+        subtitle="From Soul Train's Eatery"
+        showBackButton={true}
+        backUrl="/admin"
+      >
+        <EstimateContent 
+          estimate={estimate}
+          lineItems={lineItems}
+          paymentSchedule={paymentSchedule}
+          isApproved={isApproved}
+          isPreview={isPreview}
+          handleApproveEstimate={handleApproveEstimate}
+          handleDownloadPDF={handleDownloadPDF}
+          handleEditEstimate={handleEditEstimate}
+          handleEmailCustomer={handleEmailCustomer}
+          handlePayDeposit={handlePayDeposit}
+          approving={approving}
+          emailingCustomer={emailingCustomer}
+          processingPayment={processingPayment}
+          setShowChangeRequest={setShowChangeRequest}
+          showChangeRequest={showChangeRequest}
+        />
+      </AdminLayout>
+    );
+  }
+
+  // Regular customer-facing layout
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -708,5 +783,260 @@ export default function EstimatePreview() {
         />
       )}
     </div>
+  );
+}
+
+// Extract the main content into a reusable component
+interface EstimateContentProps {
+  estimate: EstimateData;
+  lineItems: LineItem[];
+  paymentSchedule: PaymentSchedule;
+  isApproved: boolean;
+  isPreview: boolean;
+  handleApproveEstimate: () => void;
+  handleDownloadPDF: () => void;
+  handleEditEstimate: () => void;
+  handleEmailCustomer: () => void;
+  handlePayDeposit: () => void;
+  approving: boolean;
+  emailingCustomer: boolean;
+  processingPayment: boolean;
+  setShowChangeRequest: (show: boolean) => void;
+  showChangeRequest: boolean;
+}
+
+function EstimateContent({
+  estimate,
+  lineItems,
+  paymentSchedule,
+  isApproved,
+  isPreview,
+  handleApproveEstimate,
+  handleDownloadPDF,
+  handleEditEstimate,
+  handleEmailCustomer,
+  handlePayDeposit,
+  approving,
+  emailingCustomer,
+  processingPayment,
+  setShowChangeRequest,
+  showChangeRequest
+}: EstimateContentProps) {
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD'
+    }).format(amount / 100);
+  };
+
+  const documentType = estimate.status === 'approved' || estimate.status === 'paid' ? 'invoice' : 'estimate';
+
+  return (
+    <>
+      {/* Header for non-admin context */}
+      <div className="border-b bg-card">
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-foreground">
+                {isPreview ? 'Estimate Preview' : 'Catering Estimate'}
+              </h1>
+              <p className="text-muted-foreground">
+                From Soul Train's Eatery
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              {isPreview && (
+                <Badge variant="outline">Preview Mode</Badge>
+              )}
+              {estimate.status && (
+                <Badge 
+                  variant={isApproved ? "default" : "secondary"}
+                  className="capitalize"
+                >
+                  {estimate.status}
+                </Badge>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="container mx-auto px-4 py-8">
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Main Content */}
+          <div className="lg:col-span-2 space-y-6">
+            <InvoiceViewer
+              invoice={{
+                ...estimate,
+                line_items: lineItems
+              }}
+              customer={estimate.customers}
+              quote={estimate.quote_requests}
+              documentType={documentType}
+              showActions={false}
+            />
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            {/* Quick Stats */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Quick Overview</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Event Date:</span>
+                  <span className="font-medium">
+                    {new Date(estimate.quote_requests.event_date).toLocaleDateString()}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Guest Count:</span>
+                  <span className="font-medium">{estimate.quote_requests.guest_count}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Service Type:</span>
+                  <span className="font-medium capitalize">{estimate.quote_requests.service_type}</span>
+                </div>
+                <Separator />
+                <div className="flex justify-between items-center">
+                  <span className="text-lg font-medium">Total Amount:</span>
+                  <span className="text-2xl font-bold text-primary">
+                    {formatCurrency(estimate.total_amount)}
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Payment Schedule */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Payment Schedule</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {paymentSchedule.payment_schedule.map((payment, index) => (
+                  <div key={index} className="p-3 border rounded-lg">
+                    <div className="flex justify-between items-start mb-2">
+                      <span className="font-medium">
+                        {formatCurrency(payment.amount)}
+                      </span>
+                      <span className="text-sm text-muted-foreground">
+                        {new Date(payment.due_date).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      {payment.description}
+                    </p>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            {/* Actions */}
+            {!isPreview && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Actions</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {!isApproved && (
+                    <>
+                      <Button 
+                        onClick={handleApproveEstimate}
+                        disabled={approving}
+                        className="w-full"
+                        size="lg"
+                      >
+                        {approving ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            Approving...
+                          </>
+                        ) : (
+                          <>
+                            <CheckCircle className="h-4 w-4 mr-2" />
+                            Approve Estimate
+                          </>
+                        )}
+                      </Button>
+                      
+                      <Button 
+                        variant="outline" 
+                        onClick={() => setShowChangeRequest(true)}
+                        className="w-full"
+                      >
+                        <Edit3 className="h-4 w-4 mr-2" />
+                        Request Changes
+                      </Button>
+                    </>
+                  )}
+
+                  {isApproved && paymentSchedule.deposit_amount > 0 && (
+                    <Button 
+                      onClick={handlePayDeposit}
+                      disabled={processingPayment}
+                      className="w-full"
+                      size="lg"
+                    >
+                      {processingPayment ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Processing...
+                        </>
+                      ) : (
+                        <>
+                          <CreditCard className="h-4 w-4 mr-2" />
+                          Pay Deposit ({formatCurrency(paymentSchedule.deposit_amount)})
+                        </>
+                      )}
+                    </Button>
+                  )}
+
+                  <Separator />
+
+                  <Button 
+                    variant="outline" 
+                    onClick={handleDownloadPDF}
+                    className="w-full"
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    Download PDF
+                  </Button>
+
+                  <Button 
+                    variant="outline" 
+                    onClick={handleEmailCustomer}
+                    disabled={emailingCustomer}
+                    className="w-full"
+                  >
+                    {emailingCustomer ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        <MessageSquare className="h-4 w-4 mr-2" />
+                        Email Customer
+                      </>
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Change Request Modal */}
+      <ChangeRequestModal
+        isOpen={showChangeRequest}
+        onClose={() => setShowChangeRequest(false)}
+        invoiceId={estimate.id}
+        customerEmail={estimate.customers.email}
+      />
+    </>
   );
 }

@@ -1,0 +1,81 @@
+/* Print-specific styles */
+@media print {
+  /* Hide everything by default */
+  body * {
+    visibility: hidden;
+  }
+
+  /* Show only the print content */
+  .print-only-view,
+  .print-only-view * {
+    visibility: visible;
+  }
+
+  /* Position the print content */
+  .print-only-view {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+
+  /* Hide navigation, buttons, and other interactive elements */
+  nav,
+  .no-print,
+  button,
+  .print\\:hidden,
+  [data-testid="header"],
+  [data-testid="footer"],
+  .sidebar,
+  .admin-sidebar,
+  .admin-header {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  /* Ensure proper page formatting */
+  @page {
+    margin: 0.5in;
+    size: letter;
+  }
+
+  /* Optimize text for printing */
+  body {
+    font-size: 12pt;
+    line-height: 1.4;
+    color: black;
+    background: white;
+  }
+
+  /* Ensure tables and content fit properly */
+  table {
+    page-break-inside: avoid;
+  }
+
+  /* Force page breaks when needed */
+  .page-break {
+    page-break-before: always;
+  }
+
+  /* Remove shadows and borders that don't print well */
+  .card,
+  .border {
+    box-shadow: none !important;
+    border: 1px solid #ccc !important;
+  }
+}
+
+/* Print-only utility classes */
+.print-only {
+  display: none;
+}
+
+@media print {
+  .print-only {
+    display: block;
+  }
+  
+  .print-hidden {
+    display: none !important;
+  }
+}
