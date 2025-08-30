@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { InvoicePreviewModal } from '@/components/admin/InvoicePreviewModal';
 import { StatusBadge } from '@/components/admin/StatusBadge';
+import { StandardizedActions } from '@/components/admin/StandardizedActions';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { 
@@ -329,33 +330,12 @@ export function InvoiceManagementTab({
                         size="sm"
                       />
                     </div>
-                    <div className="flex gap-1">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleViewInvoice(invoice)}
-                      >
-                        <Eye className="h-3 w-3" />
-                      </Button>
-                      {!invoice.is_draft && (
-                        <>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleQuickAction(invoice, 'send')}
-                          >
-                            <Send className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleQuickAction(invoice, 'payment_link')}
-                          >
-                            <CreditCard className="h-3 w-3" />
-                          </Button>
-                        </>
-                      )}
-                    </div>
+                    <StandardizedActions 
+                      type="invoice" 
+                      item={invoice} 
+                      onRefresh={onRefresh}
+                      size="sm"
+                    />
                   </div>
                 </div>
               ))}

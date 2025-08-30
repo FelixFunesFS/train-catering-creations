@@ -30,7 +30,9 @@ import EstimatePreview from "./pages/EstimatePreview";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import ContractManagement from "./pages/ContractManagement";
 import { CustomerPortal } from "./pages/CustomerPortal";
+import CustomerPortalEnhanced from "./pages/CustomerPortalEnhanced";
 import UnifiedAdminDashboard from "./pages/UnifiedAdminDashboard";
+import QuoteDetails from "./pages/QuoteDetails";
 const AppContent = () => {
   useScrollToAnchor();
   return <div className="min-h-screen bg-background font-clean flex flex-col transition-colors duration-300 py-0 my-0">
@@ -54,6 +56,7 @@ const AppContent = () => {
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/unified" element={<UnifiedAdminDashboard />} />
+          <Route path="/admin/quotes/:quoteId" element={<QuoteDetails />} />
           <Route path="/admin/invoices" element={<InvoiceManagement />} />
           <Route path="/admin/contracts" element={<ContractManagement />} />
           <Route path="/invoice/public/:invoiceToken" element={<InvoicePublic />} />
@@ -61,6 +64,7 @@ const AppContent = () => {
           <Route path="/admin/invoice-creation/:quoteId" element={<InvoiceEstimateCreation />} />
           <Route path="/estimate-preview/:invoiceId" element={<EstimatePreview />} />
           <Route path="/customer/portal" element={<CustomerPortal />} />
+          <Route path="/customer/portal-v2" element={<CustomerPortalEnhanced />} />
           <Route path="/customer/estimate-preview/:invoiceId" element={<EstimatePreview />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

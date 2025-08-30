@@ -4,8 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import { QuoteDetailModal } from '@/components/admin/QuoteDetailModal';
 import { StatusBadge } from '@/components/admin/StatusBadge';
+import { StandardizedActions } from '@/components/admin/StandardizedActions';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { 
@@ -40,8 +40,6 @@ export function QuoteManagementTab({
   const [statusFilter, setStatusFilter] = useState('all');
   const [sortField, setSortField] = useState('updated_at');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
-  const [selectedQuote, setSelectedQuote] = useState<any>(null);
-  const [showDetailModal, setShowDetailModal] = useState(false);
   const { toast } = useToast();
 
   const formatDate = (dateString: string) => {
@@ -107,45 +105,6 @@ export function QuoteManagementTab({
     }
   };
 
-  const handleViewQuote = (quote: any) => {
-    setSelectedQuote(quote);
-    setShowDetailModal(true);
-  };
-
-  const handleQuickAction = async (quote: any, action: string) => {
-    try {
-      switch (action) {
-        case 'approve':
-          await supabase
-            .from('quote_requests')
-            .update({ status: 'reviewed' }) // Using valid enum value
-            .eq('id', quote.id);
-          toast({
-            title: "Quote Reviewed",
-            description: `Quote for ${quote.event_name} has been marked as reviewed`,
-          });
-          break;
-          
-        case 'create_invoice':
-          await supabase.functions.invoke('generate-invoice-from-quote', {
-            body: { quote_request_id: quote.id }
-          });
-          toast({
-            title: "Invoice Created",
-            description: "Invoice has been generated from the quote",
-          });
-          break;
-      }
-      
-      onRefresh();
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to complete action. Please try again.",
-        variant: "destructive"
-      });
-    }
-  };
 
   const getStatusCounts = () => {
     const counts: Record<string, number> = {};
@@ -157,16 +116,6 @@ export function QuoteManagementTab({
 
   const statusCounts = getStatusCounts();
 
-  const getNextAction = (quote: any) => {
-    switch (quote.status) {
-      case 'pending':
-        return { action: 'approve', label: 'Review', icon: CheckCircle };
-      case 'reviewed':
-        return { action: 'create_invoice', label: 'Create Invoice', icon: FileText };
-      default:
-        return null;
-    }
-  };
 
   return (
     <div className="space-y-6">
@@ -226,100 +175,70 @@ export function QuoteManagementTab({
             <p className="text-muted-foreground">No quotes found matching your criteria.</p>
           </div>
         ) : (
-          filteredAndSortedQuotes.map((quote) => {
-            const nextAction = getNextAction(quote);
-            return (
-              <Card key={quote.id} className="hover:shadow-md transition-shadow">
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-2">
-                      <Checkbox
-                        checked={selectedItems.includes(quote.id)}
-                        onCheckedChange={(checked) => handleSelectItem(quote.id, !!checked)}
-                      />
-                      <CardTitle className="text-lg">{quote.event_name}</CardTitle>
-                    </div>
-                    <StatusBadge status={quote.status} size="sm" />
+          filteredAndSortedQuotes.map((quote) => (
+            <Card key={quote.id} className="hover:shadow-md transition-shadow">
+              <CardHeader className="pb-3">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      checked={selectedItems.includes(quote.id)}
+                      onCheckedChange={(checked) => handleSelectItem(quote.id, !!checked)}
+                    />
+                    <CardTitle className="text-lg">{quote.event_name}</CardTitle>
                   </div>
-                </CardHeader>
-                
-                <CardContent className="space-y-4">
-                  {/* Quote Details */}
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-sm">
-                      <Users className="h-4 w-4 text-muted-foreground" />
-                      <span>{quote.contact_name}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm">
-                      <Calendar className="h-4 w-4 text-muted-foreground" />
-                      <span>{formatDate(quote.event_date)}</span>
-                      <span className="text-muted-foreground">•</span>
-                      <span>{quote.guest_count} guests</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm">
-                      <MapPin className="h-4 w-4 text-muted-foreground" />
-                      <span className="truncate">{quote.location}</span>
-                    </div>
+                  <StatusBadge status={quote.status} size="sm" />
+                </div>
+              </CardHeader>
+              
+              <CardContent className="space-y-4">
+                {/* Quote Details */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm">
+                    <Users className="h-4 w-4 text-muted-foreground" />
+                    <span>{quote.contact_name}</span>
                   </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                    <span>{formatDate(quote.event_date)}</span>
+                    <span className="text-muted-foreground">•</span>
+                    <span>{quote.guest_count} guests</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <MapPin className="h-4 w-4 text-muted-foreground" />
+                    <span className="truncate">{quote.location}</span>
+                  </div>
+                </div>
 
-                  {/* Estimated Total */}
-                  {quote.estimated_total > 0 && (
-                    <div className="pt-2 border-t">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-muted-foreground">Estimated Total:</span>
-                        <span className="font-semibold">{formatCurrency(quote.estimated_total)}</span>
-                      </div>
+                {/* Estimated Total */}
+                {quote.estimated_total > 0 && (
+                  <div className="pt-2 border-t">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">Estimated Total:</span>
+                      <span className="font-semibold">{formatCurrency(quote.estimated_total)}</span>
                     </div>
-                  )}
-
-                  {/* Actions */}
-                  <div className="flex gap-2 pt-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleViewQuote(quote)}
-                      className="flex-1"
-                    >
-                      <Eye className="h-4 w-4 mr-2" />
-                      View Details
-                    </Button>
-                    {nextAction && (
-                      <Button
-                        size="sm"
-                        onClick={() => handleQuickAction(quote, nextAction.action)}
-                        className="flex-1"
-                      >
-                        <nextAction.icon className="h-4 w-4 mr-2" />
-                        {nextAction.label}
-                      </Button>
-                    )}
                   </div>
+                )}
 
-                  {/* Created Date */}
-                  <div className="text-xs text-muted-foreground">
-                    Submitted {formatDate(quote.created_at)}
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })
+                {/* Actions */}
+                <div className="pt-2">
+                  <StandardizedActions 
+                    type="quote" 
+                    item={quote} 
+                    onRefresh={onRefresh}
+                    size="sm"
+                  />
+                </div>
+
+                {/* Created Date */}
+                <div className="text-xs text-muted-foreground">
+                  Submitted {formatDate(quote.created_at)}
+                </div>
+              </CardContent>
+            </Card>
+          ))
         )}
       </div>
 
-      {/* Quote Detail Modal */}
-      {showDetailModal && selectedQuote && (
-        <QuoteDetailModal
-          quote={selectedQuote}
-          onClose={() => {
-            setShowDetailModal(false);
-            setSelectedQuote(null);
-          }}
-          onUpdate={(updatedQuote) => {
-            // Update the quote in the list
-            onRefresh();
-          }}
-        />
-      )}
     </div>
   );
 }
