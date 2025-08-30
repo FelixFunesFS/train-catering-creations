@@ -35,8 +35,8 @@ export function StandardizedActions({
   };
 
   const handleViewEstimate = () => {
-    // Navigate to admin workflow page for estimates/invoices
-    navigate(`/admin/estimate-workflow/${item.id}`);
+    // Navigate directly to estimate creation page for editing
+    navigate(`/admin/estimate-creation/${item.quote_request_id || item.id}`);
   };
 
   const handleCreateInvoice = async () => {
@@ -110,16 +110,6 @@ export function StandardizedActions({
   if (type === 'quote') {
     return (
       <div className="flex gap-1">
-        <Button
-          size={size}
-          variant={variant}
-          onClick={handleViewQuote}
-          title="View Quote Details"
-        >
-          <Eye className="h-3 w-3" />
-          {size !== 'sm' && <span className="ml-2">View Quote</span>}
-        </Button>
-        
         {(item.status === 'pending' || item.workflow_status === 'pending') && (
           <Button
             size={size}
@@ -219,7 +209,7 @@ export function ActionButton({
           break;
           
         case 'view-estimate':
-          navigate(`/admin/estimate-workflow/${item.id}`);
+          navigate(`/admin/estimate-creation/${item.quote_request_id || item.id}`);
           break;
           
         case 'create-invoice':

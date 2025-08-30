@@ -403,6 +403,7 @@ export function UnifiedAdminInterface() {
                         onRefresh={fetchAllData}
                         selectedItems={selectedItems}
                         onSelectionChange={setSelectedItems}
+                        invoices={data.invoices}
                       />
                     )}
 

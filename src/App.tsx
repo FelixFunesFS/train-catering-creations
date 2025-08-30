@@ -26,7 +26,7 @@ import NotFound from "./pages/NotFound";
 
 import InvoicePublic from "./pages/InvoicePublic";
 import EstimateCreation from "./pages/EstimateCreation";
-import EstimateWorkflow from "./pages/admin/EstimateWorkflow";
+
 import EstimatePreview from "./pages/EstimatePreview";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import ContractManagement from "./pages/ContractManagement";
@@ -62,7 +62,7 @@ const AppContent = () => {
           <Route path="/admin/quotes/:quoteId" element={<QuoteDetailPage />} />
           <Route path="/admin/estimate-creation" element={<EstimateCreation />} />
           <Route path="/admin/estimate-creation/:quoteId" element={<EstimateCreation />} />
-          <Route path="/admin/estimate-workflow/:invoiceId" element={<EstimateWorkflow />} />
+          
           <Route path="/admin/estimate-preview/:invoiceId" element={<EstimatePreview />} />
           <Route path="/estimate-preview/:id" element={<EstimatePreview />} />
           <Route path="/estimate-print/:id" element={<EstimatePrintView />} />

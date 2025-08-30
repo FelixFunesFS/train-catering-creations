@@ -192,22 +192,60 @@ export function QuoteManagementTab({
               </CardHeader>
               
               <CardContent className="space-y-4">
-                {/* Quote Details */}
+                {/* Customer Details */}
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 text-sm">
                     <Users className="h-4 w-4 text-muted-foreground" />
-                    <span>{quote.contact_name}</span>
+                    <span className="font-medium">{quote.contact_name}</span>
                   </div>
+                  <div className="text-sm text-muted-foreground">
+                    {quote.email} • {quote.phone}
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <MapPin className="h-4 w-4 text-muted-foreground" />
+                    <span className="truncate">{quote.location}</span>
+                  </div>
+                </div>
+
+                {/* Event Details */}
+                <div className="space-y-2 pt-2 border-t">
                   <div className="flex items-center gap-2 text-sm">
                     <Calendar className="h-4 w-4 text-muted-foreground" />
                     <span>{formatDate(quote.event_date)}</span>
                     <span className="text-muted-foreground">•</span>
                     <span>{quote.guest_count} guests</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <MapPin className="h-4 w-4 text-muted-foreground" />
-                    <span className="truncate">{quote.location}</span>
+                  <div className="text-sm">
+                    <span className="font-medium">Service:</span> {quote.service_type?.replace('_', ' ') || 'Not specified'}
                   </div>
+                </div>
+
+                {/* Menu Selections */}
+                <div className="space-y-2 pt-2 border-t">
+                  <div className="text-sm font-medium text-muted-foreground">Menu Selections:</div>
+                  {quote.primary_protein && (
+                    <div className="text-sm">
+                      <span className="font-medium">Proteins:</span> {quote.primary_protein}
+                      {quote.secondary_protein && `, ${quote.secondary_protein}`}
+                    </div>
+                  )}
+                  {quote.appetizers?.length > 0 && (
+                    <div className="text-sm">
+                      <span className="font-medium">Appetizers:</span> {quote.appetizers.slice(0, 2).join(', ')}
+                      {quote.appetizers.length > 2 && ` +${quote.appetizers.length - 2} more`}
+                    </div>
+                  )}
+                  {quote.dietary_restrictions?.length > 0 && (
+                    <div className="text-sm">
+                      <span className="font-medium">Dietary:</span> {quote.dietary_restrictions.join(', ')}
+                    </div>
+                  )}
+                  {quote.special_requests && (
+                    <div className="text-sm">
+                      <span className="font-medium">Special:</span> {quote.special_requests.substring(0, 50)}
+                      {quote.special_requests.length > 50 && '...'}
+                    </div>
+                  )}
                 </div>
 
                 {/* Estimated Total */}

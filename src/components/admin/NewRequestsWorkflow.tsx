@@ -18,6 +18,7 @@ interface NewRequestsWorkflowProps {
   onRefresh: () => void;
   selectedItems: string[];
   onSelectionChange: (items: string[]) => void;
+  invoices?: any[];
 }
 
 export function NewRequestsWorkflow({ 
@@ -25,7 +26,8 @@ export function NewRequestsWorkflow({
   loading, 
   onRefresh, 
   selectedItems, 
-  onSelectionChange 
+  onSelectionChange,
+  invoices = []
 }: NewRequestsWorkflowProps) {
   const navigate = useNavigate();
   
@@ -113,14 +115,20 @@ export function NewRequestsWorkflow({
                         Submitted {Math.floor((Date.now() - new Date(quote.created_at).getTime()) / (1000 * 60 * 60))} hours ago
                       </p>
                     </div>
-                    <Button 
-                      size="sm" 
-                      className="ml-4 bg-primary hover:bg-primary/90 text-primary-foreground"
-                      onClick={() => navigate(`/admin/estimate-creation/${quote.id}`)}
-                    >
-                      <PlayCircle className="h-4 w-4 mr-1" />
-                      Set Pricing
-                    </Button>
+                    {(() => {
+                      const hasEstimate = invoices.some(inv => inv.quote_request_id === quote.id);
+                      return (
+                        <Button 
+                          size="sm" 
+                          className={`ml-4 ${hasEstimate ? 'bg-muted text-muted-foreground cursor-not-allowed' : 'bg-primary hover:bg-primary/90 text-primary-foreground'}`}
+                          onClick={() => hasEstimate ? null : navigate(`/admin/estimate-creation/${quote.id}`)}
+                          disabled={hasEstimate}
+                        >
+                          <PlayCircle className="h-4 w-4 mr-1" />
+                          {hasEstimate ? 'Estimate Created' : 'Set Pricing'}
+                        </Button>
+                      );
+                    })()}
                   </div>
                 );
               })}
