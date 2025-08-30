@@ -169,36 +169,12 @@ export default function InvoiceManagement() {
   };
 
   const handleViewSubmission = (invoice: InvoiceRecord) => {
-    navigate(`/admin/dashboard`);
+    navigate(`/admin#quote-${invoice.quote_request_id}`);
   };
 
   const handleViewInvoice = async (invoice: InvoiceRecord) => {
-    try {
-      const { data, error } = await supabase.functions.invoke('generate-invoice-pdf', {
-        body: { invoice_id: invoice.id }
-      });
-
-      if (error) throw error;
-
-      // Open the PDF URL in a new tab
-      if (data.pdf_url) {
-        const newWindow = window.open(data.pdf_url, '_blank');
-        if (newWindow) {
-          // Trigger print dialog after content loads
-          newWindow.onload = () => {
-            setTimeout(() => {
-              newWindow.print();
-            }, 1000);
-          };
-        }
-      }
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to generate invoice PDF",
-        variant: "destructive",
-      });
-    }
+    // Navigate to estimate preview page for proper viewing
+    navigate(`/estimate-preview/${invoice.id}`);
   };
 
   const handleGenerateInvoice = async (invoice: InvoiceRecord) => {
@@ -256,24 +232,39 @@ export default function InvoiceManagement() {
       const { data, error } = await supabase.functions.invoke('create-payment-link', {
         body: { 
           invoice_id: invoice.id,
-          type: 'deposit' 
+          amount: invoice.total_amount 
         }
       });
 
       if (error) throw error;
 
-      toast({
-        title: "Payment Link Created",
-        description: "Deposit payment link has been generated and sent to customer",
-      });
-
-      // Refresh the list
-      fetchInvoices();
+      // Display the payment link to admin
+      if (data?.url) {
+        navigator.clipboard.writeText(data.url);
+        toast({
+          title: "Payment Link Created",
+          description: `Payment link copied to clipboard: ${data.url}`,
+        });
+        
+        // Show the link in a popup for easy access
+        const confirmed = window.confirm(
+          `Payment link created successfully!\n\nLink: ${data.url}\n\nThe link has been copied to your clipboard. Click OK to open in new tab.`
+        );
+        
+        if (confirmed) {
+          window.open(data.url, '_blank');
+        }
+      } else {
+        toast({
+          title: "Payment Link Created",
+          description: "Payment link has been generated successfully",
+        });
+      }
     } catch (error) {
       console.error('Error creating payment link:', error);
       toast({
         title: "Error",
-        description: "Failed to create payment link",
+        description: "Failed to create payment link. Please try again.",
         variant: "destructive"
       });
     }
