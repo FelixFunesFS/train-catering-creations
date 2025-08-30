@@ -17,7 +17,8 @@ import {
   ArrowLeft,
   Loader2,
   MessageSquare,
-  Edit3
+  Edit3,
+  Send
 } from 'lucide-react';
 
 interface LineItem {
@@ -204,11 +205,11 @@ export default function EstimatePreview() {
     
     setApproving(true);
     try {
-      // Update invoice status to approved
+      // Update invoice status to customer_approved
       const { error } = await supabase
         .from('invoices')
         .update({
-          status: 'approved',
+          status: 'customer_approved',
           viewed_at: new Date().toISOString()
         })
         .eq('id', estimate.id);
@@ -251,9 +252,10 @@ export default function EstimatePreview() {
       return;
     }
 
-    // Check if we're in admin context to use the print route
+  // Check if we're in admin context to use the print route
     const currentPath = location.pathname;
     const isAdminContext = currentPath.startsWith('/admin');
+    const isCustomerContext = currentPath.startsWith('/customer');
     
     if (isAdminContext) {
       // Open the dedicated print route for admin users
@@ -516,7 +518,7 @@ export default function EstimatePreview() {
     );
   }
 
-  const isApproved = estimate.status === 'approved';
+  const isApproved = estimate.status === 'customer_approved' || estimate.status === 'approved';
   const isPreview = estimate.id === 'preview';
   const isAdminContext = location.pathname.startsWith('/admin');
   const paymentSchedule = calculatePaymentSchedule(
@@ -529,8 +531,8 @@ export default function EstimatePreview() {
   if (isAdminContext) {
     return (
       <AdminLayout 
-        title={isPreview ? 'Estimate Preview' : 'Catering Estimate'}
-        subtitle="From Soul Train's Eatery"
+        title={estimate.status === 'customer_approved' || estimate.status === 'paid' ? 'INVOICE' : 'ESTIMATE'}
+        subtitle={`${estimate.invoice_number} - ${estimate.customers.name}`}
         showBackButton={true}
         backUrl="/admin"
       >
@@ -540,6 +542,7 @@ export default function EstimatePreview() {
           paymentSchedule={paymentSchedule}
           isApproved={isApproved}
           isPreview={isPreview}
+          isAdminContext={true}
           handleApproveEstimate={handleApproveEstimate}
           handleDownloadPDF={handleDownloadPDF}
           handleEditEstimate={handleEditEstimate}
@@ -613,8 +616,8 @@ export default function EstimatePreview() {
                 contact_name: estimate.quote_requests.contact_name,
                 email: estimate.quote_requests.email
               }}
-              showActions={false}
-              documentType={estimate.status === 'approved' ? 'invoice' : 'estimate'}
+              showActions={isAdminContext}
+              documentType={estimate.status === 'customer_approved' || estimate.status === 'paid' ? 'invoice' : 'estimate'}
             />
 
             {/* Missing Line Items Warning */}
@@ -793,6 +796,7 @@ interface EstimateContentProps {
   paymentSchedule: PaymentSchedule;
   isApproved: boolean;
   isPreview: boolean;
+  isAdminContext?: boolean;
   handleApproveEstimate: () => void;
   handleDownloadPDF: () => void;
   handleEditEstimate: () => void;
@@ -811,6 +815,7 @@ function EstimateContent({
   paymentSchedule,
   isApproved,
   isPreview,
+  isAdminContext = false,
   handleApproveEstimate,
   handleDownloadPDF,
   handleEditEstimate,
@@ -829,7 +834,7 @@ function EstimateContent({
     }).format(amount / 100);
   };
 
-  const documentType = estimate.status === 'approved' || estimate.status === 'paid' ? 'invoice' : 'estimate';
+  const documentType = estimate.status === 'customer_approved' || estimate.status === 'paid' ? 'invoice' : 'estimate';
 
   return (
     <>
@@ -874,7 +879,7 @@ function EstimateContent({
               customer={estimate.customers}
               quote={estimate.quote_requests}
               documentType={documentType}
-              showActions={false}
+              showActions={isAdminContext}
             />
           </div>
 
@@ -938,9 +943,50 @@ function EstimateContent({
             {!isPreview && (
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Actions</CardTitle>
+                  <CardTitle className="text-lg">{isAdminContext ? 'Admin Actions' : 'Customer Actions'}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
+                  {/* Admin Actions */}
+                  {isAdminContext && (
+                    <>
+                      <Button 
+                        onClick={handleEditEstimate}
+                        variant="outline"
+                        className="w-full"
+                      >
+                        <Edit3 className="h-4 w-4 mr-2" />
+                        Edit Estimate
+                      </Button>
+                      <Button 
+                        onClick={handleEmailCustomer}
+                        disabled={emailingCustomer}
+                        variant="outline"
+                        className="w-full"
+                      >
+                        {emailingCustomer ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            Sending...
+                          </>
+                        ) : (
+                          <>
+                            <Send className="h-4 w-4 mr-2" />
+                            Send to Customer
+                          </>
+                        )}
+                      </Button>
+                      <Button 
+                        onClick={handleDownloadPDF}
+                        variant="outline"
+                        className="w-full"
+                      >
+                        <Download className="h-4 w-4 mr-2" />
+                        Download PDF
+                      </Button>
+                    </>
+                  )}
+                  
+                  {/* Customer Actions */}
                   {!isApproved && (
                     <>
                       <Button 

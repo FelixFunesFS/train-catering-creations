@@ -60,17 +60,21 @@ const AppContent = () => {
           <Route path="/test-email" element={<TestEmail />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-conditions" element={<TermsConditions />} />
+          {/* Admin Dashboard and Management */}
           <Route path="/admin" element={<UnifiedAdminDashboard />} />
           <Route path="/admin/quotes/:quoteId" element={<QuoteDetailPage />} />
+          <Route path="/admin/invoice-creation" element={<EstimateCreation />} />
           <Route path="/admin/invoice-creation/:quoteId" element={<EstimateCreation />} />
+          <Route path="/admin/invoice-management" element={<InvoiceManagement />} />
           <Route path="/admin/estimate-preview/:invoiceId" element={<EstimatePreview />} />
+          <Route path="/admin/estimate-preview/preview" element={<EstimatePreview />} />
           <Route path="/admin/estimate-preview/:invoiceId/print" element={<EstimatePrintView />} />
           <Route path="/admin/*" element={<UnifiedAdminDashboard />} />
+          
+          {/* Customer-facing routes */}
           <Route path="/invoice/public/:invoiceToken" element={<InvoicePublic />} />
-          <Route path="/estimate-creation/:quoteId" element={<EstimateCreation />} />
-          <Route path="/estimate-preview/:invoiceId" element={<EstimatePreview />} />
-          <Route path="/estimate-preview" element={<EstimatePreview />} />
           <Route path="/customer/portal" element={<OptimizedCustomerPortal />} />
+          <Route path="/customer/estimate/:invoiceToken" element={<EstimatePreview />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

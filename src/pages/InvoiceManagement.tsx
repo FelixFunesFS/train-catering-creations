@@ -177,7 +177,7 @@ const InvoiceManagement = () => {
   };
 
   const handleEditInvoice = (invoice: InvoiceRecord) => {
-    navigate(`/admin/invoice-creation/${invoice.quote_request_id}?invoice_id=${invoice.id}`);
+    navigate(`/admin/invoice-creation/${invoice.quote_request_id}`);
   };
 
   const handleViewSubmission = (invoice: InvoiceRecord) => {
@@ -203,7 +203,7 @@ const InvoiceManagement = () => {
       });
 
       // Navigate to the invoice creation page
-      navigate(`/admin/invoice-creation/${invoice.quote_request_id}?invoice_id=${data.invoice_id}`);
+      navigate(`/admin/invoice-creation/${invoice.quote_request_id}`);
     } catch (error) {
       console.error('Error generating invoice:', error);
       toast({

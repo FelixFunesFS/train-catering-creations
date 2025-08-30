@@ -64,7 +64,7 @@ export function InvoiceViewer({
   onSend,
   onDownload,
   onViewInStripe,
-  showActions = true,
+  showActions = false,
   className = "",
   documentType = 'invoice'
 }: InvoiceViewerProps) {

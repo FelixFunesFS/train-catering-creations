@@ -352,8 +352,8 @@ export default function EstimateCreation() {
       invoice_number: `EST-${Date.now()}`
     };
 
-    // Open preview in new tab without saving
-    const previewUrl = `/estimate-preview?data=${encodeURIComponent(JSON.stringify(previewData))}`;
+    // Open preview in new tab without saving (use admin route for preview)
+    const previewUrl = `/admin/estimate-preview/preview?data=${encodeURIComponent(JSON.stringify(previewData))}`;
     window.open(previewUrl, '_blank');
   };
 
