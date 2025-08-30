@@ -317,7 +317,7 @@ export function UnifiedAdminInterface() {
             </div>
           </header>
 
-          {/* Main Content */}
+          {/* Main Content with Scroll */}
           <main className="flex-1 overflow-auto">
             <div className="p-3 lg:p-6 h-full">
               <Tabs value={activeTab} onValueChange={handleTabChange} className="h-full flex flex-col">

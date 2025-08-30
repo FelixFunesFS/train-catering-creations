@@ -23,7 +23,7 @@ import TestEmail from "./pages/TestEmail";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsConditions from "./pages/TermsConditions";
 import NotFound from "./pages/NotFound";
-import AdminDashboard from "./pages/AdminDashboard";
+
 import InvoiceManagement from "./pages/InvoiceManagement";
 import InvoicePublic from "./pages/InvoicePublic";
 import InvoiceEstimateCreation from "./pages/InvoiceEstimateCreation";
@@ -59,6 +59,7 @@ const AppContent = () => {
           <Route path="/test-email" element={<TestEmail />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-conditions" element={<TermsConditions />} />
+          <Route path="/admin" element={<UnifiedAdminDashboard />} />
           <Route path="/admin/*" element={<UnifiedAdminDashboard />} />
           <Route path="/invoice/public/:invoiceToken" element={<InvoicePublic />} />
           <Route path="/invoice-estimate-creation/:quoteId" element={<InvoiceEstimateCreation />} />

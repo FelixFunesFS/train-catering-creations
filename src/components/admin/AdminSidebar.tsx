@@ -41,9 +41,12 @@ export function AdminSidebar({ data }: AdminSidebarProps) {
   const currentPath = location.pathname;
 
   const isActive = (path: string) => {
+    if (path === '/admin') {
+      return currentPath === '/admin' && !location.search.includes('tab=');
+    }
     if (path.includes('?tab=')) {
       const [basePath, tabParam] = path.split('?tab=');
-      return currentPath === basePath && location.search.includes(`tab=${tabParam}`);
+      return currentPath.startsWith('/admin') && location.search.includes(`tab=${tabParam}`);
     }
     return currentPath === path || currentPath.startsWith(path);
   };
@@ -128,7 +131,7 @@ export function AdminSidebar({ data }: AdminSidebarProps) {
       <SidebarMenuButton asChild>
         <NavLink 
           to={item.url} 
-          className={({ isActive }) => getNavCls({ isActive })}
+          className={() => getNavCls({ isActive: isActive(item.url) })}
         >
           <item.icon className="h-4 w-4" />
           <span className="flex-1">{item.title}</span>
