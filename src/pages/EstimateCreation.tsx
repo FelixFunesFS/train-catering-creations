@@ -283,6 +283,7 @@ export default function EstimateCreation({ isEmbedded = false }: EstimateCreatio
     });
 
     recalculateEstimate(updatedItems);
+    setHasUnsavedChanges(true);
   };
 
   const addLineItem = () => {

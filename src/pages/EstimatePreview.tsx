@@ -351,7 +351,7 @@ export default function EstimatePreview() {
     
     setEmailingCustomer(true);
     try {
-      const { data, error } = await supabase.functions.invoke('send-invoice-email', {
+      const { data, error } = await supabase.functions.invoke('send-custom-invoice-email', {
         body: { invoice_id: estimate.id }
       });
 

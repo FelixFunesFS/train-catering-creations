@@ -350,7 +350,7 @@ export function InvoiceManagementTab({
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => window.open(`/admin/estimates/${invoice.id}`, '_blank')}
+                            onClick={() => window.open(`/admin/estimate-preview/${invoice.id}`, '_blank')}
                             title="Manage Estimate"
                           >
                             <Eye className="h-3 w-3" />

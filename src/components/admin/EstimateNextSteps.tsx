@@ -212,11 +212,11 @@ export function EstimateNextSteps({
           description: `Estimate sent to ${customerEmail}. Awaiting customer response.`,
           actions: [
             {
-              id: 'preview',
-              label: 'View Estimate',
-              icon: Eye,
+              id: 'resend',
+              label: 'Resend Custom Email',
+              icon: Mail,
               variant: 'outline' as const,
-              onClick: handlePreview
+              onClick: handleSendToCustomer
             },
             {
               id: 'payment',
@@ -378,26 +378,6 @@ export function EstimateNextSteps({
           </div>
         )}
 
-        {/* Quick Actions */}
-        <div className="pt-4 border-t">
-          <div className="flex justify-between items-center">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate('/admin')}
-            >
-              Back to Dashboard
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handlePreview}
-            >
-              <Eye className="h-4 w-4 mr-2" />
-              Quick Preview
-            </Button>
-          </div>
-        </div>
 
         {/* Email Preview Modal */}
         {estimateData && (
