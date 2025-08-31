@@ -66,8 +66,10 @@ export function EmailPreviewModal({
   const { toast } = useToast();
   const [emailSubject, setEmailSubject] = useState('');
   const [emailMessage, setEmailMessage] = useState('');
+  const [emailHtml, setEmailHtml] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [isCustomizing, setIsCustomizing] = useState(false);
+  const [isLoadingPreview, setIsLoadingPreview] = useState(false);
 
   const isEstimate = estimateData.status === 'draft' || estimateData.status === 'estimate' || estimateData.status === 'revised';
   const documentType = isEstimate ? 'Estimate' : 'Invoice';
@@ -94,8 +96,35 @@ Best regards,
 The Soul Train's Eatery Team
 📞 (843) 970-0265
 📧 soultrainseatery@gmail.com`);
+
+      // Load email preview from edge function
+      loadEmailPreview();
     }
   }, [isOpen, estimateData, documentType]);
+
+  const loadEmailPreview = async () => {
+    setIsLoadingPreview(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('send-custom-invoice-email', {
+        body: { 
+          invoice_id: estimateData.id,
+          preview_only: true // Add flag to only generate HTML without sending
+        }
+      });
+
+      if (error) throw error;
+      setEmailHtml(data.html || '');
+    } catch (error) {
+      console.error('Error loading email preview:', error);
+      // Fallback to basic HTML if edge function fails
+      setEmailHtml(`<div style="padding: 20px; font-family: Arial, sans-serif;">
+        <h1>Email Preview Loading Error</h1>
+        <p>Unable to load email preview. Please try again.</p>
+      </div>`);
+    } finally {
+      setIsLoadingPreview(false);
+    }
+  };
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -113,110 +142,6 @@ The Soul Train's Eatery Team
     });
   };
 
-  const generateEmailHTML = () => {
-    const baseUrl = window.location.origin;
-    const previewUrl = `${baseUrl}/estimate-preview/${estimateData.id}`;
-    
-    return `
-      <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff;">
-        <!-- Header -->
-        <div style="background: linear-gradient(135deg, #8B4513 0%, #D2691E 100%); color: white; padding: 24px; text-align: center;">
-          <h1 style="margin: 0; font-size: 28px; font-weight: bold;">Soul Train's Eatery</h1>
-          <p style="margin: 8px 0 0 0; font-size: 14px; opacity: 0.9;">Authentic Southern Catering • Charleston's Lowcountry</p>
-        </div>
-
-        <!-- Content -->
-        <div style="padding: 24px;">
-          <!-- Personal Message -->
-          <div style="white-space: pre-line; line-height: 1.6; margin-bottom: 24px; color: #374151;">
-            ${emailMessage.replace(/\n/g, '<br>')}
-          </div>
-
-          <!-- Event Details Card -->
-          <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin: 20px 0;">
-            <h3 style="margin: 0 0 16px 0; color: #1f2937; font-size: 18px; font-weight: 600;">${documentType} Details</h3>
-            
-            <div style="display: grid; gap: 12px;">
-              <div style="display: flex; align-items: center; gap: 8px;">
-                <span style="color: #8B4513; font-weight: 500;">📅 Event:</span>
-                <span style="color: #374151;">${estimateData.quote_requests.event_name}</span>
-              </div>
-              <div style="display: flex; align-items: center; gap: 8px;">
-                <span style="color: #8B4513; font-weight: 500;">📍 Date:</span>
-                <span style="color: #374151;">${formatDate(estimateData.quote_requests.event_date)}</span>
-              </div>
-              <div style="display: flex; align-items: center; gap: 8px;">
-                <span style="color: #8B4513; font-weight: 500;">🏢 Location:</span>
-                <span style="color: #374151;">${estimateData.quote_requests.location}</span>
-              </div>
-              <div style="display: flex; align-items: center; gap: 8px;">
-                <span style="color: #8B4513; font-weight: 500;">👥 Guests:</span>
-                <span style="color: #374151;">${estimateData.quote_requests.guest_count} people</span>
-              </div>
-              <div style="display: flex; align-items: center; gap: 8px;">
-                <span style="color: #8B4513; font-weight: 500;">💰 Total:</span>
-                <span style="color: #374151; font-size: 18px; font-weight: 600;">${formatCurrency(estimateData.total_amount)}</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Menu Items -->
-          <div style="background-color: #fffbeb; border: 1px solid #fed7aa; border-radius: 8px; padding: 20px; margin: 20px 0;">
-            <h3 style="margin: 0 0 16px 0; color: #92400e; font-size: 16px; font-weight: 600;">Menu & Services</h3>
-            ${lineItems.map(item => `
-              <div style="display: flex; justify-content: between; align-items: center; padding: 8px 0; border-bottom: 1px solid #fed7aa;">
-                <div style="flex: 1;">
-                  <div style="font-weight: 500; color: #92400e;">${item.title}</div>
-                  <div style="font-size: 14px; color: #a16207; margin-top: 2px;">${item.description}</div>
-                </div>
-                <div style="text-align: right; color: #92400e; font-weight: 500;">
-                  ${item.quantity > 1 ? `${item.quantity} × ` : ''}${formatCurrency(item.total_price)}
-                </div>
-              </div>
-            `).join('')}
-          </div>
-
-          <!-- Call to Action -->
-          <div style="text-align: center; margin: 32px 0;">
-            <a href="${previewUrl}" style="
-              background: linear-gradient(135deg, ${isEstimate ? '#16a34a' : '#2563eb'} 0%, ${isEstimate ? '#22c55e' : '#3b82f6'} 100%);
-              color: white;
-              padding: 16px 32px;
-              text-decoration: none;
-              border-radius: 8px;
-              font-weight: 600;
-              font-size: 16px;
-              display: inline-block;
-              box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            ">
-              ${isEstimate ? `Review & Approve ${documentType}` : `View ${documentType} & Pay`}
-            </a>
-            <p style="margin: 12px 0 0 0; font-size: 14px; color: #6b7280;">
-              Click the button above to view the full details and ${isEstimate ? 'approve your estimate' : 'process payment'}
-            </p>
-          </div>
-
-          <!-- Contact Info -->
-          <div style="background-color: #f1f5f9; border-radius: 8px; padding: 20px; text-align: center; margin: 24px 0;">
-            <h4 style="margin: 0 0 12px 0; color: #334155;">Questions? We're Here to Help!</h4>
-            <div style="color: #64748b; font-size: 14px;">
-              <div style="margin: 4px 0;">📞 (843) 970-0265</div>
-              <div style="margin: 4px 0;">📧 soultrainseatery@gmail.com</div>
-              <div style="margin: 8px 0; font-style: italic;">Proudly serving Charleston's Lowcountry and surrounding areas</div>
-            </div>
-          </div>
-
-          <!-- Footer -->
-          <div style="text-align: center; padding: 20px; border-top: 1px solid #e2e8f0; margin-top: 32px;">
-            <p style="margin: 0; color: #6b7280; font-size: 12px;">
-              Soul Train's Eatery - Bringing People Together Around Exceptional Food<br>
-              Family-Run • Authentic Southern Cooking • Charleston, SC
-            </p>
-          </div>
-        </div>
-      </div>
-    `;
-  };
 
   const handleSendEmail = async () => {
     setIsSending(true);
@@ -225,8 +150,7 @@ The Soul Train's Eatery Team
         body: { 
           invoice_id: estimateData.id,
           custom_subject: emailSubject,
-          custom_message: emailMessage,
-          email_html: generateEmailHTML()
+          custom_message: emailMessage
         }
       });
 
@@ -314,10 +238,17 @@ The Soul Train's Eatery Team
             </div>
 
             <div className="border rounded-lg overflow-hidden">
-              <div 
-                className="bg-white"
-                dangerouslySetInnerHTML={{ __html: generateEmailHTML() }}
-              />
+              {isLoadingPreview ? (
+                <div className="bg-white p-8 text-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                  <p className="text-muted-foreground">Loading email preview...</p>
+                </div>
+              ) : (
+                <div 
+                  className="bg-white"
+                  dangerouslySetInnerHTML={{ __html: emailHtml }}
+                />
+              )}
             </div>
           </div>
 
@@ -331,9 +262,10 @@ The Soul Train's Eatery Team
                 variant="outline"
                 onClick={() => {
                   const newWindow = window.open('', '_blank');
-                  newWindow?.document.write(generateEmailHTML());
+                  newWindow?.document.write(emailHtml);
                   newWindow?.document.close();
                 }}
+                disabled={isLoadingPreview}
               >
                 <Eye className="h-4 w-4 mr-2" />
                 Preview in New Tab

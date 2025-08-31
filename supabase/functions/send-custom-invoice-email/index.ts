@@ -15,6 +15,7 @@ interface SendCustomInvoiceEmailRequest {
   custom_subject?: string;
   custom_message?: string;
   email_html?: string;
+  preview_only?: boolean;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -27,23 +28,26 @@ const handler = async (req: Request): Promise<Response> => {
       invoice_id, 
       custom_subject, 
       custom_message, 
-      email_html 
+      email_html,
+      preview_only = false
     }: SendCustomInvoiceEmailRequest = await req.json();
     
     console.log('Sending custom invoice email for:', invoice_id);
 
-    // Check if Gmail tokens are configured
-    const { data: gmailTokens, error: tokenError } = await supabase
-      .from('gmail_tokens')
-      .select('email')
-      .limit(1);
+    // If not preview_only, check Gmail tokens are configured
+    if (!preview_only) {
+      const { data: gmailTokens, error: tokenError } = await supabase
+        .from('gmail_tokens')
+        .select('email')
+        .limit(1);
 
-    if (tokenError || !gmailTokens || gmailTokens.length === 0) {
-      console.error('Gmail tokens not configured:', tokenError);
-      throw new Error('Gmail integration not configured. Please set up Gmail OAuth first.');
+      if (tokenError || !gmailTokens || gmailTokens.length === 0) {
+        console.error('Gmail tokens not configured:', tokenError);
+        throw new Error('Gmail integration not configured. Please set up Gmail OAuth first.');
+      }
+
+      console.log('Gmail tokens found, proceeding with custom email send');
     }
-
-    console.log('Gmail tokens found, proceeding with custom email send');
 
     // Get invoice with customer details and line items
     const { data: invoice, error: invoiceError } = await supabase
@@ -78,6 +82,21 @@ const handler = async (req: Request): Promise<Response> => {
     // Use custom content if provided, otherwise use default
     const emailSubject = custom_subject || `Your ${documentType} from Soul Train's Eatery - ${invoice.quote_requests?.event_name}`;
     const emailHTML = email_html || generateDefaultEmailHTML(invoice, documentType, custom_message, lineItems || []);
+    
+    // If preview_only, return the HTML without sending
+    if (preview_only) {
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          html: emailHTML,
+          message: 'Email HTML generated successfully'
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200,
+        },
+      );
+    }
     
     // Send email via Gmail API
     const emailBody = {

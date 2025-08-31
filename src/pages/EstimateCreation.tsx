@@ -78,6 +78,8 @@ export default function EstimateCreation({ isEmbedded = false }: EstimateCreatio
   const [estimate, setEstimate] = useState<InvoiceEstimate | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isAutoSaving, setIsAutoSaving] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isGovernmentContract, setIsGovernmentContract] = useState(false);
   const [editingItem, setEditingItem] = useState<string | null>(null);
   const [invoiceId, setInvoiceId] = useState<string | null>(null);
@@ -130,6 +132,31 @@ export default function EstimateCreation({ isEmbedded = false }: EstimateCreatio
       checkExistingInvoiceAndFetch();
     }
   }, [quoteId]);
+
+  // Auto-save functionality
+  useEffect(() => {
+    if (!estimate || !hasUnsavedChanges || isAutoSaving || isSaving) return;
+    
+    const autoSaveTimer = setTimeout(async () => {
+      setIsAutoSaving(true);
+      try {
+        await handleSaveEstimate();
+        setHasUnsavedChanges(false);
+        console.log('Auto-saved estimate');
+      } catch (error) {
+        console.error('Auto-save failed:', error);
+      } finally {
+        setIsAutoSaving(false);
+      }
+    }, 2000); // Auto-save after 2 seconds of inactivity
+
+    return () => clearTimeout(autoSaveTimer);
+  }, [estimate, hasUnsavedChanges, isAutoSaving, isSaving]);
+
+  useEffect(() => {
+    if (!estimate || !invoiceId) return;
+    setHasUnsavedChanges(false);
+  }, [invoiceId]);
 
   const checkExistingInvoiceAndFetch = async () => {
     try {
@@ -236,6 +263,8 @@ export default function EstimateCreation({ isEmbedded = false }: EstimateCreatio
       is_government_contract: isGov,
       notes: quoteData.special_requests
     });
+    
+    setHasUnsavedChanges(true);
   };
 
   const updateLineItem = (itemId: string, updates: Partial<LineItem>) => {
@@ -297,6 +326,8 @@ export default function EstimateCreation({ isEmbedded = false }: EstimateCreatio
       deposit_required,
       is_government_contract: isGovernmentContract
     });
+    
+    setHasUnsavedChanges(true);
   };
 
   const handleGovernmentToggle = (checked: boolean) => {
@@ -308,6 +339,7 @@ export default function EstimateCreation({ isEmbedded = false }: EstimateCreatio
         is_government_contract: checked,
         deposit_required
       });
+      setHasUnsavedChanges(true);
     }
   };
 
@@ -407,6 +439,7 @@ export default function EstimateCreation({ isEmbedded = false }: EstimateCreatio
 
       setShowNextSteps(true);
       setCurrentStatus('draft');
+      setHasUnsavedChanges(false);
       return invoiceData.id;
     } catch (error) {
       console.error('Error saving estimate:', error);
@@ -519,6 +552,7 @@ export default function EstimateCreation({ isEmbedded = false }: EstimateCreatio
       });
 
       setShowNextSteps(true);
+      setHasUnsavedChanges(false);
       return invoiceId;
     } catch (error) {
       console.error('Error updating estimate:', error);
@@ -679,9 +713,13 @@ export default function EstimateCreation({ isEmbedded = false }: EstimateCreatio
                     <p className="text-sm text-muted-foreground">
                       {quote.event_name} - {new Date(quote.event_date).toLocaleDateString()}
                     </p>
-                    <p className="text-xs text-muted-foreground">
-                      Created: {new Date().toLocaleString()} • Last saved: Auto-saving...
-                    </p>
+                     <p className="text-xs text-muted-foreground">
+                       {hasUnsavedChanges ? (
+                         isAutoSaving ? 'Auto-saving...' : 'Unsaved changes'
+                       ) : (
+                         `Last saved: ${new Date().toLocaleTimeString()}`
+                       )}
+                     </p>
                   </div>
                 </div>
               </div>
@@ -689,6 +727,7 @@ export default function EstimateCreation({ isEmbedded = false }: EstimateCreatio
               <div className="flex gap-3">
                 <Button 
                   onClick={handleGeneratePreview}
+                  disabled={!estimate || isSaving || isAutoSaving || hasUnsavedChanges}
                   variant="outline"
                 >
                   <Eye className="h-4 w-4 mr-2" />
@@ -696,15 +735,15 @@ export default function EstimateCreation({ isEmbedded = false }: EstimateCreatio
                 </Button>
                 <Button 
                   onClick={handleSaveEstimate}
-                  disabled={isSaving}
-                  variant="outline"
+                  disabled={isSaving || isAutoSaving}
+                  variant={hasUnsavedChanges ? "default" : "outline"}
                 >
                   <Save className="h-4 w-4 mr-2" />
-                  {isSaving ? 'Saving...' : 'Save'}
+                  {isSaving || isAutoSaving ? 'Saving...' : hasUnsavedChanges ? 'Save Changes' : 'Saved'}
                 </Button>
                 <Button
                   onClick={() => setShowEmailPreview(true)}
-                  disabled={!invoiceId || isSaving}
+                  disabled={!invoiceId || isSaving || isAutoSaving || hasUnsavedChanges}
                   className="bg-primary text-primary-foreground hover:bg-primary/90"
                 >
                   <Send className="h-4 w-4 mr-2" />
@@ -920,7 +959,10 @@ export default function EstimateCreation({ isEmbedded = false }: EstimateCreatio
               <CardContent>
                 <Textarea
                   value={estimate.notes || ''}
-                  onChange={(e) => setEstimate({ ...estimate, notes: e.target.value })}
+                  onChange={(e) => {
+                    setEstimate({ ...estimate, notes: e.target.value });
+                    setHasUnsavedChanges(true);
+                  }}
                   placeholder="Add any special notes or requests for this estimate..."
                   rows={4}
                 />
