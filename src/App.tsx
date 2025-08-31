@@ -34,6 +34,7 @@ import { OptimizedCustomerPortal } from "./components/customer/OptimizedCustomer
 import UnifiedAdminDashboard from "./pages/UnifiedAdminDashboard";
 import QuoteDetailPage from "./pages/QuoteDetailPage";
 import EstimatePrintView from "./pages/EstimatePrintView";
+import { EstimateManagementHub } from "./components/admin/EstimateManagementHub";
 const AppContent = () => {
   useScrollToAnchor();
   const location = useLocation();
@@ -60,8 +61,7 @@ const AppContent = () => {
           {/* Admin Dashboard and Management */}
           <Route path="/admin" element={<UnifiedAdminDashboard />} />
           <Route path="/admin/quotes/:quoteId" element={<QuoteDetailPage />} />
-          <Route path="/admin/estimate-creation" element={<EstimateCreation />} />
-          <Route path="/admin/estimate-creation/:quoteId" element={<EstimateCreation />} />
+          <Route path="/admin/estimates/:invoiceId" element={<EstimateManagementHub />} />
           
           <Route path="/admin/estimate-preview/:invoiceId" element={<EstimatePreview />} />
           <Route path="/estimate-preview/:id" element={<EstimatePreview />} />

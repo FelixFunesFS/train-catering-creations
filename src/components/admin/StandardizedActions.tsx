@@ -35,8 +35,12 @@ export function StandardizedActions({
   };
 
   const handleViewEstimate = () => {
-    // Navigate directly to estimate creation page for editing
-    navigate(`/admin/estimate-creation/${item.quote_request_id || item.id}`);
+    // Navigate to estimate management hub
+    if (type === 'invoice') {
+      navigate(`/admin/estimates/${item.id}`);
+    } else {
+      navigate(`/admin/estimate-creation/${item.id}`);
+    }
   };
 
   const handleCreateInvoice = async () => {
@@ -166,11 +170,11 @@ export function StandardizedActions({
           <Button
             size={size}
             variant={variant}
-            onClick={() => navigate(`/admin/estimate-creation/${item.quote_request_id || item.id}`)}
-            title="Edit Estimate"
+            onClick={() => navigate(`/admin/estimates/${item.id}`)}
+            title="Manage Estimate"
           >
             <Edit className="h-3 w-3" />
-            {size !== 'sm' && <span className="ml-2">Edit</span>}
+            {size !== 'sm' && <span className="ml-2">Manage</span>}
           </Button>
         )}
       </div>
@@ -209,7 +213,8 @@ export function ActionButton({
           break;
           
         case 'view-estimate':
-          navigate(`/admin/estimate-creation/${item.quote_request_id || item.id}`);
+          // Default behavior for ActionButton - navigate to estimate creation
+          navigate(`/admin/estimate-creation/${item.id}`);
           break;
           
         case 'create-invoice':
