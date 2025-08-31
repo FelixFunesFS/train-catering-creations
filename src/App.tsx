@@ -55,18 +55,19 @@ const AppContent = () => {
           <Route path="/gallery" element={<PhotoGallery />} />
           <Route path="/gallery-alt" element={<AlternativeGallery />} />
           <Route path="/faq" element={<FAQ />} />
-          <Route path="/test-email" element={<TestEmail />} />
+          {/* Development routes - remove in production */}
+          {process.env.NODE_ENV === 'development' && <Route path="/test-email" element={<TestEmail />} />}
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-conditions" element={<TermsConditions />} />
           {/* Admin Dashboard and Management */}
           <Route path="/admin" element={<UnifiedAdminDashboard />} />
           <Route path="/admin/quotes/:quoteId" element={<QuoteDetailPage />} />
           <Route path="/admin/estimates/:invoiceId" element={<EstimateManagementHub />} />
+          <Route path="/admin/estimate-creation/:quoteId" element={<EstimateCreation />} />
+          <Route path="/admin/contracts" element={<ContractManagement />} />
           
-          <Route path="/admin/estimate-preview/:invoiceId" element={<EstimatePreview />} />
-          <Route path="/estimate-preview/:id" element={<EstimatePreview />} />
+          {/* Consolidated estimate preview routes */}
           <Route path="/estimate-print/:id" element={<EstimatePrintView />} />
-          <Route path="/admin/estimate-preview/:invoiceId/print" element={<EstimatePrintView />} />
           <Route path="/admin/*" element={<UnifiedAdminDashboard />} />
           
           {/* Customer-facing routes */}
