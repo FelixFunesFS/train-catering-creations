@@ -156,7 +156,8 @@ const handler = async (req: Request): Promise<Response> => {
 };
 
 function generateDefaultEmailHTML(invoice: any, documentType: string, customMessage?: string): string {
-  const baseUrl = Deno.env.get('SUPABASE_URL')?.replace('supabase.co', 'supabase.app') || '';
+  // Fix the URL to point to the Lovable app domain instead of Supabase
+  const baseUrl = 'https://qptprrqjlcvfkhfdnnoa.lovable.app';
   const previewUrl = `${baseUrl}/estimate-preview/${invoice.id}`;
   const isEstimate = documentType === 'estimate';
   

@@ -11,6 +11,7 @@ import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { EstimateNextSteps } from '@/components/admin/EstimateNextSteps';
+import { EmailPreviewModal } from '@/components/admin/EmailPreviewModal';
 import { 
   formatCustomerName, 
   formatCustomerPhone, 
@@ -486,6 +487,8 @@ export default function EstimateCreation() {
   };
 
 
+  const [showEmailPreview, setShowEmailPreview] = useState(false);
+
   const handleGeneratePreview = async () => {
     if (!estimate) return;
 
@@ -639,7 +642,6 @@ export default function EstimateCreation() {
               <Button 
                 onClick={handleGeneratePreview}
                 variant="outline"
-                className="flex-1"
               >
                 <Eye className="h-4 w-4 mr-2" />
                 Preview
@@ -647,10 +649,18 @@ export default function EstimateCreation() {
               <Button 
                 onClick={handleSaveEstimate}
                 disabled={isSaving}
-                className="flex-1"
+                variant="outline"
               >
                 <Save className="h-4 w-4 mr-2" />
-                {isSaving ? 'Saving...' : 'Save Estimate'}
+                {isSaving ? 'Saving...' : 'Save'}
+              </Button>
+              <Button
+                onClick={() => setShowEmailPreview(true)}
+                disabled={!invoiceId || isSaving}
+                className="bg-primary text-primary-foreground hover:bg-primary/90"
+              >
+                <Send className="h-4 w-4 mr-2" />
+                Send to Customer
               </Button>
             </div>
           </div>
@@ -946,6 +956,42 @@ export default function EstimateCreation() {
             </Card>
           </div>
         </div>
+
+        {/* Email Preview Modal */}
+        {showEmailPreview && invoiceId && estimate && (
+          <EmailPreviewModal
+            isOpen={showEmailPreview}
+            onClose={() => setShowEmailPreview(false)}
+            estimateData={{
+              id: invoiceId,
+              customers: {
+                name: estimate.customer_name,
+                email: estimate.customer_email
+              },
+              quote_requests: {
+                event_name: estimate.event_details.name,
+                event_date: estimate.event_details.date,
+                location: estimate.event_details.location,
+                guest_count: estimate.event_details.guest_count
+              },
+              total_amount: estimate.total_amount,
+              subtotal: estimate.subtotal,
+              tax_amount: estimate.tax_amount,
+              notes: estimate.notes,
+              is_government_contract: estimate.is_government_contract
+            } as any}
+            lineItems={estimate.line_items}
+            onEmailSent={() => {
+              setShowEmailPreview(false);
+              setShowNextSteps(true);
+              setCurrentStatus('sent');
+              toast({
+                title: "Estimate Sent",
+                description: "Estimate has been sent to customer successfully",
+              });
+            }}
+          />
+        )}
 
         {/* Next Steps Section */}
         {showNextSteps && invoiceId && (

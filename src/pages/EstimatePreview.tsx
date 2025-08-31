@@ -91,6 +91,10 @@ export default function EstimatePreview() {
   // Check for preview data in URL params (client-side preview)
   const urlParams = new URLSearchParams(location.search);
   const previewData = urlParams.get('data');
+  
+  // Check if we're in admin context
+  const isAdminView = location.pathname.startsWith('/admin');
+  const isCustomerView = !isAdminView;
 
   useEffect(() => {
     if (previewData) {
@@ -972,34 +976,16 @@ function EstimateContent({
                   <CardTitle className="text-lg">{isAdminContext ? 'Admin Actions' : 'Customer Actions'}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {/* Admin Actions */}
+                   {/* Admin Actions - Simplified */}
                   {isAdminContext && (
                     <>
                       <Button 
                         onClick={handleEditEstimate}
-                        variant="outline"
                         className="w-full"
+                        size="lg"
                       >
                         <Edit3 className="h-4 w-4 mr-2" />
                         Edit Estimate
-                      </Button>
-                      <Button 
-                        onClick={handleEmailCustomer}
-                        disabled={emailingCustomer}
-                        variant="outline"
-                        className="w-full"
-                      >
-                        {emailingCustomer ? (
-                          <>
-                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                            Sending...
-                          </>
-                        ) : (
-                          <>
-                            <Send className="h-4 w-4 mr-2" />
-                            Send to Customer
-                          </>
-                        )}
                       </Button>
                       <Button 
                         onClick={handleDownloadPDF}
