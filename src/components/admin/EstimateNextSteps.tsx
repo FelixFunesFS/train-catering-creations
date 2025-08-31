@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { EmailPreviewModal } from './EmailPreviewModal';
 import {
   CheckCircle2,
   Send,
@@ -47,41 +48,53 @@ export function EstimateNextSteps({
     }).format(amount / 100);
   };
 
-  const handleSendToCustomer = async () => {
-    setActionLoading('send');
+  const [showEmailPreview, setShowEmailPreview] = useState(false);
+  const [estimateData, setEstimateData] = useState(null);
+  const [lineItems, setLineItems] = useState([]);
+
+  // Fetch full estimate data when email preview is opened
+  const fetchEstimateData = async () => {
     try {
-      const { error } = await supabase.functions.invoke('send-invoice-email', {
-        body: { invoice_id: invoiceId }
-      });
+      const { data: invoice, error } = await supabase
+        .from('invoices')
+        .select(`
+          *,
+          customers!customer_id(*),
+          quote_requests!quote_request_id(*)
+        `)
+        .eq('id', invoiceId)
+        .single();
 
       if (error) throw error;
 
-      // Update invoice status
-      await supabase
-        .from('invoices')
-        .update({ 
-          status: 'sent',
-          is_draft: false,
-          sent_at: new Date().toISOString()
-        })
-        .eq('id', invoiceId);
+      const { data: items, error: itemsError } = await supabase
+        .from('invoice_line_items')
+        .select('*')
+        .eq('invoice_id', invoiceId)
+        .order('created_at');
 
-      toast({
-        title: "Estimate Sent",
-        description: `Estimate sent to ${customerEmail}`,
-      });
+      if (itemsError) throw itemsError;
 
-      onStatusChange?.();
+      setEstimateData(invoice);
+      setLineItems(items || []);
     } catch (error) {
-      console.error('Error sending estimate:', error);
+      console.error('Error fetching estimate data:', error);
       toast({
         title: "Error",
-        description: "Failed to send estimate",
+        description: "Failed to load estimate data",
         variant: "destructive",
       });
-    } finally {
-      setActionLoading(null);
     }
+  };
+
+  const handleSendToCustomer = async () => {
+    await fetchEstimateData();
+    setShowEmailPreview(true);
+  };
+
+  const handleEmailSent = () => {
+    setShowEmailPreview(false);
+    onStatusChange?.();
   };
 
   const handlePreview = () => {
@@ -384,6 +397,17 @@ export function EstimateNextSteps({
             </Button>
           </div>
         </div>
+
+        {/* Email Preview Modal */}
+        {estimateData && (
+          <EmailPreviewModal
+            isOpen={showEmailPreview}
+            onClose={() => setShowEmailPreview(false)}
+            estimateData={estimateData}
+            lineItems={lineItems}
+            onEmailSent={handleEmailSent}
+          />
+        )}
       </CardContent>
     </Card>
   );
