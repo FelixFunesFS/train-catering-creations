@@ -30,6 +30,25 @@ export const detectCustomerType = (email: string): 'PERSON' | 'ORG' | 'GOV' => {
   return 'PERSON';
 };
 
+// Determine customer type with manual override support
+export const determineCustomerType = (
+  email: string, 
+  isGovernmentOverride?: boolean
+): 'PERSON' | 'ORG' | 'GOV' => {
+  // Manual override takes precedence
+  if (isGovernmentOverride === true) {
+    return 'GOV';
+  }
+  
+  // If explicitly set to false, use email detection
+  if (isGovernmentOverride === false) {
+    return detectCustomerType(email);
+  }
+  
+  // Default to email detection when override is undefined
+  return detectCustomerType(email);
+};
+
 // Calculate days between two dates
 const daysBetween = (date1: Date, date2: Date): number => {
   const diffTime = Math.abs(date2.getTime() - date1.getTime());

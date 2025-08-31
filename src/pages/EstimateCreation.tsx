@@ -91,7 +91,9 @@ export default function EstimateCreation({ isEmbedded = false }: EstimateCreatio
     if (!quote || !estimate) return [];
     
     try {
-      const customerType = detectCustomerType(quote.email);
+      // Prioritize manual government toggle over email detection
+      const emailBasedType = detectCustomerType(quote.email);
+      const customerType = isGovernmentContract ? 'GOV' : emailBasedType;
       const eventDate = new Date(quote.event_date);
       const approvalDate = new Date();
       
@@ -121,7 +123,7 @@ export default function EstimateCreation({ isEmbedded = false }: EstimateCreatio
       console.error('Error generating payment schedule:', error);
       return [];
     }
-  }, [quote, estimate?.total_amount]);
+  }, [quote, estimate?.total_amount, isGovernmentContract]);
 
   useEffect(() => {
     if (quoteId) {
