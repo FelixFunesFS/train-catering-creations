@@ -40,6 +40,7 @@ interface QuoteData {
   email: string;
   phone?: string;
   event_name: string;
+  event_type?: string;
   event_date: string;
   start_time?: string;
   serving_start_time?: string;
@@ -157,6 +158,11 @@ export function InvoiceViewer({
               </h3>
               <div className="text-sm space-y-1">
                 <p className="font-medium">{quote.event_name}</p>
+                {quote.event_type && (
+                  <p className="text-muted-foreground capitalize">
+                    {quote.event_type.replace(/_/g, ' ')}
+                  </p>
+                )}
                 <p className="flex items-center gap-2">
                   <Calendar className="h-3 w-3" />
                   {new Date(quote.event_date).toLocaleDateString()}

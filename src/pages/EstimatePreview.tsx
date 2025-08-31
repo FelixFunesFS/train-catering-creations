@@ -68,6 +68,7 @@ interface EstimateData {
   quote_requests: {
     id: string;
     event_name: string;
+    event_type: string;
     event_date: string;
     start_time?: string;
     serving_start_time?: string;
@@ -129,6 +130,7 @@ export default function EstimatePreview() {
           quote_requests: {
             id: 'preview',
             event_name: data.event_details.name,
+            event_type: data.event_details.event_type || 'other',
             event_date: data.event_details.date,
             location: data.event_details.location,
             service_type: data.event_details.service_type,
@@ -173,6 +175,7 @@ export default function EstimatePreview() {
           quote_requests!quote_request_id (
             id,
             event_name,
+            event_type,
             event_date,
             start_time,
             serving_start_time,

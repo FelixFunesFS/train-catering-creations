@@ -52,6 +52,7 @@ interface InvoiceEstimate {
   customer_phone: string;
   event_details: {
     name: string;
+    event_type: string;
     date: string;
     location: string;
     guest_count: number;
@@ -251,6 +252,7 @@ export default function EstimateCreation({ isEmbedded = false }: EstimateCreatio
       customer_phone: formatCustomerPhone(quoteData.phone),
       event_details: {
         name: quoteData.event_name,
+        event_type: quoteData.event_type,
         date: quoteData.event_date,
         location: quoteData.location,
         guest_count: quoteData.guest_count,
