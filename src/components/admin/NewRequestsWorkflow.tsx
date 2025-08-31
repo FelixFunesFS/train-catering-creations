@@ -121,7 +121,7 @@ export function NewRequestsWorkflow({
                         <Button 
                           size="sm" 
                           className={`ml-4 ${hasEstimate ? 'bg-muted text-muted-foreground cursor-not-allowed' : 'bg-primary hover:bg-primary/90 text-primary-foreground'}`}
-                          onClick={() => hasEstimate ? null : navigate(`/admin/estimate-creation/${quote.id}`)}
+                          onClick={() => hasEstimate ? null : navigate(`/admin/estimates/${quote.id}`)}
                           disabled={hasEstimate}
                         >
                           <PlayCircle className="h-4 w-4 mr-1" />

@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { StatusBadge } from '@/components/admin/StatusBadge';
-import { StandardizedActions } from '@/components/admin/StandardizedActions';
+import { AdminCardActions } from '@/components/admin/AdminCardActions';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { 
@@ -260,10 +260,8 @@ export function QuoteManagementTab({
 
                 {/* Actions */}
                 <div className="pt-2">
-                  <StandardizedActions 
-                    type="quote" 
-                    item={quote} 
-                    onRefresh={onRefresh}
+                  <AdminCardActions 
+                    quote={quote}
                     size="sm"
                   />
                 </div>
