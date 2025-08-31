@@ -79,10 +79,10 @@ const handler = async (req: Request): Promise<Response> => {
           
           ${isEstimate ? `
             <p>Please review the ${documentType} and let us know if you'd like to proceed. You can approve this ${documentType} by clicking the link below:</p>
-            <p><a href="${Deno.env.get('SUPABASE_URL')?.replace('supabase.co', 'supabase.app')}/estimate-preview/${invoice_id}" style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Review & Approve ${documentType.charAt(0).toUpperCase() + documentType.slice(1)}</a></p>
+            <p><a href="https://qptprrqjlcvfkhfdnnoa.supabase.app/customer/estimate/${invoice.customer_access_token}" style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Review & Approve ${documentType.charAt(0).toUpperCase() + documentType.slice(1)}</a></p>
           ` : `
             <p>Your ${documentType} is ready for payment. You can view and pay online using the link below:</p>
-            <p><a href="${Deno.env.get('SUPABASE_URL')?.replace('supabase.co', 'supabase.app')}/estimate-preview/${invoice_id}" style="background-color: #16a34a; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">View ${documentType.charAt(0).toUpperCase() + documentType.slice(1)} & Pay</a></p>
+            <p><a href="https://qptprrqjlcvfkhfdnnoa.supabase.app/customer/estimate/${invoice.customer_access_token}" style="background-color: #16a34a; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">View ${documentType.charAt(0).toUpperCase() + documentType.slice(1)} & Pay</a></p>
           `}
           
           <p>If you have any questions, please don't hesitate to contact us:</p>

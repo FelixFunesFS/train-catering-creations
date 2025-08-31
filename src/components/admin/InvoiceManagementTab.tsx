@@ -346,12 +346,16 @@ export function InvoiceManagementTab({
                             size="sm"
                           />
                         </div>
-                        <StandardizedActions 
-                          type="invoice" 
-                          item={invoice} 
-                          onRefresh={onRefresh}
-                          size="sm"
-                        />
+                        <div className="flex gap-1">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => window.open(`/admin/estimates/${invoice.id}`, '_blank')}
+                            title="Manage Estimate"
+                          >
+                            <Eye className="h-3 w-3" />
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -437,12 +441,17 @@ export function InvoiceManagementTab({
                         </div>
                       </div>
                       
-                      <StandardizedActions 
-                        type="invoice" 
-                        item={invoice} 
-                        onRefresh={onRefresh}
-                        size="sm"
-                      />
+                      <div className="flex gap-1">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => window.open(`/admin/estimates/${invoice.id}`, '_blank')}
+                          title="Manage Estimate"
+                        >
+                          <Eye className="h-3 w-3" />
+                          <span className="ml-1">Manage</span>
+                        </Button>
+                      </div>
                     </CardContent>
                   </Card>
                 ))}

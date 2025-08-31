@@ -17,17 +17,19 @@ import {
 interface EstimatePreviewCardProps {
   invoice: any;
   quote: any;
-  onViewEstimate: () => void;
-  onRequestChanges: () => void;
+  onViewEstimate?: () => void;
+  onRequestChanges?: () => void;
   onMakePayment?: () => void;
+  onApprove?: () => void;
 }
 
 export function EstimatePreviewCard({ 
   invoice, 
   quote, 
-  onViewEstimate, 
-  onRequestChanges, 
-  onMakePayment 
+  onViewEstimate,
+  onRequestChanges,
+  onMakePayment,
+  onApprove
 }: EstimatePreviewCardProps) {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {

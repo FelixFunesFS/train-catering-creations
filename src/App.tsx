@@ -31,6 +31,7 @@ import EstimatePreview from "./pages/EstimatePreview";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import ContractManagement from "./pages/ContractManagement";
 import { OptimizedCustomerPortal } from "./components/customer/OptimizedCustomerPortal";
+import { TokenBasedCustomerPortal } from "./components/customer/TokenBasedCustomerPortal";
 import UnifiedAdminDashboard from "./pages/UnifiedAdminDashboard";
 import QuoteDetailPage from "./pages/QuoteDetailPage";
 import EstimatePrintView from "./pages/EstimatePrintView";
@@ -63,17 +64,16 @@ const AppContent = () => {
           <Route path="/admin" element={<UnifiedAdminDashboard />} />
           <Route path="/admin/quotes/:quoteId" element={<QuoteDetailPage />} />
           <Route path="/admin/estimates/:invoiceId" element={<EstimateManagementHub />} />
-          <Route path="/admin/estimate-creation/:quoteId" element={<EstimateCreation />} />
           <Route path="/admin/contracts" element={<ContractManagement />} />
           
-          {/* Consolidated estimate preview routes */}
+          {/* Print routes */}
           <Route path="/estimate-print/:id" element={<EstimatePrintView />} />
           <Route path="/admin/*" element={<UnifiedAdminDashboard />} />
           
           {/* Customer-facing routes */}
           <Route path="/invoice/public/:invoiceToken" element={<InvoicePublic />} />
           <Route path="/customer/portal" element={<OptimizedCustomerPortal />} />
-          <Route path="/customer/estimate/:invoiceToken" element={<EstimatePreview />} />
+          <Route path="/customer/estimate/:token" element={<TokenBasedCustomerPortal />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

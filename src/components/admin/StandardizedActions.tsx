@@ -35,12 +35,8 @@ export function StandardizedActions({
   };
 
   const handleViewEstimate = () => {
-    // Navigate to estimate management hub
-    if (type === 'invoice') {
-      navigate(`/admin/estimates/${item.id}`);
-    } else {
-      navigate(`/admin/estimate-creation/${item.id}`);
-    }
+    // Always navigate to estimate management hub for invoices
+    navigate(`/admin/estimates/${item.id}`);
   };
 
   const handleCreateInvoice = async () => {
@@ -114,15 +110,24 @@ export function StandardizedActions({
   if (type === 'quote') {
     return (
       <div className="flex gap-1">
+        <Button
+          size={size}
+          onClick={handleViewQuote}
+          title="View quote details"
+          variant={variant}
+        >
+          <Eye className="h-3 w-3" />
+          {size !== 'sm' && <span className="ml-2">View Quote</span>}
+        </Button>
         {(item.status === 'pending' || item.workflow_status === 'pending') && (
           <Button
             size={size}
-            onClick={() => navigate(`/admin/estimate-creation/${item.id}`)}
-            title="Set pricing and create estimate"
+            onClick={handleCreateInvoice}
+            title="Create estimate from quote"
             className="bg-primary hover:bg-primary/90 text-primary-foreground"
           >
             <FileText className="h-3 w-3" />
-            {size !== 'sm' && <span className="ml-2">Set Pricing</span>}
+            {size !== 'sm' && <span className="ml-2">Create Estimate</span>}
           </Button>
         )}
       </div>
@@ -213,8 +218,8 @@ export function ActionButton({
           break;
           
         case 'view-estimate':
-          // Default behavior for ActionButton - navigate to estimate creation
-          navigate(`/admin/estimate-creation/${item.id}`);
+          // Navigate to estimate management hub
+          navigate(`/admin/estimates/${item.id}`);
           break;
           
         case 'create-invoice':
