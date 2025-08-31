@@ -824,7 +824,7 @@ export default function EstimateCreation({ isEmbedded = false }: EstimateCreatio
                   isAutoSaving={isAutoSaving}
                   isSaving={isSaving}
                   invoiceId={invoiceId}
-                  onBack={() => navigate('/admin')}
+                  onBack={isEmbedded ? undefined : () => navigate('/admin')}
                   onPreview={handleGeneratePreview}
                   onSave={handleSaveEstimate}
                   onSend={() => setShowEmailPreview(true)}
