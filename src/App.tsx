@@ -81,6 +81,7 @@ const AppContent = () => {
           <Route path="/invoice/public/:invoiceToken" element={<InvoicePublic />} />
           <Route path="/customer/portal" element={<OptimizedCustomerPortal />} />
           <Route path="/customer/estimate/:token" element={<TokenBasedCustomerPortal />} />
+          <Route path="/estimate-preview/:token" element={<TokenBasedCustomerPortal />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

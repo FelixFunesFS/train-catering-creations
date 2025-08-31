@@ -188,7 +188,7 @@ const handler = async (req: Request): Promise<Response> => {
 function generateDefaultEmailHTML(invoice: any, documentType: string, customMessage?: string, lineItems: any[] = []): string {
   // Fix the URL to point to the Lovable app domain instead of Supabase
   const baseUrl = 'https://qptprrqjlcvfkhfdnnoa.lovable.app';
-  const previewUrl = `${baseUrl}/estimate-preview/${invoice.id}`;
+  const previewUrl = `${baseUrl}/estimate-preview/${invoice.customer_access_token}`;
   const isEstimate = documentType === 'estimate';
   
   const defaultMessage = customMessage || `Dear ${invoice.customers?.name || invoice.quote_requests?.contact_name},
@@ -263,9 +263,16 @@ The Soul Train's Eatery Team`;
       </div>
       ` : ''}
       
-      <p><a href="${previewUrl}" style="background-color: ${isEstimate ? '#16a34a' : '#2563eb'}; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
-        ${isEstimate ? `Review & Approve ${documentType.charAt(0).toUpperCase() + documentType.slice(1)}` : `View ${documentType.charAt(0).toUpperCase() + documentType.slice(1)} & Pay`}
-      </a></p>
+      <div style="text-align: center; margin: 24px 0;">
+        <a href="${previewUrl}" style="background-color: ${isEstimate ? '#16a34a' : '#2563eb'}; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; margin-right: 12px;">
+          ${isEstimate ? `Review & Approve Estimate` : `View Invoice & Pay`}
+        </a>
+        ${isEstimate ? `
+        <a href="tel:8439700265" style="background-color: #f59e0b; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
+          Request Changes
+        </a>
+        ` : ''}
+      </div>
       
       <p>📞 (843) 970-0265<br>
       📧 soultrainseatery@gmail.com</p>

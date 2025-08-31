@@ -157,7 +157,7 @@ The Soul Train's Eatery Team
       if (error) throw error;
 
       toast({
-        title: "Email Sent Successfully",
+        title: `${documentType} Sent Successfully`,
         description: `${documentType} sent to ${estimateData.customers.email}`,
       });
 

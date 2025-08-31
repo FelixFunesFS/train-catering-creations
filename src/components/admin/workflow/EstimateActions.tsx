@@ -75,9 +75,12 @@ export const EstimateActions = ({ invoice, quote, onStatusChange }: EstimateActi
           .eq('id', quote.id);
       }
 
+      const isEstimate = invoice.status === 'draft' || invoice.status === 'estimate' || invoice.status === 'revised';
+      const documentType = isEstimate ? 'Estimate' : 'Invoice';
+      
       toast({
-        title: "Estimate Sent Successfully!",
-        description: "Your customer will receive the estimate via email shortly.",
+        title: `${documentType} Sent Successfully!`,
+        description: `Your customer will receive the ${documentType.toLowerCase()} via email shortly.`,
       });
 
       onStatusChange?.();

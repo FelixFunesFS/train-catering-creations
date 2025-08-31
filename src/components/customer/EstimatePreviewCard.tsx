@@ -61,30 +61,17 @@ export function EstimatePreviewCard({
     if (!invoice) return null;
     
     const status = invoice.status;
+    const isEstimate = status === 'draft' || status === 'sent' || status === 'viewed' || invoice.is_draft;
     
-    if (status === 'draft' || status === 'sent') {
+    if (isEstimate) {
       return (
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <Button onClick={onApprove} className="flex-1">
             <CheckCircle className="h-4 w-4 mr-2" />
             Approve Estimate
           </Button>
           <Button onClick={onRequestChanges} variant="outline">
             <MessageSquare className="h-4 w-4 mr-2" />
-            Request Changes
-          </Button>
-        </div>
-      );
-    }
-    
-    if (status === 'sent' || status === 'viewed') {
-      return (
-        <div className="flex gap-2 flex-wrap">
-          <Button onClick={onViewEstimate} className="flex-1">
-            <Eye className="h-4 w-4 mr-2" />
-            Review Estimate
-          </Button>
-          <Button onClick={onRequestChanges} variant="outline">
             Request Changes
           </Button>
         </div>
