@@ -46,9 +46,15 @@ export function TokenBasedCustomerPortal() {
       const { data: invoice, error: invoiceError } = await supabase
         .from('invoices')
         .select(`
-          *,
-          customers(*),
-          quote_requests(*)
+          id,
+          invoice_number,
+          status,
+          total_amount,
+          is_draft,
+          created_at,
+          due_date,
+          customer_id,
+          quote_request_id
         `)
         .eq('customer_access_token', token)
         .single();
@@ -62,10 +68,32 @@ export function TokenBasedCustomerPortal() {
         throw new Error('Estimate not found. Please check your email for the correct link.');
       }
 
+      // Fetch related customer and quote separately to avoid type issues
+      let customer = null;
+      let quote = null;
+
+      if (invoice.customer_id) {
+        const { data: customerData } = await supabase
+          .from('customers')
+          .select('*')
+          .eq('id', invoice.customer_id)
+          .single();
+        customer = customerData;
+      }
+
+      if (invoice.quote_request_id) {
+        const { data: quoteData } = await supabase
+          .from('quote_requests')
+          .select('*')
+          .eq('id', invoice.quote_request_id)
+          .single();
+        quote = quoteData;
+      }
+
       const customerData: CustomerData = {
         invoice,
-        quote: invoice.quote_requests,
-        customer: invoice.customers
+        quote,
+        customer
       };
 
       setData(customerData);

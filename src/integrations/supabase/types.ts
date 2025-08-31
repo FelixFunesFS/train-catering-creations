@@ -566,6 +566,7 @@ export type Database = {
         Row: {
           created_at: string
           currency: string | null
+          customer_access_token: string | null
           customer_id: string | null
           draft_data: Json | null
           due_date: string | null
@@ -605,6 +606,7 @@ export type Database = {
         Insert: {
           created_at?: string
           currency?: string | null
+          customer_access_token?: string | null
           customer_id?: string | null
           draft_data?: Json | null
           due_date?: string | null
@@ -644,6 +646,7 @@ export type Database = {
         Update: {
           created_at?: string
           currency?: string | null
+          customer_access_token?: string | null
           customer_id?: string | null
           draft_data?: Json | null
           due_date?: string | null
