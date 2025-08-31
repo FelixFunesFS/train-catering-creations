@@ -574,12 +574,21 @@ export default function EstimateCreation({ isEmbedded = false }: EstimateCreatio
 
 
   const handleGeneratePreview = async () => {
-    if (!estimate) return;
+    if (!estimate) {
+      console.error('No estimate data available');
+      toast({
+        title: "Error",
+        description: "No estimate data available for preview",
+        variant: "destructive"
+      });
+      return;
+    }
 
     try {
       // First save the estimate if not already saved
       let previewInvoiceId = invoiceId;
       if (!previewInvoiceId) {
+        console.log('No invoice ID, saving estimate first...');
         previewInvoiceId = await handleSaveEstimate();
       }
 
@@ -587,6 +596,7 @@ export default function EstimateCreation({ isEmbedded = false }: EstimateCreatio
         throw new Error('Failed to save estimate for preview');
       }
 
+      console.log('Opening preview for invoice:', previewInvoiceId);
       // Open preview using the saved invoice ID
       const previewUrl = `/admin/estimate-preview/${previewInvoiceId}`;
       window.open(previewUrl, '_blank');
@@ -595,7 +605,7 @@ export default function EstimateCreation({ isEmbedded = false }: EstimateCreatio
       console.error('Error generating preview:', error);
       toast({
         title: "Error",
-        description: "Failed to generate preview",
+        description: `Failed to generate preview: ${error.message}`,
         variant: "destructive"
       });
     }
