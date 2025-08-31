@@ -347,9 +347,7 @@ export function EstimateManagementHub() {
         </TabsContent>
 
         <TabsContent value="edit" className="mt-6">
-          <div className="h-[calc(100vh-200px)] overflow-hidden">
-            <EstimateCreation />
-          </div>
+          <EstimateCreation isEmbedded={true} />
         </TabsContent>
 
         <TabsContent value="communications" className="mt-6">

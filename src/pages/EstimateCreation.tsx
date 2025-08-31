@@ -65,7 +65,11 @@ interface InvoiceEstimate {
   notes?: string;
 }
 
-export default function EstimateCreation() {
+interface EstimateCreationProps {
+  isEmbedded?: boolean;
+}
+
+export default function EstimateCreation({ isEmbedded = false }: EstimateCreationProps) {
   const { quoteId } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -647,69 +651,71 @@ export default function EstimateCreation() {
 
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Fixed Header */}
-      <div className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate('/admin')}
-                className="flex items-center gap-2"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                Back to Admin
-              </Button>
-              <Separator orientation="vertical" className="h-6" />
-              <div className="flex items-center gap-3">
-                <Calculator className="h-5 w-5 text-primary" />
-                <div>
-                  <h1 className="text-xl font-semibold">
-                    Estimate Creation
-                  </h1>
-                  <p className="text-sm text-muted-foreground">
-                    {quote.event_name} - {new Date(quote.event_date).toLocaleDateString()}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Created: {new Date().toLocaleString()} • Last saved: Auto-saving...
-                  </p>
+    <div className={isEmbedded ? "bg-background" : "min-h-screen bg-background"}>
+      {/* Fixed Header - Only show when not embedded */}
+      {!isEmbedded && (
+        <div className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
+          <div className="container mx-auto px-6 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigate('/admin')}
+                  className="flex items-center gap-2"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  Back to Admin
+                </Button>
+                <Separator orientation="vertical" className="h-6" />
+                <div className="flex items-center gap-3">
+                  <Calculator className="h-5 w-5 text-primary" />
+                  <div>
+                    <h1 className="text-xl font-semibold">
+                      Estimate Creation
+                    </h1>
+                    <p className="text-sm text-muted-foreground">
+                      {quote.event_name} - {new Date(quote.event_date).toLocaleDateString()}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Created: {new Date().toLocaleString()} • Last saved: Auto-saving...
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-            
-            <div className="flex gap-3">
-              <Button 
-                onClick={handleGeneratePreview}
-                variant="outline"
-              >
-                <Eye className="h-4 w-4 mr-2" />
-                Preview
-              </Button>
-              <Button 
-                onClick={handleSaveEstimate}
-                disabled={isSaving}
-                variant="outline"
-              >
-                <Save className="h-4 w-4 mr-2" />
-                {isSaving ? 'Saving...' : 'Save'}
-              </Button>
-              <Button
-                onClick={() => setShowEmailPreview(true)}
-                disabled={!invoiceId || isSaving}
-                className="bg-primary text-primary-foreground hover:bg-primary/90"
-              >
-                <Send className="h-4 w-4 mr-2" />
-                Send to Customer
-              </Button>
+              
+              <div className="flex gap-3">
+                <Button 
+                  onClick={handleGeneratePreview}
+                  variant="outline"
+                >
+                  <Eye className="h-4 w-4 mr-2" />
+                  Preview
+                </Button>
+                <Button 
+                  onClick={handleSaveEstimate}
+                  disabled={isSaving}
+                  variant="outline"
+                >
+                  <Save className="h-4 w-4 mr-2" />
+                  {isSaving ? 'Saving...' : 'Save'}
+                </Button>
+                <Button
+                  onClick={() => setShowEmailPreview(true)}
+                  disabled={!invoiceId || isSaving}
+                  className="bg-primary text-primary-foreground hover:bg-primary/90"
+                >
+                  <Send className="h-4 w-4 mr-2" />
+                  Send to Customer
+                </Button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
+      <div className={isEmbedded ? "px-0 py-0" : "container mx-auto px-4 sm:px-6 py-6 sm:py-8"}>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Estimate Details - Main Column */}
           <div className="lg:col-span-2 space-y-6">
