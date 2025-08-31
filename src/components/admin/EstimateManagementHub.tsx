@@ -331,7 +331,11 @@ export function EstimateManagementHub() {
         </TabsContent>
 
         <TabsContent value="edit" className="mt-6">
-          <EstimateCreation isEmbedded={true} />
+          <EstimateCreation 
+            isEmbedded={true} 
+            invoiceId={invoice?.id}
+            quoteId={invoice?.quote_requests?.id} 
+          />
         </TabsContent>
 
         <TabsContent value="communications" className="mt-6">

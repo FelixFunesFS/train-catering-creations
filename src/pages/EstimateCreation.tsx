@@ -70,10 +70,17 @@ interface InvoiceEstimate {
 
 interface EstimateCreationProps {
   isEmbedded?: boolean;
+  invoiceId?: string;
+  quoteId?: string;
 }
 
-export default function EstimateCreation({ isEmbedded = false }: EstimateCreationProps) {
-  const { quoteId } = useParams();
+export default function EstimateCreation({ 
+  isEmbedded = false, 
+  invoiceId: propInvoiceId, 
+  quoteId: propQuoteId 
+}: EstimateCreationProps) {
+  const { quoteId: urlQuoteId } = useParams();
+  const quoteId = propQuoteId || urlQuoteId;
   const navigate = useNavigate();
   const { toast } = useToast();
   
@@ -88,7 +95,7 @@ export default function EstimateCreation({ isEmbedded = false }: EstimateCreatio
   const [saveDebounceTimer, setSaveDebounceTimer] = useState<NodeJS.Timeout | null>(null);
   const [isGovernmentContract, setIsGovernmentContract] = useState(false);
   
-  const [invoiceId, setInvoiceId] = useState<string | null>(null);
+  const [invoiceId, setInvoiceId] = useState<string | null>(propInvoiceId || null);
   const [customerId, setCustomerId] = useState<string | null>(null);
   const [showNextSteps, setShowNextSteps] = useState(false);
   const [currentStatus, setCurrentStatus] = useState('draft');
