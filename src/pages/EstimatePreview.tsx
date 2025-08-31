@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { InvoiceViewer } from '@/components/admin/invoice/InvoiceViewer';
 import { ChangeRequestModal } from '@/components/customer/ChangeRequestModal';
+import { EstimatePreviewActions } from '@/components/admin/EstimatePreviewActions';
 import { 
   FileText, 
   Download, 
@@ -983,13 +984,16 @@ function EstimateContent({
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {isAdminContext ? (
-                    <EstimateActionBar
-                      context="preview"
+                    <EstimatePreviewActions
+                      invoiceId={estimate.id}
                       status={estimate.status}
-                      onEdit={handleEditEstimate}
+                      customerEmail={estimate.customers?.email || ''}
+                      totalAmount={estimate.total_amount}
                       onDownload={handleDownloadPDF}
-                      onSend={handleEmailCustomer}
-                      className="flex-col gap-3"
+                      onEdit={handleEditEstimate}
+                      onEmailSent={() => {
+                        // Handle email sent if needed
+                      }}
                     />
                   ) : (
                     <div className="space-y-3">
