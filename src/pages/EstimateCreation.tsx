@@ -19,6 +19,9 @@ import {
   type LineItem,
   type QuoteRequest 
 } from '@/utils/invoiceFormatters';
+import PaymentScheduleDisplay from "@/components/admin/PaymentScheduleDisplay";
+import { buildPaymentSchedule, detectCustomerType, calculatePaymentAmounts } from "@/utils/paymentScheduling";
+import { formatCurrency } from "@/lib/utils";
 import {
   ArrowLeft,
   Save,
@@ -605,6 +608,43 @@ export default function EstimateCreation() {
     );
   }
 
+  // Generate payment schedule for display
+  const paymentMilestones = React.useMemo(() => {
+    if (!quote) return [];
+    
+    try {
+      const customerType = detectCustomerType(quote.email);
+      const eventDate = new Date(quote.event_date);
+      const approvalDate = new Date();
+      
+      const schedule = buildPaymentSchedule(
+        eventDate,
+        customerType,
+        approvalDate,
+        estimate?.total_amount || 0
+      );
+      
+      const amounts = calculatePaymentAmounts(schedule);
+      
+      return amounts.map((amount, index) => ({
+        id: `milestone_${index}`,
+        milestone_type: amount.rule.type,
+        percentage: amount.rule.percentage,
+        amount_cents: amount.amount_cents,
+        due_date: amount.due_date === 'NOW' ? new Date().toISOString() : 
+                  amount.due_date === 'NET_30_AFTER_EVENT' ? '' :
+                  (amount.due_date as Date).toISOString(),
+        is_due_now: amount.due_date === 'NOW',
+        is_net30: amount.due_date === 'NET_30_AFTER_EVENT',
+        description: amount.rule.description,
+        status: 'pending'
+      }));
+    } catch (error) {
+      console.error('Error generating payment schedule:', error);
+      return [];
+    }
+  }, [quote, estimate?.total_amount]);
+
   return (
     <div className="min-h-screen bg-background">
       {/* Fixed Header */}
@@ -881,7 +921,15 @@ export default function EstimateCreation() {
 
           {/* Estimate Summary - Sidebar */}
           <div className="space-y-6">
+            {/* Payment Schedule Section */}
+            <PaymentScheduleDisplay
+              milestones={paymentMilestones}
+              customerType={quote ? detectCustomerType(quote.email) : 'PERSON'}
+              totalAmount={estimate?.total_amount || 0}
+              eventDate={quote?.event_date}
+            />
 
+            {/* Estimate Summary */}
             <Card className="sticky top-32">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">

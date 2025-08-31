@@ -302,6 +302,7 @@ export type Database = {
         Row: {
           address: string | null
           created_at: string
+          customer_type: string | null
           email: string
           id: string
           name: string
@@ -313,6 +314,7 @@ export type Database = {
         Insert: {
           address?: string | null
           created_at?: string
+          customer_type?: string | null
           email: string
           id?: string
           name: string
@@ -324,6 +326,7 @@ export type Database = {
         Update: {
           address?: string | null
           created_at?: string
+          customer_type?: string | null
           email?: string
           id?: string
           name?: string
@@ -577,6 +580,7 @@ export type Database = {
           id: string
           invoice_number: string | null
           is_draft: boolean | null
+          is_milestone_payment: boolean | null
           last_customer_interaction: string | null
           last_quote_sync: string | null
           last_status_change: string | null
@@ -585,6 +589,8 @@ export type Database = {
           original_quote_id: string | null
           override_reason: string | null
           paid_at: string | null
+          payment_order: number | null
+          payment_schedule_type: string | null
           pdf_url: string | null
           quote_request_id: string | null
           quote_version: number | null
@@ -617,6 +623,7 @@ export type Database = {
           id?: string
           invoice_number?: string | null
           is_draft?: boolean | null
+          is_milestone_payment?: boolean | null
           last_customer_interaction?: string | null
           last_quote_sync?: string | null
           last_status_change?: string | null
@@ -625,6 +632,8 @@ export type Database = {
           original_quote_id?: string | null
           override_reason?: string | null
           paid_at?: string | null
+          payment_order?: number | null
+          payment_schedule_type?: string | null
           pdf_url?: string | null
           quote_request_id?: string | null
           quote_version?: number | null
@@ -657,6 +666,7 @@ export type Database = {
           id?: string
           invoice_number?: string | null
           is_draft?: boolean | null
+          is_milestone_payment?: boolean | null
           last_customer_interaction?: string | null
           last_quote_sync?: string | null
           last_status_change?: string | null
@@ -665,6 +675,8 @@ export type Database = {
           original_quote_id?: string | null
           override_reason?: string | null
           paid_at?: string | null
+          payment_order?: number | null
+          payment_schedule_type?: string | null
           pdf_url?: string | null
           quote_request_id?: string | null
           quote_version?: number | null
@@ -841,6 +853,97 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "payment_history_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payment_milestones: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          description: string | null
+          due_date: string | null
+          id: string
+          invoice_id: string | null
+          is_due_now: boolean | null
+          is_net30: boolean | null
+          milestone_type: string
+          percentage: number
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount_cents: number
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          invoice_id?: string | null
+          is_due_now?: boolean | null
+          is_net30?: boolean | null
+          milestone_type: string
+          percentage: number
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          invoice_id?: string | null
+          is_due_now?: boolean | null
+          is_net30?: boolean | null
+          milestone_type?: string
+          percentage?: number
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_milestones_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payment_schedule_audit: {
+        Row: {
+          change_reason: string | null
+          changed_by: string | null
+          created_at: string
+          id: string
+          invoice_id: string | null
+          new_schedule: Json | null
+          old_schedule: Json | null
+        }
+        Insert: {
+          change_reason?: string | null
+          changed_by?: string | null
+          created_at?: string
+          id?: string
+          invoice_id?: string | null
+          new_schedule?: Json | null
+          old_schedule?: Json | null
+        }
+        Update: {
+          change_reason?: string | null
+          changed_by?: string | null
+          created_at?: string
+          id?: string
+          invoice_id?: string | null
+          new_schedule?: Json | null
+          old_schedule?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_schedule_audit_invoice_id_fkey"
             columns: ["invoice_id"]
             isOneToOne: false
             referencedRelation: "invoices"
@@ -1040,6 +1143,7 @@ export type Database = {
           calendar_event_id: string | null
           calendar_sync_status: string | null
           chafers_requested: boolean | null
+          compliance_level: string | null
           contact_name: string
           created_at: string | null
           cups_requested: boolean | null
@@ -1066,8 +1170,10 @@ export type Database = {
           napkins_requested: boolean | null
           phone: string
           plates_requested: boolean | null
+          po_number: string | null
           primary_protein: string | null
           referral_source: string | null
+          requires_po_number: boolean | null
           secondary_protein: string | null
           separate_serving_area: boolean | null
           service_type: Database["public"]["Enums"]["service_type"]
@@ -1097,6 +1203,7 @@ export type Database = {
           calendar_event_id?: string | null
           calendar_sync_status?: string | null
           chafers_requested?: boolean | null
+          compliance_level?: string | null
           contact_name: string
           created_at?: string | null
           cups_requested?: boolean | null
@@ -1123,8 +1230,10 @@ export type Database = {
           napkins_requested?: boolean | null
           phone: string
           plates_requested?: boolean | null
+          po_number?: string | null
           primary_protein?: string | null
           referral_source?: string | null
+          requires_po_number?: boolean | null
           secondary_protein?: string | null
           separate_serving_area?: boolean | null
           service_type: Database["public"]["Enums"]["service_type"]
@@ -1154,6 +1263,7 @@ export type Database = {
           calendar_event_id?: string | null
           calendar_sync_status?: string | null
           chafers_requested?: boolean | null
+          compliance_level?: string | null
           contact_name?: string
           created_at?: string | null
           cups_requested?: boolean | null
@@ -1180,8 +1290,10 @@ export type Database = {
           napkins_requested?: boolean | null
           phone?: string
           plates_requested?: boolean | null
+          po_number?: string | null
           primary_protein?: string | null
           referral_source?: string | null
+          requires_po_number?: boolean | null
           secondary_protein?: string | null
           separate_serving_area?: boolean | null
           service_type?: Database["public"]["Enums"]["service_type"]
