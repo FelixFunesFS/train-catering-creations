@@ -342,6 +342,39 @@ export type Database = {
           },
         ]
       }
+      email_templates: {
+        Row: {
+          body_template: string
+          created_at: string
+          id: string
+          is_default: boolean | null
+          subject_template: string
+          template_name: string
+          template_type: string
+          updated_at: string
+        }
+        Insert: {
+          body_template: string
+          created_at?: string
+          id?: string
+          is_default?: boolean | null
+          subject_template: string
+          template_name: string
+          template_type: string
+          updated_at?: string
+        }
+        Update: {
+          body_template?: string
+          created_at?: string
+          id?: string
+          is_default?: boolean | null
+          subject_template?: string
+          template_name?: string
+          template_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       estimate_versions: {
         Row: {
           change_request_id: string | null
@@ -536,9 +569,14 @@ export type Database = {
           customer_id: string | null
           draft_data: Json | null
           due_date: string | null
+          email_opened_at: string | null
+          email_opened_count: number | null
+          estimate_viewed_at: string | null
+          estimate_viewed_count: number | null
           id: string
           invoice_number: string | null
           is_draft: boolean | null
+          last_customer_interaction: string | null
           last_quote_sync: string | null
           last_status_change: string | null
           manual_overrides: Json | null
@@ -570,9 +608,14 @@ export type Database = {
           customer_id?: string | null
           draft_data?: Json | null
           due_date?: string | null
+          email_opened_at?: string | null
+          email_opened_count?: number | null
+          estimate_viewed_at?: string | null
+          estimate_viewed_count?: number | null
           id?: string
           invoice_number?: string | null
           is_draft?: boolean | null
+          last_customer_interaction?: string | null
           last_quote_sync?: string | null
           last_status_change?: string | null
           manual_overrides?: Json | null
@@ -604,9 +647,14 @@ export type Database = {
           customer_id?: string | null
           draft_data?: Json | null
           due_date?: string | null
+          email_opened_at?: string | null
+          email_opened_count?: number | null
+          estimate_viewed_at?: string | null
+          estimate_viewed_count?: number | null
           id?: string
           invoice_number?: string | null
           is_draft?: boolean | null
+          last_customer_interaction?: string | null
           last_quote_sync?: string | null
           last_status_change?: string | null
           manual_overrides?: Json | null

@@ -143,6 +143,8 @@ export default function EstimatePreview() {
       }
     } else if (invoiceId) {
       fetchEstimate();
+      // Track estimate view for real estimates
+      trackEstimateView();
     }
   }, [invoiceId, previewData]);
 
@@ -197,6 +199,23 @@ export default function EstimatePreview() {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const trackEstimateView = async () => {
+    if (!invoiceId || invoiceId === 'preview') return;
+    
+    try {
+      await supabase.functions.invoke('track-estimate-view', {
+        body: { 
+          invoice_id: invoiceId,
+          event_type: 'estimate_viewed',
+          customer_email: estimate?.customers?.email
+        }
+      });
+    } catch (error) {
+      console.error('Error tracking estimate view:', error);
+      // Don't show error to user as this is background tracking
     }
   };
 
