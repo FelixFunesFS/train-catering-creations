@@ -66,6 +66,8 @@ interface EstimateData {
     id: string;
     event_name: string;
     event_date: string;
+    start_time?: string;
+    serving_start_time?: string;
     location: string;
     service_type: string;
     guest_count: number;
@@ -169,6 +171,8 @@ export default function EstimatePreview() {
             id,
             event_name,
             event_date,
+            start_time,
+            serving_start_time,
             location,
             service_type,
             guest_count,

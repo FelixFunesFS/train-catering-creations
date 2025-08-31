@@ -67,6 +67,12 @@ const AppContent = () => {
           <Route path="/admin/estimates/:invoiceId" element={<EstimateManagementHub />} />
           <Route path="/admin/contracts" element={<ContractManagement />} />
           
+          {/* Estimate Preview routes */}
+          <Route path="/estimate-preview/:invoiceId" element={<EstimatePreview />} />
+          <Route path="/admin/estimate-preview/:invoiceId" element={<EstimatePreview />} />
+          <Route path="/admin/estimate-preview/:invoiceId/print" element={<EstimatePrintView />} />
+          <Route path="/customer/estimate-preview/:invoiceId" element={<EstimatePreview />} />
+          
           {/* Print routes */}
           <Route path="/estimate-print/:id" element={<EstimatePrintView />} />
           <Route path="/admin/*" element={<UnifiedAdminDashboard />} />

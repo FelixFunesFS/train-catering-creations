@@ -41,6 +41,8 @@ interface QuoteData {
   phone?: string;
   event_name: string;
   event_date: string;
+  start_time?: string;
+  serving_start_time?: string;
   location: string;
   guest_count: number;
 }
@@ -73,6 +75,22 @@ export function InvoiceViewer({
       style: 'currency',
       currency: 'USD'
     }).format(amount / 100);
+  };
+
+  const formatTime = (timeString: string) => {
+    try {
+      const [hours, minutes] = timeString.split(':').map(Number);
+      const date = new Date();
+      date.setHours(hours, minutes, 0, 0);
+      
+      return date.toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      });
+    } catch (error) {
+      return timeString;
+    }
   };
 
   const getStatusColor = (status?: string) => {
@@ -143,6 +161,16 @@ export function InvoiceViewer({
                   <Calendar className="h-3 w-3" />
                   {new Date(quote.event_date).toLocaleDateString()}
                 </p>
+                {quote.start_time && (
+                  <p className="text-muted-foreground">
+                    Start: {formatTime(quote.start_time)}
+                  </p>
+                )}
+                {quote.serving_start_time && (
+                  <p className="text-muted-foreground">
+                    Serving: {formatTime(quote.serving_start_time)}
+                  </p>
+                )}
                 <p className="flex items-center gap-2">
                   <MapPin className="h-3 w-3" />
                   {quote.location}

@@ -576,7 +576,7 @@ export default function EstimateCreation({ isEmbedded = false }: EstimateCreatio
       }
 
       // Send the estimate directly using edge function
-      const { error } = await supabase.functions.invoke('send-invoice-email', {
+      const { error } = await supabase.functions.invoke('send-custom-invoice-email', {
         body: { invoice_id: savedInvoiceId }
       });
 
