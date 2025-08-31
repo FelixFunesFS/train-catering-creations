@@ -24,6 +24,7 @@ interface EstimateLineItemsProps {
   isGovernmentContract: boolean;
   onEstimateChange: (updatedEstimate: any) => void;
   onGovernmentToggle: (checked: boolean) => void;
+  onUserEditingChange?: (isEditing: boolean) => void;
   invoiceId?: string;
 }
 
@@ -32,6 +33,7 @@ export function EstimateLineItems({
   isGovernmentContract, 
   onEstimateChange, 
   onGovernmentToggle,
+  onUserEditingChange,
   invoiceId 
 }: EstimateLineItemsProps) {
   const [editingItem, setEditingItem] = useState<string | null>(null);
@@ -279,8 +281,14 @@ export function EstimateLineItems({
                   value={item.title}
                   onChange={(e) => updateLineItem(item.id, { title: e.target.value })}
                   placeholder="Item title"
-                  onFocus={() => setEditingItem(item.id)}
-                  onBlur={() => setEditingItem(null)}
+                  onFocus={() => {
+                    setEditingItem(item.id);
+                    onUserEditingChange?.(true);
+                  }}
+                  onBlur={() => {
+                    setEditingItem(null);
+                    onUserEditingChange?.(false);
+                  }}
                 />
                 {getCategoryBadge(item.category)}
               </div>
@@ -310,14 +318,16 @@ export function EstimateLineItems({
                 <Label className="text-xs">Unit Price</Label>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-sm text-muted-foreground">$</span>
-                  <Input
-                    type="number"
-                    value={(item.unit_price / 100).toFixed(2)}
-                    onChange={(e) => updateLineItem(item.id, { unit_price: Math.round(parseFloat(e.target.value || '0') * 100) })}
-                    className="pl-7"
-                    step="0.01"
-                    min="0"
-                  />
+                <Input
+                  type="number"
+                  value={(item.unit_price / 100).toFixed(2)}
+                  onChange={(e) => updateLineItem(item.id, { unit_price: Math.round(parseFloat(e.target.value || '0') * 100) })}
+                  className="pl-7"
+                  step="0.01"
+                  min="0"
+                  onFocus={() => onUserEditingChange?.(true)}
+                  onBlur={() => onUserEditingChange?.(false)}
+                />
                 </div>
               </div>
               

@@ -83,6 +83,9 @@ export default function EstimateCreation({ isEmbedded = false }: EstimateCreatio
   const [isSaving, setIsSaving] = useState(false);
   const [isAutoSaving, setIsAutoSaving] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [isUserEditing, setIsUserEditing] = useState(false);
+  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
+  const [saveDebounceTimer, setSaveDebounceTimer] = useState<NodeJS.Timeout | null>(null);
   const [isGovernmentContract, setIsGovernmentContract] = useState(false);
   
   const [invoiceId, setInvoiceId] = useState<string | null>(null);
@@ -137,25 +140,37 @@ export default function EstimateCreation({ isEmbedded = false }: EstimateCreatio
     }
   }, [quoteId]);
 
-  // Auto-save functionality
+  // Debounced auto-save functionality
   useEffect(() => {
-    if (!estimate || !hasUnsavedChanges || isAutoSaving || isSaving) return;
+    if (!estimate || !hasUnsavedChanges || isAutoSaving || isSaving || isUserEditing) return;
+    
+    // Clear existing debounce timer
+    if (saveDebounceTimer) {
+      clearTimeout(saveDebounceTimer);
+    }
     
     const autoSaveTimer = setTimeout(async () => {
       setIsAutoSaving(true);
       try {
         await handleSaveEstimate();
         setHasUnsavedChanges(false);
+        setLastSavedAt(new Date());
         console.log('Auto-saved estimate');
       } catch (error) {
         console.error('Auto-save failed:', error);
+        toast({
+          title: "Auto-save failed",
+          description: "Please save manually to ensure your changes are preserved",
+          variant: "destructive",
+        });
       } finally {
         setIsAutoSaving(false);
       }
-    }, 2000); // Auto-save after 2 seconds of inactivity
+    }, 5000); // Auto-save after 5 seconds of inactivity
 
+    setSaveDebounceTimer(autoSaveTimer);
     return () => clearTimeout(autoSaveTimer);
-  }, [estimate, hasUnsavedChanges, isAutoSaving, isSaving]);
+  }, [estimate, hasUnsavedChanges, isAutoSaving, isSaving, isUserEditing]);
 
   useEffect(() => {
     if (!estimate || !invoiceId) return;
@@ -356,6 +371,35 @@ export default function EstimateCreation({ isEmbedded = false }: EstimateCreatio
     }
   };
 
+  const handleManualSave = async () => {
+    if (!estimate) return;
+    
+    setIsSaving(true);
+    try {
+      await handleSaveEstimate();
+      setHasUnsavedChanges(false);
+      setLastSavedAt(new Date());
+      toast({
+        title: "Saved successfully",
+        description: "All changes have been saved",
+      });
+    } catch (error) {
+      console.error('Manual save failed:', error);
+      toast({
+        title: "Save failed",
+        description: "Failed to save changes. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleEstimateChange = (updatedEstimate: any) => {
+    setEstimate(updatedEstimate);
+    setHasUnsavedChanges(true);
+  };
+
   const handleSaveEstimate = async () => {
     if (!estimate) return;
 
@@ -453,6 +497,7 @@ export default function EstimateCreation({ isEmbedded = false }: EstimateCreatio
       setShowNextSteps(true);
       setCurrentStatus('draft');
       setHasUnsavedChanges(false);
+      setLastSavedAt(new Date());
       return invoiceData.id;
     } catch (error) {
       console.error('Error saving estimate:', error);
@@ -732,27 +777,43 @@ export default function EstimateCreation({ isEmbedded = false }: EstimateCreatio
                       {quote.event_name} - {new Date(quote.event_date).toLocaleDateString()}
                     </p>
                      <p className="text-xs text-muted-foreground">
-                       {hasUnsavedChanges ? (
-                         isAutoSaving ? 'Auto-saving...' : 'Unsaved changes'
-                       ) : (
-                         `Last saved: ${new Date().toLocaleTimeString()}`
-                       )}
-                     </p>
+                        {isAutoSaving ? (
+                          'Auto-saving...'
+                        ) : hasUnsavedChanges ? (
+                          'Unsaved changes'
+                        ) : lastSavedAt ? (
+                          `Last saved: ${lastSavedAt.toLocaleTimeString()}`
+                        ) : (
+                          'Ready to save'
+                        )}
+                      </p>
                   </div>
                 </div>
               </div>
               
-              <EstimateActionBar
-                context="creation"
-                hasUnsavedChanges={hasUnsavedChanges}
-                isAutoSaving={isAutoSaving}
-                isSaving={isSaving}
-                invoiceId={invoiceId}
-                onBack={() => navigate('/admin')}
-                onPreview={handleGeneratePreview}
-                onSave={handleSaveEstimate}
-                onSend={() => setShowEmailPreview(true)}
-              />
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={handleManualSave}
+                  disabled={isSaving || !hasUnsavedChanges}
+                  className="flex items-center gap-2"
+                  variant={hasUnsavedChanges ? "default" : "outline"}
+                >
+                  <Save className="h-4 w-4" />
+                  {isSaving ? 'Saving...' : 'Save Changes'}
+                </Button>
+                
+                <EstimateActionBar
+                  context="creation"
+                  hasUnsavedChanges={hasUnsavedChanges}
+                  isAutoSaving={isAutoSaving}
+                  isSaving={isSaving}
+                  invoiceId={invoiceId}
+                  onBack={() => navigate('/admin')}
+                  onPreview={handleGeneratePreview}
+                  onSave={handleSaveEstimate}
+                  onSend={() => setShowEmailPreview(true)}
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -826,11 +887,9 @@ export default function EstimateCreation({ isEmbedded = false }: EstimateCreatio
             <EstimateLineItems
               estimate={estimate}
               isGovernmentContract={isGovernmentContract}
-              onEstimateChange={(updatedEstimate) => {
-                setEstimate(updatedEstimate);
-                setHasUnsavedChanges(true);
-              }}
+              onEstimateChange={handleEstimateChange}
               onGovernmentToggle={handleGovernmentToggle}
+              onUserEditingChange={setIsUserEditing}
               invoiceId={invoiceId}
             />
 
