@@ -182,26 +182,12 @@ export function EstimateNextSteps({
             "Your estimate is ready. Choose your next action:",
           actions: [
             {
-              id: 'preview',
-              label: 'Preview Estimate',
-              icon: Eye,
-              variant: 'outline' as const,
-              onClick: handlePreview
-            },
-            {
               id: 'send',
               label: status === 'revised' ? 'Resend to Customer' : 'Send to Customer',
               icon: Send,
               variant: 'default' as const,
               onClick: handleSendToCustomer,
               primary: true
-            },
-            {
-              id: 'edit',
-              label: 'Edit More',
-              icon: Edit,
-              variant: 'ghost' as const,
-              onClick: handleEdit
             }
           ]
         };
