@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -328,7 +329,7 @@ export function EstimateNextSteps({
   };
 
   return (
-    <Card className="w-full">
+    <Card className="fixed top-6 right-6 w-80 z-10 shadow-lg">
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
