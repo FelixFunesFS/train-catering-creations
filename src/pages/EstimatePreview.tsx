@@ -203,14 +203,14 @@ export default function EstimatePreview() {
   };
 
   const trackEstimateView = async () => {
-    if (!invoiceId || invoiceId === 'preview') return;
+    if (!invoiceId || previewData) return;
     
     try {
       await supabase.functions.invoke('track-estimate-view', {
         body: { 
           invoice_id: invoiceId,
-          event_type: 'estimate_viewed',
-          customer_email: estimate?.customers?.email
+          view_type: 'estimate_viewed',
+          user_agent: navigator.userAgent
         }
       });
     } catch (error) {
@@ -218,6 +218,7 @@ export default function EstimatePreview() {
       // Don't show error to user as this is background tracking
     }
   };
+
 
   const handleApproveEstimate = async () => {
     if (!estimate || estimate.id === 'preview') return;

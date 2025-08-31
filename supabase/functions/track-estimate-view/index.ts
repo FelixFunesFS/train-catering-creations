@@ -12,8 +12,9 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 interface TrackViewRequest {
   invoice_id: string;
-  event_type: 'email_opened' | 'estimate_viewed';
-  customer_email?: string;
+  view_type: 'email_opened' | 'estimate_viewed';
+  user_agent?: string;
+  ip_address?: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -22,75 +23,101 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { invoice_id, event_type, customer_email }: TrackViewRequest = await req.json();
+    const { 
+      invoice_id, 
+      view_type, 
+      user_agent, 
+      ip_address 
+    }: TrackViewRequest = await req.json();
     
-    console.log(`Tracking ${event_type} for invoice:`, invoice_id);
+    console.log(`Tracking ${view_type} for invoice:`, invoice_id);
 
-    // Get current tracking data
-    const { data: invoice, error: fetchError } = await supabase
+    // Get current invoice data
+    const { data: invoice, error: invoiceError } = await supabase
       .from('invoices')
-      .select('email_opened_count, estimate_viewed_count, email_opened_at, estimate_viewed_at')
+      .select('*')
       .eq('id', invoice_id)
       .single();
 
-    if (fetchError) {
-      console.error('Error fetching invoice:', fetchError);
+    if (invoiceError || !invoice) {
       throw new Error('Invoice not found');
     }
 
-    let updateData: any = {
+    // Prepare update data based on view type
+    const updateData: any = {
       last_customer_interaction: new Date().toISOString()
     };
 
-    if (event_type === 'email_opened') {
-      updateData.email_opened_count = (invoice.email_opened_count || 0) + 1;
+    if (view_type === 'email_opened') {
       updateData.email_opened_at = new Date().toISOString();
+      updateData.email_opened_count = (invoice.email_opened_count || 0) + 1;
       
-      // Update status if this is the first time email is opened
+      // Update status if first email open
       if (!invoice.email_opened_at) {
         updateData.workflow_status = 'viewed';
-        updateData.status = 'viewed';
+        if (invoice.status === 'sent') {
+          updateData.status = 'viewed';
+        }
       }
-    } else if (event_type === 'estimate_viewed') {
-      updateData.estimate_viewed_count = (invoice.estimate_viewed_count || 0) + 1;
+    } else if (view_type === 'estimate_viewed') {
       updateData.estimate_viewed_at = new Date().toISOString();
+      updateData.estimate_viewed_count = (invoice.estimate_viewed_count || 0) + 1;
+      updateData.viewed_at = new Date().toISOString();
       
-      // Update status if this is the first time estimate is viewed
+      // Update status if first estimate view
       if (!invoice.estimate_viewed_at) {
         updateData.workflow_status = 'viewed';
-        updateData.status = 'viewed';
+        if (invoice.status === 'sent') {
+          updateData.status = 'viewed';
+        }
       }
     }
 
-    // Update the invoice
+    // Update invoice with tracking data
     const { error: updateError } = await supabase
       .from('invoices')
       .update(updateData)
       .eq('id', invoice_id);
 
     if (updateError) {
-      console.error('Error updating invoice:', updateError);
-      throw new Error('Failed to update tracking data');
+      throw updateError;
     }
 
-    // Log the tracking event
+    // Log the interaction in workflow_state_log
     await supabase
       .from('workflow_state_log')
       .insert({
         entity_type: 'invoice',
         entity_id: invoice_id,
-        previous_status: invoice.status || 'unknown',
-        new_status: updateData.status || invoice.status || 'viewed',
+        previous_status: invoice.status,
+        new_status: updateData.status || invoice.status,
         changed_by: 'customer',
-        change_reason: `Customer ${event_type.replace('_', ' ')} - ${customer_email || 'Unknown email'}`
+        change_reason: `Customer ${view_type.replace('_', ' ')} - ${user_agent || 'Unknown device'}`,
+        metadata: {
+          view_type,
+          user_agent,
+          ip_address,
+          timestamp: new Date().toISOString()
+        }
       });
 
-    console.log(`Successfully tracked ${event_type} for invoice:`, invoice_id);
+    // Update quote request status if applicable
+    if (invoice.quote_request_id && updateData.status) {
+      await supabase
+        .from('quote_requests')
+        .update({ 
+          workflow_status: 'customer_reviewing',
+          invoice_status: updateData.status
+        })
+        .eq('id', invoice.quote_request_id);
+    }
+
+    console.log(`Successfully tracked ${view_type} for invoice ${invoice_id}`);
 
     return new Response(
       JSON.stringify({ 
         success: true,
-        message: `${event_type} tracked successfully`,
+        message: `${view_type} tracked successfully`,
         tracked_at: new Date().toISOString()
       }),
       { 
@@ -99,7 +126,7 @@ const handler = async (req: Request): Promise<Response> => {
     );
 
   } catch (error) {
-    console.error('Error tracking view:', error);
+    console.error('Error tracking estimate view:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
       { 
