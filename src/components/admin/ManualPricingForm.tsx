@@ -29,10 +29,11 @@ interface PricingLineItem {
 
 interface ManualPricingFormProps {
   quote: any;
+  invoiceId?: string;
   onPricingUpdate?: (total: number) => void;
 }
 
-export function ManualPricingForm({ quote, onPricingUpdate }: ManualPricingFormProps) {
+export function ManualPricingForm({ quote, invoiceId, onPricingUpdate }: ManualPricingFormProps) {
   const [lineItems, setLineItems] = useState<PricingLineItem[]>([]);
   const [subtotal, setSubtotal] = useState(0);
   const [taxRate, setTaxRate] = useState(8.5); // Default 8.5% tax
@@ -147,13 +148,37 @@ export function ManualPricingForm({ quote, onPricingUpdate }: ManualPricingFormP
       if (!quote?.id) return;
       
       try {
-        const { data, error } = await supabase
-          .from('quote_line_items')
-          .select('*')
-          .eq('quote_request_id', quote.id)
-          .order('created_at', { ascending: true });
+        let data = null;
+        
+        // First try to load from invoice_line_items if we have an invoiceId
+        if (invoiceId) {
+          console.log('Loading line items from invoice_line_items for invoice:', invoiceId);
+          const { data: invoiceItems, error: invoiceError } = await supabase
+            .from('invoice_line_items')
+            .select('*')
+            .eq('invoice_id', invoiceId)
+            .order('created_at', { ascending: true });
 
-        if (error) throw error;
+          if (!invoiceError && invoiceItems && invoiceItems.length > 0) {
+            data = invoiceItems;
+            console.log('Loaded', invoiceItems.length, 'items from invoice_line_items');
+          }
+        }
+        
+        // Fallback to quote_line_items if no invoice data found
+        if (!data || data.length === 0) {
+          console.log('Loading line items from quote_line_items for quote:', quote.id);
+          const { data: quoteItems, error: quoteError } = await supabase
+            .from('quote_line_items')
+            .select('*')
+            .eq('quote_request_id', quote.id)
+            .order('created_at', { ascending: true });
+
+          if (!quoteError && quoteItems && quoteItems.length > 0) {
+            data = quoteItems;
+            console.log('Loaded', quoteItems.length, 'items from quote_line_items');
+          }
+        }
         
         if (data && data.length > 0) {
           setLineItems(data.map(item => ({
@@ -172,22 +197,21 @@ export function ManualPricingForm({ quote, onPricingUpdate }: ManualPricingFormP
     };
 
     loadLineItems();
-  }, [quote?.id]);
+  }, [quote?.id, invoiceId]);
 
   // Auto-save line items to database
   const saveLineItemsToDatabase = async (items: PricingLineItem[]) => {
     if (!quote?.id) return;
 
     try {
-      // Delete existing line items
+      // Save to quote_line_items (always for backup)
       await supabase
         .from('quote_line_items')
         .delete()
         .eq('quote_request_id', quote.id);
 
-      // Insert new line items if any exist
       if (items.length > 0) {
-        const itemsToInsert = items.map(item => ({
+        const quoteItemsToInsert = items.map(item => ({
           quote_request_id: quote.id,
           title: item.title,
           description: item.description,
@@ -197,11 +221,35 @@ export function ManualPricingForm({ quote, onPricingUpdate }: ManualPricingFormP
           category: item.category
         }));
 
-        const { error } = await supabase
+        await supabase
           .from('quote_line_items')
-          .insert(itemsToInsert);
+          .insert(quoteItemsToInsert);
+      }
 
-        if (error) throw error;
+      // Also save to invoice_line_items if we have an invoiceId
+      if (invoiceId) {
+        console.log('Syncing line items to invoice_line_items for invoice:', invoiceId);
+        
+        await supabase
+          .from('invoice_line_items')
+          .delete()
+          .eq('invoice_id', invoiceId);
+
+        if (items.length > 0) {
+          const invoiceItemsToInsert = items.map(item => ({
+            invoice_id: invoiceId,
+            title: item.title,
+            description: item.description,
+            quantity: item.quantity,
+            unit_price: item.unit_price,
+            total_price: item.total_price,
+            category: item.category
+          }));
+
+          await supabase
+            .from('invoice_line_items')
+            .insert(invoiceItemsToInsert);
+        }
       }
     } catch (error) {
       console.error('Error saving line items:', error);
@@ -241,7 +289,7 @@ export function ManualPricingForm({ quote, onPricingUpdate }: ManualPricingFormP
   const savePricing = async () => {
     setLoading(true);
     try {
-      // Save line items to database
+      // Save line items to database (both quote and invoice tables)
       await saveLineItemsToDatabase(lineItems);
       
       // Update quote with estimated total
@@ -254,6 +302,19 @@ export function ManualPricingForm({ quote, onPricingUpdate }: ManualPricingFormP
         .eq('id', quote.id);
 
       if (error) throw error;
+
+      // Update invoice with totals if we have one
+      if (invoiceId) {
+        await supabase
+          .from('invoices')
+          .update({
+            subtotal: subtotal,
+            tax_amount: taxAmount,
+            total_amount: total,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', invoiceId);
+      }
 
       // Mark pricing step as completed
       await markStepCompleted('pricing_completed', 'Pricing Completed');

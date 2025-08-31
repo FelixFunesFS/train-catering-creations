@@ -42,6 +42,7 @@ import {
   Eye
 } from 'lucide-react';
 import { EstimateActionBar } from '@/components/admin/EstimateActionBar';
+import { ManualPricingForm } from '@/components/admin/ManualPricingForm';
 
 // Interfaces imported from utilities
 
@@ -89,6 +90,7 @@ export default function EstimateCreation({ isEmbedded = false }: EstimateCreatio
   const [showNextSteps, setShowNextSteps] = useState(false);
   const [currentStatus, setCurrentStatus] = useState('draft');
   const [showEmailPreview, setShowEmailPreview] = useState(false);
+  const [existingInvoiceData, setExistingInvoiceData] = useState<any>(null);
 
   // Generate payment schedule for display - MUST be before any early returns
   const paymentMilestones = React.useMemo(() => {
@@ -165,15 +167,20 @@ export default function EstimateCreation({ isEmbedded = false }: EstimateCreatio
       // First check if an invoice already exists for this quote
       const { data: existingInvoice, error: invoiceCheckError } = await supabase
         .from('invoices')
-        .select('id, status')
+        .select('id, status, subtotal, tax_amount, total_amount, notes, manual_overrides')
         .eq('quote_request_id', quoteId)
         .maybeSingle();
 
       if (invoiceCheckError) throw invoiceCheckError;
 
       if (existingInvoice) {
-        // Invoice exists, set the ID and continue with current flow
+        console.log('Found existing invoice:', existingInvoice.id, 'with status:', existingInvoice.status);
+        // Invoice exists, set the ID and load its data
         setInvoiceId(existingInvoice.id);
+        setCurrentStatus(existingInvoice.status);
+        
+        // Load invoice line items to populate estimate
+        await loadExistingInvoiceData(existingInvoice);
       }
 
       // Always proceed to fetch quote data and show estimate creation
@@ -186,6 +193,29 @@ export default function EstimateCreation({ isEmbedded = false }: EstimateCreatio
         variant: "destructive",
       });
       setIsLoading(false);
+    }
+  };
+
+  const loadExistingInvoiceData = async (invoice: any) => {
+    try {
+      // Load existing line items from invoice
+      const { data: lineItems, error: lineItemsError } = await supabase
+        .from('invoice_line_items')
+        .select('*')
+        .eq('invoice_id', invoice.id)
+        .order('created_at', { ascending: true });
+
+      if (lineItemsError) throw lineItemsError;
+
+      console.log('Loaded', lineItems?.length || 0, 'line items from existing invoice');
+      
+      // Store the existing invoice data to be used when estimate state is set
+      setExistingInvoiceData({
+        ...invoice,
+        line_items: lineItems || []
+      });
+    } catch (error) {
+      console.error('Error loading existing invoice data:', error);
     }
   };
 
@@ -237,37 +267,79 @@ export default function EstimateCreation({ isEmbedded = false }: EstimateCreatio
   };
 
   const initializeEstimate = (quoteData: QuoteRequest, isGov: boolean) => {
-    // Generate professional line items with intelligent grouping
-    const lineItems = generateProfessionalLineItems(quoteData);
+    // Check if we have existing invoice data to restore
+    if (existingInvoiceData && existingInvoiceData.line_items.length > 0) {
+      console.log('Initializing estimate with existing invoice data');
+      
+      // Use existing invoice data instead of generating new
+      const lineItems = existingInvoiceData.line_items.map((item: any) => ({
+        id: item.id,
+        title: item.title || '',
+        description: item.description || '',
+        quantity: item.quantity || 1,
+        unit_price: item.unit_price || 0,
+        total_price: item.total_price || 0,
+        category: item.category || 'other'
+      }));
 
-    const subtotal = lineItems.reduce((sum, item) => sum + item.total_price, 0);
-    const tax_amount = Math.round(subtotal * 0.08); // 8% tax
-    const total_amount = subtotal + tax_amount;
-    const deposit_required = isGov ? 0 : Math.round(total_amount * 0.25); // 25% deposit for non-gov
+      setEstimate({
+        quote_request_id: quoteData.id,
+        customer_name: formatCustomerName(quoteData.contact_name),
+        customer_email: quoteData.email,
+        customer_phone: formatCustomerPhone(quoteData.phone),
+        event_details: {
+          name: quoteData.event_name,
+          event_type: quoteData.event_type,
+          date: quoteData.event_date,
+          location: quoteData.location,
+          guest_count: quoteData.guest_count,
+          service_type: quoteData.service_type
+        },
+        line_items: lineItems,
+        subtotal: existingInvoiceData.subtotal || 0,
+        tax_amount: existingInvoiceData.tax_amount || 0,
+        total_amount: existingInvoiceData.total_amount || 0,
+        deposit_required: existingInvoiceData.manual_overrides?.deposit_required || (isGov ? 0 : Math.round((existingInvoiceData.total_amount || 0) * 0.25)),
+        is_government_contract: existingInvoiceData.manual_overrides?.is_government_contract || isGov,
+        notes: existingInvoiceData.notes || quoteData.special_requests
+      });
+      
+      console.log('Estimate initialized with existing data:', lineItems.length, 'line items');
+    } else {
+      // Generate professional line items with intelligent grouping
+      const lineItems = generateProfessionalLineItems(quoteData);
 
-    setEstimate({
-      quote_request_id: quoteData.id,
-      customer_name: formatCustomerName(quoteData.contact_name),
-      customer_email: quoteData.email,
-      customer_phone: formatCustomerPhone(quoteData.phone),
-      event_details: {
-        name: quoteData.event_name,
-        event_type: quoteData.event_type,
-        date: quoteData.event_date,
-        location: quoteData.location,
-        guest_count: quoteData.guest_count,
-        service_type: quoteData.service_type
-      },
-      line_items: lineItems,
-      subtotal,
-      tax_amount,
-      total_amount,
-      deposit_required,
-      is_government_contract: isGov,
-      notes: quoteData.special_requests
-    });
+      const subtotal = lineItems.reduce((sum, item) => sum + item.total_price, 0);
+      const tax_amount = Math.round(subtotal * 0.08); // 8% tax
+      const total_amount = subtotal + tax_amount;
+      const deposit_required = isGov ? 0 : Math.round(total_amount * 0.25); // 25% deposit for non-gov
+
+      setEstimate({
+        quote_request_id: quoteData.id,
+        customer_name: formatCustomerName(quoteData.contact_name),
+        customer_email: quoteData.email,
+        customer_phone: formatCustomerPhone(quoteData.phone),
+        event_details: {
+          name: quoteData.event_name,
+          event_type: quoteData.event_type,
+          date: quoteData.event_date,
+          location: quoteData.location,
+          guest_count: quoteData.guest_count,
+          service_type: quoteData.service_type
+        },
+        line_items: lineItems,
+        subtotal,
+        tax_amount,
+        total_amount,
+        deposit_required,
+        is_government_contract: isGov,
+        notes: quoteData.special_requests
+      });
+      
+      console.log('Estimate initialized with generated line items:', lineItems.length, 'items');
+    }
     
-    setHasUnsavedChanges(true);
+    setHasUnsavedChanges(!!invoiceId); // Only mark as unsaved if no existing invoice
   };
 
   const updateLineItem = (itemId: string, updates: Partial<LineItem>) => {
@@ -486,13 +558,18 @@ export default function EstimateCreation({ isEmbedded = false }: EstimateCreatio
           status: 'draft'
         });
 
-        // Reset invoice to draft status for re-approval
+        // Reset invoice to draft status for re-approval BUT preserve totals and line items
         await supabase
           .from('invoices')
           .update({ 
             status: 'draft',
             is_draft: true,
-            workflow_status: 'draft'
+            workflow_status: 'draft',
+            // Preserve the updated totals
+            subtotal: estimate.subtotal,
+            tax_amount: estimate.tax_amount,
+            total_amount: estimate.total_amount,
+            notes: estimate.notes
           })
           .eq('id', invoiceId);
 
@@ -939,6 +1016,32 @@ export default function EstimateCreation({ isEmbedded = false }: EstimateCreatio
                 </div>
               </CardContent>
             </Card>
+
+            {/* Manual Pricing Form */}
+            <ManualPricingForm 
+              quote={quote}
+              invoiceId={invoiceId}
+              onPricingUpdate={(totalWithTax) => {
+                console.log('Pricing updated total with tax:', totalWithTax);
+                // The ManualPricingForm sends the total including tax
+                // We need to calculate backwards to get subtotal
+                if (estimate) {
+                  // Assuming 8.5% tax rate (as used in ManualPricingForm)
+                  const subtotal = Math.round(totalWithTax / 1.085);
+                  const tax_amount = totalWithTax - subtotal;
+                  const deposit_required = isGovernmentContract ? 0 : Math.round(totalWithTax * 0.25);
+                  
+                  setEstimate({
+                    ...estimate,
+                    subtotal,
+                    tax_amount,
+                    total_amount: totalWithTax,
+                    deposit_required
+                  });
+                  setHasUnsavedChanges(true);
+                }
+              }}
+            />
 
             {/* Notes */}
             <Card>
