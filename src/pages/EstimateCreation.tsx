@@ -34,7 +34,8 @@ import {
   DollarSign,
   Calculator,
   AlertTriangle,
-  CheckCircle2
+  CheckCircle2,
+  Eye
 } from 'lucide-react';
 
 // Interfaces imported from utilities
@@ -262,16 +263,12 @@ export default function EstimateCreation() {
     }
   };
 
-  const handleSaveAsEstimate = async () => {
+  const handleSaveEstimate = async () => {
     if (!estimate) return;
 
-    // If we already have an invoice ID, don't create a new one
+    // If we already have an invoice ID, check for changes and create new version if needed
     if (invoiceId) {
-      toast({
-        title: "Estimate Already Saved",
-        description: "This estimate has already been saved",
-      });
-      return invoiceId;
+      return await handleUpdateEstimate();
     }
 
     setIsSaving(true);
@@ -376,6 +373,118 @@ export default function EstimateCreation() {
     }
   };
 
+  const handleUpdateEstimate = async () => {
+    if (!estimate || !invoiceId) return;
+
+    setIsSaving(true);
+    try {
+      // Check current invoice status
+      const { data: currentInvoice, error: fetchError } = await supabase
+        .from('invoices')
+        .select('status, workflow_status')
+        .eq('id', invoiceId)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      // If estimate was already sent, create a new version
+      if (currentInvoice.status !== 'draft') {
+        // Create estimate version for audit trail
+        await supabase.from('estimate_versions').insert({
+          invoice_id: invoiceId,
+          version_number: Date.now(), // Simple versioning
+          line_items: estimate.line_items as any,
+          subtotal: estimate.subtotal,
+          tax_amount: estimate.tax_amount,
+          total_amount: estimate.total_amount,
+          notes: estimate.notes,
+          status: 'draft'
+        });
+
+        // Reset invoice to draft status for re-approval
+        await supabase
+          .from('invoices')
+          .update({ 
+            status: 'draft',
+            is_draft: true,
+            workflow_status: 'draft'
+          })
+          .eq('id', invoiceId);
+
+        setCurrentStatus('draft');
+        
+        toast({
+          title: "Estimate Updated",
+          description: "Changes saved. Estimate requires customer re-approval.",
+          duration: 5000
+        });
+      }
+
+      // Update existing invoice with new data
+      await supabase
+        .from('invoices')
+        .update({
+          subtotal: estimate.subtotal,
+          tax_amount: estimate.tax_amount,
+          total_amount: estimate.total_amount,
+          notes: estimate.notes,
+          manual_overrides: {
+            is_government_contract: estimate.is_government_contract,
+            deposit_required: estimate.deposit_required
+          },
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', invoiceId);
+
+      // Delete and recreate line items
+      await supabase
+        .from('invoice_line_items')
+        .delete()
+        .eq('invoice_id', invoiceId);
+
+      const lineItemsToInsert = estimate.line_items.map(item => ({
+        invoice_id: invoiceId,
+        title: item.title,
+        description: item.description,
+        quantity: item.quantity,
+        unit_price: item.unit_price,
+        total_price: item.total_price,
+        category: item.category
+      }));
+
+      await supabase
+        .from('invoice_line_items')
+        .insert(lineItemsToInsert);
+
+      // Update quote with new estimated total
+      await supabase
+        .from('quote_requests')
+        .update({ 
+          estimated_total: estimate.total_amount,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', estimate.quote_request_id);
+
+      toast({
+        title: "Success",
+        description: "Estimate updated successfully",
+      });
+
+      setShowNextSteps(true);
+      return invoiceId;
+    } catch (error) {
+      console.error('Error updating estimate:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update estimate",
+        variant: "destructive",
+      });
+      throw error;
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
 
   const handleGeneratePreview = async () => {
     if (!estimate) return;
@@ -384,7 +493,7 @@ export default function EstimateCreation() {
       // First save the estimate if not already saved
       let previewInvoiceId = invoiceId;
       if (!previewInvoiceId) {
-        previewInvoiceId = await handleSaveAsEstimate();
+        previewInvoiceId = await handleSaveEstimate();
       }
 
       if (!previewInvoiceId) {
@@ -410,7 +519,7 @@ export default function EstimateCreation() {
       // First save the estimate if not already saved
       let savedInvoiceId = invoiceId;
       if (!savedInvoiceId) {
-        savedInvoiceId = await handleSaveAsEstimate();
+        savedInvoiceId = await handleSaveEstimate();
       }
       
       if (!savedInvoiceId) {
@@ -526,35 +635,23 @@ export default function EstimateCreation() {
               </div>
             </div>
             
-            <div className="flex items-center gap-4">
-              <Button
-                onClick={handleSaveAsEstimate}
-                disabled={isSaving || estimate.line_items.some(item => item.unit_price === 0)}
-                className="flex items-center gap-2"
+            <div className="flex gap-3">
+              <Button 
+                onClick={handleGeneratePreview}
+                variant="outline"
+                className="flex-1"
               >
-                <Save className="h-4 w-4" />
-                {isSaving ? 'Creating...' : 'Save as Estimate'}
+                <Eye className="h-4 w-4 mr-2" />
+                Preview
               </Button>
-              
-              {!estimate.line_items.some(item => item.unit_price === 0) && (
-                <>
-                  <Button 
-                    onClick={handleGeneratePreview} 
-                    variant="outline"
-                     className="flex items-center gap-2"
-                   >
-                     <CheckCircle2 className="h-4 w-4" />
-                     Preview
-                   </Button>
-                   <Button 
-                     onClick={handleSendEstimate} 
-                     className="flex items-center gap-2"
-                   >
-                     <Send className="h-4 w-4" />
-                     Save & Start Workflow
-                   </Button>
-                </>
-              )}
+              <Button 
+                onClick={handleSaveEstimate}
+                disabled={isSaving}
+                className="flex-1"
+              >
+                <Save className="h-4 w-4 mr-2" />
+                {isSaving ? 'Saving...' : 'Save Estimate'}
+              </Button>
             </div>
           </div>
         </div>
