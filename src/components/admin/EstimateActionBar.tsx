@@ -100,7 +100,7 @@ export function EstimateActionBar({
           label: "Preview",
           icon: <Eye className="h-4 w-4" />,
           action: onPreview,
-          disabled: !invoiceId || hasUnsavedChanges || isAutoSaving
+          disabled: false // Allow preview always - it will auto-save if needed
         },
         {
           id: "save",
