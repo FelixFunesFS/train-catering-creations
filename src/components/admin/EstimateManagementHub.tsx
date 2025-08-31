@@ -30,7 +30,7 @@ interface Invoice {
 }
 
 export function EstimateManagementHub() {
-  const { invoiceId } = useParams();
+  const { invoiceId, quoteId } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [invoice, setInvoice] = useState<Invoice | null>(null);
@@ -38,12 +38,15 @@ export function EstimateManagementHub() {
   const [activeTab, setActiveTab] = useState('overview');
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [isNewEstimate, setIsNewEstimate] = useState(false);
 
   useEffect(() => {
     if (invoiceId) {
       fetchInvoice();
+    } else if (quoteId) {
+      fetchOrCreateEstimate();
     }
-  }, [invoiceId]);
+  }, [invoiceId, quoteId]);
 
   const fetchInvoice = async () => {
     if (!invoiceId) return;
@@ -55,18 +58,84 @@ export function EstimateManagementHub() {
         .select(`
           *,
           customers(name, email),
-          quote_requests(event_name, event_date, contact_name)
+          quote_requests(event_name, event_date, contact_name, location, guest_count)
         `)
         .eq('id', invoiceId)
         .single();
 
       if (error) throw error;
       setInvoice(data as any);
+      setIsNewEstimate(false);
     } catch (error) {
       console.error('Error fetching invoice:', error);
       toast({
         title: "Error",
         description: "Failed to load estimate details",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchOrCreateEstimate = async () => {
+    if (!quoteId) return;
+    
+    setLoading(true);
+    try {
+      // First, try to find an existing invoice for this quote
+      const { data: existingInvoice, error: invoiceError } = await supabase
+        .from('invoices')
+        .select(`
+          *,
+          customers(name, email),
+          quote_requests(event_name, event_date, contact_name, location, guest_count)
+        `)
+        .eq('quote_request_id', quoteId)
+        .single();
+
+      if (!invoiceError && existingInvoice) {
+        // If invoice exists, redirect to the invoice route
+        navigate(`/admin/estimates/${existingInvoice.id}`, { replace: true });
+        return;
+      }
+
+      // If no invoice exists, fetch the quote data to prepare for estimate creation
+      const { data: quoteData, error: quoteError } = await supabase
+        .from('quote_requests')
+        .select('*')
+        .eq('id', quoteId)
+        .single();
+
+      if (quoteError) throw quoteError;
+
+      // Create a virtual invoice object for the UI
+      const virtualInvoice = {
+        id: quoteId,
+        invoice_number: null,
+        status: 'draft',
+        total_amount: quoteData.estimated_total || 0,
+        is_draft: true,
+        created_at: new Date().toISOString(),
+        customers: null,
+        quote_requests: {
+          id: quoteData.id,
+          event_name: quoteData.event_name,
+          event_date: quoteData.event_date,
+          contact_name: quoteData.contact_name,
+          location: quoteData.location,
+          guest_count: quoteData.guest_count
+        }
+      };
+
+      setInvoice(virtualInvoice as any);
+      setIsNewEstimate(true);
+      setActiveTab('edit'); // Start in edit mode for new estimates
+    } catch (error) {
+      console.error('Error fetching quote:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load quote details",
         variant: "destructive"
       });
     } finally {
