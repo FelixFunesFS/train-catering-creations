@@ -42,7 +42,7 @@ import {
   Eye
 } from 'lucide-react';
 import { EstimateActionBar } from '@/components/admin/EstimateActionBar';
-import { ManualPricingForm } from '@/components/admin/ManualPricingForm';
+import { EstimateLineItems } from '@/components/admin/EstimateLineItems';
 
 // Interfaces imported from utilities
 
@@ -84,7 +84,7 @@ export default function EstimateCreation({ isEmbedded = false }: EstimateCreatio
   const [isAutoSaving, setIsAutoSaving] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isGovernmentContract, setIsGovernmentContract] = useState(false);
-  const [editingItem, setEditingItem] = useState<string | null>(null);
+  
   const [invoiceId, setInvoiceId] = useState<string | null>(null);
   const [customerId, setCustomerId] = useState<string | null>(null);
   const [showNextSteps, setShowNextSteps] = useState(false);
@@ -342,69 +342,6 @@ export default function EstimateCreation({ isEmbedded = false }: EstimateCreatio
     setHasUnsavedChanges(!!invoiceId); // Only mark as unsaved if no existing invoice
   };
 
-  const updateLineItem = (itemId: string, updates: Partial<LineItem>) => {
-    if (!estimate) return;
-
-    const updatedItems = estimate.line_items.map(item => {
-      if (item.id === itemId) {
-        const updated = { ...item, ...updates };
-        if (updates.quantity !== undefined || updates.unit_price !== undefined) {
-          updated.total_price = updated.quantity * updated.unit_price;
-        }
-        return updated;
-      }
-      return item;
-    });
-
-    recalculateEstimate(updatedItems);
-    setHasUnsavedChanges(true);
-  };
-
-  const addLineItem = () => {
-    if (!estimate) return;
-
-    const newItem: LineItem = {
-      id: `item_${Date.now()}`,
-      title: 'Custom Item',
-      description: '',
-      quantity: 1,
-      unit_price: 0,
-      total_price: 0,
-      category: 'other'
-    };
-
-    const updatedItems = [...estimate.line_items, newItem];
-    recalculateEstimate(updatedItems);
-    setEditingItem(newItem.id);
-  };
-
-  const removeLineItem = (itemId: string) => {
-    if (!estimate) return;
-
-    const updatedItems = estimate.line_items.filter(item => item.id !== itemId);
-    recalculateEstimate(updatedItems);
-  };
-
-  const recalculateEstimate = (items: LineItem[]) => {
-    if (!estimate) return;
-
-    const subtotal = items.reduce((sum, item) => sum + item.total_price, 0);
-    const tax_amount = Math.round(subtotal * 0.08);
-    const total_amount = subtotal + tax_amount;
-    const deposit_required = isGovernmentContract ? 0 : Math.round(total_amount * 0.25);
-
-    setEstimate({
-      ...estimate,
-      line_items: items,
-      subtotal,
-      tax_amount,
-      total_amount,
-      deposit_required,
-      is_government_contract: isGovernmentContract
-    });
-    
-    setHasUnsavedChanges(true);
-  };
 
   const handleGovernmentToggle = (checked: boolean) => {
     setIsGovernmentContract(checked);
@@ -882,165 +819,19 @@ export default function EstimateCreation({ isEmbedded = false }: EstimateCreatio
                   </div>
                 </div>
 
-                {/* Government Contract Toggle */}
-                <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <Building2 className="h-5 w-5 text-muted-foreground" />
-                    <div>
-                      <Label htmlFor="gov-contract" className="font-medium">
-                        Government Contract
-                      </Label>
-                      <p className="text-sm text-muted-foreground">
-                        Government contracts bypass deposit requirements
-                      </p>
-                    </div>
-                  </div>
-                  <Switch
-                    id="gov-contract"
-                    checked={isGovernmentContract}
-                    onCheckedChange={handleGovernmentToggle}
-                  />
-                </div>
               </CardContent>
             </Card>
 
-            {/* Line Items */}
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  <DollarSign className="h-5 w-5" />
-                  Invoice Line Items
-                </CardTitle>
-                <Button onClick={addLineItem} variant="outline" size="sm">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Item
-                </Button>
-              </CardHeader>
-              <CardContent>
-                   <div className="space-y-4">
-                   {estimate.line_items.map((item, index) => (
-                     <div key={item.id} className="border rounded-lg p-4 hover:border-primary/20 transition-colors">
-                       <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-start">
-                         <div className="md:col-span-2">
-                           <div className="flex items-center gap-2 mb-2">
-                             <Label className="text-xs text-muted-foreground uppercase tracking-wide">Item</Label>
-                             {item.category && (
-                               <Badge variant="secondary" className="text-xs px-2 py-0.5">
-                                 {item.category}
-                               </Badge>
-                             )}
-                           </div>
-                           {editingItem === item.id ? (
-                             <div className="space-y-2">
-                               <Input
-                                 value={item.title}
-                                 onChange={(e) => updateLineItem(item.id, { title: e.target.value })}
-                                 placeholder="Item title"
-                                 className="font-medium"
-                               />
-                               <Textarea
-                                 value={item.description}
-                                 onChange={(e) => updateLineItem(item.id, { description: e.target.value })}
-                                 placeholder="Item description"
-                                 rows={2}
-                                 className="text-sm"
-                               />
-                             </div>
-                           ) : (
-                             <div className="space-y-1" onClick={() => setEditingItem(item.id)}>
-                               <p className="font-semibold cursor-pointer hover:text-primary transition-colors">
-                                 {item.title}
-                               </p>
-                               <p className="text-sm text-muted-foreground cursor-pointer leading-relaxed">
-                                 {item.description}
-                               </p>
-                             </div>
-                           )}
-                         </div>
-                        
-                        <div>
-                          <Label className="text-xs text-muted-foreground">Quantity</Label>
-                          <Input
-                            type="number"
-                            value={item.quantity}
-                            onChange={(e) => updateLineItem(item.id, { quantity: parseInt(e.target.value) || 1 })}
-                            min="1"
-                          />
-                        </div>
-                        
-                        <div>
-                          <Label className="text-xs text-muted-foreground">Unit Price</Label>
-                          <Input
-                            type="number"
-                            value={item.unit_price / 100}
-                            onChange={(e) => updateLineItem(item.id, { unit_price: Math.round(parseFloat(e.target.value || '0') * 100) })}
-                            step="0.01"
-                            min="0"
-                            placeholder="0.00"
-                          />
-                        </div>
-                        
-                        <div className="flex items-end justify-between">
-                          <div>
-                            <Label className="text-xs text-muted-foreground">Total</Label>
-                            <p className="font-medium">{formatCurrency(item.total_price)}</p>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => removeLineItem(item.id)}
-                            className="text-destructive hover:text-destructive"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                      
-                      {editingItem === item.id && (
-                        <div className="flex justify-end mt-3">
-                          <Button size="sm" onClick={() => setEditingItem(null)}>
-                            <CheckCircle2 className="h-4 w-4 mr-2" />
-                            Done Editing
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-
-                  {estimate.line_items.length === 0 && (
-                    <div className="text-center py-8 text-muted-foreground">
-                      <DollarSign className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                      <p>No line items yet. Click "Add Item" to start building the estimate.</p>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Manual Pricing Form */}
-            <ManualPricingForm 
-              quote={quote}
-              invoiceId={invoiceId}
-              onPricingUpdate={(totalWithTax) => {
-                console.log('Pricing updated total with tax:', totalWithTax);
-                // The ManualPricingForm sends the total including tax
-                // We need to calculate backwards to get subtotal
-                if (estimate) {
-                  // Assuming 8.5% tax rate (as used in ManualPricingForm)
-                  const subtotal = Math.round(totalWithTax / 1.085);
-                  const tax_amount = totalWithTax - subtotal;
-                  const deposit_required = isGovernmentContract ? 0 : Math.round(totalWithTax * 0.25);
-                  
-                  setEstimate({
-                    ...estimate,
-                    subtotal,
-                    tax_amount,
-                    total_amount: totalWithTax,
-                    deposit_required
-                  });
-                  setHasUnsavedChanges(true);
-                }
+            {/* Consolidated Line Items & Pricing */}
+            <EstimateLineItems
+              estimate={estimate}
+              isGovernmentContract={isGovernmentContract}
+              onEstimateChange={(updatedEstimate) => {
+                setEstimate(updatedEstimate);
+                setHasUnsavedChanges(true);
               }}
+              onGovernmentToggle={handleGovernmentToggle}
+              invoiceId={invoiceId}
             />
 
             {/* Notes */}
