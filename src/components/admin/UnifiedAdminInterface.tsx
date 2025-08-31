@@ -228,14 +228,16 @@ export function UnifiedAdminInterface() {
     return {
       newRequests: data.quotes.filter(q => q.status === 'pending' && !data.invoices.some(inv => inv.quote_request_id === q.id)).length,
       estimatesInProgress: data.quotes.filter(q => 
-        q.status === 'pending' && 
-        data.invoices.some(inv => inv.quote_request_id === q.id && inv.is_draft)
+        data.invoices.some(inv => 
+          inv.quote_request_id === q.id && 
+          (inv.is_draft || ['sent', 'viewed'].includes(inv.status))
+        )
       ).length,
       invoicesActive: data.quotes.filter(q => 
         data.invoices.some(inv => 
           inv.quote_request_id === q.id && 
           !inv.is_draft && 
-          ['sent', 'viewed', 'approved'].includes(inv.status)
+          ['approved', 'customer_approved'].includes(inv.status)
         )
       ).length,
       paymentTracking: data.quotes.filter(q => 
@@ -409,21 +411,21 @@ export function UnifiedAdminInterface() {
 
                     {activeTab === 'estimates-progress' && (
                       <InvoiceManagementTab 
-                        invoices={data.invoices.filter(i => i.is_draft === true)}
+                        invoices={data.invoices.filter(i => i.is_draft === true || ['sent', 'viewed'].includes(i.status))}
                         loading={loading}
                         onRefresh={fetchAllData}
                         title="Estimates in Progress"
-                        description="Draft estimates awaiting completion or sending to customer"
+                        description="Estimates awaiting completion or customer approval"
                       />
                     )}
 
                     {activeTab === 'invoices-active' && (
                       <InvoiceManagementTab 
-                        invoices={data.invoices.filter(i => ['sent', 'viewed', 'approved'].includes(i.status))}
+                        invoices={data.invoices.filter(i => !i.is_draft && ['approved', 'customer_approved'].includes(i.status))}
                         loading={loading}
                         onRefresh={fetchAllData}
                         title="Active Invoices"
-                        description="Sent invoices awaiting customer response or payment"
+                        description="Customer-approved invoices awaiting payment"
                       />
                     )}
 

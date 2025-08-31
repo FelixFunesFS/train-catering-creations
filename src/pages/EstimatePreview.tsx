@@ -202,6 +202,27 @@ export default function EstimatePreview() {
 
       if (lineItemsError) throw lineItemsError;
 
+      console.log('Fetched estimate data:', data);
+      console.log('Fetched line items:', lineItemsData);
+
+      // Check for pricing data issues
+      if (!lineItemsData || lineItemsData.length === 0) {
+        console.warn('No line items found for invoice:', invoiceId);
+      }
+
+      const hasZeroPricing = lineItemsData?.every(item => 
+        item.unit_price === 0 && item.total_price === 0
+      );
+
+      if (hasZeroPricing && lineItemsData?.length > 0) {
+        console.warn('All line items have zero pricing');
+        toast({
+          title: "Pricing Issue Detected",
+          description: "This estimate has incomplete pricing data. Please review and update.",
+          variant: "destructive"
+        });
+      }
+
       setEstimate(data);
       setLineItems(lineItemsData || []);
     } catch (error) {

@@ -67,6 +67,23 @@ export class EstimateActionService {
   }
 
   private static async sendEstimate(invoiceId: string, emailData: any): Promise<{ success: boolean; message: string }> {
+    // First validate that the estimate has pricing
+    const { data: invoice, error: fetchError } = await supabase
+      .from('invoices')
+      .select('total_amount')
+      .eq('id', invoiceId)
+      .single();
+
+    if (fetchError) throw fetchError;
+
+    // Check if estimate has valid pricing
+    if (!invoice?.total_amount || invoice.total_amount <= 0) {
+      return { 
+        success: false, 
+        message: 'Cannot send estimate without pricing. Please add line items with valid pricing before sending.' 
+      };
+    }
+
     const { error } = await supabase.functions.invoke('send-custom-invoice-email', {
       body: {
         invoice_id: invoiceId,
@@ -77,10 +94,14 @@ export class EstimateActionService {
 
     if (error) throw error;
 
-    // Update invoice status
+    // Update invoice status and set is_draft to false
     await supabase
       .from('invoices')
-      .update({ status: 'sent', sent_at: new Date().toISOString() })
+      .update({ 
+        status: 'sent', 
+        sent_at: new Date().toISOString(),
+        is_draft: false
+      })
       .eq('id', invoiceId);
 
     return { success: true, message: 'Estimate sent successfully' };

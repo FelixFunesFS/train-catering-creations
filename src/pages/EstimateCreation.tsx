@@ -580,25 +580,41 @@ export default function EstimateCreation({ isEmbedded = false }: EstimateCreatio
         })
         .eq('id', invoiceId);
 
-      // Delete and recreate line items
+      // Delete and recreate line items with enhanced validation
       await supabase
         .from('invoice_line_items')
         .delete()
         .eq('invoice_id', invoiceId);
 
-      const lineItemsToInsert = estimate.line_items.map(item => ({
-        invoice_id: invoiceId,
-        title: item.title,
-        description: item.description,
-        quantity: item.quantity,
-        unit_price: item.unit_price,
-        total_price: item.total_price,
-        category: item.category
-      }));
+      if (estimate.line_items && estimate.line_items.length > 0) {
+        const lineItemsToInsert = estimate.line_items.map(item => {
+          const lineItem = {
+            invoice_id: invoiceId,
+            title: item.title || '',
+            description: item.description || '',
+            quantity: Math.max(item.quantity || 1, 1),
+            unit_price: Math.max(item.unit_price || 0, 0),
+            total_price: Math.max(item.total_price || 0, 0),
+            category: item.category || 'catering'
+          };
+          
+          console.log('Updating line item:', lineItem);
+          return lineItem;
+        });
 
-      await supabase
-        .from('invoice_line_items')
-        .insert(lineItemsToInsert);
+        const { error: lineItemsError } = await supabase
+          .from('invoice_line_items')
+          .insert(lineItemsToInsert);
+
+        if (lineItemsError) {
+          console.error('Line items update error:', lineItemsError);
+          throw lineItemsError;
+        }
+
+        console.log('Successfully updated line items:', lineItemsToInsert.length);
+      } else {
+        console.warn('No line items to update');
+      }
 
       // Update quote with new estimated total
       await supabase
