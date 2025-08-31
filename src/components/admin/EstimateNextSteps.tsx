@@ -329,7 +329,7 @@ export function EstimateNextSteps({
   };
 
   return (
-    <Card className="fixed top-6 right-6 w-80 z-10 shadow-lg">
+    <Card className="w-full">
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">

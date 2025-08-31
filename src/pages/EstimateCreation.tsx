@@ -948,6 +948,20 @@ export default function EstimateCreation({ isEmbedded = false }: EstimateCreatio
 
           {/* Estimate Summary - Sidebar */}
           <div className="space-y-6">
+            {/* Next Steps Section */}
+            {showNextSteps && invoiceId && (
+              <EstimateNextSteps
+                invoiceId={invoiceId}
+                status={currentStatus}
+                customerEmail={estimate.customer_email}
+                totalAmount={estimate.total_amount}
+                onStatusChange={() => {
+                  // Refresh or update status as needed
+                  setCurrentStatus('sent');
+                }}
+              />
+            )}
+
             {/* Payment Schedule Section */}
             <PaymentScheduleDisplay
               milestones={paymentMilestones}
@@ -1068,21 +1082,6 @@ export default function EstimateCreation({ isEmbedded = false }: EstimateCreatio
           />
         )}
 
-        {/* Next Steps Section */}
-        {showNextSteps && invoiceId && (
-          <div className="mt-8">
-            <EstimateNextSteps
-              invoiceId={invoiceId}
-              status={currentStatus}
-              customerEmail={estimate.customer_email}
-              totalAmount={estimate.total_amount}
-              onStatusChange={() => {
-                // Refresh or update status as needed
-                setCurrentStatus('sent');
-              }}
-            />
-          </div>
-        )}
       </div>
     </div>
   );
