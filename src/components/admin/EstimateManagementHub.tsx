@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Eye, Edit, Send, MessageCircle } from 'lucide-react';
+import { EstimateActionBar } from '@/components/admin/EstimateActionBar';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { EstimateActionService } from '@/services/EstimateActionService';
@@ -236,36 +237,19 @@ export function EstimateManagementHub() {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handlePreview}
-            className="flex items-center gap-2"
-          >
-            <Eye className="h-4 w-4" />
-            Preview
-          </Button>
-          
-          {/* Primary Action */}
-          {primaryAction && (
-            <Button
-              onClick={() => {
-                if (primaryAction.id === 'send') {
-                  setShowEmailModal(true);
-                } else {
-                  handleAction(primaryAction.id);
-                }
-              }}
-              disabled={actionLoading === primaryAction.id}
-              className="flex items-center gap-2"
-            >
-              {primaryAction.id === 'send' && <Send className="h-4 w-4" />}
-              {primaryAction.id === 'follow-up' && <MessageCircle className="h-4 w-4" />}
-              {primaryAction.label}
-            </Button>
-          )}
-        </div>
+        <EstimateActionBar
+          context="management"
+          status={invoice.status}
+          onPreview={handlePreview}
+          onEdit={handleEdit}
+          onSend={() => {
+            if (primaryAction?.id === 'send') {
+              setShowEmailModal(true);
+            } else {
+              handleAction(primaryAction?.id || '');
+            }
+          }}
+        />
       </div>
 
       {/* Tabbed Interface */}

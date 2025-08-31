@@ -41,6 +41,7 @@ import {
   CheckCircle2,
   Eye
 } from 'lucide-react';
+import { EstimateActionBar } from '@/components/admin/EstimateActionBar';
 
 // Interfaces imported from utilities
 
@@ -694,16 +695,6 @@ export default function EstimateCreation({ isEmbedded = false }: EstimateCreatio
           <div className="container mx-auto px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => navigate('/admin')}
-                  className="flex items-center gap-2"
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                  Back to Admin
-                </Button>
-                <Separator orientation="vertical" className="h-6" />
                 <div className="flex items-center gap-3">
                   <Calculator className="h-5 w-5 text-primary" />
                   <div>
@@ -724,32 +715,17 @@ export default function EstimateCreation({ isEmbedded = false }: EstimateCreatio
                 </div>
               </div>
               
-              <div className="flex gap-3">
-                <Button 
-                  onClick={handleGeneratePreview}
-                  disabled={!estimate || isSaving || isAutoSaving || hasUnsavedChanges}
-                  variant="outline"
-                >
-                  <Eye className="h-4 w-4 mr-2" />
-                  Preview
-                </Button>
-                <Button 
-                  onClick={handleSaveEstimate}
-                  disabled={isSaving || isAutoSaving}
-                  variant={hasUnsavedChanges ? "default" : "outline"}
-                >
-                  <Save className="h-4 w-4 mr-2" />
-                  {isSaving || isAutoSaving ? 'Saving...' : hasUnsavedChanges ? 'Save Changes' : 'Saved'}
-                </Button>
-                <Button
-                  onClick={() => setShowEmailPreview(true)}
-                  disabled={!invoiceId || isSaving || isAutoSaving || hasUnsavedChanges}
-                  className="bg-primary text-primary-foreground hover:bg-primary/90"
-                >
-                  <Send className="h-4 w-4 mr-2" />
-                  Send to Customer
-                </Button>
-              </div>
+              <EstimateActionBar
+                context="creation"
+                hasUnsavedChanges={hasUnsavedChanges}
+                isAutoSaving={isAutoSaving}
+                isSaving={isSaving}
+                invoiceId={invoiceId}
+                onBack={() => navigate('/admin')}
+                onPreview={handleGeneratePreview}
+                onSave={handleSaveEstimate}
+                onSend={() => setShowEmailPreview(true)}
+              />
             </div>
           </div>
         </div>

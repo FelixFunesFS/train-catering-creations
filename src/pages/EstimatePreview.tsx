@@ -20,6 +20,8 @@ import {
   Edit3,
   Send
 } from 'lucide-react';
+import { EstimateActionBar } from '@/components/admin/EstimateActionBar';
+import { SimplifiedActionButton } from '@/components/admin/SimplifiedActionButton';
 
 interface LineItem {
   id: string;
@@ -977,114 +979,71 @@ function EstimateContent({
             {!isPreview && (
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">{isAdminContext ? 'Admin Actions' : 'Customer Actions'}</CardTitle>
+                  <CardTitle className="text-lg">{isAdminContext ? 'Actions' : 'Customer Actions'}</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                   {/* Admin Actions - Simplified */}
-                  {isAdminContext && (
-                    <>
-                      <Button 
-                        onClick={handleEditEstimate}
-                        className="w-full"
-                        size="lg"
-                      >
-                        <Edit3 className="h-4 w-4 mr-2" />
-                        Edit Estimate
-                      </Button>
-                      <Button 
-                        onClick={handleDownloadPDF}
-                        variant="outline"
-                        className="w-full"
-                      >
-                        <Download className="h-4 w-4 mr-2" />
-                        Download PDF
-                      </Button>
-                    </>
-                  )}
-                  
-                  {/* Customer Actions */}
-                  {!isApproved && (
-                    <>
-                      <Button 
-                        onClick={handleApproveEstimate}
-                        disabled={approving}
-                        className="w-full"
-                        size="lg"
-                      >
-                        {approving ? (
-                          <>
-                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                            Approving...
-                          </>
-                        ) : (
-                          <>
-                            <CheckCircle className="h-4 w-4 mr-2" />
-                            Approve Estimate
-                          </>
-                        )}
-                      </Button>
-                      
-                      <Button 
-                        variant="outline" 
-                        onClick={() => setShowChangeRequest(true)}
-                        className="w-full"
-                      >
-                        <Edit3 className="h-4 w-4 mr-2" />
-                        Request Changes
-                      </Button>
-                    </>
-                  )}
-
-                  {isApproved && paymentSchedule.deposit_amount > 0 && (
-                    <Button 
-                      onClick={handlePayDeposit}
-                      disabled={processingPayment}
-                      className="w-full"
-                      size="lg"
-                    >
-                      {processingPayment ? (
-                        <>
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                          Processing...
-                        </>
-                      ) : (
-                        <>
-                          <CreditCard className="h-4 w-4 mr-2" />
+                <CardContent className="space-y-4">
+                  {isAdminContext ? (
+                    <EstimateActionBar
+                      context="preview"
+                      status={estimate.status}
+                      onEdit={handleEditEstimate}
+                      onDownload={handleDownloadPDF}
+                      onSend={handleEmailCustomer}
+                      className="flex-col gap-3"
+                    />
+                  ) : (
+                    <div className="space-y-3">
+                      {/* Customer Primary Action */}
+                      {!isApproved ? (
+                        <SimplifiedActionButton
+                          variant="primary"
+                          onClick={handleApproveEstimate}
+                          disabled={approving}
+                          isLoading={approving}
+                          loadingText="Approving..."
+                          icon={<CheckCircle className="h-4 w-4" />}
+                          className="w-full"
+                        >
+                          Approve Estimate
+                        </SimplifiedActionButton>
+                      ) : paymentSchedule.deposit_amount > 0 ? (
+                        <SimplifiedActionButton
+                          variant="primary"
+                          onClick={handlePayDeposit}
+                          disabled={processingPayment}
+                          isLoading={processingPayment}
+                          loadingText="Processing..."
+                          icon={<CreditCard className="h-4 w-4" />}
+                          className="w-full"
+                        >
                           Pay Deposit ({formatCurrency(paymentSchedule.deposit_amount)})
-                        </>
+                        </SimplifiedActionButton>
+                      ) : null}
+                      
+                      {/* Customer Secondary Actions */}
+                      {!isApproved && (
+                        <SimplifiedActionButton
+                          variant="secondary"
+                          onClick={() => setShowChangeRequest(true)}
+                          icon={<Edit3 className="h-4 w-4" />}
+                          className="w-full"
+                        >
+                          Request Changes
+                        </SimplifiedActionButton>
                       )}
-                    </Button>
+                      
+                      <Separator />
+                      
+                      <SimplifiedActionButton
+                        variant="tertiary"
+                        onClick={handleDownloadPDF}
+                        icon={<Download className="h-4 w-4" />}
+                        className="w-full"
+                      >
+                        Download PDF
+                      </SimplifiedActionButton>
+                    </div>
                   )}
-
-                  <Separator />
-
-                  <Button 
-                    variant="outline" 
-                    onClick={handleDownloadPDF}
-                    className="w-full"
-                  >
-                    <Download className="h-4 w-4 mr-2" />
-                    Download PDF
-                  </Button>
-
-                  <Button 
-                    variant="outline" 
-                    onClick={handleEmailCustomer}
-                    disabled={emailingCustomer}
-                    className="w-full"
-                  >
-                    {emailingCustomer ? (
-                      <>
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Sending...
-                      </>
-                    ) : (
-                      <>
-                        <MessageSquare className="h-4 w-4 mr-2" />
-                        Email Customer
-                      </>
-                    )}
-                  </Button>
                 </CardContent>
               </Card>
             )}
