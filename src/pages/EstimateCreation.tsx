@@ -80,6 +80,44 @@ export default function EstimateCreation() {
   const [customerId, setCustomerId] = useState<string | null>(null);
   const [showNextSteps, setShowNextSteps] = useState(false);
   const [currentStatus, setCurrentStatus] = useState('draft');
+  const [showEmailPreview, setShowEmailPreview] = useState(false);
+
+  // Generate payment schedule for display - MUST be before any early returns
+  const paymentMilestones = React.useMemo(() => {
+    if (!quote || !estimate) return [];
+    
+    try {
+      const customerType = detectCustomerType(quote.email);
+      const eventDate = new Date(quote.event_date);
+      const approvalDate = new Date();
+      
+      const schedule = buildPaymentSchedule(
+        eventDate,
+        customerType,
+        approvalDate,
+        estimate?.total_amount || 0
+      );
+      
+      const amounts = calculatePaymentAmounts(schedule);
+      
+      return amounts.map((amount, index) => ({
+        id: `milestone_${index}`,
+        milestone_type: amount.rule.type,
+        percentage: amount.rule.percentage,
+        amount_cents: amount.amount_cents,
+        due_date: amount.due_date === 'NOW' ? new Date().toISOString() : 
+                  amount.due_date === 'NET_30_AFTER_EVENT' ? '' :
+                  (amount.due_date as Date).toISOString(),
+        is_due_now: amount.due_date === 'NOW',
+        is_net30: amount.due_date === 'NET_30_AFTER_EVENT',
+        description: amount.rule.description,
+        status: 'pending'
+      }));
+    } catch (error) {
+      console.error('Error generating payment schedule:', error);
+      return [];
+    }
+  }, [quote, estimate?.total_amount]);
 
   useEffect(() => {
     if (quoteId) {
@@ -490,7 +528,6 @@ export default function EstimateCreation() {
   };
 
 
-  const [showEmailPreview, setShowEmailPreview] = useState(false);
 
   const handleGeneratePreview = async () => {
     if (!estimate) return;
@@ -608,42 +645,6 @@ export default function EstimateCreation() {
     );
   }
 
-  // Generate payment schedule for display
-  const paymentMilestones = React.useMemo(() => {
-    if (!quote) return [];
-    
-    try {
-      const customerType = detectCustomerType(quote.email);
-      const eventDate = new Date(quote.event_date);
-      const approvalDate = new Date();
-      
-      const schedule = buildPaymentSchedule(
-        eventDate,
-        customerType,
-        approvalDate,
-        estimate?.total_amount || 0
-      );
-      
-      const amounts = calculatePaymentAmounts(schedule);
-      
-      return amounts.map((amount, index) => ({
-        id: `milestone_${index}`,
-        milestone_type: amount.rule.type,
-        percentage: amount.rule.percentage,
-        amount_cents: amount.amount_cents,
-        due_date: amount.due_date === 'NOW' ? new Date().toISOString() : 
-                  amount.due_date === 'NET_30_AFTER_EVENT' ? '' :
-                  (amount.due_date as Date).toISOString(),
-        is_due_now: amount.due_date === 'NOW',
-        is_net30: amount.due_date === 'NET_30_AFTER_EVENT',
-        description: amount.rule.description,
-        status: 'pending'
-      }));
-    } catch (error) {
-      console.error('Error generating payment schedule:', error);
-      return [];
-    }
-  }, [quote, estimate?.total_amount]);
 
   return (
     <div className="min-h-screen bg-background">
