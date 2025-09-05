@@ -321,7 +321,13 @@ export function EstimateLineItems({
                 <Input
                   type="text"
                   value={(item.unit_price / 100).toFixed(2)}
-                  onChange={(e) => updateLineItem(item.id, { unit_price: Math.round(parseFloat(e.target.value || '0') * 100) })}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/[^0-9.]/g, '');
+                    const numValue = parseFloat(value || '0');
+                    if (!isNaN(numValue)) {
+                      updateLineItem(item.id, { unit_price: Math.round(numValue * 100) });
+                    }
+                  }}
                   className="pl-7"
                   onFocus={() => onUserEditingChange?.(true)}
                   onBlur={() => onUserEditingChange?.(false)}
