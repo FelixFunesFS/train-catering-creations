@@ -521,6 +521,44 @@ export type Database = {
           },
         ]
       }
+      invoice_audit_log: {
+        Row: {
+          changed_at: string | null
+          changed_by: string | null
+          field_changed: string
+          id: string
+          invoice_id: string
+          new_value: Json | null
+          old_value: Json | null
+        }
+        Insert: {
+          changed_at?: string | null
+          changed_by?: string | null
+          field_changed: string
+          id?: string
+          invoice_id: string
+          new_value?: Json | null
+          old_value?: Json | null
+        }
+        Update: {
+          changed_at?: string | null
+          changed_by?: string | null
+          field_changed?: string
+          id?: string
+          invoice_id?: string
+          new_value?: Json | null
+          old_value?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_audit_log_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invoice_line_items: {
         Row: {
           category: string | null
@@ -570,7 +608,9 @@ export type Database = {
           created_at: string
           currency: string | null
           customer_access_token: string | null
+          customer_feedback: Json | null
           customer_id: string | null
+          document_type: string | null
           draft_data: Json | null
           due_date: string | null
           email_opened_at: string | null
@@ -581,6 +621,7 @@ export type Database = {
           invoice_number: string | null
           is_draft: boolean | null
           is_milestone_payment: boolean | null
+          last_customer_action: string | null
           last_customer_interaction: string | null
           last_quote_sync: string | null
           last_status_change: string | null
@@ -613,7 +654,9 @@ export type Database = {
           created_at?: string
           currency?: string | null
           customer_access_token?: string | null
+          customer_feedback?: Json | null
           customer_id?: string | null
+          document_type?: string | null
           draft_data?: Json | null
           due_date?: string | null
           email_opened_at?: string | null
@@ -624,6 +667,7 @@ export type Database = {
           invoice_number?: string | null
           is_draft?: boolean | null
           is_milestone_payment?: boolean | null
+          last_customer_action?: string | null
           last_customer_interaction?: string | null
           last_quote_sync?: string | null
           last_status_change?: string | null
@@ -656,7 +700,9 @@ export type Database = {
           created_at?: string
           currency?: string | null
           customer_access_token?: string | null
+          customer_feedback?: Json | null
           customer_id?: string | null
+          document_type?: string | null
           draft_data?: Json | null
           due_date?: string | null
           email_opened_at?: string | null
@@ -667,6 +713,7 @@ export type Database = {
           invoice_number?: string | null
           is_draft?: boolean | null
           is_milestone_payment?: boolean | null
+          last_customer_action?: string | null
           last_customer_interaction?: string | null
           last_quote_sync?: string | null
           last_status_change?: string | null
