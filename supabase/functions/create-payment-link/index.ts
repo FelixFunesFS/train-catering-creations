@@ -58,23 +58,26 @@ const handler = async (req: Request): Promise<Response> => {
     // In production, this would integrate with Stripe, Square, or another payment processor
     const paymentUrl = `${supabaseUrl.replace('supabase.co', 'lovable.app')}/payment/${invoice_id}`;
 
+    // Validate required fields before creating transaction
+    if (!amount || amount <= 0) {
+      throw new Error('Valid amount is required');
+    }
+
+    const customerEmail = customer_email || invoice.customers?.email;
+    if (!customerEmail) {
+      throw new Error('Customer email is required');
+    }
+
     // Create payment transaction record
     const { data: transaction, error: transactionError } = await supabase
       .from('payment_transactions')
       .insert({
         invoice_id: invoice_id,
-        amount: amount,
-        customer_email: customer_email || invoice.customers?.email || '',
+        amount: Math.round(amount), // Ensure amount is integer (cents)
+        customer_email: customerEmail,
         payment_type: payment_type,
         status: 'pending',
         description: description || `Payment for invoice ${invoice.invoice_number}`,
-        // Store terms acceptance in metadata if needed
-        ...(terms_accepted && { 
-          metadata: { 
-            terms_accepted: true, 
-            terms_accepted_at: terms_accepted_at 
-          } 
-        })
       })
       .select()
       .single();

@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { InvoiceManagementTab } from '@/components/admin/InvoiceManagementTab';
 import { NewRequestsWorkflow } from '@/components/admin/NewRequestsWorkflow';
+import { UnifiedQuoteWorkflow } from '@/components/admin/UnifiedQuoteWorkflow';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { 

@@ -63,8 +63,8 @@ const AppContent = () => {
           {/* Admin Dashboard and Management */}
           <Route path="/admin" element={<UnifiedAdminDashboard />} />
           <Route path="/admin/quotes/:quoteId" element={<QuoteDetailPage />} />
-          <Route path="/admin/estimates/quote/:quoteId" element={<EstimateManagementHub />} />
-          <Route path="/admin/estimates/:invoiceId" element={<EstimateManagementHub />} />
+          <Route path="/admin/estimate/quote/:quoteId" element={<EstimateCreation />} />
+          <Route path="/admin/estimate/:invoiceId" element={<EstimateCreation />} />
           <Route path="/admin/contracts" element={<ContractManagement />} />
           
           {/* Estimate Preview routes */}

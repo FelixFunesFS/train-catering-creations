@@ -415,6 +415,8 @@ export default function EstimateCreation({
       return await handleUpdateEstimate();
     }
 
+    console.log('Creating new invoice for quote:', estimate.quote_request_id);
+
     try {
       // Create customer if doesn't exist
       let customerId: string;

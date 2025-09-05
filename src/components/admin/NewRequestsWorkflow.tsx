@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { QuoteManagementTab } from './QuoteManagementTab';
+import { UnifiedQuoteWorkflow } from '@/components/admin/UnifiedQuoteWorkflow';
 import { 
   PlayCircle, 
   Clock, 
@@ -173,14 +174,28 @@ export function NewRequestsWorkflow({
         </CardContent>
       </Card>
 
-      {/* Main Request List */}
-      <QuoteManagementTab 
-        quotes={quotes}
-        loading={loading}
-        onRefresh={async () => onRefresh()}
-        selectedItems={selectedItems}
-        onSelectionChange={onSelectionChange}
-      />
+      {/* Streamlined Request Management */}
+      <div className="space-y-4">
+        {quotes.length > 0 ? (
+          quotes.map((quote) => (
+            <UnifiedQuoteWorkflow 
+              key={quote.id} 
+              quote={quote} 
+              onRefresh={onRefresh}
+            />
+          ))
+        ) : (
+          <Card>
+            <CardContent className="py-12">
+              <div className="text-center text-muted-foreground">
+                <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <h3 className="font-medium mb-2">No new requests</h3>
+                <p>New quote requests will appear here when they come in.</p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
   );
 }
