@@ -45,6 +45,7 @@ export function InvoicePricingPanel({
   const [discountType, setDiscountType] = useState<'percentage' | 'fixed'>('percentage');
   const [overrideReason, setOverrideReason] = useState('');
   const [approvalRequired, setApprovalRequired] = useState(false);
+  const [editingValues, setEditingValues] = useState<Record<string, string>>({});
   const { toast } = useToast();
 
   useEffect(() => {
@@ -222,10 +223,31 @@ export function InvoicePricingPanel({
                         <div>
                           <Label>Unit Price ($)</Label>
                           <Input
-                            type="number"
-                            step="0.01"
-                            value={item.unit_price / 100}
-                            onChange={(e) => handleEditItem(item.id || index.toString(), 'unit_price', Math.round(parseFloat(e.target.value || '0') * 100))}
+                            type="text"
+                            value={editingValues[`${item.id || index}-unit_price`] !== undefined 
+                              ? editingValues[`${item.id || index}-unit_price`] 
+                              : (item.unit_price / 100).toFixed(2)}
+                            onChange={(e) => {
+                              const value = e.target.value.replace(/[^0-9.]/g, '');
+                              setEditingValues(prev => ({ ...prev, [`${item.id || index}-unit_price`]: value }));
+                            }}
+                            onFocus={() => {
+                              setEditingValues(prev => ({ ...prev, [`${item.id || index}-unit_price`]: (item.unit_price / 100).toFixed(2) }));
+                            }}
+                            onBlur={() => {
+                              const value = editingValues[`${item.id || index}-unit_price`];
+                              if (value !== undefined) {
+                                const numValue = parseFloat(value || '0');
+                                if (!isNaN(numValue)) {
+                                  handleEditItem(item.id || index.toString(), 'unit_price', Math.round(numValue * 100));
+                                }
+                                setEditingValues(prev => {
+                                  const newState = { ...prev };
+                                  delete newState[`${item.id || index}-unit_price`];
+                                  return newState;
+                                });
+                              }
+                            }}
                           />
                         </div>
                         <div className="flex items-end">

@@ -38,6 +38,7 @@ export function EstimateLineItems({
 }: EstimateLineItemsProps) {
   const [editingItem, setEditingItem] = useState<string | null>(null);
   const [taxRate, setTaxRate] = useState(8.0);
+  const [editingValues, setEditingValues] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -320,17 +321,33 @@ export function EstimateLineItems({
                   <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-sm text-muted-foreground">$</span>
                 <Input
                   type="text"
-                  value={(item.unit_price / 100).toFixed(2)}
+                  value={editingValues[`${item.id}-unit_price`] !== undefined 
+                    ? editingValues[`${item.id}-unit_price`] 
+                    : (item.unit_price / 100).toFixed(2)}
                   onChange={(e) => {
                     const value = e.target.value.replace(/[^0-9.]/g, '');
-                    const numValue = parseFloat(value || '0');
-                    if (!isNaN(numValue)) {
-                      updateLineItem(item.id, { unit_price: Math.round(numValue * 100) });
+                    setEditingValues(prev => ({ ...prev, [`${item.id}-unit_price`]: value }));
+                  }}
+                  onFocus={() => {
+                    setEditingValues(prev => ({ ...prev, [`${item.id}-unit_price`]: (item.unit_price / 100).toFixed(2) }));
+                    onUserEditingChange?.(true);
+                  }}
+                  onBlur={() => {
+                    const value = editingValues[`${item.id}-unit_price`];
+                    if (value !== undefined) {
+                      const numValue = parseFloat(value || '0');
+                      if (!isNaN(numValue)) {
+                        updateLineItem(item.id, { unit_price: Math.round(numValue * 100) });
+                      }
+                      setEditingValues(prev => {
+                        const newState = { ...prev };
+                        delete newState[`${item.id}-unit_price`];
+                        return newState;
+                      });
                     }
+                    onUserEditingChange?.(false);
                   }}
                   className="pl-7"
-                  onFocus={() => onUserEditingChange?.(true)}
-                  onBlur={() => onUserEditingChange?.(false)}
                 />
                 </div>
               </div>
