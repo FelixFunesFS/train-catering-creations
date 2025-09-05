@@ -319,12 +319,10 @@ export function EstimateLineItems({
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-sm text-muted-foreground">$</span>
                 <Input
-                  type="number"
+                  type="text"
                   value={(item.unit_price / 100).toFixed(2)}
                   onChange={(e) => updateLineItem(item.id, { unit_price: Math.round(parseFloat(e.target.value || '0') * 100) })}
                   className="pl-7"
-                  step="0.01"
-                  min="0"
                   onFocus={() => onUserEditingChange?.(true)}
                   onBlur={() => onUserEditingChange?.(false)}
                 />
