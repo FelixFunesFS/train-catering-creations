@@ -4,21 +4,19 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.52.1';
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
-
-const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
-interface SendCustomInvoiceEmailRequest {
-  invoice_id: string;
-  custom_subject?: string;
-  custom_message?: string;
-  email_html?: string;
-  preview_only?: boolean;
 }
 
-const handler = async (req: Request): Promise<Response> => {
+interface EmailRequest {
+  invoice_id?: string;
+  preview_only?: boolean;
+  custom_subject?: string;
+  custom_message?: string;
+  estimate_data?: any;
+  quote_data?: any;
+}
+
+serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -26,277 +24,278 @@ const handler = async (req: Request): Promise<Response> => {
   try {
     const { 
       invoice_id, 
+      preview_only = false, 
       custom_subject, 
-      custom_message, 
-      email_html,
-      preview_only = false
-    }: SendCustomInvoiceEmailRequest = await req.json();
-    
-    console.log('Sending custom invoice email for:', invoice_id);
+      custom_message,
+      estimate_data,
+      quote_data 
+    }: EmailRequest = await req.json();
 
-    // If not preview_only, check Gmail tokens are configured
-    if (!preview_only) {
-      const { data: gmailTokens, error: tokenError } = await supabase
-        .from('gmail_tokens')
-        .select('email')
-        .limit(1);
+    // Initialize Supabase client
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-      if (tokenError || !gmailTokens || gmailTokens.length === 0) {
-        console.error('Gmail tokens not configured:', tokenError);
-        throw new Error('Gmail integration not configured. Please set up Gmail OAuth first.');
+    let estimateDetails = estimate_data;
+    let quoteDetails = quote_data;
+
+    // If no estimate_data provided, fetch from database
+    if (!estimateDetails && invoice_id) {
+      const { data: invoiceData, error: invoiceError } = await supabase
+        .from('invoices')
+        .select(`
+          *,
+          customers (name, email, phone),
+          quote_requests (event_name, event_date, location, guest_count, event_type)
+        `)
+        .eq('id', invoice_id)
+        .single();
+
+      if (invoiceError) {
+        console.error('Error fetching invoice:', invoiceError);
+        throw invoiceError;
       }
 
-      console.log('Gmail tokens found, proceeding with custom email send');
+      estimateDetails = invoiceData;
+
+      // Fetch line items
+      const { data: lineItems, error: lineItemsError } = await supabase
+        .from('invoice_line_items')
+        .select('*')
+        .eq('invoice_id', invoice_id)
+        .order('created_at', { ascending: true });
+
+      if (lineItemsError) {
+        console.error('Error fetching line items:', lineItemsError);
+        throw lineItemsError;
+      }
+
+      estimateDetails.line_items = lineItems || [];
     }
 
-    // Get invoice with customer details and line items
-    const { data: invoice, error: invoiceError } = await supabase
-      .from('invoices')
-      .select(`
-        *,
-        customers!customer_id(*),
-        quote_requests!quote_request_id(*)
-      `)
-      .eq('id', invoice_id)
-      .single();
+    // Generate email HTML
+    const emailHtml = generateEstimateEmailHtml(estimateDetails, quoteDetails, custom_subject, custom_message);
 
-    if (invoiceError || !invoice) {
-      throw new Error('Invoice not found');
-    }
-
-    // Get invoice line items
-    const { data: lineItems, error: lineItemsError } = await supabase
-      .from('invoice_line_items')
-      .select('*')
-      .eq('invoice_id', invoice_id)
-      .order('created_at');
-
-    if (lineItemsError) {
-      console.warn('Could not fetch line items:', lineItemsError);
-    }
-
-    // Determine if this is an estimate or invoice based on current status
-    const isEstimate = invoice.status === 'draft' || invoice.status === 'estimate' || invoice.status === 'revised';
-    const documentType = isEstimate ? 'estimate' : 'invoice';
-    
-    // Use custom content if provided, otherwise use default
-    const emailSubject = custom_subject || `Your ${documentType} from Soul Train's Eatery - ${invoice.quote_requests?.event_name}`;
-    const emailHTML = email_html || generateDefaultEmailHTML(invoice, documentType, custom_message, lineItems || []);
-    
-    // If preview_only, return the HTML without sending
     if (preview_only) {
       return new Response(
-        JSON.stringify({ 
-          success: true, 
-          html: emailHTML,
-          message: 'Email HTML generated successfully'
-        }),
+        JSON.stringify({ html: emailHtml }),
         {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           status: 200,
-        },
+          headers: { 
+            'Content-Type': 'application/json',
+            ...corsHeaders 
+          },
+        }
       );
     }
-    
-    // Send email via Gmail API
-    const emailBody = {
-      to: invoice.customers?.email,
-      subject: emailSubject,
-      html: emailHTML
-    };
 
-    // Send via Gmail API
+    // Send email via Gmail integration
     const { error: emailError } = await supabase.functions.invoke('send-gmail-email', {
-      body: emailBody
+      body: {
+        to: estimateDetails.customer_email || estimateDetails.customers?.email,
+        subject: custom_subject || `Your Estimate - Soul Train's Eatery`,
+        html: emailHtml,
+        from: 'Soul Train\'s Eatery <soultrainseatery@gmail.com>'
+      }
     });
 
     if (emailError) {
-      console.error('Email sending failed:', emailError);
-      throw new Error('Failed to send email: ' + emailError.message);
+      console.error('Error sending email:', emailError);
+      throw emailError;
     }
 
-    // Update invoice status and tracking
-    const updateData: any = {
-      sent_at: new Date().toISOString(),
-      is_draft: false
-    };
-
-    // Set appropriate status based on current state
-    if (invoice.status === 'draft') {
-      updateData.status = 'sent';
-      updateData.workflow_status = 'sent';
-    } else if (invoice.status === 'revised') {
-      updateData.status = 'sent';
-      updateData.workflow_status = 'sent';
-    } else {
-      updateData.workflow_status = 'sent';
-    }
-
-    await supabase
-      .from('invoices')
-      .update(updateData)
-      .eq('id', invoice_id);
-
-    // Update quote status if applicable
-    if (invoice.quote_request_id) {
+    // Update invoice status if not preview
+    if (invoice_id) {
       await supabase
-        .from('quote_requests')
+        .from('invoices')
         .update({ 
-          workflow_status: 'awaiting_approval',
-          invoice_status: 'sent'
+          status: 'sent',
+          workflow_status: 'sent' 
         })
-        .eq('id', invoice.quote_request_id);
+        .eq('id', invoice_id);
     }
-
-    // Log email activity
-    await supabase
-      .from('workflow_state_log')
-      .insert({
-        entity_type: 'invoice',
-        entity_id: invoice_id,
-        previous_status: invoice.status,
-        new_status: updateData.status || invoice.status,
-        changed_by: 'system',
-        change_reason: `Custom ${documentType} email sent to ${invoice.customers?.email}`
-      });
-
-    console.log(`Custom ${documentType} email sent successfully for:`, invoice_id);
 
     return new Response(
-      JSON.stringify({ 
-        success: true,
-        message: `${documentType.charAt(0).toUpperCase() + documentType.slice(1)} sent to ${invoice.customers?.email}`,
-        sent_at: new Date().toISOString()
-      }),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      JSON.stringify({ success: true }),
+      {
+        status: 200,
+        headers: { 
+          'Content-Type': 'application/json',
+          ...corsHeaders 
+        },
       }
     );
 
   } catch (error) {
-    console.error('Error sending custom invoice email:', error);
+    console.error('Error in send-custom-invoice-email:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
-      { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      {
+        status: 500,
+        headers: { 
+          'Content-Type': 'application/json',
+          ...corsHeaders 
+        },
       }
     );
   }
-};
+});
 
-function generateDefaultEmailHTML(invoice: any, documentType: string, customMessage?: string, lineItems: any[] = []): string {
-  // Fix the URL to point to the Lovable app domain instead of Supabase
-  const baseUrl = 'https://qptprrqjlcvfkhfdnnoa.lovable.app';
-  const previewUrl = `${baseUrl}/estimate-preview/${invoice.customer_access_token}`;
-  const isEstimate = documentType === 'estimate';
-  
-  const defaultMessage = customMessage || `Dear ${invoice.customers?.name || invoice.quote_requests?.contact_name},
+function generateEstimateEmailHtml(estimate: any, quote: any, customSubject?: string, customMessage?: string): string {
+  const formatCurrency = (cents: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD'
+    }).format(cents / 100);
+  };
 
-Thank you for choosing Soul Train's Eatery for your upcoming event!
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
 
-Please find your ${documentType} attached. Here are the details for your ${invoice.quote_requests?.event_name}.
-
-${isEstimate ? 
-'Please review the estimate and let us know if you\'d like to proceed. You can approve this estimate by clicking the link below:' :
-'Your invoice is ready for payment. You can view and pay online using the link below:'}
-
-If you have any questions, please don't hesitate to contact us.
-
-Best regards,
-The Soul Train's Eatery Team`;
+  const customerName = estimate.customer_name || estimate.customers?.name || 'Valued Customer';
+  const customerEmail = estimate.customer_email || estimate.customers?.email || '';
+  const eventName = estimate.event_details?.name || estimate.quote_requests?.event_name || quote?.event_name || 'Your Event';
+  const eventDate = estimate.event_details?.date || estimate.quote_requests?.event_date || quote?.event_date || '';
+  const eventLocation = estimate.event_details?.location || estimate.quote_requests?.location || quote?.location || '';
+  const guestCount = estimate.event_details?.guest_count || estimate.quote_requests?.guest_count || quote?.guest_count || 0;
 
   return `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-      <h2 style="color: #2563eb;">Soul Train's Eatery</h2>
-      <p>${defaultMessage.replace(/\n/g, '<br>')}</p>
-      
-      <div style="background-color: #f8f9fa; padding: 16px; border-radius: 8px; margin: 16px 0;">
-        <h3 style="margin: 0 0 8px 0;">Event Details</h3>
-        <p><strong>Event:</strong> ${invoice.quote_requests?.event_name}</p>
-        <p><strong>Date:</strong> ${invoice.quote_requests?.event_date}</p>
-        ${invoice.quote_requests?.start_time ? `<p><strong>Start Time:</strong> ${formatTime(invoice.quote_requests.start_time)}</p>` : ''}
-        ${invoice.quote_requests?.serving_start_time ? `<p><strong>Serving Time:</strong> ${formatTime(invoice.quote_requests.serving_start_time)}</p>` : ''}
-        <p><strong>Location:</strong> ${invoice.quote_requests?.location}</p>
-        <p><strong>Guest Count:</strong> ${invoice.quote_requests?.guest_count || 'TBD'}</p>
-        <p><strong>Total Amount:</strong> $${(invoice.total_amount / 100).toFixed(2)}</p>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${customSubject || `Your ${eventName} Estimate - Soul Train's Eatery`}</title>
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f4f4f4; }
+    .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 0; }
+    .header { background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%); color: white; padding: 30px 20px; text-align: center; }
+    .header h1 { margin: 0; font-size: 28px; font-weight: bold; }
+    .header p { margin: 5px 0 0 0; font-size: 16px; opacity: 0.9; }
+    .content { padding: 30px 20px; }
+    .message-section { background: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #8B4513; }
+    .event-details { background: #fff; border: 2px solid #8B4513; border-radius: 8px; padding: 20px; margin: 20px 0; }
+    .event-details h3 { color: #8B4513; margin-top: 0; border-bottom: 2px solid #8B4513; padding-bottom: 8px; }
+    .detail-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
+    .detail-label { font-weight: bold; color: #666; }
+    .line-items { margin: 20px 0; }
+    .line-items h3 { color: #8B4513; border-bottom: 2px solid #8B4513; padding-bottom: 8px; }
+    .line-item { display: flex; justify-content: space-between; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid #eee; }
+    .line-item:last-child { border-bottom: none; }
+    .item-details { flex: 1; }
+    .item-title { font-weight: bold; margin-bottom: 4px; }
+    .item-description { color: #666; font-size: 14px; margin-bottom: 4px; }
+    .item-quantity { color: #888; font-size: 14px; }
+    .item-price { font-weight: bold; color: #8B4513; min-width: 80px; text-align: right; }
+    .totals { background: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0; }
+    .total-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
+    .total-row.final { font-size: 18px; font-weight: bold; color: #8B4513; border-top: 2px solid #8B4513; padding-top: 12px; margin-top: 12px; }
+    .footer { background: #f0f8ff; padding: 20px; text-align: center; border-top: 3px solid #8B4513; }
+    .contact-info { margin: 10px 0; }
+    .contact-info strong { color: #8B4513; }
+    @media (max-width: 600px) {
+      .detail-row, .total-row, .line-item { flex-direction: column; }
+      .item-price { text-align: left; margin-top: 8px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Soul Train's Eatery</h1>
+      <p>Authentic Southern Catering • Charleston's Lowcountry</p>
+    </div>
+
+    <div class="content">
+      <h2 style="color: #8B4513; margin-bottom: 20px;">Estimate for ${eventName}</h2>
+
+      <div class="message-section">
+        <div style="white-space: pre-line; line-height: 1.6;">
+${customMessage || `Dear ${customerName},
+
+Thank you for considering Soul Train's Eatery for your upcoming ${eventName}. We're excited to be part of your special day!
+
+Please review the estimate below for catering services. We've carefully crafted a menu that will bring authentic Southern flavors to your celebration.
+
+If you have any questions or would like to make adjustments, please don't hesitate to reach out. We're here to make your event memorable.
+
+Best regards,
+Soul Train's Eatery Team`}
+        </div>
       </div>
-      
-      ${lineItems.length > 0 ? `
-      <div style="background-color: #ffffff; padding: 16px; border: 1px solid #e5e7eb; border-radius: 8px; margin: 16px 0;">
-        <h3 style="margin: 0 0 12px 0;">Catering Details</h3>
-        <table style="width: 100%; border-collapse: collapse;">
-          <thead>
-            <tr style="border-bottom: 2px solid #e5e7eb;">
-              <th style="text-align: left; padding: 8px; font-weight: 600;">Item</th>
-              <th style="text-align: center; padding: 8px; font-weight: 600;">Qty</th>
-              <th style="text-align: right; padding: 8px; font-weight: 600;">Price</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${lineItems.map(item => `
-              <tr style="border-bottom: 1px solid #f3f4f6;">
-                <td style="padding: 8px;">
-                  <strong>${item.title}</strong>
-                  ${item.description ? `<br><small style="color: #6b7280;">${item.description}</small>` : ''}
-                </td>
-                <td style="text-align: center; padding: 8px;">${item.quantity}</td>
-                <td style="text-align: right; padding: 8px;">$${(item.total_price / 100).toFixed(2)}</td>
-              </tr>
-            `).join('')}
-            <tr style="border-top: 2px solid #e5e7eb;">
-              <td colspan="2" style="padding: 8px; font-weight: 600;">Subtotal:</td>
-              <td style="text-align: right; padding: 8px; font-weight: 600;">$${(invoice.subtotal / 100).toFixed(2)}</td>
-            </tr>
-            ${invoice.tax_amount > 0 ? `
-            <tr>
-              <td colspan="2" style="padding: 8px;">Tax:</td>
-              <td style="text-align: right; padding: 8px;">$${(invoice.tax_amount / 100).toFixed(2)}</td>
-            </tr>
-            ` : ''}
-            <tr style="background-color: #f9fafb;">
-              <td colspan="2" style="padding: 12px; font-weight: 700; font-size: 16px;">Total:</td>
-              <td style="text-align: right; padding: 12px; font-weight: 700; font-size: 16px;">$${(invoice.total_amount / 100).toFixed(2)}</td>
-            </tr>
-          </tbody>
-        </table>
+
+      <div class="event-details">
+        <h3>Event Details</h3>
+        ${eventDate ? `<div class="detail-row"><span class="detail-label">Date:</span> <span>${formatDate(eventDate)}</span></div>` : ''}
+        ${eventLocation ? `<div class="detail-row"><span class="detail-label">Location:</span> <span>${eventLocation}</span></div>` : ''}
+        ${guestCount ? `<div class="detail-row"><span class="detail-label">Expected Guests:</span> <span>${guestCount}</span></div>` : ''}
+        <div class="detail-row"><span class="detail-label">Customer:</span> <span>${customerName}</span></div>
+        ${customerEmail ? `<div class="detail-row"><span class="detail-label">Email:</span> <span>${customerEmail}</span></div>` : ''}
       </div>
-      ` : ''}
-      
-      <div style="text-align: center; margin: 24px 0;">
-        <a href="${previewUrl}" style="background-color: ${isEstimate ? '#16a34a' : '#2563eb'}; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; margin-right: 12px;">
-          ${isEstimate ? `Review & Approve Estimate` : `View Invoice & Pay`}
-        </a>
-        ${isEstimate ? `
-        <a href="tel:8439700265" style="background-color: #f59e0b; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
-          Request Changes
-        </a>
+
+      <div class="line-items">
+        <h3>Services & Items</h3>
+        ${(estimate.line_items || []).map((item: any) => `
+          <div class="line-item">
+            <div class="item-details">
+              <div class="item-title">${item.title}</div>
+              ${item.description ? `<div class="item-description">${item.description}</div>` : ''}
+              <div class="item-quantity">${item.quantity} × ${formatCurrency(item.unit_price)}</div>
+            </div>
+            <div class="item-price">${formatCurrency(item.total_price)}</div>
+          </div>
+        `).join('')}
+      </div>
+
+      <div class="totals">
+        <div class="total-row">
+          <span>Subtotal:</span>
+          <span>${formatCurrency(estimate.subtotal || 0)}</span>
+        </div>
+        <div class="total-row">
+          <span>Tax:</span>
+          <span>${formatCurrency(estimate.tax_amount || 0)}</span>
+        </div>
+        <div class="total-row final">
+          <span>Total Amount:</span>
+          <span>${formatCurrency(estimate.total_amount || 0)}</span>
+        </div>
+        ${estimate.deposit_required && estimate.deposit_required > 0 ? `
+        <div class="total-row" style="color: #666; font-size: 14px; margin-top: 10px;">
+          <span>Deposit Required:</span>
+          <span>${formatCurrency(estimate.deposit_required)}</span>
+        </div>
         ` : ''}
       </div>
-      
-      <p>📞 (843) 970-0265<br>
-      📧 soultrainseatery@gmail.com</p>
-      
-      <p>We look forward to making your event memorable!</p>
+
+      ${estimate.notes ? `
+      <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin: 20px 0;">
+        <h4 style="color: #8B4513; margin-top: 0;">Additional Notes</h4>
+        <p style="margin: 0;">${estimate.notes}</p>
+      </div>
+      ` : ''}
     </div>
+
+    <div class="footer">
+      <h3 style="color: #8B4513; margin-top: 0;">Ready to Move Forward?</h3>
+      <div class="contact-info">
+        <strong>Phone:</strong> (843) 970-0265
+      </div>
+      <div class="contact-info">
+        <strong>Email:</strong> soultrainseatery@gmail.com
+      </div>
+      <p style="margin-top: 15px; color: #666; font-size: 14px;">
+        Proudly serving Charleston's Lowcountry and surrounding areas
+      </p>
+    </div>
+  </div>
+</body>
+</html>
   `;
 }
-
-function formatTime(timeString: string): string {
-  try {
-    // Handle time in HH:MM format
-    const [hours, minutes] = timeString.split(':').map(Number);
-    const date = new Date();
-    date.setHours(hours, minutes, 0, 0);
-    
-    return date.toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
-    });
-  } catch (error) {
-    return timeString; // Return original if parsing fails
-  }
-}
-
-serve(handler);

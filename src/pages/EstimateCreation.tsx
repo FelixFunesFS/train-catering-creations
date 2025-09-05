@@ -11,7 +11,7 @@ import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { EstimateNextSteps } from '@/components/admin/EstimateNextSteps';
-import { EmailPreviewModal } from '@/components/admin/EmailPreviewModal';
+import { EstimatePreviewModal } from '@/components/admin/EstimatePreviewModal';
 import { 
   formatCustomerName, 
   formatCustomerPhone, 
@@ -99,7 +99,7 @@ export default function EstimateCreation({
   const [customerId, setCustomerId] = useState<string | null>(null);
   const [showNextSteps, setShowNextSteps] = useState(false);
   const [currentStatus, setCurrentStatus] = useState('draft');
-  const [showEmailPreview, setShowEmailPreview] = useState(false);
+  const [showEstimatePreview, setShowEstimatePreview] = useState(false);
   const [existingInvoiceData, setExistingInvoiceData] = useState<any>(null);
 
   // Generate payment schedule for display - MUST be before any early returns
@@ -410,12 +410,11 @@ export default function EstimateCreation({
   const handleSaveEstimate = async () => {
     if (!estimate) return;
 
-    // If we already have an invoice ID, check for changes and create new version if needed
+    // If we already have an invoice ID, update existing
     if (invoiceId) {
       return await handleUpdateEstimate();
     }
 
-    setIsSaving(true);
     try {
       // Create customer if doesn't exist
       let customerId: string;
@@ -439,12 +438,15 @@ export default function EstimateCreation({
           .select('id')
           .single();
 
-        if (customerError) throw customerError;
+        if (customerError) {
+          console.error('Customer creation error:', customerError);
+          throw customerError;
+        }
         customerId = newCustomer.id;
         setCustomerId(customerId);
       }
 
-      // Create final estimate
+      // Create invoice
       const { data: invoiceData, error: invoiceError } = await supabase
         .from('invoices')
         .insert({
@@ -466,8 +468,13 @@ export default function EstimateCreation({
         .select('id')
         .single();
 
-        if (invoiceError) throw invoiceError;
-        setInvoiceId(invoiceData.id);
+      if (invoiceError) {
+        console.error('Invoice creation error:', invoiceError);
+        throw invoiceError;
+      }
+      
+      console.log('Created invoice with ID:', invoiceData.id);
+      setInvoiceId(invoiceData.id);
 
       // Create line items
       const lineItemsToInsert = estimate.line_items.map(item => ({
@@ -484,13 +491,16 @@ export default function EstimateCreation({
         .from('invoice_line_items')
         .insert(lineItemsToInsert);
 
-      if (lineItemsError) throw lineItemsError;
+      if (lineItemsError) {
+        console.error('Line items creation error:', lineItemsError);
+        throw lineItemsError;
+      }
 
-      // Update quote status to show estimate in progress
+      // Update quote status
       await supabase
         .from('quote_requests')
         .update({ 
-          status: 'pending', // Keep as pending since estimate is just a draft
+          status: 'pending',
           estimated_total: estimate.total_amount,
           workflow_status: 'estimated'
         })
@@ -667,21 +677,8 @@ export default function EstimateCreation({
     }
 
     try {
-      // First save the estimate if not already saved
-      let previewInvoiceId = invoiceId;
-      if (!previewInvoiceId) {
-        console.log('No invoice ID, saving estimate first...');
-        previewInvoiceId = await handleSaveEstimate();
-      }
-
-      if (!previewInvoiceId) {
-        throw new Error('Failed to save estimate for preview');
-      }
-
-      console.log('Opening preview for invoice:', previewInvoiceId);
-      // Open preview using the saved invoice ID
-      const previewUrl = `/admin/estimate-preview/${previewInvoiceId}`;
-      window.open(previewUrl, '_blank');
+      // Show the unified preview modal instead of external preview
+      setShowEstimatePreview(true);
       
     } catch (error) {
       console.error('Error generating preview:', error);
@@ -834,7 +831,7 @@ export default function EstimateCreation({
                   onBack={isEmbedded ? undefined : () => navigate('/admin')}
                   onPreview={handleGeneratePreview}
                   onSave={handleSaveEstimate}
-                  onSend={() => setShowEmailPreview(true)}
+                  onSend={() => setShowEstimatePreview(true)}
                 />
               </div>
             </div>
@@ -1035,32 +1032,15 @@ export default function EstimateCreation({
           </div>
         </div>
 
-        {/* Email Preview Modal */}
-        {showEmailPreview && invoiceId && estimate && (
-          <EmailPreviewModal
-            isOpen={showEmailPreview}
-            onClose={() => setShowEmailPreview(false)}
-            estimateData={{
-              id: invoiceId,
-              customers: {
-                name: estimate.customer_name,
-                email: estimate.customer_email
-              },
-              quote_requests: {
-                event_name: estimate.event_details.name,
-                event_date: estimate.event_details.date,
-                location: estimate.event_details.location,
-                guest_count: estimate.event_details.guest_count
-              },
-              total_amount: estimate.total_amount,
-              subtotal: estimate.subtotal,
-              tax_amount: estimate.tax_amount,
-              notes: estimate.notes,
-              is_government_contract: estimate.is_government_contract
-            } as any}
-            lineItems={estimate.line_items}
+        {/* Estimate Preview Modal */}
+        {showEstimatePreview && estimate && quote && (
+          <EstimatePreviewModal
+            isOpen={showEstimatePreview}
+            onClose={() => setShowEstimatePreview(false)}
+            estimate={estimate}
+            quote={quote}
             onEmailSent={() => {
-              setShowEmailPreview(false);
+              setShowEstimatePreview(false);
               setShowNextSteps(true);
               setCurrentStatus('sent');
               toast({
