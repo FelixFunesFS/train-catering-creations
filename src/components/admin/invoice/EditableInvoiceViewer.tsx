@@ -7,6 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useLineItemManagement } from '@/hooks/useLineItemManagement';
 import { 
   FileText, 
   Download, 
@@ -19,7 +21,9 @@ import {
   Trash2,
   Edit3,
   Check,
-  X
+  X,
+  AlertCircle,
+  Calculator
 } from 'lucide-react';
 
 interface LineItem {
@@ -94,14 +98,31 @@ export function EditableInvoiceViewer({
   onSave,
   onCancel
 }: EditableInvoiceViewerProps) {
-  const [editableInvoice, setEditableInvoice] = useState<InvoiceData>(invoice);
   const [editingItem, setEditingItem] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [taxRate, setTaxRate] = useState(8.0);
-
-  useEffect(() => {
-    setEditableInvoice(invoice);
-  }, [invoice]);
+  
+  // Use the line item management hook
+  const {
+    lineItems,
+    isModified,
+    updateLineItem,
+    addLineItem,
+    removeLineItem,
+    addTemplateItem,
+    validateLineItems,
+    resetLineItems,
+    getCommonTemplates
+  } = useLineItemManagement({
+    initialLineItems: invoice.line_items,
+    taxRate,
+    onTotalsChange: (totals) => {
+      // Update invoice totals in real-time
+      invoice.subtotal = totals.subtotal;
+      invoice.tax_amount = totals.tax_amount;
+      invoice.total_amount = totals.total_amount;
+    }
+  });
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -152,73 +173,26 @@ export function EditableInvoiceViewer({
     }
   };
 
-  const calculateTotals = (lineItems: LineItem[]) => {
-    const subtotal = lineItems.reduce((sum, item) => sum + item.total_price, 0);
-    const tax_amount = Math.round(subtotal * (taxRate / 100));
-    const total_amount = subtotal + tax_amount;
-    return { subtotal, tax_amount, total_amount };
-  };
-
-  const updateLineItem = (itemId: string, updates: Partial<LineItem>) => {
-    const updatedItems = editableInvoice.line_items.map(item => {
-      if (item.id === itemId) {
-        const updated = { ...item, ...updates };
-        if (updates.quantity !== undefined || updates.unit_price !== undefined) {
-          updated.total_price = updated.quantity * updated.unit_price;
-        }
-        return updated;
-      }
-      return item;
-    });
-
-    const totals = calculateTotals(updatedItems);
-    setEditableInvoice({
-      ...editableInvoice,
-      line_items: updatedItems,
-      ...totals
-    });
-  };
-
-  const addLineItem = () => {
-    const newItem: LineItem = {
-      id: `item_${Date.now()}`,
-      title: 'New Item',
-      description: '',
-      quantity: 1,
-      unit_price: 0,
-      total_price: 0,
-      category: 'other'
-    };
-
-    const updatedItems = [...editableInvoice.line_items, newItem];
-    const totals = calculateTotals(updatedItems);
-    
-    setEditableInvoice({
-      ...editableInvoice,
-      line_items: updatedItems,
-      ...totals
-    });
-    
-    setEditingItem(newItem.id);
-  };
-
-  const removeLineItem = (itemId: string) => {
-    const updatedItems = editableInvoice.line_items.filter(item => item.id !== itemId);
-    const totals = calculateTotals(updatedItems);
-    
-    setEditableInvoice({
-      ...editableInvoice,
-      line_items: updatedItems,
-      ...totals
-    });
-  };
-
   const handleSave = async () => {
     if (!onSave) return;
     
+    // Validate before saving
+    const validationErrors = validateLineItems();
+    if (validationErrors.length > 0) {
+      return; // Validation errors are handled by the hook
+    }
+    
     setIsSaving(true);
     try {
-      await onSave(editableInvoice);
+      const updatedInvoice = {
+        ...invoice,
+        line_items: lineItems,
+        subtotal: invoice.subtotal,
+        tax_amount: invoice.tax_amount,
+        total_amount: invoice.total_amount
+      };
+      
+      await onSave(updatedInvoice);
       setEditingItem(null);
     } catch (error) {
       console.error('Error saving invoice:', error);
@@ -228,9 +202,21 @@ export function EditableInvoiceViewer({
   };
 
   const handleCancel = () => {
-    setEditableInvoice(invoice);
+    if (isModified) {
+      const confirmDiscard = window.confirm(
+        'You have unsaved changes. Are you sure you want to cancel?'
+      );
+      if (!confirmDiscard) return;
+    }
+    
+    resetLineItems();
     setEditingItem(null);
     onCancel?.();
+  };
+
+  const handleAddTemplate = (templateType: string) => {
+    const guestCount = quote?.guest_count || 50;
+    addTemplateItem(templateType, guestCount);
   };
 
   return (
@@ -247,18 +233,27 @@ export function EditableInvoiceViewer({
           </div>
           <div className="text-right">
             <h2 className="text-2xl font-semibold">{documentType.toUpperCase()}</h2>
-            {editableInvoice.invoice_number && (
-              <p className="text-muted-foreground">#{editableInvoice.invoice_number}</p>
+            {invoice.invoice_number && (
+              <p className="text-muted-foreground">#{invoice.invoice_number}</p>
             )}
-            {editableInvoice.status && (
-              <Badge className={getStatusColor(editableInvoice.status)}>
-                {editableInvoice.status.toUpperCase()}
+            {invoice.status && (
+              <Badge className={getStatusColor(invoice.status)}>
+                {invoice.status.toUpperCase()}
               </Badge>
             )}
             {isEditMode && (
-              <Badge variant="outline" className="mt-2">
-                Edit Mode
-              </Badge>
+              <div className="flex flex-col gap-2 mt-2">
+                <Badge variant="outline" className="text-primary">
+                  <Edit3 className="h-3 w-3 mr-1" />
+                  Edit Mode
+                </Badge>
+                {isModified && (
+                  <Badge variant="outline" className="text-warning">
+                    <AlertCircle className="h-3 w-3 mr-1" />
+                    Unsaved Changes
+                  </Badge>
+                )}
+              </div>
             )}
           </div>
         </div>
@@ -318,10 +313,10 @@ export function EditableInvoiceViewer({
           )}
         </div>
 
-        {editableInvoice.due_date && (
+        {invoice.due_date && (
           <div className="flex justify-between text-sm">
             <span>Invoice Date: {new Date().toLocaleDateString()}</span>
-            <span>Due Date: {new Date(editableInvoice.due_date).toLocaleDateString()}</span>
+            <span>Due Date: {new Date(invoice.due_date).toLocaleDateString()}</span>
           </div>
         )}
       </CardHeader>
@@ -332,10 +327,24 @@ export function EditableInvoiceViewer({
           <div className="flex justify-between items-center">
             <h3 className="font-semibold text-lg">Services & Items</h3>
             {isEditMode && (
-              <Button onClick={addLineItem} size="sm" variant="outline">
-                <Plus className="h-4 w-4 mr-2" />
-                Add Item
-              </Button>
+              <div className="flex gap-2">
+                <Button onClick={() => addLineItem()} size="sm" variant="outline">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Item
+                </Button>
+                <Select onValueChange={handleAddTemplate}>
+                  <SelectTrigger className="w-40">
+                    <SelectValue placeholder="Quick Add" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {getCommonTemplates().map(template => (
+                      <SelectItem key={template.id} value={template.id}>
+                        {template.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             )}
           </div>
           
@@ -348,7 +357,7 @@ export function EditableInvoiceViewer({
               {isEditMode && <div className="col-span-1">Actions</div>}
             </div>
             
-            {editableInvoice.line_items.map((item, index) => (
+            {lineItems.map((item, index) => (
               <div key={item.id || index} className="px-4 py-3 border-t grid grid-cols-12 gap-4 text-sm items-center">
                 <div className="col-span-5">
                   {isEditMode && editingItem === item.id ? (
@@ -472,18 +481,18 @@ export function EditableInvoiceViewer({
           <div className="w-full max-w-sm space-y-2">
             <div className="flex justify-between text-sm">
               <span>Subtotal:</span>
-              <span>{formatCurrency(editableInvoice.subtotal)}</span>
+              <span>{formatCurrency(invoice.subtotal)}</span>
             </div>
-            {editableInvoice.tax_amount > 0 && (
+            {invoice.tax_amount > 0 && (
               <div className="flex justify-between text-sm">
                 <span>Tax ({taxRate}%):</span>
-                <span>{formatCurrency(editableInvoice.tax_amount)}</span>
+                <span>{formatCurrency(invoice.tax_amount)}</span>
               </div>
             )}
             <Separator />
             <div className="flex justify-between text-lg font-semibold">
               <span>Total:</span>
-              <span>{formatCurrency(editableInvoice.total_amount)}</span>
+              <span>{formatCurrency(invoice.total_amount)}</span>
             </div>
           </div>
         </div>
@@ -522,20 +531,20 @@ export function EditableInvoiceViewer({
               </>
             ) : (
               <>
-                {editableInvoice.status === 'draft' && onSend && editableInvoice.id && (
-                  <Button onClick={() => onSend(editableInvoice.id!)} className="flex items-center gap-2">
+                {invoice.status === 'draft' && onSend && invoice.id && (
+                  <Button onClick={() => onSend(invoice.id!)} className="flex items-center gap-2">
                     <Send className="h-4 w-4" />
                     Send {documentType === 'estimate' ? 'Estimate' : 'Invoice'}
                   </Button>
                 )}
-                {editableInvoice.pdf_url && onDownload && editableInvoice.id && (
-                  <Button variant="outline" onClick={() => onDownload(editableInvoice.id!)}>
+                {invoice.pdf_url && onDownload && invoice.id && (
+                  <Button variant="outline" onClick={() => onDownload(invoice.id!)}>
                     <Download className="h-4 w-4" />
                     Download PDF
                   </Button>
                 )}
-                {editableInvoice.stripe_invoice_id && onViewInStripe && (
-                  <Button variant="outline" onClick={() => onViewInStripe(editableInvoice.stripe_invoice_id!)}>
+                {invoice.stripe_invoice_id && onViewInStripe && (
+                  <Button variant="outline" onClick={() => onViewInStripe(invoice.stripe_invoice_id!)}>
                     <ExternalLink className="h-4 w-4" />
                     View in Stripe
                   </Button>

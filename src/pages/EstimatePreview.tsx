@@ -12,6 +12,7 @@ import { EditableInvoiceViewer } from '@/components/admin/invoice/EditableInvoic
 import { ChangeRequestModal } from '@/components/customer/ChangeRequestModal';
 import { EstimatePreviewActions } from '@/components/admin/EstimatePreviewActions';
 import { useInvoiceEditing } from '@/hooks/useInvoiceEditing';
+import { useLineItemManagement } from '@/hooks/useLineItemManagement';
 import { 
   FileText, 
   Download, 
@@ -89,7 +90,7 @@ export default function EstimatePreview() {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
-  const { isEditMode, isSaving, toggleEditMode, exitEditMode, saveInvoiceChanges } = useInvoiceEditing();
+  const { isEditMode, isSaving, hasUnsavedChanges, toggleEditMode, exitEditMode, saveWithBackup } = useInvoiceEditing();
   const [estimate, setEstimate] = useState<EstimateData | null>(null);
   const [lineItems, setLineItems] = useState<LineItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -399,7 +400,7 @@ export default function EstimatePreview() {
   const handleSaveEstimate = async (updatedInvoice: any) => {
     if (!estimate?.id) return;
     
-    const success = await saveInvoiceChanges(estimate.id, updatedInvoice);
+    const success = await saveWithBackup(estimate.id, updatedInvoice);
     if (success) {
       // Refresh the estimate data
       await fetchEstimate();
