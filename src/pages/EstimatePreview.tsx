@@ -10,10 +10,18 @@ import { supabase } from '@/integrations/supabase/client';
 import { InvoiceViewer } from '@/components/admin/invoice/InvoiceViewer';
 import { EditableInvoiceViewer } from '@/components/admin/invoice/EditableInvoiceViewer';
 import { ChangeRequestModal } from '@/components/customer/ChangeRequestModal';
+import { CustomerInvoiceViewer } from '@/components/customer/CustomerInvoiceViewer';
 import { EstimatePreviewActions } from '@/components/admin/EstimatePreviewActions';
 import { useInvoiceEditing } from '@/hooks/useInvoiceEditing';
 import { useLineItemManagement } from '@/hooks/useLineItemManagement';
 import { useKeyboardShortcuts, SHORTCUTS } from '@/hooks/useKeyboardShortcuts';
+import { 
+  isAdminContext, 
+  isCustomerContext, 
+  getContextFeatures, 
+  validateEstimatePreviewRoute,
+  requireAdminContext 
+} from '@/utils/contextGuards';
 import { 
   FileText, 
   Download, 
@@ -91,7 +99,22 @@ export default function EstimatePreview() {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
-  const { isEditMode, isSaving, hasUnsavedChanges, toggleEditMode, exitEditMode, saveWithBackup } = useInvoiceEditing();
+  
+  // Context validation and feature flags
+  const pathname = location.pathname;
+  const contextFeatures = getContextFeatures(pathname);
+  const routeValidation = validateEstimatePreviewRoute(pathname, invoiceId);
+  
+  // Only initialize admin editing features if in admin context
+  const adminEditingHook = contextFeatures.canEdit ? useInvoiceEditing() : null;
+  const { isEditMode, isSaving, hasUnsavedChanges, toggleEditMode, exitEditMode, saveWithBackup } = adminEditingHook || {
+    isEditMode: false,
+    isSaving: false,
+    hasUnsavedChanges: false,
+    toggleEditMode: () => {},
+    exitEditMode: () => {},
+    saveWithBackup: async () => false
+  };
   const [estimate, setEstimate] = useState<EstimateData | null>(null);
   const [lineItems, setLineItems] = useState<LineItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -104,18 +127,23 @@ export default function EstimatePreview() {
   const urlParams = new URLSearchParams(location.search);
   const previewData = urlParams.get('data');
   
-  // Check if we're in admin context
-  const isAdminView = location.pathname.startsWith('/admin');
-  const isCustomerView = !isAdminView;
+  // Check if we're in admin context  
+  const currentIsAdminContext = isAdminContext(pathname);
+  const currentIsCustomerContext = isCustomerContext(pathname);
 
-  // Setup keyboard shortcuts for admin context
+  // Validate route format
+  if (!routeValidation.isValid) {
+    console.error('Invalid estimate preview route:', routeValidation.error);
+  }
+
+  // Setup keyboard shortcuts only for admin context
   useKeyboardShortcuts({
     shortcuts: {
-      [SHORTCUTS.SAVE]: () => isEditMode && handleSaveEstimate,
-      [SHORTCUTS.CANCEL]: () => isEditMode && toggleEditMode,
-      [SHORTCUTS.EDIT]: () => !isEditMode && toggleEditMode
+      [SHORTCUTS.SAVE]: () => contextFeatures.canEdit && isEditMode && handleSaveEstimate,
+      [SHORTCUTS.CANCEL]: () => contextFeatures.canEdit && isEditMode && toggleEditMode,
+      [SHORTCUTS.EDIT]: () => contextFeatures.canEdit && !isEditMode && toggleEditMode
     },
-    enabled: isAdminView && isEditMode
+    enabled: currentIsAdminContext && contextFeatures.canEdit
   });
 
   useEffect(() => {
@@ -384,7 +412,12 @@ export default function EstimatePreview() {
   };
 
   const handleEditEstimate = () => {
-    if (isAdminContext) {
+    // Guard: Only allow editing in admin context
+    if (!requireAdminContext(pathname, 'Edit Estimate')) {
+      return;
+    }
+
+    if (currentIsAdminContext) {
       toggleEditMode();
     } else if (estimate?.id === 'preview') {
       // Go back to previous page for preview mode
@@ -409,7 +442,10 @@ export default function EstimatePreview() {
   };
 
   const handleSaveEstimate = async (updatedInvoice: any) => {
-    if (!estimate?.id) return;
+    // Guard: Only allow saving in admin context
+    if (!requireAdminContext(pathname, 'Save Estimate') || !estimate?.id) {
+      return;
+    }
     
     const success = await saveWithBackup(estimate.id, updatedInvoice);
     if (success) {
@@ -623,15 +659,14 @@ export default function EstimatePreview() {
 
   const isApproved = estimate.status === 'customer_approved' || estimate.status === 'approved';
   const isPreview = estimate.id === 'preview';
-  const isAdminContext = location.pathname.startsWith('/admin');
   const paymentSchedule = calculatePaymentSchedule(
     estimate.total_amount, 
     estimate.quote_requests.event_date,
     estimate.draft_data?.is_government_contract
   );
 
-  // If this is an admin context, wrap in AdminLayout
-  if (isAdminContext) {
+  // If this is an admin context, wrap in AdminLayout and use admin components
+  if (currentIsAdminContext) {
     return (
       <AdminLayout 
         title={estimate.status === 'customer_approved' || estimate.status === 'paid' ? 'INVOICE' : 'ESTIMATE'}
@@ -679,13 +714,13 @@ export default function EstimatePreview() {
             isApproved={isApproved}
             isPreview={isPreview}
             isAdminContext={true}
-            isEditMode={isEditMode}
+            isEditMode={contextFeatures.canEdit ? isEditMode : false}
             handleApproveEstimate={handleApproveEstimate}
             handleDownloadPDF={handleDownloadPDF}
-            handleEditEstimate={handleEditEstimate}
+            handleEditEstimate={contextFeatures.canEdit ? handleEditEstimate : () => {}}
             handleEmailCustomer={handleEmailCustomer}
             handlePayDeposit={handlePayDeposit}
-            handleSaveEstimate={handleSaveEstimate}
+            handleSaveEstimate={contextFeatures.canEdit ? handleSaveEstimate : undefined}
             approving={approving}
             emailingCustomer={emailingCustomer}
             processingPayment={processingPayment}
@@ -697,10 +732,10 @@ export default function EstimatePreview() {
     );
   }
 
-  // Regular customer-facing layout
+  // Customer-facing layout with dedicated customer components
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
+      {/* Customer Header */}
       <div className="border-b bg-card">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
@@ -725,16 +760,18 @@ export default function EstimatePreview() {
                 if (isPreview) {
                   window.close();
                 } else {
-                  navigate(`/admin/estimate-workflow/${estimate.id}`);
+                  navigate('/');
                 }
               }}>
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                {isPreview ? 'Close Preview' : 'Back to Workflow'}
+                {isPreview ? 'Close Preview' : 'Back'}
               </Button>
-              <Button variant="outline" onClick={handleDownloadPDF}>
-                <Download className="h-4 w-4 mr-2" />
-                Download PDF
-              </Button>
+              {contextFeatures.canDownloadPDF && (
+                <Button variant="outline" onClick={handleDownloadPDF}>
+                  <Download className="h-4 w-4 mr-2" />
+                  Download PDF
+                </Button>
+              )}
             </div>
           </div>
         </div>
@@ -742,9 +779,9 @@ export default function EstimatePreview() {
 
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content */}
+          {/* Main Content - Use Customer-specific component */}
           <div className="lg:col-span-2">
-            <InvoiceViewer
+            <CustomerInvoiceViewer
               invoice={{
                 id: estimate.id,
                 invoice_number: estimate.invoice_number,
@@ -761,7 +798,7 @@ export default function EstimatePreview() {
                 contact_name: estimate.quote_requests.contact_name,
                 email: estimate.quote_requests.email
               }}
-              showActions={isAdminContext}
+              showActions={false} // Customer components have limited actions
               documentType={estimate.status === 'customer_approved' || estimate.status === 'paid' ? 'invoice' : 'estimate'}
             />
 
