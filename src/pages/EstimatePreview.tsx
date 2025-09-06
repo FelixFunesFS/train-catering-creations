@@ -8,8 +8,10 @@ import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { InvoiceViewer } from '@/components/admin/invoice/InvoiceViewer';
+import { EditableInvoiceViewer } from '@/components/admin/invoice/EditableInvoiceViewer';
 import { ChangeRequestModal } from '@/components/customer/ChangeRequestModal';
 import { EstimatePreviewActions } from '@/components/admin/EstimatePreviewActions';
+import { useInvoiceEditing } from '@/hooks/useInvoiceEditing';
 import { 
   FileText, 
   Download, 
@@ -19,7 +21,8 @@ import {
   Loader2,
   MessageSquare,
   Edit3,
-  Send
+  Send,
+  X
 } from 'lucide-react';
 import { EstimateActionBar } from '@/components/admin/EstimateActionBar';
 import { SimplifiedActionButton } from '@/components/admin/SimplifiedActionButton';
@@ -86,6 +89,7 @@ export default function EstimatePreview() {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
+  const { isEditMode, isSaving, toggleEditMode, exitEditMode, saveInvoiceChanges } = useInvoiceEditing();
   const [estimate, setEstimate] = useState<EstimateData | null>(null);
   const [lineItems, setLineItems] = useState<LineItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -368,25 +372,38 @@ export default function EstimatePreview() {
   };
 
   const handleEditEstimate = () => {
-    if (estimate?.id === 'preview') {
+    if (isAdminContext) {
+      toggleEditMode();
+    } else if (estimate?.id === 'preview') {
       // Go back to previous page for preview mode
       window.close();
       return;
-    }
-    
-    // Navigate to the correct route based on whether we have an invoice or just a quote
-    if (estimate?.id && estimate.id !== 'preview') {
-      // Edit existing estimate/invoice
-      navigate(`/admin/estimate/${estimate.id}`);
-    } else if (estimate?.quote_requests?.id) {
-      // Create new estimate from quote
-      navigate(`/admin/estimate/quote/${estimate.quote_requests.id}`);
     } else {
-      toast({
-        title: "Error",
-        description: "Unable to determine edit route. Missing invoice or quote information.",
-        variant: "destructive",
-      });
+      // Navigate to the correct route based on whether we have an invoice or just a quote
+      if (estimate?.id && estimate.id !== 'preview') {
+        // Edit existing estimate/invoice
+        navigate(`/admin/estimate/${estimate.id}`);
+      } else if (estimate?.quote_requests?.id) {
+        // Create new estimate from quote
+        navigate(`/admin/estimate/quote/${estimate.quote_requests.id}`);
+      } else {
+        toast({
+          title: "Error",
+          description: "Unable to determine edit route. Missing invoice or quote information.",
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
+  const handleSaveEstimate = async (updatedInvoice: any) => {
+    if (!estimate?.id) return;
+    
+    const success = await saveInvoiceChanges(estimate.id, updatedInvoice);
+    if (success) {
+      // Refresh the estimate data
+      await fetchEstimate();
+      exitEditMode();
     }
   };
 
@@ -610,24 +627,60 @@ export default function EstimatePreview() {
         showBackButton={true}
         backUrl="/admin"
       >
-        <EstimateContent 
-          estimate={estimate}
-          lineItems={lineItems}
-          paymentSchedule={paymentSchedule}
-          isApproved={isApproved}
-          isPreview={isPreview}
-          isAdminContext={true}
-          handleApproveEstimate={handleApproveEstimate}
-          handleDownloadPDF={handleDownloadPDF}
-          handleEditEstimate={handleEditEstimate}
-          handleEmailCustomer={handleEmailCustomer}
-          handlePayDeposit={handlePayDeposit}
-          approving={approving}
-          emailingCustomer={emailingCustomer}
-          processingPayment={processingPayment}
-          setShowChangeRequest={setShowChangeRequest}
-          showChangeRequest={showChangeRequest}
-        />
+        <div className="space-y-4">
+          {/* Edit Mode Controls */}
+          <div className="flex justify-between items-center">
+            <div>
+              {isEditMode && (
+                <Badge variant="outline" className="text-primary">
+                  <Edit3 className="h-3 w-3 mr-1" />
+                  Edit Mode
+                </Badge>
+              )}
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant={isEditMode ? "default" : "outline"}
+                onClick={toggleEditMode}
+                disabled={isSaving}
+                className="flex items-center gap-2"
+              >
+                {isEditMode ? (
+                  <>
+                    <X className="h-4 w-4" />
+                    Cancel Edit
+                  </>
+                ) : (
+                  <>
+                    <Edit3 className="h-4 w-4" />
+                    Edit Estimate
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+
+          <EstimateContent 
+            estimate={estimate}
+            lineItems={lineItems}
+            paymentSchedule={paymentSchedule}
+            isApproved={isApproved}
+            isPreview={isPreview}
+            isAdminContext={true}
+            isEditMode={isEditMode}
+            handleApproveEstimate={handleApproveEstimate}
+            handleDownloadPDF={handleDownloadPDF}
+            handleEditEstimate={handleEditEstimate}
+            handleEmailCustomer={handleEmailCustomer}
+            handlePayDeposit={handlePayDeposit}
+            handleSaveEstimate={handleSaveEstimate}
+            approving={approving}
+            emailingCustomer={emailingCustomer}
+            processingPayment={processingPayment}
+            setShowChangeRequest={setShowChangeRequest}
+            showChangeRequest={showChangeRequest}
+          />
+        </div>
       </AdminLayout>
     );
   }
@@ -877,11 +930,13 @@ interface EstimateContentProps {
   isApproved: boolean;
   isPreview: boolean;
   isAdminContext?: boolean;
+  isEditMode?: boolean;
   handleApproveEstimate: () => void;
   handleDownloadPDF: () => void;
   handleEditEstimate: () => void;
   handleEmailCustomer: () => void;
   handlePayDeposit: () => void;
+  handleSaveEstimate?: (updatedInvoice: any) => Promise<void>;
   approving: boolean;
   emailingCustomer: boolean;
   processingPayment: boolean;
@@ -896,11 +951,13 @@ function EstimateContent({
   isApproved,
   isPreview,
   isAdminContext = false,
+  isEditMode = false,
   handleApproveEstimate,
   handleDownloadPDF,
   handleEditEstimate,
   handleEmailCustomer,
   handlePayDeposit,
+  handleSaveEstimate,
   approving,
   emailingCustomer,
   processingPayment,
@@ -951,16 +1008,32 @@ function EstimateContent({
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            <InvoiceViewer
-              invoice={{
-                ...estimate,
-                line_items: lineItems
-              }}
-              customer={estimate.customers}
-              quote={estimate.quote_requests}
-              documentType={documentType}
-              showActions={isAdminContext}
-            />
+            {isAdminContext && isEditMode ? (
+              <EditableInvoiceViewer
+                invoice={{
+                  ...estimate,
+                  line_items: lineItems
+                }}
+                customer={estimate.customers}
+                quote={estimate.quote_requests}
+                documentType={documentType}
+                showActions={true}
+                isEditMode={isEditMode}
+                onSave={handleSaveEstimate}
+                onCancel={() => handleEditEstimate()}
+              />
+            ) : (
+              <InvoiceViewer
+                invoice={{
+                  ...estimate,
+                  line_items: lineItems
+                }}
+                customer={estimate.customers}
+                quote={estimate.quote_requests}
+                documentType={documentType}
+                showActions={isAdminContext}
+              />
+            )}
           </div>
 
           {/* Sidebar */}
