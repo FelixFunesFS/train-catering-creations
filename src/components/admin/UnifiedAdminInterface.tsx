@@ -4,11 +4,13 @@ import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { InvoiceManagementTab } from '@/components/admin/InvoiceManagementTab';
 import { NewRequestsWorkflow } from '@/components/admin/NewRequestsWorkflow';
 import { UnifiedQuoteWorkflow } from '@/components/admin/UnifiedQuoteWorkflow';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { 
   LayoutDashboard, 
@@ -16,7 +18,8 @@ import {
   Target,
   DollarSign,
   Calendar,
-  Users
+  Users,
+  LogOut
 } from 'lucide-react';
 
 interface UnifiedAdminData {
@@ -38,6 +41,7 @@ export function UnifiedAdminInterface() {
   const [loading, setLoading] = useState(true);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const { toast } = useToast();
+  const { user, signOut } = useAuth();
 
   useEffect(() => {
     fetchAllData();
@@ -266,6 +270,20 @@ export function UnifiedAdminInterface() {
                 <h1 className="text-base lg:text-xl font-bold text-foreground truncate">Admin Dashboard</h1>
                 <p className="text-xs text-muted-foreground hidden sm:block truncate">Soul Train's Eatery Management</p>
               </div>
+            </div>
+            <div className="flex items-center gap-2 lg:gap-4">
+              <span className="text-xs lg:text-sm text-muted-foreground hidden sm:block truncate">
+                {user?.email}
+              </span>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={signOut}
+                className="flex items-center gap-1 lg:gap-2 h-8 lg:h-9 px-2 lg:px-3"
+              >
+                <LogOut className="h-3 w-3 lg:h-4 lg:w-4" />
+                <span className="hidden lg:inline">Sign Out</span>
+              </Button>
             </div>
           </header>
 

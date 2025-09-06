@@ -4,6 +4,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme-provider";
+import { AuthProvider } from "@/hooks/useAuth";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -22,6 +24,7 @@ import FAQ from "./pages/FAQ";
 import TestEmail from "./pages/TestEmail";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsConditions from "./pages/TermsConditions";
+import AdminAuth from "./pages/AdminAuth";
 import NotFound from "./pages/NotFound";
 
 import InvoicePublic from "./pages/InvoicePublic";
@@ -60,12 +63,33 @@ const AppContent = () => {
           {process.env.NODE_ENV === 'development' && <Route path="/test-email" element={<TestEmail />} />}
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-conditions" element={<TermsConditions />} />
+          <Route path="/admin-auth" element={<AdminAuth />} />
           {/* Admin Dashboard and Management */}
-          <Route path="/admin" element={<UnifiedAdminDashboard />} />
-          <Route path="/admin/quotes/:quoteId" element={<QuoteDetailPage />} />
-          <Route path="/admin/estimate/quote/:quoteId" element={<EstimateCreation />} />
-          <Route path="/admin/estimate/:invoiceId" element={<EstimateCreation />} />
-          <Route path="/admin/contracts" element={<ContractManagement />} />
+          <Route path="/admin" element={
+            <ProtectedRoute>
+              <UnifiedAdminDashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/quotes/:quoteId" element={
+            <ProtectedRoute>
+              <QuoteDetailPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/estimate/quote/:quoteId" element={
+            <ProtectedRoute>
+              <EstimateCreation />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/estimate/:invoiceId" element={
+            <ProtectedRoute>
+              <EstimateCreation />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/contracts" element={
+            <ProtectedRoute>
+              <ContractManagement />
+            </ProtectedRoute>
+          } />
           
           {/* Estimate Preview routes */}
           <Route path="/estimate-preview/:invoiceId" element={<EstimatePreview />} />
@@ -75,7 +99,11 @@ const AppContent = () => {
           
           {/* Print routes */}
           <Route path="/estimate-print/:id" element={<EstimatePrintView />} />
-          <Route path="/admin/*" element={<UnifiedAdminDashboard />} />
+          <Route path="/admin/*" element={
+            <ProtectedRoute>
+              <UnifiedAdminDashboard />
+            </ProtectedRoute>
+          } />
           
           {/* Customer-facing routes */}
           <Route path="/invoice/public/:invoiceToken" element={<InvoicePublic />} />
@@ -102,7 +130,9 @@ const App = () => (
           <BrowserRouter future={{
             v7_startTransition: true
           }}>
-            <AppContent />
+            <AuthProvider>
+              <AppContent />
+            </AuthProvider>
           </BrowserRouter>
         </TooltipProvider>
       </ThemeProvider>
