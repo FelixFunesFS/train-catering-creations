@@ -9,6 +9,7 @@ import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { InvoiceManagementTab } from '@/components/admin/InvoiceManagementTab';
 import { NewRequestsWorkflow } from '@/components/admin/NewRequestsWorkflow';
 import { UnifiedQuoteWorkflow } from '@/components/admin/UnifiedQuoteWorkflow';
+import { BusinessIntelligenceDashboard } from '@/components/admin/BusinessIntelligenceDashboard';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -384,7 +385,7 @@ export function UnifiedAdminInterface() {
                 <div className="p-3 lg:p-6 min-h-full">
                   {/* Desktop Tab Navigation */}
                   <Tabs value={activeTab} onValueChange={handleTabChange} className="hidden lg:block">
-                    <TabsList className="grid w-full grid-cols-4 mb-6">
+                    <TabsList className="grid w-full grid-cols-5 mb-6">
                       <TabsTrigger value="new-requests" className="flex items-center gap-2">
                         <FileText className="h-4 w-4" />
                         New Requests
@@ -420,6 +421,10 @@ export function UnifiedAdminInterface() {
                             {tabCounts.paymentTracking}
                           </Badge>
                         )}
+                      </TabsTrigger>
+                      <TabsTrigger value="analytics" className="flex items-center gap-2">
+                        <LayoutDashboard className="h-4 w-4" />
+                        Analytics
                       </TabsTrigger>
                     </TabsList>
                   </Tabs>
@@ -465,6 +470,10 @@ export function UnifiedAdminInterface() {
                         title="Payment Tracking"
                         description="Completed payments and finalized events"
                       />
+                    )}
+
+                    {activeTab === 'analytics' && (
+                      <BusinessIntelligenceDashboard />
                     )}
                   </div>
                 </div>

@@ -241,11 +241,16 @@ export default function EstimatePreview() {
     if (!invoiceId || previewData) return;
     
     try {
-      await supabase.functions.invoke('track-estimate-view', {
+      await supabase.functions.invoke('track-analytics', {
         body: { 
-          invoice_id: invoiceId,
-          view_type: 'estimate_viewed',
-          user_agent: navigator.userAgent
+          event_type: 'estimate_viewed',
+          entity_type: 'estimate',
+          entity_id: invoiceId,
+          metadata: {
+            view_context: location.pathname.startsWith('/admin') ? 'admin' : 'customer',
+            user_agent: navigator.userAgent,
+            timestamp: new Date().toISOString()
+          }
         }
       });
     } catch (error) {

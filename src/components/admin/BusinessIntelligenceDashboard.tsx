@@ -1,493 +1,462 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  DollarSign, 
-  Calendar, 
-  Users, 
-  FileText,
-  Clock,
-  CheckCircle,
-  AlertTriangle,
-  BarChart3,
+import { useToast } from '@/hooks/use-toast';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
   PieChart,
-  Target
+  Pie,
+  Cell,
+  LineChart,
+  Line,
+  Area,
+  AreaChart
+} from 'recharts';
+import {
+  TrendingUp,
+  TrendingDown,
+  Users,
+  DollarSign,
+  Calendar,
+  Activity,
+  Eye,
+  CreditCard,
+  FileText,
+  Target,
+  Loader2,
+  RefreshCw
 } from 'lucide-react';
+import { formatCurrency } from '@/lib/utils';
 
-interface AnalyticsData {
-  revenue: {
-    total: number;
-    monthly: number;
-    weekly: number;
-    growth: number;
-  };
-  quotes: {
-    total: number;
-    pending: number;
-    reviewed: number;
-    confirmed: number;
-    conversionRate: number;
-  };
-  events: {
-    upcoming: number;
-    thisMonth: number;
-    avgGuestCount: number;
-  };
-  performance: {
-    avgResponseTime: number;
-    customerSatisfaction: number;
-    repeatCustomers: number;
-  };
+interface BusinessMetrics {
+  totalQuotes: number;
+  totalEstimates: number;
+  totalRevenue: number;
+  conversionRate: number;
+  averageQuoteValue: number;
+  pendingPayments: number;
+  monthlyGrowth: number;
+  estimateViews: number;
 }
 
+interface ChartData {
+  name: string;
+  value: number;
+  amount?: number;
+  count?: number;
+}
+
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
+
 export function BusinessIntelligenceDashboard() {
-  const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
+  const [metrics, setMetrics] = useState<BusinessMetrics | null>(null);
   const [loading, setLoading] = useState(true);
-  const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d' | '1y'>('30d');
+  const [refreshing, setRefreshing] = useState(false);
+  const [timeRange, setTimeRange] = useState('30d');
+  const [chartData, setChartData] = useState<{
+    revenue: ChartData[];
+    quotes: ChartData[];
+    conversion: ChartData[];
+    eventTypes: ChartData[];
+  }>({
+    revenue: [],
+    quotes: [],
+    conversion: [],
+    eventTypes: []
+  });
   const { toast } = useToast();
 
   useEffect(() => {
-    fetchAnalytics();
+    fetchBusinessMetrics();
   }, [timeRange]);
 
-  const fetchAnalytics = async () => {
-    setLoading(true);
+  const fetchBusinessMetrics = async () => {
     try {
+      setRefreshing(true);
+
       // Calculate date range
-      const now = new Date();
-      const daysBack = {
-        '7d': 7,
-        '30d': 30,
-        '90d': 90,
-        '1y': 365
-      }[timeRange];
+      const endDate = new Date();
+      const startDate = new Date();
+      const days = timeRange === '7d' ? 7 : timeRange === '30d' ? 30 : 90;
+      startDate.setDate(endDate.getDate() - days);
+
+      // Fetch quotes data
+      const { data: quotes, error: quotesError } = await supabase
+        .from('quote_requests')
+        .select(`
+          *,
+          invoices(id, total_amount, status, paid_at)
+        `)
+        .gte('created_at', startDate.toISOString())
+        .lte('created_at', endDate.toISOString());
+
+      if (quotesError) throw quotesError;
+
+      // Fetch invoices data
+      const { data: invoices, error: invoicesError } = await supabase
+        .from('invoices')
+        .select('*')
+        .gte('created_at', startDate.toISOString())
+        .lte('created_at', endDate.toISOString());
+
+      if (invoicesError) throw invoicesError;
+
+      // Calculate metrics
+      const totalQuotes = quotes?.length || 0;
+      const quotesWithInvoices = quotes?.filter(q => q.invoices?.length > 0).length || 0;
+      const paidInvoices = invoices?.filter(i => i.status === 'paid') || [];
+      const totalRevenue = paidInvoices.reduce((sum, i) => sum + (i.total_amount / 100), 0);
+      const pendingPayments = invoices?.filter(i => i.status === 'sent' || i.status === 'approved').length || 0;
+      const estimateViews = invoices?.reduce((sum, i) => sum + (i.estimate_viewed_count || 0), 0) || 0;
+
+      const conversionRate = totalQuotes > 0 ? (quotesWithInvoices / totalQuotes) * 100 : 0;
+      const averageQuoteValue = totalQuotes > 0 ? totalRevenue / totalQuotes : 0;
+
+      // Get previous period for growth calculation
+      const prevStartDate = new Date(startDate);
+      prevStartDate.setDate(prevStartDate.getDate() - days);
       
-      const startDate = new Date(now.getTime() - daysBack * 24 * 60 * 60 * 1000);
+      const { data: prevQuotes } = await supabase
+        .from('quote_requests')
+        .select('*')
+        .gte('created_at', prevStartDate.toISOString())
+        .lt('created_at', startDate.toISOString());
 
-      // Fetch data in parallel
-      const [invoicesResult, quotesResult, eventsResult] = await Promise.all([
-        supabase
-          .from('invoices')
-          .select('total_amount, status, created_at, paid_at')
-          .gte('created_at', startDate.toISOString()),
-        
-        supabase
-          .from('quote_requests')
-          .select('id, status, created_at, guest_count, estimated_total')
-          .gte('created_at', startDate.toISOString()),
-        
-        supabase
-          .from('quote_requests')
-          .select('event_date, guest_count, status')
-          .gte('event_date', now.toISOString())
-          .lte('event_date', new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000).toISOString())
-      ]);
+      const monthlyGrowth = prevQuotes?.length ? 
+        ((totalQuotes - prevQuotes.length) / prevQuotes.length) * 100 : 0;
 
-      if (invoicesResult.error) throw invoicesResult.error;
-      if (quotesResult.error) throw quotesResult.error;
-      if (eventsResult.error) throw eventsResult.error;
-
-      const invoices = invoicesResult.data || [];
-      const quotes = quotesResult.data || [];
-      const upcomingEvents = eventsResult.data || [];
-
-      // Calculate analytics
-      const totalRevenue = invoices.reduce((sum, inv) => sum + (inv.total_amount || 0), 0);
-      const paidInvoices = invoices.filter(inv => inv.status === 'paid');
-      const monthlyRevenue = paidInvoices
-        .filter(inv => new Date(inv.paid_at || inv.created_at) >= new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000))
-        .reduce((sum, inv) => sum + (inv.total_amount || 0), 0);
-      
-      const weeklyRevenue = paidInvoices
-        .filter(inv => new Date(inv.paid_at || inv.created_at) >= new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000))
-        .reduce((sum, inv) => sum + (inv.total_amount || 0), 0);
-
-      // Calculate growth (comparing to previous period)
-      const prevMonthStart = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
-      const prevMonthEnd = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-      const prevMonthRevenue = paidInvoices
-        .filter(inv => {
-          const date = new Date(inv.paid_at || inv.created_at);
-          return date >= prevMonthStart && date <= prevMonthEnd;
-        })
-        .reduce((sum, inv) => sum + (inv.total_amount || 0), 0);
-
-      const growth = prevMonthRevenue > 0 ? ((monthlyRevenue - prevMonthRevenue) / prevMonthRevenue) * 100 : 0;
-
-      // Quote analytics
-      const pendingQuotes = quotes.filter(q => q.status === 'pending').length;
-      const reviewedQuotes = quotes.filter(q => q.status === 'reviewed').length;
-      const confirmedQuotes = quotes.filter(q => q.status === 'confirmed').length;
-      const conversionRate = quotes.length > 0 ? (confirmedQuotes / quotes.length) * 100 : 0;
-
-      // Event analytics
-      const thisMonthEvents = upcomingEvents.filter(e => 
-        new Date(e.event_date) <= new Date(now.getFullYear(), now.getMonth() + 1, 0)
-      ).length;
-      
-      const avgGuestCount = upcomingEvents.length > 0 
-        ? upcomingEvents.reduce((sum, e) => sum + (e.guest_count || 0), 0) / upcomingEvents.length 
-        : 0;
-
-      // Performance metrics (mock data for now)
-      const avgResponseTime = 4.2; // hours
-      const customerSatisfaction = 4.8; // out of 5
-      const repeatCustomers = 35; // percentage
-
-      setAnalyticsData({
-        revenue: {
-          total: totalRevenue,
-          monthly: monthlyRevenue,
-          weekly: weeklyRevenue,
-          growth
-        },
-        quotes: {
-          total: quotes.length,
-          pending: pendingQuotes,
-          reviewed: reviewedQuotes,
-          confirmed: confirmedQuotes,
-          conversionRate
-        },
-        events: {
-          upcoming: upcomingEvents.length,
-          thisMonth: thisMonthEvents,
-          avgGuestCount
-        },
-        performance: {
-          avgResponseTime,
-          customerSatisfaction,
-          repeatCustomers
-        }
+      setMetrics({
+        totalQuotes,
+        totalEstimates: invoices?.length || 0,
+        totalRevenue,
+        conversionRate,
+        averageQuoteValue,
+        pendingPayments,
+        monthlyGrowth,
+        estimateViews
       });
 
-    } catch (error) {
-      console.error('Error fetching analytics:', error);
+      // Generate chart data
+      generateChartData(quotes || [], invoices || []);
+
+    } catch (error: any) {
+      console.error('Error fetching business metrics:', error);
       toast({
         title: "Error",
-        description: "Failed to load analytics data",
-        variant: "destructive"
+        description: "Failed to load business metrics",
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(amount / 100);
-  };
+  const generateChartData = (quotes: any[], invoices: any[]) => {
+    // Revenue by month
+    const revenueByMonth = invoices
+      .filter(i => i.status === 'paid' && i.paid_at)
+      .reduce((acc, invoice) => {
+        const month = new Date(invoice.paid_at).toLocaleDateString('en-US', { month: 'short' });
+        const existing = acc.find(item => item.name === month);
+        if (existing) {
+          existing.value += invoice.total_amount / 100;
+        } else {
+          acc.push({ name: month, value: invoice.total_amount / 100 });
+        }
+        return acc;
+      }, [] as ChartData[]);
 
-  const formatPercentage = (value: number) => {
-    return `${value.toFixed(1)}%`;
-  };
+    // Quotes by status
+    const quotesByStatus = quotes.reduce((acc, quote) => {
+      const status = quote.status || 'pending';
+      const existing = acc.find(item => item.name === status);
+      if (existing) {
+        existing.value += 1;
+      } else {
+        acc.push({ name: status.charAt(0).toUpperCase() + status.slice(1), value: 1 });
+      }
+      return acc;
+    }, [] as ChartData[]);
 
-  const getGrowthColor = (growth: number) => {
-    if (growth > 0) return 'text-green-600';
-    if (growth < 0) return 'text-red-600';
-    return 'text-gray-600';
-  };
+    // Event types distribution
+    const eventTypes = quotes.reduce((acc, quote) => {
+      const type = quote.event_type || 'other';
+      const existing = acc.find(item => item.name === type);
+      if (existing) {
+        existing.value += 1;
+      } else {
+        acc.push({ name: type.charAt(0).toUpperCase() + type.slice(1), value: 1 });
+      }
+      return acc;
+    }, [] as ChartData[]);
 
-  const getGrowthIcon = (growth: number) => {
-    if (growth > 0) return TrendingUp;
-    if (growth < 0) return TrendingDown;
-    return TrendingUp;
+    // Conversion funnel
+    const totalQuotes = quotes.length;
+    const quotedEstimates = invoices.filter(i => i.quote_request_id).length;
+    const sentEstimates = invoices.filter(i => i.status === 'sent' || i.status === 'approved' || i.status === 'paid').length;
+    const paidEstimates = invoices.filter(i => i.status === 'paid').length;
+
+    const conversionData = [
+      { name: 'Quotes Received', value: totalQuotes },
+      { name: 'Estimates Created', value: quotedEstimates },
+      { name: 'Estimates Sent', value: sentEstimates },
+      { name: 'Payments Received', value: paidEstimates },
+    ];
+
+    setChartData({
+      revenue: revenueByMonth,
+      quotes: quotesByStatus,
+      conversion: conversionData,
+      eventTypes
+    });
   };
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          {[...Array(4)].map((_, i) => (
-            <Card key={i}>
-              <CardContent className="pt-6">
-                <div className="animate-pulse space-y-3">
-                  <div className="h-4 bg-muted rounded w-1/2"></div>
-                  <div className="h-8 bg-muted rounded w-3/4"></div>
-                  <div className="h-3 bg-muted rounded w-1/3"></div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     );
   }
 
-  if (!analyticsData) return null;
-
-  const GrowthIcon = getGrowthIcon(analyticsData.revenue.growth);
+  if (!metrics) {
+    return (
+      <div className="text-center p-8">
+        <p className="text-muted-foreground">No data available</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      {/* Time Range Selector */}
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-2xl font-bold">Business Intelligence</h3>
-          <p className="text-muted-foreground">Performance metrics and analytics</p>
+          <h2 className="text-2xl font-bold">Business Intelligence</h2>
+          <p className="text-muted-foreground">
+            Analytics and insights for the last {timeRange === '7d' ? '7 days' : timeRange === '30d' ? '30 days' : '90 days'}
+          </p>
         </div>
-        <div className="flex gap-2">
-          {(['7d', '30d', '90d', '1y'] as const).map((range) => (
-            <Button
-              key={range}
-              variant={timeRange === range ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setTimeRange(range)}
-            >
-              {range === '1y' ? '1 Year' : range}
-            </Button>
-          ))}
+        <div className="flex items-center gap-2">
+          <select
+            value={timeRange}
+            onChange={(e) => setTimeRange(e.target.value)}
+            className="px-3 py-2 border rounded-md"
+          >
+            <option value="7d">Last 7 days</option>
+            <option value="30d">Last 30 days</option>
+            <option value="90d">Last 90 days</option>
+          </select>
+          <Button
+            onClick={fetchBusinessMetrics}
+            disabled={refreshing}
+            variant="outline"
+            size="sm"
+          >
+            <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+          </Button>
         </div>
       </div>
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        {/* Total Revenue */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-2">
-              <DollarSign className="h-4 w-4 text-green-600" />
-              <span className="text-sm font-medium">Total Revenue</span>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Total Revenue</p>
+                <p className="text-2xl font-bold">{formatCurrency(metrics.totalRevenue)}</p>
+              </div>
+              <DollarSign className="h-8 w-8 text-green-500" />
             </div>
-            <div className="text-2xl font-bold">
-              {formatCurrency(analyticsData.revenue.total)}
-            </div>
-            <div className={`flex items-center gap-1 text-sm ${getGrowthColor(analyticsData.revenue.growth)}`}>
-              <GrowthIcon className="h-3 w-3" />
-              <span>{formatPercentage(analyticsData.revenue.growth)} vs last month</span>
+            <div className="mt-2 flex items-center">
+              {metrics.monthlyGrowth >= 0 ? (
+                <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
+              ) : (
+                <TrendingDown className="h-4 w-4 text-red-500 mr-1" />
+              )}
+              <span className={`text-sm ${metrics.monthlyGrowth >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                {Math.abs(metrics.monthlyGrowth).toFixed(1)}%
+              </span>
             </div>
           </CardContent>
         </Card>
 
-        {/* Active Quotes */}
         <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-2">
-              <FileText className="h-4 w-4 text-blue-600" />
-              <span className="text-sm font-medium">Active Quotes</span>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Total Quotes</p>
+                <p className="text-2xl font-bold">{metrics.totalQuotes}</p>
+              </div>
+              <FileText className="h-8 w-8 text-blue-500" />
             </div>
-            <div className="text-2xl font-bold">{analyticsData.quotes.total}</div>
-            <div className="text-sm text-muted-foreground">
-              {formatPercentage(analyticsData.quotes.conversionRate)} conversion rate
+            <div className="mt-2">
+              <Badge variant="secondary">
+                {metrics.conversionRate.toFixed(1)}% conversion
+              </Badge>
             </div>
           </CardContent>
         </Card>
 
-        {/* Upcoming Events */}
         <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-purple-600" />
-              <span className="text-sm font-medium">Upcoming Events</span>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Avg Quote Value</p>
+                <p className="text-2xl font-bold">{formatCurrency(metrics.averageQuoteValue)}</p>
+              </div>
+              <Target className="h-8 w-8 text-purple-500" />
             </div>
-            <div className="text-2xl font-bold">{analyticsData.events.upcoming}</div>
-            <div className="text-sm text-muted-foreground">
-              {analyticsData.events.thisMonth} this month
+            <div className="mt-2">
+              <span className="text-sm text-muted-foreground">
+                {metrics.estimateViews} estimate views
+              </span>
             </div>
           </CardContent>
         </Card>
 
-        {/* Customer Satisfaction */}
         <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-2">
-              <Target className="h-4 w-4 text-orange-600" />
-              <span className="text-sm font-medium">Customer Score</span>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Pending Payments</p>
+                <p className="text-2xl font-bold">{metrics.pendingPayments}</p>
+              </div>
+              <CreditCard className="h-8 w-8 text-orange-500" />
             </div>
-            <div className="text-2xl font-bold">{analyticsData.performance.customerSatisfaction}/5.0</div>
-            <div className="text-sm text-muted-foreground">
-              {formatPercentage(analyticsData.performance.repeatCustomers)} repeat customers
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Detailed Analytics */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Quote Pipeline */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5" />
-              Quote Pipeline
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Pending Review</span>
-                <div className="flex items-center gap-2">
-                  <Progress value={(analyticsData.quotes.pending / analyticsData.quotes.total) * 100} className="w-20" />
-                  <span className="text-sm font-medium">{analyticsData.quotes.pending}</span>
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Under Review</span>
-                <div className="flex items-center gap-2">
-                  <Progress value={(analyticsData.quotes.reviewed / analyticsData.quotes.total) * 100} className="w-20" />
-                  <span className="text-sm font-medium">{analyticsData.quotes.reviewed}</span>
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Confirmed</span>
-                <div className="flex items-center gap-2">
-                  <Progress value={(analyticsData.quotes.confirmed / analyticsData.quotes.total) * 100} className="w-20" />
-                  <span className="text-sm font-medium">{analyticsData.quotes.confirmed}</span>
-                </div>
-              </div>
-            </div>
-            
-            <div className="pt-4 border-t">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Conversion Rate</span>
-                <Badge variant={analyticsData.quotes.conversionRate > 50 ? 'default' : 'secondary'}>
-                  {formatPercentage(analyticsData.quotes.conversionRate)}
-                </Badge>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Performance Metrics */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Target className="h-5 w-5" />
-              Performance Metrics
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium">Avg Response Time</p>
-                  <p className="text-xs text-muted-foreground">To initial quote</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-lg font-bold">{analyticsData.performance.avgResponseTime}h</p>
-                  <Badge variant={analyticsData.performance.avgResponseTime < 8 ? 'default' : 'secondary'}>
-                    {analyticsData.performance.avgResponseTime < 8 ? 'Excellent' : 'Good'}
-                  </Badge>
-                </div>
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium">Customer Satisfaction</p>
-                  <p className="text-xs text-muted-foreground">Average rating</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-lg font-bold">{analyticsData.performance.customerSatisfaction}/5.0</p>
-                  <Badge variant={analyticsData.performance.customerSatisfaction > 4.5 ? 'default' : 'secondary'}>
-                    {analyticsData.performance.customerSatisfaction > 4.5 ? 'Excellent' : 'Good'}
-                  </Badge>
-                </div>
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium">Repeat Customers</p>
-                  <p className="text-xs text-muted-foreground">Return rate</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-lg font-bold">{formatPercentage(analyticsData.performance.repeatCustomers)}</p>
-                  <Badge variant={analyticsData.performance.repeatCustomers > 30 ? 'default' : 'secondary'}>
-                    {analyticsData.performance.repeatCustomers > 30 ? 'Excellent' : 'Good'}
-                  </Badge>
-                </div>
-              </div>
+            <div className="mt-2">
+              <Badge variant="outline">
+                {metrics.totalEstimates} total estimates
+              </Badge>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Revenue Breakdown */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <PieChart className="h-5 w-5" />
-            Revenue Analysis
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="text-center">
-              <p className="text-sm text-muted-foreground">This Week</p>
-              <p className="text-2xl font-bold">{formatCurrency(analyticsData.revenue.weekly)}</p>
-            </div>
-            <div className="text-center">
-              <p className="text-sm text-muted-foreground">This Month</p>
-              <p className="text-2xl font-bold">{formatCurrency(analyticsData.revenue.monthly)}</p>
-            </div>
-            <div className="text-center">
-              <p className="text-sm text-muted-foreground">Average Event Size</p>
-              <p className="text-2xl font-bold">{Math.round(analyticsData.events.avgGuestCount)} guests</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Charts */}
+      <Tabs defaultValue="revenue" className="w-full">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="revenue">Revenue</TabsTrigger>
+          <TabsTrigger value="quotes">Quotes</TabsTrigger>
+          <TabsTrigger value="conversion">Conversion</TabsTrigger>
+          <TabsTrigger value="events">Event Types</TabsTrigger>
+        </TabsList>
 
-      {/* Action Items */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <AlertTriangle className="h-5 w-5" />
-            Action Items
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {analyticsData.quotes.pending > 0 && (
-              <div className="flex items-center justify-between p-3 bg-yellow-50 border border-yellow-200 rounded-md">
-                <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-yellow-600" />
-                  <span className="text-sm font-medium">
-                    {analyticsData.quotes.pending} quote{analyticsData.quotes.pending !== 1 ? 's' : ''} pending review
-                  </span>
-                </div>
-                <Button size="sm" variant="outline">
-                  Review Now
-                </Button>
+        <TabsContent value="revenue">
+          <Card>
+            <CardHeader>
+              <CardTitle>Revenue Over Time</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={chartData.revenue}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip formatter={(value: number) => formatCurrency(value)} />
+                    <Area type="monotone" dataKey="value" stroke="#8884d8" fill="#8884d8" fillOpacity={0.3} />
+                  </AreaChart>
+                </ResponsiveContainer>
               </div>
-            )}
-            
-            {analyticsData.revenue.growth < 0 && (
-              <div className="flex items-center justify-between p-3 bg-red-50 border border-red-200 rounded-md">
-                <div className="flex items-center gap-2">
-                  <TrendingDown className="h-4 w-4 text-red-600" />
-                  <span className="text-sm font-medium">
-                    Revenue declined by {formatPercentage(Math.abs(analyticsData.revenue.growth))} this month
-                  </span>
-                </div>
-                <Button size="sm" variant="outline">
-                  Analyze
-                </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="quotes">
+          <Card>
+            <CardHeader>
+              <CardTitle>Quote Status Distribution</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={chartData.quotes}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {chartData.quotes.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
               </div>
-            )}
-            
-            {analyticsData.performance.avgResponseTime > 8 && (
-              <div className="flex items-center justify-between p-3 bg-orange-50 border border-orange-200 rounded-md">
-                <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-orange-600" />
-                  <span className="text-sm font-medium">
-                    Response time is above target (8+ hours)
-                  </span>
-                </div>
-                <Button size="sm" variant="outline">
-                  Optimize
-                </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="conversion">
+          <Card>
+            <CardHeader>
+              <CardTitle>Conversion Funnel</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={chartData.conversion}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="value" fill="#8884d8" />
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="events">
+          <Card>
+            <CardHeader>
+              <CardTitle>Event Types</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={chartData.eventTypes}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {chartData.eventTypes.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

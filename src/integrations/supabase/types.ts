@@ -58,6 +58,48 @@ export type Database = {
           },
         ]
       }
+      analytics_events: {
+        Row: {
+          created_at: string
+          entity_id: string | null
+          entity_type: string | null
+          event_type: string
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          referrer: string | null
+          session_id: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          referrer?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          referrer?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       automated_workflows: {
         Row: {
           actions: Json
@@ -1211,6 +1253,7 @@ export type Database = {
           id: string
           invoice_status: string | null
           last_calendar_sync: string | null
+          last_customer_interaction: string | null
           last_status_change: string | null
           linens_requested: boolean | null
           location: string
@@ -1271,6 +1314,7 @@ export type Database = {
           id?: string
           invoice_status?: string | null
           last_calendar_sync?: string | null
+          last_customer_interaction?: string | null
           last_status_change?: string | null
           linens_requested?: boolean | null
           location: string
@@ -1331,6 +1375,7 @@ export type Database = {
           id?: string
           invoice_status?: string | null
           last_calendar_sync?: string | null
+          last_customer_interaction?: string | null
           last_status_change?: string | null
           linens_requested?: boolean | null
           location?: string
