@@ -1,6 +1,8 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useDebounce } from '@/hooks/useDebounce';
+import { useOptimisticUpdates } from '@/hooks/useOptimisticUpdates';
 
 interface LineItem {
   id?: string;
@@ -17,27 +19,95 @@ interface UseLineItemManagementProps {
   taxRate?: number;
   isGovernmentContract?: boolean;
   onTotalsChange?: (totals: { subtotal: number; tax_amount: number; total_amount: number }) => void;
+  autoSave?: boolean;
+  autoSaveDelay?: number;
+  invoiceId?: string;
 }
 
 export function useLineItemManagement({
   initialLineItems,
   taxRate = 8.0,
   isGovernmentContract = false,
-  onTotalsChange
+  onTotalsChange,
+  autoSave = false,
+  autoSaveDelay = 2000,
+  invoiceId
 }: UseLineItemManagementProps) {
   const [lineItems, setLineItems] = useState<LineItem[]>(initialLineItems);
   const [isModified, setIsModified] = useState(false);
+  const [isCalculating, setIsCalculating] = useState(false);
+  const [lastCalculated, setLastCalculated] = useState<Date>(new Date());
   const { toast } = useToast();
 
-  // Calculate totals
+  // Auto-save function for debounced saving
+  const performAutoSave = useCallback(async () => {
+    if (!autoSave || !invoiceId || !isModified) return;
+
+    try {
+      setIsCalculating(true);
+      
+      // Delete existing line items
+      await supabase
+        .from('invoice_line_items')
+        .delete()
+        .eq('invoice_id', invoiceId);
+
+      // Insert updated line items
+      if (lineItems.length > 0) {
+        const lineItemsToInsert = lineItems.map(item => ({
+          invoice_id: invoiceId,
+          title: item.title,
+          description: item.description || '',
+          category: item.category || 'other',
+          quantity: item.quantity,
+          unit_price: item.unit_price,
+          total_price: item.total_price
+        }));
+
+        await supabase
+          .from('invoice_line_items')
+          .insert(lineItemsToInsert);
+      }
+
+      setIsModified(false);
+      setLastCalculated(new Date());
+      
+      toast({
+        title: "Auto-saved",
+        description: "Changes automatically saved",
+        duration: 1500
+      });
+    } catch (error) {
+      console.error('Auto-save failed:', error);
+    } finally {
+      setIsCalculating(false);
+    }
+  }, [autoSave, invoiceId, isModified, lineItems, toast]);
+
+  // Setup debounced auto-save
+  const { trigger: triggerAutoSave, cancel: cancelAutoSave } = useDebounce({
+    callback: performAutoSave,
+    delay: autoSaveDelay,
+    dependencies: [lineItems, isModified]
+  });
+
+  // Calculate totals with animation feedback
   const calculateTotals = useCallback((items: LineItem[]) => {
-    const subtotal = items.reduce((sum, item) => sum + item.total_price, 0);
-    const tax_amount = isGovernmentContract ? 0 : Math.round(subtotal * (taxRate / 100));
-    const total_amount = subtotal + tax_amount;
+    setIsCalculating(true);
     
-    const totals = { subtotal, tax_amount, total_amount };
-    onTotalsChange?.(totals);
-    return totals;
+    // Simulate brief calculation time for UX feedback
+    setTimeout(() => {
+      const subtotal = items.reduce((sum, item) => sum + item.total_price, 0);
+      const tax_amount = isGovernmentContract ? 0 : Math.round(subtotal * (taxRate / 100));
+      const total_amount = subtotal + tax_amount;
+      
+      const totals = { subtotal, tax_amount, total_amount };
+      onTotalsChange?.(totals);
+      setLastCalculated(new Date());
+      setIsCalculating(false);
+      
+      return totals;
+    }, 100);
   }, [taxRate, isGovernmentContract, onTotalsChange]);
 
   // Update line item
@@ -205,6 +275,8 @@ export function useLineItemManagement({
   return {
     lineItems,
     isModified,
+    isCalculating,
+    lastCalculated,
     updateLineItem,
     addLineItem,
     removeLineItem,
@@ -213,6 +285,8 @@ export function useLineItemManagement({
     validateLineItems,
     resetLineItems,
     getCommonTemplates,
-    calculateTotals: () => calculateTotals(lineItems)
+    calculateTotals: () => calculateTotals(lineItems),
+    triggerAutoSave,
+    cancelAutoSave
   };
 }

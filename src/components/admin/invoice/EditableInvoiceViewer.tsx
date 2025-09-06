@@ -9,6 +9,9 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useLineItemManagement } from '@/hooks/useLineItemManagement';
+import { useKeyboardShortcuts, SHORTCUTS } from '@/hooks/useKeyboardShortcuts';
+import { FloatingActionControls } from '@/components/admin/FloatingActionControls';
+import { LiveCalculationDisplay } from '@/components/admin/LiveCalculationDisplay';
 import { 
   FileText, 
   Download, 
@@ -102,20 +105,27 @@ export function EditableInvoiceViewer({
   const [isSaving, setIsSaving] = useState(false);
   const [taxRate, setTaxRate] = useState(8.0);
   
-  // Use the line item management hook
+  // Use the line item management hook with real-time features
   const {
     lineItems,
     isModified,
+    isCalculating,
+    lastCalculated,
     updateLineItem,
     addLineItem,
     removeLineItem,
     addTemplateItem,
     validateLineItems,
     resetLineItems,
-    getCommonTemplates
+    getCommonTemplates,
+    triggerAutoSave,
+    cancelAutoSave
   } = useLineItemManagement({
     initialLineItems: invoice.line_items,
     taxRate,
+    autoSave: isEditMode,
+    autoSaveDelay: 2000,
+    invoiceId: invoice.id,
     onTotalsChange: (totals) => {
       // Update invoice totals in real-time
       invoice.subtotal = totals.subtotal;
@@ -219,8 +229,19 @@ export function EditableInvoiceViewer({
     addTemplateItem(templateType, guestCount);
   };
 
+  // Setup keyboard shortcuts
+  useKeyboardShortcuts({
+    shortcuts: {
+      [SHORTCUTS.SAVE]: handleSave,
+      [SHORTCUTS.CANCEL]: handleCancel,
+      [SHORTCUTS.NEW]: () => addLineItem()
+    },
+    enabled: isEditMode
+  });
+
   return (
-    <Card className={`max-w-4xl mx-auto print:shadow-none print:border-none ${className}`}>
+    <>
+      <Card className={`max-w-4xl mx-auto print:shadow-none print:border-none ${className}`}>
       {/* Invoice Header */}
       <CardHeader className="space-y-6">
         <div className="flex justify-between items-start">
@@ -497,6 +518,20 @@ export function EditableInvoiceViewer({
           </div>
         </div>
 
+        {/* Live Calculation Display */}
+        {isEditMode && (
+          <div className="mt-6">
+            <LiveCalculationDisplay
+              subtotal={invoice.subtotal}
+              taxAmount={invoice.tax_amount}
+              taxRate={taxRate}
+              totalAmount={invoice.total_amount}
+              isCalculating={isCalculating}
+              lastUpdated={lastCalculated}
+            />
+          </div>
+        )}
+
         {/* Payment Terms */}
         <div className="bg-muted/30 p-4 rounded-lg text-sm">
           <h4 className="font-medium mb-2">Payment Terms</h4>
@@ -559,5 +594,16 @@ export function EditableInvoiceViewer({
         )}
       </CardContent>
     </Card>
+
+    {/* Floating Action Controls */}
+    <FloatingActionControls
+      isVisible={isEditMode}
+      isSaving={isSaving}
+      hasUnsavedChanges={isModified}
+      hasErrors={false}
+      onSave={handleSave}
+      onCancel={handleCancel}
+    />
+    </>
   );
 }

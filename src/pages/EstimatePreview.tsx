@@ -13,6 +13,7 @@ import { ChangeRequestModal } from '@/components/customer/ChangeRequestModal';
 import { EstimatePreviewActions } from '@/components/admin/EstimatePreviewActions';
 import { useInvoiceEditing } from '@/hooks/useInvoiceEditing';
 import { useLineItemManagement } from '@/hooks/useLineItemManagement';
+import { useKeyboardShortcuts, SHORTCUTS } from '@/hooks/useKeyboardShortcuts';
 import { 
   FileText, 
   Download, 
@@ -106,6 +107,16 @@ export default function EstimatePreview() {
   // Check if we're in admin context
   const isAdminView = location.pathname.startsWith('/admin');
   const isCustomerView = !isAdminView;
+
+  // Setup keyboard shortcuts for admin context
+  useKeyboardShortcuts({
+    shortcuts: {
+      [SHORTCUTS.SAVE]: () => isEditMode && handleSaveEstimate,
+      [SHORTCUTS.CANCEL]: () => isEditMode && toggleEditMode,
+      [SHORTCUTS.EDIT]: () => !isEditMode && toggleEditMode
+    },
+    enabled: isAdminView && isEditMode
+  });
 
   useEffect(() => {
     if (previewData) {
