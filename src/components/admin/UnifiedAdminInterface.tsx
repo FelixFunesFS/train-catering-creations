@@ -10,6 +10,7 @@ import { InvoiceManagementTab } from '@/components/admin/InvoiceManagementTab';
 import { NewRequestsWorkflow } from '@/components/admin/NewRequestsWorkflow';
 import { UnifiedQuoteWorkflow } from '@/components/admin/UnifiedQuoteWorkflow';
 import { BusinessIntelligenceDashboard } from '@/components/admin/BusinessIntelligenceDashboard';
+import { ChangeRequestsTab } from '@/components/admin/tabs/ChangeRequestsTab';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -20,7 +21,8 @@ import {
   DollarSign,
   Calendar,
   Users,
-  LogOut
+  LogOut,
+  MessageSquare
 } from 'lucide-react';
 
 interface UnifiedAdminData {
@@ -251,7 +253,8 @@ export function UnifiedAdminInterface() {
           inv.quote_request_id === q.id && 
           ['paid', 'completed'].includes(inv.status)
         )
-      ).length
+      ).length,
+      changeRequests: 0 // Will be updated with real data from the component
     };
   };
 
@@ -302,80 +305,98 @@ export function UnifiedAdminInterface() {
             {/* Mobile Tab Navigation */}
             <div className="lg:hidden sticky top-14 z-30 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
               <div className="px-3 py-2">
-                <div className="grid grid-cols-4 gap-1 bg-muted rounded-lg p-1">
-                  <button
-                    onClick={() => handleTabChange('new-requests')}
-                    className={`flex flex-col items-center gap-1 px-1 py-2 rounded-md text-xs transition-all relative ${
-                      activeTab === 'new-requests' 
-                        ? 'bg-background text-foreground shadow-sm' 
-                        : 'text-muted-foreground hover:text-foreground'
-                    }`}
-                  >
-                    <div className="relative">
-                      <FileText className="h-4 w-4" />
-                      {tabCounts.newRequests > 0 && (
-                        <Badge variant="secondary" className="absolute -top-1 -right-1 h-4 w-4 p-0 text-xs flex items-center justify-center">
-                          {tabCounts.newRequests}
-                        </Badge>
-                      )}
-                    </div>
-                    <span>New</span>
-                  </button>
-                  <button
-                    onClick={() => handleTabChange('estimates-progress')}
-                    className={`flex flex-col items-center gap-1 px-1 py-2 rounded-md text-xs transition-all relative ${
-                      activeTab === 'estimates-progress' 
-                        ? 'bg-background text-foreground shadow-sm' 
-                        : 'text-muted-foreground hover:text-foreground'
-                    }`}
-                  >
-                    <div className="relative">
-                      <Target className="h-4 w-4" />
-                      {tabCounts.estimatesInProgress > 0 && (
-                        <Badge variant="secondary" className="absolute -top-1 -right-1 h-4 w-4 p-0 text-xs flex items-center justify-center">
-                          {tabCounts.estimatesInProgress}
-                        </Badge>
-                      )}
-                    </div>
-                    <span>Estimate</span>
-                  </button>
-                  <button
-                    onClick={() => handleTabChange('invoices-active')}
-                    className={`flex flex-col items-center gap-1 px-1 py-2 rounded-md text-xs transition-all relative ${
-                      activeTab === 'invoices-active' 
-                        ? 'bg-background text-foreground shadow-sm' 
-                        : 'text-muted-foreground hover:text-foreground'
-                    }`}
-                  >
-                    <div className="relative">
-                      <DollarSign className="h-4 w-4" />
-                      {tabCounts.invoicesActive > 0 && (
-                        <Badge variant="secondary" className="absolute -top-1 -right-1 h-4 w-4 p-0 text-xs flex items-center justify-center">
-                          {tabCounts.invoicesActive}
-                        </Badge>
-                      )}
-                    </div>
-                    <span>Invoice</span>
-                  </button>
-                  <button
-                    onClick={() => handleTabChange('payment-tracking')}
-                    className={`flex flex-col items-center gap-1 px-1 py-2 rounded-md text-xs transition-all relative ${
-                      activeTab === 'payment-tracking' 
-                        ? 'bg-background text-foreground shadow-sm' 
-                        : 'text-muted-foreground hover:text-foreground'
-                    }`}
-                  >
-                    <div className="relative">
-                      <Users className="h-4 w-4" />
-                      {tabCounts.paymentTracking > 0 && (
-                        <Badge variant="secondary" className="absolute -top-1 -right-1 h-4 w-4 p-0 text-xs flex items-center justify-center">
-                          {tabCounts.paymentTracking}
-                        </Badge>
-                      )}
-                    </div>
-                    <span>Payment</span>
-                  </button>
-                </div>
+                  <div className="grid grid-cols-5 gap-1 bg-muted rounded-lg p-1">
+                    <button
+                      onClick={() => handleTabChange('new-requests')}
+                      className={`flex flex-col items-center gap-1 px-1 py-2 rounded-md text-xs transition-all relative ${
+                        activeTab === 'new-requests' 
+                          ? 'bg-background text-foreground shadow-sm' 
+                          : 'text-muted-foreground hover:text-foreground'
+                      }`}
+                    >
+                      <div className="relative">
+                        <FileText className="h-4 w-4" />
+                        {tabCounts.newRequests > 0 && (
+                          <Badge variant="secondary" className="absolute -top-1 -right-1 h-4 w-4 p-0 text-xs flex items-center justify-center">
+                            {tabCounts.newRequests}
+                          </Badge>
+                        )}
+                      </div>
+                      <span>New</span>
+                    </button>
+                    <button
+                      onClick={() => handleTabChange('estimates-progress')}
+                      className={`flex flex-col items-center gap-1 px-1 py-2 rounded-md text-xs transition-all relative ${
+                        activeTab === 'estimates-progress' 
+                          ? 'bg-background text-foreground shadow-sm' 
+                          : 'text-muted-foreground hover:text-foreground'
+                      }`}
+                    >
+                      <div className="relative">
+                        <Target className="h-4 w-4" />
+                        {tabCounts.estimatesInProgress > 0 && (
+                          <Badge variant="secondary" className="absolute -top-1 -right-1 h-4 w-4 p-0 text-xs flex items-center justify-center">
+                            {tabCounts.estimatesInProgress}
+                          </Badge>
+                        )}
+                      </div>
+                      <span>Estimate</span>
+                    </button>
+                    <button
+                      onClick={() => handleTabChange('change-requests')}
+                      className={`flex flex-col items-center gap-1 px-1 py-2 rounded-md text-xs transition-all relative ${
+                        activeTab === 'change-requests' 
+                          ? 'bg-background text-foreground shadow-sm' 
+                          : 'text-muted-foreground hover:text-foreground'
+                      }`}
+                    >
+                      <div className="relative">
+                        <MessageSquare className="h-4 w-4" />
+                        {tabCounts.changeRequests > 0 && (
+                          <Badge variant="secondary" className="absolute -top-1 -right-1 h-4 w-4 p-0 text-xs flex items-center justify-center">
+                            {tabCounts.changeRequests}
+                          </Badge>
+                        )}
+                      </div>
+                      <span>Changes</span>
+                    </button>
+                    <button
+                      onClick={() => handleTabChange('invoices-active')}
+                      className={`flex flex-col items-center gap-1 px-1 py-2 rounded-md text-xs transition-all relative ${
+                        activeTab === 'invoices-active' 
+                          ? 'bg-background text-foreground shadow-sm' 
+                          : 'text-muted-foreground hover:text-foreground'
+                      }`}
+                    >
+                      <div className="relative">
+                        <DollarSign className="h-4 w-4" />
+                        {tabCounts.invoicesActive > 0 && (
+                          <Badge variant="secondary" className="absolute -top-1 -right-1 h-4 w-4 p-0 text-xs flex items-center justify-center">
+                            {tabCounts.invoicesActive}
+                          </Badge>
+                        )}
+                      </div>
+                      <span>Invoice</span>
+                    </button>
+                    <button
+                      onClick={() => handleTabChange('payment-tracking')}
+                      className={`flex flex-col items-center gap-1 px-1 py-2 rounded-md text-xs transition-all relative ${
+                        activeTab === 'payment-tracking' 
+                          ? 'bg-background text-foreground shadow-sm' 
+                          : 'text-muted-foreground hover:text-foreground'
+                      }`}
+                    >
+                      <div className="relative">
+                        <Users className="h-4 w-4" />
+                        {tabCounts.paymentTracking > 0 && (
+                          <Badge variant="secondary" className="absolute -top-1 -right-1 h-4 w-4 p-0 text-xs flex items-center justify-center">
+                            {tabCounts.paymentTracking}
+                          </Badge>
+                        )}
+                      </div>
+                      <span>Payment</span>
+                    </button>
+                  </div>
               </div>
             </div>
 
@@ -385,7 +406,7 @@ export function UnifiedAdminInterface() {
                 <div className="p-3 lg:p-6 min-h-full">
                   {/* Desktop Tab Navigation */}
                   <Tabs value={activeTab} onValueChange={handleTabChange} className="hidden lg:block">
-                    <TabsList className="grid w-full grid-cols-5 mb-6">
+                    <TabsList className="grid w-full grid-cols-6 mb-6">
                       <TabsTrigger value="new-requests" className="flex items-center gap-2">
                         <FileText className="h-4 w-4" />
                         New Requests
@@ -401,6 +422,15 @@ export function UnifiedAdminInterface() {
                         {tabCounts.estimatesInProgress > 0 && (
                           <Badge variant="secondary" className="ml-1">
                             {tabCounts.estimatesInProgress}
+                          </Badge>
+                        )}
+                      </TabsTrigger>
+                      <TabsTrigger value="change-requests" className="flex items-center gap-2">
+                        <MessageSquare className="h-4 w-4" />
+                        Change Requests
+                        {tabCounts.changeRequests > 0 && (
+                          <Badge variant="secondary" className="ml-1">
+                            {tabCounts.changeRequests}
                           </Badge>
                         )}
                       </TabsTrigger>
@@ -449,6 +479,13 @@ export function UnifiedAdminInterface() {
                         onRefresh={fetchAllData}
                         title="Estimates in Progress"
                         description="Estimates awaiting completion or customer approval"
+                      />
+                    )}
+
+                    {activeTab === 'change-requests' && (
+                      <ChangeRequestsTab 
+                        loading={loading}
+                        onRefresh={fetchAllData}
                       />
                     )}
 
