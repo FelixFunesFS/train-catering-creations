@@ -71,20 +71,20 @@ export function useBatchOperations<T extends { id?: string }>({
     try {
       // Process creates
       if (creates.length > 0) {
-        const { data: createResults, error: createError } = await supabase
+        const { data: createResults, error: createError } = await (supabase as any)
           .from(tableName)
           .insert(creates.map(op => op.data))
           .select();
         
         if (createError) throw createError;
-        if (createResults) results.push(...createResults as T[]);
+        if (createResults) results.push(...(createResults as T[]));
       }
 
       // Process updates  
       if (updates.length > 0) {
         for (const update of updates) {
           if (update.data.id) {
-            const { data: updateResult, error: updateError } = await supabase
+            const { data: updateResult, error: updateError } = await (supabase as any)
               .from(tableName)
               .update(update.data)
               .eq('id', update.data.id)
@@ -104,7 +104,7 @@ export function useBatchOperations<T extends { id?: string }>({
           .filter(id => id !== undefined) as string[];
         
         if (deleteIds.length > 0) {
-          const { error: deleteError } = await supabase
+          const { error: deleteError } = await (supabase as any)
             .from(tableName)
             .delete()
             .in('id', deleteIds);

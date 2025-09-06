@@ -5,7 +5,7 @@ import { useToast } from '@/hooks/use-toast';
 
 interface CacheConfig {
   staleTime?: number;
-  cacheTime?: number;
+  gcTime?: number;
   enabled?: boolean;
   refetchOnWindowFocus?: boolean;
   refetchOnMount?: boolean;
@@ -26,7 +26,7 @@ export function useOptimisticQuery<T>({
   onSuccess,
   onError,
   staleTime = 5 * 60 * 1000, // 5 minutes
-  cacheTime = 10 * 60 * 1000, // 10 minutes
+  gcTime = 10 * 60 * 1000, // 10 minutes
   enabled = true,
   refetchOnWindowFocus = false,
   refetchOnMount = true
@@ -40,15 +40,19 @@ export function useOptimisticQuery<T>({
     queryKey,
     queryFn,
     staleTime,
-    cacheTime,
+    gcTime,
     enabled,
     refetchOnWindowFocus,
-    refetchOnMount,
-    onSuccess: (data) => {
-      previousDataRef.current = data;
-      onSuccess?.(data);
-    }
+    refetchOnMount
   });
+
+  // Handle success in useEffect
+  useEffect(() => {
+    if (query.data) {
+      previousDataRef.current = query.data;
+      onSuccess?.(query.data);
+    }
+  }, [query.data, onSuccess]);
 
   // Optimistic update mutation
   const mutation = useMutation({
@@ -131,7 +135,7 @@ export function useOptimisticQuery<T>({
     rollback,
     refresh,
     invalidate,
-    isUpdating: mutation.isLoading,
+    isUpdating: mutation.isPending,
     updateError: mutation.error
   };
 }
@@ -156,7 +160,7 @@ export function useRealtimeQuery<T>(
     queryKey,
     queryFn,
     staleTime: config.staleTime || 30 * 1000, // 30 seconds for realtime data
-    cacheTime: config.cacheTime || 5 * 60 * 1000, // 5 minutes
+    gcTime: config.gcTime || 5 * 60 * 1000, // 5 minutes
     enabled: config.enabled,
     refetchOnWindowFocus: config.refetchOnWindowFocus || false,
     refetchOnMount: config.refetchOnMount || true
@@ -169,14 +173,14 @@ export function useRealtimeQuery<T>(
     const channel = supabase
       .channel(`realtime-${queryKey.join('-')}`)
       .on(
-        'postgres_changes',
+        'postgres_changes' as any,
         {
           event: config.realtimeConfig.event,
           schema: config.realtimeConfig.schema || 'public',
           table: config.tableName,
           filter: config.filter
         },
-        (payload) => {
+        (payload: any) => {
           // Invalidate and refetch on any change
           queryClient.invalidateQueries({ queryKey });
         }
@@ -205,7 +209,7 @@ export function useCachePreloader() {
         queryKey,
         queryFn,
         staleTime: config.staleTime || 5 * 60 * 1000,
-        cacheTime: config.cacheTime || 10 * 60 * 1000
+        gcTime: config.gcTime || 10 * 60 * 1000
       });
     },
     [queryClient]

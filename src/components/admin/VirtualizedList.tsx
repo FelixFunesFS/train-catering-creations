@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
+// @ts-ignore - react-window types might not be available
 import { FixedSizeList as List } from 'react-window';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
