@@ -63,7 +63,6 @@ const AppContent = () => {
           {process.env.NODE_ENV === 'development' && <Route path="/test-email" element={<TestEmail />} />}
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-conditions" element={<TermsConditions />} />
-          <Route path="/admin-auth" element={<AdminAuth />} />
           <Route path="/admin/auth" element={<AdminAuth />} />
           {/* Admin Dashboard and Management */}
           <Route path="/admin" element={
