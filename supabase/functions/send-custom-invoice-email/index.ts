@@ -89,20 +89,42 @@ serve(async (req) => {
       );
     }
 
+    // Validate customer email exists
+    const customerEmail = estimateDetails.customer_email || estimateDetails.customers?.email;
+    if (!customerEmail) {
+      throw new Error('Customer email not found. Cannot send estimate.');
+    }
+
+    console.log(`Attempting to send email to: ${customerEmail}`);
+
     // Send email via Gmail integration
-    const { error: emailError } = await supabase.functions.invoke('send-gmail-email', {
+    const { data: emailData, error: emailError } = await supabase.functions.invoke('send-gmail-email', {
       body: {
-        to: estimateDetails.customer_email || estimateDetails.customers?.email,
+        to: customerEmail,
         subject: custom_subject || `Your Estimate - Soul Train's Eatery`,
         html: emailHtml,
-        from: 'Soul Train\'s Eatery <soultrainseatery@gmail.com>'
+        from: 'soultrainseatery@gmail.com'
       }
     });
 
     if (emailError) {
-      console.error('Error sending email:', emailError);
-      throw emailError;
+      console.error('Error sending email via Gmail integration:', emailError);
+      let errorMessage = 'Failed to send email. ';
+      
+      if (emailError.message?.includes('No Gmail tokens found')) {
+        errorMessage += 'Gmail authentication is not configured. Please set up Gmail integration first.';
+      } else if (emailError.message?.includes('Missing required environment variables')) {
+        errorMessage += 'Email service configuration is incomplete.';
+      } else if (emailError.message?.includes('Token expired') || emailError.message?.includes('refresh')) {
+        errorMessage += 'Gmail authentication has expired. Please re-authorize Gmail access.';
+      } else {
+        errorMessage += `Details: ${emailError.message}`;
+      }
+      
+      throw new Error(errorMessage);
     }
+
+    console.log('Email sent successfully:', emailData);
 
     // Update invoice status if not preview
     if (invoice_id) {

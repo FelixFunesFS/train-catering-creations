@@ -39,7 +39,20 @@ export const EstimateActions = ({ invoice, quote, onStatusChange }: EstimateActi
   };
 
   const handleEdit = () => {
-    window.open(`/admin/estimate-creation/${quote?.id}`, '_blank');
+    // Navigate to the correct route based on whether we have an invoice or just a quote
+    if (invoice?.id) {
+      // Edit existing estimate/invoice
+      window.location.href = `/admin/estimate/${invoice.id}`;
+    } else if (quote?.id) {
+      // Create new estimate from quote
+      window.location.href = `/admin/estimate/quote/${quote.id}`;
+    } else {
+      toast({
+        title: "Error",
+        description: "Unable to determine edit route. Missing invoice or quote information.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleDownload = () => {

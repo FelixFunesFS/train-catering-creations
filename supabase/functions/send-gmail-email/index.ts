@@ -45,8 +45,11 @@ const handler = async (req: Request): Promise<Response> => {
       .single();
 
     if (tokenError || !tokenData) {
-      throw new Error(`No Gmail tokens found for ${from}. Please authorize Gmail access first.`);
+      console.error('Gmail token lookup failed:', { from, tokenError, tokenData });
+      throw new Error(`No Gmail tokens found for ${from}. Please authorize Gmail access first. Visit /admin to set up Gmail integration.`);
     }
+
+    console.log('Found Gmail tokens for:', from);
 
     let accessToken = tokenData.access_token;
 
