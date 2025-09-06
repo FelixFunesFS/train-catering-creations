@@ -54,10 +54,6 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error('Invoice not found');
     }
 
-    // For now, create a simple payment URL
-    // In production, this would integrate with Stripe, Square, or another payment processor
-    const paymentUrl = `${supabaseUrl.replace('supabase.co', 'lovable.app')}/payment/${invoice_id}`;
-
     // Validate required fields before creating transaction
     if (!amount || amount <= 0) {
       throw new Error('Valid amount is required');
@@ -68,35 +64,86 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error('Customer email is required');
     }
 
-    // Create payment transaction record
-    const { data: transaction, error: transactionError } = await supabase
-      .from('payment_transactions')
-      .insert({
-        invoice_id: invoice_id,
-        amount: Math.round(amount), // Ensure amount is integer (cents)
-        customer_email: customerEmail,
-        payment_type: payment_type,
-        status: 'pending',
-        description: description || `Payment for invoice ${invoice.invoice_number}`,
-      })
-      .select()
-      .single();
+    // Create Stripe checkout session for real payments
+    try {
+      const { data: checkoutData, error: checkoutError } = await supabase.functions.invoke('create-stripe-checkout', {
+        body: {
+          invoice_id: invoice_id,
+          amount: Math.round(amount),
+          customer_email: customerEmail,
+          description: description || `Payment for ${invoice.invoice_number}`,
+        }
+      });
 
-    if (transactionError) throw transactionError;
+      if (checkoutError) throw checkoutError;
+      
+      // Create payment transaction record for Stripe
+      const { data: transaction, error: transactionError } = await supabase
+        .from('payment_transactions')
+        .insert({
+          invoice_id: invoice_id,
+          amount: Math.round(amount), // Ensure amount is integer (cents)
+          customer_email: customerEmail,
+          payment_type: 'stripe_checkout',
+          status: 'pending',
+          stripe_session_id: checkoutData.session_id,
+          description: description || `Payment for invoice ${invoice.invoice_number}`,
+        })
+        .select()
+        .single();
 
-    console.log('Payment link created successfully:', paymentUrl);
+      if (transactionError) throw transactionError;
 
-    return new Response(
-      JSON.stringify({ 
-        success: true,
-        url: paymentUrl,
-        transaction_id: transaction.id,
-        amount: amount
-      }),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
-    );
+      console.log('Stripe payment link created successfully:', checkoutData.url);
+
+      return new Response(
+        JSON.stringify({ 
+          success: true,
+          url: checkoutData.url,
+          transaction_id: transaction.id,
+          session_id: checkoutData.session_id,
+          amount: amount
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+      
+    } catch (stripeError) {
+      console.error('Stripe checkout error:', stripeError);
+      
+      // Create fallback payment transaction
+      const { data: transaction, error: transactionError } = await supabase
+        .from('payment_transactions')
+        .insert({
+          invoice_id: invoice_id,
+          amount: Math.round(amount),
+          customer_email: customerEmail,
+          payment_type: 'manual',
+          status: 'pending',
+          description: description || `Payment for invoice ${invoice.invoice_number}`,
+        })
+        .select()
+        .single();
+
+      if (transactionError) throw transactionError;
+
+      // Fallback to simple payment URL if Stripe fails
+      const fallbackUrl = `${supabaseUrl.replace('supabase.co', 'lovable.app')}/payment/${invoice_id}`;
+      
+      return new Response(
+        JSON.stringify({ 
+          success: true,
+          url: fallbackUrl,
+          transaction_id: transaction.id,
+          amount: amount,
+          note: 'Using fallback payment method - please contact us for payment options'
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
 
   } catch (error) {
     console.error('Error creating payment link:', error);

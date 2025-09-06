@@ -407,12 +407,13 @@ export default function EstimateCreation({
     setHasUnsavedChanges(true);
   };
 
-  const handleSaveEstimate = async () => {
-    if (!estimate) return;
+  const handleSaveEstimate = async (): Promise<string | null> => {
+    if (!estimate) return null;
 
     // If we already have an invoice ID, update existing
     if (invoiceId) {
-      return await handleUpdateEstimate();
+      await handleUpdateEstimate();
+      return invoiceId;
     }
 
     console.log('Creating new invoice for quote:', estimate.quote_request_id);

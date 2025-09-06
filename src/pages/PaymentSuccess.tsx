@@ -1,43 +1,135 @@
-import React from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/hooks/use-toast';
-import { 
-  CheckCircle, 
-  ArrowLeft, 
-  CreditCard,
-  Calendar,
-  MapPin,
-  Users,
-  FileText
-} from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { supabase } from '@/integrations/supabase/client';
+import { CheckCircle2, Download, ArrowLeft, Loader2, FileText, Calendar, CreditCard, Users } from 'lucide-react';
+import { formatCurrency } from '@/lib/utils';
+
+interface PaymentDetails {
+  payment_status: string;
+  transaction_id: string;
+  invoice_id: string;
+  amount_total: number;
+}
 
 export default function PaymentSuccess() {
-  const { toast } = useToast();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const searchParams = new URLSearchParams(window.location.search);
+  const [paymentDetails, setPaymentDetails] = useState<PaymentDetails | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const sessionId = searchParams.get('session_id');
   const invoiceId = searchParams.get('invoice_id');
   const paymentType = searchParams.get('type') || 'deposit';
 
-  React.useEffect(() => {
-    toast({
-      title: "Payment Successful!",
-      description: `Your ${paymentType} payment has been processed successfully.`,
-    });
-  }, [toast, paymentType]);
+  useEffect(() => {
+    if (sessionId) {
+      verifyPayment();
+    } else {
+      // If no session_id, assume successful direct payment
+      setLoading(false);
+    }
+  }, [sessionId]);
+
+  const verifyPayment = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('verify-payment', {
+        body: { session_id: sessionId }
+      });
+
+      if (error) throw error;
+
+      setPaymentDetails(data);
+    } catch (error: any) {
+      console.error('Error verifying payment:', error);
+      setError(error.message || 'Failed to verify payment');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleViewInvoice = () => {
+    const targetInvoiceId = paymentDetails?.invoice_id || invoiceId;
+    if (targetInvoiceId) {
+      navigate(`/estimate-preview/${targetInvoiceId}`);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">Verifying your payment...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error && sessionId) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle className="text-destructive">Payment Verification Failed</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Alert variant="destructive">
+              <AlertDescription>
+                {error}
+              </AlertDescription>
+            </Alert>
+            <Button onClick={() => navigate('/')} className="w-full">
+              Return Home
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  const isPaymentSuccessful = paymentDetails ? paymentDetails.payment_status === 'paid' : true;
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <Card className="w-full max-w-2xl">
         <CardHeader className="text-center">
           <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-            <CheckCircle className="h-8 w-8 text-green-600" />
+            <CheckCircle2 className="h-8 w-8 text-green-600" />
           </div>
           <CardTitle className="text-2xl text-green-600">Payment Successful!</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
+          {paymentDetails && (
+            <div className="text-center mb-4">
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Amount:</span>
+                  <span className="font-medium">
+                    {formatCurrency(paymentDetails.amount_total / 100)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Status:</span>
+                  <Badge variant="default">
+                    {paymentDetails.payment_status}
+                  </Badge>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Transaction ID:</span>
+                  <span className="text-xs font-mono text-muted-foreground">
+                    {paymentDetails.transaction_id}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="text-center">
             <p className="text-lg text-muted-foreground mb-4">
               Thank you! Your {paymentType === 'deposit' ? 'deposit' : 'payment'} has been processed successfully.
@@ -77,7 +169,7 @@ export default function PaymentSuccess() {
                 ) : (
                   <>
                     <div className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4" />
+                      <CheckCircle2 className="h-4 w-4" />
                       <span>Your event is fully paid and confirmed</span>
                     </div>
                     <div className="flex items-center gap-2">
@@ -110,12 +202,26 @@ export default function PaymentSuccess() {
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Home
             </Button>
-            {invoiceId && (
-              <Button onClick={() => navigate(`/estimate-preview/${invoiceId}`)}>
+            {(paymentDetails?.invoice_id || invoiceId) && (
+              <Button onClick={handleViewInvoice}>
                 <FileText className="h-4 w-4 mr-2" />
                 View Invoice
               </Button>
             )}
+          </div>
+
+          <div className="text-center text-sm text-muted-foreground">
+            <p>
+              A confirmation email has been sent to your email address.
+              If you have any questions, please contact Soul Train's Eatery at{' '}
+              <a href="mailto:soultrainseatery@gmail.com" className="text-primary hover:underline">
+                soultrainseatery@gmail.com
+              </a>{' '}
+              or{' '}
+              <a href="tel:8439700265" className="text-primary hover:underline">
+                (843) 970-0265
+              </a>.
+            </p>
           </div>
         </CardContent>
       </Card>
