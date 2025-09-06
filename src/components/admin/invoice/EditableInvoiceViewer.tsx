@@ -12,6 +12,9 @@ import { useLineItemManagement } from '@/hooks/useLineItemManagement';
 import { useKeyboardShortcuts, SHORTCUTS } from '@/hooks/useKeyboardShortcuts';
 import { FloatingActionControls } from '@/components/admin/FloatingActionControls';
 import { LiveCalculationDisplay } from '@/components/admin/LiveCalculationDisplay';
+import { PricingTemplateManager } from '@/components/admin/pricing/PricingTemplateManager';
+import { BulkLineItemOperations } from '@/components/admin/pricing/BulkLineItemOperations';
+import { PricingValidation } from '@/components/admin/pricing/PricingValidation';
 import { 
   FileText, 
   Download, 
@@ -26,7 +29,9 @@ import {
   Check,
   X,
   AlertCircle,
-  Calculator
+  Calculator,
+  Package,
+  Wrench
 } from 'lucide-react';
 
 interface LineItem {
@@ -104,6 +109,9 @@ export function EditableInvoiceViewer({
   const [editingItem, setEditingItem] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [taxRate, setTaxRate] = useState(8.0);
+  const [showPricingTools, setShowPricingTools] = useState(false);
+  const [selectedLineItems, setSelectedLineItems] = useState<Set<string>>(new Set());
+  const [highlightedItems, setHighlightedItems] = useState<Set<string>>(new Set());
   
   // Use the line item management hook with real-time features
   const {
@@ -342,6 +350,73 @@ export function EditableInvoiceViewer({
         )}
       </CardHeader>
 
+      {/* Enhanced Pricing Tools - Only visible in edit mode */}
+      {isEditMode && (
+        <div className="border-t bg-muted/20">
+          <div className="p-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold flex items-center gap-2">
+                <Wrench className="h-5 w-5" />
+                Pricing Tools
+              </h3>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowPricingTools(!showPricingTools)}
+              >
+                {showPricingTools ? 'Hide Tools' : 'Show Tools'}
+              </Button>
+            </div>
+
+            {showPricingTools && (
+              <div className="space-y-6">
+                {/* Pricing Validation */}
+                <PricingValidation
+                  lineItems={lineItems}
+                  guestCount={quote?.guest_count}
+                  onFixIssues={(fixes) => {
+                    fixes.forEach(fix => {
+                      updateLineItem(fix.itemId, fix.fixes);
+                    });
+                  }}
+                  onHighlightItems={(itemIds) => {
+                    setHighlightedItems(new Set(itemIds));
+                    setTimeout(() => setHighlightedItems(new Set()), 3000);
+                  }}
+                />
+
+                {/* Bulk Operations */}
+                <BulkLineItemOperations
+                  lineItems={lineItems}
+                  selectedItems={selectedLineItems}
+                  onSelectionChange={setSelectedLineItems}
+                  onUpdateItems={(updatedItems) => {
+                    updatedItems.forEach(item => {
+                      if (item.id) {
+                        updateLineItem(item.id, item);
+                      }
+                    });
+                  }}
+                  onDeleteItems={(itemIds) => {
+                    itemIds.forEach(id => removeLineItem(id));
+                    setSelectedLineItems(new Set());
+                  }}
+                />
+
+                {/* Pricing Templates */}
+                <PricingTemplateManager
+                  guestCount={quote?.guest_count || 50}
+                  currentItems={lineItems}
+                  onAddItems={(items) => {
+                    items.forEach(item => addLineItem(item));
+                  }}
+                />
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       <CardContent className="space-y-6">
         {/* Line Items */}
         <div className="space-y-4">
@@ -378,8 +453,18 @@ export function EditableInvoiceViewer({
               {isEditMode && <div className="col-span-1">Actions</div>}
             </div>
             
-            {lineItems.map((item, index) => (
-              <div key={item.id || index} className="px-4 py-3 border-t grid grid-cols-12 gap-4 text-sm items-center">
+            {lineItems.map((item, index) => {
+              const isHighlighted = highlightedItems.has(item.id || '');
+              const isSelected = selectedLineItems.has(item.id || '');
+              
+              return (
+              <div 
+                key={item.id || index} 
+                className={`px-4 py-3 border-t grid grid-cols-12 gap-4 text-sm items-center transition-colors ${
+                  isHighlighted ? 'bg-yellow-100 border-yellow-300' : 
+                  isSelected ? 'bg-blue-50 border-blue-300' : ''
+                }`}
+              >
                 <div className="col-span-5">
                   {isEditMode && editingItem === item.id ? (
                     <div className="space-y-2">
@@ -493,7 +578,8 @@ export function EditableInvoiceViewer({
                   </div>
                 )}
               </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
