@@ -18,7 +18,7 @@ import {
   Eye,
   ArrowRight
 } from 'lucide-react';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency } from '@/lib/changeRequestUtils';
 
 interface ChangeRequest {
   id: string;
