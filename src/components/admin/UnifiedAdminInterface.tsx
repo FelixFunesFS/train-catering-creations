@@ -275,6 +275,15 @@ export function UnifiedAdminInterface() {
               <span className="text-xs lg:text-sm text-muted-foreground hidden sm:block truncate">
                 {user?.email}
               </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={signOut}
+                className="gap-1 lg:gap-2 text-xs lg:text-sm px-2 lg:px-3"
+              >
+                <LogOut className="h-3 w-3 lg:h-4 lg:w-4" />
+                <span className="hidden sm:inline">Sign Out</span>
+              </Button>
               <Button 
                 variant="outline" 
                 size="sm" 
