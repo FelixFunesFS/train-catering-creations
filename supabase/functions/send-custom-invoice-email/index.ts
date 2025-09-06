@@ -97,34 +97,65 @@ serve(async (req) => {
 
     console.log(`Attempting to send email to: ${customerEmail}`);
 
-    // Send email via Gmail integration
-    const { data: emailData, error: emailError } = await supabase.functions.invoke('send-gmail-email', {
-      body: {
-        to: customerEmail,
-        subject: custom_subject || `Your Estimate - Soul Train's Eatery`,
-        html: emailHtml,
-        from: 'soultrainseatery@gmail.com'
-      }
-    });
-
-    if (emailError) {
-      console.error('Error sending email via Gmail integration:', emailError);
-      let errorMessage = 'Failed to send email. ';
+    // Try Gmail integration first, fallback to Resend if it fails
+    let emailData;
+    let emailError;
+    
+    try {
+      const gmailResponse = await supabase.functions.invoke('send-gmail-email', {
+        body: {
+          to: customerEmail,
+          subject: custom_subject || `Your Estimate - Soul Train's Eatery`,
+          html: emailHtml,
+          from: 'soultrainseatery@gmail.com'
+        }
+      });
       
-      if (emailError.message?.includes('No Gmail tokens found')) {
-        errorMessage += 'Gmail authentication is not configured. Please set up Gmail integration first.';
-      } else if (emailError.message?.includes('Missing required environment variables')) {
-        errorMessage += 'Email service configuration is incomplete.';
-      } else if (emailError.message?.includes('Token expired') || emailError.message?.includes('refresh')) {
-        errorMessage += 'Gmail authentication has expired. Please re-authorize Gmail access.';
-      } else {
-        errorMessage += `Details: ${emailError.message}`;
-      }
+      emailData = gmailResponse.data;
+      emailError = gmailResponse.error;
       
-      throw new Error(errorMessage);
+      if (!emailError) {
+        console.log('Email sent successfully via Gmail:', emailData);
+      }
+    } catch (gmailErr) {
+      console.warn('Gmail integration failed, trying fallback:', gmailErr);
+      emailError = gmailErr;
     }
 
-    console.log('Email sent successfully:', emailData);
+    // If Gmail fails, try fallback email service
+    if (emailError) {
+      console.log('Attempting fallback email service...');
+      
+      try {
+        const fallbackResponse = await supabase.functions.invoke('send-email-fallback', {
+          body: {
+            to: customerEmail,
+            subject: custom_subject || `Your Estimate - Soul Train's Eatery`,
+            html: emailHtml,
+            from: "Soul Train's Eatery <estimates@soultrainseatery.com>"
+          }
+        });
+
+        if (fallbackResponse.error) {
+          throw fallbackResponse.error;
+        }
+
+        console.log('Email sent successfully via fallback service:', fallbackResponse.data);
+        emailData = fallbackResponse.data;
+      } catch (fallbackErr) {
+        console.error('Both Gmail and fallback email services failed:', { gmailError: emailError, fallbackError: fallbackErr });
+        
+        let errorMessage = 'Failed to send email using both Gmail and backup services. ';
+        
+        if (emailError?.message?.includes('No Gmail tokens found') || emailError?.message?.includes('Token expired')) {
+          errorMessage += 'Gmail authentication needs to be renewed. Please contact support to configure email services.';
+        } else {
+          errorMessage += 'Please contact support to resolve email delivery issues.';
+        }
+        
+        throw new Error(errorMessage);
+      }
+    }
 
     // Update invoice status if not preview
     if (invoice_id) {

@@ -373,7 +373,21 @@ export default function EstimatePreview() {
       window.close();
       return;
     }
-    navigate(`/admin/estimate-creation/${estimate?.quote_requests.id}`);
+    
+    // Navigate to the correct route based on whether we have an invoice or just a quote
+    if (estimate?.id && estimate.id !== 'preview') {
+      // Edit existing estimate/invoice
+      navigate(`/admin/estimate/${estimate.id}`);
+    } else if (estimate?.quote_requests?.id) {
+      // Create new estimate from quote
+      navigate(`/admin/estimate/quote/${estimate.quote_requests.id}`);
+    } else {
+      toast({
+        title: "Error",
+        description: "Unable to determine edit route. Missing invoice or quote information.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleEmailCustomer = async () => {
