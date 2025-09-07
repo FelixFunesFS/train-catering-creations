@@ -1553,6 +1553,10 @@ export type Database = {
         Args: { access_token: string; customer_email: string }
         Returns: boolean
       }
+      grant_first_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["user_role"]
