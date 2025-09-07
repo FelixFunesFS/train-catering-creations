@@ -21,7 +21,7 @@ export function AdminCardActions({
   const hasEstimate = invoices.some(inv => inv.quote_request_id === quote.id);
   
   const handleSetPricing = () => {
-    navigate(`/admin/estimates/quote/${quote.id}`);
+    navigate(`/admin/estimate/quote/${quote.id}`);
   };
 
   return (

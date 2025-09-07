@@ -11,6 +11,7 @@ import { useLineItemManagement } from '@/hooks/useLineItemManagement';
 import { PaymentScheduleDisplay } from '@/components/admin/PaymentScheduleDisplay';
 import { ConsolidatedPhaseCard } from '@/components/admin/ConsolidatedPhaseCard';
 import { EnhancedEstimateLineItems } from '@/components/admin/EnhancedEstimateLineItems';
+import { AdminLayoutWrapper } from '@/components/admin/AdminLayoutWrapper';
 import { type LineItem as UtilsLineItem } from '@/utils/invoiceFormatters';
 import { ArrowLeft, Eye, Send, DollarSign, CheckCircle2, Clock, Plus, Calendar, User, Mail, MapPin } from 'lucide-react';
 
@@ -38,8 +39,9 @@ interface EstimateData {
 }
 
 export function StreamlinedEstimateInterface({ quoteId, invoiceId: propInvoiceId }: StreamlinedEstimateInterfaceProps) {
-  const { invoiceId: paramInvoiceId } = useParams();
+  const { invoiceId: paramInvoiceId, quoteId: paramQuoteId } = useParams();
   const invoiceId = propInvoiceId || paramInvoiceId;
+  const effectiveQuoteId = quoteId || paramQuoteId;
   const navigate = useNavigate();
   const { toast } = useToast();
   const [estimateData, setEstimateData] = useState<EstimateData | null>(null);
@@ -49,6 +51,8 @@ export function StreamlinedEstimateInterface({ quoteId, invoiceId: propInvoiceId
   const [isGovernmentContract, setIsGovernmentContract] = useState(false);
   const [paymentMilestones, setPaymentMilestones] = useState<any[]>([]);
   const [quote, setQuote] = useState<any>(null);
+  const [isCreationMode, setIsCreationMode] = useState(false);
+  const [currentInvoiceId, setCurrentInvoiceId] = useState<string | null>(invoiceId);
 
   // Initialize line item management with real-time calculations
   const {
@@ -103,10 +107,10 @@ export function StreamlinedEstimateInterface({ quoteId, invoiceId: propInvoiceId
   useEffect(() => {
     if (invoiceId) {
       fetchEstimate();
-    } else if (quoteId) {
+    } else if (effectiveQuoteId) {
       checkOrCreateEstimate();
     }
-  }, [invoiceId, quoteId]);
+  }, [invoiceId, effectiveQuoteId]);
 
   const fetchEstimate = async () => {
     if (!invoiceId) return;
@@ -169,24 +173,27 @@ export function StreamlinedEstimateInterface({ quoteId, invoiceId: propInvoiceId
   };
 
   const checkOrCreateEstimate = async () => {
-    if (!quoteId) return;
+    if (!effectiveQuoteId) return;
     
     try {
       // Check if estimate already exists
       const { data: existingEstimate } = await supabase
         .from('invoices')
         .select('id')
-        .eq('quote_request_id', quoteId)
+        .eq('quote_request_id', effectiveQuoteId)
         .maybeSingle();
 
       if (existingEstimate) {
-        // Redirect to existing estimate
-        navigate(`/admin/estimates/${existingEstimate.id}`, { replace: true });
+        // Load existing estimate data
+        setCurrentInvoiceId(existingEstimate.id);
+        // Update URL and refetch with correct ID
+        navigate(`/admin/estimate/${existingEstimate.id}`, { replace: true });
         return;
       }
 
-      // No estimate exists, redirect to creation
-      navigate(`/admin/estimates/quote/${quoteId}`, { replace: true });
+      // No estimate exists, enter creation mode
+      setIsCreationMode(true);
+      await loadQuoteForCreation();
     } catch (error) {
       console.error('Error checking estimate:', error);
       toast({
@@ -196,6 +203,49 @@ export function StreamlinedEstimateInterface({ quoteId, invoiceId: propInvoiceId
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadQuoteForCreation = async () => {
+    if (!effectiveQuoteId) return;
+    
+    try {
+      const { data: quoteData, error } = await supabase
+        .from('quote_requests')
+        .select('*')
+        .eq('id', effectiveQuoteId)
+        .single();
+
+      if (error) throw error;
+
+      setQuote(quoteData);
+      setIsGovernmentContract(quoteData.requires_po_number || false);
+      
+      // Initialize estimate data for creation
+      setEstimateData({
+        id: '', // Will be set when created
+        document_type: 'estimate',
+        status: 'draft',
+        total_amount: 0,
+        subtotal: 0,
+        tax_amount: 0,
+        customer_email: quoteData.email,
+        customer_name: quoteData.contact_name,
+        event_name: quoteData.event_name,
+        event_date: quoteData.event_date,
+        guest_count: quoteData.guest_count,
+        location: quoteData.location,
+        line_items: [],
+        payment_milestones: [],
+        quote_request_id: effectiveQuoteId
+      });
+    } catch (error) {
+      console.error('Error loading quote for creation:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load quote data",
+        variant: "destructive"
+      });
     }
   };
 
@@ -297,7 +347,11 @@ export function StreamlinedEstimateInterface({ quoteId, invoiceId: propInvoiceId
   const StatusIcon = statusBadge.icon;
 
   return (
-    <div className="max-w-7xl mx-auto p-6">
+    <AdminLayoutWrapper 
+      title={isCreationMode ? "Create Estimate" : "Estimate Management"}
+      showBackButton={true}
+    >
+      <div className="max-w-7xl mx-auto p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
@@ -483,7 +537,7 @@ export function StreamlinedEstimateInterface({ quoteId, invoiceId: propInvoiceId
                     <Button 
                       variant="outline" 
                       className="w-full justify-start"
-                      onClick={() => navigate(`/admin/estimates/quote/${quoteId || 'edit'}`)}
+                      onClick={() => navigate(`/admin/estimate/quote/${quoteId || 'edit'}`)}
                     >
                       Edit Details
                     </Button>
@@ -576,6 +630,7 @@ export function StreamlinedEstimateInterface({ quoteId, invoiceId: propInvoiceId
           }}
         />
       )}
-    </div>
+      </div>
+    </AdminLayoutWrapper>
   );
 }

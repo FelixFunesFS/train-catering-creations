@@ -28,8 +28,6 @@ import AdminAuth from "./pages/AdminAuth";
 import NotFound from "./pages/NotFound";
 
 import InvoicePublic from "./pages/InvoicePublic";
-import EstimateCreation from "./pages/EstimateCreation";
-
 import EstimatePreview from "./pages/EstimatePreview";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import ContractManagement from "./pages/ContractManagement";
@@ -76,14 +74,15 @@ const AppContent = () => {
               <QuoteDetailPage />
             </ProtectedRoute>
           } />
+          {/* Unified estimate management - all through StreamlinedEstimateInterface */}
           <Route path="/admin/estimate/quote/:quoteId" element={
             <ProtectedRoute>
-              <EstimateCreation />
+              <StreamlinedEstimateInterface />
             </ProtectedRoute>
           } />
           <Route path="/admin/estimate/:invoiceId" element={
             <ProtectedRoute>
-              <EstimateCreation />
+              <StreamlinedEstimateInterface />
             </ProtectedRoute>
           } />
           <Route path="/admin/contracts" element={

@@ -7,10 +7,11 @@ export const ADMIN_ROUTES = [
   '/admin',
   '/admin/dashboard',
   '/admin/estimate-preview',
-  '/admin/estimate-workflow',
-  '/admin/quote-requests',
+  '/admin/estimate',
+  '/admin/quotes',
   '/admin/customers',
-  '/admin/analytics'
+  '/admin/analytics',
+  '/admin/contracts'
 ] as const;
 
 export const CUSTOMER_ROUTES = [

@@ -34,10 +34,10 @@ export function WorkflowBreadcrumb({ currentStep, invoiceStatus, invoiceId }: Wo
     if (step.status === 'completed' && invoiceId) {
       // Allow navigation to completed steps
       if (step.id === 'draft') {
-        navigate(`/admin/estimate-creation/${invoiceId}`);
+        navigate(`/admin/estimate/${invoiceId}`);
       } else if (step.id === 'sent') {
-        // Stay on current workflow page but could highlight sent status
-        navigate(`/admin/estimate-workflow/${invoiceId}`);
+        // Stay on current estimate interface
+        navigate(`/admin/estimate-preview/${invoiceId}`);
       }
     }
   };
