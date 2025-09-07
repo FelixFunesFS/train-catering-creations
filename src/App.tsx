@@ -38,6 +38,7 @@ import { TokenBasedCustomerPortal } from "./components/customer/TokenBasedCustom
 import UnifiedAdminDashboard from "./pages/UnifiedAdminDashboard";
 import QuoteDetailPage from "./pages/QuoteDetailPage";
 import EstimatePrintView from "./pages/EstimatePrintView";
+import { StreamlinedEstimateInterface } from "./components/admin/StreamlinedEstimateInterface";
 
 const AppContent = () => {
   useScrollToAnchor();
@@ -93,7 +94,11 @@ const AppContent = () => {
           
           {/* Estimate Preview routes */}
           <Route path="/estimate-preview/:invoiceId" element={<EstimatePreview />} />
-          <Route path="/admin/estimate-preview/:invoiceId" element={<EstimatePreview />} />
+          <Route path="/admin/estimate-preview/:invoiceId" element={
+            <ProtectedRoute>
+              <StreamlinedEstimateInterface />
+            </ProtectedRoute>
+          } />
           <Route path="/admin/estimate-preview/:invoiceId/print" element={<EstimatePrintView />} />
           <Route path="/customer/estimate-preview/:invoiceId" element={<EstimatePreview />} />
           

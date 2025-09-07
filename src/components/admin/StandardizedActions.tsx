@@ -35,8 +35,8 @@ export function StandardizedActions({
   };
 
   const handleViewEstimate = () => {
-    // Always navigate to estimate management hub for invoices
-    navigate(`/admin/estimates/${item.id}`);
+    // Always navigate to estimate management interface
+    navigate(`/admin/estimate-preview/${item.id}`);
   };
 
   const handleCreateInvoice = async () => {
@@ -175,7 +175,7 @@ export function StandardizedActions({
           <Button
             size={size}
             variant={variant}
-            onClick={() => navigate(`/admin/estimates/${item.id}`)}
+            onClick={() => navigate(`/admin/estimate-preview/${item.id}`)}
             title="Manage Estimate"
           >
             <Edit className="h-3 w-3" />
@@ -218,8 +218,8 @@ export function ActionButton({
           break;
           
         case 'view-estimate':
-          // Navigate to estimate management hub
-          navigate(`/admin/estimates/${item.id}`);
+          // Navigate to estimate management interface
+          navigate(`/admin/estimate-preview/${item.id}`);
           break;
           
         case 'create-invoice':

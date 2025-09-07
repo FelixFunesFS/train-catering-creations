@@ -30,20 +30,11 @@ export function AdminLayout({
               <Button 
                 variant="ghost" 
                 size="sm" 
-                onClick={() => {
-                  // If on an estimate preview and there's an invoiceId, go to workflow
-                  const currentPath = window.location.pathname;
-                  const invoiceMatch = currentPath.match(/\/admin\/estimate-preview\/([^\/\?]+)/);
-                  if (invoiceMatch && invoiceMatch[1] && invoiceMatch[1] !== 'preview') {
-                    navigate(`/admin/estimate-workflow/${invoiceMatch[1]}`);
-                  } else {
-                    navigate(backUrl);
-                  }
-                }}
+                onClick={() => navigate(backUrl)}
                 className="shrink-0"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                {window.location.pathname.includes('/admin/estimate-preview/') && !window.location.pathname.includes('/preview') ? 'Back to Workflow' : 'Back to Dashboard'}
+                Back to Dashboard
               </Button>
             )}
             <div>

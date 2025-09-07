@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -37,7 +37,9 @@ interface EstimateData {
   quote_request_id?: string;
 }
 
-export function StreamlinedEstimateInterface({ quoteId, invoiceId }: StreamlinedEstimateInterfaceProps) {
+export function StreamlinedEstimateInterface({ quoteId, invoiceId: propInvoiceId }: StreamlinedEstimateInterfaceProps) {
+  const { invoiceId: paramInvoiceId } = useParams();
+  const invoiceId = propInvoiceId || paramInvoiceId;
   const navigate = useNavigate();
   const { toast } = useToast();
   const [estimateData, setEstimateData] = useState<EstimateData | null>(null);
