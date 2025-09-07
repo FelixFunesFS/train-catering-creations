@@ -1448,6 +1448,33 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          granted_at: string | null
+          granted_by: string | null
+          id: string
+          role: Database["public"]["Enums"]["user_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          granted_at?: string | null
+          granted_by?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          granted_at?: string | null
+          granted_by?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       workflow_state_log: {
         Row: {
           change_reason: string | null
@@ -1526,6 +1553,13 @@ export type Database = {
         Args: { access_token: string; customer_email: string }
         Returns: boolean
       }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["user_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       is_admin: {
         Args: Record<PropertyKey, never>
         Returns: boolean
@@ -1574,6 +1608,7 @@ export type Database = {
         | "delivery-only"
         | "delivery-setup"
         | "drop-off"
+      user_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1748,6 +1783,7 @@ export const Constants = {
         "delivery-setup",
         "drop-off",
       ],
+      user_role: ["admin", "user"],
     },
   },
 } as const
