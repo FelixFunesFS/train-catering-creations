@@ -12,8 +12,8 @@ import { PaymentScheduleDisplay } from '@/components/admin/PaymentScheduleDispla
 import { ConsolidatedPhaseCard } from '@/components/admin/ConsolidatedPhaseCard';
 import { EnhancedEstimateLineItems } from '@/components/admin/EnhancedEstimateLineItems';
 import { AdminLayoutWrapper } from '@/components/admin/AdminLayoutWrapper';
-import { type LineItem as UtilsLineItem } from '@/utils/invoiceFormatters';
-import { ArrowLeft, Eye, Send, DollarSign, CheckCircle2, Clock, Plus, Calendar, User, Mail, MapPin } from 'lucide-react';
+import { type LineItem as UtilsLineItem, generateProfessionalLineItems, type QuoteRequest } from '@/utils/invoiceFormatters';
+import { ArrowLeft, Eye, Send, DollarSign, CheckCircle2, Clock, Plus, Calendar, User, Mail, MapPin, RefreshCw } from 'lucide-react';
 
 interface StreamlinedEstimateInterfaceProps {
   quoteId?: string;
@@ -221,6 +221,9 @@ export function StreamlinedEstimateInterface({ quoteId, invoiceId: propInvoiceId
       setQuote(quoteData);
       setIsGovernmentContract(quoteData.requires_po_number || false);
       
+      // Generate line items from quote data
+      const generatedLineItems = generateProfessionalLineItems(quoteData as QuoteRequest);
+      
       // Initialize estimate data for creation
       setEstimateData({
         id: '', // Will be set when created
@@ -235,7 +238,7 @@ export function StreamlinedEstimateInterface({ quoteId, invoiceId: propInvoiceId
         event_date: quoteData.event_date,
         guest_count: quoteData.guest_count,
         location: quoteData.location,
-        line_items: [],
+        line_items: generatedLineItems,
         payment_milestones: [],
         quote_request_id: effectiveQuoteId
       });
@@ -307,6 +310,40 @@ export function StreamlinedEstimateInterface({ quoteId, invoiceId: propInvoiceId
       toast({
         title: "Failed to create payment link",
         description: "Please try again",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleRegenerateFromQuote = async () => {
+    if (!quote) {
+      toast({
+        title: "Error",
+        description: "No quote data available to regenerate from",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      // Generate fresh line items from quote data
+      const generatedLineItems = generateProfessionalLineItems(quote as QuoteRequest);
+      
+      // Update estimateData with new line items
+      setEstimateData(prev => prev ? {
+        ...prev,
+        line_items: generatedLineItems
+      } : null);
+      
+      toast({
+        title: "Line Items Regenerated",
+        description: "Line items have been regenerated from the original quote data",
+      });
+    } catch (error) {
+      console.error('Error regenerating line items:', error);
+      toast({
+        title: "Error",
+        description: "Failed to regenerate line items from quote",
         variant: "destructive"
       });
     }
@@ -583,6 +620,29 @@ export function StreamlinedEstimateInterface({ quoteId, invoiceId: propInvoiceId
         <TabsContent value="details" className="mt-6">
           {/* Enhanced Line Items with real-time calculations */}
           <div className="space-y-6">
+            {quote && (
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg">Quote-Based Actions</CardTitle>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleRegenerateFromQuote}
+                      className="flex items-center gap-2"
+                    >
+                      <RefreshCw className="h-4 w-4" />
+                      Regenerate from Quote
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">
+                    Generate line items automatically from the original quote request data including menu selections, guest count, and service options.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
             {estimateData && (
               <EnhancedEstimateLineItems
                 lineItems={lineItems as UtilsLineItem[]}
