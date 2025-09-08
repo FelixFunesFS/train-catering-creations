@@ -1,5 +1,4 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Edit } from 'lucide-react';
 
@@ -8,20 +7,22 @@ interface AdminCardActionsProps {
   invoices?: any[];
   variant?: 'default' | 'outline' | 'ghost';
   size?: 'default' | 'sm' | 'lg';
+  onSetPricing?: (quoteId: string) => void;
 }
 
 export function AdminCardActions({ 
   quote, 
   invoices = [], 
   variant = 'default',
-  size = 'default'
+  size = 'default',
+  onSetPricing
 }: AdminCardActionsProps) {
-  const navigate = useNavigate();
-  
   const hasEstimate = invoices.some(inv => inv.quote_request_id === quote.id);
   
   const handleSetPricing = () => {
-    navigate(`/admin/estimate/quote/${quote.id}`);
+    if (onSetPricing) {
+      onSetPricing(quote.id);
+    }
   };
 
   return (

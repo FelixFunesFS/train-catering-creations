@@ -32,13 +32,8 @@ export function WorkflowBreadcrumb({ currentStep, invoiceStatus, invoiceId }: Wo
 
   const handleStepClick = (step: any) => {
     if (step.status === 'completed' && invoiceId) {
-      // Allow navigation to completed steps
-      if (step.id === 'draft') {
-        navigate(`/admin/estimate/${invoiceId}`);
-      } else if (step.id === 'sent') {
-        // Stay on current estimate interface
-        navigate(`/admin/estimate-preview/${invoiceId}`);
-      }
+      // Navigation handled by dashboard modals - redirect to admin
+      navigate(`/admin?tab=estimates-progress&invoiceId=${invoiceId}`);
     }
   };
 

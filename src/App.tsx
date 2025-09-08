@@ -73,17 +73,7 @@ const AppContent = () => {
               <QuoteDetailPage />
             </ProtectedRoute>
           } />
-          {/* Legacy estimate routes - redirect to modal workflow in admin */}
-          <Route path="/admin/estimate/quote/:quoteId" element={
-            <ProtectedRoute>
-              <UnifiedAdminDashboard />
-            </ProtectedRoute>
-          } />
-          <Route path="/admin/estimate/:invoiceId" element={
-            <ProtectedRoute>
-              <UnifiedAdminDashboard />
-            </ProtectedRoute>
-          } />
+          {/* Legacy routes - redirect to admin dashboard for modal handling */}
           <Route path="/admin/contracts" element={
             <ProtectedRoute>
               <ContractManagement />
@@ -92,11 +82,7 @@ const AppContent = () => {
           
           {/* Estimate Preview routes */}
           <Route path="/estimate-preview/:invoiceId" element={<EstimatePreview />} />
-          <Route path="/admin/estimate-preview/:invoiceId" element={
-            <ProtectedRoute>
-              <UnifiedAdminDashboard />
-            </ProtectedRoute>
-          } />
+          {/* Admin estimate preview redirects to dashboard modals */}
           <Route path="/admin/estimate-preview/:invoiceId/print" element={<EstimatePrintView />} />
           <Route path="/customer/estimate-preview/:invoiceId" element={<EstimatePreview />} />
           

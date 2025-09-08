@@ -5,12 +5,7 @@
 
 export const ADMIN_ROUTES = [
   '/admin',
-  '/admin/dashboard',
-  '/admin/estimate-preview',
-  '/admin/estimate',
-  '/admin/quotes',
-  '/admin/customers',
-  '/admin/analytics',
+  '/admin/quotes', 
   '/admin/contracts'
 ] as const;
 

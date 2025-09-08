@@ -424,16 +424,16 @@ export default function EstimatePreview() {
       window.close();
       return;
     } else {
-      // Navigate to the correct route based on whether we have an invoice or just a quote
+      // Navigate to admin dashboard for modal-based editing
       if (estimate?.id && estimate.id !== 'preview') {
-        // Edit existing estimate/invoice
-        navigate(`/admin/estimate/${estimate.id}`);
+        // Edit existing estimate/invoice via dashboard
+        navigate(`/admin?tab=estimates-progress&invoiceId=${estimate.id}`);
       } else if (estimate?.quote_requests?.id) {
-        // Create new estimate from quote
-        navigate(`/admin/estimate/quote/${estimate.quote_requests.id}`);
+        // Create new estimate from quote via dashboard
+        navigate(`/admin?tab=new-requests&quoteId=${estimate.quote_requests.id}`);
       } else {
         toast({
-          title: "Error",
+          title: "Error", 
           description: "Unable to determine edit route. Missing invoice or quote information.",
           variant: "destructive",
         });
