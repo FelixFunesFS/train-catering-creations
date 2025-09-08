@@ -36,7 +36,6 @@ import { TokenBasedCustomerPortal } from "./components/customer/TokenBasedCustom
 import UnifiedAdminDashboard from "./pages/UnifiedAdminDashboard";
 import QuoteDetailPage from "./pages/QuoteDetailPage";
 import EstimatePrintView from "./pages/EstimatePrintView";
-import { StreamlinedEstimateInterface } from "./components/admin/StreamlinedEstimateInterface";
 
 const AppContent = () => {
   useScrollToAnchor();
@@ -74,15 +73,15 @@ const AppContent = () => {
               <QuoteDetailPage />
             </ProtectedRoute>
           } />
-          {/* Unified estimate management - all through StreamlinedEstimateInterface */}
+          {/* Legacy estimate routes - redirect to modal workflow in admin */}
           <Route path="/admin/estimate/quote/:quoteId" element={
             <ProtectedRoute>
-              <StreamlinedEstimateInterface />
+              <UnifiedAdminDashboard />
             </ProtectedRoute>
           } />
           <Route path="/admin/estimate/:invoiceId" element={
             <ProtectedRoute>
-              <StreamlinedEstimateInterface />
+              <UnifiedAdminDashboard />
             </ProtectedRoute>
           } />
           <Route path="/admin/contracts" element={
@@ -95,7 +94,7 @@ const AppContent = () => {
           <Route path="/estimate-preview/:invoiceId" element={<EstimatePreview />} />
           <Route path="/admin/estimate-preview/:invoiceId" element={
             <ProtectedRoute>
-              <StreamlinedEstimateInterface />
+              <UnifiedAdminDashboard />
             </ProtectedRoute>
           } />
           <Route path="/admin/estimate-preview/:invoiceId/print" element={<EstimatePrintView />} />

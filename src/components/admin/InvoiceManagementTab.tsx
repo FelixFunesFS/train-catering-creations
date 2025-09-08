@@ -7,6 +7,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { InvoicePreviewModal } from '@/components/admin/InvoicePreviewModal';
 import { StatusBadge } from '@/components/admin/StatusBadge';
 import { StandardizedActions } from '@/components/admin/StandardizedActions';
+import { StreamlinedEstimateModal } from '@/components/admin/StreamlinedEstimateModal';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { 
@@ -49,6 +50,8 @@ export function InvoiceManagementTab({
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [showEstimateModal, setShowEstimateModal] = useState(false);
+  const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
   const { toast } = useToast();
 
   const formatCurrency = (amount: number) => {
@@ -350,7 +353,10 @@ export function InvoiceManagementTab({
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => window.open(`/admin/estimate-preview/${invoice.id}`, '_blank')}
+                            onClick={() => {
+                              setSelectedInvoiceId(invoice.id);
+                              setShowEstimateModal(true);
+                            }}
                             title="Manage Estimate"
                           >
                             <Eye className="h-3 w-3" />
@@ -479,6 +485,21 @@ export function InvoiceManagementTab({
           onRefresh={onRefresh}
         />
       )}
+
+      {/* Streamlined Estimate Modal */}
+      <StreamlinedEstimateModal
+        isOpen={showEstimateModal}
+        onClose={() => {
+          setShowEstimateModal(false);
+          setSelectedInvoiceId(null);
+        }}
+        invoiceId={selectedInvoiceId || undefined}
+        onSuccess={() => {
+          setShowEstimateModal(false);
+          setSelectedInvoiceId(null);
+          onRefresh();
+        }}
+      />
     </div>
   );
 }

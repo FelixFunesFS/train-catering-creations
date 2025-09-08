@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { QuoteManagementTab } from './QuoteManagementTab';
 import { UnifiedQuoteWorkflow } from '@/components/admin/UnifiedQuoteWorkflow';
+import { StreamlinedEstimateModal } from '@/components/admin/StreamlinedEstimateModal';
 import { 
   PlayCircle, 
   Clock, 
@@ -31,6 +32,8 @@ export function NewRequestsWorkflow({
   invoices = []
 }: NewRequestsWorkflowProps) {
   const navigate = useNavigate();
+  const [showEstimateModal, setShowEstimateModal] = useState(false);
+  const [selectedQuoteId, setSelectedQuoteId] = useState<string | null>(null);
   
   // Organize quotes into workflow queues
   const newRequests = quotes.filter(q => q.status === 'pending');
@@ -122,7 +125,12 @@ export function NewRequestsWorkflow({
                         <Button 
                           size="sm" 
                           className={`ml-4 ${hasEstimate ? 'bg-muted text-muted-foreground cursor-not-allowed' : 'bg-primary hover:bg-primary/90 text-primary-foreground'}`}
-                          onClick={() => hasEstimate ? null : navigate(`/admin/estimate/quote/${quote.id}`)}
+                          onClick={() => {
+                            if (!hasEstimate) {
+                              setSelectedQuoteId(quote.id);
+                              setShowEstimateModal(true);
+                            }
+                          }}
                           disabled={hasEstimate}
                         >
                           <PlayCircle className="h-4 w-4 mr-1" />
@@ -196,6 +204,21 @@ export function NewRequestsWorkflow({
           </Card>
         )}
       </div>
+
+      {/* Streamlined Estimate Modal */}
+      <StreamlinedEstimateModal
+        isOpen={showEstimateModal}
+        onClose={() => {
+          setShowEstimateModal(false);
+          setSelectedQuoteId(null);
+        }}
+        quoteId={selectedQuoteId || undefined}
+        onSuccess={() => {
+          setShowEstimateModal(false);
+          setSelectedQuoteId(null);
+          onRefresh();
+        }}
+      />
     </div>
   );
 }

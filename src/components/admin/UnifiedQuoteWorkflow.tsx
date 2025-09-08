@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { EstimatePreviewModal } from '@/components/admin/EstimatePreviewModal';
+import { StreamlinedEstimateModal } from '@/components/admin/StreamlinedEstimateModal';
 import { 
   ArrowRight, 
   Eye, 
@@ -58,6 +59,7 @@ export function UnifiedQuoteWorkflow({ quote, onRefresh }: UnifiedQuoteWorkflowP
   const [existingInvoice, setExistingInvoice] = useState<Invoice | null>(null);
   const [loading, setLoading] = useState(false);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [showEstimateModal, setShowEstimateModal] = useState(false);
   const [estimatedPrice, setEstimatedPrice] = useState(quote.estimated_total || 0);
 
   useEffect(() => {
@@ -98,8 +100,8 @@ export function UnifiedQuoteWorkflow({ quote, onRefresh }: UnifiedQuoteWorkflowP
           .eq('id', quote.id);
       }
 
-      // Navigate to estimate creation
-      navigate(`/admin/estimate/quote/${quote.id}`);
+      // Open estimate modal instead of navigating
+      setShowEstimateModal(true);
     } catch (error) {
       console.error('Error preparing estimate:', error);
       toast({
@@ -114,7 +116,7 @@ export function UnifiedQuoteWorkflow({ quote, onRefresh }: UnifiedQuoteWorkflowP
 
   const handleViewEstimate = () => {
     if (existingInvoice) {
-      navigate(`/admin/estimate/${existingInvoice.id}`);
+      setShowEstimateModal(true);
     }
   };
 
@@ -373,6 +375,19 @@ export function UnifiedQuoteWorkflow({ quote, onRefresh }: UnifiedQuoteWorkflowP
           }}
         />
       )}
+
+      {/* Streamlined Estimate Modal */}
+      <StreamlinedEstimateModal
+        isOpen={showEstimateModal}
+        onClose={() => setShowEstimateModal(false)}
+        quoteId={existingInvoice ? undefined : quote.id}
+        invoiceId={existingInvoice?.id}
+        onSuccess={() => {
+          setShowEstimateModal(false);
+          checkExistingInvoice();
+          onRefresh?.();
+        }}
+      />
     </Card>
   );
 }
