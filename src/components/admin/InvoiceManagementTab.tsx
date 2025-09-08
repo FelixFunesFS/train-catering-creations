@@ -448,12 +448,12 @@ export function InvoiceManagementTab({
                       </div>
                       
                       <div className="flex gap-1">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => window.open(`/admin/estimate-preview/${invoice.id}`, '_blank')}
-                          title="Manage Estimate"
-                        >
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => window.open(`/estimate-preview/${invoice.id}`, '_blank')}
+                            title="Manage Estimate"
+                          >
                           <Eye className="h-3 w-3" />
                           <span className="ml-1">Manage</span>
                         </Button>

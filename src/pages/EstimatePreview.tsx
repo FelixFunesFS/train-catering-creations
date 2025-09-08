@@ -363,7 +363,7 @@ export default function EstimatePreview() {
     
     if (isAdminContext) {
       // Open the dedicated print route for admin users
-      const printUrl = `/admin/estimate-preview/${invoiceId}/print`;
+      const printUrl = `/estimate-print/${invoiceId}`;
       window.open(printUrl, '_blank');
       
       toast({

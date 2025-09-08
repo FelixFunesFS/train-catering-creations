@@ -318,9 +318,9 @@ export function StreamlinedEstimateModal({
 
   const handleOpenInNewTab = () => {
     if (invoiceId) {
-      window.open(`/admin/estimate/${invoiceId}`, '_blank');
+      window.open(`/admin?tab=estimates-progress&invoiceId=${invoiceId}&modal=estimate`, '_blank');
     } else if (quoteId) {
-      window.open(`/admin/estimate/quote/${quoteId}`, '_blank');
+      window.open(`/admin?tab=new-requests&quoteId=${quoteId}&action=create-estimate`, '_blank');
     }
   };
 
@@ -408,7 +408,7 @@ export function StreamlinedEstimateModal({
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => window.open(`/admin/estimate-preview/${estimateData.id}`, '_blank')}
+                    onClick={() => window.open(`/estimate-preview/${estimateData.id}`, '_blank')}
                     className="flex items-center gap-2"
                   >
                     <Eye className="h-4 w-4" />

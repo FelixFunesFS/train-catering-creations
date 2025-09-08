@@ -35,17 +35,17 @@ export const EstimateActions = ({ invoice, quote, onStatusChange }: EstimateActi
   };
 
   const handlePreview = () => {
-    window.open(`/admin/estimate-preview/${invoice.id}`, '_blank');
+    window.open(`/admin?modal=estimate&id=${invoice.id}`, '_blank');
   };
 
   const handleEdit = () => {
-    // Navigate to the correct route based on whether we have an invoice or just a quote
+    // Navigate to the admin dashboard with modal parameters
     if (invoice?.id) {
       // Edit existing estimate/invoice
-      window.location.href = `/admin/estimate/${invoice.id}`;
+      window.location.href = `/admin?tab=estimates-progress&invoiceId=${invoice.id}&action=edit`;
     } else if (quote?.id) {
       // Create new estimate from quote
-      window.location.href = `/admin/estimate/quote/${quote.id}`;
+      window.location.href = `/admin?tab=new-requests&quoteId=${quote.id}&action=create-estimate`;
     } else {
       toast({
         title: "Error",

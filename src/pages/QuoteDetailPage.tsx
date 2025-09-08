@@ -187,7 +187,7 @@ export default function QuoteDetailPage() {
             <div className="flex items-center gap-3">
               <StatusBadge status={quote.workflow_status || quote.status} />
               <Button 
-                onClick={() => navigate(`/admin/estimate-creation/${quote.id}`)}
+                onClick={() => navigate(`/admin?tab=new-requests&quoteId=${quote.id}&action=create-estimate`)}
                 variant="outline"
               >
                 <FileText className="h-4 w-4 mr-2" />
@@ -397,7 +397,7 @@ export default function QuoteDetailPage() {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => navigate(`/estimate-preview/${invoice.id}`)}
+                            onClick={() => navigate(`/admin?tab=estimates-progress&invoiceId=${invoice.id}`)}
                           >
                             View
                           </Button>

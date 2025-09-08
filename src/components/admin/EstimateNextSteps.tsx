@@ -99,12 +99,12 @@ export function EstimateNextSteps({
   };
 
   const handlePreview = () => {
-    const previewUrl = `/admin/estimate-preview/${invoiceId}`;
+    const previewUrl = `/admin?modal=estimate&id=${invoiceId}`;
     window.open(previewUrl, '_blank');
   };
 
   const handleEdit = () => {
-    navigate(`/admin/estimate-creation/${invoiceId}?edit=true`);
+    navigate(`/admin?tab=estimates-progress&invoiceId=${invoiceId}&action=edit`);
   };
 
   const handleCreatePaymentLink = async () => {

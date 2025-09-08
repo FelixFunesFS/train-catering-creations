@@ -50,11 +50,32 @@ export function UnifiedAdminInterface() {
     fetchAllData();
   }, []);
 
-  // Listen for URL parameter changes
+  // Listen for URL parameter changes and handle modal parameters
   useEffect(() => {
     const tab = searchParams.get('tab');
+    const modal = searchParams.get('modal');
+    const invoiceId = searchParams.get('invoiceId');
+    const quoteId = searchParams.get('quoteId');
+    const action = searchParams.get('action');
+    
     if (tab && tab !== activeTab) {
       setActiveTab(tab);
+    }
+    
+    // Handle modal parameters for direct navigation
+    if (modal === 'estimate' && invoiceId) {
+      // Auto-open estimate modal for the specified invoice
+      setActiveTab('estimates-progress');
+    }
+    
+    if (action === 'create-estimate' && quoteId) {
+      // Auto-trigger estimate creation for the specified quote
+      setActiveTab('new-requests');
+    }
+    
+    if (action === 'edit' && invoiceId) {
+      // Auto-open estimate edit for the specified invoice
+      setActiveTab('estimates-progress');
     }
   }, [searchParams, activeTab]);
 
