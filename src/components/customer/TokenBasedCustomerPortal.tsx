@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -26,7 +26,10 @@ interface CustomerData {
 }
 
 export function TokenBasedCustomerPortal() {
-  const { token } = useParams();
+  const { token: paramToken } = useParams();
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get('token') || paramToken; // Support both URL structures
+  const action = searchParams.get('action');
   const [data, setData] = useState<CustomerData>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -37,6 +40,22 @@ export function TokenBasedCustomerPortal() {
       fetchCustomerData();
     }
   }, [token]);
+
+  // Handle automatic actions from URL
+  useEffect(() => {
+    if (data.invoice && action) {
+      if (action === 'approve') {
+        handleApproveEstimate();
+      } else if (action === 'changes') {
+        // Show a more prominent change request message
+        toast({
+          title: "Request Changes",
+          description: "Use the 'Request Changes' button below or call us at (843) 970-0265 to discuss modifications.",
+          duration: 6000,
+        });
+      }
+    }
+  }, [data.invoice, action]);
 
   const fetchCustomerData = async () => {
     setLoading(true);

@@ -94,6 +94,7 @@ const AppContent = () => {
           {/* Customer-facing routes */}
           <Route path="/invoice/public/:invoiceToken" element={<InvoicePublic />} />
           <Route path="/customer/portal" element={<OptimizedCustomerPortal />} />
+          <Route path="/customer-portal" element={<TokenBasedCustomerPortal />} />
           <Route path="/customer/estimate/:token" element={<TokenBasedCustomerPortal />} />
           <Route path="/estimate-preview/:token" element={<TokenBasedCustomerPortal />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />

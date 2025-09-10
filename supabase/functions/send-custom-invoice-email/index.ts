@@ -394,8 +394,27 @@ Soul Train's Eatery Team`}
       ` : ''}
     </div>
 
+    <div style="text-align: center; margin: 30px 0;">
+      <h3 style="color: #DC143C; margin-bottom: 20px;">Ready to Move Forward? 🎉</h3>
+      
+      <div style="margin: 25px 0;">
+        <a href="https://qptprrqjlcvfkhfdnnoa.supabase.co/customer-portal?token=${estimate.customer_access_token}&action=approve" 
+           style="display: inline-block; background: linear-gradient(135deg, #DC143C 0%, #B91C3C 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; margin: 0 10px 10px 0; box-shadow: 0 4px 6px rgba(220, 20, 60, 0.3);">
+          ✅ Approve This Estimate
+        </a>
+        
+        <a href="https://qptprrqjlcvfkhfdnnoa.supabase.co/customer-portal?token=${estimate.customer_access_token}&action=changes" 
+           style="display: inline-block; background: white; color: #DC143C; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; margin: 0 10px 10px 0; border: 2px solid #DC143C; box-shadow: 0 4px 6px rgba(220, 20, 60, 0.2);">
+          📝 Request Changes
+        </a>
+      </div>
+      
+      <p style="color: #666; font-size: 14px; margin-bottom: 20px;">
+        Click the buttons above to approve your estimate or request modifications
+      </p>
+    </div>
+
     <div class="footer">
-      <h3 style="color: #DC143C; margin-top: 0;">Ready to Move Forward? 🎉</h3>
       <div class="contact-info">
         <strong>Phone:</strong> (843) 970-0265
       </div>
