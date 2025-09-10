@@ -13,6 +13,7 @@ import { BusinessIntelligenceDashboard } from '@/components/admin/BusinessIntell
 import { ChangeRequestsTab } from '@/components/admin/tabs/ChangeRequestsTab';
 import { EventPlanningWorkflow } from '@/components/admin/EventPlanningWorkflow';
 import { EventCloseoutWorkflow } from '@/components/admin/EventCloseoutWorkflow';
+import { TestExecutionPanel } from '@/components/admin/TestExecutionPanel';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -25,7 +26,8 @@ import {
   Users,
   LogOut,
   MessageSquare,
-  CheckCircle2
+  CheckCircle2,
+  TestTube
 } from 'lucide-react';
 
 interface UnifiedAdminData {
@@ -329,7 +331,7 @@ export function UnifiedAdminInterface() {
             {/* Mobile Tab Navigation */}
             <div className="lg:hidden sticky top-14 z-30 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
               <div className="px-3 py-2">
-                  <div className="grid grid-cols-6 gap-1 bg-muted rounded-lg p-1 text-xs">
+                  <div className="grid grid-cols-7 gap-1 bg-muted rounded-lg p-1 text-xs">
                     <button
                       onClick={() => handleTabChange('new-requests')}
                       className={`flex flex-col items-center gap-1 px-1 py-2 rounded-md transition-all relative ${
@@ -424,6 +426,17 @@ export function UnifiedAdminInterface() {
                       </div>
                       <span className="text-xs">Pay</span>
                     </button>
+                    <button
+                      onClick={() => handleTabChange('testing')}
+                      className={`flex flex-col items-center gap-1 px-1 py-2 rounded-md transition-all relative ${
+                        activeTab === 'testing' 
+                          ? 'bg-background text-foreground shadow-sm' 
+                          : 'text-muted-foreground hover:text-foreground'
+                      }`}
+                    >
+                      <TestTube className="h-3 w-3" />
+                      <span className="text-xs">Test</span>
+                    </button>
                   </div>
               </div>
             </div>
@@ -434,7 +447,7 @@ export function UnifiedAdminInterface() {
                 <div className="p-3 lg:p-6 min-h-full">
                   {/* Desktop Tab Navigation */}
                   <Tabs value={activeTab} onValueChange={handleTabChange} className="hidden lg:block">
-                    <TabsList className="grid w-full grid-cols-6 mb-6">
+                    <TabsList className="grid w-full grid-cols-7 mb-6">
                       <TabsTrigger value="new-requests" className="flex items-center gap-2">
                         <FileText className="h-4 w-4" />
                         New Requests
@@ -483,6 +496,10 @@ export function UnifiedAdminInterface() {
                       <TabsTrigger value="analytics" className="flex items-center gap-2">
                         <LayoutDashboard className="h-4 w-4" />
                         Analytics
+                      </TabsTrigger>
+                      <TabsTrigger value="testing" className="flex items-center gap-2">
+                        <TestTube className="h-4 w-4" />
+                        Testing
                       </TabsTrigger>
                     </TabsList>
                   </Tabs>
@@ -545,6 +562,10 @@ export function UnifiedAdminInterface() {
 
                     {activeTab === 'analytics' && (
                       <BusinessIntelligenceDashboard />
+                    )}
+
+                    {activeTab === 'testing' && (
+                      <TestExecutionPanel />
                     )}
                   </div>
                 </div>
