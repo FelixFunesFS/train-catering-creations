@@ -7,6 +7,7 @@ import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { EstimatePreviewCard } from './EstimatePreviewCard';
+import { ChangeRequestForm } from './ChangeRequestForm';
 import { 
   CheckCircle, 
   Clock, 
@@ -16,7 +17,8 @@ import {
   MessageSquare,
   Star,
   Edit,
-  AlertCircle
+  AlertCircle,
+  ArrowLeft
 } from 'lucide-react';
 
 interface CustomerData {
@@ -33,6 +35,7 @@ export function TokenBasedCustomerPortal() {
   const [data, setData] = useState<CustomerData>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showChangeForm, setShowChangeForm] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -47,11 +50,11 @@ export function TokenBasedCustomerPortal() {
       if (action === 'approve') {
         handleApproveEstimate();
       } else if (action === 'changes') {
-        // Show a more prominent change request message
+        setShowChangeForm(true);
         toast({
           title: "Request Changes",
-          description: "Use the 'Request Changes' button below or call us at (843) 970-0265 to discuss modifications.",
-          duration: 6000,
+          description: "Fill out the form below to request modifications to your estimate.",
+          duration: 4000,
         });
       }
     }
@@ -151,16 +154,22 @@ export function TokenBasedCustomerPortal() {
   };
 
   const handleRequestChanges = () => {
-    toast({
-      title: "Contact Us",
-      description: "Please call us at (843) 970-0265 to discuss changes to your estimate.",
-    });
+    setShowChangeForm(true);
   };
 
   const handleMakePayment = () => {
     toast({
       title: "Payment Processing",
       description: "Payment functionality will be available soon. Please contact us to arrange payment.",
+    });
+  };
+
+  const handleChangeRequestSubmitted = () => {
+    setShowChangeForm(false);
+    toast({
+      title: "Request Submitted Successfully",
+      description: "We'll review your changes and get back to you within 24 hours.",
+      duration: 5000,
     });
   };
 
@@ -212,6 +221,73 @@ export function TokenBasedCustomerPortal() {
             </p>
           </CardContent>
         </Card>
+      </div>
+    );
+  }
+
+  // Show change request form when requested
+  if (showChangeForm && data.quote) {
+    return (
+      <div className="min-h-screen bg-background">
+        <header className="bg-card border-b border-border">
+          <div className="max-w-4xl mx-auto px-4 py-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl font-bold text-foreground">Soul Train's Eatery</h1>
+                <p className="text-muted-foreground">Request Changes</p>
+              </div>
+              <div className="text-right">
+                <p className="text-sm text-muted-foreground">Estimate #</p>
+                <p className="font-mono text-lg">{data.invoice.invoice_number || 'DRAFT'}</p>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <main className="max-w-4xl mx-auto px-4 py-8">
+          <Button
+            variant="ghost"
+            onClick={() => setShowChangeForm(false)}
+            className="mb-6"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Estimate
+          </Button>
+          
+          {/* Current Estimate Summary */}
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle>Current Estimate Summary</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                <div>
+                  <span className="font-medium">Date:</span>
+                  <p className="text-muted-foreground">
+                    {data.quote.event_date ? new Date(data.quote.event_date).toLocaleDateString() : 'Not set'}
+                  </p>
+                </div>
+                <div>
+                  <span className="font-medium">Time:</span>
+                  <p className="text-muted-foreground">{data.quote.start_time || 'Not set'}</p>
+                </div>
+                <div>
+                  <span className="font-medium">Guests:</span>
+                  <p className="text-muted-foreground">{data.quote.guest_count}</p>
+                </div>
+                <div>
+                  <span className="font-medium">Location:</span>
+                  <p className="text-muted-foreground">{data.quote.location}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <ChangeRequestForm 
+            quote={data.quote} 
+            onRequestSubmitted={handleChangeRequestSubmitted}
+          />
+        </main>
       </div>
     );
   }
