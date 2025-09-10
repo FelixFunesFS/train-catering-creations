@@ -85,6 +85,7 @@ export function CustomerInvoiceViewer({
   documentType = 'invoice'
 }: CustomerInvoiceViewerProps) {
   const formatCurrency = (amount: number) => {
+    // Ensure consistent currency formatting across the app
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD'

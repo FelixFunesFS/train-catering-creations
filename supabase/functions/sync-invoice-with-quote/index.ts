@@ -70,107 +70,49 @@ serve(async (req) => {
       currentLineItemsCount: currentLineItems?.length 
     });
 
-    // Fetch active pricing rules
-    const { data: pricingRules, error: pricingError } = await supabaseClient
-      .from("pricing_rules")
-      .select("*")
-      .eq("is_active", true);
+    // Remove pricing rules dependency - manual pricing only
+    logStep("Using manual pricing only - no automatic pricing rules");
 
-    if (pricingError) {
-      throw new Error("Failed to fetch pricing rules");
-    }
-
-    // Generate new line items based on current quote data
+    // Generate new line items based on current quote data (structure only)
     const newLineItems: any[] = [];
     let subtotal = 0;
 
-    // Helper function to find pricing rule
-    const findPricingRule = (category: string, itemName: string, serviceType?: string) => {
-      let rule = pricingRules?.find(rule => 
-        rule.category === category && 
-        rule.item_name === itemName &&
-        (!rule.service_type || rule.service_type === serviceType)
-      );
-      
-      if (!rule && category === 'protein') {
-        rule = pricingRules?.find(rule => 
-          rule.category === 'protein' &&
-          (rule.item_name.toLowerCase().includes(itemName.toLowerCase()) ||
-           itemName.toLowerCase().includes(rule.item_name.toLowerCase())) &&
-          (!rule.service_type || rule.service_type === serviceType)
-        );
-      }
-      
-      if (!rule) {
-        rule = pricingRules?.find(rule => 
-          rule.category === category && 
-          rule.item_name === itemName
-        );
-      }
-      
-      return rule;
-    };
-
-    // Add menu items from quote
+    // Add menu items from quote with zero pricing (manual pricing only)
     const addMenuItems = (items: any[], category: string) => {
       if (Array.isArray(items) && items.length > 0) {
         items.forEach(item => {
-          const rule = findPricingRule(category, item, quote.service_type);
-          if (rule) {
-            const unitPrice = rule.base_price + (rule.price_per_person * quote.guest_count);
-            newLineItems.push({
-              description: `${item} for ${quote.guest_count} guests`,
-              category,
-              quantity: 1,
-              unit_price: unitPrice,
-              total_price: unitPrice,
-            });
-            subtotal += unitPrice;
-          } else {
-            // Fallback pricing
-            const fallbackPrice = category === 'appetizer' ? 400 : 
-                                 category === 'side' ? 250 : 
-                                 category === 'dessert' ? 350 : 
-                                 category === 'drink' ? 175 : 300;
-            const unitPrice = fallbackPrice * quote.guest_count;
-            newLineItems.push({
-              description: `${item} for ${quote.guest_count} guests`,
-              category,
-              quantity: 1,
-              unit_price: unitPrice,
-              total_price: unitPrice,
-            });
-            subtotal += unitPrice;
-          }
+          // All items start with zero pricing for manual input
+          newLineItems.push({
+            description: `${item} for ${quote.guest_count} guests - requires manual pricing`,
+            category,
+            quantity: 1,
+            unit_price: 0,
+            total_price: 0,
+          });
+          // No automatic pricing added to subtotal
         });
       }
     };
 
-    // Add proteins
+    // Add proteins with zero pricing (manual pricing only)
     if (quote.primary_protein) {
-      const rule = findPricingRule('protein', quote.primary_protein, quote.service_type);
-      const unitPrice = rule ? (rule.base_price + (rule.price_per_person * quote.guest_count)) : 1200 * quote.guest_count;
       newLineItems.push({
-        description: `${quote.primary_protein} (Primary Protein)`,
+        description: `${quote.primary_protein} (Primary Protein) - requires manual pricing`,
         category: 'protein',
         quantity: 1,
-        unit_price: unitPrice,
-        total_price: unitPrice,
+        unit_price: 0,
+        total_price: 0,
       });
-      subtotal += unitPrice;
     }
 
     if (quote.secondary_protein) {
-      const rule = findPricingRule('protein', quote.secondary_protein, quote.service_type);
-      const unitPrice = rule ? (rule.base_price + (rule.price_per_person * quote.guest_count)) : 1100 * quote.guest_count;
       newLineItems.push({
-        description: `${quote.secondary_protein} (Secondary Protein)`,
+        description: `${quote.secondary_protein} (Secondary Protein) - requires manual pricing`,
         category: 'protein',
         quantity: 1,
-        unit_price: unitPrice,
-        total_price: unitPrice,
+        unit_price: 0,
+        total_price: 0,
       });
-      subtotal += unitPrice;
     }
 
     // Add menu selections
@@ -179,7 +121,7 @@ serve(async (req) => {
     addMenuItems(quote.desserts || [], 'dessert');
     addMenuItems(quote.drinks || [], 'drink');
 
-    // Add service charges and equipment as before...
+    // Add service charges with zero pricing (manual pricing only)
     const serviceTypeMap: Record<string, string> = {
       'drop-off': 'Drop-off Service',
       'buffet': 'Buffet Service', 
@@ -188,25 +130,28 @@ serve(async (req) => {
     };
     
     const serviceName = serviceTypeMap[quote.service_type] || 'Catering Service';
-    const serviceRule = findPricingRule('service', serviceName, quote.service_type);
     
-    if (serviceRule) {
-      const serviceCharge = serviceRule.base_price + (serviceRule.price_per_person * quote.guest_count);
-      newLineItems.push({
-        description: `${serviceName} for ${quote.guest_count} guests`,
-        category: 'service',
-        quantity: 1,
-        unit_price: serviceCharge,
-        total_price: serviceCharge,
-      });
-      subtotal += serviceCharge;
-    }
+    // Always add service with zero pricing for manual input
+    newLineItems.push({
+      description: `${serviceName} for ${quote.guest_count} guests - requires manual pricing`,
+      category: 'service',
+      quantity: 1,
+      unit_price: 0,
+      total_price: 0,
+    });
 
+    // All items have zero pricing - totals will be zero until manual pricing is set
     const taxRate = 0.08;
-    const taxAmount = Math.round(subtotal * taxRate);
-    const totalAmount = subtotal + taxAmount;
+    const taxAmount = Math.round(subtotal * taxRate); // Will be 0
+    const totalAmount = subtotal + taxAmount; // Will be 0
 
-    logStep("Calculated new pricing", { subtotal, taxAmount, totalAmount });
+    logStep("Generated line items with manual pricing", { 
+      itemCount: newLineItems.length, 
+      subtotal: 0, 
+      taxAmount: 0, 
+      totalAmount: 0,
+      note: "Manual pricing required for all items"
+    });
 
     if (auto_resolve) {
       // Delete old line items

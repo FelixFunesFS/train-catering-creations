@@ -54,59 +54,46 @@ export function useEnhancedPricingManagement({
   });
 
   useEffect(() => {
-    loadPricingRules();
+    // Remove pricing rules loading - using manual pricing only
     loadTemplates();
   }, []);
 
-  const loadPricingRules = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('pricing_rules')
-        .select('*')
-        .eq('is_active', true)
-        .order('category');
-
-      if (error) throw error;
-      setPricingRules(data || []);
-    } catch (error) {
-      console.error('Error loading pricing rules:', error);
-    }
+  // Remove pricing rules loading - manual pricing only
+  const loadPricingRules = () => {
+    // No automatic pricing rules - manual pricing only
+    setPricingRules([]);
   };
 
   const loadTemplates = () => {
-    // Load default templates with calculated pricing
+    // Load default templates with structure only (no pricing)
     const defaultTemplates: PricingTemplate[] = [
       {
         id: 'casual-buffet',
         name: 'Casual Buffet Package',
-        description: 'Perfect for informal gatherings',
+        description: 'Perfect for informal gatherings - prices must be set manually',
         items: []
       },
       {
         id: 'formal-dinner',
         name: 'Formal Plated Service',
-        description: 'Elegant sit-down dining',
+        description: 'Elegant sit-down dining - prices must be set manually',
         items: []
       },
       {
         id: 'corporate-lunch',
         name: 'Corporate Lunch',
-        description: 'Professional catering',
+        description: 'Professional catering - prices must be set manually',
         items: []
       }
     ];
     setTemplates(defaultTemplates);
   };
 
+  // Remove automatic pricing calculation - manual pricing only
   const calculatePricingFromRules = useCallback((itemName: string) => {
-    const rule = pricingRules.find((r: any) => r.item_name === itemName);
-    if (!rule) return 0;
-
-    if (rule.price_per_person > 0) {
-      return rule.base_price + (rule.price_per_person * guestCount);
-    }
-    return rule.base_price;
-  }, [pricingRules, guestCount]);
+    // Always return 0 for manual pricing
+    return 0;
+  }, []);
 
   const addItemFromTemplate = useCallback((templateId: string) => {
     const template = templates.find(t => t.id === templateId);
@@ -130,9 +117,9 @@ export function useEnhancedPricingManagement({
 
     toast({
       title: "Template Applied",
-      description: `Added ${templateItemNames.length} items from ${template.name}`,
+      description: `Added ${templateItemNames.length} items from ${template.name} - manual pricing required`,
     });
-  }, [templates, calculatePricingFromRules, lineItemHook, toast]);
+  }, [templates, lineItemHook, toast]);
 
   const getTemplateItemNames = (templateId: string): string[] => {
     const templates: { [key: string]: string[] } = {
@@ -231,26 +218,14 @@ export function useEnhancedPricingManagement({
     });
   }, [selectedItems, lineItemHook, toast]);
 
+  // Remove auto-fix functionality - manual pricing only
   const fixZeroPriceItems = useCallback(() => {
-    const zeroPriceItems = lineItemHook.lineItems.filter(item => 
-      item.unit_price === 0 || item.total_price === 0
-    );
-
-    zeroPriceItems.forEach(item => {
-      if (item.id) {
-        const suggestedPrice = calculatePricingFromRules(item.title) || 1000; // Default $10
-        lineItemHook.updateLineItem(item.id, {
-          unit_price: suggestedPrice,
-          total_price: suggestedPrice * item.quantity
-        });
-      }
-    });
-
     toast({
-      title: "Zero Prices Fixed",
-      description: `Updated pricing for ${zeroPriceItems.length} items`,
+      title: "Manual Pricing Required",
+      description: "Please set prices manually for each item. No automatic pricing is available.",
+      variant: "destructive"
     });
-  }, [lineItemHook, calculatePricingFromRules, toast]);
+  }, [toast]);
 
   const duplicateSelectedItems = useCallback(() => {
     const targetItems = Array.from(selectedItems);
@@ -290,21 +265,21 @@ export function useEnhancedPricingManagement({
     // Expose all line item management functionality
     ...lineItemHook,
     
-    // Enhanced pricing functionality
-    pricingRules,
+    // Manual pricing functionality (no automatic pricing)
+    pricingRules: [], // Always empty for manual pricing
     templates,
     selectedItems,
     setSelectedItems,
     validationErrors,
     
-    // Enhanced methods
+    // Manual pricing methods
     addItemFromTemplate,
     validatePricing,
     applyBulkDiscount,
-    fixZeroPriceItems,
+    fixZeroPriceItems, // Now shows warning instead of auto-fixing
     duplicateSelectedItems,
     deleteSelectedItems,
-    calculatePricingFromRules,
+    calculatePricingFromRules, // Always returns 0
     
     // Bulk operations
     bulkUpdateCategory: (category: string, itemIds?: string[]) => {

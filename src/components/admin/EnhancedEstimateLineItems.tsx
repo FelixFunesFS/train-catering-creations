@@ -74,13 +74,13 @@ export function EnhancedEstimateLineItems({
     );
   };
 
-  // Quick templates for common line items
+  // Quick templates for common line items (zero pricing for manual input)
   const getCommonLineItems = () => [
-    { title: 'Service Fee', category: 'service' as const, description: 'Professional service and setup', unitPrice: 5000 },
-    { title: 'Equipment Rental', category: 'equipment' as const, description: 'Tables, chairs, linens, etc.', unitPrice: 10000 },
-    { title: 'Wait Staff', category: 'service' as const, description: 'Professional wait staff service', unitPrice: 15000 },
-    { title: 'Delivery Fee', category: 'service' as const, description: 'Delivery and setup', unitPrice: 7500 },
-    { title: 'Cleanup Service', category: 'service' as const, description: 'Post-event cleanup', unitPrice: 5000 }
+    { title: 'Service Fee', category: 'service' as const, description: 'Professional service and setup - requires manual pricing', unitPrice: 0 },
+    { title: 'Equipment Rental', category: 'equipment' as const, description: 'Tables, chairs, linens, etc. - requires manual pricing', unitPrice: 0 },
+    { title: 'Wait Staff', category: 'service' as const, description: 'Professional wait staff service - requires manual pricing', unitPrice: 0 },
+    { title: 'Delivery Fee', category: 'service' as const, description: 'Delivery and setup - requires manual pricing', unitPrice: 0 },
+    { title: 'Cleanup Service', category: 'service' as const, description: 'Post-event cleanup - requires manual pricing', unitPrice: 0 }
   ];
 
   const handleAddTemplateItem = (template: { title: string; category: 'food' | 'service' | 'equipment' | 'other'; description: string; unitPrice: number }) => {
@@ -89,8 +89,8 @@ export function EnhancedEstimateLineItems({
       title: template.title,
       description: template.description,
       quantity: 1,
-      unit_price: template.unitPrice,
-      total_price: template.unitPrice,
+      unit_price: 0, // Always zero for manual pricing
+      total_price: 0, // Always zero for manual pricing
       category: template.category
     };
 
