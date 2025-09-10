@@ -11,6 +11,8 @@ import { NewRequestsWorkflow } from '@/components/admin/NewRequestsWorkflow';
 import { UnifiedQuoteWorkflow } from '@/components/admin/UnifiedQuoteWorkflow';
 import { BusinessIntelligenceDashboard } from '@/components/admin/BusinessIntelligenceDashboard';
 import { ChangeRequestsTab } from '@/components/admin/tabs/ChangeRequestsTab';
+import { EventPlanningWorkflow } from '@/components/admin/EventPlanningWorkflow';
+import { EventCloseoutWorkflow } from '@/components/admin/EventCloseoutWorkflow';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -22,7 +24,8 @@ import {
   Calendar,
   Users,
   LogOut,
-  MessageSquare
+  MessageSquare,
+  CheckCircle2
 } from 'lucide-react';
 
 interface UnifiedAdminData {
@@ -326,96 +329,100 @@ export function UnifiedAdminInterface() {
             {/* Mobile Tab Navigation */}
             <div className="lg:hidden sticky top-14 z-30 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
               <div className="px-3 py-2">
-                  <div className="grid grid-cols-5 gap-1 bg-muted rounded-lg p-1">
+                  <div className="grid grid-cols-6 gap-1 bg-muted rounded-lg p-1 text-xs">
                     <button
                       onClick={() => handleTabChange('new-requests')}
-                      className={`flex flex-col items-center gap-1 px-1 py-2 rounded-md text-xs transition-all relative ${
+                      className={`flex flex-col items-center gap-1 px-1 py-2 rounded-md transition-all relative ${
                         activeTab === 'new-requests' 
                           ? 'bg-background text-foreground shadow-sm' 
                           : 'text-muted-foreground hover:text-foreground'
                       }`}
                     >
                       <div className="relative">
-                        <FileText className="h-4 w-4" />
+                        <FileText className="h-3 w-3" />
                         {tabCounts.newRequests > 0 && (
-                          <Badge variant="secondary" className="absolute -top-1 -right-1 h-4 w-4 p-0 text-xs flex items-center justify-center">
+                          <Badge variant="secondary" className="absolute -top-1 -right-1 h-3 w-3 p-0 text-xs flex items-center justify-center">
                             {tabCounts.newRequests}
                           </Badge>
                         )}
                       </div>
-                      <span>New</span>
+                      <span className="text-xs">New</span>
                     </button>
                     <button
                       onClick={() => handleTabChange('estimates-progress')}
-                      className={`flex flex-col items-center gap-1 px-1 py-2 rounded-md text-xs transition-all relative ${
+                      className={`flex flex-col items-center gap-1 px-1 py-2 rounded-md transition-all relative ${
                         activeTab === 'estimates-progress' 
                           ? 'bg-background text-foreground shadow-sm' 
                           : 'text-muted-foreground hover:text-foreground'
                       }`}
                     >
                       <div className="relative">
-                        <Target className="h-4 w-4" />
+                        <Target className="h-3 w-3" />
                         {tabCounts.estimatesInProgress > 0 && (
-                          <Badge variant="secondary" className="absolute -top-1 -right-1 h-4 w-4 p-0 text-xs flex items-center justify-center">
+                          <Badge variant="secondary" className="absolute -top-1 -right-1 h-3 w-3 p-0 text-xs flex items-center justify-center">
                             {tabCounts.estimatesInProgress}
                           </Badge>
                         )}
                       </div>
-                      <span>Estimate</span>
+                      <span className="text-xs">Est</span>
+                    </button>
+                    <button
+                      onClick={() => handleTabChange('event-planning')}
+                      className={`flex flex-col items-center gap-1 px-1 py-2 rounded-md transition-all relative ${
+                        activeTab === 'event-planning' 
+                          ? 'bg-background text-foreground shadow-sm' 
+                          : 'text-muted-foreground hover:text-foreground'
+                      }`}
+                    >
+                      <Calendar className="h-3 w-3" />
+                      <span className="text-xs">Plan</span>
+                    </button>
+                    <button
+                      onClick={() => handleTabChange('event-closeout')}
+                      className={`flex flex-col items-center gap-1 px-1 py-2 rounded-md transition-all relative ${
+                        activeTab === 'event-closeout' 
+                          ? 'bg-background text-foreground shadow-sm' 
+                          : 'text-muted-foreground hover:text-foreground'
+                      }`}
+                    >
+                      <CheckCircle2 className="h-3 w-3" />
+                      <span className="text-xs">Close</span>
                     </button>
                     <button
                       onClick={() => handleTabChange('change-requests')}
-                      className={`flex flex-col items-center gap-1 px-1 py-2 rounded-md text-xs transition-all relative ${
+                      className={`flex flex-col items-center gap-1 px-1 py-2 rounded-md transition-all relative ${
                         activeTab === 'change-requests' 
                           ? 'bg-background text-foreground shadow-sm' 
                           : 'text-muted-foreground hover:text-foreground'
                       }`}
                     >
                       <div className="relative">
-                        <MessageSquare className="h-4 w-4" />
+                        <MessageSquare className="h-3 w-3" />
                         {tabCounts.changeRequests > 0 && (
-                          <Badge variant="secondary" className="absolute -top-1 -right-1 h-4 w-4 p-0 text-xs flex items-center justify-center">
+                          <Badge variant="secondary" className="absolute -top-1 -right-1 h-3 w-3 p-0 text-xs flex items-center justify-center">
                             {tabCounts.changeRequests}
                           </Badge>
                         )}
                       </div>
-                      <span>Changes</span>
-                    </button>
-                    <button
-                      onClick={() => handleTabChange('invoices-active')}
-                      className={`flex flex-col items-center gap-1 px-1 py-2 rounded-md text-xs transition-all relative ${
-                        activeTab === 'invoices-active' 
-                          ? 'bg-background text-foreground shadow-sm' 
-                          : 'text-muted-foreground hover:text-foreground'
-                      }`}
-                    >
-                      <div className="relative">
-                        <DollarSign className="h-4 w-4" />
-                        {tabCounts.invoicesActive > 0 && (
-                          <Badge variant="secondary" className="absolute -top-1 -right-1 h-4 w-4 p-0 text-xs flex items-center justify-center">
-                            {tabCounts.invoicesActive}
-                          </Badge>
-                        )}
-                      </div>
-                      <span>Invoice</span>
+                      <span className="text-xs">Chg</span>
                     </button>
                     <button
                       onClick={() => handleTabChange('payment-tracking')}
-                      className={`flex flex-col items-center gap-1 px-1 py-2 rounded-md text-xs transition-all relative ${
+                      className={`flex flex-col items-center gap-1 px-1 py-2 rounded-md transition-all relative ${
                         activeTab === 'payment-tracking' 
                           ? 'bg-background text-foreground shadow-sm' 
                           : 'text-muted-foreground hover:text-foreground'
                       }`}
                     >
                       <div className="relative">
-                        <Users className="h-4 w-4" />
+                        <DollarSign className="h-3 w-3" />
                         {tabCounts.paymentTracking > 0 && (
-                          <Badge variant="secondary" className="absolute -top-1 -right-1 h-4 w-4 p-0 text-xs flex items-center justify-center">
+                          <Badge variant="secondary" className="absolute -top-1 -right-1 h-3 w-3 p-0 text-xs flex items-center justify-center">
                             {tabCounts.paymentTracking}
                           </Badge>
                         )}
                       </div>
-                      <span>Payment</span>
+                      <span className="text-xs">Pay</span>
                     </button>
                   </div>
               </div>
@@ -503,20 +510,26 @@ export function UnifiedAdminInterface() {
                       />
                     )}
 
-                    {activeTab === 'change-requests' && (
-                      <ChangeRequestsTab 
+                    {activeTab === 'event-planning' && (
+                      <EventPlanningWorkflow 
+                        quotes={data.quotes}
                         loading={loading}
                         onRefresh={fetchAllData}
                       />
                     )}
 
-                    {activeTab === 'invoices-active' && (
-                      <InvoiceManagementTab 
-                        invoices={data.invoices.filter(i => !i.is_draft && ['approved', 'customer_approved'].includes(i.status))}
+                    {activeTab === 'event-closeout' && (
+                      <EventCloseoutWorkflow 
+                        quotes={data.quotes}
                         loading={loading}
                         onRefresh={fetchAllData}
-                        title="Active Invoices"
-                        description="Customer-approved invoices awaiting payment"
+                      />
+                    )}
+
+                    {activeTab === 'change-requests' && (
+                      <ChangeRequestsTab 
+                        loading={loading}
+                        onRefresh={fetchAllData}
                       />
                     )}
 

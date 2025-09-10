@@ -77,6 +77,15 @@ verify_jwt = false
 [functions.send-reminders]
 verify_jwt = false
 
+[functions.send-automated-reminders]
+verify_jwt = false
+
+[functions.send-custom-invoice-email]
+verify_jwt = false
+
+[functions.update-quote-workflow]
+verify_jwt = false
+
 [functions.government-contract-workflow]
 verify_jwt = false
 
