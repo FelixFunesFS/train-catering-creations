@@ -76,7 +76,9 @@ const handler = async (req: Request): Promise<Response> => {
       if (!refreshResponse.ok) {
         const errorData = await refreshResponse.text();
         console.error('Token refresh failed:', errorData);
-        throw new Error('Failed to refresh access token');
+        
+        // If refresh fails, the user needs to re-authenticate
+        throw new Error(`Gmail authentication has expired and cannot be refreshed. Please re-authenticate by visiting the Test Email page at /test-email and clicking "Authorize Gmail Access". Error: ${errorData}`);
       }
 
       const refreshTokens = await refreshResponse.json();

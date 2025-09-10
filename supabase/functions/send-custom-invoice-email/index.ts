@@ -97,7 +97,7 @@ serve(async (req) => {
 
     console.log(`Attempting to send email to: ${customerEmail}`);
 
-    // Try Gmail integration first, fallback to Resend if it fails
+    // Send email via Gmail (primary method)
     let emailData;
     let emailError;
     
@@ -116,45 +116,25 @@ serve(async (req) => {
       
       if (!emailError) {
         console.log('Email sent successfully via Gmail:', emailData);
+      } else {
+        throw emailError;
       }
-    } catch (gmailErr) {
-      console.warn('Gmail integration failed, trying fallback:', gmailErr);
-      emailError = gmailErr;
-    }
-
-    // If Gmail fails, try fallback email service
-    if (emailError) {
-      console.log('Attempting fallback email service...');
+    } catch (gmailErr: any) {
+      console.error('Gmail integration failed:', gmailErr);
       
-      try {
-        const fallbackResponse = await supabase.functions.invoke('send-email-fallback', {
-          body: {
-            to: customerEmail,
-            subject: custom_subject || `Your Estimate - Soul Train's Eatery`,
-            html: emailHtml,
-            from: "Soul Train's Eatery <estimates@soultrainseatery.com>"
-          }
-        });
-
-        if (fallbackResponse.error) {
-          throw fallbackResponse.error;
-        }
-
-        console.log('Email sent successfully via fallback service:', fallbackResponse.data);
-        emailData = fallbackResponse.data;
-      } catch (fallbackErr) {
-        console.error('Both Gmail and fallback email services failed:', { gmailError: emailError, fallbackError: fallbackErr });
-        
-        let errorMessage = 'Failed to send email using both Gmail and backup services. ';
-        
-        if (emailError?.message?.includes('No Gmail tokens found') || emailError?.message?.includes('Token expired')) {
-          errorMessage += 'Gmail authentication needs to be renewed. Please contact support to configure email services.';
-        } else {
-          errorMessage += 'Please contact support to resolve email delivery issues.';
-        }
-        
-        throw new Error(errorMessage);
+      // Provide specific error messages based on the type of Gmail error
+      let errorMessage = 'Failed to send email via Gmail. ';
+      
+      if (gmailErr?.message?.includes('No Gmail tokens found') || 
+          gmailErr?.message?.includes('Gmail authentication has expired')) {
+        errorMessage += 'Gmail authentication needs to be renewed. Please visit the Test Email page (/test-email) and click "Authorize Gmail Access" to re-authenticate.';
+      } else if (gmailErr?.message?.includes('Token has been expired or revoked')) {
+        errorMessage += 'Gmail tokens have expired or been revoked. Please re-authenticate by visiting /test-email and authorizing Gmail access again.';
+      } else {
+        errorMessage += 'Please check Gmail authentication or contact support.';
       }
+      
+      throw new Error(errorMessage);
     }
 
     // Update invoice status if not preview
