@@ -80,6 +80,9 @@ verify_jwt = false
 [functions.send-automated-reminders]
 verify_jwt = false
 
+[functions.fix-workflow-status]
+verify_jwt = false
+
 [functions.send-custom-invoice-email]
 verify_jwt = false
 

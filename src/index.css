@@ -16,11 +16,11 @@
     --popover: 0 0% 100%;
     --popover-foreground: 220 25% 20%;
     
-    /* Ruby Red Primary System */
-    --primary: 0 80% 45%;
-    --primary-light: 0 80% 60%;
-    --primary-dark: 0 80% 30%;
-    --primary-glow: 0 80% 45%;
+    /* Ruby Red Primary System - Using proper Ruby red colors */
+    --primary: 348 83% 47%;
+    --primary-light: 348 83% 62%;
+    --primary-dark: 348 83% 32%;
+    --primary-glow: 348 83% 47%;
     --primary-foreground: 0 0% 100%;
     
     /* Pearl & Platinum Supporting Colors */
@@ -131,10 +131,10 @@
     --popover-foreground: 60 8% 95%;
     
     /* Ruby Red Primary - Enhanced for dark mode */
-    --primary: 0 80% 60%;
-    --primary-light: 0 80% 70%;
-    --primary-dark: 0 80% 45%;
-    --primary-glow: 0 80% 60%;
+    --primary: 348 83% 65%;
+    --primary-light: 348 83% 75%;
+    --primary-dark: 348 83% 50%;
+    --primary-glow: 348 83% 65%;
     --primary-foreground: 0 0% 100%;
     
     /* Pearl & Platinum - Dark mode variants */

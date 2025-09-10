@@ -346,7 +346,7 @@ const handler = async (req: Request): Promise<Response> => {
       
       const customerHtml = `
         <div style="font-family: 'Georgia', serif; max-width: 700px; margin: 0 auto; background: #fafafa; padding: 20px;">
-          <div style="background: linear-gradient(135deg, #8B4513, #D2691E); color: white; padding: 25px; border-radius: 10px; text-align: center; margin-bottom: 25px;">
+          <div style="background: linear-gradient(135deg, #DC143C, #B91C3C); color: white; padding: 25px; border-radius: 10px; text-align: center; margin-bottom: 25px;">
             <h1 style="margin: 0; font-size: 24px; font-weight: bold;">Soul Train's Eatery</h1>
             <p style="margin: 8px 0 0 0; font-size: 16px; opacity: 0.9;">Charleston's Authentic Southern Catering</p>
           </div>
@@ -359,7 +359,7 @@ const handler = async (req: Request): Promise<Response> => {
             ${quoteData.quote_id ? `<div style="background: #e8f5e8; padding: 15px; border-radius: 8px; text-align: center; margin: 20px 0;"><strong>Your Reference ID:</strong> <span style="background-color: #fff; padding: 8px 12px; border-radius: 4px; font-family: monospace; font-weight: bold;">${quoteData.quote_id}</span></div>` : ''}
             
             <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <h3 style="margin-top: 0; color: #8B4513;">What Happens Next?</h3>
+              <h3 style="margin-top: 0; color: #DC143C;">What Happens Next?</h3>
               <ul style="margin: 0; padding-left: 20px; line-height: 1.8;">
                 <li>Our catering team will review your request within <strong>48 hours</strong></li>
                 <li>We'll prepare a customized quote tailored to your event</li>

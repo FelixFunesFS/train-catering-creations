@@ -8,7 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { EstimatePreviewModal } from '@/components/admin/EstimatePreviewModal';
 import { StreamlinedEstimateModal } from '@/components/admin/StreamlinedEstimateModal';
-import { OneClickProcessing } from '@/components/admin/OneClickProcessing';
+import { EnhancedOneClickProcessing } from '@/components/admin/EnhancedOneClickProcessing';
 import { 
   ArrowRight, 
   Eye, 
@@ -347,10 +347,10 @@ export function UnifiedQuoteWorkflow({ quote, onRefresh }: UnifiedQuoteWorkflowP
           </div>
         )}
 
-        {/* One-Click Processing for new quotes */}
+        {/* Enhanced One-Click Processing for new quotes */}
         {!existingInvoice && quote.status === 'pending' && (
           <div className="mt-4">
-            <OneClickProcessing 
+            <EnhancedOneClickProcessing 
               quote={quote} 
               onSuccess={() => {
                 checkExistingInvoice();
