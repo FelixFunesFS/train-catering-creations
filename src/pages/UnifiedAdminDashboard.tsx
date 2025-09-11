@@ -3,11 +3,12 @@ import { LinearRequestPipeline } from '@/components/admin/LinearRequestPipeline'
 import { SmartPricingDashboard } from '@/components/admin/SmartPricingDashboard';
 import { EmailPreviewSend } from '@/components/admin/EmailPreviewSend';
 import { AdminChangeManagement } from '@/components/admin/AdminChangeManagement';
+import { PaymentProcessingDashboard } from '@/components/admin/PaymentProcessingDashboard';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { LogOut } from 'lucide-react';
 
-type AdminView = 'pipeline' | 'pricing' | 'email' | 'customer' | 'invoice' | 'change-management';
+type AdminView = 'pipeline' | 'pricing' | 'email' | 'customer' | 'invoice' | 'change-management' | 'payments';
 
 export default function UnifiedAdminDashboard() {
   const [currentView, setCurrentView] = useState<AdminView>('pipeline');
@@ -58,6 +59,9 @@ export default function UnifiedAdminDashboard() {
               <Button variant="outline" size="sm" onClick={() => setCurrentView('change-management')}>
                 Change Requests
               </Button>
+              <Button variant="outline" size="sm" onClick={() => setCurrentView('payments')}>
+                Payments
+              </Button>
               <Button
                 variant="outline"
                 size="sm"
@@ -98,6 +102,10 @@ export default function UnifiedAdminDashboard() {
 
         {currentView === 'change-management' && (
           <AdminChangeManagement onRefresh={() => console.log('Refreshing pipeline...')} />
+        )}
+
+        {currentView === 'payments' && (
+          <PaymentProcessingDashboard />
         )}
       </main>
     </div>
