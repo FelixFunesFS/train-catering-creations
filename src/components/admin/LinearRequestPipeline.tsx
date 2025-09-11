@@ -13,7 +13,7 @@ interface PipelineStep {
   id: string;
   title: string;
   description: string;
-  icon: React.ComponentType;
+  icon: React.ComponentType<{ className?: string }>;
   status: 'completed' | 'active' | 'pending';
   count?: number;
 }
