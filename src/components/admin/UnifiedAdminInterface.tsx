@@ -52,8 +52,20 @@ export function UnifiedAdminInterface() {
   const { user, signOut } = useAuth();
 
   useEffect(() => {
+    console.log('🚀 Component mounted, fetching all data...');
     fetchAllData();
   }, []);
+
+  // Debug: Log data changes
+  useEffect(() => {
+    console.log('📊 Data updated:', {
+      quotes: data.quotes.length,
+      invoices: data.invoices.length,
+      quotedQuotes: data.quotes.filter(q => q.status === 'quoted').length,
+      reviewedQuotes: data.quotes.filter(q => q.status === 'reviewed').length,
+      draftInvoices: data.invoices.filter(i => i.is_draft).length
+    });
+  }, [data]);
 
   // Listen for URL parameter changes
   useEffect(() => {
