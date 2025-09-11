@@ -38,9 +38,10 @@ export function SimplifiedNewRequestsManager({ quotes, loading, onRefresh }: Sim
   const [processingQuotes, setProcessingQuotes] = useState<Set<string>>(new Set());
   const { toast } = useToast();
 
-  // Filter for new requests (pending quotes without invoices)
+  // Filter for new requests (pending quotes without invoices or only draft invoices)
   const newRequests = quotes.filter(quote => 
-    quote.status === 'pending' && !quotes.some(q => q.invoice_created)
+    quote.status === 'pending' || 
+    (quote.status === 'reviewed' && !quote.invoices?.some(inv => !inv.is_draft))
   );
 
   const needsAttention = newRequests.filter(quote => {
