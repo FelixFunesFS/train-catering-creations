@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { LinearRequestPipeline } from '@/components/admin/LinearRequestPipeline';
 import { SmartPricingDashboard } from '@/components/admin/SmartPricingDashboard';
+import { EmailPreviewSend } from '@/components/admin/EmailPreviewSend';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { LogOut } from 'lucide-react';
@@ -10,6 +11,7 @@ type AdminView = 'pipeline' | 'pricing' | 'email' | 'customer' | 'invoice';
 export default function UnifiedAdminDashboard() {
   const [currentView, setCurrentView] = useState<AdminView>('pipeline');
   const [selectedRequest, setSelectedRequest] = useState<any>(null);
+  const [pricingData, setPricingData] = useState<{ lineItems: any[], totals: any } | null>(null);
   const { signOut } = useAuth();
 
   const handleStartPricing = (request: any) => {
@@ -19,13 +21,21 @@ export default function UnifiedAdminDashboard() {
 
   const handlePricingComplete = (lineItems: any[], totals: any) => {
     console.log('Pricing completed:', { lineItems, totals });
-    // Move to next step - email preview
+    setPricingData({ lineItems, totals });
     setCurrentView('email');
+  };
+
+  const handleEmailSent = () => {
+    // Reset state and go back to pipeline
+    setCurrentView('pipeline');
+    setSelectedRequest(null);
+    setPricingData(null);
   };
 
   const handleBackToPipeline = () => {
     setCurrentView('pipeline');
     setSelectedRequest(null);
+    setPricingData(null);
   };
 
   return (
@@ -54,7 +64,7 @@ export default function UnifiedAdminDashboard() {
       {/* Main Content */}
       <main className="flex-1">
         {currentView === 'pipeline' && (
-          <LinearRequestPipeline />
+          <LinearRequestPipeline onStartPricing={handleStartPricing} />
         )}
         
         {currentView === 'pricing' && selectedRequest && (
@@ -65,16 +75,14 @@ export default function UnifiedAdminDashboard() {
           />
         )}
         
-        {currentView === 'email' && (
-          <div className="container mx-auto p-6">
-            <div className="text-center py-12">
-              <h2 className="text-2xl font-bold mb-4">Email Preview & Send</h2>
-              <p className="text-muted-foreground mb-6">Coming in Phase 2...</p>
-              <Button onClick={handleBackToPipeline}>
-                Back to Pipeline
-              </Button>
-            </div>
-          </div>
+        {currentView === 'email' && selectedRequest && pricingData && (
+          <EmailPreviewSend
+            quoteRequest={selectedRequest}
+            lineItems={pricingData.lineItems}
+            totals={pricingData.totals}
+            onBack={() => setCurrentView('pricing')}
+            onEmailSent={handleEmailSent}
+          />
         )}
       </main>
     </div>

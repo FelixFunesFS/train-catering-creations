@@ -45,7 +45,11 @@ interface QuoteRequest {
   special_requests?: string;
 }
 
-export function LinearRequestPipeline() {
+interface LinearRequestPipelineProps {
+  onStartPricing?: (request: QuoteRequest) => void;
+}
+
+export function LinearRequestPipeline({ onStartPricing }: LinearRequestPipelineProps) {
   const [requests, setRequests] = useState<QuoteRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedRequest, setSelectedRequest] = useState<QuoteRequest | null>(null);
@@ -120,6 +124,12 @@ export function LinearRequestPipeline() {
   const handleSelectRequest = (request: QuoteRequest) => {
     setSelectedRequest(request);
     setCurrentStep(request.status === 'pending' ? 0 : 1);
+  };
+
+  const handleStartPricing = () => {
+    if (selectedRequest && onStartPricing) {
+      onStartPricing(selectedRequest);
+    }
   };
 
   if (loading) {
@@ -271,7 +281,7 @@ export function LinearRequestPipeline() {
                 </div>
 
                 <div className="flex gap-2 pt-4">
-                  <Button className="flex-1">
+                  <Button className="flex-1" onClick={handleStartPricing}>
                     Start Review & Pricing
                   </Button>
                 </div>

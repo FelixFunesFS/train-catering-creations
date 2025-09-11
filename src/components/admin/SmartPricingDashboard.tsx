@@ -49,14 +49,30 @@ export function SmartPricingDashboard({
 
   const generateInitialLineItems = () => {
     try {
-      const generated = generateProfessionalLineItems(quoteRequest);
+      // Convert to the format expected by generateProfessionalLineItems
+      const formattedRequest = {
+        ...quoteRequest,
+        event_type: quoteRequest.event_type || 'other' as const,
+        start_time: quoteRequest.start_time || '12:00:00',
+        appetizers: quoteRequest.appetizers || [],
+        sides: quoteRequest.sides || [],
+        desserts: quoteRequest.desserts || [],
+        drinks: quoteRequest.drinks || [],
+        dietary_restrictions: quoteRequest.dietary_restrictions || [],
+        utensils: quoteRequest.utensils || [],
+        extras: quoteRequest.extras || []
+      };
+      
+      const generated = generateProfessionalLineItems(formattedRequest);
       const processedItems = generated.map((item, index) => ({
-        ...item,
         id: item.id || `item-${index}`,
-        is_auto_generated: true,
+        title: item.title,
+        description: item.description,
+        quantity: item.quantity || 1,
         unit_price: item.unit_price || 0,
         total_price: (item.quantity || 1) * (item.unit_price || 0),
-        category: item.category || 'other'
+        category: item.category || 'other',
+        is_auto_generated: true
       }));
       
       setLineItems(processedItems);
