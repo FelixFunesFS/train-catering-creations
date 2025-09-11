@@ -13,6 +13,7 @@ import { toast } from "@/hooks/use-toast";
 import { weddingEventSchema, type WeddingEventFormData } from "@/lib/schemas/tempFormSchemas";
 import { MenuSelection } from "./MenuSelection";
 import { weddingMenuItems } from "@/data/menuItems";
+import { supabase } from "@/integrations/supabase/client";
 
 const WeddingEventQuoteForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -43,11 +44,47 @@ const WeddingEventQuoteForm = () => {
   const onSubmit = async (data: WeddingEventFormData) => {
     setIsSubmitting(true);
     try {
-      const emailContent = formatEmailContent(data);
-      
-      console.log("Form Data:", data);
-      console.log("Email Content:", emailContent);
-      
+      // Submit to database
+      const { data: insertedData, error } = await supabase.from('quote_requests').insert({
+        contact_name: data.contactName,
+        email: data.email,
+        phone: data.phone,
+        event_name: data.eventName,
+        event_type: data.eventType === 'wedding' ? 'private_party' : 
+                   data.eventType === 'black_tie' ? 'corporate' :
+                   data.eventType === 'military_function' ? 'corporate' :
+                   data.eventType === 'gala' ? 'corporate' :
+                   data.eventType === 'engagement_party' ? 'private_party' :
+                   'anniversary',
+        event_date: data.eventDate,
+        start_time: data.eventStartTime,
+        guest_count: parseInt(data.guestCount),
+        location: data.location,
+        service_type: data.serviceType === 'full-service' ? 'full-service' :
+                     data.serviceType === 'delivery-only' ? 'delivery-only' :
+                     'delivery-setup',
+        serving_start_time: data.servingStartTime,
+        primary_protein: data.primaryProtein,
+        secondary_protein: data.secondaryProtein,
+        both_proteins_available: data.bothProteinsAvailable,
+        dietary_restrictions: data.dietaryRestrictions || [],
+        special_requests: data.specialRequests,
+        custom_menu_requests: data.customMenuRequests,
+        serving_utensils_requested: data.servingUtensils,
+        cups_requested: data.cups,
+        plates_requested: data.plates,
+        napkins_requested: data.napkins,
+        ice_requested: data.ice,
+        chafers_requested: data.foodWarmers,
+        separate_serving_area: data.separateServingArea,
+        serving_setup_area: data.servingSetupArea,
+        bussing_tables_needed: data.bussingTablesNeeded,
+        referral_source: data.hearAboutUs,
+        status: 'pending'
+      }).select();
+
+      if (error) throw error;
+
       toast({
         title: "Wedding Quote Request Submitted!",
         description: "We'll contact you within 24 hours to discuss your special day.",
@@ -55,6 +92,7 @@ const WeddingEventQuoteForm = () => {
       
       form.reset();
     } catch (error) {
+      console.error('Wedding form submission error:', error);
       toast({
         title: "Submission Error",
         description: "There was an issue submitting your request. Please try again or call us directly.",
