@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { LinearRequestPipeline } from '@/components/admin/LinearRequestPipeline';
 import { SmartPricingDashboard } from '@/components/admin/SmartPricingDashboard';
 import { EmailPreviewSend } from '@/components/admin/EmailPreviewSend';
+import { AdminChangeManagement } from '@/components/admin/AdminChangeManagement';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { LogOut } from 'lucide-react';
 
-type AdminView = 'pipeline' | 'pricing' | 'email' | 'customer' | 'invoice';
+type AdminView = 'pipeline' | 'pricing' | 'email' | 'customer' | 'invoice' | 'change-management';
 
 export default function UnifiedAdminDashboard() {
   const [currentView, setCurrentView] = useState<AdminView>('pipeline');
@@ -48,15 +49,25 @@ export default function UnifiedAdminDashboard() {
               <h1 className="text-xl font-bold">Soul Train's Eatery Admin</h1>
               <p className="text-sm text-muted-foreground">Streamlined request management</p>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={signOut}
-              className="gap-2"
-            >
-              <LogOut className="h-4 w-4" />
-              Sign Out
-            </Button>
+            <div className="flex items-center gap-2">
+              {currentView !== 'pipeline' && (
+                <Button variant="outline" size="sm" onClick={handleBackToPipeline}>
+                  Back to Pipeline
+                </Button>
+              )}
+              <Button variant="outline" size="sm" onClick={() => setCurrentView('change-management')}>
+                Change Requests
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={signOut}
+                className="gap-2"
+              >
+                <LogOut className="h-4 w-4" />
+                Sign Out
+              </Button>
+            </div>
           </div>
         </div>
       </header>
@@ -83,6 +94,10 @@ export default function UnifiedAdminDashboard() {
             onBack={() => setCurrentView('pricing')}
             onEmailSent={handleEmailSent}
           />
+        )}
+
+        {currentView === 'change-management' && (
+          <AdminChangeManagement onRefresh={() => console.log('Refreshing pipeline...')} />
         )}
       </main>
     </div>
