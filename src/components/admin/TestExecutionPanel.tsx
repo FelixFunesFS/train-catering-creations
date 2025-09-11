@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Play, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { Loader2, Play, CheckCircle, XCircle, Clock, Plus } from 'lucide-react';
 import { executeTestPlan, runTestScenario, validateSystem } from '@/utils/testRunner';
+import { generateComprehensiveTestData } from '@/utils/testingUtilities';
 
 interface TestResult {
   scenarioId: string;
@@ -69,6 +70,29 @@ export function TestExecutionPanel() {
     }
   };
 
+  const generateTestData = async () => {
+    setIsRunning(true);
+    setCurrentTest('Generating comprehensive test data for Sarah\'s Birthday Celebration...');
+    
+    try {
+      const result = await generateComprehensiveTestData();
+      setTestResults({ 
+        testData: {
+          status: result.status,
+          message: result.message,
+          details: result.details,
+          timestamp: result.timestamp
+        }
+      });
+    } catch (error) {
+      console.error('Test data generation failed:', error);
+      setTestResults({ error: error.message });
+    } finally {
+      setIsRunning(false);
+      setCurrentTest('');
+    }
+  };
+
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'passed':
@@ -101,7 +125,7 @@ export function TestExecutionPanel() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex gap-2 flex-wrap">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             <Button 
               onClick={runFullTestSuite} 
               disabled={isRunning}
@@ -119,6 +143,15 @@ export function TestExecutionPanel() {
             >
               {isRunning ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
               Quick Validation
+            </Button>
+
+            <Button 
+              onClick={generateTestData}
+              disabled={isRunning}
+              className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
+            >
+              {isRunning ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+              Generate Test Data
             </Button>
           </div>
 
@@ -261,6 +294,49 @@ export function TestExecutionPanel() {
                       <Badge variant="outline">{result.status}</Badge>
                     </div>
                   ))}
+                </div>
+              </div>
+            )}
+
+            {testResults.testData && (
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  {getStatusIcon(testResults.testData.status)}
+                  <h3 className="font-semibold">Test Data Generation</h3>
+                  <Badge className={getStatusColor(testResults.testData.status)}>
+                    {testResults.testData.status}
+                  </Badge>
+                </div>
+                
+                <div className="p-4 bg-muted rounded-lg">
+                  <p className="mb-3">{testResults.testData.message}</p>
+                  
+                  {testResults.testData.details && (
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <span className="font-medium">Quote ID:</span> {testResults.testData.details.quoteId}
+                      </div>
+                      <div>
+                        <span className="font-medium">Event:</span> {testResults.testData.details.eventName}
+                      </div>
+                      <div>
+                        <span className="font-medium">Customer:</span> {testResults.testData.details.customerEmail}
+                      </div>
+                      <div>
+                        <span className="font-medium">Event Date:</span> {testResults.testData.details.eventDate}
+                      </div>
+                      <div>
+                        <span className="font-medium">Total:</span> {testResults.testData.details.total}
+                      </div>
+                      <div>
+                        <span className="font-medium">Line Items:</span> {testResults.testData.details.lineItems}
+                      </div>
+                    </div>
+                  )}
+                  
+                  <p className="text-xs text-muted-foreground mt-3">
+                    Generated at: {new Date(testResults.testData.timestamp).toLocaleString()}
+                  </p>
                 </div>
               </div>
             )}

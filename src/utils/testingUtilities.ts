@@ -1,6 +1,50 @@
 // Comprehensive Testing Utilities for Soul Train's Eatery
 import { supabase } from '@/integrations/supabase/client';
 
+// Test Data Generation
+export const generateComprehensiveTestData = async (): Promise<TestResult> => {
+  try {
+    console.log('Calling generate-test-data edge function...');
+    
+    const { data, error } = await supabase.functions.invoke('generate-test-data', {
+      body: {}
+    });
+
+    if (error) {
+      console.error('Edge function error:', error);
+      throw error;
+    }
+
+    if (!data.success) {
+      throw new Error(data.error || 'Test data generation failed');
+    }
+
+    return {
+      testName: 'Generate Comprehensive Test Data',
+      status: 'passed',
+      message: `Successfully generated test data: ${data.data.eventName} for ${data.data.guestCount} guests`,
+      details: {
+        quoteId: data.data.quoteId,
+        customerEmail: data.data.customerEmail,
+        eventName: data.data.eventName,
+        eventDate: data.data.eventDate,
+        total: `$${data.data.total}`,
+        lineItems: data.data.lineItemsCount
+      },
+      timestamp: new Date()
+    };
+  } catch (error) {
+    console.error('Test data generation failed:', error);
+    return {
+      testName: 'Generate Comprehensive Test Data',
+      status: 'failed',
+      message: 'Failed to generate test data',
+      details: error,
+      timestamp: new Date()
+    };
+  }
+};
+
 export interface TestResult {
   testName: string;
   status: 'passed' | 'failed' | 'warning';
