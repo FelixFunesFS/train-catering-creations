@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { InvoiceManagementTab } from '@/components/admin/InvoiceManagementTab';
 import { SimplifiedNewRequestsManager } from '@/components/admin/SimplifiedNewRequestsManager';
-import { UnifiedQuoteWorkflow } from '@/components/admin/UnifiedQuoteWorkflow';
+
 import { BusinessIntelligenceDashboard } from '@/components/admin/BusinessIntelligenceDashboard';
 import { ChangeRequestsTab } from '@/components/admin/tabs/ChangeRequestsTab';
 import { EventPlanningWorkflow } from '@/components/admin/EventPlanningWorkflow';
