@@ -240,14 +240,13 @@ export function UnifiedAdminInterface() {
 
   const getTabCounts = () => {
     return {
-      newRequests: data.quotes.filter(q => q.status === 'pending' && !data.invoices.some(inv => inv.quote_request_id === q.id)).length,
+      newRequests: data.quotes.filter(q => 
+        q.status === 'pending' && !data.invoices.some(inv => inv.quote_request_id === q.id)
+      ).length,
       estimatesInProgress: data.quotes.filter(q => 
-        q.status === 'quoted' || 
-        q.status === 'reviewed' ||
-        data.invoices.some(inv => 
-          inv.quote_request_id === q.id && 
-          (inv.is_draft || ['sent', 'viewed'].includes(inv.status))
-        )
+        (q.status === 'quoted' || q.status === 'reviewed') &&
+        q.status !== 'completed' &&
+        !data.invoices.some(inv => inv.quote_request_id === q.id && inv.status === 'paid')
       ).length,
       invoicesActive: data.quotes.filter(q => 
         data.invoices.some(inv => 
