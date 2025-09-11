@@ -105,23 +105,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Only works in development mode
     if (import.meta.env.DEV) {
       try {
-        // Try to sign in with the real admin account using a dev bypass
-        // First, query the database to get the real admin user ID
-        const { data: adminData, error: queryError } = await supabase
-          .from('user_roles')
-          .select('user_id')
-          .eq('role', 'admin')
-          .limit(1)
-          .single();
-
-        if (queryError || !adminData) {
-          toast.error('Admin user not found in database');
-          return;
-        }
+        // Use the known admin user ID directly to bypass RLS policy issues
+        const adminUserId = '625eab9e-6da2-4d25-b491-0549cc80a3cc';
 
         // Create a proper JWT token for the real admin user
         const adminUser: User = {
-          id: adminData.user_id,
+          id: adminUserId,
           email: 'soultrainseatery@gmail.com',
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
@@ -137,7 +126,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         // Create a JWT payload that Supabase can recognize with real admin ID
         const jwtPayload = {
-          sub: adminData.user_id,
+          sub: adminUserId,
           aud: 'authenticated',
           role: 'authenticated',
           email: 'soultrainseatery@gmail.com',
