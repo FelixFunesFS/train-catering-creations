@@ -12,426 +12,93 @@ const logStep = (step: string, details?: any) => {
 };
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    logStep("Contract generation started");
+    logStep("Function started");
 
+    // Initialize Supabase with service role
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
       { auth: { persistSession: false } }
     );
 
-    const { invoice_id, contract_type = 'standard' } = await req.json();
-    if (!invoice_id) throw new Error("invoice_id is required");
+    const { 
+      invoice_id, 
+      quote_request_id, 
+      contract_type = 'standard',
+      customer_data,
+      payment_schedule
+    } = await req.json();
 
-    logStep("Fetching invoice data", { invoice_id, contract_type });
+    logStep("Request data", { invoice_id, quote_request_id, contract_type });
 
-    // Fetch complete invoice data
-    const { data: invoiceData, error: invoiceError } = await supabaseClient
-      .from("invoices")
+    if (!invoice_id || !quote_request_id) {
+      throw new Error("Missing required fields: invoice_id, quote_request_id");
+    }
+
+    // Get invoice and quote details
+    const { data: invoice, error: invoiceError } = await supabaseClient
+      .from('invoices')
       .select(`
         *,
-        customers (
-          id,
-          name,
-          email,
-          phone,
-          address
-        ),
-        quote_requests (
-          id,
-          event_name,
-          event_date,
-          location,
-          service_type,
-          guest_count,
-          special_requests,
-          start_time,
-          serving_start_time,
-          wait_staff_requested,
-          chafers_requested,
-          tables_chairs_requested,
-          linens_requested,
-          serving_utensils_requested,
-          plates_requested,
-          cups_requested,
-          napkins_requested,
-          ice_requested,
-          primary_protein,
-          secondary_protein,
-          appetizers,
-          sides,
-          desserts,
-          drinks,
-          dietary_restrictions
-        )
+        invoice_line_items(*),
+        quote_requests!inner(*)
       `)
-      .eq("id", invoice_id)
-      .single();
+      .eq('id', invoice_id)
+      .maybeSingle();
 
-    if (invoiceError || !invoiceData) {
-      throw new Error("Invoice not found");
+    if (invoiceError || !invoice) {
+      throw new Error(`Invoice not found: ${invoiceError?.message}`);
     }
 
-    // Fetch line items
-    const { data: lineItems, error: lineItemsError } = await supabaseClient
-      .from("invoice_line_items")
-      .select("*")
-      .eq("invoice_id", invoice_id)
-      .order("created_at");
+    // Get payment milestones if not provided
+    let milestones = payment_schedule;
+    if (!milestones) {
+      const { data: milestonesData, error: milestonesError } = await supabaseClient
+        .from('payment_milestones')
+        .select('*')
+        .eq('invoice_id', invoice_id)
+        .order('due_date', { ascending: true });
 
-    if (lineItemsError) {
-      throw new Error("Failed to fetch line items");
+      if (milestonesError) {
+        throw new Error(`Failed to get payment schedule: ${milestonesError.message}`);
+      }
+      milestones = milestonesData || [];
     }
 
-    logStep("Data fetched successfully", { 
-      lineItemsCount: lineItems?.length || 0,
-      invoiceNumber: invoiceData.invoice_number,
-      contractType: contract_type
-    });
-
-    // Calculate payment schedule
-    const calculatePaymentSchedule = (totalAmount: number, eventDate: string, isGovernment = false) => {
-      const eventDateTime = new Date(eventDate);
-      const today = new Date();
-      const daysUntilEvent = Math.ceil((eventDateTime.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-
-      if (isGovernment) {
-        return {
-          type: "Government Contract",
-          terms: "Net 30 days after event completion",
-          schedule: [{
-            amount: totalAmount,
-            description: "Full payment due 30 days after event completion",
-            dueDate: new Date(eventDateTime.getTime() + 30 * 24 * 60 * 60 * 1000)
-          }]
-        };
-      }
-
-      if (daysUntilEvent <= 30) {
-        return {
-          type: "Short Notice Event",
-          terms: "50% deposit, 50% due 10 days prior to event",
-          schedule: [
-            {
-              amount: Math.round(totalAmount * 0.5),
-              description: "Deposit to secure event date (50%)",
-              dueDate: today
-            },
-            {
-              amount: totalAmount - Math.round(totalAmount * 0.5),
-              description: "Final payment due 10 days prior to event",
-              dueDate: new Date(eventDateTime.getTime() - 10 * 24 * 60 * 60 * 1000)
-            }
-          ]
-        };
-      } else {
-        return {
-          type: "Standard Event",
-          terms: "25% deposit, 50% due 30 days prior, 25% due 10 days prior to event",
-          schedule: [
-            {
-              amount: Math.round(totalAmount * 0.25),
-              description: "Deposit to secure event date (25%)",
-              dueDate: today
-            },
-            {
-              amount: Math.round(totalAmount * 0.5),
-              description: "Second payment due 30 days prior to event",
-              dueDate: new Date(eventDateTime.getTime() - 30 * 24 * 60 * 60 * 1000)
-            },
-            {
-              amount: totalAmount - Math.round(totalAmount * 0.25) - Math.round(totalAmount * 0.5),
-              description: "Final payment due 10 days prior to event",
-              dueDate: new Date(eventDateTime.getTime() - 10 * 24 * 60 * 60 * 1000)
-            }
-          ]
-        };
-      }
-    };
-
-    const paymentSchedule = calculatePaymentSchedule(
-      invoiceData.total_amount,
-      invoiceData.quote_requests.event_date,
-      contract_type === 'government' || invoiceData.draft_data?.is_government_contract
-    );
-
-    // Format currency
-    const formatCurrency = (amount: number) => {
-      return new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD'
-      }).format(amount / 100);
-    };
+    logStep("Data retrieved", { lineItems: invoice.invoice_line_items?.length, milestones: milestones.length });
 
     // Generate contract HTML
-    const contractHtml = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8">
-      <title>Catering Service Agreement - ${invoiceData.invoice_number}</title>
-      <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 40px; max-width: 800px; margin: 0 auto; }
-        .header { text-align: center; border-bottom: 3px solid #2563eb; padding-bottom: 20px; margin-bottom: 30px; }
-        .logo { font-size: 32px; font-weight: bold; color: #2563eb; margin-bottom: 10px; }
-        .contract-title { font-size: 24px; font-weight: bold; margin: 20px 0; }
-        .section { margin-bottom: 25px; }
-        .section-title { font-size: 18px; font-weight: bold; color: #2563eb; border-bottom: 2px solid #e5e7eb; padding-bottom: 5px; margin-bottom: 15px; }
-        .party-info { display: flex; justify-content: space-between; margin-bottom: 30px; }
-        .party { flex: 1; padding: 0 20px; }
-        .party h3 { color: #2563eb; border-bottom: 1px solid #e5e7eb; padding-bottom: 5px; }
-        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
-        th, td { border: 1px solid #e5e7eb; padding: 12px; text-align: left; }
-        th { background-color: #f8fafc; font-weight: bold; }
-        .highlight-box { background-color: #eff6ff; padding: 20px; border-radius: 8px; border-left: 4px solid #2563eb; margin: 20px 0; }
-        .terms-list { margin-left: 20px; }
-        .signature-section { margin-top: 40px; display: flex; justify-content: space-between; }
-        .signature-box { border-top: 2px solid #333; padding-top: 10px; width: 300px; text-align: center; }
-        .footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 2px solid #e5e7eb; color: #666; font-size: 12px; }
-        @media print { body { padding: 20px; } }
-      </style>
-    </head>
-    <body>
-      <div class="header">
-        <div class="logo">Soul Train's Eatery</div>
-        <div>Charleston's Premier Catering Service</div>
-        <div style="margin-top: 10px; color: #666;">Phone: (843) 970-0265 | Email: soultrainseatery@gmail.com</div>
-      </div>
-
-      <div class="contract-title">CATERING SERVICE AGREEMENT</div>
-      <div style="text-align: center; margin-bottom: 30px;">
-        <strong>Contract #:</strong> ${invoiceData.invoice_number} | 
-        <strong>Date:</strong> ${new Date().toLocaleDateString()} |
-        <strong>Type:</strong> ${paymentSchedule.type}
-      </div>
-
-      <div class="party-info">
-        <div class="party">
-          <h3>Service Provider</h3>
-          <p><strong>Soul Train's Eatery</strong><br>
-          Charleston, SC<br>
-          Phone: (843) 970-0265<br>
-          Email: soultrainseatery@gmail.com<br>
-          <em>Licensed Catering Service</em></p>
-        </div>
-        <div class="party">
-          <h3>Client</h3>
-          <p><strong>${invoiceData.customers.name}</strong><br>
-          ${invoiceData.customers.address || 'Address on file'}<br>
-          Phone: ${invoiceData.customers.phone}<br>
-          Email: ${invoiceData.customers.email}</p>
-        </div>
-      </div>
-
-      <div class="section">
-        <div class="section-title">Event Details</div>
-        <table>
-          <tr><td><strong>Event Name</strong></td><td>${invoiceData.quote_requests.event_name}</td></tr>
-          <tr><td><strong>Event Date</strong></td><td>${new Date(invoiceData.quote_requests.event_date).toLocaleDateString()}</td></tr>
-          <tr><td><strong>Event Time</strong></td><td>${invoiceData.quote_requests.start_time || 'TBD'}</td></tr>
-          <tr><td><strong>Service Start</strong></td><td>${invoiceData.quote_requests.serving_start_time || 'TBD'}</td></tr>
-          <tr><td><strong>Location</strong></td><td>${invoiceData.quote_requests.location}</td></tr>
-          <tr><td><strong>Guest Count</strong></td><td>${invoiceData.quote_requests.guest_count} guests</td></tr>
-          <tr><td><strong>Service Type</strong></td><td>${invoiceData.quote_requests.service_type}</td></tr>
-        </table>
-      </div>
-
-      <div class="section">
-        <div class="section-title">Services & Menu Items</div>
-        <table>
-          <thead>
-            <tr>
-              <th>Description</th>
-              <th>Quantity</th>
-              <th>Unit Price</th>
-              <th>Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${lineItems?.map(item => `
-              <tr>
-                <td>
-                  <strong>${item.title || 'Service Item'}</strong><br>
-                  <small>${item.description}</small>
-                </td>
-                <td>${item.quantity}</td>
-                <td>${formatCurrency(item.unit_price)}</td>
-                <td>${formatCurrency(item.total_price)}</td>
-              </tr>
-            `).join('') || '<tr><td colspan="4" style="text-align: center;">No itemized services listed</td></tr>'}
-          </tbody>
-          <tfoot>
-            <tr style="background-color: #f8fafc;">
-              <td colspan="3"><strong>Subtotal</strong></td>
-              <td><strong>${formatCurrency(invoiceData.subtotal)}</strong></td>
-            </tr>
-            ${invoiceData.tax_amount > 0 ? `
-            <tr style="background-color: #f8fafc;">
-              <td colspan="3"><strong>Tax</strong></td>
-              <td><strong>${formatCurrency(invoiceData.tax_amount)}</strong></td>
-            </tr>
-            ` : ''}
-            <tr style="background-color: #2563eb; color: white;">
-              <td colspan="3"><strong>TOTAL AMOUNT</strong></td>
-              <td><strong>${formatCurrency(invoiceData.total_amount)}</strong></td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
-
-      <div class="section">
-        <div class="section-title">Payment Terms</div>
-        <div class="highlight-box">
-          <p><strong>Payment Schedule:</strong> ${paymentSchedule.terms}</p>
-          <table style="margin-top: 15px;">
-            <thead>
-              <tr>
-                <th>Payment</th>
-                <th>Amount</th>
-                <th>Due Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${paymentSchedule.schedule.map((payment, index) => `
-                <tr>
-                  <td>${payment.description}</td>
-                  <td>${formatCurrency(payment.amount)}</td>
-                  <td>${payment.dueDate.toLocaleDateString()}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="section">
-        <div class="section-title">Terms and Conditions</div>
-        
-        <h4>1. Service Commitment</h4>
-        <ul class="terms-list">
-          <li>Soul Train's Eatery agrees to provide catering services as outlined in this agreement.</li>
-          <li>All food will be prepared fresh using quality ingredients in our licensed kitchen facility.</li>
-          <li>Service includes delivery, setup, and ${invoiceData.quote_requests.wait_staff_requested ? 'professional wait staff' : 'self-service setup'}.</li>
-        </ul>
-
-        <h4>2. Client Responsibilities</h4>
-        <ul class="terms-list">
-          <li>Final guest count must be confirmed 7 days prior to the event.</li>
-          <li>Client must provide adequate power, water, and workspace access if required.</li>
-          <li>Any changes to menu or guest count after 7 days may incur additional charges.</li>
-          <li>Client is responsible for obtaining any required permits or licenses for the event.</li>
-        </ul>
-
-        <h4>3. Payment Terms</h4>
-        <ul class="terms-list">
-          <li>All payments must be made according to the schedule outlined above.</li>
-          <li>Late payments may be subject to a 1.5% monthly service charge.</li>
-          <li>We accept cash, check, credit cards, and electronic payments.</li>
-          ${contract_type === 'government' ? '<li>Government contract terms apply - Net 30 days after event completion.</li>' : ''}
-        </ul>
-
-        <h4>4. Cancellation Policy</h4>
-        <ul class="terms-list">
-          <li>Cancellations more than 14 days prior: 50% deposit refund.</li>
-          <li>Cancellations 7-14 days prior: 25% deposit refund.</li>
-          <li>Cancellations less than 7 days: No refund of deposit.</li>
-          <li>Weather-related cancellations will be handled on a case-by-case basis.</li>
-        </ul>
-
-        <h4>5. Liability and Insurance</h4>
-        <ul class="terms-list">
-          <li>Soul Train's Eatery carries comprehensive liability insurance for all catering events.</li>
-          <li>Client is responsible for any damages to rented equipment not caused by normal use.</li>
-          <li>Soul Train's Eatery is not responsible for items left at the event location.</li>
-        </ul>
-
-        ${contract_type === 'government' ? `
-        <h4>6. Government Contract Compliance</h4>
-        <ul class="terms-list">
-          <li>This contract complies with applicable government procurement regulations.</li>
-          <li>All required certifications and documentation are maintained on file.</li>
-          <li>Minority/Women-owned business enterprise certification available upon request.</li>
-          <li>All applicable tax exemptions will be applied as provided by law.</li>
-        </ul>
-        ` : ''}
-      </div>
-
-      ${invoiceData.quote_requests.special_requests ? `
-      <div class="section">
-        <div class="section-title">Special Requests & Notes</div>
-        <div class="highlight-box">
-          <p>${invoiceData.quote_requests.special_requests}</p>
-        </div>
-      </div>
-      ` : ''}
-
-      <div class="section">
-        <div class="section-title">Agreement</div>
-        <p>By signing below, both parties agree to the terms and conditions outlined in this catering service agreement. This contract constitutes the entire agreement between the parties and supersedes all prior negotiations, representations, or agreements relating to the subject matter.</p>
-      </div>
-
-      <div class="signature-section">
-        <div class="signature-box">
-          <div style="margin-bottom: 40px;"></div>
-          <div>Client Signature</div>
-          <div style="margin-top: 10px; font-size: 14px;">
-            ${invoiceData.customers.name}<br>
-            Date: ________________
-          </div>
-        </div>
-        <div class="signature-box">
-          <div style="margin-bottom: 40px;"></div>
-          <div>Soul Train's Eatery</div>
-          <div style="margin-top: 10px; font-size: 14px;">
-            Authorized Representative<br>
-            Date: ________________
-          </div>
-        </div>
-      </div>
-
-      <div class="footer">
-        <p>This agreement is governed by the laws of South Carolina. Any disputes shall be resolved in Charleston County, SC.</p>
-        <p><strong>Soul Train's Eatery</strong> | Licensed Catering Service | Charleston, SC | (843) 970-0265</p>
-      </div>
-    </body>
-    </html>
-    `;
+    const contractHtml = generateContractHTML(invoice, customer_data || invoice.quote_requests, milestones);
 
     // Save contract to database
-    const { data: contractData, error: contractError } = await supabaseClient
+    const { data: contract, error: contractError } = await supabaseClient
       .from('contracts')
-      .upsert({
+      .insert({
         invoice_id: invoice_id,
         contract_type: contract_type,
         contract_html: contractHtml,
         status: 'generated',
-        generated_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      }, { onConflict: 'invoice_id' })
+        generated_at: new Date().toISOString()
+      })
       .select()
       .single();
 
     if (contractError) {
-      logStep("Warning: Failed to save contract to database", { error: contractError.message });
+      throw new Error(`Failed to save contract: ${contractError.message}`);
     }
 
-    logStep("Contract generated successfully", { 
-      contractId: contractData?.id,
-      invoiceNumber: invoiceData.invoice_number 
-    });
+    logStep("Contract generated", { contractId: contract.id });
 
-    return new Response(JSON.stringify({
-      success: true,
-      contract_html: contractHtml,
-      contract_id: contractData?.id,
-      contract_type: contract_type,
-      invoice_number: invoiceData.invoice_number,
-      payment_schedule: paymentSchedule
+    return new Response(JSON.stringify({ 
+      contract_id: contract.id,
+      status: 'generated',
+      message: 'Contract generated successfully'
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
@@ -440,9 +107,319 @@ serve(async (req) => {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logStep("ERROR", { message: errorMessage });
-    return new Response(JSON.stringify({ error: errorMessage }), {
+    
+    return new Response(JSON.stringify({ 
+      error: errorMessage,
+      details: "Failed to generate contract"
+    }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
     });
   }
 });
+
+function generateContractHTML(invoice: any, customerData: any, milestones: any[]): string {
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD'
+    }).format(amount / 100);
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catering Service Contract</title>
+    <style>
+        body {
+            font-family: Georgia, serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: #fff;
+        }
+        
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #8B4513;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .company-name {
+            font-size: 28px;
+            font-weight: bold;
+            color: #8B4513;
+            margin-bottom: 5px;
+        }
+        
+        .tagline {
+            font-size: 16px;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .contract-title {
+            font-size: 22px;
+            font-weight: bold;
+            text-align: center;
+            margin: 30px 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .section {
+            margin-bottom: 25px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #8B4513;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
+        
+        .party-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 25px;
+        }
+        
+        .party-box {
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #f9f9f9;
+        }
+        
+        .event-details {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .menu-items {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .menu-item {
+            padding: 10px 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+        
+        .menu-item.total {
+            background: #8B4513;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .payment-schedule {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .payment-item {
+            padding: 10px 15px;
+            border-bottom: 1px solid #eee;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .payment-item:last-child {
+            border-bottom: none;
+        }
+        
+        .payment-item.header {
+            background: #8B4513;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .terms {
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .signature-section {
+            margin-top: 40px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+        }
+        
+        .signature-box {
+            text-align: center;
+            border-top: 2px solid #333;
+            padding-top: 10px;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        @media print {
+            body { padding: 20px; }
+            .no-print { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="company-name">Soul Train's Eatery</div>
+        <div class="tagline">Bringing people together around exceptional food</div>
+        <div style="margin-top: 10px; font-size: 14px;">
+            Phone: (843) 970-0265 | Email: soultrainseatery@gmail.com<br>
+            Proudly serving Charleston's Lowcountry and surrounding areas
+        </div>
+    </div>
+
+    <div class="contract-title">Catering Service Agreement</div>
+
+    <div class="section">
+        <div class="party-info">
+            <div class="party-box">
+                <strong>Service Provider:</strong><br>
+                Soul Train's Eatery<br>
+                Charleston, SC<br>
+                Phone: (843) 970-0265<br>
+                Email: soultrainseatery@gmail.com
+            </div>
+            <div class="party-box">
+                <strong>Client:</strong><br>
+                ${customerData.contact_name}<br>
+                Email: ${customerData.email}<br>
+                Phone: ${customerData.phone || 'Not provided'}
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Event Details</div>
+        <div class="event-details">
+            <strong>Event Name:</strong> ${customerData.event_name}<br>
+            <strong>Event Date:</strong> ${formatDate(customerData.event_date)}<br>
+            <strong>Location:</strong> ${customerData.location}<br>
+            <strong>Guest Count:</strong> ${customerData.guest_count} people<br>
+            <strong>Service Type:</strong> ${invoice.quote_requests?.service_type || 'Full Service Catering'}
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Menu & Services</div>
+        <div class="menu-items">
+            ${invoice.invoice_line_items?.map((item: any) => `
+            <div class="menu-item">
+                <div>
+                    <strong>${item.title || item.description}</strong>
+                    ${item.description && item.title ? `<br><small>${item.description}</small>` : ''}
+                </div>
+                <div>Qty: ${item.quantity}</div>
+                <div>${formatCurrency(item.total_price)}</div>
+            </div>
+            `).join('') || '<div class="menu-item">Menu items will be confirmed</div>'}
+            <div class="menu-item total">
+                <div>Total Contract Value</div>
+                <div></div>
+                <div>${formatCurrency(invoice.total_amount)}</div>
+            </div>
+        </div>
+    </div>
+
+    ${milestones.length > 0 ? `
+    <div class="section">
+        <div class="section-title">Payment Schedule</div>
+        <div class="payment-schedule">
+            <div class="payment-item header">
+                <div>Payment Description</div>
+                <div>Amount</div>
+                <div>Due Date</div>
+            </div>
+            ${milestones.map((milestone: any) => `
+            <div class="payment-item">
+                <div>${milestone.description}</div>
+                <div>${formatCurrency(milestone.amount_cents)}</div>
+                <div>
+                    ${milestone.is_due_now ? 'Due upon signing' : 
+                      milestone.is_net30 ? 'Net 30 after event' :
+                      milestone.due_date ? formatDate(milestone.due_date) : 'TBD'}
+                </div>
+            </div>
+            `).join('')}
+        </div>
+    </div>
+    ` : ''}
+
+    <div class="section">
+        <div class="section-title">Terms and Conditions</div>
+        <div class="terms">
+            <p><strong>1. Services:</strong> Soul Train's Eatery agrees to provide catering services as specified above for the agreed-upon event date, time, and location.</p>
+            
+            <p><strong>2. Payment Terms:</strong> Payment schedule as outlined above. All payments are due on the specified dates. Late payments may incur additional fees.</p>
+            
+            <p><strong>3. Cancellation Policy:</strong> Cancellations made more than 14 days before the event will receive a full refund minus a 10% processing fee. Cancellations made within 14 days are subject to forfeiture of the deposit.</p>
+            
+            <p><strong>4. Menu Changes:</strong> Any changes to the menu or guest count must be communicated at least 7 days before the event and may result in price adjustments.</p>
+            
+            <p><strong>5. Force Majeure:</strong> Neither party shall be liable for delays or failures in performance resulting from circumstances beyond their reasonable control.</p>
+            
+            <p><strong>6. Liability:</strong> Soul Train's Eatery's liability is limited to the contract value. Client is responsible for venue requirements and permits.</p>
+            
+            <p><strong>7. Governing Law:</strong> This agreement shall be governed by the laws of South Carolina.</p>
+        </div>
+    </div>
+
+    <div class="signature-section">
+        <div class="signature-box">
+            <div>Client Signature</div>
+            <div style="margin-top: 30px; font-size: 14px;">Date: ___________</div>
+        </div>
+        <div class="signature-box">
+            <div>Soul Train's Eatery Representative</div>
+            <div style="margin-top: 30px; font-size: 14px;">Date: ___________</div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Thank you for choosing Soul Train's Eatery for your special event!</p>
+        <p>Contract generated on ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+    </div>
+</body>
+</html>
+  `;
+}

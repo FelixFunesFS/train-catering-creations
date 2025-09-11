@@ -30,6 +30,7 @@ import NotFound from "./pages/NotFound";
 import InvoicePublic from "./pages/InvoicePublic";
 import EstimatePreview from "./pages/EstimatePreview";
 import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentCanceled from "./pages/PaymentCanceled";
 import ContractManagement from "./pages/ContractManagement";
 import { OptimizedCustomerPortal } from "./components/customer/OptimizedCustomerPortal";
 import { TokenBasedCustomerPortal } from "./components/customer/TokenBasedCustomerPortal";
@@ -92,6 +93,7 @@ const AppContent = () => {
             </div>
           } />
           <Route path="/payment-success" element={<PaymentSuccess />} />
+          <Route path="/payment-canceled" element={<PaymentCanceled />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
