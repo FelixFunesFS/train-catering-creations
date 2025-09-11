@@ -31,17 +31,21 @@ export function StreamlinedQuoteManager({ quotes, loading, onRefresh }: Streamli
   const [processing, setProcessing] = useState<Set<string>>(new Set());
   const { toast } = useToast();
 
-  // Categorize quotes
+  // Categorize quotes with improved logic
   const newQuotes = quotes.filter(q => 
-    q.status === 'pending' && !q.invoices?.some(inv => !inv.is_draft)
+    q.status === 'pending' && !q.invoices?.length
   );
   
   const inProgress = quotes.filter(q => 
-    q.status === 'quoted' || q.invoices?.some(inv => !inv.is_draft)
+    q.status === 'quoted' || 
+    q.status === 'reviewed' ||
+    (q.invoices?.length && q.status !== 'completed')
   );
   
   const completed = quotes.filter(q => 
-    q.status === 'completed' || q.invoices?.some(inv => inv.status === 'paid')
+    q.status === 'completed' || 
+    q.status === 'confirmed' ||
+    q.invoices?.some(inv => inv.status === 'paid')
   );
 
   const createEstimate = async (quoteId: string) => {

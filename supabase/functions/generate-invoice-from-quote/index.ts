@@ -367,6 +367,7 @@ const handler = async (req: Request): Promise<Response> => {
     await supabase
       .from('quote_requests')
       .update({ 
+        status: 'quoted',
         workflow_status: 'estimated',
         estimated_total: totalAmount,
         invoice_status: customerType === 'GOV' ? 'gov_net30' : 'payment_scheduled'
