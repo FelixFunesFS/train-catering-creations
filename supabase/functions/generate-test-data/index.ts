@@ -15,13 +15,27 @@ export default async function handler(req: Request) {
 
   try {
     // Initialize Supabase client with service role key for admin operations
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    
+    console.log('Environment check:', {
+      hasUrl: !!supabaseUrl,
+      hasServiceKey: !!supabaseServiceKey,
+      urlPrefix: supabaseUrl?.substring(0, 20) + '...',
+      keyPrefix: supabaseServiceKey?.substring(0, 10) + '...'
+    });
+    
+    if (!supabaseUrl || !supabaseServiceKey) {
+      throw new Error('Missing required environment variables');
+    }
     
     const supabase = createClient<Database>(supabaseUrl, supabaseServiceKey, {
       auth: {
         autoRefreshToken: false,
         persistSession: false
+      },
+      db: {
+        schema: 'public'
       }
     });
 
@@ -69,6 +83,7 @@ export default async function handler(req: Request) {
     };
 
     // Insert the comprehensive test quote request
+    console.log('Attempting to insert quote request data...');
     const { data: quoteData, error: quoteError } = await supabase
       .from('quote_requests')
       .insert(testQuoteData)
@@ -76,7 +91,12 @@ export default async function handler(req: Request) {
       .single();
 
     if (quoteError) {
-      console.error('Error inserting quote request:', quoteError);
+      console.error('Detailed quote error:', {
+        message: quoteError.message,
+        details: quoteError.details,
+        hint: quoteError.hint,
+        code: quoteError.code
+      });
       throw quoteError;
     }
 
