@@ -105,10 +105,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Only works in development mode
     if (import.meta.env.DEV) {
       try {
-        // Create a proper JWT token for the dev user
-        const devUser: User = {
-          id: '00000000-0000-0000-0000-000000000001',
-          email: 'dev@soultrainseatery.com',
+        // Try to sign in with the real admin account using a dev bypass
+        // First, query the database to get the real admin user ID
+        const { data: adminData, error: queryError } = await supabase
+          .from('user_roles')
+          .select('user_id')
+          .eq('role', 'admin')
+          .limit(1)
+          .single();
+
+        if (queryError || !adminData) {
+          toast.error('Admin user not found in database');
+          return;
+        }
+
+        // Create a proper JWT token for the real admin user
+        const adminUser: User = {
+          id: adminData.user_id,
+          email: 'soultrainseatery@gmail.com',
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
           app_metadata: {},
@@ -117,16 +131,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           role: 'authenticated'
         } as User;
 
-        // Create a proper session with JWT that includes the dev user ID
+        // Create a proper session with JWT that includes the real admin user ID
         const now = Math.floor(Date.now() / 1000);
         const expiresAt = now + 3600;
         
-        // Create a basic JWT payload that Supabase can recognize
+        // Create a JWT payload that Supabase can recognize with real admin ID
         const jwtPayload = {
-          sub: '00000000-0000-0000-0000-000000000001',
+          sub: adminData.user_id,
           aud: 'authenticated',
           role: 'authenticated',
-          email: 'dev@soultrainseatery.com',
+          email: 'soultrainseatery@gmail.com',
           iat: now,
           exp: expiresAt
         };
@@ -134,35 +148,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Create a mock but valid-looking JWT token
         const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
         const payload = btoa(JSON.stringify(jwtPayload));
-        const signature = 'dev-signature';
+        const signature = 'dev-admin-signature';
         const accessToken = `${header}.${payload}.${signature}`;
 
-        const devSession: Session = {
+        const adminSession: Session = {
           access_token: accessToken,
-          refresh_token: 'dev-refresh-token',
+          refresh_token: 'dev-admin-refresh-token',
           expires_in: 3600,
           expires_at: expiresAt,
           token_type: 'bearer',
-          user: devUser
+          user: adminUser
         };
 
         // Use Supabase's setSession to create a proper authenticated session
         const { error } = await supabase.auth.setSession({
           access_token: accessToken,
-          refresh_token: 'dev-refresh-token'
+          refresh_token: 'dev-admin-refresh-token'
         });
 
         if (error) {
-          console.warn('Dev session creation warning:', error);
+          console.warn('Dev admin session creation warning:', error);
           // Fall back to manual state setting if setSession fails
-          setSession(devSession);
-          setUser(devUser);
+          setSession(adminSession);
+          setUser(adminUser);
         }
 
-        toast.success('Development login successful');
+        toast.success('Development admin login successful');
       } catch (error) {
-        console.error('Dev login error:', error);
-        toast.error('Development login failed');
+        console.error('Dev admin login error:', error);
+        toast.error('Development admin login failed');
       }
     } else {
       toast.error('Development login only available in development mode');
