@@ -105,7 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Only works in development mode
     if (import.meta.env.DEV) {
       const mockUser: User = {
-        id: 'dev-user-id',
+        id: '00000000-0000-0000-0000-000000000001',
         email: 'dev@soultrainseatery.com',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
