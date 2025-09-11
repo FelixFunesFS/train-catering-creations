@@ -52,6 +52,20 @@ export function InvoiceManagementTab({
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const { toast } = useToast();
 
+  // Debug logging
+  console.log(`📋 ${title} - Received data:`, {
+    invoicesCount: invoices.length,
+    quotesCount: quotes.length,
+    loading,
+    invoices: invoices.map(inv => ({
+      id: inv.id,
+      is_draft: inv.is_draft,
+      status: inv.status,
+      quote_request_id: inv.quote_request_id,
+      total_amount: inv.total_amount
+    }))
+  });
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',

@@ -76,6 +76,7 @@ export function UnifiedAdminInterface() {
 
   const fetchAllData = async () => {
     setLoading(true);
+    console.log('🔄 Starting fetchAllData...');
     try {
       // Fetch all data in parallel for better performance
       const [quotesResult, invoicesResult, analyticsResult] = await Promise.all([
@@ -86,12 +87,12 @@ export function UnifiedAdminInterface() {
           .order('updated_at', { ascending: false })
           .limit(50),
         
-        // Fetch invoices with related data  
+        // Fetch invoices with related data using LEFT JOINs to prevent data loss
         supabase
           .from('invoices')
           .select(`
             *,
-            customers!inner(name, email),
+            customers(name, email),
             quote_requests!quote_request_id(event_name, event_date, contact_name)
           `)
           .order('updated_at', { ascending: false })
@@ -101,15 +102,29 @@ export function UnifiedAdminInterface() {
         calculateAnalytics()
       ]);
 
-      if (quotesResult.error) throw quotesResult.error;
-      if (invoicesResult.error) throw invoicesResult.error;
+      console.log('📊 Quote requests result:', quotesResult);
+      console.log('🧾 Invoices result:', invoicesResult);
+
+      if (quotesResult.error) {
+        console.error('❌ Error fetching quotes:', quotesResult.error);
+        throw quotesResult.error;
+      }
+      if (invoicesResult.error) {
+        console.error('❌ Error fetching invoices:', invoicesResult.error);
+        throw invoicesResult.error;
+      }
+
+      console.log('✅ Fetched data:', {
+        quotes: quotesResult.data?.length || 0,
+        invoices: invoicesResult.data?.length || 0
+      });
 
       // Generate mock notifications based on data
       const notifications = generateNotifications(quotesResult.data, invoicesResult.data);
 
       setData({
-        quotes: quotesResult.data,
-        invoices: invoicesResult.data,
+        quotes: quotesResult.data || [],
+        invoices: invoicesResult.data || [],
         notifications,
         analytics: analyticsResult
       });
@@ -239,15 +254,36 @@ export function UnifiedAdminInterface() {
   };
 
   const getTabCounts = () => {
+    console.log('🔢 Calculating tab counts with data:', {
+      totalQuotes: data.quotes.length,
+      totalInvoices: data.invoices.length,
+      quotesWithEstimates: data.quotes.filter(q => 
+        data.invoices.some(inv => inv.quote_request_id === q.id && inv.is_draft)
+      ).length
+    });
+
+    const newRequests = data.quotes.filter(q => 
+      q.status === 'pending' && !data.invoices.some(inv => inv.quote_request_id === q.id)
+    );
+    
+    const estimatesInProgress = data.quotes.filter(q => 
+      q.status === 'quoted' || q.status === 'reviewed' ||
+      data.invoices.some(inv => 
+        inv.quote_request_id === q.id && 
+        (inv.is_draft === true || ['sent', 'viewed'].includes(inv.status))
+      )
+    );
+
+    console.log('📈 Tab counts:', {
+      newRequests: newRequests.length,
+      estimatesInProgress: estimatesInProgress.length,
+      newRequestsList: newRequests.map(q => ({ id: q.id, status: q.status, event_name: q.event_name })),
+      estimatesInProgressList: estimatesInProgress.map(q => ({ id: q.id, status: q.status, event_name: q.event_name }))
+    });
+
     return {
-      newRequests: data.quotes.filter(q => 
-        q.status === 'pending' && !data.invoices.some(inv => inv.quote_request_id === q.id)
-      ).length,
-      estimatesInProgress: data.quotes.filter(q => 
-        (q.status === 'quoted' || q.status === 'reviewed') &&
-        q.status !== 'completed' &&
-        !data.invoices.some(inv => inv.quote_request_id === q.id && inv.status === 'paid')
-      ).length,
+      newRequests: newRequests.length,
+      estimatesInProgress: estimatesInProgress.length,
       invoicesActive: data.quotes.filter(q => 
         data.invoices.some(inv => 
           inv.quote_request_id === q.id && 
