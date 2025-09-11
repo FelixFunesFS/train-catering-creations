@@ -11,6 +11,7 @@ interface AuthContextType {
   signUp: (email: string, password: string) => Promise<{ error?: any }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error?: any }>;
+  devQuickLogin: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -100,6 +101,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error };
   };
 
+  const devQuickLogin = async () => {
+    // Only works in development mode
+    if (import.meta.env.DEV) {
+      const mockUser: User = {
+        id: 'dev-user-id',
+        email: 'dev@soultrainseatery.com',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        app_metadata: {},
+        user_metadata: {},
+        aud: 'authenticated',
+        role: 'authenticated'
+      } as User;
+
+      const mockSession: Session = {
+        access_token: 'dev-access-token',
+        refresh_token: 'dev-refresh-token',
+        expires_in: 3600,
+        expires_at: Math.floor(Date.now() / 1000) + 3600,
+        token_type: 'bearer',
+        user: mockUser
+      };
+
+      setSession(mockSession);
+      setUser(mockUser);
+      toast.success('Development login successful');
+    } else {
+      toast.error('Development login only available in development mode');
+    }
+  };
+
   return (
     <AuthContext.Provider value={{
       user,
@@ -109,6 +141,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signUp,
       signOut,
       resetPassword,
+      devQuickLogin,
     }}>
       {children}
     </AuthContext.Provider>
