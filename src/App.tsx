@@ -68,17 +68,6 @@ const AppContent = () => {
               <UnifiedAdminDashboard />
             </ProtectedRoute>
           } />
-          <Route path="/admin/quotes/:quoteId" element={
-            <ProtectedRoute>
-              <QuoteDetailPage />
-            </ProtectedRoute>
-          } />
-          {/* Legacy routes - redirect to admin dashboard for modal handling */}
-          <Route path="/admin/contracts" element={
-            <ProtectedRoute>
-              <ContractManagement />
-            </ProtectedRoute>
-          } />
           
           {/* Customer estimate preview routes */}
           <Route path="/customer/estimate-preview/:invoiceId" element={<EstimatePreview />} />

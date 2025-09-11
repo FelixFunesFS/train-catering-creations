@@ -139,34 +139,6 @@ export function EnhancedEstimateLineItems({
           />
         </div>
 
-        {/* Quick Actions */}
-        <div className="space-y-3">
-          <Label className="text-sm font-medium">Quick Actions</Label>
-          <div className="flex flex-wrap gap-2">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleQuickCalculate}
-              className="flex items-center gap-2"
-              disabled={!guestCount}
-            >
-              <Calculator className="h-4 w-4" />
-              Per-Person ({guestCount} guests)
-            </Button>
-            
-            {getCommonLineItems().map((template, index) => (
-              <Button
-                key={index}
-                variant="outline"
-                size="sm"
-                onClick={() => handleAddTemplateItem(template)}
-              >
-                + {template.title}
-              </Button>
-            ))}
-          </div>
-        </div>
-
         <Separator />
 
         {/* Line Items */}

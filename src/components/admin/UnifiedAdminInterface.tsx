@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { InvoiceManagementTab } from '@/components/admin/InvoiceManagementTab';
-import { NewRequestsWorkflow } from '@/components/admin/NewRequestsWorkflow';
+import { SimplifiedNewRequestsManager } from '@/components/admin/SimplifiedNewRequestsManager';
 import { UnifiedQuoteWorkflow } from '@/components/admin/UnifiedQuoteWorkflow';
 import { BusinessIntelligenceDashboard } from '@/components/admin/BusinessIntelligenceDashboard';
 import { ChangeRequestsTab } from '@/components/admin/tabs/ChangeRequestsTab';
@@ -55,32 +55,12 @@ export function UnifiedAdminInterface() {
     fetchAllData();
   }, []);
 
-  // Listen for URL parameter changes and handle modal parameters
+  // Listen for URL parameter changes
   useEffect(() => {
     const tab = searchParams.get('tab');
-    const modal = searchParams.get('modal');
-    const invoiceId = searchParams.get('invoiceId');
-    const quoteId = searchParams.get('quoteId');
-    const action = searchParams.get('action');
     
     if (tab && tab !== activeTab) {
       setActiveTab(tab);
-    }
-    
-    // Handle modal parameters for direct navigation
-    if (modal === 'estimate' && invoiceId) {
-      // Auto-open estimate modal for the specified invoice
-      setActiveTab('estimates-progress');
-    }
-    
-    if (action === 'create-estimate' && quoteId) {
-      // Auto-trigger estimate creation for the specified quote
-      setActiveTab('new-requests');
-    }
-    
-    if (action === 'edit' && invoiceId) {
-      // Auto-open estimate edit for the specified invoice
-      setActiveTab('estimates-progress');
     }
   }, [searchParams, activeTab]);
 
@@ -507,13 +487,10 @@ export function UnifiedAdminInterface() {
                   {/* Tab Content */}
                   <div className="min-h-0">
                     {activeTab === 'new-requests' && (
-                      <NewRequestsWorkflow 
+                      <SimplifiedNewRequestsManager 
                         quotes={data.quotes.filter(q => q.status === 'pending' && !data.invoices.some(inv => inv.quote_request_id === q.id))}
                         loading={loading}
                         onRefresh={fetchAllData}
-                        selectedItems={selectedItems}
-                        onSelectionChange={setSelectedItems}
-                        invoices={data.invoices}
                       />
                     )}
 

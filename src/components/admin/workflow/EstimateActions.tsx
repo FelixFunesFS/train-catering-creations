@@ -39,13 +39,13 @@ export const EstimateActions = ({ invoice, quote, onStatusChange }: EstimateActi
   };
 
   const handleEdit = () => {
-    // Navigate to the admin dashboard with modal parameters
+    // Navigate to the admin dashboard 
     if (invoice?.id) {
       // Edit existing estimate/invoice
-      window.location.href = `/admin?tab=estimates-progress&invoiceId=${invoice.id}&action=edit`;
+      window.location.href = `/admin?tab=estimates-progress`;
     } else if (quote?.id) {
       // Create new estimate from quote
-      window.location.href = `/admin?tab=new-requests&quoteId=${quote.id}&action=create-estimate`;
+      window.location.href = `/admin?tab=new-requests`;
     } else {
       toast({
         title: "Error",

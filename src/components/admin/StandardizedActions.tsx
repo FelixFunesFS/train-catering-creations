@@ -31,7 +31,7 @@ export function StandardizedActions({
   const { toast } = useToast();
 
   const handleViewQuote = () => {
-    navigate(`/admin/quotes/${item.id}`);
+    navigate(`/admin?tab=new-requests`);
   };
 
   const handleViewEstimate = () => {
@@ -214,7 +214,7 @@ export function ActionButton({
     try {
       switch (action) {
         case 'view-quote':
-          navigate(`/admin/quotes/${item.id}`);
+          navigate(`/admin?tab=new-requests`);
           break;
           
         case 'view-estimate':

@@ -318,9 +318,9 @@ export function StreamlinedEstimateModal({
 
   const handleOpenInNewTab = () => {
     if (invoiceId) {
-      window.open(`/admin?tab=estimates-progress&invoiceId=${invoiceId}&modal=estimate`, '_blank');
+      window.open(`/admin?tab=estimates-progress`, '_blank');
     } else if (quoteId) {
-      window.open(`/admin?tab=new-requests&quoteId=${quoteId}&action=create-estimate`, '_blank');
+      window.open(`/admin?tab=new-requests`, '_blank');
     }
   };
 

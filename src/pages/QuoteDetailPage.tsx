@@ -150,7 +150,7 @@ export default function QuoteDetailPage() {
             <p className="text-muted-foreground mb-4">
               The quote you're looking for doesn't exist or has been removed.
             </p>
-            <Button onClick={() => navigate('/admin?tab=quotes')}>
+            <Button onClick={() => navigate('/admin?tab=new-requests')}>
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Quotes
             </Button>
@@ -170,7 +170,7 @@ export default function QuoteDetailPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => navigate('/admin?tab=quotes')}
+                onClick={() => navigate('/admin?tab=new-requests')}
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back to Quotes
@@ -187,7 +187,7 @@ export default function QuoteDetailPage() {
             <div className="flex items-center gap-3">
               <StatusBadge status={quote.workflow_status || quote.status} />
               <Button 
-                onClick={() => navigate(`/admin?tab=new-requests&quoteId=${quote.id}&action=create-estimate`)}
+                onClick={() => navigate(`/admin?tab=new-requests`)}
                 variant="outline"
               >
                 <FileText className="h-4 w-4 mr-2" />
