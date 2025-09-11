@@ -104,29 +104,66 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const devQuickLogin = async () => {
     // Only works in development mode
     if (import.meta.env.DEV) {
-      const mockUser: User = {
-        id: '00000000-0000-0000-0000-000000000001',
-        email: 'dev@soultrainseatery.com',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        app_metadata: {},
-        user_metadata: {},
-        aud: 'authenticated',
-        role: 'authenticated'
-      } as User;
+      try {
+        // Create a proper JWT token for the dev user
+        const devUser: User = {
+          id: '00000000-0000-0000-0000-000000000001',
+          email: 'dev@soultrainseatery.com',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          app_metadata: {},
+          user_metadata: {},
+          aud: 'authenticated',
+          role: 'authenticated'
+        } as User;
 
-      const mockSession: Session = {
-        access_token: 'dev-access-token',
-        refresh_token: 'dev-refresh-token',
-        expires_in: 3600,
-        expires_at: Math.floor(Date.now() / 1000) + 3600,
-        token_type: 'bearer',
-        user: mockUser
-      };
+        // Create a proper session with JWT that includes the dev user ID
+        const now = Math.floor(Date.now() / 1000);
+        const expiresAt = now + 3600;
+        
+        // Create a basic JWT payload that Supabase can recognize
+        const jwtPayload = {
+          sub: '00000000-0000-0000-0000-000000000001',
+          aud: 'authenticated',
+          role: 'authenticated',
+          email: 'dev@soultrainseatery.com',
+          iat: now,
+          exp: expiresAt
+        };
 
-      setSession(mockSession);
-      setUser(mockUser);
-      toast.success('Development login successful');
+        // Create a mock but valid-looking JWT token
+        const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
+        const payload = btoa(JSON.stringify(jwtPayload));
+        const signature = 'dev-signature';
+        const accessToken = `${header}.${payload}.${signature}`;
+
+        const devSession: Session = {
+          access_token: accessToken,
+          refresh_token: 'dev-refresh-token',
+          expires_in: 3600,
+          expires_at: expiresAt,
+          token_type: 'bearer',
+          user: devUser
+        };
+
+        // Use Supabase's setSession to create a proper authenticated session
+        const { error } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: 'dev-refresh-token'
+        });
+
+        if (error) {
+          console.warn('Dev session creation warning:', error);
+          // Fall back to manual state setting if setSession fails
+          setSession(devSession);
+          setUser(devUser);
+        }
+
+        toast.success('Development login successful');
+      } catch (error) {
+        console.error('Dev login error:', error);
+        toast.error('Development login failed');
+      }
     } else {
       toast.error('Development login only available in development mode');
     }
