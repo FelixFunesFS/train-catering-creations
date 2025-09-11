@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useWorkflowSync } from '@/hooks/useWorkflowSync';
 import { 
   CheckCircle, 
   Circle, 
@@ -53,10 +54,14 @@ export function ConsolidatedWorkflowManager({ quote, invoice, onRefresh }: Conso
   const [error, setError] = useState<string | null>(null);
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);
   const { toast } = useToast();
+  const { syncQuoteWithInvoice, validateWorkflowConsistency } = useWorkflowSync();
 
   useEffect(() => {
     loadCompletedSteps();
-  }, [quote?.id]);
+    if (quote?.id) {
+      validateWorkflowConsistency(quote.id);
+    }
+  }, [quote?.id, validateWorkflowConsistency]);
 
   const loadCompletedSteps = async () => {
     if (!quote?.id) return;
@@ -138,6 +143,11 @@ export function ConsolidatedWorkflowManager({ quote, invoice, onRefresh }: Conso
     
     if (!step) return 'upcoming';
     
+    // Check actual completion based on data
+    if (stepId === 'pricing_completed' && quote?.estimated_total > 0) return 'completed';
+    if (stepId === 'estimate_sent' && (quote?.status === 'quoted' || invoice?.status === 'sent')) return 'completed';
+    if (stepId === 'payment_processed' && invoice?.status === 'paid') return 'completed';
+    
     // Phase-based logic for current step
     if (step.phase === 'quote' && currentPhase === 'quote') {
       if (stepId === 'pricing_completed') return quote?.estimated_total > 0 ? 'completed' : 'current';
@@ -145,7 +155,7 @@ export function ConsolidatedWorkflowManager({ quote, invoice, onRefresh }: Conso
     }
     
     if (step.phase === currentPhase) return 'current';
-    return step.phase === 'quote' ? 'completed' : 'upcoming';
+    return step.phase === 'quote' && currentPhase !== 'quote' ? 'completed' : 'upcoming';
   };
 
   const getNextAction = (): NextAction | null => {
@@ -213,7 +223,8 @@ export function ConsolidatedWorkflowManager({ quote, invoice, onRefresh }: Conso
         description: data?.message || "Workflow updated successfully",
       });
 
-      // Refresh quote data
+      // Refresh quote data and sync workflow
+      await syncQuoteWithInvoice(quote.id);
       onRefresh?.();
       loadCompletedSteps();
     } catch (error: any) {
