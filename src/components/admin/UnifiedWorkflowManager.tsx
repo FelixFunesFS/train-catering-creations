@@ -104,6 +104,7 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
 
   // Load quotes on mount and handle selectedQuoteId
   useEffect(() => {
+    console.log('🔍 DEBUG: useEffect called, selectedQuoteId:', selectedQuoteId, 'mode:', mode);
     fetchQuotes();
     if (selectedQuoteId) {
       fetchQuoteById(selectedQuoteId);
@@ -113,7 +114,24 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
     }
   }, [selectedQuoteId, mode]);
 
+  // Debug quotes state changes
+  useEffect(() => {
+    console.log('🔍 DEBUG: quotes state changed:', quotes.length, 'quotes');
+    console.log('🔍 DEBUG: quotes data:', quotes);
+  }, [quotes]);
+
+  // Debug loading state changes
+  useEffect(() => {
+    console.log('🔍 DEBUG: loading state changed:', loading);
+  }, [loading]);
+
+  // Debug current step changes
+  useEffect(() => {
+    console.log('🔍 DEBUG: currentStep changed:', currentStep);
+  }, [currentStep]);
+
   const fetchQuotes = async () => {
+    console.log('🔍 DEBUG: fetchQuotes called');
     try {
       const { data, error } = await supabase
         .from('quote_requests')
@@ -121,8 +139,12 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
         .in('status', ['pending', 'reviewed', 'quoted', 'confirmed'])
         .order('created_at', { ascending: false });
 
+      console.log('🔍 DEBUG: fetchQuotes response:', { data, error });
       if (error) throw error;
-      setQuotes((data as Quote[]) || []);
+      
+      const quotesData = (data as Quote[]) || [];
+      console.log('🔍 DEBUG: Setting quotes to:', quotesData);
+      setQuotes(quotesData);
     } catch (error) {
       console.error('Error fetching quotes:', error);
       toast({
@@ -131,6 +153,7 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
         variant: "destructive"
       });
     } finally {
+      console.log('🔍 DEBUG: Setting loading to false');
       setLoading(false);
     }
   };
@@ -333,17 +356,17 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
             ].map(({ step, label, icon: Icon }, index) => {
               const status = getStepStatus(step);
               return (
-                <React.Fragment key={step}>
-                  <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${
-                    status === 'current' ? 'bg-primary text-primary-foreground' :
-                    status === 'completed' ? 'bg-muted text-muted-foreground' :
-                    'bg-background text-muted-foreground'
-                  }`}>
-                    <Icon className="h-4 w-4" />
-                    <span className="text-sm font-medium">{label}</span>
-                  </div>
-                  {index < 3 && <ChevronRight className="h-4 w-4 text-muted-foreground" />}
-                </React.Fragment>
+                <div key={step} className="flex items-center gap-2">
+                   <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${
+                     status === 'current' ? 'bg-primary text-primary-foreground' :
+                     status === 'completed' ? 'bg-muted text-muted-foreground' :
+                     'bg-background text-muted-foreground'
+                   }`}>
+                     <Icon className="h-4 w-4" />
+                     <span className="text-sm font-medium">{label}</span>
+                   </div>
+                   {index < 3 && <ChevronRight className="h-4 w-4 text-muted-foreground" />}
+                 </div>
               );
             })}
           </div>
@@ -356,38 +379,48 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
           <CardHeader>
             <CardTitle>Select Quote to Process</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {quotes.map((quote) => (
-                <div
-                  key={quote.id}
-                  className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 cursor-pointer"
-                  onClick={() => handleSelectQuote(quote)}
-                >
-                  <div className="space-y-1">
-                    <div className="font-medium">{quote.event_name}</div>
-                    <div className="text-sm text-muted-foreground">
-                      {quote.contact_name} • {format(new Date(quote.event_date), 'PPP')}
-                    </div>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <Users className="h-3 w-3" />
-                        {quote.guest_count} guests
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <MapPin className="h-3 w-3" />
-                        {quote.location}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline">{quote.status}</Badge>
-                    <ChevronRight className="h-4 w-4" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
+           <CardContent>
+             <div className="space-y-3">
+               {(() => {
+                 console.log('🔍 DEBUG: Rendering quotes list, count:', quotes.length);
+                 return null;
+               })()}
+               {quotes.length === 0 ? (
+                 <div className="text-center py-8 text-muted-foreground">
+                   No quotes available. {loading ? 'Loading...' : 'Please create a quote first.'}
+                 </div>
+               ) : (
+                 quotes.map((quote) => (
+                   <div
+                     key={quote.id}
+                     className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 cursor-pointer"
+                     onClick={() => handleSelectQuote(quote)}
+                   >
+                     <div className="space-y-1">
+                       <div className="font-medium">{quote.event_name}</div>
+                       <div className="text-sm text-muted-foreground">
+                         {quote.contact_name} • {format(new Date(quote.event_date), 'PPP')}
+                       </div>
+                       <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                         <span className="flex items-center gap-1">
+                           <Users className="h-3 w-3" />
+                           {quote.guest_count} guests
+                         </span>
+                         <span className="flex items-center gap-1">
+                           <MapPin className="h-3 w-3" />
+                           {quote.location}
+                         </span>
+                       </div>
+                     </div>
+                     <div className="flex items-center gap-2">
+                       <Badge variant="outline">{quote.status}</Badge>
+                       <ChevronRight className="h-4 w-4" />
+                     </div>
+                   </div>
+                 ))
+               )}
+             </div>
+           </CardContent>
         </Card>
       )}
 
