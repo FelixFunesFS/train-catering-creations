@@ -85,3 +85,5 @@ export function UnifiedAdminDashboard() {
     </div>
   );
 }
+
+export default UnifiedAdminDashboard;

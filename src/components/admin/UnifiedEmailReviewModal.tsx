@@ -5,7 +5,6 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Mail, Send, Eye, FileText, AlertCircle } from 'lucide-react';
@@ -19,7 +18,8 @@ interface EmailTemplate {
   subject_template: string;
   body_template: string;
   template_type: string;
-  is_default: boolean;
+  is_default?: boolean;
+  is_active?: boolean;
 }
 
 interface UnifiedEmailReviewModalProps {
@@ -66,22 +66,35 @@ export function UnifiedEmailReviewModal({
 
   const loadEmailTemplates = async () => {
     try {
-      const { data, error } = await supabase
+      const response = await supabase
         .from('email_templates')
-        .select('*')
+        .select('id, template_name, subject_template, body_template, template_type, is_default')
         .eq('template_type', emailType)
-        .eq('is_active', true)
         .order('is_default', { ascending: false });
 
-      if (error) throw error;
+      if (response.error) throw response.error;
 
-      const templatesData = data as EmailTemplate[] || [];
-      setTemplates(templatesData);
-      
-      // Auto-select default template
-      const defaultTemplate = templatesData.find(t => t.is_default) || templatesData[0];
-      if (defaultTemplate) {
-        setSelectedTemplate(defaultTemplate.id);
+      if (response.data && response.data.length > 0) {
+        const templateData = response.data.map(template => ({
+          id: template.id,
+          template_name: template.template_name,
+          subject_template: template.subject_template,
+          body_template: template.body_template,
+          template_type: template.template_type,
+          is_default: template.is_default || false,
+          is_active: true
+        }));
+        
+        setTemplates(templateData);
+        
+        // Auto-select default template
+        const defaultTemplate = templateData.find(t => t.is_default) || templateData[0];
+        if (defaultTemplate) {
+          setSelectedTemplate(defaultTemplate.id);
+        }
+      } else {
+        // Fallback to default templates
+        generateDefaultTemplate();
       }
     } catch (error) {
       console.error('Error loading templates:', error);
@@ -91,25 +104,18 @@ export function UnifiedEmailReviewModal({
   };
 
   const generateDefaultTemplate = () => {
-    const defaultTemplates = {
+    const defaultTemplates: Record<string, { subject: string; body: string }> = {
       estimate: {
-        subject: `Catering Estimate for ${quoteRequest?.event_name}`,
-        body: `Hello ${quoteRequest?.contact_name},
+        subject: `Catering Estimate for ${quoteRequest?.event_name || 'Your Event'}`,
+        body: `Hello ${quoteRequest?.contact_name || 'Customer'},
 
 Thank you for considering Soul Train's Eatery for your upcoming event. Please find your customized catering estimate below.
 
-We're excited about the opportunity to serve you and your guests with our authentic Southern cuisine that brings people together around exceptional food.
-
 Event Details:
-• ${quoteRequest?.event_name}
-• ${new Date(quoteRequest?.event_date).toLocaleDateString()}
-• ${quoteRequest?.guest_count} guests
-• ${quoteRequest?.location}
-
-Next Steps:
-1. Review the attached estimate
-2. Contact us with any questions or changes
-3. Approve the estimate to secure your date
+• ${quoteRequest?.event_name || 'Event'}
+• ${quoteRequest?.event_date ? new Date(quoteRequest.event_date).toLocaleDateString() : 'Date TBD'}
+• ${quoteRequest?.guest_count || 0} guests
+• ${quoteRequest?.location || 'Location TBD'}
 
 Best regards,
 Soul Train's Eatery Team
@@ -117,16 +123,10 @@ Phone: (843) 970-0265
 Email: soultrainseatery@gmail.com`
       },
       'follow-up': {
-        subject: `Following up on your catering estimate - ${quoteRequest?.event_name}`,
-        body: `Hello ${quoteRequest?.contact_name},
+        subject: `Following up on your catering estimate - ${quoteRequest?.event_name || 'Your Event'}`,
+        body: `Hello ${quoteRequest?.contact_name || 'Customer'},
 
-I hope this message finds you well. I wanted to follow up on the catering estimate we sent for your ${quoteRequest?.event_name} event.
-
-Have you had a chance to review the proposal? I'm here to answer any questions you might have about our menu, pricing, or services.
-
-Your event date is approaching, and we'd love to help make it memorable with our delicious Southern cuisine.
-
-Please feel free to reach out with any questions or if you'd like to move forward with booking.
+I hope this message finds you well. I wanted to follow up on the catering estimate we sent for your event.
 
 Best regards,
 Soul Train's Eatery Team`
@@ -148,15 +148,15 @@ Soul Train's Eatery Team`
 
     // Replace template variables
     const subject = template.subject_template
-      .replace('{{event_name}}', quoteRequest.event_name || '')
-      .replace('{{contact_name}}', quoteRequest.contact_name || '');
+      .replace(/\{\{event_name\}\}/g, quoteRequest.event_name || '')
+      .replace(/\{\{contact_name\}\}/g, quoteRequest.contact_name || '');
 
     const body = template.body_template
-      .replace('{{contact_name}}', quoteRequest.contact_name || '')
-      .replace('{{event_name}}', quoteRequest.event_name || '')
-      .replace('{{event_date}}', new Date(quoteRequest.event_date).toLocaleDateString())
-      .replace('{{guest_count}}', quoteRequest.guest_count?.toString() || '')
-      .replace('{{location}}', quoteRequest.location || '');
+      .replace(/\{\{contact_name\}\}/g, quoteRequest.contact_name || '')
+      .replace(/\{\{event_name\}\}/g, quoteRequest.event_name || '')
+      .replace(/\{\{event_date\}\}/g, quoteRequest.event_date ? new Date(quoteRequest.event_date).toLocaleDateString() : '')
+      .replace(/\{\{guest_count\}\}/g, quoteRequest.guest_count?.toString() || '')
+      .replace(/\{\{location\}\}/g, quoteRequest.location || '');
 
     setCustomSubject(subject);
     setCustomMessage(body);
@@ -177,7 +177,7 @@ Soul Train's Eatery Team`
       });
 
       if (error) throw error;
-      setEmailPreview(data.html || '');
+      setEmailPreview(data?.html || '');
     } catch (error) {
       console.error('Error loading preview:', error);
       setEmailPreview('<p>Preview unavailable</p>');

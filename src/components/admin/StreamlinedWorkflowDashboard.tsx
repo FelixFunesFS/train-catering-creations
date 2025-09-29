@@ -59,15 +59,7 @@ export function StreamlinedWorkflowDashboard({ onBack }: StreamlinedWorkflowDash
     try {
       const { data, error } = await supabase
         .from('quote_requests')
-        .select(`
-          *,
-          invoices!inner(
-            id,
-            status,
-            total_amount,
-            created_at
-          )
-        `)
+        .select('*')
         .in('status', ['pending', 'reviewed'])
         .order('created_at', { ascending: false });
 
