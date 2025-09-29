@@ -1613,7 +1613,15 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      is_admin_original: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       is_dev_mode: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      is_dev_mode_original: {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
