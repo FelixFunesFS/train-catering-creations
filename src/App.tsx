@@ -64,14 +64,14 @@ const AppContent = () => {
           <Route path="/terms-conditions" element={<TermsConditions />} />
           <Route path="/admin/auth" element={<AdminAuth />} />
           {/* Admin Dashboard and Management */}
-          <Route path="/admin" element={<UnifiedAdminDashboard />} />
+          <Route path="/admin" element={<ProtectedRoute><UnifiedAdminDashboard /></ProtectedRoute>} />
           
           {/* Customer estimate preview routes */}
           <Route path="/customer/estimate-preview/:invoiceId" element={<EstimatePreview />} />
           
           {/* Admin estimate print route */}
-          <Route path="/admin/estimate-print/:invoiceId" element={<EstimatePrintView />} />
-          <Route path="/admin/*" element={<UnifiedAdminDashboard />} />
+          <Route path="/admin/estimate-print/:invoiceId" element={<ProtectedRoute><EstimatePrintView /></ProtectedRoute>} />
+          <Route path="/admin/*" element={<ProtectedRoute><UnifiedAdminDashboard /></ProtectedRoute>} />
           
           {/* Customer-facing routes */}
           <Route path="/invoice/public/:invoiceToken" element={<InvoicePublic />} />
