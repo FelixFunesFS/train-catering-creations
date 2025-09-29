@@ -15,10 +15,11 @@ import { supabase } from '@/integrations/supabase/client';
 
 interface EmailTemplate {
   id: string;
-  name: string;
+  template_name: string;
   subject_template: string;
   body_template: string;
   template_type: string;
+  is_default: boolean;
 }
 
 interface UnifiedEmailReviewModalProps {
@@ -74,10 +75,11 @@ export function UnifiedEmailReviewModal({
 
       if (error) throw error;
 
-      setTemplates(data || []);
+      const templatesData = data as EmailTemplate[] || [];
+      setTemplates(templatesData);
       
       // Auto-select default template
-      const defaultTemplate = data?.find(t => t.is_default) || data?.[0];
+      const defaultTemplate = templatesData.find(t => t.is_default) || templatesData[0];
       if (defaultTemplate) {
         setSelectedTemplate(defaultTemplate.id);
       }
@@ -284,7 +286,7 @@ Soul Train's Eatery Team`
                       <SelectContent>
                         {templates.map((template) => (
                           <SelectItem key={template.id} value={template.id}>
-                            {template.name}
+                            {template.template_name}
                             {template.is_default && <Badge variant="secondary" className="ml-2">Default</Badge>}
                           </SelectItem>
                         ))}

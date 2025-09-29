@@ -1,45 +1,18 @@
 import React, { useState } from 'react';
-import { LinearRequestPipeline } from '@/components/admin/LinearRequestPipeline';
-import { SmartPricingDashboard } from '@/components/admin/SmartPricingDashboard';
-import { EmailPreviewSend } from '@/components/admin/EmailPreviewSend';
-import { AdminChangeManagement } from '@/components/admin/AdminChangeManagement';
-import { TestExecutionPanel } from '@/components/admin/TestExecutionPanel';
-import { PaymentProcessingDashboard } from '@/components/admin/PaymentProcessingDashboard';
-import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { StreamlinedWorkflowDashboard } from '@/components/admin/StreamlinedWorkflowDashboard';
+import { AdminChangeManagement } from '@/components/admin/AdminChangeManagement';
+import { PaymentProcessingDashboard } from '@/components/admin/PaymentProcessingDashboard';
+import { TestExecutionPanel } from '@/components/admin/TestExecutionPanel';
+import { useAuth } from '@/hooks/useAuth';
 import { LogOut } from 'lucide-react';
 
-type AdminView = 'pipeline' | 'pricing' | 'email' | 'customer' | 'invoice' | 'change-management' | 'payments' | 'testing';
+type AdminView = 'workflow' | 'change-management' | 'payments' | 'testing';
 
-export default function UnifiedAdminDashboard() {
-  const [currentView, setCurrentView] = useState<AdminView>('pipeline');
-  const [selectedRequest, setSelectedRequest] = useState<any>(null);
-  const [pricingData, setPricingData] = useState<{ lineItems: any[], totals: any } | null>(null);
+export function UnifiedAdminDashboard() {
+  const [currentView, setCurrentView] = useState<AdminView>('workflow');
   const { signOut } = useAuth();
-
-  const handleStartPricing = (request: any) => {
-    setSelectedRequest(request);
-    setCurrentView('pricing');
-  };
-
-  const handlePricingComplete = (lineItems: any[], totals: any) => {
-    console.log('Pricing completed:', { lineItems, totals });
-    setPricingData({ lineItems, totals });
-    setCurrentView('email');
-  };
-
-  const handleEmailSent = () => {
-    // Reset state and go back to pipeline
-    setCurrentView('pipeline');
-    setSelectedRequest(null);
-    setPricingData(null);
-  };
-
-  const handleBackToPipeline = () => {
-    setCurrentView('pipeline');
-    setSelectedRequest(null);
-    setPricingData(null);
-  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -51,21 +24,35 @@ export default function UnifiedAdminDashboard() {
               <h1 className="text-xl font-bold">Soul Train's Eatery Admin</h1>
               <p className="text-sm text-muted-foreground">Streamlined request management</p>
             </div>
-            <div className="flex items-center gap-2">
-              {currentView !== 'pipeline' && (
-                <Button variant="outline" size="sm" onClick={handleBackToPipeline}>
-                  Back to Pipeline
-                </Button>
-              )}
-              <Button variant="outline" size="sm" onClick={() => setCurrentView('change-management')}>
+            
+            <div className="flex items-center gap-4">
+              <Button
+                variant={currentView === 'workflow' ? 'default' : 'outline'}
+                onClick={() => setCurrentView('workflow')}
+              >
+                Streamlined Workflow
+              </Button>
+              <Button
+                variant={currentView === 'change-management' ? 'default' : 'outline'}
+                onClick={() => setCurrentView('change-management')}
+              >
                 Change Requests
               </Button>
-              <Button variant="outline" size="sm" onClick={() => setCurrentView('payments')}>
-                Payments
+              <Button
+                variant={currentView === 'payments' ? 'default' : 'outline'}
+                onClick={() => setCurrentView('payments')}
+              >
+                Payment Processing
               </Button>
-              <Button variant="outline" size="sm" onClick={() => setCurrentView('testing')}>
+              <Button
+                variant={currentView === 'testing' ? 'default' : 'outline'}
+                onClick={() => setCurrentView('testing')}
+              >
                 Testing
               </Button>
+              
+              <Separator orientation="vertical" className="h-6" />
+              
               <Button
                 variant="outline"
                 size="sm"
@@ -81,43 +68,20 @@ export default function UnifiedAdminDashboard() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1">
-        {currentView === 'pipeline' && (
-          <LinearRequestPipeline onStartPricing={handleStartPricing} />
+      <div className="flex-1">
+        {currentView === 'workflow' && (
+          <StreamlinedWorkflowDashboard onBack={() => setCurrentView('workflow')} />
         )}
-        
-        {currentView === 'pricing' && selectedRequest && (
-          <SmartPricingDashboard
-            quoteRequest={selectedRequest}
-            onPricingComplete={handlePricingComplete}
-            onBack={handleBackToPipeline}
-          />
-        )}
-        
-        {currentView === 'email' && selectedRequest && pricingData && (
-          <EmailPreviewSend
-            quoteRequest={selectedRequest}
-            lineItems={pricingData.lineItems}
-            totals={pricingData.totals}
-            onBack={() => setCurrentView('pricing')}
-            onEmailSent={handleEmailSent}
-          />
-        )}
-
         {currentView === 'change-management' && (
-          <AdminChangeManagement onRefresh={() => console.log('Refreshing pipeline...')} />
+          <AdminChangeManagement />
         )}
-
         {currentView === 'payments' && (
           <PaymentProcessingDashboard />
         )}
-
         {currentView === 'testing' && (
-          <div className="container mx-auto px-4 py-6">
-            <TestExecutionPanel />
-          </div>
+          <TestExecutionPanel />
         )}
-      </main>
+      </div>
     </div>
   );
 }
