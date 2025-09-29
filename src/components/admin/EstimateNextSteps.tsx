@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { EmailPreviewModal } from './EmailPreviewModal';
+import { UnifiedEmailReviewModal } from './UnifiedEmailReviewModal';
 import {
   CheckCircle2,
   Send,
@@ -367,10 +367,11 @@ export function EstimateNextSteps({
 
         {/* Email Preview Modal */}
         {estimateData && (
-          <EmailPreviewModal
+          <UnifiedEmailReviewModal
             isOpen={showEmailPreview}
             onClose={() => setShowEmailPreview(false)}
-            estimateData={estimateData}
+            emailType="estimate"
+            invoice={estimateData}
             lineItems={lineItems}
             onEmailSent={handleEmailSent}
           />

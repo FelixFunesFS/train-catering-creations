@@ -105,59 +105,58 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Only works in development mode
     if (import.meta.env.DEV) {
       try {
-        // Use the known admin user ID directly to bypass RLS policy issues
-        const adminUserId = '625eab9e-6da2-4d25-b491-0549cc80a3cc';
-
-        // Create a proper JWT token for the real admin user
-        const adminUser: User = {
-          id: adminUserId,
-          email: 'soultrainseatery@gmail.com',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          app_metadata: {},
-          user_metadata: {},
-          aud: 'authenticated',
-          role: 'authenticated'
-        } as User;
-
-        // Create a proper session with JWT that includes the real admin user ID
-        const now = Math.floor(Date.now() / 1000);
-        const expiresAt = now + 3600;
+        // Use the known admin user email for proper authentication
+        const adminEmail = 'soultrainseatery@gmail.com';
+        const devPassword = 'dev-password'; // This should be a known password for development
         
-        // Create a JWT payload that Supabase can recognize with real admin ID
-        const jwtPayload = {
-          sub: adminUserId,
-          aud: 'authenticated',
-          role: 'authenticated',
-          email: 'soultrainseatery@gmail.com',
-          iat: now,
-          exp: expiresAt
-        };
-
-        // Create a mock but valid-looking JWT token
-        const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
-        const payload = btoa(JSON.stringify(jwtPayload));
-        const signature = 'dev-admin-signature';
-        const accessToken = `${header}.${payload}.${signature}`;
-
-        const adminSession: Session = {
-          access_token: accessToken,
-          refresh_token: 'dev-admin-refresh-token',
-          expires_in: 3600,
-          expires_at: expiresAt,
-          token_type: 'bearer',
-          user: adminUser
-        };
-
-        // Use Supabase's setSession to create a proper authenticated session
-        const { error } = await supabase.auth.setSession({
-          access_token: accessToken,
-          refresh_token: 'dev-admin-refresh-token'
+        // Try to sign in with actual credentials first
+        const { error } = await supabase.auth.signInWithPassword({
+          email: adminEmail,
+          password: devPassword,
         });
 
         if (error) {
-          console.warn('Dev admin session creation warning:', error);
-          // Fall back to manual state setting if setSession fails
+          console.warn('Dev admin sign-in failed, using dev mode bypass:', error.message);
+          
+          // Fallback: Create dev session with the real admin ID
+          const adminUserId = '625eab9e-6da2-4d25-b491-0549cc80a3cc';
+          const now = Math.floor(Date.now() / 1000);
+          const expiresAt = now + 3600;
+          
+          const jwtPayload = {
+            sub: adminUserId,
+            aud: 'authenticated',
+            role: 'authenticated',
+            email: adminEmail,
+            iat: now,
+            exp: expiresAt
+          };
+
+          const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
+          const payload = btoa(JSON.stringify(jwtPayload));
+          const signature = 'dev-admin-signature';
+          const accessToken = `${header}.${payload}.${signature}`;
+
+          const adminUser: User = {
+            id: adminUserId,
+            email: adminEmail,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            app_metadata: {},
+            user_metadata: {},
+            aud: 'authenticated',
+            role: 'authenticated'
+          } as User;
+
+          const adminSession: Session = {
+            access_token: accessToken,
+            refresh_token: 'dev-admin-refresh-token',
+            expires_in: 3600,
+            expires_at: expiresAt,
+            token_type: 'bearer',
+            user: adminUser
+          };
+
           setSession(adminSession);
           setUser(adminUser);
         }
