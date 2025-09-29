@@ -6,17 +6,15 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/hooks/useAuth';
-import { Loader2, Zap } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
 export default function AdminAuth() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [resetEmail, setResetEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { user, loading, signIn, signUp, resetPassword, devQuickLogin } = useAuth();
+  const { user, loading, signIn, signUp, resetPassword } = useAuth();
 
-  // Development mode check
-  const isDevelopment = import.meta.env.DEV;
 
   // Redirect if already authenticated
   if (!loading && user) {
@@ -53,11 +51,6 @@ export default function AdminAuth() {
     setIsSubmitting(false);
   };
 
-  const handleDevQuickLogin = async () => {
-    setIsSubmitting(true);
-    await devQuickLogin();
-    setIsSubmitting(false);
-  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 to-amber-50 p-4">
@@ -69,31 +62,6 @@ export default function AdminAuth() {
           <CardDescription>Admin Portal Access</CardDescription>
         </CardHeader>
         <CardContent>
-          {/* Development Quick Login */}
-          {isDevelopment && (
-            <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <div className="flex items-center gap-2 mb-2">
-                <Zap className="h-4 w-4 text-yellow-600" />
-                <span className="text-sm font-medium text-yellow-800">Development Mode</span>
-              </div>
-              <p className="text-xs text-yellow-700 mb-3">
-                Skip authentication for faster development testing
-              </p>
-              <Button
-                onClick={handleDevQuickLogin}
-                disabled={isSubmitting}
-                className="w-full bg-yellow-600 hover:bg-yellow-700 text-white"
-                size="sm"
-              >
-                {isSubmitting ? (
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                ) : (
-                  <Zap className="h-4 w-4 mr-2" />
-                )}
-                Quick Dev Login
-              </Button>
-            </div>
-          )}
 
           <Tabs defaultValue="signin" className="w-full">
             <TabsList className="grid w-full grid-cols-3">

@@ -11,7 +11,6 @@ interface AuthContextType {
   signUp: (email: string, password: string) => Promise<{ error?: any }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error?: any }>;
-  devQuickLogin: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -101,104 +100,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error };
   };
 
-  const devQuickLogin = async () => {
-    // Only works in development mode
-    if (import.meta.env.DEV) {
-      try {
-        // Try multiple potential passwords for the real admin account
-        const passwords = ['password123', 'admin123', 'devpass123', 'soultraineatery123', 'catering123'];
-        let loginSuccess = false;
-        
-        for (const password of passwords) {
-          const { error } = await supabase.auth.signInWithPassword({
-            email: 'soultrainseatery@gmail.com',
-            password: password
-          });
-
-          if (!error) {
-            loginSuccess = true;
-            toast.success(`Development admin login successful with real account`);
-            break;
-          }
-        }
-
-        if (!loginSuccess) {
-          console.warn('All password attempts failed, creating enhanced dev session');
-          
-          // Helper function to convert base64 to base64url
-          const base64ToBase64Url = (base64: string): string => {
-            return base64
-              .replace(/\+/g, '-')
-              .replace(/\//g, '_')
-              .replace(/=/g, '');
-          };
-          
-          // Enhanced fallback: Create dev session with proper base64url encoding
-          const adminUserId = '625eab9e-6da2-4d25-b491-0549cc80a3cc';
-          const now = Math.floor(Date.now() / 1000);
-          const expiresAt = now + 86400; // 24 hours
-          
-          const jwtHeader = {
-            alg: 'HS256',
-            typ: 'JWT'
-          };
-          
-          const jwtPayload = {
-            sub: adminUserId,
-            aud: 'authenticated',
-            role: 'authenticated',
-            email: 'soultrainseatery@gmail.com',
-            email_confirmed_at: new Date(now * 1000).toISOString(),
-            phone_confirmed_at: new Date(now * 1000).toISOString(),
-            confirmed_at: new Date(now * 1000).toISOString(),
-            app_metadata: { 
-              provider: 'email', 
-              providers: ['email'],
-              is_dev: true
-            },
-            user_metadata: { 
-              email: 'soultrainseatery@gmail.com',
-              is_dev_session: true
-            },
-            iat: now,
-            exp: expiresAt,
-            iss: 'https://qptprrqjlcvfkhfdnnoa.supabase.co/auth/v1',
-            session_id: 'dev-session-' + Date.now()
-          };
-
-          // Create base64url encoded JWT parts
-          const headerEncoded = base64ToBase64Url(btoa(JSON.stringify(jwtHeader)));
-          const payloadEncoded = base64ToBase64Url(btoa(JSON.stringify(jwtPayload)));
-          const signature = base64ToBase64Url(btoa('dev-signature-' + Date.now()));
-          const accessToken = `${headerEncoded}.${payloadEncoded}.${signature}`;
-
-          console.log('Creating dev session with JWT:', {
-            header: jwtHeader,
-            payload: jwtPayload,
-            token_preview: accessToken.substring(0, 50) + '...'
-          });
-
-          const { error: sessionError } = await supabase.auth.setSession({
-            access_token: accessToken,
-            refresh_token: 'dev-refresh-token-' + Date.now()
-          });
-
-          if (sessionError) {
-            console.error('Failed to create dev session:', sessionError);
-            toast.error(`Failed to create development session: ${sessionError.message}`);
-          } else {
-            console.log('Development session created successfully');
-            toast.success('Development session created - you may need to refresh to see data');
-          }
-        }
-      } catch (error) {
-        console.error('Dev admin login error:', error);
-        toast.error('Development admin login failed: ' + (error instanceof Error ? error.message : 'Unknown error'));
-      }
-    } else {
-      toast.error('Development login only available in development mode');
-    }
-  };
 
   return (
     <AuthContext.Provider value={{
@@ -209,7 +110,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signUp,
       signOut,
       resetPassword,
-      devQuickLogin,
     }}>
       {children}
     </AuthContext.Provider>
