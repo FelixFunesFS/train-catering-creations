@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { generateProfessionalLineItems, type QuoteRequest } from '@/utils/invoiceFormatters';
 import { EnhancedEstimateLineItems } from './EnhancedEstimateLineItems';
 import { useEnhancedPricingManagement } from '@/hooks/useEnhancedPricingManagement';
 import { useInvoiceEditing } from '@/hooks/useInvoiceEditing';
@@ -22,18 +23,10 @@ import {
   Clock
 } from 'lucide-react';
 
-interface Quote {
-  id: string;
-  contact_name: string;
-  email: string;
-  event_name: string;
-  event_date: string;
-  guest_count: number;
-  location: string;
-  status: string;
-  workflow_status: string;
+// Use QuoteRequest type from invoiceFormatters which matches the database structure
+type Quote = QuoteRequest & {
   created_at: string;
-}
+};
 
 interface Invoice {
   id: string;
@@ -129,7 +122,7 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setQuotes(data || []);
+      setQuotes((data as Quote[]) || []);
     } catch (error) {
       console.error('Error fetching quotes:', error);
       toast({
@@ -152,7 +145,7 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
 
       if (error) throw error;
       if (data) {
-        setSelectedQuote(data);
+        setSelectedQuote(data as Quote);
         await checkExistingInvoice(quoteId);
       }
     } catch (error) {
@@ -223,12 +216,37 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
 
       if (invoiceError) throw invoiceError;
 
+      // Auto-generate grouped line items from quote data
+      const generatedLineItems = generateProfessionalLineItems(selectedQuote);
+      
+      // Insert line items into database
+      if (generatedLineItems.length > 0) {
+        const { error: lineItemsError } = await supabase
+          .from('invoice_line_items')
+          .insert(
+            generatedLineItems.map(item => ({
+              invoice_id: newInvoice.id,
+              title: item.title,
+              description: item.description,
+              quantity: item.quantity,
+              unit_price: 0, // Start with zero pricing for admin to set
+              total_price: 0,
+              category: item.category
+            }))
+          );
+
+        if (lineItemsError) throw lineItemsError;
+        
+        // Fetch the created line items
+        await fetchLineItems(newInvoice.id);
+      }
+
       setInvoice(newInvoice);
       setCurrentStep('pricing');
 
       toast({
         title: "Success",
-        description: "Invoice created. Ready for pricing.",
+        description: `Invoice created with ${generatedLineItems.length} auto-imported line items ready for pricing.`,
       });
     } catch (error) {
       console.error('Error generating invoice:', error);

@@ -9,7 +9,7 @@ import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useToast } from '@/hooks/use-toast';
-import { CategoryPricingHelper } from './CategoryPricingHelper';
+
 import { 
   DollarSign,
   Plus,
@@ -58,7 +58,7 @@ export function EnhancedEstimateLineItems({
 }: EnhancedEstimateLineItemsProps) {
   const [editingItem, setEditingItem] = useState<string | null>(null);
   const [editingValues, setEditingValues] = useState<Record<string, string>>({});
-  const [showPricingHelper, setShowPricingHelper] = useState(true);
+  
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
   const { toast } = useToast();
 
@@ -180,28 +180,6 @@ export function EnhancedEstimateLineItems({
 
         <Separator />
 
-        {/* Smart Pricing Helper */}
-        <Collapsible open={showPricingHelper} onOpenChange={setShowPricingHelper}>
-          <CollapsibleTrigger asChild>
-            <Button variant="ghost" className="w-full justify-between">
-              <span className="flex items-center gap-2">
-                <Calculator className="h-4 w-4" />
-                Smart Pricing Assistant
-              </span>
-              {showPricingHelper ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-            </Button>
-          </CollapsibleTrigger>
-          <CollapsibleContent className="space-y-4">
-            <CategoryPricingHelper
-              lineItems={lineItems}
-              guestCount={guestCount}
-              updateLineItem={updateLineItem}
-              onBulkPricing={handleBulkPricing}
-            />
-          </CollapsibleContent>
-        </Collapsible>
-
-        <Separator />
 
         {/* Line Items by Category */}
         <div className="space-y-4">

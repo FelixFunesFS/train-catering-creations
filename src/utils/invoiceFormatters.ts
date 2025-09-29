@@ -23,6 +23,8 @@ export interface QuoteRequest {
   location: string;
   guest_count: number;
   service_type: string;
+  status?: string;
+  workflow_status?: string;
   primary_protein?: string;
   secondary_protein?: string;
   appetizers: any[];
@@ -34,6 +36,11 @@ export interface QuoteRequest {
   both_proteins_available?: boolean;
   bussing_tables_needed?: boolean;
   guest_count_with_restrictions?: string;
+  chafers_requested?: boolean;
+  tables_chairs_requested?: boolean;
+  linens_requested?: boolean;
+  wait_staff_requested?: boolean;
+  dietary_restrictions?: any[];
 }
 
 // Professional name formatting
