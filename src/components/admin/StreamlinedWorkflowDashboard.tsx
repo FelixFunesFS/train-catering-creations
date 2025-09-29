@@ -60,7 +60,7 @@ export function StreamlinedWorkflowDashboard({ onBack }: StreamlinedWorkflowDash
       const { data, error } = await supabase
         .from('quote_requests')
         .select('*')
-        .in('status', ['pending', 'reviewed'])
+        .in('status', ['pending', 'reviewed', 'quoted', 'confirmed'])
         .order('created_at', { ascending: false });
 
       if (error) throw error;
