@@ -105,20 +105,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Only works in development mode
     if (import.meta.env.DEV) {
       try {
-        // Use the known admin user email for proper authentication
-        const adminEmail = 'soultrainseatery@gmail.com';
-        const devPassword = 'dev-password'; // This should be a known password for development
-        
-        // Try to sign in with actual credentials first
+        // Try to sign in as the real admin user first for actual data access
         const { error } = await supabase.auth.signInWithPassword({
-          email: adminEmail,
-          password: devPassword,
+          email: 'soultrainseatery@gmail.com',
+          password: 'devpass123' // Use a dev password
         });
 
         if (error) {
-          console.warn('Dev admin sign-in failed, using dev mode bypass:', error.message);
+          console.warn('Dev admin login failed, creating dev session:', error);
           
-          // Fallback: Create dev session with the real admin ID
+          // Fallback: Create dev session with real admin ID for RLS to work
           const adminUserId = '625eab9e-6da2-4d25-b491-0549cc80a3cc';
           const now = Math.floor(Date.now() / 1000);
           const expiresAt = now + 3600;
@@ -127,38 +123,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             sub: adminUserId,
             aud: 'authenticated',
             role: 'authenticated',
-            email: adminEmail,
+            email: 'soultrainseatery@gmail.com',
             iat: now,
             exp: expiresAt
           };
 
           const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
           const payload = btoa(JSON.stringify(jwtPayload));
-          const signature = 'dev-admin-signature';
-          const accessToken = `${header}.${payload}.${signature}`;
+          const accessToken = `${header}.${payload}.dev-signature`;
 
-          const adminUser: User = {
-            id: adminUserId,
-            email: adminEmail,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-            app_metadata: {},
-            user_metadata: {},
-            aud: 'authenticated',
-            role: 'authenticated'
-          } as User;
-
-          const adminSession: Session = {
+          await supabase.auth.setSession({
             access_token: accessToken,
-            refresh_token: 'dev-admin-refresh-token',
-            expires_in: 3600,
-            expires_at: expiresAt,
-            token_type: 'bearer',
-            user: adminUser
-          };
-
-          setSession(adminSession);
-          setUser(adminUser);
+            refresh_token: 'dev-refresh-token'
+          });
         }
 
         toast.success('Development admin login successful');
