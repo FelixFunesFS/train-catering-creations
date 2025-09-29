@@ -33,6 +33,7 @@ export interface QuoteRequest {
   estimated_total: number;
   both_proteins_available?: boolean;
   bussing_tables_needed?: boolean;
+  guest_count_with_restrictions?: string;
 }
 
 // Professional name formatting
@@ -214,110 +215,218 @@ export const createBussingTablesService = (): LineItem => {
   };
 };
 
-// Main function to generate professional line items
+// Main function to generate professional line items with 5-tier grouping
 export const generateProfessionalLineItems = (quote: QuoteRequest): LineItem[] => {
   const lineItems: LineItem[] = [];
   
-  // Check if we have 2 proteins for meal bundle - handle both string and array formats
-  const primaryProtein = Array.isArray(quote.primary_protein) 
-    ? quote.primary_protein[0] 
-    : quote.primary_protein;
-  const secondaryProtein = Array.isArray(quote.secondary_protein) 
-    ? quote.secondary_protein[0] 
-    : quote.secondary_protein;
-    
-  // Also check if comma-separated values exist in string format
-  const hasPrimaryComma = typeof quote.primary_protein === 'string' && quote.primary_protein.includes(',');
-  const hasSecondaryComma = typeof quote.secondary_protein === 'string' && quote.secondary_protein.includes(',');
-  
-  const hasTwoProteins = (primaryProtein && secondaryProtein) || 
-                         hasPrimaryComma || 
-                         hasSecondaryComma || 
-                         quote.both_proteins_available;
-  
-  if (hasTwoProteins) {
-    // Create meal bundle for 2 proteins
-    lineItems.push(createMealBundle(quote));
-    
-    // Handle extra sides (beyond first 2)
-    if (quote.sides && quote.sides.length > 2) {
-      const extraSides = quote.sides.slice(2);
-      lineItems.push(createExtraSidesGroup(extraSides, quote.guest_count));
-    }
-  } else {
-    // Single protein - handle individually
-    if (primaryProtein) {
-      lineItems.push({
-        id: `protein_${Date.now()}`,
-        title: 'Entree',
-        description: formatMenuDescription(primaryProtein),
-        quantity: quote.guest_count,
-        unit_price: 0,
-        total_price: 0,
-        category: 'protein'
-      });
-    }
-    
-    // Add all sides individually for single protein
-    quote.sides?.forEach((side, index) => {
-      lineItems.push({
-        id: `side_${Date.now()}_${index}`,
-        title: 'Side Dish',
-        description: formatMenuDescription(side),
-        quantity: quote.guest_count,
-        unit_price: 0,
-        total_price: 0,
-        category: 'side'
-      });
-    });
-    
-    // Add drinks
-    quote.drinks?.forEach((drink, index) => {
-      lineItems.push({
-        id: `drink_${Date.now()}_${index}`,
-        title: 'Beverage',
-        description: formatMenuDescription(drink),
-        quantity: quote.guest_count,
-        unit_price: 0,
-        total_price: 0,
-        category: 'drink'
-      });
-    });
+  // TIER 1: CATERING PACKAGE - Main proteins and included items
+  const proteins = getSelectedProteins(quote);
+  if (proteins.length > 0) {
+    lineItems.push(createCateringPackage(quote, proteins));
   }
   
-  // Add appetizers (grouped if multiple, with separate vegan/vegetarian handling)
+  // TIER 2: APPETIZER SELECTION - Grouped appetizers
   if (quote.appetizers && quote.appetizers.length > 0) {
-    // Add regular appetizers
-    const regularAppetizers = quote.appetizers.filter(app => 
-      !app.toLowerCase().includes('vegan') && 
-      !app.toLowerCase().includes('vegetarian') &&
-      !app.toLowerCase().includes('veggie')
+    lineItems.push(createAppetizerSelection(quote.appetizers, quote.guest_count));
+    
+    // Handle dietary restriction appetizers separately if needed
+    const dietaryAppetizers = quote.appetizers.filter(app => 
+      app.toLowerCase().includes('vegan') || 
+      app.toLowerCase().includes('vegetarian') ||
+      app.toLowerCase().includes('veggie')
     );
     
-    if (regularAppetizers.length > 0) {
-      lineItems.unshift(createAppetizersGroup(regularAppetizers, quote.guest_count));
-    }
-    
-    // Add vegan/vegetarian appetizers separately
-    const restrictionCount = Math.max(1, Math.floor(quote.guest_count * 0.1)); // Assume 10% have restrictions
-    const veganVegAppetizerItem = createVeganVegAppetizersGroup(quote.appetizers, restrictionCount);
-    if (veganVegAppetizerItem) {
-      lineItems.unshift(veganVegAppetizerItem);
+    if (dietaryAppetizers.length > 0) {
+      const restrictionCount = Math.max(1, Math.floor(quote.guest_count * 0.1));
+      lineItems.push(createDietaryAppetizerSelection(dietaryAppetizers, restrictionCount));
     }
   }
   
-  // Add desserts (grouped if multiple)
+  // TIER 3: SIDES & BEVERAGES - Grouped by category
+  const extraSides = getExtraSides(quote);
+  if (extraSides.length > 0) {
+    lineItems.push(createSideSelection(extraSides, quote.guest_count));
+  }
+  
+  if (quote.drinks && quote.drinks.length > 0) {
+    lineItems.push(createBeverageService(quote.drinks, quote.guest_count));
+  }
+  
+  // TIER 4: DESSERT SELECTION - Grouped desserts
   if (quote.desserts && quote.desserts.length > 0) {
-    lineItems.push(createDessertsGroup(quote.desserts, quote.guest_count));
+    lineItems.push(createDessertSelection(quote.desserts, quote.guest_count));
   }
   
-  // Add service charge
-  lineItems.push(createServiceCharge(quote.service_type));
+  // TIER 5: SERVICE FEES - Service type and add-ons
+  lineItems.push(createServicePackage(quote));
   
-  // Add bussing tables service if full-service and bussing is needed
-  if (quote.service_type === 'full-service' && quote.bussing_tables_needed) {
-    lineItems.push(createBussingTablesService());
+  // Add additional service add-ons
+  if (quote.bussing_tables_needed) {
+    lineItems.push(createServiceAddon('Table Bussing Service', 'Professional table clearing and maintenance during event'));
   }
   
   return lineItems;
 };
+
+// Helper functions for the new 5-tier structure
+function getSelectedProteins(quote: QuoteRequest): string[] {
+  const proteins: string[] = [];
+  
+  // Handle primary protein (can be array or string)
+  if (Array.isArray(quote.primary_protein)) {
+    proteins.push(...quote.primary_protein);
+  } else if (quote.primary_protein) {
+    // Handle comma-separated strings
+    if (quote.primary_protein.includes(',')) {
+      proteins.push(...quote.primary_protein.split(',').map(p => p.trim()));
+    } else {
+      proteins.push(quote.primary_protein);
+    }
+  }
+  
+  // Handle secondary protein
+  if (Array.isArray(quote.secondary_protein)) {
+    proteins.push(...quote.secondary_protein);
+  } else if (quote.secondary_protein) {
+    if (quote.secondary_protein.includes(',')) {
+      proteins.push(...quote.secondary_protein.split(',').map(p => p.trim()));
+    } else {
+      proteins.push(quote.secondary_protein);
+    }
+  }
+  
+  return proteins.filter(Boolean);
+}
+
+function createCateringPackage(quote: QuoteRequest, proteins: string[]): LineItem {
+  const proteinText = proteins.map(formatMenuDescription).join(' & ');
+  const includedSides = quote.sides?.slice(0, 2) || [];
+  const sidesText = includedSides.map(formatMenuDescription).join(' and ');
+  
+  let description = `${proteinText}`;
+  if (sidesText) description += ` with ${sidesText}`;
+  description += ', dinner rolls';
+  
+  // Add dietary accommodations if present
+  if (quote.guest_count_with_restrictions) {
+    description += ` (includes accommodations for ${quote.guest_count_with_restrictions})`;
+  }
+  
+  return {
+    id: `catering_package_${Date.now()}`,
+    title: `Catering Package - ${quote.event_type || 'Event'}`,
+    description: description,
+    quantity: quote.guest_count,
+    unit_price: 0,
+    total_price: 0,
+    category: 'package'
+  };
+}
+
+function createAppetizerSelection(appetizers: string[], guestCount: number): LineItem {
+  // Filter out dietary-specific appetizers
+  const regularAppetizers = appetizers.filter(app => 
+    !app.toLowerCase().includes('vegan') && 
+    !app.toLowerCase().includes('vegetarian') &&
+    !app.toLowerCase().includes('veggie')
+  );
+  
+  const formattedAppetizers = regularAppetizers.map(formatMenuDescription);
+  
+  return {
+    id: `appetizer_selection_${Date.now()}`,
+    title: 'Appetizer Selection',
+    description: formattedAppetizers.join(', '),
+    quantity: guestCount,
+    unit_price: 0,
+    total_price: 0,
+    category: 'appetizers'
+  };
+}
+
+function createDietaryAppetizerSelection(dietaryAppetizers: string[], restrictionCount: number): LineItem {
+  const formattedAppetizers = dietaryAppetizers.map(formatMenuDescription);
+  
+  return {
+    id: `dietary_appetizer_selection_${Date.now()}`,
+    title: 'Dietary Appetizer Selection',
+    description: `${formattedAppetizers.join(', ')} (for guests with dietary restrictions)`,
+    quantity: restrictionCount,
+    unit_price: 0,
+    total_price: 0,
+    category: 'appetizers'
+  };
+}
+
+function getExtraSides(quote: QuoteRequest): string[] {
+  // Return sides beyond the first 2 (which are included in the package)
+  return quote.sides?.slice(2) || [];
+}
+
+function createSideSelection(sides: string[], guestCount: number): LineItem {
+  const formattedSides = sides.map(formatMenuDescription);
+  
+  return {
+    id: `side_selection_${Date.now()}`,
+    title: 'Additional Side Selection',
+    description: formattedSides.join(', '),
+    quantity: guestCount,
+    unit_price: 0,
+    total_price: 0,
+    category: 'sides'
+  };
+}
+
+function createBeverageService(drinks: string[], guestCount: number): LineItem {
+  const formattedDrinks = drinks.map(formatMenuDescription);
+  
+  return {
+    id: `beverage_service_${Date.now()}`,
+    title: 'Beverage Service',
+    description: formattedDrinks.join(', '),
+    quantity: guestCount,
+    unit_price: 0,
+    total_price: 0,
+    category: 'beverages'
+  };
+}
+
+function createDessertSelection(desserts: string[], guestCount: number): LineItem {
+  const formattedDesserts = desserts.map(formatMenuDescription);
+  
+  return {
+    id: `dessert_selection_${Date.now()}`,
+    title: 'Dessert Selection',
+    description: formattedDesserts.join(', '),
+    quantity: guestCount,
+    unit_price: 0,
+    total_price: 0,
+    category: 'desserts'
+  };
+}
+
+function createServicePackage(quote: QuoteRequest): LineItem {
+  const serviceTypeFormatted = formatServiceType(quote.service_type);
+  
+  return {
+    id: `service_package_${Date.now()}`,
+    title: 'Service Package',
+    description: serviceTypeFormatted,
+    quantity: 1,
+    unit_price: 0,
+    total_price: 0,
+    category: 'service'
+  };
+}
+
+function createServiceAddon(title: string, description: string): LineItem {
+  return {
+    id: `service_addon_${Date.now()}`,
+    title: title,
+    description: description,
+    quantity: 1,
+    unit_price: 0,
+    total_price: 0,
+    category: 'service'
+  };
+}
