@@ -645,6 +645,51 @@ export type Database = {
           },
         ]
       }
+      invoice_line_items_archive: {
+        Row: {
+          archive_reason: string | null
+          archived_at: string
+          category: string | null
+          created_at: string
+          description: string
+          id: string
+          invoice_id: string | null
+          original_invoice_line_item_id: string
+          quantity: number
+          title: string | null
+          total_price: number
+          unit_price: number
+        }
+        Insert: {
+          archive_reason?: string | null
+          archived_at?: string
+          category?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          invoice_id?: string | null
+          original_invoice_line_item_id: string
+          quantity?: number
+          title?: string | null
+          total_price: number
+          unit_price: number
+        }
+        Update: {
+          archive_reason?: string | null
+          archived_at?: string
+          category?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          invoice_id?: string | null
+          original_invoice_line_item_id?: string
+          quantity?: number
+          title?: string | null
+          total_price?: number
+          unit_price?: number
+        }
+        Relationships: []
+      }
       invoices: {
         Row: {
           created_at: string
