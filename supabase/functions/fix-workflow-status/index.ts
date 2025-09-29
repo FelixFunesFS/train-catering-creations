@@ -181,7 +181,7 @@ serve(async (req) => {
         success: true,
         message: 'Workflow status synchronization completed',
         quoteUpdates: updates.length,
-        invoiceUpdates: invoiceUpdates.length,
+        invoiceUpdatesCount: invoiceUpdates.length,
         updates,
         invoiceUpdates
       }),
@@ -196,9 +196,10 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Error in fix-workflow-status:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     return new Response(
       JSON.stringify({ 
-        error: error.message,
+        error: errorMessage,
         success: false 
       }),
       {

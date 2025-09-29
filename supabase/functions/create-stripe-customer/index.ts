@@ -96,7 +96,7 @@ serve(async (req) => {
     return new Response(JSON.stringify({ 
       success: true, 
       customer_id: customerId,
-      supabase_customer_id: customerData?.[0]?.id 
+      supabase_customer_id: (customerData as any)?.[0]?.id 
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,

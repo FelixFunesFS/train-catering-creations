@@ -46,7 +46,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("Status notification sent:", emailResponse);
 
-    return new Response(JSON.stringify({ success: true, emailId: emailResponse.id }), {
+    return new Response(JSON.stringify({ success: true, emailId: emailResponse.data?.id }), {
       status: 200,
       headers: {
         "Content-Type": "application/json",

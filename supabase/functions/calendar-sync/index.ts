@@ -17,6 +17,9 @@ interface QuoteRequest {
   email: string;
   phone: string;
   guest_count: number;
+  calendar_event_id?: string;
+  calendar_sync_status?: string;
+  last_calendar_sync?: string;
 }
 
 serve(async (req) => {

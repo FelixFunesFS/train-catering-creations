@@ -68,10 +68,19 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Update entity-specific metrics
     if (entity_type === 'estimate' && entity_id) {
+      // First get the current count
+      const { data: currentInvoice } = await supabase
+        .from('invoices')
+        .select('estimate_viewed_count')
+        .eq('id', entity_id)
+        .single();
+      
+      const currentCount = currentInvoice?.estimate_viewed_count || 0;
+      
       const { error: updateError } = await supabase
         .from('invoices')
         .update({
-          estimate_viewed_count: supabase.raw('estimate_viewed_count + 1'),
+          estimate_viewed_count: currentCount + 1,
           estimate_viewed_at: new Date().toISOString(),
           last_customer_interaction: new Date().toISOString()
         })
@@ -109,8 +118,9 @@ const handler = async (req: Request): Promise<Response> => {
 
   } catch (error) {
     console.error('Error tracking analytics event:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: errorMessage }),
       { 
         status: 500, 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 

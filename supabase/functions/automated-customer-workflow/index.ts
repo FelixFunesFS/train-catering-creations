@@ -30,22 +30,27 @@ serve(async (req) => {
 
     switch (action) {
       case 'welcome':
+        if (!quoteId) throw new Error('quoteId is required for welcome workflow');
         await processWelcomeWorkflow(supabaseClient, quoteId);
         break;
       
       case 'quote_sent':
+        if (!quoteId) throw new Error('quoteId is required for quote_sent workflow');
         await processQuoteSentWorkflow(supabaseClient, quoteId);
         break;
       
       case 'payment_reminder':
+        if (!invoiceId) throw new Error('invoiceId is required for payment_reminder workflow');
         await processPaymentReminderWorkflow(supabaseClient, invoiceId);
         break;
       
       case 'event_reminder':
+        if (!quoteId) throw new Error('quoteId is required for event_reminder workflow');
         await processEventReminderWorkflow(supabaseClient, quoteId);
         break;
       
       case 'status_update':
+        if (!quoteId) throw new Error('quoteId is required for status_update workflow');
         await processStatusUpdateWorkflow(supabaseClient, quoteId, customData);
         break;
       
@@ -60,8 +65,9 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Workflow error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     return new Response(
-      JSON.stringify({ success: false, error: error.message }),
+      JSON.stringify({ success: false, error: errorMessage }),
       { 
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" }

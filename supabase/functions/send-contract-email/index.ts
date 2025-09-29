@@ -198,8 +198,8 @@ serve(async (req) => {
       attachments: [
         {
           filename: `Contract-${eventDisplayName.replace(/[^a-zA-Z0-9]/g, '-')}.html`,
-          content: Buffer.from(contract.contract_html).toString('base64'),
-          content_type: 'text/html'
+          content: contract.contract_html,
+          contentType: 'text/html'
         }
       ]
     });

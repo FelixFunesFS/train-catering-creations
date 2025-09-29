@@ -29,13 +29,10 @@ export default async function handler(req: Request) {
       throw new Error('Missing required environment variables');
     }
     
-    const supabase = createClient<Database>(supabaseUrl, supabaseServiceKey, {
+    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
       auth: {
         autoRefreshToken: false,
         persistSession: false
-      },
-      db: {
-        schema: 'public'
       }
     });
 
@@ -86,7 +83,7 @@ export default async function handler(req: Request) {
     console.log('Attempting to insert quote request data...');
     const { data: quoteData, error: quoteError } = await supabase
       .from('quote_requests')
-      .insert(testQuoteData)
+      .insert(testQuoteData as any)
       .select()
       .single();
 
@@ -280,10 +277,11 @@ export default async function handler(req: Request) {
 
   } catch (error) {
     console.error('Error in generate-test-data function:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     
     return new Response(JSON.stringify({ 
       success: false,
-      error: error.message,
+      error: errorMessage,
       details: error 
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
