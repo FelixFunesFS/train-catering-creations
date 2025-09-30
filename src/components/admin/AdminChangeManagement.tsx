@@ -64,26 +64,58 @@ export function AdminChangeManagement({ onRefresh }: AdminChangeManagementProps)
 
   const fetchChangeRequests = async () => {
     try {
-      const { data, error } = await supabase
+      // Step 1: Fetch change requests with basic invoice info (avoiding nested relationship ambiguity)
+      const { data: changeRequestsData, error: changeRequestsError } = await supabase
         .from('change_requests')
         .select(`
           *,
           invoices(
             invoice_number,
-            quote_request_id,
-            quote_requests(event_name, contact_name, event_date)
+            quote_request_id
           )
         `)
         .order('created_at', { ascending: false })
         .limit(20);
 
-      if (error) throw error;
-      setChangeRequests((data || []) as any);
+      if (changeRequestsError) throw changeRequestsError;
+
+      if (!changeRequestsData || changeRequestsData.length === 0) {
+        setChangeRequests([]);
+        return;
+      }
+
+      // Step 2: Get unique quote request IDs from the invoices
+      const quoteRequestIds = changeRequestsData
+        .map(cr => cr.invoices?.quote_request_id)
+        .filter(Boolean);
+
+      // Step 3: Fetch quote request details separately
+      const { data: quoteRequestsData, error: quoteRequestsError } = await supabase
+        .from('quote_requests')
+        .select('id, event_name, contact_name, event_date')
+        .in('id', quoteRequestIds);
+
+      if (quoteRequestsError) throw quoteRequestsError;
+
+      // Step 4: Combine the data in JavaScript
+      const combinedData = changeRequestsData.map(cr => ({
+        ...cr,
+        invoices: {
+          ...cr.invoices,
+          quote_requests: quoteRequestsData?.find(qr => qr.id === cr.invoices?.quote_request_id) || {
+            event_name: 'Unknown Event',
+            contact_name: 'Unknown Contact',
+            event_date: ''
+          }
+        }
+      }));
+
+      setChangeRequests(combinedData as any);
     } catch (error) {
       console.error('Error fetching change requests:', error);
       toast({
         title: "Error",
-        description: "Failed to load change requests",
+        description: "Failed to load change requests. Please try again.",
         variant: "destructive"
       });
     } finally {
