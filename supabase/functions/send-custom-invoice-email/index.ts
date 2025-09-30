@@ -75,7 +75,7 @@ serve(async (req) => {
     }
 
     // Generate email HTML
-    const emailHtml = generateEstimateEmailHtml(estimateDetails, quoteDetails, custom_subject, custom_message);
+    const emailHtml = generateEstimateEmailHtml(estimateDetails, quoteDetails, custom_subject, custom_message, frontendUrl);
 
     if (preview_only) {
       return new Response(
@@ -183,7 +183,10 @@ serve(async (req) => {
   }
 });
 
-function generateEstimateEmailHtml(estimate: any, quote: any, customSubject?: string, customMessage?: string): string {
+function generateEstimateEmailHtml(estimate: any, quote: any, customSubject?: string, customMessage?: string, frontendUrl?: string): string {
+  // Fallback URL if not provided
+  const baseUrl = frontendUrl || 'https://id-preview--c4c8d2d1-63da-4772-a95b-bf211f87a132.lovable.app';
+  
   const formatCurrency = (cents: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -407,12 +410,12 @@ Soul Train's Eatery Team`}
       <h3 style="color: #DC143C; margin-bottom: 20px;">Ready to Move Forward? 🎉</h3>
       
       <div style="margin: 25px 0;">
-        <a href="${frontendUrl}/customer-portal?token=${estimate.customer_access_token}&action=approve" 
+        <a href="${baseUrl}/customer-portal?token=${estimate.customer_access_token}&action=approve" 
            style="display: inline-block; background: linear-gradient(135deg, #DC143C 0%, #B91C3C 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; margin: 0 10px 10px 0; box-shadow: 0 4px 6px rgba(220, 20, 60, 0.3);">
           ✅ Approve This Estimate
         </a>
         
-        <a href="${frontendUrl}/customer-portal?token=${estimate.customer_access_token}&action=changes" 
+        <a href="${baseUrl}/customer-portal?token=${estimate.customer_access_token}&action=changes"
            style="display: inline-block; background: white; color: #DC143C; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; margin: 0 10px 10px 0; border: 2px solid #DC143C; box-shadow: 0 4px 6px rgba(220, 20, 60, 0.2);">
           📝 Request Changes
         </a>
