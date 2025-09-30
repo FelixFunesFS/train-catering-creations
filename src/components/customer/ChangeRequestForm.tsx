@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
+
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -38,32 +38,11 @@ export function ChangeRequestForm({ quote, invoice, onRequestSubmitted }: Change
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const calculateEstimatedCostChange = () => {
-    let costChange = 0;
-    
-    // Simple cost estimation logic
-    if (formData.new_guest_count && parseInt(formData.new_guest_count) !== quote.guest_count) {
-      const guestDiff = parseInt(formData.new_guest_count) - quote.guest_count;
-      costChange += guestDiff * 50; // $50 per guest difference
-    }
-    
-    if (formData.menu_changes) {
-      costChange += 100; // Base charge for menu changes
-    }
-    
-    if (formData.service_changes) {
-      costChange += 150; // Base charge for service changes
-    }
-    
-    return costChange;
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     try {
-      const estimatedCostChange = calculateEstimatedCostChange();
       
       const requestedChanges = {
         event_date: formData.new_event_date !== quote.event_date ? formData.new_event_date : null,
@@ -99,7 +78,7 @@ export function ChangeRequestForm({ quote, invoice, onRequestSubmitted }: Change
           status: 'pending',
           customer_comments: formData.customer_comments,
           requested_changes: requestedChanges,
-          estimated_cost_change: estimatedCostChange * 100, // Convert to cents
+          estimated_cost_change: 0,
           original_details: {
             event_date: quote.event_date,
             guest_count: quote.guest_count,
@@ -159,7 +138,7 @@ export function ChangeRequestForm({ quote, invoice, onRequestSubmitted }: Change
 
       toast({
         title: "Change Request Submitted",
-        description: "We've received your change request and will review it within 24 hours.",
+        description: "We've received your change request and will review it shortly. We'll send you an updated quote with final pricing within 24 hours.",
       });
 
       onRequestSubmitted();
@@ -175,8 +154,6 @@ export function ChangeRequestForm({ quote, invoice, onRequestSubmitted }: Change
     }
   };
 
-  const estimatedCostChange = calculateEstimatedCostChange();
-
   return (
     <Card>
       <CardHeader>
@@ -185,7 +162,7 @@ export function ChangeRequestForm({ quote, invoice, onRequestSubmitted }: Change
           Request Changes to Your Quote
         </CardTitle>
         <p className="text-sm text-muted-foreground">
-          Use this form to request modifications to your current quote. We'll review your changes and provide an updated estimate.
+          Use this form to request modifications to your current quote. We'll review your changes and send you an updated quote with final pricing within 24 hours.
         </p>
       </CardHeader>
       <CardContent>
@@ -370,26 +347,12 @@ export function ChangeRequestForm({ quote, invoice, onRequestSubmitted }: Change
             </Label>
           </div>
 
-          {/* Cost Estimate */}
-          {estimatedCostChange !== 0 && (
-            <div className="border rounded-lg p-4 bg-muted/50">
-              <h4 className="font-medium mb-2">Estimated Cost Impact</h4>
-              <div className="flex items-center gap-2">
-                <Badge 
-                  variant={estimatedCostChange > 0 ? "destructive" : "default"}
-                  className={estimatedCostChange > 0 ? "bg-red-100 text-red-800" : "bg-green-100 text-green-800"}
-                >
-                  {estimatedCostChange > 0 ? '+' : ''}${Math.abs(estimatedCostChange)}
-                </Badge>
-                <span className="text-sm text-muted-foreground">
-                  {estimatedCostChange > 0 ? 'Additional cost' : 'Potential savings'}
-                </span>
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                This is a preliminary estimate. Final pricing will be provided with your updated quote.
-              </p>
-            </div>
-          )}
+          {/* Info Message */}
+          <div className="border rounded-lg p-4 bg-muted/50">
+            <p className="text-sm text-muted-foreground">
+              After you submit this request, our team will review your changes and send you an updated quote with accurate pricing within 24 hours. We'll contact you via your preferred method if we need any additional information.
+            </p>
+          </div>
 
           {/* Submit Button */}
           <Button
