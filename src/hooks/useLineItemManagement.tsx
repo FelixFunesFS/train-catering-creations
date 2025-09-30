@@ -49,10 +49,22 @@ export function useLineItemManagement({
 
   // Auto-save function for debounced saving
   const performAutoSave = useCallback(async () => {
-    if (!autoSave || !invoiceId || !isModified) return;
+    if (!autoSave || !invoiceId || !isModified) {
+      console.log('⏭️ Skipping auto-save:', { autoSave, invoiceId, isModified });
+      return;
+    }
 
     try {
       setIsCalculating(true);
+      console.log('💾 Starting auto-save...', { 
+        invoiceId, 
+        itemCount: lineItems.length,
+        sampleItem: lineItems[0] ? {
+          title: lineItems[0].title,
+          unit_price: lineItems[0].unit_price,
+          total_price: lineItems[0].total_price
+        } : null
+      });
       
       // Delete existing line items
       await supabase
@@ -72,11 +84,19 @@ export function useLineItemManagement({
           total_price: item.total_price
         }));
 
-        await supabase
+        console.log('📝 Inserting line items to database:', lineItemsToInsert.length);
+        const { error } = await supabase
           .from('invoice_line_items')
           .insert(lineItemsToInsert);
-      }
 
+        if (error) {
+          console.error('❌ Error inserting line items:', error);
+          throw error;
+        }
+        
+        console.log('✅ Line items saved successfully');
+      }
+      
       setIsModified(false);
       setLastCalculated(new Date());
       
@@ -86,7 +106,12 @@ export function useLineItemManagement({
         duration: 1500
       });
     } catch (error) {
-      console.error('Auto-save failed:', error);
+      console.error('❌ Auto-save failed:', error);
+      toast({
+        title: "Save failed",
+        description: "Could not save changes. Please try again.",
+        variant: "destructive"
+      });
     } finally {
       setIsCalculating(false);
     }

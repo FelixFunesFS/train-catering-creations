@@ -80,6 +80,8 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
     initialLineItems: lineItems,
     guestCount: selectedQuote?.guest_count || 0,
     taxRate: 0.095,
+    autoSave: true,
+    invoiceId: invoice?.id,
     onTotalsChange: (totalsData) => {
       if (invoice) {
         setInvoice(prev => prev ? {

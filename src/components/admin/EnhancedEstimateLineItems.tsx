@@ -217,9 +217,8 @@ export function EnhancedEstimateLineItems({
                             <ChevronDown className="h-4 w-4" /> : 
                             <ChevronRight className="h-4 w-4" />
                           }
-                          <span className="font-medium">{category.charAt(0).toUpperCase() + category.slice(1)}</span>
-                          {getCategoryBadge(category)}
-                          <Badge variant="outline">{items.length} items</Badge>
+                          <span className="font-medium capitalize">{category}</span>
+                          <Badge variant="secondary">{items.length} items</Badge>
                         </div>
                         <div className="text-sm font-medium">
                           ${(items.reduce((sum, item) => sum + item.total_price, 0) / 100).toFixed(2)}
@@ -246,9 +245,9 @@ export function EnhancedEstimateLineItems({
                               <Textarea
                                 value={item.description}
                                 onChange={(e) => updateLineItem(item.id, { description: e.target.value })}
-                                placeholder="Description"
-                                className="min-h-[38px] resize-none"
-                                rows={1}
+                                placeholder="Add detailed description..."
+                                className="min-h-[80px] resize-y"
+                                rows={3}
                               />
                             </div>
                             
