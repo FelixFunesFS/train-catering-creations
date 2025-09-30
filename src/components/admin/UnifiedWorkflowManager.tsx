@@ -62,6 +62,7 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
   const [currentStep, setCurrentStep] = useState<'select' | 'pricing' | 'review' | 'send'>('select');
   const [loading, setLoading] = useState(true);
   const [showEmailModal, setShowEmailModal] = useState(false);
+  const [isGovernmentContract, setIsGovernmentContract] = useState(false);
   const { toast } = useToast();
 
   const {
@@ -488,8 +489,8 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
               isModified={isModified}
               triggerAutoSave={triggerAutoSave}
               quickCalculatePerPerson={() => quickCalculatePerPerson(selectedQuote.guest_count)}
-              isGovernmentContract={false}
-              onGovernmentToggle={() => {}}
+              isGovernmentContract={isGovernmentContract}
+              onGovernmentToggle={() => setIsGovernmentContract(!isGovernmentContract)}
             />
           )}
 
@@ -518,26 +519,155 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
           <CardHeader>
             <CardTitle>Final Review</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-6">
-              <div>
-                <h4 className="font-medium mb-2">Quote Details</h4>
-                <div className="text-sm space-y-1">
-                  <div><strong>Event:</strong> {selectedQuote.event_name}</div>
-                  <div><strong>Contact:</strong> {selectedQuote.contact_name}</div>
-                  <div><strong>Email:</strong> {selectedQuote.email}</div>
-                  <div><strong>Date:</strong> {format(new Date(selectedQuote.event_date), 'PPP')}</div>
-                  <div><strong>Guests:</strong> {selectedQuote.guest_count}</div>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Event Details */}
+              <div className="space-y-4">
+                <div>
+                  <h4 className="font-semibold mb-3">Event Details</h4>
+                  <div className="text-sm space-y-2">
+                    <div className="flex items-start gap-2">
+                      <span className="font-medium min-w-[100px]">Event:</span>
+                      <span className="text-muted-foreground">{selectedQuote.event_name}</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="font-medium min-w-[100px]">Type:</span>
+                      <span className="text-muted-foreground capitalize">{selectedQuote.event_type?.replace('_', ' ')}</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="font-medium min-w-[100px]">Date:</span>
+                      <span className="text-muted-foreground">{format(new Date(selectedQuote.event_date), 'PPP')}</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="font-medium min-w-[100px]">Time:</span>
+                      <span className="text-muted-foreground">{selectedQuote.start_time}</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="font-medium min-w-[100px]">Guests:</span>
+                      <span className="text-muted-foreground">{selectedQuote.guest_count}</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="font-medium min-w-[100px]">Location:</span>
+                      <span className="text-muted-foreground">{selectedQuote.location}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Contact Details */}
+                <div>
+                  <h4 className="font-semibold mb-3">Contact Information</h4>
+                  <div className="text-sm space-y-2">
+                    <div className="flex items-start gap-2">
+                      <span className="font-medium min-w-[100px]">Name:</span>
+                      <span className="text-muted-foreground">{selectedQuote.contact_name}</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="font-medium min-w-[100px]">Email:</span>
+                      <span className="text-muted-foreground">{selectedQuote.email}</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="font-medium min-w-[100px]">Phone:</span>
+                      <span className="text-muted-foreground">{selectedQuote.phone}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div>
-                <h4 className="font-medium mb-2">Pricing Summary</h4>
-                <div className="text-sm space-y-1">
-                  <div><strong>Items:</strong> {managedLineItems.length}</div>
-                  <div><strong>Subtotal:</strong> ${(totals.subtotal / 100).toFixed(2)}</div>
-                  <div><strong>Tax:</strong> ${(totals.tax_amount / 100).toFixed(2)}</div>
-                  <div><strong>Total:</strong> ${(totals.total_amount / 100).toFixed(2)}</div>
-                  <div><strong>Per Guest:</strong> ${(totals.total_amount / selectedQuote.guest_count / 100).toFixed(2)}</div>
+
+              {/* Service & Menu Details */}
+              <div className="space-y-4">
+                <div>
+                  <h4 className="font-semibold mb-3">Service Details</h4>
+                  <div className="text-sm space-y-2">
+                    <div className="flex items-start gap-2">
+                      <span className="font-medium min-w-[120px]">Service Type:</span>
+                      <span className="text-muted-foreground capitalize">{selectedQuote.service_type?.replace('_', ' ')}</span>
+                    </div>
+                    {(selectedQuote as any).serving_start_time && (
+                      <div className="flex items-start gap-2">
+                        <span className="font-medium min-w-[120px]">Serving Time:</span>
+                        <span className="text-muted-foreground">{(selectedQuote as any).serving_start_time}</span>
+                      </div>
+                    )}
+                    {selectedQuote.wait_staff_requested && (
+                      <div className="flex items-start gap-2">
+                        <span className="font-medium min-w-[120px]">Wait Staff:</span>
+                        <Badge variant="secondary">Requested</Badge>
+                      </div>
+                    )}
+                    {isGovernmentContract && (
+                      <div className="flex items-start gap-2">
+                        <span className="font-medium min-w-[120px]">Contract Type:</span>
+                        <Badge variant="outline">Government Contract</Badge>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Menu Selections */}
+                {(selectedQuote.primary_protein || selectedQuote.secondary_protein) && (
+                  <div>
+                    <h4 className="font-semibold mb-3">Menu</h4>
+                    <div className="text-sm space-y-2">
+                      {selectedQuote.primary_protein && (
+                        <div className="flex items-start gap-2">
+                          <span className="font-medium min-w-[120px]">Primary Protein:</span>
+                          <span className="text-muted-foreground">{selectedQuote.primary_protein}</span>
+                        </div>
+                      )}
+                      {selectedQuote.secondary_protein && (
+                        <div className="flex items-start gap-2">
+                          <span className="font-medium min-w-[120px]">Secondary:</span>
+                          <span className="text-muted-foreground">{selectedQuote.secondary_protein}</span>
+                        </div>
+                      )}
+                      {selectedQuote.sides && Array.isArray(selectedQuote.sides) && selectedQuote.sides.length > 0 && (
+                        <div className="flex items-start gap-2">
+                          <span className="font-medium min-w-[120px]">Sides:</span>
+                          <span className="text-muted-foreground">{selectedQuote.sides.join(', ')}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {selectedQuote.special_requests && (
+                  <>
+                    <Separator />
+                    <div>
+                      <h4 className="font-semibold mb-3">Special Requests</h4>
+                      <p className="text-sm text-muted-foreground">{selectedQuote.special_requests}</p>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+
+            <Separator className="my-6" />
+
+            {/* Pricing Summary */}
+            <div>
+              <h4 className="font-semibold mb-3">Pricing Summary</h4>
+              <div className="bg-muted/50 p-4 rounded-lg space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span>Line Items ({managedLineItems.length})</span>
+                  <span className="font-medium">${(totals.subtotal / 100).toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span>Tax (9.5%)</span>
+                  <span className="font-medium">${(totals.tax_amount / 100).toFixed(2)}</span>
+                </div>
+                <Separator />
+                <div className="flex justify-between font-semibold">
+                  <span>Total</span>
+                  <span>${(totals.total_amount / 100).toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-sm text-muted-foreground">
+                  <span>Per Guest</span>
+                  <span>${(totals.total_amount / selectedQuote.guest_count / 100).toFixed(2)}</span>
                 </div>
               </div>
             </div>
@@ -566,6 +696,7 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
             ...invoice,
             quote_request: selectedQuote
           }}
+          lineItems={managedLineItems}
           emailType="estimate"
           isOpen={showEmailModal}
           onClose={() => setShowEmailModal(false)}
