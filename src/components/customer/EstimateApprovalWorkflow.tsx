@@ -56,7 +56,7 @@ export function EstimateApprovalWorkflow({
 }: EstimateApprovalWorkflowProps) {
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState('');
-  const [showPaymentOptions, setShowPaymentOptions] = useState(false);
+  const [isApproved, setIsApproved] = useState(estimate.status === 'approved');
   const [processingPayment, setProcessingPayment] = useState(false);
   const { toast } = useToast();
 
@@ -92,11 +92,11 @@ export function EstimateApprovalWorkflow({
       if (changeError) console.error('Error creating change request:', changeError);
 
       toast({
-        title: "Estimate Approved!",
-        description: "Your estimate has been approved. You can now proceed with payment.",
+        title: "✅ Estimate Approved!",
+        description: "Choose your payment option below to secure your event date.",
       });
 
-      setShowPaymentOptions(true);
+      setIsApproved(true);
       onApproval?.();
     } catch (error: any) {
       console.error('Error approving estimate:', error);
@@ -247,22 +247,51 @@ export function EstimateApprovalWorkflow({
     }
   };
 
-  if (estimate.status === 'approved' || showPaymentOptions) {
+  if (isApproved) {
     return (
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-green-600">
-            <CheckCircle2 className="h-5 w-5" />
-            Estimate Approved - Choose Payment Option
+      <Card className="w-full border-green-200 dark:border-green-800">
+        <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950 dark:to-emerald-950">
+          <CardTitle className="flex items-center gap-2 text-green-700 dark:text-green-300">
+            <CheckCircle2 className="h-6 w-6" />
+            Estimate Approved ✅
           </CardTitle>
+          <p className="text-sm text-green-600 dark:text-green-400">
+            {estimate.quote_requests.event_name} • {new Date(estimate.quote_requests.event_date).toLocaleDateString()}
+          </p>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <Alert>
-            <CheckCircle2 className="h-4 w-4" />
-            <AlertDescription>
-              Great! Your estimate has been approved. Choose your payment option below to secure your event date.
-            </AlertDescription>
-          </Alert>
+        <CardContent className="space-y-6 pt-6">
+          {/* Approval Summary */}
+          <div className="bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg p-4">
+            <h3 className="font-semibold text-green-900 dark:text-green-100 mb-3 flex items-center gap-2">
+              <CheckCircle2 className="h-5 w-5" />
+              What You Approved
+            </h3>
+            <div className="grid gap-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Event Date:</span>
+                <span className="font-medium">{new Date(estimate.quote_requests.event_date).toLocaleDateString()}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Location:</span>
+                <span className="font-medium">{estimate.quote_requests.location}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Guest Count:</span>
+                <span className="font-medium">{estimate.quote_requests.guest_count} guests</span>
+              </div>
+              <Separator className="my-2" />
+              <div className="flex justify-between text-base">
+                <span className="font-semibold">Total Amount:</span>
+                <span className="font-bold text-green-700 dark:text-green-400">{formatCurrency(estimate.total_amount)}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Payment Options Title */}
+          <div className="text-center">
+            <h3 className="text-xl font-bold mb-2">Choose Your Payment Option</h3>
+            <p className="text-sm text-muted-foreground">Select how you'd like to pay to secure your event date</p>
+          </div>
 
           <div className="grid md:grid-cols-2 gap-4">
             <Card className="border-primary/20">
@@ -319,17 +348,23 @@ export function EstimateApprovalWorkflow({
             </Card>
           </div>
 
-          <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg">
-            <h4 className="font-semibold text-blue-800 dark:text-blue-200 mb-2">
-              📅 Next Steps After Payment
-            </h4>
-            <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
-              <li>• Your event date will be secured immediately</li>
-              <li>• You'll receive a service agreement via email</li>
-              <li>• Final details will be confirmed 1 week before your event</li>
-              <li>• If paying deposit: remainder due 10 days before event</li>
-            </ul>
-          </div>
+          <Alert className="bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800">
+            <Clock className="h-4 w-4 text-blue-600" />
+            <AlertDescription>
+              <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">
+                📅 What Happens Next
+              </h4>
+              <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1 ml-4">
+                <li>1. Complete your payment using one of the options above</li>
+                <li>2. Your event date will be secured immediately</li>
+                <li>3. You'll receive a service agreement via email within 24 hours</li>
+                <li>4. We'll confirm final details 1 week before your event</li>
+                {estimate.payment_milestones?.some(m => m.milestone_type === 'deposit') && (
+                  <li>5. If paying deposit: remainder due 10 days before event</li>
+                )}
+              </ul>
+            </AlertDescription>
+          </Alert>
         </CardContent>
       </Card>
     );

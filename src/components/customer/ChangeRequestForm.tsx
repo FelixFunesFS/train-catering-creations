@@ -83,10 +83,10 @@ export function ChangeRequestForm({ quote, onRequestSubmitted }: ChangeRequestFo
         }
       });
 
-      const { error } = await supabase
+      const { data: newRequest, error } = await supabase
         .from('change_requests')
         .insert({
-          quote_request_id: quote.id,
+          invoice_id: quote.id,
           customer_email: quote.email,
           request_type: formData.request_type,
           priority: formData.urgency ? 'high' : formData.priority,
@@ -100,20 +100,18 @@ export function ChangeRequestForm({ quote, onRequestSubmitted }: ChangeRequestFo
             location: quote.location,
             start_time: quote.start_time
           }
-        });
+        })
+        .select()
+        .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Database error:', error);
+        throw new Error(`Failed to submit change request: ${error.message}`);
+      }
 
-      // Send notification to admin
-      await supabase.functions.invoke('process-change-request', {
-        body: {
-          quote_id: quote.id,
-          change_request_id: quote.id, // This would be the actual change request ID in production
-          customer_email: quote.email,
-          changes: requestedChanges,
-          estimated_cost_change: estimatedCostChange
-        }
-      });
+      if (!newRequest) {
+        throw new Error('Failed to create change request');
+      }
 
       toast({
         title: "Change Request Submitted",
