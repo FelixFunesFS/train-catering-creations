@@ -213,7 +213,8 @@ export function MenuChangeSelector({ quote, onChange }: MenuChangeSelectorProps)
     
     // Get current quote items (normalize to IDs)
     let currentItems: string[] = [];
-    if (category === 'appetizers') currentItems = currentAppetizers.map(item => nameToId(item));
+    if (category === 'proteins') currentItems = allProteins.map(item => nameToId(item));
+    else if (category === 'appetizers') currentItems = currentAppetizers.map(item => nameToId(item));
     else if (category === 'sides') currentItems = currentSides.map(item => nameToId(item));
     else if (category === 'desserts') currentItems = currentDesserts.map(item => nameToId(item));
     else if (category === 'drinks') currentItems = currentDrinks.map(item => nameToId(item));
@@ -402,12 +403,16 @@ export function MenuChangeSelector({ quote, onChange }: MenuChangeSelectorProps)
   );
 
   const AddItemsTab = () => {
+    const availableProteins = getAvailableItems('proteins');
     const availableAppetizers = getAvailableItems('appetizers');
     const availableSides = getAvailableItems('sides');
     const availableDesserts = getAvailableItems('desserts');
     const availableDrinks = getAvailableItems('drinks');
 
     // Separate popular items
+    const popularProteins = availableProteins.filter(item => item.isPopular);
+    const regularProteins = availableProteins.filter(item => !item.isPopular);
+    
     const popularAppetizers = availableAppetizers.filter(item => item.isPopular);
     const regularAppetizers = availableAppetizers.filter(item => !item.isPopular);
     
@@ -422,6 +427,74 @@ export function MenuChangeSelector({ quote, onChange }: MenuChangeSelectorProps)
         <p className="text-sm text-muted-foreground">
           Select items from our complete menu to add to your order
         </p>
+
+        {/* Proteins */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <Label htmlFor="add-proteins" className="flex items-center gap-2">
+              <ChefHat className="h-4 w-4 text-category-entrees" />
+              <span className="font-semibold">Add Proteins</span>
+            </Label>
+            <span className="text-xs text-muted-foreground">
+              {availableProteins.length} available
+            </span>
+          </div>
+          <Select onValueChange={(value) => handleAddItem('proteins', value)}>
+            <SelectTrigger id="add-proteins" className="bg-background">
+              <SelectValue placeholder="Choose from our protein menu..." />
+            </SelectTrigger>
+            <SelectContent className="max-h-[300px]">
+              {availableProteins.length > 0 ? (
+                <>
+                  {popularProteins.length > 0 && (
+                    <>
+                      <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">Most Popular</div>
+                      {popularProteins.map((item) => (
+                        <SelectItem key={item.id} value={item.id}>
+                          <div className="flex items-center gap-2">
+                            {item.name}
+                            {item.isVegetarian && <Leaf className="h-3 w-3 text-green-600" />}
+                            <Badge variant="secondary" className="ml-auto text-xs">Popular</Badge>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </>
+                  )}
+                  {regularProteins.length > 0 && (
+                    <>
+                      {popularProteins.length > 0 && <div className="h-px bg-border my-1" />}
+                      <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">All Proteins</div>
+                      {regularProteins.map((item) => (
+                        <SelectItem key={item.id} value={item.id}>
+                          <div className="flex items-center gap-2">
+                            {item.name}
+                            {item.isVegetarian && <Leaf className="h-3 w-3 text-green-600" />}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </>
+                  )}
+                </>
+              ) : (
+                <div className="p-2 text-sm text-muted-foreground">No more proteins available</div>
+              )}
+            </SelectContent>
+          </Select>
+          {menuChanges.proteins.add.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-2">
+              {menuChanges.proteins.add.map((itemId: string, index: number) => (
+                <Badge key={`${itemId}-${index}`} variant="default" className="gap-1">
+                  <Plus className="h-3 w-3" />
+                  {getDisplayName(itemId)}
+                  <X 
+                    className="h-3 w-3 ml-1 cursor-pointer hover:text-destructive" 
+                    onClick={() => handleRemoveAddition('proteins', itemId)}
+                  />
+                </Badge>
+              ))}
+            </div>
+          )}
+        </div>
 
         {/* Appetizers */}
         <div className="space-y-3">
@@ -671,13 +744,6 @@ export function MenuChangeSelector({ quote, onChange }: MenuChangeSelectorProps)
           )}
         </div>
 
-        {/* Note about proteins */}
-        <div className="rounded-lg border p-3 bg-muted/50">
-          <p className="text-xs text-muted-foreground flex items-center gap-1">
-            <ChefHat className="h-3 w-3" />
-            <strong>Protein Changes:</strong> To modify protein selections, please use the custom requests section below or contact us directly.
-          </p>
-        </div>
       </div>
     );
   };
@@ -848,7 +914,7 @@ export function MenuChangeSelector({ quote, onChange }: MenuChangeSelectorProps)
               })}
 
               {/* Additions */}
-              {['appetizers', 'sides', 'desserts', 'drinks'].map((category) => {
+              {['proteins', 'appetizers', 'sides', 'desserts', 'drinks'].map((category) => {
                 const adds = menuChanges[category]?.add || [];
                 if (adds.length === 0) return null;
                 return (
