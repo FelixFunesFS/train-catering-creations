@@ -736,10 +736,8 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
       {/* Email Modal */}
       {showEmailModal && invoice && selectedQuote && (
         <UnifiedEmailReviewModal
-          invoice={{
-            ...invoice,
-            quote_request: selectedQuote
-          }}
+          invoice={invoice}
+          quoteRequest={selectedQuote}
           lineItems={managedLineItems}
           emailType="estimate"
           isOpen={showEmailModal}
