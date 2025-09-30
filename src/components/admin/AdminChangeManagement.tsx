@@ -70,7 +70,8 @@ export function AdminChangeManagement({ onRefresh }: AdminChangeManagementProps)
           *,
           invoices(
             invoice_number,
-            quote_requests!invoices_quote_request_id_fkey(event_name, contact_name, event_date)
+            quote_request_id,
+            quote_requests(event_name, contact_name, event_date)
           )
         `)
         .order('created_at', { ascending: false })
