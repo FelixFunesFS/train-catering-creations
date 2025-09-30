@@ -119,6 +119,44 @@ export function ChangeRequestForm({ quote, invoice, onRequestSubmitted }: Change
         throw new Error('Failed to create change request');
       }
 
+      // Update invoice workflow status to indicate customer requested changes
+      const { error: invoiceUpdateError } = await supabase
+        .from('invoices')
+        .update({
+          workflow_status: 'viewed',
+          status: 'viewed',
+          last_customer_action: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', invoice.id);
+
+      if (invoiceUpdateError) {
+        console.error('Failed to update invoice status:', invoiceUpdateError);
+        // Don't throw - the change request was created successfully
+      }
+
+      // Log the workflow state change
+      const { error: logError } = await supabase
+        .from('workflow_state_log')
+        .insert({
+          entity_type: 'invoices',
+          entity_id: invoice.id,
+          previous_status: invoice.status,
+          new_status: 'viewed',
+          changed_by: quote.email,
+          change_reason: `Customer submitted change request: ${formData.request_type}`,
+          metadata: {
+            change_request_id: newRequest.id,
+            request_type: formData.request_type,
+            priority: formData.urgency ? 'high' : formData.priority
+          }
+        });
+
+      if (logError) {
+        console.error('Failed to log workflow change:', logError);
+        // Don't throw - the change request was created successfully
+      }
+
       toast({
         title: "Change Request Submitted",
         description: "We've received your change request and will review it within 24 hours.",
