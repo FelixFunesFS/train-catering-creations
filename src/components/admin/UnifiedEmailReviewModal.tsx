@@ -195,12 +195,44 @@ Soul Train's Eatery Team`
   }, [customSubject, customMessage, invoice?.id]);
 
   const handleSendEmail = async () => {
+    // Validate required data
+    if (!invoice || !quoteRequest) {
+      toast({
+        title: "Error",
+        description: "Missing invoice or quote request data",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate customer email
+    if (!quoteRequest.email) {
+      toast({
+        title: "Email Error",
+        description: "Customer email is missing. Cannot send estimate.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate pricing
+    if (!invoice.total_amount || invoice.total_amount === 0) {
+      toast({
+        title: "Validation Error",
+        description: "Invoice total is zero. Please review pricing before sending.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setSending(true);
     try {
+      console.log('Sending email to:', quoteRequest.email, 'for invoice:', invoice.id);
+      
       // Send email via edge function
       const { error } = await supabase.functions.invoke('send-custom-invoice-email', {
         body: {
-          invoice_id: invoice?.id,
+          invoice_id: invoice.id,
           custom_subject: customSubject,
           custom_message: customMessage
         }
@@ -209,38 +241,34 @@ Soul Train's Eatery Team`
       if (error) throw error;
 
       // Update invoice status
-      if (invoice?.id) {
-        await supabase
-          .from('invoices')
-          .update({ 
-            status: 'sent',
-            sent_at: new Date().toISOString(),
-            status_changed_by: 'admin'
-          })
-          .eq('id', invoice.id);
-      }
+      await supabase
+        .from('invoices')
+        .update({ 
+          status: 'sent',
+          sent_at: new Date().toISOString(),
+          status_changed_by: 'admin'
+        })
+        .eq('id', invoice.id);
 
       // Update quote status
-      if (quoteRequest?.id) {
-        await supabase
-          .from('quote_requests')
-          .update({ status: 'quoted' })
-          .eq('id', quoteRequest.id);
-      }
+      await supabase
+        .from('quote_requests')
+        .update({ status: 'quoted' })
+        .eq('id', quoteRequest.id);
 
       toast({
         title: "Email Sent Successfully!",
-        description: `${emailType.charAt(0).toUpperCase() + emailType.slice(1)} has been sent to ${quoteRequest?.email}`,
+        description: `Estimate sent to ${quoteRequest.email}`,
       });
 
       onEmailSent?.();
       onClose();
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error sending email:', error);
       toast({
         title: "Error",
-        description: "Failed to send email. Please try again.",
+        description: error.message || "Failed to send email. Please check logs for details.",
         variant: "destructive"
       });
     } finally {
@@ -320,7 +348,9 @@ Soul Train's Eatery Team`
                 <div className="bg-muted/30 p-4 rounded-lg space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">To:</span>
-                    <span>{quoteRequest?.email}</span>
+                    <span className={!quoteRequest?.email ? 'text-destructive font-medium' : ''}>
+                      {quoteRequest?.email || '⚠️ No email available'}
+                    </span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">From:</span>
@@ -390,7 +420,7 @@ Soul Train's Eatery Team`
           <div className="flex gap-2">
             <Button
               onClick={handleSendEmail}
-              disabled={sending || !customSubject || !customMessage}
+              disabled={sending || !customSubject || !customMessage || !quoteRequest?.email || !invoice?.total_amount}
               className="bg-green-600 hover:bg-green-700"
             >
               {sending ? (

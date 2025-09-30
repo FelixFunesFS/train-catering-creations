@@ -89,10 +89,17 @@ serve(async (req) => {
       );
     }
 
-    // Validate customer email exists
-    const customerEmail = estimateDetails.customer_email || estimateDetails.customers?.email;
+    // Validate customer email exists - prioritize quote_requests.email
+    const customerEmail = estimateDetails.quote_requests?.email || 
+                         estimateDetails.customers?.email;
+    
     if (!customerEmail) {
-      throw new Error('Customer email not found. Cannot send estimate.');
+      console.error('No customer email found. Invoice data:', {
+        has_quote_requests: !!estimateDetails.quote_requests,
+        has_customers: !!estimateDetails.customers,
+        quote_request_id: estimateDetails.quote_request_id
+      });
+      throw new Error('Customer email not found in quote request. Cannot send estimate.');
     }
 
     console.log(`Attempting to send email to: ${customerEmail}`);

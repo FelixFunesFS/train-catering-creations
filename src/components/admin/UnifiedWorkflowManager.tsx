@@ -225,7 +225,26 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
     try {
       setLoading(true);
 
-      // Create invoice
+      // Check if invoice already exists first
+      const { data: existingInvoice } = await supabase
+        .from('invoices')
+        .select('*')
+        .eq('quote_request_id', selectedQuote.id)
+        .maybeSingle();
+
+      if (existingInvoice) {
+        console.log('Found existing invoice, updating instead of creating:', existingInvoice.id);
+        setInvoice(existingInvoice);
+        await fetchLineItems(existingInvoice.id);
+        setCurrentStep('pricing');
+        toast({
+          title: "Existing Invoice Found",
+          description: "Updating existing invoice instead of creating duplicate.",
+        });
+        return;
+      }
+
+      // Create new invoice only if none exists
       const { data: newInvoice, error: invoiceError } = await supabase
         .from('invoices')
         .insert({
@@ -289,6 +308,29 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
   const savePricing = async () => {
     if (!invoice || !selectedQuote) return;
 
+    // Validate pricing data
+    const hasInvalidPrices = managedLineItems.some(item => 
+      !item.unit_price || item.unit_price === 0 || !item.total_price || item.total_price === 0
+    );
+
+    if (hasInvalidPrices) {
+      toast({
+        title: "Validation Error",
+        description: "All line items must have valid prices greater than zero",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!totals.total_amount || totals.total_amount === 0) {
+      toast({
+        title: "Validation Error",
+        description: "Invoice total cannot be zero",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       const success = await saveInvoiceChanges(invoice.id, {
         line_items: managedLineItems.map(item => ({
@@ -304,7 +346,7 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
         setCurrentStep('review');
         toast({
           title: "Success",
-          description: "Pricing saved successfully",
+          description: "Pricing validated and saved successfully",
         });
       }
     } catch (error) {
