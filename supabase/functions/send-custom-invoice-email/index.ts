@@ -34,6 +34,7 @@ serve(async (req) => {
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const frontendUrl = Deno.env.get('FRONTEND_URL') || 'https://id-preview--c4c8d2d1-63da-4772-a95b-bf211f87a132.lovable.app';
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     let estimateDetails = estimate_data;
@@ -406,12 +407,12 @@ Soul Train's Eatery Team`}
       <h3 style="color: #DC143C; margin-bottom: 20px;">Ready to Move Forward? 🎉</h3>
       
       <div style="margin: 25px 0;">
-        <a href="https://qptprrqjlcvfkhfdnnoa.supabase.co/customer-portal?token=${estimate.customer_access_token}&action=approve" 
+        <a href="${frontendUrl}/customer-portal?token=${estimate.customer_access_token}&action=approve" 
            style="display: inline-block; background: linear-gradient(135deg, #DC143C 0%, #B91C3C 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; margin: 0 10px 10px 0; box-shadow: 0 4px 6px rgba(220, 20, 60, 0.3);">
           ✅ Approve This Estimate
         </a>
         
-        <a href="https://qptprrqjlcvfkhfdnnoa.supabase.co/customer-portal?token=${estimate.customer_access_token}&action=changes" 
+        <a href="${frontendUrl}/customer-portal?token=${estimate.customer_access_token}&action=changes" 
            style="display: inline-block; background: white; color: #DC143C; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; margin: 0 10px 10px 0; border: 2px solid #DC143C; box-shadow: 0 4px 6px rgba(220, 20, 60, 0.2);">
           📝 Request Changes
         </a>
