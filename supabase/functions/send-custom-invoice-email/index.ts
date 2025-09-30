@@ -46,7 +46,7 @@ serve(async (req) => {
         .select(`
           *,
           customers!customer_id (name, email, phone),
-          quote_requests!quote_request_id (event_name, event_date, location, guest_count, event_type)
+          quote_requests!quote_request_id (event_name, event_date, location, guest_count, event_type, email, contact_name, phone)
         `)
         .eq('id', invoice_id)
         .single();
