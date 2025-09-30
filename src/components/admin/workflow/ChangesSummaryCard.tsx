@@ -23,9 +23,12 @@ export function ChangesSummaryCard({
     requestedChanges?.start_time;
 
   const hasTextChanges = 
-    requestedChanges?.menu_changes || 
+    (requestedChanges?.menu_changes && typeof requestedChanges.menu_changes === 'string') || 
     requestedChanges?.service_changes || 
     requestedChanges?.dietary_changes;
+
+  const hasStructuredMenuChanges = 
+    requestedChanges?.menu_changes && typeof requestedChanges.menu_changes === 'object';
 
   return (
     <Card className="border-primary/20">
@@ -85,10 +88,106 @@ export function ChangesSummaryCard({
           </div>
         )}
 
-        {/* Text-based Changes */}
+        {/* Structured Menu Changes */}
+        {hasStructuredMenuChanges && (
+          <div className="space-y-3 pt-3 border-t">
+            <div className="flex items-start gap-3 text-sm">
+              <Utensils className="h-4 w-4 text-muted-foreground mt-0.5" />
+              <div className="flex-1 space-y-3">
+                <div className="font-medium text-foreground">Menu Changes:</div>
+                
+                {/* Protein Removals */}
+                {requestedChanges.menu_changes.proteins?.remove?.length > 0 && (
+                  <div className="pl-4">
+                    <p className="font-medium text-xs text-muted-foreground mb-1">Remove Proteins:</p>
+                    <div className="flex flex-wrap gap-1">
+                      {requestedChanges.menu_changes.proteins.remove.map((item: string, idx: number) => (
+                        <Badge key={idx} variant="destructive" className="text-xs">✕ {item}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Appetizers Removals */}
+                {requestedChanges.menu_changes.appetizers?.remove?.length > 0 && (
+                  <div className="pl-4">
+                    <p className="font-medium text-xs text-muted-foreground mb-1">Remove Appetizers:</p>
+                    <div className="flex flex-wrap gap-1">
+                      {requestedChanges.menu_changes.appetizers.remove.map((item: string, idx: number) => (
+                        <Badge key={idx} variant="destructive" className="text-xs">✕ {item}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Sides Removals */}
+                {requestedChanges.menu_changes.sides?.remove?.length > 0 && (
+                  <div className="pl-4">
+                    <p className="font-medium text-xs text-muted-foreground mb-1">Remove Sides:</p>
+                    <div className="flex flex-wrap gap-1">
+                      {requestedChanges.menu_changes.sides.remove.map((item: string, idx: number) => (
+                        <Badge key={idx} variant="destructive" className="text-xs">✕ {item}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Desserts Removals */}
+                {requestedChanges.menu_changes.desserts?.remove?.length > 0 && (
+                  <div className="pl-4">
+                    <p className="font-medium text-xs text-muted-foreground mb-1">Remove Desserts:</p>
+                    <div className="flex flex-wrap gap-1">
+                      {requestedChanges.menu_changes.desserts.remove.map((item: string, idx: number) => (
+                        <Badge key={idx} variant="destructive" className="text-xs">✕ {item}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Drinks Removals */}
+                {requestedChanges.menu_changes.drinks?.remove?.length > 0 && (
+                  <div className="pl-4">
+                    <p className="font-medium text-xs text-muted-foreground mb-1">Remove Drinks:</p>
+                    <div className="flex flex-wrap gap-1">
+                      {requestedChanges.menu_changes.drinks.remove.map((item: string, idx: number) => (
+                        <Badge key={idx} variant="destructive" className="text-xs">✕ {item}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Service Options Changes */}
+                {requestedChanges.menu_changes.service_options && Object.keys(requestedChanges.menu_changes.service_options).length > 0 && (
+                  <div className="pl-4">
+                    <p className="font-medium text-xs text-muted-foreground mb-1">Service Options:</p>
+                    <div className="flex flex-wrap gap-1">
+                      {Object.entries(requestedChanges.menu_changes.service_options).map(([key, value]: [string, any], idx: number) => (
+                        <Badge key={idx} variant="outline" className="text-xs">
+                          {key.replace(/_/g, ' ')}: {value ? '✓' : '✗'}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Custom Requests */}
+                {requestedChanges.menu_changes.custom_requests && (
+                  <div className="pl-4">
+                    <p className="font-medium text-xs text-muted-foreground mb-1">Custom Requests:</p>
+                    <p className="text-sm text-muted-foreground italic whitespace-pre-wrap">
+                      {requestedChanges.menu_changes.custom_requests}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Text-based Changes (Legacy & Other) */}
         {hasTextChanges && (
           <div className="space-y-3 pt-3 border-t">
-            {requestedChanges.menu_changes && (
+            {requestedChanges.menu_changes && typeof requestedChanges.menu_changes === 'string' && (
               <TextChangeItem
                 icon={<Utensils className="h-4 w-4" />}
                 label="Menu Changes"

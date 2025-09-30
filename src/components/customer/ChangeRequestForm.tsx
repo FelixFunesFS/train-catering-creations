@@ -3,13 +3,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-
+import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Calendar, Users, MapPin, Clock, AlertCircle, Send } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { CurrentMenuDisplay } from './CurrentMenuDisplay';
+import { MenuChangeSelector } from './MenuChangeSelector';
 
 interface ChangeRequestFormProps {
   quote: any;
@@ -25,13 +27,11 @@ export function ChangeRequestForm({ quote, invoice, onRequestSubmitted }: Change
     new_guest_count: quote.guest_count || '',
     new_location: quote.location || '',
     new_start_time: quote.start_time || '',
-    dietary_changes: '',
-    menu_changes: '',
-    service_changes: '',
     customer_comments: '',
     contact_preference: 'email',
     urgency: false
   });
+  const [menuChanges, setMenuChanges] = useState<any>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleInputChange = (field: string, value: any) => {
@@ -43,18 +43,19 @@ export function ChangeRequestForm({ quote, invoice, onRequestSubmitted }: Change
     setIsSubmitting(true);
 
     try {
-      
-      const requestedChanges = {
+      const requestedChanges: any = {
         event_date: formData.new_event_date !== quote.event_date ? formData.new_event_date : null,
         guest_count: formData.new_guest_count !== quote.guest_count.toString() ? parseInt(formData.new_guest_count) : null,
         location: formData.new_location !== quote.location ? formData.new_location : null,
         start_time: formData.new_start_time !== quote.start_time ? formData.new_start_time : null,
-        dietary_changes: formData.dietary_changes || null,
-        menu_changes: formData.menu_changes || null,
-        service_changes: formData.service_changes || null,
         contact_preference: formData.contact_preference,
         urgency: formData.urgency
       };
+
+      // Add structured menu changes
+      if (menuChanges) {
+        requestedChanges.menu_changes = menuChanges;
+      }
 
       // Remove null values
       Object.keys(requestedChanges).forEach(key => {
@@ -167,6 +168,16 @@ export function ChangeRequestForm({ quote, invoice, onRequestSubmitted }: Change
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Current Menu Display */}
+          <CurrentMenuDisplay quote={quote} />
+
+          <Separator />
+
+          {/* Menu Changes Selector */}
+          <MenuChangeSelector quote={quote} onChange={setMenuChanges} />
+
+          <Separator />
+
           {/* Request Type */}
           <div className="space-y-3">
             <Label className="text-base font-medium">Type of Change Request</Label>
@@ -261,45 +272,6 @@ export function ChangeRequestForm({ quote, invoice, onRequestSubmitted }: Change
             </div>
           </div>
 
-          {/* Service Changes */}
-          <div className="space-y-4">
-            <h4 className="font-medium text-base border-b pb-2">Service & Menu Changes</h4>
-            
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="menu_changes">Menu Modifications</Label>
-                <Textarea
-                  id="menu_changes"
-                  value={formData.menu_changes}
-                  onChange={(e) => handleInputChange('menu_changes', e.target.value)}
-                  placeholder="Describe any changes to the menu, food items, or dietary requirements..."
-                  rows={3}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="service_changes">Service Modifications</Label>
-                <Textarea
-                  id="service_changes"
-                  value={formData.service_changes}
-                  onChange={(e) => handleInputChange('service_changes', e.target.value)}
-                  placeholder="Describe changes to service style, setup, staff requirements, etc..."
-                  rows={3}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="dietary_changes">Dietary Requirements</Label>
-                <Textarea
-                  id="dietary_changes"
-                  value={formData.dietary_changes}
-                  onChange={(e) => handleInputChange('dietary_changes', e.target.value)}
-                  placeholder="New or updated dietary restrictions, allergies, special requirements..."
-                  rows={2}
-                />
-              </div>
-            </div>
-          </div>
 
           {/* Additional Comments */}
           <div className="space-y-2">

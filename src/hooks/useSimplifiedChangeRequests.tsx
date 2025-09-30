@@ -63,17 +63,75 @@ export function useSimplifiedChangeRequests(invoiceId?: string) {
       if (changes.guest_count) quoteUpdates.guest_count = parseInt(changes.guest_count);
       if (changes.location) quoteUpdates.location = changes.location;
       if (changes.start_time) quoteUpdates.start_time = changes.start_time;
-      if (changes.menu_changes || changes.service_changes || changes.dietary_changes) {
-        // Store changes in special_requests for reference
-        const changesSummary = [
-          changes.menu_changes && `Menu: ${changes.menu_changes}`,
-          changes.service_changes && `Service: ${changes.service_changes}`,
-          changes.dietary_changes && `Dietary: ${changes.dietary_changes}`
-        ].filter(Boolean).join(' | ');
+
+      // Handle structured menu changes
+      if (changes.menu_changes) {
+        const menuChanges = changes.menu_changes;
         
-        quoteUpdates.special_requests = currentQuote.special_requests 
-          ? `${currentQuote.special_requests}\n\nAPPROVED CHANGES: ${changesSummary}`
-          : `APPROVED CHANGES: ${changesSummary}`;
+        // Update proteins
+        if (menuChanges.proteins?.remove?.includes('primary')) {
+          quoteUpdates.primary_protein = null;
+        }
+        if (menuChanges.proteins?.remove?.includes('secondary')) {
+          quoteUpdates.secondary_protein = null;
+        }
+
+        // Helper to parse array fields
+        const parseArrayField = (field: any): string[] => {
+          if (Array.isArray(field)) return field;
+          if (typeof field === 'string') {
+            try {
+              const parsed = JSON.parse(field);
+              return Array.isArray(parsed) ? parsed : [];
+            } catch {
+              return [];
+            }
+          }
+          return [];
+        };
+
+        // Update menu item arrays - remove specified items
+        if (menuChanges.appetizers?.remove?.length > 0) {
+          const currentAppetizers = parseArrayField(currentQuote.appetizers);
+          quoteUpdates.appetizers = currentAppetizers.filter(
+            (item: string) => !menuChanges.appetizers.remove.includes(item)
+          );
+        }
+
+        if (menuChanges.sides?.remove?.length > 0) {
+          const currentSides = parseArrayField(currentQuote.sides);
+          quoteUpdates.sides = currentSides.filter(
+            (item: string) => !menuChanges.sides.remove.includes(item)
+          );
+        }
+
+        if (menuChanges.desserts?.remove?.length > 0) {
+          const currentDesserts = parseArrayField(currentQuote.desserts);
+          quoteUpdates.desserts = currentDesserts.filter(
+            (item: string) => !menuChanges.desserts.remove.includes(item)
+          );
+        }
+
+        if (menuChanges.drinks?.remove?.length > 0) {
+          const currentDrinks = parseArrayField(currentQuote.drinks);
+          quoteUpdates.drinks = currentDrinks.filter(
+            (item: string) => !menuChanges.drinks.remove.includes(item)
+          );
+        }
+
+        // Update service options
+        if (menuChanges.service_options) {
+          Object.keys(menuChanges.service_options).forEach(key => {
+            quoteUpdates[key] = menuChanges.service_options[key];
+          });
+        }
+
+        // Store custom requests in custom_menu_requests field
+        if (menuChanges.custom_requests) {
+          quoteUpdates.custom_menu_requests = currentQuote.custom_menu_requests
+            ? `${currentQuote.custom_menu_requests}\n\nADDITIONAL REQUEST: ${menuChanges.custom_requests}`
+            : menuChanges.custom_requests;
+        }
       }
 
       // Update quote status to indicate it's been modified
