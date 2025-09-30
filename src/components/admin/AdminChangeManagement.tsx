@@ -194,13 +194,15 @@ export function AdminChangeManagement({ onRefresh }: AdminChangeManagementProps)
 
     setProcessing(true);
     try {
+      const costChangeCents = Math.round(costImpact * 100);
+
       // Update the change request
       const { error: updateError } = await supabase
         .from('change_requests')
         .update({
           status: 'approved',
           admin_response: adminResponse,
-          estimated_cost_change: costImpact * 100, // Convert to cents
+          estimated_cost_change: costChangeCents,
           reviewed_at: new Date().toISOString(),
           reviewed_by: 'admin'
         })
@@ -208,14 +210,47 @@ export function AdminChangeManagement({ onRefresh }: AdminChangeManagementProps)
 
       if (updateError) throw updateError;
 
-      // If there's a cost impact, we should regenerate the estimate
-      if (Math.abs(costImpact) > 0) {
-        await regenerateEstimateWithChanges(selectedRequest);
+      // Get invoice and quote details
+      const { data: invoice } = await supabase
+        .from('invoices')
+        .select('quote_request_id, total_amount')
+        .eq('id', selectedRequest.invoice_id)
+        .single();
+
+      if (invoice?.quote_request_id && selectedRequest.requested_changes) {
+        // Apply changes to quote_requests
+        const changes = selectedRequest.requested_changes;
+        const quoteUpdates: any = {};
+
+        if (changes.event_date) quoteUpdates.event_date = changes.event_date;
+        if (changes.guest_count) quoteUpdates.guest_count = parseInt(changes.guest_count);
+        if (changes.location) quoteUpdates.location = changes.location;
+        if (changes.start_time) quoteUpdates.start_time = changes.start_time;
+
+        await supabase
+          .from('quote_requests')
+          .update({
+            ...quoteUpdates,
+            status: 'quoted',
+            workflow_status: 'estimated'
+          })
+          .eq('id', invoice.quote_request_id);
+
+        // Update invoice total
+        const newTotal = invoice.total_amount + costChangeCents;
+        await supabase
+          .from('invoices')
+          .update({
+            total_amount: Math.max(0, newTotal),
+            status: 'approved',
+            workflow_status: 'approved'
+          })
+          .eq('id', selectedRequest.invoice_id);
       }
 
       toast({
         title: "Request Approved",
-        description: "Change request has been approved and customer will be notified.",
+        description: "Changes applied to quote. Updated estimate is ready to send.",
       });
 
       fetchChangeRequests();
@@ -283,71 +318,6 @@ export function AdminChangeManagement({ onRefresh }: AdminChangeManagementProps)
     }
   };
 
-  const regenerateEstimateWithChanges = async (changeRequest: ChangeRequest) => {
-    try {
-      // This would involve re-generating line items based on the requested changes
-      // For now, we'll just update the invoice total
-      const newTotal = await calculateNewTotal(changeRequest);
-      
-      const { error } = await supabase
-        .from('invoices')
-        .update({
-          total_amount: newTotal,
-          status: 'revision_sent',
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', changeRequest.invoice_id);
-
-      if (error) throw error;
-
-      // Create a new estimate version for tracking
-      const { error: versionError } = await supabase
-        .from('estimate_versions')
-        .insert({
-          invoice_id: changeRequest.invoice_id,
-          change_request_id: changeRequest.id,
-          version_number: await getNextVersionNumber(changeRequest.invoice_id),
-          total_amount: newTotal,
-          status: 'active',
-          notes: `Updated based on change request: ${changeRequest.customer_comments}`,
-          created_by: 'admin'
-        });
-
-      if (versionError) throw versionError;
-
-    } catch (error) {
-      console.error('Error regenerating estimate:', error);
-      throw error;
-    }
-  };
-
-  const calculateNewTotal = async (changeRequest: ChangeRequest): Promise<number> => {
-    // Simplified calculation - in a real implementation, this would be more complex
-    // involving re-generating line items based on the specific changes requested
-    
-    // Get current invoice total
-    const { data: invoice } = await supabase
-      .from('invoices')
-      .select('total_amount')
-      .eq('id', changeRequest.invoice_id)
-      .single();
-
-    const currentTotal = invoice?.total_amount || 0;
-    const costImpactCents = costImpact * 100;
-    
-    return Math.max(0, currentTotal + costImpactCents);
-  };
-
-  const getNextVersionNumber = async (invoiceId: string): Promise<number> => {
-    const { data } = await supabase
-      .from('estimate_versions')
-      .select('version_number')
-      .eq('invoice_id', invoiceId)
-      .order('version_number', { ascending: false })
-      .limit(1);
-
-    return (data?.[0]?.version_number || 0) + 1;
-  };
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {

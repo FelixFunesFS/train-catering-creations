@@ -4,8 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useSimplifiedChangeRequests, ChangeRequest as BaseChangeRequest } from '@/hooks/useSimplifiedChangeRequests';
+import { formatCurrency } from '@/lib/changeRequestUtils';
 import { 
   MessageSquare, 
   CheckCircle, 
@@ -14,24 +18,14 @@ import {
   DollarSign,
   AlertCircle,
   FileText,
-  RefreshCw
+  Calendar,
+  Users,
+  MapPin
 } from 'lucide-react';
-import { formatCurrency } from '@/lib/changeRequestUtils';
 
-interface ChangeRequest {
-  id: string;
-  invoice_id: string;
-  customer_email: string;
-  request_type: string;
-  priority: string;
-  status: string;
-  customer_comments: string;
-  requested_changes: any;
-  estimated_cost_change: number;
-  admin_response: string;
-  created_at: string;
-  invoice_number?: string;
+interface ExtendedChangeRequest extends BaseChangeRequest {
   event_name?: string;
+  invoice_number?: string;
 }
 
 interface IntegratedChangeRequestPanelProps {
@@ -43,17 +37,18 @@ export function IntegratedChangeRequestPanel({
   invoiceId, 
   onChangeProcessed 
 }: IntegratedChangeRequestPanelProps) {
-  const [changeRequests, setChangeRequests] = useState<ChangeRequest[]>([]);
-  const [selectedRequest, setSelectedRequest] = useState<ChangeRequest | null>(null);
+  const [changeRequests, setChangeRequests] = useState<ExtendedChangeRequest[]>([]);
+  const [selectedRequest, setSelectedRequest] = useState<ExtendedChangeRequest | null>(null);
   const [adminResponse, setAdminResponse] = useState('');
-  const [costChange, setCostChange] = useState<number>(0);
+  const [costChange, setCostChange] = useState<string>('0');
   const [loading, setLoading] = useState(true);
-  const [processing, setProcessing] = useState(false);
   const { toast } = useToast();
+  const { processing, approveChangeRequest, rejectChangeRequest } = useSimplifiedChangeRequests();
 
   useEffect(() => {
     fetchChangeRequests();
-    setupRealtimeSubscription();
+    const cleanup = setupRealtimeSubscription();
+    return cleanup;
   }, [invoiceId]);
 
   const setupRealtimeSubscription = () => {
@@ -132,64 +127,8 @@ export function IntegratedChangeRequestPanel({
     }
   };
 
-  const createNewEstimateVersion = async (requestId: string, newTotal: number) => {
-    try {
-      // Get current invoice and line items
-      const { data: invoice, error: invoiceError } = await supabase
-        .from('invoices')
-        .select('*, invoice_line_items(*)')
-        .eq('id', invoiceId)
-        .single();
-
-      if (invoiceError) throw invoiceError;
-
-      // Get the latest version number
-      const { data: versions } = await supabase
-        .from('estimate_versions')
-        .select('version_number')
-        .eq('invoice_id', invoiceId)
-        .order('version_number', { ascending: false })
-        .limit(1);
-
-      const nextVersion = versions && versions.length > 0 ? versions[0].version_number + 1 : 1;
-
-      // Create new estimate version
-      const { error: versionError } = await supabase
-        .from('estimate_versions')
-        .insert({
-          invoice_id: invoiceId,
-          change_request_id: requestId,
-          version_number: nextVersion,
-          line_items: invoice.invoice_line_items || [],
-          subtotal: invoice.subtotal,
-          tax_amount: invoice.tax_amount,
-          total_amount: newTotal,
-          status: 'active',
-          notes: `Version ${nextVersion} - Created from change request`,
-          created_by: 'admin'
-        });
-
-      if (versionError) throw versionError;
-
-      // Update invoice total (revised estimate ready to resend)
-      await supabase
-        .from('invoices')
-        .update({ 
-          total_amount: newTotal,
-          status: 'pending_review',
-          workflow_status: 'pending_review'
-        })
-        .eq('id', invoiceId);
-
-      return true;
-    } catch (error) {
-      console.error('Error creating estimate version:', error);
-      return false;
-    }
-  };
-
-  const handleApproveRequest = async (request: ChangeRequest) => {
-    if (!adminResponse.trim()) {
+  const handleApproveRequest = async () => {
+    if (!selectedRequest || !adminResponse.trim()) {
       toast({
         title: "Validation Error",
         description: "Please provide an admin response",
@@ -198,81 +137,30 @@ export function IntegratedChangeRequestPanel({
       return;
     }
 
-    setProcessing(true);
     try {
-      const newTotal = (await getCurrentTotal()) + costChange;
-
-      // Create new estimate version
-      const versionCreated = await createNewEstimateVersion(request.id, newTotal);
+      const costChangeCents = parseInt(costChange) || 0;
       
-      if (!versionCreated) {
-        throw new Error('Failed to create estimate version');
-      }
-
-      // Update change request status
-      const { error: updateError } = await supabase
-        .from('change_requests')
-        .update({
-          status: 'approved',
-          admin_response: adminResponse,
-          estimated_cost_change: costChange,
-          reviewed_at: new Date().toISOString(),
-          reviewed_by: 'admin',
-          completed_at: new Date().toISOString()
-        })
-        .eq('id', request.id);
-
-      if (updateError) throw updateError;
-
-      // Update invoice status to indicate customer requested changes were addressed
-      await supabase
-        .from('invoices')
-        .update({ 
-          workflow_status: 'pending_review',
-          status: 'pending_review'
-        })
-        .eq('id', invoiceId);
-
-      // Log workflow state change
-      await supabase
-        .from('workflow_state_log')
-        .insert({
-          entity_type: 'invoices',
-          entity_id: invoiceId,
-          previous_status: 'customer_requested_changes',
-          new_status: 'pending_review',
-          changed_by: 'admin',
-          change_reason: `Approved change request and created new version: ${request.customer_comments}`,
-          metadata: {
-            change_request_id: request.id,
-            cost_change: costChange
-          }
-        });
-
-      toast({
-        title: "Success",
-        description: "Change request approved and new estimate version created",
+      await approveChangeRequest(selectedRequest, {
+        adminResponse,
+        finalCostChange: costChangeCents
       });
 
+      // Reset form
       setSelectedRequest(null);
       setAdminResponse('');
-      setCostChange(0);
-      fetchChangeRequests();
+      setCostChange('0');
+      
+      // Refresh data
+      await fetchChangeRequests();
       onChangeProcessed?.();
     } catch (error) {
-      console.error('Error approving change request:', error);
-      toast({
-        title: "Error",
-        description: "Failed to approve change request",
-        variant: "destructive"
-      });
-    } finally {
-      setProcessing(false);
+      // Error already handled by the hook
+      console.error('Error in handleApproveRequest:', error);
     }
   };
 
-  const handleRejectRequest = async (request: ChangeRequest) => {
-    if (!adminResponse.trim()) {
+  const handleRejectRequest = async () => {
+    if (!selectedRequest || !adminResponse.trim()) {
       toast({
         title: "Validation Error",
         description: "Please provide a reason for rejection",
@@ -281,64 +169,21 @@ export function IntegratedChangeRequestPanel({
       return;
     }
 
-    setProcessing(true);
     try {
-      const { error } = await supabase
-        .from('change_requests')
-        .update({
-          status: 'rejected',
-          admin_response: adminResponse,
-          reviewed_at: new Date().toISOString(),
-          reviewed_by: 'admin',
-          completed_at: new Date().toISOString()
-        })
-        .eq('id', request.id);
+      await rejectChangeRequest(selectedRequest, adminResponse);
 
-      if (error) throw error;
-
-      // Log workflow state change
-      await supabase
-        .from('workflow_state_log')
-        .insert({
-          entity_type: 'invoices',
-          entity_id: invoiceId,
-          previous_status: 'customer_requested_changes',
-          new_status: 'sent',
-          changed_by: 'admin',
-          change_reason: `Rejected change request: ${adminResponse}`,
-          metadata: { change_request_id: request.id }
-        });
-
-      toast({
-        title: "Success",
-        description: "Change request rejected",
-      });
-
+      // Reset form
       setSelectedRequest(null);
       setAdminResponse('');
-      setCostChange(0);
-      fetchChangeRequests();
+      setCostChange('0');
+      
+      // Refresh data
+      await fetchChangeRequests();
       onChangeProcessed?.();
     } catch (error) {
-      console.error('Error rejecting change request:', error);
-      toast({
-        title: "Error",
-        description: "Failed to reject change request",
-        variant: "destructive"
-      });
-    } finally {
-      setProcessing(false);
+      // Error already handled by the hook
+      console.error('Error in handleRejectRequest:', error);
     }
-  };
-
-  const getCurrentTotal = async (): Promise<number> => {
-    const { data } = await supabase
-      .from('invoices')
-      .select('total_amount')
-      .eq('id', invoiceId)
-      .single();
-    
-    return data?.total_amount || 0;
   };
 
   const getStatusBadge = (status: string) => {
@@ -360,11 +205,80 @@ export function IntegratedChangeRequestPanel({
 
   const getPriorityColor = (priority: string) => {
     const colors = {
-      high: 'text-red-600 bg-red-50 border-red-200',
-      medium: 'text-orange-600 bg-orange-50 border-orange-200',
-      low: 'text-blue-600 bg-blue-50 border-blue-200'
+      high: 'border-red-200 bg-red-50',
+      medium: 'border-orange-200 bg-orange-50',
+      low: 'border-blue-200 bg-blue-50'
     };
     return colors[priority as keyof typeof colors] || colors.medium;
+  };
+
+  const renderRequestedChanges = (changes: any) => {
+    if (!changes || typeof changes !== 'object') return null;
+
+    const changeItems = [];
+    
+    if (changes.event_date) {
+      changeItems.push(
+        <div key="date" className="flex items-center gap-2 text-sm">
+          <Calendar className="h-3 w-3" />
+          <span className="font-medium">New Date:</span>
+          <span>{new Date(changes.event_date).toLocaleDateString()}</span>
+        </div>
+      );
+    }
+    
+    if (changes.guest_count) {
+      changeItems.push(
+        <div key="guests" className="flex items-center gap-2 text-sm">
+          <Users className="h-3 w-3" />
+          <span className="font-medium">New Guest Count:</span>
+          <span>{changes.guest_count}</span>
+        </div>
+      );
+    }
+    
+    if (changes.location) {
+      changeItems.push(
+        <div key="location" className="flex items-center gap-2 text-sm">
+          <MapPin className="h-3 w-3" />
+          <span className="font-medium">New Location:</span>
+          <span>{changes.location}</span>
+        </div>
+      );
+    }
+    
+    if (changes.menu_changes) {
+      changeItems.push(
+        <div key="menu" className="text-sm">
+          <span className="font-medium">Menu Changes:</span>
+          <p className="text-muted-foreground ml-5">{changes.menu_changes}</p>
+        </div>
+      );
+    }
+    
+    if (changes.service_changes) {
+      changeItems.push(
+        <div key="service" className="text-sm">
+          <span className="font-medium">Service Changes:</span>
+          <p className="text-muted-foreground ml-5">{changes.service_changes}</p>
+        </div>
+      );
+    }
+    
+    if (changes.dietary_changes) {
+      changeItems.push(
+        <div key="dietary" className="text-sm">
+          <span className="font-medium">Dietary Changes:</span>
+          <p className="text-muted-foreground ml-5">{changes.dietary_changes}</p>
+        </div>
+      );
+    }
+
+    return changeItems.length > 0 ? (
+      <div className="space-y-2 mt-2">
+        {changeItems}
+      </div>
+    ) : null;
   };
 
   if (loading) {
@@ -384,7 +298,7 @@ export function IntegratedChangeRequestPanel({
     <div className="space-y-4">
       {/* Pending Requests - High Priority */}
       {pendingRequests.length > 0 && (
-        <Card className="border-orange-200 bg-orange-50">
+        <Card className="border-orange-200 bg-orange-50/30">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-orange-800">
               <AlertCircle className="h-5 w-5" />
@@ -407,7 +321,7 @@ export function IntegratedChangeRequestPanel({
                         <MessageSquare className="h-4 w-4" />
                         <span className="font-medium">{request.event_name}</span>
                         <Badge variant="outline" className="text-xs">
-                          {request.request_type.replace('_', ' ')}
+                          {request.request_type.replace(/_/g, ' ')}
                         </Badge>
                       </div>
                       <p className="text-sm text-muted-foreground">
@@ -416,24 +330,22 @@ export function IntegratedChangeRequestPanel({
                     </div>
                     <div className="flex flex-col items-end gap-2">
                       {getStatusBadge(request.status)}
-                      <Badge variant="outline" className={getPriorityColor(request.priority)}>
+                      <Badge variant="outline" className="text-xs">
                         {request.priority} priority
                       </Badge>
                     </div>
                   </div>
 
-                  <div className="space-y-2 text-sm">
+                  <div className="space-y-3">
                     <div>
-                      <span className="font-medium">Customer Comments:</span>
-                      <p className="text-muted-foreground mt-1">{request.customer_comments}</p>
+                      <span className="text-sm font-medium">Customer Comments:</span>
+                      <p className="text-sm text-muted-foreground mt-1">{request.customer_comments}</p>
                     </div>
 
                     {request.requested_changes && (
                       <div>
-                        <span className="font-medium">Requested Changes:</span>
-                        <pre className="text-xs bg-background p-2 rounded mt-1 overflow-auto">
-                          {JSON.stringify(request.requested_changes, null, 2)}
-                        </pre>
+                        <span className="text-sm font-medium">Requested Changes:</span>
+                        {renderRequestedChanges(request.requested_changes)}
                       </div>
                     )}
                   </div>
@@ -442,44 +354,53 @@ export function IntegratedChangeRequestPanel({
                   {selectedRequest?.id === request.id && request.status === 'pending' && (
                     <div className="mt-4 pt-4 border-t space-y-3">
                       <div>
-                        <label className="text-sm font-medium">Admin Response *</label>
+                        <Label htmlFor="admin-response" className="text-sm font-medium">
+                          Admin Response *
+                        </Label>
                         <Textarea
+                          id="admin-response"
                           value={adminResponse}
                           onChange={(e) => setAdminResponse(e.target.value)}
-                          placeholder="Explain how you'll handle this request..."
+                          placeholder="Explain how you'll handle this request and when the customer can expect the updated quote..."
                           className="mt-1"
                           rows={3}
                         />
                       </div>
 
                       <div>
-                        <label className="text-sm font-medium">Cost Impact (cents)</label>
+                        <Label htmlFor="cost-change" className="text-sm font-medium">
+                          Cost Impact (in cents)
+                        </Label>
                         <Input
+                          id="cost-change"
                           type="number"
                           value={costChange}
-                          onChange={(e) => setCostChange(parseInt(e.target.value) || 0)}
-                          placeholder="Enter cost change in cents"
+                          onChange={(e) => setCostChange(e.target.value)}
+                          placeholder="Enter cost change in cents (e.g., 500 for $5.00)"
                           className="mt-1"
                         />
-                        {costChange !== 0 && (
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Impact: {formatCurrency(costChange)} {costChange > 0 ? 'increase' : 'decrease'}
+                        {parseInt(costChange) !== 0 && (
+                          <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                            <DollarSign className="h-3 w-3" />
+                            Impact: {formatCurrency(parseInt(costChange))} {parseInt(costChange) > 0 ? 'increase' : 'decrease'}
                           </p>
                         )}
                       </div>
 
+                      <Separator />
+
                       <div className="flex gap-2">
                         <Button
-                          onClick={() => handleApproveRequest(request)}
-                          disabled={processing}
+                          onClick={handleApproveRequest}
+                          disabled={processing || !adminResponse.trim()}
                           className="flex-1"
                         >
                           <CheckCircle className="h-4 w-4 mr-2" />
-                          {processing ? 'Processing...' : 'Approve & Create New Version'}
+                          {processing ? 'Processing...' : 'Approve & Update Quote'}
                         </Button>
                         <Button
-                          onClick={() => handleRejectRequest(request)}
-                          disabled={processing}
+                          onClick={handleRejectRequest}
+                          disabled={processing || !adminResponse.trim()}
                           variant="destructive"
                           className="flex-1"
                         >
