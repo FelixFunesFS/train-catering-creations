@@ -11,6 +11,7 @@ export interface ChangeRequest {
   status: string;
   customer_comments: string;
   requested_changes: any;
+  original_details?: any;
   estimated_cost_change: number;
   admin_response?: string;
   created_at: string;

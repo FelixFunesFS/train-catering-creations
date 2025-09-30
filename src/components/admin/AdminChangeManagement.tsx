@@ -6,10 +6,9 @@ import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ChangesSummaryCard } from './workflow/ChangesSummaryCard';
 import { 
   MessageSquare, 
-  DollarSign, 
   CheckCircle, 
   XCircle, 
   Clock,
@@ -20,7 +19,6 @@ import {
 import { formatCurrency } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { generateProfessionalLineItems } from '@/utils/invoiceFormatters';
 
 interface ChangeRequest {
   id: string;
@@ -466,17 +464,17 @@ export function AdminChangeManagement({ onRefresh }: AdminChangeManagementProps)
                     <p className="text-sm">{getRequestTypeLabel(selectedRequest.request_type)}</p>
                   </div>
 
-                  <div>
-                    <Label className="text-sm font-medium">Customer Comments:</Label>
-                    <p className="text-sm whitespace-pre-wrap bg-muted/50 p-2 rounded">
-                      {selectedRequest.customer_comments}
-                    </p>
-                  </div>
+                  <ChangesSummaryCard
+                    originalDetails={selectedRequest.original_details}
+                    requestedChanges={selectedRequest.requested_changes}
+                    customerComments={selectedRequest.customer_comments}
+                    estimatedCostChange={selectedRequest.estimated_cost_change}
+                  />
 
                   {selectedRequest.admin_response && (
-                    <div>
+                    <div className="mt-4">
                       <Label className="text-sm font-medium">Admin Response:</Label>
-                      <p className="text-sm whitespace-pre-wrap bg-blue-50 p-2 rounded">
+                      <p className="text-sm whitespace-pre-wrap bg-blue-50 p-2 rounded mt-1">
                         {selectedRequest.admin_response}
                       </p>
                     </div>

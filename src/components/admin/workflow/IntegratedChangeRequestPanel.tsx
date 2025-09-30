@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useSimplifiedChangeRequests, ChangeRequest as BaseChangeRequest } from '@/hooks/useSimplifiedChangeRequests';
 import { formatCurrency } from '@/lib/changeRequestUtils';
+import { ChangesSummaryCard } from './ChangesSummaryCard';
 import { 
   MessageSquare, 
   CheckCircle, 
@@ -17,10 +18,7 @@ import {
   Clock,
   DollarSign,
   AlertCircle,
-  FileText,
-  Calendar,
-  Users,
-  MapPin
+  FileText
 } from 'lucide-react';
 
 interface ExtendedChangeRequest extends BaseChangeRequest {
@@ -212,74 +210,7 @@ export function IntegratedChangeRequestPanel({
     return colors[priority as keyof typeof colors] || colors.medium;
   };
 
-  const renderRequestedChanges = (changes: any) => {
-    if (!changes || typeof changes !== 'object') return null;
-
-    const changeItems = [];
-    
-    if (changes.event_date) {
-      changeItems.push(
-        <div key="date" className="flex items-center gap-2 text-sm">
-          <Calendar className="h-3 w-3" />
-          <span className="font-medium">New Date:</span>
-          <span>{new Date(changes.event_date).toLocaleDateString()}</span>
-        </div>
-      );
-    }
-    
-    if (changes.guest_count) {
-      changeItems.push(
-        <div key="guests" className="flex items-center gap-2 text-sm">
-          <Users className="h-3 w-3" />
-          <span className="font-medium">New Guest Count:</span>
-          <span>{changes.guest_count}</span>
-        </div>
-      );
-    }
-    
-    if (changes.location) {
-      changeItems.push(
-        <div key="location" className="flex items-center gap-2 text-sm">
-          <MapPin className="h-3 w-3" />
-          <span className="font-medium">New Location:</span>
-          <span>{changes.location}</span>
-        </div>
-      );
-    }
-    
-    if (changes.menu_changes) {
-      changeItems.push(
-        <div key="menu" className="text-sm">
-          <span className="font-medium">Menu Changes:</span>
-          <p className="text-muted-foreground ml-5">{changes.menu_changes}</p>
-        </div>
-      );
-    }
-    
-    if (changes.service_changes) {
-      changeItems.push(
-        <div key="service" className="text-sm">
-          <span className="font-medium">Service Changes:</span>
-          <p className="text-muted-foreground ml-5">{changes.service_changes}</p>
-        </div>
-      );
-    }
-    
-    if (changes.dietary_changes) {
-      changeItems.push(
-        <div key="dietary" className="text-sm">
-          <span className="font-medium">Dietary Changes:</span>
-          <p className="text-muted-foreground ml-5">{changes.dietary_changes}</p>
-        </div>
-      );
-    }
-
-    return changeItems.length > 0 ? (
-      <div className="space-y-2 mt-2">
-        {changeItems}
-      </div>
-    ) : null;
-  };
+  // Removed - using ChangesSummaryCard component instead
 
   if (loading) {
     return (
@@ -336,19 +267,12 @@ export function IntegratedChangeRequestPanel({
                     </div>
                   </div>
 
-                  <div className="space-y-3">
-                    <div>
-                      <span className="text-sm font-medium">Customer Comments:</span>
-                      <p className="text-sm text-muted-foreground mt-1">{request.customer_comments}</p>
-                    </div>
-
-                    {request.requested_changes && (
-                      <div>
-                        <span className="text-sm font-medium">Requested Changes:</span>
-                        {renderRequestedChanges(request.requested_changes)}
-                      </div>
-                    )}
-                  </div>
+                   <ChangesSummaryCard
+                    originalDetails={request.original_details}
+                    requestedChanges={request.requested_changes}
+                    customerComments={request.customer_comments}
+                    estimatedCostChange={request.estimated_cost_change}
+                  />
 
                   {/* Action Panel for Selected Request */}
                   {selectedRequest?.id === request.id && request.status === 'pending' && (
