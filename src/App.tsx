@@ -79,11 +79,6 @@ const AppContent = () => {
           <Route path="/customer-portal" element={<TokenBasedCustomerPortal />} />
           <Route path="/customer/estimate/:token" element={<TokenBasedCustomerPortal />} />
           <Route path="/estimate-preview/:token" element={<TokenBasedCustomerPortal />} />
-          <Route path="/customer/estimate-portal/:token" element={
-            <div className="min-h-screen flex items-center justify-center">
-              <p>Customer Estimate Portal - Phase 3 Implementation</p>
-            </div>
-          } />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/payment-canceled" element={<PaymentCanceled />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
