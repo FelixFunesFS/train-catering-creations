@@ -39,6 +39,14 @@ export function useLineItemManagement({
   const [lastCalculated, setLastCalculated] = useState<Date>(new Date());
   const { toast } = useToast();
 
+  // Sync lineItems when initialLineItems changes (e.g., after fetching from database)
+  useEffect(() => {
+    if (initialLineItems && initialLineItems.length > 0) {
+      console.log('🔍 DEBUG: Syncing lineItems from initialLineItems:', initialLineItems.length);
+      setLineItems(initialLineItems);
+    }
+  }, [initialLineItems]);
+
   // Auto-save function for debounced saving
   const performAutoSave = useCallback(async () => {
     if (!autoSave || !invoiceId || !isModified) return;
