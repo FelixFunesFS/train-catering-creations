@@ -10,6 +10,7 @@ import { EnhancedEstimateLineItems } from './EnhancedEstimateLineItems';
 import { useEnhancedPricingManagement } from '@/hooks/useEnhancedPricingManagement';
 import { useInvoiceEditing } from '@/hooks/useInvoiceEditing';
 import { UnifiedEmailReviewModal } from './UnifiedEmailReviewModal';
+import { IntegratedChangeRequestPanel } from './workflow/IntegratedChangeRequestPanel';
 import { format } from 'date-fns';
 import { 
   Calendar, 
@@ -20,7 +21,8 @@ import {
   Send, 
   Check,
   ChevronRight,
-  Clock
+  Clock,
+  MessageSquare
 } from 'lucide-react';
 
 // Use QuoteRequest type from invoiceFormatters which matches the database structure
@@ -492,6 +494,17 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
       {/* Pricing Step */}
       {currentStep === 'pricing' && selectedQuote && (
         <div className="space-y-6">
+          {/* Change Requests Panel */}
+          {invoice && (
+            <IntegratedChangeRequestPanel 
+              invoiceId={invoice.id}
+              onChangeProcessed={() => {
+                // Refresh invoice and line items after change is processed
+                checkExistingInvoice(selectedQuote.id);
+              }}
+            />
+          )}
+
           {/* Quote Summary */}
           <Card>
             <CardHeader>
