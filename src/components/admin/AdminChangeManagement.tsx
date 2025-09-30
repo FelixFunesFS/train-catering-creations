@@ -64,58 +64,95 @@ export function AdminChangeManagement({ onRefresh }: AdminChangeManagementProps)
 
   const fetchChangeRequests = async () => {
     try {
-      // Step 1: Fetch change requests with basic invoice info (avoiding nested relationship ambiguity)
+      console.log('🔍 Starting to fetch change requests...');
+      
+      // Step 1: Fetch all change requests (no joins at all)
       const { data: changeRequestsData, error: changeRequestsError } = await supabase
         .from('change_requests')
-        .select(`
-          *,
-          invoices(
-            invoice_number,
-            quote_request_id
-          )
-        `)
+        .select('*')
         .order('created_at', { ascending: false })
         .limit(20);
 
-      if (changeRequestsError) throw changeRequestsError;
+      console.log('📋 Change requests raw data:', changeRequestsData);
+      console.log('❌ Change requests error:', changeRequestsError);
+
+      if (changeRequestsError) {
+        console.error('Error fetching change requests:', changeRequestsError);
+        throw changeRequestsError;
+      }
 
       if (!changeRequestsData || changeRequestsData.length === 0) {
+        console.log('⚠️ No change requests found');
         setChangeRequests([]);
         return;
       }
 
-      // Step 2: Get unique quote request IDs from the invoices
-      const quoteRequestIds = changeRequestsData
-        .map(cr => cr.invoices?.quote_request_id)
+      // Step 2: Get invoice IDs and fetch invoices separately
+      const invoiceIds = changeRequestsData
+        .map(cr => cr.invoice_id)
         .filter(Boolean);
 
-      // Step 3: Fetch quote request details separately
+      console.log('📄 Invoice IDs to fetch:', invoiceIds);
+
+      const { data: invoicesData, error: invoicesError } = await supabase
+        .from('invoices')
+        .select('id, invoice_number, quote_request_id')
+        .in('id', invoiceIds);
+
+      console.log('📄 Invoices data:', invoicesData);
+      console.log('❌ Invoices error:', invoicesError);
+
+      if (invoicesError) {
+        console.error('Error fetching invoices:', invoicesError);
+        throw invoicesError;
+      }
+
+      // Step 3: Get quote request IDs and fetch quote requests separately
+      const quoteRequestIds = (invoicesData || [])
+        .map(inv => inv.quote_request_id)
+        .filter(Boolean);
+
+      console.log('📝 Quote request IDs to fetch:', quoteRequestIds);
+
       const { data: quoteRequestsData, error: quoteRequestsError } = await supabase
         .from('quote_requests')
         .select('id, event_name, contact_name, event_date')
         .in('id', quoteRequestIds);
 
-      if (quoteRequestsError) throw quoteRequestsError;
+      console.log('📝 Quote requests data:', quoteRequestsData);
+      console.log('❌ Quote requests error:', quoteRequestsError);
 
-      // Step 4: Combine the data in JavaScript
-      const combinedData = changeRequestsData.map(cr => ({
-        ...cr,
-        invoices: {
-          ...cr.invoices,
-          quote_requests: quoteRequestsData?.find(qr => qr.id === cr.invoices?.quote_request_id) || {
-            event_name: 'Unknown Event',
-            contact_name: 'Unknown Contact',
-            event_date: ''
-          }
-        }
-      }));
+      if (quoteRequestsError) {
+        console.error('Error fetching quote requests:', quoteRequestsError);
+        throw quoteRequestsError;
+      }
 
+      // Step 4: Manually combine all the data
+      const combinedData = changeRequestsData.map(cr => {
+        const invoice = invoicesData?.find(inv => inv.id === cr.invoice_id);
+        const quoteRequest = quoteRequestsData?.find(qr => qr.id === invoice?.quote_request_id);
+        
+        return {
+          ...cr,
+          invoices: invoice ? {
+            invoice_number: invoice.invoice_number,
+            quote_request_id: invoice.quote_request_id,
+            quote_requests: quoteRequest || {
+              event_name: 'Unknown Event',
+              contact_name: 'Unknown Contact',
+              event_date: ''
+            }
+          } : null
+        };
+      });
+
+      console.log('✅ Final combined data:', combinedData);
       setChangeRequests(combinedData as any);
     } catch (error) {
-      console.error('Error fetching change requests:', error);
+      console.error('💥 Fatal error in fetchChangeRequests:', error);
       toast({
         title: "Error",
-        description: "Failed to load change requests. Please try again.",
+        description: `Failed to load change requests: ${error instanceof Error ? error.message : 'Unknown error'}`,
         variant: "destructive"
       });
     } finally {
