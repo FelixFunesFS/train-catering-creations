@@ -181,20 +181,30 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
 
   const checkExistingInvoice = async (quoteId: string) => {
     try {
+      console.log('🔍 DEBUG: Checking for existing invoice for quote:', quoteId);
+      
+      // Get the most recent invoice for this quote (if multiple exist due to past bugs)
       const { data: invoiceData, error: invoiceError } = await supabase
         .from('invoices')
         .select('*')
         .eq('quote_request_id', quoteId)
+        .order('created_at', { ascending: false })
+        .limit(1)
         .maybeSingle();
 
       if (invoiceError) throw invoiceError;
 
       if (invoiceData) {
+        console.log('🔍 DEBUG: Found existing invoice:', invoiceData.id);
         setInvoice(invoiceData);
         await fetchLineItems(invoiceData.id);
+      } else {
+        console.log('🔍 DEBUG: No existing invoice found');
+        setInvoice(null);
       }
     } catch (error) {
       console.error('Error checking invoice:', error);
+      setInvoice(null);
     }
   };
 
@@ -225,15 +235,23 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
     try {
       setLoading(true);
 
-      // Check if invoice already exists first
-      const { data: existingInvoice } = await supabase
+      console.log('🔍 DEBUG: generateInvoice called for quote:', selectedQuote.id);
+
+      // Check if ANY invoice exists for this quote (most recent one)
+      const { data: existingInvoice, error: checkError } = await supabase
         .from('invoices')
         .select('*')
         .eq('quote_request_id', selectedQuote.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
         .maybeSingle();
 
+      if (checkError) {
+        console.error('🔍 DEBUG: Error checking for existing invoice:', checkError);
+      }
+
       if (existingInvoice) {
-        console.log('Found existing invoice, updating instead of creating:', existingInvoice.id);
+        console.log('🔍 DEBUG: Found existing invoice, reusing:', existingInvoice.id);
         setInvoice(existingInvoice);
         await fetchLineItems(existingInvoice.id);
         setCurrentStep('pricing');
@@ -243,6 +261,8 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
         });
         return;
       }
+
+      console.log('🔍 DEBUG: No existing invoice found, creating new one');
 
       // Create new invoice only if none exists
       const { data: newInvoice, error: invoiceError } = await supabase
