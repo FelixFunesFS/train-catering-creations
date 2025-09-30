@@ -643,6 +643,7 @@ export function UnifiedCustomerDashboard() {
             {data.quote ? (
             <ChangeRequestForm
               quote={data.quote}
+              invoice={data.invoice}
               onRequestSubmitted={() => {
                 toast({
                   title: "Request Submitted",

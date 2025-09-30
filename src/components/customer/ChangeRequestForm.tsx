@@ -13,10 +13,11 @@ import { toast } from '@/hooks/use-toast';
 
 interface ChangeRequestFormProps {
   quote: any;
+  invoice: any;
   onRequestSubmitted: () => void;
 }
 
-export function ChangeRequestForm({ quote, onRequestSubmitted }: ChangeRequestFormProps) {
+export function ChangeRequestForm({ quote, invoice, onRequestSubmitted }: ChangeRequestFormProps) {
   const [formData, setFormData] = useState({
     request_type: 'modification',
     priority: 'medium',
@@ -83,10 +84,15 @@ export function ChangeRequestForm({ quote, onRequestSubmitted }: ChangeRequestFo
         }
       });
 
+      // Validate required data
+      if (!invoice?.id) {
+        throw new Error('Invoice ID is required');
+      }
+
       const { data: newRequest, error } = await supabase
         .from('change_requests')
         .insert({
-          invoice_id: quote.id,
+          invoice_id: invoice.id,
           customer_email: quote.email,
           request_type: formData.request_type,
           priority: formData.urgency ? 'high' : formData.priority,

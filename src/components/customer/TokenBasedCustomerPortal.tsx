@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { EstimatePreviewCard } from './EstimatePreviewCard';
+import { EstimateApprovalWorkflow } from './EstimateApprovalWorkflow';
 import { ChangeRequestForm } from './ChangeRequestForm';
 import { 
   CheckCircle, 
@@ -112,8 +112,14 @@ export function TokenBasedCustomerPortal() {
         quote = quoteData;
       }
 
+      // Structure data to match EstimateApprovalWorkflow expectations
+      const structuredInvoice = {
+        ...invoice,
+        quote_requests: quote || {}
+      };
+
       const customerData: CustomerData = {
-        invoice,
+        invoice: structuredInvoice,
         quote,
         customer
       };
@@ -284,7 +290,8 @@ export function TokenBasedCustomerPortal() {
           </Card>
           
           <ChangeRequestForm 
-            quote={data.quote} 
+            quote={data.quote}
+            invoice={data.invoice}
             onRequestSubmitted={handleChangeRequestSubmitted}
           />
         </main>
@@ -311,13 +318,18 @@ export function TokenBasedCustomerPortal() {
       </header>
 
       <main className="max-w-4xl mx-auto px-4 py-8">
-        <EstimatePreviewCard
-          invoice={data.invoice}
-          quote={data.quote}
-          onViewEstimate={() => {}}
-          onRequestChanges={handleRequestChanges}
-          onMakePayment={handleMakePayment}
-          onApprove={handleApproveEstimate}
+        <EstimateApprovalWorkflow
+          estimate={data.invoice}
+          onApproval={() => {
+            fetchCustomerData();
+            toast({
+              title: "Success!",
+              description: "Your estimate has been approved. Choose a payment option above.",
+            });
+          }}
+          onRejection={() => {
+            setShowChangeForm(true);
+          }}
         />
 
         {/* Contact Information */}

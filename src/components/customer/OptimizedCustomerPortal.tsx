@@ -499,6 +499,7 @@ export function OptimizedCustomerPortal() {
             {data.quote ? (
               <ChangeRequestForm
                 quote={data.quote}
+                invoice={data.invoice}
                 onRequestSubmitted={() => {
                   fetchCustomerData();
                   setActiveTab('overview');
