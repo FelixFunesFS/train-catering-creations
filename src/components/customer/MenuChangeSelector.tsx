@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { 
   X, 
   Plus,
@@ -12,8 +14,19 @@ import {
   Cookie,
   Coffee,
   CheckCircle,
-  Edit
+  Edit,
+  ArrowRight,
+  Minus,
+  ShoppingCart
 } from 'lucide-react';
+
+const MENU_OPTIONS = {
+  appetizers: ['Deviled Eggs', 'Pimento Cheese & Crackers', 'Shrimp & Grits Cups', 'Mini Crab Cakes', 'Bacon Wrapped Scallops'],
+  sides: ['Mac & Cheese', 'Collard Greens', 'Red Rice', 'Green Bean Casserole', 'Cornbread', 'Mashed Potatoes'],
+  desserts: ['Peach Cobbler', 'Sweet Potato Pie', 'Banana Pudding', 'Red Velvet Cake', 'Pralines'],
+  drinks: ['Sweet Tea', 'Lemonade', 'Coffee', 'Punch', 'Water', 'Soda'],
+  proteins: ['Fried Chicken', 'BBQ Ribs', 'Shrimp & Grits', 'Catfish', 'Pulled Pork', 'Brisket']
+};
 
 interface MenuChangeSelectorProps {
   quote: any;
@@ -22,15 +35,16 @@ interface MenuChangeSelectorProps {
 
 export function MenuChangeSelector({ quote, onChange }: MenuChangeSelectorProps) {
   const [menuChanges, setMenuChanges] = useState<any>({
-    proteins: { remove: [], add: [] },
-    appetizers: { remove: [], add: [] },
-    sides: { remove: [], add: [] },
-    desserts: { remove: [], add: [] },
-    drinks: { remove: [], add: [] },
+    proteins: { remove: [], add: [], substitute: {} },
+    appetizers: { remove: [], add: [], substitute: {} },
+    sides: { remove: [], add: [], substitute: {} },
+    desserts: { remove: [], add: [], substitute: {} },
+    drinks: { remove: [], add: [], substitute: {} },
     dietary_restrictions: { add: [] },
     service_options: {},
     custom_requests: ''
   });
+  const [activeTab, setActiveTab] = useState('remove');
 
   const formatArrayField = (field: any): string[] => {
     if (Array.isArray(field)) return field;
@@ -66,6 +80,43 @@ export function MenuChangeSelector({ quote, onChange }: MenuChangeSelectorProps)
     });
   };
 
+  const handleAddItem = (category: string, item: string) => {
+    if (!item) return;
+    setMenuChanges((prev: any) => {
+      const updated = { ...prev };
+      const addList = updated[category].add || [];
+      
+      if (!addList.includes(item)) {
+        updated[category].add = [...addList, item];
+      }
+      
+      onChange(updated);
+      return updated;
+    });
+  };
+
+  const handleRemoveAddition = (category: string, item: string) => {
+    setMenuChanges((prev: any) => {
+      const updated = { ...prev };
+      updated[category].add = (updated[category].add || []).filter((i: string) => i !== item);
+      onChange(updated);
+      return updated;
+    });
+  };
+
+  const handleSubstitute = (category: string, oldItem: string, newItem: string) => {
+    if (!newItem || newItem === oldItem) return;
+    setMenuChanges((prev: any) => {
+      const updated = { ...prev };
+      updated[category].substitute = {
+        ...updated[category].substitute,
+        [oldItem]: newItem
+      };
+      onChange(updated);
+      return updated;
+    });
+  };
+
   const handleServiceToggle = (service: string, checked: boolean) => {
     setMenuChanges((prev: any) => {
       const updated = {
@@ -91,59 +142,283 @@ export function MenuChangeSelector({ quote, onChange }: MenuChangeSelectorProps)
   const hasChanges = () => {
     return (
       menuChanges.proteins.remove.length > 0 ||
+      menuChanges.proteins.add.length > 0 ||
+      Object.keys(menuChanges.proteins.substitute).length > 0 ||
       menuChanges.appetizers.remove.length > 0 ||
+      menuChanges.appetizers.add.length > 0 ||
+      Object.keys(menuChanges.appetizers.substitute).length > 0 ||
       menuChanges.sides.remove.length > 0 ||
+      menuChanges.sides.add.length > 0 ||
+      Object.keys(menuChanges.sides.substitute).length > 0 ||
       menuChanges.desserts.remove.length > 0 ||
+      menuChanges.desserts.add.length > 0 ||
+      Object.keys(menuChanges.desserts.substitute).length > 0 ||
       menuChanges.drinks.remove.length > 0 ||
+      menuChanges.drinks.add.length > 0 ||
+      Object.keys(menuChanges.drinks.substitute).length > 0 ||
       Object.keys(menuChanges.service_options).length > 0 ||
       menuChanges.custom_requests.trim().length > 0
     );
   };
 
-  const RemovableItemSection = ({ 
-    title, 
-    category,
-    items, 
-    icon: Icon 
-  }: { 
-    title: string; 
-    category: string;
-    items: string[]; 
-    icon: any;
-  }) => {
-    if (items.length === 0) return null;
+  const getAvailableItems = (category: string) => {
+    const currentItems = formatArrayField(quote[category]);
+    const addedItems = menuChanges[category].add || [];
+    const allCurrentItems = [...currentItems, ...addedItems];
+    
+    return MENU_OPTIONS[category as keyof typeof MENU_OPTIONS]?.filter(
+      (item: string) => !allCurrentItems.includes(item)
+    ) || [];
+  };
 
-    return (
-      <div className="space-y-2">
+  const RemoveItemsTab = () => (
+    <div className="space-y-6 pt-4">
+      <p className="text-sm text-muted-foreground">
+        Click on any item below to mark it for removal from your menu
+      </p>
+
+      {/* Proteins */}
+      <div className="space-y-3">
         <div className="flex items-center gap-2">
-          <Icon className="h-4 w-4 text-muted-foreground" />
-          <h4 className="font-semibold text-sm">{title}</h4>
+          <UtensilsCrossed className="h-4 w-4 text-muted-foreground" />
+          <h4 className="font-semibold">Proteins</h4>
         </div>
         <div className="flex flex-wrap gap-2">
-          {items.map((item, index) => {
-            const isRemoving = menuChanges[category]?.remove?.includes(item);
-            return (
-              <Badge
-                key={index}
-                variant={isRemoving ? "destructive" : "secondary"}
-                className="text-xs cursor-pointer transition-all"
-                onClick={() => handleToggleRemove(category, item)}
-              >
-                {isRemoving ? (
-                  <>
-                    <X className="h-3 w-3 mr-1" />
-                    Remove: {item}
-                  </>
-                ) : (
-                  <>
-                    {item}
-                    <X className="h-3 w-3 ml-1 opacity-50 hover:opacity-100" />
-                  </>
-                )}
-              </Badge>
-            );
-          })}
+          {quote.primary_protein && (
+            <Badge
+              variant={menuChanges.proteins.remove.includes('primary') ? "destructive" : "secondary"}
+              className="cursor-pointer hover:opacity-80 transition-opacity"
+              onClick={() => handleToggleRemove('proteins', 'primary')}
+            >
+              {menuChanges.proteins.remove.includes('primary') ? (
+                <>
+                  <Minus className="h-3 w-3 mr-1" />
+                  Removing: {quote.primary_protein}
+                </>
+              ) : (
+                <>
+                  Primary: {quote.primary_protein}
+                  <X className="h-3 w-3 ml-1 opacity-50" />
+                </>
+              )}
+            </Badge>
+          )}
+          {quote.secondary_protein && (
+            <Badge
+              variant={menuChanges.proteins.remove.includes('secondary') ? "destructive" : "secondary"}
+              className="cursor-pointer hover:opacity-80 transition-opacity"
+              onClick={() => handleToggleRemove('proteins', 'secondary')}
+            >
+              {menuChanges.proteins.remove.includes('secondary') ? (
+                <>
+                  <Minus className="h-3 w-3 mr-1" />
+                  Removing: {quote.secondary_protein}
+                </>
+              ) : (
+                <>
+                  Secondary: {quote.secondary_protein}
+                  <X className="h-3 w-3 ml-1 opacity-50" />
+                </>
+              )}
+            </Badge>
+          )}
         </div>
+      </div>
+
+      {/* Other Categories */}
+      {[
+        { key: 'appetizers', title: 'Appetizers', icon: Cookie },
+        { key: 'sides', title: 'Sides', icon: UtensilsCrossed },
+        { key: 'desserts', title: 'Desserts', icon: Cookie },
+        { key: 'drinks', title: 'Drinks', icon: Coffee }
+      ].map(({ key, title, icon: Icon }) => {
+        const items = formatArrayField(quote[key]);
+        if (items.length === 0) return null;
+
+        return (
+          <div key={key} className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Icon className="h-4 w-4 text-muted-foreground" />
+              <h4 className="font-semibold">{title}</h4>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {items.map((item, index) => {
+                const isRemoving = menuChanges[key]?.remove?.includes(item);
+                return (
+                  <Badge
+                    key={index}
+                    variant={isRemoving ? "destructive" : "secondary"}
+                    className="cursor-pointer hover:opacity-80 transition-opacity"
+                    onClick={() => handleToggleRemove(key, item)}
+                  >
+                    {isRemoving ? (
+                      <>
+                        <Minus className="h-3 w-3 mr-1" />
+                        Removing: {item}
+                      </>
+                    ) : (
+                      <>
+                        {item}
+                        <X className="h-3 w-3 ml-1 opacity-50" />
+                      </>
+                    )}
+                  </Badge>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+
+  const AddItemsTab = () => (
+    <div className="space-y-6 pt-4">
+      <p className="text-sm text-muted-foreground">
+        Select items from our menu to add to your order
+      </p>
+
+      {[
+        { key: 'appetizers', title: 'Appetizers', icon: Cookie },
+        { key: 'sides', title: 'Sides', icon: UtensilsCrossed },
+        { key: 'desserts', title: 'Desserts', icon: Cookie },
+        { key: 'drinks', title: 'Drinks', icon: Coffee }
+      ].map(({ key, title, icon: Icon }) => {
+        const availableItems = getAvailableItems(key);
+        const addedItems = menuChanges[key].add || [];
+
+        return (
+          <div key={key} className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Icon className="h-4 w-4 text-muted-foreground" />
+              <h4 className="font-semibold">{title}</h4>
+            </div>
+            
+            {/* Dropdown to add items */}
+            <Select onValueChange={(value) => handleAddItem(key, value)}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder={`Add ${title.toLowerCase()}...`} />
+              </SelectTrigger>
+              <SelectContent>
+                {availableItems.length > 0 ? (
+                  availableItems.map((item) => (
+                    <SelectItem key={item} value={item}>
+                      {item}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <SelectItem value="_none" disabled>
+                    No items available
+                  </SelectItem>
+                )}
+              </SelectContent>
+            </Select>
+
+            {/* Display added items */}
+            {addedItems.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {addedItems.map((item, index) => (
+                  <Badge key={index} variant="default" className="gap-1">
+                    <Plus className="h-3 w-3" />
+                    {item}
+                    <X 
+                      className="h-3 w-3 ml-1 cursor-pointer hover:text-destructive" 
+                      onClick={() => handleRemoveAddition(key, item)}
+                    />
+                  </Badge>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })}
+
+      {/* Add protein note */}
+      <div className="rounded-lg border p-3 bg-muted/50">
+        <p className="text-xs text-muted-foreground">
+          <strong>Note:</strong> To change proteins, please use the custom requests tab or contact us directly.
+        </p>
+      </div>
+    </div>
+  );
+
+  const ServiceOptionsTab = () => {
+    const serviceGroups = [
+      {
+        title: 'Staff & Setup',
+        items: [
+          { id: 'wait_staff_requested', label: 'Wait Staff', current: quote.wait_staff_requested },
+          { id: 'bussing_tables_needed', label: 'Bussing Service', current: quote.bussing_tables_needed },
+        ]
+      },
+      {
+        title: 'Serving Equipment',
+        items: [
+          { id: 'chafers_requested', label: 'Chafers (Food Warmers)', current: quote.chafers_requested },
+          { id: 'serving_utensils_requested', label: 'Serving Utensils', current: quote.serving_utensils_requested },
+        ]
+      },
+      {
+        title: 'Table Setup',
+        items: [
+          { id: 'tables_chairs_requested', label: 'Tables & Chairs', current: quote.tables_chairs_requested },
+          { id: 'linens_requested', label: 'Linens', current: quote.linens_requested },
+        ]
+      },
+      {
+        title: 'Dining Supplies',
+        items: [
+          { id: 'plates_requested', label: 'Plates', current: quote.plates_requested },
+          { id: 'cups_requested', label: 'Cups', current: quote.cups_requested },
+          { id: 'napkins_requested', label: 'Napkins', current: quote.napkins_requested },
+        ]
+      }
+    ];
+
+    return (
+      <div className="space-y-6 pt-4">
+        <p className="text-sm text-muted-foreground">
+          Add or remove service options for your event
+        </p>
+
+        {serviceGroups.map((group) => (
+          <div key={group.title} className="space-y-3">
+            <h4 className="font-semibold text-sm">{group.title}</h4>
+            <div className="space-y-2">
+              {group.items.map((service) => {
+                const isChanged = menuChanges.service_options.hasOwnProperty(service.id);
+                const currentValue = isChanged 
+                  ? menuChanges.service_options[service.id]
+                  : service.current;
+
+                return (
+                  <div key={service.id} className="flex items-center justify-between p-3 rounded-lg border bg-card">
+                    <div className="flex items-center gap-3">
+                      <Label htmlFor={service.id} className="font-normal cursor-pointer">
+                        {service.label}
+                      </Label>
+                      {service.current && !isChanged && (
+                        <Badge variant="outline" className="text-xs">
+                          Currently included
+                        </Badge>
+                      )}
+                      {isChanged && (
+                        <Badge variant="secondary" className="text-xs">
+                          {currentValue ? 'Adding' : 'Removing'}
+                        </Badge>
+                      )}
+                    </div>
+                    <Switch
+                      id={service.id}
+                      checked={currentValue}
+                      onCheckedChange={(checked) => handleServiceToggle(service.id, checked)}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </div>
     );
   };
@@ -151,158 +426,119 @@ export function MenuChangeSelector({ quote, onChange }: MenuChangeSelectorProps)
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg flex items-center gap-2">
-          <Edit className="h-5 w-5" />
+        <CardTitle className="flex items-center gap-2">
+          <ShoppingCart className="h-5 w-5" />
           Request Menu Changes
         </CardTitle>
         <p className="text-sm text-muted-foreground">
-          Click on items to remove them or add custom requests below
+          Customize your menu selections using the organized tabs below
         </p>
       </CardHeader>
-      <CardContent className="space-y-6">
-        {/* Proteins */}
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <UtensilsCrossed className="h-4 w-4 text-muted-foreground" />
-            <h4 className="font-semibold text-sm">Proteins</h4>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {quote.primary_protein && (
-              <Badge
-                variant={menuChanges.proteins.remove.includes('primary') ? "destructive" : "default"}
-                className="text-xs cursor-pointer"
-                onClick={() => handleToggleRemove('proteins', 'primary')}
-              >
-                {menuChanges.proteins.remove.includes('primary') && <X className="h-3 w-3 mr-1" />}
-                Primary: {quote.primary_protein}
-                {!menuChanges.proteins.remove.includes('primary') && <X className="h-3 w-3 ml-1 opacity-50" />}
-              </Badge>
-            )}
-            {quote.secondary_protein && (
-              <Badge
-                variant={menuChanges.proteins.remove.includes('secondary') ? "destructive" : "default"}
-                className="text-xs cursor-pointer"
-                onClick={() => handleToggleRemove('proteins', 'secondary')}
-              >
-                {menuChanges.proteins.remove.includes('secondary') && <X className="h-3 w-3 mr-1" />}
-                Secondary: {quote.secondary_protein}
-                {!menuChanges.proteins.remove.includes('secondary') && <X className="h-3 w-3 ml-1 opacity-50" />}
-              </Badge>
-            )}
-          </div>
-        </div>
+      <CardContent>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="remove" className="text-xs sm:text-sm">
+              <Minus className="h-4 w-4 mr-1" />
+              Remove Items
+            </TabsTrigger>
+            <TabsTrigger value="add" className="text-xs sm:text-sm">
+              <Plus className="h-4 w-4 mr-1" />
+              Add Items
+            </TabsTrigger>
+            <TabsTrigger value="services" className="text-xs sm:text-sm">
+              <CheckCircle className="h-4 w-4 mr-1" />
+              Services
+            </TabsTrigger>
+          </TabsList>
 
-        {/* Menu Items */}
-        <RemovableItemSection 
-          title="Appetizers" 
-          category="appetizers"
-          items={currentAppetizers} 
-          icon={Cookie}
-        />
+          <TabsContent value="remove">
+            <RemoveItemsTab />
+          </TabsContent>
 
-        <RemovableItemSection 
-          title="Sides" 
-          category="sides"
-          items={currentSides} 
-          icon={UtensilsCrossed}
-        />
+          <TabsContent value="add">
+            <AddItemsTab />
+          </TabsContent>
 
-        <RemovableItemSection 
-          title="Desserts" 
-          category="desserts"
-          items={currentDesserts} 
-          icon={Cookie}
-        />
+          <TabsContent value="services">
+            <ServiceOptionsTab />
+          </TabsContent>
+        </Tabs>
 
-        <RemovableItemSection 
-          title="Drinks" 
-          category="drinks"
-          items={currentDrinks} 
-          icon={Coffee}
-        />
-
-        {/* Service Options */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
-            <h4 className="font-semibold text-sm">Service Options Changes</h4>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            {[
-              { id: 'wait_staff_requested', label: 'Wait Staff', current: quote.wait_staff_requested },
-              { id: 'chafers_requested', label: 'Chafers', current: quote.chafers_requested },
-              { id: 'tables_chairs_requested', label: 'Tables & Chairs', current: quote.tables_chairs_requested },
-              { id: 'serving_utensils_requested', label: 'Serving Utensils', current: quote.serving_utensils_requested },
-              { id: 'plates_requested', label: 'Plates', current: quote.plates_requested },
-              { id: 'cups_requested', label: 'Cups', current: quote.cups_requested },
-              { id: 'napkins_requested', label: 'Napkins', current: quote.napkins_requested },
-            ].map((service) => (
-              <div key={service.id} className="flex items-center space-x-2">
-                <Checkbox
-                  id={service.id}
-                  checked={menuChanges.service_options[service.id] ?? service.current}
-                  onCheckedChange={(checked) => handleServiceToggle(service.id, checked as boolean)}
-                />
-                <Label 
-                  htmlFor={service.id} 
-                  className="text-sm cursor-pointer"
-                >
-                  {service.label}
-                  {service.current && (
-                    <span className="text-xs text-muted-foreground ml-1">(current)</span>
-                  )}
-                </Label>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Custom Requests */}
-        <div className="space-y-2">
-          <Label htmlFor="custom-requests" className="flex items-center gap-2">
-            <Plus className="h-4 w-4" />
-            Additional Requests or Substitutions
+        {/* Custom Requests Section */}
+        <div className="mt-6 space-y-3">
+          <Label htmlFor="custom-requests" className="flex items-center gap-2 font-semibold">
+            <Edit className="h-4 w-4" />
+            Additional Custom Requests
           </Label>
           <Textarea
             id="custom-requests"
-            placeholder="Example: 'Add baked salmon instead of fried chicken' or 'Need 2 additional vegetarian meals' or 'Add cocktail napkins'"
+            placeholder="Have a special request? Let us know here! Examples: dietary substitutions, specific preparations, timing requirements, etc."
             value={menuChanges.custom_requests}
             onChange={(e) => handleCustomRequestChange(e.target.value)}
-            rows={4}
+            rows={3}
             className="resize-none"
           />
           <p className="text-xs text-muted-foreground">
-            Specify any additions, substitutions, or special menu requests here
+            Describe any special requests not covered above
           </p>
         </div>
 
         {/* Changes Summary */}
         {hasChanges() && (
-          <div className="border rounded-lg p-4 bg-muted/50">
-            <h4 className="font-medium mb-2 text-sm">Your Requested Changes:</h4>
-            <ul className="text-xs text-muted-foreground space-y-1">
-              {menuChanges.proteins.remove.length > 0 && (
-                <li>• Remove proteins: {menuChanges.proteins.remove.join(', ')}</li>
-              )}
-              {menuChanges.appetizers.remove.length > 0 && (
-                <li>• Remove appetizers: {menuChanges.appetizers.remove.join(', ')}</li>
-              )}
-              {menuChanges.sides.remove.length > 0 && (
-                <li>• Remove sides: {menuChanges.sides.remove.join(', ')}</li>
-              )}
-              {menuChanges.desserts.remove.length > 0 && (
-                <li>• Remove desserts: {menuChanges.desserts.remove.join(', ')}</li>
-              )}
-              {menuChanges.drinks.remove.length > 0 && (
-                <li>• Remove drinks: {menuChanges.drinks.remove.join(', ')}</li>
-              )}
+          <div className="mt-6 border rounded-lg p-4 bg-accent/50">
+            <div className="flex items-center gap-2 mb-3">
+              <CheckCircle className="h-4 w-4 text-primary" />
+              <h4 className="font-semibold">Your Change Summary</h4>
+            </div>
+            <div className="space-y-2 text-sm">
+              {/* Removals */}
+              {['proteins', 'appetizers', 'sides', 'desserts', 'drinks'].map((category) => {
+                const removes = menuChanges[category]?.remove || [];
+                if (removes.length === 0) return null;
+                return (
+                  <div key={`remove-${category}`} className="flex items-start gap-2">
+                    <Minus className="h-4 w-4 text-destructive mt-0.5 flex-shrink-0" />
+                    <span className="text-muted-foreground">
+                      Remove {category}: <span className="font-medium text-foreground">{removes.join(', ')}</span>
+                    </span>
+                  </div>
+                );
+              })}
+
+              {/* Additions */}
+              {['appetizers', 'sides', 'desserts', 'drinks'].map((category) => {
+                const adds = menuChanges[category]?.add || [];
+                if (adds.length === 0) return null;
+                return (
+                  <div key={`add-${category}`} className="flex items-start gap-2">
+                    <Plus className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                    <span className="text-muted-foreground">
+                      Add {category}: <span className="font-medium text-foreground">{adds.join(', ')}</span>
+                    </span>
+                  </div>
+                );
+              })}
+
+              {/* Service Changes */}
               {Object.keys(menuChanges.service_options).length > 0 && (
-                <li>• Service option changes requested</li>
+                <div className="flex items-start gap-2">
+                  <CheckCircle className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                  <span className="text-muted-foreground">
+                    Service updates: <span className="font-medium text-foreground">{Object.keys(menuChanges.service_options).length} change(s)</span>
+                  </span>
+                </div>
               )}
-              {menuChanges.custom_requests && (
-                <li>• Custom requests provided</li>
+
+              {/* Custom Requests */}
+              {menuChanges.custom_requests.trim() && (
+                <div className="flex items-start gap-2">
+                  <Edit className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                  <span className="text-muted-foreground">
+                    Custom requests provided
+                  </span>
+                </div>
               )}
-            </ul>
+            </div>
           </div>
         )}
       </CardContent>
