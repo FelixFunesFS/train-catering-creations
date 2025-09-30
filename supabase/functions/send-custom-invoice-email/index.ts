@@ -89,10 +89,8 @@ serve(async (req) => {
       );
     }
 
-    // Validate customer email exists - check multiple possible locations
-    const customerEmail = estimateDetails.customer_email || 
-                         estimateDetails.customers?.email || 
-                         estimateDetails.quote_requests?.email;
+    // Validate customer email exists
+    const customerEmail = estimateDetails.customer_email || estimateDetails.customers?.email;
     if (!customerEmail) {
       throw new Error('Customer email not found. Cannot send estimate.');
     }
@@ -285,6 +283,17 @@ If you have any questions or would like to make adjustments, please don't hesita
 Best regards,
 Soul Train's Eatery Team`}
         </div>
+      </div>
+
+      <div class="event-details">
+        <h3>📅 Event Details</h3>
+        ${eventDate ? `<div class="detail-row"><span class="detail-label">Date:</span> <span>${formatDate(eventDate)}</span></div>` : ''}
+        ${serviceDetails.start_time ? `<div class="detail-row"><span class="detail-label">Start Time:</span> <span>${serviceDetails.start_time}</span></div>` : ''}
+        ${eventLocation ? `<div class="detail-row"><span class="detail-label">Location:</span> <span>${eventLocation}</span></div>` : ''}
+        ${guestCount ? `<div class="detail-row"><span class="detail-label">Expected Guests:</span> <span>${guestCount}</span></div>` : ''}
+        ${serviceDetails.service_type ? `<div class="detail-row"><span class="detail-label">Service Type:</span> <span>${formatServiceType(serviceDetails.service_type)}</span></div>` : ''}
+        <div class="detail-row"><span class="detail-label">Customer:</span> <span>${customerName}</span></div>
+        ${customerEmail ? `<div class="detail-row"><span class="detail-label">Email:</span> <span>${customerEmail}</span></div>` : ''}
       </div>
 
       ${serviceDetails.primary_protein || serviceDetails.appetizers?.length > 0 || serviceDetails.sides?.length > 0 ? `
