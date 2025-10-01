@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { generateProfessionalLineItems } from '@/utils/invoiceFormatters';
 
 export interface ChangeRequest {
   id: string;
@@ -146,6 +147,193 @@ export function useSimplifiedChangeRequests(invoiceId?: string) {
         .eq('id', invoice.quote_request_id);
 
       if (updateQuoteError) throw updateQuoteError;
+
+      // Fetch updated quote to regenerate line items
+      const { data: updatedQuote, error: fetchQuoteError } = await supabase
+        .from('quote_requests')
+        .select('*')
+        .eq('id', invoice.quote_request_id)
+        .single();
+
+      if (fetchQuoteError || !updatedQuote) {
+        throw new Error('Failed to fetch updated quote');
+      }
+
+      // Parse JSON fields for line item generation
+      const parseJsonField = (field: any): any[] => {
+        if (Array.isArray(field)) return field;
+        if (typeof field === 'string') {
+          try {
+            const parsed = JSON.parse(field);
+            return Array.isArray(parsed) ? parsed : [];
+          } catch {
+            return [];
+          }
+        }
+        return [];
+      };
+
+      const quoteForLineItems = {
+        ...updatedQuote,
+        appetizers: parseJsonField(updatedQuote.appetizers),
+        sides: parseJsonField(updatedQuote.sides),
+        desserts: parseJsonField(updatedQuote.desserts),
+        drinks: parseJsonField(updatedQuote.drinks),
+        dietary_restrictions: parseJsonField(updatedQuote.dietary_restrictions),
+        utensils: parseJsonField(updatedQuote.utensils),
+        extras: parseJsonField(updatedQuote.extras)
+      };
+
+      // Delete existing quote line items
+      const { error: deleteLineItemsError } = await supabase
+        .from('quote_line_items')
+        .delete()
+        .eq('quote_request_id', invoice.quote_request_id);
+
+      if (deleteLineItemsError) {
+        console.error('Error deleting old line items:', deleteLineItemsError);
+      }
+
+      // Regenerate quote line items with updated data
+      const newLineItems = generateProfessionalLineItems(quoteForLineItems as any);
+      
+      if (newLineItems.length > 0) {
+        const lineItemsToInsert = newLineItems.map(item => ({
+          quote_request_id: invoice.quote_request_id,
+          title: item.title,
+          description: item.description,
+          category: item.category || 'other',
+          quantity: item.quantity || 1,
+          unit_price: item.unit_price || 0,
+          total_price: item.total_price || 0
+        }));
+
+        const { error: insertLineItemsError } = await supabase
+          .from('quote_line_items')
+          .insert(lineItemsToInsert);
+
+        if (insertLineItemsError) {
+          console.error('Error inserting new line items:', insertLineItemsError);
+        }
+      }
+
+      // Log detailed history entries for menu changes
+      const historyEntries = [];
+      
+      if (changes.menu_changes) {
+        const menuChanges = changes.menu_changes;
+        
+        // Log protein removals
+        if (menuChanges.proteins?.remove) {
+          const removedProteins = [];
+          if (menuChanges.proteins.remove.includes('primary') && currentQuote.primary_protein) {
+            removedProteins.push(currentQuote.primary_protein);
+          }
+          if (menuChanges.proteins.remove.includes('secondary') && currentQuote.secondary_protein) {
+            removedProteins.push(currentQuote.secondary_protein);
+          }
+          
+          if (removedProteins.length > 0) {
+            historyEntries.push({
+              quote_request_id: invoice.quote_request_id,
+              field_name: 'proteins',
+              old_value: removedProteins.join(', '),
+              new_value: null,
+              changed_by: 'admin',
+              change_reason: `Change Request #${changeRequest.id.substring(0, 8)} - Removed proteins`
+            });
+          }
+        }
+
+        // Log protein additions
+        if (menuChanges.proteins?.add) {
+          const addedProteins = [];
+          if (menuChanges.proteins.add.primary) addedProteins.push(menuChanges.proteins.add.primary);
+          if (menuChanges.proteins.add.secondary) addedProteins.push(menuChanges.proteins.add.secondary);
+          
+          if (addedProteins.length > 0) {
+            historyEntries.push({
+              quote_request_id: invoice.quote_request_id,
+              field_name: 'proteins',
+              old_value: null,
+              new_value: addedProteins.join(', '),
+              changed_by: 'admin',
+              change_reason: `Change Request #${changeRequest.id.substring(0, 8)} - Added proteins`
+            });
+          }
+        }
+
+        // Log menu item changes for each category
+        const categories = ['appetizers', 'sides', 'desserts', 'drinks'];
+        for (const category of categories) {
+          if (menuChanges[category]?.remove?.length > 0) {
+            historyEntries.push({
+              quote_request_id: invoice.quote_request_id,
+              field_name: category,
+              old_value: menuChanges[category].remove.join(', '),
+              new_value: null,
+              changed_by: 'admin',
+              change_reason: `Change Request #${changeRequest.id.substring(0, 8)} - Removed ${category}`
+            });
+          }
+          
+          if (menuChanges[category]?.add?.length > 0) {
+            historyEntries.push({
+              quote_request_id: invoice.quote_request_id,
+              field_name: category,
+              old_value: null,
+              new_value: menuChanges[category].add.join(', '),
+              changed_by: 'admin',
+              change_reason: `Change Request #${changeRequest.id.substring(0, 8)} - Added ${category}`
+            });
+          }
+        }
+      }
+
+      // Log event detail changes
+      if (changes.event_date && changes.event_date !== currentQuote.event_date) {
+        historyEntries.push({
+          quote_request_id: invoice.quote_request_id,
+          field_name: 'event_date',
+          old_value: currentQuote.event_date,
+          new_value: changes.event_date,
+          changed_by: 'admin',
+          change_reason: `Change Request #${changeRequest.id.substring(0, 8)} - Event date changed`
+        });
+      }
+
+      if (changes.guest_count && parseInt(changes.guest_count) !== currentQuote.guest_count) {
+        historyEntries.push({
+          quote_request_id: invoice.quote_request_id,
+          field_name: 'guest_count',
+          old_value: String(currentQuote.guest_count),
+          new_value: changes.guest_count,
+          changed_by: 'admin',
+          change_reason: `Change Request #${changeRequest.id.substring(0, 8)} - Guest count changed`
+        });
+      }
+
+      if (changes.location && changes.location !== currentQuote.location) {
+        historyEntries.push({
+          quote_request_id: invoice.quote_request_id,
+          field_name: 'location',
+          old_value: currentQuote.location,
+          new_value: changes.location,
+          changed_by: 'admin',
+          change_reason: `Change Request #${changeRequest.id.substring(0, 8)} - Location changed`
+        });
+      }
+
+      // Insert all history entries
+      if (historyEntries.length > 0) {
+        const { error: historyError } = await supabase
+          .from('quote_request_history')
+          .insert(historyEntries);
+
+        if (historyError) {
+          console.error('Error logging history:', historyError);
+        }
+      }
 
       // Calculate new invoice total
       const costChangeCents = (options.finalCostChange || changeRequest.estimated_cost_change || 0);

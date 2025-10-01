@@ -91,6 +91,24 @@ export function EnhancedHistoryPanel({
     return fieldName.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
   };
 
+  const formatMenuValue = (value: string | null, fieldName: string) => {
+    if (!value) return null;
+    
+    // For menu categories, format as a list
+    if (['appetizers', 'sides', 'desserts', 'drinks', 'proteins'].includes(fieldName)) {
+      const items = value.split(',').map(item => item.trim());
+      return (
+        <ul className="list-disc list-inside space-y-1">
+          {items.map((item, i) => (
+            <li key={i} className="text-sm">{item}</li>
+          ))}
+        </ul>
+      );
+    }
+    
+    return <span className="text-sm">{value}</span>;
+  };
+
   const getChangeTypeColor = (entry: HistoryEntry) => {
     if (!entry.old_value && entry.new_value) return 'bg-success/10 border-success/20';
     if (entry.old_value && !entry.new_value) return 'bg-destructive/10 border-destructive/20';
@@ -244,19 +262,19 @@ export function EnhancedHistoryPanel({
                         <div className="space-y-3">
                           {entry.old_value && (
                             <div className="bg-destructive/5 border border-destructive/20 rounded-md p-3">
-                              <p className="text-xs font-medium text-destructive mb-1">Previous Value:</p>
-                              <p className="text-sm break-words font-mono bg-destructive/10 p-2 rounded">
-                                {entry.old_value}
-                              </p>
+                              <p className="text-xs font-medium text-destructive mb-1">Removed:</p>
+                              <div className="bg-destructive/10 p-2 rounded">
+                                {formatMenuValue(entry.old_value, entry.field_name) || entry.old_value}
+                              </div>
                             </div>
                           )}
                           
                           {entry.new_value && (
                             <div className="bg-success/5 border border-success/20 rounded-md p-3">
-                              <p className="text-xs font-medium text-success mb-1">New Value:</p>
-                              <p className="text-sm break-words font-mono bg-success/10 p-2 rounded">
-                                {entry.new_value}
-                              </p>
+                              <p className="text-xs font-medium text-success mb-1">Added:</p>
+                              <div className="bg-success/10 p-2 rounded">
+                                {formatMenuValue(entry.new_value, entry.field_name) || entry.new_value}
+                              </div>
                             </div>
                           )}
                           
