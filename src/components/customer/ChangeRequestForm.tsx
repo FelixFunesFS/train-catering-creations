@@ -178,38 +178,19 @@ export function ChangeRequestForm({ quote, invoice, onRequestSubmitted }: Change
 
           <Separator />
 
-          {/* Request Type */}
-          <div className="space-y-3">
-            <Label className="text-base font-medium">Type of Change Request</Label>
-            <RadioGroup
-              value={formData.request_type}
-              onValueChange={(value) => handleInputChange('request_type', value)}
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="modification" id="modification" />
-                <Label htmlFor="modification">Modify existing details</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="addition" id="addition" />
-                <Label htmlFor="addition">Add services or items</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="reduction" id="reduction" />
-                <Label htmlFor="reduction">Remove services or reduce scope</Label>
-              </div>
-            </RadioGroup>
-          </div>
-
-          {/* Event Details Changes */}
+          {/* Event Details - Only if different from current */}
           <div className="space-y-4">
-            <h4 className="font-medium text-base border-b pb-2">Event Details</h4>
+            <h4 className="font-medium text-base border-b pb-2 flex items-center gap-2">
+              <Calendar className="h-4 w-4" />
+              Event Details Changes (Optional)
+            </h4>
+            <p className="text-sm text-muted-foreground">
+              Only fill in the fields you want to change. Leave others as-is.
+            </p>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="new_event_date" className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4" />
-                  New Event Date
-                </Label>
+                <Label htmlFor="new_event_date">Event Date</Label>
                 <Input
                   id="new_event_date"
                   type="date"
@@ -222,10 +203,7 @@ export function ChangeRequestForm({ quote, invoice, onRequestSubmitted }: Change
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="new_start_time" className="flex items-center gap-2">
-                  <Clock className="h-4 w-4" />
-                  New Start Time
-                </Label>
+                <Label htmlFor="new_start_time">Start Time</Label>
                 <Input
                   id="new_start_time"
                   type="time"
@@ -238,10 +216,7 @@ export function ChangeRequestForm({ quote, invoice, onRequestSubmitted }: Change
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="new_guest_count" className="flex items-center gap-2">
-                  <Users className="h-4 w-4" />
-                  New Guest Count
-                </Label>
+                <Label htmlFor="new_guest_count">Guest Count</Label>
                 <Input
                   id="new_guest_count"
                   type="number"
@@ -255,10 +230,7 @@ export function ChangeRequestForm({ quote, invoice, onRequestSubmitted }: Change
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="new_location" className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4" />
-                  New Location
-                </Label>
+                <Label htmlFor="new_location">Location</Label>
                 <Input
                   id="new_location"
                   value={formData.new_location}
@@ -273,50 +245,29 @@ export function ChangeRequestForm({ quote, invoice, onRequestSubmitted }: Change
           </div>
 
 
-          {/* Additional Comments */}
-          <div className="space-y-2">
-            <Label htmlFor="customer_comments">Additional Comments</Label>
-            <Textarea
-              id="customer_comments"
-              value={formData.customer_comments}
-              onChange={(e) => handleInputChange('customer_comments', e.target.value)}
-              placeholder="Any additional information or special requests..."
-              rows={3}
-            />
-          </div>
+          {/* Additional Comments & Urgency */}
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="customer_comments">Additional Comments or Special Requests</Label>
+              <Textarea
+                id="customer_comments"
+                value={formData.customer_comments}
+                onChange={(e) => handleInputChange('customer_comments', e.target.value)}
+                placeholder="Any additional information we should know about your changes..."
+                rows={3}
+              />
+            </div>
 
-          {/* Contact Preferences */}
-          <div className="space-y-3">
-            <Label className="text-base font-medium">Preferred Contact Method</Label>
-            <RadioGroup
-              value={formData.contact_preference}
-              onValueChange={(value) => handleInputChange('contact_preference', value)}
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="email" id="email" />
-                <Label htmlFor="email">Email</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="phone" id="phone" />
-                <Label htmlFor="phone">Phone Call</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="both" id="both" />
-                <Label htmlFor="both">Both Email and Phone</Label>
-              </div>
-            </RadioGroup>
-          </div>
-
-          {/* Urgency */}
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="urgency"
-              checked={formData.urgency}
-              onCheckedChange={(checked) => handleInputChange('urgency', checked)}
-            />
-            <Label htmlFor="urgency" className="text-sm font-medium">
-              This is urgent (event is within 7 days)
-            </Label>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="urgency"
+                checked={formData.urgency}
+                onCheckedChange={(checked) => handleInputChange('urgency', checked)}
+              />
+              <Label htmlFor="urgency" className="text-sm font-medium">
+                This is urgent (event is within 7 days)
+              </Label>
+            </div>
           </div>
 
           {/* Info Message */}
