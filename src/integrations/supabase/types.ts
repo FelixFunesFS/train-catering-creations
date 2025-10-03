@@ -480,6 +480,53 @@ export type Database = {
           },
         ]
       }
+      event_timeline_tasks: {
+        Row: {
+          completed: boolean | null
+          completed_at: string | null
+          completed_by: string | null
+          created_at: string | null
+          due_date: string | null
+          id: string
+          notes: string | null
+          quote_request_id: string
+          task_name: string
+          task_type: string
+        }
+        Insert: {
+          completed?: boolean | null
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string | null
+          due_date?: string | null
+          id?: string
+          notes?: string | null
+          quote_request_id: string
+          task_name: string
+          task_type: string
+        }
+        Update: {
+          completed?: boolean | null
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string | null
+          due_date?: string | null
+          id?: string
+          notes?: string | null
+          quote_request_id?: string
+          task_name?: string
+          task_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_timeline_tasks_quote_request_id_fkey"
+            columns: ["quote_request_id"]
+            isOneToOne: false
+            referencedRelation: "quote_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       gmail_tokens: {
         Row: {
           access_token: string
@@ -692,6 +739,8 @@ export type Database = {
       }
       invoices: {
         Row: {
+          contract_id: string | null
+          contract_signed_at: string | null
           created_at: string
           currency: string | null
           customer_access_token: string | null
@@ -738,6 +787,8 @@ export type Database = {
             | null
         }
         Insert: {
+          contract_id?: string | null
+          contract_signed_at?: string | null
           created_at?: string
           currency?: string | null
           customer_access_token?: string | null
@@ -784,6 +835,8 @@ export type Database = {
             | null
         }
         Update: {
+          contract_id?: string | null
+          contract_signed_at?: string | null
           created_at?: string
           currency?: string | null
           customer_access_token?: string | null
@@ -830,6 +883,13 @@ export type Database = {
             | null
         }
         Relationships: [
+          {
+            foreignKeyName: "invoices_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "invoices_customer_id_fkey"
             columns: ["customer_id"]

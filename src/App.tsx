@@ -32,6 +32,7 @@ import EstimatePreview from "./pages/EstimatePreview";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCanceled from "./pages/PaymentCanceled";
 import ContractManagement from "./pages/ContractManagement";
+import ContractSigning from "./pages/ContractSigning";
 import { OptimizedCustomerPortal } from "./components/customer/OptimizedCustomerPortal";
 import { TokenBasedCustomerPortal } from "./components/customer/TokenBasedCustomerPortal";
 import UnifiedAdminDashboard from "./pages/UnifiedAdminDashboard";
@@ -79,6 +80,7 @@ const AppContent = () => {
           <Route path="/customer-portal" element={<TokenBasedCustomerPortal />} />
           <Route path="/customer/estimate/:token" element={<TokenBasedCustomerPortal />} />
           <Route path="/estimate-preview/:token" element={<TokenBasedCustomerPortal />} />
+          <Route path="/contract/:contractId/:accessToken" element={<ContractSigning />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/payment-canceled" element={<PaymentCanceled />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
