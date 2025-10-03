@@ -37,29 +37,33 @@ export const useQuoteToEstimate = () => {
       const calculation = engine.calculateQuote(quote);
 
       // Create estimate (invoice with document_type='estimate')
-      const { data: invoice, error: invoiceError } = await supabase
-        .from('invoices')
-        .insert({
-          quote_request_id: quoteId,
-          document_type: 'estimate',
-          status: 'draft',
-          is_draft: true,
-          subtotal: calculation.subtotal,
-          tax_amount: calculation.taxAmount,
-          total_amount: calculation.total,
-          currency: 'usd',
-          notes: calculation.suggestions.join('\n'),
-          draft_data: {
-            calculation,
-            generated_at: new Date().toISOString()
-          }
-        })
-        .select()
-        .single();
+      const invoiceData = {
+        quote_request_id: quoteId,
+        document_type: 'estimate' as const,
+        status: 'draft',
+        is_draft: true,
+        subtotal: Math.round(calculation.subtotal * 100), // Convert to cents
+        tax_amount: Math.round(calculation.taxAmount * 100), // Convert to cents
+        total_amount: Math.round(calculation.total * 100), // Convert to cents
+        currency: 'usd',
+        notes: calculation.suggestions.join('\n'),
+        draft_data: JSON.parse(JSON.stringify({
+          calculation,
+          generated_at: new Date().toISOString()
+        }))
+      };
 
-      if (invoiceError || !invoice) {
+      const { data: invoiceArray, error: invoiceError } = await supabase
+        .from('invoices')
+        .insert([invoiceData])
+        .select();
+
+      if (invoiceError || !invoiceArray || invoiceArray.length === 0) {
+        console.error('Invoice error:', invoiceError);
         throw new Error('Failed to create estimate');
       }
+
+      const invoice = invoiceArray[0];
 
       // Create line items
       const lineItems = calculation.lineItems.map(item => ({

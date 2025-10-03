@@ -103,13 +103,13 @@ export const QuickResponseTemplates = ({
       if (error) throw error;
 
       // Log message to thread
-      const { data: thread } = await supabase
+      const { data: thread, error: threadError } = await supabase
         .from('message_threads')
         .select('id')
         .eq('quote_request_id', quoteId)
-        .single();
+        .maybeSingle();
 
-      if (thread) {
+      if (!threadError && thread) {
         await supabase.from('messages').insert({
           thread_id: thread.id,
           sender_type: 'admin',

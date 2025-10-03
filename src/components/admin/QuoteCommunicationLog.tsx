@@ -34,13 +34,20 @@ export const QuoteCommunicationLog = ({ quoteId }: QuoteCommunicationLogProps) =
     setIsLoading(true);
     try {
       // Get or create message thread
-      let { data: thread, error: threadError } = await supabase
+      const { data: thread, error: threadError } = await supabase
         .from('message_threads')
         .select('id')
         .eq('quote_request_id', quoteId)
-        .single();
+        .maybeSingle();
 
-      if (threadError && threadError.code === 'PGRST116') {
+      if (threadError) {
+        console.error('Error fetching thread:', threadError);
+        return;
+      }
+
+      let threadId = thread?.id;
+
+      if (!threadId) {
         // Thread doesn't exist, create it
         const { data: newThread, error: createError } = await supabase
           .from('message_threads')
@@ -49,22 +56,20 @@ export const QuoteCommunicationLog = ({ quoteId }: QuoteCommunicationLogProps) =
             subject: 'Quote Communication'
           })
           .select()
-          .single();
+          .maybeSingle();
 
-        if (createError) {
+        if (createError || !newThread) {
           console.error('Error creating thread:', createError);
           return;
         }
-        thread = newThread;
+        threadId = newThread.id;
       }
-
-      if (!thread) return;
 
       // Load messages
       const { data: messagesData, error: messagesError } = await supabase
         .from('messages')
         .select('*')
-        .eq('thread_id', thread.id)
+        .eq('thread_id', threadId)
         .order('created_at', { ascending: true });
 
       if (messagesError) {

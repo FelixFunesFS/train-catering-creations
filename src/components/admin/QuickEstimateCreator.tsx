@@ -39,10 +39,15 @@ export const QuickEstimateCreator = ({
         .from('quote_requests')
         .select('*')
         .eq('id', quoteId)
-        .single();
+        .maybeSingle();
 
-      if (quoteError || !quoteData) {
+      if (quoteError) {
+        console.error('Error fetching quote:', quoteError);
         throw new Error('Failed to fetch quote');
+      }
+
+      if (!quoteData) {
+        throw new Error('Quote not found');
       }
 
       setQuote(quoteData);
@@ -72,23 +77,29 @@ export const QuickEstimateCreator = ({
 
     setIsSending(true);
     try {
-      const { data: invoice, error: invoiceError } = await supabase
-        .from('invoices')
-        .insert({
-          quote_request_id: quoteId,
-          document_type: 'estimate',
-          status: 'draft',
-          is_draft: true,
-          subtotal: Math.round(calculation.subtotal * 100),
-          tax_amount: Math.round(calculation.taxAmount * 100),
-          total_amount: Math.round(calculation.total * 100),
-          notes: calculation.suggestions.join('\n'),
-          draft_data: { calculation }
-        })
-        .select()
-        .single();
+      const invoiceData = {
+        quote_request_id: quoteId,
+        document_type: 'estimate' as const,
+        status: 'draft',
+        is_draft: true,
+        subtotal: Math.round(calculation.subtotal * 100),
+        tax_amount: Math.round(calculation.taxAmount * 100),
+        total_amount: Math.round(calculation.total * 100),
+        notes: calculation.suggestions.join('\n'),
+        draft_data: JSON.parse(JSON.stringify({ calculation }))
+      };
 
-      if (invoiceError) throw invoiceError;
+      const { data: invoiceArray, error: invoiceError } = await supabase
+        .from('invoices')
+        .insert([invoiceData])
+        .select();
+
+      if (invoiceError || !invoiceArray || invoiceArray.length === 0) {
+        console.error('Invoice error:', invoiceError);
+        throw invoiceError || new Error('No invoice returned');
+      }
+
+      const invoice = invoiceArray[0];
 
       // Create line items
       const lineItems = calculation.lineItems.map((item: any) => ({
