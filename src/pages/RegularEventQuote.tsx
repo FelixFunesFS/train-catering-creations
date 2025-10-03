@@ -3,8 +3,12 @@ import { RegularEventQuoteForm } from "@/components/quote/RegularEventQuoteForm"
 import { RequestThrottling } from "@/components/security/RequestThrottling";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
+import { useFormAnalytics } from "@/hooks/useFormAnalytics";
 
 export default function RegularEventQuote() {
+  // Track page view
+  useFormAnalytics({ formType: 'regular_event' });
+  
   const { ref: heroRef, isVisible: heroVisible } = useScrollAnimation({
     threshold: 0.1,
     triggerOnce: true

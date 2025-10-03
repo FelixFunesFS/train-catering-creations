@@ -4,10 +4,14 @@ import ContactInfoCards from "@/components/quote/ContactInfoCards";
 import { CTASection } from "@/components/ui/cta-section";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
+import { useFormAnalytics } from "@/hooks/useFormAnalytics";
 import { ResponsiveWrapper } from "@/components/ui/responsive-wrapper";
 import { WeddingQuoteSplitHero } from "@/components/wedding/WeddingQuoteSplitHero";
 
 const WeddingEventQuote = () => {
+  // Track page view
+  useFormAnalytics({ formType: 'wedding_event' });
+  
   const { ref: formRef, isVisible: formVisible, variant: formVariant } = useScrollAnimation({ 
     delay: 200, 
     variant: 'elastic',

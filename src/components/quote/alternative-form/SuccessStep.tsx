@@ -1,17 +1,30 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Calendar, Clock, Mail, Phone, ArrowLeft } from "lucide-react";
+import { CheckCircle, Calendar, Clock, Mail, Phone, ArrowLeft, Download, ExternalLink, Share2, Home } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 import { Link } from "react-router-dom";
+import { QuoteWorkflowProgress } from "@/components/customer/QuoteWorkflowProgress";
+import { downloadICSFile, getGoogleCalendarUrl } from "@/utils/calendarExport";
+import { useEffect } from "react";
+import confetti from "canvas-confetti";
+import { useToast } from "@/hooks/use-toast";
 
 interface SuccessStepProps {
   estimatedCost: number | null;
   quoteId?: string | null;
+  eventData?: {
+    eventName: string;
+    eventDate: string;
+    startTime?: string;
+    location?: string;
+    contactName?: string;
+  };
 }
 
-export const SuccessStep = ({ estimatedCost, quoteId }: SuccessStepProps) => {
+export const SuccessStep = ({ estimatedCost, quoteId, eventData }: SuccessStepProps) => {
+  const { toast } = useToast();
   const { ref, isVisible } = useScrollAnimation({
     threshold: 0.2,
     triggerOnce: true,
@@ -19,6 +32,61 @@ export const SuccessStep = ({ estimatedCost, quoteId }: SuccessStepProps) => {
   });
 
   const animationClass = useAnimationClass('scale-fade', isVisible);
+
+  // Confetti celebration on mount
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#D97706', '#F59E0B', '#FBBF24']
+      });
+    }, 300);
+    
+    // Smooth scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleDownloadCalendar = () => {
+    if (eventData) {
+      downloadICSFile(eventData);
+      toast({
+        title: "Calendar file downloaded",
+        description: "Add this event to your calendar app"
+      });
+    }
+  };
+
+  const handleGoogleCalendar = () => {
+    if (eventData) {
+      window.open(getGoogleCalendarUrl(eventData), '_blank');
+    }
+  };
+
+  const handleShare = async () => {
+    const shareData = {
+      title: 'Soul Train\'s Eatery - Catering Quote',
+      text: 'I just requested a catering quote from Soul Train\'s Eatery!',
+      url: window.location.origin + '/request-quote'
+    };
+    
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        console.log('Share cancelled');
+      }
+    } else {
+      navigator.clipboard.writeText(shareData.url);
+      toast({
+        title: "Link copied!",
+        description: "Share this link with friends planning events"
+      });
+    }
+  };
 
   return (
     <div ref={ref} className={`max-w-2xl mx-auto ${animationClass}`}>
@@ -46,17 +114,53 @@ export const SuccessStep = ({ estimatedCost, quoteId }: SuccessStepProps) => {
         </CardHeader>
         
         <CardContent className="space-y-8">
-          {false && (
-            <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 rounded-lg p-6">
-              <h3 className="text-lg font-elegant mb-2">Preliminary Estimate</h3>
-              <div className="text-3xl font-bold text-primary mb-2">
-                ${estimatedCost?.toLocaleString()}
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Your detailed quote may vary based on final menu selections and service requirements.
-              </p>
+          {/* Workflow Progress */}
+          <div className="mb-8">
+            <h3 className="font-elegant text-lg mb-4 text-center">Your Quote Journey</h3>
+            <QuoteWorkflowProgress currentStage="submitted" className="mb-2" />
+          </div>
+
+          {/* Quick Actions */}
+          {eventData && (
+            <div className="grid sm:grid-cols-3 gap-3">
+              <Button 
+                variant="outline" 
+                className="w-full"
+                onClick={handleGoogleCalendar}
+              >
+                <Calendar className="h-4 w-4 mr-2" />
+                Google Calendar
+              </Button>
+              <Button 
+                variant="outline" 
+                className="w-full"
+                onClick={handleDownloadCalendar}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Download .ics
+              </Button>
+              <Button 
+                variant="outline" 
+                className="w-full"
+                onClick={handleShare}
+              >
+                <Share2 className="h-4 w-4 mr-2" />
+                Share
+              </Button>
             </div>
           )}
+
+          {/* Social Proof */}
+          <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 rounded-lg p-6 text-center">
+            <div className="flex justify-center gap-1 mb-2">
+              {[...Array(5)].map((_, i) => (
+                <span key={i} className="text-yellow-500 text-xl">★</span>
+              ))}
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Join <strong className="text-foreground">500+ satisfied customers</strong> who trusted Soul Train's Eatery with their special events
+            </p>
+          </div>
 
           <div className="grid md:grid-cols-2 gap-6 text-left">
             <div className="space-y-4">
@@ -153,6 +257,25 @@ export const SuccessStep = ({ estimatedCost, quoteId }: SuccessStepProps) => {
             </p>
           </div>
 
+          {/* FAQ Section */}
+          <div className="bg-muted/30 rounded-lg p-6">
+            <h3 className="font-elegant text-lg mb-4">Common Questions</h3>
+            <div className="space-y-3 text-sm text-left">
+              <div>
+                <p className="font-medium text-foreground">When will I hear back?</p>
+                <p className="text-muted-foreground">Within 48 hours via email with a detailed quote</p>
+              </div>
+              <div>
+                <p className="font-medium text-foreground">Can I make changes to my request?</p>
+                <p className="text-muted-foreground">Yes! Call us at (843) 970-0265 or reply to our email</p>
+              </div>
+              <div>
+                <p className="font-medium text-foreground">What if I need rush service?</p>
+                <p className="text-muted-foreground">Contact us immediately at (843) 970-0265 for expedited quotes</p>
+              </div>
+            </div>
+          </div>
+
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button asChild variant="outline" className="neumorphic-button-secondary">
               <Link to="/request-quote" className="flex items-center gap-2">
@@ -161,7 +284,8 @@ export const SuccessStep = ({ estimatedCost, quoteId }: SuccessStepProps) => {
               </Link>
             </Button>
             <Button asChild className="neumorphic-button-primary">
-              <Link to="/">
+              <Link to="/" className="flex items-center gap-2">
+                <Home className="h-4 w-4" />
                 Return to Home
               </Link>
             </Button>

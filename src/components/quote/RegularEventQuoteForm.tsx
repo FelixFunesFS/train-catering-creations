@@ -21,6 +21,7 @@ import { ArrowLeft, ArrowRight, Check, Sparkles } from "lucide-react";
 import { formSchema } from "./alternative-form/formSchema";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useFormAnalytics } from "@/hooks/useFormAnalytics";
 
 type FormData = z.infer<typeof formSchema>;
 
@@ -42,7 +43,9 @@ export const AlternativeQuoteForm = () => {
   const [submittedQuoteId, setSubmittedQuoteId] = useState<string | null>(null);
   const [isReadyToSubmit, setIsReadyToSubmit] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [eventData, setEventData] = useState<any>(null);
   const { toast } = useToast();
+  const { trackFieldInteraction, trackFormSubmission } = useFormAnalytics({ formType: 'regular_event' });
 
   const { ref: formRef, isVisible: formVisible } = useScrollAnimation({
     threshold: 0.1,
@@ -297,10 +300,38 @@ export const AlternativeQuoteForm = () => {
       console.log('✅ Quote inserted successfully with ID:', quoteId);
       console.log('📊 Inserted data:', insertedData);
       
+      // Store event data for success page
+      setEventData({
+        eventName: data.event_name,
+        eventDate: data.event_date,
+        startTime: data.start_time,
+        location: data.location,
+        contactName: data.contact_name
+      });
+      
+      // Track analytics
+      await trackFormSubmission(quoteId);
+      
       toast({
         title: "Quote Saved Successfully!",
         description: "Your quote request has been saved. Sending notifications...",
       });
+
+      // Send confirmation email to customer
+      console.log('📧 Sending confirmation email to customer...');
+      try {
+        const { error: confirmError } = await supabase.functions.invoke('send-quote-confirmation', {
+          body: { quote_id: quoteId }
+        });
+        
+        if (confirmError) {
+          console.error('⚠️  Confirmation email failed:', confirmError);
+        } else {
+          console.log('✅ Confirmation email sent to customer');
+        }
+      } catch (emailError) {
+        console.error('⚠️  Error sending confirmation email:', emailError);
+      }
 
       // Send email notifications with retry logic
       let emailSuccess = false;
@@ -364,7 +395,7 @@ export const AlternativeQuoteForm = () => {
   };
 
   if (isSubmitted) {
-    return <SuccessStep estimatedCost={estimatedCost} quoteId={submittedQuoteId} />;
+    return <SuccessStep estimatedCost={estimatedCost} quoteId={submittedQuoteId} eventData={eventData} />;
   }
 
   const renderStepContent = () => {
