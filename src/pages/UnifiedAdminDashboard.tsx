@@ -5,6 +5,7 @@ import { StreamlinedWorkflowDashboard } from '@/components/admin/StreamlinedWork
 import { AdminChangeManagement } from '@/components/admin/AdminChangeManagement';
 import { PaymentProcessingDashboard } from '@/components/admin/PaymentProcessingDashboard';
 import { TestExecutionPanel } from '@/components/admin/TestExecutionPanel';
+import { TestingDashboard } from '@/components/admin/testing/TestingDashboard';
 import { useAuth } from '@/hooks/useAuth';
 import { LogOut } from 'lucide-react';
 
@@ -79,7 +80,9 @@ export function UnifiedAdminDashboard() {
           <PaymentProcessingDashboard />
         )}
         {currentView === 'testing' && (
-          <TestExecutionPanel />
+          <div className="container mx-auto px-4 py-6">
+            <TestingDashboard />
+          </div>
         )}
       </div>
     </div>
