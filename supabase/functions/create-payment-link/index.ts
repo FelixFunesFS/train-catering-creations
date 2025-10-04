@@ -56,20 +56,7 @@ serve(async (req) => {
     if (milestone_id) {
       const { data: milestoneData, error: milestoneError } = await supabaseClient
         .from('payment_milestones')
-        .select(`
-          *,
-          invoices!inner(
-            id,
-            quote_request_id,
-            quote_requests!inner(
-              id,
-              contact_name,
-              event_name,
-              event_date,
-              location
-            )
-          )
-        `)
+        .select('*, invoice_id')
         .eq('id', milestone_id)
         .maybeSingle();
 
@@ -77,29 +64,60 @@ serve(async (req) => {
         throw new Error(`Milestone not found: ${milestoneError?.message}`);
       }
       milestone = milestoneData;
-      invoiceData = milestone.invoices;
-    } else if (invoice_id) {
-      // No milestone provided, fetch invoice directly
+      
+      // Fetch invoice separately
       const { data: invoice, error: invoiceError } = await supabaseClient
         .from('invoices')
-        .select(`
-          id,
-          quote_request_id,
-          quote_requests!inner(
-            id,
-            contact_name,
-            event_name,
-            event_date,
-            location
-          )
-        `)
-        .eq('id', invoice_id)
-        .maybeSingle();
+        .select('id, quote_request_id')
+        .eq('id', milestoneData.invoice_id)
+        .single();
 
       if (invoiceError || !invoice) {
         throw new Error(`Invoice not found: ${invoiceError?.message}`);
       }
-      invoiceData = invoice;
+
+      // Fetch quote request separately
+      const { data: quoteRequest, error: quoteError } = await supabaseClient
+        .from('quote_requests')
+        .select('id, contact_name, event_name, event_date, location')
+        .eq('id', invoice.quote_request_id)
+        .single();
+
+      if (quoteError || !quoteRequest) {
+        throw new Error(`Quote request not found: ${quoteError?.message}`);
+      }
+
+      invoiceData = {
+        ...invoice,
+        quote_requests: quoteRequest
+      };
+    } else if (invoice_id) {
+      // No milestone provided, fetch invoice directly
+      const { data: invoice, error: invoiceError } = await supabaseClient
+        .from('invoices')
+        .select('id, quote_request_id')
+        .eq('id', invoice_id)
+        .single();
+
+      if (invoiceError || !invoice) {
+        throw new Error(`Invoice not found: ${invoiceError?.message}`);
+      }
+
+      // Fetch quote request separately
+      const { data: quoteRequest, error: quoteError } = await supabaseClient
+        .from('quote_requests')
+        .select('id, contact_name, event_name, event_date, location')
+        .eq('id', invoice.quote_request_id)
+        .single();
+
+      if (quoteError || !quoteRequest) {
+        throw new Error(`Quote request not found: ${quoteError?.message}`);
+      }
+
+      invoiceData = {
+        ...invoice,
+        quote_requests: quoteRequest
+      };
     } else {
       throw new Error("Either milestone_id or invoice_id must be provided");
     }
