@@ -9,13 +9,12 @@ import { supabase } from '@/integrations/supabase/client';
 import { WorkflowSteps } from './workflow/WorkflowSteps';
 import { QuoteSelectionPanel } from './workflow/QuoteSelectionPanel';
 import { PricingPanel } from './workflow/PricingPanel';
-import { ReviewPanel } from './workflow/ReviewPanel';
+import { GovernmentContractPanel } from './workflow/GovernmentContractPanel';
 import { ContractGenerationPanel } from './workflow/ContractGenerationPanel';
 import { PaymentCollectionPanel } from './workflow/PaymentCollectionPanel';
 import { EventConfirmationPanel } from './workflow/EventConfirmationPanel';
 import { EventCompletionPanel } from './workflow/EventCompletionPanel';
-import { WeddingTemplateSelector } from './workflow/WeddingTemplateSelector';
-import { GovernmentContractPanel } from './workflow/GovernmentContractPanel';
+// WeddingTemplateSelector removed - now inline in PricingPanel
 import { TimelineTasksPanel } from './workflow/TimelineTasksPanel';
 import { WorkflowService } from '@/services/WorkflowService';
 
@@ -54,11 +53,11 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
   const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null);
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [lineItems, setLineItems] = useState<LineItem[]>([]);
-  const [currentStep, setCurrentStep] = useState<'select' | 'template' | 'pricing' | 'review' | 'contract' | 'payment' | 'confirmed' | 'completed'>('select');
+  const [currentStep, setCurrentStep] = useState<'select' | 'pricing' | 'government' | 'contract' | 'payment' | 'confirmed' | 'completed'>('select');
   const [loading, setLoading] = useState(true);
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [isGovernmentContract, setIsGovernmentContract] = useState(false);
-  const [showTemplateSelector, setShowTemplateSelector] = useState(false);
+  // Template selector removed - now inline in PricingPanel
   const [showTimelineTasks, setShowTimelineTasks] = useState(false);
   const [requiresContract, setRequiresContract] = useState(false);
   const { toast } = useToast();
@@ -161,14 +160,7 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
   const handleSelectQuote = (quote: Quote) => {
     setSelectedQuote(quote);
     checkExistingInvoice(quote.id);
-    
-    // Check if wedding event to show template selector
-    if (quote.event_type === 'wedding' || quote.event_type === 'second_wedding') {
-      setShowTemplateSelector(true);
-      setCurrentStep('template');
-    } else {
-      setCurrentStep('pricing');
-    }
+    setCurrentStep('pricing'); // Always go directly to pricing (templates are now inline)
   };
 
   const generateInvoice = async () => {
@@ -237,7 +229,7 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
       });
 
       if (success) {
-        setCurrentStep('review');
+        setCurrentStep('pricing'); // Go back to pricing
         toast({
           title: "Success",
           description: "Pricing validated and saved successfully",
@@ -283,39 +275,7 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
     }
   };
 
-  const handleTemplateSelect = async (template: any) => {
-    setShowTemplateSelector(false);
-    
-    // Generate invoice if not exists
-    if (!invoice) {
-      await generateInvoice();
-    }
-
-    // Add template items
-    const pricePerGuest = template.basePrice * 100; // Convert to cents
-    const templateItems = template.items.map((item: any, index: number) => ({
-      id: `temp-${index}`,
-      title: item.title,
-      description: item.description,
-      category: item.category,
-      quantity: item.quantity,
-      unit_price: Math.round(pricePerGuest / template.items.length),
-      total_price: Math.round((pricePerGuest / template.items.length) * item.quantity)
-    }));
-
-    setLineItems(templateItems);
-    setCurrentStep('pricing');
-    
-    toast({
-      title: 'Template Applied',
-      description: `${template.name} has been applied. You can now customize the pricing.`
-    });
-  };
-
-  const handleSkipTemplate = () => {
-    setShowTemplateSelector(false);
-    setCurrentStep('pricing');
-  };
+  // Template selection removed - now inline in PricingPanel
 
   if (loading && !selectedQuote) {
     return (
@@ -327,7 +287,11 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
 
   return (
     <div className="space-y-6">
-      <WorkflowSteps currentStep={currentStep} />
+      <WorkflowSteps 
+        currentStep={currentStep} 
+        isGovernmentContract={isGovernmentContract}
+        requiresContract={requiresContract}
+      />
 
       {currentStep === 'select' && (
         <QuoteSelectionPanel 
@@ -337,13 +301,7 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
         />
       )}
 
-      {currentStep === 'template' && selectedQuote && showTemplateSelector && (
-        <WeddingTemplateSelector
-          guestCount={selectedQuote.guest_count}
-          onSelectTemplate={handleTemplateSelect}
-          onSkip={handleSkipTemplate}
-        />
-      )}
+      {/* Template selection removed - now inline in PricingPanel */}
 
       {currentStep === 'pricing' && selectedQuote && (
         <PricingPanel
@@ -354,8 +312,11 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
           isModified={isModified}
           isGovernmentContract={isGovernmentContract}
           loading={loading}
+          requiresContract={requiresContract}
+          onRequiresContractChange={setRequiresContract}
           onGenerateInvoice={generateInvoice}
           onSavePricing={savePricing}
+          onSendEstimate={handleSendEstimate}
           onBack={() => setCurrentStep('select')}
           onGovernmentToggle={() => setIsGovernmentContract(!isGovernmentContract)}
           onChangeProcessed={() => checkExistingInvoice(selectedQuote.id)}
@@ -368,16 +329,15 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
         />
       )}
 
-      {currentStep === 'review' && selectedQuote && invoice && (
-        <ReviewPanel
+      {/* Review step removed - merged into PricingPanel */}
+
+      {/* Government Contract Setup - conditional */}
+      {currentStep === 'government' && selectedQuote && invoice && isGovernmentContract && (
+        <GovernmentContractPanel
           quote={selectedQuote}
-          lineItems={managedLineItems}
-          totals={totals}
-          isGovernmentContract={isGovernmentContract}
-          requiresContract={requiresContract}
-          onRequiresContractChange={setRequiresContract}
+          invoice={invoice}
           onBack={() => setCurrentStep('pricing')}
-          onSendEstimate={handleSendEstimate}
+          onContinue={() => setCurrentStep(requiresContract ? 'contract' : 'payment')}
         />
       )}
 
@@ -386,7 +346,7 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
           quote={selectedQuote}
           invoice={invoice}
           isGovernmentContract={isGovernmentContract}
-          onBack={() => setCurrentStep('review')}
+          onBack={() => isGovernmentContract ? setCurrentStep('government') : setCurrentStep('pricing')}
           onContinue={() => setCurrentStep('payment')}
           onSkipContract={() => setCurrentStep('payment')}
         />
