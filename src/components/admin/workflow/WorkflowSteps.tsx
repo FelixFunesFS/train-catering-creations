@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { FileEdit, DollarSign, Check, Send, ChevronRight } from 'lucide-react';
 
-type Step = 'select' | 'pricing' | 'review' | 'send';
+type Step = 'select' | 'template' | 'pricing' | 'review' | 'contract' | 'payment' | 'confirmed' | 'completed';
 
 interface WorkflowStepsProps {
   currentStep: Step;
@@ -10,14 +10,16 @@ interface WorkflowStepsProps {
 
 const steps = [
   { step: 'select' as const, label: 'Select Quote', icon: FileEdit },
-  { step: 'pricing' as const, label: 'Price & Review', icon: DollarSign },
-  { step: 'review' as const, label: 'Final Review', icon: Check },
-  { step: 'send' as const, label: 'Send Estimate', icon: Send }
+  { step: 'pricing' as const, label: 'Pricing', icon: DollarSign },
+  { step: 'contract' as const, label: 'Contract', icon: FileEdit },
+  { step: 'payment' as const, label: 'Payment', icon: DollarSign },
+  { step: 'confirmed' as const, label: 'Confirmed', icon: Check },
+  { step: 'completed' as const, label: 'Complete', icon: Check }
 ];
 
 export function WorkflowSteps({ currentStep }: WorkflowStepsProps) {
   const getStepStatus = (step: string) => {
-    const stepOrder = ['select', 'pricing', 'review', 'send'];
+    const stepOrder = ['select', 'template', 'pricing', 'review', 'contract', 'payment', 'confirmed', 'completed'];
     const currentIndex = stepOrder.indexOf(currentStep);
     const stepIndex = stepOrder.indexOf(step);
     
@@ -48,7 +50,7 @@ export function WorkflowSteps({ currentStep }: WorkflowStepsProps) {
                   <Icon className="h-4 w-4" />
                   <span className="text-sm font-medium">{label}</span>
                 </div>
-                {index < 3 && <ChevronRight className="h-4 w-4 text-muted-foreground" />}
+                {index < steps.length - 1 && <ChevronRight className="h-4 w-4 text-muted-foreground" />}
               </div>
             );
           })}

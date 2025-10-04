@@ -8,6 +8,11 @@ import { WorkflowSteps } from './workflow/WorkflowSteps';
 import { QuoteSelectionPanel } from './workflow/QuoteSelectionPanel';
 import { PricingPanel } from './workflow/PricingPanel';
 import { ReviewPanel } from './workflow/ReviewPanel';
+import { ContractGenerationPanel } from './workflow/ContractGenerationPanel';
+import { PaymentCollectionPanel } from './workflow/PaymentCollectionPanel';
+import { EventConfirmationPanel } from './workflow/EventConfirmationPanel';
+import { EventCompletionPanel } from './workflow/EventCompletionPanel';
+import { WeddingTemplateSelector } from './workflow/WeddingTemplateSelector';
 import { WorkflowService } from '@/services/WorkflowService';
 
 type Quote = QuoteRequest & {
@@ -45,10 +50,11 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
   const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null);
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [lineItems, setLineItems] = useState<LineItem[]>([]);
-  const [currentStep, setCurrentStep] = useState<'select' | 'pricing' | 'review' | 'send'>('select');
+  const [currentStep, setCurrentStep] = useState<'select' | 'template' | 'pricing' | 'review' | 'contract' | 'payment' | 'confirmed' | 'completed'>('select');
   const [loading, setLoading] = useState(true);
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [isGovernmentContract, setIsGovernmentContract] = useState(false);
+  const [showTemplateSelector, setShowTemplateSelector] = useState(false);
   const { toast } = useToast();
 
   const {
@@ -148,7 +154,14 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
   const handleSelectQuote = (quote: Quote) => {
     setSelectedQuote(quote);
     checkExistingInvoice(quote.id);
-    setCurrentStep('pricing');
+    
+    // Check if wedding event to show template selector
+    if (quote.event_type === 'wedding' || quote.event_type === 'second_wedding') {
+      setShowTemplateSelector(true);
+      setCurrentStep('template');
+    } else {
+      setCurrentStep('pricing');
+    }
   };
 
   const generateInvoice = async () => {
@@ -237,6 +250,40 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
     setShowEmailModal(true);
   };
 
+  const handleTemplateSelect = async (template: any) => {
+    setShowTemplateSelector(false);
+    
+    // Generate invoice if not exists
+    if (!invoice) {
+      await generateInvoice();
+    }
+
+    // Add template items
+    const pricePerGuest = template.basePrice * 100; // Convert to cents
+    const templateItems = template.items.map((item: any, index: number) => ({
+      id: `temp-${index}`,
+      title: item.title,
+      description: item.description,
+      category: item.category,
+      quantity: item.quantity,
+      unit_price: Math.round(pricePerGuest / template.items.length),
+      total_price: Math.round((pricePerGuest / template.items.length) * item.quantity)
+    }));
+
+    setLineItems(templateItems);
+    setCurrentStep('pricing');
+    
+    toast({
+      title: 'Template Applied',
+      description: `${template.name} has been applied. You can now customize the pricing.`
+    });
+  };
+
+  const handleSkipTemplate = () => {
+    setShowTemplateSelector(false);
+    setCurrentStep('pricing');
+  };
+
   if (loading && !selectedQuote) {
     return (
       <div className="flex items-center justify-center p-8">
@@ -254,6 +301,14 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
           quotes={quotes}
           loading={loading}
           onSelectQuote={handleSelectQuote}
+        />
+      )}
+
+      {currentStep === 'template' && selectedQuote && showTemplateSelector && (
+        <WeddingTemplateSelector
+          guestCount={selectedQuote.guest_count}
+          onSelectTemplate={handleTemplateSelect}
+          onSkip={handleSkipTemplate}
         />
       )}
 
@@ -287,7 +342,52 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
           totals={totals}
           isGovernmentContract={isGovernmentContract}
           onBack={() => setCurrentStep('pricing')}
-          onSendEstimate={handleSendEstimate}
+          onSendEstimate={() => setCurrentStep('contract')}
+        />
+      )}
+
+      {currentStep === 'contract' && selectedQuote && invoice && (
+        <ContractGenerationPanel
+          quote={selectedQuote}
+          invoice={invoice}
+          isGovernmentContract={isGovernmentContract}
+          onBack={() => setCurrentStep('review')}
+          onContinue={() => setCurrentStep('payment')}
+        />
+      )}
+
+      {currentStep === 'payment' && selectedQuote && invoice && (
+        <PaymentCollectionPanel
+          quote={selectedQuote}
+          invoice={invoice}
+          isGovernmentContract={isGovernmentContract}
+          onBack={() => setCurrentStep('contract')}
+          onContinue={() => setCurrentStep('confirmed')}
+        />
+      )}
+
+      {currentStep === 'confirmed' && selectedQuote && invoice && (
+        <EventConfirmationPanel
+          quote={selectedQuote}
+          invoice={invoice}
+          onBack={() => setCurrentStep('payment')}
+          onContinue={() => setCurrentStep('completed')}
+        />
+      )}
+
+      {currentStep === 'completed' && selectedQuote && invoice && (
+        <EventCompletionPanel
+          quote={selectedQuote}
+          invoice={invoice}
+          onBack={() => setCurrentStep('confirmed')}
+          onComplete={() => {
+            toast({
+              title: 'Workflow Complete',
+              description: 'Event has been completed successfully!'
+            });
+            setCurrentStep('select');
+            fetchQuotes();
+          }}
         />
       )}
 
@@ -301,7 +401,6 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
           onClose={() => setShowEmailModal(false)}
           onEmailSent={() => {
             setShowEmailModal(false);
-            setCurrentStep('send');
             toast({
               title: "Success",
               description: "Estimate sent successfully!",
