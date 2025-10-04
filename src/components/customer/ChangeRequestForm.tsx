@@ -168,11 +168,6 @@ export function ChangeRequestForm({ quote, invoice, onRequestSubmitted }: Change
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Current Menu Display */}
-          <CurrentMenuDisplay quote={quote} />
-
-          <Separator />
-
           {/* Menu Changes Selector */}
           <MenuChangeSelector quote={quote} onChange={setMenuChanges} />
 

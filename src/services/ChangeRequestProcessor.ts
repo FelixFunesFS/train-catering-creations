@@ -6,6 +6,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { QuoteUpdateService } from './QuoteUpdateService';
 import { HistoryLogger } from './HistoryLogger';
+import { EstimateVersionService } from './EstimateVersionService';
 
 export interface ChangeRequest {
   id: string;
@@ -31,10 +32,12 @@ export interface ApproveChangeOptions {
 export class ChangeRequestProcessor {
   private quoteUpdateService: QuoteUpdateService;
   private historyLogger: HistoryLogger;
+  private versionService: EstimateVersionService;
 
   constructor() {
     this.quoteUpdateService = new QuoteUpdateService();
     this.historyLogger = new HistoryLogger();
+    this.versionService = new EstimateVersionService();
   }
 
   /**
@@ -52,19 +55,53 @@ export class ChangeRequestProcessor {
         throw new Error('Invoice or quote not found');
       }
 
-      // Apply changes to quote
+      // STEP 1: Create version snapshot BEFORE making any changes
+      console.log('Creating estimate version snapshot...');
+      const snapshotResult = await this.versionService.createSnapshot(
+        changeRequest.invoice_id,
+        changeRequest.id,
+        'admin'
+      );
+
+      if (!snapshotResult.success) {
+        console.error('Failed to create snapshot:', snapshotResult.error);
+        // Continue anyway - snapshot failure shouldn't block the approval
+      }
+
+      // STEP 2: Apply changes to quote
       const quoteUpdates = await this.quoteUpdateService.applyChanges(
         quote,
         changeRequest.requested_changes
       );
 
-      // Update quote in database
+      // STEP 3: Update quote in database
       await this.quoteUpdateService.updateQuote(invoice.quote_request_id, quoteUpdates);
 
-      // Regenerate line items
+      // STEP 4: Regenerate quote line items
       await this.quoteUpdateService.regenerateLineItems(invoice.quote_request_id);
 
-      // Log history
+      // STEP 5: Update invoice line items (NEW - this was missing!)
+      console.log('Updating invoice line items...');
+      await this.quoteUpdateService.updateInvoiceLineItems(
+        changeRequest.invoice_id,
+        invoice.quote_request_id,
+        changeRequest.requested_changes
+      );
+
+      // STEP 6: Get updated totals from invoice
+      const { data: updatedInvoice, error: fetchError } = await supabase
+        .from('invoices')
+        .select('total_amount')
+        .eq('id', changeRequest.invoice_id)
+        .single();
+
+      if (fetchError) {
+        throw new Error('Failed to fetch updated invoice');
+      }
+
+      const newTotal = updatedInvoice.total_amount;
+
+      // STEP 7: Log history
       await this.historyLogger.logChangeRequestApproval(
         invoice.quote_request_id,
         changeRequest,
@@ -72,19 +109,23 @@ export class ChangeRequestProcessor {
         changeRequest.requested_changes
       );
 
-      // Update invoice total
-      const newTotal = await this.updateInvoiceTotal(
-        changeRequest.invoice_id,
-        invoice.total_amount,
-        options.finalCostChange || changeRequest.estimated_cost_change
-      );
-
-      // Mark change request as approved
+      // STEP 8: Mark change request as approved
       await this.markAsApproved(changeRequest.id, options.adminResponse, newTotal - invoice.total_amount);
 
-      // Log workflow state
+      // STEP 9: Update invoice status to approved
+      await supabase
+        .from('invoices')
+        .update({
+          status: 'approved',
+          workflow_status: 'approved',
+          status_changed_by: 'admin'
+        })
+        .eq('id', changeRequest.invoice_id);
+
+      // STEP 10: Log workflow state
       await this.logWorkflowStateChange(changeRequest, invoice.quote_request_id, options, newTotal - invoice.total_amount);
 
+      console.log('Change request approved successfully. New total:', newTotal);
       return { success: true, newTotal, appliedChanges: quoteUpdates };
     } catch (error) {
       console.error('Error approving change request:', error);
@@ -157,31 +198,6 @@ export class ChangeRequestProcessor {
     return { invoice, quote };
   }
 
-  /**
-   * Update invoice total amount
-   */
-  private async updateInvoiceTotal(
-    invoiceId: string,
-    currentTotal: number,
-    costChangeCents: number
-  ): Promise<number> {
-    const newTotal = Math.max(0, currentTotal + costChangeCents);
-
-    const { error } = await supabase
-      .from('invoices')
-      .update({
-        total_amount: newTotal,
-        status: 'approved',
-        workflow_status: 'approved',
-        updated_at: new Date().toISOString(),
-        status_changed_by: 'admin'
-      })
-      .eq('id', invoiceId);
-
-    if (error) throw error;
-
-    return newTotal;
-  }
 
   /**
    * Mark change request as approved
