@@ -282,7 +282,7 @@ export function EstimateApprovalWorkflow({
               <Separator className="my-2" />
               <div className="flex justify-between text-base">
                 <span className="font-semibold">Total Amount:</span>
-                <span className="font-bold text-green-700 dark:text-green-400">{formatCurrency(estimate.total_amount)}</span>
+                <span className="font-bold text-green-700 dark:text-green-400">{formatCurrency(estimate.total_amount / 100)}</span>
               </div>
             </div>
           </div>
@@ -303,7 +303,7 @@ export function EstimateApprovalWorkflow({
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold mb-4">
-                  {formatCurrency(estimate.total_amount * 0.5)}
+                  {formatCurrency((estimate.total_amount / 100) * 0.5)}
                 </div>
                 <Button 
                   onClick={handlePayDeposit}
@@ -329,7 +329,7 @@ export function EstimateApprovalWorkflow({
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold mb-4">
-                  {formatCurrency(estimate.total_amount)}
+                  {formatCurrency(estimate.total_amount / 100)}
                 </div>
                 <Button 
                   onClick={handlePayFull}
@@ -408,7 +408,7 @@ export function EstimateApprovalWorkflow({
             <div className="flex items-center gap-2">
               <DollarSign className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm">
-                <strong>Total:</strong> {formatCurrency(estimate.total_amount)}
+                <strong>Total:</strong> {formatCurrency(estimate.total_amount / 100)}
               </span>
             </div>
           </div>

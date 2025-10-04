@@ -36,6 +36,7 @@ export function TokenBasedCustomerPortal() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showChangeForm, setShowChangeForm] = useState(false);
+  const [actionExecuted, setActionExecuted] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -44,10 +45,11 @@ export function TokenBasedCustomerPortal() {
     }
   }, [token]);
 
-  // Handle automatic actions from URL
+  // Handle automatic actions from URL - only execute once
   useEffect(() => {
-    if (data.invoice && action) {
-      if (action === 'approve') {
+    if (data.invoice && action && !actionExecuted) {
+      setActionExecuted(true);
+      if (action === 'approve' && data.invoice.status !== 'approved') {
         handleApproveEstimate();
       } else if (action === 'changes') {
         setShowChangeForm(true);
@@ -58,7 +60,7 @@ export function TokenBasedCustomerPortal() {
         });
       }
     }
-  }, [data.invoice, action]);
+  }, [data.invoice, action, actionExecuted]);
 
   const fetchCustomerData = async () => {
     setLoading(true);
