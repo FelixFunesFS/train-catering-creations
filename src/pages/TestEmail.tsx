@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Info } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 const TestEmail = () => {
@@ -176,6 +178,16 @@ const TestEmail = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          <Alert className="mb-4 border-blue-200 bg-blue-50 dark:bg-blue-950 dark:border-blue-900">
+            <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+            <AlertTitle className="text-blue-800 dark:text-blue-300">One-Time Setup</AlertTitle>
+            <AlertDescription className="text-blue-700 dark:text-blue-400">
+              You only need to authorize Gmail <strong>once</strong>. After authorization, 
+              the system will automatically refresh access tokens as needed. Re-authorization 
+              is only required if you manually revoke access in your Google Account settings.
+            </AlertDescription>
+          </Alert>
+          
           <Button 
             onClick={handleGmailAuth} 
             disabled={isAuthLoading || isCheckingTokens}
