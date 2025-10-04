@@ -9,10 +9,26 @@ interface EstimateActionsProps {
   customerEmail: string;
   status: string;
   onChangeRequested?: () => void;
+  onEstimateAccepted?: () => void;
 }
 
-export function EstimateActions({ invoiceId, customerEmail, status, onChangeRequested }: EstimateActionsProps) {
+export function EstimateActions({ 
+  invoiceId, 
+  customerEmail, 
+  status, 
+  onChangeRequested,
+  onEstimateAccepted 
+}: EstimateActionsProps) {
   const { acceptEstimate, submitting } = useChangeRequest(invoiceId, customerEmail);
+
+  const handleAccept = async () => {
+    try {
+      await acceptEstimate();
+      onEstimateAccepted?.();
+    } catch (error) {
+      // Error already handled by useChangeRequest
+    }
+  };
 
   if (status === 'approved') {
     return (
@@ -42,7 +58,7 @@ export function EstimateActions({ invoiceId, customerEmail, status, onChangeRequ
         <Button
           className="w-full"
           size="lg"
-          onClick={acceptEstimate}
+          onClick={handleAccept}
           disabled={submitting}
         >
           {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

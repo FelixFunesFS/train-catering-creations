@@ -19,7 +19,29 @@ export class MenuItemService {
    * Get all menu items organized by category
    */
   static getAllMenuItems() {
-    return getMenuItems();
+    try {
+      const items = getMenuItems();
+      if (!items || typeof items !== 'object') {
+        console.error('Invalid menu items structure');
+        return this.getEmptyMenuStructure();
+      }
+      return items;
+    } catch (error) {
+      console.error('Error loading menu items:', error);
+      return this.getEmptyMenuStructure();
+    }
+  }
+
+  /**
+   * Get empty menu structure as fallback
+   */
+  private static getEmptyMenuStructure() {
+    return {
+      appetizers: [],
+      entrees: [],
+      sides: [],
+      desserts: []
+    };
   }
 
   /**
@@ -62,8 +84,15 @@ export class MenuItemService {
    * Get display name from ID or name
    */
   static getDisplayName(idOrName: string): string {
-    const idMap = this.createIdToNameMap();
-    return idMap[idOrName] || idOrName;
+    if (!idOrName) return '';
+    
+    try {
+      const idMap = this.createIdToNameMap();
+      return idMap[idOrName] || idOrName;
+    } catch (error) {
+      console.error('Error getting display name:', error);
+      return idOrName;
+    }
   }
 
   /**

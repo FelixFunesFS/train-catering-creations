@@ -77,8 +77,8 @@ export function useChangeRequest(invoiceId: string, customerEmail: string) {
 
       if (error) throw error;
 
-      // Track analytics
-      await supabase.from('analytics_events').insert({
+      // Track analytics (fire and forget to avoid blocking)
+      void supabase.from('analytics_events').insert({
         event_type: 'estimate_accepted',
         entity_type: 'invoice',
         entity_id: invoiceId
@@ -88,6 +88,9 @@ export function useChangeRequest(invoiceId: string, customerEmail: string) {
         title: 'Estimate Accepted',
         description: 'Thank you! We\'ll be in touch soon to finalize the details.'
       });
+
+      // Return success without immediately triggering refetch
+      return true;
 
     } catch (err: any) {
       console.error('Error accepting estimate:', err);

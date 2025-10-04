@@ -13,8 +13,18 @@ export default function CustomerEstimateView() {
   const [searchParams] = useSearchParams();
   const accessToken = searchParams.get('token') || '';
   const [showChangeForm, setShowChangeForm] = useState(false);
+  const [isRefetching, setIsRefetching] = useState(false);
 
   const { loading, estimateData, error, refetch } = useEstimateAccess(accessToken);
+
+  const handleRefetchWithDelay = async () => {
+    if (isRefetching) return;
+    setIsRefetching(true);
+    // Add delay to prevent reload loop
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    await refetch();
+    setIsRefetching(false);
+  };
 
   if (loading) {
     return (
@@ -98,7 +108,7 @@ export default function CustomerEstimateView() {
                 invoice={invoice}
                 onRequestSubmitted={() => {
                   setShowChangeForm(false);
-                  refetch();
+                  handleRefetchWithDelay();
                 }}
               />
             </>
@@ -116,6 +126,7 @@ export default function CustomerEstimateView() {
                 customerEmail={quote.email}
                 status={invoice.status}
                 onChangeRequested={() => setShowChangeForm(true)}
+                onEstimateAccepted={handleRefetchWithDelay}
               />
             </>
           )}
