@@ -779,6 +779,7 @@ export type Database = {
           stripe_invoice_id: string | null
           subtotal: number
           tax_amount: number | null
+          token_expires_at: string | null
           total_amount: number
           updated_at: string
           viewed_at: string | null
@@ -827,6 +828,7 @@ export type Database = {
           stripe_invoice_id?: string | null
           subtotal?: number
           tax_amount?: number | null
+          token_expires_at?: string | null
           total_amount?: number
           updated_at?: string
           viewed_at?: string | null
@@ -875,6 +877,7 @@ export type Database = {
           stripe_invoice_id?: string | null
           subtotal?: number
           tax_amount?: number | null
+          token_expires_at?: string | null
           total_amount?: number
           updated_at?: string
           viewed_at?: string | null
@@ -1683,6 +1686,10 @@ export type Database = {
       }
       is_dev_mode_original: {
         Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      is_valid_access_token: {
+        Args: { invoice_table_id: string; token_value: string }
         Returns: boolean
       }
     }
