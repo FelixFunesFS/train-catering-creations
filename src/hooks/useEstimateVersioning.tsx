@@ -289,6 +289,71 @@ export function useEstimateVersioning({
     };
   }, []);
 
+  // Generate line-level diff for UI highlighting
+  const generateLineDiff = useCallback((
+    oldVersion: EstimateVersion,
+    newVersion: EstimateVersion
+  ): { itemId: string; type: 'added' | 'removed' | 'modified'; changes?: { field: string; oldValue: any; newValue: any }[] }[] => {
+    const diff: { itemId: string; type: 'added' | 'removed' | 'modified'; changes?: { field: string; oldValue: any; newValue: any }[] }[] = [];
+    const oldItems = Array.isArray(oldVersion.line_items) ? oldVersion.line_items : [];
+    const newItems = Array.isArray(newVersion.line_items) ? newVersion.line_items : [];
+
+    // Create maps for faster lookup
+    const oldItemMap = new Map(oldItems.map((item: any) => [item.id || item.description, item]));
+    const newItemMap = new Map(newItems.map((item: any) => [item.id || item.description, item]));
+
+    // Check for added and modified items
+    newItems.forEach((newItem: any) => {
+      const key = newItem.id || newItem.description;
+      const oldItem = oldItemMap.get(key);
+
+      if (!oldItem) {
+        // Item was added
+        diff.push({
+          itemId: key,
+          type: 'added'
+        });
+      } else {
+        // Check for modifications
+        const changes: { field: string; oldValue: any; newValue: any }[] = [];
+
+        if (oldItem.quantity !== newItem.quantity) {
+          changes.push({ field: 'quantity', oldValue: oldItem.quantity, newValue: newItem.quantity });
+        }
+        if (oldItem.unit_price !== newItem.unit_price) {
+          changes.push({ field: 'unit_price', oldValue: oldItem.unit_price, newValue: newItem.unit_price });
+        }
+        if (oldItem.description !== newItem.description) {
+          changes.push({ field: 'description', oldValue: oldItem.description, newValue: newItem.description });
+        }
+        if (oldItem.title !== newItem.title) {
+          changes.push({ field: 'title', oldValue: oldItem.title, newValue: newItem.title });
+        }
+
+        if (changes.length > 0) {
+          diff.push({
+            itemId: key,
+            type: 'modified',
+            changes
+          });
+        }
+      }
+    });
+
+    // Check for removed items
+    oldItems.forEach((oldItem: any) => {
+      const key = oldItem.id || oldItem.description;
+      if (!newItemMap.has(key)) {
+        diff.push({
+          itemId: key,
+          type: 'removed'
+        });
+      }
+    });
+
+    return diff;
+  }, []);
+
   const archiveVersion = useCallback(async (versionId: string) => {
     try {
       const { error } = await supabase
@@ -352,6 +417,7 @@ export function useEstimateVersioning({
     revertToVersion,
     compareVersions,
     getVersionSummary,
+    generateLineDiff,
     archiveVersion,
     exportVersionHistory,
     refreshVersions: loadVersions

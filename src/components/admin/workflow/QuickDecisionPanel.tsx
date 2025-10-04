@@ -18,13 +18,16 @@ import {
   MessageSquare, 
   Zap,
   DollarSign,
-  AlertTriangle
+  AlertTriangle,
+  GitCompare
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { AutoApprovalEngine } from '@/services/AutoApprovalEngine';
 import { ResponseTemplateService } from '@/services/ResponseTemplates';
 import { useSimplifiedChangeRequests } from '@/hooks/useSimplifiedChangeRequests';
+import { useEstimateVersioning } from '@/hooks/useEstimateVersioning';
+import { UnifiedLineItemsTable } from '@/components/shared/UnifiedLineItemsTable';
 
 interface QuickDecisionPanelProps {
   invoiceId: string;
@@ -40,8 +43,15 @@ export function QuickDecisionPanel({ invoiceId, onChangeProcessed }: QuickDecisi
   const [adminResponse, setAdminResponse] = useState('');
   const [costChange, setCostChange] = useState('0');
   const [loading, setLoading] = useState(true);
+  const [showComparison, setShowComparison] = useState(false);
 
   const { processing, approveChangeRequest, rejectChangeRequest } = useSimplifiedChangeRequests();
+  
+  // Get versioning data for comparison view
+  const { versions, generateLineDiff } = useEstimateVersioning({
+    invoiceId: invoiceId || '',
+    onVersionChanged: () => {}
+  });
 
   useEffect(() => {
     fetchData();
@@ -204,14 +214,44 @@ export function QuickDecisionPanel({ invoiceId, onChangeProcessed }: QuickDecisi
 
             {selectedRequest?.id === request.id && (
               <>
+                {/* Line Item Preview Toggle */}
+                <div className="mb-4">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowComparison(!showComparison)}
+                    className="gap-2 w-full"
+                  >
+                    <GitCompare className="h-4 w-4" />
+                    {showComparison ? 'Hide' : 'Show'} Line Item Preview
+                  </Button>
+                </div>
+
+                {/* Comparison View */}
+                {showComparison && versions.length >= 2 && (
+                  <Card className="mb-4 bg-muted/30">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm">📊 Before vs After Changes</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <UnifiedLineItemsTable
+                        items={(versions[versions.length - 1].line_items as any[]) || []}
+                        mode="view"
+                        changeData={generateLineDiff(versions[versions.length - 2], versions[versions.length - 1])}
+                        groupByCategory={true}
+                      />
+                    </CardContent>
+                  </Card>
+                )}
+
                 {autoApprovalResult && (
-                  <Card className={`mb-4 ${autoApprovalResult.canAutoApprove ? 'bg-green-50 border-green-200' : 'bg-orange-50 border-orange-200'}`}>
+                  <Card className={`mb-4 ${autoApprovalResult.canAutoApprove ? 'bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800' : 'bg-orange-50 dark:bg-orange-950/20 border-orange-200 dark:border-orange-800'}`}>
                     <CardContent className="p-3">
                       <div className="flex items-start gap-2">
                         {autoApprovalResult.canAutoApprove ? (
-                          <Zap className="h-4 w-4 text-green-600 mt-0.5" />
+                          <Zap className="h-4 w-4 text-green-600 dark:text-green-400 mt-0.5" />
                         ) : (
-                          <AlertTriangle className="h-4 w-4 text-orange-600 mt-0.5" />
+                          <AlertTriangle className="h-4 w-4 text-orange-600 dark:text-orange-400 mt-0.5" />
                         )}
                         <div className="flex-1">
                           <p className="text-sm font-medium">

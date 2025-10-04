@@ -1,8 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { Calendar, MapPin, Users, Clock } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Calendar, MapPin, Users, Clock, AlertCircle } from 'lucide-react';
 import { format } from 'date-fns';
+import { UnifiedLineItemsTable } from '@/components/shared/UnifiedLineItemsTable';
+import { useEstimateVersioning } from '@/hooks/useEstimateVersioning';
 
 interface EstimateDetailsProps {
   invoice: any;
@@ -19,15 +21,39 @@ export function EstimateDetails({ invoice, quote, lineItems, milestones }: Estim
     }).format(cents / 100);
   };
 
-  const groupedItems = lineItems.reduce((acc, item) => {
-    const category = item.category || 'Other';
-    if (!acc[category]) acc[category] = [];
-    acc[category].push(item);
-    return acc;
-  }, {} as Record<string, any[]>);
+  // Get versioning data to check for recent changes
+  const { versions, generateLineDiff } = useEstimateVersioning({
+    invoiceId: invoice.id
+  });
+
+  // Check if this estimate was just updated (status = 'sent' means admin approved changes)
+  const isRecentlyUpdated = invoice.status === 'sent' && invoice.last_status_change;
+  const recentUpdateDate = invoice.last_status_change 
+    ? new Date(invoice.last_status_change)
+    : null;
+  
+  // Generate change data if there are multiple versions
+  const changeData = versions.length >= 2 
+    ? generateLineDiff(versions[versions.length - 2], versions[versions.length - 1])
+    : [];
 
   return (
     <div className="space-y-6">
+      {/* What Changed Banner */}
+      {isRecentlyUpdated && changeData.length > 0 && (
+        <Alert className="bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800">
+          <AlertCircle className="h-4 w-4 text-blue-600" />
+          <AlertDescription className="text-blue-900 dark:text-blue-100">
+            <p className="font-semibold mb-2">📝 Your estimate has been updated!</p>
+            <p className="text-sm">
+              We've reviewed your change request and updated this estimate on{' '}
+              {recentUpdateDate && format(recentUpdateDate, 'MMM dd, yyyy')}. 
+              Changes are highlighted below. Please review and approve if everything looks good.
+            </p>
+          </AlertDescription>
+        </Alert>
+      )}
+
       {/* Event Details */}
       <Card>
         <CardHeader>
@@ -72,53 +98,31 @@ export function EstimateDetails({ invoice, quote, lineItems, milestones }: Estim
         </CardContent>
       </Card>
 
-      {/* Line Items by Category */}
+      {/* Line Items - Unified Table with Change Highlighting */}
       <Card>
         <CardHeader>
           <CardTitle>Estimate Breakdown</CardTitle>
+          {changeData.length > 0 && (
+            <p className="text-sm text-muted-foreground mt-1">
+              {changeData.filter(c => c.type === 'added').length > 0 && 
+                `✨ ${changeData.filter(c => c.type === 'added').length} new item(s) · `}
+              {changeData.filter(c => c.type === 'modified').length > 0 && 
+                `📝 ${changeData.filter(c => c.type === 'modified').length} modified · `}
+              {changeData.filter(c => c.type === 'removed').length > 0 && 
+                `❌ ${changeData.filter(c => c.type === 'removed').length} removed`}
+            </p>
+          )}
         </CardHeader>
-        <CardContent className="space-y-6">
-          {Object.entries(groupedItems).map(([category, items]: [string, any[]]) => (
-            <div key={category}>
-              <h3 className="font-semibold text-lg mb-3 capitalize">{category}</h3>
-              <div className="space-y-2">
-                {items.map((item) => (
-                  <div key={item.id} className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <p className="font-medium">{item.title || item.description}</p>
-                      {item.title && item.description && (
-                        <p className="text-sm text-muted-foreground">{item.description}</p>
-                      )}
-                      <p className="text-sm text-muted-foreground">
-                        Quantity: {item.quantity}
-                      </p>
-                    </div>
-                    <p className="font-semibold">{formatCurrency(item.total_price)}</p>
-                  </div>
-                ))}
-              </div>
-              <Separator className="mt-4" />
-            </div>
-          ))}
-
-          {/* Totals */}
-          <div className="space-y-2 pt-4">
-            <div className="flex justify-between">
-              <span>Subtotal</span>
-              <span>{formatCurrency(invoice.subtotal)}</span>
-            </div>
-            {invoice.tax_amount > 0 && (
-              <div className="flex justify-between text-muted-foreground">
-                <span>Tax</span>
-                <span>{formatCurrency(invoice.tax_amount)}</span>
-              </div>
-            )}
-            <Separator />
-            <div className="flex justify-between text-xl font-bold">
-              <span>Total</span>
-              <span>{formatCurrency(invoice.total_amount)}</span>
-            </div>
-          </div>
+        <CardContent>
+          <UnifiedLineItemsTable
+            items={lineItems}
+            mode="view"
+            changeData={changeData}
+            subtotal={invoice.subtotal}
+            taxAmount={invoice.tax_amount}
+            totalAmount={invoice.total_amount}
+            groupByCategory={true}
+          />
         </CardContent>
       </Card>
 
