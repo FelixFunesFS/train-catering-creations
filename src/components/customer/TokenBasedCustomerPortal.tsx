@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { EstimateApprovalWorkflow } from './EstimateApprovalWorkflow';
 import { ChangeRequestForm } from './ChangeRequestForm';
 import { PaymentInterface } from './PaymentInterface';
+import { EventCountdown } from './EventCountdown';
 import { 
   CheckCircle, 
   Clock, 
@@ -321,34 +322,40 @@ export function TokenBasedCustomerPortal() {
       </header>
 
       <main className="max-w-4xl mx-auto px-4 py-8">
-        {/* Show payment interface if approved, otherwise show approval workflow */}
-        {data.invoice.status === 'approved' || data.invoice.status === 'paid' ? (
+        {/* Show event countdown if paid */}
+        {data.invoice.status === 'paid' && data.quote && (
+          <EventCountdown quote={data.quote} invoice={data.invoice} />
+        )}
+
+        {/* Show payment interface if approved but not paid */}
+        {data.invoice.status === 'approved' && (
           <div className="space-y-6">
             <PaymentInterface 
               invoiceId={data.invoice.id} 
               accessToken={token}
             />
             
-            {data.invoice.status !== 'paid' && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Need Changes?</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    If you need to make changes to your estimate, you can request modifications below.
-                  </p>
-                  <Button 
-                    variant="outline" 
-                    onClick={() => setShowChangeForm(true)}
-                  >
-                    Request Changes
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
+            <Card>
+              <CardHeader>
+                <CardTitle>Need Changes?</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground mb-4">
+                  If you need to make changes to your estimate, you can request modifications below.
+                </p>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowChangeForm(true)}
+                >
+                  Request Changes
+                </Button>
+              </CardContent>
+            </Card>
           </div>
-        ) : (
+        )}
+
+        {/* Show approval workflow if not yet approved */}
+        {data.invoice.status !== 'approved' && data.invoice.status !== 'paid' && (
           <EstimateApprovalWorkflow
             estimate={data.invoice}
             onApproval={() => {

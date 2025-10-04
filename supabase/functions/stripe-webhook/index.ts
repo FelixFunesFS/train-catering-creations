@@ -141,7 +141,7 @@ serve(async (req) => {
               logStep("Invoice marked as paid");
             }
 
-            // Update quote request to confirmed (event is confirmed when paid)
+            // Update quote request to confirmed and trigger event confirmation
             if (quote_request_id) {
               await supabaseClient
                 .from('quote_requests')
@@ -152,6 +152,23 @@ serve(async (req) => {
                 .eq('id', quote_request_id);
               
               logStep("Quote request marked as confirmed");
+
+              // Trigger event confirmation service (timeline tasks + confirmation email)
+              // Using EdgeRuntime.waitUntil for background processing
+              try {
+                const confirmEventPromise = supabaseClient.functions.invoke('confirm-event', {
+                  body: { quote_request_id }
+                });
+                
+                // @ts-ignore - EdgeRuntime is available in Deno
+                if (typeof EdgeRuntime !== 'undefined' && EdgeRuntime.waitUntil) {
+                  EdgeRuntime.waitUntil(confirmEventPromise);
+                } else {
+                  await confirmEventPromise;
+                }
+              } catch (err) {
+                logStep("Event confirmation triggered (may complete in background)");
+              }
             }
           } else {
             // Partial payment
