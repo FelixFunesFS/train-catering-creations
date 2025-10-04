@@ -296,8 +296,10 @@ export type Database = {
       contracts: {
         Row: {
           contract_html: string | null
+          contract_metadata: Json | null
           contract_type: string
           created_at: string
+          customer_signature_data: Json | null
           generated_at: string | null
           id: string
           invoice_id: string | null
@@ -305,11 +307,14 @@ export type Database = {
           signed_by: string | null
           status: string
           updated_at: string
+          viewed_at: string | null
         }
         Insert: {
           contract_html?: string | null
+          contract_metadata?: Json | null
           contract_type?: string
           created_at?: string
+          customer_signature_data?: Json | null
           generated_at?: string | null
           id?: string
           invoice_id?: string | null
@@ -317,11 +322,14 @@ export type Database = {
           signed_by?: string | null
           status?: string
           updated_at?: string
+          viewed_at?: string | null
         }
         Update: {
           contract_html?: string | null
+          contract_metadata?: Json | null
           contract_type?: string
           created_at?: string
+          customer_signature_data?: Json | null
           generated_at?: string | null
           id?: string
           invoice_id?: string | null
@@ -329,6 +337,7 @@ export type Database = {
           signed_by?: string | null
           status?: string
           updated_at?: string
+          viewed_at?: string | null
         }
         Relationships: [
           {
@@ -542,8 +551,10 @@ export type Database = {
           completed_at: string | null
           completed_by: string | null
           created_at: string | null
+          days_before_event: number | null
           due_date: string | null
           id: string
+          is_date_dependent: boolean | null
           notes: string | null
           quote_request_id: string
           task_name: string
@@ -554,8 +565,10 @@ export type Database = {
           completed_at?: string | null
           completed_by?: string | null
           created_at?: string | null
+          days_before_event?: number | null
           due_date?: string | null
           id?: string
+          is_date_dependent?: boolean | null
           notes?: string | null
           quote_request_id: string
           task_name: string
@@ -566,8 +579,10 @@ export type Database = {
           completed_at?: string | null
           completed_by?: string | null
           created_at?: string | null
+          days_before_event?: number | null
           due_date?: string | null
           id?: string
+          is_date_dependent?: boolean | null
           notes?: string | null
           quote_request_id?: string
           task_name?: string
@@ -825,6 +840,8 @@ export type Database = {
           payment_order: number | null
           payment_schedule_type: string | null
           pdf_url: string | null
+          portal_access_count: number | null
+          portal_last_accessed: string | null
           quote_request_id: string | null
           quote_version: number | null
           reviewed_at: string | null
@@ -835,6 +852,8 @@ export type Database = {
           stripe_invoice_id: string | null
           subtotal: number
           tax_amount: number | null
+          template_metadata: Json | null
+          template_used: string | null
           token_expires_at: string | null
           total_amount: number
           updated_at: string
@@ -875,6 +894,8 @@ export type Database = {
           payment_order?: number | null
           payment_schedule_type?: string | null
           pdf_url?: string | null
+          portal_access_count?: number | null
+          portal_last_accessed?: string | null
           quote_request_id?: string | null
           quote_version?: number | null
           reviewed_at?: string | null
@@ -885,6 +906,8 @@ export type Database = {
           stripe_invoice_id?: string | null
           subtotal?: number
           tax_amount?: number | null
+          template_metadata?: Json | null
+          template_used?: string | null
           token_expires_at?: string | null
           total_amount?: number
           updated_at?: string
@@ -925,6 +948,8 @@ export type Database = {
           payment_order?: number | null
           payment_schedule_type?: string | null
           pdf_url?: string | null
+          portal_access_count?: number | null
+          portal_last_accessed?: string | null
           quote_request_id?: string | null
           quote_version?: number | null
           reviewed_at?: string | null
@@ -935,6 +960,8 @@ export type Database = {
           stripe_invoice_id?: string | null
           subtotal?: number
           tax_amount?: number | null
+          template_metadata?: Json | null
+          template_used?: string | null
           token_expires_at?: string | null
           total_amount?: number
           updated_at?: string
@@ -1127,6 +1154,8 @@ export type Database = {
           is_due_now: boolean | null
           is_net30: boolean | null
           milestone_type: string
+          payment_link_opened_at: string | null
+          payment_link_sent_at: string | null
           percentage: number
           status: string | null
           updated_at: string
@@ -1141,6 +1170,8 @@ export type Database = {
           is_due_now?: boolean | null
           is_net30?: boolean | null
           milestone_type: string
+          payment_link_opened_at?: string | null
+          payment_link_sent_at?: string | null
           percentage: number
           status?: string | null
           updated_at?: string
@@ -1155,6 +1186,8 @@ export type Database = {
           is_due_now?: boolean | null
           is_net30?: boolean | null
           milestone_type?: string
+          payment_link_opened_at?: string | null
+          payment_link_sent_at?: string | null
           percentage?: number
           status?: string | null
           updated_at?: string
@@ -1644,6 +1677,47 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      workflow_state: {
+        Row: {
+          completed_steps: string[] | null
+          created_at: string | null
+          current_step: string
+          id: string
+          last_updated: string | null
+          quote_request_id: string
+          step_data: Json | null
+          updated_by: string | null
+        }
+        Insert: {
+          completed_steps?: string[] | null
+          created_at?: string | null
+          current_step: string
+          id?: string
+          last_updated?: string | null
+          quote_request_id: string
+          step_data?: Json | null
+          updated_by?: string | null
+        }
+        Update: {
+          completed_steps?: string[] | null
+          created_at?: string | null
+          current_step?: string
+          id?: string
+          last_updated?: string | null
+          quote_request_id?: string
+          step_data?: Json | null
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_state_quote_request_id_fkey"
+            columns: ["quote_request_id"]
+            isOneToOne: true
+            referencedRelation: "quote_requests"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       workflow_state_log: {
         Row: {

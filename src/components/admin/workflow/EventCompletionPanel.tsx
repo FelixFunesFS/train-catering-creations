@@ -63,7 +63,7 @@ export function EventCompletionPanel({
         });
 
       // Send thank you email and feedback request
-      await supabase.functions.invoke('send-estimate-email', {
+      await supabase.functions.invoke('send-workflow-email', {
         body: {
           quoteId: quote.id,
           invoiceId: invoice.id,

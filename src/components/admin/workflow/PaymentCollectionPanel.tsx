@@ -130,7 +130,7 @@ export function PaymentCollectionPanel({
   const sendPaymentLink = async (milestoneId?: string) => {
     setLoading(true);
     try {
-      const { error } = await supabase.functions.invoke('send-estimate-email', {
+      const { error } = await supabase.functions.invoke('send-workflow-email', {
         body: {
           quoteId: quote.id,
           invoiceId: invoice.id,

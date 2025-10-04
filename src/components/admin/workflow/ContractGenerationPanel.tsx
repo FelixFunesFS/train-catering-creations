@@ -158,7 +158,7 @@ export function ContractGenerationPanel({
       if (error) throw error;
 
       // Send email with contract
-      const { error: emailError } = await supabase.functions.invoke('send-estimate-email', {
+      const { error: emailError } = await supabase.functions.invoke('send-workflow-email', {
         body: {
           quoteId: quote.id,
           invoiceId: invoice.id,

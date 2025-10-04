@@ -13,6 +13,8 @@ import { PaymentCollectionPanel } from './workflow/PaymentCollectionPanel';
 import { EventConfirmationPanel } from './workflow/EventConfirmationPanel';
 import { EventCompletionPanel } from './workflow/EventCompletionPanel';
 import { WeddingTemplateSelector } from './workflow/WeddingTemplateSelector';
+import { GovernmentContractPanel } from './workflow/GovernmentContractPanel';
+import { TimelineTasksPanel } from './workflow/TimelineTasksPanel';
 import { WorkflowService } from '@/services/WorkflowService';
 
 type Quote = QuoteRequest & {
@@ -246,7 +248,11 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
     }
   };
 
-  const handleSendEstimate = () => {
+  const handleSendEstimate = async () => {
+    // Sync statuses before advancing
+    if (selectedQuote && invoice) {
+      await syncQuoteWithInvoice(selectedQuote.id);
+    }
     setShowEmailModal(true);
   };
 
@@ -341,8 +347,14 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
           lineItems={managedLineItems}
           totals={totals}
           isGovernmentContract={isGovernmentContract}
-          onBack={() => setCurrentStep('pricing')}
-          onSendEstimate={() => setCurrentStep('contract')}
+          onBack={() => workflowState.goToStep('pricing')}
+          onSendEstimate={async () => {
+            if (isGovernmentContract) {
+              await workflowState.advanceToStep('contract');
+            } else {
+              await workflowState.advanceToStep('contract');
+            }
+          }}
         />
       )}
 

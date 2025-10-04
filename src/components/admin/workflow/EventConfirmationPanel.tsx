@@ -73,7 +73,7 @@ export function EventConfirmationPanel({
       await createTimelineTasks();
 
       // Send confirmation email
-      await supabase.functions.invoke('send-estimate-email', {
+      await supabase.functions.invoke('send-workflow-email', {
         body: {
           quoteId: quote.id,
           invoiceId: invoice.id,
