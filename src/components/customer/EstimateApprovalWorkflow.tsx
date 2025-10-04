@@ -63,6 +63,9 @@ export function EstimateApprovalWorkflow({
   const handleApprove = async () => {
     setLoading(true);
     try {
+      // Import the service
+      const { PaymentMilestoneService } = await import('@/services/PaymentMilestoneService');
+
       const { error } = await supabase
         .from('invoices')
         .update({ 
@@ -81,6 +84,9 @@ export function EstimateApprovalWorkflow({
 
       if (error) throw error;
 
+      // Generate payment milestones
+      await PaymentMilestoneService.generateMilestones(estimate.id);
+
       // Create change request entry for approval
       const { error: changeError } = await supabase
         .from('change_requests')
@@ -97,7 +103,7 @@ export function EstimateApprovalWorkflow({
 
       toast({
         title: "✅ Estimate Approved!",
-        description: "Choose your payment option below to secure your event date.",
+        description: "Payment options are now available below.",
       });
 
       setIsApproved(true);

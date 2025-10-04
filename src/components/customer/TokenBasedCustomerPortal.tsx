@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { EstimateApprovalWorkflow } from './EstimateApprovalWorkflow';
 import { ChangeRequestForm } from './ChangeRequestForm';
+import { PaymentInterface } from './PaymentInterface';
 import { 
   CheckCircle, 
   Clock, 
@@ -320,19 +321,48 @@ export function TokenBasedCustomerPortal() {
       </header>
 
       <main className="max-w-4xl mx-auto px-4 py-8">
-        <EstimateApprovalWorkflow
-          estimate={data.invoice}
-          onApproval={() => {
-            fetchCustomerData();
-            toast({
-              title: "Success!",
-              description: "Your estimate has been approved. Choose a payment option above.",
-            });
-          }}
-          onRejection={() => {
-            setShowChangeForm(true);
-          }}
-        />
+        {/* Show payment interface if approved, otherwise show approval workflow */}
+        {data.invoice.status === 'approved' || data.invoice.status === 'paid' ? (
+          <div className="space-y-6">
+            <PaymentInterface 
+              invoiceId={data.invoice.id} 
+              accessToken={token}
+            />
+            
+            {data.invoice.status !== 'paid' && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Need Changes?</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    If you need to make changes to your estimate, you can request modifications below.
+                  </p>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setShowChangeForm(true)}
+                  >
+                    Request Changes
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        ) : (
+          <EstimateApprovalWorkflow
+            estimate={data.invoice}
+            onApproval={() => {
+              fetchCustomerData();
+              toast({
+                title: "Success!",
+                description: "Your estimate has been approved. Payment options are shown below.",
+              });
+            }}
+            onRejection={() => {
+              setShowChangeForm(true);
+            }}
+          />
+        )}
 
         {/* Contact Information */}
         <Card className="mt-8">

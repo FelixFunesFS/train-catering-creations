@@ -141,15 +141,17 @@ serve(async (req) => {
               logStep("Invoice marked as paid");
             }
 
-            // Update quote request to completed
+            // Update quote request to confirmed (event is confirmed when paid)
             if (quote_request_id) {
               await supabaseClient
                 .from('quote_requests')
                 .update({ 
-                  status: 'completed',
-                  workflow_status: 'completed'
+                  status: 'confirmed',
+                  workflow_status: 'confirmed'
                 })
                 .eq('id', quote_request_id);
+              
+              logStep("Quote request marked as confirmed");
             }
           } else {
             // Partial payment
