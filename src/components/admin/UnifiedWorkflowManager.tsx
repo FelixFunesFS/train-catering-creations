@@ -3,6 +3,7 @@ import { useToast } from '@/hooks/use-toast';
 import { type QuoteRequest } from '@/utils/invoiceFormatters';
 import { useEnhancedPricingManagement } from '@/hooks/useEnhancedPricingManagement';
 import { useInvoiceEditing } from '@/hooks/useInvoiceEditing';
+import { useWorkflowSync } from '@/hooks/useWorkflowSync';
 import { UnifiedEmailReviewModal } from './UnifiedEmailReviewModal';
 import { WorkflowSteps } from './workflow/WorkflowSteps';
 import { QuoteSelectionPanel } from './workflow/QuoteSelectionPanel';
@@ -57,7 +58,9 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [isGovernmentContract, setIsGovernmentContract] = useState(false);
   const [showTemplateSelector, setShowTemplateSelector] = useState(false);
+  const [showTimelineTasks, setShowTimelineTasks] = useState(false);
   const { toast } = useToast();
+  const { syncQuoteWithInvoice } = useWorkflowSync();
 
   const {
     lineItems: managedLineItems,
@@ -347,12 +350,12 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
           lineItems={managedLineItems}
           totals={totals}
           isGovernmentContract={isGovernmentContract}
-          onBack={() => workflowState.goToStep('pricing')}
+          onBack={() => setCurrentStep('pricing')}
           onSendEstimate={async () => {
             if (isGovernmentContract) {
-              await workflowState.advanceToStep('contract');
+              setCurrentStep('contract');
             } else {
-              await workflowState.advanceToStep('contract');
+              setCurrentStep('contract');
             }
           }}
         />
