@@ -3,10 +3,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { StandardTermsAndConditions } from '@/components/shared/StandardTermsAndConditions';
+import { getEventTermsType } from '@/utils/contractRequirements';
 import { 
   CheckCircle2, 
   XCircle, 
@@ -26,13 +30,17 @@ interface EstimateData {
   invoice_number: string;
   total_amount: number;
   status: string;
+  requires_separate_contract?: boolean;
+  include_terms_and_conditions?: boolean;
   quote_requests: {
     contact_name: string;
     event_name: string;
     event_date: string;
+    event_type: string;
     location: string;
     guest_count: number;
     email: string;
+    compliance_level?: string;
   };
   payment_milestones?: Array<{
     id: string;
@@ -58,28 +66,49 @@ export function EstimateApprovalWorkflow({
   const [feedback, setFeedback] = useState('');
   const [isApproved, setIsApproved] = useState(estimate.status === 'approved');
   const [processingPayment, setProcessingPayment] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const { toast } = useToast();
+  
+  const needsTermsAcceptance = !estimate.requires_separate_contract && estimate.include_terms_and_conditions;
+  const termsType = getEventTermsType(estimate.quote_requests);
 
   const handleApprove = async () => {
+    // Check T&C acceptance if required
+    if (needsTermsAcceptance && !termsAccepted) {
+      toast({
+        title: "Terms & Conditions Required",
+        description: "Please accept the Terms & Conditions before approving the estimate.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
     try {
       // Import the service
       const { PaymentMilestoneService } = await import('@/services/PaymentMilestoneService');
 
+      const updateData: any = { 
+        status: 'approved',
+        workflow_status: 'approved',
+        is_draft: false,
+        reviewed_at: new Date().toISOString(),
+        reviewed_by: 'customer',
+        customer_feedback: { 
+          approved: true, 
+          feedback: feedback,
+          approved_at: new Date().toISOString()
+        }
+      };
+
+      // Record T&C acceptance if applicable
+      if (needsTermsAcceptance) {
+        updateData.terms_accepted_at = new Date().toISOString();
+      }
+
       const { error } = await supabase
         .from('invoices')
-        .update({ 
-          status: 'approved',
-          workflow_status: 'approved',
-          is_draft: false,
-          reviewed_at: new Date().toISOString(),
-          reviewed_by: 'customer',
-          customer_feedback: { 
-            approved: true, 
-            feedback: feedback,
-            approved_at: new Date().toISOString()
-          }
-        })
+        .update(updateData)
         .eq('id', estimate.id);
 
       if (error) throw error;
@@ -425,6 +454,26 @@ export function EstimateApprovalWorkflow({
         </div>
 
         <Separator />
+
+        {/* Terms & Conditions (if included) */}
+        {needsTermsAcceptance && (
+          <>
+            <Separator />
+            <StandardTermsAndConditions eventType={termsType} variant="compact" />
+            
+            <div className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg">
+              <Checkbox
+                id="terms-acceptance"
+                checked={termsAccepted}
+                onCheckedChange={(checked) => setTermsAccepted(checked as boolean)}
+              />
+              <Label htmlFor="terms-acceptance" className="text-sm leading-relaxed cursor-pointer">
+                I have read and agree to the Terms & Conditions above. By approving this estimate, 
+                I acknowledge these terms will serve as our service agreement.
+              </Label>
+            </div>
+          </>
+        )}
 
         {/* Feedback Section */}
         <div className="space-y-4">

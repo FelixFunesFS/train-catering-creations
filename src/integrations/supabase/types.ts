@@ -825,6 +825,7 @@ export type Database = {
           estimate_viewed_at: string | null
           estimate_viewed_count: number | null
           id: string
+          include_terms_and_conditions: boolean | null
           invoice_number: string | null
           is_draft: boolean | null
           is_milestone_payment: boolean | null
@@ -844,6 +845,7 @@ export type Database = {
           portal_last_accessed: string | null
           quote_request_id: string | null
           quote_version: number | null
+          requires_separate_contract: boolean | null
           reviewed_at: string | null
           reviewed_by: string | null
           sent_at: string | null
@@ -854,6 +856,7 @@ export type Database = {
           tax_amount: number | null
           template_metadata: Json | null
           template_used: string | null
+          terms_accepted_at: string | null
           token_expires_at: string | null
           total_amount: number
           updated_at: string
@@ -879,6 +882,7 @@ export type Database = {
           estimate_viewed_at?: string | null
           estimate_viewed_count?: number | null
           id?: string
+          include_terms_and_conditions?: boolean | null
           invoice_number?: string | null
           is_draft?: boolean | null
           is_milestone_payment?: boolean | null
@@ -898,6 +902,7 @@ export type Database = {
           portal_last_accessed?: string | null
           quote_request_id?: string | null
           quote_version?: number | null
+          requires_separate_contract?: boolean | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           sent_at?: string | null
@@ -908,6 +913,7 @@ export type Database = {
           tax_amount?: number | null
           template_metadata?: Json | null
           template_used?: string | null
+          terms_accepted_at?: string | null
           token_expires_at?: string | null
           total_amount?: number
           updated_at?: string
@@ -933,6 +939,7 @@ export type Database = {
           estimate_viewed_at?: string | null
           estimate_viewed_count?: number | null
           id?: string
+          include_terms_and_conditions?: boolean | null
           invoice_number?: string | null
           is_draft?: boolean | null
           is_milestone_payment?: boolean | null
@@ -952,6 +959,7 @@ export type Database = {
           portal_last_accessed?: string | null
           quote_request_id?: string | null
           quote_version?: number | null
+          requires_separate_contract?: boolean | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           sent_at?: string | null
@@ -962,6 +970,7 @@ export type Database = {
           tax_amount?: number | null
           template_metadata?: Json | null
           template_used?: string | null
+          terms_accepted_at?: string | null
           token_expires_at?: string | null
           total_amount?: number
           updated_at?: string

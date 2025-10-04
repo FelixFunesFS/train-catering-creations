@@ -136,6 +136,20 @@ function generateEstimateEmail(quote: any, invoice: any, portalUrl: string, cust
   const formatCurrency = (cents: number) => 
     new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100);
   
+  // Determine event type for T&C
+  const eventType = ['wedding', 'second_wedding'].includes(quote.event_type) 
+    ? 'wedding' 
+    : quote.compliance_level === 'government' 
+      ? 'government' 
+      : 'standard';
+  
+  // Generate T&C HTML if included
+  const termsHTML = invoice.include_terms_and_conditions ? generateTermsHTML(eventType) : '';
+  
+  const contractNote = invoice.requires_separate_contract
+    ? '<li>Sign your service agreement</li>'
+    : '';
+  
   return `
 <!DOCTYPE html>
 <html>
@@ -148,6 +162,10 @@ function generateEstimateEmail(quote: any, invoice: any, portalUrl: string, cust
     .content { padding: 30px; }
     .btn { display: inline-block; background: #DC143C; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
     .footer { background: #f8f9fa; padding: 20px; text-align: center; font-size: 14px; color: #666; }
+    .terms { background: #f9fafb; border-radius: 8px; padding: 20px; margin: 20px 0; font-size: 13px; }
+    .terms h3 { color: #DC143C; margin-bottom: 15px; }
+    .terms h4 { color: #333; font-size: 14px; margin: 15px 0 5px; }
+    .terms p { color: #666; margin: 0 0 10px; }
   </style>
 </head>
 <body>
@@ -169,15 +187,23 @@ function generateEstimateEmail(quote: any, invoice: any, portalUrl: string, cust
       
       <p><strong>Total Estimate: ${formatCurrency(invoice.total_amount)}</strong></p>
       
-      <a href="${portalUrl}" class="btn">View Full Estimate & Details</a>
+      <a href="${portalUrl}" class="btn">View & Approve Estimate</a>
       
       <p>Use the customer portal to:</p>
       <ul>
-        <li>Review detailed pricing</li>
-        <li>Sign your contract</li>
-        <li>Make payments</li>
-        <li>Request changes</li>
+        <li>Review detailed pricing breakdown</li>
+        ${contractNote}
+        <li>Approve estimate and make payment</li>
+        <li>Request changes if needed</li>
       </ul>
+      
+      ${termsHTML}
+      
+      ${!invoice.requires_separate_contract ? `
+        <p style="font-size: 13px; color: #666; padding: 15px; background: #fff3cd; border-left: 4px solid #ffc107; margin: 20px 0;">
+          <strong>Note:</strong> By approving this estimate, you acknowledge that you have read and agree to the Terms & Conditions above. No separate contract signature is required for this event.
+        </p>
+      ` : ''}
     </div>
     <div class="footer">
       <p>Soul Train's Eatery | (843) 970-0265 | soultrainseatery@gmail.com</p>
@@ -186,6 +212,44 @@ function generateEstimateEmail(quote: any, invoice: any, portalUrl: string, cust
 </body>
 </html>
   `;
+}
+
+function generateTermsHTML(eventType: 'standard' | 'wedding' | 'government'): string {
+  const terms = getTermsByType(eventType);
+  
+  return `
+    <div class="terms">
+      <h3>Terms & Conditions</h3>
+      ${terms.map(section => `
+        <h4>${section.title}</h4>
+        <p>${section.content}</p>
+      `).join('')}
+      <p style="font-size: 12px; color: #999; margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd;">
+        By accepting this estimate, you acknowledge that you have read and agree to these terms and conditions.
+      </p>
+    </div>
+  `;
+}
+
+function getTermsByType(eventType: 'standard' | 'wedding' | 'government') {
+  const baseTerms = [
+    { title: '1. Payment Terms', content: 'A deposit of 50% is required to secure your event date. The remaining balance is due 10 days prior to your event. Accepted payment methods include credit card, debit card, or bank transfer.' },
+    { title: '2. Cancellation Policy', content: 'Cancellations made more than 30 days before the event will receive a full refund minus a $100 processing fee. Cancellations made 15-30 days before will receive a 50% refund. Cancellations made less than 15 days before the event are non-refundable.' },
+    { title: '3. Guest Count Changes', content: 'Final guest count must be confirmed 7 days prior to the event. You will be charged for the confirmed guest count or actual guests served, whichever is greater.' },
+    { title: '4. Service & Delivery', content: 'Soul Train\'s Eatery will arrive at the designated time to set up and serve. Client is responsible for providing adequate space, access, and facilities.' },
+    { title: '5. Food Safety & Liability', content: 'All food is prepared in licensed kitchen facilities following food safety regulations. Client assumes responsibility for any food allergies or dietary restrictions not communicated in advance.' },
+    { title: '6. Equipment & Rentals', content: 'Standard serving equipment, chafing dishes, and utensils are included. Specialty rentals are available for an additional fee.' }
+  ];
+
+  if (eventType === 'wedding') {
+    baseTerms.push({ title: '7. Wedding Specific Terms', content: 'A tasting session is included for events over 100 guests. Menu changes must be finalized 30 days before the event.' });
+  }
+
+  if (eventType === 'government') {
+    baseTerms.push({ title: '7. Government Contract Compliance', content: 'All services rendered comply with applicable government procurement regulations. Proper documentation will be provided as required.' });
+  }
+
+  return baseTerms;
 }
 
 function generateContractEmail(quote: any, invoice: any, contractId: string, portalUrl: string): string {

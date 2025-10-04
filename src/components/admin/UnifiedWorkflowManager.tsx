@@ -5,6 +5,7 @@ import { useEnhancedPricingManagement } from '@/hooks/useEnhancedPricingManageme
 import { useInvoiceEditing } from '@/hooks/useInvoiceEditing';
 import { useWorkflowSync } from '@/hooks/useWorkflowSync';
 import { UnifiedEmailReviewModal } from './UnifiedEmailReviewModal';
+import { supabase } from '@/integrations/supabase/client';
 import { WorkflowSteps } from './workflow/WorkflowSteps';
 import { QuoteSelectionPanel } from './workflow/QuoteSelectionPanel';
 import { PricingPanel } from './workflow/PricingPanel';
@@ -59,6 +60,7 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
   const [isGovernmentContract, setIsGovernmentContract] = useState(false);
   const [showTemplateSelector, setShowTemplateSelector] = useState(false);
   const [showTimelineTasks, setShowTimelineTasks] = useState(false);
+  const [requiresContract, setRequiresContract] = useState(false);
   const { toast } = useToast();
   const { syncQuoteWithInvoice } = useWorkflowSync();
 
@@ -252,11 +254,33 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
   };
 
   const handleSendEstimate = async () => {
-    // Sync statuses before advancing
-    if (selectedQuote && invoice) {
+    if (!invoice || !selectedQuote) return;
+
+    try {
+      // Update invoice with contract requirement and T&C settings
+      const { error } = await supabase
+        .from('invoices')
+        .update({
+          requires_separate_contract: requiresContract,
+          include_terms_and_conditions: true
+        })
+        .eq('id', invoice.id);
+
+      if (error) throw error;
+
+      // Sync statuses before advancing
       await syncQuoteWithInvoice(selectedQuote.id);
+      
+      // Show email modal
+      setShowEmailModal(true);
+    } catch (error) {
+      console.error('Error updating invoice:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update invoice settings",
+        variant: "destructive"
+      });
     }
-    setShowEmailModal(true);
   };
 
   const handleTemplateSelect = async (template: any) => {
@@ -350,14 +374,10 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
           lineItems={managedLineItems}
           totals={totals}
           isGovernmentContract={isGovernmentContract}
+          requiresContract={requiresContract}
+          onRequiresContractChange={setRequiresContract}
           onBack={() => setCurrentStep('pricing')}
-          onSendEstimate={async () => {
-            if (isGovernmentContract) {
-              setCurrentStep('contract');
-            } else {
-              setCurrentStep('contract');
-            }
-          }}
+          onSendEstimate={handleSendEstimate}
         />
       )}
 
@@ -368,6 +388,7 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
           isGovernmentContract={isGovernmentContract}
           onBack={() => setCurrentStep('review')}
           onContinue={() => setCurrentStep('payment')}
+          onSkipContract={() => setCurrentStep('payment')}
         />
       )}
 
@@ -420,6 +441,13 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
               title: "Success",
               description: "Estimate sent successfully!",
             });
+            
+            // Advance workflow based on contract requirement
+            if (requiresContract) {
+              setCurrentStep('contract');
+            } else {
+              setCurrentStep('payment');
+            }
           }}
         />
       )}

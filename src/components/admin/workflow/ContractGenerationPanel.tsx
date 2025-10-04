@@ -15,6 +15,7 @@ interface ContractGenerationPanelProps {
   isGovernmentContract: boolean;
   onBack: () => void;
   onContinue: () => void;
+  onSkipContract?: () => void;
 }
 
 export function ContractGenerationPanel({
@@ -22,7 +23,8 @@ export function ContractGenerationPanel({
   invoice,
   isGovernmentContract,
   onBack,
-  onContinue
+  onContinue,
+  onSkipContract
 }: ContractGenerationPanelProps) {
   const [contractType, setContractType] = useState<string>('standard');
   const [contract, setContract] = useState<any>(null);
@@ -282,27 +284,74 @@ export function ContractGenerationPanel({
             </Button>
             
             {!contract ? (
-              <Button onClick={generateContract} disabled={loading}>
+              <Button onClick={generateContract} disabled={loading} className="flex-1">
                 <FileText className="h-4 w-4 mr-2" />
                 Generate Contract
               </Button>
             ) : contract.status === 'generated' ? (
-              <Button onClick={sendContract} disabled={loading}>
+              <Button onClick={sendContract} disabled={loading} className="flex-1">
                 <Send className="h-4 w-4 mr-2" />
                 Send to Customer
               </Button>
             ) : contract.status === 'signed' ? (
-              <Button onClick={onContinue}>
+              <Button onClick={onContinue} className="flex-1">
                 <CheckCircle2 className="h-4 w-4 mr-2" />
                 Continue to Payment
               </Button>
             ) : (
-              <Button variant="outline" disabled>
+              <Button variant="outline" disabled className="flex-1">
                 <Clock className="h-4 w-4 mr-2" />
                 Waiting for Signature
               </Button>
             )}
           </div>
+
+          {onSkipContract && !contract && (
+            <div className="space-y-3">
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">Or</span>
+                </div>
+              </div>
+
+              <Button 
+                onClick={async () => {
+                  try {
+                    const { error } = await supabase
+                      .from('invoices')
+                      .update({ requires_separate_contract: false })
+                      .eq('id', invoice.id);
+
+                    if (error) throw error;
+
+                    toast({
+                      title: "Contract Skipped",
+                      description: "Customer will accept T&C via estimate approval",
+                    });
+
+                    onSkipContract();
+                  } catch (error) {
+                    console.error('Error skipping contract:', error);
+                    toast({
+                      title: "Error",
+                      description: "Failed to skip contract step",
+                      variant: "destructive"
+                    });
+                  }
+                }}
+                variant="ghost"
+                className="w-full"
+              >
+                Skip Contract (Use T&C Only)
+              </Button>
+              <p className="text-xs text-center text-muted-foreground">
+                Customer will accept Terms & Conditions when approving estimate
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

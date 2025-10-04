@@ -1,9 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { format } from 'date-fns';
+import { FileText, Shield, CheckCircle2 } from 'lucide-react';
+import { requiresSeparateContract } from '@/utils/contractRequirements';
 
 interface Quote {
   id: string;
@@ -22,6 +27,7 @@ interface Quote {
   secondary_protein?: string;
   sides?: string[];
   special_requests?: string;
+  compliance_level?: string;
 }
 
 interface LineItem {
@@ -39,6 +45,8 @@ interface ReviewPanelProps {
   lineItems: LineItem[];
   totals: { subtotal: number; tax_amount: number; total_amount: number };
   isGovernmentContract: boolean;
+  requiresContract?: boolean;
+  onRequiresContractChange?: (requires: boolean) => void;
   onBack: () => void;
   onSendEstimate: () => void;
 }
@@ -48,15 +56,73 @@ export function ReviewPanel({
   lineItems,
   totals,
   isGovernmentContract,
+  requiresContract: requiresContractProp,
+  onRequiresContractChange,
   onBack,
   onSendEstimate
 }: ReviewPanelProps) {
+  const contractCheck = requiresSeparateContract(quote, totals.total_amount);
+  const [localRequiresContract, setLocalRequiresContract] = useState(
+    requiresContractProp !== undefined ? requiresContractProp : contractCheck.requiresSeparateContract
+  );
+
+  const handleContractToggle = (checked: boolean) => {
+    setLocalRequiresContract(checked);
+    onRequiresContractChange?.(checked);
+  };
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Final Review</CardTitle>
+        <div className="flex items-start justify-between">
+          <div>
+            <CardTitle>Final Review</CardTitle>
+            <p className="text-sm text-muted-foreground mt-1">
+              Review all details before sending to customer
+            </p>
+          </div>
+          {localRequiresContract ? (
+            <Badge variant="outline" className="gap-1">
+              <Shield className="h-3 w-3" />
+              Contract Required
+            </Badge>
+          ) : (
+            <Badge variant="secondary" className="gap-1">
+              <FileText className="h-3 w-3" />
+              T&C in Estimate
+            </Badge>
+          )}
+        </div>
       </CardHeader>
       <CardContent className="space-y-6">
+        {/* Contract Requirement Toggle */}
+        <Alert>
+          <AlertDescription className="space-y-3">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1">
+                <h4 className="font-semibold mb-1">Contract Requirement</h4>
+                <p className="text-sm text-muted-foreground">{contractCheck.reason}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Switch
+                  id="requires-contract"
+                  checked={localRequiresContract}
+                  onCheckedChange={handleContractToggle}
+                />
+                <Label htmlFor="requires-contract" className="text-sm whitespace-nowrap">
+                  {localRequiresContract ? 'Contract' : 'T&C Only'}
+                </Label>
+              </div>
+            </div>
+            {!localRequiresContract && (
+              <p className="text-xs text-muted-foreground border-t pt-2 mt-2">
+                Customer will accept Terms & Conditions when approving the estimate (no separate contract needed)
+              </p>
+            )}
+          </AlertDescription>
+        </Alert>
+
+        <Separator />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Event Details */}
           <div className="space-y-4">
@@ -215,10 +281,17 @@ export function ReviewPanel({
           <Button onClick={onBack} variant="outline">
             Back to Pricing
           </Button>
-          <Button onClick={onSendEstimate}>
+          <Button onClick={onSendEstimate} className="gap-2">
+            <CheckCircle2 className="h-4 w-4" />
             Send Estimate to Customer
           </Button>
         </div>
+        
+        {!localRequiresContract && (
+          <p className="text-xs text-muted-foreground text-center">
+            Estimate will include Terms & Conditions. Customer can approve and pay without signing a separate contract.
+          </p>
+        )}
       </CardContent>
     </Card>
   );
