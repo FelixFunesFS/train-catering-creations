@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { QuoteUpdateService } from './QuoteUpdateService';
 import { HistoryLogger } from './HistoryLogger';
 import { EstimateVersionService } from './EstimateVersionService';
+import { EmailNotificationService } from './EmailNotificationService';
 
 export interface ChangeRequest {
   id: string;
@@ -33,11 +34,13 @@ export class ChangeRequestProcessor {
   private quoteUpdateService: QuoteUpdateService;
   private historyLogger: HistoryLogger;
   private versionService: EstimateVersionService;
+  private emailService: EmailNotificationService;
 
   constructor() {
     this.quoteUpdateService = new QuoteUpdateService();
     this.historyLogger = new HistoryLogger();
     this.versionService = new EstimateVersionService();
+    this.emailService = new EmailNotificationService();
   }
 
   /**
@@ -112,20 +115,45 @@ export class ChangeRequestProcessor {
       // STEP 8: Mark change request as approved
       await this.markAsApproved(changeRequest.id, options.adminResponse, newTotal - invoice.total_amount);
 
-      // STEP 9: Update invoice status to approved
+      // STEP 9: Regenerate customer access token for security
+      const newAccessToken = crypto.randomUUID();
+      const newTokenExpiry = new Date();
+      newTokenExpiry.setDate(newTokenExpiry.getDate() + 90); // 90 days from now
+
+      // STEP 10: Update invoice - set to 'sent' (not 'approved') to require customer re-review
       await supabase
         .from('invoices')
         .update({
-          status: 'approved',
-          workflow_status: 'approved',
-          status_changed_by: 'admin'
+          status: 'sent',
+          workflow_status: 'sent',
+          status_changed_by: 'admin',
+          customer_access_token: newAccessToken,
+          token_expires_at: newTokenExpiry.toISOString()
         })
         .eq('id', changeRequest.invoice_id);
 
-      // STEP 10: Log workflow state
+      // STEP 11: Log workflow state
       await this.logWorkflowStateChange(changeRequest, invoice.quote_request_id, options, newTotal - invoice.total_amount);
 
+      // STEP 12: Send email notification with new estimate link
+      const estimateLink = `${window.location.origin}/estimate?token=${newAccessToken}`;
+      const emailResult = await this.emailService.sendChangeRequestResponse({
+        to: changeRequest.customer_email,
+        customerName: quote.contact_name || 'Valued Customer',
+        eventName: quote.event_name || 'Your Event',
+        action: 'approved',
+        adminResponse: options.adminResponse,
+        costChange: newTotal - invoice.total_amount,
+        estimateLink
+      });
+
+      if (!emailResult.success) {
+        console.warn('Failed to send email notification:', emailResult.error);
+        // Don't fail the entire operation if email fails
+      }
+
       console.log('Change request approved successfully. New total:', newTotal);
+      console.log('New access token generated. Old links invalidated.');
       return { success: true, newTotal, appliedChanges: quoteUpdates };
     } catch (error) {
       console.error('Error approving change request:', error);
@@ -163,6 +191,22 @@ export class ChangeRequestProcessor {
         changed_by: 'admin',
         change_reason: `Change request rejected: ${adminResponse.substring(0, 100)}`
       });
+
+      // Get customer details for email
+      const { invoice, quote } = await this.getInvoiceAndQuote(changeRequest.invoice_id);
+
+      // Send rejection email notification
+      const emailResult = await this.emailService.sendChangeRequestResponse({
+        to: changeRequest.customer_email,
+        customerName: quote?.contact_name || 'Valued Customer',
+        eventName: quote?.event_name || 'Your Event',
+        action: 'rejected',
+        adminResponse
+      });
+
+      if (!emailResult.success) {
+        console.warn('Failed to send rejection email:', emailResult.error);
+      }
 
       return { success: true };
     } catch (error) {

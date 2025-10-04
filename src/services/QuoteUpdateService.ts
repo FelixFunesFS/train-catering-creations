@@ -13,11 +13,36 @@ export class QuoteUpdateService {
   async applyChanges(currentQuote: any, changes: any): Promise<any> {
     const quoteUpdates: any = {};
 
-    // Apply event detail changes
-    if (changes.event_date) quoteUpdates.event_date = changes.event_date;
-    if (changes.guest_count) quoteUpdates.guest_count = parseInt(changes.guest_count);
-    if (changes.location) quoteUpdates.location = changes.location;
-    if (changes.start_time) quoteUpdates.start_time = changes.start_time;
+    // Apply event detail changes with logging for debugging
+    if (changes.event_date) {
+      console.log('Updating event_date:', changes.event_date);
+      quoteUpdates.event_date = changes.event_date;
+    }
+    if (changes.guest_count) {
+      const parsedCount = parseInt(changes.guest_count);
+      console.log('Updating guest_count from', currentQuote.guest_count, 'to', parsedCount);
+      quoteUpdates.guest_count = parsedCount;
+    }
+    if (changes.location) {
+      console.log('Updating location:', changes.location);
+      quoteUpdates.location = changes.location;
+    }
+    if (changes.start_time) {
+      console.log('Updating start_time:', changes.start_time);
+      quoteUpdates.start_time = changes.start_time;
+    }
+    if (changes.contact_name) {
+      console.log('Updating contact_name:', changes.contact_name);
+      quoteUpdates.contact_name = changes.contact_name;
+    }
+    if (changes.phone) {
+      console.log('Updating phone:', changes.phone);
+      quoteUpdates.phone = changes.phone;
+    }
+    if (changes.email) {
+      console.log('Updating email:', changes.email);
+      quoteUpdates.email = changes.email;
+    }
 
     // Handle menu changes
     if (changes.menu_changes) {
