@@ -284,7 +284,7 @@ export function BusinessIntelligenceTab() {
                 <ResponsiveContainer width="100%" height={300}>
                   <PieChart>
                     <Pie
-                      data={eventTypeData}
+                      data={eventTypeData as any}
                       dataKey="count"
                       nameKey="type"
                       cx="50%"
