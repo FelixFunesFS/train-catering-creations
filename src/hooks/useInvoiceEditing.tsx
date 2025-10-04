@@ -75,7 +75,7 @@ export function useInvoiceEditing() {
     return errors;
   }, []);
 
-  // Save invoice changes with enhanced validation
+  // Save invoice changes with enhanced validation and optimistic locking
   const saveInvoiceChanges = useCallback(async (invoiceId: string, updatedInvoice: InvoiceData) => {
     setIsSaving(true);
     setValidationErrors([]);
@@ -93,8 +93,17 @@ export function useInvoiceEditing() {
         return false;
       }
 
-      // Save to database with transaction for data consistency
-      const { error: invoiceError } = await supabase
+      // Fetch current version for optimistic locking
+      const { data: currentInvoice, error: fetchError } = await supabase
+        .from('invoices')
+        .select('version')
+        .eq('id', invoiceId)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      // Save to database with optimistic locking
+      const { data: updateResult, error: invoiceError } = await supabase
         .from('invoices')
         .update({
           subtotal: updatedInvoice.subtotal,
@@ -103,9 +112,21 @@ export function useInvoiceEditing() {
           updated_at: new Date().toISOString(),
           status_changed_by: 'admin'
         })
-        .eq('id', invoiceId);
+        .eq('id', invoiceId)
+        .eq('version', currentInvoice.version)
+        .select();
 
       if (invoiceError) throw invoiceError;
+
+      // Check if update was successful (optimistic lock check)
+      if (!updateResult || updateResult.length === 0) {
+        toast({
+          title: "Conflict Detected",
+          description: "This invoice was modified by another user. Please refresh and try again.",
+          variant: "destructive",
+        });
+        return false;
+      }
 
       // Delete existing line items
       const { error: deleteError } = await supabase
@@ -168,12 +189,12 @@ export function useInvoiceEditing() {
     }
   }, [toast, validateInvoice]);
 
-  // Enhanced save with backup creation
+  // Enhanced save with backup creation and optimistic locking
   const saveWithBackup = useCallback(async (invoiceId: string, updatedInvoice: InvoiceData) => {
     setIsSaving(true);
     
     try {
-      // Create backup of current invoice data
+      // Create backup of current invoice data with version
       const { data: currentInvoice, error: fetchError } = await supabase
         .from('invoices')
         .select(`

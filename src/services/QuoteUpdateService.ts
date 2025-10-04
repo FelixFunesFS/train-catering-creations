@@ -78,15 +78,38 @@ export class QuoteUpdateService {
   }
 
   /**
-   * Update quote in database
+   * Update quote in database with optimistic locking
    */
   async updateQuote(quoteId: string, updates: any): Promise<void> {
-    const { error } = await supabase
+    // Fetch current version
+    const { data: currentQuote, error: fetchError } = await supabase
+      .from('quote_requests')
+      .select('version')
+      .eq('id', quoteId)
+      .single();
+
+    if (fetchError) {
+      console.error('Error fetching quote version:', fetchError);
+      throw fetchError;
+    }
+
+    // Update with version check
+    const { data: updateResult, error } = await supabase
       .from('quote_requests')
       .update(updates)
-      .eq('id', quoteId);
+      .eq('id', quoteId)
+      .eq('version', currentQuote.version)
+      .select();
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error updating quote:', error);
+      throw error;
+    }
+
+    // Check for optimistic lock conflict
+    if (!updateResult || updateResult.length === 0) {
+      throw new Error('OPTIMISTIC_LOCK_CONFLICT: Quote was modified by another user');
+    }
   }
 
   /**

@@ -116,13 +116,26 @@ export class WorkflowService {
   }
 
   /**
-   * Update invoice with pricing totals
+   * Update invoice with pricing totals using optimistic locking
    */
   static async updateInvoiceTotals(
     invoiceId: string,
     totals: { subtotal: number; tax_amount: number; total_amount: number }
   ) {
-    const { error } = await supabase
+    // Fetch current version
+    const { data: currentInvoice, error: fetchError } = await supabase
+      .from('invoices')
+      .select('version')
+      .eq('id', invoiceId)
+      .single();
+
+    if (fetchError) {
+      console.error('Error fetching invoice version:', fetchError);
+      throw fetchError;
+    }
+
+    // Update with version check
+    const { data: updateResult, error } = await supabase
       .from('invoices')
       .update({
         subtotal: totals.subtotal,
@@ -131,9 +144,20 @@ export class WorkflowService {
         updated_at: new Date().toISOString(),
         status_changed_by: 'admin'
       })
-      .eq('id', invoiceId);
+      .eq('id', invoiceId)
+      .eq('version', currentInvoice.version)
+      .select();
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error updating invoice totals:', error);
+      throw error;
+    }
+
+    // Check for optimistic lock conflict
+    if (!updateResult || updateResult.length === 0) {
+      throw new Error('OPTIMISTIC_LOCK_CONFLICT: Invoice was modified by another user');
+    }
+
     return true;
   }
 }

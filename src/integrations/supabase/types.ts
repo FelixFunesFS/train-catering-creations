@@ -782,6 +782,7 @@ export type Database = {
           token_expires_at: string | null
           total_amount: number
           updated_at: string
+          version: number
           viewed_at: string | null
           workflow_status:
             | Database["public"]["Enums"]["invoice_workflow_status"]
@@ -831,6 +832,7 @@ export type Database = {
           token_expires_at?: string | null
           total_amount?: number
           updated_at?: string
+          version?: number
           viewed_at?: string | null
           workflow_status?:
             | Database["public"]["Enums"]["invoice_workflow_status"]
@@ -880,6 +882,7 @@ export type Database = {
           token_expires_at?: string | null
           total_amount?: number
           updated_at?: string
+          version?: number
           viewed_at?: string | null
           workflow_status?:
             | Database["public"]["Enums"]["invoice_workflow_status"]
@@ -1387,6 +1390,7 @@ export type Database = {
           theme_colors: string | null
           updated_at: string | null
           utensils: Json | null
+          version: number
           wait_staff_requested: boolean | null
           wait_staff_requirements: string | null
           wait_staff_setup_areas: string | null
@@ -1448,6 +1452,7 @@ export type Database = {
           theme_colors?: string | null
           updated_at?: string | null
           utensils?: Json | null
+          version?: number
           wait_staff_requested?: boolean | null
           wait_staff_requirements?: string | null
           wait_staff_setup_areas?: string | null
@@ -1509,6 +1514,7 @@ export type Database = {
           theme_colors?: string | null
           updated_at?: string | null
           utensils?: Json | null
+          version?: number
           wait_staff_requested?: boolean | null
           wait_staff_requirements?: string | null
           wait_staff_setup_areas?: string | null
@@ -1660,6 +1666,10 @@ export type Database = {
       can_access_estimate: {
         Args: { access_token: string; customer_email: string }
         Returns: boolean
+      }
+      generate_invoice_number: {
+        Args: Record<PropertyKey, never>
+        Returns: string
       }
       grant_first_admin: {
         Args: Record<PropertyKey, never>
