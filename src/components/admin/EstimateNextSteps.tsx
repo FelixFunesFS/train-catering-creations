@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { UnifiedEmailReviewModal } from './UnifiedEmailReviewModal';
+// Email modal removed - using send-workflow-email edge function directly
 import {
   CheckCircle2,
   Send,
@@ -49,53 +49,35 @@ export function EstimateNextSteps({
     }).format(amount / 100);
   };
 
-  const [showEmailPreview, setShowEmailPreview] = useState(false);
-  const [estimateData, setEstimateData] = useState(null);
-  const [lineItems, setLineItems] = useState([]);
-
-  // Fetch full estimate data when email preview is opened
-  const fetchEstimateData = async () => {
+  // Email functionality now handled by send-workflow-email edge function
+  const handleSendToCustomer = async () => {
+    setActionLoading('send');
     try {
-      const { data: invoice, error } = await supabase
-        .from('invoices')
-        .select(`
-          *,
-          customers!customer_id(*),
-          quote_requests!quote_request_id(*)
-        `)
-        .eq('id', invoiceId)
-        .single();
+      const { error } = await supabase.functions.invoke('send-workflow-email', {
+        body: {
+          invoiceId,
+          emailType: 'estimate',
+        }
+      });
 
       if (error) throw error;
 
-      const { data: items, error: itemsError } = await supabase
-        .from('invoice_line_items')
-        .select('*')
-        .eq('invoice_id', invoiceId)
-        .order('created_at');
-
-      if (itemsError) throw itemsError;
-
-      setEstimateData(invoice);
-      setLineItems(items || []);
-    } catch (error) {
-      console.error('Error fetching estimate data:', error);
+      toast({
+        title: "Success",
+        description: "Estimate sent to customer",
+      });
+      
+      onStatusChange?.();
+    } catch (error: any) {
+      console.error('Error sending estimate:', error);
       toast({
         title: "Error",
-        description: "Failed to load estimate data",
+        description: error.message || "Failed to send estimate",
         variant: "destructive",
       });
+    } finally {
+      setActionLoading(null);
     }
-  };
-
-  const handleSendToCustomer = async () => {
-    await fetchEstimateData();
-    setShowEmailPreview(true);
-  };
-
-  const handleEmailSent = () => {
-    setShowEmailPreview(false);
-    onStatusChange?.();
   };
 
   const handlePreview = () => {
@@ -365,17 +347,7 @@ export function EstimateNextSteps({
         )}
 
 
-        {/* Email Preview Modal */}
-        {estimateData && (
-          <UnifiedEmailReviewModal
-            isOpen={showEmailPreview}
-            onClose={() => setShowEmailPreview(false)}
-            emailType="estimate"
-            invoice={estimateData}
-            lineItems={lineItems}
-            onEmailSent={handleEmailSent}
-          />
-        )}
+        {/* Email modal removed - using send-workflow-email edge function directly */}
       </CardContent>
     </Card>
   );

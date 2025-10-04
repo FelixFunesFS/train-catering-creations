@@ -4,7 +4,7 @@ import { type QuoteRequest } from '@/utils/invoiceFormatters';
 import { useEnhancedPricingManagement } from '@/hooks/useEnhancedPricingManagement';
 import { useInvoiceEditing } from '@/hooks/useInvoiceEditing';
 import { useWorkflowSync } from '@/hooks/useWorkflowSync';
-import { UnifiedEmailReviewModal } from './UnifiedEmailReviewModal';
+// Email modal removed - using send-workflow-email edge function directly
 import { supabase } from '@/integrations/supabase/client';
 import { WorkflowSteps } from './workflow/WorkflowSteps';
 import { QuoteSelectionPanel } from './workflow/QuoteSelectionPanel';
@@ -427,30 +427,7 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
         />
       )}
 
-      {showEmailModal && invoice && selectedQuote && (
-        <UnifiedEmailReviewModal
-          invoice={invoice}
-          quoteRequest={selectedQuote}
-          lineItems={managedLineItems}
-          emailType="estimate"
-          isOpen={showEmailModal}
-          onClose={() => setShowEmailModal(false)}
-          onEmailSent={() => {
-            setShowEmailModal(false);
-            toast({
-              title: "Success",
-              description: "Estimate sent successfully!",
-            });
-            
-            // Advance workflow based on contract requirement
-            if (requiresContract) {
-              setCurrentStep('contract');
-            } else {
-              setCurrentStep('payment');
-            }
-          }}
-        />
-      )}
+      {/* Email modal removed - ReviewPanel now uses send-workflow-email directly */}
     </div>
   );
 }

@@ -219,13 +219,12 @@ export function EstimateApprovalWorkflow({
         ? depositMilestone.amount_cents 
         : Math.round(estimate.total_amount * 0.5); // 50% deposit (already in cents)
 
-      const { data, error } = await supabase.functions.invoke('create-payment-link', {
+      const { data, error } = await supabase.functions.invoke('create-checkout-session', {
         body: {
           invoice_id: estimate.id,
-          amount: depositAmount,
-          currency: 'usd',
-          customer_email: estimate.quote_requests.email,
-          description: `Deposit for ${estimate.quote_requests.event_name}`,
+          payment_type: 'deposit',
+          success_url: `${window.location.origin}/payment/success`,
+          cancel_url: window.location.href,
         }
       });
 
@@ -254,13 +253,12 @@ export function EstimateApprovalWorkflow({
   const handlePayFull = async () => {
     setProcessingPayment(true);
     try {
-      const { data, error } = await supabase.functions.invoke('create-payment-link', {
+      const { data, error } = await supabase.functions.invoke('create-checkout-session', {
         body: {
           invoice_id: estimate.id,
-          amount: estimate.total_amount, // Already in cents
-          currency: 'usd',
-          customer_email: estimate.quote_requests.email,
-          description: `Full payment for ${estimate.quote_requests.event_name}`,
+          payment_type: 'full',
+          success_url: `${window.location.origin}/payment/success`,
+          cancel_url: window.location.href,
         }
       });
 

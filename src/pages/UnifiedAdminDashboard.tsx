@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { StreamlinedWorkflowDashboard } from '@/components/admin/StreamlinedWorkflowDashboard';
@@ -15,8 +16,22 @@ import { LogOut } from 'lucide-react';
 type AdminView = 'workflow' | 'change-management' | 'payments' | 'events' | 'testing' | 'event-board' | 'documents';
 
 export function UnifiedAdminDashboard() {
-  const [currentView, setCurrentView] = useState<AdminView>('workflow');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const viewParam = searchParams.get('view') as AdminView | null;
+  const [currentView, setCurrentView] = useState<AdminView>(viewParam || 'workflow');
   const { signOut } = useAuth();
+
+  // Sync URL with view state
+  useEffect(() => {
+    if (viewParam && viewParam !== currentView) {
+      setCurrentView(viewParam);
+    }
+  }, [viewParam]);
+
+  const handleViewChange = (view: AdminView) => {
+    setCurrentView(view);
+    setSearchParams({ view });
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -32,43 +47,43 @@ export function UnifiedAdminDashboard() {
             <div className="flex items-center gap-4">
               <Button
                 variant={currentView === 'workflow' ? 'default' : 'outline'}
-                onClick={() => setCurrentView('workflow')}
+                onClick={() => handleViewChange('workflow')}
               >
                 Streamlined Workflow
               </Button>
               <Button
                 variant={currentView === 'change-management' ? 'default' : 'outline'}
-                onClick={() => setCurrentView('change-management')}
+                onClick={() => handleViewChange('change-management')}
               >
                 Change Requests
               </Button>
               <Button
                 variant={currentView === 'payments' ? 'default' : 'outline'}
-                onClick={() => setCurrentView('payments')}
+                onClick={() => handleViewChange('payments')}
               >
                 Payment Processing
               </Button>
               <Button
                 variant={currentView === 'event-board' ? 'default' : 'outline'}
-                onClick={() => setCurrentView('event-board')}
+                onClick={() => handleViewChange('event-board')}
               >
                 Event Status
               </Button>
               <Button
                 variant={currentView === 'events' ? 'default' : 'outline'}
-                onClick={() => setCurrentView('events')}
+                onClick={() => handleViewChange('events')}
               >
                 Event Timeline
               </Button>
               <Button
                 variant={currentView === 'documents' ? 'default' : 'outline'}
-                onClick={() => setCurrentView('documents')}
+                onClick={() => handleViewChange('documents')}
               >
                 Documents
               </Button>
               <Button
                 variant={currentView === 'testing' ? 'default' : 'outline'}
-                onClick={() => setCurrentView('testing')}
+                onClick={() => handleViewChange('testing')}
               >
                 Testing
               </Button>
