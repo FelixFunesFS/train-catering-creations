@@ -15,10 +15,12 @@ import {
   RefreshCw,
   Eye,
   TrendingUp,
-  Users
+  Users,
+  ListChecks
 } from 'lucide-react';
 import { format, differenceInDays, isPast, isFuture } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
+import { EventDetailModal } from './EventDetailModal';
 
 interface EventStatus {
   quote: any;
@@ -33,6 +35,8 @@ export function EventStatusBoard() {
   const [events, setEvents] = useState<EventStatus[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -291,13 +295,27 @@ export function EventStatusBoard() {
 
                           <div className="flex items-center justify-between gap-2">
                             {getPaymentStatusBadge(event.payment_status)}
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => navigate(`/admin?view=workflow&quote=${event.quote.id}`)}
-                            >
-                              <Eye className="h-4 w-4" />
-                            </Button>
+                            <div className="flex gap-1">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  setSelectedEventId(event.quote.id);
+                                  setModalOpen(true);
+                                }}
+                                title="View Timeline"
+                              >
+                                <ListChecks className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => navigate(`/admin?view=workflow&quote=${event.quote.id}`)}
+                                title="View Details"
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            </div>
                           </div>
                         </div>
                       </CardContent>
@@ -339,6 +357,12 @@ export function EventStatusBoard() {
           )}
         </CardContent>
       </Card>
+
+      <EventDetailModal 
+        eventId={selectedEventId}
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+      />
     </div>
   );
 }
