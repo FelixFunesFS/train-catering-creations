@@ -8,22 +8,19 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  // TEMP: Authentication disabled for development
-  // TODO: Re-enable authentication when app is finished
-  
-  // const { user, loading } = useAuth();
+  const { user, loading } = useAuth();
 
-  // if (loading) {
-  //   return (
-  //     <div className="min-h-screen flex items-center justify-center bg-background">
-  //       <Loader2 className="h-8 w-8 animate-spin text-primary" />
-  //     </div>
-  //   );
-  // }
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
-  // if (!user) {
-  //   return <Navigate to="/admin/auth" replace />;
-  // }
+  if (!user) {
+    return <Navigate to="/admin/auth" replace />;
+  }
 
   return <>{children}</>;
 }

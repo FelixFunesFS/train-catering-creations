@@ -20,14 +20,42 @@ export const formSchema = z.object({
     "bereavement",
     "holiday_party"
   ]),
-  event_date: z.string().min(1, "Event date is required"),
-  start_time: z.string().min(1, "Start time is required"),
-  guest_count: z.number().min(1, "Guest count must be at least 1"),
+  event_date: z.string()
+    .min(1, "Event date is required")
+    .refine((dateStr) => {
+      const date = new Date(dateStr);
+      const now = new Date();
+      const minDate = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 24 hours from now
+      const maxDate = new Date(now.getTime() + 18 * 30 * 24 * 60 * 60 * 1000); // 18 months
+      return date >= minDate && date <= maxDate;
+    }, {
+      message: "Event date must be at least 24 hours in the future and within 18 months"
+    })
+    .refine((dateStr) => !isNaN(new Date(dateStr).getTime()), {
+      message: "Please enter a valid date"
+    }),
+  start_time: z.string()
+    .min(1, "Start time is required")
+    .refine((time) => /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(time), {
+      message: "Please enter a valid time (HH:MM format)"
+    }),
+  guest_count: z.number()
+    .min(1, "Guest count must be at least 1")
+    .max(500, "Maximum guest count is 500. For larger events, please contact us directly")
+    .int("Guest count must be a whole number"),
   location: z.string().min(1, "Location is required"),
   
   // Service Details  
   service_type: z.enum(["full-service", "delivery-setup", "drop-off"]).optional(),
-  serving_start_time: z.string().optional().nullable(),
+  serving_start_time: z.string()
+    .optional()
+    .nullable()
+    .refine((time) => {
+      if (!time) return true; // optional field
+      return /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(time);
+    }, {
+      message: "Please enter a valid time (HH:MM format)"
+    }),
   
   // Menu Selections
   primary_protein: z.array(z.string()).default([]),
@@ -38,7 +66,15 @@ export const formSchema = z.object({
   desserts: z.array(z.string()).default([]),
   drinks: z.array(z.string()).default([]),
   dietary_restrictions: z.array(z.string()).default([]),
-  guest_count_with_restrictions: z.string().optional(),
+  guest_count_with_restrictions: z.string()
+    .optional()
+    .refine((val) => {
+      if (!val) return true;
+      const num = parseInt(val, 10);
+      return !isNaN(num) && num >= 0 && num <= 500;
+    }, {
+      message: "Must be a valid number between 0 and 500"
+    }),
   custom_menu_requests: z.string().optional(),
   
   // Additional Services
@@ -70,4 +106,19 @@ export const formSchema = z.object({
     "other"
   ]).optional(),
   theme_colors: z.string().optional(),
+}).refine((data) => {
+  // Cross-field validation: serving time must be after or equal to start time
+  if (data.serving_start_time && data.start_time) {
+    const timeToMinutes = (time: string): number => {
+      const [hours, minutes] = time.split(':').map(Number);
+      return hours * 60 + minutes;
+    };
+    const startMinutes = timeToMinutes(data.start_time);
+    const servingMinutes = timeToMinutes(data.serving_start_time);
+    return servingMinutes >= startMinutes;
+  }
+  return true;
+}, {
+  message: "Serving start time must be after or equal to event start time",
+  path: ["serving_start_time"]
 });
