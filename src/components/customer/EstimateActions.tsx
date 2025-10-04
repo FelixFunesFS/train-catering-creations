@@ -30,6 +30,11 @@ export function EstimateActions({
     }
   };
 
+  // Show confirmation for change requests
+  if (status === 'change_requested') {
+    return null; // Handled by parent component
+  }
+
   if (status === 'approved') {
     return (
       <Card className="border-primary bg-primary/5">

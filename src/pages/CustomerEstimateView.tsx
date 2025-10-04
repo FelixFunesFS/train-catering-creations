@@ -4,6 +4,7 @@ import { useEstimateAccess } from '@/hooks/useEstimateAccess';
 import { EstimateDetails } from '@/components/customer/EstimateDetails';
 import { EstimateActions } from '@/components/customer/EstimateActions';
 import { ChangeRequestForm } from '@/components/customer/ChangeRequestForm';
+import { ChangeRequestConfirmation } from '@/components/customer/ChangeRequestConfirmation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -92,6 +93,16 @@ export default function CustomerEstimateView() {
             </CardHeader>
           </Card>
 
+          {/* Change Request Status Banner */}
+          {invoice.status === 'change_requested' && (
+            <Alert className="bg-orange-50 border-orange-200">
+              <AlertCircle className="h-4 w-4 text-orange-600" />
+              <AlertDescription className="text-orange-900">
+                Your change request is being reviewed. We'll send you an updated estimate within 24 hours.
+              </AlertDescription>
+            </Alert>
+          )}
+
           {/* Change Request Form or Estimate Details */}
           {showChangeForm ? (
             <>
@@ -121,13 +132,21 @@ export default function CustomerEstimateView() {
                 milestones={milestones}
               />
 
-              <EstimateActions
-                invoiceId={invoice.id}
-                customerEmail={quote.email}
-                status={invoice.status}
-                onChangeRequested={() => setShowChangeForm(true)}
-                onEstimateAccepted={handleRefetchWithDelay}
-              />
+              {/* Show confirmation if change was requested, otherwise show actions */}
+              {invoice.status === 'change_requested' ? (
+                <ChangeRequestConfirmation 
+                  customerEmail={quote.email}
+                  submittedAt={invoice.last_customer_action}
+                />
+              ) : (
+                <EstimateActions
+                  invoiceId={invoice.id}
+                  customerEmail={quote.email}
+                  status={invoice.status}
+                  onChangeRequested={() => setShowChangeForm(true)}
+                  onEstimateAccepted={handleRefetchWithDelay}
+                />
+              )}
             </>
           )}
         </div>

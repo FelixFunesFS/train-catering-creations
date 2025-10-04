@@ -99,12 +99,11 @@ export function ChangeRequestForm({ quote, invoice, onRequestSubmitted }: Change
         throw new Error('Failed to create change request');
       }
 
-      // Update invoice workflow status to indicate customer requested changes
+      // Update invoice status to indicate change was requested
       const { error: invoiceUpdateError } = await supabase
         .from('invoices')
         .update({
-          workflow_status: 'viewed',
-          status: 'viewed',
+          status: 'change_requested',
           last_customer_action: new Date().toISOString(),
           updated_at: new Date().toISOString()
         })
@@ -122,7 +121,7 @@ export function ChangeRequestForm({ quote, invoice, onRequestSubmitted }: Change
           entity_type: 'invoices',
           entity_id: invoice.id,
           previous_status: invoice.status,
-          new_status: 'viewed',
+          new_status: 'change_requested',
           changed_by: quote.email,
           change_reason: `Customer submitted change request: ${formData.request_type}`,
           metadata: {
