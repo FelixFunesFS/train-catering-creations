@@ -203,217 +203,233 @@ export function EnhancedEstimateLineItems({
               <p className="text-sm">Add items using the buttons above or add custom items</p>
             </div>
           ) : (
-            <div className="space-y-4">
-              {Object.entries(groupedLineItems).map(([category, items]) => {
-                const categoryTotal = items.reduce((sum, item) => sum + item.total_price, 0);
-                
-                return (
-                  <div key={category} className="border rounded-lg overflow-hidden">
-                    <Collapsible 
-                      open={expandedCategories[category] !== false} 
-                      onOpenChange={() => toggleCategory(category)}
-                    >
-                      {/* Category Header */}
-                      <CollapsibleTrigger asChild>
-                        <div className="flex items-center justify-between p-3 cursor-pointer hover:bg-muted/30 bg-muted/50 border-b">
-                          <div className="flex items-center gap-2">
-                            {expandedCategories[category] !== false ? 
-                              <ChevronDown className="h-4 w-4" /> : 
-                              <ChevronRight className="h-4 w-4" />
-                            }
-                            <span className="font-semibold text-sm capitalize">{category}</span>
-                            <Badge variant="secondary" className="text-xs">
-                              {items.length} {items.length === 1 ? 'item' : 'items'}
-                            </Badge>
-                          </div>
-                          <div className="text-sm font-semibold">
-                            ${(categoryTotal / 100).toFixed(2)}
-                          </div>
-                        </div>
-                      </CollapsibleTrigger>
+            <div className="border rounded-lg overflow-hidden">
+              {/* Main Header */}
+              <div className="px-4 py-3 bg-muted/50 border-b flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <h3 className="font-semibold text-base">All Line Items</h3>
+                  <Badge variant="secondary" className="text-xs">
+                    {lineItems.length} {lineItems.length === 1 ? 'item' : 'items'}
+                  </Badge>
+                </div>
+                <span className="font-semibold text-sm">
+                  ${(subtotal / 100).toFixed(2)}
+                </span>
+              </div>
 
-                      <CollapsibleContent>
-                        {/* Table Header */}
-                        <div className="hidden md:grid grid-cols-12 gap-3 px-3 py-2 bg-muted/30 text-xs font-medium text-muted-foreground border-b">
-                          <div className="col-span-4">Item</div>
-                          <div className="col-span-3">Description</div>
-                          <div className="col-span-1 text-center">Qty</div>
-                          <div className="col-span-2 text-right">Unit Price</div>
-                          <div className="col-span-1 text-right">Total</div>
-                          <div className="col-span-1"></div>
-                        </div>
+              {/* Table Header (Desktop) */}
+              <div className="hidden md:grid grid-cols-12 gap-3 px-3 py-2 bg-muted/30 text-xs font-medium text-muted-foreground border-b">
+                <div className="col-span-3">Title</div>
+                <div className="col-span-4">Description</div>
+                <div className="col-span-1 text-center">Qty</div>
+                <div className="col-span-2 text-right">Unit Price</div>
+                <div className="col-span-1 text-right">Total</div>
+                <div className="col-span-1"></div>
+              </div>
 
-                        {/* Item Rows */}
-                        <div className="divide-y">
-                          {items.map((item: LineItem, idx: number) => (
-                            <div 
-                              key={item.id} 
-                              className={`px-3 py-2 ${idx % 2 === 1 ? 'bg-muted/10' : 'bg-card'} hover:bg-muted/20 transition-colors`}
-                            >
-                              {/* Desktop Layout */}
-                              <div className="hidden md:grid grid-cols-12 gap-3 items-center">
-                                <div className="col-span-4">
-                                  <Input
-                                    value={item.title}
-                                    onChange={(e) => updateLineItem(item.id, { title: e.target.value })}
-                                    placeholder="Item title"
-                                    className="h-8 text-sm"
-                                    onFocus={() => setEditingItem(item.id)}
-                                    onBlur={() => setEditingItem(null)}
-                                  />
-                                </div>
-                                
-                                <div className="col-span-3">
-                                  <Input
-                                    value={item.description}
-                                    onChange={(e) => updateLineItem(item.id, { description: e.target.value })}
-                                    placeholder="Description"
-                                    className="h-8 text-xs"
-                                  />
-                                </div>
-                                
-                                <div className="col-span-1">
-                                  <Input
-                                    type="number"
-                                    value={item.quantity}
-                                    onChange={(e) => updateLineItem(item.id, { quantity: parseInt(e.target.value) || 0 })}
-                                    min="0"
-                                    className="h-8 text-center text-sm"
-                                  />
-                                </div>
-                                
-                                <div className="col-span-2">
-                                  <div className="relative">
-                                    <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-xs text-muted-foreground">$</span>
-                                    <Input
-                                      type="text"
-                                      value={editingValues[`${item.id}-unit_price`] !== undefined 
-                                        ? editingValues[`${item.id}-unit_price`] 
-                                        : (item.unit_price / 100).toFixed(2)}
-                                      onChange={(e) => {
-                                        const value = e.target.value.replace(/[^0-9.]/g, '');
-                                        setEditingValues(prev => ({ ...prev, [`${item.id}-unit_price`]: value }));
-                                      }}
-                                      onFocus={() => {
-                                        setEditingValues(prev => ({ ...prev, [`${item.id}-unit_price`]: (item.unit_price / 100).toFixed(2) }));
-                                      }}
-                                      onBlur={() => {
-                                        const value = editingValues[`${item.id}-unit_price`];
-                                        if (value !== undefined) {
-                                          const numValue = parseFloat(value || '0');
-                                          if (!isNaN(numValue)) {
-                                            updateLineItem(item.id, { unit_price: Math.round(numValue * 100) });
-                                          }
-                                          setEditingValues(prev => {
-                                            const newState = { ...prev };
-                                            delete newState[`${item.id}-unit_price`];
-                                            return newState;
-                                          });
-                                        }
-                                      }}
-                                      className="pl-6 h-8 text-right text-sm"
-                                    />
-                                  </div>
-                                </div>
-                                
-                                <div className="col-span-1 text-right">
-                                  <div className="text-sm font-semibold">
-                                    ${(item.total_price / 100).toFixed(2)}
-                                  </div>
-                                </div>
-                                
-                                <div className="col-span-1 flex justify-end">
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    onClick={() => removeLineItem(item.id)}
-                                    className="h-8 w-8 text-destructive hover:text-destructive"
-                                  >
-                                    <Trash2 className="h-3.5 w-3.5" />
-                                  </Button>
-                                </div>
-                              </div>
+              {/* All Items with Category Separators */}
+              <div className="divide-y">
+                {Object.entries(groupedLineItems).map(([category, items]) => {
+                  const categoryTotal = items.reduce((sum, item) => sum + item.total_price, 0);
+                  
+                  return (
+                    <React.Fragment key={category}>
+                      {/* Category Separator Row */}
+                      <div className="px-4 py-2 bg-muted/20 border-y flex items-center justify-between">
+                        <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground capitalize">
+                          {category}
+                        </span>
+                        <div className="flex-1 mx-3 border-b border-dashed border-border"></div>
+                        <span className="text-xs font-semibold text-muted-foreground">
+                          ${(categoryTotal / 100).toFixed(2)}
+                        </span>
+                      </div>
 
-                              {/* Mobile Layout */}
-                              <div className="md:hidden space-y-3">
-                                <div className="space-y-2">
-                                  <Label className="text-xs">Title</Label>
-                                  <Input
-                                    value={item.title}
-                                    onChange={(e) => updateLineItem(item.id, { title: e.target.value })}
-                                    placeholder="Item title"
-                                    className="text-sm"
-                                  />
-                                </div>
-                                
-                                <div className="space-y-2">
-                                  <Label className="text-xs">Description</Label>
-                                  <Textarea
-                                    value={item.description}
-                                    onChange={(e) => updateLineItem(item.id, { description: e.target.value })}
-                                    placeholder="Description"
-                                    className="text-xs resize-none"
-                                    rows={2}
-                                  />
-                                </div>
-                                
-                                <div className="grid grid-cols-2 gap-3">
-                                  <div className="space-y-2">
-                                    <Label className="text-xs">Quantity</Label>
-                                    <Input
-                                      type="number"
-                                      value={item.quantity}
-                                      onChange={(e) => updateLineItem(item.id, { quantity: parseInt(e.target.value) || 0 })}
-                                      min="0"
-                                      className="text-sm"
-                                    />
-                                  </div>
-                                  
-                                  <div className="space-y-2">
-                                    <Label className="text-xs">Unit Price</Label>
-                                    <div className="relative">
-                                      <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-xs text-muted-foreground">$</span>
-                                      <Input
-                                        type="number"
-                                        value={item.unit_price / 100}
-                                        onChange={(e) => {
-                                          const numValue = parseFloat(e.target.value || '0');
-                                          if (!isNaN(numValue)) {
-                                            updateLineItem(item.id, { unit_price: Math.round(numValue * 100) });
-                                          }
-                                        }}
-                                        className="pl-6 text-sm"
-                                        step="0.01"
-                                      />
-                                    </div>
-                                  </div>
-                                </div>
-
-                                <div className="flex justify-between items-center pt-2 border-t">
-                                  <span className="text-xs font-medium">Total</span>
-                                  <span className="font-bold text-sm">
-                                    ${(item.total_price / 100).toFixed(2)}
-                                  </span>
-                                </div>
-
-                                <Button
-                                  variant="destructive"
-                                  size="sm"
-                                  onClick={() => removeLineItem(item.id)}
-                                  className="w-full"
-                                >
-                                  <Trash2 className="h-4 w-4 mr-2" />
-                                  Remove Item
-                                </Button>
+                      {/* Category Items */}
+                      {items.map((item: LineItem, idx: number) => (
+                        <div 
+                          key={item.id} 
+                          className={`px-3 py-2 ${idx % 2 === 1 ? 'bg-muted/10' : 'bg-card'} hover:bg-muted/20 transition-colors`}
+                        >
+                          {/* Desktop Layout */}
+                          <div className="hidden md:grid grid-cols-12 gap-3 items-start">
+                            <div className="col-span-3">
+                              <Input
+                                value={item.title}
+                                onChange={(e) => updateLineItem(item.id, { title: e.target.value })}
+                                placeholder="Item title"
+                                className="h-8 text-sm"
+                                onFocus={() => setEditingItem(item.id)}
+                                onBlur={() => setEditingItem(null)}
+                              />
+                            </div>
+                            
+                            <div className="col-span-4">
+                              <Textarea
+                                value={item.description}
+                                onChange={(e) => updateLineItem(item.id, { description: e.target.value })}
+                                placeholder="Full description"
+                                className="text-xs resize-none min-h-[60px]"
+                                rows={3}
+                              />
+                            </div>
+                            
+                            <div className="col-span-1">
+                              <Input
+                                type="number"
+                                value={item.quantity}
+                                onChange={(e) => updateLineItem(item.id, { quantity: parseInt(e.target.value) || 0 })}
+                                min="0"
+                                className="h-8 text-center text-sm"
+                              />
+                            </div>
+                            
+                            <div className="col-span-2">
+                              <div className="relative">
+                                <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-xs text-muted-foreground">$</span>
+                                <Input
+                                  type="text"
+                                  value={editingValues[`${item.id}-unit_price`] !== undefined 
+                                    ? editingValues[`${item.id}-unit_price`] 
+                                    : (item.unit_price / 100).toFixed(2)}
+                                  onChange={(e) => {
+                                    const value = e.target.value.replace(/[^0-9.]/g, '');
+                                    setEditingValues(prev => ({ ...prev, [`${item.id}-unit_price`]: value }));
+                                  }}
+                                  onFocus={() => {
+                                    setEditingValues(prev => ({ ...prev, [`${item.id}-unit_price`]: (item.unit_price / 100).toFixed(2) }));
+                                  }}
+                                  onBlur={() => {
+                                    const value = editingValues[`${item.id}-unit_price`];
+                                    if (value !== undefined) {
+                                      const numValue = parseFloat(value || '0');
+                                      if (!isNaN(numValue)) {
+                                        updateLineItem(item.id, { unit_price: Math.round(numValue * 100) });
+                                      }
+                                      setEditingValues(prev => {
+                                        const newState = { ...prev };
+                                        delete newState[`${item.id}-unit_price`];
+                                        return newState;
+                                      });
+                                    }
+                                  }}
+                                  className="pl-6 h-8 text-right text-sm"
+                                />
                               </div>
                             </div>
-                          ))}
+                            
+                            <div className="col-span-1 text-right pt-1">
+                              <div className="text-sm font-semibold">
+                                ${(item.total_price / 100).toFixed(2)}
+                              </div>
+                            </div>
+                            
+                            <div className="col-span-1 flex justify-end">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => removeLineItem(item.id)}
+                                className="h-8 w-8 text-destructive hover:text-destructive"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </Button>
+                            </div>
+                          </div>
+
+                          {/* Mobile Layout */}
+                          <div className="md:hidden space-y-3">
+                            <div className="space-y-2">
+                              <Label className="text-xs">Title</Label>
+                              <Input
+                                value={item.title}
+                                onChange={(e) => updateLineItem(item.id, { title: e.target.value })}
+                                placeholder="Item title"
+                                className="text-sm"
+                              />
+                            </div>
+                            
+                            <div className="space-y-2">
+                              <Label className="text-xs">Description</Label>
+                              <Textarea
+                                value={item.description}
+                                onChange={(e) => updateLineItem(item.id, { description: e.target.value })}
+                                placeholder="Full description"
+                                className="text-xs resize-none"
+                                rows={3}
+                              />
+                            </div>
+                            
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="space-y-2">
+                                <Label className="text-xs">Quantity</Label>
+                                <Input
+                                  type="number"
+                                  value={item.quantity}
+                                  onChange={(e) => updateLineItem(item.id, { quantity: parseInt(e.target.value) || 0 })}
+                                  min="0"
+                                  className="text-sm"
+                                />
+                              </div>
+                              
+                              <div className="space-y-2">
+                                <Label className="text-xs">Unit Price</Label>
+                                <div className="relative">
+                                  <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-xs text-muted-foreground">$</span>
+                                  <Input
+                                    type="text"
+                                    value={editingValues[`${item.id}-unit_price`] !== undefined 
+                                      ? editingValues[`${item.id}-unit_price`] 
+                                      : (item.unit_price / 100).toFixed(2)}
+                                    onChange={(e) => {
+                                      const value = e.target.value.replace(/[^0-9.]/g, '');
+                                      setEditingValues(prev => ({ ...prev, [`${item.id}-unit_price`]: value }));
+                                    }}
+                                    onFocus={() => {
+                                      setEditingValues(prev => ({ ...prev, [`${item.id}-unit_price`]: (item.unit_price / 100).toFixed(2) }));
+                                    }}
+                                    onBlur={() => {
+                                      const value = editingValues[`${item.id}-unit_price`];
+                                      if (value !== undefined) {
+                                        const numValue = parseFloat(value || '0');
+                                        if (!isNaN(numValue)) {
+                                          updateLineItem(item.id, { unit_price: Math.round(numValue * 100) });
+                                        }
+                                        setEditingValues(prev => {
+                                          const newState = { ...prev };
+                                          delete newState[`${item.id}-unit_price`];
+                                          return newState;
+                                        });
+                                      }
+                                    }}
+                                    className="pl-6 text-right text-sm"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <div className="flex justify-between items-center pt-2 border-t">
+                              <span className="text-xs font-medium">Total</span>
+                              <span className="font-bold text-sm">
+                                ${(item.total_price / 100).toFixed(2)}
+                              </span>
+                            </div>
+                            
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => removeLineItem(item.id)}
+                              className="w-full"
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Remove Item
+                            </Button>
+                          </div>
                         </div>
-                      </CollapsibleContent>
-                    </Collapsible>
-                  </div>
-                );
-              })}
+                      ))}
+                    </React.Fragment>
+                  );
+                })}
+              </div>
             </div>
           )}
         </div>
