@@ -114,18 +114,7 @@ export function UnifiedLineItemsTable({
     return null;
   };
 
-  const groupedItems = groupByCategory
-    ? items.reduce((acc, item) => {
-        const category = item.category || 'Other';
-        if (!acc[category]) acc[category] = [];
-        acc[category].push(item);
-        return acc;
-      }, {} as Record<string, LineItem[]>)
-    : { 'All Items': items };
-
-  const calculateCategoryTotal = (items: LineItem[]) => {
-    return items.reduce((sum, item) => sum + item.total_price, 0);
-  };
+  // Removed category grouping logic - using flat table structure
 
   const totalItems = items.length;
 
@@ -158,28 +147,9 @@ export function UnifiedLineItemsTable({
           {mode === 'edit' && <div className="col-span-1"></div>}
         </div>
 
-        {/* All Items with Category Separators */}
+        {/* All Items - Flat Table */}
         <div className="divide-y">
-          {Object.entries(groupedItems).map(([category, categoryItems], catIndex) => {
-            const categoryTotal = calculateCategoryTotal(categoryItems);
-            
-            return (
-              <React.Fragment key={category}>
-                {/* Category Separator Row */}
-                {groupByCategory && (
-                  <div className="px-4 py-2 bg-muted/20 border-y flex items-center justify-between">
-                    <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground capitalize">
-                      {category}
-                    </span>
-                    <div className="flex-1 mx-3 border-b border-dashed border-border"></div>
-                    <span className="text-xs font-semibold text-muted-foreground">
-                      {formatCurrency(categoryTotal)}
-                    </span>
-                  </div>
-                )}
-
-                {/* Category Items */}
-                {categoryItems.map((item, index) => {
+          {items.map((item, index) => {
                   const change = getChangeForItem(item.id);
                   const isRemoved = change?.type === 'removed';
                   
@@ -416,9 +386,6 @@ export function UnifiedLineItemsTable({
                     </div>
                   );
                 })}
-              </React.Fragment>
-            );
-          })}
         </div>
       </div>
 

@@ -62,34 +62,8 @@ export function EnhancedEstimateLineItems({
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
   const { toast } = useToast();
 
-  // Group line items by category for better organization
-  const groupedLineItems = lineItems.reduce((acc, item) => {
-    const category = item.category || 'other';
-    if (!acc[category]) acc[category] = [];
-    acc[category].push(item);
-    return acc;
-  }, {} as Record<string, LineItem[]>);
+  // Removed category grouping logic - using flat table structure
 
-  const toggleCategory = (category: string) => {
-    setExpandedCategories(prev => ({
-      ...prev,
-      [category]: !prev[category]
-    }));
-  };
-
-  const handleBulkPricing = (category: string, pricePerPerson: number) => {
-    const items = groupedLineItems[category] || [];
-    items.forEach(item => {
-      const isPerPerson = category !== 'service';
-      const unitPrice = isPerPerson ? Math.round(pricePerPerson * 100) : Math.round(pricePerPerson * 100);
-      updateLineItem(item.id, { unit_price: unitPrice });
-    });
-    
-    toast({
-      title: "Pricing Applied",
-      description: `Updated ${items.length} items in ${category} category`,
-    });
-  };
 
   const getCategoryColor = (category: string) => {
     switch (category) {
@@ -227,26 +201,9 @@ export function EnhancedEstimateLineItems({
                 <div className="col-span-1"></div>
               </div>
 
-              {/* All Items with Category Separators */}
+              {/* All Items - Flat Table */}
               <div className="divide-y">
-                {Object.entries(groupedLineItems).map(([category, items]) => {
-                  const categoryTotal = items.reduce((sum, item) => sum + item.total_price, 0);
-                  
-                  return (
-                    <React.Fragment key={category}>
-                      {/* Category Separator Row */}
-                      <div className="px-4 py-2 bg-muted/20 border-y flex items-center justify-between">
-                        <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground capitalize">
-                          {category}
-                        </span>
-                        <div className="flex-1 mx-3 border-b border-dashed border-border"></div>
-                        <span className="text-xs font-semibold text-muted-foreground">
-                          ${(categoryTotal / 100).toFixed(2)}
-                        </span>
-                      </div>
-
-                      {/* Category Items */}
-                      {items.map((item: LineItem, idx: number) => (
+                {lineItems.map((item: LineItem, idx: number) => (
                         <div 
                           key={item.id} 
                           className={`px-3 py-2 ${idx % 2 === 1 ? 'bg-muted/10' : 'bg-card'} hover:bg-muted/20 transition-colors`}
@@ -426,9 +383,6 @@ export function EnhancedEstimateLineItems({
                           </div>
                         </div>
                       ))}
-                    </React.Fragment>
-                  );
-                })}
               </div>
             </div>
           )}
