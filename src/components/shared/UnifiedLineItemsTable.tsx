@@ -6,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Trash2, Plus, TrendingUp, TrendingDown, Sparkles, X } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import { formatCategory } from '@/utils/textFormatters';
 
 interface LineItem {
   id?: string;
@@ -141,7 +142,7 @@ export function UnifiedLineItemsTable({
         <div className="hidden md:grid grid-cols-12 gap-4 px-4 py-2 bg-muted/30 text-xs font-medium text-muted-foreground border-b">
           <div className="col-span-3">Title</div>
           <div className="col-span-4">Description</div>
-          <div className="col-span-1 text-center">Qty</div>
+          <div className="col-span-1 text-center">Quantity</div>
           <div className="col-span-2 text-right">Unit Price</div>
           <div className="col-span-1 text-right">Total</div>
           {mode === 'edit' && <div className="col-span-1"></div>}

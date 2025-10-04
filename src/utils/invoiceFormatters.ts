@@ -1,5 +1,6 @@
 import { convertMenuIdToReadableText, createMealBundleDescription } from './menuNLP';
 import { formatPhoneNumber } from './phoneFormatter';
+import { formatEventType } from './textFormatters';
 
 export interface LineItem {
   id: string;
@@ -321,7 +322,7 @@ function createCateringPackage(quote: QuoteRequest, proteins: string[]): LineIte
   
   return {
     id: `catering_package_${Date.now()}`,
-    title: `Catering Package - ${quote.event_type || 'Event'}`,
+    title: `Catering Package - ${formatEventType(quote.event_type || 'Event')}`,
     description: description,
     quantity: quote.guest_count,
     unit_price: 0,

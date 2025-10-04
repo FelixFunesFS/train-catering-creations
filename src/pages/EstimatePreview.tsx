@@ -8,6 +8,7 @@ import { formatCurrency } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { ArrowLeft, Download, CreditCard, MessageSquare } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { formatCategory } from '@/utils/textFormatters';
 
 interface EstimateData {
   id: string;
@@ -159,12 +160,12 @@ export default function EstimatePreview() {
                           <div className="flex items-center gap-2 mb-1">
                             <h4 className="font-medium">{item.title}</h4>
                             <Badge variant="secondary" className="text-xs">
-                              {item.category}
+                              {formatCategory(item.category)}
                             </Badge>
                           </div>
                           <p className="text-sm text-muted-foreground">{item.description}</p>
                           <p className="text-sm mt-1">
-                            Qty: {item.quantity} × {formatCurrency(item.unit_price / 100)}
+                            Quantity: {item.quantity} × {formatCurrency(item.unit_price / 100)}
                           </p>
                         </div>
                         <div className="text-right">

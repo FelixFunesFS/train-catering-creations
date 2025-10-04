@@ -195,7 +195,7 @@ export function EnhancedEstimateLineItems({
               <div className="hidden md:grid grid-cols-12 gap-3 px-3 py-2 bg-muted/30 text-xs font-medium text-muted-foreground border-b">
                 <div className="col-span-3">Title</div>
                 <div className="col-span-4">Description</div>
-                <div className="col-span-1 text-center">Qty</div>
+                <div className="col-span-1 text-center">Quantity</div>
                 <div className="col-span-2 text-right">Unit Price</div>
                 <div className="col-span-1 text-right">Total</div>
                 <div className="col-span-1"></div>
