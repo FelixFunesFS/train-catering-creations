@@ -8,10 +8,11 @@ import { EventTimelineManager } from '@/components/admin/EventTimelineManager';
 import { TestExecutionPanel } from '@/components/admin/TestExecutionPanel';
 import { TestingDashboard } from '@/components/admin/testing/TestingDashboard';
 import { EventStatusBoard } from '@/components/admin/EventStatusBoard';
+import { DocumentManagementPanel } from '@/components/admin/DocumentManagementPanel';
 import { useAuth } from '@/hooks/useAuth';
 import { LogOut } from 'lucide-react';
 
-type AdminView = 'workflow' | 'change-management' | 'payments' | 'events' | 'testing' | 'event-board';
+type AdminView = 'workflow' | 'change-management' | 'payments' | 'events' | 'testing' | 'event-board' | 'documents';
 
 export function UnifiedAdminDashboard() {
   const [currentView, setCurrentView] = useState<AdminView>('workflow');
@@ -60,6 +61,12 @@ export function UnifiedAdminDashboard() {
                 Event Timeline
               </Button>
               <Button
+                variant={currentView === 'documents' ? 'default' : 'outline'}
+                onClick={() => setCurrentView('documents')}
+              >
+                Documents
+              </Button>
+              <Button
                 variant={currentView === 'testing' ? 'default' : 'outline'}
                 onClick={() => setCurrentView('testing')}
               >
@@ -101,6 +108,11 @@ export function UnifiedAdminDashboard() {
         {currentView === 'events' && (
           <div className="container mx-auto px-4 py-6">
             <EventTimelineManager />
+          </div>
+        )}
+        {currentView === 'documents' && (
+          <div className="container mx-auto px-4 py-6">
+            <DocumentManagementPanel />
           </div>
         )}
         {currentView === 'testing' && (

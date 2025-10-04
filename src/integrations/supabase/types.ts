@@ -480,6 +480,62 @@ export type Database = {
           },
         ]
       }
+      event_documents: {
+        Row: {
+          created_at: string
+          document_category: string
+          file_name: string
+          file_path: string
+          file_size: number
+          file_type: string
+          id: string
+          is_customer_visible: boolean
+          notes: string | null
+          quote_request_id: string
+          updated_at: string
+          uploaded_by: string
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          document_category: string
+          file_name: string
+          file_path: string
+          file_size: number
+          file_type: string
+          id?: string
+          is_customer_visible?: boolean
+          notes?: string | null
+          quote_request_id: string
+          updated_at?: string
+          uploaded_by?: string
+          version?: number
+        }
+        Update: {
+          created_at?: string
+          document_category?: string
+          file_name?: string
+          file_path?: string
+          file_size?: number
+          file_type?: string
+          id?: string
+          is_customer_visible?: boolean
+          notes?: string | null
+          quote_request_id?: string
+          updated_at?: string
+          uploaded_by?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_documents_quote_request_id_fkey"
+            columns: ["quote_request_id"]
+            isOneToOne: false
+            referencedRelation: "quote_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_timeline_tasks: {
         Row: {
           completed: boolean | null
