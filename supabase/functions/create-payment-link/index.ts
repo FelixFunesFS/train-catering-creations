@@ -35,6 +35,7 @@ serve(async (req) => {
 
     const { 
       milestone_id, 
+      invoice_id,
       amount, 
       currency = 'usd', 
       customer_email, 
@@ -42,18 +43,46 @@ serve(async (req) => {
       metadata = {}
     } = await req.json();
 
-    logStep("Request data", { milestone_id, amount, currency, customer_email, description });
+    logStep("Request data", { milestone_id, invoice_id, amount, currency, customer_email, description });
 
-    if (!milestone_id || !amount || !customer_email) {
-      throw new Error("Missing required fields: milestone_id, amount, customer_email");
+    if (!amount || !customer_email) {
+      throw new Error("Missing required fields: amount, customer_email");
     }
 
-    // Get milestone details
-    const { data: milestone, error: milestoneError } = await supabaseClient
-      .from('payment_milestones')
-      .select(`
-        *,
-        invoices!inner(
+    let milestone;
+    let invoiceData;
+
+    // If milestone_id is provided, fetch milestone details
+    if (milestone_id) {
+      const { data: milestoneData, error: milestoneError } = await supabaseClient
+        .from('payment_milestones')
+        .select(`
+          *,
+          invoices!inner(
+            id,
+            quote_request_id,
+            quote_requests!inner(
+              id,
+              contact_name,
+              event_name,
+              event_date,
+              location
+            )
+          )
+        `)
+        .eq('id', milestone_id)
+        .maybeSingle();
+
+      if (milestoneError || !milestoneData) {
+        throw new Error(`Milestone not found: ${milestoneError?.message}`);
+      }
+      milestone = milestoneData;
+      invoiceData = milestone.invoices;
+    } else if (invoice_id) {
+      // No milestone provided, fetch invoice directly
+      const { data: invoice, error: invoiceError } = await supabaseClient
+        .from('invoices')
+        .select(`
           id,
           quote_request_id,
           quote_requests!inner(
@@ -63,16 +92,23 @@ serve(async (req) => {
             event_date,
             location
           )
-        )
-      `)
-      .eq('id', milestone_id)
-      .maybeSingle();
+        `)
+        .eq('id', invoice_id)
+        .maybeSingle();
 
-    if (milestoneError || !milestone) {
-      throw new Error(`Milestone not found: ${milestoneError?.message}`);
+      if (invoiceError || !invoice) {
+        throw new Error(`Invoice not found: ${invoiceError?.message}`);
+      }
+      invoiceData = invoice;
+    } else {
+      throw new Error("Either milestone_id or invoice_id must be provided");
     }
 
-    logStep("Found milestone", { milestoneType: milestone.milestone_type, amount: milestone.amount_cents });
+    if (milestone) {
+      logStep("Found milestone", { milestoneType: milestone.milestone_type, amount: milestone.amount_cents });
+    } else {
+      logStep("Direct invoice payment", { invoiceId: invoice_id, amount });
+    }
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
 
@@ -90,10 +126,10 @@ serve(async (req) => {
       // Create new customer
       const customer = await stripe.customers.create({
         email: customer_email,
-        name: milestone.invoices.quote_requests.contact_name,
+        name: invoiceData.quote_requests.contact_name,
         metadata: {
-          quote_request_id: milestone.invoices.quote_request_id,
-          invoice_id: milestone.invoice_id
+          quote_request_id: invoiceData.quote_request_id,
+          invoice_id: invoiceData.id
         }
       });
       customerId = customer.id;
@@ -101,6 +137,20 @@ serve(async (req) => {
     }
 
     // Create checkout session
+    const productName = milestone 
+      ? `${milestone.description} - ${invoiceData.quote_requests.event_name}`
+      : `${description || 'Payment'} - ${invoiceData.quote_requests.event_name}`;
+    
+    const sessionMetadata: any = {
+      invoice_id: invoiceData.id,
+      quote_request_id: invoiceData.quote_request_id,
+      ...metadata
+    };
+    
+    if (milestone_id) {
+      sessionMetadata.milestone_id = milestone_id;
+    }
+
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       line_items: [
@@ -108,13 +158,9 @@ serve(async (req) => {
           price_data: {
             currency: currency,
             product_data: {
-              name: `${milestone.description} - ${milestone.invoices.quote_requests.event_name}`,
-              description: `Payment for catering services on ${milestone.invoices.quote_requests.event_date}`,
-              metadata: {
-                milestone_id: milestone_id,
-                invoice_id: milestone.invoice_id,
-                quote_request_id: milestone.invoices.quote_request_id
-              }
+              name: productName,
+              description: `Payment for catering services on ${invoiceData.quote_requests.event_date}`,
+              metadata: sessionMetadata
             },
             unit_amount: amount, // Amount in cents
           },
@@ -122,20 +168,11 @@ serve(async (req) => {
         },
       ],
       mode: "payment",
-      success_url: `${req.headers.get("origin")}/payment-success?session_id={CHECKOUT_SESSION_ID}&milestone_id=${milestone_id}`,
-      cancel_url: `${req.headers.get("origin")}/payment-canceled?milestone_id=${milestone_id}`,
-      metadata: {
-        milestone_id: milestone_id,
-        invoice_id: milestone.invoice_id,
-        quote_request_id: milestone.invoices.quote_request_id,
-        ...metadata
-      },
+      success_url: `${req.headers.get("origin")}/payment-success?session_id={CHECKOUT_SESSION_ID}${milestone_id ? `&milestone_id=${milestone_id}` : ''}`,
+      cancel_url: `${req.headers.get("origin")}/payment-canceled${milestone_id ? `?milestone_id=${milestone_id}` : ''}`,
+      metadata: sessionMetadata,
       payment_intent_data: {
-        metadata: {
-          milestone_id: milestone_id,
-          invoice_id: milestone.invoice_id,
-          quote_request_id: milestone.invoices.quote_request_id
-        }
+        metadata: sessionMetadata
       }
     });
 
@@ -145,14 +182,14 @@ serve(async (req) => {
     const { error: transactionError } = await supabaseClient
       .from('payment_transactions')
       .insert({
-        invoice_id: milestone.invoice_id,
+        invoice_id: invoiceData.id,
         amount: amount,
         currency: currency,
-        payment_type: milestone.milestone_type,
+        payment_type: milestone ? milestone.milestone_type : 'full',
         status: 'pending',
         stripe_session_id: session.id,
         customer_email: customer_email,
-        description: description
+        description: description || productName
       });
 
     if (transactionError) {

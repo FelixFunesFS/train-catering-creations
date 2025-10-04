@@ -67,6 +67,10 @@ export function EstimateApprovalWorkflow({
         .from('invoices')
         .update({ 
           status: 'approved',
+          workflow_status: 'approved',
+          is_draft: false,
+          reviewed_at: new Date().toISOString(),
+          reviewed_by: 'customer',
           customer_feedback: { 
             approved: true, 
             feedback: feedback,
@@ -178,14 +182,14 @@ export function EstimateApprovalWorkflow({
       
       const depositAmount = depositMilestone 
         ? depositMilestone.amount_cents 
-        : Math.round(estimate.total_amount * 0.5 * 100); // 50% deposit in cents
+        : Math.round(estimate.total_amount * 0.5); // 50% deposit (already in cents)
 
       const { data, error } = await supabase.functions.invoke('create-payment-link', {
         body: {
           invoice_id: estimate.id,
           amount: depositAmount,
+          currency: 'usd',
           customer_email: estimate.quote_requests.email,
-          payment_type: 'deposit',
           description: `Deposit for ${estimate.quote_requests.event_name}`,
         }
       });
@@ -218,9 +222,9 @@ export function EstimateApprovalWorkflow({
       const { data, error } = await supabase.functions.invoke('create-payment-link', {
         body: {
           invoice_id: estimate.id,
-          amount: estimate.total_amount * 100, // Convert to cents
+          amount: estimate.total_amount, // Already in cents
+          currency: 'usd',
           customer_email: estimate.quote_requests.email,
-          payment_type: 'full_payment',
           description: `Full payment for ${estimate.quote_requests.event_name}`,
         }
       });

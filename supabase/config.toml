@@ -119,6 +119,9 @@ verify_jwt = false
 [functions.rate-limit-check]
 verify_jwt = false
 
+[functions.stripe-webhook]
+verify_jwt = false
+
 [edge-runtime]
 enabled = true
 ip_version = "dual"
