@@ -9,6 +9,7 @@ import { useAnimationClass } from "@/hooks/useAnimationClass";
 
 interface EventDetailsStepProps {
   form: UseFormReturn<any>;
+  trackFieldInteraction: (fieldName: string) => void;
 }
 
 const EVENT_TYPES = [
@@ -24,7 +25,7 @@ const EVENT_TYPES = [
   { value: "other", label: "Other Event", icon: "🎊" },
 ];
 
-export const EventDetailsStep = ({ form }: EventDetailsStepProps) => {
+export const EventDetailsStep = ({ form, trackFieldInteraction }: EventDetailsStepProps) => {
   const { ref, isVisible } = useScrollAnimation({
     threshold: 0.2,
     triggerOnce: true,
@@ -64,6 +65,8 @@ export const EventDetailsStep = ({ form }: EventDetailsStepProps) => {
                   <FormLabel className="text-base font-medium">Event Name *</FormLabel>
                   <FormControl>
                     <Input
+                      {...field}
+                      onFocus={() => trackFieldInteraction('event_name')}
                       placeholder="e.g., Sarah's 30th Birthday"
                       className="h-12 text-base neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30"
                       onKeyDown={(e) => {
@@ -71,7 +74,6 @@ export const EventDetailsStep = ({ form }: EventDetailsStepProps) => {
                           e.preventDefault();
                         }
                       }}
-                      {...field}
                     />
                   </FormControl>
                   <FormMessage />
@@ -128,6 +130,7 @@ export const EventDetailsStep = ({ form }: EventDetailsStepProps) => {
                         }
                       }}
                       {...field}
+                      onFocus={() => trackFieldInteraction('guest_count')}
                       onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
                     />
                   </FormControl>
@@ -169,6 +172,7 @@ export const EventDetailsStep = ({ form }: EventDetailsStepProps) => {
                         }
                       }}
                       {...field}
+                      onFocus={() => trackFieldInteraction('event_date')}
                     />
                   </FormControl>
                   <FormMessage />
@@ -221,6 +225,7 @@ export const EventDetailsStep = ({ form }: EventDetailsStepProps) => {
                         }
                       }}
                       {...field}
+                      onFocus={() => trackFieldInteraction('location')}
                     />
                   </FormControl>
                   <FormMessage />

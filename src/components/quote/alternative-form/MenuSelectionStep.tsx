@@ -20,9 +20,10 @@ import { getMenuItems, additionalMenuItems, dietaryRestrictions } from "@/data/m
 
 interface MenuSelectionStepProps {
   form: UseFormReturn<any>;
+  trackFieldInteraction: (fieldName: string) => void;
 }
 
-export const MenuSelectionStep = ({ form }: MenuSelectionStepProps) => {
+export const MenuSelectionStep = ({ form, trackFieldInteraction }: MenuSelectionStepProps) => {
   const { ref, isVisible } = useScrollAnimation({
     threshold: 0.2,
     triggerOnce: true,
@@ -209,7 +210,10 @@ export const MenuSelectionStep = ({ form }: MenuSelectionStepProps) => {
                   <MultiSelect
                     options={proteinOptions}
                     selected={field.value || []}
-                    onChange={field.onChange}
+                    onChange={(value) => {
+                      trackFieldInteraction('primary_protein');
+                      field.onChange(value);
+                    }}
                     placeholder="Choose proteins for your event..."
                     searchPlaceholder="Search proteins..."
                     maxDisplayed={bothProteinsAvailable ? 5 : 2}

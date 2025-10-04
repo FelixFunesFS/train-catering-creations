@@ -17,7 +17,7 @@ import { SuccessStep } from "./alternative-form/SuccessStep";
 import { FinalStep } from "./alternative-form/FinalStep";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
-import { ArrowLeft, ArrowRight, Check, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Sparkles, Loader2 } from "lucide-react";
 import { formSchema } from "./alternative-form/formSchema";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -39,7 +39,6 @@ export const AlternativeQuoteForm = () => {
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [estimatedCost, setEstimatedCost] = useState<number | null>(null);
   const [submittedQuoteId, setSubmittedQuoteId] = useState<string | null>(null);
   const [isReadyToSubmit, setIsReadyToSubmit] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -97,42 +96,6 @@ export const AlternativeQuoteForm = () => {
     },
   });
 
-  const { watch } = form;
-  const watchedValues = watch();
-
-  // Calculate estimated cost based on form data
-  const calculateEstimatedCost = useCallback(() => {
-    const guestCount = watchedValues.guest_count || 0;
-    const serviceType = watchedValues.service_type;
-    const hasProteins = (watchedValues.primary_protein?.length > 0) || (watchedValues.secondary_protein?.length > 0);
-    const hasAppetizers = watchedValues.appetizers?.length > 0;
-    const hasSides = watchedValues.sides?.length > 0;
-    const hasDesserts = watchedValues.desserts?.length > 0;
-    // const waitStaff = watchedValues.wait_staff_requested;
-
-    let baseCost = 0;
-    
-    // Base cost per guest
-    if (serviceType === 'full-service') {
-      baseCost = guestCount * 35;
-    } else {
-      baseCost = guestCount * 20;
-    }
-
-    // Add costs for selections
-    if (hasProteins) baseCost += guestCount * 8;
-    if (hasAppetizers) baseCost += guestCount * 4;
-    if (hasSides) baseCost += guestCount * 3;
-    if (hasDesserts) baseCost += guestCount * 4;
-
-    setEstimatedCost(baseCost);
-  }, [watchedValues]);
-
-  // Update estimated cost when relevant fields change
-  useEffect(() => {
-    calculateEstimatedCost();
-  }, [calculateEstimatedCost]);
-
   const progress = ((currentStep + 1) / STEPS.length) * 100;
 
   const handleNext = async () => {
@@ -143,8 +106,6 @@ export const AlternativeQuoteForm = () => {
       if (!completedSteps.includes(currentStep)) {
         setCompletedSteps([...completedSteps, currentStep]);
       }
-      
-      calculateEstimatedCost();
       
       if (currentStep < STEPS.length - 1) {
         setCurrentStep(currentStep + 1);
@@ -288,7 +249,7 @@ export const AlternativeQuoteForm = () => {
       
       console.log('📝 Database insert payload:', insertPayload);
       
-      const { data: insertedData, error } = await supabase.from('quote_requests').insert(insertPayload).select();
+      const { data: insertedData, error } = await supabase.from('quote_requests').insert([insertPayload]).select();
 
       if (error) {
         console.error('❌ Database insertion error:', error);
@@ -395,23 +356,23 @@ export const AlternativeQuoteForm = () => {
   };
 
   if (isSubmitted) {
-    return <SuccessStep estimatedCost={estimatedCost} quoteId={submittedQuoteId} eventData={eventData} />;
+    return <SuccessStep estimatedCost={null} quoteId={submittedQuoteId} eventData={eventData} />;
   }
 
   const renderStepContent = () => {
     switch (currentStep) {
       case 0:
-        return <ContactStep form={form} />;
+        return <ContactStep form={form} trackFieldInteraction={trackFieldInteraction} />;
       case 1:
-        return <EventDetailsStep form={form} />;
+        return <EventDetailsStep form={form} trackFieldInteraction={trackFieldInteraction} />;
       case 2:
-        return <ServiceSelectionStep form={form} />;
+        return <ServiceSelectionStep form={form} trackFieldInteraction={trackFieldInteraction} />;
       case 3:
-        return <MenuSelectionStep form={form} />;
+        return <MenuSelectionStep form={form} trackFieldInteraction={trackFieldInteraction} />;
       case 4:
         return <FinalStep form={form} />;
       case 5:
-        return <ReviewStep form={form} estimatedCost={estimatedCost} />;
+        return <ReviewStep form={form} estimatedCost={null} />;
       default:
         return null;
     }
@@ -432,11 +393,6 @@ export const AlternativeQuoteForm = () => {
                 <p className="text-sm text-muted-foreground">Step {currentStep + 1} of {STEPS.length}</p>
               </div>
             </div>
-            {false && (
-              <Badge variant="outline" className="bg-gradient-primary text-primary-foreground border-0 px-4 py-2">
-                Est. ${estimatedCost?.toLocaleString()}
-              </Badge>
-            )}
           </div>
           
           <Progress value={progress} className="h-2 mb-4" />
@@ -551,8 +507,17 @@ export const AlternativeQuoteForm = () => {
                       disabled={isSubmitting}
                       className="flex items-center gap-2 neumorphic-button-primary bg-gradient-primary hover:shadow-glow transition-all duration-300"
                     >
-                      {isSubmitting ? "Submitting..." : "Submit Quote Request"}
-                      <Sparkles className="h-4 w-4" />
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Submitting Your Quote...
+                        </>
+                      ) : (
+                        <>
+                          Submit Quote Request
+                          <Sparkles className="h-4 w-4" />
+                        </>
+                      )}
                     </Button>
                   )}
                   {isReadyToSubmit && !isSubmitting && (

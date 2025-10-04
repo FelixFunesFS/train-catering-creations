@@ -8,9 +8,10 @@ import { useAnimationClass } from "@/hooks/useAnimationClass";
 
 interface ContactStepProps {
   form: UseFormReturn<any>;
+  trackFieldInteraction: (fieldName: string) => void;
 }
 
-export const ContactStep = ({ form }: ContactStepProps) => {
+export const ContactStep = ({ form, trackFieldInteraction }: ContactStepProps) => {
   const { ref, isVisible } = useScrollAnimation({
     threshold: 0.2,
     triggerOnce: true,
@@ -51,6 +52,8 @@ export const ContactStep = ({ form }: ContactStepProps) => {
                 </FormLabel>
                 <FormControl>
                   <Input
+                    {...field}
+                    onFocus={() => trackFieldInteraction('contact_name')}
                     placeholder="Enter your full name"
                     className="h-12 text-base neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30"
                     onKeyDown={(e) => {
@@ -58,7 +61,6 @@ export const ContactStep = ({ form }: ContactStepProps) => {
                         e.preventDefault();
                       }
                     }}
-                    {...field}
                   />
                 </FormControl>
                 <FormMessage />
@@ -78,6 +80,8 @@ export const ContactStep = ({ form }: ContactStepProps) => {
                 <FormControl>
                   <Input
                     type="email"
+                    {...field}
+                    onFocus={() => trackFieldInteraction('email')}
                     placeholder="your.email@example.com"
                     className="h-12 text-base neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30"
                     onKeyDown={(e) => {
@@ -85,7 +89,6 @@ export const ContactStep = ({ form }: ContactStepProps) => {
                         e.preventDefault();
                       }
                     }}
-                    {...field}
                   />
                 </FormControl>
                 <FormMessage />
@@ -105,6 +108,8 @@ export const ContactStep = ({ form }: ContactStepProps) => {
                 <FormControl>
                   <Input
                     type="tel"
+                    {...field}
+                    onFocus={() => trackFieldInteraction('phone')}
                     placeholder="(555) 123-4567"
                     className="h-12 text-base neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30"
                     onKeyDown={(e) => {
@@ -112,7 +117,6 @@ export const ContactStep = ({ form }: ContactStepProps) => {
                         e.preventDefault();
                       }
                     }}
-                    {...field}
                   />
                 </FormControl>
                 <FormMessage />

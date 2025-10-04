@@ -12,9 +12,10 @@ import { useAnimationClass } from "@/hooks/useAnimationClass";
 
 interface ServiceSelectionStepProps {
   form: UseFormReturn<any>;
+  trackFieldInteraction: (fieldName: string) => void;
 }
 
-export const ServiceSelectionStep = ({ form }: ServiceSelectionStepProps) => {
+export const ServiceSelectionStep = ({ form, trackFieldInteraction }: ServiceSelectionStepProps) => {
   const { ref, isVisible } = useScrollAnimation({
     threshold: 0.2,
     triggerOnce: true,
@@ -52,7 +53,10 @@ export const ServiceSelectionStep = ({ form }: ServiceSelectionStepProps) => {
               <FormItem>
                 <FormControl>
                   <RadioGroup
-                    onValueChange={field.onChange}
+                    onValueChange={(value) => {
+                      trackFieldInteraction('service_type');
+                      field.onChange(value);
+                    }}
                     value={field.value}
                     className="space-y-4"
                   >
