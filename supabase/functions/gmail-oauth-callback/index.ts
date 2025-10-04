@@ -67,6 +67,15 @@ const handler = async (req: Request): Promise<Response> => {
     const tokens = await tokenResponse.json();
     console.log('Received tokens:', { ...tokens, access_token: '[REDACTED]', refresh_token: '[REDACTED]' });
 
+    // Validate refresh token exists
+    if (!tokens.refresh_token) {
+      console.error('No refresh token received. This usually means the app was previously authorized.');
+      throw new Error(
+        'No refresh token received from Google. Please revoke access at ' +
+        'https://myaccount.google.com/permissions and try authorizing again.'
+      );
+    }
+
     // Get user info to identify the email
     const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
       headers: {
