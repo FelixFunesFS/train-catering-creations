@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { ManualContractSigningButton } from '../ManualContractSigningButton';
 import { FileText, Send, Eye, CheckCircle2, Clock } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -278,31 +279,59 @@ export function ContractGenerationPanel({
           </div>
 
           {/* Actions */}
-          <div className="flex gap-3">
-            <Button onClick={onBack} variant="outline">
-              Back
-            </Button>
+          <div className="space-y-3">
+            <div className="flex gap-3">
+              <Button onClick={onBack} variant="outline">
+                Back
+              </Button>
+              
+              {!contract ? (
+                <Button onClick={generateContract} disabled={loading} className="flex-1">
+                  <FileText className="h-4 w-4 mr-2" />
+                  Generate Contract
+                </Button>
+              ) : contract.status === 'generated' ? (
+                <Button onClick={sendContract} disabled={loading} className="flex-1">
+                  <Send className="h-4 w-4 mr-2" />
+                  Send to Customer
+                </Button>
+              ) : contract.status === 'signed' ? (
+                <Button onClick={onContinue} className="flex-1">
+                  <CheckCircle2 className="h-4 w-4 mr-2" />
+                  Continue to Payment
+                </Button>
+              ) : (
+                <Button variant="outline" disabled className="flex-1">
+                  <Clock className="h-4 w-4 mr-2" />
+                  Waiting for Signature
+                </Button>
+              )}
+            </div>
+
+            {/* Manual contract signing option */}
+            {contract && contract.status !== 'signed' && (
+              <div className="flex items-center gap-3">
+                <div className="flex-1 border-t" />
+                <span className="text-xs text-muted-foreground">OR</span>
+                <div className="flex-1 border-t" />
+              </div>
+            )}
             
-            {!contract ? (
-              <Button onClick={generateContract} disabled={loading} className="flex-1">
-                <FileText className="h-4 w-4 mr-2" />
-                Generate Contract
-              </Button>
-            ) : contract.status === 'generated' ? (
-              <Button onClick={sendContract} disabled={loading} className="flex-1">
-                <Send className="h-4 w-4 mr-2" />
-                Send to Customer
-              </Button>
-            ) : contract.status === 'signed' ? (
-              <Button onClick={onContinue} className="flex-1">
-                <CheckCircle2 className="h-4 w-4 mr-2" />
-                Continue to Payment
-              </Button>
-            ) : (
-              <Button variant="outline" disabled className="flex-1">
-                <Clock className="h-4 w-4 mr-2" />
-                Waiting for Signature
-              </Button>
+            {contract && contract.status !== 'signed' && (
+              <div className="flex justify-center">
+                <ManualContractSigningButton
+                  contractId={contract.id}
+                  invoiceId={invoice.id}
+                  customerName={quote.contact_name}
+                  onSuccess={() => {
+                    checkExistingContract();
+                    toast({
+                      title: "Contract Signed",
+                      description: "You can now proceed to payment collection",
+                    });
+                  }}
+                />
+              </div>
             )}
           </div>
 

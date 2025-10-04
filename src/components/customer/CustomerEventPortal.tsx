@@ -6,6 +6,8 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { RequestChangesModal } from './RequestChangesModal';
+import { ViewDocumentsSection } from './ViewDocumentsSection';
 import { 
   Calendar, 
   Clock, 
@@ -27,9 +29,9 @@ interface EventPortalProps {
 
 export function CustomerEventPortal({ quote, invoice, token }: EventPortalProps) {
   const [timeline, setTimeline] = useState<any[]>([]);
-  const [documents, setDocuments] = useState<any[]>([]);
   const [messages, setMessages] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showRequestChanges, setShowRequestChanges] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -57,24 +59,6 @@ export function CustomerEventPortal({ quote, invoice, token }: EventPortalProps)
         .order('created_at', { ascending: false });
 
       setMessages(changes || []);
-
-      // Mock documents - in production, fetch from storage
-      setDocuments([
-        { 
-          id: '1', 
-          name: 'Contract Agreement', 
-          type: 'PDF', 
-          date: invoice.created_at,
-          url: '#'
-        },
-        { 
-          id: '2', 
-          name: 'Final Invoice', 
-          type: 'PDF', 
-          date: invoice.updated_at,
-          url: '#'
-        }
-      ]);
 
     } catch (error: any) {
       console.error('Error fetching event data:', error);
@@ -114,6 +98,14 @@ export function CustomerEventPortal({ quote, invoice, token }: EventPortalProps)
 
   return (
     <div className="space-y-6">
+      {/* Request Changes Button */}
+      <div className="flex justify-end">
+        <Button onClick={() => setShowRequestChanges(true)} variant="outline" className="gap-2">
+          <MessageSquare className="h-4 w-4" />
+          Request Changes
+        </Button>
+      </div>
+
       {/* Event Overview Card */}
       <Card className="border-2 border-primary/20">
         <CardContent className="pt-6">
@@ -221,40 +213,7 @@ export function CustomerEventPortal({ quote, invoice, token }: EventPortalProps)
 
         {/* Documents Tab */}
         <TabsContent value="documents" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5" />
-                Event Documents
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {documents.map((doc) => (
-                  <div key={doc.id} className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors">
-                    <div className="flex items-center gap-3">
-                      <FileText className="h-5 w-5 text-muted-foreground" />
-                      <div>
-                        <p className="font-medium">{doc.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {format(new Date(doc.date), 'MMM dd, yyyy')}
-                        </p>
-                      </div>
-                    </div>
-                    <Button variant="ghost" size="sm">
-                      <Download className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-
-                {documents.length === 0 && (
-                  <p className="text-center text-muted-foreground py-4">
-                    No documents available yet
-                  </p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+          <ViewDocumentsSection quoteId={quote.id} invoiceId={invoice.id} />
         </TabsContent>
 
         {/* Messages Tab */}
@@ -306,6 +265,15 @@ export function CustomerEventPortal({ quote, invoice, token }: EventPortalProps)
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Request Changes Modal */}
+      <RequestChangesModal
+        isOpen={showRequestChanges}
+        onClose={() => setShowRequestChanges(false)}
+        invoice={invoice}
+        quote={quote}
+        onSuccess={fetchEventData}
+      />
     </div>
   );
 }
