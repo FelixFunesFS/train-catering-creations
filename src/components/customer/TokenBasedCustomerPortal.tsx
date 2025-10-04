@@ -10,6 +10,7 @@ import { EstimateApprovalWorkflow } from './EstimateApprovalWorkflow';
 import { ChangeRequestForm } from './ChangeRequestForm';
 import { PaymentInterface } from './PaymentInterface';
 import { EventCountdown } from './EventCountdown';
+import { CustomerEventPortal } from './CustomerEventPortal';
 import { 
   CheckCircle, 
   Clock, 
@@ -322,9 +323,16 @@ export function TokenBasedCustomerPortal() {
       </header>
 
       <main className="max-w-4xl mx-auto px-4 py-8">
-        {/* Show event countdown if paid */}
+        {/* Show event portal if paid */}
         {data.invoice.status === 'paid' && data.quote && (
-          <EventCountdown quote={data.quote} invoice={data.invoice} />
+          <div className="space-y-6">
+            <EventCountdown quote={data.quote} invoice={data.invoice} />
+            <CustomerEventPortal 
+              quote={data.quote} 
+              invoice={data.invoice}
+              token={token}
+            />
+          </div>
         )}
 
         {/* Show payment interface if approved but not paid */}
