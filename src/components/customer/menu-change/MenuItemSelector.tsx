@@ -33,7 +33,7 @@ export function MenuItemSelector({
   onRemoveAdded
 }: MenuItemSelectorProps) {
   const { popular, regular } = MenuItemService.separateByPopularity(availableItems);
-  const getDisplayName = MenuItemService.getDisplayName;
+  const getDisplayName = (idOrName: string) => MenuItemService.getDisplayName(idOrName);
 
   return (
     <div className="space-y-3">

@@ -29,8 +29,8 @@ export function MenuRemovalTab({
   menuChanges,
   onToggleRemove
 }: MenuRemovalTabProps) {
-  const nameToId = MenuItemService.nameToId;
-  const getDisplayName = MenuItemService.getDisplayName;
+  const nameToId = (name: string) => MenuItemService.nameToId(name);
+  const getDisplayName = (idOrName: string) => MenuItemService.getDisplayName(idOrName);
 
   return (
     <div className="space-y-6 pt-4">

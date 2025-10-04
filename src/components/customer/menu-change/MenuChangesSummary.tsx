@@ -15,7 +15,7 @@ interface MenuChangesSummaryProps {
 }
 
 export function MenuChangesSummary({ menuChanges }: MenuChangesSummaryProps) {
-  const getDisplayName = MenuItemService.getDisplayName;
+  const getDisplayName = (idOrName: string) => MenuItemService.getDisplayName(idOrName);
 
   return (
     <div className="space-y-4 mt-6 p-4 bg-muted/50 rounded-lg border">
