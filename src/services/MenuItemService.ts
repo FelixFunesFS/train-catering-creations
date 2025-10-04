@@ -147,7 +147,7 @@ export class MenuItemService {
     const allItems = menuOptions[categoryKey] || [];
     
     // Normalize current items to IDs
-    const normalizedCurrent = currentItems.map(item => this.nameToId(item));
+    const normalizedCurrent = currentItems.map(item => MenuItemService.nameToId(item));
     
     // Filter out items already present or added
     return allItems.filter(item => 
