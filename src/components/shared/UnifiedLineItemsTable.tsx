@@ -121,188 +121,109 @@ export function UnifiedLineItemsTable({
       }, {} as Record<string, LineItem[]>)
     : { 'All Items': items };
 
+  const calculateCategoryTotal = (items: LineItem[]) => {
+    return items.reduce((sum, item) => sum + item.total_price, 0);
+  };
+
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="hidden md:grid grid-cols-12 gap-4 px-4 py-2 bg-muted/50 rounded-lg font-semibold text-sm">
-        <div className="col-span-5">Item</div>
-        <div className="col-span-2 text-center">Quantity</div>
-        <div className="col-span-2 text-right">Unit Price</div>
-        <div className="col-span-2 text-right">Total</div>
-        {mode === 'edit' && <div className="col-span-1"></div>}
-      </div>
+      {/* Items by Category - One Card per Category */}
+      {Object.entries(groupedItems).map(([category, categoryItems]) => {
+        const categoryTotal = calculateCategoryTotal(categoryItems);
+        
+        return (
+          <div key={category} className="border rounded-lg bg-card overflow-hidden">
+            {/* Category Header */}
+            {groupByCategory && (
+              <div className="px-4 py-3 bg-muted/50 border-b flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <h3 className="font-semibold text-base capitalize">
+                    {category}
+                  </h3>
+                  <Badge variant="secondary" className="text-xs">
+                    {categoryItems.length} {categoryItems.length === 1 ? 'item' : 'items'}
+                  </Badge>
+                </div>
+                <span className="font-semibold text-sm">
+                  {formatCurrency(categoryTotal)}
+                </span>
+              </div>
+            )}
 
-      {/* Items by Category */}
-      {Object.entries(groupedItems).map(([category, categoryItems]) => (
-        <div key={category} className="space-y-3">
-          {groupByCategory && (
-            <h3 className="font-semibold text-lg capitalize text-foreground/90">
-              {category}
-            </h3>
-          )}
-          
-          <div className="space-y-2">
-            {categoryItems.map((item, index) => {
-              const change = getChangeForItem(item.id);
-              const isRemoved = change?.type === 'removed';
-              
-              return (
-                <div
-                  key={item.id || index}
-                  className={`
-                    border rounded-lg p-4 transition-all
-                    ${change ? getChangeColor(change.type) : 'bg-card border-border'}
-                    ${isRemoved ? 'opacity-60' : ''}
-                  `}
-                >
-                  {/* Change Indicator */}
-                  {change && (
-                    <div className="flex items-center gap-2 mb-3 text-sm font-medium">
-                      {getChangeIcon(change.type)}
-                      <span className="capitalize">
-                        {change.type === 'added' && '✨ New Item'}
-                        {change.type === 'removed' && '❌ Removed'}
-                        {change.type === 'modified' && '📝 Modified'}
-                      </span>
-                    </div>
-                  )}
+            {/* Table Header (Desktop) */}
+            <div className="hidden md:grid grid-cols-12 gap-4 px-4 py-2 bg-muted/30 text-xs font-medium text-muted-foreground border-b">
+              <div className="col-span-5">Item</div>
+              <div className="col-span-2 text-center">Quantity</div>
+              <div className="col-span-2 text-right">Unit Price</div>
+              <div className="col-span-2 text-right">Total</div>
+              {mode === 'edit' && <div className="col-span-1"></div>}
+            </div>
 
-                  {/* Desktop Layout */}
-                  <div className="hidden md:grid grid-cols-12 gap-4 items-start">
-                    <div className="col-span-5">
-                      {mode === 'edit' && !isRemoved ? (
-                        <div className="space-y-2">
-                          <Input
-                            value={item.title || ''}
-                            onChange={(e) =>
-                              onItemUpdate?.(item.id!, { title: e.target.value })
-                            }
-                            placeholder="Item title"
-                            className="font-medium"
-                          />
-                          <Textarea
-                            value={item.description}
-                            onChange={(e) =>
-                              onItemUpdate?.(item.id!, { description: e.target.value })
-                            }
-                            placeholder="Description"
-                            className="text-sm resize-none"
-                            rows={2}
-                          />
-                        </div>
-                      ) : (
-                        <div className={isRemoved ? 'line-through' : ''}>
-                          <p className="font-medium">{item.title || item.description}</p>
-                          {item.title && item.description && (
-                            <p className="text-sm text-muted-foreground mt-1">
-                              {item.description}
-                            </p>
-                          )}
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="col-span-2 text-center">
-                      {mode === 'edit' && !isRemoved ? (
-                        <Input
-                          type="number"
-                          value={item.quantity}
-                          onChange={(e) =>
-                            onItemUpdate?.(item.id!, { quantity: parseInt(e.target.value) || 0 })
-                          }
-                          className="text-center"
-                          min="0"
-                        />
-                      ) : (
-                        <div className="flex items-center justify-center gap-1">
-                          <span className={isRemoved ? 'line-through' : ''}>{item.quantity}</span>
-                          {change?.changes?.find(c => c.field === 'quantity') &&
-                            renderFieldChange(change.changes.find(c => c.field === 'quantity')!)}
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="col-span-2 text-right">
-                      {mode === 'edit' && !isRemoved ? (
-                        <Input
-                          type="number"
-                          value={item.unit_price / 100}
-                          onChange={(e) =>
-                            onItemUpdate?.(item.id!, {
-                              unit_price: Math.round(parseFloat(e.target.value) * 100) || 0
-                            })
-                          }
-                          className="text-right"
-                          min="0"
-                          step="0.01"
-                        />
-                      ) : (
-                        <div className="flex items-center justify-end gap-1">
-                          <span className={isRemoved ? 'line-through' : ''}>
-                            {formatCurrency(item.unit_price)}
-                          </span>
-                          {change?.changes?.find(c => c.field === 'unit_price') &&
-                            renderFieldChange(change.changes.find(c => c.field === 'unit_price')!)}
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="col-span-2 text-right font-semibold">
-                      <span className={isRemoved ? 'line-through' : ''}>
-                        {formatCurrency(item.total_price)}
-                      </span>
-                    </div>
-
-                    {mode === 'edit' && (
-                      <div className="col-span-1 flex justify-end">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => onItemRemove?.(item.id!)}
-                          className="text-destructive hover:text-destructive"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+            {/* Item Rows */}
+            <div className="divide-y">
+              {categoryItems.map((item, index) => {
+                const change = getChangeForItem(item.id);
+                const isRemoved = change?.type === 'removed';
+                
+                return (
+                  <div
+                    key={item.id || index}
+                    className={`
+                      px-4 py-3 transition-all
+                      ${index % 2 === 1 ? 'bg-muted/10' : 'bg-card'}
+                      ${change ? getChangeColor(change.type) : ''}
+                      ${isRemoved ? 'opacity-60' : ''}
+                      hover:bg-muted/20
+                    `}
+                  >
+                    {/* Change Indicator */}
+                    {change && (
+                      <div className="flex items-center gap-2 mb-2 text-xs font-medium">
+                        {getChangeIcon(change.type)}
+                        <span className="capitalize">
+                          {change.type === 'added' && '✨ New Item'}
+                          {change.type === 'removed' && '❌ Removed'}
+                          {change.type === 'modified' && '📝 Modified'}
+                        </span>
                       </div>
                     )}
-                  </div>
 
-                  {/* Mobile Layout */}
-                  <div className="md:hidden space-y-3">
-                    {mode === 'edit' && !isRemoved ? (
-                      <>
-                        <Input
-                          value={item.title || ''}
-                          onChange={(e) =>
-                            onItemUpdate?.(item.id!, { title: e.target.value })
-                          }
-                          placeholder="Item title"
-                          className="font-medium"
-                        />
-                        <Textarea
-                          value={item.description}
-                          onChange={(e) =>
-                            onItemUpdate?.(item.id!, { description: e.target.value })
-                          }
-                          placeholder="Description"
-                          className="text-sm resize-none"
-                          rows={2}
-                        />
-                      </>
-                    ) : (
-                      <div className={isRemoved ? 'line-through' : ''}>
-                        <p className="font-medium">{item.title || item.description}</p>
-                        {item.title && item.description && (
-                          <p className="text-sm text-muted-foreground mt-1">
-                            {item.description}
-                          </p>
+                    {/* Desktop Layout */}
+                    <div className="hidden md:grid grid-cols-12 gap-4 items-center">
+                      <div className="col-span-5">
+                        {mode === 'edit' && !isRemoved ? (
+                          <div className="space-y-2">
+                            <Input
+                              value={item.title || ''}
+                              onChange={(e) =>
+                                onItemUpdate?.(item.id!, { title: e.target.value })
+                              }
+                              placeholder="Item title"
+                              className="font-medium h-8 text-sm"
+                            />
+                            <Textarea
+                              value={item.description}
+                              onChange={(e) =>
+                                onItemUpdate?.(item.id!, { description: e.target.value })
+                              }
+                              placeholder="Description"
+                              className="text-xs resize-none"
+                              rows={2}
+                            />
+                          </div>
+                        ) : (
+                          <div className={isRemoved ? 'line-through' : ''}>
+                            <p className="font-medium text-sm">{item.title || item.description}</p>
+                            {item.title && item.description && (
+                              <p className="text-xs text-muted-foreground mt-1">
+                                {item.description}
+                              </p>
+                            )}
+                          </div>
                         )}
                       </div>
-                    )}
 
-                    <div className="grid grid-cols-2 gap-3 text-sm">
-                      <div>
-                        <p className="text-muted-foreground mb-1">Quantity</p>
+                      <div className="col-span-2 text-center">
                         {mode === 'edit' && !isRemoved ? (
                           <Input
                             type="number"
@@ -310,10 +231,11 @@ export function UnifiedLineItemsTable({
                             onChange={(e) =>
                               onItemUpdate?.(item.id!, { quantity: parseInt(e.target.value) || 0 })
                             }
+                            className="text-center h-8 text-sm"
                             min="0"
                           />
                         ) : (
-                          <div className="flex items-center gap-1">
+                          <div className="flex items-center justify-center gap-1 text-sm">
                             <span className={isRemoved ? 'line-through' : ''}>{item.quantity}</span>
                             {change?.changes?.find(c => c.field === 'quantity') &&
                               renderFieldChange(change.changes.find(c => c.field === 'quantity')!)}
@@ -321,8 +243,7 @@ export function UnifiedLineItemsTable({
                         )}
                       </div>
 
-                      <div>
-                        <p className="text-muted-foreground mb-1">Unit Price</p>
+                      <div className="col-span-2 text-right">
                         {mode === 'edit' && !isRemoved ? (
                           <Input
                             type="number"
@@ -332,11 +253,12 @@ export function UnifiedLineItemsTable({
                                 unit_price: Math.round(parseFloat(e.target.value) * 100) || 0
                               })
                             }
+                            className="text-right h-8 text-sm"
                             min="0"
                             step="0.01"
                           />
                         ) : (
-                          <div className="flex items-center gap-1">
+                          <div className="flex items-center justify-end gap-1 text-sm">
                             <span className={isRemoved ? 'line-through' : ''}>
                               {formatCurrency(item.unit_price)}
                             </span>
@@ -345,34 +267,135 @@ export function UnifiedLineItemsTable({
                           </div>
                         )}
                       </div>
+
+                      <div className="col-span-2 text-right font-semibold text-sm">
+                        <span className={isRemoved ? 'line-through' : ''}>
+                          {formatCurrency(item.total_price)}
+                        </span>
+                      </div>
+
+                      {mode === 'edit' && (
+                        <div className="col-span-1 flex justify-end">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => onItemRemove?.(item.id!)}
+                            className="h-8 w-8 text-destructive hover:text-destructive"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      )}
                     </div>
 
-                    <div className="flex justify-between items-center pt-2 border-t">
-                      <span className="text-sm font-medium">Total</span>
-                      <span className={`font-bold ${isRemoved ? 'line-through' : ''}`}>
-                        {formatCurrency(item.total_price)}
-                      </span>
-                    </div>
+                    {/* Mobile Layout */}
+                    <div className="md:hidden space-y-3">
+                      {mode === 'edit' && !isRemoved ? (
+                        <>
+                          <Input
+                            value={item.title || ''}
+                            onChange={(e) =>
+                              onItemUpdate?.(item.id!, { title: e.target.value })
+                            }
+                            placeholder="Item title"
+                            className="font-medium text-sm"
+                          />
+                          <Textarea
+                            value={item.description}
+                            onChange={(e) =>
+                              onItemUpdate?.(item.id!, { description: e.target.value })
+                            }
+                            placeholder="Description"
+                            className="text-xs resize-none"
+                            rows={2}
+                          />
+                        </>
+                      ) : (
+                        <div className={isRemoved ? 'line-through' : ''}>
+                          <p className="font-medium text-sm">{item.title || item.description}</p>
+                          {item.title && item.description && (
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {item.description}
+                            </p>
+                          )}
+                        </div>
+                      )}
 
-                    {mode === 'edit' && (
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => onItemRemove?.(item.id!)}
-                        className="w-full"
-                      >
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Remove Item
-                      </Button>
-                    )}
+                      <div className="grid grid-cols-2 gap-3 text-sm">
+                        <div>
+                          <p className="text-muted-foreground text-xs mb-1">Quantity</p>
+                          {mode === 'edit' && !isRemoved ? (
+                            <Input
+                              type="number"
+                              value={item.quantity}
+                              onChange={(e) =>
+                                onItemUpdate?.(item.id!, { quantity: parseInt(e.target.value) || 0 })
+                              }
+                              min="0"
+                              className="h-8 text-sm"
+                            />
+                          ) : (
+                            <div className="flex items-center gap-1">
+                              <span className={isRemoved ? 'line-through' : ''}>{item.quantity}</span>
+                              {change?.changes?.find(c => c.field === 'quantity') &&
+                                renderFieldChange(change.changes.find(c => c.field === 'quantity')!)}
+                            </div>
+                          )}
+                        </div>
+
+                        <div>
+                          <p className="text-muted-foreground text-xs mb-1">Unit Price</p>
+                          {mode === 'edit' && !isRemoved ? (
+                            <Input
+                              type="number"
+                              value={item.unit_price / 100}
+                              onChange={(e) =>
+                                onItemUpdate?.(item.id!, {
+                                  unit_price: Math.round(parseFloat(e.target.value) * 100) || 0
+                                })
+                              }
+                              min="0"
+                              step="0.01"
+                              className="h-8 text-sm"
+                            />
+                          ) : (
+                            <div className="flex items-center gap-1">
+                              <span className={isRemoved ? 'line-through' : ''}>
+                                {formatCurrency(item.unit_price)}
+                              </span>
+                              {change?.changes?.find(c => c.field === 'unit_price') &&
+                                renderFieldChange(change.changes.find(c => c.field === 'unit_price')!)}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex justify-between items-center pt-2 border-t">
+                        <span className="text-xs font-medium">Total</span>
+                        <span className={`font-bold text-sm ${isRemoved ? 'line-through' : ''}`}>
+                          {formatCurrency(item.total_price)}
+                        </span>
+                      </div>
+
+                      {mode === 'edit' && (
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => onItemRemove?.(item.id!)}
+                          className="w-full"
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Remove Item
+                        </Button>
+                      )}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
-          <Separator className="my-4" />
-        </div>
-      ))}
+        );
+      })}
 
       {/* Add Item Button (Edit Mode) */}
       {mode === 'edit' && onItemAdd && (
