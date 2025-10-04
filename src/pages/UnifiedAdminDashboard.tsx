@@ -7,10 +7,11 @@ import { PaymentProcessingDashboard } from '@/components/admin/PaymentProcessing
 import { EventTimelineManager } from '@/components/admin/EventTimelineManager';
 import { TestExecutionPanel } from '@/components/admin/TestExecutionPanel';
 import { TestingDashboard } from '@/components/admin/testing/TestingDashboard';
+import { EventStatusBoard } from '@/components/admin/EventStatusBoard';
 import { useAuth } from '@/hooks/useAuth';
 import { LogOut } from 'lucide-react';
 
-type AdminView = 'workflow' | 'change-management' | 'payments' | 'events' | 'testing';
+type AdminView = 'workflow' | 'change-management' | 'payments' | 'events' | 'testing' | 'event-board';
 
 export function UnifiedAdminDashboard() {
   const [currentView, setCurrentView] = useState<AdminView>('workflow');
@@ -45,6 +46,12 @@ export function UnifiedAdminDashboard() {
                 onClick={() => setCurrentView('payments')}
               >
                 Payment Processing
+              </Button>
+              <Button
+                variant={currentView === 'event-board' ? 'default' : 'outline'}
+                onClick={() => setCurrentView('event-board')}
+              >
+                Event Status
               </Button>
               <Button
                 variant={currentView === 'events' ? 'default' : 'outline'}
@@ -85,6 +92,11 @@ export function UnifiedAdminDashboard() {
         )}
         {currentView === 'payments' && (
           <PaymentProcessingDashboard />
+        )}
+        {currentView === 'event-board' && (
+          <div className="container mx-auto px-4 py-6">
+            <EventStatusBoard />
+          </div>
         )}
         {currentView === 'events' && (
           <div className="container mx-auto px-4 py-6">
