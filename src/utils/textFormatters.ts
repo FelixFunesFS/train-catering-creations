@@ -69,3 +69,49 @@ export const formatLineItemTitle = (title: string): string => {
     })
     .join(' ');
 };
+
+/**
+ * Format event name for display (Title Case)
+ */
+export const formatEventName = (name: string): string => {
+  if (!name) return '';
+  return name
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};
+
+/**
+ * Format location with intelligent title casing
+ * Handles: "charleston, sc" → "Charleston, SC"
+ */
+export const formatLocation = (location: string): string => {
+  if (!location) return '';
+  
+  // Split by comma for city, state handling
+  const parts = location.split(',').map(part => part.trim());
+  
+  return parts.map((part, index) => {
+    // Last part is often a state abbreviation (keep uppercase)
+    if (index === parts.length - 1 && part.length === 2) {
+      return part.toUpperCase();
+    }
+    
+    // Title case for everything else
+    return part
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+  }).join(', ');
+};
+
+/**
+ * Format customer name for display (Title Case)
+ */
+export const formatCustomerName = (name: string): string => {
+  if (!name) return '';
+  return name
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};

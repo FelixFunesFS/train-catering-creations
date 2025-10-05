@@ -12,6 +12,8 @@ import { format } from 'date-fns';
 import { EnhancedEstimateLineItems } from '../EnhancedEstimateLineItems';
 import { IntegratedChangeRequestPanel } from './IntegratedChangeRequestPanel';
 import { requiresSeparateContract } from '@/utils/contractRequirements';
+import { formatEventName, formatLocation, formatCustomerName, formatEventType } from '@/utils/textFormatters';
+import { formatPhoneNumber } from '@/utils/phoneFormatter';
 import { 
   ChevronDown, 
   ChevronUp, 
@@ -182,7 +184,7 @@ export function PricingPanel({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
-            <span>Pricing for {quote.event_name}</span>
+            <span>Pricing for {formatEventName(quote.event_name)}</span>
             <Badge variant="outline">{quote.status}</Badge>
           </CardTitle>
         </CardHeader>
@@ -190,7 +192,7 @@ export function PricingPanel({
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
             <div>
               <div className="font-medium">Contact</div>
-              <div className="text-muted-foreground">{quote.contact_name}</div>
+              <div className="text-muted-foreground">{formatCustomerName(quote.contact_name)}</div>
             </div>
             <div>
               <div className="font-medium">Event Date</div>
@@ -204,7 +206,7 @@ export function PricingPanel({
             </div>
             <div>
               <div className="font-medium">Location</div>
-              <div className="text-muted-foreground">{quote.location}</div>
+              <div className="text-muted-foreground">{formatLocation(quote.location)}</div>
             </div>
           </div>
         </CardContent>
@@ -354,11 +356,11 @@ export function PricingPanel({
                       <div className="text-sm space-y-2">
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Event:</span>
-                          <span className="font-medium">{quote.event_name}</span>
+                          <span className="font-medium">{formatEventName(quote.event_name)}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Type:</span>
-                          <span className="font-medium capitalize">{quote.event_type?.replace('_', ' ')}</span>
+                          <span className="font-medium">{formatEventType(quote.event_type)}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Date:</span>
@@ -378,7 +380,7 @@ export function PricingPanel({
                       <div className="text-sm space-y-2">
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Name:</span>
-                          <span className="font-medium">{quote.contact_name}</span>
+                          <span className="font-medium">{formatCustomerName(quote.contact_name)}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Email:</span>
@@ -386,7 +388,7 @@ export function PricingPanel({
                         </div>
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Phone:</span>
-                          <span className="font-medium">{quote.phone}</span>
+                          <span className="font-medium">{formatPhoneNumber(quote.phone)}</span>
                         </div>
                       </div>
                     </div>

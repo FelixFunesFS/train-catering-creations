@@ -1,6 +1,6 @@
 import { convertMenuIdToReadableText, createMealBundleDescription } from './menuNLP';
 import { formatPhoneNumber } from './phoneFormatter';
-import { formatEventType } from './textFormatters';
+import { formatEventType, formatCustomerName as formatCustomerNameUtil } from './textFormatters';
 
 export interface LineItem {
   id: string;
@@ -44,13 +44,8 @@ export interface QuoteRequest {
   dietary_restrictions?: any[];
 }
 
-// Professional name formatting
-export const formatCustomerName = (name: string): string => {
-  if (!name) return '';
-  return name.split(' ')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(' ');
-};
+// Professional name formatting (re-export from textFormatters)
+export const formatCustomerName = formatCustomerNameUtil;
 
 // Professional phone formatting
 export const formatCustomerPhone = (phone: string): string => {

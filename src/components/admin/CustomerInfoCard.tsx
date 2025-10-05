@@ -5,6 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { User, Mail, Phone, MapPin, Calendar, Clock, Users, Utensils, Star, CalendarDays, Copy, ChefHat, DollarSign } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
+import { formatCustomerName, formatEventName, formatLocation, formatEventType } from '@/utils/textFormatters';
+import { formatPhoneNumber } from '@/utils/phoneFormatter';
 
 interface CustomerInfoCardProps {
   quote: any;
@@ -66,7 +68,7 @@ export function CustomerInfoCard({ quote, isCompact = false }: CustomerInfoCardP
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <User className="h-4 w-4 text-primary" />
-              <span className="font-semibold text-sm">{quote.contact_name}</span>
+              <span className="font-semibold text-sm">{formatCustomerName(quote.contact_name)}</span>
             </div>
             <Badge variant={quote.status === 'confirmed' ? 'default' : 'secondary'} className="text-xs">
               {quote.status}
@@ -75,7 +77,7 @@ export function CustomerInfoCard({ quote, isCompact = false }: CustomerInfoCardP
           <div className="space-y-2 text-xs">
             <div className="flex items-center gap-2">
               <Calendar className="h-3 w-3 text-muted-foreground" />
-              <span>{quote.event_name}</span>
+              <span>{formatEventName(quote.event_name)}</span>
             </div>
             <div className="flex items-center gap-2">
               <Clock className="h-3 w-3 text-muted-foreground" />
@@ -122,12 +124,12 @@ export function CustomerInfoCard({ quote, isCompact = false }: CustomerInfoCardP
                   <User className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
                   <div className="min-w-0 flex-1">
                     <label className="text-xs font-medium text-muted-foreground">Customer Name</label>
-                    <p className="text-sm font-medium mt-1 truncate">{quote.contact_name}</p>
+                    <p className="text-sm font-medium mt-1 truncate">{formatCustomerName(quote.contact_name)}</p>
                   </div>
                   <Button
                     size="sm"
                     variant="ghost"
-                    onClick={() => copyToClipboard(quote.contact_name, 'Name')}
+                    onClick={() => copyToClipboard(formatCustomerName(quote.contact_name), 'Name')}
                     className="h-6 w-6 p-0"
                   >
                     <Copy className="h-3 w-3" />
@@ -152,7 +154,7 @@ export function CustomerInfoCard({ quote, isCompact = false }: CustomerInfoCardP
                   <Phone className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
                   <div className="min-w-0 flex-1">
                     <label className="text-xs font-medium text-muted-foreground">Phone</label>
-                    <p className="text-sm font-medium mt-1">{quote.phone}</p>
+                    <p className="text-sm font-medium mt-1">{formatPhoneNumber(quote.phone)}</p>
                   </div>
                   <Button
                     size="sm"
@@ -167,12 +169,12 @@ export function CustomerInfoCard({ quote, isCompact = false }: CustomerInfoCardP
                   <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
                   <div className="min-w-0 flex-1">
                     <label className="text-xs font-medium text-muted-foreground">Event Location</label>
-                    <p className="text-sm font-medium mt-1">{quote.location}</p>
+                    <p className="text-sm font-medium mt-1">{formatLocation(quote.location)}</p>
                   </div>
                   <Button
                     size="sm"
                     variant="ghost"
-                    onClick={() => copyToClipboard(quote.location, 'Location')}
+                    onClick={() => copyToClipboard(formatLocation(quote.location), 'Location')}
                     className="h-6 w-6 p-0"
                   >
                     <Copy className="h-3 w-3" />
@@ -193,14 +195,14 @@ export function CustomerInfoCard({ quote, isCompact = false }: CustomerInfoCardP
                   <Calendar className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
                   <div className="min-w-0 flex-1">
                     <label className="text-xs font-medium text-muted-foreground">Event Name</label>
-                    <p className="text-sm font-medium mt-1 truncate">{quote.event_name}</p>
+                    <p className="text-sm font-medium mt-1 truncate">{formatEventName(quote.event_name)}</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <Star className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
                   <div className="min-w-0 flex-1">
                     <label className="text-xs font-medium text-muted-foreground">Event Type</label>
-                    <p className="text-sm font-medium mt-1 capitalize">{quote.event_type.replace('_', ' ')}</p>
+                    <p className="text-sm font-medium mt-1">{formatEventType(quote.event_type)}</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
@@ -228,7 +230,7 @@ export function CustomerInfoCard({ quote, isCompact = false }: CustomerInfoCardP
                   <Utensils className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
                   <div className="min-w-0 flex-1">
                     <label className="text-xs font-medium text-muted-foreground">Service Type</label>
-                    <p className="text-sm font-medium mt-1 capitalize">{quote.service_type.replace('_', ' ')}</p>
+                    <p className="text-sm font-medium mt-1">{quote.service_type.replace(/_/g, ' ').split(' ').map((word: string) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</p>
                   </div>
                 </div>
               </div>

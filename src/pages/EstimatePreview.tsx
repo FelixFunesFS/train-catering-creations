@@ -8,7 +8,7 @@ import { formatCurrency } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { ArrowLeft, Download, CreditCard, MessageSquare } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { formatCategory } from '@/utils/textFormatters';
+import { formatCategory, formatEventName, formatCustomerName, formatLocation } from '@/utils/textFormatters';
 
 interface EstimateData {
   id: string;
@@ -127,11 +127,11 @@ export default function EstimatePreview() {
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
                       <span className="text-muted-foreground">Event:</span>
-                      <p className="font-medium">{estimate.quote_requests.event_name}</p>
+                      <p className="font-medium">{formatEventName(estimate.quote_requests.event_name)}</p>
                     </div>
                     <div>
                       <span className="text-muted-foreground">Contact:</span>
-                      <p className="font-medium">{estimate.quote_requests.contact_name}</p>
+                      <p className="font-medium">{formatCustomerName(estimate.quote_requests.contact_name)}</p>
                     </div>
                     <div>
                       <span className="text-muted-foreground">Date:</span>
@@ -143,7 +143,7 @@ export default function EstimatePreview() {
                     </div>
                     <div className="col-span-2">
                       <span className="text-muted-foreground">Location:</span>
-                      <p className="font-medium">{estimate.quote_requests.location}</p>
+                      <p className="font-medium">{formatLocation(estimate.quote_requests.location)}</p>
                     </div>
                   </div>
                 </div>
