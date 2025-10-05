@@ -210,7 +210,6 @@ function generateEstimateEmail(quote: any, invoice: any, portalUrl: string, cust
               <td style="padding: 12px;">
                 <div style="font-weight: 500; color: #333;">${item.title || 'Item'}</div>
                 ${item.description ? `<div style="font-size: 12px; color: #666; margin-top: 2px;">${item.description}</div>` : ''}
-                ${item.category ? `<div style="font-size: 11px; color: #999; margin-top: 2px; text-transform: uppercase;">${item.category}</div>` : ''}
               </td>
               <td style="text-align: center; padding: 12px; color: #666;">${item.quantity}</td>
               <td style="text-align: right; padding: 12px; color: #666;">${formatCurrency(item.unit_price)}</td>

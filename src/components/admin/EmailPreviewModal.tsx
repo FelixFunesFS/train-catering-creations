@@ -132,7 +132,6 @@ export function EmailPreviewModal({
                     <td>
                       <div style="font-weight: 500;">${item.title || 'Item'}</div>
                       ${item.description ? `<div style="font-size: 12px; color: #666;">${item.description}</div>` : ''}
-                      ${item.category ? `<div style="font-size: 11px; color: #999; text-transform: uppercase;">${item.category}</div>` : ''}
                     </td>
                     <td style="text-align: center;">${item.quantity}</td>
                     <td style="text-align: right;">${formatCurrency(item.unit_price)}</td>
