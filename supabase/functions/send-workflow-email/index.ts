@@ -162,75 +162,127 @@ function generateEstimateEmail(quote: any, invoice: any, portalUrl: string, cust
 <html>
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body { font-family: Georgia, serif; line-height: 1.6; color: #333; background: #fafafa; margin: 0; padding: 20px; }
-    .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; overflow: hidden; }
-    .header { background: linear-gradient(135deg, #DC143C 0%, #B91C3C 100%); color: white; padding: 30px; text-align: center; }
-    .content { padding: 30px; }
-    .btn { display: inline-block; background: #DC143C; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
-    .footer { background: #f8f9fa; padding: 20px; text-align: center; font-size: 14px; color: #666; }
+    .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .header { background: linear-gradient(135deg, #DC143C 0%, #8B0000 100%); padding: 40px; text-align: center; }
+    .header h1 { margin: 0; font-size: 32px; font-weight: bold; color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+    .header .tagline { margin: 10px 0 0; font-size: 16px; color: #FFD700; font-style: italic; }
+    .header .subtitle { margin: 5px 0 0; font-size: 14px; color: rgba(255,255,255,0.9); }
+    .content { padding: 40px 30px; }
+    .greeting { color: #DC143C; font-size: 24px; margin-bottom: 10px; }
+    .event-details { background: linear-gradient(to right, #FFF5E6, #FFE4E1); padding: 25px; border-radius: 8px; border-left: 4px solid #DC143C; margin: 25px 0; }
+    .event-details h3 { color: #DC143C; margin: 0 0 15px 0; font-size: 18px; }
+    .event-details table { width: 100%; font-size: 14px; }
+    .event-details td { padding: 8px 0; }
+    .menu-title { color: #DC143C; margin: 35px 0 20px; font-size: 22px; border-bottom: 3px solid #FFD700; padding-bottom: 10px; }
+    .menu-subtitle { font-size: 14px; color: #666; font-style: italic; margin-bottom: 20px; }
+    table.items { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    table.items thead tr { background: linear-gradient(135deg, #DC143C, #B91C3C); color: white; }
+    table.items th { text-align: left; padding: 15px; font-weight: 600; }
+    table.items tbody tr:nth-child(even) { background: #FFF5E6; }
+    table.items tbody tr:nth-child(odd) { background: #fff; }
+    table.items tbody tr { border-bottom: 1px solid #e9ecef; }
+    table.items td { padding: 15px; }
+    table.items .item-title { font-weight: 600; color: #333; margin-bottom: 4px; }
+    table.items .item-desc { font-size: 12px; color: #666; line-height: 1.4; }
+    table.items tfoot tr { background: #FFF5E6; }
+    table.items .total-row { background: linear-gradient(135deg, #DC143C, #B91C3C) !important; color: white; }
+    .btn { display: inline-block; background: linear-gradient(135deg, #DC143C, #B91C3C); color: white; padding: 16px 40px; text-decoration: none; border-radius: 8px; font-size: 18px; font-weight: bold; box-shadow: 0 4px 12px rgba(220, 20, 60, 0.3); margin: 30px 0; }
+    .btn-note { margin-top: 15px; font-size: 13px; color: #666; }
+    .footer { background: linear-gradient(to right, #f8f9fa, #e9ecef); padding: 30px; text-align: center; border-top: 3px solid #FFD700; }
+    .footer .title { margin: 0 0 10px; font-size: 16px; font-weight: 600; color: #333; }
+    .footer .contact { margin: 5px 0; color: #666; }
+    .footer .contact a { color: #DC143C; text-decoration: none; }
+    .footer .tagline-footer { margin: 15px 0 5px; font-size: 12px; color: #999; }
+    .footer .love { margin: 5px 0; font-size: 12px; color: #999; font-style: italic; }
     .terms { background: #f9fafb; border-radius: 8px; padding: 20px; margin: 20px 0; font-size: 13px; }
     .terms h3 { color: #DC143C; margin-bottom: 15px; }
     .terms h4 { color: #333; font-size: 14px; margin: 15px 0 5px; }
     .terms p { color: #666; margin: 0 0 10px; }
+    @media only screen and (max-width: 600px) {
+      .container { border-radius: 0 !important; }
+      .header { padding: 25px 15px !important; }
+      .header h1 { font-size: 24px !important; }
+      .content { padding: 20px 15px !important; }
+      table.items { font-size: 12px !important; }
+      table.items th, table.items td { padding: 10px 8px !important; }
+      .btn { padding: 14px 30px !important; font-size: 16px !important; display: block !important; margin: 20px auto !important; text-align: center; }
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <h1 style="margin:0">Soul Train's Eatery</h1>
-      <p style="margin:5px 0">Authentic Southern Catering</p>
+      <h1>🍽️ Soul Train's Eatery</h1>
+      <p class="tagline">Where Southern Soul Meets Lowcountry Love</p>
+      <p class="subtitle">Charleston's Premier Family-Run Catering</p>
     </div>
     <div class="content">
-      <h2>Your Estimate for ${quote.event_name}</h2>
-      <p>${customMessage || `Thank you for considering Soul Train's Eatery for your upcoming ${quote.event_name}!`}</p>
+      <h2 class="greeting">Hello ${quote.contact_name}! 👋</h2>
+      <p style="font-size: 16px; line-height: 1.8; color: #333;">
+        ${customMessage || `We're so excited to be part of your special day! Here's your personalized estimate for ${quote.event_name}. We've hand-picked the perfect menu to make your celebration unforgettable.`}
+      </p>
       
-      <p><strong>Event Details:</strong></p>
-      <ul>
-        <li>Date: ${new Date(quote.event_date).toLocaleDateString()}</li>
-        <li>Guests: ${quote.guest_count}</li>
-        <li>Location: ${quote.location}</li>
-      </ul>
+      <div class="event-details">
+        <h3>📅 Your Event Details</h3>
+        <table>
+          <tr>
+            <td style="color: #666;"><strong>🗓️ Date:</strong></td>
+            <td style="color: #333;">${new Date(quote.event_date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</td>
+          </tr>
+          <tr>
+            <td style="color: #666;"><strong>👥 Guests:</strong></td>
+            <td style="color: #333;">${quote.guest_count} hungry souls</td>
+          </tr>
+          <tr>
+            <td style="color: #666;"><strong>📍 Location:</strong></td>
+            <td style="color: #333;">${quote.location}</td>
+          </tr>
+        </table>
+      </div>
       
-      <h3 style="color: #DC143C; margin-top: 30px;">Estimate Breakdown</h3>
+      <h3 class="menu-title">🍴 Your Soul Food Menu</h3>
+      <p class="menu-subtitle">Prepared fresh with love, just like Grandma used to make</p>
       
       ${lineItems && lineItems.length > 0 ? `
-      <table style="width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px;">
+      <table class="items">
         <thead>
-          <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
-            <th style="text-align: left; padding: 12px; font-weight: 600;">Item</th>
-            <th style="text-align: center; padding: 12px; font-weight: 600; width: 60px;">Qty</th>
-            <th style="text-align: right; padding: 12px; font-weight: 600; width: 100px;">Unit Price</th>
-            <th style="text-align: right; padding: 12px; font-weight: 600; width: 100px;">Total</th>
+          <tr>
+            <th>Menu Item</th>
+            <th style="text-align: center;">Servings</th>
+            <th style="text-align: right;">Price per</th>
+            <th style="text-align: right;">Total</th>
           </tr>
         </thead>
         <tbody>
-          ${lineItems.map(item => `
-            <tr style="border-bottom: 1px solid #e9ecef;">
-              <td style="padding: 12px;">
-                <div style="font-weight: 500; color: #333;">${item.title || 'Item'}</div>
-                ${item.description ? `<div style="font-size: 12px; color: #666; margin-top: 2px;">${item.description}</div>` : ''}
+          ${lineItems.map((item, idx) => `
+            <tr>
+              <td>
+                <div class="item-title">${item.title || 'Item'}</div>
+                ${item.description ? `<div class="item-desc">${item.description}</div>` : ''}
               </td>
-              <td style="text-align: center; padding: 12px; color: #666;">${item.quantity}</td>
-              <td style="text-align: right; padding: 12px; color: #666;">${formatCurrency(item.unit_price)}</td>
-              <td style="text-align: right; padding: 12px; font-weight: 500; color: #333;">${formatCurrency(item.total_price)}</td>
+              <td style="text-align: center; color: #666; font-weight: 500;">${item.quantity}</td>
+              <td style="text-align: right; color: #666;">${formatCurrency(item.unit_price)}</td>
+              <td style="text-align: right; font-weight: 600; color: #DC143C;">${formatCurrency(item.total_price)}</td>
             </tr>
           `).join('')}
         </tbody>
         <tfoot>
-          <tr style="border-top: 2px solid #dee2e6;">
-            <td colspan="3" style="text-align: right; padding: 12px; font-weight: 500; color: #666;">Subtotal:</td>
-            <td style="text-align: right; padding: 12px; font-weight: 500;">${formatCurrency(invoice.subtotal)}</td>
+          <tr>
+            <td colspan="3" style="text-align: right; padding: 15px; font-weight: 600; color: #666;">Subtotal:</td>
+            <td style="text-align: right; padding: 15px; font-weight: 600;">${formatCurrency(invoice.subtotal)}</td>
           </tr>
           ${invoice.tax_amount > 0 ? `
           <tr>
-            <td colspan="3" style="text-align: right; padding: 12px; color: #666;">Tax (9.5%):</td>
-            <td style="text-align: right; padding: 12px; color: #666;">${formatCurrency(invoice.tax_amount)}</td>
+            <td colspan="3" style="text-align: right; padding: 15px; color: #666;">Tax (9.5%):</td>
+            <td style="text-align: right; padding: 15px;">${formatCurrency(invoice.tax_amount)}</td>
           </tr>
           ` : ''}
-          <tr style="background: #f8f9fa; border-top: 1px solid #dee2e6;">
-            <td colspan="3" style="text-align: right; padding: 15px; font-weight: 700; font-size: 16px; color: #333;">Total Estimate:</td>
-            <td style="text-align: right; padding: 15px; font-weight: 700; font-size: 18px; color: #DC143C;">${formatCurrency(invoice.total_amount)}</td>
+          <tr class="total-row">
+            <td colspan="3" style="text-align: right; padding: 18px; font-weight: 700; font-size: 18px;">Your Total Investment:</td>
+            <td style="text-align: right; padding: 18px; font-weight: 700; font-size: 20px;">${formatCurrency(invoice.total_amount)}</td>
           </tr>
         </tfoot>
       </table>
@@ -238,7 +290,10 @@ function generateEstimateEmail(quote: any, invoice: any, portalUrl: string, cust
       <p><strong>Total Estimate: ${formatCurrency(invoice.total_amount)}</strong></p>
       `}
       
-      <a href="${portalUrl}" class="btn">View & Approve Estimate</a>
+      <div style="text-align: center; margin: 40px 0;">
+        <a href="${portalUrl}" class="btn">👉 View & Approve Your Estimate</a>
+        <p class="btn-note">Questions? We're here to help make your event perfect!</p>
+      </div>
       
       <p>Use the customer portal to:</p>
       <ul>
@@ -257,7 +312,11 @@ function generateEstimateEmail(quote: any, invoice: any, portalUrl: string, cust
       ` : ''}
     </div>
     <div class="footer">
-      <p>Soul Train's Eatery | (843) 970-0265 | soultrainseatery@gmail.com</p>
+      <p class="title">📞 Contact Soul Train's Eatery</p>
+      <p class="contact"><strong>Phone:</strong> <a href="tel:8439700265">(843) 970-0265</a></p>
+      <p class="contact"><strong>Email:</strong> <a href="mailto:soultrainseatery@gmail.com">soultrainseatery@gmail.com</a></p>
+      <p class="tagline-footer">Proudly serving Charleston's Lowcountry and surrounding areas</p>
+      <p class="love">❤️ Made with Southern Love by the Soul Train Family</p>
     </div>
   </div>
 </body>

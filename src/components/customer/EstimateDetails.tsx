@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Calendar, MapPin, Users, Clock, AlertCircle } from 'lucide-react';
+import { Calendar, MapPin, Users, Clock, AlertCircle, MessageSquare } from 'lucide-react';
 import { format } from 'date-fns';
 import { UnifiedLineItemsTable } from '@/components/shared/UnifiedLineItemsTable';
 import { useEstimateVersioning } from '@/hooks/useEstimateVersioning';
@@ -54,6 +54,25 @@ export function EstimateDetails({ invoice, quote, lineItems, milestones }: Estim
         </Alert>
       )}
 
+      {/* Help Banner */}
+      <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-primary/10">
+        <CardContent className="pt-6">
+          <div className="flex items-start gap-3">
+            <div className="rounded-full bg-primary/10 p-2">
+              <MessageSquare className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-foreground mb-1">Have questions or need changes?</h3>
+              <p className="text-sm text-muted-foreground">
+                No worries! We're here to make sure everything is perfect for your special day. 
+                Use the "Request Changes" button below to let us know about menu adjustments, 
+                date changes, or any special requests.
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Event Details */}
       <Card>
         <CardHeader>
@@ -101,7 +120,12 @@ export function EstimateDetails({ invoice, quote, lineItems, milestones }: Estim
       {/* Line Items - Unified Table with Change Highlighting */}
       <Card>
         <CardHeader>
-          <CardTitle>Estimate Breakdown</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            🍴 Your Soul Food Menu
+          </CardTitle>
+          <p className="text-sm text-muted-foreground italic">
+            Prepared fresh with love, just like Grandma used to make
+          </p>
           {changeData.length > 0 && (
             <p className="text-sm text-muted-foreground mt-1">
               {changeData.filter(c => c.type === 'added').length > 0 && 

@@ -73,13 +73,16 @@ export function EstimateActions({
 
         <Button
           variant="outline"
-          className="w-full"
+          className="w-full border-2 hover:bg-primary/5 hover:border-primary transition-all"
           size="lg"
           onClick={onChangeRequested}
         >
           <MessageSquare className="mr-2 h-5 w-5" />
-          Request Changes
+          <span className="font-semibold">Request Changes</span>
         </Button>
+        <p className="text-xs text-muted-foreground text-center">
+          Need menu adjustments, date changes, or have special requests? We're happy to help!
+        </p>
 
         <p className="text-xs text-muted-foreground text-center mt-4">
           Questions? Contact us at <strong>soultrainseatery@gmail.com</strong> or <strong>(843) 970-0265</strong>
