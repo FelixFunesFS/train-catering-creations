@@ -5,6 +5,7 @@ import { Calendar, MapPin, Users, Clock, AlertCircle, MessageSquare } from 'luci
 import { format } from 'date-fns';
 import { UnifiedLineItemsTable } from '@/components/shared/UnifiedLineItemsTable';
 import { useEstimateVersioning } from '@/hooks/useEstimateVersioning';
+import { TaxCalculationService } from '@/services/TaxCalculationService';
 
 interface EstimateDetailsProps {
   invoice: any;
@@ -138,15 +139,24 @@ export function EstimateDetails({ invoice, quote, lineItems, milestones }: Estim
           )}
         </CardHeader>
         <CardContent>
-          <UnifiedLineItemsTable
-            items={lineItems}
-            mode="view"
-            changeData={changeData}
-            subtotal={invoice.subtotal}
-            taxAmount={invoice.tax_amount}
-            totalAmount={invoice.total_amount}
-            groupByCategory={true}
-          />
+          {(() => {
+            // Calculate totals from line items (single source of truth)
+            const subtotal = lineItems.reduce((sum, item) => sum + item.total_price, 0);
+            const isGovContract = quote.compliance_level === 'government' || quote.requires_po_number;
+            const taxCalc = TaxCalculationService.calculateTax(subtotal, isGovContract);
+            
+            return (
+              <UnifiedLineItemsTable
+                items={lineItems}
+                mode="view"
+                changeData={changeData}
+                subtotal={taxCalc.subtotal}
+                taxAmount={taxCalc.taxAmount}
+                totalAmount={taxCalc.totalAmount}
+                groupByCategory={true}
+              />
+            );
+          })()}
         </CardContent>
       </Card>
 

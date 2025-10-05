@@ -4,6 +4,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useOptimisticUpdates } from '@/hooks/useOptimisticUpdates';
 import { TaxCalculationService } from '@/services/TaxCalculationService';
+import { InvoiceTotalsRecalculator } from '@/services/InvoiceTotalsRecalculator';
 
 interface LineItem {
   id?: string;
@@ -96,6 +97,11 @@ export function useLineItemManagement({
         }
         
         console.log('✅ Line items saved successfully');
+      }
+      
+      // Recalculate invoice totals after auto-save
+      if (invoiceId) {
+        await InvoiceTotalsRecalculator.recalculateInvoice(invoiceId);
       }
       
       setIsModified(false);

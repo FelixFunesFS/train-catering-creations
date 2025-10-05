@@ -5,6 +5,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { TaxCalculationService } from './TaxCalculationService';
+import { InvoiceTotalsRecalculator } from './InvoiceTotalsRecalculator';
 import { generateProfessionalLineItems } from '@/utils/invoiceFormatters';
 import { formatCustomerName, formatEventName, formatLocation } from '@/utils/textFormatters';
 
@@ -479,6 +480,9 @@ export class QuoteUpdateService {
     }
 
     console.log(`✅ Updated invoice line items for invoice ${invoiceId}`);
+    
+    // Recalculate invoice totals after line item updates
+    await InvoiceTotalsRecalculator.recalculateInvoice(invoiceId);
   } catch (error) {
     console.error('❌ Error updating invoice line items:', error);
     throw error;

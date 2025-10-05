@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
+import { TaxCalculationService } from '@/services/TaxCalculationService';
 import { 
   FileText, 
   Download, 
@@ -54,6 +55,8 @@ interface QuoteData {
   serving_start_time?: string;
   location: string;
   guest_count: number;
+  compliance_level?: string;
+  requires_po_number?: boolean;
 }
 
 interface CustomerInvoiceViewerProps {
@@ -257,21 +260,37 @@ export function CustomerInvoiceViewer({
         {/* Totals */}
         <div className="flex justify-end">
           <div className="w-full max-w-sm space-y-2">
-            <div className="flex justify-between text-sm">
-              <span>Subtotal:</span>
-              <span>{formatCurrency(invoice.subtotal)}</span>
-            </div>
-            {invoice.tax_amount > 0 && (
-              <div className="flex justify-between text-sm">
-                <span>Tax (8%):</span>
-                <span>{formatCurrency(invoice.tax_amount)}</span>
-              </div>
-            )}
-            <Separator />
-            <div className="flex justify-between text-lg font-semibold">
-              <span>Total:</span>
-              <span>{formatCurrency(invoice.total_amount)}</span>
-            </div>
+            {(() => {
+              // Calculate totals from line items (single source of truth)
+              const subtotal = invoice.line_items.reduce((sum: number, item: any) => sum + item.total_price, 0);
+              const isGovContract = quote?.compliance_level === 'government' || quote?.requires_po_number;
+              const taxCalc = TaxCalculationService.calculateTax(subtotal, isGovContract);
+              
+              return (
+                <>
+                  <div className="flex justify-between text-sm">
+                    <span>Subtotal:</span>
+                    <span>{formatCurrency(taxCalc.subtotal)}</span>
+                  </div>
+                  {taxCalc.taxAmount > 0 && (
+                    <div className="flex justify-between text-sm">
+                      <span>Tax ({TaxCalculationService.formatTaxRate()}):</span>
+                      <span>{formatCurrency(taxCalc.taxAmount)}</span>
+                    </div>
+                  )}
+                  {taxCalc.isExempt && (
+                    <div className="flex justify-between text-sm text-muted-foreground">
+                      <span>Tax Exempt (Government Contract)</span>
+                    </div>
+                  )}
+                  <Separator />
+                  <div className="flex justify-between text-lg font-semibold">
+                    <span>Total:</span>
+                    <span>{formatCurrency(taxCalc.totalAmount)}</span>
+                  </div>
+                </>
+              );
+            })()}
           </div>
         </div>
 

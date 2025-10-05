@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { TaxCalculationService } from '@/services/TaxCalculationService';
 import { 
   FileText, CreditCard, CheckCircle, Clock, AlertCircle,
   Download, MessageSquare, Calendar
@@ -19,6 +20,7 @@ export default function CustomerPortal() {
   const [invoice, setInvoice] = useState<any>(null);
   const [contract, setContract] = useState<any>(null);
   const [paymentStatus, setPaymentStatus] = useState<any>(null);
+  const [lineItems, setLineItems] = useState<any[]>([]);
 
   const token = searchParams.get('token');
 
@@ -53,6 +55,14 @@ export default function CustomerPortal() {
       setInvoice(invoiceData);
       setQuote(invoiceData.quote_requests);
 
+      // Fetch line items for total calculation
+      const { data: lineItemsData } = await supabase
+        .from('invoice_line_items')
+        .select('*')
+        .eq('invoice_id', invoiceData.id);
+      
+      setLineItems(lineItemsData || []);
+
       // Track portal access
       await supabase
         .from('invoices')
@@ -78,11 +88,17 @@ export default function CustomerPortal() {
         .eq('invoice_id', invoiceData.id)
         .eq('status', 'completed');
 
+      // Calculate total from line items
+      const subtotal = lineItemsData?.reduce((sum: number, item: any) => sum + item.total_price, 0) || 0;
+      const isGovContract = invoiceData.quote_requests?.compliance_level === 'government' || 
+                            invoiceData.quote_requests?.requires_po_number;
+      const taxCalc = TaxCalculationService.calculateTax(subtotal, isGovContract);
+      
       const totalPaid = transactions?.reduce((sum, t) => sum + t.amount, 0) || 0;
       setPaymentStatus({
         totalPaid,
-        amountDue: invoiceData.total_amount - totalPaid,
-        isPaid: totalPaid >= invoiceData.total_amount
+        amountDue: taxCalc.totalAmount - totalPaid,
+        isPaid: totalPaid >= taxCalc.totalAmount
       });
 
     } catch (error) {
@@ -169,7 +185,14 @@ export default function CustomerPortal() {
               </div>
               <div className="text-right md:text-left">
                 <p className="text-sm text-muted-foreground">Total Estimate</p>
-                <p className="text-2xl font-bold text-primary">{formatCurrency(invoice.total_amount)}</p>
+                <p className="text-2xl font-bold text-primary">
+                  {(() => {
+                    const subtotal = lineItems.reduce((sum, item) => sum + item.total_price, 0);
+                    const isGovContract = quote.compliance_level === 'government' || quote.requires_po_number;
+                    const taxCalc = TaxCalculationService.calculateTax(subtotal, isGovContract);
+                    return formatCurrency(taxCalc.totalAmount);
+                  })()}
+                </p>
                 {paymentStatus && !paymentStatus.isPaid && (
                   <p className="text-sm text-muted-foreground mt-1">
                     Amount Due: {formatCurrency(paymentStatus.amountDue)}

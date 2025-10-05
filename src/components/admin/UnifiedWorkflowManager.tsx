@@ -17,6 +17,7 @@ import { EventCompletionPanel } from './workflow/EventCompletionPanel';
 // WeddingTemplateSelector removed - now inline in PricingPanel
 import { TimelineTasksPanel } from './workflow/TimelineTasksPanel';
 import { WorkflowService } from '@/services/WorkflowService';
+import { InvoiceTotalsRecalculator } from '@/services/InvoiceTotalsRecalculator';
 
 type Quote = QuoteRequest & {
   created_at: string;
@@ -249,6 +250,9 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
     if (!invoice || !selectedQuote) return;
 
     try {
+      // Recalculate totals before sending to customer
+      await InvoiceTotalsRecalculator.recalculateBeforeSend(invoice.id);
+      
       // Update invoice with contract requirement and T&C settings
       const { error: updateError } = await supabase
         .from('invoices')

@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { TaxCalculationService } from '@/services/TaxCalculationService';
 import { 
   DollarSign, 
   Calendar, 
@@ -15,9 +16,10 @@ import {
 interface CustomerPaymentScheduleProps {
   invoice: any;
   payments: any[];
+  lineItems: any[];
 }
 
-export function CustomerPaymentSchedule({ invoice, payments }: CustomerPaymentScheduleProps) {
+export function CustomerPaymentSchedule({ invoice, payments, lineItems }: CustomerPaymentScheduleProps) {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -34,7 +36,13 @@ export function CustomerPaymentSchedule({ invoice, payments }: CustomerPaymentSc
   };
 
   const getPaymentSchedule = () => {
-    const totalAmount = invoice.total_amount;
+    // Calculate total from line items (single source of truth)
+    const subtotal = lineItems.reduce((sum, item) => sum + item.total_price, 0);
+    const isGovContract = invoice.quote_requests?.compliance_level === 'government' || 
+                          invoice.quote_requests?.requires_po_number;
+    const taxCalc = TaxCalculationService.calculateTax(subtotal, isGovContract);
+    const totalAmount = taxCalc.totalAmount;
+    
     const depositAmount = Math.round(totalAmount * 0.5); // 50% deposit
     const finalAmount = totalAmount - depositAmount;
     
@@ -168,32 +176,41 @@ export function CustomerPaymentSchedule({ invoice, payments }: CustomerPaymentSc
           <CardTitle className="text-lg">Payment Summary</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="text-center p-4 bg-blue-50 rounded-lg">
-              <div className="font-semibold text-lg text-blue-900">
-                {formatCurrency(invoice.total_amount)}
-              </div>
-              <div className="text-sm text-blue-700">Total Amount</div>
-            </div>
+          {(() => {
+            // Calculate total from line items
+            const subtotal = lineItems.reduce((sum, item) => sum + item.total_price, 0);
+            const isGovContract = invoice.quote_requests?.compliance_level === 'government' || 
+                                  invoice.quote_requests?.requires_po_number;
+            const taxCalc = TaxCalculationService.calculateTax(subtotal, isGovContract);
+            const totalAmount = taxCalc.totalAmount;
+            const totalPaid = payments.reduce((sum, p) => sum + (p.amount || 0), 0);
             
-            <div className="text-center p-4 bg-green-50 rounded-lg">
-              <div className="font-semibold text-lg text-green-900">
-                {formatCurrency(
-                  payments.reduce((sum, p) => sum + (p.amount || 0), 0)
-                )}
+            return (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="text-center p-4 bg-blue-50 rounded-lg">
+                  <div className="font-semibold text-lg text-blue-900">
+                    {formatCurrency(totalAmount)}
+                  </div>
+                  <div className="text-sm text-blue-700">Total Amount</div>
+                </div>
+                
+                <div className="text-center p-4 bg-green-50 rounded-lg">
+                  <div className="font-semibold text-lg text-green-900">
+                    {formatCurrency(totalPaid)}
+                  </div>
+                  <div className="text-sm text-green-700">Amount Paid</div>
+                </div>
+                
+                <div className="text-center p-4 bg-orange-50 rounded-lg">
+                  <div className="font-semibold text-lg text-orange-900">
+                    {formatCurrency(totalAmount - totalPaid)}
+                  </div>
+                  <div className="text-sm text-orange-700">Remaining Balance</div>
+                </div>
               </div>
-              <div className="text-sm text-green-700">Amount Paid</div>
-            </div>
-            
-            <div className="text-center p-4 bg-orange-50 rounded-lg">
-              <div className="font-semibold text-lg text-orange-900">
-                {formatCurrency(
-                  invoice.total_amount - payments.reduce((sum, p) => sum + (p.amount || 0), 0)
-                )}
-              </div>
-              <div className="text-sm text-orange-700">Remaining Balance</div>
-            </div>
-          </div>
+            );
+          })()}
+          
           
           <div className="mt-4 pt-4 border-t">
             <div className="flex justify-between items-center">
