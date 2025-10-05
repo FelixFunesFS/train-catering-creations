@@ -239,7 +239,7 @@ export class QuoteUpdateService {
    * Update invoice line items based on quote changes
    * Intelligently adds/removes/updates items while preserving manual pricing
    */
-  async updateInvoiceLineItems(invoiceId: string, quoteId: string, changes: any): Promise<void> {
+  async updateInvoiceLineItems(invoiceId: string, quoteId: string, changes: any, changeRequestId?: string): Promise<void> {
     try {
       console.log('🔄 Updating invoice line items with changes:', changes);
       
@@ -254,7 +254,7 @@ export class QuoteUpdateService {
         throw new Error('Failed to fetch updated quote');
       }
 
-      // Fetch current invoice line items
+      // Fetch current invoice line items (for before snapshot)
       const { data: currentLineItems, error: currentError } = await supabase
         .from('invoice_line_items')
         .select('*')
@@ -263,6 +263,9 @@ export class QuoteUpdateService {
       if (currentError) {
         throw new Error('Failed to fetch current line items');
       }
+
+      // Store before snapshot for history logging
+      const beforeItems = currentLineItems || [];
 
       // Parse JSON fields
       const quoteForLineItems = {
@@ -422,13 +425,27 @@ export class QuoteUpdateService {
           })
           .eq('id', invoiceId);
 
-        console.log(`✅ Updated invoice totals: ${totalAmount / 100}`);
-      }
-
-      console.log(`✅ Updated invoice line items for invoice ${invoiceId}`);
-    } catch (error) {
-      console.error('❌ Error updating invoice line items:', error);
-      throw error;
+      console.log(`✅ Updated invoice totals: ${totalAmount / 100}`);
     }
+
+    // Fetch after snapshot and log changes to history
+    if (changeRequestId) {
+      const { data: afterLineItems } = await supabase
+        .from('invoice_line_items')
+        .select('*')
+        .eq('invoice_id', invoiceId);
+
+      if (afterLineItems) {
+        const { HistoryLogger } = await import('./HistoryLogger');
+        const historyLogger = new HistoryLogger();
+        await historyLogger.logLineItemChanges(quoteId, changeRequestId, beforeItems, afterLineItems);
+      }
+    }
+
+    console.log(`✅ Updated invoice line items for invoice ${invoiceId}`);
+  } catch (error) {
+    console.error('❌ Error updating invoice line items:', error);
+    throw error;
   }
+}
 }

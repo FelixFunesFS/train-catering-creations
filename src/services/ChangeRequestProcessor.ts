@@ -104,7 +104,15 @@ export class ChangeRequestProcessor {
 
       const newTotal = updatedInvoice.total_amount;
 
-      // STEP 7: Log history
+      // STEP 7: Update invoice line items with change request ID for history logging
+      await this.quoteUpdateService.updateInvoiceLineItems(
+        changeRequest.invoice_id,
+        invoice.quote_request_id,
+        changeRequest.requested_changes,
+        changeRequest.id
+      );
+
+      // STEP 8: Log history
       await this.historyLogger.logChangeRequestApproval(
         invoice.quote_request_id,
         changeRequest,
@@ -136,7 +144,8 @@ export class ChangeRequestProcessor {
       await this.logWorkflowStateChange(changeRequest, invoice.quote_request_id, options, newTotal - invoice.total_amount);
 
       // STEP 12: Send email notification with new estimate link
-      const estimateLink = `${window.location.origin}/estimate?token=${newAccessToken}`;
+      const baseUrl = import.meta.env.VITE_APP_URL || 'https://qptprrqjlcvfkhfdnnoa.supabase.co';
+      const estimateLink = `${baseUrl}/estimate?token=${newAccessToken}`;
       const emailResult = await this.emailService.sendChangeRequestResponse({
         to: changeRequest.customer_email,
         customerName: quote.contact_name || 'Valued Customer',

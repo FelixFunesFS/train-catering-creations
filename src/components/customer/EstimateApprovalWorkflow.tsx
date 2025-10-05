@@ -11,6 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { StandardTermsAndConditions } from '@/components/shared/StandardTermsAndConditions';
 import { getEventTermsType } from '@/utils/contractRequirements';
+import { ChangesSummaryBanner } from './ChangesSummaryBanner';
 import { 
   CheckCircle2, 
   XCircle, 
@@ -32,6 +33,8 @@ interface EstimateData {
   total_amount: number;
   tax_amount?: number;
   status: string;
+  created_at: string;
+  updated_at: string;
   requires_separate_contract?: boolean;
   include_terms_and_conditions?: boolean;
   quote_requests: {
@@ -419,17 +422,26 @@ export function EstimateApprovalWorkflow({
   }
 
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <FileText className="h-5 w-5" />
-          Review Your Estimate
-        </CardTitle>
-        <Badge variant={estimate.status === 'sent' ? 'default' : 'secondary'}>
-          {estimate.status.charAt(0).toUpperCase() + estimate.status.slice(1)}
-        </Badge>
-      </CardHeader>
-      <CardContent className="space-y-6">
+    <div className="space-y-6">
+      {/* Show changes summary if estimate was recently updated */}
+      {estimate.updated_at && new Date(estimate.updated_at).getTime() > new Date(estimate.created_at).getTime() && (
+        <ChangesSummaryBanner 
+          updatedAt={estimate.updated_at}
+          status="approved"
+        />
+      )}
+      
+      <Card className="w-full">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <FileText className="h-5 w-5" />
+            Review Your Estimate
+          </CardTitle>
+          <Badge variant={estimate.status === 'sent' ? 'default' : 'secondary'}>
+            {estimate.status.charAt(0).toUpperCase() + estimate.status.slice(1)}
+          </Badge>
+        </CardHeader>
+        <CardContent className="space-y-6">
         {/* Event Details Summary */}
         <div className="grid md:grid-cols-2 gap-4">
           <div className="space-y-3">
@@ -592,5 +604,6 @@ export function EstimateApprovalWorkflow({
         </p>
       </CardContent>
     </Card>
+    </div>
   );
 }

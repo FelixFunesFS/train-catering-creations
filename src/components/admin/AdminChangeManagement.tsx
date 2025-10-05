@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { ChangesSummaryCard } from './workflow/ChangesSummaryCard';
+import { LineItemComparisonCard } from './workflow/LineItemComparisonCard';
 import { ChangeHistoryTimeline } from './workflow/ChangeHistoryTimeline';
 import { 
   MessageSquare, 
@@ -483,15 +484,15 @@ export function AdminChangeManagement({ onRefresh }: AdminChangeManagementProps)
                   )}
 
                   {/* Change History Section */}
-                  {selectedRequest.status === 'approved' && selectedRequest.invoices?.quote_request_id && (
-                    <div className="mt-4">
+                  <div className="mt-4 space-y-4">
+                    <div>
                       <Label className="text-sm font-medium">Change History:</Label>
                       <ChangeHistoryTimeline 
                         requestId={selectedRequest.id} 
                         quoteId={selectedRequest.invoices.quote_request_id} 
                       />
                     </div>
-                  )}
+                  </div>
                 </CardContent>
               </Card>
 

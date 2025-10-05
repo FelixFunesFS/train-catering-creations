@@ -192,4 +192,80 @@ export class HistoryLogger {
 
     return entries;
   }
+
+  /**
+   * Log line item changes after invoice update
+   */
+  async logLineItemChanges(
+    quoteId: string,
+    changeRequestId: string,
+    beforeItems: any[],
+    afterItems: any[]
+  ): Promise<void> {
+    const requestIdShort = changeRequestId.substring(0, 8);
+    const entries: any[] = [];
+
+    // Create maps for easy lookup
+    const beforeMap = new Map(beforeItems.map(item => [item.title, item]));
+    const afterMap = new Map(afterItems.map(item => [item.title, item]));
+
+    // Find removed items
+    for (const [title, item] of beforeMap) {
+      if (!afterMap.has(title)) {
+        entries.push({
+          quote_request_id: quoteId,
+          field_name: 'line_item_removed',
+          old_value: `${item.title} - $${(item.total_price / 100).toFixed(2)}`,
+          new_value: null,
+          changed_by: 'admin',
+          change_reason: `Change Request #${requestIdShort} - Removed line item`
+        });
+      }
+    }
+
+    // Find added items
+    for (const [title, item] of afterMap) {
+      if (!beforeMap.has(title)) {
+        entries.push({
+          quote_request_id: quoteId,
+          field_name: 'line_item_added',
+          old_value: null,
+          new_value: `${item.title} - $${(item.total_price / 100).toFixed(2)}`,
+          changed_by: 'admin',
+          change_reason: `Change Request #${requestIdShort} - Added line item`
+        });
+      }
+    }
+
+    // Find modified items (price or quantity changes)
+    for (const [title, afterItem] of afterMap) {
+      const beforeItem = beforeMap.get(title);
+      if (beforeItem) {
+        const priceChanged = beforeItem.total_price !== afterItem.total_price;
+        const quantityChanged = beforeItem.quantity !== afterItem.quantity;
+
+        if (priceChanged || quantityChanged) {
+          entries.push({
+            quote_request_id: quoteId,
+            field_name: 'line_item_modified',
+            old_value: `${beforeItem.title} - Qty: ${beforeItem.quantity}, Price: $${(beforeItem.total_price / 100).toFixed(2)}`,
+            new_value: `${afterItem.title} - Qty: ${afterItem.quantity}, Price: $${(afterItem.total_price / 100).toFixed(2)}`,
+            changed_by: 'admin',
+            change_reason: `Change Request #${requestIdShort} - Updated line item`
+          });
+        }
+      }
+    }
+
+    // Insert all entries
+    if (entries.length > 0) {
+      const { error } = await supabase
+        .from('quote_request_history')
+        .insert(entries);
+
+      if (error) {
+        console.error('Error logging line item changes:', error);
+      }
+    }
+  }
 }
