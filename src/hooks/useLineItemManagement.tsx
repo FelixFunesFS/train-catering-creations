@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useOptimisticUpdates } from '@/hooks/useOptimisticUpdates';
+import { TaxCalculationService } from '@/services/TaxCalculationService';
 
 interface LineItem {
   id?: string;
