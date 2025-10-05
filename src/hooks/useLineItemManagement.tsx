@@ -18,21 +18,13 @@ interface LineItem {
 
 interface UseLineItemManagementProps {
   initialLineItems: LineItem[];
-  taxRate?: number;
-  isGovernmentContract?: boolean;
-  onTotalsChange?: (totals: { subtotal: number; tax_amount: number; total_amount: number }) => void;
   autoSave?: boolean;
-  autoSaveDelay?: number;
   invoiceId?: string;
 }
 
 export function useLineItemManagement({
   initialLineItems,
-  taxRate = 8.0,
-  isGovernmentContract = false,
-  onTotalsChange,
   autoSave = false,
-  autoSaveDelay = 2000,
   invoiceId
 }: UseLineItemManagementProps) {
   const [lineItems, setLineItems] = useState<LineItem[]>(initialLineItems);
@@ -127,31 +119,15 @@ export function useLineItemManagement({
   // Setup debounced auto-save
   const { trigger: triggerAutoSave, cancel: cancelAutoSave } = useDebounce({
     callback: performAutoSave,
-    delay: autoSaveDelay,
+    delay: 2000,
     dependencies: [lineItems, isModified]
   });
 
-  // Calculate totals with animation feedback
-  const calculateTotals = useCallback((items: LineItem[]) => {
-    setIsCalculating(true);
-    
-    // Simulate brief calculation time for UX feedback
-    setTimeout(() => {
-      const subtotal = items.reduce((sum, item) => sum + item.total_price, 0);
-      const taxCalc = TaxCalculationService.calculateTax(subtotal, isGovernmentContract);
-      
-      const totals = { 
-        subtotal: taxCalc.subtotal, 
-        tax_amount: taxCalc.taxAmount, 
-        total_amount: taxCalc.totalAmount 
-      };
-      onTotalsChange?.(totals);
-      setLastCalculated(new Date());
-      setIsCalculating(false);
-      
-      return totals;
-    }, 100);
-  }, [isGovernmentContract, onTotalsChange]);
+  // Note: Totals are NOT calculated here - they come from database after InvoiceTotalsRecalculator runs
+  const calculateTotals = useCallback(() => {
+    // Placeholder for backwards compatibility - actual totals come from database
+    setIsCalculating(false);
+  }, []);
 
   // Update line item
   const updateLineItem = useCallback((itemId: string, updates: Partial<LineItem>) => {
@@ -168,11 +144,10 @@ export function useLineItemManagement({
         return item;
       });
       
-      calculateTotals(updatedItems);
       setIsModified(true);
       return updatedItems;
     });
-  }, [calculateTotals]);
+  }, []);
 
   // Add new line item
   const addLineItem = useCallback((template?: Partial<LineItem>) => {
@@ -188,23 +163,21 @@ export function useLineItemManagement({
 
     setLineItems(prevItems => {
       const updatedItems = [...prevItems, newItem];
-      calculateTotals(updatedItems);
       setIsModified(true);
       return updatedItems;
     });
 
     return newItem.id;
-  }, [calculateTotals]);
+  }, []);
 
   // Remove line item
   const removeLineItem = useCallback((itemId: string) => {
     setLineItems(prevItems => {
       const updatedItems = prevItems.filter(item => item.id !== itemId);
-      calculateTotals(updatedItems);
       setIsModified(true);
       return updatedItems;
     });
-  }, [calculateTotals]);
+  }, []);
 
   // Add common line item templates
   const addTemplateItem = useCallback((templateType: string, guestCount?: number) => {
@@ -273,9 +246,8 @@ export function useLineItemManagement({
     ];
 
     setLineItems(standardItems as LineItem[]);
-    calculateTotals(standardItems as LineItem[]);
     setIsModified(true);
-  }, [calculateTotals]);
+  }, []);
 
   // Validate line items
   const validateLineItems = useCallback(() => {
@@ -303,9 +275,8 @@ export function useLineItemManagement({
   // Reset to initial state
   const resetLineItems = useCallback(() => {
     setLineItems(initialLineItems);
-    calculateTotals(initialLineItems);
     setIsModified(false);
-  }, [initialLineItems, calculateTotals]);
+  }, [initialLineItems]);
 
   // Get common line item templates
   const getCommonTemplates = useCallback(() => [
@@ -328,7 +299,6 @@ export function useLineItemManagement({
     validateLineItems,
     resetLineItems,
     getCommonTemplates,
-    calculateTotals: () => calculateTotals(lineItems),
     triggerAutoSave,
     cancelAutoSave
   };

@@ -130,16 +130,8 @@ export function EditableInvoiceViewer({
     cancelAutoSave
   } = useLineItemManagement({
     initialLineItems: invoice.line_items,
-    taxRate,
     autoSave: isEditMode,
-    autoSaveDelay: 2000,
     invoiceId: invoice.id,
-    onTotalsChange: (totals) => {
-      // Update invoice totals in real-time
-      invoice.subtotal = totals.subtotal;
-      invoice.tax_amount = totals.tax_amount;
-      invoice.total_amount = totals.total_amount;
-    }
   });
 
   const formatCurrency = (amount: number) => {

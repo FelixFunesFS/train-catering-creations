@@ -23,19 +23,15 @@ interface PricingTemplate {
 interface UseEnhancedPricingManagementProps {
   initialLineItems: LineItem[];
   guestCount?: number;
-  taxRate?: number;
   autoSave?: boolean;
   invoiceId?: string;
-  onTotalsChange?: (totals: { subtotal: number; tax_amount: number; total_amount: number }) => void;
 }
 
 export function useEnhancedPricingManagement({
   initialLineItems,
   guestCount = 50,
-  taxRate = 8.0,
   autoSave = false,
   invoiceId,
-  onTotalsChange
 }: UseEnhancedPricingManagementProps) {
   const [pricingRules, setPricingRules] = useState([]);
   const [templates, setTemplates] = useState<PricingTemplate[]>([]);
@@ -46,11 +42,8 @@ export function useEnhancedPricingManagement({
   // Use the existing line item management hook
   const lineItemHook = useLineItemManagement({
     initialLineItems,
-    taxRate,
     autoSave,
-    autoSaveDelay: 2000,
     invoiceId,
-    onTotalsChange
   });
 
   useEffect(() => {

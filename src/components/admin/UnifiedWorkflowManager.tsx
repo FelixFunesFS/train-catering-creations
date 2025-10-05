@@ -70,7 +70,6 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
     addLineItem,
     removeLineItem,
     addTemplateItem,
-    calculateTotals,
     isModified,
     triggerAutoSave,
     quickCalculatePerPerson,
@@ -78,29 +77,21 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
   } = useEnhancedPricingManagement({
     initialLineItems: lineItems,
     guestCount: selectedQuote?.guest_count || 0,
-    taxRate: 0.095,
     autoSave: true,
     invoiceId: invoice?.id,
-    onTotalsChange: (totalsData) => {
-      if (invoice) {
-        setInvoice(prev => prev ? {
-          ...prev,
-          subtotal: totalsData.subtotal,
-          tax_amount: totalsData.tax_amount,
-          total_amount: totalsData.total_amount
-        } : null);
-      }
-    }
   });
 
   const { saveInvoiceChanges } = useInvoiceEditing();
 
+  // Get totals from database invoice (single source of truth)
   const totals = useMemo(() => {
-    const subtotal = managedLineItems.reduce((sum, item) => sum + (item.total_price || 0), 0);
-    const tax_amount = Math.round(subtotal * 0.095);
-    const total_amount = subtotal + tax_amount;
-    return { subtotal, tax_amount, total_amount };
-  }, [managedLineItems]);
+    if (!invoice) return { subtotal: 0, tax_amount: 0, total_amount: 0 };
+    return {
+      subtotal: invoice.subtotal || 0,
+      tax_amount: invoice.tax_amount || 0,
+      total_amount: invoice.total_amount || 0
+    };
+  }, [invoice]);
 
   // Load quotes on mount
   useEffect(() => {
@@ -155,6 +146,21 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
     } catch (error) {
       console.error('Error checking invoice:', error);
       setInvoice(null);
+    }
+  };
+
+  const refetchInvoice = async (invoiceId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('invoices')
+        .select('*')
+        .eq('id', invoiceId)
+        .single();
+      
+      if (error) throw error;
+      if (data) setInvoice(data);
+    } catch (error) {
+      console.error('Error refetching invoice:', error);
     }
   };
 
@@ -238,28 +244,22 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
       return;
     }
 
-    if (!totals.total_amount || totals.total_amount === 0) {
-      toast({
-        title: "Validation Error",
-        description: "Invoice total cannot be zero",
-        variant: "destructive",
-      });
-      return;
-    }
-
     try {
       const success = await saveInvoiceChanges(invoice.id, {
         line_items: managedLineItems.map(item => ({
           ...item,
           id: item.id || ''
-        })),
-        subtotal: totals.subtotal,
-        tax_amount: totals.tax_amount,
-        total_amount: totals.total_amount
+        }))
+        // Totals will be recalculated by InvoiceTotalsRecalculator
       });
 
       if (success) {
-        setCurrentStep('pricing'); // Go back to pricing
+        // Recalculate totals in database (single source of truth)
+        await InvoiceTotalsRecalculator.recalculateInvoice(invoice.id);
+        
+        // Refetch invoice to get updated totals from database
+        await refetchInvoice(invoice.id);
+        
         toast({
           title: "Success",
           description: "Pricing validated and saved successfully",

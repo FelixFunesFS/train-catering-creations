@@ -15,9 +15,9 @@ interface LineItem {
 interface InvoiceData {
   id?: string;
   invoice_number?: string;
-  subtotal: number;
-  tax_amount: number;
-  total_amount: number;
+  subtotal?: number;
+  tax_amount?: number;
+  total_amount?: number;
   line_items: LineItem[];
   status?: string;
   due_date?: string;
