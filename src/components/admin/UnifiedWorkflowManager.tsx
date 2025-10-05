@@ -250,7 +250,7 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
 
     try {
       // Update invoice with contract requirement and T&C settings
-      const { error } = await supabase
+      const { error: updateError } = await supabase
         .from('invoices')
         .update({
           requires_separate_contract: requiresContract,
@@ -258,18 +258,42 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
         })
         .eq('id', invoice.id);
 
-      if (error) throw error;
+      if (updateError) throw updateError;
 
       // Sync statuses before advancing
       await syncQuoteWithInvoice(selectedQuote.id);
       
-      // Show email modal
-      setShowEmailModal(true);
+      // Send estimate email directly via edge function
+      const { data, error: emailError } = await supabase.functions.invoke('send-workflow-email', {
+        body: {
+          quoteId: selectedQuote.id,
+          invoiceId: invoice.id,
+          emailType: 'estimate'
+        }
+      });
+
+      if (emailError) throw emailError;
+
+      // Update invoice status to sent
+      const { error: statusError } = await supabase
+        .from('invoices')
+        .update({ status: 'sent' })
+        .eq('id', invoice.id);
+
+      if (statusError) throw statusError;
+
+      toast({
+        title: "Estimate Sent",
+        description: `Estimate sent successfully to ${selectedQuote.email}`,
+      });
+
+      // Advance to next step
+      setCurrentStep('contract');
     } catch (error) {
-      console.error('Error updating invoice:', error);
+      console.error('Error sending estimate:', error);
       toast({
         title: "Error",
-        description: "Failed to update invoice settings",
+        description: error instanceof Error ? error.message : "Failed to send estimate",
         variant: "destructive"
       });
     }
