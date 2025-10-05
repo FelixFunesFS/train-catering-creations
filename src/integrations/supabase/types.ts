@@ -1443,7 +1443,9 @@ export type Database = {
           bussing_tables_needed: boolean | null
           calendar_event_id: string | null
           calendar_sync_status: string | null
+          ceremony_included: boolean | null
           chafers_requested: boolean | null
+          cocktail_hour: boolean | null
           compliance_level: string | null
           contact_name: string
           created_at: string | null
@@ -1503,7 +1505,9 @@ export type Database = {
           bussing_tables_needed?: boolean | null
           calendar_event_id?: string | null
           calendar_sync_status?: string | null
+          ceremony_included?: boolean | null
           chafers_requested?: boolean | null
+          cocktail_hour?: boolean | null
           compliance_level?: string | null
           contact_name: string
           created_at?: string | null
@@ -1563,7 +1567,9 @@ export type Database = {
           bussing_tables_needed?: boolean | null
           calendar_event_id?: string | null
           calendar_sync_status?: string | null
+          ceremony_included?: boolean | null
           chafers_requested?: boolean | null
+          cocktail_hour?: boolean | null
           compliance_level?: string | null
           contact_name?: string
           created_at?: string | null
