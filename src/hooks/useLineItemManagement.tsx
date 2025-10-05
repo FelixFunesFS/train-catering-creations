@@ -131,17 +131,20 @@ export function useLineItemManagement({
     // Simulate brief calculation time for UX feedback
     setTimeout(() => {
       const subtotal = items.reduce((sum, item) => sum + item.total_price, 0);
-      const tax_amount = isGovernmentContract ? 0 : Math.round(subtotal * (taxRate / 100));
-      const total_amount = subtotal + tax_amount;
+      const taxCalc = TaxCalculationService.calculateTax(subtotal, isGovernmentContract);
       
-      const totals = { subtotal, tax_amount, total_amount };
+      const totals = { 
+        subtotal: taxCalc.subtotal, 
+        tax_amount: taxCalc.taxAmount, 
+        total_amount: taxCalc.totalAmount 
+      };
       onTotalsChange?.(totals);
       setLastCalculated(new Date());
       setIsCalculating(false);
       
       return totals;
     }, 100);
-  }, [taxRate, isGovernmentContract, onTotalsChange]);
+  }, [isGovernmentContract, onTotalsChange]);
 
   // Update line item
   const updateLineItem = useCallback((itemId: string, updates: Partial<LineItem>) => {

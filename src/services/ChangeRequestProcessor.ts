@@ -80,18 +80,10 @@ export class ChangeRequestProcessor {
       // STEP 3: Update quote in database
       await this.quoteUpdateService.updateQuote(invoice.quote_request_id, quoteUpdates);
 
-      // STEP 4: Regenerate quote line items
+      // STEP 4: Regenerate quote line items (includes invoice line item update)
       await this.quoteUpdateService.regenerateLineItems(invoice.quote_request_id);
 
-      // STEP 5: Update invoice line items (NEW - this was missing!)
-      console.log('Updating invoice line items...');
-      await this.quoteUpdateService.updateInvoiceLineItems(
-        changeRequest.invoice_id,
-        invoice.quote_request_id,
-        changeRequest.requested_changes
-      );
-
-      // STEP 6: Get updated totals from invoice
+      // STEP 5: Get updated totals from invoice
       const { data: updatedInvoice, error: fetchError } = await supabase
         .from('invoices')
         .select('total_amount')

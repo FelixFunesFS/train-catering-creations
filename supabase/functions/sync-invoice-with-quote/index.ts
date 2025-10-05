@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { TaxCalculationService } from "../_shared/TaxCalculationService.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -140,16 +141,16 @@ serve(async (req) => {
       total_price: 0,
     });
 
-    // All items have zero pricing - totals will be zero until manual pricing is set
-    const taxRate = 0.08;
-    const taxAmount = Math.round(subtotal * taxRate); // Will be 0
-    const totalAmount = subtotal + taxAmount; // Will be 0
+    // Check if government contract (tax-exempt)
+    const isGovContract = quote.compliance_level === 'government' || quote.requires_po_number === true;
+    const taxCalc = TaxCalculationService.calculateTax(subtotal, isGovContract);
 
     logStep("Generated line items with manual pricing", { 
       itemCount: newLineItems.length, 
-      subtotal: 0, 
-      taxAmount: 0, 
-      totalAmount: 0,
+      subtotal: taxCalc.subtotal, 
+      taxAmount: taxCalc.taxAmount, 
+      totalAmount: taxCalc.totalAmount,
+      isGovContract,
       note: "Manual pricing required for all items"
     });
 
@@ -182,9 +183,9 @@ serve(async (req) => {
       const { error: updateError } = await supabaseClient
         .from("invoices")
         .update({
-          subtotal: subtotal,
-          tax_amount: taxAmount,
-          total_amount: totalAmount,
+          subtotal: taxCalc.subtotal,
+          tax_amount: taxCalc.taxAmount,
+          total_amount: taxCalc.totalAmount,
           last_quote_sync: new Date().toISOString(),
           updated_at: new Date().toISOString()
         })
@@ -202,9 +203,9 @@ serve(async (req) => {
       invoice_id: invoice_id,
       changes_applied: auto_resolve,
       new_totals: {
-        subtotal,
-        tax_amount: taxAmount,
-        total_amount: totalAmount
+        subtotal: taxCalc.subtotal,
+        tax_amount: taxCalc.taxAmount,
+        total_amount: taxCalc.totalAmount
       },
       line_items_updated: newLineItems.length
     }), {

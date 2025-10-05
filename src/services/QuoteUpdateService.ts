@@ -4,6 +4,7 @@
  */
 
 import { supabase } from '@/integrations/supabase/client';
+import { TaxCalculationService } from './TaxCalculationService';
 import { generateProfessionalLineItems } from '@/utils/invoiceFormatters';
 import { formatCustomerName, formatEventName, formatLocation } from '@/utils/textFormatters';
 
@@ -445,20 +446,22 @@ export class QuoteUpdateService {
 
       if (!recalcError && allLineItems) {
         const newSubtotal = allLineItems.reduce((sum, item) => sum + (item.total_price || 0), 0);
-        const taxAmount = Math.round(newSubtotal * 0.0);
-        const totalAmount = newSubtotal + taxAmount;
+        
+        // Check if this is a government contract (tax-exempt)
+        const isGovContract = await TaxCalculationService.isGovernmentContract(quoteId);
+        const taxCalc = TaxCalculationService.calculateTax(newSubtotal, isGovContract);
 
         await supabase
           .from('invoices')
           .update({
-            subtotal: newSubtotal,
-            tax_amount: taxAmount,
-            total_amount: totalAmount,
+            subtotal: taxCalc.subtotal,
+            tax_amount: taxCalc.taxAmount,
+            total_amount: taxCalc.totalAmount,
             updated_at: new Date().toISOString()
           })
           .eq('id', invoiceId);
 
-      console.log(`✅ Updated invoice totals: ${totalAmount / 100}`);
+      console.log(`✅ Updated invoice totals: Subtotal=$${taxCalc.subtotal/100}, Tax=$${taxCalc.taxAmount/100} (${taxCalc.isExempt ? 'EXEMPT' : '8%'}), Total=$${taxCalc.totalAmount/100}`);
     }
 
     // Fetch after snapshot and log changes to history
