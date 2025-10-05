@@ -30,53 +30,52 @@ export function useEstimateAccess(accessToken: string) {
       setLoading(true);
       setError(null);
 
-      // Fetch invoice using access token
-      const { data: invoice, error: invoiceError } = await supabase
-        .from('invoices')
-        .select('*')
-        .eq('customer_access_token', accessToken)
-        .eq('document_type', 'estimate')
-        .maybeSingle();
+      // Use RPC function to securely fetch all data in one call
+      const { data, error: rpcError } = await supabase
+        .rpc('get_estimate_with_line_items', {
+          access_token: accessToken
+        });
 
-      if (invoiceError) throw invoiceError;
-      if (!invoice) {
-        setError('Estimate not found');
+      if (rpcError) {
+        console.error('RPC Error:', rpcError);
+        if (rpcError.message.includes('Invalid') || rpcError.message.includes('expired')) {
+          setError('invalid_token');
+        } else {
+          setError('fetch_failed');
+        }
+        toast({
+          title: 'Error',
+          description: rpcError.message.includes('expired') 
+            ? 'This estimate link has expired' 
+            : 'Failed to load estimate details',
+          variant: 'destructive'
+        });
         setLoading(false);
         return;
       }
 
-      // Fetch related quote request
-      const { data: quote, error: quoteError } = await supabase
-        .from('quote_requests')
-        .select('*')
-        .eq('id', invoice.quote_request_id)
-        .single();
+      if (!data || data.length === 0) {
+        setError('Estimate not found');
+        toast({
+          title: 'Error',
+          description: 'Estimate not found',
+          variant: 'destructive'
+        });
+        setLoading(false);
+        return;
+      }
 
-      if (quoteError) throw quoteError;
-
-      // Fetch line items
-      const { data: lineItems, error: lineItemsError } = await supabase
-        .from('invoice_line_items')
-        .select('*')
-        .eq('invoice_id', invoice.id)
-        .order('category', { ascending: true });
-
-      if (lineItemsError) throw lineItemsError;
-
-      // Fetch payment milestones
-      const { data: milestones, error: milestonesError } = await supabase
-        .from('payment_milestones')
-        .select('*')
-        .eq('invoice_id', invoice.id)
-        .order('milestone_type', { ascending: true });
-
-      if (milestonesError) throw milestonesError;
-
+      const result = data[0];
+      const invoice = result.invoice as any;
+      const quote = result.quote as any;
+      const lineItems = (result.line_items || []) as any[];
+      const milestones = (result.milestones || []) as any[];
+      
       setEstimateData({
         invoice,
         quote,
-        lineItems: lineItems || [],
-        milestones: milestones || []
+        lineItems,
+        milestones
       });
 
       // Track view analytics
@@ -99,7 +98,7 @@ export function useEstimateAccess(accessToken: string) {
 
     } catch (err: any) {
       console.error('Error fetching estimate:', err);
-      setError(err.message);
+      setError('fetch_failed');
       toast({
         title: 'Error',
         description: 'Failed to load estimate details',

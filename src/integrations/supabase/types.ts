@@ -1804,6 +1804,15 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_estimate_with_line_items: {
+        Args: { access_token: string }
+        Returns: {
+          invoice: Json
+          line_items: Json
+          milestones: Json
+          quote: Json
+        }[]
+      }
       grant_first_admin: {
         Args: Record<PropertyKey, never>
         Returns: undefined

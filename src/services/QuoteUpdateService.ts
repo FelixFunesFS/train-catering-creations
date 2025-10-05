@@ -276,9 +276,9 @@ export class QuoteUpdateService {
    */
   async updateInvoiceLineItems(invoiceId: string, quoteId: string, changes: any, changeRequestId?: string): Promise<void> {
     try {
-      console.log('🔄 Updating invoice line items with changes:', changes);
+      console.log('🔄 Regenerating invoice line items after change request approval...');
       
-      // Fetch updated quote
+      // STEP 1: Fetch updated quote with all menu data
       const { data: updatedQuote, error: fetchError } = await supabase
         .from('quote_requests')
         .select('*')
@@ -289,20 +289,27 @@ export class QuoteUpdateService {
         throw new Error('Failed to fetch updated quote');
       }
 
-      // Fetch current invoice line items (for before snapshot)
-      const { data: currentLineItems, error: currentError } = await supabase
+      // STEP 2: Store "before" snapshot for history logging
+      const { data: beforeItems } = await supabase
         .from('invoice_line_items')
         .select('*')
         .eq('invoice_id', invoiceId);
 
-      if (currentError) {
-        throw new Error('Failed to fetch current line items');
+      console.log(`📸 Captured ${beforeItems?.length || 0} existing line items`);
+
+      // STEP 3: Delete ALL existing invoice line items
+      const { error: deleteError } = await supabase
+        .from('invoice_line_items')
+        .delete()
+        .eq('invoice_id', invoiceId);
+
+      if (deleteError) {
+        throw new Error(`Failed to delete old line items: ${deleteError.message}`);
       }
 
-      // Store before snapshot for history logging
-      const beforeItems = currentLineItems || [];
+      console.log('🗑️ Deleted all existing invoice line items');
 
-      // Parse JSON fields
+      // STEP 4: Parse JSON fields for line item generation
       const quoteForLineItems = {
         ...updatedQuote,
         appetizers: this.parseJsonField(updatedQuote.appetizers),
@@ -314,178 +321,80 @@ export class QuoteUpdateService {
         extras: this.parseJsonField(updatedQuote.extras)
       };
 
-      // Build list of items to remove based on menu_changes
-      const itemsToRemoveByName: Set<string> = new Set();
-      if (changes.menu_changes) {
-        // Check for protein removals
-        if (changes.menu_changes.proteins?.remove) {
-          changes.menu_changes.proteins.remove.forEach((type: string) => {
-            if (type === 'primary' && !updatedQuote.primary_protein) {
-              currentLineItems?.forEach(item => {
-                if (item.title.toLowerCase().includes('primary') || 
-                    item.title.toLowerCase().includes('protein') ||
-                    item.category === 'protein') {
-                  itemsToRemoveByName.add(item.title);
-                }
-              });
-            }
-          });
-        }
-        
-        // Check for menu category removals
-        ['appetizers', 'sides', 'desserts', 'drinks'].forEach(category => {
-          if (changes.menu_changes[category]?.remove) {
-            changes.menu_changes[category].remove.forEach((item: string) => {
-              itemsToRemoveByName.add(item);
-            });
-          }
-        });
-      }
-
-      // Delete removed items from invoice
-      if (itemsToRemoveByName.size > 0) {
-        const idsToDelete = (currentLineItems || [])
-          .filter(item => {
-            const itemTitle = item.title.toLowerCase();
-            return Array.from(itemsToRemoveByName).some(removeName => 
-              itemTitle.includes(removeName.toLowerCase()) ||
-              removeName.toLowerCase().includes(itemTitle)
-            );
-          })
-          .map(item => item.id);
-
-        if (idsToDelete.length > 0) {
-          console.log('🗑️ Deleting line items:', idsToDelete);
-          const { error: deleteError } = await supabase
-            .from('invoice_line_items')
-            .delete()
-            .in('id', idsToDelete);
-
-          if (deleteError) {
-            console.error('Error deleting line items:', deleteError);
-          }
-        }
-      }
-
-      // Generate new line items from updated quote
+      // STEP 5: Generate fresh line items from updated quote
+      // This will now include ALL service options (wait staff, ice, plates, etc.)
       const newLineItems = generateProfessionalLineItems(quoteForLineItems as any);
       
-      // Re-fetch current items after deletions
-      const { data: remainingItems } = await supabase
-        .from('invoice_line_items')
-        .select('*')
-        .eq('invoice_id', invoiceId);
-
-      const currentItemsMap = new Map(
-        (remainingItems || []).map(item => [item.title, item])
-      );
-
-      // Track items to insert/update
-      const itemsToInsert = [];
-      const itemsToUpdate = [];
-      const processedTitles = new Set<string>();
-
-      for (const newItem of newLineItems) {
-        processedTitles.add(newItem.title);
-        const existingItem = currentItemsMap.get(newItem.title);
-
-        if (existingItem) {
-          // Update existing
-          const shouldUpdatePrice = existingItem.unit_price === newItem.unit_price;
-          itemsToUpdate.push({
-            id: existingItem.id,
-            quantity: newItem.quantity,
-            unit_price: shouldUpdatePrice ? newItem.unit_price : existingItem.unit_price,
-            total_price: (shouldUpdatePrice ? newItem.unit_price : existingItem.unit_price) * newItem.quantity
-          });
-        } else {
-          // Insert new
-          itemsToInsert.push({
-            invoice_id: invoiceId,
-            title: newItem.title,
-            description: newItem.description,
-            category: newItem.category || 'other',
-            quantity: newItem.quantity || 1,
-            unit_price: newItem.unit_price || 0,
-            total_price: newItem.total_price || 0
-          });
-        }
+      if (newLineItems.length === 0) {
+        throw new Error('No line items generated from quote');
       }
 
-      // Execute inserts/updates
-      if (itemsToInsert.length > 0) {
-        console.log('➕ Inserting new line items:', itemsToInsert.length);
-        const { error: insertError } = await supabase
+      console.log(`🎯 Generated ${newLineItems.length} new line items`);
+
+      // STEP 6: Insert new line items
+      const lineItemsToInsert = newLineItems.map(item => ({
+        invoice_id: invoiceId,
+        title: item.title,
+        description: item.description,
+        category: item.category || 'other',
+        quantity: item.quantity || 1,
+        unit_price: item.unit_price || 0,
+        total_price: item.total_price || 0
+      }));
+
+      const { error: insertError } = await supabase
+        .from('invoice_line_items')
+        .insert(lineItemsToInsert);
+
+      if (insertError) {
+        throw new Error(`Failed to insert line items: ${insertError.message}`);
+      }
+
+      console.log(`✅ Inserted ${newLineItems.length} new invoice line items`);
+
+      // STEP 7: Recalculate invoice totals using TaxCalculationService
+      const newSubtotal = newLineItems.reduce((sum, item) => sum + (item.total_price || 0), 0);
+      const isGovContract = updatedQuote.compliance_level === 'government' || 
+                            updatedQuote.requires_po_number === true;
+      const { TaxCalculationService } = await import('../services/TaxCalculationService');
+      const taxCalc = TaxCalculationService.calculateTax(newSubtotal, isGovContract);
+
+      await supabase
+        .from('invoices')
+        .update({
+          subtotal: taxCalc.subtotal,
+          tax_amount: taxCalc.taxAmount,
+          total_amount: taxCalc.totalAmount,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', invoiceId);
+
+      console.log(`💰 Recalculated totals: $${(taxCalc.totalAmount/100).toFixed(2)} (${taxCalc.isExempt ? 'TAX EXEMPT' : '8% tax'})`);
+
+      // STEP 8: Log changes to history
+      if (changeRequestId) {
+        const { data: afterItems } = await supabase
           .from('invoice_line_items')
-          .insert(itemsToInsert);
+          .select('*')
+          .eq('invoice_id', invoiceId);
 
-        if (insertError) {
-          throw new Error(`Failed to insert line items: ${insertError.message}`);
+        if (afterItems) {
+          const { HistoryLogger } = await import('./HistoryLogger');
+          const historyLogger = new HistoryLogger();
+          await historyLogger.logLineItemChanges(
+            quoteId, 
+            changeRequestId, 
+            beforeItems || [], 
+            afterItems
+          );
         }
       }
 
-      for (const updateItem of itemsToUpdate) {
-        const { error: updateError } = await supabase
-          .from('invoice_line_items')
-          .update({
-            quantity: updateItem.quantity,
-            unit_price: updateItem.unit_price,
-            total_price: updateItem.total_price
-          })
-          .eq('id', updateItem.id);
-
-        if (updateError) {
-          console.error('Error updating line item:', updateError);
-        }
-      }
-
-      // Recalculate invoice totals
-      const { data: allLineItems, error: recalcError } = await supabase
-        .from('invoice_line_items')
-        .select('total_price')
-        .eq('invoice_id', invoiceId);
-
-      if (!recalcError && allLineItems) {
-        const newSubtotal = allLineItems.reduce((sum, item) => sum + (item.total_price || 0), 0);
-        
-        // Check if this is a government contract (tax-exempt)
-        const isGovContract = await TaxCalculationService.isGovernmentContract(quoteId);
-        const taxCalc = TaxCalculationService.calculateTax(newSubtotal, isGovContract);
-
-        await supabase
-          .from('invoices')
-          .update({
-            subtotal: taxCalc.subtotal,
-            tax_amount: taxCalc.taxAmount,
-            total_amount: taxCalc.totalAmount,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', invoiceId);
-
-      console.log(`✅ Updated invoice totals: Subtotal=$${taxCalc.subtotal/100}, Tax=$${taxCalc.taxAmount/100} (${taxCalc.isExempt ? 'EXEMPT' : '8%'}), Total=$${taxCalc.totalAmount/100}`);
+      console.log(`✅ Successfully regenerated invoice line items for invoice ${invoiceId}`);
+      
+    } catch (error) {
+      console.error('❌ Error updating invoice line items:', error);
+      throw error;
     }
-
-    // Fetch after snapshot and log changes to history
-    if (changeRequestId) {
-      const { data: afterLineItems } = await supabase
-        .from('invoice_line_items')
-        .select('*')
-        .eq('invoice_id', invoiceId);
-
-      if (afterLineItems) {
-        const { HistoryLogger } = await import('./HistoryLogger');
-        const historyLogger = new HistoryLogger();
-        await historyLogger.logLineItemChanges(quoteId, changeRequestId, beforeItems, afterLineItems);
-      }
-    }
-
-    console.log(`✅ Updated invoice line items for invoice ${invoiceId}`);
-    
-    // Recalculate invoice totals after line item updates
-    await InvoiceTotalsRecalculator.recalculateInvoice(invoiceId);
-  } catch (error) {
-    console.error('❌ Error updating invoice line items:', error);
-    throw error;
   }
-}
 }

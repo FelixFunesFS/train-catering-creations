@@ -102,30 +102,7 @@ export class PricingEngine {
       });
     }
 
-    if (quote.tables_chairs_requested) {
-      const tableCount = Math.ceil(quote.guest_count / 8);
-      lineItems.push({
-        category: 'Equipment',
-        description: 'Tables and chairs rental',
-        quantity: tableCount,
-        unitPrice: 75,
-        total: tableCount * 75,
-        confidence: 'medium',
-        notes: `${tableCount} tables for ${quote.guest_count} guests`
-      });
-    }
-
-    if (quote.linens_requested) {
-      const linenCount = Math.ceil(quote.guest_count / 8) + 2; // Tables + buffet
-      lineItems.push({
-        category: 'Equipment',
-        description: 'Linen rental',
-        quantity: linenCount,
-        unitPrice: 20,
-        total: linenCount * 20,
-        confidence: 'high'
-      });
-    }
+    // Tables and linens removed - not offered by Soul Train's Eatery
 
     // Calculate totals
     const subtotal = lineItems.reduce((sum, item) => sum + item.total, 0);

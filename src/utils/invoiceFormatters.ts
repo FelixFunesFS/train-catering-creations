@@ -263,9 +263,34 @@ export const generateProfessionalLineItems = (quote: QuoteRequest): LineItem[] =
   // TIER 5: SERVICE FEES - Service type and add-ons
   lineItems.push(createServicePackage(quote));
   
-  // Add additional service add-ons
+  // Staff services
+  if (quote.wait_staff_requested) {
+    lineItems.push(createServiceAddon('Wait Staff Service', 'Professional wait staff for serving and guest assistance'));
+  }
   if (quote.bussing_tables_needed) {
     lineItems.push(createServiceAddon('Table Bussing Service', 'Professional table clearing and maintenance during event'));
+  }
+
+  // Equipment rentals
+  if (quote.chafers_requested) {
+    lineItems.push(createServiceAddon('Chafers (Food Warmers)', 'Stainless steel chafers to keep food warm throughout service'));
+  }
+  if ((quote as any).serving_utensils_requested) {
+    lineItems.push(createServiceAddon('Serving Utensils', 'Professional serving spoons, tongs, and ladles for buffet service'));
+  }
+
+  // Dining supplies
+  if ((quote as any).plates_requested) {
+    lineItems.push(createServiceAddon('Disposable Plates', 'High-quality disposable plates for guest dining'));
+  }
+  if ((quote as any).cups_requested) {
+    lineItems.push(createServiceAddon('Disposable Cups', 'Disposable cups for beverage service'));
+  }
+  if ((quote as any).napkins_requested) {
+    lineItems.push(createServiceAddon('Disposable Napkins', 'Napkins for guest use during dining'));
+  }
+  if ((quote as any).ice_requested) {
+    lineItems.push(createServiceAddon('Ice Service', 'Bagged ice for beverage service and cooling'));
   }
   
   return lineItems;
