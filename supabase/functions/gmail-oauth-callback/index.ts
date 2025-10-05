@@ -65,16 +65,34 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const tokens = await tokenResponse.json();
-    console.log('Received tokens:', { ...tokens, access_token: '[REDACTED]', refresh_token: '[REDACTED]' });
+    
+    // Enhanced logging for token debugging
+    console.log('Token properties received:', {
+      has_access_token: !!tokens.access_token,
+      has_refresh_token: !!tokens.refresh_token,
+      refresh_token_type: typeof tokens.refresh_token,
+      refresh_token_length: tokens.refresh_token?.length || 0,
+      refresh_token_preview: tokens.refresh_token ? tokens.refresh_token.substring(0, 10) + '...' : 'undefined',
+      token_keys: Object.keys(tokens),
+      expires_in: tokens.expires_in,
+      scope: tokens.scope
+    });
 
-    // Validate refresh token exists
-    if (!tokens.refresh_token) {
-      console.error('No refresh token received. This usually means the app was previously authorized.');
+    // Robust refresh token validation
+    if (!tokens.refresh_token || tokens.refresh_token.trim() === '') {
+      console.error('Refresh token validation failed:', {
+        exists: !!tokens.refresh_token,
+        isEmpty: tokens.refresh_token === '',
+        type: typeof tokens.refresh_token,
+        value: tokens.refresh_token
+      });
       throw new Error(
-        'No refresh token received from Google. Please revoke access at ' +
+        'No valid refresh token received from Google. Please revoke access at ' +
         'https://myaccount.google.com/permissions and try authorizing again.'
       );
     }
+    
+    console.log('Refresh token validation passed successfully');
 
     // Get user info to identify the email
     const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
