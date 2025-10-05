@@ -2,26 +2,21 @@ import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Separator } from '@/components/ui/separator';
 
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { format } from 'date-fns';
 import { EnhancedEstimateLineItems } from '../EnhancedEstimateLineItems';
 import { IntegratedChangeRequestPanel } from './IntegratedChangeRequestPanel';
+import { CompactEventDetails } from './CompactEventDetails';
 import { requiresSeparateContract } from '@/utils/contractRequirements';
-import { formatEventName, formatLocation, formatCustomerName, formatEventType } from '@/utils/textFormatters';
-import { formatPhoneNumber } from '@/utils/phoneFormatter';
+import { formatEventName } from '@/utils/textFormatters';
 import { 
   FileText, 
-  Shield, 
   CheckCircle2, 
   Heart,
-  Users,
   Sparkles,
-  AlertCircle
+  AlertCircle,
+  DollarSign
 } from 'lucide-react';
 
 interface Quote {
@@ -169,48 +164,8 @@ export function PricingPanel({
   const isWeddingEvent = quote.event_type === 'wedding' || quote.event_type === 'second_wedding';
 
   return (
-    <div className="space-y-6">
-      {/* Change Requests Panel */}
-      {invoice && (
-        <IntegratedChangeRequestPanel 
-          invoiceId={invoice.id}
-          onChangeProcessed={onChangeProcessed}
-        />
-      )}
-
-      {/* Quote Summary */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <span>Pricing for {formatEventName(quote.event_name)}</span>
-            <Badge variant="outline">{quote.status}</Badge>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-            <div>
-              <div className="font-medium">Contact</div>
-              <div className="text-muted-foreground">{formatCustomerName(quote.contact_name)}</div>
-            </div>
-            <div>
-              <div className="font-medium">Event Date</div>
-              <div className="text-muted-foreground">
-                {format(new Date(quote.event_date), 'PPP')}
-              </div>
-            </div>
-            <div>
-              <div className="font-medium">Guest Count</div>
-              <div className="text-muted-foreground">{quote.guest_count} guests</div>
-            </div>
-            <div>
-              <div className="font-medium">Location</div>
-              <div className="text-muted-foreground">{formatLocation(quote.location)}</div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Wedding Template Quick Selector (only for weddings) */}
+    <div className="space-y-4">
+      {/* Wedding Template Quick Selector (only for weddings, before invoice) */}
       {isWeddingEvent && !selectedTemplate && lineItems.length === 0 && invoice && (
         <Card className="border-primary/20">
           <CardHeader>
@@ -253,7 +208,7 @@ export function PricingPanel({
         </Card>
       )}
 
-      {/* Pricing Management */}
+      {/* Main Unified Pricing Card */}
       {!invoice ? (
         <Card>
           <CardContent className="pt-6">
@@ -266,25 +221,54 @@ export function PricingPanel({
           </CardContent>
         </Card>
       ) : (
-        <EnhancedEstimateLineItems
-          lineItems={lineItems.map(item => ({ ...item, id: item.id || '' }))}
-          updateLineItem={updateLineItem}
-          addLineItem={addLineItem}
-          removeLineItem={removeLineItem}
-          addTemplateItem={addTemplateItem}
-          subtotal={totals.subtotal}
-          taxAmount={totals.tax_amount}
-          grandTotal={totals.total_amount}
-          guestCount={quote.guest_count}
-          isModified={isModified}
-          triggerAutoSave={triggerAutoSave}
-          quickCalculatePerPerson={() => quickCalculatePerPerson(quote.guest_count)}
-          isGovernmentContract={isGovernmentContract}
-          onGovernmentToggle={onGovernmentToggle}
-          requiresContract={localRequiresContract}
-          contractReason={contractCheck.reason}
-          onContractToggleChange={handleContractToggle}
-        />
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <span className="flex items-center gap-2">
+                <DollarSign className="h-5 w-5" />
+                {formatEventName(quote.event_name)}
+              </span>
+              <Badge variant="outline">{quote.status}</Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Collapsible Event Details */}
+            <CompactEventDetails quote={quote} defaultOpen={false} />
+
+            {/* Collapsible Change Requests (only if they exist) */}
+            {invoice && (
+              <IntegratedChangeRequestPanel 
+                invoiceId={invoice.id}
+                onChangeProcessed={onChangeProcessed}
+                defaultCollapsed={true}
+                compact={true}
+              />
+            )}
+
+            {/* Line Items - Main Focus */}
+            <div className="pt-4">
+              <EnhancedEstimateLineItems
+                lineItems={lineItems.map(item => ({ ...item, id: item.id || '' }))}
+                updateLineItem={updateLineItem}
+                addLineItem={addLineItem}
+                removeLineItem={removeLineItem}
+                addTemplateItem={addTemplateItem}
+                subtotal={totals.subtotal}
+                taxAmount={totals.tax_amount}
+                grandTotal={totals.total_amount}
+                guestCount={quote.guest_count}
+                isModified={isModified}
+                triggerAutoSave={triggerAutoSave}
+                quickCalculatePerPerson={() => quickCalculatePerPerson(quote.guest_count)}
+                isGovernmentContract={isGovernmentContract}
+                onGovernmentToggle={onGovernmentToggle}
+                requiresContract={localRequiresContract}
+                contractReason={contractCheck.reason}
+                onContractToggleChange={handleContractToggle}
+              />
+            </div>
+          </CardContent>
+        </Card>
       )}
 
       {/* Action Buttons */}

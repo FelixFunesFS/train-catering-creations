@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
@@ -18,7 +19,8 @@ import {
   Clock,
   DollarSign,
   AlertCircle,
-  FileText
+  FileText,
+  ChevronDown
 } from 'lucide-react';
 
 interface ExtendedChangeRequest extends BaseChangeRequest {
@@ -29,17 +31,22 @@ interface ExtendedChangeRequest extends BaseChangeRequest {
 interface IntegratedChangeRequestPanelProps {
   invoiceId: string;
   onChangeProcessed?: () => void;
+  defaultCollapsed?: boolean;
+  compact?: boolean;
 }
 
 export function IntegratedChangeRequestPanel({ 
   invoiceId, 
-  onChangeProcessed 
+  onChangeProcessed,
+  defaultCollapsed = true,
+  compact = false
 }: IntegratedChangeRequestPanelProps) {
   const [changeRequests, setChangeRequests] = useState<ExtendedChangeRequest[]>([]);
   const [selectedRequest, setSelectedRequest] = useState<ExtendedChangeRequest | null>(null);
   const [adminResponse, setAdminResponse] = useState('');
   const [costChange, setCostChange] = useState<string>('0');
   const [loading, setLoading] = useState(true);
+  const [isOpen, setIsOpen] = useState(!defaultCollapsed);
   const { toast } = useToast();
   const { processing, approveChangeRequest, rejectChangeRequest } = useSimplifiedChangeRequests();
 
@@ -213,7 +220,9 @@ export function IntegratedChangeRequestPanel({
   // Removed - using ChangesSummaryCard component instead
 
   if (loading) {
-    return (
+    return compact ? (
+      <div className="text-sm text-muted-foreground py-2">Loading change requests...</div>
+    ) : (
       <Card>
         <CardContent className="flex items-center justify-center py-8">
           <div className="text-muted-foreground">Loading change requests...</div>
@@ -225,6 +234,164 @@ export function IntegratedChangeRequestPanel({
   const pendingRequests = changeRequests.filter(r => r.status === 'pending');
   const processedRequests = changeRequests.filter(r => r.status !== 'pending');
 
+  // No change requests at all
+  if (changeRequests.length === 0) {
+    return null; // Don't show anything if there are no change requests
+  }
+
+  // Compact mode for integration into other cards
+  if (compact) {
+    return (
+      <Collapsible open={isOpen} onOpenChange={setIsOpen} className="border-t pt-4">
+        <CollapsibleTrigger asChild>
+          <Button 
+            variant="ghost" 
+            className="w-full justify-between px-0 hover:bg-transparent"
+          >
+            <span className="text-sm font-medium flex items-center gap-2">
+              <MessageSquare className="h-4 w-4" />
+              Change Requests
+              {pendingRequests.length > 0 && (
+                <Badge variant="destructive" className="ml-2">
+                  {pendingRequests.length} pending
+                </Badge>
+              )}
+            </span>
+            <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+          </Button>
+        </CollapsibleTrigger>
+        
+        <CollapsibleContent className="space-y-3 mt-3">
+          {/* Pending Requests */}
+          {pendingRequests.map((request) => (
+            <Card 
+              key={request.id}
+              className={`cursor-pointer transition-all hover:shadow-md ${
+                selectedRequest?.id === request.id ? 'ring-2 ring-primary' : ''
+              } ${getPriorityColor(request.priority)}`}
+              onClick={() => setSelectedRequest(request)}
+            >
+              <CardContent className="pt-4">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="space-y-1 flex-1">
+                    <div className="flex items-center gap-2">
+                      <MessageSquare className="h-4 w-4" />
+                      <span className="font-medium text-sm">{request.event_name}</span>
+                      <Badge variant="outline" className="text-xs">
+                        {request.request_type.replace(/_/g, ' ')}
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      From: {request.customer_email}
+                    </p>
+                  </div>
+                  <div className="flex flex-col items-end gap-2">
+                    {getStatusBadge(request.status)}
+                    <Badge variant="outline" className="text-xs">
+                      {request.priority} priority
+                    </Badge>
+                  </div>
+                </div>
+
+                <ChangesSummaryCard
+                  originalDetails={request.original_details}
+                  requestedChanges={request.requested_changes}
+                  customerComments={request.customer_comments}
+                  estimatedCostChange={request.estimated_cost_change}
+                />
+
+                {/* Action Panel for Selected Request */}
+                {selectedRequest?.id === request.id && request.status === 'pending' && (
+                  <div className="mt-4 pt-4 border-t space-y-3">
+                    <div>
+                      <Label htmlFor="admin-response" className="text-sm font-medium">
+                        Admin Response *
+                      </Label>
+                      <Textarea
+                        id="admin-response"
+                        value={adminResponse}
+                        onChange={(e) => setAdminResponse(e.target.value)}
+                        placeholder="Explain how you'll handle this request..."
+                        className="mt-1"
+                        rows={3}
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="cost-change" className="text-sm font-medium">
+                        Cost Impact (in cents)
+                      </Label>
+                      <Input
+                        id="cost-change"
+                        type="number"
+                        value={costChange}
+                        onChange={(e) => setCostChange(e.target.value)}
+                        placeholder="Enter cost change in cents"
+                        className="mt-1"
+                      />
+                      {parseInt(costChange) !== 0 && (
+                        <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                          <DollarSign className="h-3 w-3" />
+                          Impact: {formatCurrency(parseInt(costChange))} {parseInt(costChange) > 0 ? 'increase' : 'decrease'}
+                        </p>
+                      )}
+                    </div>
+
+                    <Separator />
+
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={handleApproveRequest}
+                        disabled={processing || !adminResponse.trim()}
+                        className="flex-1"
+                        size="sm"
+                      >
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        {processing ? 'Processing...' : 'Approve'}
+                      </Button>
+                      <Button
+                        onClick={handleRejectRequest}
+                        disabled={processing || !adminResponse.trim()}
+                        variant="destructive"
+                        className="flex-1"
+                        size="sm"
+                      >
+                        <XCircle className="h-4 w-4 mr-2" />
+                        {processing ? 'Processing...' : 'Reject'}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          ))}
+
+          {/* Processed Requests - Collapsed */}
+          {processedRequests.length > 0 && (
+            <div className="space-y-2 pt-2 border-t">
+              <div className="text-xs font-medium text-muted-foreground">
+                Request History ({processedRequests.length})
+              </div>
+              {processedRequests.map((request) => (
+                <div 
+                  key={request.id}
+                  className="p-2 border rounded text-xs bg-muted/20"
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-medium">{request.event_name}</span>
+                    {getStatusBadge(request.status)}
+                  </div>
+                  <p className="text-muted-foreground line-clamp-2">{request.customer_comments}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </CollapsibleContent>
+      </Collapsible>
+    );
+  }
+
+  // Full standalone mode (original behavior)
   return (
     <div className="space-y-4">
       {/* Pending Requests - High Priority */}
@@ -375,15 +542,6 @@ export function IntegratedChangeRequestPanel({
                 )}
               </div>
             ))}
-          </CardContent>
-        </Card>
-      )}
-
-      {changeRequests.length === 0 && (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-8 text-center">
-            <MessageSquare className="h-12 w-12 text-muted-foreground mb-3" />
-            <p className="text-muted-foreground">No change requests for this estimate</p>
           </CardContent>
         </Card>
       )}

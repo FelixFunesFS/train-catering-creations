@@ -1,6 +1,6 @@
 import React from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { FileEdit, DollarSign, Check, FileSignature, CreditCard, ChevronRight } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 type Step = 'select' | 'pricing' | 'government' | 'contract' | 'payment' | 'confirmed' | 'completed';
 
@@ -51,43 +51,42 @@ export function WorkflowSteps({ currentStep, isGovernmentContract, requiresContr
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <FileEdit className="h-5 w-5" />
-          Unified Workflow Manager
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="flex flex-wrap items-center gap-2 mb-6">
-          {steps.map(({ step, label, icon: Icon }, index) => {
-            const status = getStepStatus(step);
-            return (
-              <div key={step} className="flex items-center gap-2">
-                <div className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
-                  status === 'current' ? 'bg-primary text-primary-foreground' :
-                  status === 'completed' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100' :
-                  'bg-muted text-muted-foreground'
-                }`}>
-                  <Icon className="h-4 w-4" />
-                  <span className="text-sm font-medium">{label}</span>
-                </div>
-                {index < steps.length - 1 && <ChevronRight className="h-4 w-4 text-muted-foreground" />}
+    <div className="border-b bg-muted/30 px-6 py-3">
+      <div className="flex flex-wrap items-center gap-2">
+        {steps.map(({ step, label, icon: Icon }, index) => {
+          const status = getStepStatus(step);
+          return (
+            <div key={step} className="flex items-center gap-2">
+              <div className={cn(
+                "flex items-center gap-2 px-3 py-1.5 rounded-md transition-all text-sm",
+                status === 'current' && "bg-primary text-primary-foreground font-medium shadow-sm",
+                status === 'completed' && "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-100",
+                status === 'upcoming' && "text-muted-foreground"
+              )}>
+                <Icon className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">{label}</span>
               </div>
-            );
-          })}
-        </div>
+              {index < steps.length - 1 && (
+                <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
+              )}
+            </div>
+          );
+        })}
+      </div>
+      
+      {/* Compact metadata badges */}
+      <div className="flex gap-2 mt-2">
         {isGovernmentContract && (
-          <p className="text-xs text-muted-foreground">
-            <strong>Government Contract:</strong> Additional compliance steps required
-          </p>
+          <span className="text-xs text-muted-foreground bg-background px-2 py-0.5 rounded-md border">
+            🏛️ Government Contract
+          </span>
         )}
         {!requiresContract && (
-          <p className="text-xs text-muted-foreground">
-            <strong>T&C Only:</strong> No separate contract - Terms included in estimate
-          </p>
+          <span className="text-xs text-muted-foreground bg-background px-2 py-0.5 rounded-md border">
+            📋 T&C Only
+          </span>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
