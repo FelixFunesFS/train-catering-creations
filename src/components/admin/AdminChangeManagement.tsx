@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { ChangesSummaryCard } from './workflow/ChangesSummaryCard';
+import { ChangeHistoryTimeline } from './workflow/ChangeHistoryTimeline';
 import { 
   MessageSquare, 
   CheckCircle, 
@@ -34,6 +35,7 @@ interface ChangeRequest {
   original_details: any;
   invoices: {
     invoice_number: string;
+    quote_request_id?: string;
     quote_requests: {
       event_name: string;
       contact_name: string;
@@ -477,6 +479,17 @@ export function AdminChangeManagement({ onRefresh }: AdminChangeManagementProps)
                       <p className="text-sm whitespace-pre-wrap bg-blue-50 p-2 rounded mt-1">
                         {selectedRequest.admin_response}
                       </p>
+                    </div>
+                  )}
+
+                  {/* Change History Section */}
+                  {selectedRequest.status === 'approved' && selectedRequest.invoices?.quote_request_id && (
+                    <div className="mt-4">
+                      <Label className="text-sm font-medium">Change History:</Label>
+                      <ChangeHistoryTimeline 
+                        requestId={selectedRequest.id} 
+                        quoteId={selectedRequest.invoices.quote_request_id} 
+                      />
                     </div>
                   )}
                 </CardContent>

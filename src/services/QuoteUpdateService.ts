@@ -241,7 +241,9 @@ export class QuoteUpdateService {
    */
   async updateInvoiceLineItems(invoiceId: string, quoteId: string, changes: any): Promise<void> {
     try {
-      // Fetch updated quote to generate new line items
+      console.log('🔄 Updating invoice line items with changes:', changes);
+      
+      // Fetch updated quote
       const { data: updatedQuote, error: fetchError } = await supabase
         .from('quote_requests')
         .select('*')
@@ -252,7 +254,7 @@ export class QuoteUpdateService {
         throw new Error('Failed to fetch updated quote');
       }
 
-      // Fetch current invoice line items to preserve manual adjustments
+      // Fetch current invoice line items
       const { data: currentLineItems, error: currentError } = await supabase
         .from('invoice_line_items')
         .select('*')
@@ -262,7 +264,7 @@ export class QuoteUpdateService {
         throw new Error('Failed to fetch current line items');
       }
 
-      // Parse JSON fields for line item generation
+      // Parse JSON fields
       const quoteForLineItems = {
         ...updatedQuote,
         appetizers: this.parseJsonField(updatedQuote.appetizers),
@@ -274,16 +276,73 @@ export class QuoteUpdateService {
         extras: this.parseJsonField(updatedQuote.extras)
       };
 
-      // Generate new line items based on updated quote
-      const { generateProfessionalLineItems } = await import('@/utils/invoiceFormatters');
-      const newLineItems = generateProfessionalLineItems(quoteForLineItems as any);
+      // Build list of items to remove based on menu_changes
+      const itemsToRemoveByName: Set<string> = new Set();
+      if (changes.menu_changes) {
+        // Check for protein removals
+        if (changes.menu_changes.proteins?.remove) {
+          changes.menu_changes.proteins.remove.forEach((type: string) => {
+            if (type === 'primary' && !updatedQuote.primary_protein) {
+              currentLineItems?.forEach(item => {
+                if (item.title.toLowerCase().includes('primary') || 
+                    item.title.toLowerCase().includes('protein') ||
+                    item.category === 'protein') {
+                  itemsToRemoveByName.add(item.title);
+                }
+              });
+            }
+          });
+        }
+        
+        // Check for menu category removals
+        ['appetizers', 'sides', 'desserts', 'drinks'].forEach(category => {
+          if (changes.menu_changes[category]?.remove) {
+            changes.menu_changes[category].remove.forEach((item: string) => {
+              itemsToRemoveByName.add(item);
+            });
+          }
+        });
+      }
 
-      // Create a map of current line items by title for comparison
+      // Delete removed items from invoice
+      if (itemsToRemoveByName.size > 0) {
+        const idsToDelete = (currentLineItems || [])
+          .filter(item => {
+            const itemTitle = item.title.toLowerCase();
+            return Array.from(itemsToRemoveByName).some(removeName => 
+              itemTitle.includes(removeName.toLowerCase()) ||
+              removeName.toLowerCase().includes(itemTitle)
+            );
+          })
+          .map(item => item.id);
+
+        if (idsToDelete.length > 0) {
+          console.log('🗑️ Deleting line items:', idsToDelete);
+          const { error: deleteError } = await supabase
+            .from('invoice_line_items')
+            .delete()
+            .in('id', idsToDelete);
+
+          if (deleteError) {
+            console.error('Error deleting line items:', deleteError);
+          }
+        }
+      }
+
+      // Generate new line items from updated quote
+      const newLineItems = generateProfessionalLineItems(quoteForLineItems as any);
+      
+      // Re-fetch current items after deletions
+      const { data: remainingItems } = await supabase
+        .from('invoice_line_items')
+        .select('*')
+        .eq('invoice_id', invoiceId);
+
       const currentItemsMap = new Map(
-        (currentLineItems || []).map(item => [item.title, item])
+        (remainingItems || []).map(item => [item.title, item])
       );
 
-      // Track items to keep, add, or update
+      // Track items to insert/update
       const itemsToInsert = [];
       const itemsToUpdate = [];
       const processedTitles = new Set<string>();
@@ -293,10 +352,8 @@ export class QuoteUpdateService {
         const existingItem = currentItemsMap.get(newItem.title);
 
         if (existingItem) {
-          // Item exists - update quantity and recalculate total
-          // Preserve unit_price if it was manually adjusted
+          // Update existing
           const shouldUpdatePrice = existingItem.unit_price === newItem.unit_price;
-          
           itemsToUpdate.push({
             id: existingItem.id,
             quantity: newItem.quantity,
@@ -304,7 +361,7 @@ export class QuoteUpdateService {
             total_price: (shouldUpdatePrice ? newItem.unit_price : existingItem.unit_price) * newItem.quantity
           });
         } else {
-          // New item - add it
+          // Insert new
           itemsToInsert.push({
             invoice_id: invoiceId,
             title: newItem.title,
@@ -317,24 +374,9 @@ export class QuoteUpdateService {
         }
       }
 
-      // Find items to delete (items in current but not in new)
-      const itemsToDelete = (currentLineItems || [])
-        .filter(item => !processedTitles.has(item.title))
-        .map(item => item.id);
-
-      // Execute database operations
-      if (itemsToDelete.length > 0) {
-        const { error: deleteError } = await supabase
-          .from('invoice_line_items')
-          .delete()
-          .in('id', itemsToDelete);
-
-        if (deleteError) {
-          console.error('Error deleting line items:', deleteError);
-        }
-      }
-
+      // Execute inserts/updates
       if (itemsToInsert.length > 0) {
+        console.log('➕ Inserting new line items:', itemsToInsert.length);
         const { error: insertError } = await supabase
           .from('invoice_line_items')
           .insert(itemsToInsert);
@@ -359,7 +401,7 @@ export class QuoteUpdateService {
         }
       }
 
-      // Recalculate invoice totals from line items
+      // Recalculate invoice totals
       const { data: allLineItems, error: recalcError } = await supabase
         .from('invoice_line_items')
         .select('total_price')
@@ -367,7 +409,7 @@ export class QuoteUpdateService {
 
       if (!recalcError && allLineItems) {
         const newSubtotal = allLineItems.reduce((sum, item) => sum + (item.total_price || 0), 0);
-        const taxAmount = Math.round(newSubtotal * 0.0); // Adjust tax rate as needed
+        const taxAmount = Math.round(newSubtotal * 0.0);
         const totalAmount = newSubtotal + taxAmount;
 
         await supabase
@@ -380,21 +422,12 @@ export class QuoteUpdateService {
           })
           .eq('id', invoiceId);
 
-        // Log the change to invoice_audit_log
-        await supabase
-          .from('invoice_audit_log')
-          .insert({
-            invoice_id: invoiceId,
-            field_changed: 'total_amount',
-            old_value: null, // We don't have the old value here
-            new_value: totalAmount,
-            changed_by: 'admin'
-          });
+        console.log(`✅ Updated invoice totals: ${totalAmount / 100}`);
       }
 
-      console.log(`Updated invoice line items for invoice ${invoiceId}`);
+      console.log(`✅ Updated invoice line items for invoice ${invoiceId}`);
     } catch (error) {
-      console.error('Error updating invoice line items:', error);
+      console.error('❌ Error updating invoice line items:', error);
       throw error;
     }
   }

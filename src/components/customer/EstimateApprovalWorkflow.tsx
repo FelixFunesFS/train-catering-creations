@@ -21,7 +21,8 @@ import {
   Users,
   DollarSign,
   Clock,
-  FileText
+  FileText,
+  AlertCircle
 } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 
@@ -29,6 +30,7 @@ interface EstimateData {
   id: string;
   invoice_number: string;
   total_amount: number;
+  tax_amount?: number;
   status: string;
   requires_separate_contract?: boolean;
   include_terms_and_conditions?: boolean;
@@ -48,6 +50,15 @@ interface EstimateData {
     amount_cents: number;
     due_date: string;
     milestone_type: string;
+  }>;
+  invoice_line_items?: Array<{
+    id: string;
+    title: string;
+    description?: string;
+    quantity: number;
+    unit_price: number;
+    total_price: number;
+    category?: string;
   }>;
 }
 
@@ -453,6 +464,61 @@ export function EstimateApprovalWorkflow({
 
         <Separator />
 
+        {/* Line Items Breakdown */}
+        <div className="space-y-3">
+          <h3 className="font-semibold text-base">What's Included</h3>
+          {estimate.invoice_line_items && estimate.invoice_line_items.length > 0 ? (
+            <div className="space-y-2">
+              {estimate.invoice_line_items.map((item, idx) => (
+                <div key={idx} className="flex justify-between items-start gap-4 py-2 border-b last:border-0">
+                  <div className="flex-1">
+                    <p className="font-medium text-sm">{item.title}</p>
+                    {item.description && (
+                      <p className="text-xs text-muted-foreground">{item.description}</p>
+                    )}
+                  </div>
+                  <div className="text-right shrink-0">
+                    <p className="font-medium text-sm">{formatCurrency(item.total_price / 100)}</p>
+                    {item.quantity > 1 && (
+                      <p className="text-xs text-muted-foreground">
+                        {item.quantity} × {formatCurrency(item.unit_price / 100)}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Line items are being prepared. Please refresh the page if they don't appear.
+              </AlertDescription>
+            </Alert>
+          )}
+          
+          {/* Totals Summary */}
+          <div className="bg-muted/50 p-4 rounded-lg space-y-2">
+            <div className="flex justify-between text-sm">
+              <span>Subtotal:</span>
+              <span>{formatCurrency((estimate.total_amount - (estimate.tax_amount || 0)) / 100)}</span>
+            </div>
+            {estimate.tax_amount && estimate.tax_amount > 0 && (
+              <div className="flex justify-between text-sm">
+                <span>Tax:</span>
+                <span>{formatCurrency(estimate.tax_amount / 100)}</span>
+              </div>
+            )}
+            <Separator />
+            <div className="flex justify-between font-bold text-base">
+              <span>Total:</span>
+              <span>{formatCurrency(estimate.total_amount / 100)}</span>
+            </div>
+          </div>
+        </div>
+
+        <Separator />
+
         {/* Terms & Conditions (if included) */}
         {needsTermsAcceptance && (
           <>
@@ -509,16 +575,16 @@ export function EstimateApprovalWorkflow({
             {loading ? 'Processing...' : 'Approve Estimate'}
           </Button>
           
-          <Button
-            onClick={handleReject}
-            disabled={loading}
-            variant="destructive"
-            className="flex-1 gap-2"
-            size="lg"
-          >
-            <XCircle className="h-4 w-4" />
-            {loading ? 'Processing...' : 'Request Changes'}
-          </Button>
+            <Button
+              onClick={handleReject}
+              disabled={loading}
+              variant="outline"
+              className="flex-1 gap-2 border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+              size="lg"
+            >
+              <XCircle className="h-4 w-4" />
+              {loading ? 'Processing...' : 'Request Changes'}
+            </Button>
         </div>
 
         <p className="text-xs text-muted-foreground text-center">
