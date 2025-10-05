@@ -20,8 +20,11 @@ import {
   DollarSign,
   AlertCircle,
   FileText,
-  ChevronDown
+  ChevronDown,
+  Check,
+  X
 } from 'lucide-react';
+import { format } from 'date-fns';
 
 interface ExtendedChangeRequest extends BaseChangeRequest {
   event_name?: string;
@@ -366,23 +369,82 @@ export function IntegratedChangeRequestPanel({
             </Card>
           ))}
 
-          {/* Processed Requests - Collapsed */}
+          {/* Processed Requests - Enhanced History */}
           {processedRequests.length > 0 && (
-            <div className="space-y-2 pt-2 border-t">
+            <div className="space-y-3 pt-3 border-t">
               <div className="text-xs font-medium text-muted-foreground">
                 Request History ({processedRequests.length})
               </div>
               {processedRequests.map((request) => (
-                <div 
+                <Card 
                   key={request.id}
-                  className="p-2 border rounded text-xs bg-muted/20"
+                  className="p-3 border-l-4"
+                  style={{
+                    borderLeftColor: request.status === 'approved' 
+                      ? 'hsl(var(--success))' 
+                      : 'hsl(var(--destructive))'
+                  }}
                 >
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="font-medium">{request.event_name}</span>
-                    {getStatusBadge(request.status)}
+                  <div className="space-y-2">
+                    {/* Status Header */}
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        {request.status === 'approved' ? (
+                          <Check className="h-4 w-4 text-success shrink-0" />
+                        ) : (
+                          <X className="h-4 w-4 text-destructive shrink-0" />
+                        )}
+                        <span className="text-xs font-semibold uppercase tracking-wide">
+                          {request.status}
+                        </span>
+                      </div>
+                      {getStatusBadge(request.status)}
+                    </div>
+
+                    {/* Changes Summary */}
+                    {request.requested_changes && (
+                      <ChangesSummaryCard 
+                        originalDetails={request.original_details}
+                        requestedChanges={request.requested_changes}
+                      />
+                    )}
+
+                    {/* Customer Comment */}
+                    {request.customer_comments && (
+                      <div className="text-xs">
+                        <p className="text-muted-foreground mb-1">Customer Request:</p>
+                        <p className="italic">"{request.customer_comments}"</p>
+                      </div>
+                    )}
+
+                    {/* Admin Response */}
+                    {request.admin_response && (
+                      <div className="text-xs bg-muted/50 p-2 rounded">
+                        <p className="text-muted-foreground mb-1">Admin Response:</p>
+                        <p>{request.admin_response}</p>
+                      </div>
+                    )}
+
+                    {/* Cost Impact */}
+                    {request.estimated_cost_change !== null && request.estimated_cost_change !== 0 && (
+                      <div className="text-xs flex items-center gap-1">
+                        <DollarSign className="h-3 w-3" />
+                        <span className="text-muted-foreground">Cost Impact:</span>
+                        <span className={request.estimated_cost_change > 0 ? 'text-success font-medium' : 'text-destructive font-medium'}>
+                          {request.estimated_cost_change > 0 ? '+' : ''}
+                          {formatCurrency(request.estimated_cost_change)}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Timestamp */}
+                    {request.updated_at && (
+                      <p className="text-xs text-muted-foreground">
+                        Processed: {format(new Date(request.updated_at), 'MMM d, yyyy \'at\' h:mm a')}
+                      </p>
+                    )}
                   </div>
-                  <p className="text-muted-foreground line-clamp-2">{request.customer_comments}</p>
-                </div>
+                </Card>
               ))}
             </div>
           )}

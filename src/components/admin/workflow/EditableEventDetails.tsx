@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Calendar, Clock, Users, MapPin, FileText, CheckCircle2, Loader2, Edit3 } from 'lucide-react';
+import { Calendar, Clock, Users, MapPin, FileText, CheckCircle2, Loader2, Edit2, Save, X, Mail, Phone } from 'lucide-react';
 import { format } from 'date-fns';
+import { formatCustomerName, formatLocation, formatEventName } from '@/utils/textFormatters';
 
 interface Quote {
   id: string;
@@ -27,7 +28,7 @@ interface EditableEventDetailsProps {
 }
 
 export function EditableEventDetails({ quote, onQuoteUpdate }: EditableEventDetailsProps) {
-  const [editingField, setEditingField] = useState<string | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
   const { toast } = useToast();
@@ -53,28 +54,26 @@ export function EditableEventDetails({ quote, onQuoteUpdate }: EditableEventDeta
 
   const handleFieldChange = (field: keyof typeof formData, value: string | number) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    setEditingField(field);
   };
 
-  const handleFieldBlur = async (field: keyof typeof formData) => {
-    setEditingField(null);
-    
-    // Only save if value actually changed
-    if (formData[field] === quote[field]) return;
-
+  const handleSave = async () => {
     setSaving(true);
     setSaveStatus('saving');
 
     try {
       const { error } = await supabase
         .from('quote_requests')
-        .update({ [field]: formData[field] })
+        .update(formData)
         .eq('id', quote.id);
 
       if (error) throw error;
 
       setSaveStatus('saved');
-      onQuoteUpdate?.({ [field]: formData[field] } as Partial<Quote>);
+      setIsEditing(false);
+      
+      Object.keys(formData).forEach(key => {
+        onQuoteUpdate?.({ [key]: formData[key as keyof typeof formData] } as Partial<Quote>);
+      });
 
       toast({
         title: "Saved",
@@ -83,9 +82,16 @@ export function EditableEventDetails({ quote, onQuoteUpdate }: EditableEventDeta
     } catch (error) {
       console.error('Error updating quote:', error);
       setSaveStatus('idle');
-      
-      // Revert to original value
-      setFormData(prev => ({ ...prev, [field]: quote[field] }));
+      setFormData({
+        contact_name: quote.contact_name || '',
+        email: quote.email || '',
+        phone: quote.phone || '',
+        event_date: quote.event_date || '',
+        start_time: quote.start_time || '',
+        guest_count: quote.guest_count || 0,
+        location: quote.location || '',
+        special_requests: quote.special_requests || '',
+      });
 
       toast({
         title: "Error",
@@ -97,6 +103,20 @@ export function EditableEventDetails({ quote, onQuoteUpdate }: EditableEventDeta
     }
   };
 
+  const handleCancel = () => {
+    setFormData({
+      contact_name: quote.contact_name || '',
+      email: quote.email || '',
+      phone: quote.phone || '',
+      event_date: quote.event_date || '',
+      start_time: quote.start_time || '',
+      guest_count: quote.guest_count || 0,
+      location: quote.location || '',
+      special_requests: quote.special_requests || '',
+    });
+    setIsEditing(false);
+  };
+
   const getSaveStatusIcon = () => {
     switch (saveStatus) {
       case 'saving':
@@ -104,7 +124,7 @@ export function EditableEventDetails({ quote, onQuoteUpdate }: EditableEventDeta
       case 'saved':
         return <CheckCircle2 className="h-3 w-3 text-green-600" />;
       default:
-        return <Edit3 className="h-3 w-3 text-muted-foreground" />;
+        return null;
     }
   };
 
@@ -115,16 +135,125 @@ export function EditableEventDetails({ quote, onQuoteUpdate }: EditableEventDeta
       case 'saved':
         return 'Saved';
       default:
-        return 'Click to edit';
+        return '';
     }
   };
 
+  const formatDate = (dateStr?: string) => {
+    if (!dateStr) return 'Not set';
+    try {
+      return format(new Date(dateStr), 'MMMM d, yyyy');
+    } catch {
+      return dateStr;
+    }
+  };
+
+  const formatTime = (timeStr?: string) => {
+    if (!timeStr) return 'Not set';
+    try {
+      const [hours, minutes] = timeStr.split(':');
+      const hour = parseInt(hours);
+      const ampm = hour >= 12 ? 'PM' : 'AM';
+      const displayHour = hour % 12 || 12;
+      return `${displayHour}:${minutes} ${ampm}`;
+    } catch {
+      return timeStr;
+    }
+  };
+
+  // Read-only view
+  if (!isEditing) {
+    return (
+      <div className="space-y-3 p-4 border rounded-lg bg-card">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-semibold flex items-center gap-2">
+            <FileText className="h-4 w-4" />
+            Event Details
+          </h3>
+          <Button onClick={() => setIsEditing(true)} variant="outline" size="sm">
+            <Edit2 className="h-4 w-4 mr-2" />
+            Edit
+          </Button>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="flex items-start gap-2">
+            <Phone className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+            <div className="space-y-0.5 min-w-0">
+              <p className="text-xs text-muted-foreground">Contact Name</p>
+              <p className="text-sm font-medium truncate">{formatCustomerName(formData.contact_name || 'Not set')}</p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-2">
+            <Mail className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+            <div className="space-y-0.5 min-w-0">
+              <p className="text-xs text-muted-foreground">Email</p>
+              <p className="text-sm font-medium truncate">{formData.email || 'Not set'}</p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-2">
+            <Phone className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+            <div className="space-y-0.5 min-w-0">
+              <p className="text-xs text-muted-foreground">Phone</p>
+              <p className="text-sm font-medium">{formData.phone || 'Not set'}</p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-2">
+            <Calendar className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+            <div className="space-y-0.5 min-w-0">
+              <p className="text-xs text-muted-foreground">Event Date</p>
+              <p className="text-sm font-medium">{formatDate(formData.event_date)}</p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-2">
+            <Clock className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+            <div className="space-y-0.5 min-w-0">
+              <p className="text-xs text-muted-foreground">Start Time</p>
+              <p className="text-sm font-medium">{formatTime(formData.start_time)}</p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-2">
+            <Users className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+            <div className="space-y-0.5 min-w-0">
+              <p className="text-xs text-muted-foreground">Guest Count</p>
+              <p className="text-sm font-medium">{formData.guest_count || 'Not set'}</p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-2 sm:col-span-2 lg:col-span-3">
+            <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+            <div className="space-y-0.5 min-w-0">
+              <p className="text-xs text-muted-foreground">Location</p>
+              <p className="text-sm font-medium">{formatLocation(formData.location || 'Not set')}</p>
+            </div>
+          </div>
+
+          {formData.special_requests && (
+            <div className="flex items-start gap-2 sm:col-span-2 lg:col-span-3">
+              <FileText className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+              <div className="space-y-0.5 min-w-0">
+                <p className="text-xs text-muted-foreground">Special Requests</p>
+                <p className="text-sm font-medium">{formData.special_requests}</p>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Edit mode
   return (
     <div className="space-y-4 p-4 border rounded-lg bg-card">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold flex items-center gap-2">
           <FileText className="h-4 w-4" />
-          Event Details
+          Edit Event Details
         </h3>
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           {getSaveStatusIcon()}
@@ -142,7 +271,6 @@ export function EditableEventDetails({ quote, onQuoteUpdate }: EditableEventDeta
             id="contact_name"
             value={formData.contact_name}
             onChange={(e) => handleFieldChange('contact_name', e.target.value)}
-            onBlur={() => handleFieldBlur('contact_name')}
             placeholder="Full name"
             className="h-9"
             disabled={saving}
@@ -159,7 +287,6 @@ export function EditableEventDetails({ quote, onQuoteUpdate }: EditableEventDeta
             type="email"
             value={formData.email}
             onChange={(e) => handleFieldChange('email', e.target.value)}
-            onBlur={() => handleFieldBlur('email')}
             placeholder="email@example.com"
             className="h-9"
             disabled={saving}
@@ -176,7 +303,6 @@ export function EditableEventDetails({ quote, onQuoteUpdate }: EditableEventDeta
             type="tel"
             value={formData.phone}
             onChange={(e) => handleFieldChange('phone', e.target.value)}
-            onBlur={() => handleFieldBlur('phone')}
             placeholder="(843) 555-1234"
             className="h-9"
             disabled={saving}
@@ -194,7 +320,6 @@ export function EditableEventDetails({ quote, onQuoteUpdate }: EditableEventDeta
             type="date"
             value={formData.event_date}
             onChange={(e) => handleFieldChange('event_date', e.target.value)}
-            onBlur={() => handleFieldBlur('event_date')}
             className="h-9"
             disabled={saving}
           />
@@ -211,7 +336,6 @@ export function EditableEventDetails({ quote, onQuoteUpdate }: EditableEventDeta
             type="time"
             value={formData.start_time}
             onChange={(e) => handleFieldChange('start_time', e.target.value)}
-            onBlur={() => handleFieldBlur('start_time')}
             className="h-9"
             disabled={saving}
           />
@@ -229,7 +353,6 @@ export function EditableEventDetails({ quote, onQuoteUpdate }: EditableEventDeta
             min="0"
             value={formData.guest_count}
             onChange={(e) => handleFieldChange('guest_count', parseInt(e.target.value) || 0)}
-            onBlur={() => handleFieldBlur('guest_count')}
             className="h-9"
             disabled={saving}
           />
@@ -245,7 +368,6 @@ export function EditableEventDetails({ quote, onQuoteUpdate }: EditableEventDeta
             id="location"
             value={formData.location}
             onChange={(e) => handleFieldChange('location', e.target.value)}
-            onBlur={() => handleFieldBlur('location')}
             placeholder="Event venue address"
             className="h-9"
             disabled={saving}
@@ -261,13 +383,27 @@ export function EditableEventDetails({ quote, onQuoteUpdate }: EditableEventDeta
             id="special_requests"
             value={formData.special_requests}
             onChange={(e) => handleFieldChange('special_requests', e.target.value)}
-            onBlur={() => handleFieldBlur('special_requests')}
             placeholder="Any special requests or notes..."
             className="resize-none min-h-[60px]"
             rows={3}
             disabled={saving}
           />
         </div>
+      </div>
+
+      <div className="flex gap-2 justify-end pt-2">
+        <Button onClick={handleCancel} variant="outline" size="sm" disabled={saving}>
+          <X className="h-4 w-4 mr-2" />
+          Cancel
+        </Button>
+        <Button onClick={handleSave} size="sm" disabled={saving}>
+          {saving ? (
+            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+          ) : (
+            <Save className="h-4 w-4 mr-2" />
+          )}
+          Save Changes
+        </Button>
       </div>
     </div>
   );
