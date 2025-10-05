@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, Clock, Users, MapPin, PartyPopper } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
+import { formatEventName, formatLocation } from "@/utils/textFormatters";
 
 interface EventDetailsStepProps {
   form: UseFormReturn<any>;
@@ -67,6 +68,11 @@ export const EventDetailsStep = ({ form, trackFieldInteraction }: EventDetailsSt
                     <Input
                       {...field}
                       onFocus={() => trackFieldInteraction('event_name')}
+                      onBlur={(e) => {
+                        const formatted = formatEventName(e.target.value);
+                        field.onChange(formatted);
+                        field.onBlur();
+                      }}
                       placeholder="e.g., Sarah's 30th Birthday"
                       className="h-12 text-base neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30"
                       onKeyDown={(e) => {

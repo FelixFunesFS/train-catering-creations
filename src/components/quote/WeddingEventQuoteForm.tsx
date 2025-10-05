@@ -14,6 +14,8 @@ import { weddingEventSchema, type WeddingEventFormData } from "@/lib/schemas/tem
 import { MenuSelection } from "./MenuSelection";
 import { weddingMenuItems } from "@/data/menuItems";
 import { supabase } from "@/integrations/supabase/client";
+import { formatCustomerName, formatEventName, formatLocation } from "@/utils/textFormatters";
+import { formatPhoneNumber } from "@/utils/phoneFormatter";
 
 const WeddingEventQuoteForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -189,7 +191,15 @@ ${data.hearAboutUs}
                     <FormItem>
                       <FormLabel>Point of Contact Name *</FormLabel>
                       <FormControl>
-                        <Input {...field} className="h-12" />
+                        <Input 
+                          {...field}
+                          onBlur={(e) => {
+                            const formatted = formatCustomerName(e.target.value);
+                            field.onChange(formatted);
+                            field.onBlur();
+                          }}
+                          className="h-12" 
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -202,7 +212,16 @@ ${data.hearAboutUs}
                     <FormItem>
                       <FormLabel>Name of Event *</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="e.g. Sarah & John's Wedding" className="h-12" />
+                        <Input 
+                          {...field}
+                          onBlur={(e) => {
+                            const formatted = formatEventName(e.target.value);
+                            field.onChange(formatted);
+                            field.onBlur();
+                          }}
+                          placeholder="e.g. Sarah & John's Wedding" 
+                          className="h-12" 
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -215,7 +234,16 @@ ${data.hearAboutUs}
                     <FormItem>
                       <FormLabel>Email Address *</FormLabel>
                       <FormControl>
-                        <Input {...field} type="email" className="h-12" />
+                        <Input 
+                          {...field}
+                          type="email"
+                          onBlur={(e) => {
+                            const normalized = e.target.value.trim().toLowerCase();
+                            field.onChange(normalized);
+                            field.onBlur();
+                          }}
+                          className="h-12" 
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -228,7 +256,16 @@ ${data.hearAboutUs}
                     <FormItem>
                       <FormLabel>Phone Number *</FormLabel>
                       <FormControl>
-                        <Input {...field} type="tel" className="h-12" />
+                        <Input 
+                          {...field}
+                          type="tel"
+                          onChange={(e) => {
+                            const formatted = formatPhoneNumber(e.target.value);
+                            field.onChange(formatted);
+                          }}
+                          onBlur={field.onBlur}
+                          className="h-12" 
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -314,7 +351,16 @@ ${data.hearAboutUs}
                   <FormItem>
                     <FormLabel>Event Location *</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="Full address or venue name" className="h-12" />
+                      <Input 
+                        {...field}
+                        onBlur={(e) => {
+                          const formatted = formatLocation(e.target.value);
+                          field.onChange(formatted);
+                          field.onBlur();
+                        }}
+                        placeholder="Full address or venue name" 
+                        className="h-12" 
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

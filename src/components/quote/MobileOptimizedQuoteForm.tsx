@@ -16,6 +16,7 @@ import { MobileMenuSelection } from "./MobileMenuSelection";
 import { regularMenuItems } from "@/data/menuItems";
 import { ArrowLeft, ArrowRight, Phone, Mail, MapPin } from "lucide-react";
 import { formatPhoneNumber, parsePhoneNumber, isValidPhoneNumber } from "@/utils/phoneFormatter";
+import { formatCustomerName, formatEventName, formatLocation } from "@/utils/textFormatters";
 import { supabase } from "@/integrations/supabase/client";
 const steps = ["Contact", "Event", "Menu", "Details"];
 export const MobileOptimizedQuoteForm = () => {
@@ -237,7 +238,16 @@ ${data.hearAboutUs || 'Not specified'}
             }) => <FormItem>
                     <FormLabel className="text-base font-medium">Your Name *</FormLabel>
                     <FormControl>
-                      <Input {...field} className="h-12 text-base" placeholder="Enter your full name" />
+                      <Input 
+                        {...field}
+                        onBlur={(e) => {
+                          const formatted = formatCustomerName(e.target.value);
+                          field.onChange(formatted);
+                          field.onBlur();
+                        }}
+                        className="h-12 text-base" 
+                        placeholder="Enter your full name" 
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>} />
@@ -247,7 +257,16 @@ ${data.hearAboutUs || 'Not specified'}
             }) => <FormItem>
                     <FormLabel className="text-base font-medium">Event Name *</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="e.g. Company Holiday Party" className="h-12 text-base" />
+                      <Input 
+                        {...field}
+                        onBlur={(e) => {
+                          const formatted = formatEventName(e.target.value);
+                          field.onChange(formatted);
+                          field.onBlur();
+                        }}
+                        placeholder="e.g. Company Holiday Party" 
+                        className="h-12 text-base" 
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>} />
@@ -257,7 +276,17 @@ ${data.hearAboutUs || 'Not specified'}
             }) => <FormItem>
                     <FormLabel className="text-base font-medium">Email Address *</FormLabel>
                     <FormControl>
-                      <Input {...field} type="email" className="h-12 text-base" placeholder="your@email.com" />
+                      <Input 
+                        {...field}
+                        type="email"
+                        onBlur={(e) => {
+                          const normalized = e.target.value.trim().toLowerCase();
+                          field.onChange(normalized);
+                          field.onBlur();
+                        }}
+                        className="h-12 text-base" 
+                        placeholder="your@email.com" 
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>} />
@@ -370,6 +399,11 @@ ${data.hearAboutUs || 'Not specified'}
                         type="text"
                         inputMode="text"
                         autoComplete="street-address"
+                        onBlur={(e) => {
+                          const formatted = formatLocation(e.target.value);
+                          field.onChange(formatted);
+                          field.onBlur();
+                        }}
                         placeholder="123 Main St, City, State or Venue Name" 
                         className="h-12 text-base" 
                       />

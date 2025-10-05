@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { User, Mail, Phone } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
+import { formatCustomerName } from "@/utils/textFormatters";
+import { formatPhoneNumber } from "@/utils/phoneFormatter";
 
 interface ContactStepProps {
   form: UseFormReturn<any>;
@@ -50,19 +52,24 @@ export const ContactStep = ({ form, trackFieldInteraction }: ContactStepProps) =
                   <User className="h-4 w-4 text-muted-foreground" />
                   Full Name *
                 </FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    onFocus={() => trackFieldInteraction('contact_name')}
-                    placeholder="Enter your full name"
-                    className="h-12 text-base neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30"
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                      }
-                    }}
-                  />
-                </FormControl>
+              <FormControl>
+                <Input
+                  {...field}
+                  onFocus={() => trackFieldInteraction('contact_name')}
+                  onBlur={(e) => {
+                    const formatted = formatCustomerName(e.target.value);
+                    field.onChange(formatted);
+                    field.onBlur();
+                  }}
+                  placeholder="Enter your full name"
+                  className="h-12 text-base neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                    }
+                  }}
+                />
+              </FormControl>
                 <FormMessage />
               </FormItem>
             )}
@@ -77,20 +84,25 @@ export const ContactStep = ({ form, trackFieldInteraction }: ContactStepProps) =
                   <Mail className="h-4 w-4 text-muted-foreground" />
                   Email Address *
                 </FormLabel>
-                <FormControl>
-                  <Input
-                    type="email"
-                    {...field}
-                    onFocus={() => trackFieldInteraction('email')}
-                    placeholder="your.email@example.com"
-                    className="h-12 text-base neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30"
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                      }
-                    }}
-                  />
-                </FormControl>
+              <FormControl>
+                <Input
+                  type="email"
+                  {...field}
+                  onFocus={() => trackFieldInteraction('email')}
+                  onBlur={(e) => {
+                    const normalized = e.target.value.trim().toLowerCase();
+                    field.onChange(normalized);
+                    field.onBlur();
+                  }}
+                  placeholder="your.email@example.com"
+                  className="h-12 text-base neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                    }
+                  }}
+                />
+              </FormControl>
                 <FormMessage />
               </FormItem>
             )}
@@ -105,20 +117,25 @@ export const ContactStep = ({ form, trackFieldInteraction }: ContactStepProps) =
                   <Phone className="h-4 w-4 text-muted-foreground" />
                   Phone Number *
                 </FormLabel>
-                <FormControl>
-                  <Input
-                    type="tel"
-                    {...field}
-                    onFocus={() => trackFieldInteraction('phone')}
-                    placeholder="(555) 123-4567"
-                    className="h-12 text-base neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30"
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                      }
-                    }}
-                  />
-                </FormControl>
+              <FormControl>
+                <Input
+                  type="tel"
+                  {...field}
+                  onFocus={() => trackFieldInteraction('phone')}
+                  onChange={(e) => {
+                    const formatted = formatPhoneNumber(e.target.value);
+                    field.onChange(formatted);
+                  }}
+                  onBlur={field.onBlur}
+                  placeholder="(555) 123-4567"
+                  className="h-12 text-base neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                    }
+                  }}
+                />
+              </FormControl>
                 <FormMessage />
               </FormItem>
             )}
