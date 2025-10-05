@@ -228,7 +228,7 @@ export function CustomerInvoiceViewer({
           <h3 className="font-semibold text-lg">Services & Items</h3>
           
           <div className="border rounded-lg overflow-hidden">
-            <div className="bg-muted/30 px-4 py-3 grid grid-cols-12 gap-4 text-sm font-medium">
+            <div className="px-4 py-3 grid grid-cols-12 gap-4 text-sm font-semibold border-b">
               <div className="col-span-6">Description</div>
               <div className="col-span-2 text-center">Quantity</div>
               <div className="col-span-2 text-right">Unit Price</div>
@@ -276,7 +276,7 @@ export function CustomerInvoiceViewer({
         </div>
 
         {/* Payment Terms */}
-        <div className="bg-muted/30 p-4 rounded-lg text-sm">
+        <div className="border border-border p-4 rounded-lg text-sm">
           <h4 className="font-medium mb-2">Payment Terms</h4>
           <p className="text-muted-foreground">
             Payment is due within 30 days of invoice date. Please contact us at (843) 970-0265 

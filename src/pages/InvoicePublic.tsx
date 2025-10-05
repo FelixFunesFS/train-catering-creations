@@ -443,7 +443,7 @@ export default function InvoicePublic() {
       </div>
 
       {/* Footer */}
-      <div className="border-t bg-muted/30 mt-16">
+      <div className="border-t mt-16">
         <div className="container mx-auto px-6 py-8">
           <div className="text-center text-sm text-muted-foreground">
             <p className="mb-2">

@@ -147,12 +147,12 @@ serve(async (req) => {
         .section-title { font-size: 18px; font-weight: bold; color: #2563eb; border-bottom: 1px solid #e5e7eb; padding-bottom: 5px; margin-bottom: 15px; }
         .line-items { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
         .line-items th, .line-items td { border: 1px solid #e5e7eb; padding: 12px; text-align: left; }
-        .line-items th { background-color: #f8fafc; font-weight: bold; }
+        .line-items th { background-color: #ffffff; font-weight: bold; border-bottom: 2px solid #e5e7eb; }
         .total-section { text-align: right; margin-top: 20px; }
         .total-row { margin: 5px 0; }
         .grand-total { font-size: 18px; font-weight: bold; color: #2563eb; border-top: 2px solid #2563eb; padding-top: 10px; }
-        .payment-info { background-color: #eff6ff; padding: 20px; border-radius: 8px; margin-top: 20px; }
-        .contact-info { background-color: #f8fafc; padding: 20px; border-radius: 8px; margin-top: 20px; }
+        .payment-info { background-color: #ffffff; border: 2px solid #2563eb; padding: 20px; border-radius: 8px; margin-top: 20px; }
+        .contact-info { background-color: #ffffff; border: 1px solid #e5e7eb; padding: 20px; border-radius: 8px; margin-top: 20px; }
         .footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #e5e7eb; color: #666; }
       </style>
     </head>

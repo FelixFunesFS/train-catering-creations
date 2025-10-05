@@ -124,7 +124,7 @@ export function UnifiedLineItemsTable({
       {/* Single Collapsible Container for All Line Items */}
       <div className="border rounded-lg bg-card overflow-hidden">
         {/* Main Header */}
-        <div className="px-4 py-3 bg-muted/50 border-b flex items-center justify-between">
+        <div className="px-4 py-3 border-b flex items-center justify-between">
           <div className="flex items-center gap-3">
             <h3 className="font-semibold text-base">
               Line Items
@@ -139,7 +139,7 @@ export function UnifiedLineItemsTable({
         </div>
 
         {/* Table Header (Desktop) */}
-        <div className="hidden md:grid grid-cols-12 gap-4 px-4 py-2 bg-muted/30 text-xs font-medium text-muted-foreground border-b">
+        <div className="hidden md:grid grid-cols-12 gap-4 px-4 py-2 text-xs font-semibold text-foreground border-b">
           <div className="col-span-3">Title</div>
           <div className="col-span-4">Description</div>
           <div className="col-span-1 text-center">Quantity</div>
@@ -159,10 +159,9 @@ export function UnifiedLineItemsTable({
                       key={item.id || index}
                       className={`
                         px-4 py-3 transition-all
-                        ${index % 2 === 1 ? 'bg-muted/10' : 'bg-card'}
                         ${change ? getChangeColor(change.type) : ''}
                         ${isRemoved ? 'opacity-60' : ''}
-                        hover:bg-muted/20
+                        hover:bg-muted/5
                       `}
                     >
                       {/* Change Indicator */}
