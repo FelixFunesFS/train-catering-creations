@@ -216,7 +216,7 @@ export function EstimateLineItems({
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Government Contract Toggle */}
-        <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+        <div className="flex items-center justify-between p-4 border border-border rounded-lg">
           <div className="flex items-center space-x-2">
             <Building2 className="h-4 w-4" />
             <Label htmlFor="government-contract" className="font-medium">
