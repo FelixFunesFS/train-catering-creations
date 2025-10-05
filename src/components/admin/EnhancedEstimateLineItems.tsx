@@ -201,7 +201,7 @@ export function EnhancedEstimateLineItems({
                         >
                           {/* Desktop Layout */}
                           <div className="hidden md:grid grid-cols-12 gap-3 items-start">
-                            <div className="col-span-3">
+                            <div className="col-span-3 relative">
                               <Input
                                 value={item.title}
                                 onChange={(e) => updateLineItem(item.id, { title: e.target.value })}
@@ -210,6 +210,17 @@ export function EnhancedEstimateLineItems({
                                 onFocus={() => setEditingItem(item.id)}
                                 onBlur={() => setEditingItem(null)}
                               />
+                              {/* Change indicators */}
+                              {(item as any).isNew && (
+                                <Badge variant="default" className="absolute -top-2 -right-2 text-[10px] h-5 px-1.5">
+                                  NEW
+                                </Badge>
+                              )}
+                              {(item as any).isModified && (
+                                <Badge variant="secondary" className="absolute -top-2 -right-2 text-[10px] h-5 px-1.5">
+                                  MODIFIED
+                                </Badge>
+                              )}
                             </div>
                             
                             <div className="col-span-4">

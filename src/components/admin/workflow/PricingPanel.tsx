@@ -8,6 +8,7 @@ import { format } from 'date-fns';
 import { EnhancedEstimateLineItems } from '../EnhancedEstimateLineItems';
 import { IntegratedChangeRequestPanel } from './IntegratedChangeRequestPanel';
 import { EditableEventDetails } from './EditableEventDetails';
+import { EstimateVersionComparison } from './EstimateVersionComparison';
 import { requiresSeparateContract } from '@/utils/contractRequirements';
 import { formatEventName } from '@/utils/textFormatters';
 import { 
@@ -236,6 +237,14 @@ export function PricingPanel({
           <CardContent className="space-y-4">
             {/* Editable Event Details - Always Visible */}
             <EditableEventDetails quote={quote} onQuoteUpdate={onQuoteUpdate} />
+
+            {/* Version Comparison - Shows recent changes */}
+            {invoice && (
+              <EstimateVersionComparison 
+                invoiceId={invoice.id}
+                showLatestChange={true}
+              />
+            )}
 
             {/* Collapsible Change Requests (only if they exist) */}
             {invoice && (

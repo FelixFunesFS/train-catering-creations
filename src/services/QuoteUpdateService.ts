@@ -297,6 +297,16 @@ export class QuoteUpdateService {
 
       console.log(`📸 Captured ${beforeItems?.length || 0} existing line items`);
 
+      // STEP 2.5: Create price lookup map from existing items for smart price preservation
+      const priceMap = new Map(
+        beforeItems?.map(item => [
+          `${item.title.toLowerCase()}-${item.category}`, 
+          { unit_price: item.unit_price, total_price: item.total_price }
+        ]) || []
+      );
+
+      console.log('💰 Price map created with', priceMap.size, 'entries');
+
       // STEP 3: Delete ALL existing invoice line items
       const { error: deleteError } = await supabase
         .from('invoice_line_items')
@@ -331,8 +341,28 @@ export class QuoteUpdateService {
 
       console.log(`🎯 Generated ${newLineItems.length} new line items`);
 
-      // STEP 6: Insert new line items
-      const lineItemsToInsert = newLineItems.map(item => ({
+      // STEP 5.5: SMART PRICE COPYING - Preserve prices for unchanged items
+      const lineItemsWithPricing = newLineItems.map(item => {
+        const key = `${item.title.toLowerCase()}-${item.category}`;
+        const existingPrices = priceMap.get(key);
+        
+        // If same item existed before, preserve its pricing
+        if (existingPrices) {
+          console.log(`💵 Preserving price for "${item.title}": $${existingPrices.unit_price / 100}`);
+          return {
+            ...item,
+            unit_price: existingPrices.unit_price,
+            total_price: existingPrices.total_price
+          };
+        }
+        
+        // New items stay at $0 for manual pricing
+        console.log(`🆕 New item "${item.title}" set to $0 for manual pricing`);
+        return item;
+      });
+
+      // STEP 6: Insert new line items (with preserved pricing)
+      const lineItemsToInsert = lineItemsWithPricing.map(item => ({
         invoice_id: invoiceId,
         title: item.title,
         description: item.description,
