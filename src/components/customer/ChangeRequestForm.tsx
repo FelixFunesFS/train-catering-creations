@@ -242,7 +242,7 @@ export function ChangeRequestForm({ quote, invoice, onRequestSubmitted }: Change
           {/* Additional Comments & Urgency */}
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="customer_comments">Additional Comments or Special Requests</Label>
+              <Label htmlFor="customer_comments">Additional Comments or Special Requests (Optional)</Label>
               <Textarea
                 id="customer_comments"
                 value={formData.customer_comments}

@@ -6,7 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { RequestChangesModal } from './RequestChangesModal';
+
 import { ViewDocumentsSection } from './ViewDocumentsSection';
 import { 
   Calendar, 
@@ -266,14 +266,6 @@ export function CustomerEventPortal({ quote, invoice, token }: EventPortalProps)
         </TabsContent>
       </Tabs>
 
-      {/* Request Changes Modal */}
-      <RequestChangesModal
-        isOpen={showRequestChanges}
-        onClose={() => setShowRequestChanges(false)}
-        invoice={invoice}
-        quote={quote}
-        onSuccess={fetchEventData}
-      />
     </div>
   );
 }

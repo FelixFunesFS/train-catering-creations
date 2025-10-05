@@ -66,73 +66,60 @@ export function TokenBasedCustomerPortal() {
   }, [data.invoice, action, actionExecuted]);
 
   const fetchCustomerData = async () => {
+    if (!token) {
+      setError('No access token provided');
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     setError(null);
+
     try {
-      // Fetch invoice by token with explicit relationship specification
-      const { data: invoice, error: invoiceError } = await supabase
-        .from('invoices')
-        .select(`
-          id,
-          invoice_number,
-          status,
-          total_amount,
-          is_draft,
-          created_at,
-          due_date,
-          customer_id,
-          quote_request_id
-        `)
-        .eq('customer_access_token', token)
-        .single();
+      // Use RPC function to get ALL data in one call
+      const { data: rpcData, error: rpcError } = await supabase
+        .rpc('get_estimate_with_line_items', {
+          access_token: token
+        });
 
-      if (invoiceError) {
-        console.error('Invoice fetch error:', invoiceError);
-        throw new Error('Invalid access link. Please check your email for the correct link.');
+      if (rpcError || !rpcData || rpcData.length === 0) {
+        throw new Error('Invalid or expired access link');
       }
 
-      if (!invoice) {
-        throw new Error('Estimate not found. Please check your email for the correct link.');
-      }
+      const result = rpcData[0];
+      const invoice = result.invoice as any;
+      const quote = result.quote as any;
+      const lineItems = (result.line_items as any[]) || [];
+      const milestones = (result.milestones as any[]) || [];
 
-      // Fetch related customer and quote separately to avoid type issues
-      let customer = null;
-      let quote = null;
-
-      if (invoice.customer_id) {
-        const { data: customerData } = await supabase
-          .from('customers')
-          .select('*')
-          .eq('id', invoice.customer_id)
-          .single();
-        customer = customerData;
-      }
-
-      if (invoice.quote_request_id) {
-        const { data: quoteData } = await supabase
-          .from('quote_requests')
-          .select('*')
-          .eq('id', invoice.quote_request_id)
-          .single();
-        quote = quoteData;
-      }
-
-      // Structure data to match EstimateApprovalWorkflow expectations
+      // Structure data properly with line items included
       const structuredInvoice = {
-        ...invoice,
-        quote_requests: quote || {}
+        ...(typeof invoice === 'object' ? invoice : {}),
+        invoice_line_items: lineItems,
+        payment_milestones: milestones,
+        quote_requests: quote
       };
 
-      const customerData: CustomerData = {
+      // Track access analytics
+      await supabase.from('analytics_events').insert({
+        event_type: 'estimate_accessed',
+        entity_type: 'invoices',
+        entity_id: invoice?.id,
+        session_id: token,
+        metadata: {
+          invoice_number: invoice?.invoice_number,
+          customer_email: quote?.email
+        }
+      });
+
+      setData({
         invoice: structuredInvoice,
         quote,
-        customer
-      };
-
-      setData(customerData);
+        customer: null
+      });
     } catch (error: any) {
       console.error('Error fetching customer data:', error);
-      setError(error.message);
+      setError(error.message || 'Failed to load estimate');
     } finally {
       setLoading(false);
     }
@@ -175,8 +162,12 @@ export function TokenBasedCustomerPortal() {
     });
   };
 
-  const handleChangeRequestSubmitted = () => {
+  const handleChangeRequestSubmitted = async () => {
     setShowChangeForm(false);
+    
+    // Refetch data to show updated status
+    await fetchCustomerData();
+    
     toast({
       title: "Request Submitted Successfully",
       description: "We'll review your changes and get back to you within 24 hours.",
@@ -373,7 +364,7 @@ export function TokenBasedCustomerPortal() {
                 description: "Your estimate has been approved. Payment options are shown below.",
               });
             }}
-            onRejection={() => {
+            onRequestChanges={() => {
               setShowChangeForm(true);
             }}
           />

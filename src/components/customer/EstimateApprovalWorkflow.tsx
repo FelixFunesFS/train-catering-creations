@@ -68,13 +68,13 @@ interface EstimateData {
 interface EstimateApprovalWorkflowProps {
   estimate: EstimateData;
   onApproval?: () => void;
-  onRejection?: () => void;
+  onRequestChanges?: () => void;
 }
 
 export function EstimateApprovalWorkflow({ 
   estimate, 
   onApproval, 
-  onRejection 
+  onRequestChanges 
 }: EstimateApprovalWorkflowProps) {
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState('');
@@ -163,63 +163,6 @@ export function EstimateApprovalWorkflow({
     }
   };
 
-  const handleReject = async () => {
-    if (!feedback.trim()) {
-      toast({
-        title: "Feedback Required",
-        description: "Please provide feedback about why you're rejecting this estimate.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const { error } = await supabase
-        .from('invoices')
-        .update({ 
-          status: 'rejected',
-          customer_feedback: { 
-            approved: false, 
-            feedback: feedback,
-            rejected_at: new Date().toISOString()
-          }
-        })
-        .eq('id', estimate.id);
-
-      if (error) throw error;
-
-      // Create change request for rejection
-      const { error: changeError } = await supabase
-        .from('change_requests')
-        .insert({
-          invoice_id: estimate.id,
-          customer_email: estimate.quote_requests.email,
-          request_type: 'modification',
-          status: 'pending',
-          customer_comments: feedback,
-          requested_changes: { rejected: true, reason: feedback },
-        });
-
-      if (changeError) console.error('Error creating change request:', changeError);
-
-      toast({
-        title: "Feedback Submitted",
-        description: "Your feedback has been sent. We'll revise the estimate based on your comments.",
-      });
-
-      onRejection?.();
-    } catch (error: any) {
-      console.error('Error rejecting estimate:', error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to submit feedback",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handlePayDeposit = async () => {
     setProcessingPayment(true);
@@ -423,6 +366,22 @@ export function EstimateApprovalWorkflow({
 
   return (
     <div className="space-y-6">
+      {/* Show pending change request banner */}
+      {estimate.status === 'change_requested' && (
+        <Alert className="mb-6 bg-yellow-50 border-yellow-200 dark:bg-yellow-950 dark:border-yellow-800">
+          <Clock className="h-4 w-4 text-yellow-600" />
+          <AlertDescription>
+            <h4 className="font-semibold text-yellow-900 dark:text-yellow-100 mb-2">
+              ✏️ Change Request Pending Review
+            </h4>
+            <p className="text-sm text-yellow-800 dark:text-yellow-200">
+              We've received your change request and are reviewing it now. 
+              We'll send you an updated estimate within 24 hours with revised pricing.
+            </p>
+          </AlertDescription>
+        </Alert>
+      )}
+      
       {/* Show changes summary if estimate was recently updated */}
       {estimate.updated_at && new Date(estimate.updated_at).getTime() > new Date(estimate.created_at).getTime() && (
         <ChangesSummaryBanner 
@@ -588,7 +547,7 @@ export function EstimateApprovalWorkflow({
           </Button>
           
             <Button
-              onClick={handleReject}
+              onClick={onRequestChanges}
               disabled={loading}
               variant="outline"
               className="flex-1 gap-2 border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
