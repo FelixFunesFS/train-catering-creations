@@ -48,9 +48,26 @@ export function useWorkflowSync() {
           quoteUpdate.workflow_status = 'confirmed';
         }
 
-        // Sync invoice workflow status with status
+        // Sync invoice workflow status with status using proper mapping
         if (invoice.status !== invoice.workflow_status) {
-          invoiceUpdate.workflow_status = invoice.status;
+          // Map status to valid workflow_status enum values
+          const statusMapping: Record<string, string> = {
+            'draft': 'draft',
+            'approved': 'approved',
+            'sent': 'sent',
+            'viewed': 'viewed',
+            'paid': 'paid',
+            'overdue': 'overdue',
+            'cancelled': 'cancelled',
+            'change_requested': 'pending_review', // Map to valid enum value
+          };
+          
+          const mappedStatus = statusMapping[invoice.status] || invoice.workflow_status;
+          
+          // Only update if mapping exists and is different
+          if (mappedStatus !== invoice.workflow_status) {
+            invoiceUpdate.workflow_status = mappedStatus;
+          }
         }
       }
 
