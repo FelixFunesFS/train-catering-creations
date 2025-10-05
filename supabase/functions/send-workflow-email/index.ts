@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.52.1';
+import { TaxCalculationService } from '../_shared/TaxCalculationService.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -62,6 +63,40 @@ serve(async (req) => {
       .select('*')
       .eq('invoice_id', invoiceId)
       .order('category', { ascending: true });
+
+    // Validate and auto-fix totals before sending
+    if (lineItems && lineItems.length > 0) {
+      const calculatedSubtotal = lineItems.reduce((sum, item) => sum + item.total_price, 0);
+      const isGovContract = quote.compliance_level === 'government' || quote.requires_po_number === true;
+      const taxCalc = TaxCalculationService.calculateTax(calculatedSubtotal, isGovContract);
+      
+      // Check for mismatch
+      if (invoice.subtotal !== taxCalc.subtotal || 
+          invoice.tax_amount !== taxCalc.taxAmount || 
+          invoice.total_amount !== taxCalc.totalAmount) {
+        
+        console.warn('⚠️ Invoice totals mismatch detected! Auto-fixing...', {
+          invoiceId,
+          current: { subtotal: invoice.subtotal, tax: invoice.tax_amount, total: invoice.total_amount },
+          calculated: { subtotal: taxCalc.subtotal, tax: taxCalc.taxAmount, total: taxCalc.totalAmount }
+        });
+        
+        // Auto-fix the database
+        await supabase
+          .from('invoices')
+          .update({
+            subtotal: taxCalc.subtotal,
+            tax_amount: taxCalc.taxAmount,
+            total_amount: taxCalc.totalAmount,
+          })
+          .eq('id', invoiceId);
+        
+        // Update local invoice object for email generation
+        invoice.subtotal = taxCalc.subtotal;
+        invoice.tax_amount = taxCalc.taxAmount;
+        invoice.total_amount = taxCalc.totalAmount;
+      }
+    }
 
     // Generate portal access token if needed
     const portalToken = invoice.customer_access_token;
@@ -301,20 +336,35 @@ function generateEstimateEmail(quote: any, invoice: any, portalUrl: string, cust
           `).join('')}
         </tbody>
         <tfoot>
-          <tr>
-            <td colspan="3" style="text-align: right; padding: 15px; font-weight: 600; color: #666;">Subtotal:</td>
-            <td style="text-align: right; padding: 15px; font-weight: 600;">${formatCurrency(invoice.subtotal)}</td>
-          </tr>
-          ${invoice.tax_amount > 0 ? `
-          <tr>
-            <td colspan="3" style="text-align: right; padding: 15px; color: #666;">Tax (9.5%):</td>
-            <td style="text-align: right; padding: 15px;">${formatCurrency(invoice.tax_amount)}</td>
-          </tr>
-          ` : ''}
-          <tr class="total-row">
-            <td colspan="3" style="text-align: right; padding: 18px; font-weight: 700; font-size: 18px;">Your Total Investment:</td>
-            <td style="text-align: right; padding: 18px; font-weight: 700; font-size: 20px;">${formatCurrency(invoice.total_amount)}</td>
-          </tr>
+          ${(() => {
+            // Calculate totals from line items using shared service
+            const subtotal = lineItems.reduce((sum, item) => sum + item.total_price, 0);
+            const isGovContract = quote.compliance_level === 'government' || quote.requires_po_number === true;
+            const taxCalc = TaxCalculationService.calculateTax(subtotal, isGovContract);
+            
+            return `
+              <tr>
+                <td colspan="3" style="text-align: right; padding: 15px; font-weight: 600; color: #666;">Subtotal:</td>
+                <td style="text-align: right; padding: 15px; font-weight: 600;">${formatCurrency(taxCalc.subtotal)}</td>
+              </tr>
+              ${taxCalc.taxAmount > 0 ? `
+              <tr>
+                <td colspan="3" style="text-align: right; padding: 15px; color: #666;">Tax (${TaxCalculationService.formatTaxRate()}):</td>
+                <td style="text-align: right; padding: 15px;">${formatCurrency(taxCalc.taxAmount)}</td>
+              </tr>
+              ` : ''}
+              ${taxCalc.isExempt ? `
+              <tr>
+                <td colspan="3" style="text-align: right; padding: 15px; color: #666; font-style: italic;">Tax Exempt (Government Contract)</td>
+                <td style="text-align: right; padding: 15px;"></td>
+              </tr>
+              ` : ''}
+              <tr class="total-row">
+                <td colspan="3" style="text-align: right; padding: 18px; font-weight: 700; font-size: 18px;">Your Total Investment:</td>
+                <td style="text-align: right; padding: 18px; font-weight: 700; font-size: 20px;">${formatCurrency(taxCalc.totalAmount)}</td>
+              </tr>
+            `;
+          })()}
         </tfoot>
       </table>
       ` : `
