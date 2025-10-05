@@ -2,18 +2,20 @@ import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Star, Quote, ChevronLeft, ChevronRight, Heart } from "lucide-react";
+import { Star, Quote, ChevronLeft, ChevronRight, Heart, Facebook } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useFacebookReviews } from "@/hooks/useFacebookReviews";
 
 interface Testimonial {
   name: string;
-  role: string;
-  event: string;
+  role?: string;
+  event?: string;
   rating: number;
   quote: string;
   highlight: string;
+  source?: 'facebook' | 'curated';
 }
 
 export const TestimonialsCarousel = () => {
@@ -28,15 +30,19 @@ export const TestimonialsCarousel = () => {
   });
 
   const animationClass = useAnimationClass('ios-spring', isVisible);
+  
+  // Fetch Facebook reviews
+  const { reviews: facebookReviews } = useFacebookReviews({ limit: 3 });
 
-  const testimonials: Testimonial[] = [
+  const curatedTestimonials: Testimonial[] = [
     {
       name: "Sarah & Michael Johnson",
       role: "Wedding Couple",
       event: "Wedding Reception - 150 guests",
       rating: 5,
       quote: "Soul Train's Eatery made our wedding day absolutely perfect. From the elegant presentation to the incredible flavors, every detail exceeded our expectations. Our guests are still talking about the food months later!",
-      highlight: "Exceeded expectations"
+      highlight: "Exceeded expectations",
+      source: 'curated'
     },
     {
       name: "Jennifer Martinez",
@@ -44,7 +50,8 @@ export const TestimonialsCarousel = () => {
       event: "Corporate Annual Gala - 200 guests",
       rating: 5,
       quote: "Working with Chef Train and his team is always a pleasure. They handle everything with such professionalism and the food quality is consistently outstanding. They've become our go-to caterer for all major events.",
-      highlight: "Consistently outstanding"
+      highlight: "Consistently outstanding",
+      source: 'curated'
     },
     {
       name: "Robert Williams",
@@ -52,7 +59,8 @@ export const TestimonialsCarousel = () => {
       event: "Family Reunion - 75 guests",
       rating: 5,
       quote: "The authentic Southern flavors brought our family together in the most beautiful way. You can taste the love and tradition in every bite. Tanya's desserts were the perfect finale to an incredible meal.",
-      highlight: "Authentic Southern flavors"
+      highlight: "Authentic Southern flavors",
+      source: 'curated'
     },
     {
       name: "Amanda Chen",
@@ -60,9 +68,22 @@ export const TestimonialsCarousel = () => {
       event: "Intimate Wedding - 50 guests",
       rating: 5,
       quote: "From our first tasting to the wedding day, Soul Train's Eatery was incredible. They accommodated all our dietary restrictions and created a menu that was both elegant and delicious. Absolutely recommend!",
-      highlight: "Accommodated all needs"
+      highlight: "Accommodated all needs",
+      source: 'curated'
     }
   ];
+
+  // Convert Facebook reviews to testimonial format
+  const facebookTestimonials: Testimonial[] = facebookReviews.map(review => ({
+    name: review.name,
+    rating: review.rating,
+    quote: review.quote,
+    highlight: "Verified Facebook Review",
+    source: 'facebook' as const
+  }));
+
+  // Combine curated and Facebook testimonials
+  const testimonials = [...curatedTestimonials, ...facebookTestimonials];
 
   // Auto-advance testimonials
   useEffect(() => {
@@ -167,15 +188,30 @@ export const TestimonialsCarousel = () => {
 
               {/* Author Info */}
               <div className="text-center space-y-2">
-                <h4 className="font-elegant font-bold text-foreground text-lg">
-                  {currentTestimonial.name}
-                </h4>
-                <p className="text-base text-ruby font-script">
-                  {currentTestimonial.role}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {currentTestimonial.event}
-                </p>
+                <div className="flex items-center justify-center gap-2">
+                  <h4 className="font-elegant font-bold text-foreground text-lg">
+                    {currentTestimonial.name}
+                  </h4>
+                  {currentTestimonial.source === 'facebook' && (
+                    <Facebook className="h-4 w-4 text-[#1877F2] fill-[#1877F2]" />
+                  )}
+                </div>
+                {currentTestimonial.role && (
+                  <p className="text-base text-ruby font-script">
+                    {currentTestimonial.role}
+                  </p>
+                )}
+                {currentTestimonial.event && (
+                  <p className="text-sm text-muted-foreground">
+                    {currentTestimonial.event}
+                  </p>
+                )}
+                {currentTestimonial.source === 'facebook' && (
+                  <Badge variant="outline" className="border-[#1877F2] text-[#1877F2]">
+                    <Facebook className="h-3 w-3 mr-1" />
+                    Facebook Review
+                  </Badge>
+                )}
               </div>
             </div>
 

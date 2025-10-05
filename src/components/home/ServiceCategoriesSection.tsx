@@ -36,7 +36,7 @@ export const ServiceCategoriesSection = () => {
   const animationClass = useAnimationClass('ios-spring', isVisible);
 
   const staggered = useStaggeredAnimation({
-    itemCount: 4,
+    itemCount: 3,
     staggerDelay: 200,
     baseDelay: 400,
     variant: 'bounce-in'
@@ -70,15 +70,6 @@ export const ServiceCategoriesSection = () => {
       image: "/lovable-uploads/166f817d-592c-4935-b38f-52efd5322e59.png",
       features: ["Family-Style Service", "Traditional Recipes", "Generous Portions"],
       href: "/menu"
-    },
-    {
-      icon: <GraduationCap className="h-6 w-6" />,
-      title: "Special Occasions",
-      subtitle: "Milestone Moments",
-      description: "Celebrate life's important moments with catering that makes every occasion feel truly special.",
-      image: "/lovable-uploads/8accf218-af8c-47c0-8c08-ecac4a0d20f0.png",
-      features: ["Custom Desserts", "Themed Presentations", "Memorable Service"],
-      href: "/request-quote#page-header"
     }
   ];
 
@@ -112,7 +103,7 @@ export const ServiceCategoriesSection = () => {
         {/* Service Cards Grid */}
         <div 
           ref={staggered.ref}
-          className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6 mb-6"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mb-6"
         >
           {serviceCategories.map((service, index) => (
             <Card
