@@ -158,6 +158,35 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
     }
   };
 
+  const handleQuoteUpdate = async (updates: Partial<Quote>) => {
+    if (!selectedQuote) return;
+
+    try {
+      // Only pass the fields that are being updated to Supabase
+      const { error } = await supabase
+        .from('quote_requests')
+        .update(updates as any) // Type assertion needed for partial updates
+        .eq('id', selectedQuote.id);
+      
+      if (error) throw error;
+      
+      // Update local state
+      setSelectedQuote(prev => prev ? { ...prev, ...updates } : null);
+      
+      toast({
+        title: "Quote Updated",
+        description: "Event details have been saved.",
+      });
+    } catch (error) {
+      console.error('Error updating quote:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save changes.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleSelectQuote = (quote: Quote) => {
     setSelectedQuote(quote);
     checkExistingInvoice(quote.id);
@@ -330,6 +359,7 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
           addTemplateItem={addTemplateItem}
           triggerAutoSave={triggerAutoSave}
           quickCalculatePerPerson={() => quickCalculatePerPerson(selectedQuote.guest_count)}
+          onQuoteUpdate={handleQuoteUpdate}
         />
       )}
 

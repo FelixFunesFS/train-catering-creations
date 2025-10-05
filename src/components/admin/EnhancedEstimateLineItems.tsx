@@ -146,57 +146,6 @@ export function EnhancedEstimateLineItems({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Government Contract Toggle */}
-        <div className="flex items-center justify-between p-4 border border-border rounded-lg">
-          <div className="flex items-center space-x-2">
-            <Building2 className="h-4 w-4" />
-            <Label htmlFor="government-contract" className="font-medium">
-              Government Contract
-            </Label>
-          </div>
-          <Switch
-            id="government-contract"
-            checked={isGovernmentContract}
-            onCheckedChange={onGovernmentToggle}
-          />
-        </div>
-
-        <Separator />
-
-        {/* Contract Requirement Toggle */}
-        {requiresContract !== undefined && onContractToggleChange && (
-          <>
-            <Alert>
-              <AlertDescription className="space-y-3">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <h4 className="font-semibold mb-1 text-sm">Contract Requirement</h4>
-                    <p className="text-xs text-muted-foreground">{contractReason}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Switch
-                      id="requires-contract"
-                      checked={requiresContract}
-                      onCheckedChange={onContractToggleChange}
-                    />
-                    <Label htmlFor="requires-contract" className="text-xs whitespace-nowrap">
-                      {requiresContract ? 'Contract' : 'T&C Only'}
-                    </Label>
-                  </div>
-                </div>
-                {!requiresContract && (
-                  <p className="text-xs text-muted-foreground border-t pt-2 mt-2">
-                    Customer will accept Terms & Conditions when approving the estimate (no separate contract needed)
-                  </p>
-                )}
-              </AlertDescription>
-            </Alert>
-
-            <Separator />
-          </>
-        )}
-
-
         {/* Line Items by Category */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
@@ -464,19 +413,75 @@ export function EnhancedEstimateLineItems({
               <span>${(grandTotal * 0.25 / 100).toFixed(2)}</span>
             </div>
           )}
-
-          {/* Manual Save Button */}
-          {isModified && (
-            <Button
-              onClick={triggerAutoSave}
-              className="w-full"
-              variant="default"
-            >
-              <Save className="h-4 w-4 mr-2" />
-              Save Changes
-            </Button>
-          )}
         </div>
+
+        <Separator />
+
+        {/* Contract Settings - Collapsible Section at Bottom */}
+        <Collapsible defaultOpen={false}>
+          <CollapsibleTrigger asChild>
+            <Button variant="ghost" className="w-full justify-between px-0 hover:bg-transparent">
+              <span className="text-sm font-medium flex items-center gap-2">
+                <Shield className="h-4 w-4" />
+                Contract Settings
+              </span>
+              <ChevronDown className="h-4 w-4 transition-transform data-[state=open]:rotate-180" />
+            </Button>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="space-y-3 pt-3">
+            {/* Government Contract Toggle */}
+            <div className="flex items-center justify-between p-3 border rounded-lg bg-muted/20">
+              <div className="flex items-center gap-2">
+                <Building2 className="h-4 w-4" />
+                <Label htmlFor="government-contract" className="text-sm cursor-pointer">
+                  Government Contract (Tax Exempt)
+                </Label>
+              </div>
+              <Switch
+                id="government-contract"
+                checked={isGovernmentContract}
+                onCheckedChange={onGovernmentToggle}
+              />
+            </div>
+
+            {/* Contract Requirement Toggle */}
+            {requiresContract !== undefined && onContractToggleChange && (
+              <div className="flex items-center justify-between p-3 border rounded-lg bg-muted/20">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <FileText className="h-4 w-4" />
+                    <Label htmlFor="requires-contract" className="text-sm font-medium cursor-pointer">
+                      Separate Contract Required
+                    </Label>
+                  </div>
+                  <p className="text-xs text-muted-foreground">{contractReason}</p>
+                  {!requiresContract && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Terms & Conditions will be accepted with the estimate
+                    </p>
+                  )}
+                </div>
+                <Switch
+                  id="requires-contract"
+                  checked={requiresContract}
+                  onCheckedChange={onContractToggleChange}
+                />
+              </div>
+            )}
+          </CollapsibleContent>
+        </Collapsible>
+
+        {/* Manual Save Button */}
+        {isModified && (
+          <Button
+            onClick={triggerAutoSave}
+            className="w-full"
+            variant="default"
+          >
+            <Save className="h-4 w-4 mr-2" />
+            Save Changes
+          </Button>
+        )}
       </CardContent>
     </Card>
   );

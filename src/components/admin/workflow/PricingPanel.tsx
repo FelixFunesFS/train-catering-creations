@@ -7,7 +7,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { format } from 'date-fns';
 import { EnhancedEstimateLineItems } from '../EnhancedEstimateLineItems';
 import { IntegratedChangeRequestPanel } from './IntegratedChangeRequestPanel';
-import { CompactEventDetails } from './CompactEventDetails';
+import { EditableEventDetails } from './EditableEventDetails';
 import { requiresSeparateContract } from '@/utils/contractRequirements';
 import { formatEventName } from '@/utils/textFormatters';
 import { 
@@ -78,6 +78,7 @@ interface PricingPanelProps {
   addTemplateItem: (template: any) => void;
   triggerAutoSave: () => void;
   quickCalculatePerPerson: (guestCount: number) => void;
+  onQuoteUpdate?: (updates: Partial<Quote>) => void;
 }
 
 const weddingTemplates = [
@@ -129,7 +130,8 @@ export function PricingPanel({
   removeLineItem,
   addTemplateItem,
   triggerAutoSave,
-  quickCalculatePerPerson
+  quickCalculatePerPerson,
+  onQuoteUpdate
 }: PricingPanelProps) {
   const [selectedTemplate, setSelectedTemplate] = useState<string>('');
   
@@ -232,8 +234,8 @@ export function PricingPanel({
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* Collapsible Event Details */}
-            <CompactEventDetails quote={quote} defaultOpen={false} />
+            {/* Editable Event Details - Always Visible */}
+            <EditableEventDetails quote={quote} onQuoteUpdate={onQuoteUpdate} />
 
             {/* Collapsible Change Requests (only if they exist) */}
             {invoice && (
