@@ -69,13 +69,42 @@ export class QuoteUpdateService {
   private applyMenuChanges(currentQuote: any, menuChanges: any): any {
     const updates: any = {};
 
-    // Handle protein changes
-    if (menuChanges.proteins?.remove) {
-      if (menuChanges.proteins.remove.includes('primary')) {
-        updates.primary_protein = null;
+    // Handle protein changes (FIXED)
+    if (menuChanges.proteins) {
+      let primaryProtein = currentQuote.primary_protein || '';
+      let secondaryProtein = currentQuote.secondary_protein || '';
+      
+      // Parse existing proteins as arrays
+      const primaryArray = primaryProtein ? primaryProtein.split(',').map((p: string) => p.trim()) : [];
+      const secondaryArray = secondaryProtein ? secondaryProtein.split(',').map((p: string) => p.trim()) : [];
+      
+      // Handle removals - remove from BOTH primary and secondary
+      if (menuChanges.proteins.remove && menuChanges.proteins.remove.length > 0) {
+        const removeSet = new Set(menuChanges.proteins.remove);
+        
+        const newPrimary = primaryArray.filter((p: string) => !removeSet.has(p));
+        const newSecondary = secondaryArray.filter((p: string) => !removeSet.has(p));
+        
+        updates.primary_protein = newPrimary.length > 0 ? newPrimary.join(', ') : null;
+        updates.secondary_protein = newSecondary.length > 0 ? newSecondary.join(', ') : null;
+        
+        console.log(`🥩 Removed proteins: ${Array.from(removeSet).join(', ')}`);
+        console.log(`🥩 New primary_protein: ${updates.primary_protein}`);
+        console.log(`🥩 New secondary_protein: ${updates.secondary_protein}`);
       }
-      if (menuChanges.proteins.remove.includes('secondary')) {
-        updates.secondary_protein = null;
+      
+      // Handle additions - add to primary by default
+      if (menuChanges.proteins.add && menuChanges.proteins.add.length > 0) {
+        const currentPrimary = updates.primary_protein !== undefined 
+          ? updates.primary_protein 
+          : (currentQuote.primary_protein || '');
+        
+        const existingPrimary = currentPrimary ? currentPrimary.split(',').map((p: string) => p.trim()) : [];
+        const newProteins = [...existingPrimary, ...menuChanges.proteins.add];
+        
+        updates.primary_protein = newProteins.join(', ');
+        console.log(`🥩 Added proteins: ${menuChanges.proteins.add.join(', ')}`);
+        console.log(`🥩 Updated primary_protein: ${updates.primary_protein}`);
       }
     }
 
@@ -87,6 +116,10 @@ export class QuoteUpdateService {
         updates[category] = current.filter(
           (item: string) => !menuChanges[category].remove.includes(item)
         );
+      }
+      if (menuChanges[category]?.add?.length > 0) {
+        const current = this.parseArrayField(currentQuote[category]);
+        updates[category] = [...current, ...menuChanges[category].add];
       }
     });
 

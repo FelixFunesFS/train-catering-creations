@@ -77,42 +77,31 @@ export class HistoryLogger {
   ): any[] {
     const entries: any[] = [];
 
-    // Log protein removals
-    if (menuChanges.proteins?.remove) {
-      const removedProteins = [];
-      if (menuChanges.proteins.remove.includes('primary') && currentQuote.primary_protein) {
-        removedProteins.push(currentQuote.primary_protein);
-      }
-      if (menuChanges.proteins.remove.includes('secondary') && currentQuote.secondary_protein) {
-        removedProteins.push(currentQuote.secondary_protein);
-      }
-      
-      if (removedProteins.length > 0) {
-        entries.push({
-          quote_request_id: quoteId,
-          field_name: 'proteins',
-          old_value: removedProteins.join(', '),
-          new_value: null,
-          changed_by: 'admin',
-          change_reason: `Change Request #${requestIdShort} - Removed proteins`
+    // Handle protein changes (FIXED)
+    if (menuChanges.proteins) {
+      if (menuChanges.proteins.remove && menuChanges.proteins.remove.length > 0) {
+        menuChanges.proteins.remove.forEach((proteinName: string) => {
+          entries.push({
+            quote_request_id: quoteId,
+            field_name: 'protein',
+            old_value: proteinName,
+            new_value: null,
+            changed_by: 'admin',
+            change_reason: `Change Request #${requestIdShort} - Removed protein`
+          });
         });
       }
-    }
 
-    // Log protein additions
-    if (menuChanges.proteins?.add) {
-      const addedProteins = [];
-      if (menuChanges.proteins.add.primary) addedProteins.push(menuChanges.proteins.add.primary);
-      if (menuChanges.proteins.add.secondary) addedProteins.push(menuChanges.proteins.add.secondary);
-      
-      if (addedProteins.length > 0) {
-        entries.push({
-          quote_request_id: quoteId,
-          field_name: 'proteins',
-          old_value: null,
-          new_value: addedProteins.join(', '),
-          changed_by: 'admin',
-          change_reason: `Change Request #${requestIdShort} - Added proteins`
+      if (menuChanges.proteins.add && menuChanges.proteins.add.length > 0) {
+        menuChanges.proteins.add.forEach((proteinName: string) => {
+          entries.push({
+            quote_request_id: quoteId,
+            field_name: 'protein',
+            old_value: null,
+            new_value: proteinName,
+            changed_by: 'admin',
+            change_reason: `Change Request #${requestIdShort} - Added protein`
+          });
         });
       }
     }
