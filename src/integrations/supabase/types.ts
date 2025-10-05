@@ -1464,7 +1464,6 @@ export type Database = {
           last_calendar_sync: string | null
           last_customer_interaction: string | null
           last_status_change: string | null
-          linens_requested: boolean | null
           location: string
           napkins_requested: boolean | null
           phone: string
@@ -1484,7 +1483,6 @@ export type Database = {
           start_time: string
           status: Database["public"]["Enums"]["quote_status"] | null
           status_changed_by: string | null
-          tables_chairs_requested: boolean | null
           theme_colors: string | null
           updated_at: string | null
           utensils: Json | null
@@ -1526,7 +1524,6 @@ export type Database = {
           last_calendar_sync?: string | null
           last_customer_interaction?: string | null
           last_status_change?: string | null
-          linens_requested?: boolean | null
           location: string
           napkins_requested?: boolean | null
           phone: string
@@ -1546,7 +1543,6 @@ export type Database = {
           start_time: string
           status?: Database["public"]["Enums"]["quote_status"] | null
           status_changed_by?: string | null
-          tables_chairs_requested?: boolean | null
           theme_colors?: string | null
           updated_at?: string | null
           utensils?: Json | null
@@ -1588,7 +1584,6 @@ export type Database = {
           last_calendar_sync?: string | null
           last_customer_interaction?: string | null
           last_status_change?: string | null
-          linens_requested?: boolean | null
           location?: string
           napkins_requested?: boolean | null
           phone?: string
@@ -1608,7 +1603,6 @@ export type Database = {
           start_time?: string
           status?: Database["public"]["Enums"]["quote_status"] | null
           status_changed_by?: string | null
-          tables_chairs_requested?: boolean | null
           theme_colors?: string | null
           updated_at?: string | null
           utensils?: Json | null
