@@ -48,10 +48,10 @@ const WeddingEventQuoteForm = () => {
     try {
       // Submit to database
       const { data: insertedData, error } = await supabase.from('quote_requests').insert({
-        contact_name: data.contactName,
+        contact_name: formatCustomerName(data.contactName),
         email: data.email,
         phone: data.phone,
-        event_name: data.eventName,
+        event_name: formatEventName(data.eventName),
         event_type: data.eventType === 'wedding' ? 'private_party' : 
                    data.eventType === 'black_tie' ? 'corporate' :
                    data.eventType === 'military_function' ? 'corporate' :
@@ -61,7 +61,7 @@ const WeddingEventQuoteForm = () => {
         event_date: data.eventDate,
         start_time: data.eventStartTime,
         guest_count: parseInt(data.guestCount),
-        location: data.location,
+        location: formatLocation(data.location),
         service_type: data.serviceType === 'full-service' ? 'full-service' :
                      data.serviceType === 'delivery-only' ? 'delivery-only' :
                      'delivery-setup',

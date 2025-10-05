@@ -102,15 +102,15 @@ export const MobileOptimizedQuoteForm = () => {
     try {
       // Transform form data to match database schema
       const quoteData = {
-        contact_name: data.contactName,
-        event_name: data.eventName,
+        contact_name: formatCustomerName(data.contactName),
+        event_name: formatEventName(data.eventName),
         email: data.email,
         phone: data.phone,
         event_type: data.eventType,
         event_date: data.eventDate,
         start_time: data.eventStartTime,
         guest_count: parseInt(data.guestCount),
-        location: data.location,
+        location: formatLocation(data.location),
         service_type: data.serviceType,
         serving_start_time: data.servingStartTime,
         wait_staff_requested: data.waitStaffRequested === 'yes-full-service',

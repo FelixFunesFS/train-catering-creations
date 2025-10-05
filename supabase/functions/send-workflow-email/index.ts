@@ -139,6 +139,37 @@ serve(async (req) => {
   }
 });
 
+// Title case formatters (inline since we can't import from src)
+const formatCustomerName = (name: string): string => {
+  if (!name) return '';
+  return name
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};
+
+const formatEventName = (name: string): string => {
+  if (!name) return '';
+  return name
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};
+
+const formatLocation = (location: string): string => {
+  if (!location) return '';
+  const parts = location.split(',').map(part => part.trim());
+  return parts.map((part, index) => {
+    if (index === parts.length - 1 && part.length === 2) {
+      return part.toUpperCase();
+    }
+    return part
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+  }).join(', ');
+};
+
 function generateEstimateEmail(quote: any, invoice: any, portalUrl: string, customMessage?: string, lineItems?: any[]): string {
   const formatCurrency = (cents: number) => 
     new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100);
@@ -220,9 +251,9 @@ function generateEstimateEmail(quote: any, invoice: any, portalUrl: string, cust
       <p class="subtitle">Charleston's Premier Family-Run Catering</p>
     </div>
     <div class="content">
-      <h2 class="greeting">Hello ${quote.contact_name}! 👋</h2>
+      <h2 class="greeting">Hello ${formatCustomerName(quote.contact_name)}! 👋</h2>
       <p style="font-size: 16px; line-height: 1.8; color: #333;">
-        ${customMessage || `We're so excited to be part of your special day! Here's your personalized estimate for ${quote.event_name}. We've hand-picked the perfect menu to make your celebration unforgettable.`}
+        ${customMessage || `We're so excited to be part of your special day! Here's your personalized estimate for ${formatEventName(quote.event_name)}. We've hand-picked the perfect menu to make your celebration unforgettable.`}
       </p>
       
       <div class="event-details">
@@ -238,7 +269,7 @@ function generateEstimateEmail(quote: any, invoice: any, portalUrl: string, cust
           </tr>
           <tr>
             <td style="color: #666;"><strong>📍 Location:</strong></td>
-            <td style="color: #333;">${quote.location}</td>
+            <td style="color: #333;">${formatLocation(quote.location)}</td>
           </tr>
         </table>
       </div>

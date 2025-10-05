@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import { formatLocation } from '@/utils/textFormatters';
 
 interface MinorChangeRequest {
   quote_request_id: string;

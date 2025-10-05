@@ -22,6 +22,7 @@ import { formSchema } from "./alternative-form/formSchema";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useFormAnalytics } from "@/hooks/useFormAnalytics";
+import { formatCustomerName, formatEventName, formatLocation } from "@/utils/textFormatters";
 
 type FormData = z.infer<typeof formSchema>;
 
@@ -204,15 +205,15 @@ export const AlternativeQuoteForm = () => {
       
       // Insert into database with correct field mapping
       const insertPayload = {
-        contact_name: data.contact_name,
+        contact_name: formatCustomerName(data.contact_name),
         email: data.email,
         phone: data.phone,
-        event_name: data.event_name,
+        event_name: formatEventName(data.event_name),
         event_type: data.event_type,
         event_date: data.event_date,
         start_time: data.start_time,
         guest_count: data.guest_count,
-        location: data.location,
+        location: formatLocation(data.location),
         service_type: data.service_type,
         serving_start_time: data.serving_start_time || null,
         // wait_staff_requested: data.wait_staff_requested,

@@ -5,6 +5,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { generateProfessionalLineItems } from '@/utils/invoiceFormatters';
+import { formatCustomerName, formatEventName, formatLocation } from '@/utils/textFormatters';
 
 export class QuoteUpdateService {
   /**
@@ -25,7 +26,7 @@ export class QuoteUpdateService {
     }
     if (changes.location) {
       console.log('Updating location:', changes.location);
-      quoteUpdates.location = changes.location;
+      quoteUpdates.location = formatLocation(changes.location);
     }
     if (changes.start_time) {
       console.log('Updating start_time:', changes.start_time);
@@ -33,7 +34,11 @@ export class QuoteUpdateService {
     }
     if (changes.contact_name) {
       console.log('Updating contact_name:', changes.contact_name);
-      quoteUpdates.contact_name = changes.contact_name;
+      quoteUpdates.contact_name = formatCustomerName(changes.contact_name);
+    }
+    if (changes.event_name) {
+      console.log('Updating event_name:', changes.event_name);
+      quoteUpdates.event_name = formatEventName(changes.event_name);
     }
     if (changes.phone) {
       console.log('Updating phone:', changes.phone);
