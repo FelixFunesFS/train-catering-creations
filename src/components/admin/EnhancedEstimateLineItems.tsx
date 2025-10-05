@@ -138,7 +138,7 @@ export function EnhancedEstimateLineItems({
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Government Contract Toggle */}
-        <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+        <div className="flex items-center justify-between p-4 border border-border rounded-lg">
           <div className="flex items-center space-x-2">
             <Building2 className="h-4 w-4" />
             <Label htmlFor="government-contract" className="font-medium">
@@ -179,7 +179,7 @@ export function EnhancedEstimateLineItems({
           ) : (
             <div className="border rounded-lg overflow-hidden">
               {/* Main Header */}
-              <div className="px-4 py-3 bg-muted/50 border-b flex items-center justify-between">
+              <div className="px-4 py-3 border-b flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <h3 className="font-semibold text-base">All Line Items</h3>
                   <Badge variant="secondary" className="text-xs">
@@ -192,7 +192,7 @@ export function EnhancedEstimateLineItems({
               </div>
 
               {/* Table Header (Desktop) */}
-              <div className="hidden md:grid grid-cols-12 gap-3 px-3 py-2 bg-muted/30 text-xs font-medium text-muted-foreground border-b">
+              <div className="hidden md:grid grid-cols-12 gap-3 px-3 py-2 text-xs font-semibold text-foreground border-b">
                 <div className="col-span-3">Title</div>
                 <div className="col-span-4">Description</div>
                 <div className="col-span-1 text-center">Quantity</div>
@@ -206,7 +206,7 @@ export function EnhancedEstimateLineItems({
                 {lineItems.map((item: LineItem, idx: number) => (
                         <div 
                           key={item.id} 
-                          className={`px-3 py-2 ${idx % 2 === 1 ? 'bg-muted/10' : 'bg-card'} hover:bg-muted/20 transition-colors`}
+                          className="px-3 py-2 hover:bg-muted/5 transition-colors"
                         >
                           {/* Desktop Layout */}
                           <div className="hidden md:grid grid-cols-12 gap-3 items-start">
