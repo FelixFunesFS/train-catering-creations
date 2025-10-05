@@ -125,6 +125,9 @@ verify_jwt = false
 [functions.send-workflow-email]
 verify_jwt = false
 
+[functions.facebook-reviews]
+verify_jwt = false
+
 [edge-runtime]
 enabled = true
 ip_version = "dual"

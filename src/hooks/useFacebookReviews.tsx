@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface FacebookReview {
   id: string;
@@ -22,43 +23,33 @@ export const useFacebookReviews = (options: UseFacebookReviewsOptions = {}) => {
 
   useEffect(() => {
     const fetchReviews = async () => {
-      // Mock Facebook reviews for now - in production, this would call the Facebook Graph API
-      // To implement real API: https://developers.facebook.com/docs/graph-api/reference/page/ratings
-      
-      const mockFacebookReviews: FacebookReview[] = [
-        {
-          id: 'fb_1',
-          name: 'Patricia Thompson',
-          rating: 5,
-          quote: 'Chef Train catered our company event and the food was absolutely amazing! The mac and cheese was the best I\'ve ever had. Highly recommend Soul Train\'s Eatery!',
-          createdTime: '2024-09-15T14:30:00Z',
-          source: 'facebook'
-        },
-        {
-          id: 'fb_2',
-          name: 'Marcus Davis',
-          rating: 5,
-          quote: 'We hired Soul Train\'s for our family reunion and it was perfect! The soul food brought everyone together. Tanya and Chef Train are the real deal - authentic Southern cooking at its finest.',
-          createdTime: '2024-08-22T10:15:00Z',
-          source: 'facebook'
-        },
-        {
-          id: 'fb_3',
-          name: 'Lisa Anderson',
-          rating: 5,
-          quote: 'Outstanding service and incredible food! They catered our daughter\'s graduation party and everyone raved about the fried chicken and collard greens. Will definitely hire them again!',
-          createdTime: '2024-07-10T16:45:00Z',
-          source: 'facebook'
-        }
-      ];
-
       setIsLoading(true);
-      
-      // Simulate API delay
-      setTimeout(() => {
-        setReviews(mockFacebookReviews);
+      setError(null);
+
+      try {
+        console.log('Fetching Facebook reviews from edge function...');
+        
+        const { data, error: functionError } = await supabase.functions.invoke('facebook-reviews');
+
+        if (functionError) {
+          console.error('Error calling facebook-reviews function:', functionError);
+          throw functionError;
+        }
+
+        console.log('Facebook reviews response:', data);
+
+        if (data?.reviews) {
+          setReviews(data.reviews);
+        } else {
+          setReviews([]);
+        }
+      } catch (err) {
+        console.error('Failed to fetch Facebook reviews:', err);
+        setError('Failed to load Facebook reviews');
+        setReviews([]);
+      } finally {
         setIsLoading(false);
-      }, 500);
+      }
     };
 
     fetchReviews();
