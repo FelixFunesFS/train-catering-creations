@@ -10,6 +10,7 @@ import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { Calendar, Clock, CheckCircle2, Circle, Send, Loader2, Plus, AlertCircle, Filter } from "lucide-react";
 import { format, formatDistanceToNow, addDays, addHours, isPast, isToday, isTomorrow } from "date-fns";
+import { formatEventName, formatCustomerName, formatLocation } from "@/utils/textFormatters";
 
 interface TimelineTask {
   id: string;
@@ -422,7 +423,7 @@ export function EventTimelineManager() {
                   <div className="flex items-start justify-between w-full gap-4">
                     <div className="text-left flex-1">
                       <div className="flex items-center gap-2">
-                        <div className="font-semibold">{event.event_name}</div>
+                        <div className="font-semibold">{formatEventName(event.event_name)}</div>
                         {eventOverdue > 0 && (
                           <Badge variant="destructive" className="text-xs">
                             {eventOverdue} overdue
@@ -459,7 +460,7 @@ export function EventTimelineManager() {
           <Card className="p-6">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h2 className="text-2xl font-bold">{selectedEventDetails.event_name}</h2>
+                <h2 className="text-2xl font-bold">{formatEventName(selectedEventDetails.event_name)}</h2>
                 <p className="text-muted-foreground">
                   {format(new Date(selectedEventDetails.event_date), 'EEEE, MMMM d, yyyy')}
                   {selectedEventDetails.start_time && ` at ${selectedEventDetails.start_time}`}
@@ -472,13 +473,13 @@ export function EventTimelineManager() {
 
             <div className="grid md:grid-cols-2 gap-4 text-sm">
               <div>
-                <span className="text-muted-foreground">Contact:</span> {selectedEventDetails.contact_name}
+                <span className="text-muted-foreground">Contact:</span> {formatCustomerName(selectedEventDetails.contact_name)}
               </div>
               <div>
                 <span className="text-muted-foreground">Email:</span> {selectedEventDetails.email}
               </div>
               <div>
-                <span className="text-muted-foreground">Location:</span> {selectedEventDetails.location}
+                <span className="text-muted-foreground">Location:</span> {formatLocation(selectedEventDetails.location)}
               </div>
               <div>
                 <span className="text-muted-foreground">Guests:</span> {selectedEventDetails.guest_count}

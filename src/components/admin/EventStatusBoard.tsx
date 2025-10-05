@@ -21,6 +21,7 @@ import {
 import { format, differenceInDays, isPast, isFuture } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { EventDetailModal } from './EventDetailModal';
+import { formatEventName, formatCustomerName } from '@/utils/textFormatters';
 
 interface EventStatus {
   quote: any;
@@ -265,9 +266,9 @@ export function EventStatusBoard() {
                     <Card key={event.quote.id} className={`border-l-4 ${getUrgencyColor(event.urgency)}`}>
                       <CardContent className="pt-4">
                         <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-start">
-                          <div className="md:col-span-2">
-                            <h4 className="font-semibold">{event.quote.event_name}</h4>
-                            <p className="text-sm text-muted-foreground">{event.quote.contact_name}</p>
+                        <div className="md:col-span-2">
+                            <h4 className="font-semibold">{formatEventName(event.quote.event_name)}</h4>
+                            <p className="text-sm text-muted-foreground">{formatCustomerName(event.quote.contact_name)}</p>
                             <p className="text-xs text-muted-foreground">{event.quote.email}</p>
                           </div>
 

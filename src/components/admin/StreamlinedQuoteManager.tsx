@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar, MapPin, Users, Clock, ChevronRight, Mail, Phone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { formatEventName, formatCustomerName, formatLocation } from "@/utils/textFormatters";
 
 interface Quote {
   id: string;
@@ -85,8 +86,8 @@ export function StreamlinedQuoteManager({ quotes, loading, onRefresh }: Streamli
       <CardHeader className="pb-3">
         <div className="flex justify-between items-start">
           <div>
-            <CardTitle className="text-lg">{quote.event_name}</CardTitle>
-            <p className="text-sm text-muted-foreground">{quote.contact_name}</p>
+            <CardTitle className="text-lg">{formatEventName(quote.event_name)}</CardTitle>
+            <p className="text-sm text-muted-foreground">{formatCustomerName(quote.contact_name)}</p>
           </div>
           <Badge variant={quote.status === 'pending' ? 'destructive' : 'default'}>
             {quote.status}
@@ -105,7 +106,7 @@ export function StreamlinedQuoteManager({ quotes, loading, onRefresh }: Streamli
           </div>
           <div className="flex items-center gap-2">
             <MapPin className="h-4 w-4 text-muted-foreground" />
-            {quote.location.substring(0, 20)}...
+            {formatLocation(quote.location).substring(0, 25)}...
           </div>
           <div className="flex items-center gap-2">
             <Clock className="h-4 w-4 text-muted-foreground" />
