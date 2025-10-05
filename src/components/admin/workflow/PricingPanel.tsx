@@ -6,7 +6,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { format } from 'date-fns';
 import { EnhancedEstimateLineItems } from '../EnhancedEstimateLineItems';
@@ -15,14 +15,13 @@ import { requiresSeparateContract } from '@/utils/contractRequirements';
 import { formatEventName, formatLocation, formatCustomerName, formatEventType } from '@/utils/textFormatters';
 import { formatPhoneNumber } from '@/utils/phoneFormatter';
 import { 
-  ChevronDown, 
-  ChevronUp, 
   FileText, 
   Shield, 
   CheckCircle2, 
   Heart,
   Users,
-  Sparkles
+  Sparkles,
+  AlertCircle
 } from 'lucide-react';
 
 interface Quote {
@@ -137,7 +136,6 @@ export function PricingPanel({
   triggerAutoSave,
   quickCalculatePerPerson
 }: PricingPanelProps) {
-  const [reviewExpanded, setReviewExpanded] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<string>('');
   
   const contractCheck = requiresSeparateContract(quote, totals.total_amount);
@@ -283,180 +281,44 @@ export function PricingPanel({
           quickCalculatePerPerson={() => quickCalculatePerPerson(quote.guest_count)}
           isGovernmentContract={isGovernmentContract}
           onGovernmentToggle={onGovernmentToggle}
+          requiresContract={localRequiresContract}
+          contractReason={contractCheck.reason}
+          onContractToggleChange={handleContractToggle}
         />
       )}
 
-      {/* Expandable Review Section */}
+      {/* Action Buttons */}
       {invoice && lineItems.length > 0 && (
-        <Collapsible open={reviewExpanded} onOpenChange={setReviewExpanded}>
-          <Card>
-            <CollapsibleTrigger className="w-full">
-              <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center gap-2">
-                    <FileText className="h-5 w-5" />
-                    Final Review & Send
-                    {localRequiresContract ? (
-                      <Badge variant="outline" className="gap-1 ml-2">
-                        <Shield className="h-3 w-3" />
-                        Contract Required
-                      </Badge>
-                    ) : (
-                      <Badge variant="secondary" className="gap-1 ml-2">
-                        <FileText className="h-3 w-3" />
-                        T&C in Estimate
-                      </Badge>
-                    )}
-                  </CardTitle>
-                  {reviewExpanded ? (
-                    <ChevronUp className="h-5 w-5 text-muted-foreground" />
-                  ) : (
-                    <ChevronDown className="h-5 w-5 text-muted-foreground" />
-                  )}
-                </div>
-              </CardHeader>
-            </CollapsibleTrigger>
-            
-            <CollapsibleContent>
-              <CardContent className="space-y-6">
-                {/* Contract Requirement Toggle */}
-                <Alert>
-                  <AlertDescription className="space-y-3">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1">
-                        <h4 className="font-semibold mb-1">Contract Requirement</h4>
-                        <p className="text-sm text-muted-foreground">{contractCheck.reason}</p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Switch
-                          id="requires-contract"
-                          checked={localRequiresContract}
-                          onCheckedChange={handleContractToggle}
-                        />
-                        <Label htmlFor="requires-contract" className="text-sm whitespace-nowrap">
-                          {localRequiresContract ? 'Contract' : 'T&C Only'}
-                        </Label>
-                      </div>
-                    </div>
-                    {!localRequiresContract && (
-                      <p className="text-xs text-muted-foreground border-t pt-2 mt-2">
-                        Customer will accept Terms & Conditions when approving the estimate (no separate contract needed)
-                      </p>
-                    )}
-                  </AlertDescription>
-                </Alert>
+        <div className="space-y-3">
+          <div className="flex gap-3">
+            <Button onClick={onBack} variant="outline" className="flex-1">
+              ← Back to Quotes
+            </Button>
+            <Button 
+              onClick={onSendEstimate} 
+              className="flex-1 gap-2"
+              disabled={lineItems.length === 0 || isModified}
+            >
+              <CheckCircle2 className="h-4 w-4" />
+              Send Estimate to Customer
+            </Button>
+          </div>
 
-                <Separator />
-
-                {/* Event & Contact Summary */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <div>
-                      <h4 className="font-semibold mb-3">Event Details</h4>
-                      <div className="text-sm space-y-2">
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Event:</span>
-                          <span className="font-medium">{formatEventName(quote.event_name)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Type:</span>
-                          <span className="font-medium">{formatEventType(quote.event_type)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Date:</span>
-                          <span className="font-medium">{format(new Date(quote.event_date), 'PPP')}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Guests:</span>
-                          <span className="font-medium">{quote.guest_count}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    <div>
-                      <h4 className="font-semibold mb-3">Contact Information</h4>
-                      <div className="text-sm space-y-2">
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Name:</span>
-                          <span className="font-medium">{formatCustomerName(quote.contact_name)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Email:</span>
-                          <span className="font-medium text-xs">{quote.email}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Phone:</span>
-                          <span className="font-medium">{formatPhoneNumber(quote.phone)}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <Separator />
-
-                {/* Pricing Summary */}
-                <div>
-                  <h4 className="font-semibold mb-3">Final Pricing</h4>
-                  <div className="bg-muted/50 p-4 rounded-lg space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span>Line Items ({lineItems.length})</span>
-                      <span className="font-medium">${(totals.subtotal / 100).toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span>Tax (9.5%)</span>
-                      <span className="font-medium">${(totals.tax_amount / 100).toFixed(2)}</span>
-                    </div>
-                    <Separator />
-                    <div className="flex justify-between font-semibold">
-                      <span>Total</span>
-                      <span>${(totals.total_amount / 100).toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between text-sm text-muted-foreground">
-                      <span>Per Guest</span>
-                      <span>${(totals.total_amount / quote.guest_count / 100).toFixed(2)}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <Separator />
-
-                {/* Send Estimate Button */}
-                <div className="flex gap-3">
-                  <Button onClick={() => setReviewExpanded(false)} variant="outline">
-                    Edit Pricing
-                  </Button>
-                  <Button onClick={onSendEstimate} className="flex-1 gap-2">
-                    <CheckCircle2 className="h-4 w-4" />
-                    Send Estimate to Customer
-                  </Button>
-                </div>
-
-                {!localRequiresContract && (
-                  <p className="text-xs text-muted-foreground text-center">
-                    Estimate will include Terms & Conditions. Customer can approve and pay without signing a separate contract.
-                  </p>
-                )}
-              </CardContent>
-            </CollapsibleContent>
-          </Card>
-        </Collapsible>
+          {isModified && (
+            <Alert className="border-amber-500/50 bg-amber-500/10">
+              <AlertCircle className="h-4 w-4 text-amber-600" />
+              <AlertDescription className="text-sm text-amber-800 dark:text-amber-200">
+                You have unsaved changes. Please save your pricing before sending the estimate.
+              </AlertDescription>
+            </Alert>
+          )}
+        </div>
       )}
 
-      {/* Action Buttons */}
-      {invoice && !reviewExpanded && (
-        <div className="flex gap-3">
+      {!invoice && (
+        <div className="flex justify-end">
           <Button onClick={onBack} variant="outline">
-            Back to Quotes
-          </Button>
-          <Button 
-            onClick={() => setReviewExpanded(true)} 
-            disabled={!lineItems.length || totals.total_amount === 0}
-            className="flex-1"
-          >
-            Review & Send Estimate
+            ← Back to Quotes
           </Button>
         </div>
       )}

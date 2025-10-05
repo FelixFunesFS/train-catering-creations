@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 
 import { 
@@ -19,7 +20,9 @@ import {
   Save,
   AlertCircle,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  Shield,
+  FileText
 } from 'lucide-react';
 import { type LineItem } from '@/utils/invoiceFormatters';
 
@@ -38,6 +41,9 @@ interface EnhancedEstimateLineItemsProps {
   guestCount?: number;
   isModified: boolean;
   triggerAutoSave: () => void;
+  requiresContract?: boolean;
+  contractReason?: string;
+  onContractToggleChange?: (checked: boolean) => void;
 }
 
 export function EnhancedEstimateLineItems({
@@ -54,7 +60,10 @@ export function EnhancedEstimateLineItems({
   onGovernmentToggle,
   guestCount = 0,
   isModified,
-  triggerAutoSave
+  triggerAutoSave,
+  requiresContract,
+  contractReason,
+  onContractToggleChange
 }: EnhancedEstimateLineItemsProps) {
   const [editingItem, setEditingItem] = useState<string | null>(null);
   const [editingValues, setEditingValues] = useState<Record<string, string>>({});
@@ -153,6 +162,39 @@ export function EnhancedEstimateLineItems({
         </div>
 
         <Separator />
+
+        {/* Contract Requirement Toggle */}
+        {requiresContract !== undefined && onContractToggleChange && (
+          <>
+            <Alert>
+              <AlertDescription className="space-y-3">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1">
+                    <h4 className="font-semibold mb-1 text-sm">Contract Requirement</h4>
+                    <p className="text-xs text-muted-foreground">{contractReason}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Switch
+                      id="requires-contract"
+                      checked={requiresContract}
+                      onCheckedChange={onContractToggleChange}
+                    />
+                    <Label htmlFor="requires-contract" className="text-xs whitespace-nowrap">
+                      {requiresContract ? 'Contract' : 'T&C Only'}
+                    </Label>
+                  </div>
+                </div>
+                {!requiresContract && (
+                  <p className="text-xs text-muted-foreground border-t pt-2 mt-2">
+                    Customer will accept Terms & Conditions when approving the estimate (no separate contract needed)
+                  </p>
+                )}
+              </AlertDescription>
+            </Alert>
+
+            <Separator />
+          </>
+        )}
 
 
         {/* Line Items by Category */}
