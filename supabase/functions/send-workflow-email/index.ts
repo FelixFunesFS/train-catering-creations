@@ -56,6 +56,13 @@ serve(async (req) => {
       throw new Error('Quote or invoice not found');
     }
 
+    // Fetch invoice line items for detailed breakdown
+    const { data: lineItems } = await supabase
+      .from('invoice_line_items')
+      .select('*')
+      .eq('invoice_id', invoiceId)
+      .order('category', { ascending: true });
+
     // Generate portal access token if needed
     const portalToken = invoice.customer_access_token;
     const portalUrl = `${frontendUrl}/customer-portal?token=${portalToken}`;
@@ -67,7 +74,7 @@ serve(async (req) => {
     switch (emailType) {
       case 'estimate':
         subject = customSubject || `Your Estimate - Soul Train's Eatery`;
-        htmlContent = generateEstimateEmail(quote, invoice, portalUrl, customMessage);
+        htmlContent = generateEstimateEmail(quote, invoice, portalUrl, customMessage, lineItems || []);
         break;
       
       case 'contract':
@@ -132,7 +139,7 @@ serve(async (req) => {
   }
 });
 
-function generateEstimateEmail(quote: any, invoice: any, portalUrl: string, customMessage?: string): string {
+function generateEstimateEmail(quote: any, invoice: any, portalUrl: string, customMessage?: string, lineItems?: any[]): string {
   const formatCurrency = (cents: number) => 
     new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100);
   
@@ -185,7 +192,52 @@ function generateEstimateEmail(quote: any, invoice: any, portalUrl: string, cust
         <li>Location: ${quote.location}</li>
       </ul>
       
+      <h3 style="color: #DC143C; margin-top: 30px;">Estimate Breakdown</h3>
+      
+      ${lineItems && lineItems.length > 0 ? `
+      <table style="width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px;">
+        <thead>
+          <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
+            <th style="text-align: left; padding: 12px; font-weight: 600;">Item</th>
+            <th style="text-align: center; padding: 12px; font-weight: 600; width: 60px;">Qty</th>
+            <th style="text-align: right; padding: 12px; font-weight: 600; width: 100px;">Unit Price</th>
+            <th style="text-align: right; padding: 12px; font-weight: 600; width: 100px;">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${lineItems.map(item => `
+            <tr style="border-bottom: 1px solid #e9ecef;">
+              <td style="padding: 12px;">
+                <div style="font-weight: 500; color: #333;">${item.title || 'Item'}</div>
+                ${item.description ? `<div style="font-size: 12px; color: #666; margin-top: 2px;">${item.description}</div>` : ''}
+                ${item.category ? `<div style="font-size: 11px; color: #999; margin-top: 2px; text-transform: uppercase;">${item.category}</div>` : ''}
+              </td>
+              <td style="text-align: center; padding: 12px; color: #666;">${item.quantity}</td>
+              <td style="text-align: right; padding: 12px; color: #666;">${formatCurrency(item.unit_price)}</td>
+              <td style="text-align: right; padding: 12px; font-weight: 500; color: #333;">${formatCurrency(item.total_price)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+        <tfoot>
+          <tr style="border-top: 2px solid #dee2e6;">
+            <td colspan="3" style="text-align: right; padding: 12px; font-weight: 500; color: #666;">Subtotal:</td>
+            <td style="text-align: right; padding: 12px; font-weight: 500;">${formatCurrency(invoice.subtotal)}</td>
+          </tr>
+          ${invoice.tax_amount > 0 ? `
+          <tr>
+            <td colspan="3" style="text-align: right; padding: 12px; color: #666;">Tax (9.5%):</td>
+            <td style="text-align: right; padding: 12px; color: #666;">${formatCurrency(invoice.tax_amount)}</td>
+          </tr>
+          ` : ''}
+          <tr style="background: #f8f9fa; border-top: 1px solid #dee2e6;">
+            <td colspan="3" style="text-align: right; padding: 15px; font-weight: 700; font-size: 16px; color: #333;">Total Estimate:</td>
+            <td style="text-align: right; padding: 15px; font-weight: 700; font-size: 18px; color: #DC143C;">${formatCurrency(invoice.total_amount)}</td>
+          </tr>
+        </tfoot>
+      </table>
+      ` : `
       <p><strong>Total Estimate: ${formatCurrency(invoice.total_amount)}</strong></p>
+      `}
       
       <a href="${portalUrl}" class="btn">View & Approve Estimate</a>
       

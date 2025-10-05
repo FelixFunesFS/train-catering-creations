@@ -4,8 +4,8 @@ import { type QuoteRequest } from '@/utils/invoiceFormatters';
 import { useEnhancedPricingManagement } from '@/hooks/useEnhancedPricingManagement';
 import { useInvoiceEditing } from '@/hooks/useInvoiceEditing';
 import { useWorkflowSync } from '@/hooks/useWorkflowSync';
-// Email modal removed - using send-workflow-email edge function directly
 import { supabase } from '@/integrations/supabase/client';
+import { EmailPreviewModal } from './EmailPreviewModal';
 import { WorkflowSteps } from './workflow/WorkflowSteps';
 import { QuoteSelectionPanel } from './workflow/QuoteSelectionPanel';
 import { PricingPanel } from './workflow/PricingPanel';
@@ -55,7 +55,7 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
   const [lineItems, setLineItems] = useState<LineItem[]>([]);
   const [currentStep, setCurrentStep] = useState<'select' | 'pricing' | 'government' | 'contract' | 'payment' | 'confirmed' | 'completed'>('select');
   const [loading, setLoading] = useState(true);
-  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [showEmailPreview, setShowEmailPreview] = useState(false);
   const [isGovernmentContract, setIsGovernmentContract] = useState(false);
   // Template selector removed - now inline in PricingPanel
   const [showTimelineTasks, setShowTimelineTasks] = useState(false);
@@ -263,37 +263,13 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
       // Sync statuses before advancing
       await syncQuoteWithInvoice(selectedQuote.id);
       
-      // Send estimate email directly via edge function
-      const { data, error: emailError } = await supabase.functions.invoke('send-workflow-email', {
-        body: {
-          quoteId: selectedQuote.id,
-          invoiceId: invoice.id,
-          emailType: 'estimate'
-        }
-      });
-
-      if (emailError) throw emailError;
-
-      // Update invoice status to sent
-      const { error: statusError } = await supabase
-        .from('invoices')
-        .update({ status: 'sent' })
-        .eq('id', invoice.id);
-
-      if (statusError) throw statusError;
-
-      toast({
-        title: "Estimate Sent",
-        description: `Estimate sent successfully to ${selectedQuote.email}`,
-      });
-
-      // Advance to next step
-      setCurrentStep('contract');
+      // Show email preview modal instead of sending directly
+      setShowEmailPreview(true);
     } catch (error) {
-      console.error('Error sending estimate:', error);
+      console.error('Error preparing estimate:', error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to send estimate",
+        description: error instanceof Error ? error.message : "Failed to prepare estimate",
         variant: "destructive"
       });
     }
@@ -411,7 +387,19 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
         />
       )}
 
-      {/* Email modal removed - ReviewPanel now uses send-workflow-email directly */}
+      {showEmailPreview && selectedQuote && invoice && (
+        <EmailPreviewModal
+          open={showEmailPreview}
+          onClose={() => setShowEmailPreview(false)}
+          quote={selectedQuote}
+          invoice={invoice}
+          emailType="estimate"
+          onSent={() => {
+            setCurrentStep('contract');
+            setShowEmailPreview(false);
+          }}
+        />
+      )}
     </div>
   );
 }
