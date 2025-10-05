@@ -290,11 +290,11 @@ export const UnifiedQuoteForm = ({ variant = 'regular', onSuccess }: UnifiedQuot
       case 0:
         return <ContactStep form={form} trackFieldInteraction={trackFieldInteraction} />;
       case 1:
-        return <EventDetailsStep form={form} trackFieldInteraction={trackFieldInteraction} />;
+        return <EventDetailsStep form={form} trackFieldInteraction={trackFieldInteraction} variant={variant} />;
       case 2:
         return <ServiceSelectionStep form={form} trackFieldInteraction={trackFieldInteraction} />;
       case 3:
-        return <MenuSelectionStep form={form} trackFieldInteraction={trackFieldInteraction} />;
+        return <MenuSelectionStep form={form} trackFieldInteraction={trackFieldInteraction} variant={variant} />;
       case 4:
         return <FinalStep form={form} variant={variant} />;
       case 5:
