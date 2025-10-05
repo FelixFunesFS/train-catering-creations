@@ -257,7 +257,7 @@ export const SplitHero = () => {
         {/* Content Area - Responsive with proper spacing */}
         <div 
           ref={contentRef}
-          className={`relative min-h-[45vh] sm:min-h-[40vh] md:min-h-[35vh] bg-background p-6 pb-20 flex flex-col justify-center ${contentAnimationClass}`}
+          className={`relative min-h-[45vh] sm:min-h-[40vh] md:min-h-[35vh] bg-background p-6 pb-8 sm:pb-12 lg:pb-16 flex flex-col justify-center ${contentAnimationClass}`}
           role="region"
           aria-label="Content section"
         >
@@ -328,7 +328,7 @@ export const SplitHero = () => {
   // Desktop Layout (True 60/40 Split)
   return (
     <section 
-      className="relative h-screen overflow-hidden bg-background flex"
+      className="relative h-screen overflow-hidden bg-background flex pb-8 lg:pb-16"
       role="main"
       aria-label="Hero section with image carousel"
     >
