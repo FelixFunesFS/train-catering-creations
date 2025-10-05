@@ -18,7 +18,10 @@ export const formSchema = z.object({
     "private_party",
     "baby_shower",
     "bereavement",
-    "holiday_party"
+    "holiday_party",
+    "wedding",
+    "black_tie",
+    "military_function"
   ]),
   event_date: z.string()
     .min(1, "Event date is required")
@@ -104,6 +107,10 @@ export const formSchema = z.object({
     "other"
   ]).optional(),
   theme_colors: z.string().optional(),
+  
+  // Wedding-specific fields (optional)
+  ceremony_included: z.boolean().optional(),
+  cocktail_hour: z.boolean().optional(),
 }).refine((data) => {
   // Cross-field validation: serving time must be after or equal to start time
   if (data.serving_start_time && data.start_time) {

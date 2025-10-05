@@ -21,9 +21,10 @@ import { getMenuItems, additionalMenuItems, dietaryRestrictions } from "@/data/m
 interface MenuSelectionStepProps {
   form: UseFormReturn<any>;
   trackFieldInteraction: (fieldName: string) => void;
+  variant?: 'regular' | 'wedding';
 }
 
-export const MenuSelectionStep = ({ form, trackFieldInteraction }: MenuSelectionStepProps) => {
+export const MenuSelectionStep = ({ form, trackFieldInteraction, variant = 'regular' }: MenuSelectionStepProps) => {
   const { ref, isVisible } = useScrollAnimation({
     threshold: 0.2,
     triggerOnce: true,
@@ -37,7 +38,7 @@ export const MenuSelectionStep = ({ form, trackFieldInteraction }: MenuSelection
   const ADDITIONAL_ITEMS = additionalMenuItems;
 
   // Comprehensive protein options
-  const PROTEINS = [
+  const REGULAR_PROTEINS = [
     // Poultry
     { id: "fried-chicken", name: "Fried Chicken", isPopular: true, category: "poultry" },
     { id: "bbq-chicken", name: "BBQ Chicken", isPopular: true, category: "poultry" },
@@ -77,6 +78,42 @@ export const MenuSelectionStep = ({ form, trackFieldInteraction }: MenuSelection
     { id: "black-bean-burgers", name: "Black Bean Burgers", isDietary: true, category: "plant-based" },
     { id: "roasted-vegetable-medley", name: "Roasted Vegetable Medley", isDietary: true, category: "plant-based" },
   ];
+
+  const WEDDING_PROTEINS = [
+    // Premium Poultry
+    { id: "herb-roasted-chicken", name: "Herb-Roasted Chicken Breast", isPopular: true, isPremium: true, category: "poultry" },
+    { id: "chicken-piccata", name: "Chicken Piccata", isPremium: true, category: "poultry" },
+    { id: "stuffed-chicken", name: "Stuffed Chicken Breast", isPremium: true, category: "poultry" },
+    { id: "chicken-marsala", name: "Chicken Marsala", isPremium: true, category: "poultry" },
+    { id: "roasted-turkey", name: "Roasted Turkey Breast", isPremium: true, category: "poultry" },
+    
+    // Premium Beef
+    { id: "prime-rib", name: "Prime Rib", isPremium: true, isPopular: true, category: "beef" },
+    { id: "beef-tenderloin", name: "Beef Tenderloin", isPremium: true, isPopular: true, category: "beef" },
+    { id: "filet-mignon", name: "Filet Mignon", isPremium: true, category: "beef" },
+    { id: "beef-wellington", name: "Beef Wellington", isPremium: true, category: "beef" },
+    { id: "short-ribs", name: "Braised Short Ribs", isPremium: true, category: "beef" },
+    
+    // Premium Pork
+    { id: "pork-tenderloin", name: "Pork Tenderloin", isPremium: true, category: "pork" },
+    { id: "glazed-ham", name: "Glazed Ham", isPremium: true, category: "pork" },
+    { id: "pork-chops-premium", name: "Herb-Crusted Pork Chops", isPremium: true, category: "pork" },
+    
+    // Premium Seafood
+    { id: "lobster-tail", name: "Lobster Tail", isPremium: true, isPopular: true, category: "seafood" },
+    { id: "crab-cakes", name: "Jumbo Lump Crab Cakes", isPremium: true, isPopular: true, category: "seafood" },
+    { id: "grilled-salmon", name: "Grilled Salmon", isPremium: true, category: "seafood" },
+    { id: "shrimp-scampi", name: "Shrimp Scampi", isPremium: true, category: "seafood" },
+    { id: "seafood-medley", name: "Seafood Medley", isPremium: true, category: "seafood" },
+    { id: "sea-bass", name: "Chilean Sea Bass", isPremium: true, category: "seafood" },
+    
+    // Elegant Vegetarian
+    { id: "stuffed-portobello", name: "Stuffed Portobello Mushroom", isDietary: true, isPremium: true, category: "vegetarian" },
+    { id: "vegetable-wellington", name: "Vegetable Wellington", isDietary: true, isPremium: true, category: "vegetarian" },
+    { id: "eggplant-parmesan", name: "Eggplant Parmesan", isDietary: true, category: "vegetarian" },
+  ];
+
+  const PROTEINS = variant === 'wedding' ? WEDDING_PROTEINS : REGULAR_PROTEINS;
 
   // Convert proteins to dropdown options
   const proteinOptions: Option[] = PROTEINS.map(protein => ({

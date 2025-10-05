@@ -180,7 +180,7 @@ export const UnifiedQuoteForm = ({ variant = 'regular', onSuccess }: UnifiedQuot
         email: data.email,
         phone: data.phone,
         event_name: formatEventName(data.event_name),
-        event_type: data.event_type,
+        event_type: data.event_type as any, // Support wedding event types
         event_date: data.event_date,
         start_time: data.start_time,
         guest_count: data.guest_count,
@@ -211,6 +211,8 @@ export const UnifiedQuoteForm = ({ variant = 'regular', onSuccess }: UnifiedQuot
         special_requests: data.special_requests,
         referral_source: data.referral_source,
         theme_colors: data.theme_colors,
+        ceremony_included: data.ceremony_included,
+        cocktail_hour: data.cocktail_hour,
         status: 'pending' as const
       };
       

@@ -11,9 +11,10 @@ import { formatEventName, formatLocation } from "@/utils/textFormatters";
 interface EventDetailsStepProps {
   form: UseFormReturn<any>;
   trackFieldInteraction: (fieldName: string) => void;
+  variant?: 'regular' | 'wedding';
 }
 
-const EVENT_TYPES = [
+const REGULAR_EVENT_TYPES = [
   { value: "birthday", label: "Birthday Party", icon: "🎂" },
   { value: "private_party", label: "Private Party", icon: "💒" },
   { value: "corporate", label: "Corporate Event", icon: "🏢" },
@@ -26,7 +27,17 @@ const EVENT_TYPES = [
   { value: "other", label: "Other Event", icon: "🎊" },
 ];
 
-export const EventDetailsStep = ({ form, trackFieldInteraction }: EventDetailsStepProps) => {
+const WEDDING_EVENT_TYPES = [
+  { value: "wedding", label: "Wedding", icon: "💍" },
+  { value: "black_tie", label: "Black Tie Event", icon: "🎩" },
+  { value: "military_function", label: "Military Function", icon: "🎖️" },
+  { value: "anniversary", label: "Anniversary Celebration", icon: "💕" },
+  { value: "corporate", label: "Corporate Gala", icon: "🏢" },
+  { value: "other", label: "Other Formal Event", icon: "✨" },
+];
+
+export const EventDetailsStep = ({ form, trackFieldInteraction, variant = 'regular' }: EventDetailsStepProps) => {
+  const EVENT_TYPES = variant === 'wedding' ? WEDDING_EVENT_TYPES : REGULAR_EVENT_TYPES;
   const { ref, isVisible } = useScrollAnimation({
     threshold: 0.2,
     triggerOnce: true,
