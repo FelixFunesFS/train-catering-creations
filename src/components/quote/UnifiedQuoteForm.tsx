@@ -61,9 +61,7 @@ export const UnifiedQuoteForm = ({ variant = 'regular', onSuccess }: UnifiedQuot
 
   // Get default event type based on variant
   const getDefaultEventType = () => {
-    // Regular events use standard event types
-    // Wedding variant still uses a regular event type in the form schema
-    return 'birthday' as const;
+    return variant === 'wedding' ? 'wedding' : 'birthday';
   };
 
   const form = useForm<FormData>({
