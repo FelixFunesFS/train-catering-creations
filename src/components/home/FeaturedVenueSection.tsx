@@ -21,9 +21,9 @@ export const FeaturedVenueSection = () => {
     <section 
       ref={ref}
       id="featured-venue" 
-      className="py-8 sm:py-12 lg:py-16 bg-gradient-pattern-a"
+      className="py-16 sm:py-20 lg:py-24 bg-gradient-pattern-a"
     >
-      <div className="container mx-auto px-3 sm:px-4">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className={`text-center mb-6 lg:mb-10 space-y-3 ${animationClass}`}>
           <div className="flex items-center justify-center space-x-2 mb-3">

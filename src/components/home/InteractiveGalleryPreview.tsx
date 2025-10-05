@@ -135,9 +135,9 @@ export const InteractiveGalleryPreview = () => {
   return (
     <section 
       ref={ref}
-      className="py-8 sm:py-12 lg:py-16 bg-gradient-pattern-b"
+      className="py-12 sm:py-16 lg:py-20 bg-gradient-pattern-b"
     >
-      <div className="container mx-auto px-3 sm:px-4">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className={`text-center mb-6 lg:mb-10 space-y-3 ${animationClass}`}>
           <div className="flex items-center justify-center space-x-2 mb-3">
