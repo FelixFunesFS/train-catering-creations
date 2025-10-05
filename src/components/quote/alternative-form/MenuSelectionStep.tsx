@@ -34,7 +34,7 @@ export const MenuSelectionStep = ({ form, trackFieldInteraction, variant = 'regu
   const animationClass = useAnimationClass('fade-up', isVisible);
 
   // Get menu items from shared data source
-  const menuItems = getMenuItems();
+  const menuItems = getMenuItems(variant);
   const ADDITIONAL_ITEMS = additionalMenuItems;
 
   // Comprehensive protein options

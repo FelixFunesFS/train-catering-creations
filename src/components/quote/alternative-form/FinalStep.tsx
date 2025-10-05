@@ -10,9 +10,10 @@ import { useAnimationClass } from "@/hooks/useAnimationClass";
 
 interface FinalStepProps {
   form: UseFormReturn<any>;
+  variant?: 'regular' | 'wedding';
 }
 
-export const FinalStep = ({ form }: FinalStepProps) => {
+export const FinalStep = ({ form, variant = 'regular' }: FinalStepProps) => {
   const { ref, isVisible } = useScrollAnimation({
     threshold: 0.2,
     triggerOnce: true,
@@ -31,6 +32,65 @@ export const FinalStep = ({ form }: FinalStepProps) => {
           Help us serve you better with a few final details.
         </p>
       </div>
+
+      {/* Wedding-Specific Options */}
+      {variant === 'wedding' && (
+        <Card className="neumorphic-card-1 border-0 bg-gradient-to-br from-card via-card/95 to-muted/10 mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-3 text-xl font-elegant">
+              <div className="w-8 h-8 bg-gradient-primary rounded-full flex items-center justify-center">
+                <UtensilsCrossed className="h-4 w-4 text-primary-foreground" />
+              </div>
+              Wedding Service Options
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                control={form.control}
+                name="ceremony_included"
+                render={({ field }) => (
+                  <FormItem className="flex items-start space-x-3 space-y-0 rounded-md border border-muted p-4">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel className="text-base font-medium">Ceremony Included</FormLabel>
+                      <p className="text-sm text-muted-foreground">
+                        We'll provide catering service during the ceremony
+                      </p>
+                    </div>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="cocktail_hour"
+                render={({ field }) => (
+                  <FormItem className="flex items-start space-x-3 space-y-0 rounded-md border border-muted p-4">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel className="text-base font-medium">Cocktail Hour</FormLabel>
+                      <p className="text-sm text-muted-foreground">
+                        Add a cocktail hour with light appetizers
+                      </p>
+                    </div>
+                  </FormItem>
+                )}
+              />
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Additional Services */}
       <Card className="neumorphic-card-1 border-0 bg-gradient-to-br from-card via-card/95 to-muted/10 mb-6">

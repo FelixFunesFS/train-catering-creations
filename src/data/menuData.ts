@@ -604,8 +604,50 @@ export const menuData = {
   }
 };
 
-// Extract flat arrays for form usage
-export const getMenuItems = () => {
+// Wedding-specific premium menu items
+export const weddingMenuItems = {
+  appetizers: [
+    { id: "charcuterie-board", name: "Charcuterie Board", description: "Artisan meats, cheeses, and accompaniments", isPopular: true, isPremium: true },
+    { id: "shrimp-cocktail", name: "Shrimp Cocktail", description: "Jumbo shrimp with cocktail sauce", isPremium: true },
+    { id: "smoked-salmon-cucumber", name: "Smoked Salmon Cucumber Bites", description: "Refreshing and elegant appetizer", isPremium: true },
+    { id: "tomato-caprese", name: "Tomato Caprese", description: "Fresh mozzarella, tomatoes, and basil", isPremium: true },
+    { id: "tomato-bruschetta", name: "Tomato Bruschetta", description: "Classic Italian appetizer on toasted bread", isPremium: true },
+    { id: "fruit-platter", name: "Fruit Platter", description: "Fresh seasonal fruits beautifully arranged", isPremium: true }
+  ],
+  entrees: [
+    { id: "baked-salmon", name: "Baked Salmon", description: "Fresh Atlantic salmon with herbs", isPremium: true, isGlutenFree: true },
+    { id: "filet-mignon", name: "Filet Mignon", description: "Premium beef tenderloin", isPremium: true, isPopular: true },
+    { id: "grilled-chicken-breast", name: "Grilled Chicken Breast", description: "Herb-marinated chicken breast", isPremium: true },
+    { id: "glazed-ham", name: "Glazed Ham", description: "Honey-glazed spiral ham", isPremium: true },
+    { id: "prime-rib", name: "Prime Rib", description: "Slow-roasted prime rib", isPremium: true, isPopular: true },
+    { id: "shrimp-alfredo", name: "Shrimp Alfredo", description: "Creamy pasta with succulent shrimp", isPremium: true }
+  ],
+  sides: [
+    { id: "roasted-asparagus", name: "Roasted Asparagus", description: "Fresh asparagus with garlic butter", isPremium: true },
+    { id: "garlic-mashed-potatoes", name: "Garlic Mashed Potatoes", description: "Creamy potatoes with roasted garlic", isPremium: true },
+    { id: "wild-rice-pilaf", name: "Wild Rice Pilaf", description: "Herb-infused wild rice blend", isPremium: true },
+    { id: "grilled-vegetables", name: "Grilled Vegetable Medley", description: "Seasonal vegetables grilled to perfection", isPremium: true },
+    { id: "caesar-salad", name: "Caesar Salad", description: "Classic Caesar with parmesan", isPremium: true },
+    { id: "garden-salad", name: "Garden Salad", description: "Fresh mixed greens with vegetables", isPremium: true }
+  ],
+  desserts: [
+    { id: "tiramisu", name: "Tiramisu", description: "Classic Italian coffee-flavored dessert", isPremium: true },
+    { id: "creme-brulee", name: "Crème Brûlée", description: "Rich custard with caramelized sugar", isPremium: true },
+    { id: "chocolate-fountain", name: "Chocolate Fountain", description: "Interactive dessert experience", isPremium: true, isPopular: true },
+    { id: "wedding-cake-tasting", name: "Wedding Cake Tasting Box", description: "Sample multiple cake flavors", isPremium: true },
+    { id: "cheesecake", name: "Cheesecake", description: "Creamy New York style cheesecake", isPremium: true },
+    { id: "dessert-shooters", name: "Dessert Shooters", description: "Mini desserts in shot glasses", isPremium: true }
+  ]
+};
+
+// Extract flat arrays for form usage (variant-aware)
+export const getMenuItems = (variant?: 'regular' | 'wedding') => {
+  // If wedding variant, return wedding menu
+  if (variant === 'wedding') {
+    return weddingMenuItems;
+  }
+
+  // Otherwise return regular menu
   const allItems: { [category: string]: MenuItem[] } = {
     appetizers: [],
     entrees: [],

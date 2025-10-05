@@ -78,7 +78,7 @@ export const UnifiedQuoteForm = ({ variant = 'regular', onSuccess }: UnifiedQuot
       start_time: "",
       guest_count: 1,
       location: "",
-      service_type: undefined,
+      service_type: '' as any,
       serving_start_time: "",
       primary_protein: [],
       secondary_protein: [],
@@ -298,7 +298,7 @@ export const UnifiedQuoteForm = ({ variant = 'regular', onSuccess }: UnifiedQuot
       case 3:
         return <MenuSelectionStep form={form} trackFieldInteraction={trackFieldInteraction} />;
       case 4:
-        return <FinalStep form={form} />;
+        return <FinalStep form={form} variant={variant} />;
       case 5:
         return <ReviewStep form={form} estimatedCost={null} />;
       default:
