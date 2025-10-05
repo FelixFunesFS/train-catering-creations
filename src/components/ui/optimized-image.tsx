@@ -74,7 +74,7 @@ export const OptimizedImage = ({
           loading={priority ? "eager" : "lazy"}
           decoding="async"
           fetchPriority={priority ? "high" : "auto"}
-          style={{ 
+          style={{
             imageRendering: 'crisp-edges',
             WebkitBackfaceVisibility: 'hidden',
             backfaceVisibility: 'hidden'

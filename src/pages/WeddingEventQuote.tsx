@@ -1,5 +1,4 @@
-
-import WeddingEventQuoteForm from "@/components/quote/WeddingEventQuoteForm";
+import { UnifiedQuoteForm } from "@/components/quote/UnifiedQuoteForm";
 import ContactInfoCards from "@/components/quote/ContactInfoCards";
 import { CTASection } from "@/components/ui/cta-section";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
@@ -42,7 +41,7 @@ const WeddingEventQuote = () => {
       <section className="py-8 lg:py-12">
         <ResponsiveWrapper>
           <div ref={formRef} className={useAnimationClass(formVariant, formVisible)}>
-            <WeddingEventQuoteForm />
+            <UnifiedQuoteForm variant="wedding" />
           </div>
         </ResponsiveWrapper>
       </section>

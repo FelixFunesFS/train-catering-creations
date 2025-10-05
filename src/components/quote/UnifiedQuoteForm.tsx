@@ -1,11 +1,10 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Form } from "@/components/ui/form";
 import { ContactStep } from "./alternative-form/ContactStep";
@@ -26,6 +25,11 @@ import { formatCustomerName, formatEventName, formatLocation } from "@/utils/tex
 
 type FormData = z.infer<typeof formSchema>;
 
+interface UnifiedQuoteFormProps {
+  variant?: 'regular' | 'wedding';
+  onSuccess?: (quoteId: string) => void;
+}
+
 const STEPS = [
   { id: 'contact', title: 'Contact', description: 'Your details' },
   { id: 'event', title: 'Event', description: 'Date & type' },
@@ -35,17 +39,18 @@ const STEPS = [
   { id: 'review', title: 'Review', description: 'Final check' },
 ];
 
-export const AlternativeQuoteForm = () => {
+export const UnifiedQuoteForm = ({ variant = 'regular', onSuccess }: UnifiedQuoteFormProps) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submittedQuoteId, setSubmittedQuoteId] = useState<string | null>(null);
   const [isReadyToSubmit, setIsReadyToSubmit] = useState(false);
-  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [eventData, setEventData] = useState<any>(null);
   const { toast } = useToast();
-  const { trackFieldInteraction, trackFormSubmission } = useFormAnalytics({ formType: 'regular_event' });
+  const { trackFieldInteraction, trackFormSubmission } = useFormAnalytics({ 
+    formType: variant === 'wedding' ? 'wedding_event' : 'regular_event' 
+  });
 
   const { ref: formRef, isVisible: formVisible } = useScrollAnimation({
     threshold: 0.1,
@@ -54,6 +59,13 @@ export const AlternativeQuoteForm = () => {
 
   const formAnimationClass = useAnimationClass('scale-fade', formVisible);
 
+  // Get default event type based on variant
+  const getDefaultEventType = () => {
+    // Regular events use standard event types
+    // Wedding variant still uses a regular event type in the form schema
+    return 'birthday' as const;
+  };
+
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -61,7 +73,7 @@ export const AlternativeQuoteForm = () => {
       email: "",
       phone: "",
       event_name: "",
-      event_type: "birthday",
+      event_type: getDefaultEventType(),
       event_date: "",
       start_time: "",
       guest_count: 1,
@@ -137,59 +149,24 @@ export const AlternativeQuoteForm = () => {
       case 4:
         return []; // Final step - additional info is optional
       case 5:
-        return ['contact_name', 'email', 'phone', 'event_name', 'event_type', 'event_date', 'start_time', 'guest_count', 'location', 'service_type']; // Review step - validate all required fields
+        return ['contact_name', 'email', 'phone', 'event_name', 'event_type', 'event_date', 'start_time', 'guest_count', 'location', 'service_type'];
       default:
         return [];
     }
   };
 
   const onSubmit = async (data: FormData) => {
-    console.log('🚀 onSubmit called with currentStep:', currentStep, 'isReadyToSubmit:', isReadyToSubmit);
+    if (currentStep !== STEPS.length - 1) return;
+    if (!isReadyToSubmit) return;
+    if (isSubmitting) return;
     
-    // Multiple layers of protection against unwanted submission
-    if (currentStep !== STEPS.length - 1) {
-      console.log('🚫 GUARD 1: Blocking submission - not on review step. Current step:', currentStep);
-      return;
-    }
-    
-    if (!isReadyToSubmit) {
-      console.log('🚫 GUARD 2: Blocking submission - not ready to submit');
-      return;
-    }
-    
-    if (isSubmitting) {
-      console.log('🚫 GUARD 3: Blocking submission - already submitting');
-      return;
-    }
-    
-    console.log('🚀 === FORM SUBMISSION STARTED ===');
-    console.log('📋 Form data:', data);
-    console.log('🚨 Form errors:', form.formState.errors);
-    console.log('✅ Form is valid:', form.formState.isValid);
-    console.log('🔍 Current step:', currentStep);
-    console.log('💎 Service type value:', data.service_type);
-    
-    // Manual validation trigger to ensure we catch all errors
     const validationResult = await form.trigger();
-    console.log('🔍 Manual validation result:', validationResult);
-    
-    // Check for validation errors
     const errors = form.formState.errors;
-    if (Object.keys(errors).length > 0) {
-      console.error('❌ Form validation errors:', errors);
+    
+    if (Object.keys(errors).length > 0 || !validationResult) {
       toast({
         title: "Please Fix Form Errors",
-        description: "Some required fields are missing or invalid. Please check your form.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!validationResult) {
-      console.error('❌ Form validation failed');
-      toast({
-        title: "Form Validation Failed",
-        description: "Please check all required fields and try again.",
+        description: "Some required fields are missing or invalid.",
         variant: "destructive",
       });
       return;
@@ -198,10 +175,6 @@ export const AlternativeQuoteForm = () => {
     setIsSubmitting(true);
     
     try {
-      console.log('💾 Preparing database insertion...');
-      console.log('🔗 Supabase client status:', !!supabase);
-      
-      // Insert into database with correct field mapping
       const insertPayload = {
         contact_name: formatCustomerName(data.contact_name),
         email: data.email,
@@ -214,9 +187,6 @@ export const AlternativeQuoteForm = () => {
         location: formatLocation(data.location),
         service_type: data.service_type,
         serving_start_time: data.serving_start_time || null,
-        // wait_staff_requested: data.wait_staff_requested,
-        // wait_staff_requirements: data.wait_staff_requirements,
-        // wait_staff_setup_areas: data.wait_staff_setup_areas,
         primary_protein: data.primary_protein.join(', '),
         secondary_protein: data.secondary_protein.join(', '),
         both_proteins_available: data.both_proteins_available,
@@ -244,21 +214,16 @@ export const AlternativeQuoteForm = () => {
         status: 'pending' as const
       };
       
-      console.log('📝 Database insert payload:', insertPayload);
-      
-      const { data: insertedData, error } = await supabase.from('quote_requests').insert([insertPayload]).select();
+      const { data: insertedData, error } = await supabase
+        .from('quote_requests')
+        .insert([insertPayload])
+        .select();
 
-      if (error) {
-        console.error('❌ Database insertion error:', error);
-        throw error;
-      }
+      if (error) throw error;
       
       const quoteId = insertedData?.[0]?.id;
       setSubmittedQuoteId(quoteId);
-      console.log('✅ Quote inserted successfully with ID:', quoteId);
-      console.log('📊 Inserted data:', insertedData);
       
-      // Store event data for success page
       setEventData({
         eventName: data.event_name,
         eventDate: data.event_date,
@@ -267,7 +232,6 @@ export const AlternativeQuoteForm = () => {
         contactName: data.contact_name
       });
       
-      // Track analytics
       await trackFormSubmission(quoteId);
       
       toast({
@@ -275,76 +239,41 @@ export const AlternativeQuoteForm = () => {
         description: "Your quote request has been saved. Sending notifications...",
       });
 
-      // Send confirmation email to customer
-      console.log('📧 Sending confirmation email to customer...');
+      // Send confirmation email
       try {
-        const { error: confirmError } = await supabase.functions.invoke('send-quote-confirmation', {
+        await supabase.functions.invoke('send-quote-confirmation', {
           body: { quote_id: quoteId }
         });
-        
-        if (confirmError) {
-          console.error('⚠️  Confirmation email failed:', confirmError);
-        } else {
-          console.log('✅ Confirmation email sent to customer');
-        }
       } catch (emailError) {
-        console.error('⚠️  Error sending confirmation email:', emailError);
+        console.error('Confirmation email failed:', emailError);
       }
 
-      // Send email notifications with retry logic
-      let emailSuccess = false;
-      const maxRetries = 3;
-      
-      for (let attempt = 1; attempt <= maxRetries; attempt++) {
-        try {
-          const emailPayload = { ...data, quote_id: quoteId };
-          console.log(`📧 Sending email notification (attempt ${attempt})...`);
-          console.log('📧 Email payload:', emailPayload);
-          
-          const { data: emailData, error: emailError } = await supabase.functions.invoke('send-quote-notification', {
-            body: emailPayload
-          });
-          
-          if (emailError) {
-            console.error(`❌ Email error (attempt ${attempt}):`, emailError);
-            throw emailError;
-          }
-          
-          console.log('✅ Email notification sent successfully:', emailData);
-          emailSuccess = true;
-          break;
-        } catch (emailError) {
-          console.error(`❌ Email notification attempt ${attempt} failed:`, emailError);
-          
-          if (attempt === maxRetries) {
-            // Final attempt failed - show warning but don't fail submission
-            toast({
-              title: "Quote submitted successfully!",
-              description: "However, email confirmation may be delayed. We'll contact you within 48 hours.",
-            });
-          } else {
-            // Wait before retry (exponential backoff)
-            await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
-          }
-        }
+      // Send notification email
+      try {
+        await supabase.functions.invoke('send-quote-notification', {
+          body: { ...data, quote_id: quoteId }
+        });
+      } catch (emailError) {
+        console.error('Notification email failed:', emailError);
       }
 
       setIsSubmitted(true);
       
-      if (emailSuccess) {
-        toast({
-          title: "✅ Quote Request Submitted!",
-          description: "We'll respond within 48 hours. Check your email for confirmation.",
-        });
+      if (onSuccess) {
+        onSuccess(quoteId);
       }
+      
+      toast({
+        title: "✅ Quote Request Submitted!",
+        description: "We'll respond within 48 hours. Check your email for confirmation.",
+      });
     } catch (error) {
-      console.error('❌ Fatal error during form submission:', error);
+      console.error('Form submission error:', error);
       toast({
         title: "Submission Failed",
         description: error instanceof Error ? error.message : "Please try again or contact us at (843) 970-0265.",
         variant: "destructive",
       });
-      // Reset submission state on error
       setIsSubmitted(false);
       setSubmittedQuoteId(null);
     } finally {
@@ -377,7 +306,6 @@ export const AlternativeQuoteForm = () => {
 
   return (
     <div ref={formRef} className={`space-y-8 ${formAnimationClass}`}>
-      {/* Progress Header */}
       <Card className="neumorphic-card-1 border-0 bg-gradient-to-r from-card/50 via-card to-card/50 backdrop-blur-sm">
         <CardHeader className="pb-6">
           <div className="flex items-center justify-between mb-4">
@@ -386,7 +314,9 @@ export const AlternativeQuoteForm = () => {
                 <Sparkles className="h-5 w-5 text-primary-foreground" />
               </div>
               <div>
-                <CardTitle className="text-lg font-elegant">Smart Quote Builder</CardTitle>
+                <CardTitle className="text-lg font-elegant">
+                  {variant === 'wedding' ? 'Wedding Quote Builder' : 'Smart Quote Builder'}
+                </CardTitle>
                 <p className="text-sm text-muted-foreground">Step {currentStep + 1} of {STEPS.length}</p>
               </div>
             </div>
@@ -394,7 +324,6 @@ export const AlternativeQuoteForm = () => {
           
           <Progress value={progress} className="h-2 mb-4" />
           
-          {/* Step Navigation */}
           <div className="flex justify-center">
             <div className="flex items-center gap-2 md:gap-4 overflow-x-auto pb-2">
               {STEPS.map((step, index) => (
@@ -417,11 +346,7 @@ export const AlternativeQuoteForm = () => {
                       ? 'bg-primary/20 text-primary'
                       : 'bg-muted text-muted-foreground'
                   }`}>
-                    {completedSteps.includes(index) ? (
-                      <Check className="h-4 w-4" />
-                    ) : (
-                      index + 1
-                    )}
+                    {completedSteps.includes(index) ? <Check className="h-4 w-4" /> : index + 1}
                   </div>
                   <div className="text-center">
                     <div className="text-xs font-medium">{step.title}</div>
@@ -434,114 +359,65 @@ export const AlternativeQuoteForm = () => {
         </CardHeader>
       </Card>
 
-      {/* Step Content */}
       <Card className="neumorphic-card-2 border-0 bg-gradient-to-br from-card via-card/95 to-muted/20">
         <CardContent className="p-6 md:p-8">
           <FormProvider {...form}>
             <form onSubmit={(e) => {
-              console.log('🚨 Form onSubmit triggered:', { currentStep, isReadyToSubmit, isSubmitting });
-              
-              // Prevent all automatic form submissions
               e.preventDefault();
               e.stopPropagation();
               
-              // Only allow manual submission on final step when ready
-              if (currentStep !== STEPS.length - 1) {
-                console.log('🚫 FORM GUARD: Preventing submission - not on final step');
-                return false;
-              }
+              if (currentStep !== STEPS.length - 1) return;
+              if (!isReadyToSubmit) return;
               
-              if (!isReadyToSubmit) {
-                console.log('🚫 FORM GUARD: Preventing submission - not ready to submit');
-                return false;
-              }
-              
-              console.log('✅ Form submission allowed - calling handleSubmit');
-              return form.handleSubmit(onSubmit)(e);
-            }} className="space-y-8">
+              form.handleSubmit(onSubmit)(e);
+            }}>
               {renderStepContent()}
-            
-            <Separator className="my-8" />
-            
-            {/* Navigation Buttons */}
-            <div className="flex justify-between items-center pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handlePrevious}
-                disabled={currentStep === 0}
-                className="flex items-center gap-2 neumorphic-button-secondary"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                Previous
-              </Button>
               
-              {currentStep === STEPS.length - 1 ? (
-                <div className="flex flex-col gap-3">
-                  {!isReadyToSubmit ? (
-                    <Button
-                      type="button"
-                      onClick={() => {
-                        console.log('📋 User clicked "Review & Confirm" button');
-                        setIsReadyToSubmit(true);
-                      }}
-                      className="flex items-center gap-2 neumorphic-button-primary bg-gradient-primary hover:shadow-glow transition-all duration-300"
-                    >
-                      Review & Confirm Quote Request
-                      <Check className="h-4 w-4" />
-                    </Button>
-                  ) : (
-                    <Button
-                      type="button"
-                      onClick={() => {
-                        console.log('🚀 User clicked "Submit Quote Request" button');
-                        if (isSubmitting) {
-                          console.log('🚫 Already submitting, ignoring click');
-                          return;
-                        }
-                        form.handleSubmit(onSubmit)();
-                      }}
-                      disabled={isSubmitting}
-                      className="flex items-center gap-2 neumorphic-button-primary bg-gradient-primary hover:shadow-glow transition-all duration-300"
-                    >
-                      {isSubmitting ? (
-                        <>
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                          Submitting Your Quote...
-                        </>
-                      ) : (
-                        <>
-                          Submit Quote Request
-                          <Sparkles className="h-4 w-4" />
-                        </>
-                      )}
-                    </Button>
-                  )}
-                  {isReadyToSubmit && !isSubmitting && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => {
-                        console.log('📝 User clicked "Edit Details" button');
-                        setIsReadyToSubmit(false);
-                      }}
-                      className="text-xs"
-                    >
-                      Edit Details
-                    </Button>
-                  )}
-                </div>
-              ) : (
+              <Separator className="my-8" />
+              
+              <div className="flex items-center justify-between gap-4">
                 <Button
                   type="button"
-                  onClick={handleNext}
-                  className="flex items-center gap-2 neumorphic-button-primary"
+                  variant="outline"
+                  onClick={handlePrevious}
+                  disabled={currentStep === 0 || isSubmitting}
+                  className="gap-2"
                 >
-                  Continue
-                  <ArrowRight className="h-4 w-4" />
+                  <ArrowLeft className="h-4 w-4" />
+                  Previous
                 </Button>
-              )}
-            </div>
+                
+                {currentStep < STEPS.length - 1 ? (
+                  <Button
+                    type="button"
+                    onClick={handleNext}
+                    disabled={isSubmitting}
+                    className="gap-2 min-w-[120px]"
+                  >
+                    Continue
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                ) : (
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    onClick={() => setIsReadyToSubmit(true)}
+                    className="gap-2 min-w-[180px] bg-gradient-primary hover:opacity-90"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Submitting...
+                      </>
+                    ) : (
+                      <>
+                        Submit Quote Request
+                        <Check className="h-4 w-4" />
+                      </>
+                    )}
+                  </Button>
+                )}
+              </div>
             </form>
           </FormProvider>
         </CardContent>
@@ -549,5 +425,3 @@ export const AlternativeQuoteForm = () => {
     </div>
   );
 };
-
-export { AlternativeQuoteForm as RegularEventQuoteForm };

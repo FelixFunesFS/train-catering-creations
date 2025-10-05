@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -33,6 +33,7 @@ interface CustomerData {
 export function TokenBasedCustomerPortal() {
   const { token: paramToken } = useParams();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const token = searchParams.get('token') || paramToken; // Support both URL structures
   const action = searchParams.get('action');
   const [data, setData] = useState<CustomerData>({});
@@ -122,6 +123,85 @@ export function TokenBasedCustomerPortal() {
       setError(error.message || 'Failed to load estimate');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleViewDetails = () => {
+    const detailsSection = document.getElementById('estimate-breakdown');
+    detailsSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const handleSignContract = async () => {
+    if (!data.invoice?.contract_id) {
+      toast({
+        title: "No Contract Available",
+        description: "Please contact us for assistance.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    navigate(`/customer/contract/${data.invoice.contract_id}?token=${token}`);
+  };
+
+  const handlePayment = async () => {
+    if (!data.invoice?.id) return;
+    
+    try {
+      const { data: paymentData, error } = await supabase.functions.invoke(
+        'create-checkout-session',
+        {
+          body: {
+            invoice_id: data.invoice.id,
+            access_token: token,
+            success_url: window.location.href,
+            cancel_url: window.location.href
+          }
+        }
+      );
+      
+      if (error) throw error;
+      
+      if (paymentData?.checkout_url) {
+        window.location.href = paymentData.checkout_url;
+      }
+    } catch (error) {
+      toast({
+        title: "Payment Error",
+        description: "Unable to process payment. Please contact us.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleDownloadEstimate = async () => {
+    if (!data.invoice?.id) return;
+    
+    try {
+      const { data: pdfData, error } = await supabase.functions.invoke(
+        'generate-estimate-pdf',
+        {
+          body: {
+            invoice_id: data.invoice.id,
+            access_token: token
+          }
+        }
+      );
+      
+      if (error) throw error;
+      
+      if (pdfData?.pdf_url) {
+        const link = document.createElement('a');
+        link.href = pdfData.pdf_url;
+        link.download = `estimate-${data.invoice.invoice_number}.pdf`;
+        link.click();
+      }
+    } catch (error) {
+      toast({
+        title: "Download Failed",
+        description: "Unable to generate PDF. Please contact us.",
+        variant: "destructive"
+      });
     }
   };
 

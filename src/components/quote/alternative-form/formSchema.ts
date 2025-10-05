@@ -78,8 +78,6 @@ export const formSchema = z.object({
   custom_menu_requests: z.string().optional(),
   
   // Additional Services
-  tables_chairs_requested: z.boolean().default(false),
-  linens_requested: z.boolean().default(false),
   plates_requested: z.boolean().default(false),
   cups_requested: z.boolean().default(false),
   napkins_requested: z.boolean().default(false),
