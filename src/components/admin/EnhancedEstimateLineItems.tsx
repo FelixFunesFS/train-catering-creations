@@ -206,19 +206,27 @@ export function EnhancedEstimateLineItems({
                                 value={item.title}
                                 onChange={(e) => updateLineItem(item.id, { title: e.target.value })}
                                 placeholder="Item title"
-                                className="h-8 text-sm"
+                                className={`h-8 text-sm ${
+                                  item.metadata?.isNew ? 'border-green-500 border-2' : 
+                                  item.metadata?.isModified ? 'border-amber-500 border-2' : ''
+                                }`}
                                 onFocus={() => setEditingItem(item.id)}
                                 onBlur={() => setEditingItem(null)}
                               />
                               {/* Change indicators */}
-                              {(item as any).isNew && (
-                                <Badge variant="default" className="absolute -top-2 -right-2 text-[10px] h-5 px-1.5">
+                              {item.metadata?.isNew && (
+                                <Badge className="absolute -top-2 -right-2 text-[10px] h-5 px-1.5 bg-green-600 text-white">
                                   NEW
                                 </Badge>
                               )}
-                              {(item as any).isModified && (
-                                <Badge variant="secondary" className="absolute -top-2 -right-2 text-[10px] h-5 px-1.5">
+                              {item.metadata?.isModified && !item.metadata?.isNew && (
+                                <Badge className="absolute -top-2 -right-2 text-[10px] h-5 px-1.5 bg-amber-600 text-white">
                                   MODIFIED
+                                </Badge>
+                              )}
+                              {item.metadata?.source === 'customer_request' && (
+                                <Badge variant="outline" className="absolute -bottom-2 -right-2 text-[9px] h-4 px-1 bg-blue-50 text-blue-700 border-blue-300">
+                                  From Form
                                 </Badge>
                               )}
                             </div>
@@ -233,7 +241,7 @@ export function EnhancedEstimateLineItems({
                               />
                             </div>
                             
-                            <div className="col-span-1">
+                            <div className="col-span-1 space-y-1">
                               <Input
                                 type="number"
                                 value={item.quantity}
@@ -241,6 +249,11 @@ export function EnhancedEstimateLineItems({
                                 min="0"
                                 className="h-8 text-center text-sm"
                               />
+                              {item.metadata?.quantityChanged && item.metadata?.previousQuantity && (
+                                <div className="text-[9px] text-muted-foreground text-center">
+                                  Was: {item.metadata.previousQuantity}
+                                </div>
+                              )}
                             </div>
                             
                             <div className="col-span-2">
@@ -277,10 +290,15 @@ export function EnhancedEstimateLineItems({
                               </div>
                             </div>
                             
-                            <div className="col-span-1 text-right pt-1">
+                            <div className="col-span-1 text-right pt-1 space-y-1">
                               <div className="text-sm font-semibold">
                                 ${(item.total_price / 100).toFixed(2)}
                               </div>
+                              {item.metadata?.quantityChanged && item.metadata?.previousPrice && (
+                                <div className="text-[9px] text-muted-foreground line-through">
+                                  Was: ${(item.metadata.previousPrice / 100).toFixed(2)}
+                                </div>
+                              )}
                             </div>
                             
                             <div className="col-span-1 flex justify-end">

@@ -10,6 +10,15 @@ export interface LineItem {
   unit_price: number;
   total_price: number;
   category?: string;
+  metadata?: {
+    isNew?: boolean;
+    isModified?: boolean;
+    quantityChanged?: boolean;
+    previousQuantity?: number;
+    previousPrice?: number;
+    source?: string;
+    sourceField?: string;
+  };
 }
 
 export interface QuoteRequest {
@@ -263,34 +272,34 @@ export const generateProfessionalLineItems = (quote: QuoteRequest): LineItem[] =
   // TIER 5: SERVICE FEES - Service type and add-ons
   lineItems.push(createServicePackage(quote));
   
-  // Staff services
+  // Staff services (track source from customer form)
   if (quote.wait_staff_requested) {
-    lineItems.push(createServiceAddon('Wait Staff Service', 'Professional wait staff for serving and guest assistance'));
+    lineItems.push(createServiceAddon('Wait Staff Service', 'Professional wait staff for serving and guest assistance', 'wait_staff_requested'));
   }
   if (quote.bussing_tables_needed) {
-    lineItems.push(createServiceAddon('Table Bussing Service', 'Professional table clearing and maintenance during event'));
+    lineItems.push(createServiceAddon('Table Bussing Service', 'Professional table clearing and maintenance during event', 'bussing_tables_needed'));
   }
 
-  // Equipment rentals
+  // Equipment rentals (track source from customer form)
   if (quote.chafers_requested) {
-    lineItems.push(createServiceAddon('Chafers (Food Warmers)', 'Stainless steel chafers to keep food warm throughout service'));
+    lineItems.push(createServiceAddon('Chafers (Food Warmers)', 'Stainless steel chafers to keep food warm throughout service', 'chafers_requested'));
   }
   if ((quote as any).serving_utensils_requested) {
-    lineItems.push(createServiceAddon('Serving Utensils', 'Professional serving spoons, tongs, and ladles for buffet service'));
+    lineItems.push(createServiceAddon('Serving Utensils', 'Professional serving spoons, tongs, and ladles for buffet service', 'serving_utensils_requested'));
   }
 
-  // Dining supplies
+  // Dining supplies (track source from customer form)
   if ((quote as any).plates_requested) {
-    lineItems.push(createServiceAddon('Disposable Plates', 'High-quality disposable plates for guest dining'));
+    lineItems.push(createServiceAddon('Disposable Plates', 'High-quality disposable plates for guest dining', 'plates_requested'));
   }
   if ((quote as any).cups_requested) {
-    lineItems.push(createServiceAddon('Disposable Cups', 'Disposable cups for beverage service'));
+    lineItems.push(createServiceAddon('Disposable Cups', 'Disposable cups for beverage service', 'cups_requested'));
   }
   if ((quote as any).napkins_requested) {
-    lineItems.push(createServiceAddon('Disposable Napkins', 'Napkins for guest use during dining'));
+    lineItems.push(createServiceAddon('Disposable Napkins', 'Napkins for guest use during dining', 'napkins_requested'));
   }
   if ((quote as any).ice_requested) {
-    lineItems.push(createServiceAddon('Ice Service', 'Bagged ice for beverage service and cooling'));
+    lineItems.push(createServiceAddon('Ice Service', 'Bagged ice for beverage service and cooling', 'ice_requested'));
   }
   
   return lineItems;
@@ -447,7 +456,7 @@ function createServicePackage(quote: QuoteRequest): LineItem {
   };
 }
 
-function createServiceAddon(title: string, description: string): LineItem {
+function createServiceAddon(title: string, description: string, source?: string): LineItem {
   return {
     id: `service_addon_${Date.now()}`,
     title: title,
@@ -455,6 +464,7 @@ function createServiceAddon(title: string, description: string): LineItem {
     quantity: 1,
     unit_price: 0,
     total_price: 0,
-    category: 'service'
-  };
+    category: 'service',
+    metadata: source ? { source: 'customer_request', sourceField: source } : undefined
+  } as any;
 }

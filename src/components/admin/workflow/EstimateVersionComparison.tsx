@@ -25,6 +25,7 @@ interface VersionChange {
   newPrice?: number;
   oldQuantity?: number;
   newQuantity?: number;
+  metadata?: any;
 }
 
 interface EstimateVersionComparisonProps {
@@ -99,7 +100,8 @@ export function EstimateVersionComparison({
         changes.push({
           type: 'added',
           title: newItem.title,
-          newPrice: newItem.total_price
+          newPrice: newItem.total_price,
+          metadata: newItem.metadata
         });
       }
     });
@@ -111,7 +113,8 @@ export function EstimateVersionComparison({
         changes.push({
           type: 'removed',
           title: oldItem.title,
-          oldPrice: oldItem.total_price
+          oldPrice: oldItem.total_price,
+          metadata: oldItem.metadata
         });
       }
     });
@@ -128,7 +131,8 @@ export function EstimateVersionComparison({
           oldPrice: oldItem.total_price,
           newPrice: newItem.total_price,
           oldQuantity: oldItem.quantity,
-          newQuantity: newItem.quantity
+          newQuantity: newItem.quantity,
+          metadata: newItem.metadata
         });
       }
     });
@@ -193,48 +197,63 @@ export function EstimateVersionComparison({
             <div className="space-y-2">
               <div className="font-semibold text-sm">Changes Made:</div>
               
-              {changes.map((change, idx) => (
-                <div key={idx} className="flex items-start gap-2 text-sm">
-                  {change.type === 'added' && (
-                    <>
-                      <Plus className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                      <div className="flex-1">
-                        <span className="font-medium">Added:</span> {change.title}
-                        <span className="text-muted-foreground ml-2">
-                          {formatCurrency(change.newPrice || 0)}
-                        </span>
-                      </div>
-                    </>
-                  )}
-                  
-                  {change.type === 'removed' && (
-                    <>
-                      <Trash2 className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />
-                      <div className="flex-1">
-                        <span className="font-medium">Removed:</span> {change.title}
-                        <span className="text-muted-foreground ml-2 line-through">
-                          {formatCurrency(change.oldPrice || 0)}
-                        </span>
-                      </div>
-                    </>
-                  )}
-                  
-                  {change.type === 'modified' && (
-                    <>
-                      <Edit3 className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
-                      <div className="flex-1">
-                        <span className="font-medium">Modified:</span> {change.title}
-                        <span className="text-muted-foreground ml-2">
-                          {change.oldQuantity !== change.newQuantity && (
-                            <span>Qty: {change.oldQuantity} → {change.newQuantity} </span>
+              {changes.map((change, idx) => {
+                // Check if item is customer-sourced
+                const isCustomerSource = (change as any).metadata?.source === 'customer_request';
+                
+                return (
+                  <div key={idx} className="flex items-start gap-2 text-sm">
+                    {change.type === 'added' && (
+                      <>
+                        <Plus className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                        <div className="flex-1">
+                          <span className="font-medium">Added:</span> {change.title}
+                          {isCustomerSource && (
+                            <Badge variant="outline" className="ml-2 text-[9px] h-4 px-1 bg-blue-50 text-blue-700 border-blue-300">
+                              Customer Request
+                            </Badge>
                           )}
-                          {formatCurrency(change.oldPrice || 0)} → {formatCurrency(change.newPrice || 0)}
-                        </span>
-                      </div>
-                    </>
-                  )}
-                </div>
-              ))}
+                          <span className="text-muted-foreground ml-2">
+                            {formatCurrency(change.newPrice || 0)}
+                          </span>
+                        </div>
+                      </>
+                    )}
+                    
+                    {change.type === 'removed' && (
+                      <>
+                        <Trash2 className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />
+                        <div className="flex-1">
+                          <span className="font-medium">Removed:</span> {change.title}
+                          <span className="text-muted-foreground ml-2 line-through">
+                            {formatCurrency(change.oldPrice || 0)}
+                          </span>
+                        </div>
+                      </>
+                    )}
+                    
+                    {change.type === 'modified' && (
+                      <>
+                        <Edit3 className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                        <div className="flex-1">
+                          <span className="font-medium">Modified:</span> {change.title}
+                          {isCustomerSource && (
+                            <Badge variant="outline" className="ml-2 text-[9px] h-4 px-1 bg-blue-50 text-blue-700 border-blue-300">
+                              Customer Request
+                            </Badge>
+                          )}
+                          <span className="text-muted-foreground ml-2">
+                            {change.oldQuantity !== change.newQuantity && (
+                              <span>Qty: {change.oldQuantity} → {change.newQuantity} </span>
+                            )}
+                            {formatCurrency(change.oldPrice || 0)} → {formatCurrency(change.newPrice || 0)}
+                          </span>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                );
+              })}
             </div>
 
             <div className="pt-3 border-t flex justify-between items-center">

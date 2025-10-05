@@ -271,12 +271,129 @@ export class QuoteUpdateService {
   }
 
   /**
+   * Normalize title for robust matching
+   */
+  private normalizeForMatching(title: string): string {
+    return title
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, ' ')
+      .replace(/[^\w\s]/g, '');
+  }
+
+  /**
+   * Fuzzy match using Dice coefficient (70% similarity threshold)
+   */
+  private fuzzyMatch(str1: string, str2: string): boolean {
+    const bigrams1 = this.getBigrams(str1);
+    const bigrams2 = this.getBigrams(str2);
+    const intersection = bigrams1.filter(b => bigrams2.includes(b)).length;
+    const similarity = (2 * intersection) / (bigrams1.length + bigrams2.length);
+    return similarity >= 0.7;
+  }
+
+  private getBigrams(str: string): string[] {
+    const bigrams: string[] = [];
+    for (let i = 0; i < str.length - 1; i++) {
+      bigrams.push(str.substring(i, i + 2));
+    }
+    return bigrams;
+  }
+
+  /**
+   * Find matching price using 3-tier strategy
+   */
+  private findMatchingPrice(
+    newItem: any,
+    beforeItems: any[]
+  ): { unit_price: number; total_price: number; metadata: any } | null {
+    const normalizedNewTitle = this.normalizeForMatching(newItem.title);
+    
+    // Tier 1: Exact normalized match
+    for (const oldItem of beforeItems) {
+      const normalizedOldTitle = this.normalizeForMatching(oldItem.title);
+      if (normalizedOldTitle === normalizedNewTitle && oldItem.category === newItem.category) {
+        // Check if quantity changed
+        if (oldItem.quantity !== newItem.quantity) {
+          // Recalculate price based on quantity change
+          const newTotalPrice = Math.round((oldItem.unit_price * newItem.quantity));
+          return {
+            unit_price: oldItem.unit_price,
+            total_price: newTotalPrice,
+            metadata: {
+              isModified: true,
+              quantityChanged: true,
+              previousQuantity: oldItem.quantity,
+              previousPrice: oldItem.total_price
+            }
+          };
+        }
+        // Exact match - preserve pricing
+        return {
+          unit_price: oldItem.unit_price,
+          total_price: oldItem.total_price,
+          metadata: {}
+        };
+      }
+    }
+    
+    // Tier 2: Fuzzy match by category + partial title
+    for (const oldItem of beforeItems) {
+      if (oldItem.category === newItem.category) {
+        const normalizedOldTitle = this.normalizeForMatching(oldItem.title);
+        if (this.fuzzyMatch(normalizedOldTitle, normalizedNewTitle)) {
+          // Check if quantity changed
+          if (oldItem.quantity !== newItem.quantity) {
+            const newTotalPrice = Math.round((oldItem.unit_price * newItem.quantity));
+            return {
+              unit_price: oldItem.unit_price,
+              total_price: newTotalPrice,
+              metadata: {
+                isModified: true,
+                quantityChanged: true,
+                previousQuantity: oldItem.quantity,
+                previousPrice: oldItem.total_price
+              }
+            };
+          }
+          // Fuzzy match - preserve pricing but mark as modified
+          return {
+            unit_price: oldItem.unit_price,
+            total_price: oldItem.total_price,
+            metadata: { isModified: true }
+          };
+        }
+      }
+    }
+    
+    // Tier 3: New item - return null (will default to $0)
+    return null;
+  }
+
+  /**
+   * Detect complete category removals
+   */
+  private detectCategoryRemovals(beforeItems: any[], afterItems: any[]): string[] {
+    const beforeCategories = new Set(beforeItems.map(item => item.category));
+    const afterCategories = new Set(afterItems.map(item => item.category));
+    
+    const removedCategories: string[] = [];
+    beforeCategories.forEach(cat => {
+      if (!afterCategories.has(cat)) {
+        removedCategories.push(cat);
+      }
+    });
+    
+    return removedCategories;
+  }
+
+  /**
    * Update invoice line items based on quote changes
    * Intelligently adds/removes/updates items while preserving manual pricing
    */
   async updateInvoiceLineItems(invoiceId: string, quoteId: string, changes: any, changeRequestId?: string): Promise<void> {
     try {
-      console.log('🔄 Regenerating invoice line items after change request approval...');
+      console.log('🔄 Regenerating invoice line items with smart price preservation...');
       
       // STEP 1: Fetch updated quote with all menu data
       const { data: updatedQuote, error: fetchError } = await supabase
@@ -289,23 +406,13 @@ export class QuoteUpdateService {
         throw new Error('Failed to fetch updated quote');
       }
 
-      // STEP 2: Store "before" snapshot for history logging
+      // STEP 2: Store "before" snapshot for history logging and price preservation
       const { data: beforeItems } = await supabase
         .from('invoice_line_items')
         .select('*')
         .eq('invoice_id', invoiceId);
 
       console.log(`📸 Captured ${beforeItems?.length || 0} existing line items`);
-
-      // STEP 2.5: Create price lookup map from existing items for smart price preservation
-      const priceMap = new Map(
-        beforeItems?.map(item => [
-          `${item.title.toLowerCase()}-${item.category}`, 
-          { unit_price: item.unit_price, total_price: item.total_price }
-        ]) || []
-      );
-
-      console.log('💰 Price map created with', priceMap.size, 'entries');
 
       // STEP 3: Delete ALL existing invoice line items
       const { error: deleteError } = await supabase
@@ -332,7 +439,6 @@ export class QuoteUpdateService {
       };
 
       // STEP 5: Generate fresh line items from updated quote
-      // This will now include ALL service options (wait staff, ice, plates, etc.)
       const newLineItems = generateProfessionalLineItems(quoteForLineItems as any);
       
       if (newLineItems.length === 0) {
@@ -341,27 +447,53 @@ export class QuoteUpdateService {
 
       console.log(`🎯 Generated ${newLineItems.length} new line items`);
 
-      // STEP 5.5: SMART PRICE COPYING - Preserve prices for unchanged items
+      // STEP 6: ENHANCED PRICE PRESERVATION - Apply smart matching and change tracking
       const lineItemsWithPricing = newLineItems.map(item => {
-        const key = `${item.title.toLowerCase()}-${item.category}`;
-        const existingPrices = priceMap.get(key);
+        const matchResult = this.findMatchingPrice(item, beforeItems || []);
         
-        // If same item existed before, preserve its pricing
-        if (existingPrices) {
-          console.log(`💵 Preserving price for "${item.title}": $${existingPrices.unit_price / 100}`);
+        if (matchResult) {
+          // Item matched - preserve price and add metadata
+          console.log(`💵 Preserving price for "${item.title}": $${matchResult.unit_price / 100}`);
           return {
             ...item,
-            unit_price: existingPrices.unit_price,
-            total_price: existingPrices.total_price
+            unit_price: matchResult.unit_price,
+            total_price: matchResult.total_price,
+            metadata: matchResult.metadata
+          };
+        } else {
+          // New item - set to $0 and mark as new
+          console.log(`🆕 New item "${item.title}" set to $0 for manual pricing`);
+          return {
+            ...item,
+            unit_price: 0,
+            total_price: 0,
+            metadata: { isNew: true }
           };
         }
-        
-        // New items stay at $0 for manual pricing
-        console.log(`🆕 New item "${item.title}" set to $0 for manual pricing`);
-        return item;
       });
 
-      // STEP 6: Insert new line items (with preserved pricing)
+      // STEP 7: Detect category removals
+      const removedCategories = this.detectCategoryRemovals(
+        beforeItems || [],
+        lineItemsWithPricing
+      );
+
+      if (removedCategories.length > 0) {
+        console.log(`🗑️ Complete categories removed: ${removedCategories.join(', ')}`);
+        
+        // Log category removals to workflow_state_log
+        await supabase.from('workflow_state_log').insert({
+          entity_type: 'invoice',
+          entity_id: invoiceId,
+          previous_status: 'active_categories',
+          new_status: 'categories_removed',
+          changed_by: 'system',
+          change_reason: `Complete category removal: ${removedCategories.join(', ')}`,
+          metadata: { removed_categories: removedCategories }
+        });
+      }
+
+      // STEP 8: Insert new line items with metadata
       const lineItemsToInsert = lineItemsWithPricing.map(item => ({
         invoice_id: invoiceId,
         title: item.title,
@@ -369,7 +501,8 @@ export class QuoteUpdateService {
         category: item.category || 'other',
         quantity: item.quantity || 1,
         unit_price: item.unit_price || 0,
-        total_price: item.total_price || 0
+        total_price: item.total_price || 0,
+        metadata: item.metadata || {}
       }));
 
       const { error: insertError } = await supabase
@@ -380,10 +513,10 @@ export class QuoteUpdateService {
         throw new Error(`Failed to insert line items: ${insertError.message}`);
       }
 
-      console.log(`✅ Inserted ${newLineItems.length} new invoice line items`);
+      console.log(`✅ Inserted ${newLineItems.length} new invoice line items with change tracking`);
 
-      // STEP 7: Recalculate invoice totals using TaxCalculationService
-      const newSubtotal = newLineItems.reduce((sum, item) => sum + (item.total_price || 0), 0);
+      // STEP 9: Recalculate invoice totals
+      const newSubtotal = lineItemsWithPricing.reduce((sum, item) => sum + (item.total_price || 0), 0);
       const isGovContract = updatedQuote.compliance_level === 'government' || 
                             updatedQuote.requires_po_number === true;
       const { TaxCalculationService } = await import('../services/TaxCalculationService');
@@ -401,7 +534,7 @@ export class QuoteUpdateService {
 
       console.log(`💰 Recalculated totals: $${(taxCalc.totalAmount/100).toFixed(2)} (${taxCalc.isExempt ? 'TAX EXEMPT' : '8% tax'})`);
 
-      // STEP 8: Log changes to history
+      // STEP 10: Log changes to history
       if (changeRequestId) {
         const { data: afterItems } = await supabase
           .from('invoice_line_items')
