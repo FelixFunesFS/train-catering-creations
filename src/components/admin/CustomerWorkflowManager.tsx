@@ -120,7 +120,7 @@ export function CustomerWorkflowManager({ quote, invoice, onRefresh }: CustomerW
         case 'confirm_event':
           await supabase
             .from('quote_requests')
-            .update({ status: 'confirmed' })
+            .update({ workflow_status: 'confirmed' })
             .eq('id', quote.id);
           toast({
             title: "Event Confirmed",

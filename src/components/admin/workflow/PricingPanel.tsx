@@ -44,7 +44,7 @@ interface Quote {
 interface Invoice {
   id: string;
   quote_request_id: string;
-  status: string;
+  workflow_status: string;
 }
 
 interface LineItem {

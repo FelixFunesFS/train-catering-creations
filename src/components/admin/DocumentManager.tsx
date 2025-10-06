@@ -58,7 +58,7 @@ export function DocumentManager() {
         .select(`
           id,
           invoice_number,
-          status,
+          workflow_status,
           total_amount,
           created_at,
           pdf_url,
@@ -74,9 +74,9 @@ export function DocumentManager() {
         id: invoice.id,
         name: invoice.invoice_number || `Invoice - ${invoice.quote_requests?.event_name}`,
         type: invoice.is_draft ? 'estimate' : 'invoice',
-        status: invoice.status === 'draft' ? 'draft' : 
-                invoice.status === 'sent' ? 'sent' : 
-                invoice.status === 'paid' ? 'completed' : 'sent',
+        status: invoice.workflow_status === 'draft' ? 'draft' : 
+                invoice.workflow_status === 'sent' ? 'sent' : 
+                invoice.workflow_status === 'paid' ? 'completed' : 'sent',
         created_at: invoice.created_at,
         file_url: invoice.pdf_url,
         related_invoice_id: invoice.id,

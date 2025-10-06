@@ -33,7 +33,7 @@ interface LineItem {
 interface InvoiceData {
   id: string;
   invoice_number: string;
-  status: string;
+  workflow_status: string;
   subtotal: number;
   tax_amount: number;
   total_amount: number;

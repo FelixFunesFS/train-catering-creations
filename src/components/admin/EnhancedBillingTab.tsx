@@ -38,7 +38,7 @@ interface BillingTabProps {
 interface Invoice {
   id: string;
   invoice_number: string;
-  status: string;
+  workflow_status: string;
   total_amount: number;
   due_date: string;
   sent_at?: string;

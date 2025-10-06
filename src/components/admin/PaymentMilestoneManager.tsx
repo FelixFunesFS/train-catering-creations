@@ -36,7 +36,7 @@ interface Invoice {
   id: string;
   quote_request_id: string;
   total_amount: number;
-  status: string;
+  workflow_status: string;
   document_type: string;
   customer_access_token: string;
 }

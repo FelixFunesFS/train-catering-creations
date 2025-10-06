@@ -32,7 +32,7 @@ interface EventDetails {
   email: string;
   location: string;
   guest_count: number;
-  status: string;
+  workflow_status: string;
   primary_protein?: string;
   secondary_protein?: string;
 }

@@ -26,7 +26,7 @@ type Quote = QuoteRequest & {
 interface Invoice {
   id: string;
   quote_request_id: string;
-  status: string;
+  workflow_status: string;
   subtotal: number;
   tax_amount: number;
   total_amount: number;

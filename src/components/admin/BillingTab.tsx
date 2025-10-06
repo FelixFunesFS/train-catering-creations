@@ -31,7 +31,7 @@ interface BillingTabProps {
 interface Invoice {
   id: string;
   invoiceNumber: string;
-  status: 'draft' | 'open' | 'paid' | 'void' | 'uncollectible';
+  workflow_status: 'draft' | 'open' | 'paid' | 'void' | 'uncollectible';
   amountTotal: number;
   amountDue: number;
   currency: string;

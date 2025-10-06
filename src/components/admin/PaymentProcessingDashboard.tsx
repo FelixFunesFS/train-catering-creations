@@ -24,7 +24,7 @@ interface Invoice {
   id: string;
   quote_request_id: string;
   total_amount: number;
-  status: string;
+  workflow_status: string;
   document_type: string;
   created_at: string;
   due_date: string | null;

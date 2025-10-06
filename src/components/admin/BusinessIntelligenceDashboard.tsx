@@ -113,9 +113,9 @@ export function BusinessIntelligenceDashboard() {
       // Calculate metrics
       const totalQuotes = quotes?.length || 0;
       const quotesWithInvoices = quotes?.filter(q => q.invoices?.length > 0).length || 0;
-      const paidInvoices = invoices?.filter(i => i.status === 'paid') || [];
+      const paidInvoices = invoices?.filter(i => i.workflow_status === 'paid') || [];
       const totalRevenue = paidInvoices.reduce((sum, i) => sum + (i.total_amount / 100), 0);
-      const pendingPayments = invoices?.filter(i => i.status === 'sent' || i.status === 'approved').length || 0;
+      const pendingPayments = invoices?.filter(i => i.workflow_status === 'sent' || i.workflow_status === 'approved').length || 0;
       const estimateViews = invoices?.reduce((sum, i) => sum + (i.estimate_viewed_count || 0), 0) || 0;
 
       const conversionRate = totalQuotes > 0 ? (quotesWithInvoices / totalQuotes) * 100 : 0;
