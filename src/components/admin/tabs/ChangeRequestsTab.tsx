@@ -26,7 +26,6 @@ interface ChangeRequest {
   customer_email: string;
   workflow_status: string;
   request_type: string;
-  status: string;
   priority: string;
   customer_comments: string;
   admin_response: string | null;
@@ -178,8 +177,8 @@ export function ChangeRequestsTab({ loading: externalLoading, onRefresh }: Chang
     }
   };
 
-  const pendingRequests = changeRequests.filter(r => r.status === 'pending');
-  const processedRequests = changeRequests.filter(r => r.status !== 'pending');
+  const pendingRequests = changeRequests.filter(r => r.workflow_status === 'pending');
+  const processedRequests = changeRequests.filter(r => r.workflow_status !== 'pending');
 
   if (loading || externalLoading) {
     return (
@@ -222,7 +221,7 @@ export function ChangeRequestsTab({ loading: externalLoading, onRefresh }: Chang
               <div>
                 <p className="text-sm font-medium text-muted-foreground">High Priority</p>
                 <p className="text-2xl font-bold">
-                  {changeRequests.filter(r => r.priority === 'high' && r.status === 'pending').length}
+                  {changeRequests.filter(r => r.priority === 'high' && r.workflow_status === 'pending').length}
                 </p>
               </div>
               <AlertCircle className="h-8 w-8 text-red-600" />
@@ -237,7 +236,7 @@ export function ChangeRequestsTab({ loading: externalLoading, onRefresh }: Chang
                 <p className="text-sm font-medium text-muted-foreground">Approved Today</p>
                 <p className="text-2xl font-bold">
                   {changeRequests.filter(r => 
-                    r.status === 'approved' && 
+                    r.workflow_status === 'approved' &&
                     new Date(r.updated_at).toDateString() === new Date().toDateString()
                   ).length}
                 </p>
@@ -276,9 +275,9 @@ export function ChangeRequestsTab({ loading: externalLoading, onRefresh }: Chang
                   <div className="flex-1 space-y-3">
                     {/* Header Info */}
                     <div className="flex flex-wrap items-center gap-2">
-                      <Badge className={getStatusColor(request.status)}>
-                        {getStatusIcon(request.status)}
-                        <span className="ml-1 capitalize">{request.status.replace('_', ' ')}</span>
+                      <Badge className={getStatusColor(request.workflow_status)}>
+                        {getStatusIcon(request.workflow_status)}
+                        <span className="ml-1 capitalize">{request.workflow_status.replace('_', ' ')}</span>
                       </Badge>
                       <Badge className={getPriorityColor(request.priority)}>
                         {request.priority.toUpperCase()} Priority
@@ -416,9 +415,9 @@ export function ChangeRequestsTab({ loading: externalLoading, onRefresh }: Chang
               {processedRequests.slice(0, 10).map((request) => (
                 <div key={request.id} className="flex items-center justify-between p-3 border rounded-lg">
                   <div className="flex items-center gap-3">
-                    <Badge className={getStatusColor(request.status)}>
-                      {getStatusIcon(request.status)}
-                      <span className="ml-1 capitalize">{request.status.replace('_', ' ')}</span>
+                    <Badge className={getStatusColor(request.workflow_status)}>
+                      {getStatusIcon(request.workflow_status)}
+                      <span className="ml-1 capitalize">{request.workflow_status.replace('_', ' ')}</span>
                     </Badge>
                     <div>
                       <p className="font-medium text-sm">{request.invoice?.quote_requests?.event_name || 'Unknown Event'}</p>

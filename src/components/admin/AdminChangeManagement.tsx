@@ -383,7 +383,7 @@ export function AdminChangeManagement({ onRefresh }: AdminChangeManagementProps)
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <MessageSquare className="w-5 h-5" />
-                Change Requests ({changeRequests.filter(r => r.status === 'pending').length} pending)
+                Change Requests ({changeRequests.filter(r => r.workflow_status === 'pending').length} pending)
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -408,7 +408,7 @@ export function AdminChangeManagement({ onRefresh }: AdminChangeManagementProps)
                           {request.invoices.quote_requests.contact_name} • {request.customer_email}
                         </p>
                       </div>
-                      {getStatusBadge(request.status)}
+                      {getStatusBadge(request.workflow_status)}
                     </div>
 
                     <div className="space-y-2">
@@ -496,7 +496,7 @@ export function AdminChangeManagement({ onRefresh }: AdminChangeManagementProps)
                 </CardContent>
               </Card>
 
-              {selectedRequest.status === 'pending' && (
+              {selectedRequest.workflow_status === 'pending' && (
                 <Card>
                   <CardHeader>
                     <CardTitle>Process Request</CardTitle>

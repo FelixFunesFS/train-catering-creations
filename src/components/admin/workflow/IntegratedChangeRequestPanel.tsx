@@ -234,8 +234,8 @@ export function IntegratedChangeRequestPanel({
     );
   }
 
-  const pendingRequests = changeRequests.filter(r => r.status === 'pending');
-  const processedRequests = changeRequests.filter(r => r.status !== 'pending');
+  const pendingRequests = changeRequests.filter(r => r.workflow_status === 'pending');
+  const processedRequests = changeRequests.filter(r => r.workflow_status !== 'pending');
 
   // No change requests at all
   if (changeRequests.length === 0) {
@@ -289,7 +289,7 @@ export function IntegratedChangeRequestPanel({
                     </p>
                   </div>
                   <div className="flex flex-col items-end gap-2">
-                    {getStatusBadge(request.status)}
+                    {getStatusBadge(request.workflow_status)}
                     <Badge variant="outline" className="text-xs">
                       {request.priority} priority
                     </Badge>
@@ -304,7 +304,7 @@ export function IntegratedChangeRequestPanel({
                 />
 
                 {/* Action Panel for Selected Request */}
-                {selectedRequest?.id === request.id && request.status === 'pending' && (
+                {selectedRequest?.id === request.id && request.workflow_status === 'pending' && (
                   <div className="mt-4 pt-4 border-t space-y-3">
                     <div>
                       <Label htmlFor="admin-response" className="text-sm font-medium">
@@ -380,7 +380,7 @@ export function IntegratedChangeRequestPanel({
                   key={request.id}
                   className="p-3 border-l-4"
                   style={{
-                    borderLeftColor: request.status === 'approved' 
+                    borderLeftColor: request.workflow_status === 'approved' 
                       ? 'hsl(var(--success))' 
                       : 'hsl(var(--destructive))'
                   }}
@@ -389,16 +389,16 @@ export function IntegratedChangeRequestPanel({
                     {/* Status Header */}
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-center gap-2">
-                        {request.status === 'approved' ? (
+                        {request.workflow_status === 'approved' ? (
                           <Check className="h-4 w-4 text-success shrink-0" />
                         ) : (
                           <X className="h-4 w-4 text-destructive shrink-0" />
                         )}
                         <span className="text-xs font-semibold uppercase tracking-wide">
-                          {request.status}
+                          {request.workflow_status}
                         </span>
                       </div>
-                      {getStatusBadge(request.status)}
+                      {getStatusBadge(request.workflow_status)}
                     </div>
 
                     {/* Changes Summary */}
@@ -489,7 +489,7 @@ export function IntegratedChangeRequestPanel({
                       </p>
                     </div>
                     <div className="flex flex-col items-end gap-2">
-                      {getStatusBadge(request.status)}
+                      {getStatusBadge(request.workflow_status)}
                       <Badge variant="outline" className="text-xs">
                         {request.priority} priority
                       </Badge>
@@ -504,7 +504,7 @@ export function IntegratedChangeRequestPanel({
                   />
 
                   {/* Action Panel for Selected Request */}
-                  {selectedRequest?.id === request.id && request.status === 'pending' && (
+                  {selectedRequest?.id === request.id && request.workflow_status === 'pending' && (
                     <div className="mt-4 pt-4 border-t space-y-3">
                       <div>
                         <Label htmlFor="admin-response" className="text-sm font-medium">
@@ -587,7 +587,7 @@ export function IntegratedChangeRequestPanel({
               >
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">{request.event_name}</span>
-                  {getStatusBadge(request.status)}
+                  {getStatusBadge(request.workflow_status)}
                 </div>
                 <p className="text-xs text-muted-foreground">{request.customer_comments}</p>
                 {request.admin_response && (

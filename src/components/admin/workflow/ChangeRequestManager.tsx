@@ -15,7 +15,6 @@ interface ChangeRequest {
   request_type: string;
   workflow_status: string;
   priority: string;
-  status: string;
   customer_comments: string;
   admin_response: string | null;
   estimated_cost_change: number;
@@ -187,8 +186,8 @@ export const ChangeRequestManager = ({ invoiceId, onChangeProcessed }: ChangeReq
             <div className="flex items-start justify-between">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <Badge className={getStatusColor(request.status)}>
-                    {request.status}
+                  <Badge className={getStatusColor(request.workflow_status)}>
+                    {request.workflow_status}
                   </Badge>
                   <Badge variant="outline" className={getPriorityColor(request.priority)}>
                     {request.priority} priority
@@ -241,7 +240,7 @@ export const ChangeRequestManager = ({ invoiceId, onChangeProcessed }: ChangeReq
               )}
             </div>
 
-            {request.status === 'pending' && (
+            {request.workflow_status === 'pending' && (
               <div className="space-y-3 pt-3 border-t">
                 <Textarea
                   placeholder="Enter your response to the customer..."
