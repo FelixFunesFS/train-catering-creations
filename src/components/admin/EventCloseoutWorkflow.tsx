@@ -35,7 +35,7 @@ export function EventCloseoutWorkflow({ quotes, loading, onRefresh }: EventClose
   const completedEvents = quotes.filter(quote => {
     const eventDate = new Date(quote.event_date);
     const now = new Date();
-    return eventDate < now && quote.status === 'confirmed';
+    return eventDate < now && quote.workflow_status === 'confirmed';
   });
 
   const recentEvents = completedEvents.filter(quote => {

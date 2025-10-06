@@ -34,7 +34,7 @@ export function EventPlanningWorkflow({ quotes, loading, onRefresh }: EventPlann
 
   // Filter quotes that have been paid and are ready for event planning
   const confirmedEvents = quotes.filter(quote => 
-    quote.status === 'confirmed' || quote.workflow_status === 'confirmed'
+    quote.workflow_status === 'confirmed'
   );
 
   const upcomingEvents = confirmedEvents.filter(quote => {

@@ -60,7 +60,7 @@ export function InvoiceManagementTab({
     invoices: invoices.map(inv => ({
       id: inv.id,
       is_draft: inv.is_draft,
-      status: inv.status,
+      workflow_status: inv.workflow_status,
       quote_request_id: inv.quote_request_id,
       total_amount: inv.total_amount
     }))
@@ -88,7 +88,7 @@ export function InvoiceManagementTab({
         invoice.customers?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         invoice.quote_requests?.event_name?.toLowerCase().includes(searchTerm.toLowerCase());
       
-      const matchesStatus = statusFilter === 'all' || invoice.status === statusFilter;
+      const matchesStatus = statusFilter === 'all' || invoice.workflow_status === statusFilter;
       
       return matchesSearch && matchesStatus;
     })

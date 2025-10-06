@@ -145,13 +145,13 @@ export function ConsolidatedWorkflowManager({ quote, invoice, onRefresh }: Conso
     
     // Check actual completion based on data
     if (stepId === 'pricing_completed' && quote?.estimated_total > 0) return 'completed';
-    if (stepId === 'estimate_sent' && (quote?.status === 'quoted' || invoice?.status === 'sent')) return 'completed';
-    if (stepId === 'payment_processed' && invoice?.status === 'paid') return 'completed';
+    if (stepId === 'estimate_sent' && (quote?.workflow_status === 'quoted' || invoice?.workflow_status === 'sent')) return 'completed';
+    if (stepId === 'payment_processed' && invoice?.workflow_status === 'paid') return 'completed';
     
     // Phase-based logic for current step
     if (step.phase === 'quote' && currentPhase === 'quote') {
       if (stepId === 'pricing_completed') return quote?.estimated_total > 0 ? 'completed' : 'current';
-      if (stepId === 'estimate_sent') return quote?.status === 'quoted' ? 'current' : 'upcoming';
+      if (stepId === 'estimate_sent') return quote?.workflow_status === 'quoted' ? 'current' : 'upcoming';
     }
     
     if (step.phase === currentPhase) return 'current';

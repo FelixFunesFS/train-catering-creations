@@ -29,7 +29,7 @@ interface DraftInvoice {
   event_name: string;
   event_date: string;
   total_amount: number;
-  status: string;
+  workflow_status: string;
   created_at: string;
   updated_at: string;
   last_quote_sync?: string;
@@ -77,7 +77,7 @@ export function InvoiceDraftManager({ onEditDraft, onDeleteDraft, onGenerateFrom
         event_name: item.quote_requests.event_name,
         event_date: item.quote_requests.event_date,
         total_amount: item.total_amount,
-        status: item.status,
+        workflow_status: item.workflow_status,
         created_at: item.created_at,
         updated_at: item.updated_at,
         last_quote_sync: item.last_quote_sync,
@@ -103,7 +103,7 @@ export function InvoiceDraftManager({ onEditDraft, onDeleteDraft, onGenerateFrom
                          draft.event_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          draft.invoice_number.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesStatus = statusFilter === 'all' || draft.status === statusFilter;
+    const matchesStatus = statusFilter === 'all' || draft.workflow_status === statusFilter;
     
     return matchesSearch && matchesStatus;
   });
@@ -214,8 +214,8 @@ export function InvoiceDraftManager({ onEditDraft, onDeleteDraft, onGenerateFrom
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
                       <h4 className="font-medium">{draft.invoice_number}</h4>
-                      <Badge className={getStatusColor(draft.status)}>
-                        {draft.status.replace('_', ' ')}
+                      <Badge className={getStatusColor(draft.workflow_status)}>
+                        {draft.workflow_status.replace('_', ' ')}
                       </Badge>
                     </div>
                     <div className="text-sm text-muted-foreground flex items-center gap-4">

@@ -116,7 +116,7 @@ export function AutomatedStatusManager({ onStatusUpdate, data }: AutomatedStatus
 
     // Check invoices
     data.invoices?.forEach((invoice: any) => {
-      if (invoice.status === rule.fromStatus) {
+      if (invoice.workflow_status === rule.fromStatus) {
         let shouldUpdate = false;
 
         switch (rule.condition) {
@@ -158,7 +158,7 @@ export function AutomatedStatusManager({ onStatusUpdate, data }: AutomatedStatus
 
     // Check quotes
     data.quotes?.forEach((quote: any) => {
-      if (quote.status === rule.fromStatus) {
+      if (quote.workflow_status === rule.fromStatus) {
         let shouldUpdate = false;
 
         switch (rule.condition) {
