@@ -1,8 +1,7 @@
 import { supabase } from '@/integrations/supabase/client';
-import { Database } from '@/integrations/supabase/types';
 
-type QuoteWorkflowStatus = Database['public']['Enums']['quote_workflow_status'] | 'awaiting_payment' | 'paid';
-type InvoiceWorkflowStatus = Database['public']['Enums']['invoice_workflow_status'] | 'payment_pending' | 'partially_paid';
+type QuoteWorkflowStatus = 'pending' | 'under_review' | 'quoted' | 'estimated' | 'approved' | 'awaiting_payment' | 'paid' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
+type InvoiceWorkflowStatus = 'draft' | 'pending_review' | 'sent' | 'viewed' | 'approved' | 'payment_pending' | 'partially_paid' | 'paid' | 'overdue' | 'cancelled';
 
 interface StatusTransition {
   from: string;
@@ -87,7 +86,7 @@ export class WorkflowStateManager {
       const { error: updateError } = await supabase
         .from('quote_requests')
         .update({
-          workflow_status: newStatus,
+          workflow_status: newStatus as any,
           last_status_change: new Date().toISOString(),
           status_changed_by: changedBy
         })
@@ -145,7 +144,7 @@ export class WorkflowStateManager {
       const { error: updateError } = await supabase
         .from('invoices')
         .update({
-          workflow_status: newStatus,
+          workflow_status: newStatus as any,
           last_status_change: new Date().toISOString(),
           status_changed_by: changedBy
         })

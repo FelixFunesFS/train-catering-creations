@@ -1860,6 +1860,8 @@ export type Database = {
         | "paid"
         | "overdue"
         | "cancelled"
+        | "payment_pending"
+        | "partially_paid"
       quote_status:
         | "pending"
         | "reviewed"
@@ -1877,6 +1879,8 @@ export type Database = {
         | "in_progress"
         | "completed"
         | "cancelled"
+        | "awaiting_payment"
+        | "paid"
       service_type:
         | "full-service"
         | "delivery-only"
@@ -2034,6 +2038,8 @@ export const Constants = {
         "paid",
         "overdue",
         "cancelled",
+        "payment_pending",
+        "partially_paid",
       ],
       quote_status: [
         "pending",
@@ -2053,6 +2059,8 @@ export const Constants = {
         "in_progress",
         "completed",
         "cancelled",
+        "awaiting_payment",
+        "paid",
       ],
       service_type: [
         "full-service",

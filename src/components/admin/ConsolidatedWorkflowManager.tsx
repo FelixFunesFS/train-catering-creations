@@ -7,6 +7,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useWorkflowSync } from '@/hooks/useWorkflowSync';
+import { ChangeRequestProcessor } from './ChangeRequestProcessor';
 import { 
   CheckCircle, 
   Circle, 
@@ -20,7 +21,8 @@ import {
   CreditCard,
   Utensils,
   RefreshCw,
-  Info
+  Info,
+  Edit
 } from 'lucide-react';
 
 interface ConsolidatedWorkflowManagerProps {
@@ -53,11 +55,13 @@ export function ConsolidatedWorkflowManager({ quote, invoice, onRefresh }: Conso
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);
+  const [changeRequests, setChangeRequests] = useState<any[]>([]);
   const { toast } = useToast();
   const { syncQuoteWithInvoice, validateWorkflowConsistency } = useWorkflowSync();
 
   useEffect(() => {
     loadCompletedSteps();
+    loadChangeRequests();
     if (quote?.id) {
       validateWorkflowConsistency(quote.id);
     }
@@ -76,6 +80,24 @@ export function ConsolidatedWorkflowManager({ quote, invoice, onRefresh }: Conso
       setCompletedSteps(data.map(item => item.step_id));
     } catch (error) {
       console.error('Error loading completed steps:', error);
+    }
+  };
+
+  const loadChangeRequests = async () => {
+    if (!invoice?.id) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('change_requests')
+        .select('*')
+        .eq('invoice_id', invoice.id)
+        .eq('workflow_status', 'pending')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setChangeRequests(data || []);
+    } catch (error) {
+      console.error('Error loading change requests:', error);
     }
   };
 
@@ -416,6 +438,26 @@ export function ConsolidatedWorkflowManager({ quote, invoice, onRefresh }: Conso
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* Change Requests Section */}
+      {changeRequests.length > 0 && (
+        <div className="space-y-4 mt-6">
+          <h3 className="text-lg font-semibold flex items-center gap-2">
+            <Edit className="h-5 w-5" />
+            Pending Change Requests
+          </h3>
+          {changeRequests.map((request) => (
+            <ChangeRequestProcessor
+              key={request.id}
+              changeRequest={request}
+              onProcessed={() => {
+                loadChangeRequests();
+                onRefresh?.();
+              }}
+            />
+          ))}
+        </div>
       )}
     </div>
   );
