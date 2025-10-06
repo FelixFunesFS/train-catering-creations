@@ -7,7 +7,7 @@ import { CheckCircle2, MessageSquare, Loader2 } from 'lucide-react';
 interface EstimateActionsProps {
   invoiceId: string;
   customerEmail: string;
-  status: string;
+  workflowStatus: string;
   onChangeRequested?: () => void;
   onEstimateAccepted?: () => void;
 }
@@ -15,7 +15,7 @@ interface EstimateActionsProps {
 export function EstimateActions({ 
   invoiceId, 
   customerEmail, 
-  status, 
+  workflowStatus, 
   onChangeRequested,
   onEstimateAccepted 
 }: EstimateActionsProps) {
@@ -31,11 +31,11 @@ export function EstimateActions({
   };
 
   // Show confirmation for change requests
-  if (status === 'change_requested') {
+  if (workflowStatus === 'pending_review') {
     return null; // Handled by parent component
   }
 
-  if (status === 'approved') {
+  if (workflowStatus === 'approved') {
     return (
       <Card className="border-primary bg-primary/5">
         <CardHeader>

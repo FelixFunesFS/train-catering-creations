@@ -72,9 +72,12 @@ export class EmailNotificationService {
       case 'approved':
         statusMessage = '<span style="color: #16a34a; font-weight: bold;">APPROVED</span>';
         nextSteps = `
-          <p>Great news! We've approved your change request and updated your estimate accordingly.</p>
+          <p>Great news! We've approved your change request and updated your estimate.</p>
           ${costChange ? `<p><strong>Price adjustment:</strong> ${costChange > 0 ? '+' : ''}$${(Math.abs(costChange) / 100).toFixed(2)}</p>` : ''}
-          <p><strong>Important:</strong> Please review the updated estimate and confirm your acceptance.</p>
+          <p><strong>View your updated estimate using your permanent portal link.</strong></p>
+          <p style="color: #6b7280; font-size: 14px; margin-top: 15px;">
+            💡 <em>Your estimate link remains the same - no new link needed!</em>
+          </p>
         `;
         if (estimateLink) {
           ctaButton = `
@@ -87,8 +90,11 @@ export class EmailNotificationService {
                         border-radius: 8px; 
                         font-weight: bold;
                         display: inline-block;">
-                Review Updated Estimate
+                View Updated Estimate
               </a>
+              <p style="margin-top: 15px; color: #6b7280; font-size: 13px;">
+                🔗 Bookmark this link - it's your permanent estimate portal
+              </p>
             </div>
           `;
         }

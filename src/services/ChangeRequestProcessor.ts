@@ -120,10 +120,23 @@ export class ChangeRequestProcessor {
       const newTokenExpiry = new Date();
       newTokenExpiry.setDate(newTokenExpiry.getDate() + 90); // 90 days from now
 
-      // STEP 10: Determine appropriate status after change approval
+      // STEP 10: Smart workflow status decision
+      // Option 1: Keep approved if cost change is minimal (<5%)
+      // Option 2: Send for re-review if significant change (>5%)
       const costChangeCents = newTotal - invoice.total_amount;
-      const isMinorChange = Math.abs(costChangeCents) < (invoice.total_amount * 0.1); // <10% change
-      const newWorkflowStatus = isMinorChange ? 'approved' : 'sent';
+      const changePercentage = Math.abs(costChangeCents / invoice.total_amount);
+      const isMinimalChange = changePercentage < 0.05; // <5% change
+      
+      // Smart logic: Keep current approved status if minimal change
+      type InvoiceWorkflowStatus = 'draft' | 'sent' | 'approved' | 'paid' | 'overdue' | 'cancelled' | 'pending_review' | 'viewed';
+      let newWorkflowStatus: InvoiceWorkflowStatus;
+      if (invoice.workflow_status === 'approved' && isMinimalChange) {
+        // Customer already approved, change is minimal - keep approved
+        newWorkflowStatus = 'approved';
+      } else {
+        // Significant change or not yet approved - send for review
+        newWorkflowStatus = 'sent';
+      }
 
       await supabase
         .from('invoices')
@@ -131,7 +144,8 @@ export class ChangeRequestProcessor {
           workflow_status: newWorkflowStatus,
           status_changed_by: 'admin',
           customer_access_token: newAccessToken,
-          token_expires_at: newTokenExpiry.toISOString()
+          token_expires_at: newTokenExpiry.toISOString(),
+          last_status_change: new Date().toISOString()
         })
         .eq('id', changeRequest.invoice_id);
 
@@ -225,7 +239,7 @@ export class ChangeRequestProcessor {
   private async getInvoiceAndQuote(invoiceId: string) {
     const { data: invoice, error: invoiceError } = await supabase
       .from('invoices')
-      .select('id, quote_request_id, total_amount')
+      .select('id, quote_request_id, total_amount, workflow_status')
       .eq('id', invoiceId)
       .single();
 

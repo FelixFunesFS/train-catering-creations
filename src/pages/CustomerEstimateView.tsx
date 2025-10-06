@@ -94,7 +94,7 @@ export default function CustomerEstimateView() {
           </Card>
 
           {/* Change Request Status Banner */}
-          {invoice.status === 'change_requested' && (
+          {invoice.workflow_status === 'pending_review' && (
             <Alert className="bg-orange-50 border-orange-200">
               <AlertCircle className="h-4 w-4 text-orange-600" />
               <AlertDescription className="text-orange-900">
@@ -133,7 +133,7 @@ export default function CustomerEstimateView() {
               />
 
               {/* Show confirmation if change was requested, otherwise show actions */}
-              {invoice.status === 'change_requested' ? (
+              {invoice.workflow_status === 'pending_review' ? (
                 <ChangeRequestConfirmation 
                   customerEmail={quote.email}
                   submittedAt={invoice.last_customer_action}
@@ -142,7 +142,7 @@ export default function CustomerEstimateView() {
                 <EstimateActions
                   invoiceId={invoice.id}
                   customerEmail={quote.email}
-                  status={invoice.status}
+                  workflowStatus={invoice.workflow_status}
                   onChangeRequested={() => setShowChangeForm(true)}
                   onEstimateAccepted={handleRefetchWithDelay}
                 />

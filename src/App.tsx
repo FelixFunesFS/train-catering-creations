@@ -80,6 +80,7 @@ const AppContent = () => {
           <Route path="/customer-portal" element={<TokenBasedCustomerPortal />} />
           <Route path="/customer/estimate/:token" element={<TokenBasedCustomerPortal />} />
           <Route path="/estimate-preview/:token" element={<TokenBasedCustomerPortal />} />
+          <Route path="/estimate" element={<TokenBasedCustomerPortal />} />
           <Route path="/contract/:contractId/:accessToken" element={<ContractSigning />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/payment-canceled" element={<PaymentCanceled />} />
