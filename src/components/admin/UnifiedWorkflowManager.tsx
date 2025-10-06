@@ -83,26 +83,41 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
 
   const { saveInvoiceChanges } = useInvoiceEditing();
 
-  // Calculate totals in real-time from line items
+  // Trust database as single source of truth - trigger handles all calculations
   const totals = useMemo(() => {
-    // If we have line items, calculate from them (real-time)
-    if (managedLineItems.length > 0) {
-      const subtotal = managedLineItems.reduce((sum, item) => sum + (item.total_price || 0), 0);
-      const taxRate = isGovernmentContract ? 0 : 0.08;
-      const tax_amount = Math.round(subtotal * taxRate);
-      const total_amount = subtotal + tax_amount;
-      
-      return { subtotal, tax_amount, total_amount };
-    }
-    
-    // Fall back to invoice data if no line items yet
     if (!invoice) return { subtotal: 0, tax_amount: 0, total_amount: 0 };
     return {
       subtotal: invoice.subtotal || 0,
       tax_amount: invoice.tax_amount || 0,
       total_amount: invoice.total_amount || 0
     };
-  }, [managedLineItems, isGovernmentContract, invoice]);
+  }, [invoice]);
+
+  // Subscribe to invoice updates (triggered by line item changes via database trigger)
+  useEffect(() => {
+    if (!invoice?.id) return;
+
+    const channel = supabase
+      .channel('invoice-totals-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'invoices',
+          filter: `id=eq.${invoice.id}`
+        },
+        (payload) => {
+          console.log('📊 Invoice totals updated by database trigger:', payload.new);
+          refetchInvoice(invoice.id);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [invoice?.id]);
 
   // Load quotes on mount
   useEffect(() => {

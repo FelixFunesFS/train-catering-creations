@@ -99,6 +99,10 @@ export function useLineItemManagement({
       setIsModified(false);
       setLastCalculated(new Date());
       
+      // Database trigger will recalculate totals automatically
+      // Wait briefly for trigger to complete, then refetch invoice
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
       toast({
         title: "Auto-saved",
         description: "Changes automatically saved",

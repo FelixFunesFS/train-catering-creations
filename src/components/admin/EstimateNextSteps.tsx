@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { validateInvoiceTotalsBeforeAction } from '@/utils/invoiceValidation';
 // Email modal removed - using send-workflow-email edge function directly
 import {
   CheckCircle2,
@@ -53,6 +54,18 @@ export function EstimateNextSteps({
   const handleSendToCustomer = async () => {
     setActionLoading('send');
     try {
+      // Validate invoice totals before sending
+      const validation = await validateInvoiceTotalsBeforeAction(invoiceId, 'send_estimate');
+      if (!validation.valid) {
+        toast({
+          title: "Validation Error",
+          description: validation.message,
+          variant: "destructive"
+        });
+        setActionLoading(null);
+        return;
+      }
+
       const { error } = await supabase.functions.invoke('send-workflow-email', {
         body: {
           invoiceId,
@@ -92,6 +105,18 @@ export function EstimateNextSteps({
   const handleCreatePaymentLink = async () => {
     setActionLoading('payment');
     try {
+      // Validate invoice totals before creating payment link
+      const validation = await validateInvoiceTotalsBeforeAction(invoiceId, 'collect_payment');
+      if (!validation.valid) {
+        toast({
+          title: "Validation Error",
+          description: validation.message,
+          variant: "destructive"
+        });
+        setActionLoading(null);
+        return;
+      }
+
       const { data, error } = await supabase.functions.invoke('create-payment-link', {
         body: { invoice_id: invoiceId }
       });
