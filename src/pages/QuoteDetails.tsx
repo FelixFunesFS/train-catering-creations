@@ -161,8 +161,8 @@ export default function QuoteDetails() {
             <h1 className="text-3xl font-bold">{quote.event_name}</h1>
             <div className="flex items-center gap-2 mt-1">
               <p className="text-muted-foreground">Quote Request Details</p>
-              <Badge variant={quote.status === 'confirmed' ? 'default' : 'outline'}>
-                {quote.status}
+              <Badge variant={quote.workflow_status === 'confirmed' ? 'default' : 'outline'}>
+                {quote.workflow_status}
               </Badge>
             </div>
           </div>

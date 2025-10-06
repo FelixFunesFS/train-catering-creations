@@ -76,7 +76,7 @@ export function ChangeRequestForm({ quote, invoice, onRequestSubmitted }: Change
           customer_email: quote.email,
           request_type: formData.request_type,
           priority: formData.urgency ? 'high' : formData.priority,
-          status: 'pending',
+          workflow_status: 'pending',
           customer_comments: formData.customer_comments,
           requested_changes: requestedChanges,
           estimated_cost_change: 0,

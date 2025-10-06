@@ -128,6 +128,12 @@ verify_jwt = false
 [functions.facebook-reviews]
 verify_jwt = false
 
+[functions.send-customer-portal-email]
+verify_jwt = false
+
+[functions.auto-workflow-manager]
+verify_jwt = false
+
 [edge-runtime]
 enabled = true
 ip_version = "dual"

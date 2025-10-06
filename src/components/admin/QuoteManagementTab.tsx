@@ -65,7 +65,7 @@ export function QuoteManagementTab({
         quote.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         quote.location?.toLowerCase().includes(searchTerm.toLowerCase());
       
-      const matchesStatus = statusFilter === 'all' || quote.status === statusFilter;
+      const matchesStatus = statusFilter === 'all' || quote.workflow_status === statusFilter;
       
       return matchesSearch && matchesStatus;
     })

@@ -211,17 +211,17 @@ export function UnifiedCustomerDashboard() {
         },
         { 
           label: 'Under Review', 
-          completed: data.quote.status !== 'pending',
+          completed: data.quote.workflow_status !== 'pending',
           description: 'Team reviewing requirements'
         },
         { 
           label: 'Quote Ready', 
-          completed: ['quoted', 'confirmed'].includes(data.quote.status),
+          completed: ['estimated', 'confirmed'].includes(data.quote.workflow_status),
           description: 'Quote prepared and sent'
         },
         { 
           label: 'Confirmation', 
-          completed: data.quote.status === 'confirmed',
+          completed: data.quote.workflow_status === 'confirmed',
           description: 'Awaiting customer approval'
         },
         { 
@@ -449,7 +449,7 @@ export function UnifiedCustomerDashboard() {
                         </div>
                       )}
 
-                      {data.quote.status === 'quoted' && (
+                      {data.quote.workflow_status === 'estimated' && (
                         <div className="flex flex-col sm:flex-row gap-3 pt-4">
                           <Button 
                             onClick={() => {/* Handle approve */}} 

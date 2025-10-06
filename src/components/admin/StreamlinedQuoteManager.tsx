@@ -17,9 +17,9 @@ interface Quote {
   guest_count: number;
   location: string;
   service_type: string;
-  status: string;
+  workflow_status: string;
   created_at: string;
-  invoices?: Array<{ id: string; is_draft: boolean; status: string }>;
+  invoices?: Array<{ id: string; is_draft: boolean; workflow_status: string }>;
 }
 
 interface StreamlinedQuoteManagerProps {
@@ -34,19 +34,19 @@ export function StreamlinedQuoteManager({ quotes, loading, onRefresh }: Streamli
 
   // Categorize quotes with improved logic
   const newQuotes = quotes.filter(q => 
-    q.status === 'pending' && !q.invoices?.length
+    q.workflow_status === 'pending' && !q.invoices?.length
   );
   
   const inProgress = quotes.filter(q => 
-    q.status === 'quoted' || 
-    q.status === 'reviewed' ||
-    (q.invoices?.length && q.status !== 'completed')
+    q.workflow_status === 'quoted' || 
+    q.workflow_status === 'reviewed' ||
+    (q.invoices?.length && q.workflow_status !== 'completed')
   );
   
   const completed = quotes.filter(q => 
-    q.status === 'completed' || 
-    q.status === 'confirmed' ||
-    q.invoices?.some(inv => inv.status === 'paid')
+    q.workflow_status === 'completed' || 
+    q.workflow_status === 'confirmed' ||
+    q.invoices?.some(inv => inv.workflow_status === 'paid')
   );
 
   const createEstimate = async (quoteId: string) => {
@@ -89,8 +89,8 @@ export function StreamlinedQuoteManager({ quotes, loading, onRefresh }: Streamli
             <CardTitle className="text-lg">{formatEventName(quote.event_name)}</CardTitle>
             <p className="text-sm text-muted-foreground">{formatCustomerName(quote.contact_name)}</p>
           </div>
-          <Badge variant={quote.status === 'pending' ? 'destructive' : 'default'}>
-            {quote.status}
+          <Badge variant={quote.workflow_status === 'pending' ? 'destructive' : 'default'}>
+            {quote.workflow_status}
           </Badge>
         </div>
       </CardHeader>
@@ -125,7 +125,7 @@ export function StreamlinedQuoteManager({ quotes, loading, onRefresh }: Streamli
           </span>
         </div>
 
-        {quote.status === 'pending' && (
+        {quote.workflow_status === 'pending' && (
           <Button 
             onClick={() => createEstimate(quote.id)}
             disabled={processing.has(quote.id)}

@@ -192,7 +192,7 @@ export function QuoteApprovalFlow({ quote, onApprovalChange }: QuoteApprovalFlow
       </Card>
 
       {/* Approval Actions */}
-      {quote.status === 'pending' && (
+      {quote.workflow_status === 'pending' && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -263,7 +263,7 @@ export function QuoteApprovalFlow({ quote, onApprovalChange }: QuoteApprovalFlow
       )}
 
       {/* Request Changes Form */}
-      {showCommentBox && quote.status === 'pending' && (
+      {showCommentBox && quote.workflow_status === 'pending' && (
         <Card className="border-orange-200">
           <CardHeader>
             <CardTitle className="text-orange-800">Request Changes</CardTitle>
@@ -334,23 +334,23 @@ export function QuoteApprovalFlow({ quote, onApprovalChange }: QuoteApprovalFlow
       )}
 
       {/* Status Information */}
-      {quote.status !== 'pending' && (
+      {quote.workflow_status !== 'pending' && (
         <Card>
           <CardContent className="pt-6">
             <div className="text-center space-y-2">
-              {quote.status === 'approved' && (
+              {quote.workflow_status === 'estimated' && (
                 <>
                   <CheckCircle className="h-12 w-12 text-green-600 mx-auto" />
-                  <h3 className="text-lg font-semibold text-green-800">Quote Approved!</h3>
+                  <h3 className="text-lg font-semibold text-green-800">Quote Sent!</h3>
                   <p className="text-muted-foreground">
-                    Thank you for approving your quote. We'll be in touch with next steps for your event.
+                    Your estimate has been sent. Please check your email for details.
                   </p>
                 </>
               )}
-              {quote.status === 'declined' && (
+              {quote.workflow_status === 'cancelled' && (
                 <>
                   <XCircle className="h-12 w-12 text-red-600 mx-auto" />
-                  <h3 className="text-lg font-semibold text-red-800">Quote Declined</h3>
+                  <h3 className="text-lg font-semibold text-red-800">Quote Cancelled</h3>
                   <p className="text-muted-foreground">
                     We understand this quote wasn't quite right. Please contact us to discuss alternatives.
                   </p>
