@@ -57,8 +57,7 @@ export class QuoteUpdateService {
       Object.assign(quoteUpdates, menuUpdates);
     }
 
-    // Update quote status
-    quoteUpdates.status = 'quoted';
+    // Update quote workflow_status
     quoteUpdates.workflow_status = 'estimated';
     quoteUpdates.last_status_change = new Date().toISOString();
 

@@ -852,7 +852,6 @@ export type Database = {
           reviewed_at: string | null
           reviewed_by: string | null
           sent_at: string | null
-          status: string
           status_changed_by: string | null
           stripe_invoice_id: string | null
           subtotal: number
@@ -865,9 +864,7 @@ export type Database = {
           updated_at: string
           version: number
           viewed_at: string | null
-          workflow_status:
-            | Database["public"]["Enums"]["invoice_workflow_status"]
-            | null
+          workflow_status: Database["public"]["Enums"]["invoice_workflow_status"]
         }
         Insert: {
           contract_id?: string | null
@@ -909,7 +906,6 @@ export type Database = {
           reviewed_at?: string | null
           reviewed_by?: string | null
           sent_at?: string | null
-          status?: string
           status_changed_by?: string | null
           stripe_invoice_id?: string | null
           subtotal?: number
@@ -922,9 +918,7 @@ export type Database = {
           updated_at?: string
           version?: number
           viewed_at?: string | null
-          workflow_status?:
-            | Database["public"]["Enums"]["invoice_workflow_status"]
-            | null
+          workflow_status?: Database["public"]["Enums"]["invoice_workflow_status"]
         }
         Update: {
           contract_id?: string | null
@@ -966,7 +960,6 @@ export type Database = {
           reviewed_at?: string | null
           reviewed_by?: string | null
           sent_at?: string | null
-          status?: string
           status_changed_by?: string | null
           stripe_invoice_id?: string | null
           subtotal?: number
@@ -979,9 +972,7 @@ export type Database = {
           updated_at?: string
           version?: number
           viewed_at?: string | null
-          workflow_status?:
-            | Database["public"]["Enums"]["invoice_workflow_status"]
-            | null
+          workflow_status?: Database["public"]["Enums"]["invoice_workflow_status"]
         }
         Relationships: [
           {
@@ -1486,7 +1477,6 @@ export type Database = {
           sides: Json | null
           special_requests: string | null
           start_time: string
-          status: Database["public"]["Enums"]["quote_status"] | null
           status_changed_by: string | null
           theme_colors: string | null
           updated_at: string | null
@@ -1495,9 +1485,7 @@ export type Database = {
           wait_staff_requested: boolean | null
           wait_staff_requirements: string | null
           wait_staff_setup_areas: string | null
-          workflow_status:
-            | Database["public"]["Enums"]["quote_workflow_status"]
-            | null
+          workflow_status: Database["public"]["Enums"]["quote_workflow_status"]
         }
         Insert: {
           appetizers?: Json | null
@@ -1548,7 +1536,6 @@ export type Database = {
           sides?: Json | null
           special_requests?: string | null
           start_time: string
-          status?: Database["public"]["Enums"]["quote_status"] | null
           status_changed_by?: string | null
           theme_colors?: string | null
           updated_at?: string | null
@@ -1557,9 +1544,7 @@ export type Database = {
           wait_staff_requested?: boolean | null
           wait_staff_requirements?: string | null
           wait_staff_setup_areas?: string | null
-          workflow_status?:
-            | Database["public"]["Enums"]["quote_workflow_status"]
-            | null
+          workflow_status?: Database["public"]["Enums"]["quote_workflow_status"]
         }
         Update: {
           appetizers?: Json | null
@@ -1610,7 +1595,6 @@ export type Database = {
           sides?: Json | null
           special_requests?: string | null
           start_time?: string
-          status?: Database["public"]["Enums"]["quote_status"] | null
           status_changed_by?: string | null
           theme_colors?: string | null
           updated_at?: string | null
@@ -1619,9 +1603,7 @@ export type Database = {
           wait_staff_requested?: boolean | null
           wait_staff_requirements?: string | null
           wait_staff_setup_areas?: string | null
-          workflow_status?:
-            | Database["public"]["Enums"]["quote_workflow_status"]
-            | null
+          workflow_status?: Database["public"]["Enums"]["quote_workflow_status"]
         }
         Relationships: []
       }

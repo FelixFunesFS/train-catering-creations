@@ -107,14 +107,14 @@ export function useUnifiedStatusManagement() {
       const table = entityType === 'quote' ? 'quote_requests' : 'invoices';
       const { data: currentEntity, error: fetchError } = await supabase
         .from(table)
-        .select('status, workflow_status')
+        .select('workflow_status')
         .eq('id', entityId)
         .maybeSingle();
 
       if (fetchError) throw fetchError;
       if (!currentEntity) throw new Error('Entity not found');
 
-      const currentStatus = currentEntity.workflow_status || currentEntity.status;
+      const currentStatus = currentEntity.workflow_status;
 
       // Validate transition
       const validation = validateStatusTransition(
@@ -131,7 +131,6 @@ export function useUnifiedStatusManagement() {
       // Update entity status
       const updateData: any = {
         workflow_status: newStatus,
-        status: newStatus,
         last_status_change: new Date().toISOString(),
         status_changed_by: updatedBy
       };

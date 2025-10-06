@@ -107,7 +107,6 @@ export class PaymentMilestoneService {
         await supabase
           .from('invoices')
           .update({
-            status: 'paid',
             workflow_status: 'paid',
             paid_at: new Date().toISOString()
           })
@@ -118,7 +117,6 @@ export class PaymentMilestoneService {
           await supabase
             .from('quote_requests')
             .update({
-              status: 'confirmed',
               workflow_status: 'confirmed'
             })
             .eq('id', invoice.quote_request_id);

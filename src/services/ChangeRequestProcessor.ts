@@ -124,7 +124,6 @@ export class ChangeRequestProcessor {
       await supabase
         .from('invoices')
         .update({
-          status: 'sent',
           workflow_status: 'sent',
           status_changed_by: 'admin',
           customer_access_token: newAccessToken,

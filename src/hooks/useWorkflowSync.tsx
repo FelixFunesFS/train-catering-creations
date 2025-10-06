@@ -36,38 +36,14 @@ export function useWorkflowSync() {
       let quoteUpdate: any = {};
       let invoiceUpdate: any = {};
 
-      // Sync quote status with invoice status
+      // Sync quote workflow_status with invoice workflow_status
       if (invoice) {
-        if (invoice.status === 'sent' && quote.status !== 'quoted') {
-          quoteUpdate.status = 'quoted';
-          quoteUpdate.workflow_status = 'quoted';
+        if (invoice.workflow_status === 'sent' && quote.workflow_status !== 'estimated') {
+          quoteUpdate.workflow_status = 'estimated';
         }
         
-        if (invoice.status === 'paid' && quote.status !== 'confirmed') {
-          quoteUpdate.status = 'confirmed';
+        if (invoice.workflow_status === 'paid' && quote.workflow_status !== 'confirmed') {
           quoteUpdate.workflow_status = 'confirmed';
-        }
-
-        // Sync invoice workflow status with status using proper mapping
-        if (invoice.status !== invoice.workflow_status) {
-          // Map status to valid workflow_status enum values
-          const statusMapping: Record<string, string> = {
-            'draft': 'draft',
-            'approved': 'approved',
-            'sent': 'sent',
-            'viewed': 'viewed',
-            'paid': 'paid',
-            'overdue': 'overdue',
-            'cancelled': 'cancelled',
-            'change_requested': 'pending_review', // Map to valid enum value
-          };
-          
-          const mappedStatus = statusMapping[invoice.status] || invoice.workflow_status;
-          
-          // Only update if mapping exists and is different
-          if (mappedStatus !== invoice.workflow_status) {
-            invoiceUpdate.workflow_status = mappedStatus;
-          }
         }
       }
 
@@ -191,7 +167,7 @@ export function useWorkflowSync() {
       }
 
       // Check estimate sent
-      if (quote.status === 'quoted' || invoice?.status === 'sent') {
+      if (quote.workflow_status === 'estimated' || invoice?.workflow_status === 'sent') {
         const hasEstimateSent = completedSteps?.some(s => s.step_id === 'estimate_sent');
         if (!hasEstimateSent) {
           issues.push('Estimate sent step not marked as completed');
