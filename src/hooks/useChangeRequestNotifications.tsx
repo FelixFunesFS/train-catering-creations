@@ -136,14 +136,14 @@ export function useChangeRequestNotifications() {
         const notifications = changeRequests.map(request => ({
           id: `history_${request.id}`,
           type: 'new_request' as const,
-          title: request.status === 'pending' ? 'Pending Change Request' : 'Change Request Processed',
+          title: request.workflow_status === 'pending' ? 'Pending Change Request' : 'Change Request Processed',
           message: `${request.customer_email} - ${request.invoices?.quote_requests?.event_name || 'Event'}`,
           changeRequestId: request.id,
           customerEmail: request.customer_email,
           eventName: request.invoices?.quote_requests?.event_name,
           priority: (request.priority as 'low' | 'medium' | 'high') || 'medium',
           created_at: request.created_at,
-          read: request.status !== 'pending'
+          read: request.workflow_status !== 'pending'
         }));
 
         setNotifications(notifications);

@@ -29,7 +29,7 @@ interface ChangeRequest {
   request_type: string;
   customer_comments: string;
   admin_response?: string;
-  status: string;
+  workflow_status: string;
   estimated_cost_change?: number;
   created_at: string;
   requested_changes: any;

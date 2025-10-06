@@ -276,7 +276,7 @@ export async function executeComprehensiveTests() {
       timestamp: new Date()
     });
     testResults.summary.passed++;
-    console.log('✅ Change Request Approved:', approvedChange.status);
+    console.log('✅ Change Request Approved:', approvedChange.workflow_status);
   } catch (error) {
     testResults.results.push({
       test: 'Admin Approve Change',

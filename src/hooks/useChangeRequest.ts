@@ -26,7 +26,7 @@ export function useChangeRequest(invoiceId: string, customerEmail: string) {
           requested_changes: data.requestedChanges,
           customer_comments: data.customerComments,
           priority: data.priority || 'medium',
-          status: 'pending'
+          workflow_status: 'pending'
         })
         .select()
         .single();
@@ -64,11 +64,10 @@ export function useChangeRequest(invoiceId: string, customerEmail: string) {
     try {
       setSubmitting(true);
 
-      // Update invoice status
+      // Update invoice workflow_status
       const { error } = await supabase
         .from('invoices')
         .update({
-          status: 'approved',
           workflow_status: 'approved',
           last_customer_action: new Date().toISOString(),
           customer_feedback: { accepted: true, accepted_at: new Date().toISOString() }

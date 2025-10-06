@@ -24,6 +24,7 @@ interface ChangeRequest {
   id: string;
   invoice_id: string;
   customer_email: string;
+  workflow_status: string;
   request_type: string;
   status: string;
   priority: string;

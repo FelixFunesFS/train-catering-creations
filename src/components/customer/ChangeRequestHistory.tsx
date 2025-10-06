@@ -25,7 +25,7 @@ interface ChangeRequestHistoryProps {
 interface ChangeRequest {
   id: string;
   request_type: string;
-  status: string;
+  workflow_status: string;
   requested_changes: any;
   original_details: any;
   admin_response?: string;
@@ -216,7 +216,7 @@ export function ChangeRequestHistory({ invoiceId, quoteId }: ChangeRequestHistor
                 <div className="flex items-start justify-between">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      {getStatusBadge(request.status)}
+                      {getStatusBadge(request.workflow_status)}
                       <span className="text-sm text-muted-foreground">
                         {new Date(request.created_at).toLocaleDateString()}
                       </span>

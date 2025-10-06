@@ -15,7 +15,7 @@ export interface ChangeRequest {
   customer_email: string;
   request_type: string;
   priority: string;
-  status: string;
+  workflow_status: string;
   customer_comments: string;
   requested_changes: any;
   original_details?: any;

@@ -244,8 +244,8 @@ export type Database = {
           requested_changes: Json
           reviewed_at: string | null
           reviewed_by: string | null
-          status: string
           updated_at: string
+          workflow_status: string
         }
         Insert: {
           admin_response?: string | null
@@ -262,8 +262,8 @@ export type Database = {
           requested_changes: Json
           reviewed_at?: string | null
           reviewed_by?: string | null
-          status?: string
           updated_at?: string
+          workflow_status?: string
         }
         Update: {
           admin_response?: string | null
@@ -280,8 +280,8 @@ export type Database = {
           requested_changes?: Json
           reviewed_at?: string | null
           reviewed_by?: string | null
-          status?: string
           updated_at?: string
+          workflow_status?: string
         }
         Relationships: [
           {

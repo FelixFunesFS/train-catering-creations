@@ -13,6 +13,7 @@ interface ChangeRequest {
   id: string;
   customer_email: string;
   request_type: string;
+  workflow_status: string;
   priority: string;
   status: string;
   customer_comments: string;
