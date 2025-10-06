@@ -55,15 +55,40 @@ const handler = async (req: Request): Promise<Response> => {
       <p>Best regards,<br>Soul Train's Eatery Team</p>
     `;
 
-    // Here you would integrate with your email service (Resend, etc.)
-    // For now, just log the emails
-    console.log('Admin email:', adminEmailHtml);
-    console.log('Customer email:', customerEmailHtml);
+    console.log('Sending admin email...');
+    const { error: adminEmailError } = await supabase.functions.invoke('send-gmail-email', {
+      body: {
+        to: 'soultrainseatery@gmail.com',
+        subject: `New Quote Request: ${requestData.event_name}`,
+        html: adminEmailHtml,
+        from: 'soultrainseatery@gmail.com'
+      }
+    });
+
+    if (adminEmailError) {
+      console.error('Failed to send admin email:', adminEmailError);
+      throw new Error(`Admin email failed: ${adminEmailError.message}`);
+    }
+
+    console.log('Sending customer confirmation email...');
+    const { error: customerEmailError } = await supabase.functions.invoke('send-gmail-email', {
+      body: {
+        to: requestData.email,
+        subject: `Quote Request Received - ${requestData.event_name}`,
+        html: customerEmailHtml,
+        from: 'soultrainseatery@gmail.com'
+      }
+    });
+
+    if (customerEmailError) {
+      console.error('Failed to send customer email:', customerEmailError);
+      throw new Error(`Customer email failed: ${customerEmailError.message}`);
+    }
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: "Notifications sent successfully" 
+        message: "Quote notifications sent successfully via Gmail" 
       }),
       {
         status: 200,
