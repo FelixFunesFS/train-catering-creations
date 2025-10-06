@@ -83,7 +83,7 @@ export function QuickDecisionPanel({ invoiceId, onChangeProcessed }: QuickDecisi
         .from('change_requests')
         .select('*')
         .eq('invoice_id', invoiceId)
-        .eq('status', 'pending')
+        .eq('workflow_status', 'pending')
         .order('created_at', { ascending: false });
 
       const { data: invoice } = await supabase

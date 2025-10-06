@@ -41,7 +41,7 @@ export const useQuoteNotifications = () => {
     const { count, error } = await supabase
       .from('quote_requests')
       .select('*', { count: 'exact', head: true })
-      .eq('status', 'pending');
+      .eq('workflow_status', 'pending');
 
     if (!error && count !== null) {
       setUnreadCount(count);

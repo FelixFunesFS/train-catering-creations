@@ -53,7 +53,7 @@ export function EventStatusBoard() {
       const { data: quotes, error: quotesError } = await supabase
         .from('quote_requests')
         .select('*')
-        .in('status', ['confirmed', 'quoted', 'reviewed'])
+        .in('workflow_status', ['confirmed', 'estimated', 'under_review'])
         .order('event_date', { ascending: true });
 
       if (quotesError) throw quotesError;

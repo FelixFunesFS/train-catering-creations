@@ -525,7 +525,7 @@ export class ComprehensiveTestSuite {
       .from('change_requests')
       .select('*')
       .eq('customer_email', scenario.customerEmail)
-      .eq('status', 'pending')
+      .eq('workflow_status', 'pending')
       .order('created_at', { ascending: false })
       .limit(1)
       .single();
@@ -553,7 +553,7 @@ export class ComprehensiveTestSuite {
       .from('change_requests')
       .select('*')
       .eq('customer_email', scenario.customerEmail)
-      .eq('status', 'pending')
+      .eq('workflow_status', 'pending')
       .order('created_at', { ascending: false })
       .limit(1)
       .single();
@@ -620,7 +620,7 @@ export class ComprehensiveTestSuite {
       .from('change_requests')
       .select('*')
       .eq('customer_email', scenario.customerEmail)
-      .eq('status', 'rejected')
+      .eq('workflow_status', 'rejected')
       .order('created_at', { ascending: false })
       .limit(1)
       .single();

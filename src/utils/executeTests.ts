@@ -248,7 +248,7 @@ export async function executeComprehensiveTests() {
       .from('change_requests')
       .select('*')
       .eq('customer_email', 'felixfunes2001.ff@gmail.com')
-      .eq('status', 'pending')
+      .eq('workflow_status', 'pending')
       .order('created_at', { ascending: false })
       .limit(1)
       .single();
