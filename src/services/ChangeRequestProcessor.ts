@@ -120,11 +120,15 @@ export class ChangeRequestProcessor {
       const newTokenExpiry = new Date();
       newTokenExpiry.setDate(newTokenExpiry.getDate() + 90); // 90 days from now
 
-      // STEP 10: Update invoice - set to 'sent' (not 'approved') to require customer re-review
+      // STEP 10: Determine appropriate status after change approval
+      const costChangeCents = newTotal - invoice.total_amount;
+      const isMinorChange = Math.abs(costChangeCents) < (invoice.total_amount * 0.1); // <10% change
+      const newWorkflowStatus = isMinorChange ? 'approved' : 'sent';
+
       await supabase
         .from('invoices')
         .update({
-          workflow_status: 'sent',
+          workflow_status: newWorkflowStatus,
           status_changed_by: 'admin',
           customer_access_token: newAccessToken,
           token_expires_at: newTokenExpiry.toISOString()

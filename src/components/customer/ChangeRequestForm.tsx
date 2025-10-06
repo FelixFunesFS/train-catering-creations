@@ -103,7 +103,7 @@ export function ChangeRequestForm({ quote, invoice, onRequestSubmitted }: Change
       const { error: invoiceUpdateError } = await supabase
         .from('invoices')
         .update({
-          status: 'change_requested',
+          workflow_status: 'pending_review',
           last_customer_action: new Date().toISOString(),
           updated_at: new Date().toISOString()
         })
@@ -120,8 +120,8 @@ export function ChangeRequestForm({ quote, invoice, onRequestSubmitted }: Change
         .insert({
           entity_type: 'invoices',
           entity_id: invoice.id,
-          previous_status: invoice.status,
-          new_status: 'change_requested',
+          previous_status: invoice.workflow_status,
+          new_status: 'pending_review',
           changed_by: quote.email,
           change_reason: `Customer submitted change request: ${formData.request_type}`,
           metadata: {

@@ -189,12 +189,12 @@ export function UnifiedCustomerDashboard() {
         },
         { 
           label: 'Payment', 
-          completed: data.invoice.status === 'paid',
+          completed: data.invoice.workflow_status === 'paid',
           description: 'Payment processing'
         },
         { 
           label: 'Event Confirmed', 
-          completed: data.invoice.status === 'paid',
+          completed: data.invoice.workflow_status === 'paid',
           description: 'Event scheduled and confirmed'
         }
       ];

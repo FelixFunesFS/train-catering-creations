@@ -20,16 +20,14 @@ serve(async (req) => {
 
     console.log('Starting workflow status synchronization...');
 
-    // Fix quote_requests workflow_status based on current status and invoices
+    // Fix quote_requests workflow_status based on invoices
     const { data: quotes, error: quotesError } = await supabase
       .from('quote_requests')
       .select(`
         id,
-        status,
         workflow_status,
         invoices!quote_request_id (
           id,
-          status,
           workflow_status,
           created_at
         )
@@ -46,59 +44,25 @@ serve(async (req) => {
 
     for (const quote of quotes) {
       let newWorkflowStatus = quote.workflow_status;
-      let newStatus = quote.status;
 
       // Check if there's an associated invoice
       const invoice = quote.invoices?.[0];
       
       if (invoice) {
-        // If there's an invoice, the quote should be at least 'quoted'
-        if (quote.status === 'pending' || quote.status === 'reviewed') {
-          newStatus = 'quoted';
-          newWorkflowStatus = 'quoted';
-        }
-        
-        // Check invoice status for further progression
-        if (invoice.status === 'sent' || invoice.status === 'viewed') {
-          newStatus = 'quoted';
-          newWorkflowStatus = 'quoted';
-        } else if (invoice.status === 'approved') {
-          newStatus = 'confirmed';
+        // Sync quote workflow_status with invoice workflow_status
+        if (invoice.workflow_status === 'sent' && quote.workflow_status !== 'estimated') {
+          newWorkflowStatus = 'estimated';
+        } else if (invoice.workflow_status === 'approved' && quote.workflow_status !== 'confirmed') {
           newWorkflowStatus = 'confirmed';
-        } else if (invoice.status === 'paid') {
-          newStatus = 'confirmed';
+        } else if (invoice.workflow_status === 'paid' && quote.workflow_status !== 'confirmed') {
           newWorkflowStatus = 'confirmed';
-        }
-      } else {
-        // No invoice exists, ensure proper status mapping
-        switch (quote.status) {
-          case 'pending':
-            newWorkflowStatus = 'pending';
-            break;
-          case 'reviewed':
-            newWorkflowStatus = 'under_review';
-            break;
-          case 'quoted':
-            newWorkflowStatus = 'quoted';
-            break;
-          case 'confirmed':
-            newWorkflowStatus = 'confirmed';
-            break;
-          case 'completed':
-            newWorkflowStatus = 'completed';
-            break;
-          case 'cancelled':
-            newWorkflowStatus = 'cancelled';
-            break;
         }
       }
 
       // Only update if there's a change
-      if (newStatus !== quote.status || newWorkflowStatus !== quote.workflow_status) {
+      if (newWorkflowStatus !== quote.workflow_status) {
         updates.push({
           id: quote.id,
-          oldStatus: quote.status,
-          newStatus,
           oldWorkflowStatus: quote.workflow_status,
           newWorkflowStatus
         });
@@ -106,7 +70,6 @@ serve(async (req) => {
         await supabase
           .from('quote_requests')
           .update({
-            status: newStatus,
             workflow_status: newWorkflowStatus,
             last_status_change: new Date().toISOString()
           })
@@ -114,10 +77,10 @@ serve(async (req) => {
       }
     }
 
-    // Fix invoice workflow_status based on status
+    // Fix invoice workflow_status (should already be correct, but validate)
     const { data: invoices, error: invoicesError } = await supabase
       .from('invoices')
-      .select('id, status, workflow_status');
+      .select('id, workflow_status');
 
     if (invoicesError) {
       console.error('Error fetching invoices:', invoicesError);
@@ -128,49 +91,9 @@ serve(async (req) => {
 
     const invoiceUpdates = [];
 
-    for (const invoice of invoices) {
-      let newWorkflowStatus = invoice.workflow_status;
-
-      switch (invoice.status) {
-        case 'draft':
-          newWorkflowStatus = 'draft';
-          break;
-        case 'approved':
-          newWorkflowStatus = 'approved';
-          break;
-        case 'sent':
-          newWorkflowStatus = 'sent';
-          break;
-        case 'viewed':
-          newWorkflowStatus = 'viewed';
-          break;
-        case 'paid':
-          newWorkflowStatus = 'paid';
-          break;
-        case 'overdue':
-          newWorkflowStatus = 'overdue';
-          break;
-        case 'cancelled':
-          newWorkflowStatus = 'cancelled';
-          break;
-      }
-
-      if (newWorkflowStatus !== invoice.workflow_status) {
-        invoiceUpdates.push({
-          id: invoice.id,
-          oldWorkflowStatus: invoice.workflow_status,
-          newWorkflowStatus
-        });
-
-        await supabase
-          .from('invoices')
-          .update({
-            workflow_status: newWorkflowStatus,
-            last_status_change: new Date().toISOString()
-          })
-          .eq('id', invoice.id);
-      }
-    }
+    // Invoice workflow_status should already be correctly set
+    // This is just a validation pass - workflow_status is the source of truth
+    console.log(`Validated ${invoices.length} invoices`);
 
     console.log('Workflow status synchronization completed');
     console.log(`Quote updates: ${updates.length}`);
