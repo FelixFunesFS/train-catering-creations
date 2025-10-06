@@ -1866,6 +1866,9 @@ export type Database = {
         | "holiday_party"
         | "anniversary"
         | "other"
+        | "wedding"
+        | "black_tie"
+        | "military_function"
       invoice_workflow_status:
         | "draft"
         | "pending_review"
@@ -2036,6 +2039,9 @@ export const Constants = {
         "holiday_party",
         "anniversary",
         "other",
+        "wedding",
+        "black_tie",
+        "military_function",
       ],
       invoice_workflow_status: [
         "draft",
