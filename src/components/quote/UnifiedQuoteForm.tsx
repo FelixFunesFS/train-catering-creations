@@ -211,7 +211,7 @@ export const UnifiedQuoteForm = ({ variant = 'regular', onSuccess }: UnifiedQuot
         theme_colors: data.theme_colors,
         ceremony_included: data.ceremony_included,
         cocktail_hour: data.cocktail_hour,
-        status: 'pending' as const
+        workflow_status: 'pending' as const
       };
       
       const { data: insertedData, error } = await supabase
