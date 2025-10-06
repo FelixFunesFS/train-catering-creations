@@ -6,6 +6,8 @@
  * Format category names for display
  */
 export const formatCategory = (category: string): string => {
+  if (!category || typeof category !== 'string') return 'Other';
+  
   const categoryMap: Record<string, string> = {
     'package': 'Package',
     'appetizers': 'Appetizers',
@@ -30,6 +32,8 @@ export const formatCategory = (category: string): string => {
  * Format event type for display
  */
 export const formatEventType = (eventType: string): string => {
+  if (!eventType || typeof eventType !== 'string') return 'Other Event';
+  
   const eventTypeMap: Record<string, string> = {
     'wedding': 'Wedding',
     'second_wedding': 'Second Wedding',
@@ -48,6 +52,7 @@ export const formatEventType = (eventType: string): string => {
          eventType
            .replace(/_/g, ' ')
            .split(' ')
+           .filter(word => word && word.length > 0)
            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
            .join(' ');
 };
@@ -56,10 +61,13 @@ export const formatEventType = (eventType: string): string => {
  * Ensure title case for line item titles
  */
 export const formatLineItemTitle = (title: string): string => {
+  if (!title || typeof title !== 'string') return '';
+  
   const minorWords = ['a', 'an', 'and', 'the', 'with', 'for', 'of'];
   
   return title
     .split(' ')
+    .filter(word => word && word.length > 0)
     .map((word, index) => {
       // Always capitalize first word and words not in minorWords list
       if (index === 0 || !minorWords.includes(word.toLowerCase())) {
@@ -74,9 +82,10 @@ export const formatLineItemTitle = (title: string): string => {
  * Format event name for display (Title Case)
  */
 export const formatEventName = (name: string): string => {
-  if (!name) return '';
+  if (!name || typeof name !== 'string') return '';
   return name
     .split(' ')
+    .filter(word => word && word.length > 0)
     .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(' ');
 };
@@ -86,10 +95,10 @@ export const formatEventName = (name: string): string => {
  * Handles: "charleston, sc" → "Charleston, SC"
  */
 export const formatLocation = (location: string): string => {
-  if (!location) return '';
+  if (!location || typeof location !== 'string') return '';
   
   // Split by comma for city, state handling
-  const parts = location.split(',').map(part => part.trim());
+  const parts = location.split(',').map(part => part.trim()).filter(part => part.length > 0);
   
   return parts.map((part, index) => {
     // Last part is often a state abbreviation (keep uppercase)
@@ -100,6 +109,7 @@ export const formatLocation = (location: string): string => {
     // Title case for everything else
     return part
       .split(' ')
+      .filter(word => word && word.length > 0)
       .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
       .join(' ');
   }).join(', ');
@@ -109,9 +119,10 @@ export const formatLocation = (location: string): string => {
  * Format customer name for display (Title Case)
  */
 export const formatCustomerName = (name: string): string => {
-  if (!name) return '';
+  if (!name || typeof name !== 'string') return '';
   return name
     .split(' ')
+    .filter(word => word && word.length > 0)
     .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(' ');
 };

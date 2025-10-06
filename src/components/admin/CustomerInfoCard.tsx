@@ -230,7 +230,12 @@ export function CustomerInfoCard({ quote, isCompact = false }: CustomerInfoCardP
                   <Utensils className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
                   <div className="min-w-0 flex-1">
                     <label className="text-xs font-medium text-muted-foreground">Service Type</label>
-                    <p className="text-sm font-medium mt-1">{quote.service_type.replace(/_/g, ' ').split(' ').map((word: string) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</p>
+                    <p className="text-sm font-medium mt-1">
+                      {quote.service_type 
+                        ? quote.service_type.replace(/_/g, ' ').split(' ').filter((word: string) => word.length > 0).map((word: string) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+                        : 'Not specified'
+                      }
+                    </p>
                   </div>
                 </div>
               </div>

@@ -335,7 +335,10 @@ export function OptimizedCustomerPortal() {
                   <CardTitle className="flex items-center justify-between">
                     <span>Quote Summary</span>
                     <Badge className={getStatusColor(data.quote.workflow_status)}>
-                      {data.quote.workflow_status.charAt(0).toUpperCase() + data.quote.workflow_status.slice(1).replace('_', ' ')}
+                      {data.quote.workflow_status 
+                        ? data.quote.workflow_status.charAt(0).toUpperCase() + data.quote.workflow_status.slice(1).replace('_', ' ')
+                        : 'Draft'
+                      }
                     </Badge>
                   </CardTitle>
                 </CardHeader>
@@ -393,7 +396,10 @@ export function OptimizedCustomerPortal() {
                   <CardTitle className="flex items-center justify-between">
                     <span>Invoice Summary</span>
                     <Badge className={getStatusColor(data.invoice.workflow_status)}>
-                      {data.invoice.workflow_status.charAt(0).toUpperCase() + data.invoice.workflow_status.slice(1).replace('_', ' ')}
+                      {data.invoice.workflow_status 
+                        ? data.invoice.workflow_status.charAt(0).toUpperCase() + data.invoice.workflow_status.slice(1).replace('_', ' ')
+                        : 'Draft'
+                      }
                     </Badge>
                   </CardTitle>
                 </CardHeader>

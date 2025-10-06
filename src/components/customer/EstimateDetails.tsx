@@ -86,7 +86,7 @@ export function EstimateDetails({ invoice, quote, lineItems, milestones }: Estim
               <div>
                 <p className="text-sm font-medium">Event Date</p>
                 <p className="text-sm text-muted-foreground">
-                  {format(new Date(quote.event_date), 'MMMM dd, yyyy')}
+                  {quote.event_date ? format(new Date(quote.event_date), 'MMMM dd, yyyy') : 'Not specified'}
                 </p>
               </div>
             </div>
@@ -95,7 +95,7 @@ export function EstimateDetails({ invoice, quote, lineItems, milestones }: Estim
               <Clock className="h-5 w-5 text-muted-foreground mt-0.5" />
               <div>
                 <p className="text-sm font-medium">Start Time</p>
-                <p className="text-sm text-muted-foreground">{quote.start_time}</p>
+                <p className="text-sm text-muted-foreground">{quote.start_time || 'Not specified'}</p>
               </div>
             </div>
 
@@ -103,7 +103,7 @@ export function EstimateDetails({ invoice, quote, lineItems, milestones }: Estim
               <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
               <div>
                 <p className="text-sm font-medium">Location</p>
-                <p className="text-sm text-muted-foreground">{quote.location}</p>
+                <p className="text-sm text-muted-foreground">{quote.location || 'Not specified'}</p>
               </div>
             </div>
 
@@ -111,7 +111,7 @@ export function EstimateDetails({ invoice, quote, lineItems, milestones }: Estim
               <Users className="h-5 w-5 text-muted-foreground mt-0.5" />
               <div>
                 <p className="text-sm font-medium">Guest Count</p>
-                <p className="text-sm text-muted-foreground">{quote.guest_count} guests</p>
+                <p className="text-sm text-muted-foreground">{quote.guest_count || 0} guests</p>
               </div>
             </div>
           </div>

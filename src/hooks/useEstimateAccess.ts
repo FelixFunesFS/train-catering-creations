@@ -71,9 +71,25 @@ export function useEstimateAccess(accessToken: string) {
       const lineItems = (result.line_items || []) as any[];
       const milestones = (result.milestones || []) as any[];
       
+      // Ensure critical quote fields have safe defaults to prevent .charAt() errors
+      const safeQuote = {
+        ...quote,
+        contact_name: quote.contact_name || '',
+        event_name: quote.event_name || '',
+        event_date: quote.event_date || new Date().toISOString(),
+        guest_count: quote.guest_count || 0,
+        location: quote.location || '',
+        service_type: quote.service_type || '',
+        event_type: quote.event_type || '',
+        start_time: quote.start_time || '',
+        email: quote.email || '',
+        phone: quote.phone || '',
+        workflow_status: quote.workflow_status || 'draft'
+      };
+      
       setEstimateData({
         invoice,
-        quote,
+        quote: safeQuote,
         lineItems,
         milestones
       });
