@@ -312,7 +312,7 @@ export const checkEventAvailability = async (eventDate: string, eventTime?: stri
       .from('quote_requests')
       .select('*')
       .eq('event_date', eventDate)
-      .in('status', ['confirmed', 'quoted']);
+      .in('workflow_status', ['confirmed', 'quoted']);
 
     const conflicts = existingEvents || [];
     const suggestions: string[] = [];
@@ -360,13 +360,13 @@ export const generateBusinessInsights = async (): Promise<{
 
     const { data: invoices } = await supabase
       .from('invoices')
-      .select('total_amount, status, created_at');
+      .select('total_amount, workflow_status, created_at');
 
     const totalQuotes = quotes?.length || 0;
-    const confirmedQuotes = quotes?.filter(q => q.status === 'confirmed').length || 0;
+    const confirmedQuotes = quotes?.filter(q => q.workflow_status === 'confirmed').length || 0;
     const conversionRate = totalQuotes > 0 ? (confirmedQuotes / totalQuotes) * 100 : 0;
 
-    const paidInvoices = invoices?.filter(i => i.status === 'paid') || [];
+    const paidInvoices = invoices?.filter(i => i.workflow_status === 'paid') || [];
     const totalRevenue = paidInvoices.reduce((sum, inv) => sum + (inv.total_amount || 0), 0);
     const averageOrderValue = paidInvoices.length > 0 ? totalRevenue / paidInvoices.length : 0;
 

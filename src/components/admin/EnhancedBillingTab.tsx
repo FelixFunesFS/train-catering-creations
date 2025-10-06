@@ -604,7 +604,7 @@ export function EnhancedBillingTab({ quote, onGenerateInvoice, onResendInvoice }
                       <div key={invoice.id} className="border rounded-lg p-4">
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-3">
-                            {getStatusIcon(invoice.status)}
+                            {getStatusIcon(invoice.workflow_status)}
                             <div>
                               <h4 className="font-medium">{invoice.invoice_number}</h4>
                               <p className="text-sm text-muted-foreground">
@@ -612,8 +612,8 @@ export function EnhancedBillingTab({ quote, onGenerateInvoice, onResendInvoice }
                               </p>
                             </div>
                           </div>
-                          <Badge className={getStatusColor(invoice.status)}>
-                            {invoice.status}
+                          <Badge className={getStatusColor(invoice.workflow_status)}>
+                            {invoice.workflow_status}
                           </Badge>
                         </div>
                         
@@ -632,7 +632,7 @@ export function EnhancedBillingTab({ quote, onGenerateInvoice, onResendInvoice }
                         </div>
 
                         <div className="flex flex-wrap gap-2">
-                          {invoice.status === 'draft' && (
+                          {invoice.workflow_status === 'draft' && (
                             <Button
                               size="sm"
                               onClick={() => sendInvoice(invoice.id)}

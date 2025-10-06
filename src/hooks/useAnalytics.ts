@@ -85,7 +85,7 @@ export function useAnalytics(dateRange: 'month' | 'quarter' | 'year' | 'all' = '
       // Fetch invoices
       const { data: invoices } = await supabase
         .from('invoices')
-        .select('total_amount, status, created_at, quote_request_id, customer_feedback')
+        .select('total_amount, workflow_status, created_at, quote_request_id, customer_feedback')
         .gte('created_at', startDate.toISOString());
 
       const { data: previousInvoices } = await supabase
@@ -97,25 +97,25 @@ export function useAnalytics(dateRange: 'month' | 'quarter' | 'year' | 'all' = '
       // Fetch quotes
       const { data: quotes } = await supabase
         .from('quote_requests')
-        .select('id, status, created_at, guest_count, email')
+        .select('id, workflow_status, created_at, guest_count, email')
         .gte('created_at', startDate.toISOString());
 
       // Calculate revenue metrics
       const totalRevenue = invoices?.reduce((sum, inv) => sum + inv.total_amount, 0) || 0;
-      const paidRevenue = invoices?.filter(inv => inv.status === 'paid').reduce((sum, inv) => sum + inv.total_amount, 0) || 0;
+      const paidRevenue = invoices?.filter(inv => inv.workflow_status === 'paid').reduce((sum, inv) => sum + inv.total_amount, 0) || 0;
       const pendingRevenue = totalRevenue - paidRevenue;
       const previousRevenue = previousInvoices?.reduce((sum, inv) => sum + inv.total_amount, 0) || 0;
       const revenueGrowth = previousRevenue > 0 ? ((totalRevenue - previousRevenue) / previousRevenue) * 100 : 0;
 
       // Calculate quote metrics
       const totalQuotes = quotes?.length || 0;
-      const pendingQuotes = quotes?.filter(q => q.status === 'pending').length || 0;
-      const convertedQuotes = quotes?.filter(q => ['confirmed', 'completed'].includes(q.status)).length || 0;
+      const pendingQuotes = quotes?.filter(q => q.workflow_status === 'pending').length || 0;
+      const convertedQuotes = quotes?.filter(q => ['confirmed', 'completed'].includes(q.workflow_status)).length || 0;
       const conversionRate = totalQuotes > 0 ? (convertedQuotes / totalQuotes) * 100 : 0;
 
       // Calculate event metrics
-      const completedEvents = quotes?.filter(q => q.status === 'completed').length || 0;
-      const upcomingEvents = quotes?.filter(q => q.status === 'confirmed').length || 0;
+      const completedEvents = quotes?.filter(q => q.workflow_status === 'completed').length || 0;
+      const upcomingEvents = quotes?.filter(q => q.workflow_status === 'confirmed').length || 0;
       const avgGuestCount = quotes && quotes.length > 0
         ? quotes.reduce((sum, q) => sum + (q.guest_count || 0), 0) / quotes.length
         : 0;
@@ -190,7 +190,7 @@ export function useAnalytics(dateRange: 'month' | 'quarter' | 'year' | 'all' = '
         grouped[date] = { revenue: 0, quotes: 0, events: 0 };
       }
       grouped[date].quotes += 1;
-      if (quote.status === 'completed') {
+      if (quote.workflow_status === 'completed') {
         grouped[date].events += 1;
       }
     });

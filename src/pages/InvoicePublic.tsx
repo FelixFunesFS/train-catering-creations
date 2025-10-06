@@ -212,9 +212,9 @@ export default function InvoicePublic() {
             </div>
             <div className="text-right">
               <div className="flex items-center gap-3 mb-2">
-                {getStatusIcon(invoice.status)}
-                <Badge className={getStatusColor(invoice.status)}>
-                  {invoice.status === 'paid' ? 'Paid' : 'Pending Payment'}
+                {getStatusIcon(invoice.workflow_status)}
+                <Badge className={getStatusColor(invoice.workflow_status)}>
+                  {invoice.workflow_status === 'paid' ? 'Paid' : 'Pending Payment'}
                 </Badge>
               </div>
               <p className="text-sm text-primary-foreground/80">
@@ -383,7 +383,7 @@ export default function InvoicePublic() {
             </Card>
 
             {/* Payment Action */}
-            {invoice.status !== 'paid' && invoice.stripe_payment_link && (
+            {invoice.workflow_status !== 'paid' && invoice.stripe_payment_link && (
               <Card className="border-primary">
                 <CardHeader>
                   <CardTitle className="text-primary">Secure Payment</CardTitle>
@@ -410,7 +410,7 @@ export default function InvoicePublic() {
             )}
 
             {/* Payment Confirmation */}
-            {invoice.status === 'paid' && (
+            {invoice.workflow_status === 'paid' && (
               <Card className="border-green-500">
                 <CardHeader>
                   <CardTitle className="text-green-600 flex items-center gap-2">

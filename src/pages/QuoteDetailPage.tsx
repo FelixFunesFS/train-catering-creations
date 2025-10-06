@@ -34,8 +34,7 @@ interface Quote {
   location: string;
   service_type: string;
   start_time: string;
-  status: string;
-  workflow_status?: string;
+  workflow_status: string;
   estimated_total: number;
   final_total: number;
   special_requests?: string;
@@ -185,7 +184,7 @@ export default function QuoteDetailPage() {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <StatusBadge status={quote.workflow_status || quote.status} />
+              <StatusBadge status={quote.workflow_status} />
               <Button 
                 onClick={() => navigate(`/admin?tab=new-requests`)}
                 variant="outline"
@@ -473,7 +472,7 @@ export default function QuoteDetailPage() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Status</span>
-                    <StatusBadge status={quote.workflow_status || quote.status} size="sm" />
+                    <StatusBadge status={quote.workflow_status} size="sm" />
                   </div>
                 </div>
               </CardContent>

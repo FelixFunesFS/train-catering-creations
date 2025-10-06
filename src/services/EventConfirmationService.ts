@@ -20,7 +20,7 @@ export class EventConfirmationService {
       }
 
       // Check if already confirmed
-      if (quote.status === 'confirmed') {
+      if (quote.workflow_status === 'confirmed') {
         console.log('Event already confirmed');
         return;
       }
@@ -162,18 +162,17 @@ export class EventConfirmationService {
     try {
       const { data: invoice } = await supabase
         .from('invoices')
-        .select('status, quote_request_id')
+        .select('workflow_status, quote_request_id')
         .eq('id', invoiceId)
         .single();
 
       if (!invoice || !invoice.quote_request_id) return;
 
       // When invoice is paid, mark quote as confirmed
-      if (invoice.status === 'paid') {
+      if (invoice.workflow_status === 'paid') {
         await supabase
           .from('quote_requests')
           .update({
-            status: 'confirmed',
             workflow_status: 'confirmed'
           })
           .eq('id', invoice.quote_request_id);

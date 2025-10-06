@@ -71,13 +71,13 @@ export function useWorkflowState(quoteId: string | undefined) {
       // Check what exists
       const { data: quote } = await supabase
         .from('quote_requests')
-        .select('status, workflow_status, event_type')
+        .select('workflow_status, event_type')
         .eq('id', quoteId)
         .single();
 
       const { data: invoice } = await supabase
         .from('invoices')
-        .select('id, status')
+        .select('id, workflow_status')
         .eq('quote_request_id', quoteId)
         .maybeSingle();
 
@@ -100,7 +100,7 @@ export function useWorkflowState(quoteId: string | undefined) {
         step = 'review';
       }
 
-      if (invoice?.status === 'sent' || contract) {
+      if (invoice?.workflow_status === 'sent' || contract) {
         completed.push('contract');
         step = 'contract';
       }
@@ -110,12 +110,12 @@ export function useWorkflowState(quoteId: string | undefined) {
         step = 'payment';
       }
 
-      if (quote?.status === 'confirmed') {
+      if (quote?.workflow_status === 'confirmed') {
         completed.push('confirmed');
         step = 'confirmed';
       }
 
-      if (quote?.status === 'completed') {
+      if (quote?.workflow_status === 'completed') {
         completed.push('completed');
         step = 'completed';
       }

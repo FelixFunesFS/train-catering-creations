@@ -77,16 +77,16 @@ export default function QuoteDetails() {
     navigate(`/admin?quoteId=${quoteId}&mode=pricing`);
   };
 
-  const handleStatusUpdate = async (newStatus: 'pending' | 'reviewed' | 'quoted' | 'confirmed' | 'completed' | 'cancelled') => {
+  const handleStatusUpdate = async (newStatus: 'pending' | 'under_review' | 'quoted' | 'confirmed' | 'completed' | 'cancelled') => {
     try {
       const { error } = await supabase
         .from('quote_requests')
-        .update({ status: newStatus })
+        .update({ workflow_status: newStatus })
         .eq('id', quoteId);
 
       if (error) throw error;
 
-      setQuote({ ...quote, status: newStatus });
+      setQuote({ ...quote, workflow_status: newStatus });
       toast({
         title: "Status Updated",
         description: `Quote status updated to ${newStatus}`,
@@ -129,10 +129,10 @@ export default function QuoteDetails() {
   ];
 
   const getNextAction = () => {
-    switch (quote.status) {
+    switch (quote.workflow_status) {
       case 'pending':
-        return { action: () => handleStatusUpdate('reviewed'), label: 'Mark as Reviewed', icon: CheckCircle };
-      case 'reviewed':
+        return { action: () => handleStatusUpdate('under_review'), label: 'Mark as Under Review', icon: CheckCircle };
+      case 'under_review':
         return { action: handleCreateInvoice, label: 'Create Invoice', icon: FileText };
       default:
         return null;

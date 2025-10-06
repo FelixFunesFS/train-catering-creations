@@ -9,7 +9,7 @@ export class WorkflowService {
     const { data, error } = await supabase
       .from('quote_requests')
       .select('*')
-      .in('status', ['pending', 'reviewed', 'quoted', 'confirmed'])
+      .in('workflow_status', ['pending', 'under_review', 'quoted', 'confirmed'])
       .order('created_at', { ascending: false });
 
     if (error) throw error;

@@ -17,7 +17,7 @@ interface LineItem {
 interface EstimateData {
   id: string;
   invoice_number: string;
-  status: string;
+  workflow_status: string;
   total_amount: number;
   subtotal: number;
   tax_amount: number;
@@ -140,7 +140,7 @@ export default function EstimatePrintView() {
     );
   }
 
-  const documentType = estimate.status === 'approved' || estimate.status === 'paid' ? 'invoice' : 'estimate';
+  const documentType = estimate.workflow_status === 'approved' || estimate.workflow_status === 'paid' ? 'invoice' : 'estimate';
 
   return (
     <div className="print-only-view">

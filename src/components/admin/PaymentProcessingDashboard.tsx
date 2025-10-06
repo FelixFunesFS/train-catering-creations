@@ -81,12 +81,12 @@ export function PaymentProcessingDashboard() {
           id,
           quote_request_id,
           total_amount,
-          status,
+          workflow_status,
           document_type,
           created_at,
           due_date
         `)
-        .eq('status', 'approved')
+        .eq('workflow_status', 'approved')
         .eq('document_type', 'estimate')
         .order('created_at', { ascending: false });
 
@@ -159,7 +159,7 @@ export function PaymentProcessingDashboard() {
       invoice.quote_requests.event_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       invoice.quote_requests.email.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesStatus = statusFilter === 'all' || invoice.status === statusFilter;
+    const matchesStatus = statusFilter === 'all' || invoice.workflow_status === statusFilter;
     
     return matchesSearch && matchesStatus;
   });
@@ -294,7 +294,7 @@ export function PaymentProcessingDashboard() {
                       {invoice.quote_requests.event_name}
                     </div>
                     <Badge variant="outline" className="text-xs">
-                      {invoice.status}
+                      {invoice.workflow_status}
                     </Badge>
                   </div>
                   <div className="text-xs text-muted-foreground space-y-1">

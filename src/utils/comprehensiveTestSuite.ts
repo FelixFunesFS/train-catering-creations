@@ -581,12 +581,12 @@ export class ComprehensiveTestSuite {
     const { data: invoice } = await supabase
       .from('invoices')
       .select('*')
-      .eq('status', 'approved')
+      .eq('workflow_status', 'approved')
       .order('created_at', { ascending: false })
       .limit(1)
       .single();
 
-    if (!invoice || invoice.status !== 'approved') {
+    if (!invoice || invoice.workflow_status !== 'approved') {
       throw new Error('Invoice not found in approved status');
     }
 

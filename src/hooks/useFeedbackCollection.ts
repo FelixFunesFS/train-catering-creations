@@ -62,7 +62,7 @@ export function useFeedbackCollection(invoiceId: string, customerEmail: string) 
       if (invoice?.quote_request_id) {
         await supabase
           .from('quote_requests')
-          .update({ status: 'completed' })
+          .update({ workflow_status: 'completed' })
           .eq('id', invoice.quote_request_id);
       }
 

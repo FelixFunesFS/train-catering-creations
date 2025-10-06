@@ -174,7 +174,7 @@ export async function executeComprehensiveTests() {
       timestamp: new Date()
     });
     testResults.summary.passed++;
-    console.log('✅ Customer Approval Simulated:', approvedInvoice.status);
+    console.log('✅ Customer Approval Simulated:', approvedInvoice.workflow_status);
   } catch (error) {
     testResults.results.push({
       test: 'Customer Approval',

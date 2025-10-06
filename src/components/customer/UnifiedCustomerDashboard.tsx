@@ -44,7 +44,7 @@ interface CustomerData {
     location: string;
     service_type: string;
     estimated_total: number;
-    status: string;
+    workflow_status: string;
     [key: string]: any;
   };
   invoice?: {
@@ -52,7 +52,7 @@ interface CustomerData {
     invoice_number: string;
     total_amount: number;
     due_date: string;
-    status: string;
+    workflow_status: string;
     quote_request_id?: string;
     [key: string]: any;
   };
