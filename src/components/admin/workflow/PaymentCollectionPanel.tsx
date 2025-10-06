@@ -96,7 +96,6 @@ export function PaymentCollectionPanel({
         await supabase
           .from('invoices')
           .update({
-            status: 'paid',
             workflow_status: 'paid',
             paid_at: new Date().toISOString()
           })
@@ -104,7 +103,7 @@ export function PaymentCollectionPanel({
 
         await supabase
           .from('quote_requests')
-          .update({ status: 'confirmed' })
+          .update({ workflow_status: 'confirmed' })
           .eq('id', quote.id);
       }
 

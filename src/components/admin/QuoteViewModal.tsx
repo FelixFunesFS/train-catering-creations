@@ -70,7 +70,7 @@ export function QuoteViewModal({ quote, onClose }: QuoteViewModalProps) {
                     Quote Request Summary
                   </p>
                   <Badge variant="outline" className="hidden sm:inline-flex">
-                    {quote.status}
+                    {quote.workflow_status}
                   </Badge>
                 </div>
               </div>

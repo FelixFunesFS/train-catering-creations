@@ -32,7 +32,7 @@ interface CustomerData {
     location: string;
     service_type: string;
     estimated_total: number;
-    status: string;
+    workflow_status: string;
     [key: string]: any;
   };
   invoice?: {
@@ -40,7 +40,7 @@ interface CustomerData {
     invoice_number: string;
     total_amount: number;
     due_date: string;
-    status: string;
+    workflow_status: string;
     quote_request_id?: string;
     [key: string]: any;
   };
@@ -143,8 +143,8 @@ export function OptimizedCustomerPortal() {
         { label: 'Quote Requested', completed: true },
         { label: 'Quote Confirmed', completed: true },
         { label: 'Invoice Sent', completed: true },
-        { label: 'Payment', completed: data.invoice.status === 'paid' },
-        { label: 'Event Confirmed', completed: data.invoice.status === 'paid' }
+        { label: 'Payment', completed: data.invoice.workflow_status === 'paid' },
+        { label: 'Event Confirmed', completed: data.invoice.workflow_status === 'paid' }
       ];
       return steps;
     }
@@ -152,9 +152,9 @@ export function OptimizedCustomerPortal() {
     if (data.quote) {
       const steps = [
         { label: 'Quote Requested', completed: true },
-        { label: 'Under Review', completed: data.quote.status !== 'pending' },
-        { label: 'Quote Ready', completed: ['quoted', 'confirmed'].includes(data.quote.status) },
-        { label: 'Confirmation', completed: data.quote.status === 'confirmed' },
+        { label: 'Under Review', completed: data.quote.workflow_status !== 'pending' },
+        { label: 'Quote Ready', completed: ['estimated', 'confirmed'].includes(data.quote.workflow_status) },
+        { label: 'Confirmation', completed: data.quote.workflow_status === 'confirmed' },
         { label: 'Invoice Creation', completed: false }
       ];
       return steps;
@@ -179,7 +179,7 @@ export function OptimizedCustomerPortal() {
     try {
       const { error } = await supabase
         .from('quote_requests')
-        .update({ status: 'confirmed' })
+        .update({ workflow_status: 'confirmed' })
         .eq('id', data.quote.id);
 
       if (error) throw error;
@@ -206,7 +206,7 @@ export function OptimizedCustomerPortal() {
       // Simulate payment processing
       const { error } = await supabase
         .from('invoices')
-        .update({ status: 'paid' })
+        .update({ workflow_status: 'paid' })
         .eq('id', data.invoice.id);
 
       if (error) throw error;
@@ -334,8 +334,8 @@ export function OptimizedCustomerPortal() {
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
                     <span>Quote Summary</span>
-                    <Badge className={getStatusColor(data.quote.status)}>
-                      {data.quote.status.charAt(0).toUpperCase() + data.quote.status.slice(1)}
+                    <Badge className={getStatusColor(data.quote.workflow_status)}>
+                      {data.quote.workflow_status.charAt(0).toUpperCase() + data.quote.workflow_status.slice(1).replace('_', ' ')}
                     </Badge>
                   </CardTitle>
                 </CardHeader>
@@ -370,7 +370,7 @@ export function OptimizedCustomerPortal() {
                     </div>
                   )}
 
-                  {data.quote.status === 'quoted' && (
+                  {data.quote.workflow_status === 'estimated' && (
                     <div className="flex gap-3 pt-4">
                       <Button onClick={handleApproveQuote} className="flex-1">
                         <CheckCircle className="h-4 w-4 mr-2" />
@@ -392,8 +392,8 @@ export function OptimizedCustomerPortal() {
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
                     <span>Invoice Summary</span>
-                    <Badge className={getStatusColor(data.invoice.status)}>
-                      {data.invoice.status.charAt(0).toUpperCase() + data.invoice.status.slice(1)}
+                    <Badge className={getStatusColor(data.invoice.workflow_status)}>
+                      {data.invoice.workflow_status.charAt(0).toUpperCase() + data.invoice.workflow_status.slice(1).replace('_', ' ')}
                     </Badge>
                   </CardTitle>
                 </CardHeader>
@@ -415,7 +415,7 @@ export function OptimizedCustomerPortal() {
                   )}
 
                   <div className="flex gap-3 pt-4">
-                    {data.invoice.status !== 'paid' && (
+                    {data.invoice.workflow_status !== 'paid' && (
                       <Button onClick={() => setActiveTab('payment')} className="flex-1">
                         <CreditCard className="h-4 w-4 mr-2" />
                         Make Payment
@@ -436,7 +436,7 @@ export function OptimizedCustomerPortal() {
                 <CardTitle>What's Next?</CardTitle>
               </CardHeader>
               <CardContent>
-                {data.quote?.status === 'pending' && (
+                {data.quote?.workflow_status === 'pending' && (
                   <div className="flex items-start gap-3">
                     <Clock className="h-5 w-5 text-yellow-500 mt-0.5" />
                     <div>
@@ -448,7 +448,7 @@ export function OptimizedCustomerPortal() {
                   </div>
                 )}
 
-                {data.quote?.status === 'confirmed' && (
+                {data.quote?.workflow_status === 'confirmed' && (
                   <div className="flex items-start gap-3">
                     <FileText className="h-5 w-5 text-blue-500 mt-0.5" />
                     <div>
@@ -460,7 +460,7 @@ export function OptimizedCustomerPortal() {
                   </div>
                 )}
 
-                {data.invoice?.status === 'paid' && (
+                {data.invoice?.workflow_status === 'paid' && (
                   <div className="flex items-start gap-3">
                     <Star className="h-5 w-5 text-green-500 mt-0.5" />
                     <div>

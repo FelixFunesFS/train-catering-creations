@@ -53,7 +53,7 @@ export function TokenBasedCustomerPortal() {
   useEffect(() => {
     if (data.invoice && action && !actionExecuted) {
       setActionExecuted(true);
-      if (action === 'approve' && data.invoice.status !== 'approved') {
+      if (action === 'approve' && data.invoice.workflow_status !== 'approved') {
         handleApproveEstimate();
       } else if (action === 'changes') {
         setShowChangeForm(true);
@@ -211,7 +211,7 @@ export function TokenBasedCustomerPortal() {
     try {
       const { error } = await supabase
         .from('invoices')
-        .update({ status: 'approved' })
+        .update({ workflow_status: 'approved' })
         .eq('id', data.invoice.id);
 
       if (error) throw error;
@@ -395,7 +395,7 @@ export function TokenBasedCustomerPortal() {
 
       <main className="max-w-4xl mx-auto px-4 py-8">
         {/* Show event portal if paid */}
-        {data.invoice.status === 'paid' && data.quote && (
+        {data.invoice.workflow_status === 'paid' && data.quote && (
           <div className="space-y-6">
             <EventCountdown quote={data.quote} invoice={data.invoice} />
             <CustomerEventPortal 
@@ -407,7 +407,7 @@ export function TokenBasedCustomerPortal() {
         )}
 
         {/* Show payment interface if approved but not paid */}
-        {data.invoice.status === 'approved' && (
+        {data.invoice.workflow_status === 'approved' && (
           <div className="space-y-6">
             <PaymentInterface 
               invoiceId={data.invoice.id} 
@@ -434,7 +434,7 @@ export function TokenBasedCustomerPortal() {
         )}
 
         {/* Show approval workflow if not yet approved */}
-        {data.invoice.status !== 'approved' && data.invoice.status !== 'paid' && (
+        {data.invoice.workflow_status !== 'approved' && data.invoice.workflow_status !== 'paid' && (
           <EstimateApprovalWorkflow
             estimate={data.invoice}
             onApproval={() => {

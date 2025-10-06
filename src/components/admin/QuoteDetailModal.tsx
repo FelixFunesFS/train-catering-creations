@@ -228,10 +228,10 @@ export function QuoteDetailModal({ quote, onClose, onUpdate }: QuoteDetailModalP
                     Quote Request Details
                   </p>
                   <Badge 
-                    variant={editedQuote.status === 'confirmed' ? 'default' : 'outline'}
+                    variant={editedQuote.workflow_status === 'confirmed' ? 'default' : 'outline'}
                     className="hidden sm:inline-flex"
                   >
-                    {editedQuote.status}
+                    {editedQuote.workflow_status}
                   </Badge>
                 </div>
               </div>

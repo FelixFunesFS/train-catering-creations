@@ -92,7 +92,7 @@ export function ReportsAndAnalytics() {
 
       // Calculate metrics
       const totalRevenue = invoices
-        .filter(inv => inv.status === 'paid')
+        .filter(inv => inv.workflow_status === 'paid')
         .reduce((sum, inv) => sum + (inv.total_amount || 0), 0);
 
       // Calculate growth (mock for now)
@@ -108,7 +108,7 @@ export function ReportsAndAnalytics() {
       const retentionRate = uniqueCustomers > 0 ? (returningCustomers / uniqueCustomers) * 100 : 0;
 
       // Event metrics
-      const totalEvents = quotes.filter(q => q.status === 'confirmed').length;
+      const totalEvents = quotes.filter(q => q.workflow_status === 'confirmed').length;
       const avgEventSize = quotes.length > 0 
         ? quotes.reduce((sum, q) => sum + (q.guest_count || 0), 0) / quotes.length 
         : 0;
@@ -126,7 +126,7 @@ export function ReportsAndAnalytics() {
       }));
 
       // Performance metrics
-      const confirmedQuotes = quotes.filter(q => q.status === 'confirmed').length;
+      const confirmedQuotes = quotes.filter(q => q.workflow_status === 'confirmed').length;
       const conversionRate = quotes.length > 0 ? (confirmedQuotes / quotes.length) * 100 : 0;
 
       setReportData({
@@ -180,7 +180,7 @@ export function ReportsAndAnalytics() {
           const invDate = new Date(inv.created_at);
           return invDate.getMonth() === date.getMonth() && 
                  invDate.getFullYear() === date.getFullYear() &&
-                 inv.status === 'paid';
+                 inv.workflow_status === 'paid';
         })
         .reduce((sum, inv) => sum + (inv.total_amount || 0), 0);
       

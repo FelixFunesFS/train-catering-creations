@@ -239,7 +239,7 @@ export function EmailPreviewModal({
 
       await supabase
         .from('invoices')
-        .update({ status: 'sent' })
+        .update({ workflow_status: 'sent' })
         .eq('id', invoice.id);
 
       toast({

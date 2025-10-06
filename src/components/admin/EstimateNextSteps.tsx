@@ -125,10 +125,10 @@ export function EstimateNextSteps({
 
       if (error) throw error;
 
-      // Update invoice status
+      // Update invoice workflow_status
       await supabase
         .from('invoices')
-        .update({ status: 'contract_generated' })
+        .update({ workflow_status: 'approved' })
         .eq('id', invoiceId);
 
       toast({
