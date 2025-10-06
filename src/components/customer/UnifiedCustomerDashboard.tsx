@@ -11,6 +11,7 @@ import { CustomerNotificationCenter } from './CustomerNotificationCenter';
 import { EstimateComparisonView } from './EstimateComparisonView';
 import { QuoteApprovalFlow } from './QuoteApprovalFlow';
 import { ChangeRequestForm } from './ChangeRequestForm';
+import { ChangeRequestHistory } from './ChangeRequestHistory';
 import { PaymentPortal } from './PaymentPortal';
 import { 
   CheckCircle, 
@@ -640,18 +641,25 @@ export function UnifiedCustomerDashboard() {
           </TabsContent>
 
           <TabsContent value="changes">
-            {data.quote ? (
-            <ChangeRequestForm
-              quote={data.quote}
-              invoice={data.invoice}
-              onRequestSubmitted={() => {
-                toast({
-                  title: "Request Submitted",
-                  description: "We'll review your changes and get back to you soon.",
-                });
-                setActiveTab('overview');
-              }}
-            />
+            {data.quote && data.invoice ? (
+              <div className="space-y-6">
+                <ChangeRequestForm
+                  quote={data.quote}
+                  invoice={data.invoice}
+                  onRequestSubmitted={() => {
+                    toast({
+                      title: "Request Submitted",
+                      description: "We'll review your changes and get back to you soon.",
+                    });
+                    fetchCustomerData(); // Refresh to show new change request
+                  }}
+                />
+                
+                <ChangeRequestHistory 
+                  invoiceId={data.invoice.id}
+                  quoteId={data.quote.id}
+                />
+              </div>
             ) : (
               <Card>
                 <CardContent className="py-8 text-center">
