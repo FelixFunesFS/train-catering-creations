@@ -94,7 +94,7 @@ export function BusinessIntelligenceDashboard() {
         .from('quote_requests')
         .select(`
           *,
-          invoices(id, total_amount, status, paid_at)
+          invoices(id, total_amount, workflow_status, paid_at)
         `)
         .gte('created_at', startDate.toISOString())
         .lte('created_at', endDate.toISOString());
@@ -164,7 +164,7 @@ export function BusinessIntelligenceDashboard() {
   const generateChartData = (quotes: any[], invoices: any[]) => {
     // Revenue by month
     const revenueByMonth = invoices
-      .filter(i => i.status === 'paid' && i.paid_at)
+      .filter(i => i.workflow_status === 'paid' && i.paid_at)
       .reduce((acc, invoice) => {
         const month = new Date(invoice.paid_at).toLocaleDateString('en-US', { month: 'short' });
         const existing = acc.find(item => item.name === month);
@@ -176,9 +176,9 @@ export function BusinessIntelligenceDashboard() {
         return acc;
       }, [] as ChartData[]);
 
-    // Quotes by status
+    // Quotes by workflow_status
     const quotesByStatus = quotes.reduce((acc, quote) => {
-      const status = quote.status || 'pending';
+      const status = quote.workflow_status || 'pending';
       const existing = acc.find(item => item.name === status);
       if (existing) {
         existing.value += 1;
@@ -203,8 +203,8 @@ export function BusinessIntelligenceDashboard() {
     // Conversion funnel
     const totalQuotes = quotes.length;
     const quotedEstimates = invoices.filter(i => i.quote_request_id).length;
-    const sentEstimates = invoices.filter(i => i.status === 'sent' || i.status === 'approved' || i.status === 'paid').length;
-    const paidEstimates = invoices.filter(i => i.status === 'paid').length;
+    const sentEstimates = invoices.filter(i => i.workflow_status === 'sent' || i.workflow_status === 'approved' || i.workflow_status === 'paid').length;
+    const paidEstimates = invoices.filter(i => i.workflow_status === 'paid').length;
 
     const conversionData = [
       { name: 'Quotes Received', value: totalQuotes },

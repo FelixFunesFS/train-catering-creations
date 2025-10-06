@@ -433,20 +433,20 @@ export function EnhancedBillingTab({ quote, onGenerateInvoice, onResendInvoice }
               <div className="space-y-4">
                 {invoices.map((invoice) => (
                   <div key={invoice.id} className="border rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-3">
-                        {getStatusIcon(invoice.status)}
-                        <div>
-                          <h4 className="font-medium">{invoice.invoice_number}</h4>
-                          <p className="text-sm text-muted-foreground">
-                            {formatCurrency(invoice.total_amount)}
-                          </p>
-                        </div>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-3">
+                      {getStatusIcon(invoice.workflow_status)}
+                      <div>
+                        <h4 className="font-medium">{invoice.invoice_number}</h4>
+                        <p className="text-sm text-muted-foreground">
+                          {formatCurrency(invoice.total_amount)}
+                        </p>
                       </div>
-                      <Badge className={getStatusColor(invoice.status)}>
-                        {invoice.status}
-                      </Badge>
                     </div>
+                    <Badge className={getStatusColor(invoice.workflow_status)}>
+                      {invoice.workflow_status}
+                    </Badge>
+                  </div>
                     
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
                       <div>
@@ -483,7 +483,7 @@ export function EnhancedBillingTab({ quote, onGenerateInvoice, onResendInvoice }
                           <Edit3 className="h-3 w-3" />
                           Open Full View
                         </Button>
-                        {invoice.status === 'draft' && (
+                        {invoice.workflow_status === 'draft' && (
                           <Button
                             size="sm"
                             onClick={() => sendInvoice(invoice.id)}
@@ -617,11 +617,12 @@ export function EnhancedBillingTab({ quote, onGenerateInvoice, onResendInvoice }
                           </Badge>
                         </div>
                         
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
-                          <div>
-                            <label className="text-muted-foreground">Due Date</label>
-                            <p>{new Date(invoice.due_date).toLocaleDateString()}</p>
-                          </div>
+                    
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
+                      <div>
+                        <label className="text-muted-foreground">Due Date</label>
+                        <p>{new Date(invoice.due_date).toLocaleDateString()}</p>
+                      </div>
                           {invoice.sent_at && (
                             <div>
                               <label className="text-muted-foreground">Sent</label>

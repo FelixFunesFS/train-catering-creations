@@ -90,7 +90,7 @@ export function BillingTab({ quote, onGenerateInvoice, onResendInvoice }: Billin
     {
       id: '1',
       invoiceNumber: 'INV-2024-001',
-      status: 'open',
+      workflow_status: 'open',
       amountTotal: 249900, // $2,499.00 in cents
       amountDue: 249900,
       currency: 'usd',
@@ -237,9 +237,9 @@ export function BillingTab({ quote, onGenerateInvoice, onResendInvoice }: Billin
                       <div className="space-y-2">
                         <div className="flex items-center gap-2">
                           <h4 className="font-semibold">{invoice.invoiceNumber}</h4>
-                          <Badge className={getStatusColor(invoice.status)}>
-                            {getStatusIcon(invoice.status)}
-                            <span className="ml-1 capitalize">{invoice.status}</span>
+                          <Badge className={getStatusColor(invoice.workflow_status)}>
+                            {getStatusIcon(invoice.workflow_status)}
+                            <span className="ml-1 capitalize">{invoice.workflow_status}</span>
                           </Badge>
                         </div>
                         <div className="grid grid-cols-2 gap-4 text-sm">

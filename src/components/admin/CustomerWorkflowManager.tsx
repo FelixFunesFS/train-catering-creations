@@ -29,33 +29,33 @@ export function CustomerWorkflowManager({ quote, invoice, onRefresh }: CustomerW
     
     const steps = [
       { key: 'submitted', label: 'Quote Submitted', status: 'completed' },
-      { key: 'reviewed', label: 'Under Review', status: quote.status === 'pending' ? 'active' : 'completed' },
-      { key: 'estimated', label: 'Estimate Sent', status: invoice?.status === 'sent' ? 'completed' : quote.status === 'reviewed' ? 'active' : 'pending' },
-      { key: 'approved', label: 'Estimate Approved', status: invoice?.status === 'approved' ? 'completed' : 'pending' },
-      { key: 'paid', label: 'Payment Complete', status: invoice?.status === 'paid' ? 'completed' : 'pending' },
-      { key: 'confirmed', label: 'Event Confirmed', status: quote.status === 'confirmed' ? 'completed' : 'pending' }
+      { key: 'reviewed', label: 'Under Review', status: quote.workflow_status === 'pending' ? 'active' : 'completed' },
+      { key: 'estimated', label: 'Estimate Sent', status: invoice?.workflow_status === 'sent' ? 'completed' : quote.workflow_status === 'under_review' ? 'active' : 'pending' },
+      { key: 'approved', label: 'Estimate Approved', status: invoice?.workflow_status === 'approved' ? 'completed' : 'pending' },
+      { key: 'paid', label: 'Payment Complete', status: invoice?.workflow_status === 'paid' ? 'completed' : 'pending' },
+      { key: 'confirmed', label: 'Event Confirmed', status: quote.workflow_status === 'confirmed' ? 'completed' : 'pending' }
     ];
 
     let currentStep = 0;
     let nextAction = null;
 
     // Determine current step and next action
-    if (quote.status === 'pending') {
+    if (quote.workflow_status === 'pending') {
       currentStep = 1;
       nextAction = { type: 'send_welcome', label: 'Send Welcome Email' };
-    } else if (quote.status === 'reviewed' && !invoice) {
+    } else if (quote.workflow_status === 'under_review' && !invoice) {
       currentStep = 2;
       nextAction = { type: 'create_invoice', label: 'Create Estimate' };
     } else if (invoice?.is_draft) {
       currentStep = 2;
       nextAction = { type: 'send_estimate', label: 'Send Estimate' };
-    } else if (invoice?.status === 'sent') {
+    } else if (invoice?.workflow_status === 'sent') {
       currentStep = 3;
       nextAction = { type: 'send_reminder', label: 'Send Reminder' };
-    } else if (invoice?.status === 'approved') {
+    } else if (invoice?.workflow_status === 'approved') {
       currentStep = 4;
       nextAction = { type: 'send_payment_reminder', label: 'Send Payment Reminder' };
-    } else if (invoice?.status === 'paid') {
+    } else if (invoice?.workflow_status === 'paid') {
       currentStep = 5;
       nextAction = { type: 'confirm_event', label: 'Confirm Event' };
     }

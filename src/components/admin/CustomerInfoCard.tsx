@@ -70,8 +70,8 @@ export function CustomerInfoCard({ quote, isCompact = false }: CustomerInfoCardP
               <User className="h-4 w-4 text-primary" />
               <span className="font-semibold text-sm">{formatCustomerName(quote.contact_name)}</span>
             </div>
-            <Badge variant={quote.status === 'confirmed' ? 'default' : 'secondary'} className="text-xs">
-              {quote.status}
+            <Badge variant={quote.workflow_status === 'confirmed' ? 'default' : 'secondary'} className="text-xs">
+              {quote.workflow_status}
             </Badge>
           </div>
           <div className="space-y-2 text-xs">
@@ -102,11 +102,11 @@ export function CustomerInfoCard({ quote, isCompact = false }: CustomerInfoCardP
             Customer & Event Overview
           </div>
           <Badge 
-            variant={quote.status === 'confirmed' ? 'default' : 
-                     quote.status === 'pending' ? 'secondary' : 'outline'}
+            variant={quote.workflow_status === 'confirmed' ? 'default' : 
+                     quote.workflow_status === 'pending' ? 'secondary' : 'outline'}
             className="capitalize px-3 py-1"
           >
-            {quote.status}
+            {quote.workflow_status}
           </Badge>
         </CardTitle>
       </CardHeader>
@@ -318,10 +318,10 @@ export function CustomerInfoCard({ quote, isCompact = false }: CustomerInfoCardP
                     <label className="text-xs font-medium text-muted-foreground">Quote Status</label>
                     <div className="flex items-center gap-2 mt-1">
                       <Badge variant={
-                        quote.status === 'confirmed' ? 'default' : 
-                        quote.status === 'pending' ? 'secondary' : 'outline'
+                        quote.workflow_status === 'confirmed' ? 'default' : 
+                        quote.workflow_status === 'pending' ? 'secondary' : 'outline'
                       }>
-                        {quote.status}
+                        {quote.workflow_status}
                       </Badge>
                     </div>
                   </div>

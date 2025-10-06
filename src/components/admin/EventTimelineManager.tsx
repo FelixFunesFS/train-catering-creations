@@ -68,7 +68,7 @@ export function EventTimelineManager() {
       const { data, error } = await supabase
         .from('quote_requests')
         .select('*')
-        .eq('status', 'confirmed')
+        .eq('workflow_status', 'confirmed')
         .gte('event_date', today)
         .lte('event_date', thirtyDaysFromNow)
         .order('event_date', { ascending: true });

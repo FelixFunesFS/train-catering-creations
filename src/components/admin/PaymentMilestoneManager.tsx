@@ -88,7 +88,7 @@ export function PaymentMilestoneManager({
       if (milestonesError) throw milestonesError;
       
       // If no milestones exist and invoice is approved, generate them
-      if ((!milestonesData || milestonesData.length === 0) && invoiceData.status === 'approved') {
+      if ((!milestonesData || milestonesData.length === 0) && invoiceData.workflow_status === 'approved') {
         await generatePaymentSchedule(invoiceData);
       } else {
         setMilestones(milestonesData || []);
