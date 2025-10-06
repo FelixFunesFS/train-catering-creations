@@ -251,7 +251,6 @@ async function createDraftInvoice(quote: any, estimatedTotal: number, supabaseCl
           total_amount: estimatedTotal,
           subtotal: estimatedTotal,
           updated_at: new Date().toISOString(),
-          status: 'draft',
           workflow_status: 'draft'
         })
         .eq('id', existingInvoice.id);
@@ -262,7 +261,6 @@ async function createDraftInvoice(quote: any, estimatedTotal: number, supabaseCl
         subtotal: estimatedTotal,
         total_amount: estimatedTotal,
         is_draft: true,
-        status: 'draft',
         workflow_status: 'draft',
         invoice_number: `DRAFT-${quote.id.slice(0, 8)}`,
         due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
@@ -283,7 +281,6 @@ async function updateInvoiceStatus(quoteId: string, status: string, supabaseClie
     const { error } = await supabaseClient
       .from('invoices')
       .update({
-        status: status,
         workflow_status: status,
         last_status_change: new Date().toISOString(),
         status_changed_by: 'system'
@@ -312,7 +309,6 @@ async function createInvoiceFromQuote(quote: any, supabaseClient: any): Promise<
       await supabaseClient
         .from('invoices')
         .update({
-          status: 'draft',
           workflow_status: 'draft',
           is_draft: false,
           document_type: 'invoice',
@@ -326,7 +322,6 @@ async function createInvoiceFromQuote(quote: any, supabaseClient: any): Promise<
         subtotal: quote.estimated_total || 0,
         total_amount: quote.estimated_total || 0,
         is_draft: false,
-        status: 'draft',
         workflow_status: 'draft',
         document_type: 'invoice',
         invoice_number: `INV-${Date.now().toString().slice(-8)}`,

@@ -77,7 +77,7 @@ export class WorkflowService {
       .from('invoices')
       .insert({
         quote_request_id: quote.id,
-        status: 'draft',
+        workflow_status: 'draft',
         document_type: 'estimate',
         subtotal: 0,
         tax_amount: 0,

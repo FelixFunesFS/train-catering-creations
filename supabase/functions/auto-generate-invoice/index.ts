@@ -71,10 +71,9 @@ const handler = async (req: Request): Promise<Response> => {
         subtotal: 0,
         tax_amount: 0,
         total_amount: 0,
-        status: 'draft',
+        workflow_status: 'draft',
         document_type: 'estimate',
-        is_draft: true,
-        email_review_required: true
+        is_draft: true
       })
       .select()
       .single();

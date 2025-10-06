@@ -317,7 +317,6 @@ const handler = async (req: Request): Promise<Response> => {
         due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 days
         is_draft: true,
         workflow_status: 'draft',
-        status: 'draft',
         currency: 'usd',
         invoice_number: `INV-${Date.now()}-${quote_request_id.split('-')[0]}`,
         notes: `Catering service for ${quote.event_name} on ${quote.event_date}`
