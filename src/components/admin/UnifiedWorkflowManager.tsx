@@ -83,15 +83,26 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
 
   const { saveInvoiceChanges } = useInvoiceEditing();
 
-  // Get totals from database invoice (single source of truth)
+  // Calculate totals in real-time from line items
   const totals = useMemo(() => {
+    // If we have line items, calculate from them (real-time)
+    if (managedLineItems.length > 0) {
+      const subtotal = managedLineItems.reduce((sum, item) => sum + (item.total_price || 0), 0);
+      const taxRate = isGovernmentContract ? 0 : 0.08;
+      const tax_amount = Math.round(subtotal * taxRate);
+      const total_amount = subtotal + tax_amount;
+      
+      return { subtotal, tax_amount, total_amount };
+    }
+    
+    // Fall back to invoice data if no line items yet
     if (!invoice) return { subtotal: 0, tax_amount: 0, total_amount: 0 };
     return {
       subtotal: invoice.subtotal || 0,
       tax_amount: invoice.tax_amount || 0,
       total_amount: invoice.total_amount || 0
     };
-  }, [invoice]);
+  }, [managedLineItems, isGovernmentContract, invoice]);
 
   // Load quotes on mount
   useEffect(() => {
