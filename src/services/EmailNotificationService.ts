@@ -83,13 +83,14 @@ export class EmailNotificationService {
           ctaButton = `
             <div style="text-align: center; margin: 30px 0;">
               <a href="${estimateLink}" 
-                 style="background: linear-gradient(135deg, #8B5CF6, #3B82F6); 
+                 style="background: linear-gradient(135deg, #DC143C, #8B0000); 
                         color: white; 
                         padding: 15px 40px; 
                         text-decoration: none; 
                         border-radius: 8px; 
                         font-weight: bold;
-                        display: inline-block;">
+                        display: inline-block;
+                        box-shadow: 0 4px 6px rgba(220, 20, 60, 0.3);">
                 View Updated Estimate
               </a>
               <p style="margin-top: 15px; color: #6b7280; font-size: 13px;">
@@ -127,9 +128,9 @@ export class EmailNotificationService {
         <div style="max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
           
           <!-- Header -->
-          <div style="background: linear-gradient(135deg, #8B5CF6, #3B82F6); padding: 40px 30px; text-align: center;">
-            <h1 style="color: white; margin: 0; font-size: 28px; font-weight: bold;">Soul Train's Eatery</h1>
-            <p style="color: rgba(255,255,255,0.95); margin: 10px 0 0 0; font-size: 16px;">Change Request Update</p>
+          <div style="background: linear-gradient(135deg, #DC143C, #8B0000); padding: 40px 30px; text-align: center;">
+            <h1 style="color: white; margin: 0; font-size: 28px; font-weight: bold;">🍽️ Soul Train's Eatery</h1>
+            <p style="color: #FFD700; margin: 10px 0 0 0; font-size: 16px; font-style: italic;">Where Southern Soul Meets Lowcountry Love</p>
           </div>
           
           <!-- Body -->
@@ -141,7 +142,7 @@ export class EmailNotificationService {
             </p>
             
             <!-- Status Box -->
-            <div style="background: #f9fafb; padding: 25px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #8B5CF6;">
+            <div style="background: #FFF5E6; padding: 25px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #FFD700;">
               <h3 style="margin-top: 0; color: #374151; font-size: 18px;">
                 Request Status: ${statusMessage}
               </h3>
@@ -165,21 +166,21 @@ export class EmailNotificationService {
             <div style="margin-top: 40px; padding-top: 25px; border-top: 2px solid #e5e7eb;">
               <p style="margin: 0 0 15px 0; color: #1f2937; font-weight: bold; font-size: 16px;">Need to discuss this?</p>
               <p style="margin: 5px 0; color: #4b5563;">
-                📞 Call us at <a href="tel:8439700265" style="color: #8B5CF6; text-decoration: none; font-weight: bold;">(843) 970-0265</a>
+                📞 Call us at <a href="tel:8439700265" style="color: #DC143C; text-decoration: none; font-weight: bold;">(843) 970-0265</a>
               </p>
               <p style="margin: 5px 0; color: #4b5563;">
-                ✉️ Email us at <a href="mailto:soultrainseatery@gmail.com" style="color: #8B5CF6; text-decoration: none; font-weight: bold;">soultrainseatery@gmail.com</a>
+                ✉️ Email us at <a href="mailto:soultrainseatery@gmail.com" style="color: #DC143C; text-decoration: none; font-weight: bold;">soultrainseatery@gmail.com</a>
               </p>
             </div>
           </div>
           
           <!-- Footer -->
-          <div style="background: #f9fafb; padding: 25px 30px; text-align: center; border-top: 1px solid #e5e7eb;">
+          <div style="background: #f9fafb; padding: 25px 30px; text-align: center; border-top: 3px solid #FFD700;">
             <p style="margin: 0; color: #6b7280; font-size: 14px;">
               Thank you for choosing Soul Train's Eatery!
             </p>
-            <p style="margin: 10px 0 0 0; color: #9ca3af; font-size: 12px;">
-              Proudly serving Charleston's Lowcountry
+            <p style="margin: 10px 0 0 0; color: #DC143C; font-size: 12px; font-style: italic;">
+              Bringing people together around exceptional Southern food
             </p>
           </div>
           

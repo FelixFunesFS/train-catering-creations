@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { generateQuoteConfirmationEmail, generateAdminQuoteNotification } from "../_shared/emailTemplates.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -20,40 +21,9 @@ const handler = async (req: Request): Promise<Response> => {
     const requestData = await req.json();
     console.log('Quote notification request:', requestData);
 
-    // Send admin notification email
-    const adminEmailHtml = `
-      <h2>New Quote Request Received</h2>
-      <p><strong>Contact:</strong> ${requestData.contact_name}</p>
-      <p><strong>Email:</strong> ${requestData.email}</p>
-      <p><strong>Phone:</strong> ${requestData.phone}</p>
-      <p><strong>Event:</strong> ${requestData.event_name}</p>
-      <p><strong>Date:</strong> ${requestData.event_date}</p>
-      <p><strong>Guests:</strong> ${requestData.guest_count}</p>
-      <p><strong>Location:</strong> ${requestData.location}</p>
-      <p><strong>Service Type:</strong> ${requestData.service_type}</p>
-      
-      <p>Please review this request in the admin dashboard.</p>
-    `;
-
-    // Send customer confirmation email
-    const customerEmailHtml = `
-      <h2>Thank you for your quote request!</h2>
-      <p>Dear ${requestData.contact_name},</p>
-      
-      <p>We've received your quote request for <strong>${requestData.event_name}</strong> and will respond within 48 hours.</p>
-      
-      <h3>Your Event Details:</h3>
-      <ul>
-        <li><strong>Date:</strong> ${requestData.event_date}</li>
-        <li><strong>Guests:</strong> ${requestData.guest_count}</li>
-        <li><strong>Location:</strong> ${requestData.location}</li>
-        <li><strong>Service Type:</strong> ${requestData.service_type}</li>
-      </ul>
-      
-      <p>For immediate assistance, please call us at (843) 970-0265.</p>
-      
-      <p>Best regards,<br>Soul Train's Eatery Team</p>
-    `;
+    // Generate professional branded emails using centralized templates
+    const adminEmailHtml = generateAdminQuoteNotification(requestData);
+    const customerEmailHtml = generateQuoteConfirmationEmail(requestData);
 
     console.log('Sending admin email...');
     const { error: adminEmailError } = await supabase.functions.invoke('send-gmail-email', {
