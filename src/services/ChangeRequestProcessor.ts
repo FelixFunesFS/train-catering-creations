@@ -115,12 +115,7 @@ export class ChangeRequestProcessor {
       // STEP 8: Mark change request as approved
       await this.markAsApproved(changeRequest.id, options.adminResponse, newTotal - invoice.total_amount);
 
-      // STEP 9: Regenerate customer access token for security
-      const newAccessToken = crypto.randomUUID();
-      const newTokenExpiry = new Date();
-      newTokenExpiry.setDate(newTokenExpiry.getDate() + 90); // 90 days from now
-
-      // STEP 10: Smart workflow status decision
+      // STEP 9: Smart workflow status decision
       // Option 1: Keep approved if cost change is minimal (<5%)
       // Option 2: Send for re-review if significant change (>5%)
       const costChangeCents = newTotal - invoice.total_amount;
@@ -138,13 +133,14 @@ export class ChangeRequestProcessor {
         newWorkflowStatus = 'sent';
       }
 
+      // STEP 10: Update invoice - KEEP EXISTING TOKEN (persistent portal)
+      // Note: We do NOT regenerate customer_access_token
+      // The customer uses the same permanent link throughout the entire lifecycle
       await supabase
         .from('invoices')
         .update({
           workflow_status: newWorkflowStatus,
           status_changed_by: 'admin',
-          customer_access_token: newAccessToken,
-          token_expires_at: newTokenExpiry.toISOString(),
           last_status_change: new Date().toISOString()
         })
         .eq('id', changeRequest.invoice_id);
@@ -152,9 +148,21 @@ export class ChangeRequestProcessor {
       // STEP 11: Log workflow state
       await this.logWorkflowStateChange(changeRequest, invoice.quote_request_id, options, newTotal - invoice.total_amount);
 
-      // STEP 12: Send email notification with new estimate link
+      // STEP 12: Get existing customer access token for email
+      const { data: currentInvoice } = await supabase
+        .from('invoices')
+        .select('customer_access_token')
+        .eq('id', changeRequest.invoice_id)
+        .single();
+
+      if (!currentInvoice?.customer_access_token) {
+        console.warn('No customer access token found for invoice:', changeRequest.invoice_id);
+        return { success: true, newTotal, appliedChanges: quoteUpdates };
+      }
+
+      // STEP 13: Send email notification with PERMANENT PORTAL LINK
       const baseUrl = import.meta.env.VITE_APP_URL || 'https://qptprrqjlcvfkhfdnnoa.supabase.co';
-      const estimateLink = `${baseUrl}/estimate?token=${newAccessToken}`;
+      const estimateLink = `${baseUrl}/estimate?token=${currentInvoice.customer_access_token}`;
       const emailResult = await this.emailService.sendChangeRequestResponse({
         to: changeRequest.customer_email,
         customerName: quote.contact_name || 'Valued Customer',
@@ -171,7 +179,7 @@ export class ChangeRequestProcessor {
       }
 
       console.log('Change request approved successfully. New total:', newTotal);
-      console.log('New access token generated. Old links invalidated.');
+      console.log('Customer portal link (permanent):', estimateLink);
       return { success: true, newTotal, appliedChanges: quoteUpdates };
     } catch (error) {
       console.error('Error approving change request:', error);

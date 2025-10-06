@@ -46,7 +46,16 @@ export function TokenBasedCustomerPortal() {
   useEffect(() => {
     if (token) {
       fetchCustomerData();
+      // Set up real-time subscription for invoice updates
+      setupRealtimeSubscription();
     }
+    
+    return () => {
+      // Cleanup subscription on unmount
+      if (token) {
+        supabase.removeAllChannels();
+      }
+    };
   }, [token]);
 
   // Handle automatic actions from URL - only execute once
@@ -124,6 +133,64 @@ export function TokenBasedCustomerPortal() {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Set up real-time subscription for invoice and quote updates
+  const setupRealtimeSubscription = () => {
+    if (!token) return;
+
+    const channel = supabase
+      .channel(`customer-portal-${token}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Listen to all changes (INSERT, UPDATE, DELETE)
+          schema: 'public',
+          table: 'invoices',
+        },
+        (payload) => {
+          console.log('Invoice updated in real-time:', payload);
+          // Refresh data when invoice changes
+          if (payload.eventType === 'UPDATE' || payload.eventType === 'INSERT') {
+            toast({
+              title: "Estimate Updated",
+              description: "Your estimate has been updated. Refreshing...",
+              duration: 3000,
+            });
+            fetchCustomerData();
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'change_requests',
+        },
+        (payload) => {
+          console.log('Change request updated in real-time:', payload);
+          // Refresh when change request status changes
+          if (payload.eventType === 'UPDATE') {
+            const newRecord = payload.new as any;
+            if (newRecord.status === 'approved' || newRecord.status === 'rejected') {
+              toast({
+                title: newRecord.status === 'approved' ? "Changes Approved!" : "Change Request Update",
+                description: newRecord.status === 'approved' 
+                  ? "Your requested changes have been approved and applied to your estimate."
+                  : "Your change request has been reviewed.",
+                duration: 5000,
+              });
+              fetchCustomerData();
+            }
+          }
+        }
+      )
+      .subscribe((status) => {
+        console.log('Real-time subscription status:', status);
+      });
+
+    return channel;
   };
 
   const handleViewDetails = () => {
