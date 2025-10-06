@@ -83,13 +83,15 @@ export class WorkflowStateManager {
       }
 
       // Update status
+      const updateData: any = {
+        workflow_status: newStatus,
+        last_status_change: new Date().toISOString(),
+        status_changed_by: changedBy
+      };
+      
       const { error: updateError } = await supabase
         .from('quote_requests')
-        .update({
-          workflow_status: newStatus as any,
-          last_status_change: new Date().toISOString(),
-          status_changed_by: changedBy
-        })
+        .update(updateData)
         .eq('id', quoteId);
 
       if (updateError) throw updateError;
@@ -141,13 +143,15 @@ export class WorkflowStateManager {
       }
 
       // Update status
+      const updateData: any = {
+        workflow_status: newStatus,
+        last_status_change: new Date().toISOString(),
+        status_changed_by: changedBy
+      };
+      
       const { error: updateError } = await supabase
         .from('invoices')
-        .update({
-          workflow_status: newStatus as any,
-          last_status_change: new Date().toISOString(),
-          status_changed_by: changedBy
-        })
+        .update(updateData)
         .eq('id', invoiceId);
 
       if (updateError) throw updateError;
