@@ -55,7 +55,7 @@ export function MenuRemovalTab({
                   key={`${proteinId}-${index}`}
                   variant={isRemoved ? "destructive" : "secondary"}
                   className={cn(
-                    "cursor-pointer transition-all hover:scale-105",
+                    "cursor-pointer hover:bg-muted/50",
                     isRemoved && "line-through"
                   )}
                   onClick={() => onToggleRemove('proteins', proteinId)}
@@ -93,7 +93,7 @@ export function MenuRemovalTab({
                   key={`${itemId}-${index}`}
                   variant={isRemoved ? "destructive" : "secondary"}
                   className={cn(
-                    "cursor-pointer transition-all hover:scale-105",
+                    "cursor-pointer hover:bg-muted/50",
                     isRemoved && "line-through"
                   )}
                   onClick={() => onToggleRemove('appetizers', itemId)}
@@ -125,7 +125,7 @@ export function MenuRemovalTab({
                   key={`${itemId}-${index}`}
                   variant={isRemoved ? "destructive" : "secondary"}
                   className={cn(
-                    "cursor-pointer transition-all hover:scale-105",
+                    "cursor-pointer hover:bg-muted/50",
                     isRemoved && "line-through"
                   )}
                   onClick={() => onToggleRemove('sides', itemId)}
@@ -157,7 +157,7 @@ export function MenuRemovalTab({
                   key={`${itemId}-${index}`}
                   variant={isRemoved ? "destructive" : "secondary"}
                   className={cn(
-                    "cursor-pointer transition-all hover:scale-105",
+                    "cursor-pointer hover:bg-muted/50",
                     isRemoved && "line-through"
                   )}
                   onClick={() => onToggleRemove('desserts', itemId)}
@@ -189,7 +189,7 @@ export function MenuRemovalTab({
                   key={`${itemId}-${index}`}
                   variant={isRemoved ? "destructive" : "secondary"}
                   className={cn(
-                    "cursor-pointer transition-all hover:scale-105",
+                    "cursor-pointer hover:bg-muted/50",
                     isRemoved && "line-through"
                   )}
                   onClick={() => onToggleRemove('drinks', itemId)}

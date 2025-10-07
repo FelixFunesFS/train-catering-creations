@@ -76,9 +76,9 @@ export const QuoteWorkflowProgress = ({
             <div key={step.id} className="flex gap-4">
               <div className="flex flex-col items-center">
                 <div className={cn(
-                  "w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300",
+                  "w-10 h-10 rounded-full flex items-center justify-center",
                   status === 'completed' && "bg-primary text-primary-foreground",
-                  status === 'current' && "bg-primary text-primary-foreground animate-pulse",
+                  status === 'current' && "bg-primary text-primary-foreground ring-2 ring-primary/30",
                   status === 'pending' && "bg-muted text-muted-foreground"
                 )}>
                   {status === 'completed' && <Check className="w-5 h-5" />}
@@ -129,9 +129,9 @@ export const QuoteWorkflowProgress = ({
                   )} />
                 )}
                 <div className={cn(
-                  "w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 shrink-0",
+                  "w-10 h-10 rounded-full flex items-center justify-center shrink-0",
                   status === 'completed' && "bg-primary text-primary-foreground",
-                  status === 'current' && "bg-primary text-primary-foreground animate-pulse ring-4 ring-primary/20",
+                  status === 'current' && "bg-primary text-primary-foreground ring-2 ring-primary/30",
                   status === 'pending' && "bg-muted text-muted-foreground"
                 )}>
                   {status === 'completed' && <CheckCircle2 className="w-5 h-5" />}

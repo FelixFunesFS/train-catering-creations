@@ -198,7 +198,7 @@ export function CustomerStatusTimeline({ invoice, quote }: CustomerStatusTimelin
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
             <div 
-              className="bg-green-500 h-2 rounded-full transition-all duration-300"
+              className="bg-green-500 h-2 rounded-full"
               style={{ width: `${(steps.filter(s => s.status === 'completed').length / steps.length) * 100}%` }}
             />
           </div>

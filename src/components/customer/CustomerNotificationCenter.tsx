@@ -135,7 +135,7 @@ export function CustomerNotificationCenter({
                 <div key={notification.id}>
                   <div
                     className={`
-                      relative p-4 rounded-lg border-l-4 transition-all duration-200 cursor-pointer
+                      relative p-4 rounded-lg border-l-4 cursor-pointer hover:bg-muted/50
                       ${getNotificationColor(notification.type)}
                       ${!notification.read ? 'shadow-sm' : 'opacity-75'}
                       hover:shadow-md

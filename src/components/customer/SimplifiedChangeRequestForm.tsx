@@ -137,7 +137,7 @@ export function SimplifiedChangeRequestForm({
       <p className="text-sm text-muted-foreground">What would you like to change?</p>
       
       <RadioGroup value={changeType || ''} onValueChange={(v) => setChangeType(v as ChangeType)}>
-        <Card className={`cursor-pointer transition-all ${changeType === 'menu_swap' ? 'ring-2 ring-primary' : ''}`}>
+        <Card className={`cursor-pointer hover:bg-muted/50 ${changeType === 'menu_swap' ? 'ring-2 ring-primary' : ''}`}>
           <CardContent className="p-4">
             <div className="flex items-start gap-3">
               <RadioGroupItem value="menu_swap" id="menu_swap" className="mt-1" />
@@ -154,7 +154,7 @@ export function SimplifiedChangeRequestForm({
           </CardContent>
         </Card>
 
-        <Card className={`cursor-pointer transition-all ${changeType === 'event_details' ? 'ring-2 ring-primary' : ''}`}>
+        <Card className={`cursor-pointer hover:bg-muted/50 ${changeType === 'event_details' ? 'ring-2 ring-primary' : ''}`}>
           <CardContent className="p-4">
             <div className="flex items-start gap-3">
               <RadioGroupItem value="event_details" id="event_details" className="mt-1" />
@@ -171,7 +171,7 @@ export function SimplifiedChangeRequestForm({
           </CardContent>
         </Card>
 
-        <Card className={`cursor-pointer transition-all ${changeType === 'custom_request' ? 'ring-2 ring-primary' : ''}`}>
+        <Card className={`cursor-pointer hover:bg-muted/50 ${changeType === 'custom_request' ? 'ring-2 ring-primary' : ''}`}>
           <CardContent className="p-4">
             <div className="flex items-start gap-3">
               <RadioGroupItem value="custom_request" id="custom_request" className="mt-1" />

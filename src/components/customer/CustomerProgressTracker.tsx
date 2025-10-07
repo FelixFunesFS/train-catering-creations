@@ -52,7 +52,7 @@ export function CustomerProgressTracker({
       case 'completed':
         return <CheckCircle className="h-5 w-5 text-green-600" />;
       case 'current':
-        return <Clock className="h-5 w-5 text-amber-600 animate-pulse" />;
+        return <Clock className="h-5 w-5 text-amber-600" />;
       case 'blocked':
         return <AlertCircle className="h-5 w-5 text-red-600" />;
       default:
@@ -104,7 +104,7 @@ export function CustomerProgressTracker({
                 <div
                   key={step.id}
                   className={`
-                    p-3 rounded-lg border transition-all duration-200
+                    p-3 rounded-lg border
                     ${getStepColor(step)}
                   `}
                 >
@@ -119,7 +119,7 @@ export function CustomerProgressTracker({
             {currentStep && (
               <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
                 <div className="flex items-start gap-3">
-                  <Clock className="h-5 w-5 text-amber-600 mt-0.5 animate-pulse" />
+                  <Clock className="h-5 w-5 text-amber-600 mt-0.5" />
                   <div>
                     <p className="font-medium text-amber-900 dark:text-amber-100">
                       Currently: {currentStep.label}
@@ -169,7 +169,7 @@ export function CustomerProgressTracker({
             {steps.map((step, index) => (
               <div key={step.id} className="relative">
                 <div className={`
-                  p-4 rounded-lg border-2 transition-all duration-300
+                  p-4 rounded-lg border-2
                   ${getStepColor(step)}
                   ${step.status === 'current' ? 'shadow-md' : ''}
                 `}>

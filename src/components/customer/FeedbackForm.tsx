@@ -42,7 +42,7 @@ export function FeedbackForm({ invoiceId, customerEmail, eventName, onSuccess }:
             key={star}
             type="button"
             onClick={() => onChange(star)}
-            className="focus:outline-none transition-transform hover:scale-110"
+            className="focus:outline-none hover:opacity-80"
           >
             <Star
               className={`h-8 w-8 ${

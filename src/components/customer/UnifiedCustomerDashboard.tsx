@@ -324,8 +324,7 @@ export function UnifiedCustomerDashboard() {
                 <div key={index} className="flex items-center gap-3 lg:flex-col lg:items-center lg:text-center lg:gap-2">
                   <div className={`
                     w-10 h-10 lg:w-12 lg:h-12 rounded-full flex items-center justify-center flex-shrink-0
-                    transition-all duration-300
-                    ${step.completed 
+                    ${step.completed
                       ? 'bg-primary text-primary-foreground shadow-md' 
                       : 'bg-muted text-muted-foreground'
                     }

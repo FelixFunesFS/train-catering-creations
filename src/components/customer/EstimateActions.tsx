@@ -73,7 +73,7 @@ export function EstimateActions({
 
         <Button
           variant="outline"
-          className="w-full border-2 hover:bg-primary/5 hover:border-primary transition-all"
+          className="w-full border-2 hover:bg-primary/5 hover:border-primary"
           size="lg"
           onClick={onChangeRequested}
         >
