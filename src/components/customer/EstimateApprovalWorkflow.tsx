@@ -32,7 +32,7 @@ interface EstimateData {
   invoice_number: string;
   total_amount: number;
   tax_amount?: number;
-  status: string;
+  workflow_status: string;
   created_at: string;
   updated_at: string;
   requires_separate_contract?: boolean;
@@ -78,7 +78,7 @@ export function EstimateApprovalWorkflow({
 }: EstimateApprovalWorkflowProps) {
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState('');
-  const [isApproved, setIsApproved] = useState(estimate.status === 'approved');
+  const [isApproved, setIsApproved] = useState(estimate.workflow_status === 'approved');
   const [processingPayment, setProcessingPayment] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const { toast } = useToast();
@@ -341,7 +341,7 @@ export function EstimateApprovalWorkflow({
   return (
     <div className="space-y-6">
       {/* Show pending change request banner */}
-      {estimate.status === 'change_requested' && (
+      {estimate.workflow_status === 'change_requested' && (
         <Alert className="mb-6 bg-yellow-50 border-yellow-200 dark:bg-yellow-950 dark:border-yellow-800">
           <Clock className="h-4 w-4 text-yellow-600" />
           <AlertDescription>
@@ -370,8 +370,8 @@ export function EstimateApprovalWorkflow({
             <FileText className="h-5 w-5" />
             Review Your Estimate
           </CardTitle>
-          <Badge variant={estimate.status === 'sent' ? 'default' : 'secondary'}>
-            {estimate.status.charAt(0).toUpperCase() + estimate.status.slice(1)}
+          <Badge variant={estimate.workflow_status === 'sent' ? 'default' : 'secondary'}>
+            {estimate.workflow_status.charAt(0).toUpperCase() + estimate.workflow_status.slice(1)}
           </Badge>
         </CardHeader>
         <CardContent className="space-y-6">
