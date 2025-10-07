@@ -119,7 +119,7 @@ export function StandardizedActions({
           <Eye className="h-3 w-3" />
           {size !== 'sm' && <span className="ml-2">View Quote</span>}
         </Button>
-        {(item.status === 'pending' || item.workflow_status === 'pending') && (
+        {(item.workflow_status === 'pending') && (
           <Button
             size={size}
             onClick={handleCreateInvoice}

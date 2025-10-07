@@ -194,7 +194,7 @@ export function InvoiceManagementTab({
   const getStatusCounts = () => {
     const counts: Record<string, number> = {};
     invoices.forEach(invoice => {
-      counts[invoice.status] = (counts[invoice.status] || 0) + 1;
+      counts[invoice.workflow_status] = (counts[invoice.workflow_status] || 0) + 1;
     });
     return counts;
   };
@@ -356,7 +356,7 @@ export function InvoiceManagementTab({
                         </div>
                         <div>
                           <StatusBadge 
-                            status={invoice.status} 
+                            status={invoice.workflow_status} 
                             isDraft={invoice.is_draft}
                             size="sm"
                           />
@@ -392,7 +392,7 @@ export function InvoiceManagementTab({
                           <p className="text-xs text-muted-foreground">Quote Request</p>
                         </div>
                         <StatusBadge 
-                          status={quote.status} 
+                          status={quote.workflow_status} 
                           size="sm"
                         />
                       </div>
@@ -438,7 +438,7 @@ export function InvoiceManagementTab({
                           </div>
                         </div>
                         <StatusBadge 
-                          status={invoice.status} 
+                          status={invoice.workflow_status} 
                           isDraft={invoice.is_draft}
                           size="sm"
                         />

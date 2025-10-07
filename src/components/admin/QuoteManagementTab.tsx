@@ -109,7 +109,7 @@ export function QuoteManagementTab({
   const getStatusCounts = () => {
     const counts: Record<string, number> = {};
     quotes.forEach(quote => {
-      counts[quote.status] = (counts[quote.status] || 0) + 1;
+      counts[quote.workflow_status] = (counts[quote.workflow_status] || 0) + 1;
     });
     return counts;
   };
@@ -187,7 +187,7 @@ export function QuoteManagementTab({
                     />
                     <CardTitle className="text-lg">{quote.event_name}</CardTitle>
                   </div>
-                  <StatusBadge status={quote.status} size="sm" />
+                  <StatusBadge status={quote.workflow_status} size="sm" />
                 </div>
               </CardHeader>
               

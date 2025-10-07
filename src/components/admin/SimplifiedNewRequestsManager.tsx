@@ -40,7 +40,7 @@ export function SimplifiedNewRequestsManager({ quotes, loading, onRefresh }: Sim
 
   // Filter for new requests (all statuses for now to show existing data)
   const newRequests = quotes.filter(quote => 
-    ['pending', 'reviewed', 'quoted', 'confirmed'].includes(quote.status) && 
+    ['pending', 'under_review', 'quoted', 'confirmed'].includes(quote.workflow_status) && 
     !quotes.some(q => q.id === quote.id && q.invoices?.some(inv => !inv.is_draft))
   );
 
