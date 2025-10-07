@@ -2,7 +2,8 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
+import { AlertTriangle, RefreshCw, Home, Phone, Mail } from 'lucide-react';
+import { ERROR_MESSAGES, BRAND_CONTACT, formatPhoneLink, formatEmailLink } from '@/utils/brandMessaging';
 
 interface ErrorBoundaryState {
   hasError: boolean;
@@ -61,7 +62,7 @@ export class ImprovedErrorBoundary extends React.Component<
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-destructive">
                 <AlertTriangle className="h-5 w-5" />
-                Something went wrong
+                Oops! Something's Not Quite Right
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -83,33 +84,45 @@ export class ImprovedErrorBoundary extends React.Component<
                 </details>
               )}
 
-              <div className="flex gap-2">
+              <div className="flex flex-col gap-2">
                 <Button
                   onClick={this.resetError}
                   variant="default"
-                  className="flex-1 gap-2"
+                  className="w-full gap-2"
                 >
                   <RefreshCw className="h-4 w-4" />
                   Try Again
                 </Button>
-                <Button
-                  onClick={() => window.location.href = '/'}
-                  variant="outline"
-                  className="flex-1 gap-2"
-                >
-                  <Home className="h-4 w-4" />
-                  Home
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="flex-1 gap-2"
+                  >
+                    <a href={formatPhoneLink()}>
+                      <Phone className="h-4 w-4" />
+                      Call Us
+                    </a>
+                  </Button>
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="flex-1 gap-2"
+                  >
+                    <a 
+                      href={formatEmailLink(undefined, 'Error Report')}
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                    >
+                      <Mail className="h-4 w-4" />
+                      Email Us
+                    </a>
+                  </Button>
+                </div>
               </div>
 
               <p className="text-xs text-muted-foreground text-center">
-                If this problem persists, please contact{' '}
-                <a 
-                  href="mailto:soultrainseatery@gmail.com" 
-                  className="text-primary hover:underline"
-                >
-                  soultrainseatery@gmail.com
-                </a>
+                {ERROR_MESSAGES.general}
               </p>
             </CardContent>
           </Card>

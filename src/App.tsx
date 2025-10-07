@@ -33,7 +33,6 @@ import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCanceled from "./pages/PaymentCanceled";
 import ContractManagement from "./pages/ContractManagement";
 import ContractSigning from "./pages/ContractSigning";
-import { OptimizedCustomerPortal } from "./components/customer/OptimizedCustomerPortal";
 import { TokenBasedCustomerPortal } from "./components/customer/TokenBasedCustomerPortal";
 import UnifiedAdminDashboard from "./pages/UnifiedAdminDashboard";
 import QuoteDetailPage from "./pages/QuoteDetailPage";
@@ -76,7 +75,6 @@ const AppContent = () => {
           
           {/* Customer-facing routes */}
           <Route path="/invoice/public/:invoiceToken" element={<InvoicePublic />} />
-          <Route path="/customer/portal" element={<OptimizedCustomerPortal />} />
           <Route path="/customer-portal" element={<TokenBasedCustomerPortal />} />
           <Route path="/customer/estimate/:token" element={<TokenBasedCustomerPortal />} />
           <Route path="/estimate-preview/:token" element={<TokenBasedCustomerPortal />} />
