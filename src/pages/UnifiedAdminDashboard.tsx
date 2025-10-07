@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { StreamlinedWorkflowDashboard } from '@/components/admin/StreamlinedWorkflowDashboard';
+import { UnifiedWorkflowManager } from '@/components/admin/UnifiedWorkflowManager';
 import { AdminChangeManagement } from '@/components/admin/AdminChangeManagement';
 import { PaymentProcessingDashboard } from '@/components/admin/PaymentProcessingDashboard';
 import { EventTimelineManager } from '@/components/admin/EventTimelineManager';
@@ -169,7 +169,9 @@ export function UnifiedAdminDashboard() {
       {/* Main Content */}
       <div className="flex-1">
         {currentView === 'workflow' && (
-          <StreamlinedWorkflowDashboard onBack={() => setCurrentView('workflow')} />
+          <div className="container mx-auto px-4 py-6">
+            <UnifiedWorkflowManager />
+          </div>
         )}
         {currentView === 'pipeline' && (
           <div className="container mx-auto px-4 py-6">

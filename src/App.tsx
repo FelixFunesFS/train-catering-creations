@@ -62,6 +62,9 @@ const AppContent = () => {
           {/* Admin Dashboard and Management */}
           <Route path="/admin" element={<UnifiedAdminDashboard />} />
           
+          {/* Admin quote details route - MUST come before admin/* catch-all */}
+          <Route path="/admin/quotes/:quoteId" element={<QuoteDetailPage />} />
+          
           {/* Admin estimate print route */}
           <Route path="/admin/estimate-print/:invoiceId" element={<EstimatePrintView />} />
           <Route path="/admin/*" element={<UnifiedAdminDashboard />} />

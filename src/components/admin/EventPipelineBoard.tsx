@@ -58,7 +58,7 @@ export function EventPipelineBoard() {
           guest_count,
           location,
           workflow_status,
-          invoices(id, total_amount, workflow_status)
+          invoices!invoices_quote_request_id_fkey(id, total_amount, workflow_status)
         `)
         .order('event_date', { ascending: true });
 
@@ -81,7 +81,7 @@ export function EventPipelineBoard() {
   };
 
   const handleEventClick = (eventId: string) => {
-    navigate(`/admin?view=workflow&quoteId=${eventId}`);
+    navigate(`/admin/quotes/${eventId}`);
   };
 
   if (loading) {
