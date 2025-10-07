@@ -12,6 +12,7 @@ import { EventStatusBoard } from '@/components/admin/EventStatusBoard';
 import { DocumentManagementPanel } from '@/components/admin/DocumentManagementPanel';
 import { useAuth } from '@/hooks/useAuth';
 import { LogOut } from 'lucide-react';
+import { EdgeFunctionTester } from '@/components/admin/EdgeFunctionTester';
 
 type AdminView = 'workflow' | 'change-management' | 'payments' | 'events' | 'testing' | 'event-board' | 'documents';
 
@@ -131,7 +132,8 @@ export function UnifiedAdminDashboard() {
           </div>
         )}
         {currentView === 'testing' && (
-          <div className="container mx-auto px-4 py-6">
+          <div className="container mx-auto px-4 py-6 space-y-6">
+            <EdgeFunctionTester />
             <TestingDashboard />
           </div>
         )}
