@@ -283,7 +283,7 @@ export class ComprehensiveTestSuite {
       guest_count: 50,
       service_type: 'full-service' as const,
       primary_protein: 'grilled-chicken',
-      status: 'pending' as const
+      workflow_status: 'pending' as const
     };
 
     const { data, error } = await supabase
@@ -320,7 +320,7 @@ export class ComprehensiveTestSuite {
       sides: ['mac-and-cheese', 'green-beans', 'cornbread'],
       desserts: ['peach-cobbler'],
       drinks: ['sweet-tea', 'lemonade', 'coffee'],
-      status: 'pending' as const
+      workflow_status: 'pending' as const
     };
 
     const { data, error } = await supabase
@@ -349,7 +349,7 @@ export class ComprehensiveTestSuite {
       requires_po_number: true,
       po_number: 'TEST-PO-2024-001',
       compliance_level: 'government',
-      status: 'pending' as const
+      workflow_status: 'pending' as const
     };
 
     const { data, error } = await supabase
@@ -380,8 +380,8 @@ export class ComprehensiveTestSuite {
       subtotal: quote.guest_count * 2500, // $25 per person base
       tax_amount: Math.round(quote.guest_count * 2500 * 0.08), // 8% tax
       total_amount: Math.round(quote.guest_count * 2500 * 1.08),
-      document_type: 'estimate',
-      status: 'draft',
+      document_type: 'estimate' as const,
+      workflow_status: 'draft' as const,
       currency: 'usd',
       due_date: '2024-07-10',
       is_draft: false,
@@ -435,7 +435,7 @@ export class ComprehensiveTestSuite {
     const { data, error } = await supabase
       .from('invoices')
       .update({ 
-        status: 'approved',
+        workflow_status: 'approved',
         status_changed_by: 'customer',
         last_customer_action: new Date().toISOString()
       })

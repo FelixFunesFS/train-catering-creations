@@ -55,9 +55,6 @@ const handler = async (req: Request): Promise<Response> => {
       // Update status if first email open
       if (!invoice.email_opened_at) {
         updateData.workflow_status = 'viewed';
-        if (invoice.status === 'sent') {
-          updateData.status = 'viewed';
-        }
       }
     } else if (view_type === 'estimate_viewed') {
       updateData.estimate_viewed_at = new Date().toISOString();
@@ -67,9 +64,6 @@ const handler = async (req: Request): Promise<Response> => {
       // Update status if first estimate view
       if (!invoice.estimate_viewed_at) {
         updateData.workflow_status = 'viewed';
-        if (invoice.status === 'sent') {
-          updateData.status = 'viewed';
-        }
       }
     }
 
@@ -89,8 +83,8 @@ const handler = async (req: Request): Promise<Response> => {
       .insert({
         entity_type: 'invoice',
         entity_id: invoice_id,
-        previous_status: invoice.status,
-        new_status: updateData.status || invoice.status,
+        previous_status: invoice.workflow_status,
+        new_status: updateData.workflow_status || invoice.workflow_status,
         changed_by: 'customer',
         change_reason: `Customer ${view_type.replace('_', ' ')} - ${user_agent || 'Unknown device'}`,
         metadata: {
@@ -102,12 +96,11 @@ const handler = async (req: Request): Promise<Response> => {
       });
 
     // Update quote request status if applicable
-    if (invoice.quote_request_id && updateData.status) {
+    if (invoice.quote_request_id && updateData.workflow_status) {
       await supabase
         .from('quote_requests')
         .update({ 
-          workflow_status: 'customer_reviewing',
-          invoice_status: updateData.status
+          workflow_status: 'estimated'
         })
         .eq('id', invoice.quote_request_id);
     }

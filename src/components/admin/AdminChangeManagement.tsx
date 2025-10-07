@@ -201,7 +201,7 @@ export function AdminChangeManagement({ onRefresh }: AdminChangeManagementProps)
       const { error: updateError } = await supabase
         .from('change_requests')
         .update({
-          status: 'approved',
+          workflow_status: 'approved',
           admin_response: adminResponse,
           estimated_cost_change: costChangeCents,
           reviewed_at: new Date().toISOString(),
@@ -232,7 +232,6 @@ export function AdminChangeManagement({ onRefresh }: AdminChangeManagementProps)
           .from('quote_requests')
           .update({
             ...quoteUpdates,
-            status: 'quoted',
             workflow_status: 'estimated'
           })
           .eq('id', invoice.quote_request_id);
@@ -243,7 +242,6 @@ export function AdminChangeManagement({ onRefresh }: AdminChangeManagementProps)
           .from('invoices')
           .update({
             total_amount: Math.max(0, newTotal),
-            status: 'approved',
             workflow_status: 'approved'
           })
           .eq('id', selectedRequest.invoice_id);
@@ -287,7 +285,7 @@ export function AdminChangeManagement({ onRefresh }: AdminChangeManagementProps)
       const { error } = await supabase
         .from('change_requests')
         .update({
-          status: 'rejected',
+          workflow_status: 'cancelled',
           admin_response: adminResponse,
           reviewed_at: new Date().toISOString(),
           reviewed_by: 'admin'

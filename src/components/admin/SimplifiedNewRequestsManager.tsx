@@ -215,7 +215,7 @@ export function SimplifiedNewRequestsManager({ quotes, loading, onRefresh }: Sim
       await supabase
         .from('quote_requests')
         .update({ 
-          status: 'quoted',
+          workflow_status: 'under_review',
           estimated_total: grandTotal 
         })
         .eq('id', quoteId);

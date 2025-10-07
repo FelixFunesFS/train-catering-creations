@@ -100,7 +100,7 @@ const handler = async (req: Request): Promise<Response> => {
     // Update quote request status
     await supabase
       .from('quote_requests')
-      .update({ status: 'reviewed' })
+      .update({ workflow_status: 'under_review' })
       .eq('id', quote_request_id);
 
     return new Response(

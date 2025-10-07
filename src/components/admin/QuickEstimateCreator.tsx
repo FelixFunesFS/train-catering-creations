@@ -80,7 +80,7 @@ export const QuickEstimateCreator = ({
       const invoiceData = {
         quote_request_id: quoteId,
         document_type: 'estimate' as const,
-        status: 'draft',
+        workflow_status: 'draft' as const,
         is_draft: true,
         subtotal: Math.round(calculation.subtotal * 100),
         tax_amount: Math.round(calculation.taxAmount * 100),

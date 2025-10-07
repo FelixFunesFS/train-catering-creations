@@ -61,7 +61,7 @@ export function ManualContractSigningButton({
         .from('invoices')
         .update({
           contract_signed_at: new Date().toISOString(),
-          status: 'approved', // Keep as approved, contract signed is tracked via contract_signed_at
+          workflow_status: 'approved', // Keep as approved, contract signed is tracked via contract_signed_at
         })
         .eq('id', invoiceId);
 

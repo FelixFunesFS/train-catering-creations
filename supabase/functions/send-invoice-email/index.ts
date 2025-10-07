@@ -52,8 +52,8 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error('Invoice not found');
     }
 
-    // Determine if this is an estimate or invoice based on current status
-    const isEstimate = invoice.status === 'draft' || invoice.status === 'estimate';
+    // Determine if this is an estimate or invoice based on document_type
+    const isEstimate = invoice.workflow_status === 'draft' || invoice.document_type === 'estimate';
     const documentType = isEstimate ? 'estimate' : 'invoice';
     
     // Send email via Gmail API
@@ -113,7 +113,6 @@ const handler = async (req: Request): Promise<Response> => {
       .update({ 
         sent_at: new Date().toISOString(),
         workflow_status: 'sent',
-        status: isEstimate ? 'estimate' : 'sent',
         is_draft: false
       })
       .eq('id', invoice_id);

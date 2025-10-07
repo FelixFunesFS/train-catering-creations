@@ -129,7 +129,6 @@ serve(async (req) => {
             const { error: invoiceError } = await supabaseClient
               .from('invoices')
               .update({
-                status: 'paid',
                 workflow_status: 'paid',
                 paid_at: new Date().toISOString()
               })
@@ -146,7 +145,6 @@ serve(async (req) => {
               await supabaseClient
                 .from('quote_requests')
                 .update({ 
-                  status: 'confirmed',
                   workflow_status: 'confirmed'
                 })
                 .eq('id', quote_request_id);
@@ -175,8 +173,7 @@ serve(async (req) => {
             const { error: invoiceError } = await supabaseClient
               .from('invoices')
               .update({
-                status: 'approved', // Keep as approved until fully paid
-                workflow_status: 'approved'
+                workflow_status: 'partially_paid'
               })
               .eq('id', invoice_id);
 

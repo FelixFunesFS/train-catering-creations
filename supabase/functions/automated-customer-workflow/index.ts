@@ -123,7 +123,7 @@ async function processQuoteSentWorkflow(supabase: any, quoteId: string) {
   await supabase
     .from('quote_requests')
     .update({ 
-      status: 'sent',
+      workflow_status: 'estimated',
       updated_at: new Date().toISOString()
     })
     .eq('id', quoteId);
@@ -226,7 +226,7 @@ async function processStatusUpdateWorkflow(supabase: any, quoteId: string, custo
   await supabase
     .from('quote_requests')
     .update({ 
-      status: newStatus,
+      workflow_status: newStatus,
       updated_at: new Date().toISOString()
     })
     .eq('id', quoteId);
@@ -234,7 +234,7 @@ async function processStatusUpdateWorkflow(supabase: any, quoteId: string, custo
   // Log the status change
   await supabase.from('quote_request_history').insert({
     quote_request_id: quoteId,
-    field_name: 'status',
+    field_name: 'workflow_status',
     old_value: oldStatus,
     new_value: newStatus,
     changed_by: 'automated_system',

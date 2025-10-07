@@ -55,7 +55,6 @@ export function EventCloseoutWorkflow({ quotes, loading, onRefresh }: EventClose
       const { error } = await supabase
         .from('quote_requests')
         .update({ 
-          status: 'completed',
           workflow_status: 'completed'
         })
         .eq('id', quoteId);
