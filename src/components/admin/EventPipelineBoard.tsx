@@ -7,6 +7,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Calendar, Users, MapPin, DollarSign, ArrowRight, AlertCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
+import { EventPipelineColumnSkeleton } from '@/components/shared/LoadingSkeleton';
+import { NoPendingQuotes } from '@/components/shared/EmptyStates';
 
 interface Event {
   id: string;
@@ -84,11 +86,18 @@ export function EventPipelineBoard() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
+      <div className="space-y-6">
+        <h2 className="text-2xl font-bold">Event Pipeline</h2>
+        <div className="flex gap-4 overflow-x-auto pb-4">
+          {STATUS_COLUMNS.map((_, idx) => (
+            <EventPipelineColumnSkeleton key={idx} />
+          ))}
+        </div>
       </div>
     );
   }
+
+  const hasEvents = events.length > 0;
 
   return (
     <div className="space-y-6">
@@ -102,77 +111,81 @@ export function EventPipelineBoard() {
         </Badge>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4">
-        {STATUS_COLUMNS.map(column => {
-          const columnEvents = getEventsForColumn(column.id);
-          
-          return (
-            <div key={column.id} className="space-y-3">
-              <div className="flex items-center gap-2">
-                <div className={`w-3 h-3 rounded-full ${column.color}`} />
-                <h3 className="font-semibold text-sm">{column.label}</h3>
-                <Badge variant="secondary" className="ml-auto">
-                  {columnEvents.length}
-                </Badge>
-              </div>
+      {!hasEvents ? (
+        <NoPendingQuotes />
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4">
+          {STATUS_COLUMNS.map(column => {
+            const columnEvents = getEventsForColumn(column.id);
+            
+            return (
+              <div key={column.id} className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <div className={`w-3 h-3 rounded-full ${column.color}`} />
+                  <h3 className="font-semibold text-sm">{column.label}</h3>
+                  <Badge variant="secondary" className="ml-auto">
+                    {columnEvents.length}
+                  </Badge>
+                </div>
 
-              <div className="space-y-2 min-h-[200px]">
-                {columnEvents.map(event => (
-                  <Card 
-                    key={event.id}
-                    className="cursor-pointer hover:shadow-md transition-shadow border-l-4"
-                    style={{ borderLeftColor: column.color.replace('bg-', '') }}
-                    onClick={() => handleEventClick(event.id)}
-                  >
-                    <CardContent className="p-3 space-y-2">
-                      <div className="font-medium text-sm line-clamp-2">
-                        {event.event_name}
-                      </div>
-                      
-                      <div className="space-y-1 text-xs text-muted-foreground">
-                        <div className="flex items-center gap-1">
-                          <Calendar className="h-3 w-3" />
-                          {format(new Date(event.event_date), 'MMM dd, yyyy')}
+                <div className="space-y-2 min-h-[200px]">
+                  {columnEvents.map(event => (
+                    <Card 
+                      key={event.id}
+                      className="cursor-pointer hover:shadow-md transition-shadow border-l-4"
+                      style={{ borderLeftColor: column.color.replace('bg-', '') }}
+                      onClick={() => handleEventClick(event.id)}
+                    >
+                      <CardContent className="p-3 space-y-2">
+                        <div className="font-medium text-sm line-clamp-2">
+                          {event.event_name}
                         </div>
                         
-                        <div className="flex items-center gap-1">
-                          <Users className="h-3 w-3" />
-                          {event.guest_count} guests
-                        </div>
-                        
-                        <div className="flex items-center gap-1 line-clamp-1">
-                          <MapPin className="h-3 w-3 flex-shrink-0" />
-                          {event.location}
-                        </div>
-
-                        {event.invoices?.[0] && (
-                          <div className="flex items-center gap-1 font-medium text-primary">
-                            <DollarSign className="h-3 w-3" />
-                            ${(event.invoices[0].total_amount / 100).toFixed(0)}
+                        <div className="space-y-1 text-xs text-muted-foreground">
+                          <div className="flex items-center gap-1">
+                            <Calendar className="h-3 w-3" />
+                            {format(new Date(event.event_date), 'MMM dd, yyyy')}
                           </div>
-                        )}
-                      </div>
+                          
+                          <div className="flex items-center gap-1">
+                            <Users className="h-3 w-3" />
+                            {event.guest_count} guests
+                          </div>
+                          
+                          <div className="flex items-center gap-1 line-clamp-1">
+                            <MapPin className="h-3 w-3 flex-shrink-0" />
+                            {event.location}
+                          </div>
 
-                      <div className="flex items-center justify-between pt-2 border-t">
-                        <span className="text-xs text-muted-foreground">
-                          {event.contact_name}
-                        </span>
-                        <ArrowRight className="h-3 w-3 text-muted-foreground" />
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                          {event.invoices?.[0] && (
+                            <div className="flex items-center gap-1 font-medium text-primary">
+                              <DollarSign className="h-3 w-3" />
+                              ${(event.invoices[0].total_amount / 100).toFixed(0)}
+                            </div>
+                          )}
+                        </div>
 
-                {columnEvents.length === 0 && (
-                  <div className="text-center py-8 text-muted-foreground text-sm">
-                    No events
-                  </div>
-                )}
+                        <div className="flex items-center justify-between pt-2 border-t">
+                          <span className="text-xs text-muted-foreground">
+                            {event.contact_name}
+                          </span>
+                          <ArrowRight className="h-3 w-3 text-muted-foreground" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+
+                  {columnEvents.length === 0 && (
+                    <div className="text-center py-8 text-muted-foreground text-sm">
+                      No events
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

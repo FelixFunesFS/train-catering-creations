@@ -10,11 +10,14 @@ import { TestExecutionPanel } from '@/components/admin/TestExecutionPanel';
 import { TestingDashboard } from '@/components/admin/testing/TestingDashboard';
 import { EventStatusBoard } from '@/components/admin/EventStatusBoard';
 import { DocumentManagementPanel } from '@/components/admin/DocumentManagementPanel';
+import { EventPipelineBoard } from '@/components/admin/EventPipelineBoard';
+import { AtRiskEventsPanel } from '@/components/admin/AtRiskEventsPanel';
+import { TodaysEventsPanel } from '@/components/admin/TodaysEventsPanel';
 import { useAuth } from '@/hooks/useAuth';
-import { LogOut } from 'lucide-react';
+import { LogOut, Kanban, AlertTriangle, CalendarClock, LayoutDashboard, FileText, CreditCard, CalendarDays, FolderOpen, Wrench } from 'lucide-react';
 import { EdgeFunctionTester } from '@/components/admin/EdgeFunctionTester';
 
-type AdminView = 'workflow' | 'change-management' | 'payments' | 'events' | 'testing' | 'event-board' | 'documents';
+type AdminView = 'workflow' | 'pipeline' | 'at-risk' | 'today' | 'event-board' | 'events' | 'change-management' | 'payments' | 'documents' | 'testing';
 
 export function UnifiedAdminDashboard() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -45,48 +48,96 @@ export function UnifiedAdminDashboard() {
               <p className="text-sm text-muted-foreground">Streamlined request management</p>
             </div>
             
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 overflow-x-auto">
               <Button
                 variant={currentView === 'workflow' ? 'default' : 'outline'}
                 onClick={() => handleViewChange('workflow')}
+                size="sm"
+                className="gap-2"
               >
-                Streamlined Workflow
+                <LayoutDashboard className="h-4 w-4" />
+                <span className="hidden lg:inline">Workflow</span>
               </Button>
               <Button
-                variant={currentView === 'change-management' ? 'default' : 'outline'}
-                onClick={() => handleViewChange('change-management')}
+                variant={currentView === 'pipeline' ? 'default' : 'outline'}
+                onClick={() => handleViewChange('pipeline')}
+                size="sm"
+                className="gap-2"
               >
-                Change Requests
+                <Kanban className="h-4 w-4" />
+                <span className="hidden lg:inline">Pipeline</span>
               </Button>
               <Button
-                variant={currentView === 'payments' ? 'default' : 'outline'}
-                onClick={() => handleViewChange('payments')}
+                variant={currentView === 'at-risk' ? 'default' : 'outline'}
+                onClick={() => handleViewChange('at-risk')}
+                size="sm"
+                className="gap-2"
               >
-                Payment Processing
+                <AlertTriangle className="h-4 w-4" />
+                <span className="hidden lg:inline">At-Risk</span>
+              </Button>
+              <Button
+                variant={currentView === 'today' ? 'default' : 'outline'}
+                onClick={() => handleViewChange('today')}
+                size="sm"
+                className="gap-2"
+              >
+                <CalendarClock className="h-4 w-4" />
+                <span className="hidden lg:inline">Today</span>
               </Button>
               <Button
                 variant={currentView === 'event-board' ? 'default' : 'outline'}
                 onClick={() => handleViewChange('event-board')}
+                size="sm"
+                className="gap-2"
               >
-                Event Status
+                <LayoutDashboard className="h-4 w-4" />
+                <span className="hidden lg:inline">Status</span>
               </Button>
               <Button
                 variant={currentView === 'events' ? 'default' : 'outline'}
                 onClick={() => handleViewChange('events')}
+                size="sm"
+                className="gap-2"
               >
-                Event Timeline
+                <CalendarDays className="h-4 w-4" />
+                <span className="hidden lg:inline">Timeline</span>
+              </Button>
+              <Button
+                variant={currentView === 'change-management' ? 'default' : 'outline'}
+                onClick={() => handleViewChange('change-management')}
+                size="sm"
+                className="gap-2"
+              >
+                <FileText className="h-4 w-4" />
+                <span className="hidden lg:inline">Changes</span>
+              </Button>
+              <Button
+                variant={currentView === 'payments' ? 'default' : 'outline'}
+                onClick={() => handleViewChange('payments')}
+                size="sm"
+                className="gap-2"
+              >
+                <CreditCard className="h-4 w-4" />
+                <span className="hidden lg:inline">Payments</span>
               </Button>
               <Button
                 variant={currentView === 'documents' ? 'default' : 'outline'}
                 onClick={() => handleViewChange('documents')}
+                size="sm"
+                className="gap-2"
               >
-                Documents
+                <FolderOpen className="h-4 w-4" />
+                <span className="hidden lg:inline">Docs</span>
               </Button>
               <Button
                 variant={currentView === 'testing' ? 'default' : 'outline'}
                 onClick={() => handleViewChange('testing')}
+                size="sm"
+                className="gap-2"
               >
-                Testing
+                <Wrench className="h-4 w-4" />
+                <span className="hidden lg:inline">Testing</span>
               </Button>
               
               <Separator orientation="vertical" className="h-6" />
@@ -110,11 +161,20 @@ export function UnifiedAdminDashboard() {
         {currentView === 'workflow' && (
           <StreamlinedWorkflowDashboard onBack={() => setCurrentView('workflow')} />
         )}
-        {currentView === 'change-management' && (
-          <AdminChangeManagement />
+        {currentView === 'pipeline' && (
+          <div className="container mx-auto px-4 py-6">
+            <EventPipelineBoard />
+          </div>
         )}
-        {currentView === 'payments' && (
-          <PaymentProcessingDashboard />
+        {currentView === 'at-risk' && (
+          <div className="container mx-auto px-4 py-6">
+            <AtRiskEventsPanel />
+          </div>
+        )}
+        {currentView === 'today' && (
+          <div className="container mx-auto px-4 py-6">
+            <TodaysEventsPanel />
+          </div>
         )}
         {currentView === 'event-board' && (
           <div className="container mx-auto px-4 py-6">
@@ -125,6 +185,12 @@ export function UnifiedAdminDashboard() {
           <div className="container mx-auto px-4 py-6">
             <EventTimelineManager />
           </div>
+        )}
+        {currentView === 'change-management' && (
+          <AdminChangeManagement />
+        )}
+        {currentView === 'payments' && (
+          <PaymentProcessingDashboard />
         )}
         {currentView === 'documents' && (
           <div className="container mx-auto px-4 py-6">
