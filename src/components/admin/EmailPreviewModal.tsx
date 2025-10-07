@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -263,14 +264,14 @@ export function EmailPreviewModal({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-6xl max-h-[95vh] overflow-hidden flex flex-col bg-background border shadow-lg">
         <DialogHeader>
           <DialogTitle>Email Preview & Customization</DialogTitle>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1 overflow-hidden">
           {/* Left Column: Email Editor */}
-          <div className="space-y-4 border-r pr-6">
+          <div className="space-y-4 border-r pr-6 overflow-y-auto max-h-[calc(95vh-180px)]">
             <h3 className="font-semibold text-lg">Customize Email</h3>
             
             <div>
@@ -329,14 +330,17 @@ export function EmailPreviewModal({
           </div>
 
           {/* Right Column: Live Preview */}
-          <div className="space-y-4">
-            <h3 className="font-semibold text-lg">Email Preview</h3>
+          <div className="space-y-4 overflow-hidden flex flex-col max-h-[calc(95vh-180px)]">
+            <div className="flex items-center justify-between">
+              <h3 className="font-semibold text-lg">Email Preview</h3>
+              <Badge variant="outline" className="text-xs">Live Preview</Badge>
+            </div>
             {previewLoading ? (
-              <div className="flex items-center justify-center h-[600px] border rounded-lg bg-muted/20">
+              <div className="flex items-center justify-center flex-1 border rounded-lg bg-muted/20">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
               </div>
             ) : (
-              <div className="border rounded-lg h-[600px] overflow-auto bg-white shadow-inner">
+              <div className="border rounded-lg flex-1 overflow-auto bg-white shadow-inner">
                 <div dangerouslySetInnerHTML={{ __html: emailPreview }} />
               </div>
             )}
