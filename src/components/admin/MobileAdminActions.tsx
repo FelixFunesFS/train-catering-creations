@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { AutomatedStatusManager } from './AutomatedStatusManager';
 import { BatchOperations } from './BatchOperations';
-import { Menu, Settings, Zap } from 'lucide-react';
+import { Menu, Settings } from 'lucide-react';
 
 interface MobileAdminActionsProps {
   selectedItems: string[];
@@ -39,19 +38,8 @@ export function MobileAdminActions({
           </SheetHeader>
           
           <div className="space-y-6 mt-6">
-            {/* Automated Status Manager */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <Zap className="h-4 w-4 text-primary" />
-                <h3 className="font-medium">Automation</h3>
-              </div>
-              <AutomatedStatusManager 
-                onStatusUpdate={onStatusUpdate}
-                data={data}
-              />
-            </div>
-
             {/* Batch Operations */}
+
             {selectedItems.length > 0 && (
               <div className="space-y-3">
                 <h3 className="font-medium">Batch Operations</h3>

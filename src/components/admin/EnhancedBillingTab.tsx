@@ -8,8 +8,6 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { StreamlinedInvoiceModal } from './invoice/StreamlinedInvoiceModal';
 import { useNavigate } from 'react-router-dom';
-import { InvoiceDraftManager } from './InvoiceDraftManager';
-import { InvoiceQuoteSyncManager } from './InvoiceQuoteSyncManager';
 import {
   DollarSign,
   FileText,
@@ -297,16 +295,9 @@ export function EnhancedBillingTab({ quote, onGenerateInvoice, onResendInvoice }
 
   return (
     <div className="space-y-6">
-      {/* Quote-Invoice Sync Status */}
-      <InvoiceQuoteSyncManager 
-        quoteId={quote.id} 
-        onSyncComplete={fetchBillingData}
-      />
-
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="drafts">Draft Manager</TabsTrigger>
           <TabsTrigger value="invoices">Invoice History</TabsTrigger>
         </TabsList>
 
@@ -577,14 +568,6 @@ export function EnhancedBillingTab({ quote, onGenerateInvoice, onResendInvoice }
           </div>
         </CardContent>
       </Card>
-        </TabsContent>
-
-        <TabsContent value="drafts">
-          <InvoiceDraftManager 
-            onEditDraft={handleEditDraft}
-            onDeleteDraft={handleDeleteDraft}
-            onGenerateFromDraft={handleGenerateFromDraft}
-          />
         </TabsContent>
 
         <TabsContent value="invoices" className="space-y-6">
