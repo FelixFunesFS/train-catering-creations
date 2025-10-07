@@ -130,7 +130,7 @@ export function InvoicePreviewModal({ isOpen, onClose, invoice, onRefresh }: Inv
   };
 
   const handleViewFullscreen = () => {
-    window.open(`/estimate-preview/${invoice.id}`, '_blank');
+    window.open(`/estimate?token=${invoice.customer_access_token}`, '_blank');
   };
 
   const formatCurrency = (amount: number) => {

@@ -31,10 +31,13 @@ interface CustomerData {
 }
 
 export function TokenBasedCustomerPortal() {
-  const { token: paramToken } = useParams();
+  const { token: paramToken, invoiceId, invoiceToken } = useParams();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const token = searchParams.get('token') || paramToken; // Support both URL structures
+  
+  // Support multiple token sources and normalize to query param
+  const queryToken = searchParams.get('token');
+  const token = queryToken || paramToken || invoiceId || invoiceToken;
   const action = searchParams.get('action');
   const [data, setData] = useState<CustomerData>({});
   const [loading, setLoading] = useState(true);
@@ -42,6 +45,13 @@ export function TokenBasedCustomerPortal() {
   const [showChangeForm, setShowChangeForm] = useState(false);
   const [actionExecuted, setActionExecuted] = useState(false);
   const { toast } = useToast();
+
+  // Redirect path params to query params for consistent URL format
+  useEffect(() => {
+    if (token && !queryToken) {
+      navigate(`/estimate?token=${token}`, { replace: true });
+    }
+  }, [token, queryToken, navigate]);
 
   useEffect(() => {
     if (token) {

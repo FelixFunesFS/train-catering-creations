@@ -54,9 +54,10 @@ export default function PaymentSuccess() {
   };
 
   const handleViewInvoice = () => {
-    const targetInvoiceId = paymentDetails?.invoice_id || invoiceId;
-    if (targetInvoiceId) {
-      navigate(`/estimate-preview/${targetInvoiceId}`);
+    // Get token from session storage or URL param
+    const token = sessionStorage.getItem('customerAccessToken') || new URLSearchParams(window.location.search).get('token');
+    if (token) {
+      navigate(`/estimate?token=${token}`);
     }
   };
 

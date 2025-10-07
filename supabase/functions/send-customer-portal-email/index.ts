@@ -44,11 +44,19 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error(`Quote request not found: ${quote_request_id}`);
     }
 
-    // Generate access code (first 8 characters of quote ID)
-    const accessCode = quote.id.substring(0, 8).toUpperCase();
+    // Fetch invoice to get customer access token
+    const { data: invoice, error: invoiceError } = await supabase
+      .from('invoices')
+      .select('customer_access_token')
+      .eq('quote_request_id', quote_request_id)
+      .single();
 
-    // Create portal URL with pre-filled parameters
-    const portalUrl = `${Deno.env.get('SITE_URL') || 'https://localhost:5173'}/customer/portal-v2?email=${encodeURIComponent(quote.email)}&code=${accessCode}`;
+    if (invoiceError || !invoice?.customer_access_token) {
+      throw new Error('Invoice or access token not found for this quote request');
+    }
+
+    // Create portal URL using token-based system
+    const portalUrl = `${Deno.env.get('SITE_URL') || 'https://localhost:5173'}/estimate?token=${invoice.customer_access_token}`;
 
     let subject = '';
     let htmlContent = '';
@@ -90,7 +98,7 @@ const handler = async (req: Request): Promise<Response> => {
       success: true,
       message: `${type} email sent successfully`,
       email: quote.email,
-      accessCode
+      accessToken: invoice.customer_access_token
     }), {
       status: 200,
       headers: {
@@ -111,7 +119,7 @@ const handler = async (req: Request): Promise<Response> => {
   }
 };
 
-function generateWelcomeEmail(quote: any, accessCode: string, portalUrl: string): string {
+function generateWelcomeEmail(quote: any, _accessCode: string, portalUrl: string): string {
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       weekday: 'long',
@@ -161,11 +169,9 @@ function generateWelcomeEmail(quote: any, accessCode: string, portalUrl: string)
         <h3>📱 Access Your Personal Event Portal</h3>
         <p>We've created a personalized portal where you can track your event planning progress, view estimates, make payments, and communicate with our team.</p>
         
-        <div class="access-code">
-          <h4>Your Access Code</h4>
-          <div style="font-size: 28px; font-weight: bold; color: #ff6b35; letter-spacing: 3px;">${accessCode}</div>
-          <p style="margin-top: 10px; font-size: 14px; color: #666;">Keep this code safe - you'll need it to access your portal</p>
-        </div>
+        <p style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #ff6b35; margin: 20px 0;">
+          <strong>Secure Access:</strong> Click the button below to access your portal. Your personal link is valid for one year and can be used anytime to check your event status.
+        </p>
         
         <div style="text-align: center;">
           <a href="${portalUrl}" class="btn">Access Your Event Portal</a>
@@ -200,7 +206,7 @@ function generateWelcomeEmail(quote: any, accessCode: string, portalUrl: string)
   `;
 }
 
-function generateEstimateReadyEmail(quote: any, accessCode: string, portalUrl: string): string {
+function generateEstimateReadyEmail(quote: any, _accessCode: string, portalUrl: string): string {
   return `
     <!DOCTYPE html>
     <html>
@@ -233,8 +239,6 @@ function generateEstimateReadyEmail(quote: any, accessCode: string, portalUrl: s
           <h3>⏰ Action Required</h3>
           <p>Please review and approve your estimate to secure your event date. Our calendar fills up quickly, especially during peak season!</p>
         </div>
-        
-        <p><strong>Your Access Code:</strong> <span class="highlight">${accessCode}</span></p>
         
         <div style="text-align: center;">
           <a href="${portalUrl}" class="btn">Review Your Estimate</a>
@@ -272,7 +276,7 @@ function generateEstimateReadyEmail(quote: any, accessCode: string, portalUrl: s
   `;
 }
 
-function generatePaymentReminderEmail(quote: any, accessCode: string, portalUrl: string): string {
+function generatePaymentReminderEmail(quote: any, _accessCode: string, portalUrl: string): string {
   return `
     <!DOCTYPE html>
     <html>
@@ -305,8 +309,6 @@ function generatePaymentReminderEmail(quote: any, accessCode: string, portalUrl:
           <h3>🔒 Secure Your Event Date</h3>
           <p>Your approved estimate is waiting for payment to confirm your booking. Don't risk losing your date - our calendar fills up fast!</p>
         </div>
-        
-        <p><strong>Your Access Code:</strong> <span class="highlight">${accessCode}</span></p>
         
         <div style="text-align: center;">
           <a href="${portalUrl}" class="btn">Complete Payment Now</a>

@@ -463,7 +463,7 @@ export function InvoiceManagementTab({
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => window.open(`/estimate-preview/${invoice.id}`, '_blank')}
+                            onClick={() => window.open(`/estimate?token=${invoice.customer_access_token}`, '_blank')}
                             title="Manage Estimate"
                           >
                           <Eye className="h-3 w-3" />

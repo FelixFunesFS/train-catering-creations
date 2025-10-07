@@ -27,8 +27,6 @@ import TermsConditions from "./pages/TermsConditions";
 import AdminAuth from "./pages/AdminAuth";
 import NotFound from "./pages/NotFound";
 
-import InvoicePublic from "./pages/InvoicePublic";
-import EstimatePreview from "./pages/EstimatePreview";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCanceled from "./pages/PaymentCanceled";
 import ContractManagement from "./pages/ContractManagement";
@@ -66,19 +64,19 @@ const AppContent = () => {
           {/* Admin Dashboard and Management */}
           <Route path="/admin" element={<UnifiedAdminDashboard />} />
           
-          {/* Customer estimate preview routes */}
-          <Route path="/customer/estimate-preview/:invoiceId" element={<EstimatePreview />} />
-          
           {/* Admin estimate print route */}
           <Route path="/admin/estimate-print/:invoiceId" element={<EstimatePrintView />} />
           <Route path="/admin/*" element={<UnifiedAdminDashboard />} />
           
-          {/* Customer-facing routes */}
-          <Route path="/invoice/public/:invoiceToken" element={<InvoicePublic />} />
+          {/* Customer-facing routes - Single portal route */}
+          <Route path="/estimate" element={<TokenBasedCustomerPortal />} />
+          
+          {/* Redirect old routes to new format */}
           <Route path="/customer-portal" element={<TokenBasedCustomerPortal />} />
           <Route path="/customer/estimate/:token" element={<TokenBasedCustomerPortal />} />
+          <Route path="/customer/estimate-preview/:invoiceId" element={<TokenBasedCustomerPortal />} />
           <Route path="/estimate-preview/:token" element={<TokenBasedCustomerPortal />} />
-          <Route path="/estimate" element={<TokenBasedCustomerPortal />} />
+          <Route path="/invoice/public/:invoiceToken" element={<TokenBasedCustomerPortal />} />
           <Route path="/contract/:contractId/:accessToken" element={<ContractSigning />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/payment-canceled" element={<PaymentCanceled />} />

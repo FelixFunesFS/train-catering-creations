@@ -77,8 +77,11 @@ export function CustomerDocuments({ invoice, documents }: CustomerDocumentsProps
 
   const handleView = async (docType: string) => {
     if (docType === 'estimate') {
-      // Open estimate in new window
-      window.open(`/customer/estimate-preview/${invoice.id}`, '_blank');
+      // Open estimate in new window using token from URL
+      const token = new URLSearchParams(window.location.search).get('token');
+      if (token) {
+        window.open(`/estimate?token=${token}`, '_blank');
+      }
     }
   };
 

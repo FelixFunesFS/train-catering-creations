@@ -168,7 +168,7 @@ const handler = async (req: Request): Promise<Response> => {
       ],
       mode: 'payment',
       success_url: success_url || `${origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: cancel_url || `${origin}/estimate-preview/${invoice_id}`,
+      cancel_url: cancel_url || `${origin}/estimate?token=${invoice.customer_access_token}`,
       metadata: {
         invoice_id: invoice_id,
         payment_type: payment_type,
