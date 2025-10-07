@@ -5,7 +5,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { MultiSelect, Option } from "@/components/ui/multi-select";
+import { CheckboxCardGrid, CardOption } from "@/components/ui/checkbox-card-grid";
 import { 
   UtensilsCrossed, 
   Leaf, 
@@ -115,40 +115,38 @@ export const MenuSelectionStep = ({ form, trackFieldInteraction, variant = 'regu
 
   const PROTEINS = variant === 'wedding' ? WEDDING_PROTEINS : REGULAR_PROTEINS;
 
-  // Convert proteins to dropdown options
-  const proteinOptions: Option[] = PROTEINS.map(protein => ({
-    label: protein.name,
-    value: protein.id,
-    category: protein.category === "poultry" ? "Poultry" :
-              protein.category === "beef-pork" ? "Beef & Pork" :
-              protein.category === "pasta" ? "Pasta & Italian" :
-              protein.category === "mexican" ? "Mexican" :
-              protein.category === "seafood" ? "Seafood" :
-              protein.category === "plant-based" ? "Plant-Based" : "Other"
+  // Convert proteins to card options
+  const proteinCardOptions: CardOption[] = PROTEINS.map(protein => ({
+    id: protein.id,
+    name: protein.name,
+    isPopular: protein.isPopular,
+    isPremium: protein.isPremium,
+    isDietary: protein.isDietary,
+    category: protein.category
   }));
 
-  // Appetizer options
-  const appetizerOptions: Option[] = menuItems.appetizers.map(app => ({
-    label: app.name,
-    value: app.id
+  // Appetizer card options
+  const appetizerCardOptions: CardOption[] = menuItems.appetizers.map(app => ({
+    id: app.id,
+    name: app.name
   }));
 
-  // Sides options  
-  const sidesOptions: Option[] = menuItems.sides.map(side => ({
-    label: side.name,
-    value: side.id
+  // Sides card options  
+  const sidesCardOptions: CardOption[] = menuItems.sides.map(side => ({
+    id: side.id,
+    name: side.name
   }));
 
-  // Dessert options
-  const dessertOptions: Option[] = menuItems.desserts.map(dessert => ({
-    label: dessert.name,
-    value: dessert.id
+  // Dessert card options
+  const dessertCardOptions: CardOption[] = menuItems.desserts.map(dessert => ({
+    id: dessert.id,
+    name: dessert.name
   }));
 
-  // Drinks options
-  const drinkOptions: Option[] = ADDITIONAL_ITEMS.drinks.map(drink => ({
-    label: drink.name,
-    value: drink.id
+  // Drinks card options
+  const drinkCardOptions: CardOption[] = ADDITIONAL_ITEMS.drinks.map(drink => ({
+    id: drink.id,
+    name: drink.name
   }));
 
   // Watch both proteins available toggle
@@ -240,20 +238,20 @@ export const MenuSelectionStep = ({ form, trackFieldInteraction, variant = 'regu
             name="primary_protein"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm font-medium">
+                <FormLabel className="text-base font-medium mb-4 block">
                   Select Proteins {bothProteinsAvailable ? "(Multiple allowed)" : "(Choose up to 2)"}
                 </FormLabel>
                 <FormControl>
-                  <MultiSelect
-                    options={proteinOptions}
+                  <CheckboxCardGrid
+                    options={proteinCardOptions}
                     selected={field.value || []}
                     onChange={(value) => {
                       trackFieldInteraction('primary_protein');
                       field.onChange(value);
                     }}
-                    placeholder="Choose proteins for your event..."
-                    searchPlaceholder="Search proteins..."
-                    maxDisplayed={bothProteinsAvailable ? 5 : 2}
+                    columns={2}
+                    showLimit={8}
+                    categoryLabel="Proteins"
                   />
                 </FormControl>
                 <FormMessage />
@@ -299,14 +297,15 @@ export const MenuSelectionStep = ({ form, trackFieldInteraction, variant = 'regu
             name="appetizers"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm font-medium">Select Appetizers</FormLabel>
+                <FormLabel className="text-base font-medium mb-4 block">Select Appetizers</FormLabel>
                 <FormControl>
-                  <MultiSelect
-                    options={appetizerOptions}
+                  <CheckboxCardGrid
+                    options={appetizerCardOptions}
                     selected={field.value || []}
                     onChange={field.onChange}
-                    placeholder="Choose appetizers for your event..."
-                    searchPlaceholder="Search appetizers..."
+                    columns={2}
+                    showLimit={6}
+                    categoryLabel="Appetizers"
                   />
                 </FormControl>
                 <FormMessage />
@@ -332,14 +331,15 @@ export const MenuSelectionStep = ({ form, trackFieldInteraction, variant = 'regu
             name="sides"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm font-medium">Select Sides & Salads</FormLabel>
+                <FormLabel className="text-base font-medium mb-4 block">Select Sides & Salads</FormLabel>
                 <FormControl>
-                  <MultiSelect
-                    options={sidesOptions}
+                  <CheckboxCardGrid
+                    options={sidesCardOptions}
                     selected={field.value || []}
                     onChange={field.onChange}
-                    placeholder="Choose sides and salads for your event..."
-                    searchPlaceholder="Search sides..."
+                    columns={2}
+                    showLimit={6}
+                    categoryLabel="Sides"
                   />
                 </FormControl>
                 <FormMessage />
@@ -366,14 +366,15 @@ export const MenuSelectionStep = ({ form, trackFieldInteraction, variant = 'regu
               name="desserts"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-medium">Select Desserts</FormLabel>
+                  <FormLabel className="text-base font-medium mb-4 block">Select Desserts</FormLabel>
                   <FormControl>
-                    <MultiSelect
-                      options={dessertOptions}
+                    <CheckboxCardGrid
+                      options={dessertCardOptions}
                       selected={field.value || []}
                       onChange={field.onChange}
-                      placeholder="Choose desserts for your event..."
-                      searchPlaceholder="Search desserts..."
+                      columns={1}
+                      showLimit={6}
+                      categoryLabel="Desserts"
                     />
                   </FormControl>
                   <FormMessage />
@@ -399,14 +400,15 @@ export const MenuSelectionStep = ({ form, trackFieldInteraction, variant = 'regu
               name="drinks"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-medium">Select Beverages</FormLabel>
+                  <FormLabel className="text-base font-medium mb-4 block">Select Beverages</FormLabel>
                   <FormControl>
-                    <MultiSelect
-                      options={drinkOptions}
+                    <CheckboxCardGrid
+                      options={drinkCardOptions}
                       selected={field.value || []}
                       onChange={field.onChange}
-                      placeholder="Choose beverages for your event..."
-                      searchPlaceholder="Search drinks..."
+                      columns={1}
+                      showLimit={6}
+                      categoryLabel="Beverages"
                     />
                   </FormControl>
                   <FormMessage />
