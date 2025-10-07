@@ -227,6 +227,47 @@ export function EstimateApprovalWorkflow({
         </CardContent>
       </Card>
 
+      {/* Payment Summary & Plan Preview */}
+      {!isApproved && estimate.payment_milestones && estimate.payment_milestones.length > 0 && (
+        <Card className="border-primary/20">
+          <CardHeader className="px-4 sm:px-6">
+            <CardTitle className="flex items-center gap-2">
+              <DollarSign className="h-5 w-5" />
+              Payment Plan Preview
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4 px-4 sm:px-6">
+            <div className="bg-muted/30 p-4 rounded-lg space-y-3">
+              <div className="flex justify-between items-center pb-3 border-b">
+                <span className="font-medium">Total Investment</span>
+                <span className="text-2xl font-bold">{formatCurrency(estimate.total_amount / 100)}</span>
+              </div>
+              
+              {estimate.payment_milestones.map((milestone, index) => (
+                <div key={milestone.id} className="flex justify-between items-start py-2">
+                  <div className="flex-1">
+                    <p className="font-medium">{milestone.description || milestone.milestone_type}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {milestone.milestone_type === 'deposit' && 'Due upon approval'}
+                      {milestone.milestone_type === 'balance' && 'Due 14 days before event'}
+                      {milestone.due_date && ` • ${new Date(milestone.due_date).toLocaleDateString()}`}
+                    </p>
+                  </div>
+                  <span className="font-semibold text-lg">{formatCurrency(milestone.amount_cents / 100)}</span>
+                </div>
+              ))}
+            </div>
+            
+            <Alert className="bg-info/10 border-info/20">
+              <AlertCircle className="h-4 w-4 text-info" />
+              <AlertDescription className="text-info">
+                After approval, you'll choose your preferred payment option to secure your event date.
+              </AlertDescription>
+            </Alert>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Approval Section */}
       {!isApproved && (
         <Card>

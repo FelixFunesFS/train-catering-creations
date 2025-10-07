@@ -116,6 +116,12 @@ export const EMAIL_STYLES = `
     height: 1px;
     display: block;
   }
+  .desktop-only {
+    display: table;
+  }
+  .mobile-only {
+    display: none;
+  }
   @media only screen and (max-width: 600px) {
     body { padding: 0 !important; }
     .email-container { margin: 0 !important; box-shadow: none !important; }
@@ -139,7 +145,12 @@ export const EMAIL_STYLES = `
     .menu-item { font-size: 14px !important; padding: 6px 0 !important; }
     h2 { font-size: 20px !important; }
     h3 { font-size: 18px !important; }
-    table { font-size: 14px !important; }
+    .desktop-only {
+      display: none !important;
+    }
+    .mobile-only {
+      display: block !important;
+    }
   }
 `;
 
@@ -209,6 +220,13 @@ export function generateMenuSection(lineItems: any[]): string {
     return '';
   }
 
+  const formatPrice = (cents: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD'
+    }).format(cents / 100);
+  };
+
   // Group items by category
   const itemsByCategory = lineItems.reduce((acc: any, item: any) => {
     const category = item.category || 'Other Items';
@@ -224,24 +242,86 @@ export function generateMenuSection(lineItems: any[]): string {
   let menuHtml = `
     <div class="menu-section">
       <h3 style="margin: 0 0 20px 0; color: ${BRAND_COLORS.crimson}; text-align: center;">
-        🍽️ Your Custom Menu
+        🍽️ Detailed Line Items & Pricing
       </h3>
+      
+      <!-- Desktop Table -->
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; display: table;" class="desktop-only">
+        <thead>
+          <tr style="background: ${BRAND_COLORS.lightGray}; border-bottom: 2px solid ${BRAND_COLORS.crimson};">
+            <th style="padding: 12px; text-align: left; color: ${BRAND_COLORS.darkGray}; font-weight: 600;">Item</th>
+            <th style="padding: 12px; text-align: center; color: ${BRAND_COLORS.darkGray}; font-weight: 600;">Qty</th>
+            <th style="padding: 12px; text-align: right; color: ${BRAND_COLORS.darkGray}; font-weight: 600;">Unit Price</th>
+            <th style="padding: 12px; text-align: right; color: ${BRAND_COLORS.darkGray}; font-weight: 600;">Total</th>
+          </tr>
+        </thead>
+        <tbody>
   `;
 
-  // Show categorized items first
+  // Desktop table rows
   categoryOrder.forEach(category => {
     if (itemsByCategory[category]) {
       menuHtml += `
-        <div class="menu-category">
-          <h4>${category}</h4>
+        <tr style="background: ${BRAND_COLORS.lightGray};">
+          <td colspan="4" style="padding: 10px 12px; font-weight: 600; color: ${BRAND_COLORS.crimson}; text-transform: uppercase; font-size: 13px;">
+            ${category}
+          </td>
+        </tr>
       `;
       
       itemsByCategory[category].forEach((item: any) => {
         menuHtml += `
-          <div class="menu-item">
-            <strong>${item.title || item.description}</strong>
-            ${item.quantity > 1 ? ` <span style="color: #666;">(${item.quantity})</span>` : ''}
-            ${item.description && item.title ? `<br><small style="color: #666;">${item.description}</small>` : ''}
+          <tr style="border-bottom: 1px solid #e5e7eb;">
+            <td style="padding: 12px;">
+              <strong style="color: ${BRAND_COLORS.darkGray};">${item.title || item.description}</strong>
+              ${item.description && item.title !== item.description ? `<br><span style="font-size: 13px; color: #666;">${item.description}</span>` : ''}
+            </td>
+            <td style="padding: 12px; text-align: center; color: ${BRAND_COLORS.darkGray};">${item.quantity}</td>
+            <td style="padding: 12px; text-align: right; color: ${BRAND_COLORS.darkGray};">${formatPrice(item.unit_price)}</td>
+            <td style="padding: 12px; text-align: right; font-weight: 600; color: ${BRAND_COLORS.crimson};">${formatPrice(item.total_price)}</td>
+          </tr>
+        `;
+      });
+    }
+  });
+
+  menuHtml += `
+        </tbody>
+      </table>
+
+      <!-- Mobile Cards -->
+      <div class="mobile-only">
+  `;
+
+  // Mobile cards
+  categoryOrder.forEach(category => {
+    if (itemsByCategory[category]) {
+      menuHtml += `
+        <div style="margin-bottom: 24px;">
+          <h4 style="color: ${BRAND_COLORS.crimson}; font-size: 16px; font-weight: 600; margin: 0 0 12px 0; text-transform: uppercase; padding: 8px 12px; background: ${BRAND_COLORS.lightGray}; border-radius: 4px;">
+            ${category}
+          </h4>
+      `;
+      
+      itemsByCategory[category].forEach((item: any) => {
+        menuHtml += `
+          <div style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; margin-bottom: 12px; background: white;">
+            <div style="margin-bottom: 12px;">
+              <strong style="color: ${BRAND_COLORS.darkGray}; font-size: 15px;">${item.title || item.description}</strong>
+              ${item.description && item.title !== item.description ? `<div style="font-size: 13px; color: #666; margin-top: 4px;">${item.description}</div>` : ''}
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-top: 1px solid #e5e7eb;">
+              <span style="color: #666;">Quantity:</span>
+              <span style="font-weight: 600;">${item.quantity}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-top: 1px solid #e5e7eb;">
+              <span style="color: #666;">Unit Price:</span>
+              <span style="font-weight: 600;">${formatPrice(item.unit_price)}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 12px 0; border-top: 2px solid ${BRAND_COLORS.crimson}; margin-top: 8px;">
+              <span style="font-weight: 600; color: ${BRAND_COLORS.darkGray};">Total:</span>
+              <span style="font-weight: 700; color: ${BRAND_COLORS.crimson}; font-size: 17px;">${formatPrice(item.total_price)}</span>
+            </div>
           </div>
         `;
       });
@@ -250,32 +330,11 @@ export function generateMenuSection(lineItems: any[]): string {
     }
   });
 
-  // Show any uncategorized items that weren't in the predefined category list
-  const displayedCategories = new Set(categoryOrder);
-  const remainingCategories = Object.keys(itemsByCategory).filter(cat => !displayedCategories.has(cat));
-  
-  if (remainingCategories.length > 0) {
-    remainingCategories.forEach(category => {
-      menuHtml += `
-        <div class="menu-category">
-          <h4>${category}</h4>
-      `;
-      
-      itemsByCategory[category].forEach((item: any) => {
-        menuHtml += `
-          <div class="menu-item">
-            <strong>${item.title || item.description}</strong>
-            ${item.quantity > 1 ? ` <span style="color: #666;">(${item.quantity})</span>` : ''}
-            ${item.description && item.title ? `<br><small style="color: #666;">${item.description}</small>` : ''}
-          </div>
-        `;
-      });
-      
-      menuHtml += `</div>`;
-    });
-  }
+  menuHtml += `
+      </div>
+    </div>
+  `;
 
-  menuHtml += `</div>`;
   return menuHtml;
 }
 
