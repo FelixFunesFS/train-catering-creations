@@ -64,17 +64,17 @@ const handler = async (req: Request): Promise<Response> => {
     switch (type) {
       case 'welcome':
         subject = `Welcome to Soul Train's Eatery - Access Your Event Details`;
-        htmlContent = generateWelcomeEmail(quote, accessCode, portalUrl);
+        htmlContent = generateWelcomeEmail(quote, portalUrl);
         break;
         
       case 'estimate_ready':
         subject = `Your Catering Estimate is Ready - ${quote.event_name}`;
-        htmlContent = generateEstimateReadyEmail(quote, accessCode, portalUrl);
+        htmlContent = generateEstimateReadyEmail(quote, portalUrl);
         break;
         
       case 'payment_reminder':
         subject = `Payment Reminder - ${quote.event_name}`;
-        htmlContent = generatePaymentReminderEmail(quote, accessCode, portalUrl);
+        htmlContent = generatePaymentReminderEmail(quote, portalUrl);
         break;
         
       default:
@@ -119,7 +119,7 @@ const handler = async (req: Request): Promise<Response> => {
   }
 };
 
-function generateWelcomeEmail(quote: any, _accessCode: string, portalUrl: string): string {
+function generateWelcomeEmail(quote: any, portalUrl: string): string {
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       weekday: 'long',
@@ -206,7 +206,7 @@ function generateWelcomeEmail(quote: any, _accessCode: string, portalUrl: string
   `;
 }
 
-function generateEstimateReadyEmail(quote: any, _accessCode: string, portalUrl: string): string {
+function generateEstimateReadyEmail(quote: any, portalUrl: string): string {
   return `
     <!DOCTYPE html>
     <html>
@@ -276,7 +276,7 @@ function generateEstimateReadyEmail(quote: any, _accessCode: string, portalUrl: 
   `;
 }
 
-function generatePaymentReminderEmail(quote: any, _accessCode: string, portalUrl: string): string {
+function generatePaymentReminderEmail(quote: any, portalUrl: string): string {
   return `
     <!DOCTYPE html>
     <html>
