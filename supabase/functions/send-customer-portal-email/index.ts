@@ -7,9 +7,9 @@ import {
   generateMenuSection, 
   generateFooter,
   generateTrackingPixel,
-  generatePaymentConfirmationEmail,
   BRAND_COLORS
 } from '../_shared/emailTemplates.ts';
+import { generatePaymentConfirmationEmailWithNextSteps, generateEventReminderEmail } from './paymentConfirmationTemplate.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -107,6 +107,14 @@ const handler = async (req: Request): Promise<Response> => {
       case 'payment_reminder':
         subject = `Payment Reminder - ${quote.event_name}`;
         htmlContent = generatePaymentReminderEmail(quote, portalUrl);
+        break;
+        
+      case 'payment_confirmation':
+        const { amount, payment_type, is_full_payment } = metadata || {};
+        subject = is_full_payment
+          ? `🎉 Payment Confirmed - Your Event is Secured!`
+          : `💰 Deposit Received - ${quote.event_name}`;
+        htmlContent = generatePaymentConfirmationEmailWithNextSteps(quote, invoice, amount || 0, is_full_payment || false, portalUrl);
         break;
         
       default:
@@ -211,6 +219,7 @@ function generateWelcomeEmail(quote: any, portalUrl: string): string {
 function generateEstimateReadyEmail(quote: any, invoice: any, portalUrl: string, invoiceId: string): string {
   const approveUrl = `${portalUrl}&action=approve`;
   const changesUrl = `${portalUrl}&action=changes`;
+  const isUpdated = (invoice.version || 1) > 1;
   
   const formatCurrency = (cents: number) => {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100);
@@ -235,9 +244,16 @@ function generateEstimateReadyEmail(quote: any, invoice: any, portalUrl: string,
         ${generateEmailHeader("Your Estimate is Ready!")}
         
         <div class="content">
-          <h2 style="color: ${BRAND_COLORS.crimson};">Great news, ${quote.contact_name}!</h2>
+          ${isUpdated ? `
+            <div style="background: #fff3cd; border: 1px solid ${BRAND_COLORS.gold}; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+              <strong>📝 Updated Estimate (Version ${invoice.version})</strong>
+              <p style="margin: 5px 0 0 0;">We've revised your estimate based on your feedback.</p>
+            </div>
+          ` : ''}
           
-          <p>We've carefully reviewed your event requirements and prepared a custom estimate for <strong>${quote.event_name}</strong>.</p>
+          <h2 style="color: ${BRAND_COLORS.crimson};">${isUpdated ? 'Updated' : 'Great news'}, ${quote.contact_name}!</h2>
+          
+          <p>We've ${isUpdated ? 'updated your' : 'carefully reviewed your event requirements and prepared a'} custom estimate for <strong>${quote.event_name}</strong>.</p>
           
           ${generateEventDetailsCard(quote)}
           

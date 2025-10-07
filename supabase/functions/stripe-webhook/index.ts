@@ -169,6 +169,24 @@ serve(async (req) => {
             } catch (err) {
               logStep("Admin notification failed (non-critical)", { error: err });
             }
+
+            // Send customer payment confirmation email
+            try {
+              await supabaseClient.functions.invoke('send-customer-portal-email', {
+                body: {
+                  quote_request_id: quote_request_id,
+                  type: 'payment_confirmation',
+                  metadata: {
+                    amount: session.amount_total,
+                    payment_type: 'full',
+                    is_full_payment: true
+                  }
+                }
+              });
+              logStep("Customer payment confirmation sent");
+            } catch (err) {
+              logStep("Customer confirmation failed (non-critical)", { error: err });
+            }
           } else {
             // Partial payment
             const { error: invoiceError } = await supabaseClient
@@ -180,6 +198,24 @@ serve(async (req) => {
 
             if (invoiceError) {
               logStep("Error updating invoice", { error: invoiceError.message });
+            }
+
+            // Send customer deposit confirmation email
+            try {
+              await supabaseClient.functions.invoke('send-customer-portal-email', {
+                body: {
+                  quote_request_id: quote_request_id,
+                  type: 'payment_confirmation',
+                  metadata: {
+                    amount: session.amount_total,
+                    payment_type: 'deposit',
+                    is_full_payment: false
+                  }
+                }
+              });
+              logStep("Customer deposit confirmation sent");
+            } catch (err) {
+              logStep("Customer deposit confirmation failed (non-critical)", { error: err });
             }
           }
         }
