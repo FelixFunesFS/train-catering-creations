@@ -189,7 +189,7 @@ export function InvoiceStatusManager({
       
       <CardContent className="space-y-6">
         {/* Current Status Alert */}
-        {invoice?.status === 'draft' && (
+        {invoice?.workflow_status === 'draft' && (
           <Alert>
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
@@ -198,7 +198,7 @@ export function InvoiceStatusManager({
           </Alert>
         )}
         
-        {quote.invoice_status === 'pending' && !invoice && (
+        {quote.workflow_status === 'pending' && !invoice && (
           <Alert>
             <Clock className="h-4 w-4" />
             <AlertDescription>

@@ -349,13 +349,13 @@ export function CustomerInfoCard({ quote, isCompact = false }: CustomerInfoCardP
                 <div className="flex items-start gap-3">
                   <DollarSign className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
                   <div className="min-w-0 flex-1">
-                    <label className="text-xs font-medium text-muted-foreground">Invoice Status</label>
+                    <label className="text-xs font-medium text-muted-foreground">Workflow Status</label>
                     <div className="flex items-center gap-2 mt-1">
                       <Badge variant={
-                        quote.invoice_status === 'sent' ? 'default' : 
-                        quote.invoice_status === 'generated' ? 'secondary' : 'outline'
+                        quote.workflow_status === 'quoted' ? 'default' : 
+                        quote.workflow_status === 'estimated' ? 'secondary' : 'outline'
                       }>
-                        {quote.invoice_status || 'pending'}
+                        {quote.workflow_status || 'pending'}
                       </Badge>
                     </div>
                   </div>

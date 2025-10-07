@@ -1456,7 +1456,6 @@ export type Database = {
           guest_count_with_restrictions: string | null
           ice_requested: boolean | null
           id: string
-          invoice_status: string | null
           last_calendar_sync: string | null
           last_customer_interaction: string | null
           last_status_change: string | null
@@ -1515,7 +1514,6 @@ export type Database = {
           guest_count_with_restrictions?: string | null
           ice_requested?: boolean | null
           id?: string
-          invoice_status?: string | null
           last_calendar_sync?: string | null
           last_customer_interaction?: string | null
           last_status_change?: string | null
@@ -1574,7 +1572,6 @@ export type Database = {
           guest_count_with_restrictions?: string | null
           ice_requested?: boolean | null
           id?: string
-          invoice_status?: string | null
           last_calendar_sync?: string | null
           last_customer_interaction?: string | null
           last_status_change?: string | null
