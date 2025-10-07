@@ -7,6 +7,7 @@ import {
   generateMenuSection, 
   generateFooter,
   generateTrackingPixel,
+  generateTermsSection,
   BRAND_COLORS
 } from '../_shared/emailTemplates.ts';
 import { generatePaymentConfirmationEmailWithNextSteps, generateEventReminderEmail } from './paymentConfirmationTemplate.ts';
@@ -33,7 +34,7 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { quote_request_id, type }: PortalEmailRequest = await req.json();
+    const { quote_request_id, type, preview_only }: PortalEmailRequest & { preview_only?: boolean } = await req.json();
 
     if (!quote_request_id || !type) {
       throw new Error('Missing required fields: quote_request_id, type');
@@ -119,6 +120,22 @@ const handler = async (req: Request): Promise<Response> => {
         
       default:
         throw new Error(`Invalid email type: ${type}`);
+    }
+
+    // If preview_only flag is set, return HTML without sending
+    if (preview_only) {
+      console.log('📧 Preview mode: Returning email HTML without sending');
+      return new Response(
+        JSON.stringify({ 
+          success: true,
+          html: htmlContent,
+          subject
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200 
+        }
+      );
     }
 
     // Send email via the gmail email function
@@ -278,6 +295,8 @@ function generateEstimateReadyEmail(quote: any, invoice: any, portalUrl: string,
               </tr>
             </table>
           </div>
+          
+          ${generateTermsSection(quote.event_type === 'wedding' || quote.event_type === 'second_wedding' ? 'wedding' : quote.compliance_level === 'government' ? 'government' : 'standard')}
           
           <div style="background: #fff3cd; border: 1px solid ${BRAND_COLORS.gold}; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <h3 style="margin: 0 0 10px 0; color: ${BRAND_COLORS.crimson};">⏰ Action Required</h3>

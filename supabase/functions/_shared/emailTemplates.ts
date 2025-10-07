@@ -279,6 +279,76 @@ export function generateMenuSection(lineItems: any[]): string {
   return menuHtml;
 }
 
+export function generateTermsSection(eventType: 'standard' | 'wedding' | 'government' = 'standard'): string {
+  const terms = getTermsByType(eventType);
+  
+  return `
+    <div style="background: #f9fafb; padding: 30px; border-radius: 8px; margin: 30px 0; border: 2px solid #e9ecef;">
+      <h3 style="color: ${BRAND_COLORS.crimson}; margin: 0 0 20px 0; font-size: 22px; border-bottom: 3px solid ${BRAND_COLORS.gold}; padding-bottom: 10px;">📋 Terms & Conditions</h3>
+      ${terms.map(section => `
+        <div style="margin-bottom: 18px;">
+          <h4 style="color: #333; font-size: 15px; font-weight: 600; margin: 0 0 8px 0;">${section.title}</h4>
+          <p style="color: #666; font-size: 14px; line-height: 1.6; margin: 0;">${section.content}</p>
+        </div>
+      `).join('')}
+      <p style="font-size: 13px; color: #999; margin-top: 25px; padding-top: 20px; border-top: 2px solid #ddd; font-style: italic;">
+        ✅ By approving this estimate, you acknowledge that you have read and agree to these terms and conditions.
+      </p>
+    </div>
+  `;
+}
+
+function getTermsByType(eventType: 'standard' | 'wedding' | 'government') {
+  const baseTerms = [
+    {
+      title: '1. Payment Terms',
+      content: 'A deposit of 50% is required to secure your event date. The remaining balance is due 10 days prior to your event. Accepted payment methods include credit card, debit card, or bank transfer.'
+    },
+    {
+      title: '2. Cancellation Policy',
+      content: 'Cancellations made more than 30 days before the event will receive a full refund minus a $100 processing fee. Cancellations made 15-30 days before will receive a 50% refund. Cancellations made less than 15 days before the event are non-refundable.'
+    },
+    {
+      title: '3. Guest Count Changes',
+      content: 'Final guest count must be confirmed 7 days prior to the event. You will be charged for the confirmed guest count or actual guests served, whichever is greater. Additional guests above the confirmed count will be charged at the per-person rate.'
+    },
+    {
+      title: '4. Service & Delivery',
+      content: 'Soul Train\'s Eatery will arrive at the designated time to set up and serve. Client is responsible for providing adequate space, access, and facilities. Any special requirements must be communicated in advance.'
+    },
+    {
+      title: '5. Food Safety & Liability',
+      content: 'All food is prepared in licensed kitchen facilities following food safety regulations. Client assumes responsibility for any food allergies or dietary restrictions not communicated in advance. Soul Train\'s Eatery is not liable for food left unrefrigerated after service.'
+    },
+    {
+      title: '6. Equipment & Rentals',
+      content: 'Standard serving equipment, chafing dishes, and utensils are included. Specialty rentals (tables, chairs, linens) are available for an additional fee and must be arranged in advance.'
+    }
+  ];
+
+  if (eventType === 'wedding') {
+    return [
+      ...baseTerms,
+      {
+        title: '7. Wedding Specific Terms',
+        content: 'A tasting session is included for events over 100 guests. Menu changes must be finalized 30 days before the event. Coordination with venue and other vendors is required. Setup time may vary based on venue access.'
+      }
+    ];
+  }
+
+  if (eventType === 'government') {
+    return [
+      ...baseTerms,
+      {
+        title: '7. Government Contract Compliance',
+        content: 'All services rendered comply with applicable government procurement regulations. Proper documentation and invoicing will be provided as required. Additional compliance requirements must be specified in writing.'
+      }
+    ];
+  }
+
+  return baseTerms;
+}
+
 export function generateFooter(): string {
   return `
     <div class="footer">
