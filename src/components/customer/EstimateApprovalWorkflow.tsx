@@ -99,50 +99,24 @@ export function EstimateApprovalWorkflow({
 
     setLoading(true);
     try {
-      // Import the service
-      const { PaymentMilestoneService } = await import('@/services/PaymentMilestoneService');
+      // Use workflow orchestration service for proper event handling
+      const { WorkflowOrchestrationService } = await import('@/services/WorkflowOrchestrationService');
 
-      const updateData: any = { 
-        status: 'approved',
-        workflow_status: 'approved',
-        is_draft: false,
-        reviewed_at: new Date().toISOString(),
-        reviewed_by: 'customer',
-        customer_feedback: { 
-          approved: true, 
-          feedback: feedback,
-          approved_at: new Date().toISOString()
-        }
-      };
-
-      // Record T&C acceptance if applicable
+      // Record T&C acceptance if needed
       if (needsTermsAcceptance) {
-        updateData.terms_accepted_at = new Date().toISOString();
+        await supabase
+          .from('invoices')
+          .update({ terms_accepted_at: new Date().toISOString() })
+          .eq('id', estimate.id);
       }
 
-      const { error } = await supabase
-        .from('invoices')
-        .update(updateData)
-        .eq('id', estimate.id);
+      // Orchestrated approval - handles notifications, status sync, payments
+      const result = await WorkflowOrchestrationService.handleCustomerApproval(
+        estimate.id,
+        feedback || undefined
+      );
 
-      if (error) throw error;
-
-      // Generate payment milestones
-      await PaymentMilestoneService.generateMilestones(estimate.id);
-
-      // Create change request entry for approval
-      const { error: changeError } = await supabase
-        .from('change_requests')
-        .insert({
-          invoice_id: estimate.id,
-          customer_email: estimate.quote_requests.email,
-          request_type: 'approval',
-          status: 'approved',
-          customer_comments: feedback || 'Estimate approved',
-          requested_changes: { approved: true },
-        });
-
-      if (changeError) console.error('Error creating change request:', changeError);
+      if (!result.success) throw new Error('Approval failed');
 
       toast({
         title: "✅ Estimate Approved!",

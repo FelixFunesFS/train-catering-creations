@@ -207,6 +207,9 @@ function generateWelcomeEmail(quote: any, portalUrl: string): string {
 }
 
 function generateEstimateReadyEmail(quote: any, portalUrl: string): string {
+  const approveUrl = `${portalUrl}&action=approve`;
+  const changesUrl = `${portalUrl}&action=changes`;
+  
   return `
     <!DOCTYPE html>
     <html>
@@ -219,9 +222,12 @@ function generateEstimateReadyEmail(quote: any, portalUrl: string): string {
         .header { background: linear-gradient(135deg, #28a745, #20c997); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
         .content { background: white; padding: 30px; border: 1px solid #e0e0e0; }
         .footer { background: #f8f9fa; padding: 20px; text-align: center; border-radius: 0 0 10px 10px; font-size: 14px; color: #666; }
-        .btn { display: inline-block; background: #28a745; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; margin: 20px 0; }
+        .btn { display: inline-block; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; margin: 10px 5px; }
+        .btn-primary { background: #28a745; color: white; }
+        .btn-secondary { background: white; color: #333; border: 2px solid #28a745; }
         .highlight { color: #28a745; font-weight: bold; }
         .urgent { background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 5px; margin: 20px 0; }
+        .action-buttons { text-align: center; margin: 30px 0; }
       </style>
     </head>
     <body>
@@ -240,9 +246,14 @@ function generateEstimateReadyEmail(quote: any, portalUrl: string): string {
           <p>Please review and approve your estimate to secure your event date. Our calendar fills up quickly, especially during peak season!</p>
         </div>
         
-        <div style="text-align: center;">
-          <a href="${portalUrl}" class="btn">Review Your Estimate</a>
+        <div class="action-buttons">
+          <a href="${approveUrl}" class="btn btn-primary">✅ Approve Estimate</a>
+          <a href="${changesUrl}" class="btn btn-secondary">✏️ Request Changes</a>
         </div>
+        
+        <p style="text-align: center; color: #666; font-size: 14px;">
+          <a href="${portalUrl}" style="color: #28a745;">Or click here to view full details first</a>
+        </p>
         
         <h3>What's included in your estimate:</h3>
         <ul>

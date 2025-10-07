@@ -119,7 +119,7 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
     };
   }, [invoice?.id]);
 
-  // Load quotes on mount
+  // Load quotes on mount and auto-generate invoices
   useEffect(() => {
     fetchQuotes();
     if (selectedQuoteId) {
@@ -129,6 +129,24 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
       }
     }
   }, [selectedQuoteId, mode]);
+
+  // Auto-generate invoices for new quotes
+  useEffect(() => {
+    const autoGenerateInvoices = async () => {
+      const newQuotes = quotes.filter(q => 
+        q.workflow_status === 'pending' || q.workflow_status === 'under_review'
+      );
+      
+      for (const quote of newQuotes) {
+        const { WorkflowOrchestrationService } = await import('@/services/WorkflowOrchestrationService');
+        await WorkflowOrchestrationService.autoGenerateInvoice(quote.id);
+      }
+    };
+
+    if (quotes.length > 0) {
+      autoGenerateInvoices();
+    }
+  }, [quotes]);
 
   const fetchQuotes = async () => {
     try {
@@ -346,6 +364,26 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
 
   return (
     <div className="space-y-6">
+      {/* Breadcrumb navigation */}
+      {currentStep !== 'select' && selectedQuote && (
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <button 
+            onClick={() => {
+              setCurrentStep('select');
+              setSelectedQuote(null);
+              setInvoice(null);
+            }}
+            className="hover:text-foreground transition-colors"
+          >
+            All Quotes
+          </button>
+          <span>/</span>
+          <span className="text-foreground font-medium">{selectedQuote.event_name}</span>
+          <span>/</span>
+          <span className="text-foreground capitalize">{currentStep.replace('_', ' ')}</span>
+        </div>
+      )}
+
       <WorkflowSteps 
         currentStep={currentStep} 
         isGovernmentContract={isGovernmentContract}

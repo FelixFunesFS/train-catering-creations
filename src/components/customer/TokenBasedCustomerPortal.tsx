@@ -452,6 +452,11 @@ export function TokenBasedCustomerPortal() {
     );
   }
 
+  // Show approval workflow if estimate sent/viewed but NOT approved
+  const showApprovalWorkflow = 
+    data.invoice.workflow_status && 
+    ['sent', 'viewed', 'pending_review'].includes(data.invoice.workflow_status);
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -471,6 +476,15 @@ export function TokenBasedCustomerPortal() {
       </header>
 
       <main className="max-w-4xl mx-auto px-4 py-8">
+        {/* Show approval workflow if sent/viewed */}
+        {showApprovalWorkflow && (
+          <EstimateApprovalWorkflow
+            estimate={data.invoice}
+            onApproval={fetchCustomerData}
+            onRequestChanges={handleRequestChanges}
+          />
+        )}
+
         {/* Show event portal if paid */}
         {data.invoice.workflow_status === 'paid' && data.quote && (
           <div className="space-y-6">
