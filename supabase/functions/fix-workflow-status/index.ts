@@ -50,12 +50,15 @@ serve(async (req) => {
       
       if (invoice) {
         // Sync quote workflow_status with invoice workflow_status
+        // Use ONLY workflow_status - no legacy status field
         if (invoice.workflow_status === 'sent' && quote.workflow_status !== 'estimated') {
           newWorkflowStatus = 'estimated';
-        } else if (invoice.workflow_status === 'approved' && quote.workflow_status !== 'confirmed') {
-          newWorkflowStatus = 'confirmed';
+        } else if (invoice.workflow_status === 'approved' && quote.workflow_status !== 'approved') {
+          newWorkflowStatus = 'approved';
         } else if (invoice.workflow_status === 'paid' && quote.workflow_status !== 'confirmed') {
           newWorkflowStatus = 'confirmed';
+        } else if (invoice.workflow_status === 'completed' && quote.workflow_status !== 'completed') {
+          newWorkflowStatus = 'completed';
         }
       }
 

@@ -1801,6 +1801,14 @@ export type Database = {
           quote: Json
         }[]
       }
+      get_next_statuses: {
+        Args: { current_status: string; entity_type: string }
+        Returns: string[]
+      }
+      get_status_label: {
+        Args: { status: string }
+        Returns: string
+      }
       grant_first_admin: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -1830,6 +1838,10 @@ export type Database = {
       }
       is_valid_access_token: {
         Args: { invoice_table_id: string; token_value: string }
+        Returns: boolean
+      }
+      is_valid_status_transition: {
+        Args: { entity_type: string; from_status: string; to_status: string }
         Returns: boolean
       }
     }

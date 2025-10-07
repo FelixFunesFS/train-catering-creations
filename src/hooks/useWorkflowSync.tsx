@@ -37,9 +37,14 @@ export function useWorkflowSync() {
       let invoiceUpdate: any = {};
 
       // Sync quote workflow_status with invoice workflow_status
+      // ONLY use workflow_status field - no legacy status field
       if (invoice) {
         if (invoice.workflow_status === 'sent' && quote.workflow_status !== 'estimated') {
           quoteUpdate.workflow_status = 'estimated';
+        }
+        
+        if (invoice.workflow_status === 'approved' && quote.workflow_status !== 'approved') {
+          quoteUpdate.workflow_status = 'approved';
         }
         
         if (invoice.workflow_status === 'paid' && quote.workflow_status !== 'confirmed') {

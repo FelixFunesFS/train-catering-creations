@@ -1,7 +1,13 @@
 import { supabase } from '@/integrations/supabase/client';
 
-type QuoteWorkflowStatus = 'pending' | 'under_review' | 'quoted' | 'estimated' | 'approved' | 'awaiting_payment' | 'paid' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
-type InvoiceWorkflowStatus = 'draft' | 'pending_review' | 'sent' | 'viewed' | 'approved' | 'payment_pending' | 'partially_paid' | 'paid' | 'overdue' | 'cancelled';
+// Unified workflow status types matching database enums
+type WorkflowStatus = 
+  | 'pending' | 'under_review' | 'quoted' | 'estimated' 
+  | 'viewed' | 'approved' 
+  | 'awaiting_payment' | 'partially_paid' | 'paid' 
+  | 'confirmed' | 'in_progress' | 'completed' 
+  | 'cancelled' | 'overdue'
+  | 'draft' | 'pending_review' | 'sent'; // Invoice-specific statuses
 
 interface StatusTransition {
   from: string;
@@ -58,7 +64,7 @@ export class WorkflowStateManager {
    */
   static async updateQuoteStatus(
     quoteId: string,
-    newStatus: QuoteWorkflowStatus,
+    newStatus: WorkflowStatus,
     changedBy: string = 'admin',
     reason?: string
   ): Promise<{ success: boolean; error?: string }> {
@@ -118,7 +124,7 @@ export class WorkflowStateManager {
    */
   static async updateInvoiceStatus(
     invoiceId: string,
-    newStatus: InvoiceWorkflowStatus,
+    newStatus: WorkflowStatus,
     changedBy: string = 'admin',
     reason?: string
   ): Promise<{ success: boolean; error?: string }> {
@@ -203,18 +209,28 @@ export class WorkflowStateManager {
   /**
    * Get next available statuses for a quote
    */
-  static getNextQuoteStatuses(currentStatus: QuoteWorkflowStatus): QuoteWorkflowStatus[] {
+  static getNextQuoteStatuses(currentStatus: WorkflowStatus): WorkflowStatus[] {
     return QUOTE_TRANSITIONS
       .filter(t => t.from === currentStatus || t.from === '*')
-      .map(t => t.to as QuoteWorkflowStatus);
+      .map(t => t.to as WorkflowStatus);
   }
 
   /**
    * Get next available statuses for an invoice
    */
-  static getNextInvoiceStatuses(currentStatus: InvoiceWorkflowStatus): InvoiceWorkflowStatus[] {
+  static getNextInvoiceStatuses(currentStatus: WorkflowStatus): WorkflowStatus[] {
     return INVOICE_TRANSITIONS
       .filter(t => t.from === currentStatus || t.from === '*')
-      .map(t => t.to as InvoiceWorkflowStatus);
+      .map(t => t.to as WorkflowStatus);
+  }
+  
+  /**
+   * Get customer-friendly label for any status
+   */
+  static getStatusLabel(status: string): string {
+    // This calls the database function we just created
+    return status.split('_').map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ');
   }
 }
