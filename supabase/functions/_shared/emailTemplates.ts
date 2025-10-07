@@ -259,3 +259,19 @@ export function generateTrackingPixel(invoiceId: string, emailType: string): str
   const siteUrl = Deno.env.get('SITE_URL') || 'https://c4c8d2d1-63da-4772-a95b-bf211f87a132.lovableproject.com';
   return `<img src="${siteUrl}/api/track-email?invoice=${invoiceId}&type=${emailType}&t=${Date.now()}" alt="" class="tracking-pixel" />`;
 }
+
+export function generatePaymentConfirmationEmail(quote: any, amount: number, isFullPayment: boolean): string {
+  return `
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+      ${generateEmailHeader()}
+      <div style="${EMAIL_STYLES}">
+        <h2 style="color: ${BRAND_COLORS.crimson};">💰 Payment Received!</h2>
+        <p style="font-size: 16px;">We've received your ${isFullPayment ? 'full' : 'deposit'} payment of <strong>$${(amount / 100).toFixed(2)}</strong>.</p>
+        ${isFullPayment ? `<div style="background: ${BRAND_COLORS.gold}15; padding: 20px; border-radius: 8px; margin: 20px 0;"><h3 style="color: ${BRAND_COLORS.crimson}; margin-top: 0;">✅ Your Event is Confirmed!</h3></div>` : ''}
+        ${generateEventDetailsCard(quote)}
+        <p style="margin-top: 30px;">We're looking forward to making your event special!</p>
+      </div>
+      ${generateFooter()}
+    </div>
+  `;
+}

@@ -75,6 +75,24 @@ export function ChangeRequestProcessor({ changeRequest, onProcessed }: ChangeReq
               'admin',
               'Change request approved - new estimate version created'
             );
+
+            // Send updated estimate to customer
+            await supabase.functions.invoke('send-customer-portal-email', {
+              body: {
+                quote_request_id: invoice.quote_request_id,
+                type: 'estimate_ready'
+              }
+            });
+
+            // Update invoice status to 'sent' so customer can review updated estimate
+            await supabase
+              .from('invoices')
+              .update({
+                workflow_status: 'sent',
+                last_status_change: new Date().toISOString(),
+                status_changed_by: 'admin'
+              })
+              .eq('id', invoice.id);
           }
         }
       }

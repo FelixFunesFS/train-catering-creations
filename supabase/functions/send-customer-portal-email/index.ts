@@ -7,6 +7,7 @@ import {
   generateMenuSection, 
   generateFooter,
   generateTrackingPixel,
+  generatePaymentConfirmationEmail,
   BRAND_COLORS
 } from '../_shared/emailTemplates.ts';
 
@@ -17,7 +18,12 @@ const corsHeaders = {
 
 interface PortalEmailRequest {
   quote_request_id: string;
-  type: 'welcome' | 'estimate_ready' | 'payment_reminder';
+  type: 'welcome' | 'estimate_ready' | 'payment_reminder' | 'payment_confirmation';
+  metadata?: {
+    amount?: number;
+    payment_type?: string;
+    is_full_payment?: boolean;
+  };
 }
 
 const handler = async (req: Request): Promise<Response> => {

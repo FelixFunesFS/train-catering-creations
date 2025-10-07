@@ -114,6 +114,18 @@ export function ChangeRequestForm({ quote, invoice, onRequestSubmitted }: Change
         // Don't throw - the change request was created successfully
       }
 
+      // Send admin notification for new change request
+      await supabase.functions.invoke('send-admin-notification', {
+        body: {
+          invoiceId: invoice.id,
+          notificationType: 'change_request',
+          metadata: {
+            changes: formData.customer_comments,
+            urgency: formData.urgency ? 'high' : formData.priority
+          }
+        }
+      });
+
       // Log the workflow state change
       const { error: logError } = await supabase
         .from('workflow_state_log')

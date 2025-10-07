@@ -13,6 +13,7 @@ import { EventCountdown } from './EventCountdown';
 import { CustomerEventPortal } from './CustomerEventPortal';
 import { EstimateLoadingSkeleton } from '@/components/shared/LoadingSkeleton';
 import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
+import { EstimateProgressTracker } from './EstimateProgressTracker';
 import { 
   CheckCircle, 
   Clock, 
@@ -488,6 +489,9 @@ export function TokenBasedCustomerPortal() {
         </header>
 
         <main className="max-w-4xl mx-auto px-4 py-8">
+          {/* Progress Tracker */}
+          <EstimateProgressTracker status={data.invoice.workflow_status} className="mb-8" />
+
           {/* Show approval workflow if sent/viewed */}
           {showApprovalWorkflow && (
             <EstimateApprovalWorkflow

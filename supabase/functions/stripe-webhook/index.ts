@@ -124,7 +124,7 @@ serve(async (req) => {
             fullyPaid: totalPaid >= (invoice?.total_amount || 0)
           });
 
-          if (invoice && totalPaid >= invoice.total_amount) {
+            if (invoice && totalPaid >= invoice.total_amount) {
             // Invoice is fully paid
             const { error: invoiceError } = await supabaseClient
               .from('invoices')
@@ -140,7 +140,7 @@ serve(async (req) => {
               logStep("Invoice marked as paid");
             }
 
-            // Update quote request to confirmed and trigger event confirmation
+            // Update quote request to confirmed
             if (quote_request_id) {
               await supabaseClient
                 .from('quote_requests')
@@ -150,23 +150,24 @@ serve(async (req) => {
                 .eq('id', quote_request_id);
               
               logStep("Quote request marked as confirmed");
+            }
 
-              // Trigger event confirmation service (timeline tasks + confirmation email)
-              // Using EdgeRuntime.waitUntil for background processing
-              try {
-                const confirmEventPromise = supabaseClient.functions.invoke('confirm-event', {
-                  body: { quote_request_id }
-                });
-                
-                // @ts-ignore - EdgeRuntime is available in Deno
-                if (typeof EdgeRuntime !== 'undefined' && EdgeRuntime.waitUntil) {
-                  EdgeRuntime.waitUntil(confirmEventPromise);
-                } else {
-                  await confirmEventPromise;
+            // Send admin notification for payment received
+            try {
+              await supabaseClient.functions.invoke('send-admin-notification', {
+                body: {
+                  invoiceId: invoice_id,
+                  notificationType: 'payment_received',
+                  metadata: {
+                    amount: session.amount_total,
+                    payment_type: 'full',
+                    full_payment: true
+                  }
                 }
-              } catch (err) {
-                logStep("Event confirmation triggered (may complete in background)");
-              }
+              });
+              logStep("Admin notification sent");
+            } catch (err) {
+              logStep("Admin notification failed (non-critical)", { error: err });
             }
           } else {
             // Partial payment

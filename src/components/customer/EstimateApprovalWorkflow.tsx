@@ -118,6 +118,15 @@ export function EstimateApprovalWorkflow({
 
       if (!result.success) throw new Error('Approval failed');
 
+      // Send admin notification
+      await supabase.functions.invoke('send-admin-notification', {
+        body: {
+          invoiceId: estimate.id,
+          notificationType: 'customer_approval',
+          metadata: { feedback }
+        }
+      });
+
       toast({
         title: "✅ Estimate Approved!",
         description: "Payment options are now available below.",
