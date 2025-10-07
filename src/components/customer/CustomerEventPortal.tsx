@@ -135,7 +135,7 @@ export function CustomerEventPortal({ quote, invoice, token }: EventPortalProps)
                 <span className="text-sm">Total Investment</span>
               </div>
               <p className="text-xl font-bold">{formatCurrency(invoice.total_amount)}</p>
-              {invoice.status === 'paid' && (
+              {invoice.workflow_status === 'paid' && (
                 <Badge className="bg-green-500">Paid</Badge>
               )}
             </div>

@@ -395,8 +395,8 @@ export function UnifiedCustomerDashboard() {
                     <CardHeader>
                       <CardTitle className="flex items-center justify-between text-lg lg:text-xl">
                         <span>Event Summary</span>
-                        <Badge className={getStatusColor(data.quote.status)}>
-                          {data.quote.status.charAt(0).toUpperCase() + data.quote.status.slice(1)}
+                        <Badge className={getStatusColor(data.quote.workflow_status)}>
+                          {data.quote.workflow_status.charAt(0).toUpperCase() + data.quote.workflow_status.slice(1)}
                         </Badge>
                       </CardTitle>
                     </CardHeader>
@@ -478,8 +478,8 @@ export function UnifiedCustomerDashboard() {
                     <CardHeader>
                       <CardTitle className="flex items-center justify-between text-lg lg:text-xl">
                         <span>Invoice Summary</span>
-                        <Badge className={getStatusColor(data.invoice.status)}>
-                          {data.invoice.status.charAt(0).toUpperCase() + data.invoice.status.slice(1)}
+                        <Badge className={getStatusColor(data.invoice.workflow_status)}>
+                          {data.invoice.workflow_status.charAt(0).toUpperCase() + data.invoice.workflow_status.slice(1)}
                         </Badge>
                       </CardTitle>
                     </CardHeader>
@@ -507,7 +507,7 @@ export function UnifiedCustomerDashboard() {
                       )}
 
                       <div className="flex flex-col sm:flex-row gap-3 pt-4">
-                        {data.invoice.status !== 'paid' && (
+                        {data.invoice.workflow_status !== 'paid' && (
                           <Button 
                             onClick={() => setActiveTab('payment')} 
                             className="flex-1 neumorphic-button-primary"

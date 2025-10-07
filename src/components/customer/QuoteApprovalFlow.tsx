@@ -101,7 +101,7 @@ export function QuoteApprovalFlow({ quote, onApprovalChange }: QuoteApprovalFlow
   };
 
   const getStatusBadge = () => {
-    switch (quote.status) {
+    switch (quote.workflow_status) {
       case 'confirmed':
         return <Badge className="bg-green-100 text-green-800 border-green-200"><CheckCircle className="h-3 w-3 mr-1" />Confirmed</Badge>;
       case 'cancelled':
@@ -109,7 +109,7 @@ export function QuoteApprovalFlow({ quote, onApprovalChange }: QuoteApprovalFlow
       case 'pending':
         return <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200"><Clock className="h-3 w-3 mr-1" />Pending Review</Badge>;
       default:
-        return <Badge variant="outline">{quote.status}</Badge>;
+        return <Badge variant="outline">{quote.workflow_status}</Badge>;
     }
   };
 

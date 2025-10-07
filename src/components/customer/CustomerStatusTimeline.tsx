@@ -41,7 +41,7 @@ export function CustomerStatusTimeline({ invoice, quote }: CustomerStatusTimelin
         title: 'Estimate Sent',
         description: 'Your estimate has been sent for review',
         icon: Send,
-        status: ['sent', 'viewed', 'approved', 'deposit_paid', 'confirmed'].includes(invoice.status) ? 'completed' : 'pending',
+        status: ['sent', 'viewed', 'approved', 'deposit_paid', 'confirmed'].includes(invoice.workflow_status) ? 'completed' : 'pending',
         date: invoice.sent_at
       },
       {
@@ -49,7 +49,7 @@ export function CustomerStatusTimeline({ invoice, quote }: CustomerStatusTimelin
         title: 'Estimate Reviewed',
         description: 'You have reviewed the estimate details',
         icon: Eye,
-        status: ['viewed', 'approved', 'deposit_paid', 'confirmed'].includes(invoice.status) ? 'completed' : 'pending',
+        status: ['viewed', 'approved', 'deposit_paid', 'confirmed'].includes(invoice.workflow_status) ? 'completed' : 'pending',
         date: invoice.viewed_at
       },
       {
@@ -57,24 +57,24 @@ export function CustomerStatusTimeline({ invoice, quote }: CustomerStatusTimelin
         title: 'Estimate Approved',
         description: 'You have approved the catering estimate',
         icon: CheckCircle,
-        status: ['approved', 'deposit_paid', 'confirmed'].includes(invoice.status) ? 'completed' : 'pending',
-        date: invoice.status === 'approved' ? new Date().toISOString() : null
+        status: ['approved', 'deposit_paid', 'confirmed'].includes(invoice.workflow_status) ? 'completed' : 'pending',
+        date: invoice.workflow_status === 'approved' ? new Date().toISOString() : null
       },
       {
         id: 'payment',
         title: 'Deposit Payment',
         description: 'Secure your event date with deposit payment',
         icon: CreditCard,
-        status: ['deposit_paid', 'confirmed'].includes(invoice.status) ? 'completed' : 'pending',
-        date: invoice.status === 'deposit_paid' ? invoice.paid_at : null
+        status: ['deposit_paid', 'confirmed'].includes(invoice.workflow_status) ? 'completed' : 'pending',
+        date: invoice.workflow_status === 'deposit_paid' ? invoice.paid_at : null
       },
       {
         id: 'confirmed',
         title: 'Event Confirmed',
         description: 'Your catering event is confirmed and scheduled',
         icon: Calendar,
-        status: invoice.status === 'confirmed' ? 'completed' : 'pending',
-        date: invoice.status === 'confirmed' ? invoice.updated_at : null
+        status: invoice.workflow_status === 'confirmed' ? 'completed' : 'pending',
+        date: invoice.workflow_status === 'confirmed' ? invoice.updated_at : null
       }
     ];
 
@@ -180,7 +180,7 @@ export function CustomerStatusTimeline({ invoice, quote }: CustomerStatusTimelin
                   {isCurrent && (
                     <div className="mt-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
                       <p className="text-sm text-blue-800 font-medium">
-                        {getCurrentStepGuidance(invoice.status)}
+                        {getCurrentStepGuidance(invoice.workflow_status)}
                       </p>
                     </div>
                   )}

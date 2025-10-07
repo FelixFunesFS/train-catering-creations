@@ -27,7 +27,7 @@ interface Quote {
   event_date: string;
   guest_count: number;
   location: string;
-  status?: string;
+  workflow_status?: string;
   event_type: string;
   email: string;
   phone: string;
@@ -231,7 +231,7 @@ export function PricingPanel({
                 <DollarSign className="h-5 w-5" />
                 {formatEventName(quote.event_name)}
               </span>
-              <Badge variant="outline">{quote.status}</Badge>
+              <Badge variant="outline">{quote.workflow_status}</Badge>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">

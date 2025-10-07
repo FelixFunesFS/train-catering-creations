@@ -52,9 +52,9 @@ export function InvoiceStatusManager({
   const getCurrentStep = (): number => {
     if (!customer) return 0;
     if (!invoice) return 1;
-    if (invoice.status === 'draft') return 2;
-    if (invoice.status === 'sent') return 3;
-    if (invoice.status === 'paid') return 4;
+    if (invoice.workflow_status === 'draft') return 2;
+    if (invoice.workflow_status === 'sent') return 3;
+    if (invoice.workflow_status === 'paid') return 4;
     return 1;
   };
 
@@ -155,7 +155,7 @@ export function InvoiceStatusManager({
       };
     }
     
-    if (invoice.status === 'draft') {
+    if (invoice.workflow_status === 'draft') {
       return {
         label: 'Send Invoice',
         action: () => handleAction('sendInvoice', async () => {

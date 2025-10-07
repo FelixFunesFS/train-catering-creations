@@ -60,8 +60,8 @@ export function CustomerPaymentSchedule({ invoice, payments, lineItems }: Custom
         description: '50% deposit to secure your event date',
         amount: depositAmount,
         dueDate: depositDueDate,
-        status: ['deposit_paid', 'confirmed'].includes(invoice.status) ? 'paid' : 
-                invoice.status === 'approved' ? 'due' : 'pending',
+        status: ['deposit_paid', 'confirmed'].includes(invoice.workflow_status) ? 'paid' : 
+                invoice.workflow_status === 'approved' ? 'due' : 'pending',
         paymentMethod: 'Credit Card',
         required: true
       },
@@ -71,8 +71,8 @@ export function CustomerPaymentSchedule({ invoice, payments, lineItems }: Custom
         description: 'Remaining balance due before event',
         amount: finalAmount,
         dueDate: finalDueDate,
-        status: invoice.status === 'confirmed' && payments.some(p => p.amount === finalAmount) ? 'paid' : 
-                ['deposit_paid', 'confirmed'].includes(invoice.status) ? 'scheduled' : 'pending',
+        status: invoice.workflow_status === 'confirmed' && payments.some(p => p.amount === finalAmount) ? 'paid' : 
+                ['deposit_paid', 'confirmed'].includes(invoice.workflow_status) ? 'scheduled' : 'pending',
         paymentMethod: 'Credit Card or Check',
         required: true
       }

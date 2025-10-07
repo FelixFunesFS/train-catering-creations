@@ -11,7 +11,7 @@ interface Quote {
   event_date: string;
   guest_count: number;
   location: string;
-  status?: string;
+  workflow_status?: string;
 }
 
 interface QuoteSelectionPanelProps {
@@ -68,7 +68,7 @@ export function QuoteSelectionPanel({ quotes, loading, onSelectQuote }: QuoteSel
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Badge variant="outline">{quote.status}</Badge>
+                  <Badge variant="outline">{quote.workflow_status}</Badge>
                   <ChevronRight className="h-4 w-4" />
                 </div>
               </div>

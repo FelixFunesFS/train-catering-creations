@@ -392,7 +392,7 @@ export default function QuoteDetailPage() {
                         </div>
                         <div className="flex items-center gap-3">
                           <span className="font-semibold">{formatCurrency(invoice.total_amount)}</span>
-                          <StatusBadge status={invoice.workflow_status || invoice.status} size="sm" />
+                          <StatusBadge status={invoice.workflow_status} size="sm" />
                           <Button
                             size="sm"
                             variant="outline"

@@ -163,8 +163,8 @@ export function InvoicePreviewModal({ isOpen, onClose, invoice, onRefresh }: Inv
               <DialogTitle>
                 {invoice.invoice_number || 'Draft Estimate'}
               </DialogTitle>
-              <Badge variant={getStatusColor(invoice.status, invoice.is_draft)}>
-                {invoice.is_draft ? 'Draft' : invoice.status?.replace('_', ' ')}
+              <Badge variant={getStatusColor(invoice.workflow_status, invoice.is_draft)}>
+                {invoice.is_draft ? 'Draft' : invoice.workflow_status?.replace('_', ' ')}
               </Badge>
             </div>
             <div className="flex items-center gap-2">

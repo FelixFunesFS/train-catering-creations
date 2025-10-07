@@ -22,7 +22,7 @@ interface InvoiceData {
   tax_amount: number;
   total_amount: number;
   line_items: LineItem[];
-  status?: string;
+  workflow_status?: string;
   due_date?: string;
   stripe_invoice_id?: string;
   pdf_url?: string;
@@ -124,9 +124,9 @@ export function InvoiceViewer({
             {invoice.invoice_number && (
               <p className="text-muted-foreground">#{invoice.invoice_number}</p>
             )}
-            {invoice.status && (
-              <Badge className={getStatusColor(invoice.status)}>
-                {invoice.status.toUpperCase()}
+            {invoice.workflow_status && (
+              <Badge className={getStatusColor(invoice.workflow_status)}>
+                {invoice.workflow_status.toUpperCase()}
               </Badge>
             )}
           </div>
@@ -255,7 +255,7 @@ export function InvoiceViewer({
         {/* Actions */}
         {showActions && (
           <div className="flex flex-wrap gap-3 pt-4 print:hidden">
-            {invoice.status === 'draft' && onSend && invoice.id && (
+            {invoice.workflow_status === 'draft' && onSend && invoice.id && (
               <Button onClick={() => onSend(invoice.id!)} className="flex items-center gap-2">
                 <Send className="h-4 w-4" />
                 Send {documentType === 'estimate' ? 'Estimate' : 'Invoice'}

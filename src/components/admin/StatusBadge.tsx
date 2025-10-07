@@ -29,32 +29,97 @@ export function StatusBadge({ status, isDraft = false, showIcon = true, size = '
       };
     }
     
-    switch (status) {
-      case 'sent':
+    // Normalize status to lowercase for consistent matching
+    const normalizedStatus = status?.toLowerCase();
+    
+    switch (normalizedStatus) {
+      // Quote workflow statuses
+      case 'pending':
         return {
-          label: 'Sent',
-          icon: Send,
-          className: 'bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-200',
-          description: 'Estimate sent to customer'
+          label: 'Pending',
+          icon: Clock,
+          className: 'bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-200',
+          description: 'Awaiting review'
         };
-      case 'viewed':
+      case 'under_review':
+      case 'reviewed':
         return {
-          label: 'Viewed',
+          label: 'Under Review',
           icon: Eye,
+          className: 'bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-200',
+          description: 'Quote is being reviewed'
+        };
+      case 'quoted':
+      case 'estimated':
+        return {
+          label: 'Quoted',
+          icon: FileText,
           className: 'bg-purple-100 text-purple-800 border-purple-200 hover:bg-purple-200',
-          description: 'Customer has viewed the estimate'
+          description: 'Quote has been prepared'
+        };
+      case 'confirmed':
+        return {
+          label: 'Confirmed',
+          icon: CheckCircle,
+          className: 'bg-green-100 text-green-800 border-green-200 hover:bg-green-200',
+          description: 'Event confirmed'
+        };
+      case 'completed':
+        return {
+          label: 'Completed',
+          icon: CheckCircle,
+          className: 'bg-emerald-100 text-emerald-800 border-emerald-200 hover:bg-emerald-200',
+          description: 'Event completed'
+        };
+      case 'cancelled':
+        return {
+          label: 'Cancelled',
+          icon: AlertTriangle,
+          className: 'bg-red-100 text-red-800 border-red-200 hover:bg-red-200',
+          description: 'Event cancelled'
+        };
+        
+      // Invoice workflow statuses
+      case 'draft':
+        return {
+          label: 'Draft',
+          icon: Edit3,
+          className: 'bg-amber-100 text-amber-800 border-amber-200 hover:bg-amber-200',
+          description: 'Invoice draft'
+        };
+      case 'await_approval':
+      case 'pending_approval':
+        return {
+          label: 'Awaiting Approval',
+          icon: Clock,
+          className: 'bg-yellow-100 text-yellow-800 border-yellow-200 hover:bg-yellow-200',
+          description: 'Pending customer approval'
         };
       case 'approved':
         return {
           label: 'Approved',
           icon: CheckCircle,
           className: 'bg-green-100 text-green-800 border-green-200 hover:bg-green-200',
-          description: 'Customer approved the estimate'
+          description: 'Customer approved'
+        };
+      case 'sent':
+        return {
+          label: 'Sent',
+          icon: Send,
+          className: 'bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-200',
+          description: 'Sent to customer'
+        };
+      case 'viewed':
+        return {
+          label: 'Viewed',
+          icon: Eye,
+          className: 'bg-purple-100 text-purple-800 border-purple-200 hover:bg-purple-200',
+          description: 'Customer viewed'
         };
       case 'paid':
       case 'deposit_paid':
         return {
-          label: status === 'deposit_paid' ? 'Deposit Paid' : 'Paid',
+          label: normalizedStatus === 'deposit_paid' ? 'Deposit Paid' : 'Paid',
           icon: DollarSign,
           className: 'bg-emerald-100 text-emerald-800 border-emerald-200 hover:bg-emerald-200',
           description: 'Payment received'
@@ -64,21 +129,14 @@ export function StatusBadge({ status, isDraft = false, showIcon = true, size = '
           label: 'Overdue',
           icon: AlertTriangle,
           className: 'bg-red-100 text-red-800 border-red-200 hover:bg-red-200',
-          description: 'Payment is overdue'
-        };
-      case 'confirmed':
-        return {
-          label: 'Event Confirmed',
-          icon: CheckCircle,
-          className: 'bg-green-100 text-green-800 border-green-200 hover:bg-green-200',
-          description: 'Event is confirmed and scheduled'
+          description: 'Payment overdue'
         };
       default:
         return {
-          label: 'Pending',
+          label: status || 'Unknown',
           icon: Clock,
           className: 'bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-200',
-          description: 'Awaiting action'
+          description: 'Status unknown'
         };
     }
   };

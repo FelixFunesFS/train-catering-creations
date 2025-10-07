@@ -28,7 +28,7 @@ export function EstimateDetails({ invoice, quote, lineItems, milestones }: Estim
   });
 
   // Check if this estimate was just updated (status = 'sent' means admin approved changes)
-  const isRecentlyUpdated = invoice.status === 'sent' && invoice.last_status_change;
+  const isRecentlyUpdated = invoice.workflow_status === 'sent' && invoice.last_status_change;
   const recentUpdateDate = invoice.last_status_change 
     ? new Date(invoice.last_status_change)
     : null;

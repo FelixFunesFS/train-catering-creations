@@ -13,7 +13,7 @@ export function EventCountdown({ quote, invoice }: EventCountdownProps) {
   const [timeUntilEvent, setTimeUntilEvent] = useState('');
   
   const eventDate = new Date(quote.event_date);
-  const isPaid = invoice.status === 'paid';
+  const isPaid = invoice.workflow_status === 'paid';
   const daysUntil = differenceInDays(eventDate, new Date());
   const isEventPast = isPast(eventDate);
 

@@ -193,8 +193,8 @@ export function PaymentPortal({ quote, invoice }: PaymentPortalProps) {
                 <FileText className="h-4 w-4" />
                 <span>Invoice #{invoice.invoice_number}</span>
               </div>
-              <Badge variant={invoice.status === 'sent' ? 'default' : 'secondary'}>
-                {invoice.status}
+              <Badge variant={invoice.workflow_status === 'sent' ? 'default' : 'secondary'}>
+                {invoice.workflow_status}
               </Badge>
             </div>
           )}

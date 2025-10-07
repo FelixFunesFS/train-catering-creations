@@ -40,7 +40,7 @@ export function CustomerDocuments({ invoice, documents }: CustomerDocumentsProps
     ];
 
     // Add contract if estimate is approved
-    if (['approved', 'deposit_paid', 'confirmed'].includes(invoice.status)) {
+    if (['approved', 'deposit_paid', 'confirmed'].includes(invoice.workflow_status)) {
       docs.push({
         id: 'contract',
         title: 'Catering Contract',
@@ -54,7 +54,7 @@ export function CustomerDocuments({ invoice, documents }: CustomerDocumentsProps
     }
 
     // Add receipt if payment made
-    if (['deposit_paid', 'confirmed'].includes(invoice.status)) {
+    if (['deposit_paid', 'confirmed'].includes(invoice.workflow_status)) {
       docs.push({
         id: 'receipt',
         title: 'Payment Receipt',

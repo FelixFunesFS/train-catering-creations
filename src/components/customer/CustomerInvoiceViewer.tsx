@@ -31,7 +31,7 @@ interface InvoiceData {
   tax_amount: number;
   total_amount: number;
   line_items: LineItem[];
-  status?: string;
+  workflow_status?: string;
   due_date?: string;
   stripe_invoice_id?: string;
   pdf_url?: string;
@@ -154,9 +154,9 @@ export function CustomerInvoiceViewer({
             {invoice.invoice_number && (
               <p className="text-muted-foreground">#{invoice.invoice_number}</p>
             )}
-            {invoice.status && (
-              <Badge className={getStatusColor(invoice.status)}>
-                {invoice.status.toUpperCase()}
+            {invoice.workflow_status && (
+              <Badge className={getStatusColor(invoice.workflow_status)}>
+                {invoice.workflow_status.toUpperCase()}
               </Badge>
             )}
           </div>
