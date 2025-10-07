@@ -158,20 +158,12 @@ export class WorkflowOrchestrationService {
           }
         });
       } else if (config.recipient === 'admin') {
-        // Send admin notification
-        const siteUrl = window.location.origin;
-        await supabase.functions.invoke('send-gmail-email', {
+        // Send admin notification using dedicated edge function
+        await supabase.functions.invoke('send-admin-notification', {
           body: {
-            to: 'soultrainseatery@gmail.com',
-            subject: `Customer Action Required: ${quote.event_name}`,
-            html: `
-              <h2>Customer ${config.type === 'customer_action' ? 'Approved' : 'Paid'} Estimate</h2>
-              <p><strong>Event:</strong> ${quote.event_name}</p>
-              <p><strong>Customer:</strong> ${quote.contact_name}</p>
-              <p><strong>Date:</strong> ${quote.event_date}</p>
-              <p><strong>Action:</strong> ${newStatus}</p>
-              <a href="${siteUrl}/admin/workflow?quote=${invoice.quote_request_id}">View in Admin Dashboard</a>
-            `
+            invoiceId,
+            notificationType: config.type === 'payment_received' ? 'payment_received' : 'customer_approval',
+            metadata: { triggeredBy }
           }
         });
       }

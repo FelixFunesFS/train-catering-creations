@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,8 @@ import { ChangeRequestForm } from './ChangeRequestForm';
 import { PaymentInterface } from './PaymentInterface';
 import { EventCountdown } from './EventCountdown';
 import { CustomerEventPortal } from './CustomerEventPortal';
+import { EstimateLoadingSkeleton } from '@/components/shared/LoadingSkeleton';
+import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
 import { 
   CheckCircle, 
   Clock, 
@@ -334,11 +336,20 @@ export function TokenBasedCustomerPortal() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading your estimate...</p>
-        </div>
+      <div className="min-h-screen bg-background">
+        <header className="bg-card border-b border-border">
+          <div className="max-w-4xl mx-auto px-4 py-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl font-bold text-foreground">Soul Train's Eatery</h1>
+                <p className="text-muted-foreground">Loading your estimate...</p>
+              </div>
+            </div>
+          </div>
+        </header>
+        <main className="max-w-4xl mx-auto px-4 py-8">
+          <EstimateLoadingSkeleton />
+        </main>
       </div>
     );
   }
@@ -458,32 +469,33 @@ export function TokenBasedCustomerPortal() {
     ['sent', 'viewed', 'pending_review'].includes(data.invoice.workflow_status);
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-card border-b border-border">
-        <div className="max-w-4xl mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">Soul Train's Eatery</h1>
-              <p className="text-muted-foreground">Your Estimate Portal</p>
-            </div>
-            <div className="text-right">
-              <p className="text-sm text-muted-foreground">Estimate #</p>
-              <p className="font-mono text-lg">{data.invoice.invoice_number || 'DRAFT'}</p>
+    <ErrorBoundary>
+      <div className="min-h-screen bg-background">
+        {/* Header */}
+        <header className="bg-card border-b border-border">
+          <div className="max-w-4xl mx-auto px-4 py-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl font-bold text-foreground">Soul Train's Eatery</h1>
+                <p className="text-muted-foreground">Your Estimate Portal</p>
+              </div>
+              <div className="text-right">
+                <p className="text-sm text-muted-foreground">Estimate #</p>
+                <p className="font-mono text-lg">{data.invoice.invoice_number || 'DRAFT'}</p>
+              </div>
             </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      <main className="max-w-4xl mx-auto px-4 py-8">
-        {/* Show approval workflow if sent/viewed */}
-        {showApprovalWorkflow && (
-          <EstimateApprovalWorkflow
-            estimate={data.invoice}
-            onApproval={fetchCustomerData}
-            onRequestChanges={handleRequestChanges}
-          />
-        )}
+        <main className="max-w-4xl mx-auto px-4 py-8">
+          {/* Show approval workflow if sent/viewed */}
+          {showApprovalWorkflow && (
+            <EstimateApprovalWorkflow
+              estimate={data.invoice}
+              onApproval={fetchCustomerData}
+              onRequestChanges={handleRequestChanges}
+            />
+          )}
 
         {/* Show event portal if paid */}
         {data.invoice.workflow_status === 'paid' && data.quote && (
@@ -564,5 +576,6 @@ export function TokenBasedCustomerPortal() {
         </Card>
       </main>
     </div>
+    </ErrorBoundary>
   );
 }

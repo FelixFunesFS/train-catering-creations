@@ -44,10 +44,24 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error(`Quote request not found: ${quote_request_id}`);
     }
 
-    // Fetch invoice to get customer access token
+    // Fetch invoice with line items to get customer access token and pricing details
     const { data: invoice, error: invoiceError } = await supabase
       .from('invoices')
-      .select('customer_access_token')
+      .select(`
+        customer_access_token,
+        invoice_number,
+        total_amount,
+        subtotal,
+        tax_amount,
+        invoice_line_items (
+          title,
+          description,
+          quantity,
+          unit_price,
+          total_price,
+          category
+        )
+      `)
       .eq('quote_request_id', quote_request_id)
       .single();
 
@@ -69,7 +83,7 @@ const handler = async (req: Request): Promise<Response> => {
         
       case 'estimate_ready':
         subject = `Your Catering Estimate is Ready - ${quote.event_name}`;
-        htmlContent = generateEstimateReadyEmail(quote, portalUrl);
+        htmlContent = generateEstimateReadyEmail(quote, invoice, portalUrl);
         break;
         
       case 'payment_reminder':
@@ -206,9 +220,18 @@ function generateWelcomeEmail(quote: any, portalUrl: string): string {
   `;
 }
 
-function generateEstimateReadyEmail(quote: any, portalUrl: string): string {
+function generateEstimateReadyEmail(quote: any, invoice: any, portalUrl: string): string {
   const approveUrl = `${portalUrl}&action=approve`;
   const changesUrl = `${portalUrl}&action=changes`;
+  
+  const formatCurrency = (cents: number) => {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100);
+  };
+
+  const lineItems = invoice.invoice_line_items || [];
+  const subtotal = invoice.subtotal || 0;
+  const taxAmount = invoice.tax_amount || 0;
+  const total = invoice.total_amount || 0;
   
   return `
     <!DOCTYPE html>
@@ -255,13 +278,52 @@ function generateEstimateReadyEmail(quote: any, portalUrl: string): string {
           <a href="${portalUrl}" style="color: #28a745;">Or click here to view full details first</a>
         </p>
         
-        <h3>What's included in your estimate:</h3>
-        <ul>
-          <li>✅ Complete menu breakdown with pricing</li>
-          <li>✅ Service details and staff requirements</li>
-          <li>✅ Equipment and setup information</li>
-          <li>✅ Payment terms and event timeline</li>
-        </ul>
+        <h3>📋 Your Custom Estimate</h3>
+        ${lineItems.length > 0 ? `
+          <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <table style="width: 100%; border-collapse: collapse;">
+              <thead>
+                <tr style="border-bottom: 2px solid #dee2e6;">
+                  <th style="text-align: left; padding: 10px;">Item</th>
+                  <th style="text-align: center; padding: 10px;">Qty</th>
+                  <th style="text-align: right; padding: 10px;">Price</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${lineItems.map((item: any) => `
+                  <tr style="border-bottom: 1px solid #dee2e6;">
+                    <td style="padding: 10px;">
+                      <strong>${item.title}</strong>
+                      ${item.description ? `<br><small style="color: #666;">${item.description}</small>` : ''}
+                    </td>
+                    <td style="text-align: center; padding: 10px;">${item.quantity}</td>
+                    <td style="text-align: right; padding: 10px;">${formatCurrency(item.total_price)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+              <tfoot>
+                <tr style="border-top: 2px solid #dee2e6;">
+                  <td colspan="2" style="padding: 10px; text-align: right;"><strong>Subtotal:</strong></td>
+                  <td style="text-align: right; padding: 10px;"><strong>${formatCurrency(subtotal)}</strong></td>
+                </tr>
+                ${taxAmount > 0 ? `
+                  <tr>
+                    <td colspan="2" style="padding: 10px; text-align: right;">Tax (8%):</td>
+                    <td style="text-align: right; padding: 10px;">${formatCurrency(taxAmount)}</td>
+                  </tr>
+                ` : ''}
+                <tr style="background: #28a745; color: white;">
+                  <td colspan="2" style="padding: 15px; text-align: right; font-size: 18px;"><strong>TOTAL:</strong></td>
+                  <td style="text-align: right; padding: 15px; font-size: 18px;"><strong>${formatCurrency(total)}</strong></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        ` : `
+          <p style="background: #f8f9fa; padding: 15px; border-radius: 5px;">
+            Complete pricing breakdown available in your portal. Click the button above to view all details.
+          </p>
+        `}
         
         <p>Once you approve the estimate, you can:</p>
         <ul>
