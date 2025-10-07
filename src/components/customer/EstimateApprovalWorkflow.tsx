@@ -192,32 +192,34 @@ export function EstimateApprovalWorkflow({
             Event Details
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="grid gap-3">
-            <div className="flex justify-between items-start">
-              <div>
+        <CardContent className="px-4 sm:px-6">
+          <div className="space-y-3">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
+              <div className="flex-1">
                 <h3 className="font-semibold text-lg">{estimate.quote_requests.event_name}</h3>
-                <div className="space-y-1 mt-2 text-sm text-muted-foreground">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3 text-sm text-muted-foreground">
                   <div className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4" />
-                    {new Date(estimate.quote_requests.event_date).toLocaleDateString('en-US', {
-                      weekday: 'long',
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    })}
+                    <Calendar className="h-4 w-4 flex-shrink-0" />
+                    <span className="break-words">
+                      {new Date(estimate.quote_requests.event_date).toLocaleDateString('en-US', {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}
+                    </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4" />
-                    {estimate.quote_requests.location}
+                    <MapPin className="h-4 w-4 flex-shrink-0" />
+                    <span className="break-words">{estimate.quote_requests.location}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Users className="h-4 w-4" />
-                    {estimate.quote_requests.guest_count} guests
+                    <Users className="h-4 w-4 flex-shrink-0" />
+                    <span>{estimate.quote_requests.guest_count} guests</span>
                   </div>
                 </div>
               </div>
-              <Badge variant={isApproved ? "default" : "secondary"} className="text-sm">
+              <Badge variant={isApproved ? "default" : "secondary"} className="text-sm self-start">
                 {isApproved ? 'Approved' : 'Pending Approval'}
               </Badge>
             </div>
@@ -228,10 +230,10 @@ export function EstimateApprovalWorkflow({
       {/* Approval Section */}
       {!isApproved && (
         <Card>
-          <CardHeader>
+          <CardHeader className="px-4 sm:px-6">
             <CardTitle>Ready to Approve?</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 px-4 sm:px-6">
             <div>
               <Label htmlFor="feedback">Comments or Questions (Optional)</Label>
               <Textarea
@@ -264,13 +266,13 @@ export function EstimateApprovalWorkflow({
       {/* Payment Section */}
       {isApproved && (
         <Card className="border-green-200">
-          <CardHeader>
+          <CardHeader className="px-4 sm:px-6">
             <CardTitle className="flex items-center gap-2 text-green-700">
               <DollarSign className="h-5 w-5" />
               Secure Your Event Date
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 px-4 sm:px-6">
             <Alert>
               <CheckCircle2 className="h-4 w-4" />
               <AlertDescription>

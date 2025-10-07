@@ -259,20 +259,6 @@ function generateEstimateReadyEmail(quote: any, invoice: any, portalUrl: string,
           
           ${generateMenuSection(lineItems)}
           
-          <div style="background: #fff3cd; border: 1px solid ${BRAND_COLORS.gold}; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <h3 style="margin: 0 0 10px 0; color: ${BRAND_COLORS.crimson};">⏰ Action Required</h3>
-            <p style="margin: 0;">Please review and approve your estimate to secure your event date. Our calendar fills up quickly, especially during peak season!</p>
-          </div>
-          
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${approveUrl}" class="btn btn-primary">✅ Approve Estimate</a>
-            <a href="${changesUrl}" class="btn btn-secondary">✏️ Request Changes</a>
-          </div>
-          
-          <p style="text-align: center; color: #666; font-size: 14px;">
-            <a href="${portalUrl}" style="color: ${BRAND_COLORS.crimson};">Or click here to view full details first</a>
-          </p>
-          
           <h3 style="color: ${BRAND_COLORS.crimson};">💰 Investment Summary</h3>
           <div style="background: ${BRAND_COLORS.lightGray}; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <table style="width: 100%; border-collapse: collapse;">
@@ -292,6 +278,20 @@ function generateEstimateReadyEmail(quote: any, invoice: any, portalUrl: string,
               </tr>
             </table>
           </div>
+          
+          <div style="background: #fff3cd; border: 1px solid ${BRAND_COLORS.gold}; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="margin: 0 0 10px 0; color: ${BRAND_COLORS.crimson};">⏰ Action Required</h3>
+            <p style="margin: 0;">Please review and approve your estimate to secure your event date. Our calendar fills up quickly, especially during peak season!</p>
+          </div>
+          
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${approveUrl}" class="btn btn-primary">✅ Approve Estimate</a>
+            <a href="${changesUrl}" class="btn btn-secondary">✏️ Request Changes</a>
+          </div>
+          
+          <p style="text-align: center; color: #666; font-size: 14px;">
+            <a href="${portalUrl}" style="color: ${BRAND_COLORS.crimson};">Or click here to view full details first</a>
+          </p>
           
           <h3 style="color: ${BRAND_COLORS.crimson};">📋 Once You Approve:</h3>
           <ul style="line-height: 1.8;">

@@ -226,12 +226,13 @@ export function CustomerInvoiceViewer({
       </CardHeader>
 
       <CardContent className="space-y-6">
-        {/* Line Items - Read-only for customers */}
+        {/* Line Items - Mobile-First Responsive Design */}
         <div className="space-y-4">
           <h3 className="font-semibold text-lg">Services & Items</h3>
           
-          <div className="border rounded-lg overflow-hidden">
-            <div className="px-4 py-3 grid grid-cols-12 gap-4 text-sm font-semibold border-b">
+          {/* Desktop Table View */}
+          <div className="hidden md:block border rounded-lg overflow-hidden">
+            <div className="px-4 py-3 grid grid-cols-12 gap-4 text-sm font-semibold border-b bg-muted/30">
               <div className="col-span-6">Description</div>
               <div className="col-span-2 text-center">Quantity</div>
               <div className="col-span-2 text-right">Unit Price</div>
@@ -239,15 +240,15 @@ export function CustomerInvoiceViewer({
             </div>
             
             {invoice.line_items.map((item, index) => (
-              <div key={item.id || index} className="px-4 py-3 border-t grid grid-cols-12 gap-4 text-sm">
+              <div key={item.id || index} className="px-4 py-3 border-t grid grid-cols-12 gap-4 text-sm hover:bg-muted/20 transition-colors">
                 <div className="col-span-6">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-start gap-2 flex-wrap">
                     <p className="font-medium">{item.title}</p>
                     <Badge className={getCategoryColor(item.category)} variant="outline">
                       {item.category}
                     </Badge>
                   </div>
-                  <p className="text-muted-foreground text-xs">{item.description}</p>
+                  <p className="text-muted-foreground text-xs mt-1">{item.description}</p>
                 </div>
                 <div className="col-span-2 text-center">{item.quantity}</div>
                 <div className="col-span-2 text-right">{formatCurrency(item.unit_price)}</div>
@@ -255,11 +256,52 @@ export function CustomerInvoiceViewer({
               </div>
             ))}
           </div>
+
+          {/* Mobile Card View */}
+          <div className="md:hidden space-y-3">
+            {invoice.line_items.map((item, index) => (
+              <Card key={item.id || index} className="overflow-hidden">
+                <CardContent className="p-4 space-y-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium break-words">{item.title}</p>
+                      {item.description && (
+                        <p className="text-xs text-muted-foreground mt-1 break-words">{item.description}</p>
+                      )}
+                    </div>
+                    <Badge variant="outline" className={`${getCategoryColor(item.category)} flex-shrink-0`}>
+                      {item.category}
+                    </Badge>
+                  </div>
+                  
+                  <Separator />
+                  
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <p className="text-muted-foreground text-xs">Quantity</p>
+                      <p className="font-medium">{item.quantity}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-muted-foreground text-xs">Unit Price</p>
+                      <p className="font-medium">{formatCurrency(item.unit_price)}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="pt-2 border-t">
+                    <div className="flex justify-between items-center">
+                      <p className="text-sm font-medium">Total:</p>
+                      <p className="text-lg font-bold">{formatCurrency(item.total_price)}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
 
-        {/* Totals */}
+        {/* Totals - Mobile Responsive */}
         <div className="flex justify-end">
-          <div className="w-full max-w-sm space-y-2">
+          <div className="w-full sm:max-w-sm space-y-2">
             {(() => {
               // Calculate totals from line items (single source of truth)
               const subtotal = invoice.line_items.reduce((sum: number, item: any) => sum + item.total_price, 0);

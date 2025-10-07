@@ -118,11 +118,28 @@ export const EMAIL_STYLES = `
   }
   @media only screen and (max-width: 600px) {
     body { padding: 0 !important; }
-    .email-container { margin: 0 !important; }
+    .email-container { margin: 0 !important; box-shadow: none !important; }
     .header { padding: 30px 20px !important; }
     .header h1 { font-size: 24px !important; }
+    .header .tagline { font-size: 14px !important; }
     .content { padding: 20px !important; }
-    .btn { display: block !important; width: 100% !important; margin: 10px 0 !important; }
+    .btn { 
+      display: block !important; 
+      width: 100% !important; 
+      margin: 10px 0 !important; 
+      padding: 14px 20px !important;
+      font-size: 15px !important;
+      box-sizing: border-box !important;
+    }
+    .event-card { padding: 15px !important; margin: 15px 0 !important; }
+    .event-card h3 { font-size: 16px !important; }
+    .event-card table { font-size: 14px !important; }
+    .menu-section { padding: 15px !important; }
+    .menu-category h4 { font-size: 15px !important; }
+    .menu-item { font-size: 14px !important; padding: 6px 0 !important; }
+    h2 { font-size: 20px !important; }
+    h3 { font-size: 18px !important; }
+    table { font-size: 14px !important; }
   }
 `;
 
@@ -211,6 +228,7 @@ export function generateMenuSection(lineItems: any[]): string {
       </h3>
   `;
 
+  // Show categorized items first
   categoryOrder.forEach(category => {
     if (itemsByCategory[category]) {
       menuHtml += `
@@ -231,6 +249,31 @@ export function generateMenuSection(lineItems: any[]): string {
       menuHtml += `</div>`;
     }
   });
+
+  // Show any uncategorized items that weren't in the predefined category list
+  const displayedCategories = new Set(categoryOrder);
+  const remainingCategories = Object.keys(itemsByCategory).filter(cat => !displayedCategories.has(cat));
+  
+  if (remainingCategories.length > 0) {
+    remainingCategories.forEach(category => {
+      menuHtml += `
+        <div class="menu-category">
+          <h4>${category}</h4>
+      `;
+      
+      itemsByCategory[category].forEach((item: any) => {
+        menuHtml += `
+          <div class="menu-item">
+            <strong>${item.title || item.description}</strong>
+            ${item.quantity > 1 ? ` <span style="color: #666;">(${item.quantity})</span>` : ''}
+            ${item.description && item.title ? `<br><small style="color: #666;">${item.description}</small>` : ''}
+          </div>
+        `;
+      });
+      
+      menuHtml += `</div>`;
+    });
+  }
 
   menuHtml += `</div>`;
   return menuHtml;
