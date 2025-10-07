@@ -311,7 +311,7 @@ export function EventStatusBoard() {
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={() => navigate(`/admin?view=workflow&quote=${event.quote.id}`)}
+                                onClick={() => navigate(`/admin?view=workflow&quoteId=${event.quote.id}`)}
                                 title="View Details"
                               >
                                 <Eye className="h-4 w-4" />
