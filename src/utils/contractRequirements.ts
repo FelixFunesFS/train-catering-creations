@@ -1,5 +1,10 @@
+/**
+ * Simplified contract requirements - all events use T&C acceptance workflow
+ * Government contracts tracked separately via government_contracts table for compliance
+ */
+
 export interface ContractRequirement {
-  requiresSeparateContract: boolean;
+  includeTermsAndConditions: boolean;
   reason: string;
   eventType: 'standard' | 'wedding' | 'government';
 }
@@ -10,43 +15,34 @@ interface QuoteForContract {
 }
 
 /**
- * Determines if an event requires a separate contract based on event type and value
+ * Determines Terms & Conditions requirements for an event
+ * All events include T&C in estimate - no separate contract generation
  */
-export function requiresSeparateContract(
-  quote: QuoteForContract,
-  totalAmount?: number
+export function requiresTermsAndConditions(
+  quote: QuoteForContract
 ): ContractRequirement {
-  // Wedding and black tie events require contracts
-  if (['wedding', 'second_wedding'].includes(quote.event_type)) {
-    return {
-      requiresSeparateContract: true,
-      reason: 'Wedding events require a detailed service agreement',
-      eventType: 'wedding'
-    };
-  }
-
-  // Government contracts require separate contract
+  // Government contracts - T&C plus compliance tracking
   if (quote.compliance_level === 'government') {
     return {
-      requiresSeparateContract: true,
-      reason: 'Government contracts require compliance documentation',
+      includeTermsAndConditions: true,
+      reason: 'Government contract with compliance tracking',
       eventType: 'government'
     };
   }
 
-  // High-value events (>$5000) require contract
-  if (totalAmount && totalAmount > 500000) { // $5000 in cents
+  // Wedding events - specialized T&C
+  if (['wedding', 'second_wedding'].includes(quote.event_type)) {
     return {
-      requiresSeparateContract: true,
-      reason: 'High-value events require a formal service agreement',
-      eventType: 'standard'
+      includeTermsAndConditions: true,
+      reason: 'Wedding-specific terms and conditions',
+      eventType: 'wedding'
     };
   }
 
-  // All other events can use T&C in estimate
+  // All other events - standard T&C
   return {
-    requiresSeparateContract: false,
-    reason: 'Standard event - Terms & Conditions included in estimate',
+    includeTermsAndConditions: true,
+    reason: 'Standard terms and conditions',
     eventType: 'standard'
   };
 }

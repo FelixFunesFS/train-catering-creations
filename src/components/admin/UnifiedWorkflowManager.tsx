@@ -9,7 +9,7 @@ import { EmailPreviewModal } from './EmailPreviewModal';
 import { WorkflowSteps } from './workflow/WorkflowSteps';
 import { QuoteSelectionPanel } from './workflow/QuoteSelectionPanel';
 import { PricingPanel } from './workflow/PricingPanel';
-import { GovernmentContractPanel } from './workflow/GovernmentContractPanel';
+
 import { TermsAndConditionsPanel } from './workflow/TermsAndConditionsPanel';
 import { PaymentCollectionPanel } from './workflow/PaymentCollectionPanel';
 import { EventConfirmationPanel } from './workflow/EventConfirmationPanel';
@@ -427,26 +427,12 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
         />
       )}
 
-      {/* Review step removed - merged into PricingPanel */}
-
-      {/* Government Contract Setup - conditional */}
-      {currentStep === 'government' && selectedQuote && invoice && isGovernmentContract && (
-        <GovernmentContractPanel
-          quote={selectedQuote}
-          invoice={invoice}
-          onBack={() => setCurrentStep('pricing')}
-          onContinue={() => setCurrentStep(requiresContract ? 'contract' : 'payment')}
-        />
-      )}
-
       {currentStep === 'contract' && selectedQuote && invoice && (
         <TermsAndConditionsPanel
           quote={selectedQuote}
           invoice={invoice}
-          isGovernmentContract={isGovernmentContract}
-          onBack={() => isGovernmentContract ? setCurrentStep('government') : setCurrentStep('pricing')}
+          onBack={() => setCurrentStep('pricing')}
           onContinue={() => setCurrentStep('payment')}
-          onSkipContract={() => setCurrentStep('payment')}
         />
       )}
 
