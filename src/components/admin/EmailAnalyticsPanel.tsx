@@ -99,7 +99,8 @@ export function EmailAnalyticsPanel() {
   }
 
   const emailStats = calculateEmailStats(invoicesData || []);
-  const unopenedEstimates = (invoicesData || []).filter(inv => !inv.email_opened_at);
+  const unopenedEmails = (invoicesData || []).filter(inv => !inv.email_opened_at);
+  const unviewedEstimates = (invoicesData || []).filter(inv => !inv.estimate_viewed_at);
   const recentlyViewed = (invoicesData || [])
     .filter(inv => inv.estimate_viewed_at)
     .sort((a, b) => new Date(b.estimate_viewed_at!).getTime() - new Date(a.estimate_viewed_at!).getTime())
@@ -151,8 +152,8 @@ export function EmailAnalyticsPanel() {
               <AlertCircle className="h-5 w-5 text-orange-600" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Unopened</p>
-              <p className="text-2xl font-bold">{unopenedEstimates.length}</p>
+              <p className="text-sm text-muted-foreground">Unviewed Estimates</p>
+              <p className="text-2xl font-bold">{unviewedEstimates.length}</p>
             </div>
           </div>
         </Card>
@@ -192,17 +193,17 @@ export function EmailAnalyticsPanel() {
         )}
       </Card>
 
-      {/* Unopened Estimates */}
-      {unopenedEstimates.length > 0 && (
+      {/* Unviewed Estimates */}
+      {unviewedEstimates.length > 0 && (
         <Card className="p-6">
           <div className="flex items-center gap-2 mb-4">
             <AlertCircle className="h-5 w-5 text-orange-600" />
-            <h3 className="text-lg font-semibold">Unopened Estimates</h3>
-            <Badge variant="outline" className="ml-auto">{unopenedEstimates.length}</Badge>
+            <h3 className="text-lg font-semibold">Unviewed Estimates</h3>
+            <Badge variant="outline" className="ml-auto">{unviewedEstimates.length}</Badge>
           </div>
           
           <div className="space-y-3">
-            {unopenedEstimates.map((invoice) => (
+            {unviewedEstimates.map((invoice) => (
               <div key={invoice.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent/50 transition-colors">
                 <div className="flex-1">
                   <p className="font-medium">{invoice.quote_requests?.contact_name}</p>
@@ -213,7 +214,7 @@ export function EmailAnalyticsPanel() {
                 </div>
                 <div className="flex items-center gap-3">
                   <Badge variant="outline" className="bg-orange-500/10 text-orange-700 border-orange-300">
-                    Not Opened
+                    Not Viewed
                   </Badge>
                 </div>
               </div>

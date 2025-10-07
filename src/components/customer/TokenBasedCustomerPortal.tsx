@@ -123,7 +123,16 @@ export function TokenBasedCustomerPortal() {
         quote_requests: quote
       };
 
-      // Track access analytics
+      // Track estimate view in invoice table
+      await supabase.functions.invoke('track-estimate-view', {
+        body: {
+          invoice_id: invoice?.id,
+          view_type: 'estimate_viewed',
+          user_agent: navigator.userAgent
+        }
+      });
+
+      // Also track in analytics for historical data
       await supabase.from('analytics_events').insert({
         event_type: 'estimate_accessed',
         entity_type: 'invoices',

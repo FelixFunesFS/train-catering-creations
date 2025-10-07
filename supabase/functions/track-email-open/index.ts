@@ -32,9 +32,9 @@ const handler = async (req: Request): Promise<Response> => {
 
     const supabase = createClient(supabaseUrl, serviceRoleKey);
 
-    // Update invoice with email opened timestamp
-    const updateField = emailType === 'estimate_ready' ? 'estimate_viewed_at' : 'email_opened_at';
-    const countField = emailType === 'estimate_ready' ? 'estimate_viewed_count' : 'email_opened_count';
+    // Update invoice with email opened timestamp (email tracking only)
+    const updateField = 'email_opened_at';
+    const countField = 'email_opened_count';
 
     const { data: currentInvoice } = await supabase
       .from('invoices')

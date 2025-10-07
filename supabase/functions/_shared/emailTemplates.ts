@@ -256,8 +256,8 @@ export function generateFooter(): string {
 }
 
 export function generateTrackingPixel(invoiceId: string, emailType: string): string {
-  const siteUrl = Deno.env.get('SITE_URL') || 'https://c4c8d2d1-63da-4772-a95b-bf211f87a132.lovableproject.com';
-  return `<img src="${siteUrl}/api/track-email?invoice=${invoiceId}&type=${emailType}&t=${Date.now()}" alt="" class="tracking-pixel" />`;
+  const supabaseUrl = Deno.env.get('SUPABASE_URL');
+  return `<img src="${supabaseUrl}/functions/v1/track-email-open?invoice=${invoiceId}&type=${emailType}&t=${Date.now()}" alt="" style="width:1px;height:1px;border:0;" />`;
 }
 
 export function generatePaymentConfirmationEmail(quote: any, amount: number, isFullPayment: boolean): string {
