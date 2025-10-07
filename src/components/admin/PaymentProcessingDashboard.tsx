@@ -7,8 +7,7 @@ import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { PaymentMilestoneManager } from './PaymentMilestoneManager';
-import { ContractManagement } from './ContractManagement';
-import { 
+import {
   Search,
   Filter,
   DollarSign,
@@ -317,13 +316,11 @@ export function PaymentProcessingDashboard() {
         {/* Payment Details */}
         <div className="lg:col-span-2">
           {selectedInvoice ? (
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="payments">Payment Schedule</TabsTrigger>
-                <TabsTrigger value="contracts">Contracts</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="payments" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Payment Schedule</CardTitle>
+              </CardHeader>
+              <CardContent>
                 <PaymentMilestoneManager
                   invoiceId={selectedInvoice.id}
                   quoteRequest={selectedInvoice.quote_requests}
@@ -334,18 +331,8 @@ export function PaymentProcessingDashboard() {
                     }
                   }}
                 />
-              </TabsContent>
-              
-              <TabsContent value="contracts" className="space-y-4">
-                <ContractManagement
-                  invoiceId={selectedInvoice.id}
-                  quoteRequest={selectedInvoice.quote_requests}
-                  onContractSigned={() => {
-                    loadInvoices();
-                  }}
-                />
-              </TabsContent>
-            </Tabs>
+              </CardContent>
+            </Card>
           ) : (
             <Card>
               <CardContent className="p-6 text-center">

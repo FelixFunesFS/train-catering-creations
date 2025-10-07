@@ -29,8 +29,6 @@ import NotFound from "./pages/NotFound";
 
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCanceled from "./pages/PaymentCanceled";
-import ContractManagement from "./pages/ContractManagement";
-import ContractSigning from "./pages/ContractSigning";
 import { TokenBasedCustomerPortal } from "./components/customer/TokenBasedCustomerPortal";
 import UnifiedAdminDashboard from "./pages/UnifiedAdminDashboard";
 import QuoteDetailPage from "./pages/QuoteDetailPage";
@@ -77,7 +75,6 @@ const AppContent = () => {
           <Route path="/customer/estimate-preview/:invoiceId" element={<TokenBasedCustomerPortal />} />
           <Route path="/estimate-preview/:token" element={<TokenBasedCustomerPortal />} />
           <Route path="/invoice/public/:invoiceToken" element={<TokenBasedCustomerPortal />} />
-          <Route path="/contract/:contractId/:accessToken" element={<ContractSigning />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/payment-canceled" element={<PaymentCanceled />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

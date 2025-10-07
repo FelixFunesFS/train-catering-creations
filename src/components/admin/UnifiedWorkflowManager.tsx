@@ -10,7 +10,7 @@ import { WorkflowSteps } from './workflow/WorkflowSteps';
 import { QuoteSelectionPanel } from './workflow/QuoteSelectionPanel';
 import { PricingPanel } from './workflow/PricingPanel';
 import { GovernmentContractPanel } from './workflow/GovernmentContractPanel';
-import { ContractGenerationPanel } from './workflow/ContractGenerationPanel';
+import { TermsAndConditionsPanel } from './workflow/TermsAndConditionsPanel';
 import { PaymentCollectionPanel } from './workflow/PaymentCollectionPanel';
 import { EventConfirmationPanel } from './workflow/EventConfirmationPanel';
 import { EventCompletionPanel } from './workflow/EventCompletionPanel';
@@ -440,7 +440,7 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
       )}
 
       {currentStep === 'contract' && selectedQuote && invoice && (
-        <ContractGenerationPanel
+        <TermsAndConditionsPanel
           quote={selectedQuote}
           invoice={invoice}
           isGovernmentContract={isGovernmentContract}

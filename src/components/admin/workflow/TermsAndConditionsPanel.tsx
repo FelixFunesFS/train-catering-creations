@@ -6,7 +6,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { ManualContractSigningButton } from '../ManualContractSigningButton';
 import { FileText, Send, Eye, CheckCircle2, Clock } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -19,7 +18,7 @@ interface ContractGenerationPanelProps {
   onSkipContract?: () => void;
 }
 
-export function ContractGenerationPanel({
+export function TermsAndConditionsPanel({
   quote,
   invoice,
   isGovernmentContract,
@@ -308,31 +307,6 @@ export function ContractGenerationPanel({
               )}
             </div>
 
-            {/* Manual contract signing option */}
-            {contract && contract.status !== 'signed' && (
-              <div className="flex items-center gap-3">
-                <div className="flex-1 border-t" />
-                <span className="text-xs text-muted-foreground">OR</span>
-                <div className="flex-1 border-t" />
-              </div>
-            )}
-            
-            {contract && contract.status !== 'signed' && (
-              <div className="flex justify-center">
-                <ManualContractSigningButton
-                  contractId={contract.id}
-                  invoiceId={invoice.id}
-                  customerName={quote.contact_name}
-                  onSuccess={() => {
-                    checkExistingContract();
-                    toast({
-                      title: "Contract Signed",
-                      description: "You can now proceed to payment collection",
-                    });
-                  }}
-                />
-              </div>
-            )}
           </div>
 
           {onSkipContract && !contract && (
