@@ -1788,10 +1788,7 @@ export type Database = {
         Args: { access_token: string; customer_email: string }
         Returns: boolean
       }
-      generate_invoice_number: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      generate_invoice_number: { Args: never; Returns: string }
       get_estimate_with_line_items: {
         Args: { access_token: string }
         Returns: {
@@ -1805,14 +1802,8 @@ export type Database = {
         Args: { current_status: string; entity_type: string }
         Returns: string[]
       }
-      get_status_label: {
-        Args: { status: string }
-        Returns: string
-      }
-      grant_first_admin: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      get_status_label: { Args: { status: string }; Returns: string }
+      grant_first_admin: { Args: never; Returns: undefined }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["user_role"]
@@ -1820,22 +1811,10 @@ export type Database = {
         }
         Returns: boolean
       }
-      is_admin: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
-      is_admin_original: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
-      is_dev_mode: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
-      is_dev_mode_original: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
+      is_admin: { Args: never; Returns: boolean }
+      is_admin_original: { Args: never; Returns: boolean }
+      is_dev_mode: { Args: never; Returns: boolean }
+      is_dev_mode_original: { Args: never; Returns: boolean }
       is_valid_access_token: {
         Args: { invoice_table_id: string; token_value: string }
         Returns: boolean
