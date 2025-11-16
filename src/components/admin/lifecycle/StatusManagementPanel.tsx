@@ -5,7 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useUnifiedStatusManagement } from '@/hooks/useUnifiedStatusManagement';
+import { useUnifiedWorkflow } from '@/hooks/useUnifiedWorkflow';
+import { supabase } from '@/integrations/supabase/client';
 import { 
   Clock, 
   CheckCircle, 
@@ -38,40 +39,53 @@ export function StatusManagementPanel({
   const [isUpdating, setIsUpdating] = useState(false);
 
   const {
-    updateStatus,
-    getStatusHistory,
-    getAvailableTransitions,
-    getStatusColor,
-    statusHistory,
-    loading
-  } = useUnifiedStatusManagement();
+    updateQuoteStatus,
+    updateInvoiceStatus,
+    getAvailableQuoteTransitions,
+    getAvailableInvoiceTransitions,
+    getStatusLabel
+  } = useUnifiedWorkflow();
+
+  const [statusHistory, setStatusHistory] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
 
   React.useEffect(() => {
-    getStatusHistory(entityType, entityId);
-  }, [entityType, entityId, getStatusHistory]);
+    const fetchHistory = async () => {
+      setLoading(true);
+      const { data } = await supabase
+        .from('workflow_state_log')
+        .select('*')
+        .eq('entity_id', entityId)
+        .eq('entity_type', entityType === 'quote' ? 'quote_requests' : 'invoices')
+        .order('created_at', { ascending: false });
+      setStatusHistory(data || []);
+      setLoading(false);
+    };
+    fetchHistory();
+  }, [entityType, entityId]);
 
-  const availableTransitions = getAvailableTransitions(entityType, currentStatus, userRole);
+  const availableTransitions = entityType === 'quote' 
+    ? getAvailableQuoteTransitions(currentStatus as any)
+    : getAvailableInvoiceTransitions(currentStatus as any);
 
   const handleStatusUpdate = async () => {
     if (!selectedNewStatus) return;
 
     setIsUpdating(true);
-    const result = await updateStatus(
-      entityType,
-      entityId,
-      selectedNewStatus,
-      userRole,
-      `Status updated via admin panel`
-    );
+    const result = entityType === 'quote'
+      ? await updateQuoteStatus(entityId, selectedNewStatus as any, userRole, 'Status updated via admin panel')
+      : await updateInvoiceStatus(entityId, selectedNewStatus as any, userRole, 'Status updated via admin panel');
 
     if (result.success) {
       onStatusChange?.(selectedNewStatus);
       setSelectedNewStatus('');
-      // Refresh status history
-      await getStatusHistory(entityType, entityId);
     }
 
     setIsUpdating(false);
+  };
+
+  const getStatusColor = (status: string) => {
+    return 'text-blue-600 bg-blue-50';
   };
 
   const getStatusIcon = (status: string) => {
@@ -132,14 +146,11 @@ export function StatusManagementPanel({
                   <SelectValue placeholder="Select new status" />
                 </SelectTrigger>
                 <SelectContent>
-                  {availableTransitions.map((transition) => (
-                    <SelectItem key={transition.to} value={transition.to}>
+                  {availableTransitions.map((status) => (
+                    <SelectItem key={status} value={status}>
                       <div className="flex items-center gap-2">
-                        {getStatusIcon(transition.to)}
-                        <span>{formatStatus(transition.to)}</span>
-                        <span className="text-xs text-muted-foreground ml-2">
-                          - {transition.description}
-                        </span>
+                        {getStatusIcon(status)}
+                        <span>{getStatusLabel(status)}</span>
                       </div>
                     </SelectItem>
                   ))}
@@ -151,12 +162,7 @@ export function StatusManagementPanel({
               <Alert>
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
-                  {availableTransitions.find(t => t.to === selectedNewStatus)?.description}
-                  {availableTransitions.find(t => t.to === selectedNewStatus)?.requiresNotification && (
-                    <span className="block mt-1 text-xs">
-                      ⓘ Customer will be notified of this change
-                    </span>
-                  )}
+                  Status will be changed to: {getStatusLabel(selectedNewStatus)}
                 </AlertDescription>
               </Alert>
             )}

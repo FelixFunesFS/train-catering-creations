@@ -138,8 +138,10 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
       );
       
       for (const quote of newQuotes) {
-        const { WorkflowOrchestrationService } = await import('@/services/WorkflowOrchestrationService');
-        await WorkflowOrchestrationService.autoGenerateInvoice(quote.id);
+        // Call edge function to generate invoice
+        await supabase.functions.invoke('generate-invoice-from-quote', {
+          body: { quote_request_id: quote.id }
+        });
       }
     };
 
