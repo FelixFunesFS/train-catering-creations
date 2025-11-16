@@ -194,8 +194,9 @@ export function QuickPricingEditor({ quoteId, invoiceId, guestCount }: QuickPric
 
       <div className="space-y-3">
         {lineItems.map((item, index) => (
-          <div key={index} className="grid grid-cols-12 gap-2 items-start p-3 rounded-lg border bg-card">
-            <div className="col-span-4">
+          <div key={index} className="p-3 rounded-lg border bg-card space-y-2">
+            {/* Title (editable) */}
+            <div>
               <Label className="text-xs">Item</Label>
               <Input
                 value={item.title}
@@ -204,40 +205,51 @@ export function QuickPricingEditor({ quoteId, invoiceId, guestCount }: QuickPric
                 className="h-8"
               />
             </div>
-            <div className="col-span-2">
-              <Label className="text-xs">Qty</Label>
-              <Input
-                type="number"
-                value={item.quantity}
-                onChange={(e) => updateLineItem(index, 'quantity', parseInt(e.target.value) || 0)}
-                className="h-8"
-              />
-            </div>
-            <div className="col-span-2">
-              <Label className="text-xs">Price</Label>
-              <Input
-                type="number"
-                value={item.unit_price / 100}
-                onChange={(e) => updateLineItem(index, 'unit_price', Math.round(parseFloat(e.target.value) * 100) || 0)}
-                step="0.01"
-                className="h-8"
-              />
-            </div>
-            <div className="col-span-2">
-              <Label className="text-xs">Total</Label>
-              <div className="h-8 flex items-center text-sm font-semibold">
-                ${(item.total_price / 100).toFixed(2)}
+            
+            {/* Description (read-only) */}
+            {item.description && (
+              <div className="text-xs text-muted-foreground px-1">
+                {item.description}
               </div>
-            </div>
-            <div className="col-span-2 flex items-end">
-              <Button
-                onClick={() => removeLineItem(index)}
-                variant="ghost"
-                size="sm"
-                className="h-8 w-full"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
+            )}
+            
+            {/* Qty, Price, Total, Delete */}
+            <div className="grid grid-cols-12 gap-2 items-end">
+              <div className="col-span-3">
+                <Label className="text-xs">Qty</Label>
+                <Input
+                  type="number"
+                  value={item.quantity}
+                  onChange={(e) => updateLineItem(index, 'quantity', parseInt(e.target.value) || 0)}
+                  className="h-8"
+                />
+              </div>
+              <div className="col-span-3">
+                <Label className="text-xs">Price</Label>
+                <Input
+                  type="number"
+                  value={item.unit_price / 100}
+                  onChange={(e) => updateLineItem(index, 'unit_price', Math.round(parseFloat(e.target.value) * 100) || 0)}
+                  step="0.01"
+                  className="h-8"
+                />
+              </div>
+              <div className="col-span-4">
+                <Label className="text-xs">Total</Label>
+                <div className="h-8 flex items-center text-sm font-semibold">
+                  ${(item.total_price / 100).toFixed(2)}
+                </div>
+              </div>
+              <div className="col-span-2">
+                <Button
+                  onClick={() => removeLineItem(index)}
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-full"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </div>
         ))}
