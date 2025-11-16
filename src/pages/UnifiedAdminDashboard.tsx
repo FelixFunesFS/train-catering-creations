@@ -13,7 +13,7 @@ import { DocumentManagementPanel } from '@/components/admin/DocumentManagementPa
 import { EventPipelineBoard } from '@/components/admin/EventPipelineBoard';
 import { AtRiskEventsPanel } from '@/components/admin/AtRiskEventsPanel';
 import { TodaysEventsPanel } from '@/components/admin/TodaysEventsPanel';
-import { EmailAnalyticsPanel } from '@/components/admin/EmailAnalyticsPanel';
+
 import { useAuth } from '@/hooks/useAuth';
 import { LogOut, Kanban, AlertTriangle, CalendarClock, LayoutDashboard, FileText, CreditCard, CalendarDays, FolderOpen, Mail, Wrench } from 'lucide-react';
 import { EdgeFunctionTester } from '@/components/admin/EdgeFunctionTester';
@@ -211,7 +211,7 @@ export function UnifiedAdminDashboard() {
         )}
         {currentView === 'email-analytics' && (
           <div className="container mx-auto px-4 py-6">
-            <EmailAnalyticsPanel />
+            <div className="text-muted-foreground">Email analytics removed in Phase 5 cleanup</div>
           </div>
         )}
         {currentView === 'testing' && (

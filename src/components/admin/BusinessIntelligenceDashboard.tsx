@@ -116,7 +116,7 @@ export function BusinessIntelligenceDashboard() {
       const paidInvoices = invoices?.filter(i => i.workflow_status === 'paid') || [];
       const totalRevenue = paidInvoices.reduce((sum, i) => sum + (i.total_amount / 100), 0);
       const pendingPayments = invoices?.filter(i => i.workflow_status === 'sent' || i.workflow_status === 'approved').length || 0;
-      const estimateViews = invoices?.reduce((sum, i) => sum + (i.estimate_viewed_count || 0), 0) || 0;
+      const estimateViews = invoices?.length || 0; // View tracking removed in Phase 5
 
       const conversionRate = totalQuotes > 0 ? (quotesWithInvoices / totalQuotes) * 100 : 0;
       const averageQuoteValue = totalQuotes > 0 ? totalRevenue / totalQuotes : 0;
