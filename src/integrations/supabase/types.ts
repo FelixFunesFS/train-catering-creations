@@ -56,6 +56,13 @@ export type Database = {
             referencedRelation: "quote_requests"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "admin_notes_quote_request_id_fkey"
+            columns: ["quote_request_id"]
+            isOneToOne: false
+            referencedRelation: "unified_workflow_status"
+            referencedColumns: ["quote_id"]
+          },
         ]
       }
       analytics_events: {
@@ -226,6 +233,13 @@ export type Database = {
             referencedRelation: "quote_requests"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "calendar_events_quote_request_id_fkey"
+            columns: ["quote_request_id"]
+            isOneToOne: false
+            referencedRelation: "unified_workflow_status"
+            referencedColumns: ["quote_id"]
+          },
         ]
       }
       change_requests: {
@@ -291,6 +305,13 @@ export type Database = {
             referencedRelation: "invoices"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "change_requests_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "unified_workflow_status"
+            referencedColumns: ["invoice_id"]
+          },
         ]
       }
       contracts: {
@@ -347,6 +368,13 @@ export type Database = {
             referencedRelation: "invoices"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "contracts_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "unified_workflow_status"
+            referencedColumns: ["invoice_id"]
+          },
         ]
       }
       customers: {
@@ -393,6 +421,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "quote_requests"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customers_quote_request_id_fkey"
+            columns: ["quote_request_id"]
+            isOneToOne: false
+            referencedRelation: "unified_workflow_status"
+            referencedColumns: ["quote_id"]
           },
         ]
       }
@@ -487,6 +522,13 @@ export type Database = {
             referencedRelation: "invoices"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "estimate_versions_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "unified_workflow_status"
+            referencedColumns: ["invoice_id"]
+          },
         ]
       }
       event_documents: {
@@ -543,6 +585,13 @@ export type Database = {
             referencedRelation: "quote_requests"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "event_documents_quote_request_id_fkey"
+            columns: ["quote_request_id"]
+            isOneToOne: false
+            referencedRelation: "unified_workflow_status"
+            referencedColumns: ["quote_id"]
+          },
         ]
       }
       event_timeline_tasks: {
@@ -595,6 +644,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "quote_requests"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_timeline_tasks_quote_request_id_fkey"
+            columns: ["quote_request_id"]
+            isOneToOne: false
+            referencedRelation: "unified_workflow_status"
+            referencedColumns: ["quote_id"]
           },
         ]
       }
@@ -679,6 +735,13 @@ export type Database = {
             referencedRelation: "quote_requests"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "government_contracts_quote_request_id_fkey"
+            columns: ["quote_request_id"]
+            isOneToOne: false
+            referencedRelation: "unified_workflow_status"
+            referencedColumns: ["quote_id"]
+          },
         ]
       }
       invoice_audit_log: {
@@ -716,6 +779,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "invoices"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_audit_log_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "unified_workflow_status"
+            referencedColumns: ["invoice_id"]
           },
         ]
       }
@@ -763,6 +833,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "invoices"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_line_items_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "unified_workflow_status"
+            referencedColumns: ["invoice_id"]
           },
         ]
       }
@@ -983,6 +1060,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "invoices_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "unified_workflow_status"
+            referencedColumns: ["contract_id"]
+          },
+          {
             foreignKeyName: "invoices_customer_id_fkey"
             columns: ["customer_id"]
             isOneToOne: false
@@ -997,11 +1081,25 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "invoices_original_quote_id_fkey"
+            columns: ["original_quote_id"]
+            isOneToOne: false
+            referencedRelation: "unified_workflow_status"
+            referencedColumns: ["quote_id"]
+          },
+          {
             foreignKeyName: "invoices_quote_request_id_fkey"
             columns: ["quote_request_id"]
             isOneToOne: false
             referencedRelation: "quote_requests"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_quote_request_id_fkey"
+            columns: ["quote_request_id"]
+            isOneToOne: false
+            referencedRelation: "unified_workflow_status"
+            referencedColumns: ["quote_id"]
           },
         ]
       }
@@ -1040,6 +1138,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "quote_requests"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "message_threads_quote_request_id_fkey"
+            columns: ["quote_request_id"]
+            isOneToOne: false
+            referencedRelation: "unified_workflow_status"
+            referencedColumns: ["quote_id"]
           },
         ]
       }
@@ -1144,6 +1249,13 @@ export type Database = {
             referencedRelation: "invoices"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "payment_history_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "unified_workflow_status"
+            referencedColumns: ["invoice_id"]
+          },
         ]
       }
       payment_milestones: {
@@ -1203,6 +1315,13 @@ export type Database = {
             referencedRelation: "invoices"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "payment_milestones_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "unified_workflow_status"
+            referencedColumns: ["invoice_id"]
+          },
         ]
       }
       payment_schedule_audit: {
@@ -1240,6 +1359,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "invoices"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_schedule_audit_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "unified_workflow_status"
+            referencedColumns: ["invoice_id"]
           },
         ]
       }
@@ -1302,6 +1428,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "invoices"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_transactions_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "unified_workflow_status"
+            referencedColumns: ["invoice_id"]
           },
         ]
       }
@@ -1424,6 +1557,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "quote_requests"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_request_history_quote_request_id_fkey"
+            columns: ["quote_request_id"]
+            isOneToOne: false
+            referencedRelation: "unified_workflow_status"
+            referencedColumns: ["quote_id"]
           },
         ]
       }
@@ -1640,6 +1780,13 @@ export type Database = {
             referencedRelation: "invoices"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "reminder_logs_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "unified_workflow_status"
+            referencedColumns: ["invoice_id"]
+          },
         ]
       }
       user_roles: {
@@ -1707,6 +1854,13 @@ export type Database = {
             isOneToOne: true
             referencedRelation: "quote_requests"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workflow_state_quote_request_id_fkey"
+            columns: ["quote_request_id"]
+            isOneToOne: true
+            referencedRelation: "unified_workflow_status"
+            referencedColumns: ["quote_id"]
           },
         ]
       }
@@ -1781,12 +1935,51 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      unified_workflow_status: {
+        Row: {
+          contact_name: string | null
+          contract_id: string | null
+          contract_signed_at: string | null
+          contract_status: string | null
+          created_at: string | null
+          document_type: string | null
+          email: string | null
+          event_date: string | null
+          event_name: string | null
+          has_status_mismatch: boolean | null
+          invoice_id: string | null
+          invoice_status:
+            | Database["public"]["Enums"]["invoice_workflow_status"]
+            | null
+          invoice_status_changed_at: string | null
+          invoice_status_changed_by: string | null
+          payment_milestones: Json | null
+          quote_id: string | null
+          quote_status:
+            | Database["public"]["Enums"]["quote_workflow_status"]
+            | null
+          quote_status_changed_at: string | null
+          quote_status_changed_by: string | null
+          total_amount: number | null
+          updated_at: string | null
+          workflow_completed_steps: string[] | null
+          workflow_current_step: string | null
+          workflow_last_updated: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       can_access_estimate: {
         Args: { access_token: string; customer_email: string }
         Returns: boolean
+      }
+      check_workflow_consistency: {
+        Args: { p_quote_id: string }
+        Returns: {
+          is_consistent: boolean
+          issues: Json
+        }[]
       }
       generate_invoice_number: { Args: never; Returns: string }
       get_estimate_with_line_items: {
