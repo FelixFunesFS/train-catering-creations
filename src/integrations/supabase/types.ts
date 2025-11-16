@@ -56,13 +56,6 @@ export type Database = {
             referencedRelation: "quote_requests"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "admin_notes_quote_request_id_fkey"
-            columns: ["quote_request_id"]
-            isOneToOne: false
-            referencedRelation: "unified_workflow_status"
-            referencedColumns: ["quote_id"]
-          },
         ]
       }
       analytics_events: {
@@ -233,13 +226,6 @@ export type Database = {
             referencedRelation: "quote_requests"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "calendar_events_quote_request_id_fkey"
-            columns: ["quote_request_id"]
-            isOneToOne: false
-            referencedRelation: "unified_workflow_status"
-            referencedColumns: ["quote_id"]
-          },
         ]
       }
       change_requests: {
@@ -305,13 +291,6 @@ export type Database = {
             referencedRelation: "invoices"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "change_requests_invoice_id_fkey"
-            columns: ["invoice_id"]
-            isOneToOne: false
-            referencedRelation: "unified_workflow_status"
-            referencedColumns: ["invoice_id"]
-          },
         ]
       }
       contracts: {
@@ -368,13 +347,6 @@ export type Database = {
             referencedRelation: "invoices"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "contracts_invoice_id_fkey"
-            columns: ["invoice_id"]
-            isOneToOne: false
-            referencedRelation: "unified_workflow_status"
-            referencedColumns: ["invoice_id"]
-          },
         ]
       }
       customers: {
@@ -421,13 +393,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "quote_requests"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "customers_quote_request_id_fkey"
-            columns: ["quote_request_id"]
-            isOneToOne: false
-            referencedRelation: "unified_workflow_status"
-            referencedColumns: ["quote_id"]
           },
         ]
       }
@@ -522,13 +487,6 @@ export type Database = {
             referencedRelation: "invoices"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "estimate_versions_invoice_id_fkey"
-            columns: ["invoice_id"]
-            isOneToOne: false
-            referencedRelation: "unified_workflow_status"
-            referencedColumns: ["invoice_id"]
-          },
         ]
       }
       event_documents: {
@@ -585,13 +543,6 @@ export type Database = {
             referencedRelation: "quote_requests"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "event_documents_quote_request_id_fkey"
-            columns: ["quote_request_id"]
-            isOneToOne: false
-            referencedRelation: "unified_workflow_status"
-            referencedColumns: ["quote_id"]
-          },
         ]
       }
       event_timeline_tasks: {
@@ -644,13 +595,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "quote_requests"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "event_timeline_tasks_quote_request_id_fkey"
-            columns: ["quote_request_id"]
-            isOneToOne: false
-            referencedRelation: "unified_workflow_status"
-            referencedColumns: ["quote_id"]
           },
         ]
       }
@@ -735,13 +679,6 @@ export type Database = {
             referencedRelation: "quote_requests"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "government_contracts_quote_request_id_fkey"
-            columns: ["quote_request_id"]
-            isOneToOne: false
-            referencedRelation: "unified_workflow_status"
-            referencedColumns: ["quote_id"]
-          },
         ]
       }
       invoice_audit_log: {
@@ -779,13 +716,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "invoices"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "invoice_audit_log_invoice_id_fkey"
-            columns: ["invoice_id"]
-            isOneToOne: false
-            referencedRelation: "unified_workflow_status"
-            referencedColumns: ["invoice_id"]
           },
         ]
       }
@@ -833,13 +763,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "invoices"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "invoice_line_items_invoice_id_fkey"
-            columns: ["invoice_id"]
-            isOneToOne: false
-            referencedRelation: "unified_workflow_status"
-            referencedColumns: ["invoice_id"]
           },
         ]
       }
@@ -895,36 +818,22 @@ export type Database = {
           created_at: string
           currency: string | null
           customer_access_token: string | null
-          customer_feedback: Json | null
           customer_id: string | null
           document_type: string | null
-          draft_data: Json | null
           due_date: string | null
-          email_opened_at: string | null
-          email_opened_count: number | null
-          estimate_viewed_at: string | null
-          estimate_viewed_count: number | null
           id: string
           include_terms_and_conditions: boolean | null
           invoice_number: string | null
           is_draft: boolean | null
           is_milestone_payment: boolean | null
-          last_customer_action: string | null
           last_customer_interaction: string | null
-          last_quote_sync: string | null
           last_status_change: string | null
-          manual_overrides: Json | null
           notes: string | null
-          original_quote_id: string | null
-          override_reason: string | null
           paid_at: string | null
           payment_order: number | null
           payment_schedule_type: string | null
           pdf_url: string | null
-          portal_access_count: number | null
-          portal_last_accessed: string | null
           quote_request_id: string | null
-          quote_version: number | null
           requires_separate_contract: boolean | null
           reviewed_at: string | null
           reviewed_by: string | null
@@ -933,8 +842,6 @@ export type Database = {
           stripe_invoice_id: string | null
           subtotal: number
           tax_amount: number | null
-          template_metadata: Json | null
-          template_used: string | null
           terms_accepted_at: string | null
           token_expires_at: string | null
           total_amount: number
@@ -949,36 +856,22 @@ export type Database = {
           created_at?: string
           currency?: string | null
           customer_access_token?: string | null
-          customer_feedback?: Json | null
           customer_id?: string | null
           document_type?: string | null
-          draft_data?: Json | null
           due_date?: string | null
-          email_opened_at?: string | null
-          email_opened_count?: number | null
-          estimate_viewed_at?: string | null
-          estimate_viewed_count?: number | null
           id?: string
           include_terms_and_conditions?: boolean | null
           invoice_number?: string | null
           is_draft?: boolean | null
           is_milestone_payment?: boolean | null
-          last_customer_action?: string | null
           last_customer_interaction?: string | null
-          last_quote_sync?: string | null
           last_status_change?: string | null
-          manual_overrides?: Json | null
           notes?: string | null
-          original_quote_id?: string | null
-          override_reason?: string | null
           paid_at?: string | null
           payment_order?: number | null
           payment_schedule_type?: string | null
           pdf_url?: string | null
-          portal_access_count?: number | null
-          portal_last_accessed?: string | null
           quote_request_id?: string | null
-          quote_version?: number | null
           requires_separate_contract?: boolean | null
           reviewed_at?: string | null
           reviewed_by?: string | null
@@ -987,8 +880,6 @@ export type Database = {
           stripe_invoice_id?: string | null
           subtotal?: number
           tax_amount?: number | null
-          template_metadata?: Json | null
-          template_used?: string | null
           terms_accepted_at?: string | null
           token_expires_at?: string | null
           total_amount?: number
@@ -1003,36 +894,22 @@ export type Database = {
           created_at?: string
           currency?: string | null
           customer_access_token?: string | null
-          customer_feedback?: Json | null
           customer_id?: string | null
           document_type?: string | null
-          draft_data?: Json | null
           due_date?: string | null
-          email_opened_at?: string | null
-          email_opened_count?: number | null
-          estimate_viewed_at?: string | null
-          estimate_viewed_count?: number | null
           id?: string
           include_terms_and_conditions?: boolean | null
           invoice_number?: string | null
           is_draft?: boolean | null
           is_milestone_payment?: boolean | null
-          last_customer_action?: string | null
           last_customer_interaction?: string | null
-          last_quote_sync?: string | null
           last_status_change?: string | null
-          manual_overrides?: Json | null
           notes?: string | null
-          original_quote_id?: string | null
-          override_reason?: string | null
           paid_at?: string | null
           payment_order?: number | null
           payment_schedule_type?: string | null
           pdf_url?: string | null
-          portal_access_count?: number | null
-          portal_last_accessed?: string | null
           quote_request_id?: string | null
-          quote_version?: number | null
           requires_separate_contract?: boolean | null
           reviewed_at?: string | null
           reviewed_by?: string | null
@@ -1041,8 +918,6 @@ export type Database = {
           stripe_invoice_id?: string | null
           subtotal?: number
           tax_amount?: number | null
-          template_metadata?: Json | null
-          template_used?: string | null
           terms_accepted_at?: string | null
           token_expires_at?: string | null
           total_amount?: number
@@ -1060,13 +935,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "invoices_contract_id_fkey"
-            columns: ["contract_id"]
-            isOneToOne: false
-            referencedRelation: "unified_workflow_status"
-            referencedColumns: ["contract_id"]
-          },
-          {
             foreignKeyName: "invoices_customer_id_fkey"
             columns: ["customer_id"]
             isOneToOne: false
@@ -1074,32 +942,11 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "invoices_original_quote_id_fkey"
-            columns: ["original_quote_id"]
-            isOneToOne: false
-            referencedRelation: "quote_requests"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "invoices_original_quote_id_fkey"
-            columns: ["original_quote_id"]
-            isOneToOne: false
-            referencedRelation: "unified_workflow_status"
-            referencedColumns: ["quote_id"]
-          },
-          {
             foreignKeyName: "invoices_quote_request_id_fkey"
             columns: ["quote_request_id"]
             isOneToOne: false
             referencedRelation: "quote_requests"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "invoices_quote_request_id_fkey"
-            columns: ["quote_request_id"]
-            isOneToOne: false
-            referencedRelation: "unified_workflow_status"
-            referencedColumns: ["quote_id"]
           },
         ]
       }
@@ -1138,13 +985,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "quote_requests"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "message_threads_quote_request_id_fkey"
-            columns: ["quote_request_id"]
-            isOneToOne: false
-            referencedRelation: "unified_workflow_status"
-            referencedColumns: ["quote_id"]
           },
         ]
       }
@@ -1249,13 +1089,6 @@ export type Database = {
             referencedRelation: "invoices"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "payment_history_invoice_id_fkey"
-            columns: ["invoice_id"]
-            isOneToOne: false
-            referencedRelation: "unified_workflow_status"
-            referencedColumns: ["invoice_id"]
-          },
         ]
       }
       payment_milestones: {
@@ -1315,13 +1148,6 @@ export type Database = {
             referencedRelation: "invoices"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "payment_milestones_invoice_id_fkey"
-            columns: ["invoice_id"]
-            isOneToOne: false
-            referencedRelation: "unified_workflow_status"
-            referencedColumns: ["invoice_id"]
-          },
         ]
       }
       payment_schedule_audit: {
@@ -1359,13 +1185,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "invoices"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "payment_schedule_audit_invoice_id_fkey"
-            columns: ["invoice_id"]
-            isOneToOne: false
-            referencedRelation: "unified_workflow_status"
-            referencedColumns: ["invoice_id"]
           },
         ]
       }
@@ -1428,13 +1247,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "invoices"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "payment_transactions_invoice_id_fkey"
-            columns: ["invoice_id"]
-            isOneToOne: false
-            referencedRelation: "unified_workflow_status"
-            referencedColumns: ["invoice_id"]
           },
         ]
       }
@@ -1558,13 +1370,6 @@ export type Database = {
             referencedRelation: "quote_requests"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "quote_request_history_quote_request_id_fkey"
-            columns: ["quote_request_id"]
-            isOneToOne: false
-            referencedRelation: "unified_workflow_status"
-            referencedColumns: ["quote_id"]
-          },
         ]
       }
       quote_requests: {
@@ -1572,8 +1377,6 @@ export type Database = {
           appetizers: Json | null
           both_proteins_available: boolean | null
           bussing_tables_needed: boolean | null
-          calendar_event_id: string | null
-          calendar_sync_status: string | null
           ceremony_included: boolean | null
           chafers_requested: boolean | null
           cocktail_hour: boolean | null
@@ -1596,8 +1399,6 @@ export type Database = {
           guest_count_with_restrictions: string | null
           ice_requested: boolean | null
           id: string
-          last_calendar_sync: string | null
-          last_customer_interaction: string | null
           last_status_change: string | null
           location: string
           napkins_requested: boolean | null
@@ -1617,7 +1418,6 @@ export type Database = {
           special_requests: string | null
           start_time: string
           status_changed_by: string | null
-          theme_colors: string | null
           updated_at: string | null
           utensils: Json | null
           version: number
@@ -1630,8 +1430,6 @@ export type Database = {
           appetizers?: Json | null
           both_proteins_available?: boolean | null
           bussing_tables_needed?: boolean | null
-          calendar_event_id?: string | null
-          calendar_sync_status?: string | null
           ceremony_included?: boolean | null
           chafers_requested?: boolean | null
           cocktail_hour?: boolean | null
@@ -1654,8 +1452,6 @@ export type Database = {
           guest_count_with_restrictions?: string | null
           ice_requested?: boolean | null
           id?: string
-          last_calendar_sync?: string | null
-          last_customer_interaction?: string | null
           last_status_change?: string | null
           location: string
           napkins_requested?: boolean | null
@@ -1675,7 +1471,6 @@ export type Database = {
           special_requests?: string | null
           start_time: string
           status_changed_by?: string | null
-          theme_colors?: string | null
           updated_at?: string | null
           utensils?: Json | null
           version?: number
@@ -1688,8 +1483,6 @@ export type Database = {
           appetizers?: Json | null
           both_proteins_available?: boolean | null
           bussing_tables_needed?: boolean | null
-          calendar_event_id?: string | null
-          calendar_sync_status?: string | null
           ceremony_included?: boolean | null
           chafers_requested?: boolean | null
           cocktail_hour?: boolean | null
@@ -1712,8 +1505,6 @@ export type Database = {
           guest_count_with_restrictions?: string | null
           ice_requested?: boolean | null
           id?: string
-          last_calendar_sync?: string | null
-          last_customer_interaction?: string | null
           last_status_change?: string | null
           location?: string
           napkins_requested?: boolean | null
@@ -1733,7 +1524,6 @@ export type Database = {
           special_requests?: string | null
           start_time?: string
           status_changed_by?: string | null
-          theme_colors?: string | null
           updated_at?: string | null
           utensils?: Json | null
           version?: number
@@ -1780,13 +1570,6 @@ export type Database = {
             referencedRelation: "invoices"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "reminder_logs_invoice_id_fkey"
-            columns: ["invoice_id"]
-            isOneToOne: false
-            referencedRelation: "unified_workflow_status"
-            referencedColumns: ["invoice_id"]
-          },
         ]
       }
       user_roles: {
@@ -1815,54 +1598,6 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
-      }
-      workflow_state: {
-        Row: {
-          completed_steps: string[] | null
-          created_at: string | null
-          current_step: string
-          id: string
-          last_updated: string | null
-          quote_request_id: string
-          step_data: Json | null
-          updated_by: string | null
-        }
-        Insert: {
-          completed_steps?: string[] | null
-          created_at?: string | null
-          current_step: string
-          id?: string
-          last_updated?: string | null
-          quote_request_id: string
-          step_data?: Json | null
-          updated_by?: string | null
-        }
-        Update: {
-          completed_steps?: string[] | null
-          created_at?: string | null
-          current_step?: string
-          id?: string
-          last_updated?: string | null
-          quote_request_id?: string
-          step_data?: Json | null
-          updated_by?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "workflow_state_quote_request_id_fkey"
-            columns: ["quote_request_id"]
-            isOneToOne: true
-            referencedRelation: "quote_requests"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "workflow_state_quote_request_id_fkey"
-            columns: ["quote_request_id"]
-            isOneToOne: true
-            referencedRelation: "unified_workflow_status"
-            referencedColumns: ["quote_id"]
-          },
-        ]
       }
       workflow_state_log: {
         Row: {
@@ -1935,39 +1670,7 @@ export type Database = {
       }
     }
     Views: {
-      unified_workflow_status: {
-        Row: {
-          contact_name: string | null
-          contract_id: string | null
-          contract_signed_at: string | null
-          contract_status: string | null
-          created_at: string | null
-          document_type: string | null
-          email: string | null
-          event_date: string | null
-          event_name: string | null
-          has_status_mismatch: boolean | null
-          invoice_id: string | null
-          invoice_status:
-            | Database["public"]["Enums"]["invoice_workflow_status"]
-            | null
-          invoice_status_changed_at: string | null
-          invoice_status_changed_by: string | null
-          payment_milestones: Json | null
-          quote_id: string | null
-          quote_status:
-            | Database["public"]["Enums"]["quote_workflow_status"]
-            | null
-          quote_status_changed_at: string | null
-          quote_status_changed_by: string | null
-          total_amount: number | null
-          updated_at: string | null
-          workflow_completed_steps: string[] | null
-          workflow_current_step: string | null
-          workflow_last_updated: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       can_access_estimate: {
@@ -2008,6 +1711,10 @@ export type Database = {
       is_admin_original: { Args: never; Returns: boolean }
       is_dev_mode: { Args: never; Returns: boolean }
       is_dev_mode_original: { Args: never; Returns: boolean }
+      is_quote_owner: {
+        Args: { quote_id: string; user_email: string }
+        Returns: boolean
+      }
       is_valid_access_token: {
         Args: { invoice_table_id: string; token_value: string }
         Returns: boolean

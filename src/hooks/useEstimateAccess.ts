@@ -107,7 +107,7 @@ export function useEstimateAccess(accessToken: string) {
         .from('invoices')
         .update({
           estimate_viewed_at: new Date().toISOString(),
-          estimate_viewed_count: (invoice.estimate_viewed_count || 0) + 1,
+          viewed_at: new Date().toISOString(), // estimate_viewed_count removed in Phase 5
           last_customer_interaction: new Date().toISOString()
         })
         .eq('id', invoice.id);

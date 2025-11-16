@@ -530,63 +530,25 @@ export function QuoteDetailModal({ quote, onClose, onUpdate }: QuoteDetailModalP
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Calendar className="h-5 w-5" />
-                  Calendar Integration
+                  Event Calendar
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium">Calendar Status</p>
+                    <p className="font-medium">Event Date</p>
                     <p className="text-sm text-muted-foreground">
-                      {editedQuote.calendar_sync_status === 'synced' ? 'Event synced to calendar' : 'Not synced'}
+                      {editedQuote.event_date}
                     </p>
                   </div>
-                  <Badge variant={editedQuote.calendar_sync_status === 'synced' ? 'default' : 'outline'}>
-                    {editedQuote.calendar_sync_status || 'not_synced'}
+                  <Badge variant="outline">
+                    {editedQuote.event_type}
                   </Badge>
                 </div>
 
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleCalendarAction('create')}
-                    disabled={loading}
-                  >
-                    <CalendarPlus className="h-4 w-4 mr-2" />
-                    Add to Calendar
-                  </Button>
-                  
-                  {editedQuote.calendar_event_id && (
-                    <>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleCalendarAction('update')}
-                        disabled={loading}
-                      >
-                        <RefreshCw className="h-4 w-4 mr-2" />
-                        Update Event
-                      </Button>
-                      
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleCalendarAction('delete')}
-                        disabled={loading}
-                      >
-                        <CalendarMinus className="h-4 w-4 mr-2" />
-                        Remove Event
-                      </Button>
-                    </>
-                  )}
+                <div className="text-sm text-muted-foreground">
+                  Calendar sync removed in Phase 5 cleanup
                 </div>
-
-                {editedQuote.last_calendar_sync && (
-                  <p className="text-xs text-muted-foreground">
-                    Last sync: {format(new Date(editedQuote.last_calendar_sync), 'MMM dd, yyyy HH:mm')}
-                  </p>
-                )}
               </CardContent>
             </Card>
             </TabsContent>
