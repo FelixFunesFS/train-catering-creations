@@ -29,7 +29,7 @@ import NotFound from "./pages/NotFound";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCanceled from "./pages/PaymentCanceled";
 import { TokenBasedCustomerPortal } from "./components/customer/TokenBasedCustomerPortal";
-import UnifiedAdminDashboard from "./pages/UnifiedAdminDashboard";
+import { SimplifiedAdminDashboard } from "./pages/SimplifiedAdminDashboard";
 import QuoteDetailPage from "./pages/QuoteDetailPage";
 import EstimatePrintView from "./pages/EstimatePrintView";
 
@@ -58,14 +58,14 @@ const AppContent = () => {
           <Route path="/terms-conditions" element={<TermsConditions />} />
           <Route path="/admin/auth" element={<AdminAuth />} />
           {/* Admin Dashboard and Management */}
-          <Route path="/admin" element={<UnifiedAdminDashboard />} />
+          <Route path="/admin" element={<SimplifiedAdminDashboard />} />
           
           {/* Admin quote details route - MUST come before admin/* catch-all */}
           <Route path="/admin/quotes/:quoteId" element={<QuoteDetailPage />} />
           
           {/* Admin estimate print route */}
           <Route path="/admin/estimate-print/:invoiceId" element={<EstimatePrintView />} />
-          <Route path="/admin/*" element={<UnifiedAdminDashboard />} />
+          <Route path="/admin/*" element={<SimplifiedAdminDashboard />} />
           
           {/* Customer-facing routes - Single portal route */}
           <Route path="/estimate" element={<TokenBasedCustomerPortal />} />
