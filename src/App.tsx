@@ -21,7 +21,6 @@ import Reviews from "./pages/Reviews";
 import PhotoGallery from "./pages/PhotoGallery";
 import AlternativeGallery from "./pages/AlternativeGallery";
 import FAQ from "./pages/FAQ";
-import TestEmail from "./pages/TestEmail";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsConditions from "./pages/TermsConditions";
 import AdminAuth from "./pages/AdminAuth";
@@ -54,9 +53,8 @@ const AppContent = () => {
           <Route path="/gallery" element={<PhotoGallery />} />
           <Route path="/gallery-alt" element={<AlternativeGallery />} />
           <Route path="/faq" element={<FAQ />} />
-          {/* Development routes - remove in production */}
-          {process.env.NODE_ENV === 'development' && <Route path="/test-email" element={<TestEmail />} />}
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/terms-conditions" element={<TermsConditions />} />
           <Route path="/terms-conditions" element={<TermsConditions />} />
           <Route path="/admin/auth" element={<AdminAuth />} />
           {/* Admin Dashboard and Management */}
