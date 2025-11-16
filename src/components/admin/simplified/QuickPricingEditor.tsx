@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Plus, Trash2, Save } from 'lucide-react';
+import { MenuLineItemsGenerator } from '@/services/MenuLineItemsGenerator';
 
 interface LineItem {
   id?: string;
@@ -43,17 +44,31 @@ export function QuickPricingEditor({ quoteId, invoiceId, guestCount }: QuickPric
       if (error) throw error;
 
       if (!data || data.length === 0) {
-        // Create default line items
-        setLineItems([
-          {
-            title: 'Catering Service',
-            description: 'Food and beverage service',
-            quantity: guestCount,
-            unit_price: 2500, // $25.00 per person
-            total_price: guestCount * 2500,
-            category: 'Food & Beverage',
-          },
-        ]);
+        // Fetch the quote to generate menu-based line items
+        const { data: invoiceData } = await supabase
+          .from('invoices')
+          .select('quote_request_id, quote_requests(*)')
+          .eq('id', invoiceId)
+          .single();
+        
+        if (invoiceData?.quote_requests) {
+          const generatedItems = MenuLineItemsGenerator.generateFromQuote(
+            invoiceData.quote_requests
+          );
+          setLineItems(generatedItems);
+        } else {
+          // Fallback if no quote found
+          setLineItems([
+            {
+              title: 'Catering Service',
+              description: 'Manual pricing required',
+              quantity: guestCount,
+              unit_price: 0,
+              total_price: 0,
+              category: 'Food & Beverage',
+            },
+          ]);
+        }
       } else {
         setLineItems(data.map(item => ({
           id: item.id,
