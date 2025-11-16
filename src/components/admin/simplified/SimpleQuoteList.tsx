@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 import { Calendar, Users, MapPin, DollarSign, ChevronDown, ChevronUp } from 'lucide-react';
 import { QuickPricingEditor } from './QuickPricingEditor';
+import { AdminNotesSection } from '../AdminNotesSection';
 
 interface Quote {
   id: string;
@@ -162,12 +163,16 @@ export function SimpleQuoteList({ quotes, onStatusUpdate, onGenerateEstimate }: 
               </div>
 
               {isExpanded && invoice && (
-                <div className="mt-4 pt-4 border-t">
+                <div className="mt-4 pt-4 border-t space-y-4">
                   <QuickPricingEditor
                     quoteId={quote.id}
                     invoiceId={invoice.id}
                     guestCount={quote.guest_count}
                   />
+                  
+                  <div className="border-t pt-4">
+                    <AdminNotesSection quoteId={quote.id} />
+                  </div>
                 </div>
               )}
             </div>

@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { SimpleQuoteList } from './SimpleQuoteList';
+import { SimpleDashboardMetrics } from './SimpleDashboardMetrics';
 import { Search, Filter } from 'lucide-react';
 
 interface Quote {
@@ -175,6 +176,9 @@ export function SimplifiedWorkflowView() {
 
   return (
     <div className="space-y-6">
+      {/* Dashboard Metrics */}
+      <SimpleDashboardMetrics />
+      
       <div>
         <h2 className="text-3xl font-bold mb-2">Event Management</h2>
         <p className="text-muted-foreground">Track and manage all catering events from submission to completion</p>
