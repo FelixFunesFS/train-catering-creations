@@ -32,6 +32,7 @@ import { TokenBasedCustomerPortal } from "./components/customer/TokenBasedCustom
 import { SimplifiedAdminDashboard } from "./pages/SimplifiedAdminDashboard";
 import QuoteDetailPage from "./pages/QuoteDetailPage";
 import EstimatePrintView from "./pages/EstimatePrintView";
+import DevTestingPanel from "./pages/DevTestingPanel";
 
 const AppContent = () => {
   useScrollToAnchor();
@@ -65,6 +66,10 @@ const AppContent = () => {
           
           {/* Admin estimate print route */}
           <Route path="/admin/estimate-print/:invoiceId" element={<EstimatePrintView />} />
+          
+          {/* Dev Testing Panel */}
+          <Route path="/dev/testing" element={<DevTestingPanel />} />
+          
           <Route path="/admin/*" element={<SimplifiedAdminDashboard />} />
           
           {/* Customer-facing routes - Single portal route */}
