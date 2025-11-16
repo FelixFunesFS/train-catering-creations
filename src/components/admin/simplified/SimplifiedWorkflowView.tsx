@@ -11,12 +11,28 @@ import { Search, Filter } from 'lucide-react';
 interface Quote {
   id: string;
   event_name: string;
+  event_type: string;
   event_date: string;
+  start_time?: string;
+  serving_start_time?: string;
   contact_name: string;
   email: string;
   phone: string;
   guest_count: number;
   location: string;
+  service_type: string;
+  primary_protein?: string;
+  secondary_protein?: string;
+  both_proteins_available?: boolean;
+  sides?: string[];
+  appetizers?: string[];
+  desserts?: string[];
+  drinks?: string[];
+  dietary_restrictions?: string[];
+  special_requests?: string;
+  wait_staff_requested?: boolean;
+  ceremony_included?: boolean;
+  cocktail_hour?: boolean;
   workflow_status: string;
   created_at: string;
   invoices?: Array<{
@@ -57,12 +73,28 @@ export function SimplifiedWorkflowView() {
         .select(`
           id,
           event_name,
+          event_type,
           event_date,
+          start_time,
+          serving_start_time,
           contact_name,
           email,
           phone,
           guest_count,
           location,
+          service_type,
+          primary_protein,
+          secondary_protein,
+          both_proteins_available,
+          sides,
+          appetizers,
+          desserts,
+          drinks,
+          dietary_restrictions,
+          special_requests,
+          wait_staff_requested,
+          ceremony_included,
+          cocktail_hour,
           workflow_status,
           created_at,
           invoices!invoices_quote_request_id_fkey(id, total_amount, workflow_status)

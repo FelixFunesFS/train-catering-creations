@@ -6,16 +6,33 @@ import { format } from 'date-fns';
 import { Calendar, Users, MapPin, DollarSign, ChevronDown, ChevronUp } from 'lucide-react';
 import { QuickPricingEditor } from './QuickPricingEditor';
 import { AdminNotesSection } from '../AdminNotesSection';
+import { QuoteMenuDisplay } from './QuoteMenuDisplay';
 
 interface Quote {
   id: string;
   event_name: string;
+  event_type: string;
   event_date: string;
+  start_time?: string;
+  serving_start_time?: string;
   contact_name: string;
   email: string;
   phone: string;
   guest_count: number;
   location: string;
+  service_type: string;
+  primary_protein?: string;
+  secondary_protein?: string;
+  both_proteins_available?: boolean;
+  sides?: string[];
+  appetizers?: string[];
+  desserts?: string[];
+  drinks?: string[];
+  dietary_restrictions?: string[];
+  special_requests?: string;
+  wait_staff_requested?: boolean;
+  ceremony_included?: boolean;
+  cocktail_hour?: boolean;
   workflow_status: string;
   created_at: string;
   invoices?: Array<{
@@ -162,14 +179,28 @@ export function SimpleQuoteList({ quotes, onStatusUpdate, onGenerateEstimate }: 
                 </div>
               </div>
 
-              {isExpanded && invoice && (
+              {/* Expanded Details */}
+              {isExpanded && (
                 <div className="mt-4 pt-4 border-t space-y-4">
-                  <QuickPricingEditor
-                    quoteId={quote.id}
-                    invoiceId={invoice.id}
-                    guestCount={quote.guest_count}
-                  />
+                  {/* Event & Menu Details */}
+                  <div>
+                    <h4 className="font-semibold mb-3 text-foreground">Event Details</h4>
+                    <QuoteMenuDisplay quote={quote} />
+                  </div>
                   
+                  {/* Pricing Editor - Only show if invoice exists */}
+                  {invoice && (
+                    <div className="border-t pt-4">
+                      <h4 className="font-semibold mb-3 text-foreground">Estimate Pricing</h4>
+                      <QuickPricingEditor
+                        quoteId={quote.id}
+                        invoiceId={invoice.id}
+                        guestCount={quote.guest_count}
+                      />
+                    </div>
+                  )}
+                  
+                  {/* Admin Notes */}
                   <div className="border-t pt-4">
                     <AdminNotesSection quoteId={quote.id} />
                   </div>
