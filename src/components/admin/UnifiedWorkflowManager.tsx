@@ -3,7 +3,7 @@ import { useToast } from '@/hooks/use-toast';
 import { type QuoteRequest } from '@/utils/invoiceFormatters';
 import { useEnhancedPricingManagement } from '@/hooks/useEnhancedPricingManagement';
 import { useInvoiceEditing } from '@/hooks/useInvoiceEditing';
-import { useWorkflowSync } from '@/hooks/useWorkflowSync';
+import { useUnifiedWorkflow } from '@/hooks/useUnifiedWorkflow';
 import { supabase } from '@/integrations/supabase/client';
 import { EmailPreviewModal } from './EmailPreviewModal';
 import { WorkflowSteps } from './workflow/WorkflowSteps';
@@ -62,7 +62,7 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
   const [showTimelineTasks, setShowTimelineTasks] = useState(false);
   const [requiresContract, setRequiresContract] = useState(false);
   const { toast } = useToast();
-  const { syncQuoteWithInvoice } = useWorkflowSync();
+  const { validateConsistency } = useUnifiedWorkflow();
 
   const {
     lineItems: managedLineItems,
@@ -339,8 +339,8 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
 
       if (updateError) throw updateError;
 
-      // Sync statuses before advancing
-      await syncQuoteWithInvoice(selectedQuote.id);
+      // Validate consistency before advancing (sync happens via database trigger)
+      await validateConsistency(selectedQuote.id);
       
       // Show email preview modal instead of sending directly
       setShowEmailPreview(true);
