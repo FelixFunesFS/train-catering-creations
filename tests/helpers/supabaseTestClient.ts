@@ -2,10 +2,19 @@ import { createClient } from '@supabase/supabase-js';
 import type { Database } from '@/integrations/supabase/types';
 
 const SUPABASE_URL = "https://qptprrqjlcvfkhfdnnoa.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwdHBycnFqbGN2ZmtoZmRubm9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM1NjMzNTcsImV4cCI6MjA2OTEzOTM1N30.5ZMvbmhEkcmn_s_Q8ZI3KOPGZD1_kmH0OCUVL3gK3rE";
 
-// Create test-specific Supabase client
-export const testSupabase = createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Use service role key for integration tests to bypass RLS
+// This allows tests to run without authentication while maintaining RLS security in production
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwdHBycnFqbGN2ZmtoZmRubm9hIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MzU2MzM1NywiZXhwIjoyMDY5MTM5MzU3fQ.LbD9p5F7Nkg8Ke_5vPZBPe-5a3YgBmHXUWQqKlH8JTI";
+
+// Create test-specific Supabase client with service role permissions
+export const testSupabase = createClient<Database>(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+  auth: {
+    autoRefreshToken: false,
+    persistSession: false
+  }
+});
 
 /**
  * Test data cleanup utilities
