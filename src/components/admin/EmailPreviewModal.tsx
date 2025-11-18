@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,7 +8,11 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, Send } from 'lucide-react';
+import { Loader2, Send, Sparkles } from 'lucide-react';
+import { renderEmailHTML, generateSubject } from '@/services/EmailTemplateRenderer';
+import { extractVariables } from '@/utils/emailVariables';
+import { EditableEventDetailsInline } from './EditableEventDetailsInline';
+import { TemplateVariableHelper } from './TemplateVariableHelper';
 
 interface EmailPreviewModalProps {
   open: boolean;
@@ -29,11 +33,12 @@ export function EmailPreviewModal({
 }: EmailPreviewModalProps) {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  const [previewLoading, setPreviewLoading] = useState(true);
   const [customSubject, setCustomSubject] = useState('');
   const [customMessage, setCustomMessage] = useState('');
   const [emailPreview, setEmailPreview] = useState('');
-  const [lineItems, setLineItems] = useState<any[]>([]);
+  const [currentQuote, setCurrentQuote] = useState(quote);
+  const [activeTab, setActiveTab] = useState('preview');
+  const messageRef = useRef<HTMLTextAreaElement>(null);
 
   const defaultSubjects = {
     estimate: `Your Estimate - Soul Train's Eatery`,
@@ -44,37 +49,49 @@ export function EmailPreviewModal({
   };
 
   useEffect(() => {
-    if (open && quote && invoice) {
-      setCustomSubject(defaultSubjects[emailType]);
-      loadPreview();
+    if (open && currentQuote && invoice) {
+      const subject = generateSubject(emailType, { quote: currentQuote, invoice });
+      setCustomSubject(subject);
+      refreshPreview();
     }
-  }, [open, quote, invoice, emailType]);
+  }, [open, currentQuote, invoice, emailType]);
 
-  const loadPreview = async () => {
-    setPreviewLoading(true);
-    try {
-      // Call the edge function to get the REAL customer-facing email HTML
-      const { data, error } = await supabase.functions.invoke('send-customer-portal-email', {
-        body: {
-          quote_request_id: quote.id,
-          type: emailType === 'estimate' ? 'estimate_ready' : emailType,
-          preview_only: true // Special flag to get HTML without sending
-        }
-      });
+  const refreshPreview = () => {
+    const html = renderEmailHTML({
+      emailType,
+      data: { quote: currentQuote, invoice },
+      customMessage,
+      customSubject
+    });
+    setEmailPreview(html);
+  };
 
-      if (error) throw error;
+  // Refresh preview when custom message changes
+  useEffect(() => {
+    if (open && currentQuote && invoice) {
+      refreshPreview();
+    }
+  }, [customMessage, currentQuote]);
+
+  const handleQuoteUpdate = (updates: Partial<any>) => {
+    setCurrentQuote(prev => ({ ...prev, ...updates }));
+  };
+
+  const handleInsertVariable = (variableTag: string) => {
+    if (messageRef.current) {
+      const start = messageRef.current.selectionStart;
+      const end = messageRef.current.selectionEnd;
+      const text = customMessage;
+      const newText = text.substring(0, start) + variableTag + text.substring(end);
+      setCustomMessage(newText);
       
-      // The edge function returns the actual HTML that will be sent
-      setEmailPreview(data.html || '');
-    } catch (error) {
-      console.error('Error loading preview:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load email preview",
-        variant: "destructive"
-      });
-    } finally {
-      setPreviewLoading(false);
+      // Set cursor position after inserted variable
+      setTimeout(() => {
+        if (messageRef.current) {
+          messageRef.current.focus();
+          messageRef.current.selectionStart = messageRef.current.selectionEnd = start + variableTag.length;
+        }
+      }, 0);
     }
   };
 
@@ -120,106 +137,152 @@ export function EmailPreviewModal({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl max-h-[95vh] overflow-hidden flex flex-col bg-background border shadow-lg">
+      <DialogContent className="max-w-7xl max-h-[95vh] overflow-hidden flex flex-col bg-background border shadow-lg">
         <DialogHeader>
-          <DialogTitle>Email Preview & Customization</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-primary" />
+            Unified Email Preview & Customer Details
+          </DialogTitle>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1 overflow-hidden">
-          {/* Left Column: Email Editor */}
-          <div className="space-y-4 border-r pr-6 overflow-y-auto max-h-[calc(95vh-180px)]">
-            <h3 className="font-semibold text-lg">Customize Email</h3>
-            
-            <div>
-              <Label htmlFor="recipient">To:</Label>
-              <Input 
-                id="recipient" 
-                value={`${quote.contact_name} <${quote.email}>`} 
-                disabled 
-                className="bg-muted"
-              />
-            </div>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="preview">Email Preview</TabsTrigger>
+            <TabsTrigger value="customize">Customize Message</TabsTrigger>
+            <TabsTrigger value="customer">Customer Details</TabsTrigger>
+          </TabsList>
 
-            <div>
-              <Label htmlFor="subject">Subject:</Label>
-              <Input 
-                id="subject" 
-                value={customSubject}
-                onChange={(e) => setCustomSubject(e.target.value)}
-                placeholder="Email subject"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="message">Custom Message (Optional):</Label>
-              <Textarea 
-                id="message" 
-                value={customMessage}
-                onChange={(e) => {
-                  setCustomMessage(e.target.value);
-                  loadPreview(); // Reload preview with new message
-                }}
-                placeholder="Add a personalized message..."
-                rows={6}
-              />
-              <p className="text-sm text-muted-foreground mt-1">
-                This will appear at the top of the email
-              </p>
-            </div>
-
-            <div className="border rounded-lg p-4 bg-primary/5">
-              <h4 className="font-semibold mb-2 text-sm">💡 Preview Updates:</h4>
-              <p className="text-xs text-muted-foreground">
-                Changes appear instantly in the preview panel →
-              </p>
-            </div>
-
-            <div className="border rounded-lg p-4 bg-muted/50">
-              <h4 className="font-semibold mb-2">Email Summary:</h4>
-              <p className="text-sm text-muted-foreground">
-                Total: {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(invoice.total_amount / 100)}
-              </p>
-            </div>
-          </div>
-
-          {/* Right Column: Live Preview */}
-          <div className="space-y-4 overflow-hidden flex flex-col max-h-[calc(95vh-180px)]">
-            <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-lg">Email Preview</h3>
-              <Badge variant="outline" className="text-xs">Live Preview</Badge>
-            </div>
-            {previewLoading ? (
-              <div className="flex items-center justify-center flex-1 border rounded-lg bg-muted/20">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          {/* Tab: Email Preview */}
+          <TabsContent value="preview" className="flex-1 overflow-hidden mt-4">
+            <div className="h-full flex flex-col">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-semibold text-lg">Live Email Preview</h3>
+                <Badge variant="outline" className="text-xs">
+                  <span className="inline-block w-2 h-2 rounded-full bg-green-500 mr-1.5 animate-pulse" />
+                  Real-time Updates
+                </Badge>
               </div>
-            ) : (
               <div className="border rounded-lg flex-1 overflow-auto bg-white shadow-inner">
                 <div dangerouslySetInnerHTML={{ __html: emailPreview }} />
               </div>
-            )}
-            <p className="text-xs text-muted-foreground text-center">
-              ℹ️ This is how your customer will see the email
-            </p>
-          </div>
-        </div>
+              <p className="text-xs text-muted-foreground text-center mt-3">
+                ℹ️ This is exactly how your customer will see the email
+              </p>
+            </div>
+          </TabsContent>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={loading}>
-            Cancel
-          </Button>
-          <Button onClick={handleSend} disabled={loading}>
-            {loading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Sending...
-              </>
-            ) : (
-              <>
-                <Send className="mr-2 h-4 w-4" />
-                Send Email
-              </>
-            )}
-          </Button>
+          {/* Tab: Customize Message */}
+          <TabsContent value="customize" className="flex-1 overflow-auto mt-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Left: Email Editor */}
+              <div className="space-y-4">
+                <h3 className="font-semibold text-lg">Email Content</h3>
+                
+                <div>
+                  <Label htmlFor="recipient">To:</Label>
+                  <Input 
+                    id="recipient" 
+                    value={`${currentQuote.contact_name} <${currentQuote.email}>`} 
+                    disabled 
+                    className="bg-muted"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="subject">Subject:</Label>
+                  <Input 
+                    id="subject" 
+                    value={customSubject}
+                    onChange={(e) => setCustomSubject(e.target.value)}
+                    placeholder="Email subject"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="message">Custom Message (Optional):</Label>
+                  <Textarea 
+                    ref={messageRef}
+                    id="message" 
+                    value={customMessage}
+                    onChange={(e) => setCustomMessage(e.target.value)}
+                    placeholder="Add a personalized message... Use variables like {customer_name}, {event_date}, {invoice_total}"
+                    rows={8}
+                  />
+                  <p className="text-sm text-muted-foreground mt-1">
+                    This will appear at the top of the email. Click variables below to insert.
+                  </p>
+                </div>
+
+                <div className="border rounded-lg p-3 bg-accent/20">
+                  <h4 className="font-semibold mb-2 text-sm">💡 Real-time Preview</h4>
+                  <p className="text-xs text-muted-foreground">
+                    Changes update instantly in the preview tab. Variables are replaced with actual values.
+                  </p>
+                </div>
+              </div>
+
+              {/* Right: Variable Helper */}
+              <div className="space-y-4">
+                <h3 className="font-semibold text-lg">Available Variables</h3>
+                <TemplateVariableHelper 
+                  data={{ quote: currentQuote, invoice }}
+                  onInsertVariable={handleInsertVariable}
+                />
+              </div>
+            </div>
+          </TabsContent>
+
+          {/* Tab: Customer Details */}
+          <TabsContent value="customer" className="flex-1 overflow-auto mt-4">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold text-lg">Edit Customer & Event Details</h3>
+                <Badge variant="secondary" className="text-xs">
+                  Changes update preview instantly
+                </Badge>
+              </div>
+              
+              <div className="border rounded-lg p-6 bg-card">
+                <EditableEventDetailsInline 
+                  quote={currentQuote}
+                  onUpdate={handleQuoteUpdate}
+                />
+              </div>
+
+              <div className="border rounded-lg p-4 bg-primary/5">
+                <h4 className="font-semibold mb-2 text-sm">📧 Preview Updates</h4>
+                <p className="text-xs text-muted-foreground">
+                  After saving changes, switch to the "Email Preview" tab to see how the updated information appears in the email.
+                </p>
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
+
+        <DialogFooter className="border-t pt-4">
+          <div className="flex items-center justify-between w-full">
+            <p className="text-xs text-muted-foreground">
+              Total: {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(invoice.total_amount / 100)}
+            </p>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={onClose} disabled={loading}>
+                Cancel
+              </Button>
+              <Button onClick={handleSend} disabled={loading}>
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    <Send className="mr-2 h-4 w-4" />
+                    Send Email to Customer
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>
