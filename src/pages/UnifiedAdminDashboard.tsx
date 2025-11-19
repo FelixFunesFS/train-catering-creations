@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { UnifiedWorkflowManager } from '@/components/admin/UnifiedWorkflowManager';
+import { StreamlinedWorkflowDashboard } from '@/components/admin/StreamlinedWorkflowDashboard';
 import { AdminChangeManagement } from '@/components/admin/AdminChangeManagement';
 import { PaymentProcessingDashboard } from '@/components/admin/PaymentProcessingDashboard';
 import { EventTimelineManager } from '@/components/admin/EventTimelineManager';
@@ -13,12 +13,12 @@ import { DocumentManagementPanel } from '@/components/admin/DocumentManagementPa
 import { EventPipelineBoard } from '@/components/admin/EventPipelineBoard';
 import { AtRiskEventsPanel } from '@/components/admin/AtRiskEventsPanel';
 import { TodaysEventsPanel } from '@/components/admin/TodaysEventsPanel';
-
+import { EmailAnalyticsPanel } from '@/components/admin/EmailAnalyticsPanel';
 import { useAuth } from '@/hooks/useAuth';
-import { LogOut, Kanban, AlertTriangle, CalendarClock, LayoutDashboard, FileText, CreditCard, CalendarDays, FolderOpen, Wrench } from 'lucide-react';
+import { LogOut, Kanban, AlertTriangle, CalendarClock, LayoutDashboard, FileText, CreditCard, CalendarDays, FolderOpen, Mail, Wrench } from 'lucide-react';
 import { EdgeFunctionTester } from '@/components/admin/EdgeFunctionTester';
 
-type AdminView = 'workflow' | 'pipeline' | 'at-risk' | 'today' | 'event-board' | 'events' | 'change-management' | 'payments' | 'documents' | 'testing';
+type AdminView = 'workflow' | 'pipeline' | 'at-risk' | 'today' | 'event-board' | 'events' | 'change-management' | 'payments' | 'documents' | 'email-analytics' | 'testing';
 
 export function UnifiedAdminDashboard() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -132,6 +132,15 @@ export function UnifiedAdminDashboard() {
                 <span className="hidden lg:inline">Docs</span>
               </Button>
               <Button
+                variant={currentView === 'email-analytics' ? 'default' : 'outline'}
+                onClick={() => handleViewChange('email-analytics')}
+                size="sm"
+                className="gap-2"
+              >
+                <Mail className="h-4 w-4" />
+                <span className="hidden lg:inline">Emails</span>
+              </Button>
+              <Button
                 variant={currentView === 'testing' ? 'default' : 'outline'}
                 onClick={() => handleViewChange('testing')}
                 size="sm"
@@ -160,9 +169,7 @@ export function UnifiedAdminDashboard() {
       {/* Main Content */}
       <div className="flex-1">
         {currentView === 'workflow' && (
-          <div className="container mx-auto px-4 py-6">
-            <UnifiedWorkflowManager />
-          </div>
+          <StreamlinedWorkflowDashboard onBack={() => setCurrentView('workflow')} />
         )}
         {currentView === 'pipeline' && (
           <div className="container mx-auto px-4 py-6">
@@ -198,6 +205,11 @@ export function UnifiedAdminDashboard() {
         {currentView === 'documents' && (
           <div className="container mx-auto px-4 py-6">
             <DocumentManagementPanel />
+          </div>
+        )}
+        {currentView === 'email-analytics' && (
+          <div className="container mx-auto px-4 py-6">
+            <EmailAnalyticsPanel />
           </div>
         )}
         {currentView === 'testing' && (

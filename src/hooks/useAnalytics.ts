@@ -85,7 +85,7 @@ export function useAnalytics(dateRange: 'month' | 'quarter' | 'year' | 'all' = '
       // Fetch invoices
       const { data: invoices } = await supabase
         .from('invoices')
-        .select('total_amount, workflow_status, created_at, quote_request_id')
+        .select('total_amount, workflow_status, created_at, quote_request_id, customer_feedback')
         .gte('created_at', startDate.toISOString());
 
       const { data: previousInvoices } = await supabase
@@ -131,9 +131,14 @@ export function useAnalytics(dateRange: 'month' | 'quarter' | 'year' | 'all' = '
         allQuotes.filter(q => q.email === email).length > 1
       ).length;
 
-      // Calculate satisfaction - feedback removed in Phase 5
-      const approvedCount = invoices?.filter(inv => inv.workflow_status === 'approved').length || 0;
-      const satisfactionAvg = approvedCount > 0 ? 4.5 : 0; // Default high satisfaction for approved
+      // Calculate satisfaction
+      const feedbackScores = invoices
+        ?.map(inv => inv.customer_feedback as any)
+        .filter(fb => fb?.rating)
+        .map(fb => fb.rating) || [];
+      const satisfactionAvg = feedbackScores.length > 0
+        ? feedbackScores.reduce((sum, rating) => sum + rating, 0) / feedbackScores.length
+        : 0;
 
       setAnalytics({
         revenue: {

@@ -39,7 +39,7 @@ export function AtRiskEventsPanel() {
           event_date,
           contact_name,
           workflow_status,
-          invoices!invoices_quote_request_id_fkey(id, total_amount, workflow_status, due_date)
+          invoices(id, total_amount, workflow_status, due_date)
         `)
         .gte('event_date', new Date().toISOString())
         .order('event_date', { ascending: true });
@@ -164,7 +164,7 @@ export function AtRiskEventsPanel() {
                 key={`${event.id}-${idx}`}
                 className="border-l-4 hover:shadow-md transition-shadow cursor-pointer"
                 style={{ borderLeftColor: getRiskColor(event.riskLevel).replace('bg-', '') }}
-                onClick={() => navigate(`/admin/quotes/${event.id}`)}
+                onClick={() => navigate(`/admin?view=workflow&quoteId=${event.id}`)}
               >
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between gap-4">

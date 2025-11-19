@@ -818,22 +818,36 @@ export type Database = {
           created_at: string
           currency: string | null
           customer_access_token: string | null
+          customer_feedback: Json | null
           customer_id: string | null
           document_type: string | null
+          draft_data: Json | null
           due_date: string | null
+          email_opened_at: string | null
+          email_opened_count: number | null
+          estimate_viewed_at: string | null
+          estimate_viewed_count: number | null
           id: string
           include_terms_and_conditions: boolean | null
           invoice_number: string | null
           is_draft: boolean | null
           is_milestone_payment: boolean | null
+          last_customer_action: string | null
           last_customer_interaction: string | null
+          last_quote_sync: string | null
           last_status_change: string | null
+          manual_overrides: Json | null
           notes: string | null
+          original_quote_id: string | null
+          override_reason: string | null
           paid_at: string | null
           payment_order: number | null
           payment_schedule_type: string | null
           pdf_url: string | null
+          portal_access_count: number | null
+          portal_last_accessed: string | null
           quote_request_id: string | null
+          quote_version: number | null
           requires_separate_contract: boolean | null
           reviewed_at: string | null
           reviewed_by: string | null
@@ -842,6 +856,8 @@ export type Database = {
           stripe_invoice_id: string | null
           subtotal: number
           tax_amount: number | null
+          template_metadata: Json | null
+          template_used: string | null
           terms_accepted_at: string | null
           token_expires_at: string | null
           total_amount: number
@@ -856,22 +872,36 @@ export type Database = {
           created_at?: string
           currency?: string | null
           customer_access_token?: string | null
+          customer_feedback?: Json | null
           customer_id?: string | null
           document_type?: string | null
+          draft_data?: Json | null
           due_date?: string | null
+          email_opened_at?: string | null
+          email_opened_count?: number | null
+          estimate_viewed_at?: string | null
+          estimate_viewed_count?: number | null
           id?: string
           include_terms_and_conditions?: boolean | null
           invoice_number?: string | null
           is_draft?: boolean | null
           is_milestone_payment?: boolean | null
+          last_customer_action?: string | null
           last_customer_interaction?: string | null
+          last_quote_sync?: string | null
           last_status_change?: string | null
+          manual_overrides?: Json | null
           notes?: string | null
+          original_quote_id?: string | null
+          override_reason?: string | null
           paid_at?: string | null
           payment_order?: number | null
           payment_schedule_type?: string | null
           pdf_url?: string | null
+          portal_access_count?: number | null
+          portal_last_accessed?: string | null
           quote_request_id?: string | null
+          quote_version?: number | null
           requires_separate_contract?: boolean | null
           reviewed_at?: string | null
           reviewed_by?: string | null
@@ -880,6 +910,8 @@ export type Database = {
           stripe_invoice_id?: string | null
           subtotal?: number
           tax_amount?: number | null
+          template_metadata?: Json | null
+          template_used?: string | null
           terms_accepted_at?: string | null
           token_expires_at?: string | null
           total_amount?: number
@@ -894,22 +926,36 @@ export type Database = {
           created_at?: string
           currency?: string | null
           customer_access_token?: string | null
+          customer_feedback?: Json | null
           customer_id?: string | null
           document_type?: string | null
+          draft_data?: Json | null
           due_date?: string | null
+          email_opened_at?: string | null
+          email_opened_count?: number | null
+          estimate_viewed_at?: string | null
+          estimate_viewed_count?: number | null
           id?: string
           include_terms_and_conditions?: boolean | null
           invoice_number?: string | null
           is_draft?: boolean | null
           is_milestone_payment?: boolean | null
+          last_customer_action?: string | null
           last_customer_interaction?: string | null
+          last_quote_sync?: string | null
           last_status_change?: string | null
+          manual_overrides?: Json | null
           notes?: string | null
+          original_quote_id?: string | null
+          override_reason?: string | null
           paid_at?: string | null
           payment_order?: number | null
           payment_schedule_type?: string | null
           pdf_url?: string | null
+          portal_access_count?: number | null
+          portal_last_accessed?: string | null
           quote_request_id?: string | null
+          quote_version?: number | null
           requires_separate_contract?: boolean | null
           reviewed_at?: string | null
           reviewed_by?: string | null
@@ -918,6 +964,8 @@ export type Database = {
           stripe_invoice_id?: string | null
           subtotal?: number
           tax_amount?: number | null
+          template_metadata?: Json | null
+          template_used?: string | null
           terms_accepted_at?: string | null
           token_expires_at?: string | null
           total_amount?: number
@@ -939,6 +987,13 @@ export type Database = {
             columns: ["customer_id"]
             isOneToOne: false
             referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_original_quote_id_fkey"
+            columns: ["original_quote_id"]
+            isOneToOne: false
+            referencedRelation: "quote_requests"
             referencedColumns: ["id"]
           },
           {
@@ -1377,6 +1432,8 @@ export type Database = {
           appetizers: Json | null
           both_proteins_available: boolean | null
           bussing_tables_needed: boolean | null
+          calendar_event_id: string | null
+          calendar_sync_status: string | null
           ceremony_included: boolean | null
           chafers_requested: boolean | null
           cocktail_hour: boolean | null
@@ -1399,6 +1456,8 @@ export type Database = {
           guest_count_with_restrictions: string | null
           ice_requested: boolean | null
           id: string
+          last_calendar_sync: string | null
+          last_customer_interaction: string | null
           last_status_change: string | null
           location: string
           napkins_requested: boolean | null
@@ -1418,6 +1477,7 @@ export type Database = {
           special_requests: string | null
           start_time: string
           status_changed_by: string | null
+          theme_colors: string | null
           updated_at: string | null
           utensils: Json | null
           version: number
@@ -1430,6 +1490,8 @@ export type Database = {
           appetizers?: Json | null
           both_proteins_available?: boolean | null
           bussing_tables_needed?: boolean | null
+          calendar_event_id?: string | null
+          calendar_sync_status?: string | null
           ceremony_included?: boolean | null
           chafers_requested?: boolean | null
           cocktail_hour?: boolean | null
@@ -1452,6 +1514,8 @@ export type Database = {
           guest_count_with_restrictions?: string | null
           ice_requested?: boolean | null
           id?: string
+          last_calendar_sync?: string | null
+          last_customer_interaction?: string | null
           last_status_change?: string | null
           location: string
           napkins_requested?: boolean | null
@@ -1471,6 +1535,7 @@ export type Database = {
           special_requests?: string | null
           start_time: string
           status_changed_by?: string | null
+          theme_colors?: string | null
           updated_at?: string | null
           utensils?: Json | null
           version?: number
@@ -1483,6 +1548,8 @@ export type Database = {
           appetizers?: Json | null
           both_proteins_available?: boolean | null
           bussing_tables_needed?: boolean | null
+          calendar_event_id?: string | null
+          calendar_sync_status?: string | null
           ceremony_included?: boolean | null
           chafers_requested?: boolean | null
           cocktail_hour?: boolean | null
@@ -1505,6 +1572,8 @@ export type Database = {
           guest_count_with_restrictions?: string | null
           ice_requested?: boolean | null
           id?: string
+          last_calendar_sync?: string | null
+          last_customer_interaction?: string | null
           last_status_change?: string | null
           location?: string
           napkins_requested?: boolean | null
@@ -1524,6 +1593,7 @@ export type Database = {
           special_requests?: string | null
           start_time?: string
           status_changed_by?: string | null
+          theme_colors?: string | null
           updated_at?: string | null
           utensils?: Json | null
           version?: number
@@ -1598,6 +1668,47 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      workflow_state: {
+        Row: {
+          completed_steps: string[] | null
+          created_at: string | null
+          current_step: string
+          id: string
+          last_updated: string | null
+          quote_request_id: string
+          step_data: Json | null
+          updated_by: string | null
+        }
+        Insert: {
+          completed_steps?: string[] | null
+          created_at?: string | null
+          current_step: string
+          id?: string
+          last_updated?: string | null
+          quote_request_id: string
+          step_data?: Json | null
+          updated_by?: string | null
+        }
+        Update: {
+          completed_steps?: string[] | null
+          created_at?: string | null
+          current_step?: string
+          id?: string
+          last_updated?: string | null
+          quote_request_id?: string
+          step_data?: Json | null
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_state_quote_request_id_fkey"
+            columns: ["quote_request_id"]
+            isOneToOne: true
+            referencedRelation: "quote_requests"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       workflow_state_log: {
         Row: {
@@ -1677,14 +1788,10 @@ export type Database = {
         Args: { access_token: string; customer_email: string }
         Returns: boolean
       }
-      check_workflow_consistency: {
-        Args: { p_quote_id: string }
-        Returns: {
-          is_consistent: boolean
-          issues: Json
-        }[]
+      generate_invoice_number: {
+        Args: Record<PropertyKey, never>
+        Returns: string
       }
-      generate_invoice_number: { Args: never; Returns: string }
       get_estimate_with_line_items: {
         Args: { access_token: string }
         Returns: {
@@ -1698,8 +1805,14 @@ export type Database = {
         Args: { current_status: string; entity_type: string }
         Returns: string[]
       }
-      get_status_label: { Args: { status: string }; Returns: string }
-      grant_first_admin: { Args: never; Returns: undefined }
+      get_status_label: {
+        Args: { status: string }
+        Returns: string
+      }
+      grant_first_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["user_role"]
@@ -1707,12 +1820,20 @@ export type Database = {
         }
         Returns: boolean
       }
-      is_admin: { Args: never; Returns: boolean }
-      is_admin_original: { Args: never; Returns: boolean }
-      is_dev_mode: { Args: never; Returns: boolean }
-      is_dev_mode_original: { Args: never; Returns: boolean }
-      is_quote_owner: {
-        Args: { quote_id: string; user_email: string }
+      is_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      is_admin_original: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      is_dev_mode: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      is_dev_mode_original: {
+        Args: Record<PropertyKey, never>
         Returns: boolean
       }
       is_valid_access_token: {

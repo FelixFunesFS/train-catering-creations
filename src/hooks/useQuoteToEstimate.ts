@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { MenuLineItemsGenerator } from '@/services/MenuLineItemsGenerator';
+import { PricingEngine } from '@/services/PricingEngine';
 
 export const useQuoteToEstimate = () => {
   const [isConverting, setIsConverting] = useState(false);
@@ -22,23 +22,34 @@ export const useQuoteToEstimate = () => {
         throw new Error('Failed to fetch quote request');
       }
 
-      // Generate line items from menu selections (all $0 pricing for manual entry)
-      const generatedLineItems = MenuLineItemsGenerator.generateFromQuote(quote);
+      // Fetch pricing rules
+      const { data: pricingRules, error: rulesError } = await supabase
+        .from('pricing_rules')
+        .select('*')
+        .eq('is_active', true);
 
-      // Create estimate with $0 totals (admin will manually price)
+      if (rulesError) {
+        console.error('Error fetching pricing rules:', rulesError);
+      }
+
+      // Calculate pricing
+      const engine = new PricingEngine(pricingRules || []);
+      const calculation = engine.calculateQuote(quote);
+
+      // Create estimate (invoice with document_type='estimate')
       const invoiceData = {
         quote_request_id: quoteId,
         document_type: 'estimate' as const,
         status: 'draft',
         is_draft: true,
-        subtotal: 0,
-        tax_amount: 0,
-        total_amount: 0,
+        subtotal: Math.round(calculation.subtotal * 100), // Convert to cents
+        tax_amount: Math.round(calculation.taxAmount * 100), // Convert to cents
+        total_amount: Math.round(calculation.total * 100), // Convert to cents
         currency: 'usd',
-        notes: 'Manual pricing required - update line item prices',
+        notes: calculation.suggestions.join('\n'),
         draft_data: JSON.parse(JSON.stringify({
-          generated_at: new Date().toISOString(),
-          awaiting_pricing: true
+          calculation,
+          generated_at: new Date().toISOString()
         }))
       };
 
@@ -54,15 +65,15 @@ export const useQuoteToEstimate = () => {
 
       const invoice = invoiceArray[0];
 
-      // Create line items with $0 pricing
-      const lineItems = generatedLineItems.map(item => ({
+      // Create line items
+      const lineItems = calculation.lineItems.map(item => ({
         invoice_id: invoice.id,
-        title: item.title,
-        description: item.description,
+        title: item.category,
+        description: item.description + (item.notes ? ` - ${item.notes}` : ''),
         quantity: item.quantity,
-        unit_price: 0,
-        total_price: 0,
-        category: item.category
+        unit_price: Math.round(item.unitPrice * 100), // Convert to cents
+        total_price: Math.round(item.total * 100),
+        category: item.category.toLowerCase()
       }));
 
       const { error: lineItemsError } = await supabase
@@ -77,8 +88,8 @@ export const useQuoteToEstimate = () => {
       await supabase
         .from('quote_requests')
         .update({ 
-          workflow_status: 'estimated',
-          estimated_total: 0
+          status: 'quoted',
+          estimated_total: calculation.total
         })
         .eq('id', quoteId);
 

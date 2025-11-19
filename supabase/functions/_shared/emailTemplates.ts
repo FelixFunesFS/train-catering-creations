@@ -116,41 +116,13 @@ export const EMAIL_STYLES = `
     height: 1px;
     display: block;
   }
-  .desktop-only {
-    display: table;
-  }
-  .mobile-only {
-    display: none;
-  }
   @media only screen and (max-width: 600px) {
     body { padding: 0 !important; }
-    .email-container { margin: 0 !important; box-shadow: none !important; }
+    .email-container { margin: 0 !important; }
     .header { padding: 30px 20px !important; }
     .header h1 { font-size: 24px !important; }
-    .header .tagline { font-size: 14px !important; }
     .content { padding: 20px !important; }
-    .btn { 
-      display: block !important; 
-      width: 100% !important; 
-      margin: 10px 0 !important; 
-      padding: 14px 20px !important;
-      font-size: 15px !important;
-      box-sizing: border-box !important;
-    }
-    .event-card { padding: 15px !important; margin: 15px 0 !important; }
-    .event-card h3 { font-size: 16px !important; }
-    .event-card table { font-size: 14px !important; }
-    .menu-section { padding: 15px !important; }
-    .menu-category h4 { font-size: 15px !important; }
-    .menu-item { font-size: 14px !important; padding: 6px 0 !important; }
-    h2 { font-size: 20px !important; }
-    h3 { font-size: 18px !important; }
-    .desktop-only {
-      display: none !important;
-    }
-    .mobile-only {
-      display: block !important;
-    }
+    .btn { display: block !important; width: 100% !important; margin: 10px 0 !important; }
   }
 `;
 
@@ -220,13 +192,6 @@ export function generateMenuSection(lineItems: any[]): string {
     return '';
   }
 
-  const formatPrice = (cents: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(cents / 100);
-  };
-
   // Group items by category
   const itemsByCategory = lineItems.reduce((acc: any, item: any) => {
     const category = item.category || 'Other Items';
@@ -242,86 +207,23 @@ export function generateMenuSection(lineItems: any[]): string {
   let menuHtml = `
     <div class="menu-section">
       <h3 style="margin: 0 0 20px 0; color: ${BRAND_COLORS.crimson}; text-align: center;">
-        🍽️ Detailed Line Items & Pricing
+        🍽️ Your Custom Menu
       </h3>
-      
-      <!-- Desktop Table -->
-      <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; display: table;" class="desktop-only">
-        <thead>
-          <tr style="background: ${BRAND_COLORS.lightGray}; border-bottom: 2px solid ${BRAND_COLORS.crimson};">
-            <th style="padding: 12px; text-align: left; color: ${BRAND_COLORS.darkGray}; font-weight: 600;">Item</th>
-            <th style="padding: 12px; text-align: center; color: ${BRAND_COLORS.darkGray}; font-weight: 600;">Qty</th>
-            <th style="padding: 12px; text-align: right; color: ${BRAND_COLORS.darkGray}; font-weight: 600;">Unit Price</th>
-            <th style="padding: 12px; text-align: right; color: ${BRAND_COLORS.darkGray}; font-weight: 600;">Total</th>
-          </tr>
-        </thead>
-        <tbody>
   `;
 
-  // Desktop table rows
   categoryOrder.forEach(category => {
     if (itemsByCategory[category]) {
       menuHtml += `
-        <tr style="background: ${BRAND_COLORS.lightGray};">
-          <td colspan="4" style="padding: 10px 12px; font-weight: 600; color: ${BRAND_COLORS.crimson}; text-transform: uppercase; font-size: 13px;">
-            ${category}
-          </td>
-        </tr>
+        <div class="menu-category">
+          <h4>${category}</h4>
       `;
       
       itemsByCategory[category].forEach((item: any) => {
         menuHtml += `
-          <tr style="border-bottom: 1px solid #e5e7eb;">
-            <td style="padding: 12px;">
-              <strong style="color: ${BRAND_COLORS.darkGray};">${item.title || item.description}</strong>
-              ${item.description && item.title !== item.description ? `<br><span style="font-size: 13px; color: #666;">${item.description}</span>` : ''}
-            </td>
-            <td style="padding: 12px; text-align: center; color: ${BRAND_COLORS.darkGray};">${item.quantity}</td>
-            <td style="padding: 12px; text-align: right; color: ${BRAND_COLORS.darkGray};">${formatPrice(item.unit_price)}</td>
-            <td style="padding: 12px; text-align: right; font-weight: 600; color: ${BRAND_COLORS.crimson};">${formatPrice(item.total_price)}</td>
-          </tr>
-        `;
-      });
-    }
-  });
-
-  menuHtml += `
-        </tbody>
-      </table>
-
-      <!-- Mobile Cards -->
-      <div class="mobile-only">
-  `;
-
-  // Mobile cards
-  categoryOrder.forEach(category => {
-    if (itemsByCategory[category]) {
-      menuHtml += `
-        <div style="margin-bottom: 24px;">
-          <h4 style="color: ${BRAND_COLORS.crimson}; font-size: 16px; font-weight: 600; margin: 0 0 12px 0; text-transform: uppercase; padding: 8px 12px; background: ${BRAND_COLORS.lightGray}; border-radius: 4px;">
-            ${category}
-          </h4>
-      `;
-      
-      itemsByCategory[category].forEach((item: any) => {
-        menuHtml += `
-          <div style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; margin-bottom: 12px; background: white;">
-            <div style="margin-bottom: 12px;">
-              <strong style="color: ${BRAND_COLORS.darkGray}; font-size: 15px;">${item.title || item.description}</strong>
-              ${item.description && item.title !== item.description ? `<div style="font-size: 13px; color: #666; margin-top: 4px;">${item.description}</div>` : ''}
-            </div>
-            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-top: 1px solid #e5e7eb;">
-              <span style="color: #666;">Quantity:</span>
-              <span style="font-weight: 600;">${item.quantity}</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-top: 1px solid #e5e7eb;">
-              <span style="color: #666;">Unit Price:</span>
-              <span style="font-weight: 600;">${formatPrice(item.unit_price)}</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; padding: 12px 0; border-top: 2px solid ${BRAND_COLORS.crimson}; margin-top: 8px;">
-              <span style="font-weight: 600; color: ${BRAND_COLORS.darkGray};">Total:</span>
-              <span style="font-weight: 700; color: ${BRAND_COLORS.crimson}; font-size: 17px;">${formatPrice(item.total_price)}</span>
-            </div>
+          <div class="menu-item">
+            <strong>${item.title || item.description}</strong>
+            ${item.quantity > 1 ? ` <span style="color: #666;">(${item.quantity})</span>` : ''}
+            ${item.description && item.title ? `<br><small style="color: #666;">${item.description}</small>` : ''}
           </div>
         `;
       });
@@ -330,82 +232,8 @@ export function generateMenuSection(lineItems: any[]): string {
     }
   });
 
-  menuHtml += `
-      </div>
-    </div>
-  `;
-
+  menuHtml += `</div>`;
   return menuHtml;
-}
-
-export function generateTermsSection(eventType: 'standard' | 'wedding' | 'government' = 'standard'): string {
-  const terms = getTermsByType(eventType);
-  
-  return `
-    <div style="background: #f9fafb; padding: 30px; border-radius: 8px; margin: 30px 0; border: 2px solid #e9ecef;">
-      <h3 style="color: ${BRAND_COLORS.crimson}; margin: 0 0 20px 0; font-size: 22px; border-bottom: 3px solid ${BRAND_COLORS.gold}; padding-bottom: 10px;">📋 Terms & Conditions</h3>
-      ${terms.map(section => `
-        <div style="margin-bottom: 18px;">
-          <h4 style="color: #333; font-size: 15px; font-weight: 600; margin: 0 0 8px 0;">${section.title}</h4>
-          <p style="color: #666; font-size: 14px; line-height: 1.6; margin: 0;">${section.content}</p>
-        </div>
-      `).join('')}
-      <p style="font-size: 13px; color: #999; margin-top: 25px; padding-top: 20px; border-top: 2px solid #ddd; font-style: italic;">
-        ✅ By approving this estimate, you acknowledge that you have read and agree to these terms and conditions.
-      </p>
-    </div>
-  `;
-}
-
-function getTermsByType(eventType: 'standard' | 'wedding' | 'government') {
-  const baseTerms = [
-    {
-      title: '1. Payment Terms',
-      content: 'A deposit of 50% is required to secure your event date. The remaining balance is due 10 days prior to your event. Accepted payment methods include credit card, debit card, or bank transfer.'
-    },
-    {
-      title: '2. Cancellation Policy',
-      content: 'Cancellations made more than 30 days before the event will receive a full refund minus a $100 processing fee. Cancellations made 15-30 days before will receive a 50% refund. Cancellations made less than 15 days before the event are non-refundable.'
-    },
-    {
-      title: '3. Guest Count Changes',
-      content: 'Final guest count must be confirmed 7 days prior to the event. You will be charged for the confirmed guest count or actual guests served, whichever is greater. Additional guests above the confirmed count will be charged at the per-person rate.'
-    },
-    {
-      title: '4. Service & Delivery',
-      content: 'Soul Train\'s Eatery will arrive at the designated time to set up and serve. Client is responsible for providing adequate space, access, and facilities. Any special requirements must be communicated in advance.'
-    },
-    {
-      title: '5. Food Safety & Liability',
-      content: 'All food is prepared in licensed kitchen facilities following food safety regulations. Client assumes responsibility for any food allergies or dietary restrictions not communicated in advance. Soul Train\'s Eatery is not liable for food left unrefrigerated after service.'
-    },
-    {
-      title: '6. Equipment & Rentals',
-      content: 'Standard serving equipment, chafing dishes, and utensils are included. Specialty rentals (tables, chairs, linens) are available for an additional fee and must be arranged in advance.'
-    }
-  ];
-
-  if (eventType === 'wedding') {
-    return [
-      ...baseTerms,
-      {
-        title: '7. Wedding Specific Terms',
-        content: 'A tasting session is included for events over 100 guests. Menu changes must be finalized 30 days before the event. Coordination with venue and other vendors is required. Setup time may vary based on venue access.'
-      }
-    ];
-  }
-
-  if (eventType === 'government') {
-    return [
-      ...baseTerms,
-      {
-        title: '7. Government Contract Compliance',
-        content: 'All services rendered comply with applicable government procurement regulations. Proper documentation and invoicing will be provided as required. Additional compliance requirements must be specified in writing.'
-      }
-    ];
-  }
-
-  return baseTerms;
 }
 
 export function generateFooter(): string {

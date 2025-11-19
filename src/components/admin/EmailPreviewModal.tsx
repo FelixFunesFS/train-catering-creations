@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,11 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, Send, Sparkles } from 'lucide-react';
-import { renderEmailHTML, generateSubject } from '@/services/EmailTemplateRenderer';
-import { extractVariables } from '@/utils/emailVariables';
-import { EditableEventDetailsInline } from './EditableEventDetailsInline';
-import { TemplateVariableHelper } from './TemplateVariableHelper';
+import { Loader2, Send } from 'lucide-react';
 
 interface EmailPreviewModalProps {
   open: boolean;
@@ -33,12 +29,11 @@ export function EmailPreviewModal({
 }: EmailPreviewModalProps) {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [previewLoading, setPreviewLoading] = useState(true);
   const [customSubject, setCustomSubject] = useState('');
   const [customMessage, setCustomMessage] = useState('');
   const [emailPreview, setEmailPreview] = useState('');
-  const [currentQuote, setCurrentQuote] = useState(quote);
-  const [activeTab, setActiveTab] = useState('preview');
-  const messageRef = useRef<HTMLTextAreaElement>(null);
+  const [lineItems, setLineItems] = useState<any[]>([]);
 
   const defaultSubjects = {
     estimate: `Your Estimate - Soul Train's Eatery`,
@@ -49,52 +44,184 @@ export function EmailPreviewModal({
   };
 
   useEffect(() => {
-    if (open && currentQuote && invoice) {
-      const subject = generateSubject(emailType, { quote: currentQuote, invoice });
-      setCustomSubject(subject);
-      refreshPreview();
+    if (open && quote && invoice) {
+      setCustomSubject(defaultSubjects[emailType]);
+      loadPreview();
     }
-  }, [open, currentQuote, invoice, emailType]);
+  }, [open, quote, invoice, emailType]);
 
-  const refreshPreview = () => {
-    const html = renderEmailHTML({
-      emailType,
-      data: { quote: currentQuote, invoice },
-      customMessage,
-      customSubject
-    });
-    setEmailPreview(html);
-  };
-
-  // Refresh preview when custom message changes
-  useEffect(() => {
-    if (open && currentQuote && invoice) {
-      refreshPreview();
-    }
-  }, [customMessage, currentQuote]);
-
-  const handleQuoteUpdate = (updates: Partial<any>) => {
-    setCurrentQuote(prev => ({ ...prev, ...updates }));
-  };
-
-  const handleInsertVariable = (variableTag: string) => {
-    if (messageRef.current) {
-      const start = messageRef.current.selectionStart;
-      const end = messageRef.current.selectionEnd;
-      const text = customMessage;
-      const newText = text.substring(0, start) + variableTag + text.substring(end);
-      setCustomMessage(newText);
+  const loadPreview = async () => {
+    setPreviewLoading(true);
+    try {
+      const { data: items } = await supabase
+        .from('invoice_line_items')
+        .select('*')
+        .eq('invoice_id', invoice.id)
+        .order('category', { ascending: true });
       
-      // Set cursor position after inserted variable
-      setTimeout(() => {
-        if (messageRef.current) {
-          messageRef.current.focus();
-          messageRef.current.selectionStart = messageRef.current.selectionEnd = start + variableTag.length;
-        }
-      }, 0);
+      setLineItems(items || []);
+      const preview = generateEmailPreview(items || []);
+      setEmailPreview(preview);
+    } catch (error) {
+      console.error('Error loading preview:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load email preview",
+        variant: "destructive"
+      });
+    } finally {
+      setPreviewLoading(false);
     }
   };
 
+  const generateEmailPreview = (items: any[]) => {
+    const formatCurrency = (cents: number) => 
+      new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100);
+
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+          body { font-family: Georgia, serif; line-height: 1.6; color: #333; background: #fafafa; margin: 0; padding: 20px; }
+          .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+          .header { background: linear-gradient(135deg, #DC143C 0%, #8B0000 100%); padding: 40px; text-align: center; }
+          .header h1 { margin: 0; font-size: 32px; font-weight: bold; color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+          .header .tagline { margin: 10px 0 0; font-size: 16px; color: #FFD700; font-style: italic; }
+          .header .subtitle { margin: 5px 0 0; font-size: 14px; color: rgba(255,255,255,0.9); }
+          .content { padding: 40px 30px; }
+          .greeting { color: #DC143C; font-size: 24px; margin-bottom: 10px; }
+          .event-details { background: linear-gradient(to right, #FFF5E6, #FFE4E1); padding: 25px; border-radius: 8px; border-left: 4px solid #DC143C; margin: 25px 0; }
+          .event-details h3 { color: #DC143C; margin: 0 0 15px 0; font-size: 18px; }
+          .event-details table { width: 100%; font-size: 14px; }
+          .event-details td { padding: 8px 0; }
+          .menu-title { color: #DC143C; margin: 35px 0 20px; font-size: 22px; border-bottom: 3px solid #FFD700; padding-bottom: 10px; }
+          .menu-subtitle { font-size: 14px; color: #666; font-style: italic; margin-bottom: 20px; }
+          table.items { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+          table.items thead tr { background: linear-gradient(135deg, #DC143C, #B91C3C); color: white; }
+          table.items th { text-align: left; padding: 15px; font-weight: 600; }
+          table.items tbody tr:nth-child(even) { background: #FFF5E6; }
+          table.items tbody tr:nth-child(odd) { background: #fff; }
+          table.items tbody tr { border-bottom: 1px solid #e9ecef; }
+          table.items td { padding: 15px; }
+          table.items .item-title { font-weight: 600; color: #333; margin-bottom: 4px; }
+          table.items .item-desc { font-size: 12px; color: #666; line-height: 1.4; }
+          table.items tfoot tr { background: #FFF5E6; }
+          table.items .total-row { background: linear-gradient(135deg, #DC143C, #B91C3C) !important; color: white; }
+          .btn { display: inline-block; background: linear-gradient(135deg, #DC143C, #B91C3C); color: white; padding: 16px 40px; text-decoration: none; border-radius: 8px; font-size: 18px; font-weight: bold; box-shadow: 0 4px 12px rgba(220, 20, 60, 0.3); margin: 30px 0; }
+          .btn-note { margin-top: 15px; font-size: 13px; color: #666; }
+          .footer { background: linear-gradient(to right, #f8f9fa, #e9ecef); padding: 30px; text-align: center; border-top: 3px solid #FFD700; }
+          .footer .title { margin: 0 0 10px; font-size: 16px; font-weight: 600; color: #333; }
+          .footer .contact { margin: 5px 0; color: #666; }
+          .footer .contact a { color: #DC143C; text-decoration: none; }
+          .footer .tagline-footer { margin: 15px 0 5px; font-size: 12px; color: #999; }
+          .footer .love { margin: 5px 0; font-size: 12px; color: #999; font-style: italic; }
+          @media only screen and (max-width: 600px) {
+            .container { border-radius: 0 !important; }
+            .header { padding: 25px 15px !important; }
+            .header h1 { font-size: 24px !important; }
+            .content { padding: 20px 15px !important; }
+            table.items { font-size: 12px !important; }
+            table.items th, table.items td { padding: 10px 8px !important; }
+            .btn { padding: 14px 30px !important; font-size: 16px !important; display: block !important; margin: 20px auto !important; text-align: center; }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>🍽️ Soul Train's Eatery</h1>
+            <p class="tagline">Where Southern Soul Meets Lowcountry Love</p>
+            <p class="subtitle">Charleston's Premier Family-Run Catering</p>
+          </div>
+          <div class="content">
+            <h2 class="greeting">Hello ${quote.contact_name}! 👋</h2>
+            <p style="font-size: 16px; line-height: 1.8; color: #333;">
+              ${customMessage || `We're so excited to be part of your special day! Here's your personalized estimate for ${quote.event_name}. We've hand-picked the perfect menu to make your celebration unforgettable.`}
+            </p>
+            
+            <div class="event-details">
+              <h3>📅 Your Event Details</h3>
+              <table>
+                <tr>
+                  <td style="color: #666;"><strong>🗓️ Date:</strong></td>
+                  <td style="color: #333;">${new Date(quote.event_date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</td>
+                </tr>
+                <tr>
+                  <td style="color: #666;"><strong>👥 Guests:</strong></td>
+                  <td style="color: #333;">${quote.guest_count} hungry souls</td>
+                </tr>
+                <tr>
+                  <td style="color: #666;"><strong>📍 Location:</strong></td>
+                  <td style="color: #333;">${quote.location}</td>
+                </tr>
+              </table>
+            </div>
+            
+            <h3 class="menu-title">🍴 Your Soul Food Menu</h3>
+            <p class="menu-subtitle">Prepared fresh with love, just like Grandma used to make</p>
+            
+            ${items.length > 0 ? `
+            <table class="items">
+              <thead>
+                <tr>
+                  <th>Menu Item</th>
+                  <th style="text-align: center;">Servings</th>
+                  <th style="text-align: right;">Price per</th>
+                  <th style="text-align: right;">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${items.map((item, idx) => `
+                  <tr>
+                    <td>
+                      <div class="item-title">${item.title || 'Item'}</div>
+                      ${item.description ? `<div class="item-desc">${item.description}</div>` : ''}
+                    </td>
+                    <td style="text-align: center; color: #666; font-weight: 500;">${item.quantity}</td>
+                    <td style="text-align: right; color: #666;">${formatCurrency(item.unit_price)}</td>
+                    <td style="text-align: right; font-weight: 600; color: #DC143C;">${formatCurrency(item.total_price)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="3" style="text-align: right; padding: 15px; font-weight: 600; color: #666;">Subtotal:</td>
+                  <td style="text-align: right; padding: 15px; font-weight: 600;">${formatCurrency(invoice.subtotal)}</td>
+                </tr>
+                ${invoice.tax_amount > 0 ? `
+                <tr>
+                  <td colspan="3" style="text-align: right; padding: 15px; color: #666;">Tax (9.5%):</td>
+                  <td style="text-align: right; padding: 15px;">${formatCurrency(invoice.tax_amount)}</td>
+                </tr>
+                ` : ''}
+                <tr class="total-row">
+                  <td colspan="3" style="text-align: right; padding: 18px; font-weight: 700; font-size: 18px;">Your Total Investment:</td>
+                  <td style="text-align: right; padding: 18px; font-weight: 700; font-size: 20px;">${formatCurrency(invoice.total_amount)}</td>
+                </tr>
+              </tfoot>
+            </table>
+            ` : `<p><strong>Total Estimate: ${formatCurrency(invoice.total_amount)}</strong></p>`}
+            
+            <div style="text-align: center; margin: 40px 0;">
+              <a href="#" class="btn">👉 View & Approve Your Estimate</a>
+              <p class="btn-note">Questions? We're here to help make your event perfect!</p>
+            </div>
+          </div>
+          <div class="footer">
+            <p class="title">📞 Contact Soul Train's Eatery</p>
+            <p class="contact"><strong>Phone:</strong> <a href="tel:8439700265">(843) 970-0265</a></p>
+            <p class="contact"><strong>Email:</strong> <a href="mailto:soultrainseatery@gmail.com">soultrainseatery@gmail.com</a></p>
+            <p class="tagline-footer">Proudly serving Charleston's Lowcountry and surrounding areas</p>
+            <p class="love">❤️ Made with Southern Love by the Soul Train Family</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+  };
 
   const handleSend = async () => {
     setLoading(true);
@@ -137,152 +264,109 @@ export function EmailPreviewModal({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-7xl max-h-[95vh] overflow-hidden flex flex-col bg-background border shadow-lg">
+      <DialogContent className="max-w-6xl max-h-[95vh] overflow-hidden flex flex-col bg-background border shadow-lg">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-primary" />
-            Unified Email Preview & Customer Details
-          </DialogTitle>
+          <DialogTitle>Email Preview & Customization</DialogTitle>
         </DialogHeader>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="preview">Email Preview</TabsTrigger>
-            <TabsTrigger value="customize">Customize Message</TabsTrigger>
-            <TabsTrigger value="customer">Customer Details</TabsTrigger>
-          </TabsList>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1 overflow-hidden">
+          {/* Left Column: Email Editor */}
+          <div className="space-y-4 border-r pr-6 overflow-y-auto max-h-[calc(95vh-180px)]">
+            <h3 className="font-semibold text-lg">Customize Email</h3>
+            
+            <div>
+              <Label htmlFor="recipient">To:</Label>
+              <Input 
+                id="recipient" 
+                value={`${quote.contact_name} <${quote.email}>`} 
+                disabled 
+                className="bg-muted"
+              />
+            </div>
 
-          {/* Tab: Email Preview */}
-          <TabsContent value="preview" className="flex-1 overflow-hidden mt-4">
-            <div className="h-full flex flex-col">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="font-semibold text-lg">Live Email Preview</h3>
-                <Badge variant="outline" className="text-xs">
-                  <span className="inline-block w-2 h-2 rounded-full bg-green-500 mr-1.5 animate-pulse" />
-                  Real-time Updates
-                </Badge>
+            <div>
+              <Label htmlFor="subject">Subject:</Label>
+              <Input 
+                id="subject" 
+                value={customSubject}
+                onChange={(e) => {
+                  setCustomSubject(e.target.value);
+                  setEmailPreview(generateEmailPreview(lineItems));
+                }}
+                placeholder="Email subject"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="message">Custom Message (Optional):</Label>
+              <Textarea 
+                id="message" 
+                value={customMessage}
+                onChange={(e) => {
+                  setCustomMessage(e.target.value);
+                  setEmailPreview(generateEmailPreview(lineItems));
+                }}
+                placeholder="Add a personalized message..."
+                rows={6}
+              />
+              <p className="text-sm text-muted-foreground mt-1">
+                This will appear at the top of the email
+              </p>
+            </div>
+
+            <div className="border rounded-lg p-4 bg-primary/5">
+              <h4 className="font-semibold mb-2 text-sm">💡 Preview Updates:</h4>
+              <p className="text-xs text-muted-foreground">
+                Changes appear instantly in the preview panel →
+              </p>
+            </div>
+
+            <div className="border rounded-lg p-4 bg-muted/50">
+              <h4 className="font-semibold mb-2">Line Items Summary:</h4>
+              <p className="text-sm text-muted-foreground">
+                {lineItems.length} items totaling {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(invoice.total_amount / 100)}
+              </p>
+            </div>
+          </div>
+
+          {/* Right Column: Live Preview */}
+          <div className="space-y-4 overflow-hidden flex flex-col max-h-[calc(95vh-180px)]">
+            <div className="flex items-center justify-between">
+              <h3 className="font-semibold text-lg">Email Preview</h3>
+              <Badge variant="outline" className="text-xs">Live Preview</Badge>
+            </div>
+            {previewLoading ? (
+              <div className="flex items-center justify-center flex-1 border rounded-lg bg-muted/20">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
               </div>
+            ) : (
               <div className="border rounded-lg flex-1 overflow-auto bg-white shadow-inner">
                 <div dangerouslySetInnerHTML={{ __html: emailPreview }} />
               </div>
-              <p className="text-xs text-muted-foreground text-center mt-3">
-                ℹ️ This is exactly how your customer will see the email
-              </p>
-            </div>
-          </TabsContent>
-
-          {/* Tab: Customize Message */}
-          <TabsContent value="customize" className="flex-1 overflow-auto mt-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Left: Email Editor */}
-              <div className="space-y-4">
-                <h3 className="font-semibold text-lg">Email Content</h3>
-                
-                <div>
-                  <Label htmlFor="recipient">To:</Label>
-                  <Input 
-                    id="recipient" 
-                    value={`${currentQuote.contact_name} <${currentQuote.email}>`} 
-                    disabled 
-                    className="bg-muted"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="subject">Subject:</Label>
-                  <Input 
-                    id="subject" 
-                    value={customSubject}
-                    onChange={(e) => setCustomSubject(e.target.value)}
-                    placeholder="Email subject"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="message">Custom Message (Optional):</Label>
-                  <Textarea 
-                    ref={messageRef}
-                    id="message" 
-                    value={customMessage}
-                    onChange={(e) => setCustomMessage(e.target.value)}
-                    placeholder="Add a personalized message... Use variables like {customer_name}, {event_date}, {invoice_total}"
-                    rows={8}
-                  />
-                  <p className="text-sm text-muted-foreground mt-1">
-                    This will appear at the top of the email. Click variables below to insert.
-                  </p>
-                </div>
-
-                <div className="border rounded-lg p-3 bg-accent/20">
-                  <h4 className="font-semibold mb-2 text-sm">💡 Real-time Preview</h4>
-                  <p className="text-xs text-muted-foreground">
-                    Changes update instantly in the preview tab. Variables are replaced with actual values.
-                  </p>
-                </div>
-              </div>
-
-              {/* Right: Variable Helper */}
-              <div className="space-y-4">
-                <h3 className="font-semibold text-lg">Available Variables</h3>
-                <TemplateVariableHelper 
-                  data={{ quote: currentQuote, invoice }}
-                  onInsertVariable={handleInsertVariable}
-                />
-              </div>
-            </div>
-          </TabsContent>
-
-          {/* Tab: Customer Details */}
-          <TabsContent value="customer" className="flex-1 overflow-auto mt-4">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="font-semibold text-lg">Edit Customer & Event Details</h3>
-                <Badge variant="secondary" className="text-xs">
-                  Changes update preview instantly
-                </Badge>
-              </div>
-              
-              <div className="border rounded-lg p-6 bg-card">
-                <EditableEventDetailsInline 
-                  quote={currentQuote}
-                  onUpdate={handleQuoteUpdate}
-                />
-              </div>
-
-              <div className="border rounded-lg p-4 bg-primary/5">
-                <h4 className="font-semibold mb-2 text-sm">📧 Preview Updates</h4>
-                <p className="text-xs text-muted-foreground">
-                  After saving changes, switch to the "Email Preview" tab to see how the updated information appears in the email.
-                </p>
-              </div>
-            </div>
-          </TabsContent>
-        </Tabs>
-
-        <DialogFooter className="border-t pt-4">
-          <div className="flex items-center justify-between w-full">
-            <p className="text-xs text-muted-foreground">
-              Total: {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(invoice.total_amount / 100)}
+            )}
+            <p className="text-xs text-muted-foreground text-center">
+              ℹ️ This is how your customer will see the email
             </p>
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={onClose} disabled={loading}>
-                Cancel
-              </Button>
-              <Button onClick={handleSend} disabled={loading}>
-                {loading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Sending...
-                  </>
-                ) : (
-                  <>
-                    <Send className="mr-2 h-4 w-4" />
-                    Send Email to Customer
-                  </>
-                )}
-              </Button>
-            </div>
           </div>
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose} disabled={loading}>
+            Cancel
+          </Button>
+          <Button onClick={handleSend} disabled={loading}>
+            {loading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Sending...
+              </>
+            ) : (
+              <>
+                <Send className="mr-2 h-4 w-4" />
+                Send Email
+              </>
+            )}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

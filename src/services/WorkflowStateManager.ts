@@ -1,15 +1,13 @@
 import { supabase } from '@/integrations/supabase/client';
 
-// Unified workflow status types
-export type QuoteWorkflowStatus = 
-  | 'pending' | 'under_review' | 'quoted' | 'estimated' | 'approved' 
-  | 'awaiting_payment' | 'paid' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
-
-export type InvoiceWorkflowStatus =
-  | 'draft' | 'pending_review' | 'sent' | 'viewed' | 'approved' 
-  | 'payment_pending' | 'partially_paid' | 'paid' | 'overdue' | 'cancelled';
-
-export type WorkflowStatus = QuoteWorkflowStatus | InvoiceWorkflowStatus;
+// Unified workflow status types matching database enums
+type WorkflowStatus = 
+  | 'pending' | 'under_review' | 'quoted' | 'estimated' 
+  | 'viewed' | 'approved' 
+  | 'awaiting_payment' | 'partially_paid' | 'paid' 
+  | 'confirmed' | 'in_progress' | 'completed' 
+  | 'cancelled' | 'overdue'
+  | 'draft' | 'pending_review' | 'sent'; // Invoice-specific statuses
 
 interface StatusTransition {
   from: string;

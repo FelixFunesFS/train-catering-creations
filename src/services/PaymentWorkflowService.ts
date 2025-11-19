@@ -80,7 +80,7 @@ export class PaymentWorkflowService {
           payment_method: params.paymentMethod,
           stripe_payment_intent_id: params.stripePaymentIntentId,
           customer_email: params.customerEmail,
-          status: 'completed',
+          status: 'succeeded',
           payment_type: params.milestoneId ? 'milestone' : 'full',
           processed_at: new Date().toISOString()
         })

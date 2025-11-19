@@ -9,7 +9,7 @@ import { EnhancedEstimateLineItems } from '../EnhancedEstimateLineItems';
 import { IntegratedChangeRequestPanel } from './IntegratedChangeRequestPanel';
 import { EditableEventDetails } from './EditableEventDetails';
 import { EstimateVersionComparison } from './EstimateVersionComparison';
-import { requiresTermsAndConditions } from '@/utils/contractRequirements';
+import { requiresSeparateContract } from '@/utils/contractRequirements';
 import { formatEventName } from '@/utils/textFormatters';
 import { 
   FileText, 
@@ -136,9 +136,9 @@ export function PricingPanel({
 }: PricingPanelProps) {
   const [selectedTemplate, setSelectedTemplate] = useState<string>('');
   
-  const contractCheck = requiresTermsAndConditions(quote);
+  const contractCheck = requiresSeparateContract(quote, totals.total_amount);
   const [localRequiresContract, setLocalRequiresContract] = useState(
-    requiresContractProp !== undefined ? requiresContractProp : contractCheck.includeTermsAndConditions
+    requiresContractProp !== undefined ? requiresContractProp : contractCheck.requiresSeparateContract
   );
 
   const handleContractToggle = (checked: boolean) => {

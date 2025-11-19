@@ -192,34 +192,32 @@ export function EstimateApprovalWorkflow({
             Event Details
           </CardTitle>
         </CardHeader>
-        <CardContent className="px-4 sm:px-6">
-          <div className="space-y-3">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
-              <div className="flex-1">
+        <CardContent>
+          <div className="grid gap-3">
+            <div className="flex justify-between items-start">
+              <div>
                 <h3 className="font-semibold text-lg">{estimate.quote_requests.event_name}</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3 text-sm text-muted-foreground">
+                <div className="space-y-1 mt-2 text-sm text-muted-foreground">
                   <div className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4 flex-shrink-0" />
-                    <span className="break-words">
-                      {new Date(estimate.quote_requests.event_date).toLocaleDateString('en-US', {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      })}
-                    </span>
+                    <Calendar className="h-4 w-4" />
+                    {new Date(estimate.quote_requests.event_date).toLocaleDateString('en-US', {
+                      weekday: 'long',
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
+                    })}
                   </div>
                   <div className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4 flex-shrink-0" />
-                    <span className="break-words">{estimate.quote_requests.location}</span>
+                    <MapPin className="h-4 w-4" />
+                    {estimate.quote_requests.location}
                   </div>
                   <div className="flex items-center gap-2">
-                    <Users className="h-4 w-4 flex-shrink-0" />
-                    <span>{estimate.quote_requests.guest_count} guests</span>
+                    <Users className="h-4 w-4" />
+                    {estimate.quote_requests.guest_count} guests
                   </div>
                 </div>
               </div>
-              <Badge variant={isApproved ? "default" : "secondary"} className="text-sm self-start">
+              <Badge variant={isApproved ? "default" : "secondary"} className="text-sm">
                 {isApproved ? 'Approved' : 'Pending Approval'}
               </Badge>
             </div>
@@ -227,54 +225,13 @@ export function EstimateApprovalWorkflow({
         </CardContent>
       </Card>
 
-      {/* Payment Summary & Plan Preview */}
-      {!isApproved && estimate.payment_milestones && estimate.payment_milestones.length > 0 && (
-        <Card className="border-primary/20">
-          <CardHeader className="px-4 sm:px-6">
-            <CardTitle className="flex items-center gap-2">
-              <DollarSign className="h-5 w-5" />
-              Payment Plan Preview
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4 px-4 sm:px-6">
-            <div className="bg-muted/30 p-4 rounded-lg space-y-3">
-              <div className="flex justify-between items-center pb-3 border-b">
-                <span className="font-medium">Total Investment</span>
-                <span className="text-2xl font-bold">{formatCurrency(estimate.total_amount / 100)}</span>
-              </div>
-              
-              {estimate.payment_milestones.map((milestone, index) => (
-                <div key={milestone.id} className="flex justify-between items-start py-2">
-                  <div className="flex-1">
-                    <p className="font-medium">{milestone.description || milestone.milestone_type}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {milestone.milestone_type === 'deposit' && 'Due upon approval'}
-                      {milestone.milestone_type === 'balance' && 'Due 14 days before event'}
-                      {milestone.due_date && ` • ${new Date(milestone.due_date).toLocaleDateString()}`}
-                    </p>
-                  </div>
-                  <span className="font-semibold text-lg">{formatCurrency(milestone.amount_cents / 100)}</span>
-                </div>
-              ))}
-            </div>
-            
-            <Alert className="bg-info/10 border-info/20">
-              <AlertCircle className="h-4 w-4 text-info" />
-              <AlertDescription className="text-info">
-                After approval, you'll choose your preferred payment option to secure your event date.
-              </AlertDescription>
-            </Alert>
-          </CardContent>
-        </Card>
-      )}
-
       {/* Approval Section */}
       {!isApproved && (
         <Card>
-          <CardHeader className="px-4 sm:px-6">
+          <CardHeader>
             <CardTitle>Ready to Approve?</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4 px-4 sm:px-6">
+          <CardContent className="space-y-4">
             <div>
               <Label htmlFor="feedback">Comments or Questions (Optional)</Label>
               <Textarea
@@ -307,13 +264,13 @@ export function EstimateApprovalWorkflow({
       {/* Payment Section */}
       {isApproved && (
         <Card className="border-green-200">
-          <CardHeader className="px-4 sm:px-6">
+          <CardHeader>
             <CardTitle className="flex items-center gap-2 text-green-700">
               <DollarSign className="h-5 w-5" />
               Secure Your Event Date
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4 px-4 sm:px-6">
+          <CardContent className="space-y-4">
             <Alert>
               <CheckCircle2 className="h-4 w-4" />
               <AlertDescription>

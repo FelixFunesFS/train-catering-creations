@@ -3,13 +3,13 @@ import { useToast } from '@/hooks/use-toast';
 import { type QuoteRequest } from '@/utils/invoiceFormatters';
 import { useEnhancedPricingManagement } from '@/hooks/useEnhancedPricingManagement';
 import { useInvoiceEditing } from '@/hooks/useInvoiceEditing';
-import { useUnifiedWorkflow } from '@/hooks/useUnifiedWorkflow';
+import { useWorkflowSync } from '@/hooks/useWorkflowSync';
 import { supabase } from '@/integrations/supabase/client';
 import { EmailPreviewModal } from './EmailPreviewModal';
 import { WorkflowSteps } from './workflow/WorkflowSteps';
 import { QuoteSelectionPanel } from './workflow/QuoteSelectionPanel';
 import { PricingPanel } from './workflow/PricingPanel';
-
+import { GovernmentContractPanel } from './workflow/GovernmentContractPanel';
 import { TermsAndConditionsPanel } from './workflow/TermsAndConditionsPanel';
 import { PaymentCollectionPanel } from './workflow/PaymentCollectionPanel';
 import { EventConfirmationPanel } from './workflow/EventConfirmationPanel';
@@ -62,7 +62,7 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
   const [showTimelineTasks, setShowTimelineTasks] = useState(false);
   const [requiresContract, setRequiresContract] = useState(false);
   const { toast } = useToast();
-  const { validateConsistency } = useUnifiedWorkflow();
+  const { syncQuoteWithInvoice } = useWorkflowSync();
 
   const {
     lineItems: managedLineItems,
@@ -138,10 +138,8 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
       );
       
       for (const quote of newQuotes) {
-        // Call edge function to generate invoice
-        await supabase.functions.invoke('generate-invoice-from-quote', {
-          body: { quote_request_id: quote.id }
-        });
+        const { WorkflowOrchestrationService } = await import('@/services/WorkflowOrchestrationService');
+        await WorkflowOrchestrationService.autoGenerateInvoice(quote.id);
       }
     };
 
@@ -339,8 +337,8 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
 
       if (updateError) throw updateError;
 
-      // Validate consistency before advancing (sync happens via database trigger)
-      await validateConsistency(selectedQuote.id);
+      // Sync statuses before advancing
+      await syncQuoteWithInvoice(selectedQuote.id);
       
       // Show email preview modal instead of sending directly
       setShowEmailPreview(true);
@@ -429,12 +427,26 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
         />
       )}
 
+      {/* Review step removed - merged into PricingPanel */}
+
+      {/* Government Contract Setup - conditional */}
+      {currentStep === 'government' && selectedQuote && invoice && isGovernmentContract && (
+        <GovernmentContractPanel
+          quote={selectedQuote}
+          invoice={invoice}
+          onBack={() => setCurrentStep('pricing')}
+          onContinue={() => setCurrentStep(requiresContract ? 'contract' : 'payment')}
+        />
+      )}
+
       {currentStep === 'contract' && selectedQuote && invoice && (
         <TermsAndConditionsPanel
           quote={selectedQuote}
           invoice={invoice}
-          onBack={() => setCurrentStep('pricing')}
+          isGovernmentContract={isGovernmentContract}
+          onBack={() => isGovernmentContract ? setCurrentStep('government') : setCurrentStep('pricing')}
           onContinue={() => setCurrentStep('payment')}
+          onSkipContract={() => setCurrentStep('payment')}
         />
       )}
 

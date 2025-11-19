@@ -14,7 +14,6 @@ import { CustomerEventPortal } from './CustomerEventPortal';
 import { EstimateLoadingSkeleton } from '@/components/shared/LoadingSkeleton';
 import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
 import { EstimateProgressTracker } from './EstimateProgressTracker';
-import { CustomerInvoiceViewer } from './CustomerInvoiceViewer';
 import { 
   CheckCircle, 
   Clock, 
@@ -504,27 +503,11 @@ export function TokenBasedCustomerPortal() {
 
           {/* Show approval workflow if sent/viewed */}
           {showApprovalWorkflow && (
-            <>
-              {/* Full Invoice/Estimate Details */}
-              <div className="mb-6">
-                <CustomerInvoiceViewer
-                  invoice={{
-                    ...data.invoice,
-                    line_items: data.invoice.invoice_line_items || []
-                  }}
-                  quote={data.quote}
-                  documentType="estimate"
-                  showActions={false}
-                />
-              </div>
-
-              {/* Approval Workflow */}
-              <EstimateApprovalWorkflow
-                estimate={data.invoice}
-                onApproval={fetchCustomerData}
-                onRequestChanges={handleRequestChanges}
-              />
-            </>
+            <EstimateApprovalWorkflow
+              estimate={data.invoice}
+              onApproval={fetchCustomerData}
+              onRequestChanges={handleRequestChanges}
+            />
           )}
 
         {/* Show event portal if paid */}
@@ -566,6 +549,22 @@ export function TokenBasedCustomerPortal() {
           </div>
         )}
 
+        {/* Show approval workflow if not yet approved */}
+        {data.invoice.workflow_status !== 'approved' && data.invoice.workflow_status !== 'paid' && (
+          <EstimateApprovalWorkflow
+            estimate={data.invoice}
+            onApproval={() => {
+              fetchCustomerData();
+              toast({
+                title: "Success!",
+                description: "Your estimate has been approved. Payment options are shown below.",
+              });
+            }}
+            onRequestChanges={() => {
+              setShowChangeForm(true);
+            }}
+          />
+        )}
 
         {/* Contact Information */}
         <Card className="mt-8">

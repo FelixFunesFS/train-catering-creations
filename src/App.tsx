@@ -21,6 +21,7 @@ import Reviews from "./pages/Reviews";
 import PhotoGallery from "./pages/PhotoGallery";
 import AlternativeGallery from "./pages/AlternativeGallery";
 import FAQ from "./pages/FAQ";
+import TestEmail from "./pages/TestEmail";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsConditions from "./pages/TermsConditions";
 import AdminAuth from "./pages/AdminAuth";
@@ -29,10 +30,9 @@ import NotFound from "./pages/NotFound";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCanceled from "./pages/PaymentCanceled";
 import { TokenBasedCustomerPortal } from "./components/customer/TokenBasedCustomerPortal";
-import { SimplifiedAdminDashboard } from "./pages/SimplifiedAdminDashboard";
+import UnifiedAdminDashboard from "./pages/UnifiedAdminDashboard";
 import QuoteDetailPage from "./pages/QuoteDetailPage";
 import EstimatePrintView from "./pages/EstimatePrintView";
-import DevTestingPanel from "./pages/DevTestingPanel";
 
 const AppContent = () => {
   useScrollToAnchor();
@@ -54,23 +54,17 @@ const AppContent = () => {
           <Route path="/gallery" element={<PhotoGallery />} />
           <Route path="/gallery-alt" element={<AlternativeGallery />} />
           <Route path="/faq" element={<FAQ />} />
+          {/* Development routes - remove in production */}
+          {process.env.NODE_ENV === 'development' && <Route path="/test-email" element={<TestEmail />} />}
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-          <Route path="/terms-conditions" element={<TermsConditions />} />
           <Route path="/terms-conditions" element={<TermsConditions />} />
           <Route path="/admin/auth" element={<AdminAuth />} />
           {/* Admin Dashboard and Management */}
-          <Route path="/admin" element={<SimplifiedAdminDashboard />} />
-          
-          {/* Admin quote details route - MUST come before admin/* catch-all */}
-          <Route path="/admin/quotes/:quoteId" element={<QuoteDetailPage />} />
+          <Route path="/admin" element={<UnifiedAdminDashboard />} />
           
           {/* Admin estimate print route */}
           <Route path="/admin/estimate-print/:invoiceId" element={<EstimatePrintView />} />
-          
-          {/* Dev Testing Panel */}
-          <Route path="/dev/testing" element={<DevTestingPanel />} />
-          
-          <Route path="/admin/*" element={<SimplifiedAdminDashboard />} />
+          <Route path="/admin/*" element={<UnifiedAdminDashboard />} />
           
           {/* Customer-facing routes - Single portal route */}
           <Route path="/estimate" element={<TokenBasedCustomerPortal />} />
