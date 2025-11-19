@@ -255,6 +255,75 @@ export function generateFooter(): string {
   `;
 }
 
+export function generateLineItemsTable(lineItems: any[], subtotal: number, taxAmount: number, total: number): string {
+  const formatCurrency = (cents: number) => 
+    new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100);
+
+  let tableHtml = `
+    <div style="margin: 30px 0;">
+      <h3 style="color: ${BRAND_COLORS.crimson}; margin-bottom: 15px;">💰 Detailed Pricing Breakdown</h3>
+      <table style="width: 100%; border-collapse: collapse; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <thead>
+          <tr style="background: linear-gradient(135deg, ${BRAND_COLORS.crimson}, ${BRAND_COLORS.crimsonDark}); color: white;">
+            <th style="padding: 12px; text-align: left;">Item</th>
+            <th style="padding: 12px; text-align: center; width: 80px;">Qty</th>
+            <th style="padding: 12px; text-align: right; width: 100px;">Unit Price</th>
+            <th style="padding: 12px; text-align: right; width: 100px;">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+  `;
+
+  lineItems.forEach((item: any, index: number) => {
+    const bgColor = index % 2 === 0 ? '#FFF5E6' : '#ffffff';
+    tableHtml += `
+      <tr style="background: ${bgColor}; border-bottom: 1px solid #e9ecef;">
+        <td style="padding: 12px;">
+          <div style="font-weight: 600; color: #333;">${item.title}</div>
+          ${item.description ? `<div style="font-size: 12px; color: #666; margin-top: 4px;">${item.description}</div>` : ''}
+        </td>
+        <td style="padding: 12px; text-align: center;">${item.quantity}</td>
+        <td style="padding: 12px; text-align: right;">${formatCurrency(item.unit_price)}</td>
+        <td style="padding: 12px; text-align: right; font-weight: 600;">${formatCurrency(item.total_price)}</td>
+      </tr>
+    `;
+  });
+
+  // Subtotal row
+  tableHtml += `
+    <tr style="background: #f8f9fa; border-top: 2px solid ${BRAND_COLORS.gold};">
+      <td colspan="3" style="padding: 12px; text-align: right; font-weight: 600;">Subtotal:</td>
+      <td style="padding: 12px; text-align: right; font-weight: 600;">${formatCurrency(subtotal)}</td>
+    </tr>
+  `;
+
+  // Tax row (if applicable)
+  if (taxAmount > 0) {
+    tableHtml += `
+      <tr style="background: #f8f9fa;">
+        <td colspan="3" style="padding: 12px; text-align: right;">Tax (8%):</td>
+        <td style="padding: 12px; text-align: right;">${formatCurrency(taxAmount)}</td>
+      </tr>
+    `;
+  }
+
+  // Total row
+  tableHtml += `
+    <tr style="background: linear-gradient(135deg, ${BRAND_COLORS.crimson}, ${BRAND_COLORS.crimsonDark}); color: white;">
+      <td colspan="3" style="padding: 15px; text-align: right; font-size: 18px; font-weight: bold;">TOTAL:</td>
+      <td style="padding: 15px; text-align: right; font-size: 18px; font-weight: bold;">${formatCurrency(total)}</td>
+    </tr>
+  `;
+
+  tableHtml += `
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  return tableHtml;
+}
+
 export function generateTrackingPixel(invoiceId: string, emailType: string): string {
   const supabaseUrl = Deno.env.get('SUPABASE_URL');
   return `<img src="${supabaseUrl}/functions/v1/track-email-open?invoice=${invoiceId}&type=${emailType}&t=${Date.now()}" alt="" style="width:1px;height:1px;border:0;" />`;
