@@ -4,7 +4,8 @@ import {
   EMAIL_STYLES, 
   generateEmailHeader, 
   generateEventDetailsCard, 
-  generateMenuSection, 
+  generateMenuSection,
+  generateLineItemsTable,
   generateFooter,
   generateTrackingPixel,
   BRAND_COLORS
@@ -257,7 +258,11 @@ function generateEstimateReadyEmail(quote: any, invoice: any, portalUrl: string,
           
           ${generateEventDetailsCard(quote)}
           
+          <h3 style="color: ${BRAND_COLORS.crimson}; margin-top: 30px;">🍽️ Your Custom Menu</h3>
+          <p>Here's what we'll be serving at your event:</p>
           ${generateMenuSection(lineItems)}
+          
+          ${generateLineItemsTable(lineItems, subtotal, taxAmount, total)}
           
           <div style="background: #fff3cd; border: 1px solid ${BRAND_COLORS.gold}; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <h3 style="margin: 0 0 10px 0; color: ${BRAND_COLORS.crimson};">⏰ Action Required</h3>
@@ -272,26 +277,6 @@ function generateEstimateReadyEmail(quote: any, invoice: any, portalUrl: string,
           <p style="text-align: center; color: #666; font-size: 14px;">
             <a href="${portalUrl}" style="color: ${BRAND_COLORS.crimson};">Or click here to view full details first</a>
           </p>
-          
-          <h3 style="color: ${BRAND_COLORS.crimson};">💰 Investment Summary</h3>
-          <div style="background: ${BRAND_COLORS.lightGray}; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <table style="width: 100%; border-collapse: collapse;">
-              <tr style="border-bottom: 2px solid #dee2e6;">
-                <td style="padding: 10px; text-align: right;"><strong>Subtotal:</strong></td>
-                <td style="text-align: right; padding: 10px; width: 120px;"><strong>${formatCurrency(subtotal)}</strong></td>
-              </tr>
-              ${taxAmount > 0 ? `
-                <tr style="border-bottom: 2px solid #dee2e6;">
-                  <td style="padding: 10px; text-align: right;">Tax (8%):</td>
-                  <td style="text-align: right; padding: 10px;">${formatCurrency(taxAmount)}</td>
-                </tr>
-              ` : ''}
-              <tr style="background: ${BRAND_COLORS.crimson}; color: white;">
-                <td style="padding: 15px; text-align: right; font-size: 20px;"><strong>TOTAL:</strong></td>
-                <td style="text-align: right; padding: 15px; font-size: 20px;"><strong>${formatCurrency(total)}</strong></td>
-              </tr>
-            </table>
-          </div>
           
           <h3 style="color: ${BRAND_COLORS.crimson};">📋 Once You Approve:</h3>
           <ul style="line-height: 1.8;">

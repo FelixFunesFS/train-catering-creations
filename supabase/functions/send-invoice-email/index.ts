@@ -1,5 +1,14 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.52.1';
+import { 
+  EMAIL_STYLES, 
+  generateEmailHeader, 
+  generateEventDetailsCard,
+  generateLineItemsTable,
+  generateFooter,
+  BRAND_COLORS
+} from '../_shared/emailTemplates.ts';
+
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -37,13 +46,21 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log('Gmail tokens found, proceeding with email send');
 
-    // Get invoice with customer details
+    // Get invoice with line items and customer details
     const { data: invoice, error: invoiceError } = await supabase
       .from('invoices')
       .select(`
         *,
         customers!customer_id(*),
-        quote_requests!quote_request_id(*)
+        quote_requests!quote_request_id(*),
+        invoice_line_items (
+          title,
+          description,
+          quantity,
+          unit_price,
+          total_price,
+          category
+        )
       `)
       .eq('id', invoice_id)
       .single();
@@ -56,38 +73,52 @@ const handler = async (req: Request): Promise<Response> => {
     const isEstimate = invoice.workflow_status === 'draft' || invoice.document_type === 'estimate';
     const documentType = isEstimate ? 'estimate' : 'invoice';
     
+    const lineItems = invoice.invoice_line_items || [];
+    const portalUrl = `https://c4c8d2d1-63da-4772-a95b-bf211f87a132.lovableproject.com/estimate?token=${invoice.customer_access_token}`;
+    
     // Send email via Gmail API
     const emailBody = {
       to: invoice.customers?.email,
       subject: `Your ${documentType} from Soul Train's Eatery - ${invoice.quote_requests?.event_name}`,
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #2563eb;">Soul Train's Eatery</h2>
-          <p>Dear ${invoice.customers?.name || invoice.quote_requests?.contact_name},</p>
-          
-          <p>Thank you for choosing Soul Train's Eatery for your upcoming event!</p>
-          
-          <p>Please find your ${documentType} attached. Here are the details:</p>
-          
-          <div style="background-color: #f8f9fa; padding: 16px; border-radius: 8px; margin: 16px 0;">
-            <h3 style="margin: 0 0 8px 0;">Event Details</h3>
-            <p><strong>Event:</strong> ${invoice.quote_requests?.event_name}</p>
-            <p><strong>Date:</strong> ${invoice.quote_requests?.event_date}</p>
-            <p><strong>Location:</strong> ${invoice.quote_requests?.location}</p>
-            <p><strong>Total Amount:</strong> $${(invoice.total_amount / 100).toFixed(2)}</p>
-          </div>
-          
-          ${isEstimate ? `
-            <p>Please review the ${documentType} and let us know if you'd like to proceed. You can approve this ${documentType} by clicking the link below:</p>
-            <p><a href="https://qptprrqjlcvfkhfdnnoa.supabase.app/customer/estimate/${invoice.customer_access_token}" style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Review & Approve ${documentType.charAt(0).toUpperCase() + documentType.slice(1)}</a></p>
-          ` : `
-            <p>Your ${documentType} is ready for payment. You can view and pay online using the link below:</p>
-            <p><a href="https://qptprrqjlcvfkhfdnnoa.supabase.app/customer/estimate/${invoice.customer_access_token}" style="background-color: #16a34a; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">View ${documentType.charAt(0).toUpperCase() + documentType.slice(1)} & Pay</a></p>
-          `}
-          
-          <p>If you have any questions, please don't hesitate to contact us:</p>
-          <p>📞 (843) 970-0265<br>
-          📧 soultrainseatery@gmail.com</p>
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Your ${documentType.charAt(0).toUpperCase() + documentType.slice(1)}</title>
+          <style>${EMAIL_STYLES}</style>
+        </head>
+        <body>
+          <div class="email-container">
+            ${generateEmailHeader(`Your ${documentType.charAt(0).toUpperCase() + documentType.slice(1)} is Ready!`)}
+            
+            <div class="content">
+              <h2 style="color: ${BRAND_COLORS.crimson};">Dear ${invoice.customers?.name || invoice.quote_requests?.contact_name},</h2>
+              
+              <p>Thank you for choosing Soul Train's Eatery for your upcoming event!</p>
+              
+              ${generateEventDetailsCard(invoice.quote_requests)}
+              
+              ${lineItems.length > 0 ? generateLineItemsTable(lineItems, invoice.subtotal, invoice.tax_amount || 0, invoice.total_amount) : ''}
+              
+              ${isEstimate ? `
+                <div style="background: #fff3cd; border: 1px solid ${BRAND_COLORS.gold}; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                  <h3 style="margin: 0 0 10px 0; color: ${BRAND_COLORS.crimson};">⏰ Action Required</h3>
+                  <p style="margin: 0;">Please review and approve your estimate to secure your event date.</p>
+                </div>
+                <div style="text-align: center; margin: 30px 0;">
+                  <a href="${portalUrl}&action=approve" class="btn btn-primary">✅ Review & Approve ${documentType.charAt(0).toUpperCase() + documentType.slice(1)}</a>
+                </div>
+              ` : `
+                <div style="background: #d1fae5; border: 1px solid #10b981; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                  <h3 style="margin: 0 0 10px 0; color: #065f46;">💳 Payment Ready</h3>
+                  <p style="margin: 0;">Your ${documentType} is ready for payment. Click below to view and pay online.</p>
+                </div>
+                <div style="text-align: center; margin: 30px 0;">
+                  <a href="${portalUrl}" class="btn btn-primary" style="background: #10b981;">View ${documentType.charAt(0).toUpperCase() + documentType.slice(1)} & Pay</a>
+                </div>
+              `}
           
           <p>We look forward to making your event memorable!</p>
           
