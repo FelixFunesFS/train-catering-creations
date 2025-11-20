@@ -11,8 +11,6 @@ import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
-  CalendarPlus, 
-  CalendarMinus, 
   RefreshCw, 
   Save, 
   X, 
@@ -525,70 +523,11 @@ export function QuoteDetailModal({ quote, onClose, onUpdate }: QuoteDetailModalP
             </TabsContent>
 
             <TabsContent value="calendar" className="space-y-6 mt-0">
-            {/* Calendar Integration */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Calendar className="h-5 w-5" />
-                  Calendar Integration
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">Calendar Status</p>
-                    <p className="text-sm text-muted-foreground">
-                      {editedQuote.calendar_sync_status === 'synced' ? 'Event synced to calendar' : 'Not synced'}
-                    </p>
-                  </div>
-                  <Badge variant={editedQuote.calendar_sync_status === 'synced' ? 'default' : 'outline'}>
-                    {editedQuote.calendar_sync_status || 'not_synced'}
-                  </Badge>
-                </div>
-
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleCalendarAction('create')}
-                    disabled={loading}
-                  >
-                    <CalendarPlus className="h-4 w-4 mr-2" />
-                    Add to Calendar
-                  </Button>
-                  
-                  {editedQuote.calendar_event_id && (
-                    <>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleCalendarAction('update')}
-                        disabled={loading}
-                      >
-                        <RefreshCw className="h-4 w-4 mr-2" />
-                        Update Event
-                      </Button>
-                      
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleCalendarAction('delete')}
-                        disabled={loading}
-                      >
-                        <CalendarMinus className="h-4 w-4 mr-2" />
-                        Remove Event
-                      </Button>
-                    </>
-                  )}
-                </div>
-
-                {editedQuote.last_calendar_sync && (
-                  <p className="text-xs text-muted-foreground">
-                    Last sync: {format(new Date(editedQuote.last_calendar_sync), 'MMM dd, yyyy HH:mm')}
-                  </p>
-                )}
-              </CardContent>
-            </Card>
+              <Card>
+                <CardContent className="py-8 text-center text-muted-foreground">
+                  Calendar integration has been simplified. Event details are managed through the main event information.
+                </CardContent>
+              </Card>
             </TabsContent>
           </Tabs>
         </ScrollArea>
