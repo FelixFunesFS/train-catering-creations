@@ -47,7 +47,7 @@ export function ChangeRequestProcessor({ changeRequest, onProcessed }: ChangeReq
             .insert({
               invoice_id: invoice.id,
               change_request_id: changeRequest.id,
-              version_number: (invoice.quote_version || 1) + 1,
+              version_number: (invoice.version || 1) + 1,
               line_items: lineItems || [],
               subtotal: invoice.subtotal + (finalCostChange || 0),
               tax_amount: Math.round((invoice.subtotal + (finalCostChange || 0)) * 0.074),
@@ -63,7 +63,7 @@ export function ChangeRequestProcessor({ changeRequest, onProcessed }: ChangeReq
             .update({
               total_amount: invoice.total_amount + (finalCostChange || 0),
               subtotal: invoice.subtotal + (finalCostChange || 0),
-              quote_version: (invoice.quote_version || 1) + 1
+              version: (invoice.version || 1) + 1
             })
             .eq('id', invoice.id);
 

@@ -593,8 +593,8 @@ export class ComprehensiveTestSuite {
     // Check if workflow was triggered (should have updated timestamps)
     return {
       invoice_approved: true,
-      last_customer_action: invoice.last_customer_action,
-      workflow_triggered: !!invoice.last_customer_action
+      last_customer_interaction: invoice.last_customer_interaction,
+      workflow_triggered: !!invoice.last_customer_interaction
     };
   }
 
