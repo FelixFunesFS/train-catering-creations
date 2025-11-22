@@ -114,7 +114,7 @@ export const ContactAndEventStep = ({ form, trackFieldInteraction, variant = 're
               control={form.control}
               name="phone"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="mb-4">
                   <FormLabel>Phone Number *</FormLabel>
                   <FormControl>
                     <Input
@@ -133,16 +133,6 @@ export const ContactAndEventStep = ({ form, trackFieldInteraction, variant = 're
                 </FormItem>
               )}
             />
-          </div>
-        </div>
-
-        {/* Event Details - Right Column */}
-        <div className="space-y-6">
-          <div>
-            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <Calendar className="h-5 w-5 text-primary" />
-              Event Details
-            </h3>
 
             <FormField
               control={form.control}
@@ -171,7 +161,7 @@ export const ContactAndEventStep = ({ form, trackFieldInteraction, variant = 're
               control={form.control}
               name="event_type"
               render={({ field }) => (
-                <FormItem className="mb-4">
+                <FormItem>
                   <FormLabel>Event Type *</FormLabel>
                   <Select 
                     onValueChange={field.onChange} 
@@ -201,6 +191,16 @@ export const ContactAndEventStep = ({ form, trackFieldInteraction, variant = 're
                 </FormItem>
               )}
             />
+          </div>
+        </div>
+
+        {/* Event Logistics - Right Column */}
+        <div className="space-y-6">
+          <div>
+            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <Calendar className="h-5 w-5 text-primary" />
+              Event Logistics
+            </h3>
 
             <FormField
               control={form.control}
@@ -304,12 +304,6 @@ export const ContactAndEventStep = ({ form, trackFieldInteraction, variant = 're
         </div>
       </div>
 
-      {/* Pro Tip */}
-      <div className="mt-6 p-4 bg-primary/5 border border-primary/20 rounded-lg">
-        <p className="text-sm text-muted-foreground">
-          <span className="font-semibold text-primary">Pro Tip:</span> Having your event details ready helps us provide a more accurate quote. We'll use this information to tailor our services to your specific needs.
-        </p>
-      </div>
     </div>
   );
 };
