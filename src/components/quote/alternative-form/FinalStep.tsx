@@ -1,9 +1,7 @@
 import { UseFormReturn } from "react-hook-form";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MessageSquare, Users, UtensilsCrossed } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
@@ -24,27 +22,9 @@ export const FinalStep = ({ form, variant = 'regular' }: FinalStepProps) => {
 
   return (
     <div ref={ref} className={`space-y-6 ${animationClass}`}>
-      <div className="text-center mb-8">
-        <h2 className="text-2xl md:text-3xl font-elegant text-foreground mb-3 title-hover-motion">
-          Additional Information
-        </h2>
-        <p className="text-muted-foreground text-lg">
-          Help us serve you better with a few final details.
-        </p>
-      </div>
-
       {/* Wedding-Specific Options */}
       {variant === 'wedding' && (
-        <Card className="neumorphic-card-1 border-0 bg-gradient-to-br from-card via-card/95 to-muted/10 mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-3 text-xl font-elegant">
-              <div className="w-8 h-8 bg-gradient-primary rounded-full flex items-center justify-center">
-                <UtensilsCrossed className="h-4 w-4 text-primary-foreground" />
-              </div>
-              Wedding Service Options
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
+        <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField
                 control={form.control}
@@ -88,21 +68,11 @@ export const FinalStep = ({ form, variant = 'regular' }: FinalStepProps) => {
                 )}
               />
             </div>
-          </CardContent>
-        </Card>
+        </div>
       )}
 
       {/* Additional Services */}
-      <Card className="neumorphic-card-1 border-0 bg-gradient-to-br from-card via-card/95 to-muted/10 mb-6">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-3 text-xl font-elegant">
-            <div className="w-8 h-8 bg-gradient-primary rounded-full flex items-center justify-center">
-              <UtensilsCrossed className="h-4 w-4 text-primary-foreground" />
-            </div>
-            Additional Services
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+      <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <FormField
               control={form.control}
@@ -215,24 +185,14 @@ export const FinalStep = ({ form, variant = 'regular' }: FinalStepProps) => {
                     <p className="text-xs text-muted-foreground">Fresh ice for beverages</p>
                   </div>
                 </FormItem>
-              )}
-            />
-          </div>
-        </CardContent>
-      </Card>
+                )}
+              />
+            </div>
+      </div>
 
       <div className="grid md:grid-cols-2 gap-6">
         {/* Special Requests */}
-        <Card className="neumorphic-card-1 border-0 bg-gradient-to-br from-card via-card/95 to-muted/10">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-3 text-xl font-elegant">
-              <div className="w-8 h-8 bg-gradient-primary rounded-full flex items-center justify-center">
-                <MessageSquare className="h-4 w-4 text-primary-foreground" />
-              </div>
-              Special Requests
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
+        <div className="space-y-6">
             <FormField
               control={form.control}
               name="special_requests"
@@ -257,20 +217,10 @@ export const FinalStep = ({ form, variant = 'regular' }: FinalStepProps) => {
                 </FormItem>
               )}
             />
-          </CardContent>
-        </Card>
+        </div>
 
         {/* How did you hear about us */}
-        <Card className="neumorphic-card-1 border-0 bg-gradient-to-br from-card via-card/95 to-muted/10">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-3 text-xl font-elegant">
-              <div className="w-8 h-8 bg-gradient-primary rounded-full flex items-center justify-center">
-                <Users className="h-4 w-4 text-primary-foreground" />
-              </div>
-              How did you hear about us?
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
+        <div className="space-y-6">
             <FormField
               control={form.control}
               name="referral_source"
@@ -299,8 +249,7 @@ export const FinalStep = ({ form, variant = 'regular' }: FinalStepProps) => {
                 </FormItem>
               )}
             />
-          </CardContent>
-        </Card>
+        </div>
       </div>
 
       <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 rounded-lg p-4 text-center">
