@@ -3,7 +3,6 @@ import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { ContactStep } from "./alternative-form/ContactStep";
@@ -304,17 +303,16 @@ export const SinglePageQuoteForm = ({ variant = 'regular', onSuccess }: SinglePa
         totalCount={SECTIONS.filter(s => s.required).length}
       />
 
-      <Card className="neumorphic-card-1 border-0 bg-gradient-to-br from-card via-card/95 to-muted/10">
-        <FormProvider {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="p-6 md:p-8 space-y-6">
-            <Accordion 
-              type="multiple" 
-              value={openSections} 
-              onValueChange={setOpenSections}
-              className="space-y-4"
-            >
-              {/* Contact Section */}
-              <AccordionItem value="contact" className="neumorphic-card-2 border-0 rounded-lg overflow-hidden">
+      <FormProvider {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <Accordion 
+            type="multiple" 
+            value={openSections} 
+            onValueChange={setOpenSections}
+            className="space-y-4"
+          >
+            {/* Contact Section */}
+            <AccordionItem value="contact" className="neumorphic-card-2 border-0 rounded-xl overflow-hidden bg-card/50 backdrop-blur-sm">
                 <AccordionTrigger className="px-6 py-4 hover:no-underline">
                   <FormSectionHeader
                     icon={User}
@@ -329,7 +327,7 @@ export const SinglePageQuoteForm = ({ variant = 'regular', onSuccess }: SinglePa
               </AccordionItem>
 
               {/* Event Details Section */}
-              <AccordionItem value="event" className="neumorphic-card-2 border-0 rounded-lg overflow-hidden">
+              <AccordionItem value="event" className="neumorphic-card-2 border-0 rounded-xl overflow-hidden bg-card/50 backdrop-blur-sm">
                 <AccordionTrigger className="px-6 py-4 hover:no-underline">
                   <FormSectionHeader
                     icon={Calendar}
@@ -344,7 +342,7 @@ export const SinglePageQuoteForm = ({ variant = 'regular', onSuccess }: SinglePa
               </AccordionItem>
 
               {/* Service Selection Section */}
-              <AccordionItem value="service" className="neumorphic-card-2 border-0 rounded-lg overflow-hidden">
+              <AccordionItem value="service" className="neumorphic-card-2 border-0 rounded-xl overflow-hidden bg-card/50 backdrop-blur-sm">
                 <AccordionTrigger className="px-6 py-4 hover:no-underline">
                   <FormSectionHeader
                     icon={ChefHat}
@@ -359,7 +357,7 @@ export const SinglePageQuoteForm = ({ variant = 'regular', onSuccess }: SinglePa
               </AccordionItem>
 
               {/* Menu Selection Section */}
-              <AccordionItem value="menu" className="neumorphic-card-2 border-0 rounded-lg overflow-hidden">
+              <AccordionItem value="menu" className="neumorphic-card-2 border-0 rounded-xl overflow-hidden bg-card/50 backdrop-blur-sm">
                 <AccordionTrigger className="px-6 py-4 hover:no-underline">
                   <FormSectionHeader
                     icon={UtensilsCrossed}
@@ -374,7 +372,7 @@ export const SinglePageQuoteForm = ({ variant = 'regular', onSuccess }: SinglePa
               </AccordionItem>
 
               {/* Additional Info Section */}
-              <AccordionItem value="additional" className="neumorphic-card-2 border-0 rounded-lg overflow-hidden">
+              <AccordionItem value="additional" className="neumorphic-card-2 border-0 rounded-xl overflow-hidden bg-card/50 backdrop-blur-sm">
                 <AccordionTrigger className="px-6 py-4 hover:no-underline">
                   <FormSectionHeader
                     icon={FileText}
@@ -412,9 +410,8 @@ export const SinglePageQuoteForm = ({ variant = 'regular', onSuccess }: SinglePa
                 )}
               </Button>
             </div>
-          </form>
-        </FormProvider>
-      </Card>
+        </form>
+      </FormProvider>
     </div>
   );
 };

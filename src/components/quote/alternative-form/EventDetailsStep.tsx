@@ -2,8 +2,7 @@ import { UseFormReturn } from "react-hook-form";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, Clock, Users, MapPin, PartyPopper } from "lucide-react";
+import { Calendar, Clock, Users, MapPin } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 import { formatEventName, formatLocation } from "@/utils/textFormatters";
@@ -48,27 +47,9 @@ export const EventDetailsStep = ({ form, trackFieldInteraction, variant = 'regul
 
   return (
     <div ref={ref} className={`space-y-6 ${animationClass}`}>
-      <div className="text-center mb-8">
-        <h2 className="text-2xl md:text-3xl font-elegant text-foreground mb-3 title-hover-motion">
-          Tell Us About Your Event
-        </h2>
-        <p className="text-muted-foreground text-lg">
-          The more we know about your celebration, the better we can serve you.
-        </p>
-      </div>
-
       <div className="grid md:grid-cols-2 gap-6">
         {/* Event Basic Info */}
-        <Card className="neumorphic-card-1 border-0 bg-gradient-to-br from-card via-card/95 to-muted/10">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-3 text-xl font-elegant">
-              <div className="w-8 h-8 bg-gradient-primary rounded-full flex items-center justify-center">
-                <PartyPopper className="h-4 w-4 text-primary-foreground" />
-              </div>
-              Event Details
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
+        <div className="space-y-6">
             <FormField
               control={form.control}
               name="event_name"
@@ -155,20 +136,10 @@ export const EventDetailsStep = ({ form, trackFieldInteraction, variant = 'regul
                 </FormItem>
               )}
             />
-          </CardContent>
-        </Card>
+        </div>
 
         {/* Date, Time & Location */}
-        <Card className="neumorphic-card-1 border-0 bg-gradient-to-br from-card via-card/95 to-muted/10">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-3 text-xl font-elegant">
-              <div className="w-8 h-8 bg-gradient-primary rounded-full flex items-center justify-center">
-                <Calendar className="h-4 w-4 text-primary-foreground" />
-              </div>
-              When & Where
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
+        <div className="space-y-6">
             <FormField
               control={form.control}
               name="event_date"
@@ -275,8 +246,7 @@ export const EventDetailsStep = ({ form, trackFieldInteraction, variant = 'regul
                 </FormItem>
               )}
             />
-          </CardContent>
-        </Card>
+        </div>
       </div>
 
       <div className="bg-gradient-to-r from-gold/10 via-gold/5 to-gold/10 rounded-lg p-4 text-center">
