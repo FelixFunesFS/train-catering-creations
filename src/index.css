@@ -230,6 +230,12 @@
     transition: all var(--transition-duration) ease;
   }
 
+  .neumorphic-card-2-static {
+    @apply bg-gradient-to-br from-card to-muted border border-border/30;
+    box-shadow: var(--shadow-neumorphic-2);
+    transition: box-shadow var(--transition-duration) ease;
+  }
+
   .neumorphic-card-3 {
     @apply bg-gradient-to-br from-card to-muted border border-border/30;
     box-shadow: var(--shadow-neumorphic-3);
