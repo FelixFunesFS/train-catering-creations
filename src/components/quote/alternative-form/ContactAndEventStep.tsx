@@ -66,7 +66,7 @@ export const ContactAndEventStep = ({ form, trackFieldInteraction, variant = 're
               control={form.control}
               name="contact_name"
               render={({ field }) => (
-                <FormItem className="mb-4">
+                <FormItem className="mb-3">
                   <FormLabel>Full Name *</FormLabel>
                   <FormControl>
                     <Input
@@ -89,7 +89,7 @@ export const ContactAndEventStep = ({ form, trackFieldInteraction, variant = 're
               control={form.control}
               name="email"
               render={({ field }) => (
-                <FormItem className="mb-4">
+                <FormItem className="mb-3">
                   <FormLabel>Email Address *</FormLabel>
                   <FormControl>
                     <Input
@@ -114,7 +114,7 @@ export const ContactAndEventStep = ({ form, trackFieldInteraction, variant = 're
               control={form.control}
               name="phone"
               render={({ field }) => (
-                <FormItem className="mb-4">
+                <FormItem className="mb-3">
                   <FormLabel>Phone Number *</FormLabel>
                   <FormControl>
                     <Input
@@ -138,7 +138,7 @@ export const ContactAndEventStep = ({ form, trackFieldInteraction, variant = 're
               control={form.control}
               name="event_name"
               render={({ field }) => (
-                <FormItem className="mb-4">
+                <FormItem className="mb-3">
                   <FormLabel>Event Name *</FormLabel>
                   <FormControl>
                     <Input
@@ -206,7 +206,7 @@ export const ContactAndEventStep = ({ form, trackFieldInteraction, variant = 're
               control={form.control}
               name="guest_count"
               render={({ field }) => (
-                <FormItem className="mb-4">
+                <FormItem className="mb-3">
                   <FormLabel>Number of Guests *</FormLabel>
                   <FormControl>
                     <Input
@@ -228,7 +228,7 @@ export const ContactAndEventStep = ({ form, trackFieldInteraction, variant = 're
               control={form.control}
               name="event_date"
               render={({ field }) => (
-                <FormItem className="mb-4">
+                <FormItem className="mb-3">
                   <FormLabel>Event Date *</FormLabel>
                   <FormControl>
                     <Input
@@ -248,7 +248,7 @@ export const ContactAndEventStep = ({ form, trackFieldInteraction, variant = 're
               control={form.control}
               name="start_time"
               render={({ field }) => (
-                <FormItem className="mb-4">
+                <FormItem className="mb-3">
                   <FormLabel>Start Time *</FormLabel>
                   <FormControl>
                     <Input
@@ -267,7 +267,7 @@ export const ContactAndEventStep = ({ form, trackFieldInteraction, variant = 're
               control={form.control}
               name="location"
               render={({ field }) => (
-                <FormItem className="mb-4">
+                <FormItem className="mb-3">
                   <FormLabel>Event Location *</FormLabel>
                   <FormControl>
                     <Input
