@@ -105,20 +105,101 @@ export const ReviewSummaryCard = ({ form, variant }: ReviewSummaryCardProps) => 
             </div>
           </div>
 
-          {/* Service & Menu */}
-          <div className="border-l-4 border-primary/20 bg-muted/30 p-4 rounded-lg">
+          {/* Service & Menu - EXPANDED */}
+          <div className="md:col-span-2 border-l-4 border-primary/20 bg-muted/30 p-4 rounded-lg">
             <div className="flex items-center gap-2 text-primary mb-3">
               <ChefHat className="h-4 w-4" />
-              <span className="text-sm font-medium">Service & Menu</span>
+              <span className="text-sm font-medium">Service & Menu Selections</span>
             </div>
-            <div className="space-y-2 text-sm">
-              <p className="text-foreground">{getServiceTypeLabel(watchedValues.service_type)}</p>
-              <div className="flex items-center gap-2">
-                <Badge variant="secondary" className="text-xs">
-                  {countMenuItems()} menu items selected
-                </Badge>
+            
+            {/* Service Type */}
+            <div className="mb-4">
+              <p className="text-xs text-muted-foreground mb-1">Service Type</p>
+              <p className="text-sm font-medium text-foreground">
+                {getServiceTypeLabel(watchedValues.service_type)}
+              </p>
+            </div>
+
+            {/* Menu Items */}
+            {countMenuItems() > 0 ? (
+              <div className="space-y-3">
+                {/* Proteins */}
+                {watchedValues.primary_protein?.length > 0 && (
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1.5 flex items-center gap-1">
+                      <UtensilsCrossed className="h-3 w-3" /> Proteins
+                    </p>
+                    <div className="flex flex-wrap gap-1">
+                      {watchedValues.primary_protein.map((id: string, idx: number) => (
+                        <Badge key={idx} variant="secondary" className="text-xs">
+                          {id.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Sides */}
+                {watchedValues.sides?.length > 0 && (
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1.5">Sides</p>
+                    <div className="flex flex-wrap gap-1">
+                      {watchedValues.sides.map((id: string, idx: number) => (
+                        <Badge key={idx} variant="secondary" className="text-xs">
+                          {id.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Appetizers */}
+                {watchedValues.appetizers?.length > 0 && (
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1.5">Appetizers</p>
+                    <div className="flex flex-wrap gap-1">
+                      {watchedValues.appetizers.map((id: string, idx: number) => (
+                        <Badge key={idx} variant="secondary" className="text-xs">
+                          {id.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Desserts */}
+                {watchedValues.desserts?.length > 0 && (
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1.5">Desserts</p>
+                    <div className="flex flex-wrap gap-1">
+                      {watchedValues.desserts.map((id: string, idx: number) => (
+                        <Badge key={idx} variant="secondary" className="text-xs">
+                          {id.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Beverages */}
+                {watchedValues.drinks?.length > 0 && (
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1.5">Beverages</p>
+                    <div className="flex flex-wrap gap-1">
+                      {watchedValues.drinks.map((id: string, idx: number) => (
+                        <Badge key={idx} variant="secondary" className="text-xs">
+                          {id.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
+            ) : (
+              <p className="text-sm text-muted-foreground italic">
+                No menu items selected yet
+              </p>
+            )}
           </div>
         </div>
 

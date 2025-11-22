@@ -40,7 +40,7 @@ export const ServiceSelectionStep = ({ form, trackFieldInteraction }: ServiceSel
                     value={field.value}
                     className="space-y-4"
                   >
-                    <div className="bg-card/50 backdrop-blur-sm p-4 rounded-lg border border-border/50 hover:border-primary/50 transition-colors duration-300">
+                    <div className="bg-card p-4 rounded-lg border border-border/50 hover:border-primary/50 transition-colors duration-300">
                       <div className="flex items-start space-x-3">
                         <RadioGroupItem value="drop-off" id="drop-off" className="mt-1" />
                         <div className="flex-1">
@@ -53,14 +53,14 @@ export const ServiceSelectionStep = ({ form, trackFieldInteraction }: ServiceSel
                           </p>
                           <div className="flex items-center gap-4 mt-3 ml-8 text-xs text-muted-foreground">
                             <span>✓ Fresh, hot food delivery</span>
-                            <span>✓ Disposable containers included</span>
                             <span>✓ Serving utensils provided</span>
+                            <span>✓ Disposable containers</span>
                           </div>
                         </div>
                       </div>
                     </div>
 
-                    <div className="bg-card/50 backdrop-blur-sm p-4 rounded-lg border border-border/50 hover:border-primary/50 transition-colors duration-300">
+                    <div className="bg-card p-4 rounded-lg border border-border/50 hover:border-primary/50 transition-colors duration-300">
                       <div className="flex items-start space-x-3">
                         <RadioGroupItem value="delivery-setup" id="delivery-setup" className="mt-1" />
                         <div className="flex-1">
@@ -74,14 +74,14 @@ export const ServiceSelectionStep = ({ form, trackFieldInteraction }: ServiceSel
                           </p>
                           <div className="flex items-center gap-4 mt-3 ml-8 text-xs text-muted-foreground">
                             <span>✓ Professional food setup</span>
-                            <span>✓ Chafing dishes included</span>
-                            <span>✓ Elegant presentation</span>
+                            <span>✓ Serving utensils provided</span>
+                            <span>✓ Disposable chafing dishes with fuel</span>
                           </div>
                         </div>
                       </div>
                     </div>
 
-                    <div className="bg-card/50 backdrop-blur-sm p-4 rounded-lg border border-border/50 hover:border-primary/50 transition-colors duration-300">
+                    <div className="bg-card p-4 rounded-lg border border-border/50 hover:border-primary/50 transition-colors duration-300">
                       <div className="flex items-start space-x-3">
                         <RadioGroupItem value="full-service" id="full-service" className="mt-1" />
                         <div className="flex-1">

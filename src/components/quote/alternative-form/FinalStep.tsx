@@ -77,7 +77,7 @@ export const FinalStep = ({ form, variant = 'regular' }: FinalStepProps) => {
           control={form.control}
           name="complete_setup_package"
           render={({ field }) => (
-            <FormItem className="flex items-start space-x-3 space-y-0 rounded-md border border-muted bg-card/50 backdrop-blur-sm p-4">
+            <FormItem className="flex items-start space-x-3 space-y-0 rounded-md border border-muted bg-card p-4">
               <FormControl>
                 <Checkbox
                   checked={field.value}
