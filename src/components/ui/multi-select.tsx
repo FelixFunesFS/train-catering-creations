@@ -82,8 +82,8 @@ export function MultiSelect({
           role="combobox"
           aria-expanded={open}
           className={cn(
-            "w-full justify-between min-h-[2.5rem] h-auto px-3 py-2 input-clean",
-            className
+            "w-full justify-between min-h-[2.5rem] h-auto px-3 py-2",
+            className || "input-clean"
           )}
         >
           <div className="flex flex-wrap gap-1 flex-1">

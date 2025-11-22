@@ -272,6 +272,26 @@
     transform: none;
   }
 
+  /* Neutral input styles - subtle gray focus/hover, no red */
+  .input-neutral {
+    @apply bg-background border border-input;
+    box-shadow: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .input-neutral:hover {
+    @apply border-muted-foreground/20;
+    box-shadow: none;
+    transform: none;
+  }
+
+  .input-neutral:focus,
+  .input-neutral:focus-visible {
+    @apply border-muted-foreground/40 outline-none;
+    box-shadow: none;
+    transform: none;
+  }
+
   /* Standardized neumorphic button system with Ruby gradient */
   .neumorphic-button-primary {
     background: var(--gradient-ruby-primary);

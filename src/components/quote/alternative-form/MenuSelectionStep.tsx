@@ -195,6 +195,7 @@ export const MenuSelectionStep = ({ form, trackFieldInteraction, variant = 'regu
                   placeholder="Search and select proteins..."
                   searchPlaceholder="Search proteins..."
                   maxDisplayed={4}
+                  className="input-neutral"
                 />
               </FormControl>
               <p className="text-xs text-muted-foreground mt-1">
@@ -219,6 +220,7 @@ export const MenuSelectionStep = ({ form, trackFieldInteraction, variant = 'regu
                   placeholder="Select sides..."
                   searchPlaceholder="Search sides..."
                   maxDisplayed={3}
+                  className="input-neutral"
                 />
               </FormControl>
               <FormMessage />
@@ -243,6 +245,7 @@ export const MenuSelectionStep = ({ form, trackFieldInteraction, variant = 'regu
                   placeholder="Select appetizers..."
                   searchPlaceholder="Search appetizers..."
                   maxDisplayed={2}
+                  className="input-neutral"
                 />
               </FormControl>
               <FormMessage />
@@ -264,6 +267,7 @@ export const MenuSelectionStep = ({ form, trackFieldInteraction, variant = 'regu
                   placeholder="Select desserts..."
                   searchPlaceholder="Search desserts..."
                   maxDisplayed={2}
+                  className="input-neutral"
                 />
               </FormControl>
               <FormMessage />
@@ -285,6 +289,7 @@ export const MenuSelectionStep = ({ form, trackFieldInteraction, variant = 'regu
                   placeholder="Select beverages..."
                   searchPlaceholder="Search beverages..."
                   maxDisplayed={2}
+                  className="input-neutral"
                 />
               </FormControl>
               <FormMessage />
@@ -331,7 +336,7 @@ export const MenuSelectionStep = ({ form, trackFieldInteraction, variant = 'regu
                   type="number"
                   placeholder="Number of vegetarian meals needed"
                   min="0"
-                  className="h-12 text-base input-clean"
+                  className="h-12 text-base input-neutral"
                   {...field}
                 />
               </FormControl>
