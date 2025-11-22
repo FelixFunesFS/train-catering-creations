@@ -63,7 +63,7 @@ export const ReviewSummaryCard = ({ form, variant }: ReviewSummaryCardProps) => 
       <CardContent>
         <div className="grid md:grid-cols-2 gap-4">
           {/* Contact Info */}
-          <div className="neumorphic-card-2 p-4 rounded-lg space-y-2">
+          <div className="border-l-4 border-primary/20 bg-muted/30 p-4 rounded-lg">
             <div className="flex items-center gap-2 text-primary mb-3">
               <User className="h-4 w-4" />
               <span className="text-sm font-medium">Contact Information</span>
@@ -76,7 +76,7 @@ export const ReviewSummaryCard = ({ form, variant }: ReviewSummaryCardProps) => 
           </div>
 
           {/* Event Details */}
-          <div className="neumorphic-card-2 p-4 rounded-lg space-y-2">
+          <div className="border-l-4 border-primary/20 bg-muted/30 p-4 rounded-lg">
             <div className="flex items-center gap-2 text-primary mb-3">
               <Calendar className="h-4 w-4" />
               <span className="text-sm font-medium">Event Details</span>
@@ -89,7 +89,7 @@ export const ReviewSummaryCard = ({ form, variant }: ReviewSummaryCardProps) => 
           </div>
 
           {/* Location & Guests */}
-          <div className="neumorphic-card-2 p-4 rounded-lg space-y-2">
+          <div className="border-l-4 border-primary/20 bg-muted/30 p-4 rounded-lg">
             <div className="flex items-center gap-2 text-primary mb-3">
               <MapPin className="h-4 w-4" />
               <span className="text-sm font-medium">Location & Guests</span>
@@ -106,7 +106,7 @@ export const ReviewSummaryCard = ({ form, variant }: ReviewSummaryCardProps) => 
           </div>
 
           {/* Service & Menu */}
-          <div className="neumorphic-card-2 p-4 rounded-lg space-y-2">
+          <div className="border-l-4 border-primary/20 bg-muted/30 p-4 rounded-lg">
             <div className="flex items-center gap-2 text-primary mb-3">
               <ChefHat className="h-4 w-4" />
               <span className="text-sm font-medium">Service & Menu</span>
