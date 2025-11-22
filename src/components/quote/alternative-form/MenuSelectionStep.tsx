@@ -148,274 +148,200 @@ export const MenuSelectionStep = ({ form, trackFieldInteraction, variant = 'regu
   // Watch both proteins available toggle
   const bothProteinsAvailable = form.watch("both_proteins_available");
 
-  // Dietary restrictions options
-  const dietaryOptions = [
-    { id: "vegetarian", name: "Vegetarian" },
-    { id: "vegan", name: "Vegan" },
-    { id: "gluten-free", name: "Gluten-Free" },
-    { id: "dairy-free", name: "Dairy-Free" },
-    { id: "nut-allergies", name: "Nut Allergies" },
-    { id: "halal", name: "Halal" },
-    { id: "kosher", name: "Kosher" },
-  ];
-
-  const handleMenuItemToggle = (category: string, itemId: string) => {
-    const currentItems = form.getValues(category) || [];
-    const updatedItems = currentItems.includes(itemId)
-      ? currentItems.filter((id: string) => id !== itemId)
-      : [...currentItems, itemId];
-    
-    form.setValue(category, updatedItems);
-  };
-
-  const MenuItemCard = ({ item, isSelected, onToggle }: { item: any; isSelected: boolean; onToggle: () => void }) => (
-    <div 
-      className={`bg-card/50 backdrop-blur-sm p-4 rounded-lg border border-border/50 cursor-pointer transition-colors duration-300 hover:border-primary/50 ${
-        isSelected ? 'ring-2 ring-primary/30 bg-primary/5' : ''
-      }`}
-      onClick={onToggle}
-    >
-      <div className="flex items-center space-x-3">
-        <Checkbox checked={isSelected} onChange={() => {}} className="pointer-events-none" />
-        <div className="flex-1">
-          <div className="flex items-center gap-2">
-            <span className="font-medium">{item.name}</span>
-            {item.isPopular && <Badge variant="secondary" className="text-xs bg-primary/10 text-primary">Popular</Badge>}
-            {item.isPremium && <Badge variant="secondary" className="text-xs bg-gold/10 text-gold">Premium</Badge>}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
   return (
-    <div ref={ref} className={`space-y-6 ${animationClass}`}>
-      {/* Main Proteins */}
-      <div className="space-y-6">
-          <div className="bg-gradient-to-r from-muted/20 via-muted/10 to-muted/20 rounded-lg p-4 text-sm text-muted-foreground">
-            <p>
-              <strong>Selection Guide:</strong> Guests will have the option to select between 1 protein selection. 
-              Please indicate if you would like guests to have the option to have both proteins available.
-            </p>
-          </div>
+    <div ref={ref} className={`space-y-8 ${animationClass}`}>
+      {/* Both Proteins Available Toggle */}
+      <FormField
+        control={form.control}
+        name="both_proteins_available"
+        render={({ field }) => (
+          <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border border-muted p-4">
+            <FormControl>
+              <Checkbox
+                checked={field.value}
+                onCheckedChange={field.onChange}
+              />
+            </FormControl>
+            <div className="space-y-1 leading-none">
+              <FormLabel className="text-sm font-medium">
+                Allow guests to choose from multiple proteins
+              </FormLabel>
+              <p className="text-xs text-muted-foreground">
+                When enabled, guests can select from {bothProteinsAvailable ? "all" : "one"} of your chosen proteins
+              </p>
+            </div>
+          </FormItem>
+        )}
+      />
 
-          <FormField
-            control={form.control}
-            name="both_proteins_available"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border border-muted p-4">
-                <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-                <div className="space-y-1 leading-none">
-                  <FormLabel className="text-sm font-medium">
-                    Allow guests to choose from multiple proteins
-                  </FormLabel>
-                  <p className="text-xs text-muted-foreground">
-                    When enabled, guests can select from {bothProteinsAvailable ? "all" : "one"} of your chosen proteins
-                  </p>
-                </div>
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            control={form.control}
-            name="primary_protein"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-base font-medium mb-2 block">
-                  Select Proteins {bothProteinsAvailable ? "(Multiple allowed)" : "(Choose up to 2)"} *
-                </FormLabel>
-                <FormControl>
-                  <MultiSelect
-                    options={proteinOptions}
-                    selected={field.value || []}
-                    onChange={(value) => {
-                      trackFieldInteraction('primary_protein');
-                      field.onChange(value);
-                    }}
-                    placeholder="Search and select proteins..."
-                    searchPlaceholder="Search proteins..."
-                    maxDisplayed={4}
-                  />
-                </FormControl>
-                <p className="text-xs text-muted-foreground mt-1">
-                  ⭐ Popular • 💎 Premium • 🌱 Dietary-Friendly
-                </p>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            control={form.control}
-            name="custom_menu_requests"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-sm font-medium">
-                  Custom protein requests or special preparations
-                </FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder="Any specific protein preparations, dietary modifications, or custom requests..."
-                    className="min-h-[100px] input-clean"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-      </div>
-
-      {/* Appetizers & Starters */}
-      <div className="space-y-6">
-          <FormField
-            control={form.control}
-            name="appetizers"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-base font-medium mb-2 block">Select Appetizers</FormLabel>
-                <FormControl>
-                  <MultiSelect
-                    options={appetizerOptions}
-                    selected={field.value || []}
-                    onChange={field.onChange}
-                    placeholder="Select appetizers..."
-                    searchPlaceholder="Search appetizers..."
-                    maxDisplayed={3}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-      </div>
-
-      {/* Sides */}
-      <div className="space-y-6">
-          <FormField
-            control={form.control}
-            name="sides"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-base font-medium mb-2 block">Select Sides *</FormLabel>
-                <FormControl>
-                  <MultiSelect
-                    options={sidesOptions}
-                    selected={field.value || []}
-                    onChange={field.onChange}
-                    placeholder="Select sides..."
-                    searchPlaceholder="Search sides..."
-                    maxDisplayed={3}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-      </div>
-
-      {/* Desserts */}
-      <div className="space-y-6">
-          <FormField
-            control={form.control}
-            name="desserts"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-base font-medium mb-2 block">Select Desserts</FormLabel>
-                <FormControl>
-                  <MultiSelect
-                    options={dessertOptions}
-                    selected={field.value || []}
-                    onChange={field.onChange}
-                    placeholder="Select desserts..."
-                    searchPlaceholder="Search desserts..."
-                    maxDisplayed={3}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-      </div>
-
-      {/* Beverages */}
-      <div className="space-y-6">
-          <FormField
-            control={form.control}
-            name="drinks"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-base font-medium mb-2 block">Select Beverages *</FormLabel>
-                <FormControl>
-                  <MultiSelect
-                    options={drinkOptions}
-                    selected={field.value || []}
-                    onChange={field.onChange}
-                    placeholder="Select beverages..."
-                    searchPlaceholder="Search beverages..."
-                    maxDisplayed={3}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-      </div>
-
-      {/* Dietary Restrictions */}
-      <div className="space-y-6">
-        <div>
-          <FormLabel className="text-base font-medium mb-4 block">
-            Special Dietary Accommodations
-          </FormLabel>
-          <p className="text-sm text-muted-foreground mb-4">
-            Select any dietary restrictions we should accommodate for your guests
-          </p>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {dietaryOptions.map((option) => {
-              const currentRestrictions = form.watch("dietary_restrictions") || [];
-              const isSelected = currentRestrictions.includes(option.id);
-
-              return (
-                <MenuItemCard
-                  key={option.id}
-                  item={option}
-                  isSelected={isSelected}
-                  onToggle={() => handleMenuItemToggle("dietary_restrictions", option.id)}
+      {/* Row 1: Core Meal Items (Proteins + Sides) */}
+      <div className="grid md:grid-cols-2 gap-6">
+        <FormField
+          control={form.control}
+          name="primary_protein"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-base font-medium mb-2 block">
+                Select Proteins {bothProteinsAvailable ? "(Multiple allowed)" : "(Choose up to 2)"} *
+              </FormLabel>
+              <FormControl>
+                <MultiSelect
+                  options={proteinOptions}
+                  selected={field.value || []}
+                  onChange={(value) => {
+                    trackFieldInteraction('primary_protein');
+                    field.onChange(value);
+                  }}
+                  placeholder="Search and select proteins..."
+                  searchPlaceholder="Search proteins..."
+                  maxDisplayed={4}
                 />
-              );
-            })}
-          </div>
+              </FormControl>
+              <p className="text-xs text-muted-foreground mt-1">
+                ⭐ Popular • 💎 Premium • 🌱 Dietary-Friendly
+              </p>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-          <FormField
-            control={form.control}
-            name="guest_count_with_restrictions"
-            render={({ field }) => (
-              <FormItem className="mt-4">
-                <FormLabel className="text-sm">
-                  Approximate number of guests with dietary restrictions
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    placeholder="e.g., 5"
-                    min="0"
-                    className="h-12 text-base input-clean max-w-xs"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+        <FormField
+          control={form.control}
+          name="sides"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-base font-medium mb-2 block">Select Sides *</FormLabel>
+              <FormControl>
+                <MultiSelect
+                  options={sidesOptions}
+                  selected={field.value || []}
+                  onChange={field.onChange}
+                  placeholder="Select sides..."
+                  searchPlaceholder="Search sides..."
+                  maxDisplayed={3}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+
+      {/* Row 2: Additional Items (Appetizers + Desserts + Beverages) */}
+      <div className="grid md:grid-cols-3 gap-6">
+        <FormField
+          control={form.control}
+          name="appetizers"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-base font-medium mb-2 block">Appetizers</FormLabel>
+              <FormControl>
+                <MultiSelect
+                  options={appetizerOptions}
+                  selected={field.value || []}
+                  onChange={field.onChange}
+                  placeholder="Select appetizers..."
+                  searchPlaceholder="Search appetizers..."
+                  maxDisplayed={2}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="desserts"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-base font-medium mb-2 block">Desserts</FormLabel>
+              <FormControl>
+                <MultiSelect
+                  options={dessertOptions}
+                  selected={field.value || []}
+                  onChange={field.onChange}
+                  placeholder="Select desserts..."
+                  searchPlaceholder="Search desserts..."
+                  maxDisplayed={2}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="drinks"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-base font-medium mb-2 block">Beverages *</FormLabel>
+              <FormControl>
+                <MultiSelect
+                  options={drinkOptions}
+                  selected={field.value || []}
+                  onChange={field.onChange}
+                  placeholder="Select beverages..."
+                  searchPlaceholder="Search beverages..."
+                  maxDisplayed={2}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+
+      {/* Row 3: Custom Requests + Vegetarian Portions */}
+      <div className="grid md:grid-cols-2 gap-6">
+        <FormField
+          control={form.control}
+          name="custom_menu_requests"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-base font-medium mb-2 block">
+                Custom Menu Requests
+              </FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder="Any special preparations, dietary modifications, or custom menu requests..."
+                  className="min-h-[140px] input-clean resize-none"
+                  {...field}
+                />
+              </FormControl>
+              <p className="text-xs text-muted-foreground mt-1">
+                Include any specific protein preparations, substitutions, or special needs
+              </p>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="vegetarian_portion_count"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-base font-medium mb-2 block">
+                Vegetarian Portions
+              </FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  placeholder="Number of vegetarian meals needed"
+                  min="0"
+                  className="h-12 text-base input-clean"
+                  {...field}
+                />
+              </FormControl>
+              <p className="text-xs text-muted-foreground mt-1">
+                How many guests require vegetarian meal options?
+              </p>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
       </div>
     </div>
   );
