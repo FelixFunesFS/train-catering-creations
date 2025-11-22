@@ -1,5 +1,5 @@
 import { ResponsiveWrapper } from "@/components/ui/responsive-wrapper";
-import { UnifiedQuoteForm } from "@/components/quote/UnifiedQuoteForm";
+import { SinglePageQuoteForm } from "@/components/quote/SinglePageQuoteForm";
 import { RequestThrottling } from "@/components/security/RequestThrottling";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
@@ -41,9 +41,9 @@ export default function RegularEventQuote() {
 
       {/* Form Section */}
       <ResponsiveWrapper>
-        <div className="max-w-4xl mx-auto pb-20">
+        <div className="max-w-5xl mx-auto pb-20">
           <RequestThrottling maxRequests={3} timeWindowMinutes={60} storageKey="regular_quote_requests">
-            <UnifiedQuoteForm variant="regular" />
+            <SinglePageQuoteForm variant="regular" />
           </RequestThrottling>
         </div>
       </ResponsiveWrapper>
