@@ -78,7 +78,6 @@ export const formSchema = z.object({
     }, {
       message: "Must be a valid number between 0 and 500"
     }),
-  custom_menu_requests: z.string().optional(),
   
   // Additional Services
   plates_requested: z.boolean().default(false),

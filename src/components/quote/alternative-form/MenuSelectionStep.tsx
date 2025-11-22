@@ -298,56 +298,31 @@ export const MenuSelectionStep = ({ form, trackFieldInteraction, variant = 'regu
         />
       </div>
 
-      {/* Row 3: Custom Requests + Vegetarian Portions */}
-      <div className="grid md:grid-cols-2 gap-6">
-        <FormField
-          control={form.control}
-          name="custom_menu_requests"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-base font-medium mb-2 block">
-                Custom Menu Requests
-              </FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Any special preparations, dietary modifications, or custom menu requests..."
-                  className="min-h-[140px] input-clean resize-none"
-                  {...field}
-                />
-              </FormControl>
-              <p className="text-xs text-muted-foreground mt-1">
-                Include any specific protein preparations, substitutions, or special needs
-              </p>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="vegetarian_portion_count"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-base font-medium mb-2 block">
-                Vegetarian Portions
-              </FormLabel>
-              <FormControl>
-                <Input
-                  type="number"
-                  placeholder="Number of vegetarian meals needed"
-                  min="0"
-                  className="h-12 text-base input-neutral"
-                  {...field}
-                />
-              </FormControl>
-              <p className="text-xs text-muted-foreground mt-1">
-                How many guests require vegetarian meal options?
-              </p>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
+      {/* Vegetarian Portions */}
+      <FormField
+        control={form.control}
+        name="vegetarian_portion_count"
+        render={({ field }) => (
+          <FormItem className="max-w-md">
+            <FormLabel className="text-base font-medium mb-2 block">
+              Vegetarian Portions
+            </FormLabel>
+            <FormControl>
+              <Input
+                type="number"
+                placeholder="Number of vegetarian meals needed"
+                min="0"
+                className="h-12 text-base input-neutral"
+                {...field}
+              />
+            </FormControl>
+            <p className="text-xs text-muted-foreground mt-1">
+              How many guests require vegetarian meal options?
+            </p>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
     </div>
   );
 };

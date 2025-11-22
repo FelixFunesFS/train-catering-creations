@@ -71,28 +71,146 @@ export const FinalStep = ({ form, variant = 'regular' }: FinalStepProps) => {
         </div>
       )}
 
-      {/* Complete Setup Package */}
-      <div className="space-y-6">
-        <FormField
-          control={form.control}
-          name="complete_setup_package"
-          render={({ field }) => (
-            <FormItem className="flex items-start space-x-3 space-y-0 rounded-md border border-muted bg-card p-4">
-              <FormControl>
-                <Checkbox
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-              <div className="space-y-1 leading-none">
-                <FormLabel className="text-base font-medium">Complete Setup Package</FormLabel>
-                <p className="text-sm text-muted-foreground">
-                  Includes plates, cups, napkins, serving utensils, chafing dishes, and ice
-                </p>
-              </div>
-            </FormItem>
-          )}
-        />
+      {/* Supply & Equipment Selections */}
+      <div className="space-y-4">
+        <h3 className="text-base font-medium">Supply & Equipment Selections</h3>
+        <p className="text-sm text-muted-foreground">
+          Select the supplies and equipment you'd like included with your catering service
+        </p>
+        
+        <div className="grid md:grid-cols-2 gap-4">
+          {/* Plates */}
+          <FormField
+            control={form.control}
+            name="plates_requested"
+            render={({ field }) => (
+              <FormItem className="flex items-start space-x-3 space-y-0 rounded-md border border-muted bg-card p-4">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel className="text-sm font-medium">Disposable Plates</FormLabel>
+                  <p className="text-xs text-muted-foreground">
+                    Heavy-duty disposable plates for your guests
+                  </p>
+                </div>
+              </FormItem>
+            )}
+          />
+
+          {/* Cups */}
+          <FormField
+            control={form.control}
+            name="cups_requested"
+            render={({ field }) => (
+              <FormItem className="flex items-start space-x-3 space-y-0 rounded-md border border-muted bg-card p-4">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel className="text-sm font-medium">Disposable Cups</FormLabel>
+                  <p className="text-xs text-muted-foreground">
+                    Disposable cups for beverages
+                  </p>
+                </div>
+              </FormItem>
+            )}
+          />
+
+          {/* Napkins */}
+          <FormField
+            control={form.control}
+            name="napkins_requested"
+            render={({ field }) => (
+              <FormItem className="flex items-start space-x-3 space-y-0 rounded-md border border-muted bg-card p-4">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel className="text-sm font-medium">Napkins</FormLabel>
+                  <p className="text-xs text-muted-foreground">
+                    Disposable napkins for your event
+                  </p>
+                </div>
+              </FormItem>
+            )}
+          />
+
+          {/* Serving Utensils */}
+          <FormField
+            control={form.control}
+            name="serving_utensils_requested"
+            render={({ field }) => (
+              <FormItem className="flex items-start space-x-3 space-y-0 rounded-md border border-muted bg-card p-4">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel className="text-sm font-medium">Serving Utensils</FormLabel>
+                  <p className="text-xs text-muted-foreground">
+                    Tongs, spoons, and serving tools
+                  </p>
+                </div>
+              </FormItem>
+            )}
+          />
+
+          {/* Chafing Dishes */}
+          <FormField
+            control={form.control}
+            name="chafers_requested"
+            render={({ field }) => (
+              <FormItem className="flex items-start space-x-3 space-y-0 rounded-md border border-muted bg-card p-4">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel className="text-sm font-medium">Chafing Dishes with Fuel</FormLabel>
+                  <p className="text-xs text-muted-foreground">
+                    Disposable chafing dishes with fuel to keep food warm
+                  </p>
+                </div>
+              </FormItem>
+            )}
+          />
+
+          {/* Ice */}
+          <FormField
+            control={form.control}
+            name="ice_requested"
+            render={({ field }) => (
+              <FormItem className="flex items-start space-x-3 space-y-0 rounded-md border border-muted bg-card p-4">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel className="text-sm font-medium">Ice</FormLabel>
+                  <p className="text-xs text-muted-foreground">
+                    Ice for beverages and cooling
+                  </p>
+                </div>
+              </FormItem>
+            )}
+          />
+        </div>
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
