@@ -5,8 +5,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { ContactStep } from "./alternative-form/ContactStep";
-import { EventDetailsStep } from "./alternative-form/EventDetailsStep";
+import { ContactAndEventStep } from "./alternative-form/ContactAndEventStep";
 import { ServiceSelectionStep } from "./alternative-form/ServiceSelectionStep";
 import { MenuSelectionStep } from "./alternative-form/MenuSelectionStep";
 import { FinalStep } from "./alternative-form/FinalStep";
@@ -29,15 +28,14 @@ interface SinglePageQuoteFormProps {
 }
 
 const SECTIONS = [
-  { id: 'contact', title: 'Contact', icon: User, required: true },
-  { id: 'event', title: 'Event Details', icon: Calendar, required: true },
+  { id: 'contact-event', title: 'Event & Contact', icon: Calendar, required: true },
   { id: 'service', title: 'Service Type', icon: ChefHat, required: true },
   { id: 'menu', title: 'Menu Selection', icon: UtensilsCrossed, required: false },
   { id: 'additional', title: 'Additional Info', icon: FileText, required: false },
 ];
 
 export const SinglePageQuoteForm = ({ variant = 'regular', onSuccess }: SinglePageQuoteFormProps) => {
-  const [openSections, setOpenSections] = useState<string[]>(['contact']);
+  const [openSections, setOpenSections] = useState<string[]>(['contact-event']);
   const [completedSections, setCompletedSections] = useState<Set<string>>(new Set());
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -99,11 +97,8 @@ export const SinglePageQuoteForm = ({ variant = 'regular', onSuccess }: SinglePa
     let fields: (keyof FormData)[] = [];
     
     switch (sectionId) {
-      case 'contact':
-        fields = ['contact_name', 'email', 'phone'];
-        break;
-      case 'event':
-        fields = ['event_name', 'event_type', 'event_date', 'start_time', 'guest_count', 'location'];
+      case 'contact-event':
+        fields = ['contact_name', 'email', 'phone', 'event_name', 'event_type', 'event_date', 'start_time', 'guest_count', 'location'];
         break;
       case 'service':
         fields = ['service_type'];
@@ -126,10 +121,8 @@ export const SinglePageQuoteForm = ({ variant = 'regular', onSuccess }: SinglePa
 
       // Determine which section the changed field belongs to
       let currentSection = '';
-      if (['contact_name', 'email', 'phone'].includes(name)) {
-        currentSection = 'contact';
-      } else if (['event_name', 'event_type', 'event_date', 'start_time', 'guest_count', 'location'].includes(name)) {
-        currentSection = 'event';
+      if (['contact_name', 'email', 'phone', 'event_name', 'event_type', 'event_date', 'start_time', 'guest_count', 'location'].includes(name)) {
+        currentSection = 'contact-event';
       } else if (name === 'service_type') {
         currentSection = 'service';
       }
@@ -311,33 +304,18 @@ export const SinglePageQuoteForm = ({ variant = 'regular', onSuccess }: SinglePa
             onValueChange={setOpenSections}
             className="space-y-4"
           >
-            {/* Contact Section */}
-            <AccordionItem value="contact" className="neumorphic-card-2 border-0 rounded-xl overflow-hidden bg-card/50 backdrop-blur-sm">
-                <AccordionTrigger className="px-6 py-4 hover:no-underline">
-                  <FormSectionHeader
-                    icon={User}
-                    title="Contact Information"
-                    isComplete={completedSections.has('contact')}
-                    isRequired
-                  />
-                </AccordionTrigger>
-                <AccordionContent className="px-6 pb-6">
-                  <ContactStep form={form} trackFieldInteraction={trackFieldInteraction} />
-                </AccordionContent>
-              </AccordionItem>
-
-              {/* Event Details Section */}
-              <AccordionItem value="event" className="neumorphic-card-2 border-0 rounded-xl overflow-hidden bg-card/50 backdrop-blur-sm">
+            {/* Event & Contact Information Section */}
+            <AccordionItem value="contact-event" className="neumorphic-card-2 border-0 rounded-xl overflow-hidden bg-card/50 backdrop-blur-sm">
                 <AccordionTrigger className="px-6 py-4 hover:no-underline">
                   <FormSectionHeader
                     icon={Calendar}
-                    title="Event Details"
-                    isComplete={completedSections.has('event')}
+                    title="Event & Contact Information"
+                    isComplete={completedSections.has('contact-event')}
                     isRequired
                   />
                 </AccordionTrigger>
                 <AccordionContent className="px-6 pb-6">
-                  <EventDetailsStep form={form} trackFieldInteraction={trackFieldInteraction} variant={variant} />
+                  <ContactAndEventStep form={form} trackFieldInteraction={trackFieldInteraction} variant={variant} />
                 </AccordionContent>
               </AccordionItem>
 

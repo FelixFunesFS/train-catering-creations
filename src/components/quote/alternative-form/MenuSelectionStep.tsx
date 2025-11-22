@@ -1,21 +1,20 @@
 import { UseFormReturn } from "react-hook-form";
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Textarea } from "@/components/ui/textarea";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { CheckboxCardGrid, CardOption } from "@/components/ui/checkbox-card-grid";
-import { 
-  UtensilsCrossed, 
-  Leaf, 
-  Star, 
-  Crown,
-  Coffee,
-  Cake
-} from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { MultiSelect } from "@/components/ui/multi-select";
+import type { Option } from "@/components/ui/multi-select";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
-import { getMenuItems, additionalMenuItems, dietaryRestrictions } from "@/data/menuData";
+import { getMenuItems, additionalMenuItems } from "@/data/menuData";
+import { Badge } from "@/components/ui/badge";
 
 interface MenuSelectionStepProps {
   form: UseFormReturn<any>;
@@ -24,13 +23,13 @@ interface MenuSelectionStepProps {
 }
 
 export const MenuSelectionStep = ({ form, trackFieldInteraction, variant = 'regular' }: MenuSelectionStepProps) => {
-  const { ref, isVisible } = useScrollAnimation({
+  const { ref, isVisible, variant: animVariant } = useScrollAnimation({
     threshold: 0.2,
     triggerOnce: true,
     delay: 100
   });
 
-  const animationClass = useAnimationClass('fade-up', isVisible);
+  const animationClass = useAnimationClass(animVariant, isVisible);
 
   // Get menu items from shared data source
   const menuItems = getMenuItems(variant);
@@ -39,117 +38,126 @@ export const MenuSelectionStep = ({ form, trackFieldInteraction, variant = 'regu
   // Comprehensive protein options
   const REGULAR_PROTEINS = [
     // Poultry
-    { id: "fried-chicken", name: "Fried Chicken", isPopular: true, category: "poultry" },
-    { id: "bbq-chicken", name: "BBQ Chicken", isPopular: true, category: "poultry" },
-    { id: "baked-chicken", name: "Baked Chicken", category: "poultry" },
-    { id: "chicken-tenders", name: "Chicken Tenders", category: "poultry" },
-    { id: "turkey-wings", name: "Turkey Wings", category: "poultry" },
-    { id: "chicken-alfredo", name: "Chicken Alfredo", category: "poultry" },
-    { id: "chicken-wings", name: "Chicken Wings", category: "poultry" },
+    { id: "fried-chicken", name: "Fried Chicken", isPopular: true, category: "Poultry" },
+    { id: "bbq-chicken", name: "BBQ Chicken", isPopular: true, category: "Poultry" },
+    { id: "baked-chicken", name: "Baked Chicken", category: "Poultry" },
+    { id: "chicken-tenders", name: "Chicken Tenders", category: "Poultry" },
+    { id: "turkey-wings", name: "Turkey Wings", category: "Poultry" },
+    { id: "chicken-alfredo", name: "Chicken Alfredo", category: "Poultry" },
+    { id: "chicken-wings", name: "Chicken Wings", category: "Poultry" },
     
     // Beef & Pork
-    { id: "pulled-pork", name: "Pulled Pork", isPopular: true, category: "beef-pork" },
-    { id: "brisket", name: "Beef Brisket", isPremium: true, category: "beef-pork" },
-    { id: "ribs", name: "BBQ Ribs", isPremium: true, category: "beef-pork" },
-    { id: "smoked-sausage", name: "Smoked Sausage", category: "beef-pork" },
-    { id: "fried-pork-chops", name: "Fried Pork Chops", category: "beef-pork" },
-    { id: "smothered-pork-chops", name: "Smothered Pork Chops", category: "beef-pork" },
-    { id: "meatloaf", name: "Meatloaf", category: "beef-pork" },
-    { id: "hamburgers", name: "Hamburgers", category: "beef-pork" },
+    { id: "pulled-pork", name: "Pulled Pork", isPopular: true, category: "Beef & Pork" },
+    { id: "brisket", name: "Beef Brisket", isPremium: true, category: "Beef & Pork" },
+    { id: "ribs", name: "BBQ Ribs", isPremium: true, category: "Beef & Pork" },
+    { id: "smoked-sausage", name: "Smoked Sausage", category: "Beef & Pork" },
+    { id: "fried-pork-chops", name: "Fried Pork Chops", category: "Beef & Pork" },
+    { id: "smothered-pork-chops", name: "Smothered Pork Chops", category: "Beef & Pork" },
+    { id: "meatloaf", name: "Meatloaf", category: "Beef & Pork" },
+    { id: "hamburgers", name: "Hamburgers", category: "Beef & Pork" },
     
     // Pasta & Italian
-    { id: "spaghetti", name: "Spaghetti", category: "pasta" },
-    { id: "lasagna", name: "Lasagna", category: "pasta" },
+    { id: "spaghetti", name: "Spaghetti", category: "Pasta" },
+    { id: "lasagna", name: "Lasagna", category: "Pasta" },
     
     // Mexican
-    { id: "tacos", name: "Tacos", category: "mexican" },
+    { id: "tacos", name: "Tacos", category: "Mexican" },
     
     // Seafood
-    { id: "catfish", name: "Fried Catfish", isPopular: true, category: "seafood" },
-    { id: "shrimp-alfredo", name: "Shrimp Alfredo", isPremium: true, category: "seafood" },
-    { id: "low-country-boil", name: "Low Country Boil", isPremium: true, category: "seafood" },
-    { id: "crabs", name: "Crabs", isPremium: true, category: "seafood" },
-    { id: "fried-fish", name: "Fried Fish", category: "seafood" },
+    { id: "catfish", name: "Fried Catfish", isPopular: true, category: "Seafood" },
+    { id: "shrimp-alfredo", name: "Shrimp Alfredo", isPremium: true, category: "Seafood" },
+    { id: "low-country-boil", name: "Low Country Boil", isPremium: true, category: "Seafood" },
+    { id: "crabs", name: "Crabs", isPremium: true, category: "Seafood" },
+    { id: "fried-fish", name: "Fried Fish", category: "Seafood" },
     
     // Plant-Based
-    { id: "quinoa-power-bowl", name: "Quinoa Power Bowl", isDietary: true, category: "plant-based" },
-    { id: "stuffed-bell-peppers", name: "Stuffed Bell Peppers", isDietary: true, category: "plant-based" },
-    { id: "black-bean-burgers", name: "Black Bean Burgers", isDietary: true, category: "plant-based" },
-    { id: "roasted-vegetable-medley", name: "Roasted Vegetable Medley", isDietary: true, category: "plant-based" },
+    { id: "quinoa-power-bowl", name: "Quinoa Power Bowl", isDietary: true, category: "Plant-Based" },
+    { id: "stuffed-bell-peppers", name: "Stuffed Bell Peppers", isDietary: true, category: "Plant-Based" },
+    { id: "black-bean-burgers", name: "Black Bean Burgers", isDietary: true, category: "Plant-Based" },
+    { id: "roasted-vegetable-medley", name: "Roasted Vegetable Medley", isDietary: true, category: "Plant-Based" },
   ];
 
   const WEDDING_PROTEINS = [
     // Premium Poultry
-    { id: "herb-roasted-chicken", name: "Herb-Roasted Chicken Breast", isPopular: true, isPremium: true, category: "poultry" },
-    { id: "chicken-piccata", name: "Chicken Piccata", isPremium: true, category: "poultry" },
-    { id: "stuffed-chicken", name: "Stuffed Chicken Breast", isPremium: true, category: "poultry" },
-    { id: "chicken-marsala", name: "Chicken Marsala", isPremium: true, category: "poultry" },
-    { id: "roasted-turkey", name: "Roasted Turkey Breast", isPremium: true, category: "poultry" },
+    { id: "herb-roasted-chicken", name: "Herb-Roasted Chicken Breast", isPopular: true, category: "Poultry" },
+    { id: "chicken-marsala", name: "Chicken Marsala", isPopular: true, category: "Poultry" },
+    { id: "stuffed-chicken", name: "Stuffed Chicken Breast", isPremium: true, category: "Poultry" },
+    { id: "cornish-hen", name: "Cornish Hen", isPremium: true, category: "Poultry" },
     
     // Premium Beef
-    { id: "prime-rib", name: "Prime Rib", isPremium: true, isPopular: true, category: "beef" },
-    { id: "beef-tenderloin", name: "Beef Tenderloin", isPremium: true, isPopular: true, category: "beef" },
-    { id: "filet-mignon", name: "Filet Mignon", isPremium: true, category: "beef" },
-    { id: "beef-wellington", name: "Beef Wellington", isPremium: true, category: "beef" },
-    { id: "short-ribs", name: "Braised Short Ribs", isPremium: true, category: "beef" },
-    
-    // Premium Pork
-    { id: "pork-tenderloin", name: "Pork Tenderloin", isPremium: true, category: "pork" },
-    { id: "glazed-ham", name: "Glazed Ham", isPremium: true, category: "pork" },
-    { id: "pork-chops-premium", name: "Herb-Crusted Pork Chops", isPremium: true, category: "pork" },
+    { id: "filet-mignon", name: "Filet Mignon", isPremium: true, isPopular: true, category: "Beef" },
+    { id: "beef-wellington", name: "Beef Wellington", isPremium: true, category: "Beef" },
+    { id: "prime-rib", name: "Prime Rib", isPremium: true, isPopular: true, category: "Beef" },
+    { id: "ribeye-steak", name: "Ribeye Steak", isPremium: true, category: "Beef" },
+    { id: "short-ribs", name: "Braised Short Ribs", isPremium: true, category: "Beef" },
     
     // Premium Seafood
-    { id: "lobster-tail", name: "Lobster Tail", isPremium: true, isPopular: true, category: "seafood" },
-    { id: "crab-cakes", name: "Jumbo Lump Crab Cakes", isPremium: true, isPopular: true, category: "seafood" },
-    { id: "grilled-salmon", name: "Grilled Salmon", isPremium: true, category: "seafood" },
-    { id: "shrimp-scampi", name: "Shrimp Scampi", isPremium: true, category: "seafood" },
-    { id: "seafood-medley", name: "Seafood Medley", isPremium: true, category: "seafood" },
-    { id: "sea-bass", name: "Chilean Sea Bass", isPremium: true, category: "seafood" },
+    { id: "lobster-tail", name: "Lobster Tail", isPremium: true, isPopular: true, category: "Seafood" },
+    { id: "crab-cakes", name: "Jumbo Lump Crab Cakes", isPremium: true, isPopular: true, category: "Seafood" },
+    { id: "grilled-salmon", name: "Grilled Salmon", isPremium: true, category: "Seafood" },
+    { id: "shrimp-scampi", name: "Shrimp Scampi", isPremium: true, category: "Seafood" },
+    { id: "seafood-medley", name: "Seafood Medley", isPremium: true, category: "Seafood" },
+    { id: "sea-bass", name: "Chilean Sea Bass", isPremium: true, category: "Seafood" },
     
     // Elegant Vegetarian
-    { id: "stuffed-portobello", name: "Stuffed Portobello Mushroom", isDietary: true, isPremium: true, category: "vegetarian" },
-    { id: "vegetable-wellington", name: "Vegetable Wellington", isDietary: true, isPremium: true, category: "vegetarian" },
-    { id: "eggplant-parmesan", name: "Eggplant Parmesan", isDietary: true, category: "vegetarian" },
+    { id: "stuffed-portobello", name: "Stuffed Portobello Mushroom", isDietary: true, isPremium: true, category: "Vegetarian" },
+    { id: "vegetable-wellington", name: "Vegetable Wellington", isDietary: true, isPremium: true, category: "Vegetarian" },
+    { id: "eggplant-parmesan", name: "Eggplant Parmesan", isDietary: true, category: "Vegetarian" },
   ];
 
   const PROTEINS = variant === 'wedding' ? WEDDING_PROTEINS : REGULAR_PROTEINS;
 
-  // Convert proteins to card options
-  const proteinCardOptions: CardOption[] = PROTEINS.map(protein => ({
-    id: protein.id,
-    name: protein.name,
-    isPopular: protein.isPopular,
-    isPremium: protein.isPremium,
-    isDietary: protein.isDietary,
-    category: protein.category
+  // Convert to MultiSelect options with formatted labels
+  const proteinOptions: Option[] = PROTEINS.map(protein => {
+    let label = protein.name;
+    if (protein.isPopular) label += " ⭐";
+    if (protein.isPremium) label += " 💎";
+    if (protein.isDietary) label += " 🌱";
+    
+    return {
+      value: protein.id,
+      label: label,
+      category: protein.category
+    };
+  });
+
+  const appetizerOptions: Option[] = menuItems.appetizers.map(app => ({
+    value: app.id,
+    label: app.name,
+    category: "Appetizers"
   }));
 
-  // Appetizer card options
-  const appetizerCardOptions: CardOption[] = menuItems.appetizers.map(app => ({
-    id: app.id,
-    name: app.name
+  const sidesOptions: Option[] = menuItems.sides.map(side => ({
+    value: side.id,
+    label: side.name,
+    category: "Sides"
   }));
 
-  // Sides card options  
-  const sidesCardOptions: CardOption[] = menuItems.sides.map(side => ({
-    id: side.id,
-    name: side.name
+  const dessertOptions: Option[] = menuItems.desserts.map(dessert => ({
+    value: dessert.id,
+    label: dessert.name,
+    category: "Desserts"
   }));
 
-  // Dessert card options
-  const dessertCardOptions: CardOption[] = menuItems.desserts.map(dessert => ({
-    id: dessert.id,
-    name: dessert.name
-  }));
-
-  // Drinks card options
-  const drinkCardOptions: CardOption[] = ADDITIONAL_ITEMS.drinks.map(drink => ({
-    id: drink.id,
-    name: drink.name
+  const drinkOptions: Option[] = ADDITIONAL_ITEMS.drinks.map(drink => ({
+    value: drink.id,
+    label: drink.name,
+    category: "Beverages"
   }));
 
   // Watch both proteins available toggle
   const bothProteinsAvailable = form.watch("both_proteins_available");
+
+  // Dietary restrictions options
+  const dietaryOptions = [
+    { id: "vegetarian", name: "Vegetarian" },
+    { id: "vegan", name: "Vegan" },
+    { id: "gluten-free", name: "Gluten-Free" },
+    { id: "dairy-free", name: "Dairy-Free" },
+    { id: "nut-allergies", name: "Nut Allergies" },
+    { id: "halal", name: "Halal" },
+    { id: "kosher", name: "Kosher" },
+  ];
 
   const handleMenuItemToggle = (category: string, itemId: string) => {
     const currentItems = form.getValues(category) || [];
@@ -162,7 +170,7 @@ export const MenuSelectionStep = ({ form, trackFieldInteraction, variant = 'regu
 
   const MenuItemCard = ({ item, isSelected, onToggle }: { item: any; isSelected: boolean; onToggle: () => void }) => (
     <div 
-      className={`neumorphic-card-1 p-4 rounded-lg cursor-pointer transition-all duration-300 hover:shadow-glow ${
+      className={`bg-card/50 backdrop-blur-sm p-4 rounded-lg border border-border/50 cursor-pointer transition-colors duration-300 hover:border-primary/50 ${
         isSelected ? 'ring-2 ring-primary/30 bg-primary/5' : ''
       }`}
       onClick={onToggle}
@@ -219,22 +227,25 @@ export const MenuSelectionStep = ({ form, trackFieldInteraction, variant = 'regu
             name="primary_protein"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-base font-medium mb-4 block">
-                  Select Proteins {bothProteinsAvailable ? "(Multiple allowed)" : "(Choose up to 2)"}
+                <FormLabel className="text-base font-medium mb-2 block">
+                  Select Proteins {bothProteinsAvailable ? "(Multiple allowed)" : "(Choose up to 2)"} *
                 </FormLabel>
                 <FormControl>
-                  <CheckboxCardGrid
-                    options={proteinCardOptions}
+                  <MultiSelect
+                    options={proteinOptions}
                     selected={field.value || []}
                     onChange={(value) => {
                       trackFieldInteraction('primary_protein');
                       field.onChange(value);
                     }}
-                    columns={2}
-                    showLimit={8}
-                    categoryLabel="Proteins"
+                    placeholder="Search and select proteins..."
+                    searchPlaceholder="Search proteins..."
+                    maxDisplayed={4}
                   />
                 </FormControl>
+                <p className="text-xs text-muted-foreground mt-1">
+                  ⭐ Popular • 💎 Premium • 🌱 Dietary-Friendly
+                </p>
                 <FormMessage />
               </FormItem>
             )}
@@ -268,15 +279,15 @@ export const MenuSelectionStep = ({ form, trackFieldInteraction, variant = 'regu
             name="appetizers"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-base font-medium mb-4 block">Select Appetizers</FormLabel>
+                <FormLabel className="text-base font-medium mb-2 block">Select Appetizers</FormLabel>
                 <FormControl>
-                  <CheckboxCardGrid
-                    options={appetizerCardOptions}
+                  <MultiSelect
+                    options={appetizerOptions}
                     selected={field.value || []}
                     onChange={field.onChange}
-                    columns={2}
-                    showLimit={6}
-                    categoryLabel="Appetizers"
+                    placeholder="Select appetizers..."
+                    searchPlaceholder="Search appetizers..."
+                    maxDisplayed={3}
                   />
                 </FormControl>
                 <FormMessage />
@@ -285,22 +296,22 @@ export const MenuSelectionStep = ({ form, trackFieldInteraction, variant = 'regu
           />
       </div>
 
-      {/* Sides & Salads */}
+      {/* Sides */}
       <div className="space-y-6">
           <FormField
             control={form.control}
             name="sides"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-base font-medium mb-4 block">Select Sides & Salads</FormLabel>
+                <FormLabel className="text-base font-medium mb-2 block">Select Sides *</FormLabel>
                 <FormControl>
-                  <CheckboxCardGrid
-                    options={sidesCardOptions}
+                  <MultiSelect
+                    options={sidesOptions}
                     selected={field.value || []}
                     onChange={field.onChange}
-                    columns={2}
-                    showLimit={6}
-                    categoryLabel="Sides"
+                    placeholder="Select sides..."
+                    searchPlaceholder="Search sides..."
+                    maxDisplayed={3}
                   />
                 </FormControl>
                 <FormMessage />
@@ -309,81 +320,94 @@ export const MenuSelectionStep = ({ form, trackFieldInteraction, variant = 'regu
           />
       </div>
 
-      <div className="grid md:grid-cols-2 gap-6">
-        {/* Desserts */}
-        <div className="space-y-6">
-            <FormField
-              control={form.control}
-              name="desserts"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-base font-medium mb-4 block">Select Desserts</FormLabel>
-                  <FormControl>
-                    <CheckboxCardGrid
-                      options={dessertCardOptions}
-                      selected={field.value || []}
-                      onChange={field.onChange}
-                      columns={1}
-                      showLimit={6}
-                      categoryLabel="Desserts"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-        </div>
+      {/* Desserts */}
+      <div className="space-y-6">
+          <FormField
+            control={form.control}
+            name="desserts"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-base font-medium mb-2 block">Select Desserts</FormLabel>
+                <FormControl>
+                  <MultiSelect
+                    options={dessertOptions}
+                    selected={field.value || []}
+                    onChange={field.onChange}
+                    placeholder="Select desserts..."
+                    searchPlaceholder="Search desserts..."
+                    maxDisplayed={3}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+      </div>
 
-        {/* Beverages */}
-        <div className="space-y-6">
-            <FormField
-              control={form.control}
-              name="drinks"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-base font-medium mb-4 block">Select Beverages</FormLabel>
-                  <FormControl>
-                    <CheckboxCardGrid
-                      options={drinkCardOptions}
-                      selected={field.value || []}
-                      onChange={field.onChange}
-                      columns={1}
-                      showLimit={6}
-                      categoryLabel="Beverages"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-        </div>
+      {/* Beverages */}
+      <div className="space-y-6">
+          <FormField
+            control={form.control}
+            name="drinks"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-base font-medium mb-2 block">Select Beverages *</FormLabel>
+                <FormControl>
+                  <MultiSelect
+                    options={drinkOptions}
+                    selected={field.value || []}
+                    onChange={field.onChange}
+                    placeholder="Select beverages..."
+                    searchPlaceholder="Search beverages..."
+                    maxDisplayed={3}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
       </div>
 
       {/* Dietary Restrictions */}
-      <div className="space-y-4">
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {dietaryRestrictions.map((restriction) => (
-              <MenuItemCard 
-                key={restriction.id} 
-                item={restriction} 
-                isSelected={form.watch("dietary_restrictions")?.includes(restriction.id)}
-                onToggle={() => handleMenuItemToggle("dietary_restrictions", restriction.id)}
-              />
-            ))}
+      <div className="space-y-6">
+        <div>
+          <FormLabel className="text-base font-medium mb-4 block">
+            Special Dietary Accommodations
+          </FormLabel>
+          <p className="text-sm text-muted-foreground mb-4">
+            Select any dietary restrictions we should accommodate for your guests
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {dietaryOptions.map((option) => {
+              const currentRestrictions = form.watch("dietary_restrictions") || [];
+              const isSelected = currentRestrictions.includes(option.id);
+
+              return (
+                <MenuItemCard
+                  key={option.id}
+                  item={option}
+                  isSelected={isSelected}
+                  onToggle={() => handleMenuItemToggle("dietary_restrictions", option.id)}
+                />
+              );
+            })}
           </div>
 
           <FormField
             control={form.control}
             name="guest_count_with_restrictions"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-base font-medium">
-                  Number of Guests with Dietary Restrictions
+              <FormItem className="mt-4">
+                <FormLabel className="text-sm">
+                  Approximate number of guests with dietary restrictions
                 </FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="e.g., 3 vegetarian, 1 gluten-free"
-                    className="h-12 text-base input-clean"
+                    type="number"
+                    placeholder="e.g., 5"
+                    min="0"
+                    className="h-12 text-base input-clean max-w-xs"
                     {...field}
                   />
                 </FormControl>
@@ -391,12 +415,7 @@ export const MenuSelectionStep = ({ form, trackFieldInteraction, variant = 'regu
               </FormItem>
             )}
           />
-      </div>
-
-      <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 rounded-lg p-4 text-center">
-        <p className="text-sm text-muted-foreground">
-          <span className="text-primary font-medium">👨‍🍳 Chef's Note:</span> We can customize any menu item to accommodate dietary needs and preferences.
-        </p>
+        </div>
       </div>
     </div>
   );

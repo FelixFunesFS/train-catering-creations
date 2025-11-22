@@ -7,8 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Form } from "@/components/ui/form";
-import { ContactStep } from "./alternative-form/ContactStep";
-import { EventDetailsStep } from "./alternative-form/EventDetailsStep";
+import { ContactAndEventStep } from "./alternative-form/ContactAndEventStep";
 import { ServiceSelectionStep } from "./alternative-form/ServiceSelectionStep";
 import { MenuSelectionStep } from "./alternative-form/MenuSelectionStep";
 import { ReviewStep } from "./alternative-form/ReviewStep";
@@ -31,8 +30,7 @@ interface UnifiedQuoteFormProps {
 }
 
 const STEPS = [
-  { id: 'contact', title: 'Contact', description: 'Your details' },
-  { id: 'event', title: 'Event', description: 'Date & type' },
+  { id: 'contact-event', title: 'Event & Contact', description: 'Basic info' },
   { id: 'service', title: 'Service', description: 'How we help' },
   { id: 'menu', title: 'Menu', description: 'Perfect selections' },
   { id: 'final', title: 'Final', description: 'Additional info' },
@@ -288,12 +286,10 @@ export const UnifiedQuoteForm = ({ variant = 'regular', onSuccess }: UnifiedQuot
   const renderStepContent = () => {
     switch (currentStep) {
       case 0:
-        return <ContactStep form={form} trackFieldInteraction={trackFieldInteraction} />;
+        return <ContactAndEventStep form={form} trackFieldInteraction={trackFieldInteraction} variant={variant} />;
       case 1:
-        return <EventDetailsStep form={form} trackFieldInteraction={trackFieldInteraction} variant={variant} />;
-      case 2:
         return <ServiceSelectionStep form={form} trackFieldInteraction={trackFieldInteraction} />;
-      case 3:
+      case 2:
         return <MenuSelectionStep form={form} trackFieldInteraction={trackFieldInteraction} variant={variant} />;
       case 4:
         return <FinalStep form={form} variant={variant} />;

@@ -267,7 +267,7 @@
 
   .input-clean:focus,
   .input-clean:focus-visible {
-    @apply border-primary ring-2 ring-primary/30;
+    @apply border-blue-500 ring-2 ring-blue-500/30;
     box-shadow: none;
     transform: none;
   }
