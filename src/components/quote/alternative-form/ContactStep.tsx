@@ -43,7 +43,7 @@ export const ContactStep = ({ form, trackFieldInteraction }: ContactStepProps) =
                     field.onBlur();
                   }}
                   placeholder="Enter your full name"
-                  className="h-12 text-base neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30"
+                  className="h-12 text-base input-clean"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       e.preventDefault();
@@ -76,7 +76,7 @@ export const ContactStep = ({ form, trackFieldInteraction }: ContactStepProps) =
                     field.onBlur();
                   }}
                   placeholder="your.email@example.com"
-                  className="h-12 text-base neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30"
+                  className="h-12 text-base input-clean"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       e.preventDefault();
@@ -109,7 +109,7 @@ export const ContactStep = ({ form, trackFieldInteraction }: ContactStepProps) =
                   }}
                   onBlur={field.onBlur}
                   placeholder="(555) 123-4567"
-                  className="h-12 text-base neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30"
+                  className="h-12 text-base input-clean"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       e.preventDefault();

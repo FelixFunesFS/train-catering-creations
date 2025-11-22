@@ -251,7 +251,7 @@ export const MenuSelectionStep = ({ form, trackFieldInteraction, variant = 'regu
                 <FormControl>
                   <Textarea
                     placeholder="Any specific protein preparations, dietary modifications, or custom requests..."
-                    className="min-h-[100px] neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30"
+                    className="min-h-[100px] input-clean"
                     {...field}
                   />
                 </FormControl>
@@ -383,7 +383,7 @@ export const MenuSelectionStep = ({ form, trackFieldInteraction, variant = 'regu
                 <FormControl>
                   <Input
                     placeholder="e.g., 3 vegetarian, 1 gluten-free"
-                    className="h-12 text-base neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30"
+                    className="h-12 text-base input-clean"
                     {...field}
                   />
                 </FormControl>

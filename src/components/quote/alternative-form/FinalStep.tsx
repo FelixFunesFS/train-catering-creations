@@ -204,7 +204,7 @@ export const FinalStep = ({ form, variant = 'regular' }: FinalStepProps) => {
                   <FormControl>
                     <Textarea
                       placeholder="Tell us about any special accommodations, setup requirements, or other details we should know..."
-                      className="min-h-[120px] neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30"
+                      className="min-h-[120px] input-clean"
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') {
                           e.preventDefault();
@@ -231,9 +231,9 @@ export const FinalStep = ({ form, variant = 'regular' }: FinalStepProps) => {
                   </FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
-                      <SelectTrigger className="h-12 neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30">
-                        <SelectValue placeholder="Select an option..." />
-                      </SelectTrigger>
+                    <SelectTrigger className="h-12 input-clean">
+                      <SelectValue placeholder="Select an option..." />
+                    </SelectTrigger>
                     </FormControl>
                     <SelectContent className="bg-background border shadow-lg">
                       <SelectItem value="google_search">Google Search</SelectItem>
