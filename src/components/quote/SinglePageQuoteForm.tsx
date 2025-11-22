@@ -305,7 +305,7 @@ export const SinglePageQuoteForm = ({ variant = 'regular', onSuccess }: SinglePa
             className="space-y-4"
           >
             {/* Event & Contact Information Section */}
-            <AccordionItem value="contact-event" className="neumorphic-card-2 border-0 rounded-xl overflow-hidden bg-card/50 backdrop-blur-sm">
+            <AccordionItem value="contact-event" className="neumorphic-card-2-static border-0 rounded-xl overflow-hidden bg-card/50 backdrop-blur-sm">
                 <AccordionTrigger className="px-6 py-4 hover:no-underline">
                   <FormSectionHeader
                     icon={Calendar}
@@ -320,7 +320,7 @@ export const SinglePageQuoteForm = ({ variant = 'regular', onSuccess }: SinglePa
               </AccordionItem>
 
               {/* Service Selection Section */}
-              <AccordionItem value="service" className="neumorphic-card-2 border-0 rounded-xl overflow-hidden bg-card/50 backdrop-blur-sm">
+              <AccordionItem value="service" className="neumorphic-card-2-static border-0 rounded-xl overflow-hidden bg-card/50 backdrop-blur-sm">
                 <AccordionTrigger className="px-6 py-4 hover:no-underline">
                   <FormSectionHeader
                     icon={ChefHat}
@@ -335,7 +335,7 @@ export const SinglePageQuoteForm = ({ variant = 'regular', onSuccess }: SinglePa
               </AccordionItem>
 
               {/* Menu Selection Section */}
-              <AccordionItem value="menu" className="neumorphic-card-2 border-0 rounded-xl overflow-hidden bg-card/50 backdrop-blur-sm">
+              <AccordionItem value="menu" className="neumorphic-card-2-static border-0 rounded-xl overflow-hidden bg-card/50 backdrop-blur-sm">
                 <AccordionTrigger className="px-6 py-4 hover:no-underline">
                   <FormSectionHeader
                     icon={UtensilsCrossed}
@@ -350,7 +350,7 @@ export const SinglePageQuoteForm = ({ variant = 'regular', onSuccess }: SinglePa
               </AccordionItem>
 
               {/* Additional Info Section */}
-              <AccordionItem value="additional" className="neumorphic-card-2 border-0 rounded-xl overflow-hidden bg-card/50 backdrop-blur-sm">
+              <AccordionItem value="additional" className="neumorphic-card-2-static border-0 rounded-xl overflow-hidden bg-card/50 backdrop-blur-sm">
                 <AccordionTrigger className="px-6 py-4 hover:no-underline">
                   <FormSectionHeader
                     icon={FileText}
