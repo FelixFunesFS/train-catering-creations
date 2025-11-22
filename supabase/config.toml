@@ -41,6 +41,9 @@ verify_jwt = false
 [functions.send-test-email]
 verify_jwt = false
 
+[functions.send-smtp-email]
+verify_jwt = false
+
 [functions.gmail-oauth-init]
 verify_jwt = false
 
