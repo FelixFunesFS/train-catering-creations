@@ -1418,6 +1418,7 @@ export type Database = {
           special_requests: string | null
           start_time: string
           status_changed_by: string | null
+          theme_colors: string | null
           updated_at: string | null
           utensils: Json | null
           version: number
@@ -1471,6 +1472,7 @@ export type Database = {
           special_requests?: string | null
           start_time: string
           status_changed_by?: string | null
+          theme_colors?: string | null
           updated_at?: string | null
           utensils?: Json | null
           version?: number
@@ -1524,6 +1526,7 @@ export type Database = {
           special_requests?: string | null
           start_time?: string
           status_changed_by?: string | null
+          theme_colors?: string | null
           updated_at?: string | null
           utensils?: Json | null
           version?: number
