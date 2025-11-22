@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.52.1';
+import { BRAND_COLORS, EMAIL_STYLES, generateEmailHeader, generateEventDetailsCard, generateFooter } from "../_shared/emailTemplates.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -37,94 +38,140 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error('Quote not found');
     }
 
-    // Format event date
-    const eventDate = new Date(quote.event_date).toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+    // Helper functions for formatting
+    const formatMenuItems = (items: any) => {
+      if (!items || (Array.isArray(items) && items.length === 0)) return 'None selected';
+      if (typeof items === 'string') return items;
+      if (Array.isArray(items)) return items.join(', ');
+      return JSON.stringify(items);
+    };
 
-    // Create portal link (will be used when estimate is created)
+    const formatSupplies = () => {
+      const supplies = [];
+      if (quote.plates_requested) supplies.push('Plates');
+      if (quote.cups_requested) supplies.push('Cups');
+      if (quote.napkins_requested) supplies.push('Napkins');
+      if (quote.serving_utensils_requested) supplies.push('Serving Utensils');
+      if (quote.chafers_requested) supplies.push('Chafing Dishes with Fuel');
+      if (quote.ice_requested) supplies.push('Ice');
+      return supplies.length > 0 ? supplies.join(', ') : 'None requested';
+    };
+
+    // Build comprehensive menu section
+    const menuSectionHtml = `
+      <div style="background: ${BRAND_COLORS.white}; border: 2px solid ${BRAND_COLORS.lightGray}; border-radius: 8px; padding: 20px; margin: 20px 0;">
+        <h3 style="margin: 0 0 20px 0; color: ${BRAND_COLORS.crimson}; text-align: center;">🍽️ Your Custom Menu</h3>
+        
+        ${quote.primary_protein || quote.secondary_protein ? `
+        <div style="margin: 15px 0; padding-bottom: 10px; border-bottom: 2px solid ${BRAND_COLORS.gold};">
+          <h4 style="color: ${BRAND_COLORS.crimson}; margin: 10px 0 5px 0; font-size: 16px;">Proteins</h4>
+          <p style="margin: 5px 0; padding: 8px 0;">${[quote.primary_protein, quote.secondary_protein].filter(Boolean).join(', ')}</p>
+        </div>
+        ` : ''}
+
+        ${quote.sides && (Array.isArray(quote.sides) ? quote.sides.length > 0 : quote.sides) ? `
+        <div style="margin: 15px 0; padding-bottom: 10px; border-bottom: 2px solid ${BRAND_COLORS.gold};">
+          <h4 style="color: ${BRAND_COLORS.crimson}; margin: 10px 0 5px 0; font-size: 16px;">Sides</h4>
+          <p style="margin: 5px 0; padding: 8px 0;">${formatMenuItems(quote.sides)}</p>
+        </div>
+        ` : ''}
+
+        ${quote.appetizers && (Array.isArray(quote.appetizers) ? quote.appetizers.length > 0 : quote.appetizers) ? `
+        <div style="margin: 15px 0; padding-bottom: 10px; border-bottom: 2px solid ${BRAND_COLORS.gold};">
+          <h4 style="color: ${BRAND_COLORS.crimson}; margin: 10px 0 5px 0; font-size: 16px;">Appetizers</h4>
+          <p style="margin: 5px 0; padding: 8px 0;">${formatMenuItems(quote.appetizers)}</p>
+        </div>
+        ` : ''}
+
+        ${quote.desserts && (Array.isArray(quote.desserts) ? quote.desserts.length > 0 : quote.desserts) ? `
+        <div style="margin: 15px 0; padding-bottom: 10px; border-bottom: 2px solid ${BRAND_COLORS.gold};">
+          <h4 style="color: ${BRAND_COLORS.crimson}; margin: 10px 0 5px 0; font-size: 16px;">Desserts</h4>
+          <p style="margin: 5px 0; padding: 8px 0;">${formatMenuItems(quote.desserts)}</p>
+        </div>
+        ` : ''}
+
+        ${quote.drinks && (Array.isArray(quote.drinks) ? quote.drinks.length > 0 : quote.drinks) ? `
+        <div style="margin: 15px 0;">
+          <h4 style="color: ${BRAND_COLORS.crimson}; margin: 10px 0 5px 0; font-size: 16px;">Beverages</h4>
+          <p style="margin: 5px 0; padding: 8px 0;">${formatMenuItems(quote.drinks)}</p>
+        </div>
+        ` : ''}
+      </div>
+    `;
+
+    // Create portal link
     const portalLink = `${Deno.env.get('FRONTEND_URL') || 'https://qptprrqjlcvfkhfdnnoa.supabase.co'}/customer/quote/${quote_id}`;
 
     const emailSubject = `Quote Request Received - Reference #${quote_id.slice(0, 8).toUpperCase()}`;
     
     const emailBody = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff;">
-        <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #D97706; margin: 0;">Soul Train's Eatery</h1>
-          <p style="color: #666; margin-top: 5px;">Charleston's Premier Catering Service</p>
-        </div>
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <style>${EMAIL_STYLES}</style>
+      </head>
+      <body>
+        <div class="email-container">
+          ${generateEmailHeader()}
+          
+          <div class="content">
+            <div style="background: linear-gradient(135deg, ${BRAND_COLORS.gold}, ${BRAND_COLORS.goldLight}); padding: 25px; border-radius: 8px; margin-bottom: 25px; text-align: center;">
+              <h2 style="color: ${BRAND_COLORS.darkGray}; margin: 0 0 10px 0; font-size: 24px;">✓ Quote Request Received!</h2>
+              <p style="color: ${BRAND_COLORS.darkGray}; margin: 0; font-size: 16px;">
+                Hi ${quote.contact_name},<br><br>
+                Thank you for choosing Soul Train's Eatery! We've received your quote request and our team is excited to make your event exceptional.
+              </p>
+            </div>
 
-        <div style="background-color: #FEF3C7; padding: 20px; border-radius: 8px; margin-bottom: 25px;">
-          <h2 style="color: #92400E; margin-top: 0;">✓ Quote Request Received!</h2>
-          <p style="color: #78350F; margin-bottom: 0;">
-            Hi ${quote.contact_name},<br><br>
-            Thank you for choosing Soul Train's Eatery! We've received your quote request and our team is excited to make your event exceptional.
-          </p>
-        </div>
+            ${generateEventDetailsCard(quote)}
+            
+            ${menuSectionHtml}
 
-        <div style="background-color: #F9FAFB; padding: 20px; border-radius: 8px; margin-bottom: 25px;">
-          <h3 style="color: #1F2937; margin-top: 0;">Event Details</h3>
-          <table style="width: 100%; border-collapse: collapse;">
-            <tr>
-              <td style="padding: 8px 0; color: #6B7280; font-weight: 500;">Event:</td>
-              <td style="padding: 8px 0; color: #1F2937;">${quote.event_name}</td>
-            </tr>
-            <tr>
-              <td style="padding: 8px 0; color: #6B7280; font-weight: 500;">Date:</td>
-              <td style="padding: 8px 0; color: #1F2937;">${eventDate}</td>
-            </tr>
-            <tr>
-              <td style="padding: 8px 0; color: #6B7280; font-weight: 500;">Guest Count:</td>
-              <td style="padding: 8px 0; color: #1F2937;">${quote.guest_count} guests</td>
-            </tr>
-            <tr>
-              <td style="padding: 8px 0; color: #6B7280; font-weight: 500;">Reference ID:</td>
-              <td style="padding: 8px 0; color: #D97706; font-weight: 600;">#${quote_id.slice(0, 8).toUpperCase()}</td>
-            </tr>
-          </table>
-        </div>
+            <div class="event-card">
+              <h3 style="margin: 0 0 15px 0; color: ${BRAND_COLORS.crimson};">📦 Your Additional Selections</h3>
+              <p style="margin: 5px 0;"><strong>Supplies:</strong> ${formatSupplies()}</p>
+              ${quote.dietary_restrictions && (Array.isArray(quote.dietary_restrictions) ? quote.dietary_restrictions.length > 0 : quote.dietary_restrictions) ? `
+              <p style="margin: 5px 0;"><strong>Dietary Restrictions:</strong> ${formatMenuItems(quote.dietary_restrictions)}</p>
+              ${quote.guest_count_with_restrictions ? `<p style="margin: 5px 0; font-size: 14px; color: #666;"><em>${quote.guest_count_with_restrictions} guests</em></p>` : ''}
+              ` : ''}
+              ${quote.theme_colors ? `<p style="margin: 5px 0;"><strong>Theme/Colors:</strong> ${quote.theme_colors}</p>` : ''}
+              ${quote.special_requests ? `<p style="margin: 5px 0;"><strong>Special Requests:</strong> ${quote.special_requests}</p>` : ''}
+              <p style="margin: 15px 0 5px 0; font-size: 14px; color: ${BRAND_COLORS.crimson};"><strong>Reference ID:</strong> #${quote_id.slice(0, 8).toUpperCase()}</p>
+            </div>
 
-        <div style="margin-bottom: 25px;">
-          <h3 style="color: #1F2937;">What Happens Next?</h3>
-          <ol style="color: #4B5563; line-height: 1.8; padding-left: 20px;">
-            <li><strong>Review (You are here!)</strong> - Our team is carefully reviewing your request</li>
-            <li><strong>Detailed Quote</strong> - You'll receive a comprehensive quote within 48 hours</li>
-            <li><strong>Optional Consultation</strong> - We're happy to discuss any details by phone</li>
-            <li><strong>Finalization</strong> - Once approved, we'll handle all the details for your special day</li>
-          </ol>
-        </div>
+            <div style="margin: 30px 0;">
+              <h3 style="color: ${BRAND_COLORS.crimson};">What Happens Next?</h3>
+              <ol style="color: ${BRAND_COLORS.darkGray}; line-height: 1.8; padding-left: 20px;">
+                <li><strong style="color: ${BRAND_COLORS.crimson};">Review (You are here!)</strong> - Our team is carefully reviewing your request</li>
+                <li><strong style="color: ${BRAND_COLORS.crimson};">Detailed Quote</strong> - You'll receive a comprehensive quote within 48 hours</li>
+                <li><strong style="color: ${BRAND_COLORS.crimson};">Optional Consultation</strong> - We're happy to discuss any details by phone</li>
+                <li><strong style="color: ${BRAND_COLORS.crimson};">Finalization</strong> - Once approved, we'll handle all the details for your special day</li>
+              </ol>
+            </div>
 
-        <div style="background-color: #DBEAFE; padding: 20px; border-radius: 8px; margin-bottom: 25px;">
-          <h3 style="color: #1E40AF; margin-top: 0;">Track Your Quote</h3>
-          <p style="color: #1E3A8A; margin-bottom: 15px;">
-            Bookmark this link to check your quote status anytime:
-          </p>
-          <a href="${portalLink}" 
-             style="display: inline-block; background-color: #3B82F6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">
-            View Quote Status →
-          </a>
-        </div>
+            <div style="background: linear-gradient(135deg, ${BRAND_COLORS.crimson}, ${BRAND_COLORS.crimsonDark}); padding: 25px; border-radius: 8px; margin: 25px 0; text-align: center;">
+              <h3 style="color: ${BRAND_COLORS.white}; margin: 0 0 15px 0;">Track Your Quote</h3>
+              <p style="color: ${BRAND_COLORS.white}; margin-bottom: 20px; opacity: 0.95;">
+                Bookmark this link to check your quote status anytime
+              </p>
+              <a href="${portalLink}" class="btn btn-secondary">
+                View Quote Status →
+              </a>
+            </div>
 
-        <div style="border-top: 2px solid #E5E7EB; padding-top: 20px; margin-top: 30px;">
-          <h3 style="color: #1F2937; margin-top: 0;">Questions? We're Here to Help!</h3>
-          <p style="color: #4B5563; margin: 10px 0;">
-            📞 Phone: <a href="tel:8439700265" style="color: #D97706; text-decoration: none;">(843) 970-0265</a><br>
-            📧 Email: <a href="mailto:soultrainseatery@gmail.com" style="color: #D97706; text-decoration: none;">soultrainseatery@gmail.com</a>
-          </p>
+            <div style="border-top: 3px solid ${BRAND_COLORS.gold}; padding-top: 20px; margin-top: 30px; text-align: center;">
+              <h3 style="color: ${BRAND_COLORS.crimson}; margin-top: 0;">Questions? We're Here to Help!</h3>
+              <p style="color: ${BRAND_COLORS.darkGray}; margin: 10px 0; font-size: 16px;">
+                📞 <a href="tel:8439700265" style="color: ${BRAND_COLORS.crimson}; text-decoration: none; font-weight: bold;">(843) 970-0265</a><br>
+                📧 <a href="mailto:soultrainseatery@gmail.com" style="color: ${BRAND_COLORS.crimson}; text-decoration: none; font-weight: bold;">soultrainseatery@gmail.com</a>
+              </p>
+            </div>
+          </div>
+          
+          ${generateFooter()}
         </div>
-
-        <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #E5E7EB;">
-          <p style="color: #9CA3AF; font-size: 12px; margin: 5px 0;">
-            Soul Train's Eatery - Family-Run, Charleston-Based Catering
-          </p>
-          <p style="color: #9CA3AF; font-size: 12px; margin: 5px 0;">
-            Proudly serving Charleston's Lowcountry and surrounding areas
-          </p>
-        </div>
-      </div>
+      </body>
+      </html>
     `;
 
     // Send email using Gmail function (non-blocking - log failures but don't throw)

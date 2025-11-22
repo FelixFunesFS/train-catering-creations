@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { BRAND_COLORS, EMAIL_STYLES, generateEmailHeader, generateEventDetailsCard, generateFooter } from "../_shared/emailTemplates.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -20,171 +21,168 @@ const handler = async (req: Request): Promise<Response> => {
     const requestData = await req.json();
     console.log('Quote notification request:', requestData);
 
-    // Format event date
-    const eventDate = new Date(requestData.event_date).toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+    // Helper to format menu items
+    const formatMenuItems = (items: any) => {
+      if (!items || (Array.isArray(items) && items.length === 0)) return 'None selected';
+      if (typeof items === 'string') return items;
+      if (Array.isArray(items)) return items.join(', ');
+      return JSON.stringify(items);
+    };
 
-    // Admin notification email
-    const adminEmailHtml = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <h1 style="color: #D97706;">🚂 New Quote Request</h1>
+    // Helper to format supplies
+    const formatSupplies = () => {
+      const supplies = [];
+      if (requestData.plates_requested) supplies.push('Plates');
+      if (requestData.cups_requested) supplies.push('Cups');
+      if (requestData.napkins_requested) supplies.push('Napkins');
+      if (requestData.serving_utensils_requested) supplies.push('Serving Utensils');
+      if (requestData.chafers_requested) supplies.push('Chafing Dishes with Fuel');
+      if (requestData.ice_requested) supplies.push('Ice');
+      return supplies.length > 0 ? supplies.join(', ') : 'None requested';
+    };
+
+    // Build menu section HTML
+    const menuSectionHtml = `
+      <div style="background: ${BRAND_COLORS.white}; border: 2px solid ${BRAND_COLORS.lightGray}; border-radius: 8px; padding: 20px; margin: 20px 0;">
+        <h3 style="margin: 0 0 20px 0; color: ${BRAND_COLORS.crimson}; text-align: center;">🍽️ Menu Selections</h3>
         
-        <div style="background-color: #FEF3C7; padding: 20px; border-radius: 8px; margin: 20px 0;">
-          <h2 style="color: #92400E; margin-top: 0;">Customer Details</h2>
-          <p><strong>Name:</strong> ${requestData.contact_name}</p>
-          <p><strong>Email:</strong> ${requestData.email}</p>
-          <p><strong>Phone:</strong> ${requestData.phone}</p>
-        </div>
-
-        <div style="background-color: #F9FAFB; padding: 20px; border-radius: 8px; margin: 20px 0;">
-          <h2 style="color: #1F2937; margin-top: 0;">Event Information</h2>
-          <p><strong>Event Name:</strong> ${requestData.event_name}</p>
-          <p><strong>Event Type:</strong> ${requestData.event_type}</p>
-          <p><strong>Date:</strong> ${eventDate}</p>
-          <p><strong>Time:</strong> ${requestData.start_time}</p>
-          <p><strong>Guest Count:</strong> ${requestData.guest_count}</p>
-          <p><strong>Location:</strong> ${requestData.location}</p>
-          <p><strong>Service Type:</strong> ${requestData.service_type}</p>
-        </div>
-
-        ${requestData.theme_colors ? `
-        <div style="background-color: #E0E7FF; padding: 20px; border-radius: 8px; margin: 20px 0;">
-          <p><strong>Theme/Colors:</strong> ${requestData.theme_colors}</p>
+        ${requestData.primary_protein || requestData.secondary_protein ? `
+        <div style="margin: 15px 0; padding-bottom: 10px; border-bottom: 2px solid ${BRAND_COLORS.gold};">
+          <h4 style="color: ${BRAND_COLORS.crimson}; margin: 10px 0 5px 0; font-size: 16px;">Proteins</h4>
+          <p style="margin: 5px 0; padding: 8px 0;">${[requestData.primary_protein, requestData.secondary_protein].filter(Boolean).join(', ')}</p>
         </div>
         ` : ''}
 
-        ${requestData.special_requests ? `
-        <div style="background-color: #FEE2E2; padding: 20px; border-radius: 8px; margin: 20px 0;">
-          <p><strong>Special Requests:</strong> ${requestData.special_requests}</p>
+        ${requestData.sides && (Array.isArray(requestData.sides) ? requestData.sides.length > 0 : requestData.sides) ? `
+        <div style="margin: 15px 0; padding-bottom: 10px; border-bottom: 2px solid ${BRAND_COLORS.gold};">
+          <h4 style="color: ${BRAND_COLORS.crimson}; margin: 10px 0 5px 0; font-size: 16px;">Sides</h4>
+          <p style="margin: 5px 0; padding: 8px 0;">${formatMenuItems(requestData.sides)}</p>
         </div>
         ` : ''}
 
-        <p style="margin-top: 30px;"><a href="https://qptprrqjlcvfkhfdnnoa.supabase.co/admin/quotes" 
-           style="display: inline-block; background-color: #D97706; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">
-          View in Admin Dashboard →
-        </a></p>
+        ${requestData.appetizers && (Array.isArray(requestData.appetizers) ? requestData.appetizers.length > 0 : requestData.appetizers) ? `
+        <div style="margin: 15px 0; padding-bottom: 10px; border-bottom: 2px solid ${BRAND_COLORS.gold};">
+          <h4 style="color: ${BRAND_COLORS.crimson}; margin: 10px 0 5px 0; font-size: 16px;">Appetizers</h4>
+          <p style="margin: 5px 0; padding: 8px 0;">${formatMenuItems(requestData.appetizers)}</p>
+        </div>
+        ` : ''}
+
+        ${requestData.desserts && (Array.isArray(requestData.desserts) ? requestData.desserts.length > 0 : requestData.desserts) ? `
+        <div style="margin: 15px 0; padding-bottom: 10px; border-bottom: 2px solid ${BRAND_COLORS.gold};">
+          <h4 style="color: ${BRAND_COLORS.crimson}; margin: 10px 0 5px 0; font-size: 16px;">Desserts</h4>
+          <p style="margin: 5px 0; padding: 8px 0;">${formatMenuItems(requestData.desserts)}</p>
+        </div>
+        ` : ''}
+
+        ${requestData.drinks && (Array.isArray(requestData.drinks) ? requestData.drinks.length > 0 : requestData.drinks) ? `
+        <div style="margin: 15px 0;">
+          <h4 style="color: ${BRAND_COLORS.crimson}; margin: 10px 0 5px 0; font-size: 16px;">Beverages</h4>
+          <p style="margin: 5px 0; padding: 8px 0;">${formatMenuItems(requestData.drinks)}</p>
+        </div>
+        ` : ''}
       </div>
     `;
 
-    // Customer confirmation email
-    const customerEmailHtml = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <h1 style="color: #D97706; text-align: center;">Soul Train's Eatery</h1>
-        <p style="text-align: center; color: #666;">Charleston's Premier Catering Service</p>
+    // Admin notification email with comprehensive details and brand colors
+    const adminEmailHtml = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <style>${EMAIL_STYLES}</style>
+      </head>
+      <body>
+        <div class="email-container">
+          ${generateEmailHeader('New Quote Request')}
+          
+          <div class="content">
+            <div style="background: linear-gradient(135deg, ${BRAND_COLORS.gold}, ${BRAND_COLORS.goldLight}); padding: 20px; border-radius: 8px; margin-bottom: 25px;">
+              <h2 style="color: ${BRAND_COLORS.darkGray}; margin: 0 0 10px 0;">📋 Customer Details</h2>
+              <table style="width: 100%;">
+                <tr><td style="padding: 5px 0;"><strong>Name:</strong></td><td>${requestData.contact_name}</td></tr>
+                <tr><td style="padding: 5px 0;"><strong>Email:</strong></td><td><a href="mailto:${requestData.email}" style="color: ${BRAND_COLORS.crimson};">${requestData.email}</a></td></tr>
+                <tr><td style="padding: 5px 0;"><strong>Phone:</strong></td><td><a href="tel:${requestData.phone}" style="color: ${BRAND_COLORS.crimson};">${requestData.phone}</a></td></tr>
+              </table>
+            </div>
 
-        <div style="background-color: #FEF3C7; padding: 20px; border-radius: 8px; margin: 25px 0;">
-          <h2 style="color: #92400E; margin-top: 0;">✓ Quote Request Received!</h2>
-          <p style="color: #78350F;">
-            Hi ${requestData.contact_name},<br><br>
-            Thank you for choosing Soul Train's Eatery! We've received your quote request and our team is excited to make your event exceptional.
-          </p>
-        </div>
+            ${generateEventDetailsCard(requestData)}
+            
+            ${menuSectionHtml}
 
-        <div style="background-color: #F9FAFB; padding: 20px; border-radius: 8px; margin: 25px 0;">
-          <h3 style="color: #1F2937; margin-top: 0;">Your Event Details</h3>
-          <p><strong>Event:</strong> ${requestData.event_name}</p>
-          <p><strong>Date:</strong> ${eventDate}</p>
-          <p><strong>Guest Count:</strong> ${requestData.guest_count} guests</p>
-        </div>
+            <div class="event-card" style="border-left-color: ${BRAND_COLORS.crimson};">
+              <h3 style="margin: 0 0 15px 0; color: ${BRAND_COLORS.crimson};">📦 Supplies & Equipment Requested</h3>
+              <p style="margin: 5px 0; font-size: 15px;">${formatSupplies()}</p>
+            </div>
 
-        <div style="margin: 25px 0;">
-          <h3 style="color: #1F2937;">What Happens Next?</h3>
-          <ol style="color: #4B5563; line-height: 1.8;">
-            <li><strong>Review</strong> - Our team is carefully reviewing your request</li>
-            <li><strong>Detailed Quote</strong> - You'll receive a comprehensive quote within 48 hours</li>
-            <li><strong>Optional Consultation</strong> - We're happy to discuss any details by phone</li>
-            <li><strong>Finalization</strong> - Once approved, we'll handle all the details for your special day</li>
-          </ol>
-        </div>
+            ${requestData.dietary_restrictions && (Array.isArray(requestData.dietary_restrictions) ? requestData.dietary_restrictions.length > 0 : requestData.dietary_restrictions) ? `
+            <div class="event-card" style="border-left-color: ${BRAND_COLORS.gold}; background: #FFF9E6;">
+              <h3 style="margin: 0 0 10px 0; color: ${BRAND_COLORS.crimson};">🥗 Dietary Restrictions</h3>
+              <p style="margin: 5px 0;">${formatMenuItems(requestData.dietary_restrictions)}</p>
+              ${requestData.guest_count_with_restrictions ? `<p style="margin: 5px 0; font-size: 14px; color: #666;"><em>Guests with restrictions: ${requestData.guest_count_with_restrictions}</em></p>` : ''}
+            </div>
+            ` : ''}
 
-        <div style="border-top: 2px solid #E5E7EB; padding-top: 20px; margin-top: 30px;">
-          <h3 style="color: #1F2937;">Questions? We're Here to Help!</h3>
-          <p style="color: #4B5563;">
-            📞 Phone: <a href="tel:8439700265" style="color: #D97706;">(843) 970-0265</a><br>
-            📧 Email: <a href="mailto:soultrainseatery@gmail.com" style="color: #D97706;">soultrainseatery@gmail.com</a>
-          </p>
-        </div>
+            ${requestData.theme_colors ? `
+            <div class="event-card" style="border-left-color: ${BRAND_COLORS.gold};">
+              <h3 style="margin: 0 0 10px 0; color: ${BRAND_COLORS.crimson};">🎨 Theme/Colors</h3>
+              <p style="margin: 5px 0;">${requestData.theme_colors}</p>
+            </div>
+            ` : ''}
 
-        <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #E5E7EB;">
-          <p style="color: #9CA3AF; font-size: 12px;">
-            Soul Train's Eatery - Family-Run, Charleston-Based Catering<br>
-            Proudly serving Charleston's Lowcountry and surrounding areas
-          </p>
+            ${requestData.special_requests ? `
+            <div class="event-card" style="border-left-color: ${BRAND_COLORS.crimson}; background: #FFF0F0;">
+              <h3 style="margin: 0 0 10px 0; color: ${BRAND_COLORS.crimson};">💬 Special Requests</h3>
+              <p style="margin: 5px 0; white-space: pre-wrap;">${requestData.special_requests}</p>
+            </div>
+            ` : ''}
+
+            <div style="text-align: center; margin-top: 30px;">
+              <a href="https://qptprrqjlcvfkhfdnnoa.supabase.co/admin/workflow" class="btn btn-primary">
+                View in Admin Dashboard →
+              </a>
+            </div>
+          </div>
+          
+          ${generateFooter()}
         </div>
-      </div>
+      </body>
+      </html>
     `;
 
-    // Send emails (non-blocking - log failures but don't throw)
+    // Send admin email only (customer email handled by send-quote-confirmation)
     let adminEmailSent = false;
-    let customerEmailSent = false;
-    const emailErrors: string[] = [];
+    let emailError = null;
 
-    // Try to send admin email
     try {
-      console.log('Sending admin email...');
+      console.log('Sending admin notification email...');
       const { error: adminEmailError } = await supabase.functions.invoke('send-smtp-email', {
         body: {
           to: 'soultrainseatery@gmail.com',
-          subject: `New Quote Request: ${requestData.event_name}`,
+          subject: `🚂 New Quote Request: ${requestData.event_name}`,
           html: adminEmailHtml,
-          from: 'soultrainseatery@gmail.com'
+          from: 'Soul Train\'s Eatery <soultrainseatery@gmail.com>'
         }
       });
 
       if (adminEmailError) {
         console.warn('Admin email failed (non-critical):', adminEmailError);
-        emailErrors.push(`Admin email: ${adminEmailError.message || 'Failed'}`);
+        emailError = adminEmailError.message || 'Failed to send admin notification';
       } else {
-        console.log('Admin email sent successfully');
+        console.log('Admin notification email sent successfully');
         adminEmailSent = true;
       }
     } catch (error) {
       console.warn('Admin email exception (non-critical):', error);
-      emailErrors.push(`Admin email: ${error instanceof Error ? error.message : 'Exception'}`);
+      emailError = error instanceof Error ? error.message : 'Exception sending admin notification';
     }
 
-    // Try to send customer email
-    try {
-      console.log('Sending customer confirmation email...');
-      const { error: customerEmailError } = await supabase.functions.invoke('send-smtp-email', {
-        body: {
-          to: requestData.email,
-          subject: `Quote Request Received - ${requestData.event_name}`,
-          html: customerEmailHtml,
-          from: 'soultrainseatery@gmail.com'
-        }
-      });
-
-      if (customerEmailError) {
-        console.warn('Customer email failed (non-critical):', customerEmailError);
-        emailErrors.push(`Customer email: ${customerEmailError.message || 'Failed'}`);
-      } else {
-        console.log('Customer confirmation email sent successfully');
-        customerEmailSent = true;
-      }
-    } catch (error) {
-      console.warn('Customer email exception (non-critical):', error);
-      emailErrors.push(`Customer email: ${error instanceof Error ? error.message : 'Exception'}`);
-    }
-
-    // Always return success - emails are optional
-    const allEmailsSent = adminEmailSent && customerEmailSent;
-    
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: allEmailsSent 
-          ? "Quote notifications sent successfully via Gmail" 
-          : "Quote received (email notifications pending Gmail setup)",
-        emails_sent: {
-          admin: adminEmailSent,
-          customer: customerEmailSent
-        },
-        email_errors: emailErrors.length > 0 ? emailErrors : undefined
+        message: adminEmailSent 
+          ? "Admin notification sent successfully" 
+          : "Quote received (admin notification pending)",
+        admin_email_sent: adminEmailSent,
+        email_error: emailError || undefined
       }),
       {
         status: 200,
