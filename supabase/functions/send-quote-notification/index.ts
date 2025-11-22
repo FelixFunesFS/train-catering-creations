@@ -118,40 +118,73 @@ const handler = async (req: Request): Promise<Response> => {
       </div>
     `;
 
-    console.log('Sending admin email...');
-    const { error: adminEmailError } = await supabase.functions.invoke('send-gmail-email', {
-      body: {
-        to: 'soultrainseatery@gmail.com',
-        subject: `New Quote Request: ${requestData.event_name}`,
-        html: adminEmailHtml,
-        from: 'soultrainseatery@gmail.com'
-      }
-    });
+    // Send emails (non-blocking - log failures but don't throw)
+    let adminEmailSent = false;
+    let customerEmailSent = false;
+    const emailErrors: string[] = [];
 
-    if (adminEmailError) {
-      console.error('Failed to send admin email:', adminEmailError);
-      throw new Error(`Admin email failed: ${adminEmailError.message}`);
+    // Try to send admin email
+    try {
+      console.log('Sending admin email...');
+      const { error: adminEmailError } = await supabase.functions.invoke('send-gmail-email', {
+        body: {
+          to: 'soultrainseatery@gmail.com',
+          subject: `New Quote Request: ${requestData.event_name}`,
+          html: adminEmailHtml,
+          from: 'soultrainseatery@gmail.com'
+        }
+      });
+
+      if (adminEmailError) {
+        console.warn('Admin email failed (non-critical):', adminEmailError);
+        emailErrors.push(`Admin email: ${adminEmailError.message || 'Failed'}`);
+      } else {
+        console.log('Admin email sent successfully');
+        adminEmailSent = true;
+      }
+    } catch (error) {
+      console.warn('Admin email exception (non-critical):', error);
+      emailErrors.push(`Admin email: ${error instanceof Error ? error.message : 'Exception'}`);
     }
 
-    console.log('Sending customer confirmation email...');
-    const { error: customerEmailError } = await supabase.functions.invoke('send-gmail-email', {
-      body: {
-        to: requestData.email,
-        subject: `Quote Request Received - ${requestData.event_name}`,
-        html: customerEmailHtml,
-        from: 'soultrainseatery@gmail.com'
-      }
-    });
+    // Try to send customer email
+    try {
+      console.log('Sending customer confirmation email...');
+      const { error: customerEmailError } = await supabase.functions.invoke('send-gmail-email', {
+        body: {
+          to: requestData.email,
+          subject: `Quote Request Received - ${requestData.event_name}`,
+          html: customerEmailHtml,
+          from: 'soultrainseatery@gmail.com'
+        }
+      });
 
-    if (customerEmailError) {
-      console.error('Failed to send customer email:', customerEmailError);
-      throw new Error(`Customer email failed: ${customerEmailError.message}`);
+      if (customerEmailError) {
+        console.warn('Customer email failed (non-critical):', customerEmailError);
+        emailErrors.push(`Customer email: ${customerEmailError.message || 'Failed'}`);
+      } else {
+        console.log('Customer confirmation email sent successfully');
+        customerEmailSent = true;
+      }
+    } catch (error) {
+      console.warn('Customer email exception (non-critical):', error);
+      emailErrors.push(`Customer email: ${error instanceof Error ? error.message : 'Exception'}`);
     }
 
+    // Always return success - emails are optional
+    const allEmailsSent = adminEmailSent && customerEmailSent;
+    
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: "Quote notifications sent successfully via Gmail" 
+        message: allEmailsSent 
+          ? "Quote notifications sent successfully via Gmail" 
+          : "Quote received (email notifications pending Gmail setup)",
+        emails_sent: {
+          admin: adminEmailSent,
+          customer: customerEmailSent
+        },
+        email_errors: emailErrors.length > 0 ? emailErrors : undefined
       }),
       {
         status: 200,

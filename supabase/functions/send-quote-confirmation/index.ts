@@ -127,28 +127,40 @@ const handler = async (req: Request): Promise<Response> => {
       </div>
     `;
 
-    // Send email using Gmail function
-    const { error: emailError } = await supabase.functions.invoke('send-gmail-email', {
-      body: {
-        to: quote.email,
-        subject: emailSubject,
-        html: emailBody,
-        from: 'Soul Train\'s Eatery <soultrainseatery@gmail.com>'
-      }
-    });
+    // Send email using Gmail function (non-blocking - log failures but don't throw)
+    let emailSent = false;
+    let emailError = null;
 
-    if (emailError) {
-      console.error('Error sending email:', emailError);
-      throw emailError;
+    try {
+      const { error } = await supabase.functions.invoke('send-gmail-email', {
+        body: {
+          to: quote.email,
+          subject: emailSubject,
+          html: emailBody,
+          from: 'Soul Train\'s Eatery <soultrainseatery@gmail.com>'
+        }
+      });
+
+      if (error) {
+        console.warn('Email sending failed (non-critical):', error);
+        emailError = error.message || 'Email delivery failed';
+      } else {
+        console.log(`Confirmation email sent successfully to ${quote.email}`);
+        emailSent = true;
+      }
+    } catch (error) {
+      console.warn('Email sending exception (non-critical):', error);
+      emailError = error instanceof Error ? error.message : 'Email delivery failed';
     }
 
-    console.log(`Confirmation email sent successfully to ${quote.email}`);
-
+    // Always return success if quote was found (email is optional)
     return new Response(
       JSON.stringify({ 
         success: true,
-        message: 'Confirmation email sent',
-        quote_id 
+        message: emailSent ? 'Confirmation email sent' : 'Quote confirmed (email pending setup)',
+        quote_id,
+        email_sent: emailSent,
+        email_note: emailError || undefined
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
