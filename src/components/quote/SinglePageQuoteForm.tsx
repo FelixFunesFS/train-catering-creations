@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Separator } from "@/components/ui/separator";
 import { ContactAndEventStep } from "./alternative-form/ContactAndEventStep";
 import { ServiceSelectionStep } from "./alternative-form/ServiceSelectionStep";
 import { MenuSelectionStep } from "./alternative-form/MenuSelectionStep";
@@ -35,7 +35,6 @@ const SECTIONS = [
 ];
 
 export const SinglePageQuoteForm = ({ variant = 'regular', onSuccess }: SinglePageQuoteFormProps) => {
-  const [openSections, setOpenSections] = useState<string[]>(['contact-event']);
   const [completedSections, setCompletedSections] = useState<Set<string>>(new Set());
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -114,7 +113,7 @@ export const SinglePageQuoteForm = ({ variant = 'regular', onSuccess }: SinglePa
     return isValid;
   }, [form]);
 
-  // Auto-expand next section when current is completed
+  // Track section completion
   useEffect(() => {
     const subscription = form.watch(async (value, { name }) => {
       if (!name) return;
@@ -131,19 +130,8 @@ export const SinglePageQuoteForm = ({ variant = 'regular', onSuccess }: SinglePa
         const isComplete = await checkSectionCompletion(currentSection);
         
         if (isComplete) {
-          // Mark section as complete
           setCompletedSections(prev => new Set(prev).add(currentSection));
-          
-          // Auto-expand next section
-          const currentIndex = SECTIONS.findIndex(s => s.id === currentSection);
-          if (currentIndex >= 0 && currentIndex < SECTIONS.length - 1) {
-            const nextSection = SECTIONS[currentIndex + 1].id;
-            if (!openSections.includes(nextSection)) {
-              setOpenSections(prev => [...prev, nextSection]);
-            }
-          }
         } else {
-          // Remove from completed if no longer valid
           setCompletedSections(prev => {
             const newSet = new Set(prev);
             newSet.delete(currentSection);
@@ -154,7 +142,7 @@ export const SinglePageQuoteForm = ({ variant = 'regular', onSuccess }: SinglePa
     });
 
     return () => subscription.unsubscribe();
-  }, [form, checkSectionCompletion, openSections]);
+  }, [form, checkSectionCompletion]);
 
   const onSubmit = async (data: FormData) => {
     if (isSubmitting) return;
@@ -289,7 +277,7 @@ export const SinglePageQuoteForm = ({ variant = 'regular', onSuccess }: SinglePa
   const progress = (completedSections.size / SECTIONS.filter(s => s.required).length) * 100;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 max-w-4xl mx-auto">
       <FormProgressBar 
         progress={progress} 
         completedCount={completedSections.size}
@@ -297,97 +285,85 @@ export const SinglePageQuoteForm = ({ variant = 'regular', onSuccess }: SinglePa
       />
 
       <FormProvider {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <Accordion 
-            type="multiple" 
-            value={openSections} 
-            onValueChange={setOpenSections}
-            className="space-y-4"
-          >
-            {/* Event & Contact Information Section */}
-            <AccordionItem value="contact-event" className="neumorphic-card-2-static border-0 rounded-xl overflow-hidden bg-card/50 backdrop-blur-sm">
-                <AccordionTrigger className="px-6 py-4 hover:no-underline">
-                  <FormSectionHeader
-                    icon={Calendar}
-                    title="Event & Contact Information"
-                    isComplete={completedSections.has('contact-event')}
-                    isRequired
-                  />
-                </AccordionTrigger>
-                <AccordionContent className="px-6 pb-6">
-                  <ContactAndEventStep form={form} trackFieldInteraction={trackFieldInteraction} variant={variant} />
-                </AccordionContent>
-              </AccordionItem>
-
-              {/* Service Selection Section */}
-              <AccordionItem value="service" className="neumorphic-card-2-static border-0 rounded-xl overflow-hidden bg-card/50 backdrop-blur-sm">
-                <AccordionTrigger className="px-6 py-4 hover:no-underline">
-                  <FormSectionHeader
-                    icon={ChefHat}
-                    title="Service Type"
-                    isComplete={completedSections.has('service')}
-                    isRequired
-                  />
-                </AccordionTrigger>
-                <AccordionContent className="px-6 pb-6">
-                  <ServiceSelectionStep form={form} trackFieldInteraction={trackFieldInteraction} />
-                </AccordionContent>
-              </AccordionItem>
-
-              {/* Menu Selection Section */}
-              <AccordionItem value="menu" className="neumorphic-card-2-static border-0 rounded-xl overflow-hidden bg-card/50 backdrop-blur-sm">
-                <AccordionTrigger className="px-6 py-4 hover:no-underline">
-                  <FormSectionHeader
-                    icon={UtensilsCrossed}
-                    title="Menu Selection"
-                    isComplete={completedSections.has('menu')}
-                    isRequired={false}
-                  />
-                </AccordionTrigger>
-                <AccordionContent className="px-6 pb-6">
-                  <MenuSelectionStep form={form} trackFieldInteraction={trackFieldInteraction} variant={variant} />
-                </AccordionContent>
-              </AccordionItem>
-
-              {/* Additional Info Section */}
-              <AccordionItem value="additional" className="neumorphic-card-2-static border-0 rounded-xl overflow-hidden bg-card/50 backdrop-blur-sm">
-                <AccordionTrigger className="px-6 py-4 hover:no-underline">
-                  <FormSectionHeader
-                    icon={FileText}
-                    title="Additional Information"
-                    isComplete={completedSections.has('additional')}
-                    isRequired={false}
-                  />
-                </AccordionTrigger>
-                <AccordionContent className="px-6 pb-6">
-                  <FinalStep form={form} variant={variant} />
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-
-            {/* Review Summary */}
-            <ReviewSummaryCard form={form} variant={variant} />
-
-            {/* Submit Button */}
-            <div className="flex justify-center pt-6">
-              <Button
-                type="submit"
-                disabled={isSubmitting || completedSections.size < SECTIONS.filter(s => s.required).length}
-                className="gap-2 min-w-[280px] h-14 text-lg bg-gradient-primary hover:opacity-90"
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                    Submitting Your Request...
-                  </>
-                ) : (
-                  <>
-                    <Check className="h-5 w-5" />
-                    Submit Quote Request
-                  </>
-                )}
-              </Button>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-12">
+          {/* Section 1: Event & Contact Information */}
+          <div className="space-y-6">
+            <FormSectionHeader
+              icon={Calendar}
+              title="Event & Contact Information"
+              isComplete={completedSections.has('contact-event')}
+              isRequired
+            />
+            <div className="pl-14">
+              <ContactAndEventStep form={form} trackFieldInteraction={trackFieldInteraction} variant={variant} />
             </div>
+            <Separator className="my-8" />
+          </div>
+
+          {/* Section 2: Service Type */}
+          <div className="space-y-6">
+            <FormSectionHeader
+              icon={ChefHat}
+              title="Service Type"
+              isComplete={completedSections.has('service')}
+              isRequired
+            />
+            <div className="pl-14">
+              <ServiceSelectionStep form={form} trackFieldInteraction={trackFieldInteraction} />
+            </div>
+            <Separator className="my-8" />
+          </div>
+
+          {/* Section 3: Menu Selection */}
+          <div className="space-y-6">
+            <FormSectionHeader
+              icon={UtensilsCrossed}
+              title="Menu Selection"
+              isComplete={completedSections.has('menu')}
+              isRequired={false}
+            />
+            <div className="pl-14">
+              <MenuSelectionStep form={form} trackFieldInteraction={trackFieldInteraction} variant={variant} />
+            </div>
+            <Separator className="my-8" />
+          </div>
+
+          {/* Section 4: Additional Information */}
+          <div className="space-y-6">
+            <FormSectionHeader
+              icon={FileText}
+              title="Additional Information"
+              isComplete={completedSections.has('additional')}
+              isRequired={false}
+            />
+            <div className="pl-14">
+              <FinalStep form={form} variant={variant} />
+            </div>
+          </div>
+
+          {/* Review Summary */}
+          <ReviewSummaryCard form={form} variant={variant} />
+
+          {/* Submit Button */}
+          <div className="flex justify-center pt-6">
+            <Button
+              type="submit"
+              disabled={isSubmitting || completedSections.size < SECTIONS.filter(s => s.required).length}
+              className="gap-2 min-w-[280px] h-14 text-lg bg-gradient-primary hover:opacity-90"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  Submitting Your Request...
+                </>
+              ) : (
+                <>
+                  <Check className="h-5 w-5" />
+                  Submit Quote Request
+                </>
+              )}
+            </Button>
+          </div>
         </form>
       </FormProvider>
     </div>
