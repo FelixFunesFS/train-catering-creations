@@ -1,4 +1,4 @@
-import { UnifiedQuoteForm } from "@/components/quote/UnifiedQuoteForm";
+import { SinglePageQuoteForm } from "@/components/quote/SinglePageQuoteForm";
 import ContactInfoCards from "@/components/quote/ContactInfoCards";
 import { CTASection } from "@/components/ui/cta-section";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
@@ -41,7 +41,9 @@ const WeddingEventQuote = () => {
       <section className="py-8 lg:py-12">
         <ResponsiveWrapper>
           <div ref={formRef} className={useAnimationClass(formVariant, formVisible)}>
-            <UnifiedQuoteForm variant="wedding" />
+            <div className="max-w-5xl mx-auto">
+              <SinglePageQuoteForm variant="wedding" />
+            </div>
           </div>
         </ResponsiveWrapper>
       </section>
