@@ -167,7 +167,7 @@ export const MenuSelectionStep = ({ form, trackFieldInteraction, variant = 'regu
                 Allow guests to choose from multiple proteins
               </FormLabel>
               <p className="text-xs text-muted-foreground">
-                When enabled, guests can select from {bothProteinsAvailable ? "all" : "one"} of your chosen proteins
+                When enabled, all guests receive portions of each protein (e.g., chicken + beef). When disabled, guests select one protein only.
               </p>
             </div>
           </FormItem>
