@@ -53,8 +53,7 @@ const handler = async (req: Request): Promise<Response> => {
       from: from || `Soul Train's Eatery <${smtpUser}>`,
       to: to,
       subject: subject,
-      content: html,
-      mimeType: "text/html",
+      html: html,
     });
 
     await client.close();
