@@ -165,11 +165,6 @@ export const ServiceSelectionStep = ({ form, trackFieldInteraction }: ServiceSel
           )}
       </div>
 
-      <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 rounded-lg p-4 text-center">
-        <p className="text-sm text-muted-foreground">
-          <span className="text-primary font-medium">🍽️ Service Tip:</span> Need just delivery? Choose Drop-Off. Want setup help? Choose Delivery + Setup. Want the full experience? Choose Full-Service with optional wait staff.
-        </p>
-      </div>
     </div>
   );
 };

@@ -71,123 +71,28 @@ export const FinalStep = ({ form, variant = 'regular' }: FinalStepProps) => {
         </div>
       )}
 
-      {/* Additional Services */}
+      {/* Complete Setup Package */}
       <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <FormField
-              control={form.control}
-              name="plates_requested"
-              render={({ field }) => (
-                <FormItem className="flex items-center space-x-3 space-y-0">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel className="text-sm font-medium">Plates</FormLabel>
-                    <p className="text-xs text-muted-foreground">Disposable serving plates</p>
-                  </div>
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="cups_requested"
-              render={({ field }) => (
-                <FormItem className="flex items-center space-x-3 space-y-0">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel className="text-sm font-medium">Cups</FormLabel>
-                    <p className="text-xs text-muted-foreground">Disposable drinking cups</p>
-                  </div>
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="napkins_requested"
-              render={({ field }) => (
-                <FormItem className="flex items-center space-x-3 space-y-0">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel className="text-sm font-medium">Napkins</FormLabel>
-                    <p className="text-xs text-muted-foreground">Premium paper napkins</p>
-                  </div>
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="serving_utensils_requested"
-              render={({ field }) => (
-                <FormItem className="flex items-center space-x-3 space-y-0">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel className="text-sm font-medium">Serving Utensils</FormLabel>
-                    <p className="text-xs text-muted-foreground">Spoons, tongs, and serving forks</p>
-                  </div>
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="chafers_requested"
-              render={({ field }) => (
-                <FormItem className="flex items-center space-x-3 space-y-0">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel className="text-sm font-medium">Chafing Dishes</FormLabel>
-                    <p className="text-xs text-muted-foreground">Keep food warm during service</p>
-                  </div>
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="ice_requested"
-              render={({ field }) => (
-                <FormItem className="flex items-center space-x-3 space-y-0">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel className="text-sm font-medium">Ice</FormLabel>
-                    <p className="text-xs text-muted-foreground">Fresh ice for beverages</p>
-                  </div>
-                </FormItem>
-                )}
-              />
-            </div>
+        <FormField
+          control={form.control}
+          name="complete_setup_package"
+          render={({ field }) => (
+            <FormItem className="flex items-start space-x-3 space-y-0 rounded-md border border-muted bg-card/50 backdrop-blur-sm p-4">
+              <FormControl>
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+              <div className="space-y-1 leading-none">
+                <FormLabel className="text-base font-medium">Complete Setup Package</FormLabel>
+                <p className="text-sm text-muted-foreground">
+                  Includes plates, cups, napkins, serving utensils, chafing dishes, and ice
+                </p>
+              </div>
+            </FormItem>
+          )}
+        />
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
@@ -252,11 +157,6 @@ export const FinalStep = ({ form, variant = 'regular' }: FinalStepProps) => {
         </div>
       </div>
 
-      <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 rounded-lg p-4 text-center">
-        <p className="text-sm text-muted-foreground">
-          <span className="text-primary font-medium">🤝 Thank you!</span> We appreciate you choosing Soul Train's Eatery for your special event.
-        </p>
-      </div>
     </div>
   );
 };
