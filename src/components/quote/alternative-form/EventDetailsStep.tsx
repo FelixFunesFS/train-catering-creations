@@ -66,7 +66,7 @@ export const EventDetailsStep = ({ form, trackFieldInteraction, variant = 'regul
                         field.onBlur();
                       }}
                       placeholder="e.g., Sarah's 30th Birthday"
-                      className="h-12 text-base neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30"
+                      className="h-12 text-base input-clean"
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') {
                           e.preventDefault();
@@ -87,7 +87,7 @@ export const EventDetailsStep = ({ form, trackFieldInteraction, variant = 'regul
                   <FormLabel className="text-base font-medium">Type of Event *</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
-                      <SelectTrigger className="h-12 text-base neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30">
+                      <SelectTrigger className="h-12 text-base input-clean">
                         <SelectValue placeholder="Select event type" />
                       </SelectTrigger>
                     </FormControl>
@@ -121,7 +121,7 @@ export const EventDetailsStep = ({ form, trackFieldInteraction, variant = 'regul
                       type="number"
                       min="1"
                       placeholder="25"
-                      className="h-12 text-base neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30"
+                      className="h-12 text-base input-clean"
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') {
                           e.preventDefault();
@@ -153,7 +153,7 @@ export const EventDetailsStep = ({ form, trackFieldInteraction, variant = 'regul
                     <Input
                       type="date"
                       min={new Date().toISOString().split('T')[0]}
-                      className="h-12 text-base neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30"
+                      className="h-12 text-base input-clean"
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') {
                           e.preventDefault();
@@ -180,7 +180,7 @@ export const EventDetailsStep = ({ form, trackFieldInteraction, variant = 'regul
                   <FormControl>
                     <Input
                       type="time"
-                      className="h-12 text-base neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30"
+                      className="h-12 text-base input-clean"
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') {
                           e.preventDefault();
@@ -206,7 +206,7 @@ export const EventDetailsStep = ({ form, trackFieldInteraction, variant = 'regul
                   <FormControl>
                     <Input
                       placeholder="Address or venue name"
-                      className="h-12 text-base neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30"
+                      className="h-12 text-base input-clean"
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') {
                           e.preventDefault();
@@ -233,7 +233,7 @@ export const EventDetailsStep = ({ form, trackFieldInteraction, variant = 'regul
                   <FormControl>
                     <Input
                       placeholder="e.g., Navy Blue & Gold, Pink & White"
-                      className="h-12 text-base neumorphic-card-1 border-0 focus:ring-2 focus:ring-primary/30"
+                      className="h-12 text-base input-clean"
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') {
                           e.preventDefault();

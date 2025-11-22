@@ -252,6 +252,26 @@
     transform: translateY(-3px);
   }
 
+  /* Clean input styles - no glassmorphism, no lift */
+  .input-clean {
+    @apply bg-background border border-input;
+    box-shadow: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .input-clean:hover {
+    @apply border-primary/30;
+    box-shadow: none;
+    transform: none;
+  }
+
+  .input-clean:focus,
+  .input-clean:focus-visible {
+    @apply border-primary ring-2 ring-primary/30;
+    box-shadow: none;
+    transform: none;
+  }
+
   /* Standardized neumorphic button system with Ruby gradient */
   .neumorphic-button-primary {
     background: var(--gradient-ruby-primary);
