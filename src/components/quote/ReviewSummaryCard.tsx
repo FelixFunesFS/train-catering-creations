@@ -203,6 +203,25 @@ export const ReviewSummaryCard = ({ form, variant }: ReviewSummaryCardProps) => 
           </div>
         </div>
 
+        {/* Supply Items */}
+        {(watchedValues.plates_requested || watchedValues.cups_requested || watchedValues.napkins_requested || 
+          watchedValues.serving_utensils_requested || watchedValues.chafers_requested || watchedValues.ice_requested) && (
+          <div className="md:col-span-2 border-l-4 border-primary/20 bg-muted/30 p-4 rounded-lg">
+            <div className="flex items-center gap-2 text-primary mb-3">
+              <UtensilsCrossed className="h-4 w-4" />
+              <span className="text-sm font-medium">Supply Items Requested</span>
+            </div>
+            <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
+              {watchedValues.plates_requested && <span>✓ Disposable Plates</span>}
+              {watchedValues.cups_requested && <span>✓ Disposable Cups</span>}
+              {watchedValues.napkins_requested && <span>✓ Napkins</span>}
+              {watchedValues.serving_utensils_requested && <span>✓ Serving Utensils</span>}
+              {watchedValues.chafers_requested && <span>✓ Chafing Dishes with Fuel</span>}
+              {watchedValues.ice_requested && <span>✓ Ice</span>}
+            </div>
+          </div>
+        )}
+
         <div className="mt-4 p-4 bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 rounded-lg text-center">
           <p className="text-sm text-muted-foreground">
             <span className="text-primary font-medium">👆 Review above</span> - Make any changes before submitting
