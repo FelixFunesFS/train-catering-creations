@@ -11,6 +11,7 @@ const buttonVariants = cva(
         default: "bg-gradient-ruby-primary hover:bg-gradient-ruby-accent text-white shadow-glow hover:shadow-glow-strong transform hover:scale-[1.02]",
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90 neumorphic-card-2",
         outline: "border-2 border-primary text-primary bg-transparent hover:bg-gradient-ruby-primary hover:text-white neumorphic-card-1",
+        input: "border border-input text-foreground bg-background hover:border-muted-foreground/20 focus-visible:border-muted-foreground/40 focus-visible:outline-none focus-visible:ring-0",
         secondary: "neumorphic-button-secondary",
         ghost: "hover:bg-accent hover:text-accent-foreground neumorphic-card-1 font-medium",
         link: "text-primary underline-offset-4 hover:underline font-medium focus-visible-enhanced",
