@@ -82,7 +82,7 @@ export function MultiSelect({
           role="combobox"
           aria-expanded={open}
           className={cn(
-            "w-full justify-between min-h-[2.5rem] h-auto px-3 py-2 neumorphic-card-1 border-0",
+            "w-full justify-between min-h-[2.5rem] h-auto px-3 py-2 input-clean",
             className
           )}
         >
@@ -118,7 +118,7 @@ export function MultiSelect({
           <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-full p-0 bg-background border shadow-lg" align="start">
+      <PopoverContent className="w-full p-0 bg-background border shadow-lg z-50" align="start">
         <Command>
           <CommandInput placeholder={searchPlaceholder} />
           <CommandList>
