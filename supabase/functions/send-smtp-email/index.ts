@@ -25,7 +25,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Get SMTP configuration from environment
     const smtpHost = Deno.env.get('SMTP_HOST');
-    const smtpPort = parseInt(Deno.env.get('SMTP_PORT') || '587');
+    const smtpPort = parseInt(Deno.env.get('SMTP_PORT') || '465');
     const smtpUser = Deno.env.get('SMTP_USER');
     const smtpPass = Deno.env.get('SMTP_PASS');
 
@@ -33,7 +33,9 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error('SMTP configuration missing');
     }
 
-    // Create SMTP client
+    console.log('SMTP Config:', { host: smtpHost, port: smtpPort, user: smtpUser });
+
+    // Create SMTP client with SSL for port 465
     const client = new SMTPClient({
       connection: {
         hostname: smtpHost,
