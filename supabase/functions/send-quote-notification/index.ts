@@ -126,7 +126,7 @@ const handler = async (req: Request): Promise<Response> => {
     // Try to send admin email
     try {
       console.log('Sending admin email...');
-      const { error: adminEmailError } = await supabase.functions.invoke('send-gmail-email', {
+      const { error: adminEmailError } = await supabase.functions.invoke('send-smtp-email', {
         body: {
           to: 'soultrainseatery@gmail.com',
           subject: `New Quote Request: ${requestData.event_name}`,
@@ -150,7 +150,7 @@ const handler = async (req: Request): Promise<Response> => {
     // Try to send customer email
     try {
       console.log('Sending customer confirmation email...');
-      const { error: customerEmailError } = await supabase.functions.invoke('send-gmail-email', {
+      const { error: customerEmailError } = await supabase.functions.invoke('send-smtp-email', {
         body: {
           to: requestData.email,
           subject: `Quote Request Received - ${requestData.event_name}`,
