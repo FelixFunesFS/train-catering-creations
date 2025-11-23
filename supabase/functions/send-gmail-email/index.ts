@@ -58,7 +58,11 @@ const handler = async (req: Request): Promise<Response> => {
     const now = new Date();
     
     if (now >= expiresAt) {
-      console.log('Token expired, refreshing...');
+      console.log('Token expired, refreshing...', {
+        refresh_token_preview: tokenData.refresh_token.substring(0, 15) + '...',
+        expires_at: tokenData.expires_at,
+        now: now.toISOString()
+      });
       
       const refreshResponse = await fetch('https://oauth2.googleapis.com/token', {
         method: 'POST',
@@ -87,19 +91,30 @@ const handler = async (req: Request): Promise<Response> => {
       // Update stored tokens
       const newExpiresAt = new Date(Date.now() + (refreshTokens.expires_in * 1000)).toISOString();
       
+      // Prepare update object - include new refresh token if Google provides one
+      const updateData: any = {
+        access_token: accessToken,
+        expires_at: newExpiresAt,
+      };
+
+      // Google may return a new refresh token during refresh
+      if (refreshTokens.refresh_token) {
+        updateData.refresh_token = refreshTokens.refresh_token;
+        console.log('Received new refresh token from Google, updating...');
+      }
+
       const { error: updateError } = await supabase
         .from('gmail_tokens')
-        .update({
-          access_token: accessToken,
-          expires_at: newExpiresAt,
-        })
+        .update(updateData)
         .eq('id', tokenData.id);
 
       if (updateError) {
         console.error('Failed to update tokens:', updateError);
+      } else {
+        console.log('Token refreshed successfully', {
+          updated_refresh_token: !!refreshTokens.refresh_token
+        });
       }
-
-      console.log('Token refreshed successfully');
     }
 
     // Create MIME message
