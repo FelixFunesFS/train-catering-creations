@@ -50,11 +50,10 @@ const ServiceSelectionStepComponent = ({ form, trackFieldInteraction }: ServiceS
                       <div className="flex items-start space-x-3">
                         <RadioGroupItem 
                           value="drop-off" 
-                          id="drop-off" 
                           className="mt-1"
                         />
                         <div className="flex-1">
-                          <Label htmlFor="drop-off" className="flex items-center gap-3 text-base font-medium cursor-pointer">
+                          <Label className="flex items-center gap-3 text-base font-medium cursor-pointer">
                             <Truck className="h-5 w-5 text-primary" />
                             Drop-Off Service
                           </Label>
@@ -80,11 +79,10 @@ const ServiceSelectionStepComponent = ({ form, trackFieldInteraction }: ServiceS
                       <div className="flex items-start space-x-3">
                         <RadioGroupItem 
                           value="delivery-setup" 
-                          id="delivery-setup" 
                           className="mt-1"
                         />
                         <div className="flex-1">
-                          <Label htmlFor="delivery-setup" className="flex items-center gap-3 text-base font-medium cursor-pointer">
+                          <Label className="flex items-center gap-3 text-base font-medium cursor-pointer">
                             <Truck className="h-5 w-5 text-secondary" />
                             Delivery + Setup
                             <span className="text-sm text-primary bg-primary/10 px-2 py-1 rounded-full">Most Popular</span>
@@ -111,11 +109,10 @@ const ServiceSelectionStepComponent = ({ form, trackFieldInteraction }: ServiceS
                       <div className="flex items-start space-x-3">
                         <RadioGroupItem 
                           value="full-service" 
-                          id="full-service" 
                           className="mt-1"
                         />
                         <div className="flex-1">
-                          <Label htmlFor="full-service" className="flex items-center gap-3 text-base font-medium cursor-pointer">
+                          <Label className="flex items-center gap-3 text-base font-medium cursor-pointer">
                             <Users className="h-5 w-5 text-gold" />
                             Full-Service Catering
                             <span className="text-sm text-gold bg-gold/10 px-2 py-1 rounded-full">Premium</span>
