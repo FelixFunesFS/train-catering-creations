@@ -312,4 +312,4 @@ const FinalStepComponent = ({ form, variant = 'regular' }: FinalStepProps) => {
   );
 };
 
-export const FinalStep = memo(FinalStepComponent);
+export const FinalStep = FinalStepComponent;

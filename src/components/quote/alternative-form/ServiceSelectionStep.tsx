@@ -44,9 +44,20 @@ const ServiceSelectionStepComponent = ({ form, trackFieldInteraction }: ServiceS
                     value={field.value}
                     className="space-y-4"
                   >
-                    <div className="bg-card p-4 rounded-lg border border-border/50 hover:border-primary/50 transition-colors duration-300">
+                    <div 
+                      className="bg-card p-4 rounded-lg border border-border/50 hover:border-primary/50 transition-colors duration-300 cursor-pointer"
+                      onClick={() => {
+                        trackFieldInteraction('service_type');
+                        field.onChange('drop-off');
+                      }}
+                    >
                       <div className="flex items-start space-x-3">
-                        <RadioGroupItem value="drop-off" id="drop-off" className="mt-1" />
+                        <RadioGroupItem 
+                          value="drop-off" 
+                          id="drop-off" 
+                          className="mt-1"
+                          onClick={(e) => e.stopPropagation()}
+                        />
                         <div className="flex-1">
                           <Label htmlFor="drop-off" className="flex items-center gap-3 text-base font-medium cursor-pointer">
                             <Truck className="h-5 w-5 text-primary" />
@@ -64,9 +75,20 @@ const ServiceSelectionStepComponent = ({ form, trackFieldInteraction }: ServiceS
                       </div>
                     </div>
 
-                    <div className="bg-card p-4 rounded-lg border border-border/50 hover:border-primary/50 transition-colors duration-300">
+                    <div 
+                      className="bg-card p-4 rounded-lg border border-border/50 hover:border-primary/50 transition-colors duration-300 cursor-pointer"
+                      onClick={() => {
+                        trackFieldInteraction('service_type');
+                        field.onChange('delivery-setup');
+                      }}
+                    >
                       <div className="flex items-start space-x-3">
-                        <RadioGroupItem value="delivery-setup" id="delivery-setup" className="mt-1" />
+                        <RadioGroupItem 
+                          value="delivery-setup" 
+                          id="delivery-setup" 
+                          className="mt-1"
+                          onClick={(e) => e.stopPropagation()}
+                        />
                         <div className="flex-1">
                           <Label htmlFor="delivery-setup" className="flex items-center gap-3 text-base font-medium cursor-pointer">
                             <Truck className="h-5 w-5 text-secondary" />
@@ -85,9 +107,20 @@ const ServiceSelectionStepComponent = ({ form, trackFieldInteraction }: ServiceS
                       </div>
                     </div>
 
-                    <div className="bg-card p-4 rounded-lg border border-border/50 hover:border-primary/50 transition-colors duration-300">
+                    <div 
+                      className="bg-card p-4 rounded-lg border border-border/50 hover:border-primary/50 transition-colors duration-300 cursor-pointer"
+                      onClick={() => {
+                        trackFieldInteraction('service_type');
+                        field.onChange('full-service');
+                      }}
+                    >
                       <div className="flex items-start space-x-3">
-                        <RadioGroupItem value="full-service" id="full-service" className="mt-1" />
+                        <RadioGroupItem 
+                          value="full-service" 
+                          id="full-service" 
+                          className="mt-1"
+                          onClick={(e) => e.stopPropagation()}
+                        />
                         <div className="flex-1">
                           <Label htmlFor="full-service" className="flex items-center gap-3 text-base font-medium cursor-pointer">
                             <Users className="h-5 w-5 text-gold" />
@@ -177,4 +210,4 @@ const ServiceSelectionStepComponent = ({ form, trackFieldInteraction }: ServiceS
   );
 };
 
-export const ServiceSelectionStep = memo(ServiceSelectionStepComponent);
+export const ServiceSelectionStep = ServiceSelectionStepComponent;
