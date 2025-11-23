@@ -2,6 +2,13 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.52.1';
 import { BRAND_COLORS, EMAIL_STYLES, generateEmailHeader, generateEventDetailsCard, generateFooter } from "../_shared/emailTemplates.ts";
 
+// Blue color scheme for quote confirmations (to differentiate from estimates/invoices)
+const BLUE_COLORS = {
+  primary: '#3B82F6',
+  dark: '#2563EB',
+  light: '#DBEAFE'
+};
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -109,16 +116,18 @@ const handler = async (req: Request): Promise<Response> => {
       </head>
       <body>
         <div class="email-container">
-          ${generateEmailHeader()}
+          <div style="background: linear-gradient(135deg, ${BLUE_COLORS.primary}, ${BLUE_COLORS.dark}); padding: 25px; border-radius: 8px; margin-bottom: 25px; text-align: center;">
+            <div style="background: rgba(255,255,255,0.2); display: inline-block; padding: 8px 16px; border-radius: 20px; margin-bottom: 15px;">
+              <span style="color: white; font-weight: bold; font-size: 14px;">📋 QUOTE RECEIVED</span>
+            </div>
+            <h2 style="color: white; margin: 0 0 10px 0; font-size: 24px;">✓ Quote Request Received!</h2>
+            <p style="color: white; margin: 0; font-size: 16px; opacity: 0.95;">
+              Hi ${quote.contact_name},<br><br>
+              Thank you for choosing Soul Train's Eatery! We've received your quote request and our team is excited to make your event exceptional.
+            </p>
+          </div>
           
           <div class="content">
-            <div style="background: linear-gradient(135deg, ${BRAND_COLORS.gold}, ${BRAND_COLORS.goldLight}); padding: 25px; border-radius: 8px; margin-bottom: 25px; text-align: center;">
-              <h2 style="color: ${BRAND_COLORS.darkGray}; margin: 0 0 10px 0; font-size: 24px;">✓ Quote Request Received!</h2>
-              <p style="color: ${BRAND_COLORS.darkGray}; margin: 0; font-size: 16px;">
-                Hi ${quote.contact_name},<br><br>
-                Thank you for choosing Soul Train's Eatery! We've received your quote request and our team is excited to make your event exceptional.
-              </p>
-            </div>
 
             ${generateEventDetailsCard(quote)}
             
@@ -139,16 +148,16 @@ const handler = async (req: Request): Promise<Response> => {
             <div style="margin: 30px 0;">
               <h3 style="color: ${BRAND_COLORS.crimson};">What Happens Next?</h3>
               <ol style="color: ${BRAND_COLORS.darkGray}; line-height: 1.8; padding-left: 20px;">
-                <li><strong style="color: ${BRAND_COLORS.crimson};">Review (You are here!)</strong> - Our team is carefully reviewing your request</li>
-                <li><strong style="color: ${BRAND_COLORS.crimson};">Detailed Estimate</strong> - You'll receive a comprehensive estimate with pricing within 48 hours</li>
-                <li><strong style="color: ${BRAND_COLORS.crimson};">Optional Consultation</strong> - We're happy to discuss any details by phone</li>
-                <li><strong style="color: ${BRAND_COLORS.crimson};">Finalization</strong> - Once approved, we'll handle all the details for your special day</li>
+                <li><strong style="color: ${BLUE_COLORS.dark};">Review (You are here!)</strong> - Our team is carefully reviewing your request</li>
+                <li><strong style="color: ${BLUE_COLORS.dark};">Detailed Estimate</strong> - You'll receive a comprehensive estimate with pricing within 48 hours</li>
+                <li><strong style="color: ${BLUE_COLORS.dark};">Optional Consultation</strong> - We're happy to discuss any details by phone</li>
+                <li><strong style="color: ${BLUE_COLORS.dark};">Finalization</strong> - Once approved, we'll handle all the details for your special day</li>
               </ol>
             </div>
 
-            <div style="background: linear-gradient(135deg, ${BRAND_COLORS.crimson}, ${BRAND_COLORS.crimsonDark}); padding: 25px; border-radius: 8px; margin: 25px 0; text-align: center;">
-              <h3 style="color: ${BRAND_COLORS.white}; margin: 0 0 15px 0;">Next Steps</h3>
-              <p style="color: ${BRAND_COLORS.white}; margin-bottom: 15px; opacity: 0.95;">
+            <div style="background: linear-gradient(135deg, ${BLUE_COLORS.primary}, ${BLUE_COLORS.dark}); padding: 25px; border-radius: 8px; margin: 25px 0; text-align: center;">
+              <h3 style="color: white; margin: 0 0 15px 0;">📅 Next Steps</h3>
+              <p style="color: white; margin-bottom: 15px; opacity: 0.95;">
                 Our team will review your request and send you a detailed estimate within 48 hours. 
                 The estimate will include a secure link to view pricing, approve, or request changes.
               </p>

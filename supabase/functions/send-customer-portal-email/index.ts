@@ -172,7 +172,16 @@ function generateWelcomeEmail(quote: any, portalUrl: string): string {
     </head>
     <body>
       <div class="email-container">
-        ${generateEmailHeader("Welcome to Soul Train's Eatery")}
+        <div style="background: linear-gradient(135deg, #3B82F6, #2563EB); padding: 25px; border-radius: 8px; margin-bottom: 25px; text-align: center;">
+          <div style="background: rgba(255,255,255,0.2); display: inline-block; padding: 8px 16px; border-radius: 20px; margin-bottom: 15px;">
+            <span style="color: white; font-weight: bold; font-size: 14px;">📋 QUOTE RECEIVED</span>
+          </div>
+          <h2 style="color: white; margin: 0 0 10px 0; font-size: 24px;">Welcome to Soul Train's Eatery!</h2>
+          <p style="color: white; margin: 0; font-size: 16px; opacity: 0.95;">
+            Hi ${quote.contact_name},<br>
+            We're excited to cater your event!
+          </p>
+        </div>
         
         <div class="content">
           <h2 style="color: ${BRAND_COLORS.crimson};">Welcome, ${quote.contact_name}!</h2>
@@ -242,7 +251,16 @@ function generateEstimateReadyEmail(quote: any, invoice: any, portalUrl: string,
     </head>
     <body>
       <div class="email-container">
-        ${generateEmailHeader("Your Estimate is Ready!")}
+        <div style="background: linear-gradient(135deg, ${BRAND_COLORS.crimson}, ${BRAND_COLORS.crimsonDark}); padding: 25px; border-radius: 8px; margin-bottom: 25px; text-align: center;">
+          <div style="background: linear-gradient(135deg, ${BRAND_COLORS.gold}, ${BRAND_COLORS.goldLight}); display: inline-block; padding: 8px 16px; border-radius: 20px; margin-bottom: 15px;">
+            <span style="color: ${BRAND_COLORS.darkGray}; font-weight: bold; font-size: 14px;">💰 ESTIMATE READY</span>
+          </div>
+          <h2 style="color: white; margin: 0 0 10px 0; font-size: 24px;">Your Custom Estimate is Ready!</h2>
+          <p style="color: white; margin: 0; font-size: 16px; opacity: 0.95;">
+            Hi ${quote.contact_name},<br>
+            Your custom pricing is ready for review
+          </p>
+        </div>
         
         <div class="content">
           ${isUpdated ? `
@@ -314,7 +332,16 @@ function generatePaymentReminderEmail(quote: any, portalUrl: string): string {
     </head>
     <body>
       <div class="email-container">
-        ${generateEmailHeader("Payment Reminder")}
+        <div style="background: linear-gradient(135deg, ${BRAND_COLORS.gold}, ${BRAND_COLORS.goldLight}); padding: 25px; border-radius: 8px; margin-bottom: 25px; text-align: center;">
+          <div style="background: rgba(220, 20, 60, 0.2); display: inline-block; padding: 8px 16px; border-radius: 20px; margin-bottom: 15px;">
+            <span style="color: ${BRAND_COLORS.crimsonDark}; font-weight: bold; font-size: 14px;">⏰ PAYMENT REMINDER</span>
+          </div>
+          <h2 style="color: ${BRAND_COLORS.crimsonDark}; margin: 0 0 10px 0; font-size: 24px;">Payment Due Soon</h2>
+          <p style="color: ${BRAND_COLORS.darkGray}; margin: 0; font-size: 16px;">
+            Hi ${quote.contact_name},<br>
+            This is a friendly reminder about your upcoming payment
+          </p>
+        </div>
         
         <div class="content">
           <h2 style="color: ${BRAND_COLORS.crimson};">Hi ${quote.contact_name},</h2>

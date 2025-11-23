@@ -2,6 +2,13 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { BRAND_COLORS, EMAIL_STYLES, generateEmailHeader, generateEventDetailsCard, generateFooter } from "../_shared/emailTemplates.ts";
 
+// Blue color scheme for admin notifications (to differentiate from customer emails)
+const ADMIN_BLUE = {
+  primary: '#3B82F6',
+  dark: '#2563EB',
+  light: '#DBEAFE'
+};
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
@@ -92,7 +99,22 @@ const handler = async (req: Request): Promise<Response> => {
       </head>
       <body>
         <div class="email-container">
-          ${generateEmailHeader('New Quote Request')}
+          <div style="background: linear-gradient(135deg, ${ADMIN_BLUE.primary}, ${ADMIN_BLUE.dark}); padding: 25px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
+            <div style="background: rgba(255,255,255,0.2); display: inline-block; padding: 8px 16px; border-radius: 20px; margin-bottom: 15px;">
+              <span style="color: white; font-weight: bold; font-size: 14px;">🚂 NEW QUOTE SUBMISSION</span>
+            </div>
+            <h2 style="color: white; margin: 0 0 10px 0; font-size: 24px;">📧 New Quote Request From:</h2>
+            <h3 style="color: white; margin: 0; font-size: 24px;">${requestData.contact_name}</h3>
+            <p style="color: white; margin: 5px 0; font-size: 16px;">
+              📧 ${requestData.email} | 📞 ${requestData.phone}
+            </p>
+            <p style="color: white; margin: 15px 0 0 0; font-size: 14px; opacity: 0.9;">
+              <a href="mailto:${requestData.email}" style="color: white; text-decoration: underline;">
+                Click to reply directly to customer →
+              </a>
+            </p>
+            <p style="color: white; margin: 10px 0 0 0; opacity: 0.95;">Event: ${requestData.event_name}</p>
+          </div>
           
           <div class="content">
             <div style="background: linear-gradient(135deg, ${BRAND_COLORS.gold}, ${BRAND_COLORS.goldLight}); padding: 20px; border-radius: 8px; margin-bottom: 25px;">
@@ -157,9 +179,9 @@ const handler = async (req: Request): Promise<Response> => {
       const { error: adminEmailError } = await supabase.functions.invoke('send-smtp-email', {
         body: {
           to: 'soultrainseatery@gmail.com',
-          subject: `🚂 New Quote Request: ${requestData.event_name}`,
+          subject: `🚂 NEW QUOTE from ${requestData.contact_name} - ${requestData.event_name}`,
           html: adminEmailHtml,
-          from: 'Soul Train\'s Eatery <soultrainseatery@gmail.com>'
+          from: `Soul Train's Eatery Notifications <soultrainseatery@gmail.com>`
         }
       });
 

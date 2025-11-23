@@ -48,12 +48,16 @@ const handler = async (req: Request): Promise<Response> => {
       },
     });
 
-    // Send email
+    // Send email with proper encoding to prevent =20 artifacts
     await client.send({
       from: from || `Soul Train's Eatery <${smtpUser}>`,
       to: to,
       subject: subject,
       html: html,
+      headers: {
+        'Content-Transfer-Encoding': '8bit',
+        'Content-Type': 'text/html; charset=UTF-8'
+      },
     });
 
     await client.close();
