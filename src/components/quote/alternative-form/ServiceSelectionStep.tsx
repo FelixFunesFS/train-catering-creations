@@ -1,11 +1,10 @@
 import { UseFormReturn, useWatch } from "react-hook-form";
 import { memo } from "react";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Truck, Users, Clock, ChefHat } from "lucide-react";
+import { Truck, Users, Clock, ChefHat, Circle, CheckCircle2 } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 
@@ -45,11 +44,11 @@ const ServiceSelectionStepComponent = ({ form, trackFieldInteraction }: ServiceS
                       }}
                     >
                       <div className="flex items-start space-x-3">
-                        <RadioGroupItem 
-                          value="drop-off"
-                          checked={field.value === 'drop-off'}
-                          className="mt-1 pointer-events-none"
-                        />
+                        {field.value === 'drop-off' ? (
+                          <CheckCircle2 className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
+                        ) : (
+                          <Circle className="h-5 w-5 text-muted-foreground mt-1 flex-shrink-0" />
+                        )}
                         <div className="flex-1">
                           <Label className="flex items-center gap-3 text-base font-medium cursor-pointer">
                             <Truck className="h-5 w-5 text-primary" />
@@ -75,11 +74,11 @@ const ServiceSelectionStepComponent = ({ form, trackFieldInteraction }: ServiceS
                       }}
                     >
                       <div className="flex items-start space-x-3">
-                        <RadioGroupItem 
-                          value="delivery-setup"
-                          checked={field.value === 'delivery-setup'}
-                          className="mt-1 pointer-events-none"
-                        />
+                        {field.value === 'delivery-setup' ? (
+                          <CheckCircle2 className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
+                        ) : (
+                          <Circle className="h-5 w-5 text-muted-foreground mt-1 flex-shrink-0" />
+                        )}
                         <div className="flex-1">
                           <Label className="flex items-center gap-3 text-base font-medium cursor-pointer">
                             <Truck className="h-5 w-5 text-secondary" />
@@ -106,11 +105,11 @@ const ServiceSelectionStepComponent = ({ form, trackFieldInteraction }: ServiceS
                       }}
                     >
                       <div className="flex items-start space-x-3">
-                        <RadioGroupItem 
-                          value="full-service"
-                          checked={field.value === 'full-service'}
-                          className="mt-1 pointer-events-none"
-                        />
+                        {field.value === 'full-service' ? (
+                          <CheckCircle2 className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
+                        ) : (
+                          <Circle className="h-5 w-5 text-muted-foreground mt-1 flex-shrink-0" />
+                        )}
                         <div className="flex-1">
                           <Label className="flex items-center gap-3 text-base font-medium cursor-pointer">
                             <Users className="h-5 w-5 text-gold" />
