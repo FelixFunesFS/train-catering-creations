@@ -36,10 +36,7 @@ const ServiceSelectionStepComponent = ({ form, trackFieldInteraction }: ServiceS
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <RadioGroup
-                    value={field.value}
-                    className="space-y-4"
-                  >
+                  <div className="space-y-4">
                     <div 
                       className="bg-card p-4 rounded-lg border border-border/50 hover:border-primary/50 transition-colors duration-300 cursor-pointer"
                       onClick={() => {
@@ -49,7 +46,8 @@ const ServiceSelectionStepComponent = ({ form, trackFieldInteraction }: ServiceS
                     >
                       <div className="flex items-start space-x-3">
                         <RadioGroupItem 
-                          value="drop-off" 
+                          value="drop-off"
+                          checked={field.value === 'drop-off'}
                           className="mt-1 pointer-events-none"
                         />
                         <div className="flex-1">
@@ -78,7 +76,8 @@ const ServiceSelectionStepComponent = ({ form, trackFieldInteraction }: ServiceS
                     >
                       <div className="flex items-start space-x-3">
                         <RadioGroupItem 
-                          value="delivery-setup" 
+                          value="delivery-setup"
+                          checked={field.value === 'delivery-setup'}
                           className="mt-1 pointer-events-none"
                         />
                         <div className="flex-1">
@@ -108,7 +107,8 @@ const ServiceSelectionStepComponent = ({ form, trackFieldInteraction }: ServiceS
                     >
                       <div className="flex items-start space-x-3">
                         <RadioGroupItem 
-                          value="full-service" 
+                          value="full-service"
+                          checked={field.value === 'full-service'}
                           className="mt-1 pointer-events-none"
                         />
                         <div className="flex-1">
@@ -128,7 +128,7 @@ const ServiceSelectionStepComponent = ({ form, trackFieldInteraction }: ServiceS
                         </div>
                       </div>
                     </div>
-                  </RadioGroup>
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>
