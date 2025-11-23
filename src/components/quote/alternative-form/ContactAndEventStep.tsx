@@ -14,6 +14,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { DatePicker } from "@/components/ui/date-picker";
+import { TimeSelect } from "@/components/ui/time-select";
 import { formatPhoneNumber } from "@/utils/phoneFormatter";
 import { formatCustomerName, formatEventName } from "@/utils/textFormatters";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
@@ -231,11 +233,11 @@ export const ContactAndEventStep = ({ form, trackFieldInteraction, variant = 're
                 <FormItem className="mb-3">
                   <FormLabel>Event Date *</FormLabel>
                   <FormControl>
-                    <Input
-                      type="date"
-                      className="h-12 text-base input-clean"
-                      min={new Date().toISOString().split('T')[0]}
-                      {...field}
+                    <DatePicker
+                      value={field.value ? new Date(field.value) : undefined}
+                      onChange={(date) => field.onChange(date?.toISOString().split('T')[0])}
+                      placeholder="Pick an event date"
+                      disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
                       onFocus={() => trackFieldInteraction('event_date')}
                     />
                   </FormControl>
@@ -251,10 +253,11 @@ export const ContactAndEventStep = ({ form, trackFieldInteraction, variant = 're
                 <FormItem className="mb-3">
                   <FormLabel>Start Time *</FormLabel>
                   <FormControl>
-                    <Input
-                      type="time"
-                      className="h-12 text-base input-clean"
-                      {...field}
+                    <TimeSelect
+                      value={field.value}
+                      onChange={field.onChange}
+                      placeholder="Select start time"
+                      interval={30}
                       onFocus={() => trackFieldInteraction('start_time')}
                     />
                   </FormControl>
