@@ -26,6 +26,14 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error('Missing required fields: to, subject, html');
     }
 
+    // Extract email address from display name format: "Name <email@domain.com>" → "email@domain.com"
+    const extractEmail = (emailString: string): string => {
+      const match = emailString.match(/<(.+?)>/);
+      return match ? match[1] : emailString;
+    };
+
+    const fromEmail = extractEmail(from);
+
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
     const clientId = Deno.env.get('GMAIL_CLIENT_ID');
@@ -41,12 +49,12 @@ const handler = async (req: Request): Promise<Response> => {
     const { data: tokenData, error: tokenError } = await supabase
       .from('gmail_tokens')
       .select('*')
-      .eq('email', from)
+      .eq('email', fromEmail)
       .single();
 
     if (tokenError || !tokenData) {
-      console.error('Gmail token lookup failed:', { from, tokenError, tokenData });
-      throw new Error(`No Gmail tokens found for ${from}. Please authorize Gmail access first. Visit /admin to set up Gmail integration.`);
+      console.error('Gmail token lookup failed:', { fromEmail, tokenError, tokenData });
+      throw new Error(`No Gmail tokens found for ${fromEmail}. Please authorize Gmail access first. Visit /admin to set up Gmail integration.`);
     }
 
     console.log('Found Gmail tokens for:', from);
