@@ -99,9 +99,6 @@ const handler = async (req: Request): Promise<Response> => {
       </div>
     `;
 
-    // Create portal link
-    const portalLink = `${Deno.env.get('FRONTEND_URL') || 'https://qptprrqjlcvfkhfdnnoa.supabase.co'}/customer/quote/${quote_id}`;
-
     const emailSubject = `Quote Request Received - Reference #${quote_id.slice(0, 8).toUpperCase()}`;
     
     const emailBody = `
@@ -143,20 +140,18 @@ const handler = async (req: Request): Promise<Response> => {
               <h3 style="color: ${BRAND_COLORS.crimson};">What Happens Next?</h3>
               <ol style="color: ${BRAND_COLORS.darkGray}; line-height: 1.8; padding-left: 20px;">
                 <li><strong style="color: ${BRAND_COLORS.crimson};">Review (You are here!)</strong> - Our team is carefully reviewing your request</li>
-                <li><strong style="color: ${BRAND_COLORS.crimson};">Detailed Quote</strong> - You'll receive a comprehensive quote within 48 hours</li>
+                <li><strong style="color: ${BRAND_COLORS.crimson};">Detailed Estimate</strong> - You'll receive a comprehensive estimate with pricing within 48 hours</li>
                 <li><strong style="color: ${BRAND_COLORS.crimson};">Optional Consultation</strong> - We're happy to discuss any details by phone</li>
                 <li><strong style="color: ${BRAND_COLORS.crimson};">Finalization</strong> - Once approved, we'll handle all the details for your special day</li>
               </ol>
             </div>
 
             <div style="background: linear-gradient(135deg, ${BRAND_COLORS.crimson}, ${BRAND_COLORS.crimsonDark}); padding: 25px; border-radius: 8px; margin: 25px 0; text-align: center;">
-              <h3 style="color: ${BRAND_COLORS.white}; margin: 0 0 15px 0;">Track Your Quote</h3>
-              <p style="color: ${BRAND_COLORS.white}; margin-bottom: 20px; opacity: 0.95;">
-                Bookmark this link to check your quote status anytime
+              <h3 style="color: ${BRAND_COLORS.white}; margin: 0 0 15px 0;">Next Steps</h3>
+              <p style="color: ${BRAND_COLORS.white}; margin-bottom: 15px; opacity: 0.95;">
+                Our team will review your request and send you a detailed estimate within 48 hours. 
+                The estimate will include a secure link to view pricing, approve, or request changes.
               </p>
-              <a href="${portalLink}" class="btn btn-secondary">
-                View Quote Status →
-              </a>
             </div>
 
             <div style="border-top: 3px solid ${BRAND_COLORS.gold}; padding-top: 20px; margin-top: 30px; text-align: center;">
