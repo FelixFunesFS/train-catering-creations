@@ -13,6 +13,21 @@ export const BRAND_COLORS = {
   white: '#FFFFFF',
 };
 
+const formatServiceType = (serviceType: string): string => {
+  if (!serviceType) return 'Full Service';
+  
+  const typeMap: Record<string, string> = {
+    'drop-off': 'Drop-Off',
+    'delivery-setup': 'Delivery + Setup',
+    'full-service': 'Full-Service Catering'
+  };
+  
+  return typeMap[serviceType] || serviceType
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
+
 export const EMAIL_STYLES = `
   body {
     font-family: 'Georgia', 'Times New Roman', serif;
@@ -180,7 +195,7 @@ export function generateEventDetailsCard(quote: any): string {
         </tr>
         <tr>
           <td style="padding: 8px 0;"><strong>Service:</strong></td>
-          <td style="padding: 8px 0;">${quote.service_type?.replace('_', ' ').toUpperCase() || 'Full Service'}</td>
+          <td style="padding: 8px 0;">${formatServiceType(quote.service_type)}</td>
         </tr>
       </table>
     </div>

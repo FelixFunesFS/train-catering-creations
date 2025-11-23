@@ -46,10 +46,17 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     // Helper functions for formatting
+    const formatMenuItem = (item: string): string => {
+      return item
+        .split('-')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+    };
+
     const formatMenuItems = (items: any) => {
       if (!items || (Array.isArray(items) && items.length === 0)) return 'None selected';
-      if (typeof items === 'string') return items;
-      if (Array.isArray(items)) return items.join(', ');
+      if (typeof items === 'string') return formatMenuItem(items);
+      if (Array.isArray(items)) return items.map(formatMenuItem).join(', ');
       return JSON.stringify(items);
     };
 
