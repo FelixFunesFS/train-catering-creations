@@ -1,12 +1,13 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { BRAND_COLORS, EMAIL_STYLES, generateEmailHeader, generateEventDetailsCard, generateFooter } from "../_shared/emailTemplates.ts";
+import { BRAND_COLORS, EMAIL_STYLES, generateEmailHeader, generateEventDetailsCard, generateFooter, generatePreheader } from "../_shared/emailTemplates.ts";
 
-// Blue color scheme for admin notifications (to differentiate from customer emails)
-const ADMIN_BLUE = {
-  primary: '#3B82F6',
-  dark: '#2563EB',
-  light: '#DBEAFE'
+// Brand accent colors for admin notifications
+const ACCENT_COLORS = {
+  success: '#16a34a',      // Green for approved/success states
+  warning: '#ea580c',      // Orange for pending/info needed
+  info: BRAND_COLORS.gold, // Gold for informational sections
+  urgent: BRAND_COLORS.crimson // Crimson for urgent/important
 };
 
 const corsHeaders = {
@@ -98,17 +99,24 @@ const handler = async (req: Request): Promise<Response> => {
       </div>
     `;
 
+    const preheaderText = `New quote from ${requestData.contact_name} for ${requestData.event_name} - ${requestData.guest_count} guests`;
+    
     // Admin notification email with comprehensive details and brand colors
     const adminEmailHtml = `
       <!DOCTYPE html>
       <html>
       <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <style>${EMAIL_STYLES}</style>
       </head>
       <body>
+        ${generatePreheader(preheaderText)}
+        
         <div class="email-container">
-          <div style="background: linear-gradient(135deg, ${ADMIN_BLUE.primary}, ${ADMIN_BLUE.dark}); padding: 25px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
-            <div style="background: rgba(255,255,255,0.2); display: inline-block; padding: 8px 16px; border-radius: 20px; margin-bottom: 15px;">
+          <div style="background: linear-gradient(135deg, ${BRAND_COLORS.crimson}, ${BRAND_COLORS.crimsonDark}); padding: 25px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
+            <div style="background: rgba(255,215,0,0.2); display: inline-block; padding: 8px 16px; border-radius: 20px; margin-bottom: 15px;">
               <span style="color: white; font-weight: bold; font-size: 14px;">🚂 NEW QUOTE SUBMISSION</span>
             </div>
             <h2 style="color: white; margin: 0 0 10px 0; font-size: 24px;">📧 New Quote Request From:</h2>

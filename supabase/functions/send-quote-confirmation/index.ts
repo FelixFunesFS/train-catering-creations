@@ -1,12 +1,13 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.52.1';
-import { BRAND_COLORS, EMAIL_STYLES, generateEmailHeader, generateEventDetailsCard, generateFooter } from "../_shared/emailTemplates.ts";
+import { BRAND_COLORS, EMAIL_STYLES, generateEmailHeader, generateEventDetailsCard, generateFooter, generatePreheader } from "../_shared/emailTemplates.ts";
 
-// Blue color scheme for quote confirmations (to differentiate from estimates/invoices)
-const BLUE_COLORS = {
-  primary: '#3B82F6',
-  dark: '#2563EB',
-  light: '#DBEAFE'
+// Brand accent colors for quote confirmations
+const ACCENT_COLORS = {
+  success: '#16a34a',      // Green for approved/success states
+  warning: '#ea580c',      // Orange for pending/info needed
+  info: BRAND_COLORS.gold, // Gold for informational sections
+  urgent: BRAND_COLORS.crimson // Crimson for urgent/important
 };
 
 const corsHeaders = {
@@ -115,18 +116,24 @@ const handler = async (req: Request): Promise<Response> => {
     `;
 
     const emailSubject = `Quote Request Received - Reference #${quote_id.slice(0, 8).toUpperCase()}`;
+    const preheaderText = "We've received your quote request and will send an estimate within 48 hours - Soul Train's Eatery";
     
     const emailBody = `
       <!DOCTYPE html>
       <html>
       <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <style>${EMAIL_STYLES}</style>
       </head>
       <body>
+        ${generatePreheader(preheaderText)}
+        
         <div class="email-container">
-          <div style="background: linear-gradient(135deg, ${BLUE_COLORS.primary}, ${BLUE_COLORS.dark}); padding: 25px; border-radius: 8px; margin-bottom: 25px; text-align: center;">
-            <div style="background: rgba(255,255,255,0.2); display: inline-block; padding: 8px 16px; border-radius: 20px; margin-bottom: 15px;">
-              <span style="color: white; font-weight: bold; font-size: 14px;">📋 QUOTE RECEIVED</span>
+          <div style="background: linear-gradient(135deg, ${BRAND_COLORS.crimson}, ${BRAND_COLORS.crimsonDark}); padding: 25px; border-radius: 8px; margin-bottom: 25px; text-align: center;">
+            <div style="background: rgba(255,215,0,0.2); display: inline-block; padding: 8px 16px; border-radius: 20px; margin-bottom: 15px;">
+              <span style="color: white; font-weight: bold; font-size: 14px;">🍽️ QUOTE RECEIVED</span>
             </div>
             <h2 style="color: white; margin: 0 0 10px 0; font-size: 24px;">✓ Quote Request Received!</h2>
             <p style="color: white; margin: 0; font-size: 16px; opacity: 0.95;">
@@ -156,14 +163,14 @@ const handler = async (req: Request): Promise<Response> => {
             <div style="margin: 30px 0;">
               <h3 style="color: ${BRAND_COLORS.crimson};">What Happens Next?</h3>
               <ol style="color: ${BRAND_COLORS.darkGray}; line-height: 1.8; padding-left: 20px;">
-                <li><strong style="color: ${BLUE_COLORS.dark};">Review (You are here!)</strong> - Our team is carefully reviewing your request</li>
-                <li><strong style="color: ${BLUE_COLORS.dark};">Detailed Estimate</strong> - You'll receive a comprehensive estimate with pricing within 48 hours</li>
-                <li><strong style="color: ${BLUE_COLORS.dark};">Optional Consultation</strong> - We're happy to discuss any details by phone</li>
-                <li><strong style="color: ${BLUE_COLORS.dark};">Finalization</strong> - Once approved, we'll handle all the details for your special day</li>
+                <li><strong style="color: ${BRAND_COLORS.crimson};">Review (You are here!)</strong> - Our team is carefully reviewing your request</li>
+                <li><strong style="color: ${BRAND_COLORS.crimson};">Detailed Estimate</strong> - You'll receive a comprehensive estimate with pricing within 48 hours</li>
+                <li><strong style="color: ${BRAND_COLORS.crimson};">Optional Consultation</strong> - We're happy to discuss any details by phone</li>
+                <li><strong style="color: ${BRAND_COLORS.crimson};">Finalization</strong> - Once approved, we'll handle all the details for your special day</li>
               </ol>
             </div>
 
-            <div style="background: linear-gradient(135deg, ${BLUE_COLORS.primary}, ${BLUE_COLORS.dark}); padding: 25px; border-radius: 8px; margin: 25px 0; text-align: center;">
+            <div style="background: linear-gradient(135deg, ${BRAND_COLORS.crimson}, ${BRAND_COLORS.crimsonDark}); padding: 25px; border-radius: 8px; margin: 25px 0; text-align: center;">
               <h3 style="color: white; margin: 0 0 15px 0;">📅 Next Steps</h3>
               <p style="color: white; margin-bottom: 15px; opacity: 0.95;">
                 Our team will review your request and send you a detailed estimate within 48 hours. 

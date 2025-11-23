@@ -103,16 +103,21 @@ export const EMAIL_STYLES = `
   /* Buttons - Touch-Friendly */
   .btn {
     display: inline-block;
-    padding: 14px 28px;
+    padding: 16px 32px;
     text-decoration: none;
     border-radius: 8px;
     font-weight: bold;
     font-size: 16px;
     margin: 8px 4px;
     transition: all 0.3s ease;
-    min-height: 44px;
+    min-height: 48px;
     line-height: 1.4;
     text-align: center;
+    border: 2px solid transparent;
+    mso-padding-alt: 16px 32px;
+    -webkit-text-size-adjust: none;
+    mso-hide: none;
+    mso-style-priority: 99;
   }
   
   .btn-primary {
@@ -295,6 +300,18 @@ export const EMAIL_STYLES = `
     }
   }
   
+  /* Mobile full-width buttons (480px and below) */
+  @media only screen and (max-width: 480px) {
+    .btn {
+      display: block !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      padding: 18px 20px !important;
+      font-size: 17px !important;
+      margin: 10px 0 !important;
+    }
+  }
+  
   /* Small Mobile Devices (<400px) */
   @media only screen and (max-width: 400px) {
     .header h1 {
@@ -310,21 +327,68 @@ export const EMAIL_STYLES = `
       font-size: 13px;
     }
     
-    .btn {
-      display: block;
-      width: 100%;
-      margin: 8px 0;
-      padding: 12px 16px;
-      font-size: 15px;
+    .event-card td {
+      word-break: break-word;
+      line-height: 1.4;
     }
     
     table.pricing-table {
-      font-size: 12px;
+      font-size: 13px !important;
     }
     
     table.pricing-table th,
     table.pricing-table td {
-      padding: 8px 4px;
+      padding: 10px 6px !important;
+    }
+  }
+  
+  /* Ultra-small devices (iPhone SE, Galaxy Fold - <360px) */
+  @media only screen and (max-width: 360px) {
+    .header {
+      padding: 20px 12px !important;
+    }
+    
+    .header h1 {
+      font-size: 18px !important;
+      line-height: 1.2;
+    }
+    
+    .header .tagline {
+      font-size: 12px !important;
+    }
+    
+    .content {
+      padding: 16px 12px !important;
+    }
+    
+    .event-card {
+      padding: 14px 12px !important;
+      margin: 12px 0 !important;
+    }
+    
+    .event-card table {
+      font-size: 13px;
+    }
+    
+    .event-card td:first-child {
+      width: 75px !important;
+      font-size: 12px !important;
+      padding-right: 6px !important;
+    }
+    
+    .menu-section {
+      padding: 14px 12px !important;
+    }
+    
+    .btn {
+      padding: 20px 16px !important;
+      min-height: 52px !important;
+      font-size: 16px !important;
+    }
+    
+    table.pricing-table th:nth-child(2),
+    table.pricing-table td:nth-child(2) {
+      display: none;
     }
   }
 `;
@@ -524,6 +588,15 @@ export function generateLineItemsTable(lineItems: any[], subtotal: number, taxAm
 export function generateTrackingPixel(invoiceId: string, emailType: string): string {
   const supabaseUrl = Deno.env.get('SUPABASE_URL');
   return `<img src="${supabaseUrl}/functions/v1/track-email-open?invoice=${invoiceId}&type=${emailType}&t=${Date.now()}" alt="" style="width:1px;height:1px;border:0;" />`;
+}
+
+// Preheader helper for inbox preview text
+export function generatePreheader(text: string): string {
+  return `
+    <div style="display:none;font-size:1px;color:#fefefe;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">
+      ${text}
+    </div>
+  `;
 }
 
 export function generatePaymentConfirmationEmail(quote: any, amount: number, isFullPayment: boolean): string {
