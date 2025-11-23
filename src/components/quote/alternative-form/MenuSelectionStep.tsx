@@ -159,20 +159,26 @@ const MenuSelectionStepComponent = ({ form, trackFieldInteraction, variant = 're
         control={form.control}
         name="both_proteins_available"
         render={({ field }) => (
-          <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border border-muted p-4">
-            <FormControl>
-              <Checkbox
-                checked={field.value}
-                onCheckedChange={field.onChange}
-              />
-            </FormControl>
-            <div className="space-y-1 leading-none">
-              <FormLabel className="text-sm font-medium">
-                Allow guests to choose from multiple proteins
-              </FormLabel>
-              <p className="text-xs text-muted-foreground">
-                When enabled, all guests receive portions of each protein (e.g., chicken + beef). When disabled, guests select one protein only.
-              </p>
+          <FormItem>
+            <div 
+              className="flex flex-row items-start space-x-3 space-y-0 rounded-md border border-muted p-4 cursor-pointer hover:border-primary/50 transition-colors"
+              onClick={() => field.onChange(!field.value)}
+            >
+              <FormControl>
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                  onClick={(e) => e.stopPropagation()}
+                />
+              </FormControl>
+              <div className="space-y-1 leading-none">
+                <FormLabel className="text-sm font-medium cursor-pointer">
+                  Allow guests to choose from multiple proteins
+                </FormLabel>
+                <p className="text-xs text-muted-foreground">
+                  When enabled, all guests receive portions of each protein (e.g., chicken + beef). When disabled, guests select one protein only.
+                </p>
+              </div>
             </div>
           </FormItem>
         )}
@@ -331,4 +337,4 @@ const MenuSelectionStepComponent = ({ form, trackFieldInteraction, variant = 're
   );
 };
 
-export const MenuSelectionStep = memo(MenuSelectionStepComponent);
+export const MenuSelectionStep = MenuSelectionStepComponent;
