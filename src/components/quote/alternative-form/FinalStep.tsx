@@ -3,7 +3,7 @@ import { memo } from "react";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
+import { CheckCircle2, Circle } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 
@@ -36,10 +36,11 @@ const FinalStepComponent = ({ form, variant = 'regular' }: FinalStepProps) => {
                     onClick={() => field.onChange(!field.value)}
                   >
                     <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        className="pointer-events-none"
-                      />
+                      {field.value ? (
+                        <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />
+                      ) : (
+                        <Circle className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                      )}
                     </FormControl>
                     <div className="space-y-1 leading-none">
                       <FormLabel className="text-base font-medium cursor-pointer">Ceremony Included</FormLabel>
@@ -60,10 +61,11 @@ const FinalStepComponent = ({ form, variant = 'regular' }: FinalStepProps) => {
                     onClick={() => field.onChange(!field.value)}
                   >
                     <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        className="pointer-events-none"
-                      />
+                      {field.value ? (
+                        <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />
+                      ) : (
+                        <Circle className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                      )}
                     </FormControl>
                     <div className="space-y-1 leading-none">
                       <FormLabel className="text-base font-medium cursor-pointer">Cocktail Hour</FormLabel>
@@ -96,10 +98,11 @@ const FinalStepComponent = ({ form, variant = 'regular' }: FinalStepProps) => {
                 onClick={() => field.onChange(!field.value)}
               >
                 <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    className="pointer-events-none"
-                  />
+                  {field.value ? (
+                    <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />
+                  ) : (
+                    <Circle className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                  )}
                 </FormControl>
                 <div className="space-y-1 leading-none">
                   <FormLabel className="text-sm font-medium cursor-pointer">Disposable Plates</FormLabel>
@@ -121,10 +124,11 @@ const FinalStepComponent = ({ form, variant = 'regular' }: FinalStepProps) => {
                 onClick={() => field.onChange(!field.value)}
               >
                 <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    className="pointer-events-none"
-                  />
+                  {field.value ? (
+                    <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />
+                  ) : (
+                    <Circle className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                  )}
                 </FormControl>
                 <div className="space-y-1 leading-none">
                   <FormLabel className="text-sm font-medium cursor-pointer">Disposable Cups</FormLabel>
@@ -146,10 +150,11 @@ const FinalStepComponent = ({ form, variant = 'regular' }: FinalStepProps) => {
                 onClick={() => field.onChange(!field.value)}
               >
                 <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    className="pointer-events-none"
-                  />
+                  {field.value ? (
+                    <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />
+                  ) : (
+                    <Circle className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                  )}
                 </FormControl>
                 <div className="space-y-1 leading-none">
                   <FormLabel className="text-sm font-medium cursor-pointer">Napkins</FormLabel>
@@ -171,10 +176,11 @@ const FinalStepComponent = ({ form, variant = 'regular' }: FinalStepProps) => {
                 onClick={() => field.onChange(!field.value)}
               >
                 <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    className="pointer-events-none"
-                  />
+                  {field.value ? (
+                    <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />
+                  ) : (
+                    <Circle className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                  )}
                 </FormControl>
                 <div className="space-y-1 leading-none">
                   <FormLabel className="text-sm font-medium cursor-pointer">Serving Utensils</FormLabel>
@@ -196,10 +202,11 @@ const FinalStepComponent = ({ form, variant = 'regular' }: FinalStepProps) => {
                 onClick={() => field.onChange(!field.value)}
               >
                 <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    className="pointer-events-none"
-                  />
+                  {field.value ? (
+                    <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />
+                  ) : (
+                    <Circle className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                  )}
                 </FormControl>
                 <div className="space-y-1 leading-none">
                   <FormLabel className="text-sm font-medium cursor-pointer">Chafing Dishes with Fuel</FormLabel>
@@ -221,10 +228,11 @@ const FinalStepComponent = ({ form, variant = 'regular' }: FinalStepProps) => {
                 onClick={() => field.onChange(!field.value)}
               >
                 <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    className="pointer-events-none"
-                  />
+                  {field.value ? (
+                    <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />
+                  ) : (
+                    <Circle className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                  )}
                 </FormControl>
                 <div className="space-y-1 leading-none">
                   <FormLabel className="text-sm font-medium cursor-pointer">Ice</FormLabel>
