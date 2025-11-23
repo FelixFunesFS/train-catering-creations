@@ -38,8 +38,6 @@ const FinalStepComponent = ({ form, variant = 'regular' }: FinalStepProps) => {
                     <FormControl>
                       <Checkbox
                         checked={field.value}
-                        onCheckedChange={field.onChange}
-                        onClick={(e) => e.stopPropagation()}
                       />
                     </FormControl>
                     <div className="space-y-1 leading-none">
@@ -63,8 +61,6 @@ const FinalStepComponent = ({ form, variant = 'regular' }: FinalStepProps) => {
                     <FormControl>
                       <Checkbox
                         checked={field.value}
-                        onCheckedChange={field.onChange}
-                        onClick={(e) => e.stopPropagation()}
                       />
                     </FormControl>
                     <div className="space-y-1 leading-none">
@@ -100,8 +96,6 @@ const FinalStepComponent = ({ form, variant = 'regular' }: FinalStepProps) => {
                 <FormControl>
                   <Checkbox
                     checked={field.value}
-                    onCheckedChange={field.onChange}
-                    onClick={(e) => e.stopPropagation()}
                   />
                 </FormControl>
                 <div className="space-y-1 leading-none">
@@ -126,8 +120,6 @@ const FinalStepComponent = ({ form, variant = 'regular' }: FinalStepProps) => {
                 <FormControl>
                   <Checkbox
                     checked={field.value}
-                    onCheckedChange={field.onChange}
-                    onClick={(e) => e.stopPropagation()}
                   />
                 </FormControl>
                 <div className="space-y-1 leading-none">
@@ -152,8 +144,6 @@ const FinalStepComponent = ({ form, variant = 'regular' }: FinalStepProps) => {
                 <FormControl>
                   <Checkbox
                     checked={field.value}
-                    onCheckedChange={field.onChange}
-                    onClick={(e) => e.stopPropagation()}
                   />
                 </FormControl>
                 <div className="space-y-1 leading-none">
@@ -178,8 +168,6 @@ const FinalStepComponent = ({ form, variant = 'regular' }: FinalStepProps) => {
                 <FormControl>
                   <Checkbox
                     checked={field.value}
-                    onCheckedChange={field.onChange}
-                    onClick={(e) => e.stopPropagation()}
                   />
                 </FormControl>
                 <div className="space-y-1 leading-none">
@@ -204,8 +192,6 @@ const FinalStepComponent = ({ form, variant = 'regular' }: FinalStepProps) => {
                 <FormControl>
                   <Checkbox
                     checked={field.value}
-                    onCheckedChange={field.onChange}
-                    onClick={(e) => e.stopPropagation()}
                   />
                 </FormControl>
                 <div className="space-y-1 leading-none">
@@ -230,8 +216,6 @@ const FinalStepComponent = ({ form, variant = 'regular' }: FinalStepProps) => {
                 <FormControl>
                   <Checkbox
                     checked={field.value}
-                    onCheckedChange={field.onChange}
-                    onClick={(e) => e.stopPropagation()}
                   />
                 </FormControl>
                 <div className="space-y-1 leading-none">

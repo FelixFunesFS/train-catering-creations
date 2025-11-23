@@ -186,8 +186,6 @@ const ServiceSelectionStepComponent = ({ form, trackFieldInteraction }: ServiceS
                       <FormControl>
                         <Switch
                           checked={field.value}
-                          onCheckedChange={field.onChange}
-                          onClick={(e) => e.stopPropagation()}
                         />
                       </FormControl>
                     </div>
