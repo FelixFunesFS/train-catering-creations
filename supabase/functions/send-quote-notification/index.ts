@@ -63,7 +63,7 @@ const handler = async (req: Request): Promise<Response> => {
         ${requestData.primary_protein || requestData.secondary_protein ? `
         <div style="margin: 15px 0; padding-bottom: 10px; border-bottom: 2px solid ${BRAND_COLORS.gold};">
           <h4 style="color: ${BRAND_COLORS.crimson}; margin: 10px 0 5px 0; font-size: 16px;">Proteins</h4>
-          <p style="margin: 5px 0; padding: 8px 0;">${[requestData.primary_protein, requestData.secondary_protein].filter(Boolean).join(', ')}</p>
+          <p style="margin: 5px 0; padding: 8px 0;">${[requestData.primary_protein, requestData.secondary_protein].filter(Boolean).map(formatMenuItem).join(', ')}</p>
         </div>
         ` : ''}
 
@@ -188,7 +188,8 @@ const handler = async (req: Request): Promise<Response> => {
           to: 'soultrainseatery@gmail.com',
           subject: `🚂 NEW QUOTE from ${requestData.contact_name} - ${requestData.event_name}`,
           html: adminEmailHtml,
-          from: `${requestData.contact_name} <${requestData.email}>`
+          from: `Soul Train's Eatery <soultrainseatery@gmail.com>`,
+          replyTo: `${requestData.contact_name} <${requestData.email}>`
         }
       });
 

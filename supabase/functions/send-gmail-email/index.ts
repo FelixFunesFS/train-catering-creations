@@ -11,6 +11,7 @@ interface EmailRequest {
   subject: string;
   html: string;
   from?: string;
+  replyTo?: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -20,7 +21,7 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { to, subject, html, from = 'soultrainseatery@gmail.com' }: EmailRequest = await req.json();
+    const { to, subject, html, from = 'soultrainseatery@gmail.com', replyTo }: EmailRequest = await req.json();
 
     if (!to || !subject || !html) {
       throw new Error('Missing required fields: to, subject, html');
@@ -129,11 +130,12 @@ const handler = async (req: Request): Promise<Response> => {
     const message = [
       `To: ${to}`,
       `From: ${from}`,
+      replyTo ? `Reply-To: ${replyTo}` : '',
       `Subject: ${subject}`,
       'Content-Type: text/html; charset=utf-8',
       '',
       html
-    ].join('\r\n');
+    ].filter(Boolean).join('\r\n');
 
     // Base64url encode the message (handle UTF-8 properly)
     const encoder = new TextEncoder();

@@ -29,115 +29,303 @@ const formatServiceType = (serviceType: string): string => {
 };
 
 export const EMAIL_STYLES = `
+  /* Base Styles - Mobile First */
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
   body {
-    font-family: 'Georgia', 'Times New Roman', serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     line-height: 1.6;
     color: ${BRAND_COLORS.darkGray};
-    max-width: 600px;
-    margin: 0 auto;
+    max-width: 100%;
+    margin: 0;
     padding: 0;
     background-color: #f5f5f5;
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
   }
+  
   .email-container {
     background: ${BRAND_COLORS.white};
-    margin: 20px auto;
+    max-width: 600px;
+    margin: 0 auto;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
   }
+  
+  /* Header - Mobile Optimized */
   .header {
     background: linear-gradient(135deg, ${BRAND_COLORS.crimson}, ${BRAND_COLORS.crimsonDark});
     color: ${BRAND_COLORS.white};
-    padding: 40px 30px;
+    padding: 24px 16px;
     text-align: center;
   }
+  
   .header h1 {
-    margin: 0 0 10px 0;
-    font-size: 32px;
+    margin: 0 0 8px 0;
+    font-size: 22px;
     font-weight: bold;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    line-height: 1.2;
   }
+  
   .header .tagline {
     margin: 0;
-    font-size: 16px;
+    font-size: 14px;
     font-style: italic;
     opacity: 0.95;
+    line-height: 1.3;
   }
+  
+  /* Content - Mobile Padding */
   .content {
-    padding: 30px;
+    padding: 20px 16px;
     background: ${BRAND_COLORS.white};
   }
+  
+  /* Footer - Mobile Optimized */
   .footer {
     background: ${BRAND_COLORS.lightGray};
-    padding: 30px;
+    padding: 24px 16px;
     text-align: center;
-    font-size: 14px;
+    font-size: 13px;
     color: #666;
     border-top: 3px solid ${BRAND_COLORS.gold};
   }
+  
+  .footer p {
+    margin: 8px 0;
+    line-height: 1.5;
+  }
+  
+  /* Buttons - Touch-Friendly */
   .btn {
     display: inline-block;
-    padding: 16px 32px;
+    padding: 14px 28px;
     text-decoration: none;
     border-radius: 8px;
     font-weight: bold;
     font-size: 16px;
-    margin: 10px 5px;
+    margin: 8px 4px;
     transition: all 0.3s ease;
+    min-height: 44px;
+    line-height: 1.4;
+    text-align: center;
   }
+  
   .btn-primary {
     background: ${BRAND_COLORS.crimson};
     color: ${BRAND_COLORS.white};
   }
+  
   .btn-secondary {
     background: ${BRAND_COLORS.gold};
     color: ${BRAND_COLORS.darkGray};
   }
-  .highlight {
-    color: ${BRAND_COLORS.crimson};
-    font-weight: bold;
-  }
+  
+  /* Event Card - Mobile Responsive */
   .event-card {
     background: ${BRAND_COLORS.lightGray};
-    padding: 20px;
+    padding: 16px;
     border-radius: 8px;
-    margin: 20px 0;
+    margin: 16px 0;
     border-left: 4px solid ${BRAND_COLORS.gold};
   }
+  
+  .event-card h3 {
+    margin: 0 0 12px 0;
+    font-size: 18px;
+  }
+  
+  .event-card table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .event-card td {
+    padding: 6px 0;
+    vertical-align: top;
+    word-wrap: break-word;
+  }
+  
+  .event-card td:first-child {
+    width: 100px;
+    font-weight: 600;
+    padding-right: 8px;
+  }
+  
+  /* Menu Section - Mobile Optimized */
   .menu-section {
     background: ${BRAND_COLORS.white};
     border: 2px solid ${BRAND_COLORS.lightGray};
     border-radius: 8px;
-    padding: 20px;
-    margin: 20px 0;
+    padding: 16px;
+    margin: 16px 0;
   }
-  .menu-category {
-    margin: 15px 0;
+  
+  .menu-section h3 {
+    font-size: 18px;
+    margin-bottom: 16px;
   }
+  
   .menu-category h4 {
     color: ${BRAND_COLORS.crimson};
-    margin: 10px 0 5px 0;
-    font-size: 16px;
+    margin: 12px 0 8px 0;
+    font-size: 15px;
     border-bottom: 2px solid ${BRAND_COLORS.gold};
-    padding-bottom: 5px;
+    padding-bottom: 4px;
   }
+  
   .menu-item {
     padding: 8px 0;
     border-bottom: 1px solid #eee;
+    line-height: 1.5;
   }
-  .menu-item:last-child {
-    border-bottom: none;
+  
+  /* Pricing Table - Mobile Responsive */
+  table.pricing-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
   }
-  .tracking-pixel {
-    width: 1px;
-    height: 1px;
-    display: block;
+  
+  table.pricing-table th,
+  table.pricing-table td {
+    padding: 10px 8px;
+    text-align: left;
   }
-  @media only screen and (max-width: 600px) {
-    body { padding: 0 !important; }
-    .email-container { margin: 0 !important; }
-    .header { padding: 30px 20px !important; }
-    .header h1 { font-size: 24px !important; }
-    .content { padding: 20px !important; }
-    .btn { display: block !important; width: 100% !important; margin: 10px 0 !important; }
+  
+  table.pricing-table th:nth-child(2),
+  table.pricing-table td:nth-child(2),
+  table.pricing-table th:nth-child(3),
+  table.pricing-table td:nth-child(3),
+  table.pricing-table th:nth-child(4),
+  table.pricing-table td:nth-child(4) {
+    text-align: right;
+  }
+  
+  /* Typography - Mobile Readable */
+  h1, h2, h3, h4, h5, h6 {
+    line-height: 1.3;
+    margin-top: 0;
+  }
+  
+  p {
+    margin: 12px 0;
+    line-height: 1.6;
+  }
+  
+  /* Links - Touch Friendly */
+  a {
+    color: ${BRAND_COLORS.crimson};
+    text-decoration: underline;
+  }
+  
+  /* Desktop Enhancements (600px+) */
+  @media only screen and (min-width: 600px) {
+    .header {
+      padding: 40px 30px;
+    }
+    
+    .header h1 {
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+    
+    .header .tagline {
+      font-size: 16px;
+    }
+    
+    .content {
+      padding: 30px;
+    }
+    
+    .footer {
+      padding: 30px;
+      font-size: 14px;
+    }
+    
+    .event-card {
+      padding: 20px;
+      margin: 20px 0;
+    }
+    
+    .event-card h3 {
+      font-size: 20px;
+      margin-bottom: 15px;
+    }
+    
+    .event-card td {
+      padding: 8px 0;
+    }
+    
+    .event-card td:first-child {
+      width: 120px;
+    }
+    
+    .menu-section {
+      padding: 20px;
+      margin: 20px 0;
+    }
+    
+    .menu-section h3 {
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+    
+    .menu-category h4 {
+      font-size: 16px;
+      margin: 15px 0 8px 0;
+    }
+    
+    table.pricing-table {
+      font-size: 15px;
+    }
+    
+    table.pricing-table th,
+    table.pricing-table td {
+      padding: 12px;
+    }
+    
+    .btn {
+      padding: 16px 32px;
+      margin: 10px 5px;
+    }
+  }
+  
+  /* Small Mobile Devices (<400px) */
+  @media only screen and (max-width: 400px) {
+    .header h1 {
+      font-size: 20px;
+    }
+    
+    .header .tagline {
+      font-size: 13px;
+    }
+    
+    .event-card td:first-child {
+      width: 80px;
+      font-size: 13px;
+    }
+    
+    .btn {
+      display: block;
+      width: 100%;
+      margin: 8px 0;
+      padding: 12px 16px;
+      font-size: 15px;
+    }
+    
+    table.pricing-table {
+      font-size: 12px;
+    }
+    
+    table.pricing-table th,
+    table.pricing-table td {
+      padding: 8px 4px;
+    }
   }
 `;
 
@@ -275,15 +463,15 @@ export function generateLineItemsTable(lineItems: any[], subtotal: number, taxAm
     new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100);
 
   let tableHtml = `
-    <div style="margin: 30px 0;">
-      <h3 style="color: ${BRAND_COLORS.crimson}; margin-bottom: 15px;">💰 Detailed Pricing Breakdown</h3>
-      <table style="width: 100%; border-collapse: collapse; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+    <div style="margin: 24px 0; overflow-x: auto;">
+      <h3 style="color: ${BRAND_COLORS.crimson}; margin-bottom: 12px; font-size: 18px;">💰 Detailed Pricing Breakdown</h3>
+      <table class="pricing-table" style="width: 100%; min-width: 280px; border-collapse: collapse; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
         <thead>
           <tr style="background: linear-gradient(135deg, ${BRAND_COLORS.crimson}, ${BRAND_COLORS.crimsonDark}); color: white;">
-            <th style="padding: 12px; text-align: left;">Item</th>
-            <th style="padding: 12px; text-align: center; width: 80px;">Qty</th>
-            <th style="padding: 12px; text-align: right; width: 100px;">Unit Price</th>
-            <th style="padding: 12px; text-align: right; width: 100px;">Total</th>
+            <th style="padding: 10px 8px; text-align: left; font-size: 14px;">Item</th>
+            <th style="padding: 10px 8px; text-align: right; width: 50px; font-size: 14px;">Qty</th>
+            <th style="padding: 10px 8px; text-align: right; width: 70px; font-size: 13px;">Price</th>
+            <th style="padding: 10px 8px; text-align: right; width: 70px; font-size: 14px;">Total</th>
           </tr>
         </thead>
         <tbody>
@@ -293,44 +481,38 @@ export function generateLineItemsTable(lineItems: any[], subtotal: number, taxAm
     const bgColor = index % 2 === 0 ? '#FFF5E6' : '#ffffff';
     tableHtml += `
       <tr style="background: ${bgColor}; border-bottom: 1px solid #e9ecef;">
-        <td style="padding: 12px;">
-          <div style="font-weight: 600; color: #333;">${item.title}</div>
-          ${item.description ? `<div style="font-size: 12px; color: #666; margin-top: 4px;">${item.description}</div>` : ''}
+        <td style="padding: 10px 8px;">
+          <div style="font-weight: 600; color: #333; font-size: 14px; line-height: 1.4;">${item.title}</div>
+          ${item.description ? `<div style="font-size: 12px; color: #666; margin-top: 2px; line-height: 1.3;">${item.description}</div>` : ''}
         </td>
-        <td style="padding: 12px; text-align: center;">${item.quantity}</td>
-        <td style="padding: 12px; text-align: right;">${formatCurrency(item.unit_price)}</td>
-        <td style="padding: 12px; text-align: right; font-weight: 600;">${formatCurrency(item.total_price)}</td>
+        <td style="padding: 10px 8px; text-align: right; font-size: 14px;">${item.quantity}</td>
+        <td style="padding: 10px 8px; text-align: right; font-size: 13px;">${formatCurrency(item.unit_price)}</td>
+        <td style="padding: 10px 8px; text-align: right; font-weight: 600; font-size: 14px;">${formatCurrency(item.total_price)}</td>
       </tr>
     `;
   });
 
-  // Subtotal row
   tableHtml += `
     <tr style="background: #f8f9fa; border-top: 2px solid ${BRAND_COLORS.gold};">
-      <td colspan="3" style="padding: 12px; text-align: right; font-weight: 600;">Subtotal:</td>
-      <td style="padding: 12px; text-align: right; font-weight: 600;">${formatCurrency(subtotal)}</td>
+      <td colspan="3" style="padding: 10px 8px; text-align: right; font-weight: 600; font-size: 14px;">Subtotal:</td>
+      <td style="padding: 10px 8px; text-align: right; font-weight: 600; font-size: 14px;">${formatCurrency(subtotal)}</td>
     </tr>
   `;
 
-  // Tax row (if applicable)
   if (taxAmount > 0) {
     tableHtml += `
       <tr style="background: #f8f9fa;">
-        <td colspan="3" style="padding: 12px; text-align: right;">Tax (8%):</td>
-        <td style="padding: 12px; text-align: right;">${formatCurrency(taxAmount)}</td>
+        <td colspan="3" style="padding: 10px 8px; text-align: right; font-size: 14px;">Tax (8%):</td>
+        <td style="padding: 10px 8px; text-align: right; font-size: 14px;">${formatCurrency(taxAmount)}</td>
       </tr>
     `;
   }
 
-  // Total row
   tableHtml += `
     <tr style="background: linear-gradient(135deg, ${BRAND_COLORS.crimson}, ${BRAND_COLORS.crimsonDark}); color: white;">
-      <td colspan="3" style="padding: 15px; text-align: right; font-size: 18px; font-weight: bold;">TOTAL:</td>
-      <td style="padding: 15px; text-align: right; font-size: 18px; font-weight: bold;">${formatCurrency(total)}</td>
+      <td colspan="3" style="padding: 12px 8px; text-align: right; font-size: 16px; font-weight: bold;">TOTAL:</td>
+      <td style="padding: 12px 8px; text-align: right; font-size: 16px; font-weight: bold;">${formatCurrency(total)}</td>
     </tr>
-  `;
-
-  tableHtml += `
         </tbody>
       </table>
     </div>
