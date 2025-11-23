@@ -1,3 +1,8 @@
+/**
+ * @deprecated This function is deprecated in favor of send-gmail-email
+ * which provides better deliverability and proper HTML rendering.
+ * Kept for reference only - do not use in production.
+ */
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 
