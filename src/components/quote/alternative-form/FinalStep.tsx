@@ -1,4 +1,5 @@
 import { UseFormReturn } from "react-hook-form";
+import { memo } from "react";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -11,7 +12,7 @@ interface FinalStepProps {
   variant?: 'regular' | 'wedding';
 }
 
-export const FinalStep = ({ form, variant = 'regular' }: FinalStepProps) => {
+const FinalStepComponent = ({ form, variant = 'regular' }: FinalStepProps) => {
   const { ref, isVisible } = useScrollAnimation({
     threshold: 0.2,
     triggerOnce: true,
@@ -310,3 +311,5 @@ export const FinalStep = ({ form, variant = 'regular' }: FinalStepProps) => {
     </div>
   );
 };
+
+export const FinalStep = memo(FinalStepComponent);

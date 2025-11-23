@@ -1,4 +1,5 @@
-import { UseFormReturn } from "react-hook-form";
+import { UseFormReturn, useWatch } from "react-hook-form";
+import { memo } from "react";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Input } from "@/components/ui/input";
@@ -13,7 +14,7 @@ interface ServiceSelectionStepProps {
   trackFieldInteraction: (fieldName: string) => void;
 }
 
-export const ServiceSelectionStep = ({ form, trackFieldInteraction }: ServiceSelectionStepProps) => {
+const ServiceSelectionStepComponent = ({ form, trackFieldInteraction }: ServiceSelectionStepProps) => {
   const { ref, isVisible } = useScrollAnimation({
     threshold: 0.2,
     triggerOnce: true,
@@ -21,7 +22,10 @@ export const ServiceSelectionStep = ({ form, trackFieldInteraction }: ServiceSel
   });
 
   const animationClass = useAnimationClass('fade-up', isVisible);
-  const watchServiceType = form.watch("service_type");
+  const watchServiceType = useWatch({
+    control: form.control,
+    name: "service_type"
+  });
 
   return (
     <div ref={ref} className={`space-y-6 ${animationClass}`}>
@@ -172,3 +176,5 @@ export const ServiceSelectionStep = ({ form, trackFieldInteraction }: ServiceSel
     </div>
   );
 };
+
+export const ServiceSelectionStep = memo(ServiceSelectionStepComponent);

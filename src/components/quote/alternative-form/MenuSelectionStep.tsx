@@ -1,4 +1,5 @@
-import { UseFormReturn } from "react-hook-form";
+import { UseFormReturn, useWatch } from "react-hook-form";
+import { memo } from "react";
 import {
   FormControl,
   FormField,
@@ -22,7 +23,7 @@ interface MenuSelectionStepProps {
   variant?: 'regular' | 'wedding';
 }
 
-export const MenuSelectionStep = ({ form, trackFieldInteraction, variant = 'regular' }: MenuSelectionStepProps) => {
+const MenuSelectionStepComponent = ({ form, trackFieldInteraction, variant = 'regular' }: MenuSelectionStepProps) => {
   const { ref, isVisible, variant: animVariant } = useScrollAnimation({
     threshold: 0.2,
     triggerOnce: true,
@@ -146,7 +147,10 @@ export const MenuSelectionStep = ({ form, trackFieldInteraction, variant = 'regu
   }));
 
   // Watch both proteins available toggle
-  const bothProteinsAvailable = form.watch("both_proteins_available");
+  const bothProteinsAvailable = useWatch({
+    control: form.control,
+    name: "both_proteins_available"
+  });
 
   return (
     <div ref={ref} className={`space-y-8 ${animationClass}`}>
@@ -326,3 +330,5 @@ export const MenuSelectionStep = ({ form, trackFieldInteraction, variant = 'regu
     </div>
   );
 };
+
+export const MenuSelectionStep = memo(MenuSelectionStepComponent);
