@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
+import { CheckCircle2, Circle } from "lucide-react";
 import { MultiSelect } from "@/components/ui/multi-select";
 import type { Option } from "@/components/ui/multi-select";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
@@ -165,10 +165,11 @@ const MenuSelectionStepComponent = ({ form, trackFieldInteraction, variant = 're
               onClick={() => field.onChange(!field.value)}
             >
               <FormControl>
-                <Checkbox
-                  checked={field.value}
-                  className="pointer-events-none"
-                />
+                {field.value ? (
+                  <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />
+                ) : (
+                  <Circle className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                )}
               </FormControl>
               <div className="space-y-1 leading-none">
                 <FormLabel className="text-sm font-medium cursor-pointer">
