@@ -30,15 +30,19 @@ export const FinalStep = ({ form, variant = 'regular' }: FinalStepProps) => {
                 control={form.control}
                 name="ceremony_included"
                 render={({ field }) => (
-                  <FormItem className="flex items-start space-x-3 space-y-0 rounded-md border border-muted p-4">
+                  <FormItem 
+                    className="flex items-start space-x-3 space-y-0 rounded-md border border-muted bg-card p-4 cursor-pointer hover:border-primary/50 transition-colors"
+                    onClick={() => field.onChange(!field.value)}
+                  >
                     <FormControl>
                       <Checkbox
                         checked={field.value}
                         onCheckedChange={field.onChange}
+                        onClick={(e) => e.stopPropagation()}
                       />
                     </FormControl>
                     <div className="space-y-1 leading-none">
-                      <FormLabel className="text-base font-medium">Ceremony Included</FormLabel>
+                      <FormLabel className="text-base font-medium cursor-pointer">Ceremony Included</FormLabel>
                       <p className="text-sm text-muted-foreground">
                         We'll provide catering service during the ceremony
                       </p>
@@ -51,15 +55,19 @@ export const FinalStep = ({ form, variant = 'regular' }: FinalStepProps) => {
                 control={form.control}
                 name="cocktail_hour"
                 render={({ field }) => (
-                  <FormItem className="flex items-start space-x-3 space-y-0 rounded-md border border-muted p-4">
+                  <FormItem 
+                    className="flex items-start space-x-3 space-y-0 rounded-md border border-muted bg-card p-4 cursor-pointer hover:border-primary/50 transition-colors"
+                    onClick={() => field.onChange(!field.value)}
+                  >
                     <FormControl>
                       <Checkbox
                         checked={field.value}
                         onCheckedChange={field.onChange}
+                        onClick={(e) => e.stopPropagation()}
                       />
                     </FormControl>
                     <div className="space-y-1 leading-none">
-                      <FormLabel className="text-base font-medium">Cocktail Hour</FormLabel>
+                      <FormLabel className="text-base font-medium cursor-pointer">Cocktail Hour</FormLabel>
                       <p className="text-sm text-muted-foreground">
                         Add a cocktail hour with light appetizers
                       </p>
@@ -84,15 +92,19 @@ export const FinalStep = ({ form, variant = 'regular' }: FinalStepProps) => {
             control={form.control}
             name="plates_requested"
             render={({ field }) => (
-              <FormItem className="flex items-start space-x-3 space-y-0 rounded-md border border-muted bg-card p-4">
+              <FormItem 
+                className="flex items-start space-x-3 space-y-0 rounded-md border border-muted bg-card p-4 cursor-pointer hover:border-primary/50 transition-colors"
+                onClick={() => field.onChange(!field.value)}
+              >
                 <FormControl>
                   <Checkbox
                     checked={field.value}
                     onCheckedChange={field.onChange}
+                    onClick={(e) => e.stopPropagation()}
                   />
                 </FormControl>
                 <div className="space-y-1 leading-none">
-                  <FormLabel className="text-sm font-medium">Disposable Plates</FormLabel>
+                  <FormLabel className="text-sm font-medium cursor-pointer">Disposable Plates</FormLabel>
                   <p className="text-xs text-muted-foreground">
                     Heavy-duty disposable plates for your guests
                   </p>
@@ -106,15 +118,19 @@ export const FinalStep = ({ form, variant = 'regular' }: FinalStepProps) => {
             control={form.control}
             name="cups_requested"
             render={({ field }) => (
-              <FormItem className="flex items-start space-x-3 space-y-0 rounded-md border border-muted bg-card p-4">
+              <FormItem 
+                className="flex items-start space-x-3 space-y-0 rounded-md border border-muted bg-card p-4 cursor-pointer hover:border-primary/50 transition-colors"
+                onClick={() => field.onChange(!field.value)}
+              >
                 <FormControl>
                   <Checkbox
                     checked={field.value}
                     onCheckedChange={field.onChange}
+                    onClick={(e) => e.stopPropagation()}
                   />
                 </FormControl>
                 <div className="space-y-1 leading-none">
-                  <FormLabel className="text-sm font-medium">Disposable Cups</FormLabel>
+                  <FormLabel className="text-sm font-medium cursor-pointer">Disposable Cups</FormLabel>
                   <p className="text-xs text-muted-foreground">
                     Disposable cups for beverages
                   </p>
@@ -128,15 +144,19 @@ export const FinalStep = ({ form, variant = 'regular' }: FinalStepProps) => {
             control={form.control}
             name="napkins_requested"
             render={({ field }) => (
-              <FormItem className="flex items-start space-x-3 space-y-0 rounded-md border border-muted bg-card p-4">
+              <FormItem 
+                className="flex items-start space-x-3 space-y-0 rounded-md border border-muted bg-card p-4 cursor-pointer hover:border-primary/50 transition-colors"
+                onClick={() => field.onChange(!field.value)}
+              >
                 <FormControl>
                   <Checkbox
                     checked={field.value}
                     onCheckedChange={field.onChange}
+                    onClick={(e) => e.stopPropagation()}
                   />
                 </FormControl>
                 <div className="space-y-1 leading-none">
-                  <FormLabel className="text-sm font-medium">Napkins</FormLabel>
+                  <FormLabel className="text-sm font-medium cursor-pointer">Napkins</FormLabel>
                   <p className="text-xs text-muted-foreground">
                     Disposable napkins for your event
                   </p>
@@ -150,15 +170,19 @@ export const FinalStep = ({ form, variant = 'regular' }: FinalStepProps) => {
             control={form.control}
             name="serving_utensils_requested"
             render={({ field }) => (
-              <FormItem className="flex items-start space-x-3 space-y-0 rounded-md border border-muted bg-card p-4">
+              <FormItem 
+                className="flex items-start space-x-3 space-y-0 rounded-md border border-muted bg-card p-4 cursor-pointer hover:border-primary/50 transition-colors"
+                onClick={() => field.onChange(!field.value)}
+              >
                 <FormControl>
                   <Checkbox
                     checked={field.value}
                     onCheckedChange={field.onChange}
+                    onClick={(e) => e.stopPropagation()}
                   />
                 </FormControl>
                 <div className="space-y-1 leading-none">
-                  <FormLabel className="text-sm font-medium">Serving Utensils</FormLabel>
+                  <FormLabel className="text-sm font-medium cursor-pointer">Serving Utensils</FormLabel>
                   <p className="text-xs text-muted-foreground">
                     Tongs, spoons, and serving tools
                   </p>
@@ -172,15 +196,19 @@ export const FinalStep = ({ form, variant = 'regular' }: FinalStepProps) => {
             control={form.control}
             name="chafers_requested"
             render={({ field }) => (
-              <FormItem className="flex items-start space-x-3 space-y-0 rounded-md border border-muted bg-card p-4">
+              <FormItem 
+                className="flex items-start space-x-3 space-y-0 rounded-md border border-muted bg-card p-4 cursor-pointer hover:border-primary/50 transition-colors"
+                onClick={() => field.onChange(!field.value)}
+              >
                 <FormControl>
                   <Checkbox
                     checked={field.value}
                     onCheckedChange={field.onChange}
+                    onClick={(e) => e.stopPropagation()}
                   />
                 </FormControl>
                 <div className="space-y-1 leading-none">
-                  <FormLabel className="text-sm font-medium">Chafing Dishes with Fuel</FormLabel>
+                  <FormLabel className="text-sm font-medium cursor-pointer">Chafing Dishes with Fuel</FormLabel>
                   <p className="text-xs text-muted-foreground">
                     Disposable chafing dishes with fuel to keep food warm
                   </p>
@@ -194,15 +222,19 @@ export const FinalStep = ({ form, variant = 'regular' }: FinalStepProps) => {
             control={form.control}
             name="ice_requested"
             render={({ field }) => (
-              <FormItem className="flex items-start space-x-3 space-y-0 rounded-md border border-muted bg-card p-4">
+              <FormItem 
+                className="flex items-start space-x-3 space-y-0 rounded-md border border-muted bg-card p-4 cursor-pointer hover:border-primary/50 transition-colors"
+                onClick={() => field.onChange(!field.value)}
+              >
                 <FormControl>
                   <Checkbox
                     checked={field.value}
                     onCheckedChange={field.onChange}
+                    onClick={(e) => e.stopPropagation()}
                   />
                 </FormControl>
                 <div className="space-y-1 leading-none">
-                  <FormLabel className="text-sm font-medium">Ice</FormLabel>
+                  <FormLabel className="text-sm font-medium cursor-pointer">Ice</FormLabel>
                   <p className="text-xs text-muted-foreground">
                     Ice for beverages and cooling
                   </p>
