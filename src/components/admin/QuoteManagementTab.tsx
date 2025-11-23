@@ -223,10 +223,9 @@ export function QuoteManagementTab({
                 {/* Menu Selections */}
                 <div className="space-y-2 pt-2 border-t">
                   <div className="text-sm font-medium text-muted-foreground">Menu Selections:</div>
-                  {quote.primary_protein && (
+                  {quote.proteins && quote.proteins.length > 0 && (
                     <div className="text-sm">
-                      <span className="font-medium">Proteins:</span> {quote.primary_protein}
-                      {quote.secondary_protein && `, ${quote.secondary_protein}`}
+                      <span className="font-medium">Proteins:</span> {Array.isArray(quote.proteins) ? quote.proteins.join(', ') : quote.proteins}
                     </div>
                   )}
                   {quote.appetizers?.length > 0 && (

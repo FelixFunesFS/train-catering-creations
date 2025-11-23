@@ -448,13 +448,16 @@ export function QuoteDetailModal({ quote, onClose, onUpdate }: QuoteDetailModalP
                     <CardTitle>Proteins</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-2">
-                    {editedQuote.primary_protein && (
-                      <Badge variant="default">Primary: {editedQuote.primary_protein}</Badge>
+                    {editedQuote.proteins && Array.isArray(editedQuote.proteins) && editedQuote.proteins.length > 0 ? (
+                      editedQuote.proteins.map((protein: string, idx: number) => (
+                        <Badge key={idx} variant="default">{protein}</Badge>
+                      ))
+                    ) : (
+                      <p className="text-sm text-muted-foreground">No proteins selected</p>
                     )}
-                    {editedQuote.secondary_protein && (
-                      <Badge variant="secondary">Secondary: {editedQuote.secondary_protein}</Badge>
-                    )}
-                    {editedQuote.both_proteins_available && (
+                    {editedQuote.both_proteins_available && 
+                     Array.isArray(editedQuote.proteins) && 
+                     editedQuote.proteins.length === 2 && (
                       <Badge variant="outline">Both proteins for all guests</Badge>
                     )}
                   </CardContent>

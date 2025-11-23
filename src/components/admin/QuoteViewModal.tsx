@@ -191,21 +191,17 @@ export function QuoteViewModal({ quote, onClose }: QuoteViewModalProps) {
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Proteins */}
-              {(quote.primary_protein || quote.secondary_protein) && (
+              {quote.proteins && Array.isArray(quote.proteins) && quote.proteins.length > 0 && (
                 <div className="space-y-3">
                   <h4 className="font-semibold text-sm text-muted-foreground">PROTEINS</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {quote.primary_protein && (
-                      <div className="p-3 bg-muted/50 rounded-lg">
-                        <p className="font-medium">Primary: {quote.primary_protein}</p>
-                      </div>
-                    )}
-                    {quote.secondary_protein && (
-                      <div className="p-3 bg-muted/50 rounded-lg">
-                        <p className="font-medium">Secondary: {quote.secondary_protein}</p>
-                      </div>
-                    )}
+                  <div className="flex flex-wrap gap-2">
+                    {quote.proteins.map((protein: string, idx: number) => (
+                      <Badge key={idx} variant="default">{protein}</Badge>
+                    ))}
                   </div>
+                  {quote.both_proteins_available && quote.proteins.length === 2 && (
+                    <p className="text-xs text-muted-foreground italic">Both proteins served to all guests</p>
+                  )}
                 </div>
               )}
 

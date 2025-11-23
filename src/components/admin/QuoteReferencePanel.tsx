@@ -72,17 +72,13 @@ export function QuoteReferencePanel({ quote }: QuoteReferencePanelProps) {
               <Badge variant="secondary" className="text-xs mb-1">Service: {quote.service_type}</Badge>
             </div>
             
-            {quote.primary_protein && (
+            {quote.proteins && Array.isArray(quote.proteins) && quote.proteins.length > 0 && (
               <div>
-                <strong>Primary Protein:</strong>
-                <div className="ml-2 text-muted-foreground">{quote.primary_protein}</div>
-              </div>
-            )}
-            
-            {quote.secondary_protein && (
-              <div>
-                <strong>Secondary Protein:</strong>
-                <div className="ml-2 text-muted-foreground">{quote.secondary_protein}</div>
+                <strong>Proteins:</strong>
+                <div className="ml-2 text-muted-foreground">{quote.proteins.join(', ')}</div>
+                {quote.both_proteins_available && quote.proteins.length === 2 && (
+                  <div className="ml-2 text-xs italic">Both proteins served to all guests</div>
+                )}
               </div>
             )}
             

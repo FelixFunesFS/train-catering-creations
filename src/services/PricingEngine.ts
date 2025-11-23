@@ -65,8 +65,11 @@ export class PricingEngine {
     }
 
     // Menu items
-    this.addMenuItems(lineItems, quote, 'Proteins', quote.primary_protein);
-    this.addMenuItems(lineItems, quote, 'Proteins', quote.secondary_protein);
+    if (quote.proteins && Array.isArray(quote.proteins)) {
+      quote.proteins.forEach((protein: string) => {
+        this.addMenuItems(lineItems, quote, 'Proteins', protein);
+      });
+    }
     this.addJSONMenuItems(lineItems, quote, 'Sides', quote.sides);
     this.addJSONMenuItems(lineItems, quote, 'Appetizers', quote.appetizers);
     this.addJSONMenuItems(lineItems, quote, 'Desserts', quote.desserts);

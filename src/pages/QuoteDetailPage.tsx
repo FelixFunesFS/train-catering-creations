@@ -39,8 +39,8 @@ interface Quote {
   final_total: number;
   special_requests?: string;
   dietary_restrictions?: any;
-  primary_protein?: string;
-  secondary_protein?: string;
+  proteins?: any;
+  both_proteins_available?: boolean;
   sides?: any;
   appetizers?: any;
   desserts?: any;
@@ -303,16 +303,17 @@ export default function QuoteDetailPage() {
                 <CardTitle>Menu Details</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {quote.primary_protein && (
+                {quote.proteins && Array.isArray(quote.proteins) && quote.proteins.length > 0 && (
                   <div>
-                    <h4 className="font-medium mb-2">Primary Protein</h4>
-                    <p className="text-sm text-muted-foreground">{quote.primary_protein}</p>
-                  </div>
-                )}
-                {quote.secondary_protein && (
-                  <div>
-                    <h4 className="font-medium mb-2">Secondary Protein</h4>
-                    <p className="text-sm text-muted-foreground">{quote.secondary_protein}</p>
+                    <h4 className="font-medium mb-2">Proteins</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {quote.proteins.map((protein: string, idx: number) => (
+                        <Badge key={idx} variant="default">{protein}</Badge>
+                      ))}
+                    </div>
+                    {quote.both_proteins_available && quote.proteins.length === 2 && (
+                      <p className="text-xs text-muted-foreground italic mt-1">Both proteins served to all guests</p>
+                    )}
                   </div>
                 )}
                 {quote.sides && Array.isArray(quote.sides) && quote.sides.length > 0 && (

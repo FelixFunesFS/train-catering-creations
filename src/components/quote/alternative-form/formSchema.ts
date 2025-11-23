@@ -61,8 +61,7 @@ export const formSchema = z.object({
     }),
   
   // Menu Selections
-  primary_protein: z.array(z.string()).default([]),
-  secondary_protein: z.array(z.string()).default([]),
+  proteins: z.array(z.string()).max(2, "Maximum 2 protein selections allowed. Additional proteins can be added in Special Requests.").default([]),
   both_proteins_available: z.boolean().default(false),
   appetizers: z.array(z.string()).default([]),
   sides: z.array(z.string()).default([]),

@@ -82,20 +82,19 @@ export function CurrentMenuDisplay({ quote }: CurrentMenuDisplayProps) {
             <h4 className="font-semibold text-sm">Proteins</h4>
           </div>
           <div className="flex flex-wrap gap-2">
-            {quote.primary_protein && (
-              <Badge variant="default" className="text-xs">
-                Primary: {quote.primary_protein}
-              </Badge>
-            )}
-            {quote.secondary_protein && (
-              <Badge variant="default" className="text-xs">
-                Secondary: {quote.secondary_protein}
-              </Badge>
-            )}
-            {!quote.primary_protein && !quote.secondary_protein && (
+            {quote.proteins && Array.isArray(quote.proteins) && quote.proteins.length > 0 ? (
+              quote.proteins.map((protein: string, idx: number) => (
+                <Badge key={idx} variant="default" className="text-xs">
+                  {protein}
+                </Badge>
+              ))
+            ) : (
               <span className="text-xs text-muted-foreground italic">No proteins selected</span>
             )}
           </div>
+          {quote.both_proteins_available && quote.proteins?.length === 2 && (
+            <p className="text-xs text-muted-foreground italic">Both proteins served to all guests</p>
+          )}
         </div>
 
         {/* Appetizers */}

@@ -26,8 +26,7 @@ const MENU_OPTIONS = {
 export function MenuEditForm({ quote, onSave, onCancel }: MenuEditFormProps) {
   const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm({
     defaultValues: {
-      primary_protein: quote.primary_protein || '',
-      secondary_protein: quote.secondary_protein || '',
+      proteins: quote.proteins || [],
       both_proteins_available: quote.both_proteins_available || false,
       appetizers: quote.appetizers || [],
       sides: quote.sides || [],
@@ -80,34 +79,46 @@ export function MenuEditForm({ quote, onSave, onCancel }: MenuEditFormProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Proteins */}
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Proteins</h3>
+          <h3 className="text-lg font-semibold">Proteins (Max 2)</h3>
           <div>
-            <Label>Primary Protein</Label>
-            <Select value={watchedValues.primary_protein} onValueChange={(value) => setValue('primary_protein', value)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select primary protein" />
-              </SelectTrigger>
-              <SelectContent>
-                {MENU_OPTIONS.proteins.map((protein) => (
-                  <SelectItem key={protein} value={protein}>{protein}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <div>
-            <Label>Secondary Protein</Label>
-            <Select value={watchedValues.secondary_protein || 'none'} onValueChange={(value) => setValue('secondary_protein', value === 'none' ? null : value)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select secondary protein" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">None</SelectItem>
-                {MENU_OPTIONS.proteins.map((protein) => (
-                  <SelectItem key={protein} value={protein}>{protein}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Label>Selected Proteins</Label>
+            <div className="flex flex-wrap gap-2 mb-2">
+              {(watchedValues.proteins || []).map((protein: string, idx: number) => (
+                <Badge key={idx} variant="default" className="flex items-center gap-1">
+                  {protein}
+                  <button 
+                    type="button"
+                    onClick={() => {
+                      const updated = (watchedValues.proteins || []).filter((_: string, i: number) => i !== idx);
+                      setValue('proteins', updated);
+                    }}
+                    className="ml-1 hover:text-destructive"
+                  >
+                    ×
+                  </button>
+                </Badge>
+              ))}
+            </div>
+            {(!watchedValues.proteins || watchedValues.proteins.length < 2) && (
+              <Select 
+                value=""
+                onValueChange={(value) => {
+                  const current = watchedValues.proteins || [];
+                  if (!current.includes(value) && current.length < 2) {
+                    setValue('proteins', [...current, value]);
+                  }
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Add protein..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {MENU_OPTIONS.proteins.map((protein) => (
+                    <SelectItem key={protein} value={protein}>{protein}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           </div>
 
           <div className="flex items-center space-x-2">

@@ -60,10 +60,11 @@ const handler = async (req: Request): Promise<Response> => {
       <div style="background: ${BRAND_COLORS.white}; border: 2px solid ${BRAND_COLORS.lightGray}; border-radius: 8px; padding: 20px; margin: 20px 0;">
         <h3 style="margin: 0 0 20px 0; color: ${BRAND_COLORS.crimson}; text-align: center;">🍽️ Menu Selections</h3>
         
-        ${requestData.primary_protein || requestData.secondary_protein ? `
+        ${requestData.proteins && Array.isArray(requestData.proteins) && requestData.proteins.length > 0 ? `
         <div style="margin: 15px 0; padding-bottom: 10px; border-bottom: 2px solid ${BRAND_COLORS.gold};">
           <h4 style="color: ${BRAND_COLORS.crimson}; margin: 10px 0 5px 0; font-size: 16px;">Proteins</h4>
-          <p style="margin: 5px 0; padding: 8px 0;">${[requestData.primary_protein, requestData.secondary_protein].filter(Boolean).map(formatMenuItem).join(', ')}</p>
+          <p style="margin: 5px 0; padding: 8px 0;">${requestData.proteins.map(formatMenuItem).join(', ')}</p>
+          ${requestData.both_proteins_available && requestData.proteins.length === 2 ? `<p style="margin: 5px 0; padding: 8px 0; font-style: italic; color: ${BRAND_COLORS.crimson};">Both proteins served to all guests</p>` : ''}
         </div>
         ` : ''}
 

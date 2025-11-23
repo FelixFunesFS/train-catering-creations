@@ -137,11 +137,14 @@ function generateLineItemsFromQuote(quote: any): Array<{
   const items = [];
 
   // Main meal bundle
-  if (quote.primary_protein) {
-    const proteins = [quote.primary_protein, quote.secondary_protein].filter(Boolean);
+  if (quote.proteins && Array.isArray(quote.proteins) && quote.proteins.length > 0) {
+    const proteinDesc = quote.both_proteins_available && quote.proteins.length === 2
+      ? `${quote.proteins.join(' & ')} (both proteins served to all guests)`
+      : quote.proteins.join(' & ');
+    
     items.push({
-      title: `${proteins.join(' & ')} Meal Package`,
-      description: `Includes ${proteins.join(' and ')} with choice of sides for ${quote.guest_count} guests`,
+      title: `${quote.proteins.join(' & ')} Meal Package`,
+      description: `Includes ${proteinDesc} with choice of sides for ${quote.guest_count} guests`,
       quantity: quote.guest_count,
       category: 'entree'
     });

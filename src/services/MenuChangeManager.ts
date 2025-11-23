@@ -15,8 +15,7 @@ export interface MenuChanges {
 }
 
 export interface Quote {
-  primary_protein?: string;
-  secondary_protein?: string;
+  proteins?: string[] | any;
   appetizers?: any;
   sides?: any;
   desserts?: any;
@@ -171,9 +170,7 @@ export class MenuChangeManager {
    * Get all proteins from quote
    */
   static getAllProteins(quote: Quote): string[] {
-    const primary = this.parseProteins(quote.primary_protein);
-    const secondary = this.parseProteins(quote.secondary_protein);
-    return [...primary, ...secondary];
+    return this.formatArrayField(quote.proteins);
   }
 
   /**
