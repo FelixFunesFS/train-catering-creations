@@ -50,7 +50,7 @@ const ServiceSelectionStepComponent = ({ form, trackFieldInteraction }: ServiceS
                       <div className="flex items-start space-x-3">
                         <RadioGroupItem 
                           value="drop-off" 
-                          className="mt-1"
+                          className="mt-1 pointer-events-none"
                         />
                         <div className="flex-1">
                           <Label className="flex items-center gap-3 text-base font-medium cursor-pointer">
@@ -79,7 +79,7 @@ const ServiceSelectionStepComponent = ({ form, trackFieldInteraction }: ServiceS
                       <div className="flex items-start space-x-3">
                         <RadioGroupItem 
                           value="delivery-setup" 
-                          className="mt-1"
+                          className="mt-1 pointer-events-none"
                         />
                         <div className="flex-1">
                           <Label className="flex items-center gap-3 text-base font-medium cursor-pointer">
@@ -109,7 +109,7 @@ const ServiceSelectionStepComponent = ({ form, trackFieldInteraction }: ServiceS
                       <div className="flex items-start space-x-3">
                         <RadioGroupItem 
                           value="full-service" 
-                          className="mt-1"
+                          className="mt-1 pointer-events-none"
                         />
                         <div className="flex-1">
                           <Label className="flex items-center gap-3 text-base font-medium cursor-pointer">
