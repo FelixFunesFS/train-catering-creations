@@ -121,8 +121,8 @@ const TestEmail = () => {
       
       const { data, error } = await supabase.functions.invoke('send-test-email', {
         body: {
-          from: fromEmail,
-          to: toEmail,
+          fromEmail,
+          toEmail,
         },
       });
 
