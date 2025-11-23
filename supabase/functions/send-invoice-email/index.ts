@@ -91,7 +91,29 @@ const handler = async (req: Request): Promise<Response> => {
         </head>
         <body>
           <div class="email-container">
-            ${generateEmailHeader(`Your ${documentType.charAt(0).toUpperCase() + documentType.slice(1)} is Ready!`)}
+            ${isEstimate ? `
+              <div style="background: linear-gradient(135deg, ${BRAND_COLORS.crimson}, ${BRAND_COLORS.crimsonDark}); padding: 25px; border-radius: 8px; margin-bottom: 25px; text-align: center;">
+                <div style="background: linear-gradient(135deg, ${BRAND_COLORS.gold}, ${BRAND_COLORS.goldLight}); display: inline-block; padding: 8px 16px; border-radius: 20px; margin-bottom: 15px;">
+                  <span style="color: ${BRAND_COLORS.darkGray}; font-weight: bold; font-size: 14px;">💰 ESTIMATE READY</span>
+                </div>
+                <h2 style="color: white; margin: 0 0 10px 0; font-size: 24px;">Your Custom Estimate is Ready!</h2>
+                <p style="color: white; margin: 0; font-size: 16px; opacity: 0.95;">
+                  Hi ${invoice.customers?.name || invoice.quote_requests?.contact_name},<br>
+                  Your custom pricing is ready for review
+                </p>
+              </div>
+            ` : `
+              <div style="background: linear-gradient(135deg, ${BRAND_COLORS.gold}, ${BRAND_COLORS.goldLight}); padding: 25px; border-radius: 8px; margin-bottom: 25px; text-align: center;">
+                <div style="background: rgba(220, 20, 60, 0.3); display: inline-block; padding: 8px 16px; border-radius: 20px; margin-bottom: 15px;">
+                  <span style="color: ${BRAND_COLORS.crimsonDark}; font-weight: bold; font-size: 14px;">📄 INVOICE - PAYMENT DUE</span>
+                </div>
+                <h2 style="color: ${BRAND_COLORS.crimsonDark}; margin: 0 0 10px 0; font-size: 24px;">Your Invoice is Ready!</h2>
+                <p style="color: ${BRAND_COLORS.darkGray}; margin: 0; font-size: 16px;">
+                  Hi ${invoice.customers?.name || invoice.quote_requests?.contact_name},<br>
+                  Your invoice is ready for payment
+                </p>
+              </div>
+            `}
             
             <div class="content">
               <h2 style="color: ${BRAND_COLORS.crimson};">Dear ${invoice.customers?.name || invoice.quote_requests?.contact_name},</h2>
