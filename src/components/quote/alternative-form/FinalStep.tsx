@@ -38,6 +38,7 @@ const FinalStepComponent = ({ form, variant = 'regular' }: FinalStepProps) => {
                     <FormControl>
                       <Checkbox
                         checked={field.value}
+                        className="pointer-events-none"
                       />
                     </FormControl>
                     <div className="space-y-1 leading-none">
@@ -61,6 +62,7 @@ const FinalStepComponent = ({ form, variant = 'regular' }: FinalStepProps) => {
                     <FormControl>
                       <Checkbox
                         checked={field.value}
+                        className="pointer-events-none"
                       />
                     </FormControl>
                     <div className="space-y-1 leading-none">
@@ -96,6 +98,7 @@ const FinalStepComponent = ({ form, variant = 'regular' }: FinalStepProps) => {
                 <FormControl>
                   <Checkbox
                     checked={field.value}
+                    className="pointer-events-none"
                   />
                 </FormControl>
                 <div className="space-y-1 leading-none">
@@ -120,6 +123,7 @@ const FinalStepComponent = ({ form, variant = 'regular' }: FinalStepProps) => {
                 <FormControl>
                   <Checkbox
                     checked={field.value}
+                    className="pointer-events-none"
                   />
                 </FormControl>
                 <div className="space-y-1 leading-none">
@@ -144,6 +148,7 @@ const FinalStepComponent = ({ form, variant = 'regular' }: FinalStepProps) => {
                 <FormControl>
                   <Checkbox
                     checked={field.value}
+                    className="pointer-events-none"
                   />
                 </FormControl>
                 <div className="space-y-1 leading-none">
@@ -168,6 +173,7 @@ const FinalStepComponent = ({ form, variant = 'regular' }: FinalStepProps) => {
                 <FormControl>
                   <Checkbox
                     checked={field.value}
+                    className="pointer-events-none"
                   />
                 </FormControl>
                 <div className="space-y-1 leading-none">
@@ -192,6 +198,7 @@ const FinalStepComponent = ({ form, variant = 'regular' }: FinalStepProps) => {
                 <FormControl>
                   <Checkbox
                     checked={field.value}
+                    className="pointer-events-none"
                   />
                 </FormControl>
                 <div className="space-y-1 leading-none">
@@ -216,6 +223,7 @@ const FinalStepComponent = ({ form, variant = 'regular' }: FinalStepProps) => {
                 <FormControl>
                   <Checkbox
                     checked={field.value}
+                    className="pointer-events-none"
                   />
                 </FormControl>
                 <div className="space-y-1 leading-none">

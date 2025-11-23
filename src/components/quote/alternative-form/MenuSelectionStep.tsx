@@ -167,6 +167,7 @@ const MenuSelectionStepComponent = ({ form, trackFieldInteraction, variant = 're
               <FormControl>
                 <Checkbox
                   checked={field.value}
+                  className="pointer-events-none"
                 />
               </FormControl>
               <div className="space-y-1 leading-none">
