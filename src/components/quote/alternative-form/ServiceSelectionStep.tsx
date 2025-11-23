@@ -141,9 +141,12 @@ export const ServiceSelectionStep = ({ form, trackFieldInteraction }: ServiceSel
                 name="bussing_tables_needed"
                 render={({ field }) => (
                   <FormItem>
-                    <div className="flex items-center justify-between space-x-2">
+                    <div 
+                      className="flex items-center justify-between space-x-2 bg-card p-4 rounded-lg border border-border/50 hover:border-primary/50 cursor-pointer transition-colors"
+                      onClick={() => field.onChange(!field.value)}
+                    >
                       <div className="space-y-0.5">
-                        <FormLabel className="text-base font-medium">
+                        <FormLabel className="text-base font-medium cursor-pointer">
                           Bussing Tables Service
                         </FormLabel>
                         <div className="text-sm text-muted-foreground">
@@ -154,6 +157,7 @@ export const ServiceSelectionStep = ({ form, trackFieldInteraction }: ServiceSel
                         <Switch
                           checked={field.value}
                           onCheckedChange={field.onChange}
+                          onClick={(e) => e.stopPropagation()}
                         />
                       </FormControl>
                     </div>
