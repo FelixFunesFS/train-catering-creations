@@ -173,10 +173,10 @@ const MenuSelectionStepComponent = ({ form, trackFieldInteraction, variant = 're
               </FormControl>
               <div className="space-y-1 leading-none">
                 <FormLabel className="text-sm font-medium cursor-pointer">
-                  Allow guests to choose from multiple proteins
+                  Serve Both Proteins to All Guests
                 </FormLabel>
                 <p className="text-xs text-muted-foreground">
-                  When enabled, all guests receive portions of each protein (e.g., chicken + beef). When disabled, guests select one protein only.
+                  If checked and you select 2 proteins, all guests receive both options. Otherwise, proteins are alternatives.
                 </p>
               </div>
             </div>
@@ -184,25 +184,28 @@ const MenuSelectionStepComponent = ({ form, trackFieldInteraction, variant = 're
         )}
       />
 
-      {/* Row 1: Core Meal Items (Proteins + Sides) */}
+      {/* Protein Selection */}
       <div className="grid md:grid-cols-2 gap-6">
         <FormField
           control={form.control}
-          name="primary_protein"
+          name="proteins"
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-base font-medium mb-2 block">
-                Select Proteins {bothProteinsAvailable ? "(Multiple allowed)" : "(Choose up to 2)"} *
+                Select Proteins (Max 2) *
               </FormLabel>
               <FormControl>
                 <MultiSelect
                   options={proteinOptions}
                   selected={field.value || []}
                   onChange={(value) => {
-                    trackFieldInteraction('primary_protein');
-                    field.onChange(value);
+                    // Enforce max 2 selections
+                    if (value.length <= 2) {
+                      field.onChange(value);
+                      trackFieldInteraction('proteins');
+                    }
                   }}
-                  placeholder="Search and select proteins..."
+                  placeholder="Search and select up to 2 proteins..."
                   searchPlaceholder="Search proteins..."
                   maxDisplayed={4}
                   className="input-neutral"
@@ -211,6 +214,11 @@ const MenuSelectionStepComponent = ({ form, trackFieldInteraction, variant = 're
               <p className="text-xs text-muted-foreground mt-1">
                 ⭐ Popular • 💎 Premium • 🌱 Dietary-Friendly
               </p>
+              {field.value && field.value.length >= 2 && (
+                <p className="text-xs text-amber-600 mt-1">
+                  Maximum reached. For additional proteins, add them in Special Requests.
+                </p>
+              )}
               <FormMessage />
             </FormItem>
           )}

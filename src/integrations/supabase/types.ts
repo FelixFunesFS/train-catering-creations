@@ -1405,10 +1405,9 @@ export type Database = {
           phone: string
           plates_requested: boolean | null
           po_number: string | null
-          primary_protein: string | null
+          proteins: Json | null
           referral_source: string | null
           requires_po_number: boolean | null
-          secondary_protein: string | null
           separate_serving_area: boolean | null
           service_type: Database["public"]["Enums"]["service_type"]
           serving_setup_area: string | null
@@ -1459,10 +1458,9 @@ export type Database = {
           phone: string
           plates_requested?: boolean | null
           po_number?: string | null
-          primary_protein?: string | null
+          proteins?: Json | null
           referral_source?: string | null
           requires_po_number?: boolean | null
-          secondary_protein?: string | null
           separate_serving_area?: boolean | null
           service_type: Database["public"]["Enums"]["service_type"]
           serving_setup_area?: string | null
@@ -1513,10 +1511,9 @@ export type Database = {
           phone?: string
           plates_requested?: boolean | null
           po_number?: string | null
-          primary_protein?: string | null
+          proteins?: Json | null
           referral_source?: string | null
           requires_po_number?: boolean | null
-          secondary_protein?: string | null
           separate_serving_area?: boolean | null
           service_type?: Database["public"]["Enums"]["service_type"]
           serving_setup_area?: string | null

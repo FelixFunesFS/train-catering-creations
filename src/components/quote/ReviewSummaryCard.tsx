@@ -42,7 +42,7 @@ export const ReviewSummaryCard = ({ form, variant }: ReviewSummaryCardProps) => 
 
   const countMenuItems = () => {
     let count = 0;
-    if (watchedValues.primary_protein?.length) count += watchedValues.primary_protein.length;
+    if (watchedValues.proteins?.length) count += watchedValues.proteins.length;
     if (watchedValues.appetizers?.length) count += watchedValues.appetizers.length;
     if (watchedValues.sides?.length) count += watchedValues.sides.length;
     if (watchedValues.desserts?.length) count += watchedValues.desserts.length;
@@ -124,18 +124,21 @@ export const ReviewSummaryCard = ({ form, variant }: ReviewSummaryCardProps) => 
             {countMenuItems() > 0 ? (
               <div className="space-y-3">
                 {/* Proteins */}
-                {watchedValues.primary_protein?.length > 0 && (
+                {watchedValues.proteins?.length > 0 && (
                   <div>
                     <p className="text-xs text-muted-foreground mb-1.5 flex items-center gap-1">
                       <UtensilsCrossed className="h-3 w-3" /> Proteins
                     </p>
                     <div className="flex flex-wrap gap-1">
-                      {watchedValues.primary_protein.map((id: string, idx: number) => (
+                      {watchedValues.proteins.map((id: string, idx: number) => (
                         <Badge key={idx} variant="secondary" className="text-xs">
-                          {id.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                          {id.split('-').map((word: string) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
                         </Badge>
                       ))}
                     </div>
+                    {watchedValues.both_proteins_available && watchedValues.proteins.length === 2 && (
+                      <p className="text-xs text-muted-foreground italic mt-1">Both proteins for all guests</p>
+                    )}
                   </div>
                 )}
 

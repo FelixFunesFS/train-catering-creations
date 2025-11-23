@@ -360,14 +360,19 @@ export const ReviewStep = ({ form, estimatedCost }: ReviewStepProps) => {
                   </div>
                 )}
 
-                {formData.primary_protein && formData.primary_protein.length > 0 && (
+                {formData.proteins && formData.proteins.length > 0 && (
                   <div>
-                    <span className="text-sm font-medium text-muted-foreground">Main Protein:</span>
-                    {formData.primary_protein.map((protein: string) => (
-                      <Badge key={protein} variant="secondary" className="ml-2">
-                        {protein.replace(/-/g, ' ')}
-                      </Badge>
-                    ))}
+                    <span className="text-sm font-medium text-muted-foreground">Proteins:</span>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {formData.proteins.map((protein: string) => (
+                        <Badge key={protein} variant="secondary" className="text-xs">
+                          {protein.replace(/-/g, ' ')}
+                        </Badge>
+                      ))}
+                    </div>
+                    {formData.both_proteins_available && formData.proteins.length === 2 && (
+                      <p className="text-xs text-muted-foreground mt-1">Both proteins served to all guests</p>
+                    )}
                   </div>
                 )}
 

@@ -46,15 +46,16 @@ export function CustomerInfoCard({ quote, isCompact = false }: CustomerInfoCardP
 
   const getMenuSummary = () => {
     const menuItems = [];
-    if (quote.primary_protein) menuItems.push(quote.primary_protein);
-    if (quote.secondary_protein) menuItems.push(quote.secondary_protein);
+    if (quote.proteins && Array.isArray(quote.proteins)) {
+      quote.proteins.forEach((protein: string) => menuItems.push(protein));
+    }
     
     const sides = quote.sides || [];
     const appetizers = quote.appetizers || [];
     const desserts = quote.desserts || [];
     
     return {
-      proteins: [quote.primary_protein, quote.secondary_protein].filter(Boolean),
+      proteins: quote.proteins || [],
       totalItems: menuItems.length + sides.length + appetizers.length + desserts.length,
       dietary: quote.dietary_restrictions || [],
       special: quote.special_requests

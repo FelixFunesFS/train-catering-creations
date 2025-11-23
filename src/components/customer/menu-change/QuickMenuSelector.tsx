@@ -19,10 +19,9 @@ interface QuickMenuSelectorProps {
 export function QuickMenuSelector({ quote, onChange }: QuickMenuSelectorProps) {
   const [swaps, setSwaps] = useState<{ remove: string; add: string }[]>([]);
 
-  const currentProteins = [
-    quote.primary_protein,
-    quote.secondary_protein
-  ].filter(Boolean);
+  const currentProteins = quote.proteins && Array.isArray(quote.proteins) 
+    ? quote.proteins 
+    : [];
 
   const availableProteins = [
     'Fried Chicken',
