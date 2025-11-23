@@ -1,8 +1,7 @@
 import { UseFormReturn, useWatch } from "react-hook-form";
 import { memo } from "react";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
+import { TimeSelect } from "@/components/ui/time-select";
 import { Label } from "@/components/ui/label";
 import { Truck, Users, Clock, ChefHat, Circle, CheckCircle2 } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
@@ -146,15 +145,12 @@ const ServiceSelectionStepComponent = ({ form, trackFieldInteraction }: ServiceS
                       Preferred Serving Start Time (Optional)
                     </FormLabel>
                     <FormControl>
-                      <Input
-                        type="time"
-                        className="h-12 text-base input-clean"
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault();
-                          }
-                        }}
-                        {...field}
+                      <TimeSelect
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder="Select serving start time"
+                        interval={30}
+                        onFocus={() => trackFieldInteraction('serving_start_time')}
                       />
                     </FormControl>
                     <FormMessage />
@@ -180,9 +176,11 @@ const ServiceSelectionStepComponent = ({ form, trackFieldInteraction }: ServiceS
                         </div>
                       </div>
                       <FormControl>
-                        <Switch
-                          checked={field.value}
-                        />
+                        {field.value ? (
+                          <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />
+                        ) : (
+                          <Circle className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                        )}
                       </FormControl>
                     </div>
                     <FormMessage />
