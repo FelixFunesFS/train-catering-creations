@@ -37,10 +37,6 @@ const ServiceSelectionStepComponent = ({ form, trackFieldInteraction }: ServiceS
               <FormItem>
                 <FormControl>
                   <RadioGroup
-                    onValueChange={(value) => {
-                      trackFieldInteraction('service_type');
-                      field.onChange(value);
-                    }}
                     value={field.value}
                     className="space-y-4"
                   >
@@ -56,7 +52,6 @@ const ServiceSelectionStepComponent = ({ form, trackFieldInteraction }: ServiceS
                           value="drop-off" 
                           id="drop-off" 
                           className="mt-1"
-                          onClick={(e) => e.stopPropagation()}
                         />
                         <div className="flex-1">
                           <Label htmlFor="drop-off" className="flex items-center gap-3 text-base font-medium cursor-pointer">
@@ -87,7 +82,6 @@ const ServiceSelectionStepComponent = ({ form, trackFieldInteraction }: ServiceS
                           value="delivery-setup" 
                           id="delivery-setup" 
                           className="mt-1"
-                          onClick={(e) => e.stopPropagation()}
                         />
                         <div className="flex-1">
                           <Label htmlFor="delivery-setup" className="flex items-center gap-3 text-base font-medium cursor-pointer">
@@ -119,7 +113,6 @@ const ServiceSelectionStepComponent = ({ form, trackFieldInteraction }: ServiceS
                           value="full-service" 
                           id="full-service" 
                           className="mt-1"
-                          onClick={(e) => e.stopPropagation()}
                         />
                         <div className="flex-1">
                           <Label htmlFor="full-service" className="flex items-center gap-3 text-base font-medium cursor-pointer">
