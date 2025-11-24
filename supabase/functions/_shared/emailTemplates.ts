@@ -29,7 +29,7 @@ const formatServiceType = (serviceType: string): string => {
 };
 
 export const EMAIL_STYLES = `
-  /* Base Styles - Mobile First */
+  /* Base Styles - Mobile First with Accessibility */
   * {
     margin: 0;
     padding: 0;
@@ -46,6 +46,30 @@ export const EMAIL_STYLES = `
     background-color: #f5f5f5;
     -webkit-text-size-adjust: 100%;
     -ms-text-size-adjust: 100%;
+  }
+  
+  /* Skip Link for Screen Readers */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+  
+  .sr-only:focus {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: inherit;
+    margin: inherit;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
   }
   
   .email-container {
@@ -120,14 +144,28 @@ export const EMAIL_STYLES = `
     mso-style-priority: 99;
   }
   
+  .btn:focus {
+    outline: 3px solid ${BRAND_COLORS.white};
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px ${BRAND_COLORS.gold};
+  }
+  
   .btn-primary {
     background: ${BRAND_COLORS.crimson};
     color: ${BRAND_COLORS.white};
   }
   
+  .btn-primary:hover {
+    background: ${BRAND_COLORS.crimsonDark};
+  }
+  
   .btn-secondary {
     background: ${BRAND_COLORS.gold};
     color: ${BRAND_COLORS.darkGray};
+  }
+  
+  .btn-secondary:hover {
+    background: ${BRAND_COLORS.goldLight};
   }
   
   /* Event Card - Mobile Responsive */
@@ -189,11 +227,23 @@ export const EMAIL_STYLES = `
     line-height: 1.5;
   }
   
-  /* Pricing Table - Mobile Responsive */
+  /* Pricing Table - Mobile Responsive with Accessibility */
   table.pricing-table {
     width: 100%;
     border-collapse: collapse;
     font-size: 14px;
+  }
+  
+  table.pricing-table caption {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    white-space: nowrap;
+    border-width: 0;
   }
   
   table.pricing-table th,
@@ -222,10 +272,19 @@ export const EMAIL_STYLES = `
     line-height: 1.6;
   }
   
-  /* Links - Touch Friendly */
+  /* Links - Touch Friendly with Focus States */
   a {
     color: ${BRAND_COLORS.crimson};
     text-decoration: underline;
+  }
+  
+  a:focus {
+    outline: 3px solid ${BRAND_COLORS.gold};
+    outline-offset: 2px;
+  }
+  
+  a:hover {
+    color: ${BRAND_COLORS.crimsonDark};
   }
   
   /* Desktop Enhancements (600px+) */
@@ -451,10 +510,10 @@ export const EMAIL_STYLES = `
 
 export function generateEmailHeader(title: string = "Soul Train's Eatery"): string {
   return `
-    <div class="header">
-      <h1>🚂 ${title}</h1>
+    <header class="header" role="banner">
+      <h1><span aria-label="Soul Train's Eatery">🚂 ${title}</span></h1>
       <p class="tagline">Authentic Southern Cooking from the Heart</p>
-    </div>
+    </header>
   `;
 }
 
@@ -478,20 +537,20 @@ export function generateEventDetailsCard(quote: any): string {
   };
 
   return `
-    <div class="event-card">
-      <h3 style="margin: 0 0 15px 0; color: ${BRAND_COLORS.crimson};">🎉 Your Event Details</h3>
-      <table style="width: 100%; border-collapse: collapse;">
+    <section class="event-card" aria-labelledby="event-details-heading">
+      <h3 id="event-details-heading" style="margin: 0 0 15px 0; color: ${BRAND_COLORS.crimson};"><span aria-label="celebration">🎉</span> Your Event Details</h3>
+      <table role="presentation" style="width: 100%; border-collapse: collapse;">
         <tr>
           <td style="padding: 8px 0; width: 120px;"><strong>Event:</strong></td>
           <td style="padding: 8px 0;">${quote.event_name}</td>
         </tr>
         <tr>
           <td style="padding: 8px 0;"><strong>Date:</strong></td>
-          <td style="padding: 8px 0;">${formatDate(quote.event_date)}</td>
+          <td style="padding: 8px 0;"><time datetime="${quote.event_date}">${formatDate(quote.event_date)}</time></td>
         </tr>
         <tr>
           <td style="padding: 8px 0;"><strong>Time:</strong></td>
-          <td style="padding: 8px 0;">${formatTime(quote.start_time)}</td>
+          <td style="padding: 8px 0;"><time datetime="${quote.start_time}">${formatTime(quote.start_time)}</time></td>
         </tr>
         <tr>
           <td style="padding: 8px 0;"><strong>Location:</strong></td>
@@ -506,7 +565,7 @@ export function generateEventDetailsCard(quote: any): string {
           <td style="padding: 8px 0;">${formatServiceType(quote.service_type)}</td>
         </tr>
       </table>
-    </div>
+    </section>
   `;
 }
 
@@ -539,10 +598,10 @@ export function generateMenuSection(lineItems: any[], bothProteinsAvailable?: bo
   const categoryOrder = ['Proteins', 'Sides', 'Appetizers', 'Desserts', 'Beverages', 'Service Items', 'Other Items'];
   
   let menuHtml = `
-    <div class="menu-section">
+    <section class="menu-section" aria-labelledby="menu-heading">
       <div style="text-align: center; margin-bottom: 24px;">
-        <h3 style="margin: 0 0 8px 0; color: ${BRAND_COLORS.crimson}; font-size: 22px;">
-          🍽️ Your Custom Menu
+        <h3 id="menu-heading" style="margin: 0 0 8px 0; color: ${BRAND_COLORS.crimson}; font-size: 22px;">
+          <span aria-label="plate with food">🍽️</span> Your Custom Menu
         </h3>
         <p style="margin: 0; color: #666; font-size: 14px; font-style: italic;">
           Carefully curated Southern cuisine
@@ -556,7 +615,7 @@ export function generateMenuSection(lineItems: any[], bothProteinsAvailable?: bo
       const isProtein = category === 'Proteins';
       
       menuHtml += `
-        <div class="menu-category" style="
+        <article class="menu-category" aria-labelledby="category-${category.toLowerCase().replace(/\s+/g, '-')}" style="
           background: ${isProtein ? 'linear-gradient(135deg, #FFF5E6, #FFE8CC)' : '#ffffff'};
           border: 2px solid ${isProtein ? BRAND_COLORS.gold : BRAND_COLORS.lightGray};
           border-radius: 10px;
@@ -565,8 +624,8 @@ export function generateMenuSection(lineItems: any[], bothProteinsAvailable?: bo
           box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         ">
           <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
-            <span style="font-size: 28px; line-height: 1;">${icon}</span>
-            <h4 style="
+            <span aria-hidden="true" style="font-size: 28px; line-height: 1;">${icon}</span>
+            <h4 id="category-${category.toLowerCase().replace(/\s+/g, '-')}" style="
               margin: 0;
               color: ${BRAND_COLORS.crimson};
               font-size: 18px;
@@ -614,30 +673,32 @@ export function generateMenuSection(lineItems: any[], bothProteinsAvailable?: bo
         `;
       }
       
-      menuHtml += `</div>`;
+      menuHtml += `</article>`;
     }
   });
 
-  menuHtml += `</div>`;
+  menuHtml += `</section>`;
   return menuHtml;
 }
 
 export function generateFooter(): string {
   return `
-    <div class="footer">
+    <footer class="footer" role="contentinfo">
       <h3 style="margin: 0 0 15px 0; color: ${BRAND_COLORS.crimson};">Soul Train's Eatery</h3>
       <p style="margin: 5px 0;"><strong>A Family-Run Business Since Day One</strong></p>
       <p style="margin: 5px 0;">Bringing people together around exceptional Southern food</p>
-      <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
-      <p style="margin: 5px 0;">📞 <strong>Phone:</strong> (843) 970-0265</p>
-      <p style="margin: 5px 0;">📧 <strong>Email:</strong> soultrainseatery@gmail.com</p>
+      <hr role="separator" style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
+      <address style="font-style: normal;">
+        <p style="margin: 5px 0;"><span aria-hidden="true">📞</span> <strong>Phone:</strong> <a href="tel:+18439700265" style="color: ${BRAND_COLORS.crimson}; text-decoration: none;">(843) 970-0265</a></p>
+        <p style="margin: 5px 0;"><span aria-hidden="true">📧</span> <strong>Email:</strong> <a href="mailto:soultrainseatery@gmail.com" style="color: ${BRAND_COLORS.crimson}; text-decoration: none;">soultrainseatery@gmail.com</a></p>
+      </address>
       <p style="margin: 15px 0 5px 0; font-size: 12px;">
         Proudly serving Charleston's Lowcountry and surrounding areas
       </p>
       <p style="margin: 5px 0; font-size: 12px; color: #999;">
         Trusted catering partner for weddings, graduations, military functions, corporate events & social gatherings
       </p>
-    </div>
+    </footer>
   `;
 }
 
@@ -646,15 +707,16 @@ export function generateLineItemsTable(lineItems: any[], subtotal: number, taxAm
     new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100);
 
   let tableHtml = `
-    <div style="margin: 24px 0; overflow-x: auto;">
-      <h3 style="color: ${BRAND_COLORS.crimson}; margin-bottom: 12px; font-size: 18px;">💰 Detailed Pricing Breakdown</h3>
+    <div style="margin: 24px 0; overflow-x: auto;" role="region" aria-labelledby="pricing-heading">
+      <h3 id="pricing-heading" style="color: ${BRAND_COLORS.crimson}; margin-bottom: 12px; font-size: 18px;"><span aria-hidden="true">💰</span> Detailed Pricing Breakdown</h3>
       <table class="pricing-table" style="width: 100%; min-width: 280px; border-collapse: collapse; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <caption class="sr-only">Line item pricing breakdown with quantities and totals</caption>
         <thead>
           <tr style="background: linear-gradient(135deg, ${BRAND_COLORS.crimson}, ${BRAND_COLORS.crimsonDark}); color: white;">
-            <th style="padding: 10px 8px; text-align: left; font-size: 14px;">Item</th>
-            <th style="padding: 10px 8px; text-align: right; width: 50px; font-size: 14px;">Qty</th>
-            <th style="padding: 10px 8px; text-align: right; width: 70px; font-size: 13px;">Price</th>
-            <th style="padding: 10px 8px; text-align: right; width: 70px; font-size: 14px;">Total</th>
+            <th scope="col" style="padding: 10px 8px; text-align: left; font-size: 14px;">Item</th>
+            <th scope="col" style="padding: 10px 8px; text-align: right; width: 50px; font-size: 14px;">Qty</th>
+            <th scope="col" style="padding: 10px 8px; text-align: right; width: 70px; font-size: 13px;">Price</th>
+            <th scope="col" style="padding: 10px 8px; text-align: right; width: 70px; font-size: 14px;">Total</th>
           </tr>
         </thead>
         <tbody>
@@ -677,7 +739,7 @@ export function generateLineItemsTable(lineItems: any[], subtotal: number, taxAm
 
   tableHtml += `
     <tr style="background: #f8f9fa; border-top: 2px solid ${BRAND_COLORS.gold};">
-      <td colspan="3" style="padding: 10px 8px; text-align: right; font-weight: 600; font-size: 14px;">Subtotal:</td>
+      <th scope="row" colspan="3" style="padding: 10px 8px; text-align: right; font-weight: 600; font-size: 14px;">Subtotal:</th>
       <td style="padding: 10px 8px; text-align: right; font-weight: 600; font-size: 14px;">${formatCurrency(subtotal)}</td>
     </tr>
   `;
@@ -685,7 +747,7 @@ export function generateLineItemsTable(lineItems: any[], subtotal: number, taxAm
   if (taxAmount > 0) {
     tableHtml += `
       <tr style="background: #f8f9fa;">
-        <td colspan="3" style="padding: 10px 8px; text-align: right; font-size: 14px;">Tax (8%):</td>
+        <th scope="row" colspan="3" style="padding: 10px 8px; text-align: right; font-size: 14px;">Tax (8%):</th>
         <td style="padding: 10px 8px; text-align: right; font-size: 14px;">${formatCurrency(taxAmount)}</td>
       </tr>
     `;
@@ -693,7 +755,7 @@ export function generateLineItemsTable(lineItems: any[], subtotal: number, taxAm
 
   tableHtml += `
     <tr style="background: linear-gradient(135deg, ${BRAND_COLORS.crimson}, ${BRAND_COLORS.crimsonDark}); color: white;">
-      <td colspan="3" style="padding: 12px 8px; text-align: right; font-size: 16px; font-weight: bold;">TOTAL:</td>
+      <th scope="row" colspan="3" style="padding: 12px 8px; text-align: right; font-size: 16px; font-weight: bold;">TOTAL:</th>
       <td style="padding: 12px 8px; text-align: right; font-size: 16px; font-weight: bold;">${formatCurrency(total)}</td>
     </tr>
         </tbody>
