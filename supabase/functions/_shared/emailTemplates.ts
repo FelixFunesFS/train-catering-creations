@@ -391,6 +391,62 @@ export const EMAIL_STYLES = `
       display: none;
     }
   }
+  
+  /* Dark Mode Support */
+  @media (prefers-color-scheme: dark) {
+    .email-container {
+      background: #1a1a1a !important;
+    }
+    
+    .content {
+      background: #2d2d2d !important;
+      color: #e0e0e0 !important;
+    }
+    
+    .event-card {
+      background: #3a3a3a !important;
+      color: #e0e0e0 !important;
+    }
+    
+    .menu-section {
+      background: #2d2d2d !important;
+      border-color: #4a4a4a !important;
+      color: #e0e0e0 !important;
+    }
+    
+    .menu-item {
+      border-bottom-color: #4a4a4a !important;
+      color: #e0e0e0 !important;
+    }
+    
+    table.pricing-table tbody tr {
+      color: #e0e0e0 !important;
+    }
+    
+    table.pricing-table tbody tr:nth-child(even) {
+      background: #3a3a3a !important;
+    }
+    
+    .footer {
+      background: #2d2d2d !important;
+      color: #b0b0b0 !important;
+    }
+  }
+  
+  /* High Contrast Mode Support */
+  @media (prefers-contrast: high) {
+    .btn-primary {
+      border: 3px solid #000 !important;
+    }
+    
+    .event-card {
+      border: 2px solid #000 !important;
+    }
+    
+    .menu-section {
+      border: 2px solid #000 !important;
+    }
+  }
 `;
 
 export function generateEmailHeader(title: string = "Soul Train's Eatery"): string {
@@ -454,7 +510,7 @@ export function generateEventDetailsCard(quote: any): string {
   `;
 }
 
-export function generateMenuSection(lineItems: any[]): string {
+export function generateMenuSection(lineItems: any[], bothProteinsAvailable?: boolean): string {
   if (!lineItems || lineItems.length === 0) {
     return '';
   }
@@ -469,31 +525,94 @@ export function generateMenuSection(lineItems: any[]): string {
     return acc;
   }, {});
 
+  // Category icons mapping
+  const categoryIcons: Record<string, string> = {
+    'Proteins': '🥩',
+    'Sides': '🥗',
+    'Appetizers': '🍤',
+    'Desserts': '🍰',
+    'Beverages': '🥤',
+    'Service Items': '🍴',
+    'Other Items': '📦'
+  };
+
   const categoryOrder = ['Proteins', 'Sides', 'Appetizers', 'Desserts', 'Beverages', 'Service Items', 'Other Items'];
   
   let menuHtml = `
     <div class="menu-section">
-      <h3 style="margin: 0 0 20px 0; color: ${BRAND_COLORS.crimson}; text-align: center;">
-        🍽️ Your Custom Menu
-      </h3>
+      <div style="text-align: center; margin-bottom: 24px;">
+        <h3 style="margin: 0 0 8px 0; color: ${BRAND_COLORS.crimson}; font-size: 22px;">
+          🍽️ Your Custom Menu
+        </h3>
+        <p style="margin: 0; color: #666; font-size: 14px; font-style: italic;">
+          Carefully curated Southern cuisine
+        </p>
+      </div>
   `;
 
   categoryOrder.forEach(category => {
     if (itemsByCategory[category]) {
+      const icon = categoryIcons[category] || '📦';
+      const isProtein = category === 'Proteins';
+      
       menuHtml += `
-        <div class="menu-category">
-          <h4>${category}</h4>
+        <div class="menu-category" style="
+          background: ${isProtein ? 'linear-gradient(135deg, #FFF5E6, #FFE8CC)' : '#ffffff'};
+          border: 2px solid ${isProtein ? BRAND_COLORS.gold : BRAND_COLORS.lightGray};
+          border-radius: 10px;
+          padding: 16px;
+          margin: 16px 0;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        ">
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+            <span style="font-size: 28px; line-height: 1;">${icon}</span>
+            <h4 style="
+              margin: 0;
+              color: ${BRAND_COLORS.crimson};
+              font-size: 18px;
+              flex: 1;
+              border-bottom: 2px solid ${BRAND_COLORS.gold};
+              padding-bottom: 6px;
+            ">${category}</h4>
+          </div>
       `;
       
-      itemsByCategory[category].forEach((item: any) => {
+      itemsByCategory[category].forEach((item: any, index: number) => {
         menuHtml += `
-          <div class="menu-item">
-            <strong>${item.title || item.description}</strong>
-            ${item.quantity > 1 ? ` <span style="color: #666;">(${item.quantity})</span>` : ''}
-            ${item.description && item.title ? `<br><small style="color: #666;">${item.description}</small>` : ''}
+          <div class="menu-item" style="
+            padding: 10px 0;
+            border-bottom: ${index < itemsByCategory[category].length - 1 ? '1px solid #eee' : 'none'};
+            line-height: 1.6;
+          ">
+            <div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap;">
+              <div style="flex: 1; min-width: 200px;">
+                <strong style="color: #2d2d2d; font-size: 15px;">${item.title || item.description}</strong>
+                ${item.description && item.title ? `<br><small style="color: #666; font-size: 13px; line-height: 1.4;">${item.description}</small>` : ''}
+              </div>
+              ${item.quantity > 1 ? `<span style="color: ${BRAND_COLORS.crimson}; font-weight: 600; font-size: 14px; margin-left: 10px;">×${item.quantity}</span>` : ''}
+            </div>
           </div>
         `;
       });
+      
+      // Add special badge for proteins if both are available
+      if (isProtein && bothProteinsAvailable) {
+        menuHtml += `
+          <div style="
+            background: linear-gradient(135deg, ${BRAND_COLORS.crimson}, ${BRAND_COLORS.crimsonDark});
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-top: 12px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(220, 20, 60, 0.3);
+          ">
+            ⭐ Both proteins served to all guests
+          </div>
+        `;
+      }
       
       menuHtml += `</div>`;
     }
@@ -596,6 +715,90 @@ export function generatePreheader(text: string): string {
     <div style="display:none;font-size:1px;color:#fefefe;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">
       ${text}
     </div>
+  `;
+}
+
+// Enhanced status badge helper
+export function generateStatusBadge(
+  status: 'approved' | 'rejected' | 'pending' | 'info',
+  title: string,
+  description: string
+): string {
+  const statusConfig = {
+    approved: {
+      icon: '✅',
+      gradient: `linear-gradient(135deg, #16a34a, #15803d)`,
+      borderColor: '#16a34a'
+    },
+    rejected: {
+      icon: '❌',
+      gradient: `linear-gradient(135deg, #dc2626, #b91c1c)`,
+      borderColor: '#dc2626'
+    },
+    pending: {
+      icon: '⚠️',
+      gradient: `linear-gradient(135deg, #ea580c, #c2410c)`,
+      borderColor: '#ea580c'
+    },
+    info: {
+      icon: '💡',
+      gradient: `linear-gradient(135deg, ${BRAND_COLORS.gold}, #f59e0b)`,
+      borderColor: BRAND_COLORS.gold
+    }
+  };
+
+  const config = statusConfig[status];
+
+  return `
+    <div class="status-badge" style="
+      background: ${config.gradient};
+      color: white;
+      padding: 20px;
+      border-radius: 12px;
+      margin: 25px 0;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    ">
+      <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+        <div style="font-size: 48px; min-width: 60px; text-align: center; line-height: 1;">
+          ${config.icon}
+        </div>
+        <div style="flex: 1; min-width: 200px;">
+          <h3 style="margin: 0 0 8px 0; color: white; font-size: 20px; font-weight: bold;">
+            ${title}
+          </h3>
+          <p style="margin: 0; color: rgba(255,255,255,0.95); font-size: 15px; line-height: 1.5;">
+            ${description}
+          </p>
+        </div>
+      </div>
+    </div>
+    
+    <style>
+      @media only screen and (max-width: 480px) {
+        .status-badge {
+          padding: 18px 16px !important;
+        }
+        .status-badge > div {
+          flex-direction: column !important;
+          text-align: center !important;
+        }
+        .status-badge h3 {
+          font-size: 18px !important;
+        }
+        .status-badge p {
+          font-size: 14px !important;
+        }
+      }
+      
+      @media only screen and (max-width: 360px) {
+        .status-badge {
+          padding: 16px 12px !important;
+        }
+        .status-badge > div > div:first-child {
+          font-size: 36px !important;
+        }
+      }
+    </style>
   `;
 }
 
