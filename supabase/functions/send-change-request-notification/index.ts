@@ -148,14 +148,14 @@ function generateResponseEmail(options: EmailOptions): string {
           💡 <em>Your estimate link remains the same - no new link needed!</em>
         </p>
       `;
-      if (estimateLink) {
+        if (estimateLink) {
         ctaButton = `
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${estimateLink}" class="btn btn-primary" style="background: linear-gradient(135deg, ${BRAND_COLORS.crimson}, ${BRAND_COLORS.crimsonDark}); color: white; padding: 18px 40px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; min-height: 48px; line-height: 1.4; font-size: 16px; box-shadow: 0 4px 12px rgba(220, 20, 60, 0.3); mso-padding-alt: 18px 40px;">
+            <a href="${estimateLink}" class="btn btn-primary" role="button" aria-label="View your updated estimate" style="background: linear-gradient(135deg, ${BRAND_COLORS.crimson}, ${BRAND_COLORS.crimsonDark}); color: white; padding: 18px 40px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; min-height: 48px; line-height: 1.4; font-size: 16px; box-shadow: 0 4px 12px rgba(220, 20, 60, 0.3); mso-padding-alt: 18px 40px;">
               View Updated Estimate
             </a>
             <p style="margin-top: 15px; color: #6b7280; font-size: 13px;">
-              🔗 Bookmark this link - it's your permanent estimate portal
+              <span aria-hidden="true">🔗</span> Bookmark this link - it's your permanent estimate portal
             </p>
           </div>
         `;
@@ -194,11 +194,12 @@ function generateResponseEmail(options: EmailOptions): string {
 
   return `
     <!DOCTYPE html>
-    <html>
+    <html lang="en">
     <head>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <title>Change Request ${action === 'approved' ? 'Approved' : action === 'rejected' ? 'Update' : 'Information Needed'} - ${eventName}</title>
       <style>${EMAIL_STYLES}</style>
       <style>
         /* Enhanced mobile responsiveness for change request emails */
@@ -268,28 +269,28 @@ function generateResponseEmail(options: EmailOptions): string {
     <body style="margin: 0; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f3f4f6;">
       ${generatePreheader(preheaderText)}
       
-      <div class="email-container" style="max-width: 600px; margin: 0 auto; background: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+      <div class="email-container" role="main" style="max-width: 600px; margin: 0 auto; background: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
         
         ${generateEmailHeader("Soul Train's Eatery")}
         
         <div class="content">
-          <h2 style="color: #1f2937; margin-top: 0; font-size: 24px;">Hello ${customerName},</h2>
+          <h2 style="color: #1f2937; margin-top: 0; font-size: 24px;">Hello <span>${customerName}</span>,</h2>
           
           <p style="color: #4b5563; font-size: 16px; line-height: 1.6; margin: 12px 0;">
             We've reviewed your change request for <strong>${eventName}</strong>.
           </p>
           
           <!-- Status Card -->
-          <div class="status-card">
+          <section class="status-card" aria-labelledby="status-heading">
             <div class="status-content">
-              <div class="status-icon">${statusIcon}</div>
+              <div class="status-icon" aria-hidden="true">${statusIcon}</div>
               <div class="status-text">
-                <h3 style="margin: 0 0 8px 0; color: #374151; font-size: 18px; line-height: 1.3;">
+                <h3 id="status-heading" style="margin: 0 0 8px 0; color: #374151; font-size: 18px; line-height: 1.3;">
                   Request Status: <span style="color: ${BRAND_COLORS.crimson}; font-weight: bold;">${statusMessage}</span>
                 </h3>
               </div>
             </div>
-          </div>
+          </section>
           
           <!-- Next Steps -->
           <div style="color: #4b5563; font-size: 16px; line-height: 1.6; margin-top: 24px;">
@@ -300,15 +301,17 @@ function generateResponseEmail(options: EmailOptions): string {
           ${ctaButton}
           
           <!-- Contact Info -->
-          <div style="margin-top: 40px; padding-top: 25px; border-top: 2px solid #e5e7eb;">
+          <aside style="margin-top: 40px; padding-top: 25px; border-top: 2px solid #e5e7eb;">
             <p style="margin: 0 0 15px 0; color: #1f2937; font-weight: bold; font-size: 16px;">Need to discuss this?</p>
-            <p style="margin: 5px 0; color: #4b5563; font-size: 15px;">
-              📞 Call us at <a href="tel:8439700265" style="color: ${BRAND_COLORS.crimson}; text-decoration: none; font-weight: bold;">(843) 970-0265</a>
-            </p>
-            <p style="margin: 5px 0; color: #4b5563; font-size: 15px;">
-              ✉️ Email us at <a href="mailto:soultrainseatery@gmail.com" style="color: ${BRAND_COLORS.crimson}; text-decoration: none; font-weight: bold;">soultrainseatery@gmail.com</a>
-            </p>
-          </div>
+            <address style="font-style: normal;">
+              <p style="margin: 5px 0; color: #4b5563; font-size: 15px;">
+                <span aria-hidden="true">📞</span> Call us at <a href="tel:+18439700265" style="color: ${BRAND_COLORS.crimson}; text-decoration: none; font-weight: bold;" aria-label="Call us at (843) 970-0265">(843) 970-0265</a>
+              </p>
+              <p style="margin: 5px 0; color: #4b5563; font-size: 15px;">
+                <span aria-hidden="true">✉️</span> Email us at <a href="mailto:soultrainseatery@gmail.com" style="color: ${BRAND_COLORS.crimson}; text-decoration: none; font-weight: bold;" aria-label="Email us at soultrainseatery@gmail.com">soultrainseatery@gmail.com</a>
+              </p>
+            </address>
+          </aside>
         </div>
         
         ${generateFooter()}

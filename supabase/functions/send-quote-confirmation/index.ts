@@ -120,22 +120,23 @@ const handler = async (req: Request): Promise<Response> => {
     
     const emailBody = `
       <!DOCTYPE html>
-      <html>
+      <html lang="en">
       <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Quote Request Received - ${quote.event_name}</title>
         <style>${EMAIL_STYLES}</style>
       </head>
       <body>
         ${generatePreheader(preheaderText)}
         
-        <div class="email-container">
+        <div class="email-container" role="main">
           <div style="background: linear-gradient(135deg, ${BRAND_COLORS.crimson}, ${BRAND_COLORS.crimsonDark}); padding: 25px; border-radius: 8px; margin-bottom: 25px; text-align: center;">
             <div style="background: rgba(255,215,0,0.2); display: inline-block; padding: 8px 16px; border-radius: 20px; margin-bottom: 15px;">
-              <span style="color: white; font-weight: bold; font-size: 14px;">🍽️ QUOTE RECEIVED</span>
+              <span style="color: white; font-weight: bold; font-size: 14px;"><span aria-label="plate with food">🍽️</span> QUOTE RECEIVED</span>
             </div>
-            <h2 style="color: white; margin: 0 0 10px 0; font-size: 24px;">✓ Quote Request Received!</h2>
+            <h2 style="color: white; margin: 0 0 10px 0; font-size: 24px;"><span aria-hidden="true">✓</span> Quote Request Received!</h2>
             <p style="color: white; margin: 0; font-size: 16px; opacity: 0.95;">
               Hi ${quote.contact_name},<br><br>
               Thank you for choosing Soul Train's Eatery! We've received your quote request and our team is excited to make your event exceptional.
@@ -160,15 +161,15 @@ const handler = async (req: Request): Promise<Response> => {
               <p style="margin: 15px 0 5px 0; font-size: 14px; color: ${BRAND_COLORS.crimson};"><strong>Reference ID:</strong> #${quote_id.slice(0, 8).toUpperCase()}</p>
             </div>
 
-            <div style="margin: 30px 0;">
-              <h3 style="color: ${BRAND_COLORS.crimson};">What Happens Next?</h3>
+            <nav aria-labelledby="next-steps-heading" style="margin: 30px 0;">
+              <h3 id="next-steps-heading" style="color: ${BRAND_COLORS.crimson};">What Happens Next?</h3>
               <ol style="color: ${BRAND_COLORS.darkGray}; line-height: 1.8; padding-left: 20px;">
                 <li><strong style="color: ${BRAND_COLORS.crimson};">Review (You are here!)</strong> - Our team is carefully reviewing your request</li>
                 <li><strong style="color: ${BRAND_COLORS.crimson};">Detailed Estimate</strong> - You'll receive a comprehensive estimate with pricing within 48 hours</li>
                 <li><strong style="color: ${BRAND_COLORS.crimson};">Optional Consultation</strong> - We're happy to discuss any details by phone</li>
                 <li><strong style="color: ${BRAND_COLORS.crimson};">Finalization</strong> - Once approved, we'll handle all the details for your special day</li>
               </ol>
-            </div>
+            </nav>
 
             <div style="background: linear-gradient(135deg, ${BRAND_COLORS.crimson}, ${BRAND_COLORS.crimsonDark}); padding: 25px; border-radius: 8px; margin: 25px 0; text-align: center;">
               <h3 style="color: white; margin: 0 0 15px 0;">📅 Next Steps</h3>
@@ -178,13 +179,15 @@ const handler = async (req: Request): Promise<Response> => {
               </p>
             </div>
 
-            <div style="border-top: 3px solid ${BRAND_COLORS.gold}; padding-top: 20px; margin-top: 30px; text-align: center;">
+            <aside style="border-top: 3px solid ${BRAND_COLORS.gold}; padding-top: 20px; margin-top: 30px; text-align: center;">
               <h3 style="color: ${BRAND_COLORS.crimson}; margin-top: 0;">Questions? We're Here to Help!</h3>
-              <p style="color: ${BRAND_COLORS.darkGray}; margin: 10px 0; font-size: 16px;">
-                📞 <a href="tel:8439700265" style="color: ${BRAND_COLORS.crimson}; text-decoration: none; font-weight: bold;">(843) 970-0265</a><br>
-                📧 <a href="mailto:soultrainseatery@gmail.com" style="color: ${BRAND_COLORS.crimson}; text-decoration: none; font-weight: bold;">soultrainseatery@gmail.com</a>
-              </p>
-            </div>
+              <address style="font-style: normal;">
+                <p style="color: ${BRAND_COLORS.darkGray}; margin: 10px 0; font-size: 16px;">
+                  <span aria-hidden="true">📞</span> <a href="tel:+18439700265" style="color: ${BRAND_COLORS.crimson}; text-decoration: none; font-weight: bold;" aria-label="Call us at (843) 970-0265">(843) 970-0265</a><br>
+                  <span aria-hidden="true">📧</span> <a href="mailto:soultrainseatery@gmail.com" style="color: ${BRAND_COLORS.crimson}; text-decoration: none; font-weight: bold;" aria-label="Email us at soultrainseatery@gmail.com">soultrainseatery@gmail.com</a>
+                </p>
+              </address>
+            </aside>
           </div>
           
           ${generateFooter()}

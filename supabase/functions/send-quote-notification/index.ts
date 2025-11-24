@@ -104,28 +104,29 @@ const handler = async (req: Request): Promise<Response> => {
     // Admin notification email with comprehensive details and brand colors
     const adminEmailHtml = `
       <!DOCTYPE html>
-      <html>
+      <html lang="en">
       <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>New Quote Request from ${requestData.contact_name}</title>
         <style>${EMAIL_STYLES}</style>
       </head>
       <body>
         ${generatePreheader(preheaderText)}
         
-        <div class="email-container">
+        <div class="email-container" role="main">
           <div style="background: linear-gradient(135deg, ${BRAND_COLORS.crimson}, ${BRAND_COLORS.crimsonDark}); padding: 25px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
             <div style="background: rgba(255,215,0,0.2); display: inline-block; padding: 8px 16px; border-radius: 20px; margin-bottom: 15px;">
-              <span style="color: white; font-weight: bold; font-size: 14px;">🚂 NEW QUOTE SUBMISSION</span>
+              <span style="color: white; font-weight: bold; font-size: 14px;"><span aria-label="Soul Train">🚂</span> NEW QUOTE SUBMISSION</span>
             </div>
-            <h2 style="color: white; margin: 0 0 10px 0; font-size: 24px;">📧 New Quote Request From:</h2>
+            <h2 style="color: white; margin: 0 0 10px 0; font-size: 24px;"><span aria-hidden="true">📧</span> New Quote Request From:</h2>
             <h3 style="color: white; margin: 0; font-size: 24px;">${requestData.contact_name}</h3>
             <p style="color: white; margin: 5px 0; font-size: 16px;">
-              📧 ${requestData.email} | 📞 ${requestData.phone}
+              <span aria-hidden="true">📧</span> <a href="mailto:${requestData.email}" style="color: white; text-decoration: none;">${requestData.email}</a> | <span aria-hidden="true">📞</span> <a href="tel:${requestData.phone}" style="color: white; text-decoration: none;">${requestData.phone}</a>
             </p>
             <p style="color: white; margin: 15px 0 0 0; font-size: 14px; opacity: 0.9;">
-              <a href="mailto:${requestData.email}" style="color: white; text-decoration: underline;">
+              <a href="mailto:${requestData.email}" style="color: white; text-decoration: underline;" aria-label="Reply directly to ${requestData.contact_name}">
                 Click to reply directly to customer →
               </a>
             </p>
@@ -133,14 +134,14 @@ const handler = async (req: Request): Promise<Response> => {
           </div>
           
           <div class="content">
-            <div style="background: linear-gradient(135deg, ${BRAND_COLORS.gold}, ${BRAND_COLORS.goldLight}); padding: 20px; border-radius: 8px; margin-bottom: 25px;">
-              <h2 style="color: ${BRAND_COLORS.darkGray}; margin: 0 0 10px 0;">📋 Customer Details</h2>
-              <table style="width: 100%;">
+            <section style="background: linear-gradient(135deg, ${BRAND_COLORS.gold}, ${BRAND_COLORS.goldLight}); padding: 20px; border-radius: 8px; margin-bottom: 25px;" aria-labelledby="customer-details-heading">
+              <h2 id="customer-details-heading" style="color: ${BRAND_COLORS.darkGray}; margin: 0 0 10px 0;"><span aria-hidden="true">📋</span> Customer Details</h2>
+              <table role="presentation" style="width: 100%;">
                 <tr><td style="padding: 5px 0;"><strong>Name:</strong></td><td>${requestData.contact_name}</td></tr>
-                <tr><td style="padding: 5px 0;"><strong>Email:</strong></td><td><a href="mailto:${requestData.email}" style="color: ${BRAND_COLORS.crimson};">${requestData.email}</a></td></tr>
-                <tr><td style="padding: 5px 0;"><strong>Phone:</strong></td><td><a href="tel:${requestData.phone}" style="color: ${BRAND_COLORS.crimson};">${requestData.phone}</a></td></tr>
+                <tr><td style="padding: 5px 0;"><strong>Email:</strong></td><td><a href="mailto:${requestData.email}" style="color: ${BRAND_COLORS.crimson};" aria-label="Email ${requestData.contact_name}">${requestData.email}</a></td></tr>
+                <tr><td style="padding: 5px 0;"><strong>Phone:</strong></td><td><a href="tel:${requestData.phone}" style="color: ${BRAND_COLORS.crimson};" aria-label="Call ${requestData.contact_name}">${requestData.phone}</a></td></tr>
               </table>
-            </div>
+            </section>
 
             ${generateEventDetailsCard(requestData)}
             
@@ -174,7 +175,7 @@ const handler = async (req: Request): Promise<Response> => {
             ` : ''}
 
             <div style="text-align: center; margin-top: 30px;">
-              <a href="https://qptprrqjlcvfkhfdnnoa.supabase.co/admin/workflow" class="btn btn-primary">
+              <a href="https://qptprrqjlcvfkhfdnnoa.supabase.co/admin/workflow" class="btn btn-primary" role="button" aria-label="View quote request in admin dashboard">
                 View in Admin Dashboard →
               </a>
             </div>
