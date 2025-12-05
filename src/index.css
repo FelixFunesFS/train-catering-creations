@@ -1,6 +1,107 @@
-
 @import './styles/print.css';
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=Dancing+Script:wght@400;500;600;700&display=swap');
+
+/* React Big Calendar Theme Override */
+.rbc-calendar {
+  font-family: inherit;
+}
+
+.rbc-header {
+  padding: 8px 4px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: hsl(var(--foreground));
+  background: hsl(var(--muted));
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.rbc-month-view,
+.rbc-time-view {
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.rbc-day-bg {
+  background: hsl(var(--background));
+}
+
+.rbc-day-bg.rbc-today {
+  background: hsl(var(--primary) / 0.05);
+}
+
+.rbc-off-range-bg {
+  background: hsl(var(--muted) / 0.5);
+}
+
+.rbc-date-cell {
+  padding: 4px 8px;
+  font-size: 0.875rem;
+  color: hsl(var(--foreground));
+}
+
+.rbc-date-cell.rbc-now {
+  font-weight: 700;
+  color: hsl(var(--primary));
+}
+
+.rbc-event {
+  border-radius: 4px;
+  font-size: 0.75rem;
+  padding: 2px 6px;
+}
+
+.rbc-event:focus {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+.rbc-show-more {
+  color: hsl(var(--primary));
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.rbc-toolbar {
+  display: none; /* We use custom toolbar */
+}
+
+.rbc-month-row {
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.rbc-day-slot .rbc-time-slot {
+  border-top: 1px solid hsl(var(--border) / 0.5);
+}
+
+.rbc-time-header-content {
+  border-left: 1px solid hsl(var(--border));
+}
+
+.rbc-time-content {
+  border-top: 1px solid hsl(var(--border));
+}
+
+.rbc-time-gutter .rbc-time-slot {
+  font-size: 0.75rem;
+  color: hsl(var(--muted-foreground));
+}
+
+.rbc-current-time-indicator {
+  background-color: hsl(var(--primary));
+}
+
+.dark .rbc-header {
+  background: hsl(var(--card));
+}
+
+.dark .rbc-day-bg {
+  background: hsl(var(--background));
+}
+
+.dark .rbc-off-range-bg {
+  background: hsl(var(--card) / 0.3);
+}
 
 @tailwind base;
 @tailwind components;

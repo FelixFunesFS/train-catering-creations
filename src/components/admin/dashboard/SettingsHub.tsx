@@ -1,0 +1,38 @@
+import { useState } from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Wrench, FolderOpen, Users } from 'lucide-react';
+import { EdgeFunctionTester } from '../EdgeFunctionTester';
+import { TestingDashboard } from '../testing/TestingDashboard';
+import { DocumentManagementPanel } from '../DocumentManagementPanel';
+
+type SettingsTab = 'testing' | 'documents';
+
+export function SettingsHub() {
+  const [activeTab, setActiveTab] = useState<SettingsTab>('testing');
+
+  return (
+    <div className="container mx-auto px-4 py-6">
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as SettingsTab)} className="space-y-6">
+        <TabsList className="grid w-full max-w-sm grid-cols-2">
+          <TabsTrigger value="testing" className="gap-2">
+            <Wrench className="h-4 w-4" />
+            <span className="hidden sm:inline">Testing</span>
+          </TabsTrigger>
+          <TabsTrigger value="documents" className="gap-2">
+            <FolderOpen className="h-4 w-4" />
+            <span className="hidden sm:inline">Documents</span>
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="testing" className="mt-0 space-y-6">
+          <EdgeFunctionTester />
+          <TestingDashboard />
+        </TabsContent>
+
+        <TabsContent value="documents" className="mt-0">
+          <DocumentManagementPanel />
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}
