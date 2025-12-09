@@ -146,6 +146,9 @@ verify_jwt = false
 [functions.send-admin-notification]
 verify_jwt = false
 
+[functions.send-payment-reminder]
+verify_jwt = false
+
 [edge-runtime]
 enabled = true
 ip_version = "dual"
