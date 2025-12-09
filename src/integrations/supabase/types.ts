@@ -53,6 +53,13 @@ export type Database = {
             foreignKeyName: "admin_notes_quote_request_id_fkey"
             columns: ["quote_request_id"]
             isOneToOne: false
+            referencedRelation: "invoice_payment_summary"
+            referencedColumns: ["quote_id"]
+          },
+          {
+            foreignKeyName: "admin_notes_quote_request_id_fkey"
+            columns: ["quote_request_id"]
+            isOneToOne: false
             referencedRelation: "quote_requests"
             referencedColumns: ["id"]
           },
@@ -223,6 +230,13 @@ export type Database = {
             foreignKeyName: "calendar_events_quote_request_id_fkey"
             columns: ["quote_request_id"]
             isOneToOne: false
+            referencedRelation: "invoice_payment_summary"
+            referencedColumns: ["quote_id"]
+          },
+          {
+            foreignKeyName: "calendar_events_quote_request_id_fkey"
+            columns: ["quote_request_id"]
+            isOneToOne: false
             referencedRelation: "quote_requests"
             referencedColumns: ["id"]
           },
@@ -288,6 +302,13 @@ export type Database = {
             foreignKeyName: "change_requests_invoice_id_fkey"
             columns: ["invoice_id"]
             isOneToOne: false
+            referencedRelation: "invoice_payment_summary"
+            referencedColumns: ["invoice_id"]
+          },
+          {
+            foreignKeyName: "change_requests_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
             referencedRelation: "invoices"
             referencedColumns: ["id"]
           },
@@ -344,6 +365,13 @@ export type Database = {
             foreignKeyName: "contracts_invoice_id_fkey"
             columns: ["invoice_id"]
             isOneToOne: false
+            referencedRelation: "invoice_payment_summary"
+            referencedColumns: ["invoice_id"]
+          },
+          {
+            foreignKeyName: "contracts_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
             referencedRelation: "invoices"
             referencedColumns: ["id"]
           },
@@ -387,6 +415,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "customers_quote_request_id_fkey"
+            columns: ["quote_request_id"]
+            isOneToOne: false
+            referencedRelation: "invoice_payment_summary"
+            referencedColumns: ["quote_id"]
+          },
           {
             foreignKeyName: "customers_quote_request_id_fkey"
             columns: ["quote_request_id"]
@@ -484,6 +519,13 @@ export type Database = {
             foreignKeyName: "estimate_versions_invoice_id_fkey"
             columns: ["invoice_id"]
             isOneToOne: false
+            referencedRelation: "invoice_payment_summary"
+            referencedColumns: ["invoice_id"]
+          },
+          {
+            foreignKeyName: "estimate_versions_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
             referencedRelation: "invoices"
             referencedColumns: ["id"]
           },
@@ -540,6 +582,13 @@ export type Database = {
             foreignKeyName: "event_documents_quote_request_id_fkey"
             columns: ["quote_request_id"]
             isOneToOne: false
+            referencedRelation: "invoice_payment_summary"
+            referencedColumns: ["quote_id"]
+          },
+          {
+            foreignKeyName: "event_documents_quote_request_id_fkey"
+            columns: ["quote_request_id"]
+            isOneToOne: false
             referencedRelation: "quote_requests"
             referencedColumns: ["id"]
           },
@@ -589,6 +638,13 @@ export type Database = {
           task_type?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "event_timeline_tasks_quote_request_id_fkey"
+            columns: ["quote_request_id"]
+            isOneToOne: false
+            referencedRelation: "invoice_payment_summary"
+            referencedColumns: ["quote_id"]
+          },
           {
             foreignKeyName: "event_timeline_tasks_quote_request_id_fkey"
             columns: ["quote_request_id"]
@@ -676,6 +732,13 @@ export type Database = {
             foreignKeyName: "government_contracts_quote_request_id_fkey"
             columns: ["quote_request_id"]
             isOneToOne: false
+            referencedRelation: "invoice_payment_summary"
+            referencedColumns: ["quote_id"]
+          },
+          {
+            foreignKeyName: "government_contracts_quote_request_id_fkey"
+            columns: ["quote_request_id"]
+            isOneToOne: false
             referencedRelation: "quote_requests"
             referencedColumns: ["id"]
           },
@@ -710,6 +773,13 @@ export type Database = {
           old_value?: Json | null
         }
         Relationships: [
+          {
+            foreignKeyName: "invoice_audit_log_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoice_payment_summary"
+            referencedColumns: ["invoice_id"]
+          },
           {
             foreignKeyName: "invoice_audit_log_invoice_id_fkey"
             columns: ["invoice_id"]
@@ -757,6 +827,13 @@ export type Database = {
           unit_price?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "invoice_line_items_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoice_payment_summary"
+            referencedColumns: ["invoice_id"]
+          },
           {
             foreignKeyName: "invoice_line_items_invoice_id_fkey"
             columns: ["invoice_id"]
@@ -827,6 +904,7 @@ export type Database = {
           is_draft: boolean | null
           is_milestone_payment: boolean | null
           last_customer_interaction: string | null
+          last_reminder_sent_at: string | null
           last_status_change: string | null
           notes: string | null
           paid_at: string | null
@@ -834,6 +912,7 @@ export type Database = {
           payment_schedule_type: string | null
           pdf_url: string | null
           quote_request_id: string | null
+          reminder_count: number | null
           requires_separate_contract: boolean | null
           reviewed_at: string | null
           reviewed_by: string | null
@@ -865,6 +944,7 @@ export type Database = {
           is_draft?: boolean | null
           is_milestone_payment?: boolean | null
           last_customer_interaction?: string | null
+          last_reminder_sent_at?: string | null
           last_status_change?: string | null
           notes?: string | null
           paid_at?: string | null
@@ -872,6 +952,7 @@ export type Database = {
           payment_schedule_type?: string | null
           pdf_url?: string | null
           quote_request_id?: string | null
+          reminder_count?: number | null
           requires_separate_contract?: boolean | null
           reviewed_at?: string | null
           reviewed_by?: string | null
@@ -903,6 +984,7 @@ export type Database = {
           is_draft?: boolean | null
           is_milestone_payment?: boolean | null
           last_customer_interaction?: string | null
+          last_reminder_sent_at?: string | null
           last_status_change?: string | null
           notes?: string | null
           paid_at?: string | null
@@ -910,6 +992,7 @@ export type Database = {
           payment_schedule_type?: string | null
           pdf_url?: string | null
           quote_request_id?: string | null
+          reminder_count?: number | null
           requires_separate_contract?: boolean | null
           reviewed_at?: string | null
           reviewed_by?: string | null
@@ -940,6 +1023,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "customers"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_quote_request_id_fkey"
+            columns: ["quote_request_id"]
+            isOneToOne: false
+            referencedRelation: "invoice_payment_summary"
+            referencedColumns: ["quote_id"]
           },
           {
             foreignKeyName: "invoices_quote_request_id_fkey"
@@ -979,6 +1069,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "message_threads_quote_request_id_fkey"
+            columns: ["quote_request_id"]
+            isOneToOne: false
+            referencedRelation: "invoice_payment_summary"
+            referencedColumns: ["quote_id"]
+          },
           {
             foreignKeyName: "message_threads_quote_request_id_fkey"
             columns: ["quote_request_id"]
@@ -1086,6 +1183,13 @@ export type Database = {
             foreignKeyName: "payment_history_invoice_id_fkey"
             columns: ["invoice_id"]
             isOneToOne: false
+            referencedRelation: "invoice_payment_summary"
+            referencedColumns: ["invoice_id"]
+          },
+          {
+            foreignKeyName: "payment_history_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
             referencedRelation: "invoices"
             referencedColumns: ["id"]
           },
@@ -1145,6 +1249,13 @@ export type Database = {
             foreignKeyName: "payment_milestones_invoice_id_fkey"
             columns: ["invoice_id"]
             isOneToOne: false
+            referencedRelation: "invoice_payment_summary"
+            referencedColumns: ["invoice_id"]
+          },
+          {
+            foreignKeyName: "payment_milestones_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
             referencedRelation: "invoices"
             referencedColumns: ["id"]
           },
@@ -1183,6 +1294,13 @@ export type Database = {
             foreignKeyName: "payment_schedule_audit_invoice_id_fkey"
             columns: ["invoice_id"]
             isOneToOne: false
+            referencedRelation: "invoice_payment_summary"
+            referencedColumns: ["invoice_id"]
+          },
+          {
+            foreignKeyName: "payment_schedule_audit_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
             referencedRelation: "invoices"
             referencedColumns: ["id"]
           },
@@ -1198,6 +1316,7 @@ export type Database = {
           failed_reason: string | null
           id: string
           invoice_id: string | null
+          milestone_id: string | null
           payment_method: string | null
           payment_type: string
           processed_at: string | null
@@ -1215,6 +1334,7 @@ export type Database = {
           failed_reason?: string | null
           id?: string
           invoice_id?: string | null
+          milestone_id?: string | null
           payment_method?: string | null
           payment_type: string
           processed_at?: string | null
@@ -1232,6 +1352,7 @@ export type Database = {
           failed_reason?: string | null
           id?: string
           invoice_id?: string | null
+          milestone_id?: string | null
           payment_method?: string | null
           payment_type?: string
           processed_at?: string | null
@@ -1245,7 +1366,21 @@ export type Database = {
             foreignKeyName: "payment_transactions_invoice_id_fkey"
             columns: ["invoice_id"]
             isOneToOne: false
+            referencedRelation: "invoice_payment_summary"
+            referencedColumns: ["invoice_id"]
+          },
+          {
+            foreignKeyName: "payment_transactions_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
             referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_transactions_milestone_id_fkey"
+            columns: ["milestone_id"]
+            isOneToOne: false
+            referencedRelation: "payment_milestones"
             referencedColumns: ["id"]
           },
         ]
@@ -1363,6 +1498,13 @@ export type Database = {
           quote_request_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "quote_request_history_quote_request_id_fkey"
+            columns: ["quote_request_id"]
+            isOneToOne: false
+            referencedRelation: "invoice_payment_summary"
+            referencedColumns: ["quote_id"]
+          },
           {
             foreignKeyName: "quote_request_history_quote_request_id_fkey"
             columns: ["quote_request_id"]
@@ -1567,6 +1709,13 @@ export type Database = {
             foreignKeyName: "reminder_logs_invoice_id_fkey"
             columns: ["invoice_id"]
             isOneToOne: false
+            referencedRelation: "invoice_payment_summary"
+            referencedColumns: ["invoice_id"]
+          },
+          {
+            foreignKeyName: "reminder_logs_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
             referencedRelation: "invoices"
             referencedColumns: ["id"]
           },
@@ -1670,7 +1819,30 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      invoice_payment_summary: {
+        Row: {
+          balance_remaining: number | null
+          contact_name: string | null
+          days_overdue: number | null
+          due_date: string | null
+          email: string | null
+          event_date: string | null
+          event_name: string | null
+          invoice_created_at: string | null
+          invoice_id: string | null
+          invoice_number: string | null
+          last_reminder_sent_at: string | null
+          phone: string | null
+          quote_id: string | null
+          reminder_count: number | null
+          total_amount: number | null
+          total_paid: number | null
+          workflow_status:
+            | Database["public"]["Enums"]["invoice_workflow_status"]
+            | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       can_access_estimate: {
