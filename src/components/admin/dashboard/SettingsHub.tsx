@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Wrench, FolderOpen, Users } from 'lucide-react';
-import { EdgeFunctionTester } from '../EdgeFunctionTester';
-import { TestingDashboard } from '../testing/TestingDashboard';
+import { Wrench, FolderOpen } from 'lucide-react';
+import { EnhancedTestingDashboard } from '../testing/EnhancedTestingDashboard';
 import { DocumentManagementPanel } from '../DocumentManagementPanel';
 
 type SettingsTab = 'testing' | 'documents';
@@ -24,9 +23,8 @@ export function SettingsHub() {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="testing" className="mt-0 space-y-6">
-          <EdgeFunctionTester />
-          <TestingDashboard />
+        <TabsContent value="testing" className="mt-0">
+          <EnhancedTestingDashboard />
         </TabsContent>
 
         <TabsContent value="documents" className="mt-0">
