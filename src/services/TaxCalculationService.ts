@@ -1,9 +1,16 @@
 /**
  * Centralized Tax Calculation Service
  * Single source of truth for all tax-related calculations
+ * 
+ * Tax Breakdown:
+ * - Hospitality Tax: 2%
+ * - Service Tax: 7%
+ * - Total: 9%
  */
 
-const DEFAULT_TAX_RATE = 0.08; // 8% South Carolina sales tax
+const HOSPITALITY_TAX_RATE = 0.02; // 2% hospitality tax
+const SERVICE_TAX_RATE = 0.07; // 7% service tax
+const DEFAULT_TAX_RATE = 0.09; // Combined 9% total tax
 
 export interface TaxCalculation {
   subtotal: number;
@@ -13,9 +20,16 @@ export interface TaxCalculation {
   isExempt: boolean;
 }
 
+export interface DetailedTaxCalculation extends TaxCalculation {
+  hospitalityTax: number;
+  hospitalityTaxRate: number;
+  serviceTax: number;
+  serviceTaxRate: number;
+}
+
 export class TaxCalculationService {
   /**
-   * Calculate tax for an invoice
+   * Calculate tax for an invoice (simple version)
    * @param subtotal - Subtotal in cents
    * @param isGovernmentContract - Whether this is a tax-exempt government contract
    * @returns Tax calculation details
@@ -36,10 +50,62 @@ export class TaxCalculationService {
   }
 
   /**
+   * Calculate tax with detailed breakdown (hospitality + service)
+   * @param subtotal - Subtotal in cents
+   * @param isGovernmentContract - Whether this is a tax-exempt government contract
+   * @param customHospitalityRate - Optional custom hospitality rate (default 2%)
+   * @param customServiceRate - Optional custom service rate (default 7%)
+   * @returns Detailed tax calculation with breakdown
+   */
+  static calculateDetailedTax(
+    subtotal: number, 
+    isGovernmentContract: boolean = false,
+    customHospitalityRate?: number,
+    customServiceRate?: number
+  ): DetailedTaxCalculation {
+    const isExempt = isGovernmentContract;
+    
+    const hospitalityTaxRate = isExempt ? 0 : (customHospitalityRate ?? HOSPITALITY_TAX_RATE);
+    const serviceTaxRate = isExempt ? 0 : (customServiceRate ?? SERVICE_TAX_RATE);
+    const taxRate = hospitalityTaxRate + serviceTaxRate;
+    
+    const hospitalityTax = isExempt ? 0 : Math.round(subtotal * hospitalityTaxRate);
+    const serviceTax = isExempt ? 0 : Math.round(subtotal * serviceTaxRate);
+    const taxAmount = hospitalityTax + serviceTax;
+    const totalAmount = subtotal + taxAmount;
+
+    return {
+      subtotal,
+      taxAmount,
+      totalAmount,
+      taxRate,
+      isExempt,
+      hospitalityTax,
+      hospitalityTaxRate,
+      serviceTax,
+      serviceTaxRate
+    };
+  }
+
+  /**
    * Get the default tax rate (for display purposes)
    */
   static getDefaultTaxRate(): number {
     return DEFAULT_TAX_RATE;
+  }
+
+  /**
+   * Get the hospitality tax rate
+   */
+  static getHospitalityTaxRate(): number {
+    return HOSPITALITY_TAX_RATE;
+  }
+
+  /**
+   * Get the service tax rate
+   */
+  static getServiceTaxRate(): number {
+    return SERVICE_TAX_RATE;
   }
 
   /**

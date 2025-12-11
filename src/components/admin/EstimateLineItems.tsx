@@ -9,6 +9,7 @@ import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { TaxCalculationService } from '@/services/TaxCalculationService';
 import { 
   DollarSign,
   Plus,
@@ -37,31 +38,45 @@ export function EstimateLineItems({
   invoiceId 
 }: EstimateLineItemsProps) {
   const [editingItem, setEditingItem] = useState<string | null>(null);
-  const [taxRate, setTaxRate] = useState(8.0);
+  const [hospitalityTaxRate, setHospitalityTaxRate] = useState(2.0); // 2%
+  const [serviceTaxRate, setServiceTaxRate] = useState(7.0); // 7%
   const [editingValues, setEditingValues] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  // Calculate totals when line items or tax rate changes
+  // Total tax rate
+  const totalTaxRate = hospitalityTaxRate + serviceTaxRate;
+
+  // Calculate totals when line items or tax rates change
   useEffect(() => {
     if (!estimate) return;
     
     const subtotal = estimate.line_items.reduce((sum: number, item: LineItem) => sum + item.total_price, 0);
-    const tax_amount = Math.round(subtotal * (taxRate / 100));
-    const total_amount = subtotal + tax_amount;
-    const deposit_required = isGovernmentContract ? 0 : Math.round(total_amount * 0.25);
+    
+    // Use detailed tax calculation
+    const taxCalc = TaxCalculationService.calculateDetailedTax(
+      subtotal,
+      isGovernmentContract,
+      hospitalityTaxRate / 100,
+      serviceTaxRate / 100
+    );
+    
+    // Standard schedule: 10% deposit for booking
+    const deposit_required = isGovernmentContract ? 0 : Math.round(taxCalc.totalAmount * 0.10);
 
     const updatedEstimate = {
       ...estimate,
       subtotal,
-      tax_amount,
-      total_amount,
+      tax_amount: taxCalc.taxAmount,
+      hospitality_tax: taxCalc.hospitalityTax,
+      service_tax: taxCalc.serviceTax,
+      total_amount: taxCalc.totalAmount,
       deposit_required,
       is_government_contract: isGovernmentContract
     };
 
     onEstimateChange(updatedEstimate);
-  }, [estimate?.line_items, taxRate, isGovernmentContract]);
+  }, [estimate?.line_items, hospitalityTaxRate, serviceTaxRate, isGovernmentContract]);
 
   const updateLineItem = (itemId: string, updates: Partial<LineItem>) => {
     if (!estimate) return;
@@ -220,7 +235,7 @@ export function EstimateLineItems({
           <div className="flex items-center space-x-2">
             <Building2 className="h-4 w-4" />
             <Label htmlFor="government-contract" className="font-medium">
-              Government Contract
+              Government Contract (Tax Exempt)
             </Label>
           </div>
           <Switch
@@ -382,22 +397,56 @@ export function EstimateLineItems({
             <span className="font-medium">${(estimate.subtotal / 100).toFixed(2)}</span>
           </div>
           
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <span className="text-sm">Tax Rate:</span>
-              <Input
-                type="number"
-                value={taxRate}
-                onChange={(e) => setTaxRate(parseFloat(e.target.value) || 0)}
-                className="w-20 h-7 text-sm"
-                step="0.1"
-                min="0"
-                max="20"
-              />
-              <span className="text-sm">%</span>
+          {/* Tax Breakdown - Hospitality + Service */}
+          {!isGovernmentContract && (
+            <>
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm">Hospitality Tax:</span>
+                  <Input
+                    type="number"
+                    value={hospitalityTaxRate}
+                    onChange={(e) => setHospitalityTaxRate(parseFloat(e.target.value) || 0)}
+                    className="w-16 h-7 text-sm"
+                    step="0.1"
+                    min="0"
+                    max="10"
+                  />
+                  <span className="text-sm">%</span>
+                </div>
+                <span className="font-medium">${((estimate.hospitality_tax || 0) / 100).toFixed(2)}</span>
+              </div>
+              
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm">Service Tax:</span>
+                  <Input
+                    type="number"
+                    value={serviceTaxRate}
+                    onChange={(e) => setServiceTaxRate(parseFloat(e.target.value) || 0)}
+                    className="w-16 h-7 text-sm"
+                    step="0.1"
+                    min="0"
+                    max="15"
+                  />
+                  <span className="text-sm">%</span>
+                </div>
+                <span className="font-medium">${((estimate.service_tax || 0) / 100).toFixed(2)}</span>
+              </div>
+              
+              <div className="flex justify-between items-center text-sm text-muted-foreground">
+                <span>Total Tax ({totalTaxRate.toFixed(1)}%):</span>
+                <span>${(estimate.tax_amount / 100).toFixed(2)}</span>
+              </div>
+            </>
+          )}
+          
+          {isGovernmentContract && (
+            <div className="flex justify-between items-center text-sm text-muted-foreground">
+              <span>Tax (Exempt - Government Contract):</span>
+              <span>$0.00</span>
             </div>
-            <span className="font-medium">${(estimate.tax_amount / 100).toFixed(2)}</span>
-          </div>
+          )}
           
           <Separator />
           
@@ -408,8 +457,15 @@ export function EstimateLineItems({
 
           {!isGovernmentContract && (
             <div className="flex justify-between items-center text-sm text-muted-foreground">
-              <span>Deposit Required (25%):</span>
+              <span>Booking Deposit (10%):</span>
               <span>${(estimate.deposit_required / 100).toFixed(2)}</span>
+            </div>
+          )}
+          
+          {isGovernmentContract && (
+            <div className="flex justify-between items-center text-sm text-muted-foreground">
+              <span>Payment Terms:</span>
+              <span>Net 30 after event</span>
             </div>
           )}
         </div>

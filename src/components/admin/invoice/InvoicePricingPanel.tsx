@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Calculator, DollarSign, Percent, Save, Plus, Trash2, Edit3, X, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { TaxCalculationService } from '@/services/TaxCalculationService';
 
 interface LineItem {
   id?: string;
@@ -29,6 +30,7 @@ interface InvoicePricingPanelProps {
   onUpdateLineItems: (items: LineItem[]) => void;
   onSave: (overrides: any) => Promise<void>;
   loading?: boolean;
+  isGovernmentContract?: boolean;
 }
 
 export function InvoicePricingPanel({
@@ -37,12 +39,15 @@ export function InvoicePricingPanel({
   lineItems: initialItems,
   onUpdateLineItems,
   onSave,
-  loading = false
+  loading = false,
+  isGovernmentContract = false
 }: InvoicePricingPanelProps) {
   const [lineItems, setLineItems] = useState<LineItem[]>(initialItems);
   const [editingItem, setEditingItem] = useState<string | null>(null);
   const [customDiscount, setCustomDiscount] = useState(0);
   const [discountType, setDiscountType] = useState<'percentage' | 'fixed'>('percentage');
+  const [hospitalityTaxRate, setHospitalityTaxRate] = useState(2.0); // 2%
+  const [serviceTaxRate, setServiceTaxRate] = useState(7.0); // 7%
   const [overrideReason, setOverrideReason] = useState('');
   const [approvalRequired, setApprovalRequired] = useState(false);
   const [editingValues, setEditingValues] = useState<Record<string, string>>({});
@@ -72,17 +77,25 @@ export function InvoicePricingPanel({
       : customDiscount * 100;
   };
 
-  const calculateTax = () => {
+  const calculateTaxBreakdown = () => {
     const subtotal = calculateSubtotal();
     const discount = calculateDiscount();
-    return Math.round((subtotal - discount) * 0.08); // 8% tax
+    const taxableAmount = subtotal - discount;
+    
+    if (isGovernmentContract) {
+      return { hospitalityTax: 0, serviceTax: 0, totalTax: 0 };
+    }
+    
+    const hospitalityTax = Math.round(taxableAmount * (hospitalityTaxRate / 100));
+    const serviceTax = Math.round(taxableAmount * (serviceTaxRate / 100));
+    return { hospitalityTax, serviceTax, totalTax: hospitalityTax + serviceTax };
   };
 
   const calculateTotal = () => {
     const subtotal = calculateSubtotal();
     const discount = calculateDiscount();
-    const tax = calculateTax();
-    return subtotal - discount + tax;
+    const { totalTax } = calculateTaxBreakdown();
+    return subtotal - discount + totalTax;
   };
 
   const handleEditItem = (itemId: string, field: string, value: any) => {
@@ -145,6 +158,8 @@ export function InvoicePricingPanel({
       return;
     }
 
+    const { hospitalityTax, serviceTax, totalTax } = calculateTaxBreakdown();
+
     const overrides = {
       line_items: lineItems,
       discount: customDiscount > 0 ? { 
@@ -155,13 +170,23 @@ export function InvoicePricingPanel({
       totals: {
         subtotal: calculateSubtotal(),
         discount: calculateDiscount(),
-        tax: calculateTax(),
+        hospitality_tax: hospitalityTax,
+        service_tax: serviceTax,
+        tax: totalTax,
         total: calculateTotal()
+      },
+      tax_rates: {
+        hospitality: hospitalityTaxRate,
+        service: serviceTaxRate,
+        total: hospitalityTaxRate + serviceTaxRate
       }
     };
 
     await onSave(overrides);
   };
+
+  const { hospitalityTax, serviceTax, totalTax } = calculateTaxBreakdown();
+  const totalTaxRate = hospitalityTaxRate + serviceTaxRate;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -353,10 +378,54 @@ export function InvoicePricingPanel({
                     <span>-{formatCurrency(calculateDiscount())}</span>
                   </div>
                 )}
-                <div className="flex justify-between">
-                  <span>Tax (8%):</span>
-                  <span>{formatCurrency(calculateTax())}</span>
-                </div>
+                
+                {/* Tax Breakdown */}
+                {!isGovernmentContract ? (
+                  <>
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm">Hospitality Tax:</span>
+                        <Input
+                          type="number"
+                          value={hospitalityTaxRate}
+                          onChange={(e) => setHospitalityTaxRate(parseFloat(e.target.value) || 0)}
+                          className="w-16 h-6 text-xs"
+                          step="0.1"
+                          min="0"
+                          max="10"
+                        />
+                        <span className="text-xs">%</span>
+                      </div>
+                      <span>{formatCurrency(hospitalityTax)}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm">Service Tax:</span>
+                        <Input
+                          type="number"
+                          value={serviceTaxRate}
+                          onChange={(e) => setServiceTaxRate(parseFloat(e.target.value) || 0)}
+                          className="w-16 h-6 text-xs"
+                          step="0.1"
+                          min="0"
+                          max="15"
+                        />
+                        <span className="text-xs">%</span>
+                      </div>
+                      <span>{formatCurrency(serviceTax)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm text-muted-foreground">
+                      <span>Total Tax ({totalTaxRate.toFixed(1)}%):</span>
+                      <span>{formatCurrency(totalTax)}</span>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex justify-between text-sm text-muted-foreground">
+                    <span>Tax (Exempt - Government):</span>
+                    <span>$0.00</span>
+                  </div>
+                )}
+                
                 <div className="border-t pt-2">
                   <div className="flex justify-between text-lg font-semibold">
                     <span>Total:</span>
