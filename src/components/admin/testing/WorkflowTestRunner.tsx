@@ -6,6 +6,8 @@ import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { buildPaymentSchedule, getScheduleDescription } from '@/utils/paymentScheduling';
+import { TaxCalculationService } from '@/services/TaxCalculationService';
 import { 
   Play, 
   CheckCircle2, 
@@ -16,7 +18,8 @@ import {
   Users,
   FileText,
   CreditCard,
-  Building2
+  Building2,
+  Zap
 } from 'lucide-react';
 
 interface WorkflowStep {
@@ -45,19 +48,31 @@ export function WorkflowTestRunner() {
   const [scenarios, setScenarios] = useState<WorkflowScenario[]>([
     {
       id: 'standard',
-      name: 'Standard Customer Flow',
-      description: '50/50 payment split with deposit and final payment',
+      name: 'Standard Customer Flow (45+ days)',
+      description: '10/50/40 payment split: 10% booking, 50% @ 30 days, 40% @ 2 weeks',
       icon: <Users className="h-5 w-5" />,
       steps: [
-        { id: 'create_quote', name: 'Create Test Quote', description: 'Submit quote to database', status: 'pending' },
+        { id: 'create_quote', name: 'Create Test Quote', description: 'Submit quote 60 days out', status: 'pending' },
         { id: 'verify_quote', name: 'Verify Quote Created', description: 'Confirm quote exists with correct data', status: 'pending' },
         { id: 'generate_invoice', name: 'Generate Invoice', description: 'Create invoice from quote', status: 'pending' },
-        { id: 'add_line_items', name: 'Add Line Items', description: 'Create line items with pricing', status: 'pending' },
-        { id: 'create_milestones', name: 'Create Payment Milestones', description: 'Set up 50/50 split', status: 'pending' },
-        { id: 'generate_token', name: 'Generate Access Token', description: 'Create customer portal token', status: 'pending' },
-        { id: 'verify_portal_access', name: 'Verify Portal Access', description: 'Validate token-based access', status: 'pending' },
+        { id: 'verify_tax', name: 'Verify 9% Tax', description: 'Confirm 2% hospitality + 7% service tax', status: 'pending' },
+        { id: 'create_milestones', name: 'Create Payment Milestones', description: 'Set up 10/50/40 split', status: 'pending' },
+        { id: 'verify_schedule', name: 'Verify Payment Schedule', description: 'Confirm 3 milestones with correct amounts', status: 'pending' },
         { id: 'simulate_approval', name: 'Simulate Customer Approval', description: 'Update workflow to approved', status: 'pending' },
         { id: 'verify_status_sync', name: 'Verify Status Sync', description: 'Check quote/invoice status alignment', status: 'pending' },
+      ]
+    },
+    {
+      id: 'rush',
+      name: 'Rush Event Flow (≤14 days)',
+      description: '100% payment due immediately',
+      icon: <Zap className="h-5 w-5" />,
+      steps: [
+        { id: 'create_rush_quote', name: 'Create Rush Quote', description: 'Submit quote 10 days out', status: 'pending' },
+        { id: 'verify_rush_tier', name: 'Verify Rush Tier', description: 'Confirm RUSH schedule tier detected', status: 'pending' },
+        { id: 'generate_rush_invoice', name: 'Generate Rush Invoice', description: 'Create invoice with rush pricing', status: 'pending' },
+        { id: 'verify_single_milestone', name: 'Verify Single Milestone', description: 'Confirm 100% due NOW', status: 'pending' },
+        { id: 'verify_rush_tax', name: 'Verify Tax Calculation', description: 'Confirm 9% tax applied', status: 'pending' },
       ]
     },
     {
@@ -70,7 +85,7 @@ export function WorkflowTestRunner() {
         { id: 'verify_tax_exempt', name: 'Verify Tax Exempt', description: 'Confirm 0% tax calculation', status: 'pending' },
         { id: 'create_net30_invoice', name: 'Create Net 30 Invoice', description: 'Invoice with post-event due date', status: 'pending' },
         { id: 'verify_po_number', name: 'Verify PO Number', description: 'Confirm PO tracking', status: 'pending' },
-        { id: 'verify_single_milestone', name: 'Verify Single Milestone', description: 'Net 30 = 100% post-event', status: 'pending' },
+        { id: 'verify_gov_milestone', name: 'Verify Single Milestone', description: 'Net 30 = 100% post-event', status: 'pending' },
       ]
     },
     {
@@ -90,15 +105,17 @@ export function WorkflowTestRunner() {
     {
       id: 'payment',
       name: 'Payment Processing Flow',
-      description: 'Verify payment recording and status updates',
+      description: 'Verify 10/50/40 payment recording and status updates',
       icon: <CreditCard className="h-5 w-5" />,
       steps: [
-        { id: 'setup_payment_test', name: 'Setup Payment Test', description: 'Create invoice with milestones', status: 'pending' },
-        { id: 'record_deposit', name: 'Record Deposit Payment', description: 'Simulate 50% deposit', status: 'pending' },
-        { id: 'verify_partial_paid', name: 'Verify Partially Paid', description: 'Status updated correctly', status: 'pending' },
-        { id: 'record_final', name: 'Record Final Payment', description: 'Simulate remaining 50%', status: 'pending' },
+        { id: 'setup_payment_test', name: 'Setup Payment Test', description: 'Create invoice with 3 milestones', status: 'pending' },
+        { id: 'record_deposit', name: 'Record Deposit (10%)', description: 'Simulate booking deposit', status: 'pending' },
+        { id: 'verify_partial_paid_1', name: 'Verify Partially Paid', description: 'Status updated correctly', status: 'pending' },
+        { id: 'record_milestone', name: 'Record Milestone (50%)', description: 'Simulate milestone payment', status: 'pending' },
+        { id: 'verify_partial_paid_2', name: 'Verify Still Partial', description: '60% paid, 40% remaining', status: 'pending' },
+        { id: 'record_final', name: 'Record Final (40%)', description: 'Simulate final payment', status: 'pending' },
         { id: 'verify_fully_paid', name: 'Verify Fully Paid', description: 'Invoice marked as paid', status: 'pending' },
-        { id: 'verify_payment_history', name: 'Verify Payment History', description: 'All transactions recorded', status: 'pending' },
+        { id: 'verify_payment_history', name: 'Verify Payment History', description: 'All 3 transactions recorded', status: 'pending' },
       ]
     }
   ]);
@@ -134,6 +151,9 @@ export function WorkflowTestRunner() {
         case 'standard':
           await runStandardFlow(scenarioId);
           break;
+        case 'rush':
+          await runRushFlow(scenarioId);
+          break;
         case 'government':
           await runGovernmentFlow(scenarioId);
           break;
@@ -162,9 +182,10 @@ export function WorkflowTestRunner() {
     });
   };
 
-  // Standard Flow Implementation
+  // Standard Flow Implementation (45+ days = 10/50/40 split)
   const runStandardFlow = async (scenarioId: string) => {
     const testEmail = `test-${Date.now()}@example.com`;
+    const eventDate = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000); // 60 days out
     
     // Step 1: Create Quote
     updateStepStatus(scenarioId, 'create_quote', 'running');
@@ -175,7 +196,7 @@ export function WorkflowTestRunner() {
         email: testEmail,
         phone: '843-555-0123',
         event_name: 'Test Event - Standard Flow',
-        event_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        event_date: eventDate.toISOString().split('T')[0],
         start_time: '18:00',
         location: 'Test Venue, Charleston SC',
         guest_count: 100,
@@ -209,13 +230,16 @@ export function WorkflowTestRunner() {
     // Step 3: Generate Invoice
     updateStepStatus(scenarioId, 'generate_invoice', 'running');
     const accessToken = crypto.randomUUID();
+    const subtotal = 300000; // $3,000
+    const taxCalc = TaxCalculationService.calculateDetailedTax(subtotal, false);
+    
     const { data: invoice, error: invoiceError } = await supabase
       .from('invoices')
       .insert({
         quote_request_id: quote.id,
-        subtotal: 0,
-        tax_amount: 0,
-        total_amount: 0,
+        subtotal: subtotal,
+        tax_amount: taxCalc.taxAmount,
+        total_amount: taxCalc.totalAmount,
         workflow_status: 'draft',
         document_type: 'estimate',
         customer_access_token: accessToken,
@@ -228,60 +252,90 @@ export function WorkflowTestRunner() {
       updateStepStatus(scenarioId, 'generate_invoice', 'failed', invoiceError?.message || 'Failed to create invoice');
       return;
     }
-    updateStepStatus(scenarioId, 'generate_invoice', 'passed', `Invoice created: ${invoice.id}`, { invoiceId: invoice.id, accessToken });
+    updateStepStatus(scenarioId, 'generate_invoice', 'passed', `Invoice created: $${(taxCalc.totalAmount / 100).toFixed(2)}`, { invoiceId: invoice.id, accessToken });
 
-    // Step 4: Add Line Items
-    updateStepStatus(scenarioId, 'add_line_items', 'running');
-    const { error: lineItemsError } = await supabase
-      .from('invoice_line_items')
-      .insert([
-        { invoice_id: invoice.id, title: 'Main Meal Package', description: 'Chicken, Ribs, Mac & Cheese', quantity: 100, unit_price: 25, total_price: 2500, category: 'food' },
-        { invoice_id: invoice.id, title: 'Service Fee', description: 'Full-service catering', quantity: 1, unit_price: 500, total_price: 500, category: 'service' },
-      ]);
-    
-    if (lineItemsError) {
-      updateStepStatus(scenarioId, 'add_line_items', 'failed', lineItemsError.message);
+    // Step 4: Verify Tax (9% = 2% hospitality + 7% service)
+    updateStepStatus(scenarioId, 'verify_tax', 'running');
+    const expectedTax = Math.round(subtotal * 0.09);
+    if (Math.abs(taxCalc.taxAmount - expectedTax) > 1) { // Allow $0.01 rounding
+      updateStepStatus(scenarioId, 'verify_tax', 'failed', `Expected $${(expectedTax/100).toFixed(2)} tax, got $${(taxCalc.taxAmount/100).toFixed(2)}`);
       return;
     }
-    
-    // Update invoice totals
-    await supabase.from('invoices').update({ subtotal: 3000, tax_amount: 240, total_amount: 3240 }).eq('id', invoice.id);
-    updateStepStatus(scenarioId, 'add_line_items', 'passed', 'Line items added, total: $3,240');
+    updateStepStatus(scenarioId, 'verify_tax', 'passed', `Tax: $${(taxCalc.taxAmount/100).toFixed(2)} (2% + 7% = 9%)`);
 
-    // Step 5: Create Milestones
+    // Step 5: Create Milestones (10/50/40)
     updateStepStatus(scenarioId, 'create_milestones', 'running');
+    const schedule = buildPaymentSchedule(eventDate, 'PERSON', new Date(), taxCalc.totalAmount);
+    
+    const depositAmount = Math.round(taxCalc.totalAmount * 0.10);
+    const milestoneAmount = Math.round(taxCalc.totalAmount * 0.50);
+    const balanceAmount = taxCalc.totalAmount - depositAmount - milestoneAmount;
+    
+    const milestone30DaysBefore = new Date(eventDate);
+    milestone30DaysBefore.setDate(milestone30DaysBefore.getDate() - 30);
+    
+    const balance14DaysBefore = new Date(eventDate);
+    balance14DaysBefore.setDate(balance14DaysBefore.getDate() - 14);
+    
     const { error: milestonesError } = await supabase
       .from('payment_milestones')
       .insert([
-        { invoice_id: invoice.id, milestone_type: 'deposit', percentage: 50, amount_cents: 162000, status: 'pending' },
-        { invoice_id: invoice.id, milestone_type: 'final', percentage: 50, amount_cents: 162000, status: 'pending' },
+        { 
+          invoice_id: invoice.id, 
+          milestone_type: 'DEPOSIT', 
+          percentage: 10, 
+          amount_cents: depositAmount, 
+          status: 'pending',
+          is_due_now: true,
+          description: 'Booking deposit (10%)'
+        },
+        { 
+          invoice_id: invoice.id, 
+          milestone_type: 'MILESTONE', 
+          percentage: 50, 
+          amount_cents: milestoneAmount, 
+          status: 'pending',
+          due_date: milestone30DaysBefore.toISOString().split('T')[0],
+          description: 'Milestone payment (50%)'
+        },
+        { 
+          invoice_id: invoice.id, 
+          milestone_type: 'BALANCE', 
+          percentage: 40, 
+          amount_cents: balanceAmount, 
+          status: 'pending',
+          due_date: balance14DaysBefore.toISOString().split('T')[0],
+          description: 'Final payment (40%)'
+        },
       ]);
     
     if (milestonesError) {
       updateStepStatus(scenarioId, 'create_milestones', 'failed', milestonesError.message);
       return;
     }
-    updateStepStatus(scenarioId, 'create_milestones', 'passed', '50/50 payment milestones created');
+    updateStepStatus(scenarioId, 'create_milestones', 'passed', `10/50/40 milestones: $${(depositAmount/100).toFixed(2)} / $${(milestoneAmount/100).toFixed(2)} / $${(balanceAmount/100).toFixed(2)}`);
 
-    // Step 6: Generate Token (already done)
-    updateStepStatus(scenarioId, 'generate_token', 'running');
-    updateStepStatus(scenarioId, 'generate_token', 'passed', `Token: ${accessToken.slice(0, 8)}...`);
-
-    // Step 7: Verify Portal Access
-    updateStepStatus(scenarioId, 'verify_portal_access', 'running');
-    const { data: portalData } = await supabase
-      .from('invoices')
-      .select('id, customer_access_token')
-      .eq('customer_access_token', accessToken)
-      .single();
+    // Step 6: Verify Payment Schedule
+    updateStepStatus(scenarioId, 'verify_schedule', 'running');
+    const { data: milestones } = await supabase
+      .from('payment_milestones')
+      .select('*')
+      .eq('invoice_id', invoice.id)
+      .order('percentage', { ascending: true });
     
-    if (!portalData) {
-      updateStepStatus(scenarioId, 'verify_portal_access', 'failed', 'Token not found');
+    if (!milestones || milestones.length !== 3) {
+      updateStepStatus(scenarioId, 'verify_schedule', 'failed', `Expected 3 milestones, got ${milestones?.length || 0}`);
       return;
     }
-    updateStepStatus(scenarioId, 'verify_portal_access', 'passed', 'Portal access validated');
+    
+    const totalMilestoneAmount = milestones.reduce((sum, m) => sum + m.amount_cents, 0);
+    if (Math.abs(totalMilestoneAmount - taxCalc.totalAmount) > 1) {
+      updateStepStatus(scenarioId, 'verify_schedule', 'failed', `Milestone amounts don't match total`);
+      return;
+    }
+    updateStepStatus(scenarioId, 'verify_schedule', 'passed', `3 milestones verified, total: $${(totalMilestoneAmount/100).toFixed(2)}`);
 
-    // Step 8: Simulate Approval
+    // Step 7: Simulate Approval
     updateStepStatus(scenarioId, 'simulate_approval', 'running');
     const { error: approvalError } = await supabase
       .from('invoices')
@@ -294,7 +348,7 @@ export function WorkflowTestRunner() {
     }
     updateStepStatus(scenarioId, 'simulate_approval', 'passed', 'Invoice approved');
 
-    // Step 9: Verify Status Sync
+    // Step 8: Verify Status Sync
     updateStepStatus(scenarioId, 'verify_status_sync', 'running');
     const { data: syncCheck } = await supabase
       .from('invoices')
@@ -307,6 +361,106 @@ export function WorkflowTestRunner() {
       return;
     }
     updateStepStatus(scenarioId, 'verify_status_sync', 'passed', 'Status sync verified');
+  };
+
+  // Rush Flow Implementation (≤14 days = 100% NOW)
+  const runRushFlow = async (scenarioId: string) => {
+    const testEmail = `rush-test-${Date.now()}@example.com`;
+    const eventDate = new Date(Date.now() + 10 * 24 * 60 * 60 * 1000); // 10 days out
+    
+    // Step 1: Create Rush Quote
+    updateStepStatus(scenarioId, 'create_rush_quote', 'running');
+    const { data: quote, error: quoteError } = await supabase
+      .from('quote_requests')
+      .insert({
+        contact_name: 'Rush Customer',
+        email: testEmail,
+        phone: '843-555-0999',
+        event_name: 'Rush Event Test',
+        event_date: eventDate.toISOString().split('T')[0],
+        start_time: '12:00',
+        location: 'Rush Venue',
+        guest_count: 50,
+        event_type: 'corporate',
+        service_type: 'delivery-setup',
+        workflow_status: 'pending'
+      })
+      .select()
+      .single();
+    
+    if (quoteError || !quote) {
+      updateStepStatus(scenarioId, 'create_rush_quote', 'failed', quoteError?.message || 'Failed');
+      return;
+    }
+    updateStepStatus(scenarioId, 'create_rush_quote', 'passed', `Rush quote created (10 days out)`, { quoteId: quote.id });
+
+    // Step 2: Verify Rush Tier
+    updateStepStatus(scenarioId, 'verify_rush_tier', 'running');
+    const schedule = buildPaymentSchedule(eventDate, 'PERSON', new Date(), 100000);
+    
+    if (schedule.schedule_tier !== 'RUSH') {
+      updateStepStatus(scenarioId, 'verify_rush_tier', 'failed', `Expected RUSH tier, got ${schedule.schedule_tier}`);
+      return;
+    }
+    if (schedule.rules.length !== 1 || schedule.rules[0].percentage !== 100) {
+      updateStepStatus(scenarioId, 'verify_rush_tier', 'failed', `Expected 1 rule at 100%, got ${schedule.rules.length} rules`);
+      return;
+    }
+    updateStepStatus(scenarioId, 'verify_rush_tier', 'passed', `RUSH tier: ${getScheduleDescription('RUSH')}`);
+
+    // Step 3: Generate Rush Invoice
+    updateStepStatus(scenarioId, 'generate_rush_invoice', 'running');
+    const subtotal = 150000; // $1,500
+    const taxCalc = TaxCalculationService.calculateDetailedTax(subtotal, false);
+    
+    const { data: invoice, error: invoiceError } = await supabase
+      .from('invoices')
+      .insert({
+        quote_request_id: quote.id,
+        subtotal: subtotal,
+        tax_amount: taxCalc.taxAmount,
+        total_amount: taxCalc.totalAmount,
+        workflow_status: 'draft',
+        document_type: 'estimate',
+        customer_access_token: crypto.randomUUID()
+      })
+      .select()
+      .single();
+    
+    if (invoiceError) {
+      updateStepStatus(scenarioId, 'generate_rush_invoice', 'failed', invoiceError.message);
+      return;
+    }
+    updateStepStatus(scenarioId, 'generate_rush_invoice', 'passed', `Rush invoice: $${(taxCalc.totalAmount/100).toFixed(2)}`, { invoiceId: invoice.id });
+
+    // Step 4: Verify Single Milestone (100% NOW)
+    updateStepStatus(scenarioId, 'verify_single_milestone', 'running');
+    const { error: milestoneError } = await supabase
+      .from('payment_milestones')
+      .insert({
+        invoice_id: invoice.id,
+        milestone_type: 'FULL',
+        percentage: 100,
+        amount_cents: taxCalc.totalAmount,
+        status: 'pending',
+        is_due_now: true,
+        description: 'Full payment due (event within 14 days)'
+      });
+    
+    if (milestoneError) {
+      updateStepStatus(scenarioId, 'verify_single_milestone', 'failed', milestoneError.message);
+      return;
+    }
+    updateStepStatus(scenarioId, 'verify_single_milestone', 'passed', '100% due NOW milestone created');
+
+    // Step 5: Verify Tax
+    updateStepStatus(scenarioId, 'verify_rush_tax', 'running');
+    const expectedTax = Math.round(subtotal * 0.09);
+    if (Math.abs(taxCalc.taxAmount - expectedTax) > 1) {
+      updateStepStatus(scenarioId, 'verify_rush_tax', 'failed', `Tax mismatch: expected $${(expectedTax/100).toFixed(2)}, got $${(taxCalc.taxAmount/100).toFixed(2)}`);
+      return;
+    }
+    updateStepStatus(scenarioId, 'verify_rush_tax', 'passed', `9% tax verified: $${(taxCalc.taxAmount/100).toFixed(2)}`);
   };
 
   // Government Flow Implementation
@@ -344,18 +498,14 @@ export function WorkflowTestRunner() {
 
     // Step 2: Verify Tax Exempt
     updateStepStatus(scenarioId, 'verify_tax_exempt', 'running');
-    // Government quotes should have 0% tax
-    const { data: verifyQuote } = await supabase
-      .from('quote_requests')
-      .select('compliance_level, requires_po_number')
-      .eq('id', quote.id)
-      .single();
+    const subtotal = 150000;
+    const taxCalc = TaxCalculationService.calculateDetailedTax(subtotal, true); // Government = tax exempt
     
-    if (verifyQuote?.compliance_level !== 'government') {
-      updateStepStatus(scenarioId, 'verify_tax_exempt', 'failed', 'Compliance level not set');
+    if (taxCalc.taxAmount !== 0) {
+      updateStepStatus(scenarioId, 'verify_tax_exempt', 'failed', `Expected $0 tax, got $${(taxCalc.taxAmount/100).toFixed(2)}`);
       return;
     }
-    updateStepStatus(scenarioId, 'verify_tax_exempt', 'passed', 'Tax exempt status confirmed');
+    updateStepStatus(scenarioId, 'verify_tax_exempt', 'passed', 'Tax exempt status confirmed (0%)');
 
     // Step 3: Create Net 30 Invoice
     updateStepStatus(scenarioId, 'create_net30_invoice', 'running');
@@ -366,9 +516,9 @@ export function WorkflowTestRunner() {
       .from('invoices')
       .insert({
         quote_request_id: quote.id,
-        subtotal: 1500,
+        subtotal: subtotal,
         tax_amount: 0, // Tax exempt
-        total_amount: 1500,
+        total_amount: subtotal,
         workflow_status: 'draft',
         document_type: 'estimate',
         payment_schedule_type: 'net30',
@@ -386,31 +536,37 @@ export function WorkflowTestRunner() {
 
     // Step 4: Verify PO Number
     updateStepStatus(scenarioId, 'verify_po_number', 'running');
+    const { data: verifyQuote } = await supabase
+      .from('quote_requests')
+      .select('requires_po_number, po_number')
+      .eq('id', quote.id)
+      .single();
+    
     if (!verifyQuote?.requires_po_number) {
       updateStepStatus(scenarioId, 'verify_po_number', 'failed', 'PO tracking not enabled');
       return;
     }
     updateStepStatus(scenarioId, 'verify_po_number', 'passed', `PO Number: ${quote.po_number}`);
 
-    // Step 5: Verify Single Milestone
-    updateStepStatus(scenarioId, 'verify_single_milestone', 'running');
+    // Step 5: Verify Single Milestone (Net 30)
+    updateStepStatus(scenarioId, 'verify_gov_milestone', 'running');
     const { error: milestoneError } = await supabase
       .from('payment_milestones')
       .insert({
         invoice_id: invoice.id,
-        milestone_type: 'net30',
+        milestone_type: 'FINAL',
         percentage: 100,
-        amount_cents: 150000,
+        amount_cents: subtotal,
         status: 'pending',
         is_net30: true,
         due_date: net30Date.toISOString()
       });
     
     if (milestoneError) {
-      updateStepStatus(scenarioId, 'verify_single_milestone', 'failed', milestoneError.message);
+      updateStepStatus(scenarioId, 'verify_gov_milestone', 'failed', milestoneError.message);
       return;
     }
-    updateStepStatus(scenarioId, 'verify_single_milestone', 'passed', '100% Net 30 milestone created');
+    updateStepStatus(scenarioId, 'verify_gov_milestone', 'passed', '100% Net 30 milestone created');
   };
 
   // Change Request Flow Implementation
@@ -445,13 +601,16 @@ export function WorkflowTestRunner() {
 
     // Step 2: Create Estimate
     updateStepStatus(scenarioId, 'create_estimate', 'running');
+    const subtotal = 200000;
+    const taxCalc = TaxCalculationService.calculateDetailedTax(subtotal, false);
+    
     const { data: invoice, error: invoiceError } = await supabase
       .from('invoices')
       .insert({
         quote_request_id: quote.id,
-        subtotal: 2000,
-        tax_amount: 160,
-        total_amount: 2160,
+        subtotal: subtotal,
+        tax_amount: taxCalc.taxAmount,
+        total_amount: taxCalc.totalAmount,
         workflow_status: 'sent',
         document_type: 'estimate',
         version: 1,
@@ -520,9 +679,12 @@ export function WorkflowTestRunner() {
 
     // Step 6: Verify Version Increment
     updateStepStatus(scenarioId, 'verify_version_increment', 'running');
+    const newSubtotal = 250000;
+    const newTaxCalc = TaxCalculationService.calculateDetailedTax(newSubtotal, false);
+    
     const { error: versionError } = await supabase
       .from('invoices')
-      .update({ version: 2, subtotal: 2500, tax_amount: 200, total_amount: 2700 })
+      .update({ version: 2, subtotal: newSubtotal, tax_amount: newTaxCalc.taxAmount, total_amount: newTaxCalc.totalAmount })
       .eq('id', invoice.id);
     
     if (versionError) {
@@ -543,9 +705,10 @@ export function WorkflowTestRunner() {
     updateStepStatus(scenarioId, 'verify_version_increment', 'passed', 'Invoice updated to v2');
   };
 
-  // Payment Flow Implementation
+  // Payment Flow Implementation (10/50/40 split)
   const runPaymentFlow = async (scenarioId: string) => {
     const testEmail = `payment-test-${Date.now()}@example.com`;
+    const eventDate = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000); // 60 days out
     
     // Step 1: Setup Payment Test
     updateStepStatus(scenarioId, 'setup_payment_test', 'running');
@@ -556,7 +719,7 @@ export function WorkflowTestRunner() {
         email: testEmail,
         phone: '843-555-1111',
         event_name: 'Payment Flow Test',
-        event_date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        event_date: eventDate.toISOString().split('T')[0],
         start_time: '19:00',
         location: 'Payment Test Venue',
         guest_count: 50,
@@ -572,13 +735,17 @@ export function WorkflowTestRunner() {
       return;
     }
 
+    const subtotal = 200000; // $2,000
+    const taxCalc = TaxCalculationService.calculateDetailedTax(subtotal, false);
+    const totalAmount = taxCalc.totalAmount; // $2,180 with 9% tax
+
     const { data: invoice, error: invoiceError } = await supabase
       .from('invoices')
       .insert({
         quote_request_id: quote.id,
-        subtotal: 2000,
-        tax_amount: 160,
-        total_amount: 2160,
+        subtotal: subtotal,
+        tax_amount: taxCalc.taxAmount,
+        total_amount: totalAmount,
         workflow_status: 'approved',
         document_type: 'invoice',
         customer_access_token: crypto.randomUUID()
@@ -591,30 +758,39 @@ export function WorkflowTestRunner() {
       return;
     }
 
-    // Create milestones
+    // Create 10/50/40 milestones
+    const depositAmount = Math.round(totalAmount * 0.10); // 10%
+    const milestoneAmount = Math.round(totalAmount * 0.50); // 50%
+    const balanceAmount = totalAmount - depositAmount - milestoneAmount; // 40%
+
     const { data: milestones } = await supabase
       .from('payment_milestones')
       .insert([
-        { invoice_id: invoice.id, milestone_type: 'deposit', percentage: 50, amount_cents: 108000, status: 'pending' },
-        { invoice_id: invoice.id, milestone_type: 'final', percentage: 50, amount_cents: 108000, status: 'pending' },
+        { invoice_id: invoice.id, milestone_type: 'DEPOSIT', percentage: 10, amount_cents: depositAmount, status: 'pending', is_due_now: true },
+        { invoice_id: invoice.id, milestone_type: 'MILESTONE', percentage: 50, amount_cents: milestoneAmount, status: 'pending' },
+        { invoice_id: invoice.id, milestone_type: 'BALANCE', percentage: 40, amount_cents: balanceAmount, status: 'pending' },
       ])
       .select();
     
-    updateStepStatus(scenarioId, 'setup_payment_test', 'passed', 'Invoice + milestones created', { 
+    updateStepStatus(scenarioId, 'setup_payment_test', 'passed', `Invoice $${(totalAmount/100).toFixed(2)} with 3 milestones`, { 
       invoiceId: invoice.id, 
       depositMilestoneId: milestones?.[0]?.id,
-      finalMilestoneId: milestones?.[1]?.id,
-      testEmail 
+      milestoneMilestoneId: milestones?.[1]?.id,
+      finalMilestoneId: milestones?.[2]?.id,
+      testEmail,
+      depositAmount,
+      milestoneAmount,
+      balanceAmount
     });
 
-    // Step 2: Record Deposit Payment
+    // Step 2: Record Deposit Payment (10%)
     updateStepStatus(scenarioId, 'record_deposit', 'running');
     const { error: depositError } = await supabase
       .from('payment_transactions')
       .insert({
         invoice_id: invoice.id,
         milestone_id: milestones?.[0]?.id,
-        amount: 1080,
+        amount: depositAmount,
         currency: 'usd',
         customer_email: testEmail,
         payment_type: 'milestone',
@@ -628,31 +804,60 @@ export function WorkflowTestRunner() {
       return;
     }
     
-    // Update milestone status
     await supabase.from('payment_milestones').update({ status: 'paid' }).eq('id', milestones?.[0]?.id);
-    updateStepStatus(scenarioId, 'record_deposit', 'passed', '$1,080 deposit recorded');
+    updateStepStatus(scenarioId, 'record_deposit', 'passed', `$${(depositAmount/100).toFixed(2)} deposit (10%) recorded`);
 
     // Step 3: Verify Partially Paid
-    updateStepStatus(scenarioId, 'verify_partial_paid', 'running');
-    const { error: partialError } = await supabase
+    updateStepStatus(scenarioId, 'verify_partial_paid_1', 'running');
+    const { error: partialError1 } = await supabase
       .from('invoices')
       .update({ workflow_status: 'partially_paid' })
       .eq('id', invoice.id);
     
-    if (partialError) {
-      updateStepStatus(scenarioId, 'verify_partial_paid', 'failed', partialError.message);
+    if (partialError1) {
+      updateStepStatus(scenarioId, 'verify_partial_paid_1', 'failed', partialError1.message);
       return;
     }
-    updateStepStatus(scenarioId, 'verify_partial_paid', 'passed', 'Status: partially_paid');
+    updateStepStatus(scenarioId, 'verify_partial_paid_1', 'passed', 'Status: partially_paid (10% paid)');
 
-    // Step 4: Record Final Payment
+    // Step 4: Record Milestone Payment (50%)
+    updateStepStatus(scenarioId, 'record_milestone', 'running');
+    const { error: milestonePayError } = await supabase
+      .from('payment_transactions')
+      .insert({
+        invoice_id: invoice.id,
+        milestone_id: milestones?.[1]?.id,
+        amount: milestoneAmount,
+        currency: 'usd',
+        customer_email: testEmail,
+        payment_type: 'milestone',
+        payment_method: 'card',
+        status: 'completed',
+        processed_at: new Date().toISOString()
+      });
+    
+    if (milestonePayError) {
+      updateStepStatus(scenarioId, 'record_milestone', 'failed', milestonePayError.message);
+      return;
+    }
+    
+    await supabase.from('payment_milestones').update({ status: 'paid' }).eq('id', milestones?.[1]?.id);
+    updateStepStatus(scenarioId, 'record_milestone', 'passed', `$${(milestoneAmount/100).toFixed(2)} milestone (50%) recorded`);
+
+    // Step 5: Verify Still Partial (60% paid)
+    updateStepStatus(scenarioId, 'verify_partial_paid_2', 'running');
+    const paidSoFar = depositAmount + milestoneAmount;
+    const remaining = totalAmount - paidSoFar;
+    updateStepStatus(scenarioId, 'verify_partial_paid_2', 'passed', `60% paid ($${(paidSoFar/100).toFixed(2)}), $${(remaining/100).toFixed(2)} remaining`);
+
+    // Step 6: Record Final Payment (40%)
     updateStepStatus(scenarioId, 'record_final', 'running');
     const { error: finalError } = await supabase
       .from('payment_transactions')
       .insert({
         invoice_id: invoice.id,
-        milestone_id: milestones?.[1]?.id,
-        amount: 1080,
+        milestone_id: milestones?.[2]?.id,
+        amount: balanceAmount,
         currency: 'usd',
         customer_email: testEmail,
         payment_type: 'milestone',
@@ -666,10 +871,10 @@ export function WorkflowTestRunner() {
       return;
     }
     
-    await supabase.from('payment_milestones').update({ status: 'paid' }).eq('id', milestones?.[1]?.id);
-    updateStepStatus(scenarioId, 'record_final', 'passed', '$1,080 final payment recorded');
+    await supabase.from('payment_milestones').update({ status: 'paid' }).eq('id', milestones?.[2]?.id);
+    updateStepStatus(scenarioId, 'record_final', 'passed', `$${(balanceAmount/100).toFixed(2)} final (40%) recorded`);
 
-    // Step 5: Verify Fully Paid
+    // Step 7: Verify Fully Paid
     updateStepStatus(scenarioId, 'verify_fully_paid', 'running');
     const { error: paidError } = await supabase
       .from('invoices')
@@ -682,20 +887,24 @@ export function WorkflowTestRunner() {
     }
     updateStepStatus(scenarioId, 'verify_fully_paid', 'passed', 'Invoice marked as paid');
 
-    // Step 6: Verify Payment History
+    // Step 8: Verify Payment History
     updateStepStatus(scenarioId, 'verify_payment_history', 'running');
     const { data: payments, error: historyError } = await supabase
       .from('payment_transactions')
       .select('*')
       .eq('invoice_id', invoice.id);
     
-    if (historyError || payments?.length !== 2) {
-      updateStepStatus(scenarioId, 'verify_payment_history', 'failed', `Expected 2 transactions, got ${payments?.length}`);
+    if (historyError || payments?.length !== 3) {
+      updateStepStatus(scenarioId, 'verify_payment_history', 'failed', `Expected 3 transactions, got ${payments?.length}`);
       return;
     }
     
     const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
-    updateStepStatus(scenarioId, 'verify_payment_history', 'passed', `${payments.length} transactions, total: $${totalPaid.toFixed(2)}`);
+    if (Math.abs(totalPaid - totalAmount) > 1) {
+      updateStepStatus(scenarioId, 'verify_payment_history', 'failed', `Payment mismatch: paid $${(totalPaid/100).toFixed(2)}, expected $${(totalAmount/100).toFixed(2)}`);
+      return;
+    }
+    updateStepStatus(scenarioId, 'verify_payment_history', 'passed', `3 transactions verified, total: $${(totalPaid/100).toFixed(2)}`);
   };
 
   const cleanupTestData = async () => {
@@ -737,7 +946,7 @@ export function WorkflowTestRunner() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">Workflow Test Runner</h2>
-          <p className="text-muted-foreground">Interactive end-to-end workflow validation</p>
+          <p className="text-muted-foreground">Interactive end-to-end workflow validation (10/50/40 payment + 9% tax)</p>
         </div>
         <Button variant="outline" onClick={cleanupTestData} disabled={isRunning}>
           <Trash2 className="h-4 w-4 mr-2" />

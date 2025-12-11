@@ -1,5 +1,11 @@
 // Payment Scheduling Engine for Soul Train's Eatery
-// Implements the buildSchedule logic from the comprehensive blueprint
+// Implements tiered payment schedule based on days until event
+//
+// 4-Tier Payment Schedule:
+// - Rush (≤14 days): 100% NOW
+// - Short Notice (15-30 days): 60% NOW + 40% @ 7 days before
+// - Mid-Range (31-44 days): 60% NOW + 40% @ 14 days before
+// - Standard (45+ days): 10% NOW + 50% @ 30 days + 40% @ 14 days
 
 export interface PaymentScheduleRule {
   type: 'DEPOSIT' | 'MILESTONE' | 'BALANCE' | 'FULL' | 'COMBINED' | 'FINAL';
@@ -15,6 +21,7 @@ export interface PaymentSchedule {
   customer_type: 'PERSON' | 'ORG' | 'GOV';
   approval_date: Date;
   event_date: Date;
+  schedule_tier: 'RUSH' | 'SHORT_NOTICE' | 'MID_RANGE' | 'STANDARD' | 'GOVERNMENT';
 }
 
 // Detect government customer from email domain
@@ -62,6 +69,15 @@ const dateMinus = (date: Date, days: number): Date => {
   return result;
 };
 
+// Determine schedule tier based on days until event
+export const getScheduleTier = (daysOut: number, customerType: 'PERSON' | 'ORG' | 'GOV'): PaymentSchedule['schedule_tier'] => {
+  if (customerType === 'GOV') return 'GOVERNMENT';
+  if (daysOut <= 14) return 'RUSH';
+  if (daysOut <= 30) return 'SHORT_NOTICE';
+  if (daysOut <= 44) return 'MID_RANGE';
+  return 'STANDARD';
+};
+
 // Main payment schedule builder
 export const buildPaymentSchedule = (
   eventDate: Date,
@@ -70,8 +86,10 @@ export const buildPaymentSchedule = (
   totalAmount: number
 ): PaymentSchedule => {
   const rules: PaymentScheduleRule[] = [];
+  const daysOut = daysBetween(approvedAt, eventDate);
+  const scheduleTier = getScheduleTier(daysOut, customerType);
   
-  // Government customers - Net 30 flow
+  // Government customers - Net 30 flow (tax-exempt, no upfront deposit)
   if (customerType === 'GOV') {
     rules.push({
       type: 'FINAL',
@@ -86,42 +104,55 @@ export const buildPaymentSchedule = (
       currency: 'usd',
       customer_type: customerType,
       approval_date: approvedAt,
-      event_date: eventDate
+      event_date: eventDate,
+      schedule_tier: 'GOVERNMENT'
     };
   }
   
   // Non-government customers - tiered payment system
-  const daysOut = daysBetween(approvedAt, eventDate);
-  
-  if (daysOut <= 10) {
-    // Event within 10 days - 100% due now
+  if (daysOut <= 14) {
+    // RUSH: Event within 14 days - 100% due now
     rules.push({
       type: 'FULL',
       percentage: 100,
       due_date: 'NOW',
-      description: 'Full payment due (event within 10 days)'
+      description: 'Full payment due (event within 14 days)'
     });
   } else if (daysOut <= 30) {
-    // Event within 30 days - combine deposit + milestone
+    // SHORT NOTICE: Event within 15-30 days - 60% NOW + 40% @ 7 days before
     rules.push({
       type: 'COMBINED',
-      percentage: 75,
+      percentage: 60,
       due_date: 'NOW',
-      description: 'Combined deposit and milestone payment'
+      description: 'Combined booking deposit + milestone (60%)'
     });
     rules.push({
       type: 'BALANCE',
-      percentage: 25,
-      due_date: dateMinus(eventDate, 10),
-      description: 'Final balance due 10 days before event'
+      percentage: 40,
+      due_date: dateMinus(eventDate, 7),
+      description: 'Final balance due 7 days before event'
+    });
+  } else if (daysOut <= 44) {
+    // MID-RANGE: Event within 31-44 days - 60% NOW + 40% @ 14 days before
+    rules.push({
+      type: 'COMBINED',
+      percentage: 60,
+      due_date: 'NOW',
+      description: 'Combined booking deposit + milestone (60%)'
+    });
+    rules.push({
+      type: 'BALANCE',
+      percentage: 40,
+      due_date: dateMinus(eventDate, 14),
+      description: 'Final balance due 2 weeks before event'
     });
   } else {
-    // Standard 3-tier payment schedule
+    // STANDARD: 45+ days out - 10% NOW + 50% @ 30 days + 40% @ 14 days
     rules.push({
       type: 'DEPOSIT',
-      percentage: 25,
+      percentage: 10,
       due_date: 'NOW',
-      description: 'Deposit due at approval (25%)'
+      description: 'Booking deposit (10%) - secures your event date'
     });
     rules.push({
       type: 'MILESTONE',
@@ -131,9 +162,9 @@ export const buildPaymentSchedule = (
     });
     rules.push({
       type: 'BALANCE',
-      percentage: 25,
-      due_date: dateMinus(eventDate, 10),
-      description: 'Final balance due 10 days before event'
+      percentage: 40,
+      due_date: dateMinus(eventDate, 14),
+      description: 'Final balance due 2 weeks before event'
     });
   }
   
@@ -143,7 +174,8 @@ export const buildPaymentSchedule = (
     currency: 'usd',
     customer_type: customerType,
     approval_date: approvedAt,
-    event_date: eventDate
+    event_date: eventDate,
+    schedule_tier: scheduleTier
   };
 };
 
@@ -185,4 +217,22 @@ export const generateInvoiceSchedule = (
       invoice_number: `${invoiceBaseData.invoice_number}-${payment.rule.type}`
     };
   });
+};
+
+// Get human-readable schedule description
+export const getScheduleDescription = (tier: PaymentSchedule['schedule_tier']): string => {
+  switch (tier) {
+    case 'RUSH':
+      return '100% payment required immediately (event within 14 days)';
+    case 'SHORT_NOTICE':
+      return '60% due now, 40% due 7 days before event';
+    case 'MID_RANGE':
+      return '60% due now, 40% due 2 weeks before event';
+    case 'STANDARD':
+      return '10% booking deposit, 50% at 30 days, 40% at 2 weeks';
+    case 'GOVERNMENT':
+      return '100% due Net 30 after event completion';
+    default:
+      return 'Custom payment schedule';
+  }
 };
