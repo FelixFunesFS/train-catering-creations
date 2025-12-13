@@ -56,8 +56,6 @@ export const SUCCESS_MESSAGES = {
   
   changeApproved: "Perfect! We've updated your estimate with the changes you requested.",
   
-  contractSigned: "All set! Your contract is signed. Now let's get ready for an amazing event!",
-  
   saveSuccess: "Great! Your changes have been saved.",
   
   emailSent: "Email sent! They should receive it shortly.",
@@ -77,8 +75,6 @@ export const LOADING_MESSAGES = {
   
   sendingEmail: "Sending your email...",
   
-  generatingContract: "Preparing your contract...",
-  
   loadingDetails: "Loading the details...",
   
   checkingStatus: "Checking the status..."
@@ -91,8 +87,6 @@ export const WELCOME_MESSAGES = {
   portal: `Welcome! We're excited to help make your event special.`,
   
   estimate: `Here's your personalized estimate. Take your time reviewing it, and let us know if you have any questions.`,
-  
-  contract: `Your contract is ready for review. Once you're happy with everything, we'll get you signed and scheduled.`,
   
   payment: `Let's get the payment details sorted. We offer flexible payment options to make this easy for you.`,
   
@@ -108,8 +102,6 @@ export const CTA_MESSAGES = {
   requestChanges: "Request Changes",
   
   makePayment: "Proceed to Payment",
-  
-  signContract: "Sign Contract",
   
   contactUs: "Get in Touch",
   
@@ -163,8 +155,7 @@ export function getContextualHelp(step: string): string {
     'quote-form': HELPER_TEXT.quoteForm,
     'estimate-review': WELCOME_MESSAGES.estimate,
     'change-request': HELPER_TEXT.changeRequest,
-    'payment': WELCOME_MESSAGES.payment,
-    'contract': WELCOME_MESSAGES.contract
+    'payment': WELCOME_MESSAGES.payment
   };
   
   return helpMessages[step] || `Questions? Call us at ${BRAND_CONTACT.phone} - we're here to help!`;
