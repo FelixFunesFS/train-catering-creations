@@ -1,8 +1,13 @@
+import { Tag } from 'lucide-react';
+
 interface EstimateSummaryProps {
   subtotal: number; // in cents
   taxAmount: number; // in cents
   total: number; // in cents
   isGovernment: boolean;
+  discountAmount?: number; // in cents (for fixed) or percentage points (for percentage)
+  discountType?: 'percentage' | 'fixed' | null;
+  discountDescription?: string | null;
 }
 
 function formatCents(cents: number): string {
@@ -12,10 +17,30 @@ function formatCents(cents: number): string {
   }).format(cents / 100);
 }
 
-export function EstimateSummary({ subtotal, taxAmount, total, isGovernment }: EstimateSummaryProps) {
+export function EstimateSummary({ 
+  subtotal, 
+  taxAmount, 
+  total, 
+  isGovernment,
+  discountAmount = 0,
+  discountType,
+  discountDescription
+}: EstimateSummaryProps) {
+  // Calculate discount in cents
+  const discountInCents = discountType === 'percentage' && discountAmount > 0
+    ? Math.round(subtotal * (discountAmount / 100))
+    : discountType === 'fixed' && discountAmount > 0
+      ? discountAmount
+      : 0;
+
+  // Subtotal after discount for tax calculation reference
+  const subtotalAfterDiscount = subtotal - discountInCents;
+
   // Calculate breakdown from total tax (9% = 2% hospitality + 7% service)
   const hospitalityTax = isGovernment ? 0 : Math.round(taxAmount * (2 / 9));
   const serviceTax = isGovernment ? 0 : taxAmount - hospitalityTax;
+
+  const hasDiscount = discountInCents > 0;
 
   return (
     <div className="bg-muted/50 rounded-lg p-4 space-y-2">
@@ -23,6 +48,26 @@ export function EstimateSummary({ subtotal, taxAmount, total, isGovernment }: Es
         <span className="text-muted-foreground">Subtotal</span>
         <span className="font-medium">{formatCents(subtotal)}</span>
       </div>
+
+      {/* Discount Line */}
+      {hasDiscount && (
+        <div className="flex justify-between text-sm text-emerald-600">
+          <span className="flex items-center gap-1">
+            <Tag className="h-3 w-3" />
+            {discountDescription || 'Discount'}
+            {discountType === 'percentage' && ` (${discountAmount}%)`}
+          </span>
+          <span className="font-medium">-{formatCents(discountInCents)}</span>
+        </div>
+      )}
+
+      {/* Subtotal after discount (only show if there's a discount) */}
+      {hasDiscount && (
+        <div className="flex justify-between text-sm border-t pt-2">
+          <span className="text-muted-foreground">After Discount</span>
+          <span className="font-medium">{formatCents(subtotalAfterDiscount)}</span>
+        </div>
+      )}
       
       {isGovernment ? (
         <div className="flex justify-between text-sm">

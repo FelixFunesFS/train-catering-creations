@@ -27,6 +27,13 @@ export interface DetailedTaxCalculation extends TaxCalculation {
   serviceTaxRate: number;
 }
 
+export interface DiscountedTaxCalculation extends TaxCalculation {
+  discountAmount: number;
+  discountType: 'percentage' | 'fixed' | null;
+  discountDescription: string | null;
+  subtotalAfterDiscount: number;
+}
+
 export class TaxCalculationService {
   static calculateTax(subtotal: number, isGovernmentContract: boolean = false): TaxCalculation {
     const isExempt = isGovernmentContract;
@@ -36,6 +43,48 @@ export class TaxCalculationService {
 
     return {
       subtotal,
+      taxAmount,
+      totalAmount,
+      taxRate,
+      isExempt
+    };
+  }
+
+  /**
+   * Calculate tax with discount applied
+   * Discount is applied before tax calculation
+   */
+  static calculateTaxWithDiscount(
+    subtotal: number,
+    discountAmount: number = 0,
+    discountType: 'percentage' | 'fixed' | null = null,
+    discountDescription: string | null = null,
+    isGovernmentContract: boolean = false
+  ): DiscountedTaxCalculation {
+    const isExempt = isGovernmentContract;
+    
+    // Calculate actual discount in cents
+    let discountInCents = 0;
+    if (discountType === 'percentage' && discountAmount > 0) {
+      discountInCents = Math.round(subtotal * (discountAmount / 100));
+    } else if (discountType === 'fixed' && discountAmount > 0) {
+      discountInCents = discountAmount;
+    }
+    
+    // Subtotal after discount (minimum 0)
+    const subtotalAfterDiscount = Math.max(0, subtotal - discountInCents);
+    
+    // Apply tax on discounted subtotal
+    const taxRate = isExempt ? 0 : DEFAULT_TAX_RATE;
+    const taxAmount = isExempt ? 0 : Math.round(subtotalAfterDiscount * taxRate);
+    const totalAmount = subtotalAfterDiscount + taxAmount;
+
+    return {
+      subtotal,
+      discountAmount: discountInCents,
+      discountType,
+      discountDescription,
+      subtotalAfterDiscount,
       taxAmount,
       totalAmount,
       taxRate,

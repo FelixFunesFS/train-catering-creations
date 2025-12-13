@@ -5,12 +5,13 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { useLineItems, useUpdateLineItem, useDeleteLineItem } from '@/hooks/useLineItems';
-import { useInvoice } from '@/hooks/useInvoices';
+import { useInvoice, useUpdateInvoice } from '@/hooks/useInvoices';
 import { LineItemEditor } from './LineItemEditor';
 import { AddLineItemModal } from './AddLineItemModal';
 import { EstimateSummary } from './EstimateSummary';
 import { EmailPreview } from './EmailPreview';
 import { SortableLineItem } from './SortableLineItem';
+import { DiscountEditor } from './DiscountEditor';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
@@ -49,6 +50,7 @@ export function EstimateEditor({ invoice, onClose }: EstimateEditorProps) {
   const { data: currentInvoice } = useInvoice(invoice.invoice_id);
   const updateLineItem = useUpdateLineItem();
   const deleteLineItem = useDeleteLineItem();
+  const updateInvoice = useUpdateInvoice();
 
   // Stable sorting to prevent items from jumping during edits
   const sortedLineItems = useMemo(() => {
@@ -218,8 +220,35 @@ export function EstimateEditor({ invoice, onClose }: EstimateEditorProps) {
   const subtotal = currentInvoice?.subtotal ?? 0;
   const taxAmount = currentInvoice?.tax_amount ?? 0;
   const total = currentInvoice?.total_amount ?? 0;
+  
+  // Discount values from invoice
+  const discountAmount = (currentInvoice as any)?.discount_amount ?? 0;
+  const discountType = (currentInvoice as any)?.discount_type as 'percentage' | 'fixed' | null;
+  const discountDescription = (currentInvoice as any)?.discount_description as string | null;
 
   const isAlreadySent = currentInvoice?.workflow_status === 'sent' || currentInvoice?.workflow_status === 'viewed';
+
+  const handleApplyDiscount = async (amount: number, type: 'percentage' | 'fixed', description: string) => {
+    await updateInvoice.mutateAsync({
+      invoiceId: invoice.invoice_id,
+      updates: {
+        discount_amount: amount,
+        discount_type: type,
+        discount_description: description,
+      } as any,
+    });
+  };
+
+  const handleRemoveDiscount = async () => {
+    await updateInvoice.mutateAsync({
+      invoiceId: invoice.invoice_id,
+      updates: {
+        discount_amount: 0,
+        discount_type: null,
+        discount_description: null,
+      } as any,
+    });
+  };
 
   if (showPreview) {
     return (
@@ -319,12 +348,31 @@ export function EstimateEditor({ invoice, onClose }: EstimateEditorProps) {
 
         <Separator />
 
+        {/* Discount Section */}
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-medium">Discount</span>
+          <DiscountEditor
+            discountAmount={discountAmount}
+            discountType={discountType}
+            discountDescription={discountDescription}
+            subtotal={subtotal}
+            onApplyDiscount={handleApplyDiscount}
+            onRemoveDiscount={handleRemoveDiscount}
+            disabled={updateInvoice.isPending}
+          />
+        </div>
+
+        <Separator />
+
         {/* Totals */}
         <EstimateSummary 
           subtotal={subtotal}
           taxAmount={taxAmount}
           total={total}
-          isGovernment={isGovernment || false} 
+          isGovernment={isGovernment || false}
+          discountAmount={discountAmount}
+          discountType={discountType}
+          discountDescription={discountDescription}
         />
 
         {/* Actions */}
