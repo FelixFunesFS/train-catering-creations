@@ -185,6 +185,7 @@
 | `InvoiceTotalsRecalculator` | `src/services/InvoiceTotalsRecalculator.ts` | Invoice total calculations | `PricingPanel` |
 | `LineItemsService` | `src/services/LineItemsService.ts` | Line item CRUD operations | `useLineItems`, `useLineItemManagement`, `WorkflowService` |
 | `WorkflowService` | `src/services/WorkflowService.ts` | Quote-to-invoice workflow | Uses `LineItemsService` for line items |
+| `ChangeRequestService` | `src/services/ChangeRequestService.ts` | Change request CRUD & quote status updates | `QuoteApprovalFlow` |
 
 ### Edge Functions
 | Function | Location | Purpose |
