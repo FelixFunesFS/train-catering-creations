@@ -81,7 +81,7 @@ export function EventPipelineBoard() {
   };
 
   const handleEventClick = (eventId: string) => {
-    navigate(`/admin?view=workflow&quoteId=${eventId}`);
+    navigate(`/admin?view=events&tab=list&quoteId=${eventId}`);
   };
 
   if (loading) {

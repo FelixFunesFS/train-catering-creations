@@ -21,8 +21,7 @@ import {
   AlertCircle,
   ChevronDown,
   ChevronRight,
-  Shield,
-  FileText
+  Shield
 } from 'lucide-react';
 import { type LineItem } from '@/utils/invoiceFormatters';
 
@@ -41,9 +40,6 @@ interface EnhancedEstimateLineItemsProps {
   guestCount?: number;
   isModified: boolean;
   triggerAutoSave: () => void;
-  requiresContract?: boolean;
-  contractReason?: string;
-  onContractToggleChange?: (checked: boolean) => void;
 }
 
 export function EnhancedEstimateLineItems({
@@ -60,10 +56,7 @@ export function EnhancedEstimateLineItems({
   onGovernmentToggle,
   guestCount = 0,
   isModified,
-  triggerAutoSave,
-  requiresContract,
-  contractReason,
-  onContractToggleChange
+  triggerAutoSave
 }: EnhancedEstimateLineItemsProps) {
   const [editingItem, setEditingItem] = useState<string | null>(null);
   const [editingValues, setEditingValues] = useState<Record<string, string>>({});
@@ -473,30 +466,6 @@ export function EnhancedEstimateLineItems({
               />
             </div>
 
-            {/* Contract Requirement Toggle */}
-            {requiresContract !== undefined && onContractToggleChange && (
-              <div className="flex items-center justify-between p-3 border rounded-lg bg-muted/20">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <FileText className="h-4 w-4" />
-                    <Label htmlFor="requires-contract" className="text-sm font-medium cursor-pointer">
-                      Separate Contract Required
-                    </Label>
-                  </div>
-                  <p className="text-xs text-muted-foreground">{contractReason}</p>
-                  {!requiresContract && (
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Terms & Conditions will be accepted with the estimate
-                    </p>
-                  )}
-                </div>
-                <Switch
-                  id="requires-contract"
-                  checked={requiresContract}
-                  onCheckedChange={onContractToggleChange}
-                />
-              </div>
-            )}
           </CollapsibleContent>
         </Collapsible>
 

@@ -35,8 +35,7 @@ export interface QuoteRequest {
   service_type: string;
   status?: string;
   workflow_status?: string;
-  primary_protein?: string;
-  secondary_protein?: string;
+  proteins?: string[]; // JSONB array from database
   appetizers: any[];
   sides: any[];
   desserts: any[];
@@ -92,9 +91,9 @@ export const formatServiceType = (serviceType: string): string => {
   return serviceTypes[serviceType] || 'Catering Service';
 };
 
-// Create meal bundle for 2 proteins
+// Create meal bundle for proteins
 export const createMealBundle = (quote: QuoteRequest): LineItem => {
-  const proteins = [quote.primary_protein, quote.secondary_protein].filter(Boolean);
+  const proteins = getSelectedProteins(quote);
   const sides = Array.isArray(quote.sides) ? quote.sides.slice(0, 2) : [];
   const drinks = Array.isArray(quote.drinks) ? quote.drinks : [];
   
@@ -307,32 +306,11 @@ export const generateProfessionalLineItems = (quote: QuoteRequest): LineItem[] =
 
 // Helper functions for the new 5-tier structure
 function getSelectedProteins(quote: QuoteRequest): string[] {
-  const proteins: string[] = [];
-  
-  // Handle primary protein (can be array or string)
-  if (Array.isArray(quote.primary_protein)) {
-    proteins.push(...quote.primary_protein);
-  } else if (quote.primary_protein) {
-    // Handle comma-separated strings
-    if (quote.primary_protein.includes(',')) {
-      proteins.push(...quote.primary_protein.split(',').map(p => p.trim()));
-    } else {
-      proteins.push(quote.primary_protein);
-    }
+  // Use proteins JSONB array from database (single source of truth)
+  if (Array.isArray(quote.proteins)) {
+    return quote.proteins.filter(Boolean);
   }
-  
-  // Handle secondary protein
-  if (Array.isArray(quote.secondary_protein)) {
-    proteins.push(...quote.secondary_protein);
-  } else if (quote.secondary_protein) {
-    if (quote.secondary_protein.includes(',')) {
-      proteins.push(...quote.secondary_protein.split(',').map(p => p.trim()));
-    } else {
-      proteins.push(quote.secondary_protein);
-    }
-  }
-  
-  return proteins.filter(Boolean);
+  return [];
 }
 
 function createCateringPackage(quote: QuoteRequest, proteins: string[]): LineItem {

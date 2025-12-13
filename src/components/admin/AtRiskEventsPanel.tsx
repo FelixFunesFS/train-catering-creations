@@ -164,7 +164,7 @@ export function AtRiskEventsPanel() {
                 key={`${event.id}-${idx}`}
                 className="border-l-4 hover:shadow-md transition-shadow cursor-pointer"
                 style={{ borderLeftColor: getRiskColor(event.riskLevel).replace('bg-', '') }}
-                onClick={() => navigate(`/admin?view=workflow&quoteId=${event.id}`)}
+                onClick={() => navigate(`/admin?view=events&tab=list&quoteId=${event.id}`)}
               >
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between gap-4">
