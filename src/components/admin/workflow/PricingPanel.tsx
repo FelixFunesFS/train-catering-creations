@@ -9,7 +9,6 @@ import { EnhancedEstimateLineItems } from '../EnhancedEstimateLineItems';
 import { IntegratedChangeRequestPanel } from './IntegratedChangeRequestPanel';
 import { EditableEventDetails } from './EditableEventDetails';
 import { EstimateVersionComparison } from './EstimateVersionComparison';
-import { requiresSeparateContract } from '@/utils/contractRequirements';
 import { formatEventName } from '@/utils/textFormatters';
 import { 
   FileText, 
@@ -65,8 +64,6 @@ interface PricingPanelProps {
   isModified: boolean;
   isGovernmentContract: boolean;
   loading: boolean;
-  requiresContract?: boolean;
-  onRequiresContractChange?: (requires: boolean) => void;
   onGenerateInvoice: () => void;
   onSavePricing: () => void;
   onSendEstimate: () => void;
@@ -118,8 +115,6 @@ export function PricingPanel({
   isModified,
   isGovernmentContract,
   loading,
-  requiresContract: requiresContractProp,
-  onRequiresContractChange,
   onGenerateInvoice,
   onSavePricing,
   onSendEstimate,
@@ -135,16 +130,6 @@ export function PricingPanel({
   onQuoteUpdate
 }: PricingPanelProps) {
   const [selectedTemplate, setSelectedTemplate] = useState<string>('');
-  
-  const contractCheck = requiresSeparateContract(quote, totals.total_amount);
-  const [localRequiresContract, setLocalRequiresContract] = useState(
-    requiresContractProp !== undefined ? requiresContractProp : contractCheck.requiresSeparateContract
-  );
-
-  const handleContractToggle = (checked: boolean) => {
-    setLocalRequiresContract(checked);
-    onRequiresContractChange?.(checked);
-  };
 
   const handleTemplateSelect = (templateId: string) => {
     const template = weddingTemplates.find(t => t.id === templateId);
@@ -273,9 +258,6 @@ export function PricingPanel({
                 quickCalculatePerPerson={() => quickCalculatePerPerson(quote.guest_count)}
                 isGovernmentContract={isGovernmentContract}
                 onGovernmentToggle={onGovernmentToggle}
-                requiresContract={localRequiresContract}
-                contractReason={contractCheck.reason}
-                onContractToggleChange={handleContractToggle}
               />
             </div>
           </CardContent>

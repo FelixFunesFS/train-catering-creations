@@ -10,7 +10,6 @@ import { Separator } from '@/components/ui/separator';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { StandardTermsAndConditions } from '@/components/shared/StandardTermsAndConditions';
-import { getEventTermsType } from '@/utils/contractRequirements';
 import { ChangesSummaryBanner } from './ChangesSummaryBanner';
 import { TermsAcceptanceModal } from './TermsAcceptanceModal';
 import { 
@@ -86,9 +85,9 @@ export function EstimateApprovalWorkflow({
   const [paymentLoading, setPaymentLoading] = useState(false);
   const { toast } = useToast();
   
-  const needsTermsAcceptance = !estimate.requires_separate_contract && estimate.include_terms_and_conditions;
-  const termsType = getEventTermsType(estimate.quote_requests);
-  const quote = estimate.quote_requests;
+  const needsTermsAcceptance = estimate.include_terms_and_conditions;
+  const quoteData = estimate.quote_requests;
+  const termsType = quoteData.event_type === 'wedding' || quoteData.event_type === 'second_wedding' ? 'wedding' : 'standard';
 
   const handleInitiateApproval = () => {
     setShowTermsModal(true);
