@@ -151,8 +151,9 @@ export function PaymentList() {
         </Card>
       ) : (
         filteredInvoices.map((invoice) => {
-          const totalPaid = invoice.total_paid || 0;
-          const balanceRemaining = invoice.balance_remaining || (invoice.total_amount || 0);
+          const totalPaid = invoice.total_paid ?? 0;
+          // Use nullish coalescing to properly handle 0 balance (fully paid)
+          const balanceRemaining = invoice.balance_remaining ?? (invoice.total_amount ?? 0);
           const progressPercent = invoice.total_amount 
             ? Math.min(100, Math.round((totalPaid / invoice.total_amount) * 100))
             : 0;
