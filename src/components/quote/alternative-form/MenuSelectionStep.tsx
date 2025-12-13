@@ -319,7 +319,7 @@ const MenuSelectionStepComponent = ({ form, trackFieldInteraction, variant = 're
       {/* Vegetarian Portions */}
       <FormField
         control={form.control}
-        name="vegetarian_portion_count"
+        name="guest_count_with_restrictions"
         render={({ field }) => (
           <FormItem className="max-w-md">
             <FormLabel className="text-base font-medium mb-2 block">

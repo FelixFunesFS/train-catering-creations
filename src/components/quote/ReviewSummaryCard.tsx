@@ -1,7 +1,7 @@
 import { UseFormReturn } from "react-hook-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { User, Calendar, MapPin, Users, ChefHat, UtensilsCrossed } from "lucide-react";
+import { User, Calendar, MapPin, Users, ChefHat, UtensilsCrossed, MessageSquare } from "lucide-react";
 
 interface ReviewSummaryCardProps {
   form: UseFormReturn<any>;
@@ -221,6 +221,30 @@ export const ReviewSummaryCard = ({ form, variant }: ReviewSummaryCardProps) => 
               {watchedValues.serving_utensils_requested && <span>✓ Serving Utensils</span>}
               {watchedValues.chafers_requested && <span>✓ Chafing Dishes with Fuel</span>}
               {watchedValues.ice_requested && <span>✓ Ice</span>}
+            </div>
+          </div>
+        )}
+
+        {/* Additional Requests */}
+        {(watchedValues.guest_count_with_restrictions || watchedValues.special_requests) && (
+          <div className="md:col-span-2 border-l-4 border-primary/20 bg-muted/30 p-4 rounded-lg">
+            <div className="flex items-center gap-2 text-primary mb-3">
+              <MessageSquare className="h-4 w-4" />
+              <span className="text-sm font-medium">Additional Requests</span>
+            </div>
+            <div className="space-y-2 text-sm">
+              {watchedValues.guest_count_with_restrictions && (
+                <p>
+                  <span className="text-muted-foreground">Vegetarian Portions:</span>{' '}
+                  <span className="font-medium">{watchedValues.guest_count_with_restrictions}</span>
+                </p>
+              )}
+              {watchedValues.special_requests && (
+                <p>
+                  <span className="text-muted-foreground">Special Requests:</span>{' '}
+                  <span className="font-medium">{watchedValues.special_requests}</span>
+                </p>
+              )}
             </div>
           </div>
         )}
