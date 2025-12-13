@@ -21,6 +21,7 @@ interface PortalEmailRequest {
   quote_request_id: string;
   type: 'welcome' | 'estimate_ready' | 'payment_reminder' | 'payment_confirmation';
   preview_only?: boolean;
+  override_email?: string;  // Send to different recipient than quote.email
   metadata?: {
     amount?: number;
     payment_type?: string;
@@ -35,7 +36,7 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { quote_request_id, type, preview_only = false }: PortalEmailRequest = await req.json();
+    const { quote_request_id, type, preview_only = false, override_email, metadata }: PortalEmailRequest = await req.json();
 
     if (!quote_request_id || !type) {
       throw new Error('Missing required fields: quote_request_id, type');
@@ -126,13 +127,14 @@ const handler = async (req: Request): Promise<Response> => {
         htmlContent = generatePaymentReminderEmail(quote, portalUrl);
         break;
         
-      case 'payment_confirmation':
+      case 'payment_confirmation': {
         const { amount, payment_type, is_full_payment } = metadata || {};
         subject = is_full_payment
           ? `🎉 Payment Confirmed - Your Event is Secured!`
           : `💰 Deposit Received - ${quote.event_name}`;
         htmlContent = generatePaymentConfirmationEmailWithNextSteps(quote, invoice, amount || 0, is_full_payment || false, portalUrl);
         break;
+      }
         
       default:
         throw new Error(`Invalid email type: ${type}`);
@@ -155,10 +157,14 @@ const handler = async (req: Request): Promise<Response> => {
       });
     }
 
+    // Determine recipient - use override if provided, otherwise use quote email
+    const recipientEmail = override_email || quote.email;
+    console.log(`Sending email to: ${recipientEmail}${override_email ? ' (override)' : ''}`);
+
     // Send email via the gmail email function
     const { error: emailError } = await supabase.functions.invoke('send-gmail-email', {
       body: {
-        to: quote.email,
+        to: recipientEmail,
         subject,
         html: htmlContent
       }
@@ -166,7 +172,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (emailError) throw emailError;
 
-    console.log(`Customer portal email sent successfully to ${quote.email}`);
+    console.log(`Customer portal email sent successfully to ${recipientEmail}`);
 
     return new Response(JSON.stringify({ 
       success: true,

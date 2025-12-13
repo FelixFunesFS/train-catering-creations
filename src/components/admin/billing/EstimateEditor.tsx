@@ -14,7 +14,7 @@ import { SortableLineItem } from './SortableLineItem';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
-import { FileText, Loader2, Eye, Plus } from 'lucide-react';
+import { FileText, Loader2, Eye, Plus, RefreshCw } from 'lucide-react';
 import { 
   DndContext, 
   closestCenter, 
@@ -41,6 +41,7 @@ export function EstimateEditor({ invoice, onClose }: EstimateEditorProps) {
   const queryClient = useQueryClient();
   const [isSending, setIsSending] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [isResendMode, setIsResendMode] = useState(false);
   const [showAddItem, setShowAddItem] = useState(false);
   const [adminNotes, setAdminNotes] = useState('');
   
@@ -160,39 +161,48 @@ export function EstimateEditor({ invoice, onClose }: EstimateEditorProps) {
       });
       return;
     }
+    setIsResendMode(false);
     setShowPreview(true);
   };
 
-  const handleSendEstimate = async () => {
+  const handleResendClick = () => {
+    setIsResendMode(true);
+    setShowPreview(true);
+  };
+
+  const handleSendEstimate = async (overrideEmail?: string) => {
     setIsSending(true);
     try {
       const { error } = await supabase.functions.invoke('send-customer-portal-email', {
         body: { 
           type: 'estimate_ready',
           quote_request_id: invoice.quote_id,
+          override_email: overrideEmail,
         }
       });
 
       if (error) throw error;
 
-      // Update invoice status
-      await supabase
-        .from('invoices')
-        .update({ 
-          workflow_status: 'sent',
-          sent_at: new Date().toISOString(),
-          is_draft: false,
-        })
-        .eq('id', invoice.invoice_id);
+      // Update invoice status (only if first send)
+      if (!isResendMode) {
+        await supabase
+          .from('invoices')
+          .update({ 
+            workflow_status: 'sent',
+            sent_at: new Date().toISOString(),
+            is_draft: false,
+          })
+          .eq('id', invoice.invoice_id);
+      }
 
       queryClient.invalidateQueries({ queryKey: ['invoices'] });
 
       toast({
-        title: 'Estimate Sent',
-        description: 'Customer has been emailed the estimate.',
+        title: isResendMode ? 'Estimate Resent' : 'Estimate Sent',
+        description: `Email sent to ${overrideEmail || invoice.email}`,
       });
       setShowPreview(false);
-      onClose();
+      if (!isResendMode) onClose();
     } catch (err: any) {
       toast({
         title: 'Error',
@@ -209,6 +219,8 @@ export function EstimateEditor({ invoice, onClose }: EstimateEditorProps) {
   const taxAmount = currentInvoice?.tax_amount ?? 0;
   const total = currentInvoice?.total_amount ?? 0;
 
+  const isAlreadySent = currentInvoice?.workflow_status === 'sent' || currentInvoice?.workflow_status === 'viewed';
+
   if (showPreview) {
     return (
       <EmailPreview
@@ -216,6 +228,7 @@ export function EstimateEditor({ invoice, onClose }: EstimateEditorProps) {
         onClose={() => setShowPreview(false)}
         onConfirmSend={handleSendEstimate}
         isSending={isSending}
+        isResend={isResendMode}
       />
     );
   }
@@ -319,10 +332,17 @@ export function EstimateEditor({ invoice, onClose }: EstimateEditorProps) {
           <Button variant="outline" onClick={onClose}>
             Close
           </Button>
-          <Button onClick={handlePreviewClick} disabled={!lineItems?.length}>
-            <Eye className="h-4 w-4 mr-2" />
-            Preview & Send
-          </Button>
+          {isAlreadySent ? (
+            <Button onClick={handleResendClick} disabled={!lineItems?.length} variant="outline">
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Resend Estimate
+            </Button>
+          ) : (
+            <Button onClick={handlePreviewClick} disabled={!lineItems?.length}>
+              <Eye className="h-4 w-4 mr-2" />
+              Preview & Send
+            </Button>
+          )}
         </div>
 
         {/* Add Line Item Modal */}
