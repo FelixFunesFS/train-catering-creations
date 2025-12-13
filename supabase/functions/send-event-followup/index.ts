@@ -40,7 +40,7 @@ serve(async (req) => {
       `)
       .gte('event_date', yesterdayStart.toISOString().split('T')[0])
       .lte('event_date', yesterdayEnd.toISOString().split('T')[0])
-      .eq('status', 'confirmed');
+      .eq('workflow_status', 'completed');
 
     if (quotesError) throw quotesError;
 

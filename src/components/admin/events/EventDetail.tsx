@@ -11,7 +11,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useInvoiceByQuote } from '@/hooks/useInvoices';
 import { supabase } from '@/integrations/supabase/client';
 import { formatMenuDescription } from '@/utils/invoiceFormatters';
-import { User, Calendar, MapPin, Users, Utensils, FileText, Loader2, Package, Eye, Pencil, Receipt } from 'lucide-react';
+import { User, Calendar, MapPin, Users, Utensils, FileText, Loader2, Package, Eye, Pencil, Receipt, Play, CheckCircle, XCircle } from 'lucide-react';
+import { useUpdateQuoteStatus } from '@/hooks/useQuotes';
 
 type QuoteRequest = Database['public']['Tables']['quote_requests']['Row'];
 
@@ -44,6 +45,24 @@ export function EventDetail({ quote, onClose }: EventDetailProps) {
   
   // Check if estimate already exists
   const { data: existingInvoice, isLoading: checkingInvoice } = useInvoiceByQuote(quote.id);
+  const updateStatus = useUpdateQuoteStatus();
+
+  const handleStatusChange = async (newStatus: 'in_progress' | 'completed' | 'cancelled') => {
+    try {
+      await updateStatus.mutateAsync({ quoteId: quote.id, status: newStatus });
+      toast({
+        title: 'Status Updated',
+        description: `Event marked as ${newStatus.replace('_', ' ')}`,
+      });
+      onClose();
+    } catch (err: any) {
+      toast({
+        title: 'Error',
+        description: err.message || 'Failed to update status',
+        variant: 'destructive',
+      });
+    }
+  };
 
   const handleViewEstimate = () => {
     if (!existingInvoice) return;
@@ -256,6 +275,52 @@ export function EventDetail({ quote, onClose }: EventDetailProps) {
               );
             })()}
           </section>
+
+          {/* Event Status Actions */}
+          {quote.workflow_status !== 'cancelled' && quote.workflow_status !== 'completed' && quote.workflow_status !== 'pending' && (
+            <>
+              <Separator />
+              <section>
+                <h3 className="text-sm font-semibold mb-3">Event Status Actions</h3>
+                <div className="flex flex-wrap gap-2">
+                  {quote.workflow_status === 'confirmed' && (
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleStatusChange('in_progress')}
+                      disabled={updateStatus.isPending}
+                    >
+                      <Play className="h-4 w-4 mr-2" />
+                      Mark In Progress
+                    </Button>
+                  )}
+                  
+                  {(quote.workflow_status === 'confirmed' || quote.workflow_status === 'in_progress') && (
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleStatusChange('completed')}
+                      disabled={updateStatus.isPending}
+                    >
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                      Mark Completed
+                    </Button>
+                  )}
+                  
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="text-destructive hover:text-destructive"
+                    onClick={() => handleStatusChange('cancelled')}
+                    disabled={updateStatus.isPending}
+                  >
+                    <XCircle className="h-4 w-4 mr-2" />
+                    Cancel Event
+                  </Button>
+                </div>
+              </section>
+            </>
+          )}
 
           <Separator />
 
