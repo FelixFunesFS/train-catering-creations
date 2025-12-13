@@ -5,8 +5,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, XCircle, Clock, DollarSign } from 'lucide-react';
 import { useSimplifiedChangeRequests, type ChangeRequest } from '@/hooks/useSimplifiedChangeRequests';
-import { supabase } from '@/integrations/supabase/client';
-import { WorkflowStateManager } from '@/services/WorkflowStateManager';
 import { toast } from '@/hooks/use-toast';
 
 interface ChangeRequestProcessorProps {
@@ -20,84 +18,17 @@ export function ChangeRequestProcessor({ changeRequest, onProcessed }: ChangeReq
   const { processing, approveChangeRequest, rejectChangeRequest } = useSimplifiedChangeRequests();
 
   const handleApprove = async () => {
-    const result = await approveChangeRequest(changeRequest, {
-      adminResponse,
-      finalCostChange
-    });
+    try {
+      const result = await approveChangeRequest(changeRequest, {
+        adminResponse,
+        finalCostChange
+      });
 
-    if (result.success) {
-      // Update the invoice and quote to reflect changes
-      if (changeRequest.invoice_id) {
-        // Get the invoice
-        const { data: invoice } = await supabase
-          .from('invoices')
-          .select('*, quote_request_id')
-          .eq('id', changeRequest.invoice_id)
-          .single();
-
-        if (invoice) {
-          // Create new estimate version
-          const { data: lineItems } = await supabase
-            .from('invoice_line_items')
-            .select('*')
-            .eq('invoice_id', invoice.id);
-
-          await supabase
-            .from('estimate_versions')
-            .insert({
-              invoice_id: invoice.id,
-              change_request_id: changeRequest.id,
-              version_number: (invoice.version || 1) + 1,
-              line_items: lineItems || [],
-              subtotal: invoice.subtotal + (finalCostChange || 0),
-              tax_amount: Math.round((invoice.subtotal + (finalCostChange || 0)) * 0.074),
-              total_amount: invoice.total_amount + (finalCostChange || 0),
-              status: 'approved',
-              notes: adminResponse,
-              created_by: 'admin'
-            });
-
-          // Update the invoice
-          await supabase
-            .from('invoices')
-            .update({
-              total_amount: invoice.total_amount + (finalCostChange || 0),
-              subtotal: invoice.subtotal + (finalCostChange || 0),
-              version: (invoice.version || 1) + 1
-            })
-            .eq('id', invoice.id);
-
-          // Update quote status
-          if (invoice.quote_request_id) {
-            await WorkflowStateManager.updateQuoteStatus(
-              invoice.quote_request_id,
-              'estimated',
-              'admin',
-              'Change request approved - new estimate version created'
-            );
-
-            // Send updated estimate to customer
-            await supabase.functions.invoke('send-customer-portal-email', {
-              body: {
-                quote_request_id: invoice.quote_request_id,
-                type: 'estimate_ready'
-              }
-            });
-
-            // Update invoice status to 'sent' so customer can review updated estimate
-            await supabase
-              .from('invoices')
-              .update({
-                workflow_status: 'sent',
-                last_status_change: new Date().toISOString(),
-                status_changed_by: 'admin'
-              })
-              .eq('id', invoice.id);
-          }
-        }
+      if (result.success) {
+        onProcessed();
       }
-
-      onProcessed();
+    } catch (error) {
+      console.error('Error approving change request:', error);
     }
   };
 
@@ -111,8 +42,12 @@ export function ChangeRequestProcessor({ changeRequest, onProcessed }: ChangeReq
       return;
     }
 
-    await rejectChangeRequest(changeRequest, adminResponse);
-    onProcessed();
+    try {
+      await rejectChangeRequest(changeRequest, adminResponse);
+      onProcessed();
+    } catch (error) {
+      console.error('Error rejecting change request:', error);
+    }
   };
 
   return (
