@@ -1,10 +1,7 @@
-import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { supabase } from '@/integrations/supabase/client';
 import { 
-  TrendingUp, 
   Calendar, 
   DollarSign, 
   AlertTriangle, 
@@ -14,141 +11,38 @@ import {
   ArrowRight,
   CalendarDays
 } from 'lucide-react';
-import { format, differenceInDays, startOfWeek, endOfWeek, isToday, isTomorrow } from 'date-fns';
+import { format, isToday, isTomorrow, differenceInDays } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
-
-interface KPIData {
-  openLeads: number;
-  eventsThisWeek: number;
-  outstandingBalance: number;
-  recentActivity: number;
-}
-
-interface RiskEvent {
-  id: string;
-  event_name: string;
-  event_date: string;
-  contact_name: string;
-  workflow_status: string;
-  riskLevel: 'high' | 'medium' | 'low';
-  message: string;
-}
-
-interface UpcomingEvent {
-  id: string;
-  event_name: string;
-  event_date: string;
-  start_time: string;
-  contact_name: string;
-  guest_count: number;
-  workflow_status: string;
-}
+import { useDashboardKPIs, useAtRiskEvents, useUpcomingEvents } from '@/hooks/useEvents';
 
 export function DashboardHome() {
-  const [kpis, setKpis] = useState<KPIData>({ openLeads: 0, eventsThisWeek: 0, outstandingBalance: 0, recentActivity: 0 });
-  const [riskEvents, setRiskEvents] = useState<RiskEvent[]>([]);
-  const [upcomingEvents, setUpcomingEvents] = useState<UpcomingEvent[]>([]);
-  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  
+  const { data: kpis, isLoading: kpisLoading } = useDashboardKPIs();
+  const { data: atRiskEvents, isLoading: riskLoading } = useAtRiskEvents();
+  const { data: upcomingEvents, isLoading: upcomingLoading } = useUpcomingEvents(7);
 
-  useEffect(() => {
-    loadDashboardData();
-  }, []);
+  const loading = kpisLoading || riskLoading || upcomingLoading;
 
-  const loadDashboardData = async () => {
-    try {
-      setLoading(true);
-      const today = new Date();
-      const weekStart = startOfWeek(today);
-      const weekEnd = endOfWeek(today);
+  // Transform at-risk events to display format
+  const riskEvents = (atRiskEvents || []).slice(0, 5).map(event => {
+    const eventDate = new Date(event.event_date);
+    const daysUntilEvent = differenceInDays(eventDate, new Date());
+    return {
+      id: event.quote_id,
+      event_name: event.event_name,
+      event_date: event.event_date,
+      contact_name: event.contact_name,
+      workflow_status: event.quote_status,
+      riskLevel: event.risk_level,
+      message: `Event in ${daysUntilEvent} days - ${event.quote_status}`,
+    };
+  });
 
-      // Load KPIs in parallel
-      const [quotesResult, invoicesResult, upcomingResult] = await Promise.all([
-        // Open leads (pending, under_review)
-        supabase
-          .from('quote_requests')
-          .select('id, workflow_status')
-          .in('workflow_status', ['pending', 'under_review', 'estimated']),
-        
-        // Outstanding invoices
-        supabase
-          .from('invoices')
-          .select('id, total_amount, workflow_status')
-          .in('workflow_status', ['sent', 'viewed', 'approved', 'payment_pending', 'partially_paid']),
-        
-        // This week's events
-        supabase
-          .from('quote_requests')
-          .select('*')
-          .gte('event_date', weekStart.toISOString().split('T')[0])
-          .lte('event_date', weekEnd.toISOString().split('T')[0])
-          .order('event_date', { ascending: true })
-      ]);
-
-      // Calculate KPIs
-      const openLeads = quotesResult.data?.length || 0;
-      const eventsThisWeek = upcomingResult.data?.length || 0;
-      const outstandingBalance = invoicesResult.data?.reduce((sum, inv) => sum + (inv.total_amount || 0), 0) || 0;
-
-      setKpis({
-        openLeads,
-        eventsThisWeek,
-        outstandingBalance,
-        recentActivity: openLeads + eventsThisWeek
-      });
-
-      // Load at-risk events
-      const { data: riskQuotes } = await supabase
-        .from('quote_requests')
-        .select(`
-          id, event_name, event_date, contact_name, workflow_status,
-          invoices(id, total_amount, workflow_status, due_date)
-        `)
-        .gte('event_date', today.toISOString())
-        .order('event_date', { ascending: true })
-        .limit(10);
-
-      const risks: RiskEvent[] = [];
-      riskQuotes?.forEach(quote => {
-        const eventDate = new Date(quote.event_date);
-        const daysUntilEvent = differenceInDays(eventDate, today);
-
-        if (daysUntilEvent <= 14 && quote.workflow_status !== 'paid' && quote.workflow_status !== 'confirmed') {
-          risks.push({
-            id: quote.id,
-            event_name: quote.event_name,
-            event_date: quote.event_date,
-            contact_name: quote.contact_name,
-            workflow_status: quote.workflow_status,
-            riskLevel: daysUntilEvent <= 7 ? 'high' : 'medium',
-            message: `Event in ${daysUntilEvent} days - ${quote.workflow_status}`,
-          });
-        }
-      });
-
-      setRiskEvents(risks.slice(0, 5));
-
-      // Load upcoming events (next 7 days)
-      const nextWeek = new Date(today);
-      nextWeek.setDate(nextWeek.getDate() + 7);
-
-      const { data: upcoming } = await supabase
-        .from('quote_requests')
-        .select('id, event_name, event_date, start_time, contact_name, guest_count, workflow_status')
-        .gte('event_date', today.toISOString().split('T')[0])
-        .lte('event_date', nextWeek.toISOString().split('T')[0])
-        .in('workflow_status', ['confirmed', 'paid', 'approved'])
-        .order('event_date', { ascending: true })
-        .limit(5);
-
-      setUpcomingEvents(upcoming || []);
-
-    } catch (error) {
-      console.error('Error loading dashboard data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Filter upcoming to only confirmed events
+  const confirmedUpcoming = (upcomingEvents || [])
+    .filter(e => ['confirmed', 'paid', 'approved'].includes(e.quote_status))
+    .slice(0, 5);
 
   const formatCurrency = (cents: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -190,7 +84,7 @@ export function DashboardHome() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{kpis.openLeads}</div>
+            <div className="text-2xl font-bold">{kpis?.openLeads || 0}</div>
             <p className="text-xs text-muted-foreground">Pending & under review</p>
           </CardContent>
         </Card>
@@ -204,7 +98,7 @@ export function DashboardHome() {
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{kpis.eventsThisWeek}</div>
+            <div className="text-2xl font-bold">{kpis?.eventsThisWeek || 0}</div>
             <p className="text-xs text-muted-foreground">Scheduled events</p>
           </CardContent>
         </Card>
@@ -218,7 +112,7 @@ export function DashboardHome() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(kpis.outstandingBalance)}</div>
+            <div className="text-2xl font-bold">{formatCurrency(kpis?.outstandingBalance || 0)}</div>
             <p className="text-xs text-muted-foreground">Unpaid invoices</p>
           </CardContent>
         </Card>
@@ -229,7 +123,7 @@ export function DashboardHome() {
             <AlertTriangle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{riskEvents.length}</div>
+            <div className="text-2xl font-bold">{kpis?.atRiskCount || 0}</div>
             <p className="text-xs text-muted-foreground">At-risk events</p>
           </CardContent>
         </Card>
@@ -293,22 +187,22 @@ export function DashboardHome() {
             </Button>
           </CardHeader>
           <CardContent>
-            {upcomingEvents.length === 0 ? (
+            {confirmedUpcoming.length === 0 ? (
               <div className="text-center py-8">
                 <Calendar className="h-10 w-10 mx-auto text-muted-foreground mb-2" />
                 <p className="text-sm text-muted-foreground">No confirmed events this week.</p>
               </div>
             ) : (
               <div className="space-y-3">
-                {upcomingEvents.map(event => {
+                {confirmedUpcoming.map(event => {
                   const eventDate = new Date(event.event_date);
                   const dateLabel = isToday(eventDate) ? 'Today' : isTomorrow(eventDate) ? 'Tomorrow' : format(eventDate, 'EEE, MMM d');
                   
                   return (
                     <div 
-                      key={event.id}
+                      key={event.quote_id}
                       className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors"
-                      onClick={() => navigate(`/admin?view=events&quoteId=${event.id}`)}
+                      onClick={() => navigate(`/admin?view=events&quoteId=${event.quote_id}`)}
                     >
                       <div className="flex-1 min-w-0">
                         <p className="font-medium truncate">{event.event_name}</p>
