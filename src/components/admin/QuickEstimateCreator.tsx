@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2, Send, Save } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PricingEngine } from "@/services/PricingEngine";
+import { LineItemsService } from "@/services/LineItemsService";
 import { PricingBreakdown } from "./PricingBreakdown";
 import { useToast } from "@/hooks/use-toast";
 
@@ -101,9 +102,8 @@ export const QuickEstimateCreator = ({
 
       const invoice = invoiceArray[0];
 
-      // Create line items
+      // Create line items using centralized service
       const lineItems = calculation.lineItems.map((item: any) => ({
-        invoice_id: invoice.id,
         title: item.category,
         description: item.description + (item.notes ? ` - ${item.notes}` : ''),
         quantity: item.quantity,
@@ -112,7 +112,7 @@ export const QuickEstimateCreator = ({
         category: item.category.toLowerCase()
       }));
 
-      await supabase.from('invoice_line_items').insert(lineItems);
+      await LineItemsService.createLineItems(invoice.id, lineItems);
 
       toast({
         title: "Draft Saved",
