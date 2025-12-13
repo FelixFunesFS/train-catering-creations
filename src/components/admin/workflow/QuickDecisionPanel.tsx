@@ -25,7 +25,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { AutoApprovalEngine } from '@/services/AutoApprovalEngine';
 import { ResponseTemplateService } from '@/services/ResponseTemplates';
-import { useSimplifiedChangeRequests } from '@/hooks/useSimplifiedChangeRequests';
+import { useProcessChangeRequest } from '@/hooks/useChangeRequests';
 import { useEstimateVersioning } from '@/hooks/useEstimateVersioning';
 import { UnifiedLineItemsTable } from '@/components/shared/UnifiedLineItemsTable';
 
@@ -45,7 +45,7 @@ export function QuickDecisionPanel({ invoiceId, onChangeProcessed }: QuickDecisi
   const [loading, setLoading] = useState(true);
   const [showComparison, setShowComparison] = useState(false);
 
-  const { processing, approveChangeRequest, rejectChangeRequest } = useSimplifiedChangeRequests();
+  const { processing, approveChangeRequest, rejectChangeRequest } = useProcessChangeRequest();
   
   // Get versioning data for comparison view
   const { versions, generateLineDiff } = useEstimateVersioning({

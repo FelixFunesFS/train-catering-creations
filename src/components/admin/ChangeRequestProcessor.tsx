@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, XCircle, Clock, DollarSign } from 'lucide-react';
-import { useSimplifiedChangeRequests, type ChangeRequest } from '@/hooks/useSimplifiedChangeRequests';
+import { useProcessChangeRequest, type ChangeRequest } from '@/hooks/useChangeRequests';
 import { toast } from '@/hooks/use-toast';
 
 interface ChangeRequestProcessorProps {
@@ -15,7 +15,7 @@ interface ChangeRequestProcessorProps {
 export function ChangeRequestProcessor({ changeRequest, onProcessed }: ChangeRequestProcessorProps) {
   const [adminResponse, setAdminResponse] = useState('');
   const [finalCostChange, setFinalCostChange] = useState(changeRequest.estimated_cost_change);
-  const { processing, approveChangeRequest, rejectChangeRequest } = useSimplifiedChangeRequests();
+  const { processing, approveChangeRequest, rejectChangeRequest } = useProcessChangeRequest();
 
   const handleApprove = async () => {
     try {
