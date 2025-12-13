@@ -10,6 +10,7 @@ interface CustomerActionsProps {
   customerEmail: string;
   status: string;
   quoteRequestId?: string;
+  amountPaid?: number;
   onStatusChange?: () => void;
   autoApprove?: boolean;
 }
@@ -19,6 +20,7 @@ export function CustomerActions({
   customerEmail,
   status,
   quoteRequestId,
+  amountPaid = 0,
   onStatusChange,
   autoApprove = false,
 }: CustomerActionsProps) {
@@ -29,16 +31,19 @@ export function CustomerActions({
 
   // Determine if actions should be disabled based on status
   const isActionable = ['sent', 'viewed'].includes(status);
-  const isAlreadyApproved = ['approved', 'paid', 'partially_paid'].includes(status);
+  const isAlreadyApproved = ['approved', 'paid', 'partially_paid', 'payment_pending'].includes(status);
+  // Allow change requests until payment starts (even after approval)
+  const canRequestChanges = ['sent', 'viewed', 'approved', 'payment_pending'].includes(status) && amountPaid === 0;
 
   const handleApprove = async () => {
     setIsApproving(true);
     try {
-      // Update invoice status to approved
+      // Update invoice status to approved and transition to invoice
       const { error } = await supabase
         .from('invoices')
         .update({
           workflow_status: 'approved',
+          document_type: 'invoice', // Estimate becomes an invoice upon approval
           last_status_change: new Date().toISOString(),
           last_customer_interaction: new Date().toISOString(),
         })
@@ -102,13 +107,37 @@ export function CustomerActions({
     }
   }, [autoApprove, isActionable]);
 
+  // Show approved state with optional change request button
   if (isAlreadyApproved) {
     return (
-      <div className="flex items-center justify-center gap-2 py-4 px-6 bg-emerald-50 dark:bg-emerald-950/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
-        <CheckCircle className="h-5 w-5 text-emerald-600" />
-        <span className="font-medium text-emerald-700 dark:text-emerald-400">
-          Estimate Approved
-        </span>
+      <div className="space-y-3">
+        <div className="flex items-center justify-center gap-2 py-4 px-6 bg-emerald-50 dark:bg-emerald-950/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
+          <CheckCircle className="h-5 w-5 text-emerald-600" />
+          <span className="font-medium text-emerald-700 dark:text-emerald-400">
+            {amountPaid > 0 ? 'Invoice Confirmed' : 'Estimate Approved'}
+          </span>
+        </div>
+        
+        {/* Allow change requests until payment starts */}
+        {canRequestChanges && (
+          <Button
+            variant="outline"
+            onClick={() => setShowChangeModal(true)}
+            size="lg"
+            className="w-full"
+          >
+            <MessageSquare className="mr-2 h-4 w-4" />
+            Request Changes
+          </Button>
+        )}
+        
+        <ChangeRequestModal
+          open={showChangeModal}
+          onOpenChange={setShowChangeModal}
+          invoiceId={invoiceId}
+          customerEmail={customerEmail}
+          onSuccess={onStatusChange}
+        />
       </div>
     );
   }
