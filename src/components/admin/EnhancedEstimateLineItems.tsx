@@ -20,8 +20,7 @@ import {
   Save,
   AlertCircle,
   ChevronDown,
-  ChevronRight,
-  Shield
+  ChevronRight
 } from 'lucide-react';
 import { type LineItem } from '@/utils/invoiceFormatters';
 
@@ -439,24 +438,24 @@ export function EnhancedEstimateLineItems({
 
         <Separator />
 
-        {/* Contract Settings - Collapsible Section at Bottom */}
+        {/* Tax Settings - Collapsible Section at Bottom */}
         <Collapsible defaultOpen={false}>
           <CollapsibleTrigger asChild>
             <Button variant="ghost" className="w-full justify-between px-0 hover:bg-transparent">
               <span className="text-sm font-medium flex items-center gap-2">
-                <Shield className="h-4 w-4" />
-                Contract Settings
+                <Building2 className="h-4 w-4" />
+                Tax Settings
               </span>
               <ChevronDown className="h-4 w-4 transition-transform data-[state=open]:rotate-180" />
             </Button>
           </CollapsibleTrigger>
           <CollapsibleContent className="space-y-3 pt-3">
-            {/* Government Contract Toggle */}
+            {/* Government Customer Toggle */}
             <div className="flex items-center justify-between p-3 border rounded-lg bg-muted/20">
               <div className="flex items-center gap-2">
                 <Building2 className="h-4 w-4" />
                 <Label htmlFor="government-contract" className="text-sm cursor-pointer">
-                  Government Contract (Tax Exempt)
+                  Government Customer (Tax Exempt)
                 </Label>
               </div>
               <Switch
