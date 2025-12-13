@@ -188,6 +188,7 @@ export function CustomerEstimateView() {
               invoiceId={invoice.id}
               customerEmail={quote.email}
               status={invoice.workflow_status}
+              quoteRequestId={invoice.quote_request_id}
               onStatusChange={refetch}
               autoApprove={action === 'approve' && !autoActionTriggered}
             />
