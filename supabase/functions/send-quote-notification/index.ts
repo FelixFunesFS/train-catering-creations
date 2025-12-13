@@ -152,11 +152,10 @@ const handler = async (req: Request): Promise<Response> => {
               <p style="margin: 5px 0; font-size: 15px;">${formatSupplies()}</p>
             </div>
 
-            ${requestData.dietary_restrictions && (Array.isArray(requestData.dietary_restrictions) ? requestData.dietary_restrictions.length > 0 : requestData.dietary_restrictions) ? `
+            ${requestData.guest_count_with_restrictions ? `
             <div class="event-card" style="border-left-color: ${BRAND_COLORS.gold}; background: #FFF9E6;">
-              <h3 style="margin: 0 0 10px 0; color: ${BRAND_COLORS.crimson};">🥗 Dietary Restrictions</h3>
-              <p style="margin: 5px 0;">${formatMenuItems(requestData.dietary_restrictions)}</p>
-              ${requestData.guest_count_with_restrictions ? `<p style="margin: 5px 0; font-size: 14px; color: #666;"><em>Guests with restrictions: ${requestData.guest_count_with_restrictions}</em></p>` : ''}
+              <h3 style="margin: 0 0 10px 0; color: ${BRAND_COLORS.crimson};">🥗 Vegetarian Portions</h3>
+              <p style="margin: 5px 0; font-size: 16px; font-weight: bold;">${requestData.guest_count_with_restrictions} guests require vegetarian meals</p>
             </div>
             ` : ''}
 
