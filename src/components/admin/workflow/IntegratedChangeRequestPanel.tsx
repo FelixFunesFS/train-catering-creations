@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { useSimplifiedChangeRequests, ChangeRequest as BaseChangeRequest } from '@/hooks/useSimplifiedChangeRequests';
+import { useProcessChangeRequest, type ChangeRequest as BaseChangeRequest } from '@/hooks/useChangeRequests';
 import { formatCurrency } from '@/lib/changeRequestUtils';
 import { ChangesSummaryCard } from './ChangesSummaryCard';
 import { 
@@ -51,7 +51,7 @@ export function IntegratedChangeRequestPanel({
   const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(!defaultCollapsed);
   const { toast } = useToast();
-  const { processing, approveChangeRequest, rejectChangeRequest } = useSimplifiedChangeRequests();
+  const { processing, approveChangeRequest, rejectChangeRequest } = useProcessChangeRequest();
 
   useEffect(() => {
     fetchChangeRequests();

@@ -125,10 +125,11 @@
 | Hook | Purpose | Used By |
 |------|---------|---------|
 | `useChangeRequests(status?)` | Fetch all change requests | Admin components |
-| `useChangeRequestsByInvoice(invoiceId)` | Fetch change requests for invoice | `ChangeRequestProcessor` |
+| `useChangeRequestsByInvoice(invoiceId)` | Fetch change requests for invoice | `IntegratedChangeRequestPanel` |
 | `usePendingChangeRequestsCount()` | Pending count for badges | Admin dashboard |
 | `useSubmitChangeRequest()` | Mutation for submitting requests | Customer portal |
-| `useUpdateChangeRequest()` | Mutation for admin updates | `ChangeRequestProcessor` |
+| `useUpdateChangeRequest()` | Mutation for admin updates | Admin components |
+| `useProcessChangeRequest()` | Full approve/reject workflow | `ChangeRequestProcessor`, `QuickDecisionPanel`, `IntegratedChangeRequestPanel` |
 
 ---
 

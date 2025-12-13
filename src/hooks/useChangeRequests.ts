@@ -1,6 +1,11 @@
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ChangeRequestService, ChangeRequestInput } from '@/services/ChangeRequestService';
+import { ChangeRequestProcessor, ChangeRequest, ApproveChangeOptions } from '@/services/ChangeRequestProcessor';
 import { useToast } from '@/hooks/use-toast';
+
+// Re-export types for consumers
+export type { ChangeRequest, ApproveChangeOptions };
 
 /**
  * Fetch all change requests with optional status filter
@@ -100,3 +105,92 @@ export function useUpdateChangeRequest() {
     },
   });
 }
+
+/**
+ * Process change requests (approve/reject) with full business logic
+ * This hook provides approve and reject functions that handle the complete workflow
+ */
+export function useProcessChangeRequest() {
+  const [processing, setProcessing] = useState(false);
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  const processor = new ChangeRequestProcessor();
+
+  const approveChangeRequest = async (
+    changeRequest: ChangeRequest,
+    options: ApproveChangeOptions
+  ) => {
+    setProcessing(true);
+    try {
+      const result = await processor.approveChangeRequest(changeRequest, options);
+      
+      if (result.success) {
+        queryClient.invalidateQueries({ queryKey: ['change-requests'] });
+        queryClient.invalidateQueries({ queryKey: ['invoices'] });
+        queryClient.invalidateQueries({ queryKey: ['events'] });
+        toast({
+          title: "Changes Applied",
+          description: "Quote has been updated with the approved changes. The updated estimate is ready to send.",
+        });
+      } else {
+        throw new Error(result.error || 'Failed to approve change request');
+      }
+
+      return result;
+    } catch (error) {
+      console.error('Error approving change request:', error);
+      toast({
+        title: "Error",
+        description: "Failed to apply changes. Please try again.",
+        variant: "destructive"
+      });
+      throw error;
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const rejectChangeRequest = async (
+    changeRequest: ChangeRequest,
+    adminResponse: string
+  ) => {
+    setProcessing(true);
+    try {
+      const result = await processor.rejectChangeRequest(changeRequest, adminResponse);
+      
+      if (result.success) {
+        queryClient.invalidateQueries({ queryKey: ['change-requests'] });
+        toast({
+          title: "Request Rejected",
+          description: "Customer will be notified of the decision.",
+        });
+      } else {
+        throw new Error(result.error || 'Failed to reject change request');
+      }
+
+      return result;
+    } catch (error) {
+      console.error('Error rejecting change request:', error);
+      toast({
+        title: "Error",
+        description: "Failed to reject request. Please try again.",
+        variant: "destructive"
+      });
+      throw error;
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  return {
+    processing,
+    approveChangeRequest,
+    rejectChangeRequest
+  };
+}
+
+/**
+ * @deprecated Use useProcessChangeRequest instead
+ * Alias for backward compatibility
+ */
+export const useSimplifiedChangeRequests = useProcessChangeRequest;
