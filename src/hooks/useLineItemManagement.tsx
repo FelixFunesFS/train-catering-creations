@@ -1,9 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useDebounce } from '@/hooks/useDebounce';
-import { useOptimisticUpdates } from '@/hooks/useOptimisticUpdates';
-import { TaxCalculationService } from '@/services/TaxCalculationService';
+import { LineItemsService } from '@/services/LineItemsService';
 import { InvoiceTotalsRecalculator } from '@/services/InvoiceTotalsRecalculator';
 
 interface LineItem {
@@ -41,7 +39,7 @@ export function useLineItemManagement({
     }
   }, [initialLineItems]);
 
-  // Auto-save function for debounced saving
+  // Auto-save function using LineItemsService
   const performAutoSave = useCallback(async () => {
     if (!autoSave || !invoiceId || !isModified) {
       console.log('⏭️ Skipping auto-save:', { autoSave, invoiceId, isModified });
@@ -50,57 +48,31 @@ export function useLineItemManagement({
 
     try {
       setIsCalculating(true);
-      console.log('💾 Starting auto-save...', { 
+      console.log('💾 Starting auto-save with LineItemsService...', { 
         invoiceId, 
-        itemCount: lineItems.length,
-        sampleItem: lineItems[0] ? {
-          title: lineItems[0].title,
-          unit_price: lineItems[0].unit_price,
-          total_price: lineItems[0].total_price
-        } : null
+        itemCount: lineItems.length
       });
       
-      // Delete existing line items
-      await supabase
-        .from('invoice_line_items')
-        .delete()
-        .eq('invoice_id', invoiceId);
+      // Use LineItemsService to replace all line items
+      const lineItemsToSave = lineItems.map(item => ({
+        title: item.title,
+        description: item.description || '',
+        category: item.category || 'other',
+        quantity: item.quantity,
+        unit_price: item.unit_price,
+        total_price: item.total_price
+      }));
 
-      // Insert updated line items
-      if (lineItems.length > 0) {
-        const lineItemsToInsert = lineItems.map(item => ({
-          invoice_id: invoiceId,
-          title: item.title,
-          description: item.description || '',
-          category: item.category || 'other',
-          quantity: item.quantity,
-          unit_price: item.unit_price,
-          total_price: item.total_price
-        }));
-
-        console.log('📝 Inserting line items to database:', lineItemsToInsert.length);
-        const { error } = await supabase
-          .from('invoice_line_items')
-          .insert(lineItemsToInsert);
-
-        if (error) {
-          console.error('❌ Error inserting line items:', error);
-          throw error;
-        }
-        
-        console.log('✅ Line items saved successfully');
-      }
+      await LineItemsService.replaceLineItems(invoiceId, lineItemsToSave);
+      console.log('✅ Line items saved via LineItemsService');
       
       // Recalculate invoice totals after auto-save
-      if (invoiceId) {
-        await InvoiceTotalsRecalculator.recalculateInvoice(invoiceId);
-      }
+      await InvoiceTotalsRecalculator.recalculateInvoice(invoiceId);
       
       setIsModified(false);
       setLastCalculated(new Date());
       
-      // Database trigger will recalculate totals automatically
-      // Wait briefly for trigger to complete, then refetch invoice
+      // Wait briefly for trigger to complete
       await new Promise(resolve => setTimeout(resolve, 300));
       
       toast({

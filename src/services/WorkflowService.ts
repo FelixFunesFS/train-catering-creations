@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import { generateProfessionalLineItems, type QuoteRequest } from '@/utils/invoiceFormatters';
+import { LineItemsService } from './LineItemsService';
 
 export class WorkflowService {
   /**
@@ -47,17 +48,10 @@ export class WorkflowService {
   }
 
   /**
-   * Fetch line items for an invoice
+   * Fetch line items for an invoice using LineItemsService
    */
   static async fetchLineItems(invoiceId: string) {
-    const { data, error } = await supabase
-      .from('invoice_line_items')
-      .select('*')
-      .eq('invoice_id', invoiceId)
-      .order('created_at', { ascending: true });
-
-    if (error) throw error;
-    return data || [];
+    return LineItemsService.getLineItemsByInvoice(invoiceId);
   }
 
   /**
@@ -92,23 +86,19 @@ export class WorkflowService {
     // Generate line items from quote
     const generatedLineItems = generateProfessionalLineItems(quote);
     
-    // Insert line items
+    // Insert line items using LineItemsService
     if (generatedLineItems.length > 0) {
-      const { error: lineItemsError } = await supabase
-        .from('invoice_line_items')
-        .insert(
-          generatedLineItems.map(item => ({
-            invoice_id: newInvoice.id,
-            title: item.title,
-            description: item.description,
-            quantity: item.quantity,
-            unit_price: 0,
-            total_price: 0,
-            category: item.category
-          }))
-        );
-
-      if (lineItemsError) throw lineItemsError;
+      await LineItemsService.createLineItems(
+        newInvoice.id,
+        generatedLineItems.map(item => ({
+          title: item.title,
+          description: item.description,
+          quantity: item.quantity,
+          unit_price: 0,
+          total_price: 0,
+          category: item.category
+        }))
+      );
     }
 
     const lineItems = await this.fetchLineItems(newInvoice.id);
