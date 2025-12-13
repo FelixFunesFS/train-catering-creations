@@ -62,6 +62,7 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     // Fetch invoice with line items to get customer access token and pricing details
+    // Order line items by sort_order to match admin/portal display
     const { data: invoice, error: invoiceError } = await supabase
       .from('invoices')
       .select(`
@@ -70,17 +71,31 @@ const handler = async (req: Request): Promise<Response> => {
         total_amount,
         subtotal,
         tax_amount,
+        version,
         invoice_line_items (
+          id,
           title,
           description,
           quantity,
           unit_price,
           total_price,
-          category
+          category,
+          sort_order,
+          created_at
         )
       `)
       .eq('quote_request_id', quote_request_id)
       .single();
+    
+    // Sort line items by sort_order, then created_at for consistent ordering
+    if (invoice?.invoice_line_items) {
+      invoice.invoice_line_items.sort((a: any, b: any) => {
+        const sortOrderA = a.sort_order ?? 999999;
+        const sortOrderB = b.sort_order ?? 999999;
+        if (sortOrderA !== sortOrderB) return sortOrderA - sortOrderB;
+        return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+      });
+    }
 
     if (invoiceError || !invoice?.customer_access_token) {
       throw new Error('Invoice or access token not found for this quote request');
