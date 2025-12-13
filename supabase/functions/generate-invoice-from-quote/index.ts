@@ -1,213 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.52.1';
-
-// Professional line items generation utilities
-const formatMenuDescription = (description: string): string => {
-  if (!description) return '';
-  
-  // Clean up menu descriptions
-  return description
-    .replace(/-/g, ' ')
-    .split(' ')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(' ')
-    .trim();
-};
-
-const generateProfessionalLineItems = (quote: any): any[] => {
-  const lineItems: any[] = [];
-  
-  // Check if we have 2 proteins for meal bundle
-  const primaryProtein = Array.isArray(quote.primary_protein) 
-    ? quote.primary_protein[0] 
-    : quote.primary_protein;
-  const secondaryProtein = Array.isArray(quote.secondary_protein) 
-    ? quote.secondary_protein[0] 
-    : quote.secondary_protein;
-    
-  const hasTwoProteins = (primaryProtein && secondaryProtein) || quote.both_proteins_available;
-  
-  if (hasTwoProteins) {
-    // Create meal bundle for 2 proteins
-    const proteins = [primaryProtein, secondaryProtein].filter(Boolean);
-    const sides = Array.isArray(quote.sides) ? quote.sides.slice(0, 2) : [];
-    const drinks = Array.isArray(quote.drinks) ? quote.drinks : [];
-    
-    const proteinText = proteins.map(formatMenuDescription).join(' & ');
-    const sidesText = sides.slice(0, 2).map(formatMenuDescription).join(' and ');
-    const drinkText = drinks.length > 0 ? formatMenuDescription(drinks[0]) : '';
-    
-    let description = proteinText;
-    if (sidesText) description += ` with ${sidesText}`;
-    description += ', dinner rolls';
-    if (drinkText) description += ` and ${drinkText}`;
-    
-    lineItems.push({
-      title: 'Entree Meals',
-      description: description,
-      quantity: quote.guest_count,
-      unit_price: 0,
-      total_price: 0,
-      category: 'meal_bundle'
-    });
-    
-    // Handle extra sides (beyond first 2)
-    if (quote.sides && quote.sides.length > 2) {
-      const extraSides = quote.sides.slice(2);
-      lineItems.push({
-        title: extraSides.length > 1 ? 'Additional Sides' : 'Additional Side',
-        description: extraSides.map(formatMenuDescription).join(', '),
-        quantity: quote.guest_count,
-        unit_price: 0,
-        total_price: 0,
-        category: 'side'
-      });
-    }
-  } else {
-    // Single protein - handle individually
-    if (primaryProtein) {
-      lineItems.push({
-        title: 'Entree',
-        description: formatMenuDescription(primaryProtein),
-        quantity: quote.guest_count,
-        unit_price: 0,
-        total_price: 0,
-        category: 'protein'
-      });
-    }
-    
-    // Add all sides individually for single protein
-    quote.sides?.forEach((side: string) => {
-      lineItems.push({
-        title: 'Side Dish',
-        description: formatMenuDescription(side),
-        quantity: quote.guest_count,
-        unit_price: 0,
-        total_price: 0,
-        category: 'side'
-      });
-    });
-    
-    // Add drinks
-    quote.drinks?.forEach((drink: string) => {
-      lineItems.push({
-        title: 'Beverage',
-        description: formatMenuDescription(drink),
-        quantity: quote.guest_count,
-        unit_price: 0,
-        total_price: 0,
-        category: 'drink'
-      });
-    });
-  }
-  
-  // Add appetizers (grouped if multiple)
-  if (quote.appetizers && quote.appetizers.length > 0) {
-    const regularAppetizers = quote.appetizers.filter((app: string) => 
-      !app.toLowerCase().includes('vegan') && 
-      !app.toLowerCase().includes('vegetarian') &&
-      !app.toLowerCase().includes('veggie')
-    );
-    
-    if (regularAppetizers.length > 0) {
-      lineItems.unshift({
-        title: regularAppetizers.length > 1 ? 'Appetizers' : 'Appetizer',
-        description: regularAppetizers.map(formatMenuDescription).join(', '),
-        quantity: quote.guest_count,
-        unit_price: 0,
-        total_price: 0,
-        category: 'appetizer'
-      });
-    }
-    
-    // Add vegan/vegetarian appetizers separately
-    const veganVegAppetizers = quote.appetizers.filter((app: string) => 
-      app.toLowerCase().includes('vegan') || 
-      app.toLowerCase().includes('vegetarian') ||
-      app.toLowerCase().includes('veggie')
-    );
-    
-    if (veganVegAppetizers.length > 0) {
-      const restrictionCount = Math.max(1, Math.floor(quote.guest_count * 0.1));
-      lineItems.unshift({
-        title: veganVegAppetizers.length > 1 ? 'Vegan/Vegetarian Appetizers' : 'Vegan/Vegetarian Appetizer',
-        description: veganVegAppetizers.map(formatMenuDescription).join(', '),
-        quantity: restrictionCount,
-        unit_price: 0,
-        total_price: 0,
-        category: 'appetizer_dietary'
-      });
-    }
-  }
-  
-  // Add desserts (grouped if multiple)
-  if (quote.desserts && quote.desserts.length > 0) {
-    lineItems.push({
-      title: quote.desserts.length > 1 ? 'Desserts' : 'Dessert',
-      description: quote.desserts.map(formatMenuDescription).join(', '),
-      quantity: quote.guest_count,
-      unit_price: 0,
-      total_price: 0,
-      category: 'dessert'
-    });
-  }
-  
-  // Add service charge
-  const serviceTypes: Record<string, string> = {
-    'full-service': 'Full Service Catering',
-    'delivery-setup': 'Delivery with Setup',
-    'drop-off': 'Drop Off Delivery',
-    'full_service': 'Full Service Catering',
-    'drop_off': 'Drop Off Delivery',
-    'drop_off_with_setup': 'Delivery with Setup'
-  };
-  
-  lineItems.push({
-    title: 'Service Charge',
-    description: serviceTypes[quote.service_type] || 'Catering Service',
-    quantity: 1,
-    unit_price: 0,
-    total_price: 0,
-    category: 'service'
-  });
-  
-  // Add bussing tables service if full-service and bussing is needed
-  if (quote.service_type === 'full-service' && quote.bussing_tables_needed) {
-    lineItems.push({
-      title: 'Table Bussing Service',
-      description: 'Professional table clearing and maintenance during event',
-      quantity: 1,
-      unit_price: 0,
-      total_price: 0,
-      category: 'service_addon'
-    });
-  }
-  
-  return lineItems;
-};
-
-// Payment scheduling utilities
-const detectCustomerType = (email: string): 'PERSON' | 'ORG' | 'GOV' => {
-  const govDomains = ['.gov', '.mil', '.state.', '.edu'];
-  const normalizedEmail = email.toLowerCase();
-  
-  if (govDomains.some(domain => normalizedEmail.includes(domain))) {
-    return 'GOV';
-  }
-  
-  return 'PERSON';
-};
-
-const daysBetween = (date1: Date, date2: Date): number => {
-  const diffTime = Math.abs(date2.getTime() - date1.getTime());
-  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-};
-
-const dateMinus = (date: Date, days: number): Date => {
-  const result = new Date(date);
-  result.setDate(result.getDate() - days);
-  return result;
-};
+import { TaxCalculationService } from '../_shared/TaxCalculationService.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -217,6 +10,237 @@ const corsHeaders = {
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+// Helper: format menu item text
+const formatMenuDescription = (description: string): string => {
+  if (!description) return '';
+  return description
+    .replace(/-/g, ' ')
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ')
+    .trim();
+};
+
+// Helper: format service type
+const formatServiceType = (serviceType: string): string => {
+  const serviceTypes: Record<string, string> = {
+    'full-service': 'Full Service Catering',
+    'delivery-setup': 'Delivery with Setup',
+    'drop-off': 'Drop Off Delivery',
+  };
+  return serviceTypes[serviceType] || 'Catering Service';
+};
+
+// Helper: detect government customer (tax exempt)
+const isGovernmentCustomer = (email: string): boolean => {
+  const govDomains = ['.gov', '.mil', '.state.'];
+  return govDomains.some(domain => email.toLowerCase().includes(domain));
+};
+
+// Generate line items using proteins JSONB array - aligned with frontend 5-tier structure
+// All items initialize at $0 for manual admin pricing
+const generateLineItems = (quote: any): any[] => {
+  const lineItems: any[] = [];
+  
+  // Get proteins from JSONB array (single source of truth)
+  const proteins: string[] = Array.isArray(quote.proteins) ? quote.proteins.filter(Boolean) : [];
+  const sides: string[] = Array.isArray(quote.sides) ? quote.sides : [];
+  const drinks: string[] = Array.isArray(quote.drinks) ? quote.drinks : [];
+  const appetizers: string[] = Array.isArray(quote.appetizers) ? quote.appetizers : [];
+  const desserts: string[] = Array.isArray(quote.desserts) ? quote.desserts : [];
+  
+  // TIER 1: CATERING PACKAGE - Proteins + first 2 sides + rolls + ALL drinks
+  if (proteins.length > 0) {
+    const proteinText = proteins.map(formatMenuDescription).join(' & ');
+    const includedSides = sides.slice(0, 2);
+    const sidesText = includedSides.map(formatMenuDescription).join(' and ');
+    const drinksText = drinks.map(formatMenuDescription).join(' and ');
+    
+    let description = proteinText;
+    if (sidesText) description += ` with ${sidesText}`;
+    description += ', dinner rolls';
+    if (drinksText) description += `, ${drinksText}`;
+    
+    if (quote.guest_count_with_restrictions) {
+      description += ` (includes accommodations for ${quote.guest_count_with_restrictions})`;
+    }
+    
+    lineItems.push({
+      title: `Catering Package`,
+      description: description,
+      quantity: quote.guest_count,
+      unit_price: 0,
+      total_price: 0,
+      category: 'package'
+    });
+  }
+  
+  // TIER 2: APPETIZER SELECTION
+  if (appetizers.length > 0) {
+    const regularAppetizers = appetizers.filter((app: string) => 
+      !app.toLowerCase().includes('vegan') && 
+      !app.toLowerCase().includes('vegetarian') &&
+      !app.toLowerCase().includes('veggie')
+    );
+    
+    if (regularAppetizers.length > 0) {
+      lineItems.push({
+        title: 'Appetizer Selection',
+        description: regularAppetizers.map(formatMenuDescription).join(', '),
+        quantity: quote.guest_count,
+        unit_price: 0,
+        total_price: 0,
+        category: 'appetizers'
+      });
+    }
+    
+    // Dietary appetizers separately
+    const dietaryAppetizers = appetizers.filter((app: string) => 
+      app.toLowerCase().includes('vegan') || 
+      app.toLowerCase().includes('vegetarian') ||
+      app.toLowerCase().includes('veggie')
+    );
+    
+    if (dietaryAppetizers.length > 0) {
+      const restrictionCount = Math.max(1, Math.floor(quote.guest_count * 0.1));
+      lineItems.push({
+        title: 'Dietary Appetizer Selection',
+        description: `${dietaryAppetizers.map(formatMenuDescription).join(', ')} (for guests with dietary restrictions)`,
+        quantity: restrictionCount,
+        unit_price: 0,
+        total_price: 0,
+        category: 'appetizers'
+      });
+    }
+  }
+  
+  // TIER 3: ADDITIONAL SIDES (beyond first 2, drinks now in Tier 1)
+  const extraSides = sides.slice(2);
+  if (extraSides.length > 0) {
+    lineItems.push({
+      title: 'Additional Side Selection',
+      description: extraSides.map(formatMenuDescription).join(', '),
+      quantity: quote.guest_count,
+      unit_price: 0,
+      total_price: 0,
+      category: 'sides'
+    });
+  }
+  
+  // TIER 4: DESSERT SELECTION
+  if (desserts.length > 0) {
+    lineItems.push({
+      title: 'Dessert Selection',
+      description: desserts.map(formatMenuDescription).join(', '),
+      quantity: quote.guest_count,
+      unit_price: 0,
+      total_price: 0,
+      category: 'desserts'
+    });
+  }
+  
+  // TIER 5: SERVICE PACKAGE & ADD-ONS
+  lineItems.push({
+    title: 'Service Package',
+    description: formatServiceType(quote.service_type),
+    quantity: 1,
+    unit_price: 0,
+    total_price: 0,
+    category: 'service'
+  });
+  
+  // Service add-ons
+  if (quote.wait_staff_requested) {
+    lineItems.push({
+      title: 'Wait Staff Service',
+      description: 'Professional wait staff for serving and guest assistance',
+      quantity: 1,
+      unit_price: 0,
+      total_price: 0,
+      category: 'service'
+    });
+  }
+  
+  if (quote.bussing_tables_needed) {
+    lineItems.push({
+      title: 'Table Bussing Service',
+      description: 'Professional table clearing and maintenance during event',
+      quantity: 1,
+      unit_price: 0,
+      total_price: 0,
+      category: 'service'
+    });
+  }
+  
+  if (quote.chafers_requested) {
+    lineItems.push({
+      title: 'Chafers (Food Warmers)',
+      description: 'Stainless steel chafers to keep food warm throughout service',
+      quantity: 1,
+      unit_price: 0,
+      total_price: 0,
+      category: 'service'
+    });
+  }
+  
+  if (quote.serving_utensils_requested) {
+    lineItems.push({
+      title: 'Serving Utensils',
+      description: 'Professional serving spoons, tongs, and ladles for buffet service',
+      quantity: 1,
+      unit_price: 0,
+      total_price: 0,
+      category: 'service'
+    });
+  }
+  
+  if (quote.plates_requested) {
+    lineItems.push({
+      title: 'Disposable Plates',
+      description: 'High-quality disposable plates for guest dining',
+      quantity: 1,
+      unit_price: 0,
+      total_price: 0,
+      category: 'service'
+    });
+  }
+  
+  if (quote.cups_requested) {
+    lineItems.push({
+      title: 'Disposable Cups',
+      description: 'Disposable cups for beverage service',
+      quantity: 1,
+      unit_price: 0,
+      total_price: 0,
+      category: 'service'
+    });
+  }
+  
+  if (quote.napkins_requested) {
+    lineItems.push({
+      title: 'Disposable Napkins',
+      description: 'Napkins for guest use during dining',
+      quantity: 1,
+      unit_price: 0,
+      total_price: 0,
+      category: 'service'
+    });
+  }
+  
+  if (quote.ice_requested) {
+    lineItems.push({
+      title: 'Ice Service',
+      description: 'Bagged ice for beverage service and cooling',
+      quantity: 1,
+      unit_price: 0,
+      total_price: 0,
+      category: 'service'
+    });
+  }
+  
+  return lineItems;
+};
 
 interface GenerateInvoiceRequest {
   quote_request_id: string;
@@ -240,6 +264,7 @@ const handler = async (req: Request): Promise<Response> => {
       .single();
 
     if (quoteError || !quote) {
+      console.error('Quote not found:', quoteError);
       throw new Error('Quote not found');
     }
 
@@ -290,91 +315,68 @@ const handler = async (req: Request): Promise<Response> => {
       customer = newCustomer;
     }
 
-    // Calculate pricing from quote data using enhanced logic
-    const baseServiceCost = Math.max(quote.guest_count * 2500, 150000); // $25 per person, min $1500
-    const subtotal = baseServiceCost;
-    const taxRate = 0.08875; // Charleston tax rate
-    const taxAmount = Math.round(subtotal * taxRate);
-    const totalAmount = subtotal + taxAmount;
+    // All line items start at $0 for manual admin pricing
+    const subtotal = 0;
     
-    // Detect customer type for payment scheduling
-    const customerType = detectCustomerType(quote.email);
-    const eventDate = new Date(quote.event_date);
-    const approvalDate = new Date();
-    const daysOut = daysBetween(approvalDate, eventDate);
+    // Use TaxCalculationService with correct 9% rate (2% hospitality + 7% service)
+    const isGovCustomer = isGovernmentCustomer(quote.email);
+    const taxCalculation = TaxCalculationService.calculateTax(subtotal, isGovCustomer);
     
-    console.log(`Customer type: ${customerType}, Days until event: ${daysOut}`);
+    console.log(`Customer type: ${isGovCustomer ? 'GOV (tax exempt)' : 'Standard'}, Tax rate: ${TaxCalculationService.formatTaxRate()}`);
 
-    // Create invoice
+    // Create invoice with $0 totals (admin will set pricing manually)
     const { data: invoice, error: invoiceError } = await supabase
       .from('invoices')
       .insert({
         customer_id: customer.id,
         quote_request_id: quote_request_id,
-        subtotal: subtotal,
-        tax_amount: taxAmount,
-        total_amount: totalAmount,
-        due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 days
+        subtotal: taxCalculation.subtotal,
+        tax_amount: taxCalculation.taxAmount,
+        total_amount: taxCalculation.totalAmount,
+        due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         is_draft: true,
         workflow_status: 'draft',
         currency: 'usd',
-        invoice_number: `INV-${Date.now()}-${quote_request_id.split('-')[0]}`,
         notes: `Catering service for ${quote.event_name} on ${quote.event_date}`
       })
       .select()
       .single();
 
-    if (invoiceError) throw invoiceError;
+    if (invoiceError) {
+      console.error('Invoice creation error:', invoiceError);
+      throw invoiceError;
+    }
 
-    // Generate professional line items using actual menu selections
-    const professionalLineItems = generateProfessionalLineItems(quote);
-    
-    // Add invoice_id to each line item and distribute pricing
-    const lineItems = professionalLineItems.map((item, index) => {
-      // Distribute total cost across line items based on category
-      let itemCost = 0;
-      
-      if (item.category === 'meal_bundle' || item.category === 'protein') {
-        // Main meals get 70% of cost
-        itemCost = Math.round(baseServiceCost * 0.7);
-      } else if (item.category === 'service') {
-        // Service charge gets 30% of cost
-        itemCost = Math.round(baseServiceCost * 0.3);
-      } else {
-        // Other items (appetizers, sides, desserts) are included in meal cost
-        itemCost = 0;
-      }
-      
-      return {
-        invoice_id: invoice.id,
-        title: item.title,
-        description: item.description,
-        quantity: item.quantity,
-        unit_price: item.quantity > 0 ? Math.round(itemCost / item.quantity) : 0,
-        total_price: itemCost,
-        category: item.category
-      };
-    });
+    // Generate line items using proteins JSONB array
+    const lineItems = generateLineItems(quote).map(item => ({
+      invoice_id: invoice.id,
+      title: item.title,
+      description: item.description,
+      quantity: item.quantity,
+      unit_price: 0, // All items start at $0 for manual pricing
+      total_price: 0,
+      category: item.category
+    }));
+
+    console.log(`Generated ${lineItems.length} line items from quote`);
 
     const { error: lineItemsError } = await supabase
       .from('invoice_line_items')
       .insert(lineItems);
 
-    if (lineItemsError) throw lineItemsError;
+    if (lineItemsError) {
+      console.error('Line items error:', lineItemsError);
+      throw lineItemsError;
+    }
 
-    // Update quote status with enhanced workflow tracking
+    // Update quote status
     await supabase
       .from('quote_requests')
       .update({ 
-        status: 'quoted',
         workflow_status: 'estimated',
-        estimated_total: totalAmount,
-        invoice_status: customerType === 'GOV' ? 'gov_net30' : 'payment_scheduled'
+        estimated_total: 0
       })
       .eq('id', quote_request_id);
-      
-    // Log payment schedule info
-    console.log(`Payment schedule: ${customerType === 'GOV' ? 'Net 30 after event' : 'Tiered payment system'}`);
 
     console.log('Invoice generated successfully:', invoice.id);
 
@@ -382,7 +384,8 @@ const handler = async (req: Request): Promise<Response> => {
       JSON.stringify({ 
         success: true, 
         invoice_id: invoice.id,
-        total_amount: totalAmount
+        line_items_count: lineItems.length,
+        is_gov_customer: isGovCustomer
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 

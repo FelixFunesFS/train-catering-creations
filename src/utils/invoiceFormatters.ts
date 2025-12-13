@@ -253,14 +253,10 @@ export const generateProfessionalLineItems = (quote: QuoteRequest): LineItem[] =
     }
   }
   
-  // TIER 3: SIDES & BEVERAGES - Grouped by category
+  // TIER 3: ADDITIONAL SIDES - Extra sides beyond first 2 (drinks now in Tier 1)
   const extraSides = getExtraSides(quote);
   if (extraSides.length > 0) {
     lineItems.push(createSideSelection(extraSides, quote.guest_count));
-  }
-  
-  if (quote.drinks && quote.drinks.length > 0) {
-    lineItems.push(createBeverageService(quote.drinks, quote.guest_count));
   }
   
   // TIER 4: DESSERT SELECTION - Grouped desserts
@@ -317,10 +313,13 @@ function createCateringPackage(quote: QuoteRequest, proteins: string[]): LineIte
   const proteinText = proteins.map(formatMenuDescription).join(' & ');
   const includedSides = quote.sides?.slice(0, 2) || [];
   const sidesText = includedSides.map(formatMenuDescription).join(' and ');
+  const drinks = Array.isArray(quote.drinks) ? quote.drinks : [];
+  const drinksText = drinks.map(formatMenuDescription).join(' and ');
   
   let description = `${proteinText}`;
   if (sidesText) description += ` with ${sidesText}`;
   description += ', dinner rolls';
+  if (drinksText) description += `, ${drinksText}`;
   
   // Add dietary accommodations if present
   if (quote.guest_count_with_restrictions) {
@@ -392,19 +391,7 @@ function createSideSelection(sides: string[], guestCount: number): LineItem {
   };
 }
 
-function createBeverageService(drinks: string[], guestCount: number): LineItem {
-  const formattedDrinks = drinks.map(formatMenuDescription);
-  
-  return {
-    id: `beverage_service_${Date.now()}`,
-    title: 'Beverage Service',
-    description: formattedDrinks.join(', '),
-    quantity: guestCount,
-    unit_price: 0,
-    total_price: 0,
-    category: 'beverages'
-  };
-}
+// REMOVED: createBeverageService - drinks now included in Tier 1 Catering Package
 
 function createDessertSelection(desserts: string[], guestCount: number): LineItem {
   const formattedDesserts = desserts.map(formatMenuDescription);
