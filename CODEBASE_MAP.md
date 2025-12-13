@@ -83,15 +83,23 @@
 ### useInvoices.ts
 **Location**: `src/hooks/useInvoices.ts`
 
-| Hook | Purpose | Refactored Components |
-|------|---------|----------------------|
-| `useInvoices(filters?)` | Fetch invoices with caching | `PaymentProcessingDashboard` |
-| `useInvoice(invoiceId)` | Single invoice | - |
-| `useOverdueInvoices()` | Overdue invoices | - |
-| `usePaymentStats()` | Payment statistics | `PaymentProcessingDashboard`, `ReportingDashboard` |
-| `useRevenue(start, end)` | Revenue data | `ReportingDashboard` |
-| `usePaymentTransactions(invoiceId?)` | Payment transaction history | `UnifiedPaymentHistory` |
-| `useRecordPayment()` | Mutation for recording payments | - |
+| Hook | Purpose | Query Key |
+|------|---------|-----------|
+| `useInvoices(filters?)` | Fetch invoices with caching | `invoiceKeys.list(filters)` |
+| `useInvoice(invoiceId)` | Single invoice by ID | `invoiceKeys.detail(id)` |
+| `useInvoiceByQuote(quoteId)` | Invoice by quote ID | `invoiceKeys.byQuote(id)` |
+| `useInvoiceWithLineItems(invoiceId)` | Invoice with line items | `invoiceKeys.detail(id)` |
+| `useInvoiceWithMilestones(invoiceId)` | Invoice with payment milestones | `invoiceKeys.detail(id)` |
+| `useInvoicesByStatus(status)` | Invoices by workflow status | `invoiceKeys.byStatus(status)` |
+| `useOverdueInvoices()` | Overdue invoices | `invoiceKeys.overdue()` |
+| `usePaymentStats()` | Payment statistics | `['payments', 'stats']` |
+| `useRevenue(start, end)` | Revenue data by date range | `['revenue', ...]` |
+| `usePaymentTransactions(invoiceId?)` | Payment transaction history | `['payment-transactions', ...]` |
+| `useUpdateInvoice()` | Update invoice fields | Mutation |
+| `useUpdateInvoiceStatus()` | Update workflow status with audit | Mutation |
+| `useRecordPayment()` | Record manual payment | Mutation |
+| `useSendInvoiceEmail()` | Mark invoice as sent | Mutation |
+| `useDeleteInvoice()` | Delete invoice and related records | Mutation |
 
 ### useARDashboard.ts
 **Location**: `src/hooks/useARDashboard.ts`
