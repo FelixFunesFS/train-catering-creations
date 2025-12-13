@@ -714,7 +714,6 @@ export function generateFooter(): string {
     <footer class="footer" role="contentinfo">
       <h3 style="margin: 0 0 15px 0; color: ${BRAND_COLORS.crimson};">Soul Train's Eatery</h3>
       <p style="margin: 5px 0;"><strong>A Family-Run Business Since Day One</strong></p>
-      <p style="margin: 5px 0;">Bringing people together around exceptional Southern food</p>
       <hr role="separator" style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
       <address style="font-style: normal;">
         <p style="margin: 5px 0;"><span aria-hidden="true">📞</span> <strong>Phone:</strong> <a href="tel:+18439700265" style="color: ${BRAND_COLORS.crimson}; text-decoration: none;">(843) 970-0265</a></p>

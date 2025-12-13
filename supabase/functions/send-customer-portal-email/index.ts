@@ -273,11 +273,7 @@ function generateEstimateReadyEmail(quote: any, invoice: any, portalUrl: string,
           <div style="background: linear-gradient(135deg, ${BRAND_COLORS.gold}, ${BRAND_COLORS.goldLight}); display: inline-block; padding: 8px 16px; border-radius: 20px; margin-bottom: 15px;">
             <span style="color: ${BRAND_COLORS.darkGray}; font-weight: bold; font-size: 14px;">💰 ESTIMATE READY</span>
           </div>
-          <h2 style="color: white; margin: 0 0 10px 0; font-size: 24px;">Your Custom Estimate is Ready!</h2>
-          <p style="color: white; margin: 0; font-size: 16px; opacity: 0.95;">
-            Hi ${quote.contact_name},<br>
-            Your custom pricing is ready for review
-          </p>
+          <h2 style="color: white; margin: 0; font-size: 24px;">Your Custom Estimate is Ready!</h2>
         </div>
         
         <div class="content">
@@ -294,8 +290,6 @@ function generateEstimateReadyEmail(quote: any, invoice: any, portalUrl: string,
           
           ${generateEventDetailsCard(quote)}
           
-          <h3 style="color: ${BRAND_COLORS.crimson}; margin-top: 30px;">🍽️ Your Custom Menu</h3>
-          <p>Here's what we'll be serving at your event:</p>
           ${generateMenuSection(lineItems)}
           
           ${generateLineItemsTable(lineItems, subtotal, taxAmount, total)}
