@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { useInvoice, useRecordPayment } from '@/hooks/useInvoices';
+import { useRecordPayment } from '@/hooks/useInvoices';
+import { useInvoiceSummary } from '@/hooks/useInvoiceSummary';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,7 +23,8 @@ function formatCurrency(cents: number): string {
 }
 
 export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
-  const { data: invoice, isLoading: loadingInvoice } = useInvoice(invoiceId);
+  // Use invoice summary hook which fetches from the database view with accurate balances
+  const { data: invoiceSummary, isLoading: loadingInvoice } = useInvoiceSummary(invoiceId);
   const recordPayment = useRecordPayment();
   
   const [amount, setAmount] = useState('');
@@ -30,8 +32,9 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
   const [notes, setNotes] = useState('');
   const [sendConfirmationEmail, setSendConfirmationEmail] = useState(true);
 
-  // Calculate balance - need to fetch from invoice_payment_summary view
-  const balanceRemaining = invoice?.total_amount || 0;
+  // Get accurate balance from the view
+  const totalAmount = invoiceSummary?.total_amount || 0;
+  const balanceRemaining = invoiceSummary?.balance_remaining || 0;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,10 +85,16 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
           <div className="bg-muted/50 rounded-lg p-4 space-y-2 text-sm">
             <div className="flex justify-between">
               <span className="text-muted-foreground">Invoice Total</span>
-              <span className="font-medium">{formatCurrency(invoice?.total_amount || 0)}</span>
+              <span className="font-medium">{formatCurrency(totalAmount)}</span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Balance Due</span>
+            {invoiceSummary && invoiceSummary.total_paid > 0 && (
+              <div className="flex justify-between text-green-600">
+                <span>Amount Paid</span>
+                <span className="font-medium">{formatCurrency(invoiceSummary.total_paid)}</span>
+              </div>
+            )}
+            <div className="flex justify-between border-t border-border pt-2 mt-2">
+              <span className="text-muted-foreground font-medium">Balance Due</span>
               <span className="font-semibold text-primary">{formatCurrency(balanceRemaining)}</span>
             </div>
           </div>
