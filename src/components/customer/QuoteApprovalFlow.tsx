@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { CheckCircle, XCircle, Clock, MessageSquare, DollarSign, Calendar, Users, MapPin } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { ChangeRequestService } from '@/services/ChangeRequestService';
 import { toast } from '@/hooks/use-toast';
 
 interface QuoteApprovalFlowProps {
@@ -15,30 +15,21 @@ interface QuoteApprovalFlowProps {
 export function QuoteApprovalFlow({ quote, onApprovalChange }: QuoteApprovalFlowProps) {
   const [isApproving, setIsApproving] = useState(false);
   const [isDeclining, setIsDeclining] = useState(false);
+  const [isSubmittingChange, setIsSubmittingChange] = useState(false);
   const [comments, setComments] = useState('');
   const [showCommentBox, setShowCommentBox] = useState(false);
 
   const handleApprove = async () => {
     setIsApproving(true);
     try {
-      const { error } = await supabase
-        .from('quote_requests')
-        .update({
-          status: 'confirmed',
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', quote.id);
-
-      if (error) throw error;
-
-      // Create notification for admin
-      await supabase.functions.invoke('send-quote-notification', {
-        body: {
-          quote_id: quote.id,
-          action: 'confirmed',
-          customer_comments: comments || null
-        }
+      await ChangeRequestService.updateQuoteStatus({
+        quoteId: quote.id,
+        status: 'confirmed',
+        comments
       });
+
+      // Notify admin (fire and forget)
+      void ChangeRequestService.sendQuoteNotification(quote.id, 'confirmed', comments);
 
       toast({
         title: "Quote Confirmed!",
@@ -62,24 +53,14 @@ export function QuoteApprovalFlow({ quote, onApprovalChange }: QuoteApprovalFlow
   const handleDecline = async () => {
     setIsDeclining(true);
     try {
-      const { error } = await supabase
-        .from('quote_requests')
-        .update({
-          status: 'cancelled',
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', quote.id);
-
-      if (error) throw error;
-
-      // Create notification for admin
-      await supabase.functions.invoke('send-quote-notification', {
-        body: {
-          quote_id: quote.id,
-          action: 'cancelled',
-          customer_comments: comments || 'No comments provided'
-        }
+      await ChangeRequestService.updateQuoteStatus({
+        quoteId: quote.id,
+        status: 'cancelled',
+        comments
       });
+
+      // Notify admin (fire and forget)
+      void ChangeRequestService.sendQuoteNotification(quote.id, 'cancelled', comments || 'No comments provided');
 
       toast({
         title: "Quote Cancelled",
@@ -97,6 +78,39 @@ export function QuoteApprovalFlow({ quote, onApprovalChange }: QuoteApprovalFlow
       });
     } finally {
       setIsDeclining(false);
+    }
+  };
+
+  const handleSubmitChangeRequest = async () => {
+    setIsSubmittingChange(true);
+    try {
+      await ChangeRequestService.submitChangeRequest({
+        quoteRequestId: quote.id,
+        customerEmail: quote.email,
+        requestType: 'modification',
+        customerComments: comments,
+        requestedChanges: { comments }
+      });
+
+      // Notify admin (fire and forget)
+      void ChangeRequestService.sendQuoteNotification(quote.id, 'change_requested', comments);
+
+      toast({
+        title: "Change Request Submitted",
+        description: "We've received your change request and will review it shortly.",
+      });
+
+      setShowCommentBox(false);
+      setComments('');
+    } catch (error) {
+      console.error('Error submitting change request:', error);
+      toast({
+        title: "Error",
+        description: "Failed to submit change request. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmittingChange(false);
     }
   };
 
@@ -279,44 +293,11 @@ export function QuoteApprovalFlow({ quote, onApprovalChange }: QuoteApprovalFlow
               />
               <div className="flex gap-3">
                 <Button
-                  onClick={async () => {
-                    try {
-                      await supabase.from('change_requests').insert({
-                        quote_request_id: quote.id,
-                        customer_email: quote.email,
-                        request_type: 'modification',
-                        status: 'pending',
-                        customer_comments: comments,
-                        requested_changes: { comments }
-                      });
-
-                      // Notify admin
-                      await supabase.functions.invoke('send-quote-notification', {
-                        body: {
-                          quote_id: quote.id,
-                          action: 'change_requested',
-                          customer_comments: comments
-                        }
-                      });
-
-                      toast({
-                        title: "Change Request Submitted",
-                        description: "We've received your change request and will review it shortly.",
-                      });
-
-                      setShowCommentBox(false);
-                      setComments('');
-                    } catch (error) {
-                      toast({
-                        title: "Error",
-                        description: "Failed to submit change request. Please try again.",
-                        variant: "destructive"
-                      });
-                    }
-                  }}
+                  onClick={handleSubmitChangeRequest}
+                  disabled={isSubmittingChange}
                   className="bg-orange-600 hover:bg-orange-700"
                 >
-                  Submit Change Request
+                  {isSubmittingChange ? 'Submitting...' : 'Submit Change Request'}
                 </Button>
                 <Button
                   variant="outline"
