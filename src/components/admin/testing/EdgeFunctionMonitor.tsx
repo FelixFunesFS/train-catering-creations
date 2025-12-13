@@ -34,6 +34,14 @@ export function EdgeFunctionMonitor() {
   const { toast } = useToast();
   const [isChecking, setIsChecking] = useState(false);
   const [functions, setFunctions] = useState<EdgeFunction[]>([
+    // Core Email Functions
+    {
+      id: 'send-gmail-email',
+      name: 'Gmail Sender',
+      description: 'Core Gmail API email sending',
+      icon: <Mail className="h-5 w-5" />,
+      status: 'unknown'
+    },
     {
       id: 'send-customer-portal-email',
       name: 'Customer Portal Email',
@@ -50,7 +58,7 @@ export function EdgeFunctionMonitor() {
     },
     {
       id: 'send-quote-notification',
-      name: 'Quote Notification',
+      name: 'Admin Quote Notification',
       description: 'Notifies admin of new quote submissions',
       icon: <Bell className="h-5 w-5" />,
       status: 'unknown'
@@ -63,6 +71,29 @@ export function EdgeFunctionMonitor() {
       status: 'unknown'
     },
     {
+      id: 'send-invoice-email',
+      name: 'Invoice Email',
+      description: 'Sends invoice emails to customers',
+      icon: <Mail className="h-5 w-5" />,
+      status: 'unknown'
+    },
+    // Gmail OAuth
+    {
+      id: 'gmail-oauth-init',
+      name: 'Gmail OAuth Init',
+      description: 'Initiates Gmail OAuth flow',
+      icon: <Key className="h-5 w-5" />,
+      status: 'unknown'
+    },
+    {
+      id: 'gmail-oauth-callback',
+      name: 'Gmail OAuth Callback',
+      description: 'Handles Gmail OAuth callback',
+      icon: <Key className="h-5 w-5" />,
+      status: 'unknown'
+    },
+    // Stripe Functions
+    {
       id: 'create-checkout-session',
       name: 'Stripe Checkout',
       description: 'Creates Stripe checkout sessions',
@@ -74,6 +105,28 @@ export function EdgeFunctionMonitor() {
       name: 'Stripe Webhook',
       description: 'Processes Stripe payment webhooks',
       icon: <CreditCard className="h-5 w-5" />,
+      status: 'unknown'
+    },
+    {
+      id: 'create-payment-link',
+      name: 'Payment Link Creator',
+      description: 'Creates Stripe payment links',
+      icon: <CreditCard className="h-5 w-5" />,
+      status: 'unknown'
+    },
+    // Workflow Functions
+    {
+      id: 'generate-invoice-from-quote',
+      name: 'Invoice Generator',
+      description: 'Generates invoices from quotes',
+      icon: <Activity className="h-5 w-5" />,
+      status: 'unknown'
+    },
+    {
+      id: 'process-change-request',
+      name: 'Change Request Processor',
+      description: 'Processes customer change requests',
+      icon: <Activity className="h-5 w-5" />,
       status: 'unknown'
     },
     {
@@ -90,11 +143,12 @@ export function EdgeFunctionMonitor() {
       icon: <Key className="h-5 w-5" />,
       status: 'unknown'
     },
+    // Test & Development
     {
-      id: 'send-gmail-email',
-      name: 'Gmail Sender',
-      description: 'Core Gmail API email sending',
-      icon: <Mail className="h-5 w-5" />,
+      id: 'generate-test-data',
+      name: 'Test Data Generator',
+      description: 'Generates test data for development',
+      icon: <Zap className="h-5 w-5" />,
       status: 'unknown'
     }
   ]);
