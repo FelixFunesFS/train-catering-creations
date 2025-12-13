@@ -100,6 +100,29 @@ export class ChangeRequestService {
   }
 
   /**
+   * Get all change requests with optional status filter
+   */
+  static async getChangeRequests(status?: string) {
+    let query = supabase
+      .from('change_requests')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (status) {
+      query = query.eq('workflow_status', status);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error('Failed to fetch change requests:', error);
+      throw new Error('Failed to fetch change requests');
+    }
+
+    return data;
+  }
+
+  /**
    * Get pending change requests count
    */
   static async getPendingCount(): Promise<number> {
@@ -114,5 +137,36 @@ export class ChangeRequestService {
     }
 
     return count || 0;
+  }
+
+  /**
+   * Update change request status
+   */
+  static async updateChangeRequest(
+    id: string,
+    updates: {
+      workflow_status?: string;
+      admin_response?: string;
+      reviewed_by?: string;
+      reviewed_at?: string;
+      completed_at?: string;
+    }
+  ) {
+    const { data, error } = await supabase
+      .from('change_requests')
+      .update({
+        ...updates,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Failed to update change request:', error);
+      throw new Error('Failed to update change request');
+    }
+
+    return data;
   }
 }
