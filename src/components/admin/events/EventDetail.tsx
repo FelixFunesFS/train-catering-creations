@@ -10,7 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useInvoiceByQuote, useInvoicePaymentSummary } from '@/hooks/useInvoices';
 import { supabase } from '@/integrations/supabase/client';
 import { formatMenuDescription } from '@/utils/invoiceFormatters';
-import { User, Calendar, MapPin, Users, Utensils, FileText, Loader2, Package, Eye, Pencil, Receipt, Play, CheckCircle, XCircle } from 'lucide-react';
+import { User, Calendar, MapPin, Users, Utensils, FileText, Loader2, Package, Eye, Pencil, Receipt, Play, CheckCircle, XCircle, MessageSquare } from 'lucide-react';
 import { useUpdateQuoteStatus } from '@/hooks/useQuotes';
 import { EstimateEditor } from '@/components/admin/billing/EstimateEditor';
 
@@ -251,14 +251,35 @@ export function EventDetail({ quote, onClose }: EventDetailProps) {
                   <p className="font-medium">{formatMenuItems(quote.drinks)}</p>
                 </div>
               )}
-              {quote.special_requests && (
-                <div>
-                  <span className="text-muted-foreground">Special Requests:</span>
-                  <p className="font-medium">{quote.special_requests}</p>
-                </div>
-              )}
             </div>
           </section>
+
+          {/* Additional Notes */}
+          {(quote.guest_count_with_restrictions || quote.special_requests) && (
+            <>
+              <Separator />
+              <section>
+                <h3 className="text-sm font-semibold flex items-center gap-2 mb-3">
+                  <MessageSquare className="h-4 w-4" />
+                  Additional Notes
+                </h3>
+                <div className="space-y-2 text-sm">
+                  {quote.guest_count_with_restrictions && (
+                    <div>
+                      <span className="text-muted-foreground">Vegetarian Portions:</span>
+                      <span className="font-medium ml-2">{quote.guest_count_with_restrictions} guests</span>
+                    </div>
+                  )}
+                  {quote.special_requests && (
+                    <div>
+                      <span className="text-muted-foreground">Special Requests:</span>
+                      <p className="font-medium mt-1">{quote.special_requests}</p>
+                    </div>
+                  )}
+                </div>
+              </section>
+            </>
+          )}
 
           <Separator />
 
