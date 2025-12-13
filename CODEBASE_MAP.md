@@ -104,13 +104,20 @@
 ### useLineItems.ts
 **Location**: `src/hooks/useLineItems.ts`
 
-| Hook | Purpose |
-|------|---------|
-| `useLineItems(invoiceId)` | Fetch line items for an invoice |
-| `useCreateLineItems()` | Mutation for creating line items |
-| `useUpdateLineItem()` | Mutation for updating a line item |
-| `useDeleteLineItem()` | Mutation for deleting a line item |
-| `useReplaceLineItems()` | Mutation for replacing all line items |
+| Hook | Purpose | Used By |
+|------|---------|---------|
+| `useLineItems(invoiceId)` | Fetch line items for an invoice | `useLineItemManagement` |
+| `useCreateLineItems()` | Mutation for creating line items | `QuickEstimateCreator` |
+| `useUpdateLineItem()` | Mutation for updating a line item | `useLineItemManagement` |
+| `useDeleteLineItem()` | Mutation for deleting a line item | `useLineItemManagement` |
+| `useReplaceLineItems()` | Mutation for replacing all line items | `useLineItemManagement` |
+
+### useLineItemManagement.tsx
+**Location**: `src/hooks/useLineItemManagement.tsx`
+
+| Hook | Purpose | Uses |
+|------|---------|------|
+| `useLineItemManagement(invoiceId)` | Line item management with optimistic updates | `LineItemsService`, `useLineItems` hooks |
 
 ---
 
@@ -171,12 +178,13 @@
 ## 💰 Payment System
 
 ### Services
-| Service | Location | Purpose |
-|---------|----------|---------|
-| `TaxCalculationService` | `src/services/TaxCalculationService.ts` | Tax calculations (2% + 7%) |
-| `PaymentScheduleService` | `src/services/PaymentScheduleService.ts` | Payment schedule generation |
-| `InvoiceTotalsRecalculator` | `src/services/InvoiceTotalsRecalculator.ts` | Invoice total calculations |
-| `LineItemsService` | `src/services/LineItemsService.ts` | Line item CRUD operations |
+| Service | Location | Purpose | Used By |
+|---------|----------|---------|---------|
+| `TaxCalculationService` | `src/services/TaxCalculationService.ts` | Tax calculations (2% + 7%) | `InvoiceTotalsRecalculator` |
+| `PaymentScheduleService` | `src/services/PaymentScheduleService.ts` | Payment schedule generation | `WorkflowService` |
+| `InvoiceTotalsRecalculator` | `src/services/InvoiceTotalsRecalculator.ts` | Invoice total calculations | `PricingPanel` |
+| `LineItemsService` | `src/services/LineItemsService.ts` | Line item CRUD operations | `useLineItems`, `useLineItemManagement`, `WorkflowService` |
+| `WorkflowService` | `src/services/WorkflowService.ts` | Quote-to-invoice workflow | Uses `LineItemsService` for line items |
 
 ### Edge Functions
 | Function | Location | Purpose |
