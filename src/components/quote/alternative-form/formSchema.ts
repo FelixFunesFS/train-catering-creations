@@ -68,6 +68,7 @@ export const formSchema = z.object({
   desserts: z.array(z.string()).default([]),
   drinks: z.array(z.string()).default([]),
   dietary_restrictions: z.array(z.string()).default([]),
+  vegetarian_entrees: z.array(z.string()).default([]),
   guest_count_with_restrictions: z.string()
     .optional()
     .refine((val) => {

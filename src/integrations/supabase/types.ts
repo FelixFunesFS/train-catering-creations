@@ -1508,6 +1508,7 @@ export type Database = {
           theme_colors: string | null
           updated_at: string | null
           utensils: Json | null
+          vegetarian_entrees: Json | null
           version: number
           wait_staff_requested: boolean | null
           wait_staff_requirements: string | null
@@ -1561,6 +1562,7 @@ export type Database = {
           theme_colors?: string | null
           updated_at?: string | null
           utensils?: Json | null
+          vegetarian_entrees?: Json | null
           version?: number
           wait_staff_requested?: boolean | null
           wait_staff_requirements?: string | null
@@ -1614,6 +1616,7 @@ export type Database = {
           theme_colors?: string | null
           updated_at?: string | null
           utensils?: Json | null
+          vegetarian_entrees?: Json | null
           version?: number
           wait_staff_requested?: boolean | null
           wait_staff_requirements?: string | null

@@ -1,5 +1,4 @@
 import { UseFormReturn, useWatch } from "react-hook-form";
-import { memo } from "react";
 import {
   FormControl,
   FormField,
@@ -8,14 +7,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { CheckCircle2, Circle } from "lucide-react";
+import { CheckCircle2, Circle, Leaf } from "lucide-react";
 import { MultiSelect } from "@/components/ui/multi-select";
 import type { Option } from "@/components/ui/multi-select";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 import { getMenuItems, additionalMenuItems } from "@/data/menuData";
-import { Badge } from "@/components/ui/badge";
 
 interface MenuSelectionStepProps {
   form: UseFormReturn<any>;
@@ -36,7 +33,7 @@ const MenuSelectionStepComponent = ({ form, trackFieldInteraction, variant = 're
   const menuItems = getMenuItems(variant);
   const ADDITIONAL_ITEMS = additionalMenuItems;
 
-  // Comprehensive protein options
+  // Main protein options (meat/seafood only - plant-based moved to vegetarian section)
   const REGULAR_PROTEINS = [
     // Poultry
     { id: "fried-chicken", name: "Fried Chicken", isPopular: true, category: "Poultry" },
@@ -70,12 +67,6 @@ const MenuSelectionStepComponent = ({ form, trackFieldInteraction, variant = 're
     { id: "low-country-boil", name: "Low Country Boil", isPremium: true, category: "Seafood" },
     { id: "crabs", name: "Crabs", isPremium: true, category: "Seafood" },
     { id: "fried-fish", name: "Fried Fish", category: "Seafood" },
-    
-    // Plant-Based
-    { id: "quinoa-power-bowl", name: "Quinoa Power Bowl", isDietary: true, category: "Plant-Based" },
-    { id: "stuffed-bell-peppers", name: "Stuffed Bell Peppers", isDietary: true, category: "Plant-Based" },
-    { id: "black-bean-burgers", name: "Black Bean Burgers", isDietary: true, category: "Plant-Based" },
-    { id: "roasted-vegetable-medley", name: "Roasted Vegetable Medley", isDietary: true, category: "Plant-Based" },
   ];
 
   const WEDDING_PROTEINS = [
@@ -99,26 +90,50 @@ const MenuSelectionStepComponent = ({ form, trackFieldInteraction, variant = 're
     { id: "shrimp-scampi", name: "Shrimp Scampi", isPremium: true, category: "Seafood" },
     { id: "seafood-medley", name: "Seafood Medley", isPremium: true, category: "Seafood" },
     { id: "sea-bass", name: "Chilean Sea Bass", isPremium: true, category: "Seafood" },
-    
-    // Elegant Vegetarian
-    { id: "stuffed-portobello", name: "Stuffed Portobello Mushroom", isDietary: true, isPremium: true, category: "Vegetarian" },
-    { id: "vegetable-wellington", name: "Vegetable Wellington", isDietary: true, isPremium: true, category: "Vegetarian" },
-    { id: "eggplant-parmesan", name: "Eggplant Parmesan", isDietary: true, category: "Vegetarian" },
+  ];
+
+  // Vegetarian entrée options - separated from main proteins
+  const REGULAR_VEGETARIAN_ENTREES: { id: string; name: string; category: string; isPremium?: boolean }[] = [
+    { id: "quinoa-power-bowl", name: "Quinoa Power Bowl", category: "Plant-Based" },
+    { id: "stuffed-bell-peppers", name: "Stuffed Bell Peppers", category: "Plant-Based" },
+    { id: "black-bean-burgers", name: "Black Bean Burgers", category: "Plant-Based" },
+    { id: "roasted-vegetable-medley", name: "Roasted Vegetable Medley", category: "Plant-Based" },
+    { id: "veggie-pasta-primavera", name: "Veggie Pasta Primavera", category: "Pasta" },
+    { id: "garden-stir-fry", name: "Garden Stir Fry", category: "Asian" },
+  ];
+
+  const WEDDING_VEGETARIAN_ENTREES: { id: string; name: string; category: string; isPremium?: boolean }[] = [
+    { id: "stuffed-portobello", name: "Stuffed Portobello Mushroom", isPremium: true, category: "Elegant" },
+    { id: "vegetable-wellington", name: "Vegetable Wellington", isPremium: true, category: "Elegant" },
+    { id: "eggplant-parmesan", name: "Eggplant Parmesan", category: "Italian" },
+    { id: "wild-mushroom-risotto", name: "Wild Mushroom Risotto", isPremium: true, category: "Italian" },
+    { id: "butternut-squash-ravioli", name: "Butternut Squash Ravioli", isPremium: true, category: "Pasta" },
   ];
 
   const PROTEINS = variant === 'wedding' ? WEDDING_PROTEINS : REGULAR_PROTEINS;
+  const VEGETARIAN_ENTREES = variant === 'wedding' ? WEDDING_VEGETARIAN_ENTREES : REGULAR_VEGETARIAN_ENTREES;
 
   // Convert to MultiSelect options with formatted labels
   const proteinOptions: Option[] = PROTEINS.map(protein => {
     let label = protein.name;
     if (protein.isPopular) label += " ⭐";
     if (protein.isPremium) label += " 💎";
-    if (protein.isDietary) label += " 🌱";
     
     return {
       value: protein.id,
       label: label,
       category: protein.category
+    };
+  });
+
+  const vegetarianOptions: Option[] = VEGETARIAN_ENTREES.map(entree => {
+    let label = entree.name;
+    if (entree.isPremium) label += " 💎";
+    
+    return {
+      value: entree.id,
+      label: label,
+      category: entree.category
     };
   });
 
@@ -145,12 +160,6 @@ const MenuSelectionStepComponent = ({ form, trackFieldInteraction, variant = 're
     label: drink.name,
     category: "Beverages"
   }));
-
-  // Watch both proteins available toggle
-  const bothProteinsAvailable = useWatch({
-    control: form.control,
-    name: "both_proteins_available"
-  });
 
   return (
     <div ref={ref} className={`space-y-8 ${animationClass}`}>
@@ -199,7 +208,6 @@ const MenuSelectionStepComponent = ({ form, trackFieldInteraction, variant = 're
                   options={proteinOptions}
                   selected={field.value || []}
                   onChange={(value) => {
-                    // Enforce max 2 selections
                     if (value.length <= 2) {
                       field.onChange(value);
                       trackFieldInteraction('proteins');
@@ -212,7 +220,7 @@ const MenuSelectionStepComponent = ({ form, trackFieldInteraction, variant = 're
                 />
               </FormControl>
               <p className="text-xs text-muted-foreground mt-1">
-                ⭐ Popular • 💎 Premium • 🌱 Dietary-Friendly
+                ⭐ Popular • 💎 Premium
               </p>
               {field.value && field.value.length >= 2 && (
                 <p className="text-xs text-amber-600 mt-1">
@@ -245,6 +253,70 @@ const MenuSelectionStepComponent = ({ form, trackFieldInteraction, variant = 're
             </FormItem>
           )}
         />
+      </div>
+
+      {/* VEGETARIAN SECTION - Dedicated area for vegetarian guests */}
+      <div className="p-4 bg-green-50 dark:bg-green-950/20 rounded-lg border border-green-200 dark:border-green-800">
+        <div className="flex items-center gap-2 mb-4">
+          <Leaf className="h-5 w-5 text-green-600" />
+          <h4 className="text-base font-medium text-green-800 dark:text-green-200">
+            Vegetarian Options
+          </h4>
+        </div>
+        
+        <div className="grid md:grid-cols-2 gap-6">
+          <FormField
+            control={form.control}
+            name="guest_count_with_restrictions"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium">Vegetarian Portions</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    placeholder="0"
+                    min="0"
+                    className="h-12 text-base input-clean bg-background"
+                    {...field}
+                    onFocus={() => trackFieldInteraction('guest_count_with_restrictions')}
+                  />
+                </FormControl>
+                <p className="text-xs text-muted-foreground">
+                  How many guests need vegetarian meals?
+                </p>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="vegetarian_entrees"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium">Vegetarian Entrées</FormLabel>
+                <FormControl>
+                  <MultiSelect
+                    options={vegetarianOptions}
+                    selected={field.value || []}
+                    onChange={(value) => {
+                      field.onChange(value);
+                      trackFieldInteraction('vegetarian_entrees');
+                    }}
+                    placeholder="Select vegetarian entrées..."
+                    searchPlaceholder="Search vegetarian options..."
+                    maxDisplayed={2}
+                    className="input-neutral bg-background"
+                  />
+                </FormControl>
+                <p className="text-xs text-muted-foreground">
+                  💎 Premium options available
+                </p>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
       </div>
 
       {/* Row 2: Additional Items (Appetizers + Desserts + Beverages) */}
