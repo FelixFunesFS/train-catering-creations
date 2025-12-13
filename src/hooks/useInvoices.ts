@@ -56,6 +56,46 @@ export function useInvoice(invoiceId: string | undefined | null) {
 }
 
 /**
+ * Hook for fetching invoice payment summary by invoice ID (for EstimateEditor)
+ */
+export function useInvoicePaymentSummary(invoiceId: string | undefined | null) {
+  return useQuery({
+    queryKey: [...invoiceKeys.detail(invoiceId || ''), 'payment-summary'],
+    queryFn: async () => {
+      if (!invoiceId) return null;
+      
+      const { data, error } = await supabase
+        .from('invoice_payment_summary')
+        .select('*')
+        .eq('invoice_id', invoiceId)
+        .maybeSingle();
+      
+      if (error) throw error;
+      if (!data) return null;
+      
+      // Parse milestones JSON into typed array
+      const milestones = Array.isArray(data.milestones) 
+        ? data.milestones.map((m: any) => ({
+            id: m.id,
+            milestone_type: m.milestone_type,
+            amount_cents: m.amount_cents,
+            percentage: m.percentage,
+            due_date: m.due_date,
+            status: m.status,
+          }))
+        : [];
+      
+      return {
+        ...data,
+        milestones,
+      } as import('@/services/PaymentDataService').InvoicePaymentSummary;
+    },
+    enabled: !!invoiceId,
+    staleTime: 1000 * 60 * 2,
+  });
+}
+
+/**
  * Hook for fetching invoice by quote ID
  */
 export function useInvoiceByQuote(quoteId: string | undefined) {

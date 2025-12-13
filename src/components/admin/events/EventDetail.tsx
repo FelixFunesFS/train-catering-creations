@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
-import { useSearchParams } from 'react-router-dom';
 import { Database } from '@/integrations/supabase/types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -8,11 +7,12 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { CustomerEditor } from './CustomerEditor';
 import { useToast } from '@/hooks/use-toast';
-import { useInvoiceByQuote } from '@/hooks/useInvoices';
+import { useInvoiceByQuote, useInvoicePaymentSummary } from '@/hooks/useInvoices';
 import { supabase } from '@/integrations/supabase/client';
 import { formatMenuDescription } from '@/utils/invoiceFormatters';
 import { User, Calendar, MapPin, Users, Utensils, FileText, Loader2, Package, Eye, Pencil, Receipt, Play, CheckCircle, XCircle } from 'lucide-react';
 import { useUpdateQuoteStatus } from '@/hooks/useQuotes';
+import { EstimateEditor } from '@/components/admin/billing/EstimateEditor';
 
 type QuoteRequest = Database['public']['Tables']['quote_requests']['Row'];
 
@@ -40,11 +40,17 @@ function formatMenuItems(items: unknown): string {
 export function EventDetail({ quote, onClose }: EventDetailProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [, setSearchParams] = useSearchParams();
+  const [showEstimateEditor, setShowEstimateEditor] = useState(false);
+  const [generatedInvoiceId, setGeneratedInvoiceId] = useState<string | null>(null);
   const { toast } = useToast();
   
   // Check if estimate already exists
-  const { data: existingInvoice, isLoading: checkingInvoice } = useInvoiceByQuote(quote.id);
+  const { data: existingInvoice, isLoading: checkingInvoice, refetch: refetchInvoice } = useInvoiceByQuote(quote.id);
+  
+  // Fetch full invoice payment summary for EstimateEditor (either existing or newly generated)
+  const invoiceIdToShow = generatedInvoiceId || existingInvoice?.id;
+  const { data: fullInvoice } = useInvoicePaymentSummary(invoiceIdToShow);
+  
   const updateStatus = useUpdateQuoteStatus();
 
   const handleStatusChange = async (newStatus: 'in_progress' | 'completed' | 'cancelled') => {
@@ -66,12 +72,7 @@ export function EventDetail({ quote, onClose }: EventDetailProps) {
 
   const handleViewEstimate = () => {
     if (!existingInvoice) return;
-    onClose();
-    setSearchParams({ 
-      view: 'billing', 
-      tab: 'estimates',
-      invoiceId: existingInvoice.id 
-    });
+    setShowEstimateEditor(true);
   };
 
   const handleGenerateEstimate = async () => {
@@ -88,13 +89,10 @@ export function EventDetail({ quote, onClose }: EventDetailProps) {
         description: 'Opening estimate editor...',
       });
       
-      // Navigate directly to billing tab with the new invoice selected
-      onClose();
-      setSearchParams({ 
-        view: 'billing', 
-        tab: 'estimates',
-        invoiceId: data.invoice_id 
-      });
+      // Set the generated invoice ID and show the editor
+      setGeneratedInvoiceId(data.invoice_id);
+      setShowEstimateEditor(true);
+      refetchInvoice();
     } catch (err: any) {
       toast({
         title: 'Error',
@@ -105,6 +103,22 @@ export function EventDetail({ quote, onClose }: EventDetailProps) {
       setIsGenerating(false);
     }
   };
+
+  const handleCloseEstimateEditor = () => {
+    setShowEstimateEditor(false);
+    setGeneratedInvoiceId(null);
+    refetchInvoice();
+  };
+
+  // If showing estimate editor, render it instead of event detail
+  if (showEstimateEditor && fullInvoice) {
+    return (
+      <EstimateEditor 
+        invoice={fullInvoice} 
+        onClose={handleCloseEstimateEditor} 
+      />
+    );
+  }
 
   return (
     <Dialog open onOpenChange={onClose}>
