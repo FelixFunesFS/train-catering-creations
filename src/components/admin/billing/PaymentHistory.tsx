@@ -1,10 +1,12 @@
 import { format } from 'date-fns';
-import { usePaymentTransactions } from '@/hooks/useInvoices';
+import { usePaymentTransactions, useInvoice } from '@/hooks/useInvoices';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { History, CreditCard, DollarSign, Check, X, Clock } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { History, CreditCard, DollarSign, Check, X, Clock, Wallet } from 'lucide-react';
+import { useMemo } from 'react';
 
 interface PaymentHistoryProps {
   invoiceId?: string;
@@ -57,7 +59,25 @@ function getStatusBadge(status: string) {
 }
 
 export function PaymentHistory({ invoiceId, onClose }: PaymentHistoryProps) {
-  const { data: transactions, isLoading } = usePaymentTransactions(invoiceId);
+  const { data: transactions, isLoading: isLoadingTransactions } = usePaymentTransactions(invoiceId);
+  const { data: invoice, isLoading: isLoadingInvoice } = useInvoice(invoiceId);
+
+  // Calculate payment summary
+  const summary = useMemo(() => {
+    if (!transactions || !invoice) return null;
+    
+    const completedTransactions = transactions.filter(tx => 
+      tx.status === 'completed' || tx.status === 'succeeded'
+    );
+    const totalPaid = completedTransactions.reduce((sum, tx) => sum + tx.amount, 0);
+    const totalAmount = invoice.total_amount || 0;
+    const remaining = Math.max(0, totalAmount - totalPaid);
+    const percentPaid = totalAmount > 0 ? Math.min(100, (totalPaid / totalAmount) * 100) : 0;
+    
+    return { totalPaid, totalAmount, remaining, percentPaid, transactionCount: completedTransactions.length };
+  }, [transactions, invoice]);
+
+  const isLoading = isLoadingTransactions || isLoadingInvoice;
 
   return (
     <Dialog open onOpenChange={onClose}>
@@ -66,10 +86,50 @@ export function PaymentHistory({ invoiceId, onClose }: PaymentHistoryProps) {
           <DialogTitle className="flex items-center gap-2">
             <History className="h-5 w-5" />
             Payment History
+            {invoice?.invoice_number && (
+              <span className="text-sm font-normal text-muted-foreground">
+                - {invoice.invoice_number}
+              </span>
+            )}
           </DialogTitle>
         </DialogHeader>
 
-        <ScrollArea className="max-h-[60vh]">
+        {/* Payment Summary Header */}
+        {summary && (
+          <div className="bg-muted/50 rounded-lg p-4 space-y-3 border">
+            <div className="flex items-center gap-2 text-sm font-medium">
+              <Wallet className="h-4 w-4 text-primary" />
+              Payment Summary
+            </div>
+            
+            <div className="grid grid-cols-3 gap-4 text-center">
+              <div>
+                <p className="text-xs text-muted-foreground">Invoice Total</p>
+                <p className="font-semibold">{formatCurrency(summary.totalAmount)}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Total Paid</p>
+                <p className="font-semibold text-emerald-600">{formatCurrency(summary.totalPaid)}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Remaining</p>
+                <p className={`font-semibold ${summary.remaining > 0 ? 'text-amber-600' : 'text-emerald-600'}`}>
+                  {formatCurrency(summary.remaining)}
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>{summary.transactionCount} transaction{summary.transactionCount !== 1 ? 's' : ''}</span>
+                <span>{Math.round(summary.percentPaid)}% paid</span>
+              </div>
+              <Progress value={summary.percentPaid} className="h-2" />
+            </div>
+          </div>
+        )}
+
+        <ScrollArea className="max-h-[50vh]">
           {isLoading ? (
             <div className="space-y-4">
               {[1, 2, 3].map(i => (
