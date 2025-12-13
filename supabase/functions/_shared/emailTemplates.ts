@@ -598,6 +598,12 @@ export function generateEventDetailsCard(quote: any): string {
           <td style="padding: 8px 0;"><strong>Service:</strong></td>
           <td style="padding: 8px 0;">${formatServiceType(quote.service_type)}</td>
         </tr>
+        ${quote.special_requests ? `
+        <tr>
+          <td style="padding: 8px 0; vertical-align: top;"><strong>Special Requests:</strong></td>
+          <td style="padding: 8px 0; font-style: italic;">${quote.special_requests}</td>
+        </tr>
+        ` : ''}
       </table>
     </section>
   `;

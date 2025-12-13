@@ -128,6 +128,21 @@ export function CustomerEstimateView() {
                 <p className="text-sm text-foreground">{quote.location}</p>
               </div>
             )}
+
+            {quote.guest_count_with_restrictions && (
+              <div className="flex items-center gap-2 text-sm">
+                <span className="text-amber-600">🥗</span>
+                <span className="text-muted-foreground">Vegetarian Portions:</span>
+                <span className="font-medium">{quote.guest_count_with_restrictions} guests</span>
+              </div>
+            )}
+
+            {quote.special_requests && (
+              <div className="pt-2 border-t border-border">
+                <span className="text-sm text-muted-foreground">📝 Special Requests:</span>
+                <p className="text-sm font-medium mt-1">{quote.special_requests}</p>
+              </div>
+            )}
           </CardContent>
         </Card>
 

@@ -22,6 +22,8 @@ export interface InvoicePaymentSummary {
   event_date: string;
   location: string;
   guest_count: number;
+  guest_count_with_restrictions: string | null;
+  special_requests: string | null;
   event_type: string;
   service_type: string;
   compliance_level: string | null;
@@ -114,6 +116,8 @@ export class PaymentDataService {
       event_date: inv.event_date || '',
       location: inv.location || '',
       guest_count: inv.guest_count || 0,
+      guest_count_with_restrictions: inv.guest_count_with_restrictions,
+      special_requests: inv.special_requests,
       event_type: inv.event_type || '',
       service_type: inv.service_type || '',
       compliance_level: inv.compliance_level,
@@ -181,6 +185,8 @@ export class PaymentDataService {
       event_date: data.event_date || '',
       location: data.location || '',
       guest_count: data.guest_count || 0,
+      guest_count_with_restrictions: data.guest_count_with_restrictions,
+      special_requests: data.special_requests,
       event_type: data.event_type || '',
       service_type: data.service_type || '',
       compliance_level: data.compliance_level,
