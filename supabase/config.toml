@@ -35,118 +35,101 @@ jwt_expiry = 3600
 enable_signup = true
 enable_manual_linking = false
 
+# Core Email Functions
+[functions.send-gmail-email]
+verify_jwt = false
+
 [functions.send-quote-notification]
 verify_jwt = false
 
-[functions.send-test-email]
+[functions.send-customer-portal-email]
 verify_jwt = false
 
-[functions.send-smtp-email]
+[functions.send-invoice-email]
 verify_jwt = false
 
+[functions.send-payment-reminder]
+verify_jwt = false
+
+[functions.send-change-request-notification]
+verify_jwt = false
+
+[functions.send-admin-notification]
+verify_jwt = false
+
+[functions.send-workflow-email]
+verify_jwt = false
+
+[functions.send-custom-invoice-email]
+verify_jwt = false
+
+[functions.send-automated-reminders]
+verify_jwt = false
+
+[functions.send-reminders]
+verify_jwt = false
+
+[functions.send-approval-workflow]
+verify_jwt = false
+
+# Gmail OAuth
 [functions.gmail-oauth-init]
 verify_jwt = false
 
 [functions.gmail-oauth-callback]
 verify_jwt = false
 
-[functions.send-gmail-email]
-verify_jwt = false
-
-[functions.create-stripe-customer]
-verify_jwt = false
-
-[functions.generate-invoice-from-quote]
-verify_jwt = false
-
-[functions.send-invoice]
-verify_jwt = false
-
-[functions.generate-invoice-pdf]
-verify_jwt = false
-
-[functions.send-invoice-email]
-verify_jwt = false
-
-[functions.send-approval-workflow]
+# Stripe Functions
+[functions.create-checkout-session]
 verify_jwt = false
 
 [functions.create-payment-link]
 verify_jwt = false
 
-[functions.generate-contract]
-verify_jwt = false
-
-[functions.send-contract-email]
-verify_jwt = false
-
-[functions.send-reminders]
-verify_jwt = false
-
-[functions.send-automated-reminders]
-verify_jwt = false
-
-[functions.fix-workflow-status]
-verify_jwt = false
-
-[functions.send-custom-invoice-email]
-verify_jwt = false
-
-[functions.update-quote-workflow]
-verify_jwt = false
-
-[functions.government-contract-workflow]
-verify_jwt = false
-
-[functions.automated-customer-workflow]
-verify_jwt = false
-
-[functions.process-change-request]
-verify_jwt = false
-
-[functions.track-analytics]
-verify_jwt = false
-
-[functions.create-stripe-checkout]
+[functions.stripe-webhook]
 verify_jwt = false
 
 [functions.verify-payment]
 verify_jwt = false
 
-[functions.create-checkout-session]
+[functions.create-stripe-customer]
+verify_jwt = false
+
+# Workflow Functions
+[functions.generate-invoice-from-quote]
+verify_jwt = false
+
+[functions.process-change-request]
+verify_jwt = false
+
+[functions.auto-workflow-manager]
+verify_jwt = false
+
+[functions.update-quote-workflow]
+verify_jwt = false
+
+[functions.fix-workflow-status]
+verify_jwt = false
+
+[functions.automated-customer-workflow]
+verify_jwt = false
+
+# Document Functions
+[functions.generate-invoice-pdf]
+verify_jwt = false
+
+# External Integrations
+[functions.facebook-reviews]
+verify_jwt = false
+
+# Test & Development
+[functions.send-test-email]
 verify_jwt = false
 
 [functions.generate-test-data]
 verify_jwt = false
 
 [functions.rate-limit-check]
-verify_jwt = false
-
-[functions.stripe-webhook]
-verify_jwt = false
-
-[functions.create-checkout-session]
-verify_jwt = false
-
-[functions.send-workflow-email]
-verify_jwt = false
-
-[functions.facebook-reviews]
-verify_jwt = false
-
-[functions.send-customer-portal-email]
-verify_jwt = false
-
-[functions.auto-workflow-manager]
-verify_jwt = false
-
-[functions.track-email-open]
-verify_jwt = false
-
-[functions.send-admin-notification]
-verify_jwt = false
-
-[functions.send-payment-reminder]
 verify_jwt = false
 
 [edge-runtime]
