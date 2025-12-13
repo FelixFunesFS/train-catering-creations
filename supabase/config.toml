@@ -117,6 +117,9 @@ verify_jwt = false
 [functions.automated-customer-workflow]
 verify_jwt = false
 
+[functions.send-event-followup]
+verify_jwt = false
+
 # Document Functions
 [functions.generate-invoice-pdf]
 verify_jwt = false

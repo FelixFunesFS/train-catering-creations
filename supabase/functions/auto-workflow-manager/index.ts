@@ -68,26 +68,17 @@ const handler = async (req: Request): Promise<Response> => {
       }
     }
 
-    // 2. Auto-confirm events when paid AND contract signed
+    // 2. Auto-confirm events when fully paid (no contract required)
     logStep("Checking for events to auto-confirm");
     const { data: paidInvoices, error: paidError } = await supabase
       .from('invoices')
-      .select(`
-        id,
-        quote_request_id,
-        workflow_status,
-        contract_id,
-        contracts (signed_at)
-      `)
+      .select('id, quote_request_id, workflow_status')
       .eq('workflow_status', 'paid');
 
     if (!paidError && paidInvoices) {
-      for (const invoice of paidInvoices as any) {
-        // Check if contract is signed
-        const isContractSigned = invoice.contracts?.signed_at != null;
-
-        if (isContractSigned && invoice.quote_request_id) {
-          // Update quote to confirmed
+      for (const invoice of paidInvoices) {
+        if (invoice.quote_request_id) {
+          // Update quote to confirmed (skip if already confirmed, in_progress, or completed)
           const { error: quoteUpdateError } = await supabase
             .from('quote_requests')
             .update({
@@ -96,7 +87,7 @@ const handler = async (req: Request): Promise<Response> => {
               last_status_change: new Date().toISOString()
             })
             .eq('id', invoice.quote_request_id)
-            .neq('workflow_status', 'confirmed'); // Only if not already confirmed
+            .not('workflow_status', 'in', '("confirmed","in_progress","completed")');
 
           if (!quoteUpdateError) {
             results.autoConfirmed++;
@@ -104,10 +95,10 @@ const handler = async (req: Request): Promise<Response> => {
             await supabase.from('workflow_state_log').insert({
               entity_type: 'quote_requests',
               entity_id: invoice.quote_request_id,
-              previous_status: 'estimated',
+              previous_status: 'paid',
               new_status: 'confirmed',
               changed_by: 'auto_workflow_manager',
-              change_reason: 'Payment received and contract signed'
+              change_reason: 'Payment received - event auto-confirmed'
             });
           }
         }
