@@ -1,15 +1,19 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { InvoicePaymentSummary } from '@/services/PaymentDataService';
-import { Eye, Send, Loader2, X, RefreshCw } from 'lucide-react';
+import { Eye, Send, Loader2, X, RefreshCw, Mail } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface EmailPreviewProps {
   invoice: InvoicePaymentSummary;
   onClose: () => void;
-  onConfirmSend: () => void;
+  onConfirmSend: (overrideEmail?: string) => void;
   isSending: boolean;
+  isResend?: boolean;
 }
 
 export function EmailPreview({
@@ -17,10 +21,20 @@ export function EmailPreview({
   onClose,
   onConfirmSend,
   isSending,
+  isResend = false,
 }: EmailPreviewProps) {
   const [previewHtml, setPreviewHtml] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [useAlternateEmail, setUseAlternateEmail] = useState(false);
+  const [alternateEmail, setAlternateEmail] = useState('');
+
+  const isValidEmail = (email: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  const recipientEmail = useAlternateEmail && alternateEmail ? alternateEmail : invoice.email;
+  const canSend = !useAlternateEmail || isValidEmail(alternateEmail);
 
   const fetchPreview = async () => {
     setIsLoading(true);
@@ -54,13 +68,17 @@ export function EmailPreview({
     fetchPreview();
   }, [invoice.quote_id]);
 
+  const handleConfirmSend = () => {
+    onConfirmSend(useAlternateEmail ? alternateEmail : undefined);
+  };
+
   return (
     <Dialog open onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden p-0 flex flex-col">
         <DialogHeader className="p-6 pb-0 flex-shrink-0">
           <DialogTitle className="flex items-center gap-2">
             <Eye className="h-5 w-5" />
-            Email Preview - Exact Customer View
+            {isResend ? 'Resend Estimate' : 'Email Preview'} - Exact Customer View
           </DialogTitle>
         </DialogHeader>
 
@@ -96,20 +114,66 @@ export function EmailPreview({
           )}
         </div>
 
+        {/* Recipient Selection */}
+        <div className="mx-6 mb-4 p-4 bg-muted/30 rounded-lg border">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Mail className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-medium">Recipient</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Label htmlFor="alternate-email" className="text-sm text-muted-foreground">
+                Send to different email
+              </Label>
+              <Switch
+                id="alternate-email"
+                checked={useAlternateEmail}
+                onCheckedChange={setUseAlternateEmail}
+              />
+            </div>
+          </div>
+          
+          {useAlternateEmail ? (
+            <div className="space-y-2">
+              <Input
+                type="email"
+                placeholder="Enter alternate email address"
+                value={alternateEmail}
+                onChange={(e) => setAlternateEmail(e.target.value)}
+                className={!canSend && alternateEmail ? 'border-destructive' : ''}
+              />
+              {!canSend && alternateEmail && (
+                <p className="text-xs text-destructive">Please enter a valid email address</p>
+              )}
+              <p className="text-xs text-muted-foreground">
+                Original recipient: {invoice.email}
+              </p>
+            </div>
+          ) : (
+            <p className="text-sm">
+              This email will be sent to: <strong>{invoice.email}</strong>
+            </p>
+          )}
+        </div>
+
         {/* Actions */}
         <div className="flex justify-between items-center p-6 pt-0 flex-shrink-0 border-t bg-muted/30">
           <p className="text-sm text-muted-foreground">
-            This email will be sent to: <strong>{invoice.email}</strong>
+            {isResend && <span className="text-amber-600 font-medium mr-2">↻ Resending</span>}
+            Sending to: <strong>{recipientEmail}</strong>
           </p>
           <div className="flex gap-2">
             <Button variant="outline" onClick={onClose}>
               <X className="h-4 w-4 mr-2" />
               Cancel
             </Button>
-            <Button onClick={onConfirmSend} disabled={isSending || isLoading || !!error}>
+            <Button 
+              onClick={handleConfirmSend} 
+              disabled={isSending || isLoading || !!error || !canSend}
+            >
               {isSending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               <Send className="h-4 w-4 mr-2" />
-              Confirm & Send
+              {isResend ? 'Resend Estimate' : 'Confirm & Send'}
             </Button>
           </div>
         </div>
