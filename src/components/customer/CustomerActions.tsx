@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { ChangeRequestModal } from './ChangeRequestModal';
 import { supabase } from '@/integrations/supabase/client';
@@ -10,6 +10,7 @@ interface CustomerActionsProps {
   customerEmail: string;
   status: string;
   onStatusChange?: () => void;
+  autoApprove?: boolean;
 }
 
 export function CustomerActions({
@@ -17,10 +18,12 @@ export function CustomerActions({
   customerEmail,
   status,
   onStatusChange,
+  autoApprove = false,
 }: CustomerActionsProps) {
   const [isApproving, setIsApproving] = useState(false);
   const [showChangeModal, setShowChangeModal] = useState(false);
   const { toast } = useToast();
+  const autoApproveTriggered = useRef(false);
 
   // Determine if actions should be disabled based on status
   const isActionable = ['sent', 'viewed'].includes(status);
@@ -58,6 +61,14 @@ export function CustomerActions({
       setIsApproving(false);
     }
   };
+
+  // Handle auto-approve from email link
+  useEffect(() => {
+    if (autoApprove && isActionable && !autoApproveTriggered.current) {
+      autoApproveTriggered.current = true;
+      handleApprove();
+    }
+  }, [autoApprove, isActionable]);
 
   if (isAlreadyApproved) {
     return (
