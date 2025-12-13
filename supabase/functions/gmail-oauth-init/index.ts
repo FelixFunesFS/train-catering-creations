@@ -49,16 +49,16 @@ const handler = async (req: Request): Promise<Response> => {
     authUrl.searchParams.set('prompt', 'consent'); // Force consent to guarantee all scopes
     authUrl.searchParams.set('login_hint', 'soultrainseatery@gmail.com');
 
-    console.log('Redirecting to OAuth URL:', authUrl.toString());
+    console.log('Generated OAuth URL:', authUrl.toString());
 
-    // Redirect directly to Google OAuth
-    return new Response(null, {
-      status: 302,
-      headers: {
-        'Location': authUrl.toString(),
-        ...corsHeaders,
-      },
-    });
+    // Return OAuth URL as JSON for frontend to handle
+    return new Response(
+      JSON.stringify({ authUrl: authUrl.toString() }),
+      {
+        status: 200,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders },
+      }
+    );
 
   } catch (error: any) {
     console.error('Error in gmail-oauth-init:', error);
