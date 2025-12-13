@@ -93,15 +93,6 @@ export function useEstimateAccess(accessToken: string) {
         lineItems,
         milestones
       });
-
-      // Track view analytics
-      await supabase.from('analytics_events').insert({
-        event_type: 'estimate_viewed',
-        entity_type: 'invoice',
-        entity_id: invoice.id,
-        metadata: { access_token: accessToken }
-      });
-
       // Update view count
       await supabase
         .from('invoices')

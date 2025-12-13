@@ -132,17 +132,6 @@ export function TokenBasedCustomerPortal() {
         }
       });
 
-      // Also track in analytics for historical data
-      await supabase.from('analytics_events').insert({
-        event_type: 'estimate_accessed',
-        entity_type: 'invoices',
-        entity_id: invoice?.id,
-        session_id: token,
-        metadata: {
-          invoice_number: invoice?.invoice_number,
-          customer_email: quote?.email
-        }
-      });
 
       setData({
         invoice: structuredInvoice,
