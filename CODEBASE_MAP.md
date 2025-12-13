@@ -131,6 +131,22 @@
 | `useUpdateChangeRequest()` | Mutation for admin updates | Admin components |
 | `useProcessChangeRequest()` | Full approve/reject workflow | `ChangeRequestProcessor`, `QuickDecisionPanel`, `IntegratedChangeRequestPanel` |
 
+### useQuotes.ts
+**Location**: `src/hooks/useQuotes.ts`
+
+| Hook | Purpose | Query Key |
+|------|---------|-----------|
+| `useQuotes(filters?)` | Fetch quotes with optional status/search/limit | `quoteKeys.list(filters)` |
+| `useQuote(quoteId)` | Fetch single quote by ID | `quoteKeys.detail(id)` |
+| `useQuotesByStatus(status)` | Fetch quotes by workflow status | `quoteKeys.byStatus(status)` |
+| `usePendingQuotesCount()` | Count of pending quotes | `quoteKeys.pending()` |
+| `useQuoteWithInvoice(quoteId)` | Quote with related invoice & line items | `quoteKeys.detail(id)` |
+| `useUpdateQuote()` | Update quote fields | Mutation |
+| `useUpdateQuoteStatus()` | Update workflow status with audit log | Mutation |
+| `useDeleteQuote()` | Delete quote and related records | Mutation |
+| `useCreateQuote()` | Create new quote | Mutation |
+| `useBulkUpdateQuotes()` | Bulk update multiple quotes | Mutation |
+
 ---
 
 ## 🧩 Core Components
