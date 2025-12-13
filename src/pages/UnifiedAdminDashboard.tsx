@@ -2,12 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { DashboardHome } from '@/components/admin/dashboard/DashboardHome';
-import { ConsolidatedEventsManager } from '@/components/admin/dashboard/ConsolidatedEventsManager';
-import { BillingHub } from '@/components/admin/dashboard/BillingHub';
-import { SettingsHub } from '@/components/admin/dashboard/SettingsHub';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/useAuth';
-import { LogOut, LayoutDashboard, CalendarDays, CreditCard, Settings } from 'lucide-react';
+import { LogOut, LayoutDashboard, CalendarDays, CreditCard, Settings, Construction } from 'lucide-react';
 
 type AdminView = 'dashboard' | 'events' | 'billing' | 'settings';
 
@@ -37,6 +34,30 @@ export function UnifiedAdminDashboard() {
     { view: 'billing' as AdminView, label: 'Billing', icon: CreditCard },
     { view: 'settings' as AdminView, label: 'Settings', icon: Settings },
   ];
+
+  // Placeholder component for rebuilding
+  const PlaceholderContent = ({ title }: { title: string }) => (
+    <div className="container mx-auto px-4 py-12">
+      <Card className="max-w-2xl mx-auto">
+        <CardHeader className="text-center">
+          <div className="mx-auto w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+            <Construction className="h-8 w-8 text-muted-foreground" />
+          </div>
+          <CardTitle className="text-2xl">{title}</CardTitle>
+        </CardHeader>
+        <CardContent className="text-center">
+          <p className="text-muted-foreground mb-6">
+            This section is being rebuilt with a cleaner, simpler design.
+          </p>
+          <div className="space-y-2 text-sm text-muted-foreground">
+            <p>✓ Database and edge functions preserved</p>
+            <p>✓ All data is safe</p>
+            <p>✓ New UI coming soon</p>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-background">
@@ -79,16 +100,12 @@ export function UnifiedAdminDashboard() {
         </div>
       </header>
 
-      {/* Main Content */}
+      {/* Main Content - Placeholders */}
       <main className="flex-1">
-        {currentView === 'dashboard' && (
-          <div className="container mx-auto px-4 py-6">
-            <DashboardHome />
-          </div>
-        )}
-        {currentView === 'events' && <ConsolidatedEventsManager />}
-        {currentView === 'billing' && <BillingHub />}
-        {currentView === 'settings' && <SettingsHub />}
+        {currentView === 'dashboard' && <PlaceholderContent title="Dashboard - Rebuilding" />}
+        {currentView === 'events' && <PlaceholderContent title="Events Manager - Rebuilding" />}
+        {currentView === 'billing' && <PlaceholderContent title="Billing Hub - Rebuilding" />}
+        {currentView === 'settings' && <PlaceholderContent title="Settings - Rebuilding" />}
       </main>
     </div>
   );

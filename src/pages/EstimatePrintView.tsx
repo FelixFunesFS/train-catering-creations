@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { InvoiceViewer } from '@/components/admin/invoice/InvoiceViewer';
-import { Loader2 } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Loader2, Construction } from 'lucide-react';
 
 interface LineItem {
   id: string;
@@ -106,16 +106,6 @@ export default function EstimatePrintView() {
     }
   };
 
-  // Auto-trigger print dialog when component loads
-  useEffect(() => {
-    if (!loading && estimate) {
-      // Small delay to ensure DOM is ready
-      setTimeout(() => {
-        window.print();
-      }, 500);
-    }
-  }, [loading, estimate]);
-
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center print:hidden">
@@ -140,20 +130,50 @@ export default function EstimatePrintView() {
     );
   }
 
-  const documentType = estimate.workflow_status === 'approved' || estimate.workflow_status === 'paid' ? 'invoice' : 'estimate';
-
+  // Placeholder print view until InvoiceViewer is rebuilt
   return (
-    <div className="print-only-view">
-      <InvoiceViewer
-        invoice={{
-          ...estimate,
-          line_items: lineItems
-        }}
-        customer={estimate.customers}
-        quote={estimate.quote_requests}
-        documentType={documentType}
-        showActions={false}
-      />
+    <div className="min-h-screen bg-background p-8">
+      <Card className="max-w-4xl mx-auto">
+        <CardHeader className="text-center border-b">
+          <div className="mx-auto w-12 h-12 bg-muted rounded-full flex items-center justify-center mb-4">
+            <Construction className="h-6 w-6 text-muted-foreground" />
+          </div>
+          <CardTitle>Estimate Print View - Rebuilding</CardTitle>
+          <p className="text-muted-foreground">Invoice Viewer component is being rebuilt</p>
+        </CardHeader>
+        <CardContent className="p-6">
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm text-muted-foreground">Invoice Number</p>
+                <p className="font-medium">{estimate.invoice_number || 'N/A'}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Status</p>
+                <p className="font-medium">{estimate.workflow_status}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Total Amount</p>
+                <p className="font-medium">${(estimate.total_amount / 100).toFixed(2)}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Line Items</p>
+                <p className="font-medium">{lineItems.length} items</p>
+              </div>
+            </div>
+            
+            {estimate.quote_requests && (
+              <div className="pt-4 border-t">
+                <p className="text-sm text-muted-foreground">Event</p>
+                <p className="font-medium">{estimate.quote_requests.event_name}</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {estimate.quote_requests.event_date} • {estimate.quote_requests.guest_count} guests
+                </p>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
