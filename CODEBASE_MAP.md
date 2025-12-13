@@ -165,6 +165,7 @@
 | `TaxCalculationService` | `src/services/TaxCalculationService.ts` | Tax calculations (2% + 7%) |
 | `PaymentScheduleService` | `src/services/PaymentScheduleService.ts` | Payment schedule generation |
 | `InvoiceTotalsRecalculator` | `src/services/InvoiceTotalsRecalculator.ts` | Invoice total calculations |
+| `LineItemsService` | `src/services/LineItemsService.ts` | Line item CRUD operations |
 
 ### Edge Functions
 | Function | Location | Purpose |
