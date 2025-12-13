@@ -7,7 +7,7 @@ export interface LineItemInput {
   quantity: number;
   unit_price: number; // in cents
   total_price: number; // in cents
-  category?: string;
+  category: string;
   metadata?: Json;
 }
 
@@ -35,7 +35,7 @@ export class LineItemsService {
       quantity: item.quantity,
       unit_price: item.unit_price,
       total_price: item.total_price,
-      category: item.category || 'other',
+      category: item.category,
       metadata: item.metadata || {}
     }));
 
