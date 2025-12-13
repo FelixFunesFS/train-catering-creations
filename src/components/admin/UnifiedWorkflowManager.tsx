@@ -4,6 +4,7 @@ import { type QuoteRequest } from '@/utils/invoiceFormatters';
 import { useEnhancedPricingManagement } from '@/hooks/useEnhancedPricingManagement';
 import { useInvoiceEditing } from '@/hooks/useInvoiceEditing';
 import { useWorkflowSync } from '@/hooks/useWorkflowSync';
+import { useQuotes, useQuote, useUpdateQuote } from '@/hooks/useQuotes';
 import { supabase } from '@/integrations/supabase/client';
 import { EmailPreviewModal } from './EmailPreviewModal';
 import { WorkflowSteps } from './workflow/WorkflowSteps';
@@ -47,17 +48,19 @@ interface UnifiedWorkflowManagerProps {
 }
 
 export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: UnifiedWorkflowManagerProps) {
-  const [quotes, setQuotes] = useState<Quote[]>([]);
   const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null);
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [lineItems, setLineItems] = useState<LineItem[]>([]);
   const [currentStep, setCurrentStep] = useState<'select' | 'pricing' | 'payment' | 'confirmed' | 'completed'>('select');
-  const [loading, setLoading] = useState(true);
   const [showEmailPreview, setShowEmailPreview] = useState(false);
   const [isGovernmentContract, setIsGovernmentContract] = useState(false);
-  const [showTimelineTasks, setShowTimelineTasks] = useState(false);
   const { toast } = useToast();
   const { syncQuoteWithInvoice } = useWorkflowSync();
+
+  // Use TanStack Query hooks for quotes
+  const { data: quotes = [], isLoading: quotesLoading, refetch: refetchQuotes } = useQuotes();
+  const { data: fetchedQuote } = useQuote(selectedQuoteId);
+  const updateQuoteMutation = useUpdateQuote();
 
   const {
     lineItems: managedLineItems,
@@ -114,16 +117,16 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
     };
   }, [invoice?.id]);
 
-  // Load quotes on mount and auto-generate invoices
+  // Handle initial quote selection from props
   useEffect(() => {
-    fetchQuotes();
-    if (selectedQuoteId) {
-      fetchQuoteById(selectedQuoteId);
+    if (fetchedQuote && selectedQuoteId) {
+      setSelectedQuote(fetchedQuote as Quote);
+      checkExistingInvoice(selectedQuoteId);
       if (mode === 'pricing') {
         setCurrentStep('pricing');
       }
     }
-  }, [selectedQuoteId, mode]);
+  }, [fetchedQuote, selectedQuoteId, mode]);
 
   // Auto-generate invoices for new quotes
   useEffect(() => {
@@ -142,34 +145,6 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
       autoGenerateInvoices();
     }
   }, [quotes]);
-
-  const fetchQuotes = async () => {
-    try {
-      const data = await WorkflowService.fetchQuotes();
-      setQuotes(data as Quote[]);
-    } catch (error) {
-      console.error('Error fetching quotes:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load quotes",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchQuoteById = async (quoteId: string) => {
-    try {
-      const data = await WorkflowService.fetchQuoteById(quoteId);
-      if (data) {
-        setSelectedQuote(data as Quote);
-        await checkExistingInvoice(quoteId);
-      }
-    } catch (error) {
-      console.error('Error fetching quote:', error);
-    }
-  };
 
   const checkExistingInvoice = async (quoteId: string) => {
     try {
@@ -207,28 +182,16 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
     if (!selectedQuote) return;
 
     try {
-      // Only pass the fields that are being updated to Supabase
-      const { error } = await supabase
-        .from('quote_requests')
-        .update(updates as any) // Type assertion needed for partial updates
-        .eq('id', selectedQuote.id);
-      
-      if (error) throw error;
+      await updateQuoteMutation.mutateAsync({
+        quoteId: selectedQuote.id,
+        updates: updates as any,
+      });
       
       // Update local state
       setSelectedQuote(prev => prev ? { ...prev, ...updates } : null);
-      
-      toast({
-        title: "Quote Updated",
-        description: "Event details have been saved.",
-      });
     } catch (error) {
+      // Error handling is done in the mutation hook
       console.error('Error updating quote:', error);
-      toast({
-        title: "Error",
-        description: "Failed to save changes.",
-        variant: "destructive",
-      });
     }
   };
 
@@ -242,7 +205,6 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
     if (!selectedQuote) return;
 
     try {
-      setLoading(true);
       const { invoice: newInvoice, lineItems: items, isNew } = await WorkflowService.generateInvoice(selectedQuote);
       
       setInvoice(newInvoice);
@@ -262,8 +224,6 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
         description: "Failed to generate invoice",
         variant: "destructive"
       });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -336,9 +296,7 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
     }
   };
 
-  // Template selection removed - now inline in PricingPanel
-
-  if (loading && !selectedQuote) {
+  if (quotesLoading && !selectedQuote) {
     return (
       <div className="flex items-center justify-center p-8">
         <div className="text-muted-foreground">Loading...</div>
@@ -374,8 +332,8 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
 
       {currentStep === 'select' && (
         <QuoteSelectionPanel 
-          quotes={quotes}
-          loading={loading}
+          quotes={quotes as Quote[]}
+          loading={quotesLoading}
           onSelectQuote={handleSelectQuote}
         />
       )}
@@ -388,7 +346,7 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
           totals={totals}
           isModified={isModified}
           isGovernmentContract={isGovernmentContract}
-          loading={loading}
+          loading={quotesLoading}
           onGenerateInvoice={generateInvoice}
           onSavePricing={savePricing}
           onSendEstimate={handleSendEstimate}
@@ -435,7 +393,7 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
               description: 'Event has been completed successfully!'
             });
             setCurrentStep('select');
-            fetchQuotes();
+            refetchQuotes();
           }}
         />
       )}
