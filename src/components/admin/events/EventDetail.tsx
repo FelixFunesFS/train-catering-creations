@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
+import { useSearchParams } from 'react-router-dom';
 import { Database } from '@/integrations/supabase/types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -37,6 +38,7 @@ function formatMenuItems(items: unknown): string {
 export function EventDetail({ quote, onClose }: EventDetailProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [, setSearchParams] = useSearchParams();
   const { toast } = useToast();
 
   const handleGenerateEstimate = async () => {
@@ -50,9 +52,16 @@ export function EventDetail({ quote, onClose }: EventDetailProps) {
 
       toast({
         title: 'Estimate Generated',
-        description: 'Line items created from menu selections. Add pricing in the Billing tab.',
+        description: 'Opening estimate editor...',
       });
+      
+      // Navigate directly to billing tab with the new invoice selected
       onClose();
+      setSearchParams({ 
+        view: 'billing', 
+        tab: 'estimates',
+        invoiceId: data.invoice_id 
+      });
     } catch (err: any) {
       toast({
         title: 'Error',
