@@ -8,9 +8,10 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { CustomerEditor } from './CustomerEditor';
 import { useToast } from '@/hooks/use-toast';
+import { useInvoiceByQuote } from '@/hooks/useInvoices';
 import { supabase } from '@/integrations/supabase/client';
 import { formatMenuDescription } from '@/utils/invoiceFormatters';
-import { User, Calendar, MapPin, Users, Utensils, FileText, Loader2 } from 'lucide-react';
+import { User, Calendar, MapPin, Users, Utensils, FileText, Loader2, Package, Eye } from 'lucide-react';
 
 type QuoteRequest = Database['public']['Tables']['quote_requests']['Row'];
 
@@ -40,6 +41,19 @@ export function EventDetail({ quote, onClose }: EventDetailProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [, setSearchParams] = useSearchParams();
   const { toast } = useToast();
+  
+  // Check if estimate already exists
+  const { data: existingInvoice, isLoading: checkingInvoice } = useInvoiceByQuote(quote.id);
+
+  const handleViewEstimate = () => {
+    if (!existingInvoice) return;
+    onClose();
+    setSearchParams({ 
+      view: 'billing', 
+      tab: 'estimates',
+      invoiceId: existingInvoice.id 
+    });
+  };
 
   const handleGenerateEstimate = async () => {
     setIsGenerating(true);
@@ -215,15 +229,55 @@ export function EventDetail({ quote, onClose }: EventDetailProps) {
 
           <Separator />
 
+          {/* Supplies & Equipment */}
+          <section>
+            <h3 className="text-sm font-semibold flex items-center gap-2 mb-3">
+              <Package className="h-4 w-4" />
+              Supplies & Equipment Requested
+            </h3>
+            {(() => {
+              const supplies = [
+                quote.plates_requested && 'Plates',
+                quote.cups_requested && 'Cups',
+                quote.napkins_requested && 'Napkins',
+                quote.serving_utensils_requested && 'Serving Utensils',
+                quote.chafers_requested && 'Chafing Dishes',
+                quote.ice_requested && 'Ice',
+              ].filter(Boolean);
+              
+              return supplies.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {supplies.map((item) => (
+                    <Badge key={item} variant="secondary">{item}</Badge>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">None requested</p>
+              );
+            })()}
+          </section>
+
+          <Separator />
+
           {/* Actions */}
           <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={onClose}>
               Close
             </Button>
-            <Button onClick={handleGenerateEstimate} disabled={isGenerating}>
-              {isGenerating && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              Generate Estimate
-            </Button>
+            {existingInvoice ? (
+              <Button onClick={handleViewEstimate}>
+                <Eye className="h-4 w-4 mr-2" />
+                View Estimate
+              </Button>
+            ) : (
+              <Button 
+                onClick={handleGenerateEstimate} 
+                disabled={isGenerating || checkingInvoice}
+              >
+                {isGenerating && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                Generate Estimate
+              </Button>
+            )}
           </div>
         </div>
       </DialogContent>

@@ -3,15 +3,17 @@ import { InvoicePaymentSummary } from '@/services/PaymentDataService';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { useLineItems, useUpdateLineItem } from '@/hooks/useLineItems';
+import { Textarea } from '@/components/ui/textarea';
+import { useLineItems, useUpdateLineItem, useDeleteLineItem } from '@/hooks/useLineItems';
 import { useInvoice } from '@/hooks/useInvoices';
 import { LineItemEditor } from './LineItemEditor';
+import { AddLineItemModal } from './AddLineItemModal';
 import { EstimateSummary } from './EstimateSummary';
 import { EmailPreview } from './EmailPreview';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
-import { FileText, Loader2, Eye } from 'lucide-react';
+import { FileText, Loader2, Eye, Plus } from 'lucide-react';
 
 interface EstimateEditorProps {
   invoice: InvoicePaymentSummary;
@@ -23,10 +25,13 @@ export function EstimateEditor({ invoice, onClose }: EstimateEditorProps) {
   const queryClient = useQueryClient();
   const [isSending, setIsSending] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [showAddItem, setShowAddItem] = useState(false);
+  const [adminNotes, setAdminNotes] = useState('');
   
   const { data: lineItems, isLoading: loadingItems } = useLineItems(invoice.invoice_id);
   const { data: currentInvoice } = useInvoice(invoice.invoice_id);
   const updateLineItem = useUpdateLineItem();
+  const deleteLineItem = useDeleteLineItem();
 
   const isGovernment = invoice.compliance_level === 'government' || invoice.requires_po_number;
 
@@ -41,6 +46,27 @@ export function EstimateEditor({ invoice, onClose }: EstimateEditorProps) {
         unit_price: newPrice,
         total_price: newPrice * item.quantity,
       },
+    });
+  };
+
+  const handleQuantityChange = async (lineItemId: string, newQuantity: number) => {
+    const item = lineItems?.find(li => li.id === lineItemId);
+    if (!item) return;
+
+    await updateLineItem.mutateAsync({
+      lineItemId,
+      invoiceId: invoice.invoice_id,
+      updates: {
+        quantity: newQuantity,
+        total_price: item.unit_price * newQuantity,
+      },
+    });
+  };
+
+  const handleDeleteItem = async (lineItemId: string) => {
+    await deleteLineItem.mutateAsync({
+      lineItemId,
+      invoiceId: invoice.invoice_id,
     });
   };
 
@@ -137,7 +163,17 @@ export function EstimateEditor({ invoice, onClose }: EstimateEditorProps) {
 
         {/* Line Items */}
         <div className="space-y-4 my-4">
-          <h3 className="font-semibold text-sm">Line Items</h3>
+          <div className="flex items-center justify-between">
+            <h3 className="font-semibold text-sm">Line Items</h3>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setShowAddItem(true)}
+            >
+              <Plus className="h-4 w-4 mr-1" />
+              Add Item
+            </Button>
+          </div>
           
           {loadingItems ? (
             <div className="flex items-center justify-center py-8">
@@ -154,11 +190,27 @@ export function EstimateEditor({ invoice, onClose }: EstimateEditorProps) {
                   key={item.id}
                   item={item}
                   onPriceChange={(price) => handlePriceChange(item.id, price)}
-                  isUpdating={updateLineItem.isPending}
+                  onQuantityChange={(qty) => handleQuantityChange(item.id, qty)}
+                  onDelete={() => handleDeleteItem(item.id)}
+                  isUpdating={updateLineItem.isPending || deleteLineItem.isPending}
                 />
               ))}
             </div>
           )}
+        </div>
+
+        <Separator />
+
+        {/* Admin Notes */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Admin Notes (Internal)</label>
+          <Textarea
+            value={adminNotes}
+            onChange={(e) => setAdminNotes(e.target.value)}
+            placeholder="e.g., Customer called to add appetizers..."
+            rows={2}
+            className="text-sm"
+          />
         </div>
 
         <Separator />
@@ -181,6 +233,14 @@ export function EstimateEditor({ invoice, onClose }: EstimateEditorProps) {
             Preview & Send
           </Button>
         </div>
+
+        {/* Add Line Item Modal */}
+        {showAddItem && (
+          <AddLineItemModal
+            invoiceId={invoice.invoice_id!}
+            onClose={() => setShowAddItem(false)}
+          />
+        )}
       </DialogContent>
     </Dialog>
   );
