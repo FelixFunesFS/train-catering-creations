@@ -410,7 +410,8 @@ export class PaymentDataService {
     invoiceId: string,
     amount: number,
     paymentMethod: string,
-    notes?: string
+    notes?: string,
+    sendConfirmationEmail: boolean = true
   ): Promise<void> {
     const invoice = await this.getInvoiceById(invoiceId);
     if (!invoice) throw new Error('Invoice not found');
@@ -435,7 +436,9 @@ export class PaymentDataService {
 
     // Update invoice status if fully paid
     const newBalance = invoice.balance_remaining - amount;
-    if (newBalance <= 0) {
+    const isFullPayment = newBalance <= 0;
+    
+    if (isFullPayment) {
       await supabase
         .from('invoices')
         .update({ 
@@ -448,6 +451,28 @@ export class PaymentDataService {
         .from('invoices')
         .update({ workflow_status: 'partially_paid' })
         .eq('id', invoiceId);
+    }
+
+    // Send confirmation email if requested and quote exists
+    if (sendConfirmationEmail && invoice.quote_id) {
+      try {
+        await supabase.functions.invoke('send-customer-portal-email', {
+          body: {
+            quote_request_id: invoice.quote_id,
+            type: 'payment_confirmation',
+            metadata: {
+              amount: amount,
+              payment_method: paymentMethod,
+              is_full_payment: isFullPayment,
+              remaining_balance: isFullPayment ? 0 : newBalance
+            }
+          }
+        });
+        console.log('Payment confirmation email sent');
+      } catch (emailError) {
+        console.error('Failed to send payment confirmation email:', emailError);
+        // Don't throw - payment was recorded successfully, email is secondary
+      }
     }
   }
 
