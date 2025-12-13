@@ -101,6 +101,17 @@
 | `useARAgingBuckets()` | AR aging data | `ReportingDashboard` |
 | `useARDashboard()` | Combined AR dashboard data | -
 
+### useLineItems.ts
+**Location**: `src/hooks/useLineItems.ts`
+
+| Hook | Purpose |
+|------|---------|
+| `useLineItems(invoiceId)` | Fetch line items for an invoice |
+| `useCreateLineItems()` | Mutation for creating line items |
+| `useUpdateLineItem()` | Mutation for updating a line item |
+| `useDeleteLineItem()` | Mutation for deleting a line item |
+| `useReplaceLineItems()` | Mutation for replacing all line items |
+
 ---
 
 ## 🧩 Core Components
