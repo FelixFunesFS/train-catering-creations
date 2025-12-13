@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { InvoicePaymentSummary } from '@/services/PaymentDataService';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -10,10 +10,26 @@ import { LineItemEditor } from './LineItemEditor';
 import { AddLineItemModal } from './AddLineItemModal';
 import { EstimateSummary } from './EstimateSummary';
 import { EmailPreview } from './EmailPreview';
+import { SortableLineItem } from './SortableLineItem';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
 import { FileText, Loader2, Eye, Plus } from 'lucide-react';
+import { 
+  DndContext, 
+  closestCenter, 
+  KeyboardSensor, 
+  PointerSensor, 
+  useSensor, 
+  useSensors,
+  DragEndEvent 
+} from '@dnd-kit/core';
+import { 
+  SortableContext, 
+  sortableKeyboardCoordinates, 
+  verticalListSortingStrategy 
+} from '@dnd-kit/sortable';
+import { LineItemsService } from '@/services/LineItemsService';
 
 interface EstimateEditorProps {
   invoice: InvoicePaymentSummary;
@@ -33,7 +49,70 @@ export function EstimateEditor({ invoice, onClose }: EstimateEditorProps) {
   const updateLineItem = useUpdateLineItem();
   const deleteLineItem = useDeleteLineItem();
 
+  // Stable sorting to prevent items from jumping during edits
+  const sortedLineItems = useMemo(() => {
+    if (!lineItems) return [];
+    return [...lineItems].sort((a, b) => {
+      // Primary sort by sort_order
+      const sortA = a.sort_order ?? 0;
+      const sortB = b.sort_order ?? 0;
+      if (sortA !== sortB) {
+        return sortA - sortB;
+      }
+      // Secondary sort by created_at for items with same sort_order
+      return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+    });
+  }, [lineItems]);
+
+  // DnD sensors with activation constraint to prevent accidental drags
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 8 },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
   const isGovernment = invoice.compliance_level === 'government' || invoice.requires_po_number;
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = sortedLineItems.findIndex(item => item.id === active.id);
+    const newIndex = sortedLineItems.findIndex(item => item.id === over.id);
+
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    // Calculate new sort_order based on neighbors
+    let newSortOrder: number;
+    if (newIndex === 0) {
+      // Moving to first position
+      newSortOrder = (sortedLineItems[0]?.sort_order ?? 10) - 10;
+    } else if (newIndex >= sortedLineItems.length - 1) {
+      // Moving to last position
+      newSortOrder = (sortedLineItems[sortedLineItems.length - 1]?.sort_order ?? 0) + 10;
+    } else {
+      // Moving between two items - calculate midpoint
+      const beforeItem = oldIndex < newIndex ? sortedLineItems[newIndex] : sortedLineItems[newIndex - 1];
+      const afterItem = oldIndex < newIndex ? sortedLineItems[newIndex + 1] : sortedLineItems[newIndex];
+      const beforeOrder = beforeItem?.sort_order ?? 0;
+      const afterOrder = afterItem?.sort_order ?? beforeOrder + 20;
+      newSortOrder = Math.floor((beforeOrder + afterOrder) / 2);
+    }
+
+    try {
+      await LineItemsService.updateLineItem(active.id as string, { sort_order: newSortOrder });
+      queryClient.invalidateQueries({ queryKey: ['line-items', invoice.invoice_id] });
+    } catch (err) {
+      toast({
+        title: 'Reorder Failed',
+        description: 'Could not update item position.',
+        variant: 'destructive',
+      });
+    }
+  };
 
   const handlePriceChange = async (lineItemId: string, newPrice: number) => {
     const item = lineItems?.find(li => li.id === lineItemId);
@@ -161,7 +240,7 @@ export function EstimateEditor({ invoice, onClose }: EstimateEditorProps) {
 
         <Separator />
 
-        {/* Line Items */}
+        {/* Line Items with Drag-and-Drop */}
         <div className="space-y-4 my-4">
           <div className="flex items-center justify-between">
             <h3 className="font-semibold text-sm">Line Items</h3>
@@ -179,23 +258,35 @@ export function EstimateEditor({ invoice, onClose }: EstimateEditorProps) {
             <div className="flex items-center justify-center py-8">
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             </div>
-          ) : !lineItems?.length ? (
+          ) : !sortedLineItems?.length ? (
             <p className="text-center py-4 text-muted-foreground">
               No line items found. Generate from Events tab.
             </p>
           ) : (
-            <div className="space-y-2">
-              {lineItems.map((item) => (
-                <LineItemEditor
-                  key={item.id}
-                  item={item}
-                  onPriceChange={(price) => handlePriceChange(item.id, price)}
-                  onQuantityChange={(qty) => handleQuantityChange(item.id, qty)}
-                  onDelete={() => handleDeleteItem(item.id)}
-                  isUpdating={updateLineItem.isPending || deleteLineItem.isPending}
-                />
-              ))}
-            </div>
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext
+                items={sortedLineItems.map(i => i.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                <div className="space-y-2">
+                  {sortedLineItems.map((item) => (
+                    <SortableLineItem key={item.id} id={item.id}>
+                      <LineItemEditor
+                        item={item}
+                        onPriceChange={(price) => handlePriceChange(item.id, price)}
+                        onQuantityChange={(qty) => handleQuantityChange(item.id, qty)}
+                        onDelete={() => handleDeleteItem(item.id)}
+                        isUpdating={updateLineItem.isPending || deleteLineItem.isPending}
+                      />
+                    </SortableLineItem>
+                  ))}
+                </div>
+              </SortableContext>
+            </DndContext>
           )}
         </div>
 

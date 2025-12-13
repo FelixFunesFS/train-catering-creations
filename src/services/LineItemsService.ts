@@ -9,6 +9,7 @@ export interface LineItemInput {
   total_price: number; // in cents
   category: string;
   metadata?: Json;
+  sort_order?: number;
 }
 
 export interface LineItem extends LineItemInput {
