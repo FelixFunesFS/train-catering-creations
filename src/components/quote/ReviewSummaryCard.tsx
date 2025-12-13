@@ -142,6 +142,29 @@ export const ReviewSummaryCard = ({ form, variant }: ReviewSummaryCardProps) => 
                   </div>
                 )}
 
+                {/* Vegetarian Entrées */}
+                {(watchedValues.vegetarian_entrees?.length > 0 || watchedValues.guest_count_with_restrictions) && (
+                  <div className="bg-green-50 dark:bg-green-950/20 p-2 rounded border border-green-200 dark:border-green-800">
+                    <p className="text-xs text-green-700 dark:text-green-300 mb-1.5 flex items-center gap-1 font-medium">
+                      🌱 Vegetarian Options
+                    </p>
+                    {watchedValues.guest_count_with_restrictions && (
+                      <p className="text-xs text-green-600 dark:text-green-400 mb-1">
+                        {watchedValues.guest_count_with_restrictions} vegetarian portions
+                      </p>
+                    )}
+                    {watchedValues.vegetarian_entrees?.length > 0 && (
+                      <div className="flex flex-wrap gap-1">
+                        {watchedValues.vegetarian_entrees.map((id: string, idx: number) => (
+                          <Badge key={idx} className="text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                            {id.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {/* Sides */}
                 {watchedValues.sides?.length > 0 && (
                   <div>
@@ -226,25 +249,14 @@ export const ReviewSummaryCard = ({ form, variant }: ReviewSummaryCardProps) => 
         )}
 
         {/* Additional Requests */}
-        {(watchedValues.guest_count_with_restrictions || watchedValues.special_requests) && (
+        {watchedValues.special_requests && (
           <div className="md:col-span-2 border-l-4 border-primary/20 bg-muted/30 p-4 rounded-lg">
             <div className="flex items-center gap-2 text-primary mb-3">
               <MessageSquare className="h-4 w-4" />
-              <span className="text-sm font-medium">Additional Requests</span>
+              <span className="text-sm font-medium">Special Requests</span>
             </div>
             <div className="space-y-2 text-sm">
-              {watchedValues.guest_count_with_restrictions && (
-                <p>
-                  <span className="text-muted-foreground">Vegetarian Portions:</span>{' '}
-                  <span className="font-medium">{watchedValues.guest_count_with_restrictions}</span>
-                </p>
-              )}
-              {watchedValues.special_requests && (
-                <p>
-                  <span className="text-muted-foreground">Special Requests:</span>{' '}
-                  <span className="font-medium">{watchedValues.special_requests}</span>
-                </p>
-              )}
+              <p className="font-medium">{watchedValues.special_requests}</p>
             </div>
           </div>
         )}

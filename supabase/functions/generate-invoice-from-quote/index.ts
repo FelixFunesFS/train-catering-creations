@@ -75,15 +75,26 @@ const generateLineItems = (quote: any): any[] => {
     sortOrder += 10;
   }
   
-  // VEGETARIAN ACCOMMODATIONS - separate line item for dietary needs
-  if (quote.guest_count_with_restrictions) {
+  // VEGETARIAN ENTRÉE SELECTION - separate line item for vegetarian guests
+  const vegetarianEntrees: string[] = Array.isArray(quote.vegetarian_entrees) ? quote.vegetarian_entrees : [];
+  
+  if (quote.guest_count_with_restrictions || vegetarianEntrees.length > 0) {
     // Parse count from string like "5 guests" or just "5"
-    const vegMatch = quote.guest_count_with_restrictions.match(/\d+/);
+    const vegMatch = quote.guest_count_with_restrictions?.match(/\d+/);
     const vegCount = vegMatch ? parseInt(vegMatch[0]) : 1;
     
+    // Build description with selected entrées if available
+    let description = '';
+    if (vegetarianEntrees.length > 0) {
+      const entreesText = vegetarianEntrees.map(formatMenuDescription).join(', ');
+      description = `${entreesText} for ${vegCount} vegetarian guest${vegCount !== 1 ? 's' : ''}`;
+    } else {
+      description = `Vegetarian meal options for ${vegCount} guest${vegCount !== 1 ? 's' : ''}`;
+    }
+    
     lineItems.push({
-      title: 'Vegetarian Meal Accommodations',
-      description: `Vegetarian meal options for ${vegCount} guest${vegCount !== 1 ? 's' : ''}`,
+      title: 'Vegetarian Entrée Selection',
+      description: description,
       quantity: vegCount,
       unit_price: 0,
       total_price: 0,
