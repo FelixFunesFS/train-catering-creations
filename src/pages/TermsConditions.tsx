@@ -75,12 +75,16 @@ const TermsConditions = () => {
               <h2 className="text-2xl font-semibold text-foreground mb-4">Booking and Payment</h2>
               <div className="space-y-4 text-muted-foreground">
                 <p>
-                  <strong>Deposits:</strong> A deposit may be required to secure your event date.
-                  The deposit amount will be specified in your catering agreement.
+                  <strong>Deposits:</strong> A non-refundable deposit of 10% is required to secure your 
+                  event date. This deposit will be credited towards your final payment.
                 </p>
                 <p>
-                  <strong>Final Payment:</strong> Full payment is typically due prior to or on the day
-                  of your event, as specified in your catering agreement.
+                  <strong>Progress Payment:</strong> 50% of the total is required no later than 30 days 
+                  prior to your event date.
+                </p>
+                <p>
+                  <strong>Final Payment:</strong> The remaining balance is due no later than 14 days 
+                  prior to the event date.
                 </p>
                 <p>
                   <strong>Menu Changes:</strong> Menu changes may be accommodated up to 7 days before
@@ -88,7 +92,7 @@ const TermsConditions = () => {
                 </p>
                 <p>
                   <strong>Payment Methods:</strong> We accept payments through Stripe (credit/debit cards),
-                  bank transfers, cash, and checks. All online payments are processed securely through Stripe.
+                  bank transfers, Venmo, Zelle, cash, and checks. All online payments are processed securely through Stripe.
                 </p>
               </div>
             </section>

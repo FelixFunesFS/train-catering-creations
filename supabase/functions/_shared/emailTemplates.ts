@@ -919,3 +919,99 @@ export function generatePaymentConfirmationEmail(quote: any, amount: number, isF
     </div>
   `;
 }
+
+// Default catering agreement terms for edge functions
+const DEFAULT_CATERING_TERMS = {
+  agreement_title: "Catering Services Agreement",
+  intro_text: "This Catering Services Agreement (\"Agreement\") is entered into by and between Soul Train's Eatery (\"Caterer\") and the undersigned client (\"Client\"). By engaging the services of the Caterer, you agree to the following terms and conditions:",
+  sections: [
+    {
+      title: "Booking and Payments",
+      items: [
+        "A non-refundable deposit of 10% is required to secure your event date in our calendar. This deposit will be credited towards your final payment.",
+        "50% Required no later than 30 days prior to event date.",
+        "The final payment is due no later than 14 days prior to the event date."
+      ]
+    },
+    {
+      title: "Services",
+      description: "The Caterer shall ensure the following:",
+      items: [
+        "The provision of fresh food maintained at appropriate temperatures.",
+        "If applicable, the setting up of a buffet line and service to all guests until everyone has had the opportunity to dine.",
+        "A clean-up of the buffet/food area after service.",
+        "For drop-off and set-up services, delivery and arrangement of items at the correct temperatures."
+      ]
+    },
+    {
+      title: "Adjustments",
+      items: [
+        "Please notify us promptly of any changes in guest count to facilitate necessary adjustments.",
+        "If there is a delay in the start time of the event, the service duration will commence as per the time stipulated in this Agreement.",
+        "A service window of 3 hours, inclusive of set-up and breakdown, applies for events with fewer than 400 guests.",
+        "Extended service beyond the 3-hour window may incur a charge of $100 per additional hour."
+      ]
+    },
+    {
+      title: "Customization",
+      description: "We understand that every event is unique. If there are any provisions in this Agreement that do not suit your requirements, please communicate with us to tailor our services to make your event special. We are committed to ensuring your satisfaction."
+    }
+  ],
+  acceptance_text: "By making the required deposit, you acknowledge and agree to the terms set out in this Agreement.",
+  closing_text: "Thank you for choosing Soul Train's Eatery. We look forward to serving you!!",
+  owner_signature: {
+    name: "Dominick Ward",
+    title: "Owner, Soul Train's Eatery"
+  }
+};
+
+export function generateCateringAgreementHTML(eventType: 'standard' | 'wedding' | 'government' = 'standard'): string {
+  const terms = DEFAULT_CATERING_TERMS;
+  
+  const sections = eventType === 'government' 
+    ? [...terms.sections, {
+        title: "Government Contract Compliance",
+        description: "Payment terms follow Net 30 schedule (100% due 30 days after event completion). Tax-exempt status applies. PO number required for billing."
+      }]
+    : terms.sections;
+  
+  return `
+    <div style="font-family: Georgia, serif; padding: 24px; background: #f9fafb; border-radius: 12px; margin: 24px 0;">
+      <h3 style="color: ${BRAND_COLORS.crimson}; margin: 0 0 16px 0; font-size: 20px;">
+        📝 ${terms.agreement_title}
+      </h3>
+      
+      <p style="color: #666; font-size: 13px; line-height: 1.6; margin: 0 0 20px 0; font-style: italic;">
+        ${terms.intro_text}
+      </p>
+      
+      ${sections.map((section: any) => `
+        <div style="margin-bottom: 20px;">
+          <h4 style="color: #333; font-size: 15px; font-weight: 600; margin: 0 0 8px 0; border-bottom: 2px solid ${BRAND_COLORS.gold}; padding-bottom: 4px;">
+            ${section.title}
+          </h4>
+          ${section.description ? `<p style="color: #666; font-size: 13px; line-height: 1.6; margin: 0 0 8px 0;">${section.description}</p>` : ''}
+          ${section.items && section.items.length > 0 ? `
+            <ul style="margin: 0; padding-left: 20px;">
+              ${section.items.map((item: string) => `<li style="color: #666; font-size: 13px; line-height: 1.6; margin-bottom: 6px;">${item}</li>`).join('')}
+            </ul>
+          ` : ''}
+        </div>
+      `).join('')}
+      
+      <div style="background: #fff; padding: 16px; border-radius: 8px; margin-top: 20px; border-left: 4px solid ${BRAND_COLORS.gold};">
+        <p style="font-size: 13px; color: #333; margin: 0 0 8px 0; font-weight: 600;">
+          ${terms.acceptance_text}
+        </p>
+        <p style="font-size: 13px; color: #666; margin: 0; font-style: italic;">
+          ${terms.closing_text}
+        </p>
+      </div>
+      
+      <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #ddd;">
+        <p style="margin: 0; font-weight: 600; color: #333; font-size: 14px;">${terms.owner_signature.name}</p>
+        <p style="margin: 4px 0 0 0; font-size: 12px; color: #666;">${terms.owner_signature.title}</p>
+      </div>
+    </div>
+  `;
+}
