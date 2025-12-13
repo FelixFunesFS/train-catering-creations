@@ -9,6 +9,7 @@ interface CustomerActionsProps {
   invoiceId: string;
   customerEmail: string;
   status: string;
+  quoteRequestId?: string;
   onStatusChange?: () => void;
   autoApprove?: boolean;
 }
@@ -17,6 +18,7 @@ export function CustomerActions({
   invoiceId,
   customerEmail,
   status,
+  quoteRequestId,
   onStatusChange,
   autoApprove = false,
 }: CustomerActionsProps) {
@@ -45,7 +47,7 @@ export function CustomerActions({
       if (error) throw error;
 
       // Generate payment milestones
-      const { error: milestoneError } = await supabase.functions.invoke('generate-payment-milestones', {
+      const { data: milestoneData, error: milestoneError } = await supabase.functions.invoke('generate-payment-milestones', {
         body: { invoice_id: invoiceId }
       });
 
@@ -54,9 +56,29 @@ export function CustomerActions({
         // Non-blocking - don't fail approval if milestones fail
       }
 
+      // Send approval confirmation email with payment link
+      if (quoteRequestId) {
+        const firstMilestone = milestoneData?.milestones?.[0];
+        const { error: emailError } = await supabase.functions.invoke('send-customer-portal-email', {
+          body: {
+            quote_request_id: quoteRequestId,
+            type: 'approval_confirmation',
+            metadata: {
+              first_milestone_amount: firstMilestone?.amount_cents,
+              first_milestone_due: firstMilestone?.due_date
+            }
+          }
+        });
+
+        if (emailError) {
+          console.error('Failed to send approval confirmation email:', emailError);
+          // Non-blocking - don't fail approval if email fails
+        }
+      }
+
       toast({
         title: 'Estimate Approved!',
-        description: 'Your payment options are now available below.',
+        description: 'Your payment options are now available below. Check your email for payment details.',
       });
 
       onStatusChange?.();

@@ -19,13 +19,15 @@ const corsHeaders = {
 
 interface PortalEmailRequest {
   quote_request_id: string;
-  type: 'welcome' | 'estimate_ready' | 'payment_reminder' | 'payment_confirmation';
+  type: 'welcome' | 'estimate_ready' | 'payment_reminder' | 'payment_confirmation' | 'approval_confirmation';
   preview_only?: boolean;
   override_email?: string;  // Send to different recipient than quote.email
   metadata?: {
     amount?: number;
     payment_type?: string;
     is_full_payment?: boolean;
+    first_milestone_amount?: number;
+    first_milestone_due?: string;
   };
 }
 
@@ -133,6 +135,13 @@ const handler = async (req: Request): Promise<Response> => {
           ? `🎉 Payment Confirmed - Your Event is Secured!`
           : `💰 Deposit Received - ${quote.event_name}`;
         htmlContent = generatePaymentConfirmationEmailWithNextSteps(quote, invoice, amount || 0, is_full_payment || false, portalUrl);
+        break;
+      }
+      
+      case 'approval_confirmation': {
+        const { first_milestone_amount, first_milestone_due } = metadata || {};
+        subject = `✅ Estimate Approved - Next Steps for ${quote.event_name}`;
+        htmlContent = generateApprovalConfirmationEmail(quote, invoice, portalUrl, first_milestone_amount, first_milestone_due);
         break;
       }
         
@@ -402,6 +411,96 @@ function generatePaymentReminderEmail(quote: any, portalUrl: string): string {
           <p>Questions about payment or your event? Call us at <span class="highlight">(843) 970-0265</span> or reply to this email. We're here to help!</p>
           
           <p>Thank you for choosing Soul Train's Eatery!</p>
+          
+          <p>Best regards,<br>
+          <strong>The Soul Train's Eatery Family</strong></p>
+        </div>
+        
+        ${generateFooter()}
+      </div>
+    </body>
+    </html>
+  `;
+}
+
+function generateApprovalConfirmationEmail(quote: any, invoice: any, portalUrl: string, firstMilestoneAmount?: number, firstMilestoneDue?: string): string {
+  const formatCurrency = (cents: number) => {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100);
+  };
+  
+  const formatDueDate = (dateStr: string | null | undefined): string => {
+    if (!dateStr) return 'Due upon approval';
+    return new Date(dateStr).toLocaleDateString('en-US', {
+      weekday: 'long',
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    });
+  };
+  
+  const total = invoice.total_amount || 0;
+  const firstPaymentDisplay = firstMilestoneAmount 
+    ? formatCurrency(firstMilestoneAmount)
+    : formatCurrency(Math.round(total * 0.5)); // Default to 50% if no milestone
+  
+  const dueDateDisplay = formatDueDate(firstMilestoneDue);
+  
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Estimate Approved - Next Steps</title>
+      <style>${EMAIL_STYLES}</style>
+    </head>
+    <body>
+      <div class="email-container">
+        <div style="background: linear-gradient(135deg, #10B981, #059669); padding: 25px; border-radius: 8px; margin-bottom: 25px; text-align: center;">
+          <div style="background: rgba(255,255,255,0.2); display: inline-block; padding: 8px 16px; border-radius: 20px; margin-bottom: 15px;">
+            <span style="color: white; font-weight: bold; font-size: 14px;">✅ APPROVED</span>
+          </div>
+          <h2 style="color: white; margin: 0 0 10px 0; font-size: 24px;">Thank You for Approving!</h2>
+          <p style="color: white; margin: 0; font-size: 16px; opacity: 0.95;">
+            Your estimate for ${quote.event_name} has been approved
+          </p>
+        </div>
+        
+        <div class="content">
+          <h2 style="color: ${BRAND_COLORS.crimson};">Great news, ${quote.contact_name}!</h2>
+          
+          <p>You've approved your catering estimate for <strong>${quote.event_name}</strong>. We're excited to be part of your special event!</p>
+          
+          ${generateEventDetailsCard(quote)}
+          
+          <div style="background: linear-gradient(135deg, ${BRAND_COLORS.crimson}, ${BRAND_COLORS.crimsonDark}); padding: 20px; border-radius: 8px; margin: 20px 0; color: white;">
+            <h3 style="margin: 0 0 10px 0; color: ${BRAND_COLORS.gold};">💳 Next Step: Secure Your Date</h3>
+            <p style="margin: 0 0 10px 0;">To confirm your booking, complete your first payment:</p>
+            <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; margin-top: 10px;">
+              <div style="font-size: 24px; font-weight: bold; color: ${BRAND_COLORS.gold};">${firstPaymentDisplay}</div>
+              <div style="font-size: 14px; opacity: 0.9;">${dueDateDisplay}</div>
+            </div>
+          </div>
+          
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${portalUrl}" class="btn btn-primary" style="font-size: 18px; padding: 18px 36px;">Make Payment Now</a>
+          </div>
+          
+          <h3 style="color: ${BRAND_COLORS.crimson};">📋 What Happens Next:</h3>
+          <ol style="line-height: 1.8;">
+            <li><strong>Complete Payment:</strong> Click the button above to pay securely online</li>
+            <li><strong>Booking Confirmed:</strong> Once payment is received, your date is locked in</li>
+            <li><strong>Planning Call:</strong> We'll schedule a call to finalize all the details</li>
+            <li><strong>Event Day:</strong> We'll arrive early to set up and serve amazing food!</li>
+          </ol>
+          
+          <div style="background: ${BRAND_COLORS.lightGray}; padding: 15px; border-radius: 8px; border-left: 4px solid ${BRAND_COLORS.gold}; margin: 20px 0;">
+            <strong>💡 Tip:</strong> You can always access your event portal to view your estimate, make payments, or contact us using the link in this email.
+          </div>
+          
+          <p>Questions? Call us at <span class="highlight">(843) 970-0265</span> or reply to this email. We're here to help!</p>
+          
+          <p>We can't wait to cater your event!</p>
           
           <p>Best regards,<br>
           <strong>The Soul Train's Eatery Family</strong></p>
