@@ -1,26 +1,42 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
-import { useQuotes } from '@/hooks/useQuotes';
+import { useEvents } from '@/hooks/useEvents';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, Eye, Loader2, FileText, Receipt, Pencil } from 'lucide-react';
+import { Search, Eye, Loader2, FileText, Receipt, DollarSign } from 'lucide-react';
 import { EventDetail } from './EventDetail';
-import { Database } from '@/integrations/supabase/types';
+import { EventSummary } from '@/services/EventDataService';
 
-type QuoteRequest = Database['public']['Tables']['quote_requests']['Row'];
-
-const statusColors: Record<string, string> = {
+// Event status colors (workflow lifecycle)
+const eventStatusColors: Record<string, string> = {
   pending: 'bg-yellow-500/10 text-yellow-700 border-yellow-500/20',
-  under_review: 'bg-blue-500/10 text-blue-700 border-blue-500/20',
+  under_review: 'bg-yellow-500/10 text-yellow-700 border-yellow-500/20',
   estimated: 'bg-purple-500/10 text-purple-700 border-purple-500/20',
-  quoted: 'bg-indigo-500/10 text-indigo-700 border-indigo-500/20',
+  quoted: 'bg-purple-500/10 text-purple-700 border-purple-500/20',
+  sent: 'bg-purple-500/10 text-purple-700 border-purple-500/20',
+  viewed: 'bg-purple-500/10 text-purple-700 border-purple-500/20',
   approved: 'bg-green-500/10 text-green-700 border-green-500/20',
-  confirmed: 'bg-emerald-500/10 text-emerald-700 border-emerald-500/20',
+  confirmed: 'bg-green-500/10 text-green-700 border-green-500/20',
+  in_progress: 'bg-blue-500/10 text-blue-700 border-blue-500/20',
   completed: 'bg-gray-500/10 text-gray-700 border-gray-500/20',
   cancelled: 'bg-red-500/10 text-red-700 border-red-500/20',
+};
+
+// Payment status colors (financial lifecycle)
+const paymentStatusColors: Record<string, string> = {
+  draft: 'bg-yellow-500/10 text-yellow-700 border-yellow-500/20',
+  pending_review: 'bg-yellow-500/10 text-yellow-700 border-yellow-500/20',
+  sent: 'bg-purple-500/10 text-purple-700 border-purple-500/20',
+  viewed: 'bg-purple-500/10 text-purple-700 border-purple-500/20',
+  approved: 'bg-blue-500/10 text-blue-700 border-blue-500/20',
+  payment_pending: 'bg-amber-500/10 text-amber-700 border-amber-500/20',
+  partially_paid: 'bg-amber-500/10 text-amber-700 border-amber-500/20',
+  paid: 'bg-green-500/10 text-green-700 border-green-500/20',
+  overdue: 'bg-red-500/10 text-red-700 border-red-500/20',
+  cancelled: 'bg-gray-500/10 text-gray-700 border-gray-500/20',
 };
 
 function formatStatus(status: string): string {
@@ -44,9 +60,20 @@ function getActionDetails(quoteStatus: string): { icon: typeof Eye; label: strin
 
 export function EventList() {
   const [search, setSearch] = useState('');
-  const [selectedQuote, setSelectedQuote] = useState<QuoteRequest | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<EventSummary | null>(null);
   
-  const { data: quotes, isLoading, error } = useQuotes({ search: search || undefined });
+  const { data: events, isLoading, error } = useEvents();
+
+  // Filter events based on search term
+  const filteredEvents = events?.filter((event) => {
+    if (!search) return true;
+    const searchLower = search.toLowerCase();
+    return (
+      event.contact_name?.toLowerCase().includes(searchLower) ||
+      event.email?.toLowerCase().includes(searchLower) ||
+      event.event_name?.toLowerCase().includes(searchLower)
+    );
+  });
 
   if (error) {
     return (
@@ -81,7 +108,7 @@ export function EventList() {
             <div className="flex items-center justify-center py-8">
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             </div>
-          ) : !quotes?.length ? (
+          ) : !filteredEvents?.length ? (
             <p className="text-center py-8 text-muted-foreground">No events found</p>
           ) : (
             <div className="overflow-x-auto">
@@ -97,37 +124,50 @@ export function EventList() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                {quotes.map((quote) => {
-                  const { icon: ActionIcon, label: actionLabel } = getActionDetails(quote.workflow_status);
+                {filteredEvents.map((event) => {
+                  const { icon: ActionIcon, label: actionLabel } = getActionDetails(event.quote_status || 'pending');
                   
                   return (
                     <TableRow 
-                      key={quote.id} 
+                      key={event.quote_id} 
                       className="cursor-pointer hover:bg-muted/50"
-                      onClick={() => setSelectedQuote(quote)}
+                      onClick={() => setSelectedEvent(event)}
                     >
                       <TableCell className="font-medium">
-                        {format(new Date(quote.event_date), 'MMM d, yyyy')}
+                        {event.event_date ? format(new Date(event.event_date), 'MMM d, yyyy') : '-'}
                       </TableCell>
                       <TableCell>
                         <div>
-                          <p className="font-medium">{quote.contact_name}</p>
-                          <p className="text-xs text-muted-foreground hidden sm:block">{quote.email}</p>
+                          <p className="font-medium">{event.contact_name}</p>
+                          <p className="text-xs text-muted-foreground hidden sm:block">{event.email}</p>
                         </div>
                       </TableCell>
                       <TableCell className="hidden sm:table-cell">
-                        {quote.event_name}
+                        {event.event_name}
                       </TableCell>
                       <TableCell className="hidden md:table-cell">
-                        {quote.guest_count}
+                        {event.guest_count}
                       </TableCell>
                       <TableCell>
-                        <Badge 
-                          variant="outline" 
-                          className={statusColors[quote.workflow_status] || ''}
-                        >
-                          {formatStatus(quote.workflow_status)}
-                        </Badge>
+                        <div className="flex flex-wrap gap-1">
+                          {/* Event Status Badge */}
+                          <Badge 
+                            variant="outline" 
+                            className={eventStatusColors[event.quote_status || 'pending'] || ''}
+                          >
+                            {formatStatus(event.quote_status || 'pending')}
+                          </Badge>
+                          {/* Payment Status Badge (only show if invoice exists) */}
+                          {event.invoice_status && (
+                            <Badge 
+                              variant="outline" 
+                              className={`${paymentStatusColors[event.invoice_status] || ''} flex items-center gap-1`}
+                            >
+                              <DollarSign className="h-3 w-3" />
+                              {formatStatus(event.invoice_status)}
+                            </Badge>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell>
                         <Button 
@@ -136,7 +176,7 @@ export function EventList() {
                           title={actionLabel}
                           onClick={(e) => {
                             e.stopPropagation();
-                            setSelectedQuote(quote);
+                            setSelectedEvent(event);
                           }}
                         >
                           <ActionIcon className="h-4 w-4" />
@@ -153,10 +193,10 @@ export function EventList() {
       </Card>
 
       {/* Detail Modal */}
-      {selectedQuote && (
+      {selectedEvent && (
         <EventDetail 
-          quote={selectedQuote} 
-          onClose={() => setSelectedQuote(null)} 
+          quote={selectedEvent as any} 
+          onClose={() => setSelectedEvent(null)} 
         />
       )}
     </div>
