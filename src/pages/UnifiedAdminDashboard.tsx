@@ -1,17 +1,20 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { EventList } from '@/components/admin/events';
-import { EstimateList } from '@/components/admin/billing';
-import { Settings } from 'lucide-react';
+import { EstimateList, PaymentList } from '@/components/admin/billing';
+import { Settings, FileText, CreditCard } from 'lucide-react';
 
 export type AdminView = 'events' | 'billing' | 'settings';
 
 export function UnifiedAdminDashboard() {
   const [searchParams, setSearchParams] = useSearchParams();
   const viewParam = searchParams.get('view') as AdminView | null;
+  const tabParam = searchParams.get('tab') || 'estimates';
   const [currentView, setCurrentView] = useState<AdminView>(viewParam || 'events');
+  const [billingTab, setBillingTab] = useState(tabParam);
 
   useEffect(() => {
     if (viewParam && viewParam !== currentView) {
@@ -24,11 +27,37 @@ export function UnifiedAdminDashboard() {
     setSearchParams({ view });
   };
 
+  const handleBillingTabChange = (tab: string) => {
+    setBillingTab(tab);
+    setSearchParams({ view: 'billing', tab });
+  };
+
   return (
     <AdminLayout currentView={currentView} onViewChange={handleViewChange}>
       <div className="container mx-auto px-4 py-6">
         {currentView === 'events' && <EventList />}
-        {currentView === 'billing' && <EstimateList />}
+        
+        {currentView === 'billing' && (
+          <Tabs value={billingTab} onValueChange={handleBillingTabChange}>
+            <TabsList className="mb-6">
+              <TabsTrigger value="estimates" className="gap-2">
+                <FileText className="h-4 w-4" />
+                Estimates
+              </TabsTrigger>
+              <TabsTrigger value="payments" className="gap-2">
+                <CreditCard className="h-4 w-4" />
+                Payments
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="estimates">
+              <EstimateList />
+            </TabsContent>
+            <TabsContent value="payments">
+              <PaymentList />
+            </TabsContent>
+          </Tabs>
+        )}
+        
         {currentView === 'settings' && (
           <Card className="max-w-lg mx-auto">
             <CardHeader className="text-center">
