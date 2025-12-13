@@ -338,13 +338,15 @@ export function useRecordPayment() {
       invoiceId, 
       amount, 
       paymentMethod, 
-      notes 
+      notes,
+      sendConfirmationEmail = true
     }: { 
       invoiceId: string; 
       amount: number; 
       paymentMethod: string; 
       notes?: string;
-    }) => PaymentDataService.recordManualPayment(invoiceId, amount, paymentMethod, notes),
+      sendConfirmationEmail?: boolean;
+    }) => PaymentDataService.recordManualPayment(invoiceId, amount, paymentMethod, notes, sendConfirmationEmail),
     onSuccess: (_, variables) => {
       // Invalidate related queries
       queryClient.invalidateQueries({ queryKey: invoiceKeys.all });
@@ -354,7 +356,9 @@ export function useRecordPayment() {
       queryClient.invalidateQueries({ queryKey: ['dashboard', 'kpis'] });
       toast({
         title: 'Payment recorded',
-        description: 'Payment has been recorded successfully.',
+        description: variables.sendConfirmationEmail 
+          ? 'Payment recorded and confirmation email sent.'
+          : 'Payment has been recorded successfully.',
       });
     },
     onError: (error) => {

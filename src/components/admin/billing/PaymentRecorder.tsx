@@ -6,7 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, DollarSign } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Loader2, DollarSign, Mail } from 'lucide-react';
 
 interface PaymentRecorderProps {
   invoiceId: string;
@@ -27,6 +28,7 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
   const [amount, setAmount] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('');
   const [notes, setNotes] = useState('');
+  const [sendConfirmationEmail, setSendConfirmationEmail] = useState(true);
 
   // Calculate balance - need to fetch from invoice_payment_summary view
   const balanceRemaining = invoice?.total_amount || 0;
@@ -43,6 +45,7 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
       amount: amountCents,
       paymentMethod,
       notes: notes || undefined,
+      sendConfirmationEmail,
     });
     
     onClose();
@@ -146,6 +149,21 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
               placeholder="Check #, reference number, etc."
               rows={2}
             />
+          </div>
+
+          {/* Send Confirmation Email */}
+          <div className="flex items-center gap-3 py-2 px-3 bg-muted/30 rounded-lg">
+            <Checkbox
+              id="sendEmail"
+              checked={sendConfirmationEmail}
+              onCheckedChange={(checked) => setSendConfirmationEmail(checked === true)}
+            />
+            <div className="flex items-center gap-2">
+              <Mail className="h-4 w-4 text-muted-foreground" />
+              <Label htmlFor="sendEmail" className="cursor-pointer text-sm font-normal">
+                Send confirmation email to customer
+              </Label>
+            </div>
           </div>
 
           {/* Actions */}
