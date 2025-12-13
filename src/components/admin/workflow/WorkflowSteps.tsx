@@ -1,47 +1,24 @@
 import React from 'react';
-import { FileEdit, DollarSign, Check, FileSignature, CreditCard, ChevronRight } from 'lucide-react';
+import { FileEdit, DollarSign, Check, CreditCard, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-type Step = 'select' | 'pricing' | 'government' | 'contract' | 'payment' | 'confirmed' | 'completed';
+type Step = 'select' | 'pricing' | 'payment' | 'confirmed' | 'completed';
 
 interface WorkflowStepsProps {
   currentStep: Step;
-  isGovernmentContract?: boolean;
-  requiresContract?: boolean;
 }
 
-export function WorkflowSteps({ currentStep, isGovernmentContract, requiresContract }: WorkflowStepsProps) {
-  // Build dynamic steps based on event configuration
-  const buildSteps = (): Array<{step: Step, label: string, icon: any}> => {
-    const baseSteps: Array<{step: Step, label: string, icon: any}> = [
-      { step: 'select', label: 'Select Quote', icon: FileEdit },
-      { step: 'pricing', label: 'Pricing & Estimate', icon: DollarSign },
-    ];
-
-    // Add government contract step if needed
-    if (isGovernmentContract) {
-      baseSteps.push({ step: 'government', label: 'Government Setup', icon: FileSignature });
-    }
-
-    // Add contract step if required
-    if (requiresContract) {
-      baseSteps.push({ step: 'contract', label: 'Contract', icon: FileSignature });
-    }
-
-    // Add payment and completion steps
-    baseSteps.push(
-      { step: 'payment', label: 'Payment', icon: CreditCard },
-      { step: 'confirmed', label: 'Confirmed', icon: Check },
-      { step: 'completed', label: 'Complete', icon: Check }
-    );
-
-    return baseSteps;
-  };
-
-  const steps = buildSteps();
+export function WorkflowSteps({ currentStep }: WorkflowStepsProps) {
+  const steps: Array<{step: Step, label: string, icon: any}> = [
+    { step: 'select', label: 'Select Quote', icon: FileEdit },
+    { step: 'pricing', label: 'Pricing & Estimate', icon: DollarSign },
+    { step: 'payment', label: 'Payment', icon: CreditCard },
+    { step: 'confirmed', label: 'Confirmed', icon: Check },
+    { step: 'completed', label: 'Complete', icon: Check }
+  ];
 
   const getStepStatus = (step: string) => {
-    const stepOrder = ['select', 'pricing', 'government', 'contract', 'payment', 'confirmed', 'completed'];
+    const stepOrder = ['select', 'pricing', 'payment', 'confirmed', 'completed'];
     const currentIndex = stepOrder.indexOf(currentStep);
     const stepIndex = stepOrder.indexOf(step);
     
@@ -72,20 +49,6 @@ export function WorkflowSteps({ currentStep, isGovernmentContract, requiresContr
             </div>
           );
         })}
-      </div>
-      
-      {/* Compact metadata badges */}
-      <div className="flex gap-2 mt-2">
-        {isGovernmentContract && (
-          <span className="text-xs text-muted-foreground bg-background px-2 py-0.5 rounded-md border">
-            🏛️ Government Contract
-          </span>
-        )}
-        {!requiresContract && (
-          <span className="text-xs text-muted-foreground bg-background px-2 py-0.5 rounded-md border">
-            📋 T&C Only
-          </span>
-        )}
       </div>
     </div>
   );

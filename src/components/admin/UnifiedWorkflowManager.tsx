@@ -9,12 +9,9 @@ import { EmailPreviewModal } from './EmailPreviewModal';
 import { WorkflowSteps } from './workflow/WorkflowSteps';
 import { QuoteSelectionPanel } from './workflow/QuoteSelectionPanel';
 import { PricingPanel } from './workflow/PricingPanel';
-import { GovernmentContractPanel } from './workflow/GovernmentContractPanel';
-import { TermsAndConditionsPanel } from './workflow/TermsAndConditionsPanel';
 import { PaymentCollectionPanel } from './workflow/PaymentCollectionPanel';
 import { EventConfirmationPanel } from './workflow/EventConfirmationPanel';
 import { EventCompletionPanel } from './workflow/EventCompletionPanel';
-// WeddingTemplateSelector removed - now inline in PricingPanel
 import { TimelineTasksPanel } from './workflow/TimelineTasksPanel';
 import { WorkflowService } from '@/services/WorkflowService';
 import { InvoiceTotalsRecalculator } from '@/services/InvoiceTotalsRecalculator';
@@ -54,13 +51,11 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
   const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null);
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [lineItems, setLineItems] = useState<LineItem[]>([]);
-  const [currentStep, setCurrentStep] = useState<'select' | 'pricing' | 'government' | 'contract' | 'payment' | 'confirmed' | 'completed'>('select');
+  const [currentStep, setCurrentStep] = useState<'select' | 'pricing' | 'payment' | 'confirmed' | 'completed'>('select');
   const [loading, setLoading] = useState(true);
   const [showEmailPreview, setShowEmailPreview] = useState(false);
   const [isGovernmentContract, setIsGovernmentContract] = useState(false);
-  // Template selector removed - now inline in PricingPanel
   const [showTimelineTasks, setShowTimelineTasks] = useState(false);
-  const [requiresContract, setRequiresContract] = useState(false);
   const { toast } = useToast();
   const { syncQuoteWithInvoice } = useWorkflowSync();
 
@@ -326,17 +321,6 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
       // Recalculate totals before sending to customer
       await InvoiceTotalsRecalculator.recalculateBeforeSend(invoice.id);
       
-      // Update invoice with contract requirement and T&C settings
-      const { error: updateError } = await supabase
-        .from('invoices')
-        .update({
-          requires_separate_contract: requiresContract,
-          include_terms_and_conditions: true
-        })
-        .eq('id', invoice.id);
-
-      if (updateError) throw updateError;
-
       // Sync statuses before advancing
       await syncQuoteWithInvoice(selectedQuote.id);
       
@@ -386,8 +370,6 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
 
       <WorkflowSteps 
         currentStep={currentStep} 
-        isGovernmentContract={isGovernmentContract}
-        requiresContract={requiresContract}
       />
 
       {currentStep === 'select' && (
@@ -398,8 +380,6 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
         />
       )}
 
-      {/* Template selection removed - now inline in PricingPanel */}
-
       {currentStep === 'pricing' && selectedQuote && (
         <PricingPanel
           quote={selectedQuote}
@@ -409,8 +389,6 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
           isModified={isModified}
           isGovernmentContract={isGovernmentContract}
           loading={loading}
-          requiresContract={requiresContract}
-          onRequiresContractChange={setRequiresContract}
           onGenerateInvoice={generateInvoice}
           onSavePricing={savePricing}
           onSendEstimate={handleSendEstimate}
@@ -427,35 +405,12 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
         />
       )}
 
-      {/* Review step removed - merged into PricingPanel */}
-
-      {/* Government Contract Setup - conditional */}
-      {currentStep === 'government' && selectedQuote && invoice && isGovernmentContract && (
-        <GovernmentContractPanel
-          quote={selectedQuote}
-          invoice={invoice}
-          onBack={() => setCurrentStep('pricing')}
-          onContinue={() => setCurrentStep(requiresContract ? 'contract' : 'payment')}
-        />
-      )}
-
-      {currentStep === 'contract' && selectedQuote && invoice && (
-        <TermsAndConditionsPanel
-          quote={selectedQuote}
-          invoice={invoice}
-          isGovernmentContract={isGovernmentContract}
-          onBack={() => isGovernmentContract ? setCurrentStep('government') : setCurrentStep('pricing')}
-          onContinue={() => setCurrentStep('payment')}
-          onSkipContract={() => setCurrentStep('payment')}
-        />
-      )}
-
       {currentStep === 'payment' && selectedQuote && invoice && (
         <PaymentCollectionPanel
           quote={selectedQuote}
           invoice={invoice}
           isGovernmentContract={isGovernmentContract}
-          onBack={() => setCurrentStep('contract')}
+          onBack={() => setCurrentStep('pricing')}
           onContinue={() => setCurrentStep('confirmed')}
         />
       )}
@@ -493,7 +448,7 @@ export function UnifiedWorkflowManager({ selectedQuoteId, mode = 'default' }: Un
           invoice={invoice}
           emailType="estimate"
           onSent={() => {
-            setCurrentStep('contract');
+            setCurrentStep('payment');
             setShowEmailPreview(false);
           }}
         />
