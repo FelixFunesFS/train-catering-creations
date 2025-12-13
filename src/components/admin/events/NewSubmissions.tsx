@@ -4,17 +4,19 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ChevronDown, ChevronUp, Inbox, Clock, Users, MapPin } from 'lucide-react';
-import { useEvents } from '@/hooks/useEvents';
+import { useQuotes } from '@/hooks/useQuotes';
 import { EventDetail } from './EventDetail';
 import { format, formatDistanceToNow } from 'date-fns';
-import { EventSummary } from '@/services/EventDataService';
+import { Database } from '@/integrations/supabase/types';
+
+type QuoteRequest = Database['public']['Tables']['quote_requests']['Row'];
 
 export function NewSubmissions() {
-  const { data: events, isLoading } = useEvents();
-  const [selectedQuote, setSelectedQuote] = useState<EventSummary | null>(null);
+  const { data: quotes, isLoading } = useQuotes();
+  const [selectedQuote, setSelectedQuote] = useState<QuoteRequest | null>(null);
   
-  const newSubmissions = events?.filter(
-    (event) => event.quote_status === 'pending' || event.quote_status === 'under_review'
+  const newSubmissions = quotes?.filter(
+    (quote) => quote.workflow_status === 'pending' || quote.workflow_status === 'under_review'
   ) || [];
 
   const [isOpen, setIsOpen] = useState(newSubmissions.length > 0);
@@ -57,14 +59,14 @@ export function NewSubmissions() {
             <CardContent className="space-y-3 pt-0">
               {newSubmissions.map((submission) => (
                 <div
-                  key={submission.quote_id}
+                  key={submission.id}
                   className="flex items-center justify-between p-4 bg-card rounded-lg border"
                 >
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
                       <span className="font-medium">{submission.contact_name}</span>
                       <Badge variant="outline" className="text-xs">
-                        {submission.quote_status === 'pending' ? 'New' : 'Under Review'}
+                        {submission.workflow_status === 'pending' ? 'New' : 'Under Review'}
                       </Badge>
                     </div>
                     <p className="text-sm text-muted-foreground">{submission.event_name}</p>
@@ -83,7 +85,7 @@ export function NewSubmissions() {
                       </span>
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      Submitted {formatDistanceToNow(new Date(submission.quote_created_at), { addSuffix: true })}
+                      Submitted {formatDistanceToNow(new Date(submission.created_at!), { addSuffix: true })}
                     </p>
                   </div>
                   <Button size="sm" onClick={() => setSelectedQuote(submission)}>
@@ -97,7 +99,7 @@ export function NewSubmissions() {
       </Collapsible>
 
       {selectedQuote && (
-        <EventDetail quote={selectedQuote as any} onClose={() => setSelectedQuote(null)} />
+        <EventDetail quote={selectedQuote} onClose={() => setSelectedQuote(null)} />
       )}
     </>
   );
