@@ -152,14 +152,21 @@ const handler = async (req: Request): Promise<Response> => {
             <div class="event-card">
               <h3 style="margin: 0 0 15px 0; color: ${BRAND_COLORS.crimson};">📦 Your Additional Selections</h3>
               <p style="margin: 5px 0;"><strong>Supplies:</strong> ${formatSupplies()}</p>
-              ${quote.dietary_restrictions && (Array.isArray(quote.dietary_restrictions) ? quote.dietary_restrictions.length > 0 : quote.dietary_restrictions) ? `
-              <p style="margin: 5px 0;"><strong>Dietary Restrictions:</strong> ${formatMenuItems(quote.dietary_restrictions)}</p>
-              ${quote.guest_count_with_restrictions ? `<p style="margin: 5px 0; font-size: 14px; color: #666;"><em>${quote.guest_count_with_restrictions} guests</em></p>` : ''}
-              ` : ''}
               ${quote.theme_colors ? `<p style="margin: 5px 0;"><strong>Theme/Colors:</strong> ${quote.theme_colors}</p>` : ''}
-              ${quote.special_requests ? `<p style="margin: 5px 0;"><strong>Special Requests:</strong> ${quote.special_requests}</p>` : ''}
               <p style="margin: 15px 0 5px 0; font-size: 14px; color: ${BRAND_COLORS.crimson};"><strong>Reference ID:</strong> #${quote_id.slice(0, 8).toUpperCase()}</p>
             </div>
+
+            ${(quote.guest_count_with_restrictions || quote.special_requests) ? `
+            <div class="event-card" style="border-left-color: ${BRAND_COLORS.gold}; background: #FFF9E6;">
+              <h3 style="margin: 0 0 10px 0; color: ${BRAND_COLORS.crimson};">📝 Additional Notes</h3>
+              ${quote.guest_count_with_restrictions ? `
+              <p style="margin: 5px 0;"><strong>Vegetarian Portions:</strong> ${quote.guest_count_with_restrictions} guests require vegetarian meals</p>
+              ` : ''}
+              ${quote.special_requests ? `
+              <p style="margin: 5px 0;"><strong>Special Requests:</strong> ${quote.special_requests}</p>
+              ` : ''}
+            </div>
+            ` : ''}
 
             <nav aria-labelledby="next-steps-heading" style="margin: 30px 0;">
               <h3 id="next-steps-heading" style="color: ${BRAND_COLORS.crimson};">What Happens Next?</h3>
