@@ -60,54 +60,14 @@ export interface PaymentFilters {
  */
 export class PaymentDataService {
   /**
-   * Fetch all invoices with payment data
+   * Fetch all invoices with payment data from the invoice_payment_summary view
+   * This ensures accurate total_paid and balance_remaining values
    */
   static async getInvoices(filters?: PaymentFilters): Promise<InvoicePaymentSummary[]> {
     let query = supabase
-      .from('invoices')
-      .select(`
-        id,
-        invoice_number,
-        total_amount,
-        subtotal,
-        tax_amount,
-        due_date,
-        workflow_status,
-        sent_at,
-        viewed_at,
-        paid_at,
-        last_reminder_sent_at,
-        reminder_count,
-        created_at,
-        quote_request_id,
-        quote_requests!left (
-          id,
-          contact_name,
-          email,
-          phone,
-          event_name,
-          event_date,
-          location,
-          guest_count,
-          event_type,
-          service_type,
-          compliance_level,
-          requires_po_number
-        ),
-        payment_milestones!left (
-          id,
-          milestone_type,
-          amount_cents,
-          percentage,
-          due_date,
-          status
-        ),
-        payment_transactions!left (
-          amount,
-          status
-        )
-      `)
-      .order('created_at', { ascending: false });
+      .from('invoice_payment_summary')
+      .select('*')
+      .order('invoice_created_at', { ascending: false });
 
     // Apply filters
     if (filters?.status) {
@@ -115,77 +75,61 @@ export class PaymentDataService {
     }
 
     if (filters?.overdue) {
-      query = query.eq('workflow_status', 'overdue');
+      query = query.gt('days_overdue', 0);
     }
 
     if (filters?.dateRange) {
       query = query
-        .gte('created_at', filters.dateRange.start.toISOString())
-        .lte('created_at', filters.dateRange.end.toISOString());
+        .gte('invoice_created_at', filters.dateRange.start.toISOString())
+        .lte('invoice_created_at', filters.dateRange.end.toISOString());
     }
 
     const { data, error } = await query;
 
     if (error) {
-      console.error('Error fetching invoices:', error);
+      console.error('Error fetching invoices from view:', error);
       throw error;
     }
 
     // Transform to InvoicePaymentSummary format
-    return (data || []).map(inv => {
-      const qr = inv.quote_requests as any;
-      const milestones = (inv.payment_milestones || []) as any[];
-      const transactions = (inv.payment_transactions || []) as any[];
-      
-      const totalPaid = transactions
-        .filter((t: any) => t.status === 'completed')
-        .reduce((sum: number, t: any) => sum + (t.amount || 0), 0);
-
-      const today = new Date();
-      const dueDate = inv.due_date ? new Date(inv.due_date) : null;
-      const daysOverdue = dueDate && dueDate < today && !['paid', 'cancelled'].includes(inv.workflow_status)
-        ? Math.floor((today.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24))
-        : 0;
-
-      return {
-        invoice_id: inv.id,
-        invoice_number: inv.invoice_number,
-        total_amount: inv.total_amount,
-        subtotal: inv.subtotal,
-        tax_amount: inv.tax_amount,
-        due_date: inv.due_date,
-        workflow_status: inv.workflow_status,
-        sent_at: inv.sent_at,
-        viewed_at: inv.viewed_at,
-        paid_at: inv.paid_at,
-        last_reminder_sent_at: inv.last_reminder_sent_at,
-        reminder_count: inv.reminder_count,
-        invoice_created_at: inv.created_at,
-        quote_id: inv.quote_request_id,
-        contact_name: qr?.contact_name || '',
-        email: qr?.email || '',
-        phone: qr?.phone || '',
-        event_name: qr?.event_name || '',
-        event_date: qr?.event_date || '',
-        location: qr?.location || '',
-        guest_count: qr?.guest_count || 0,
-        event_type: qr?.event_type || '',
-        service_type: qr?.service_type || '',
-        compliance_level: qr?.compliance_level,
-        requires_po_number: qr?.requires_po_number,
-        total_paid: totalPaid,
-        balance_remaining: inv.total_amount - totalPaid,
-        days_overdue: daysOverdue,
-        milestones: milestones.map(m => ({
-          id: m.id,
-          milestone_type: m.milestone_type,
-          amount_cents: m.amount_cents,
-          percentage: m.percentage,
-          due_date: m.due_date,
-          status: m.status
-        }))
-      } as InvoicePaymentSummary;
-    }).filter(inv => {
+    return (data || []).map(inv => ({
+      invoice_id: inv.invoice_id || '',
+      invoice_number: inv.invoice_number,
+      total_amount: inv.total_amount || 0,
+      subtotal: inv.subtotal || 0,
+      tax_amount: inv.tax_amount,
+      due_date: inv.due_date,
+      workflow_status: inv.workflow_status || 'draft',
+      sent_at: inv.sent_at,
+      viewed_at: inv.viewed_at,
+      paid_at: inv.paid_at,
+      last_reminder_sent_at: inv.last_reminder_sent_at,
+      reminder_count: inv.reminder_count,
+      invoice_created_at: inv.invoice_created_at || '',
+      quote_id: inv.quote_id,
+      contact_name: inv.contact_name || '',
+      email: inv.email || '',
+      phone: inv.phone || '',
+      event_name: inv.event_name || '',
+      event_date: inv.event_date || '',
+      location: inv.location || '',
+      guest_count: inv.guest_count || 0,
+      event_type: inv.event_type || '',
+      service_type: inv.service_type || '',
+      compliance_level: inv.compliance_level,
+      requires_po_number: inv.requires_po_number,
+      total_paid: Number(inv.total_paid) || 0,
+      balance_remaining: Number(inv.balance_remaining) || 0,
+      days_overdue: inv.days_overdue || 0,
+      milestones: Array.isArray(inv.milestones) ? inv.milestones.map((m: any) => ({
+        id: m.id,
+        milestone_type: m.milestone_type,
+        amount_cents: m.amount_cents,
+        percentage: m.percentage,
+        due_date: m.due_date,
+        status: m.status
+      })) : []
+    } as InvoicePaymentSummary)).filter(inv => {
       if (filters?.searchTerm) {
         const term = filters.searchTerm.toLowerCase();
         return inv.contact_name.toLowerCase().includes(term) ||
@@ -198,112 +142,60 @@ export class PaymentDataService {
   }
 
   /**
-   * Get invoice by ID with full payment data
+   * Get invoice by ID with full payment data from the invoice_payment_summary view
+   * This ensures accurate total_paid and balance_remaining values
    */
   static async getInvoiceById(invoiceId: string): Promise<InvoicePaymentSummary | null> {
     const { data, error } = await supabase
-      .from('invoices')
-      .select(`
-        id,
-        invoice_number,
-        total_amount,
-        subtotal,
-        tax_amount,
-        due_date,
-        workflow_status,
-        sent_at,
-        viewed_at,
-        paid_at,
-        last_reminder_sent_at,
-        reminder_count,
-        created_at,
-        quote_request_id,
-        quote_requests!left (
-          id,
-          contact_name,
-          email,
-          phone,
-          event_name,
-          event_date,
-          location,
-          guest_count,
-          event_type,
-          service_type,
-          compliance_level,
-          requires_po_number
-        ),
-        payment_milestones!left (
-          id,
-          milestone_type,
-          amount_cents,
-          percentage,
-          due_date,
-          status
-        ),
-        payment_transactions!left (
-          amount,
-          status
-        )
-      `)
-      .eq('id', invoiceId)
-      .single();
+      .from('invoice_payment_summary')
+      .select('*')
+      .eq('invoice_id', invoiceId)
+      .maybeSingle();
 
-    if (error || !data) {
-      console.error('Error fetching invoice:', error);
+    if (error) {
+      console.error('Error fetching invoice from view:', error);
       return null;
     }
 
-    const qr = data.quote_requests as any;
-    const milestones = (data.payment_milestones || []) as any[];
-    const transactions = (data.payment_transactions || []) as any[];
-    
-    const totalPaid = transactions
-      .filter((t: any) => t.status === 'completed')
-      .reduce((sum: number, t: any) => sum + (t.amount || 0), 0);
-
-    const today = new Date();
-    const dueDate = data.due_date ? new Date(data.due_date) : null;
-    const daysOverdue = dueDate && dueDate < today && !['paid', 'cancelled'].includes(data.workflow_status)
-      ? Math.floor((today.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24))
-      : 0;
+    if (!data) return null;
 
     return {
-      invoice_id: data.id,
+      invoice_id: data.invoice_id || '',
       invoice_number: data.invoice_number,
-      total_amount: data.total_amount,
-      subtotal: data.subtotal,
+      total_amount: data.total_amount || 0,
+      subtotal: data.subtotal || 0,
       tax_amount: data.tax_amount,
       due_date: data.due_date,
-      workflow_status: data.workflow_status,
+      workflow_status: data.workflow_status || 'draft',
       sent_at: data.sent_at,
       viewed_at: data.viewed_at,
       paid_at: data.paid_at,
       last_reminder_sent_at: data.last_reminder_sent_at,
       reminder_count: data.reminder_count,
-      invoice_created_at: data.created_at,
-      quote_id: data.quote_request_id,
-      contact_name: qr?.contact_name || '',
-      email: qr?.email || '',
-      phone: qr?.phone || '',
-      event_name: qr?.event_name || '',
-      event_date: qr?.event_date || '',
-      location: qr?.location || '',
-      guest_count: qr?.guest_count || 0,
-      event_type: qr?.event_type || '',
-      service_type: qr?.service_type || '',
-      compliance_level: qr?.compliance_level,
-      requires_po_number: qr?.requires_po_number,
-      total_paid: totalPaid,
-      balance_remaining: data.total_amount - totalPaid,
-      days_overdue: daysOverdue,
-      milestones: milestones.map(m => ({
+      invoice_created_at: data.invoice_created_at || '',
+      quote_id: data.quote_id,
+      contact_name: data.contact_name || '',
+      email: data.email || '',
+      phone: data.phone || '',
+      event_name: data.event_name || '',
+      event_date: data.event_date || '',
+      location: data.location || '',
+      guest_count: data.guest_count || 0,
+      event_type: data.event_type || '',
+      service_type: data.service_type || '',
+      compliance_level: data.compliance_level,
+      requires_po_number: data.requires_po_number,
+      total_paid: Number(data.total_paid) || 0,
+      balance_remaining: Number(data.balance_remaining) || 0,
+      days_overdue: data.days_overdue || 0,
+      milestones: Array.isArray(data.milestones) ? data.milestones.map((m: any) => ({
         id: m.id,
         milestone_type: m.milestone_type,
         amount_cents: m.amount_cents,
         percentage: m.percentage,
         due_date: m.due_date,
         status: m.status
-      }))
+      })) : []
     };
   }
 
