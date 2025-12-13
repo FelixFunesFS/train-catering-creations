@@ -800,6 +800,7 @@ export type Database = {
           discount_type: string | null
           document_type: string | null
           due_date: string | null
+          email_opened_at: string | null
           id: string
           include_terms_and_conditions: boolean | null
           invoice_number: string | null
@@ -840,6 +841,7 @@ export type Database = {
           discount_type?: string | null
           document_type?: string | null
           due_date?: string | null
+          email_opened_at?: string | null
           id?: string
           include_terms_and_conditions?: boolean | null
           invoice_number?: string | null
@@ -880,6 +882,7 @@ export type Database = {
           discount_type?: string | null
           document_type?: string | null
           due_date?: string | null
+          email_opened_at?: string | null
           id?: string
           include_terms_and_conditions?: boolean | null
           invoice_number?: string | null
