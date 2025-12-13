@@ -1,9 +1,9 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { FileText, Download, Send, ExternalLink, User, Calendar, MapPin } from 'lucide-react';
+import { PricingTotals } from '@/components/shared/PricingTotals';
 
 interface LineItem {
   id?: string;
@@ -222,25 +222,13 @@ export function InvoiceViewer({
           </div>
         </div>
 
-        {/* Totals */}
+        {/* Totals - Using unified PricingTotals component */}
         <div className="flex justify-end">
-          <div className="w-full max-w-sm space-y-2">
-            <div className="flex justify-between text-sm">
-              <span>Subtotal:</span>
-              <span>{formatCurrency(invoice.subtotal)}</span>
-            </div>
-            {invoice.tax_amount > 0 && (
-              <div className="flex justify-between text-sm">
-                <span>Tax (8%):</span>
-                <span>{formatCurrency(invoice.tax_amount)}</span>
-              </div>
-            )}
-            <Separator />
-            <div className="flex justify-between text-lg font-semibold">
-              <span>Total:</span>
-              <span>{formatCurrency(invoice.total_amount)}</span>
-            </div>
-          </div>
+          <PricingTotals
+            subtotal={invoice.subtotal}
+            showTaxBreakdown={false}
+            className="w-full max-w-sm"
+          />
         </div>
 
         {/* Payment Terms */}

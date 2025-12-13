@@ -4,10 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { StatusBadge } from '@/components/admin/StatusBadge';
+import { TaxCalculationService } from '@/services/TaxCalculationService';
+import { PricingTotals } from '@/components/shared/PricingTotals';
 import { 
   FileText,
   Calendar,
@@ -153,13 +154,15 @@ export function SimplifiedNewRequestsManager({ quotes, loading, onRefresh }: Sim
     }));
   };
 
-  const calculateTotals = (lineItems: LineItem[]) => {
+  const calculateTotals = (lineItems: LineItem[], isGovernmentContract: boolean = false) => {
     const subtotal = lineItems.reduce((sum, item) => sum + item.total_price, 0);
-    const taxRate = 0.08; // 8% tax
-    const taxAmount = Math.round(subtotal * taxRate);
-    const grandTotal = subtotal + taxAmount;
+    const taxCalculation = TaxCalculationService.calculateTax(subtotal, isGovernmentContract);
     
-    return { subtotal, taxAmount, grandTotal };
+    return { 
+      subtotal: taxCalculation.subtotal, 
+      taxAmount: taxCalculation.taxAmount, 
+      grandTotal: taxCalculation.totalAmount 
+    };
   };
 
   const createEstimate = async (quoteId: string) => {
@@ -470,22 +473,12 @@ export function SimplifiedNewRequestsManager({ quotes, loading, onRefresh }: Sim
                           ))}
                         </div>
 
-                        {/* Totals */}
-                        <div className="bg-muted/50 rounded-lg p-4 space-y-2">
-                          <div className="flex justify-between">
-                            <span>Subtotal:</span>
-                            <span>{formatCurrency(totals.subtotal)}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span>Tax (8%):</span>
-                            <span>{formatCurrency(totals.taxAmount)}</span>
-                          </div>
-                          <Separator />
-                          <div className="flex justify-between font-semibold">
-                            <span>Total:</span>
-                            <span>{formatCurrency(totals.grandTotal)}</span>
-                          </div>
-                        </div>
+                        {/* Totals - Using unified PricingTotals component */}
+                        <PricingTotals
+                          subtotal={totals.subtotal}
+                          isGovernmentContract={data?.isGovernmentContract || false}
+                          className="bg-muted/50 rounded-lg p-4"
+                        />
 
                         {/* Actions */}
                         <div className="flex justify-end space-x-2">
