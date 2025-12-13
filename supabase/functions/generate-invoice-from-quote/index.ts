@@ -63,10 +63,6 @@ const generateLineItems = (quote: any): any[] => {
     description += ', dinner rolls';
     if (drinksText) description += `, ${drinksText}`;
     
-    if (quote.guest_count_with_restrictions) {
-      description += ` (includes accommodations for ${quote.guest_count_with_restrictions})`;
-    }
-    
     lineItems.push({
       title: `Catering Package`,
       description: description,
@@ -74,6 +70,24 @@ const generateLineItems = (quote: any): any[] => {
       unit_price: 0,
       total_price: 0,
       category: 'package',
+      sort_order: sortOrder
+    });
+    sortOrder += 10;
+  }
+  
+  // VEGETARIAN ACCOMMODATIONS - separate line item for dietary needs
+  if (quote.guest_count_with_restrictions) {
+    // Parse count from string like "5 guests" or just "5"
+    const vegMatch = quote.guest_count_with_restrictions.match(/\d+/);
+    const vegCount = vegMatch ? parseInt(vegMatch[0]) : 1;
+    
+    lineItems.push({
+      title: 'Vegetarian Meal Accommodations',
+      description: `Vegetarian meal options for ${vegCount} guest${vegCount !== 1 ? 's' : ''}`,
+      quantity: vegCount,
+      unit_price: 0,
+      total_price: 0,
+      category: 'dietary',
       sort_order: sortOrder
     });
     sortOrder += 10;
