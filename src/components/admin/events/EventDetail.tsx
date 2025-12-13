@@ -11,7 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useInvoiceByQuote } from '@/hooks/useInvoices';
 import { supabase } from '@/integrations/supabase/client';
 import { formatMenuDescription } from '@/utils/invoiceFormatters';
-import { User, Calendar, MapPin, Users, Utensils, FileText, Loader2, Package, Eye } from 'lucide-react';
+import { User, Calendar, MapPin, Users, Utensils, FileText, Loader2, Package, Eye, Pencil, Receipt } from 'lucide-react';
 
 type QuoteRequest = Database['public']['Tables']['quote_requests']['Row'];
 
@@ -265,10 +265,32 @@ export function EventDetail({ quote, onClose }: EventDetailProps) {
               Close
             </Button>
             {existingInvoice ? (
-              <Button onClick={handleViewEstimate}>
-                <Eye className="h-4 w-4 mr-2" />
-                View Estimate
-              </Button>
+              (() => {
+                const status = existingInvoice.workflow_status;
+                const isInvoice = ['approved', 'paid', 'partially_paid', 'payment_pending'].includes(status);
+                const isDraft = status === 'draft';
+                
+                return (
+                  <Button onClick={handleViewEstimate}>
+                    {isInvoice ? (
+                      <>
+                        <Receipt className="h-4 w-4 mr-2" />
+                        View Invoice
+                      </>
+                    ) : isDraft ? (
+                      <>
+                        <Pencil className="h-4 w-4 mr-2" />
+                        Edit Estimate
+                      </>
+                    ) : (
+                      <>
+                        <Eye className="h-4 w-4 mr-2" />
+                        View Estimate
+                      </>
+                    )}
+                  </Button>
+                );
+              })()
             ) : (
               <Button 
                 onClick={handleGenerateEstimate} 

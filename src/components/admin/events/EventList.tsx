@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, Eye, Loader2 } from 'lucide-react';
+import { Search, Eye, Loader2, FileText, Receipt, Pencil } from 'lucide-react';
 import { EventDetail } from './EventDetail';
 import { Database } from '@/integrations/supabase/types';
 
@@ -25,6 +25,21 @@ const statusColors: Record<string, string> = {
 
 function formatStatus(status: string): string {
   return status.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+}
+
+// Get contextual action icon and label based on workflow status
+function getActionDetails(quoteStatus: string): { icon: typeof Eye; label: string } {
+  const invoiceStatuses = ['approved', 'confirmed', 'paid', 'awaiting_payment'];
+  const estimateStatuses = ['estimated', 'quoted'];
+  
+  if (invoiceStatuses.includes(quoteStatus)) {
+    return { icon: Receipt, label: 'View Invoice' };
+  }
+  if (estimateStatuses.includes(quoteStatus)) {
+    return { icon: Eye, label: 'View Estimate' };
+  }
+  // Default for pending, under_review, etc.
+  return { icon: FileText, label: 'View Event' };
 }
 
 export function EventList() {
@@ -82,7 +97,10 @@ export function EventList() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {quotes.map((quote) => (
+                {quotes.map((quote) => {
+                  const { icon: ActionIcon, label: actionLabel } = getActionDetails(quote.workflow_status);
+                  
+                  return (
                     <TableRow 
                       key={quote.id} 
                       className="cursor-pointer hover:bg-muted/50"
@@ -115,16 +133,18 @@ export function EventList() {
                         <Button 
                           variant="ghost" 
                           size="icon"
+                          title={actionLabel}
                           onClick={(e) => {
                             e.stopPropagation();
                             setSelectedQuote(quote);
                           }}
                         >
-                          <Eye className="h-4 w-4" />
+                          <ActionIcon className="h-4 w-4" />
                         </Button>
                       </TableCell>
                     </TableRow>
-                  ))}
+                  );
+                })}
                 </TableBody>
               </Table>
             </div>
