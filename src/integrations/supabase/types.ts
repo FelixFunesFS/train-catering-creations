@@ -107,51 +107,6 @@ export type Database = {
         }
         Relationships: []
       }
-      automated_workflows: {
-        Row: {
-          actions: Json
-          created_at: string | null
-          description: string | null
-          enabled: boolean | null
-          error_count: number | null
-          id: string
-          last_run_at: string | null
-          name: string
-          success_count: number | null
-          trigger_conditions: Json | null
-          trigger_event: string
-          updated_at: string | null
-        }
-        Insert: {
-          actions?: Json
-          created_at?: string | null
-          description?: string | null
-          enabled?: boolean | null
-          error_count?: number | null
-          id?: string
-          last_run_at?: string | null
-          name: string
-          success_count?: number | null
-          trigger_conditions?: Json | null
-          trigger_event: string
-          updated_at?: string | null
-        }
-        Update: {
-          actions?: Json
-          created_at?: string | null
-          description?: string | null
-          enabled?: boolean | null
-          error_count?: number | null
-          id?: string
-          last_run_at?: string | null
-          name?: string
-          success_count?: number | null
-          trigger_conditions?: Json | null
-          trigger_event?: string
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
       business_config: {
         Row: {
           config_key: string
@@ -307,69 +262,6 @@ export type Database = {
           },
           {
             foreignKeyName: "change_requests_invoice_id_fkey"
-            columns: ["invoice_id"]
-            isOneToOne: false
-            referencedRelation: "invoices"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      contracts: {
-        Row: {
-          contract_html: string | null
-          contract_metadata: Json | null
-          contract_type: string
-          created_at: string
-          customer_signature_data: Json | null
-          generated_at: string | null
-          id: string
-          invoice_id: string | null
-          signed_at: string | null
-          signed_by: string | null
-          status: string
-          updated_at: string
-          viewed_at: string | null
-        }
-        Insert: {
-          contract_html?: string | null
-          contract_metadata?: Json | null
-          contract_type?: string
-          created_at?: string
-          customer_signature_data?: Json | null
-          generated_at?: string | null
-          id?: string
-          invoice_id?: string | null
-          signed_at?: string | null
-          signed_by?: string | null
-          status?: string
-          updated_at?: string
-          viewed_at?: string | null
-        }
-        Update: {
-          contract_html?: string | null
-          contract_metadata?: Json | null
-          contract_type?: string
-          created_at?: string
-          customer_signature_data?: Json | null
-          generated_at?: string | null
-          id?: string
-          invoice_id?: string | null
-          signed_at?: string | null
-          signed_by?: string | null
-          status?: string
-          updated_at?: string
-          viewed_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "contracts_invoice_id_fkey"
-            columns: ["invoice_id"]
-            isOneToOne: false
-            referencedRelation: "invoice_payment_summary"
-            referencedColumns: ["invoice_id"]
-          },
-          {
-            foreignKeyName: "contracts_invoice_id_fkey"
             columns: ["invoice_id"]
             isOneToOne: false
             referencedRelation: "invoices"
@@ -687,63 +579,6 @@ export type Database = {
         }
         Relationships: []
       }
-      government_contracts: {
-        Row: {
-          approved_at: string | null
-          compliance_checklist: Json | null
-          compliance_documentation: Json | null
-          contract_status: string
-          created_at: string
-          id: string
-          quote_request_id: string | null
-          required_documents: string[] | null
-          special_requirements: Json | null
-          submitted_at: string | null
-          updated_at: string
-        }
-        Insert: {
-          approved_at?: string | null
-          compliance_checklist?: Json | null
-          compliance_documentation?: Json | null
-          contract_status?: string
-          created_at?: string
-          id?: string
-          quote_request_id?: string | null
-          required_documents?: string[] | null
-          special_requirements?: Json | null
-          submitted_at?: string | null
-          updated_at?: string
-        }
-        Update: {
-          approved_at?: string | null
-          compliance_checklist?: Json | null
-          compliance_documentation?: Json | null
-          contract_status?: string
-          created_at?: string
-          id?: string
-          quote_request_id?: string | null
-          required_documents?: string[] | null
-          special_requirements?: Json | null
-          submitted_at?: string | null
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "government_contracts_quote_request_id_fkey"
-            columns: ["quote_request_id"]
-            isOneToOne: false
-            referencedRelation: "invoice_payment_summary"
-            referencedColumns: ["quote_id"]
-          },
-          {
-            foreignKeyName: "government_contracts_quote_request_id_fkey"
-            columns: ["quote_request_id"]
-            isOneToOne: false
-            referencedRelation: "quote_requests"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       invoice_audit_log: {
         Row: {
           changed_at: string | null
@@ -890,8 +725,6 @@ export type Database = {
       }
       invoices: {
         Row: {
-          contract_id: string | null
-          contract_signed_at: string | null
           created_at: string
           currency: string | null
           customer_access_token: string | null
@@ -913,7 +746,6 @@ export type Database = {
           pdf_url: string | null
           quote_request_id: string | null
           reminder_count: number | null
-          requires_separate_contract: boolean | null
           reviewed_at: string | null
           reviewed_by: string | null
           sent_at: string | null
@@ -930,8 +762,6 @@ export type Database = {
           workflow_status: Database["public"]["Enums"]["invoice_workflow_status"]
         }
         Insert: {
-          contract_id?: string | null
-          contract_signed_at?: string | null
           created_at?: string
           currency?: string | null
           customer_access_token?: string | null
@@ -953,7 +783,6 @@ export type Database = {
           pdf_url?: string | null
           quote_request_id?: string | null
           reminder_count?: number | null
-          requires_separate_contract?: boolean | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           sent_at?: string | null
@@ -970,8 +799,6 @@ export type Database = {
           workflow_status?: Database["public"]["Enums"]["invoice_workflow_status"]
         }
         Update: {
-          contract_id?: string | null
-          contract_signed_at?: string | null
           created_at?: string
           currency?: string | null
           customer_access_token?: string | null
@@ -993,7 +820,6 @@ export type Database = {
           pdf_url?: string | null
           quote_request_id?: string | null
           reminder_count?: number | null
-          requires_separate_contract?: boolean | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           sent_at?: string | null
@@ -1010,13 +836,6 @@ export type Database = {
           workflow_status?: Database["public"]["Enums"]["invoice_workflow_status"]
         }
         Relationships: [
-          {
-            foreignKeyName: "invoices_contract_id_fkey"
-            columns: ["contract_id"]
-            isOneToOne: false
-            referencedRelation: "contracts"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "invoices_customer_id_fkey"
             columns: ["customer_id"]
