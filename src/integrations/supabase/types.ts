@@ -689,6 +689,7 @@ export type Database = {
           invoice_id: string | null
           metadata: Json | null
           quantity: number
+          sort_order: number | null
           title: string | null
           total_price: number
           unit_price: number
@@ -701,6 +702,7 @@ export type Database = {
           invoice_id?: string | null
           metadata?: Json | null
           quantity?: number
+          sort_order?: number | null
           title?: string | null
           total_price: number
           unit_price: number
@@ -713,6 +715,7 @@ export type Database = {
           invoice_id?: string | null
           metadata?: Json | null
           quantity?: number
+          sort_order?: number | null
           title?: string | null
           total_price?: number
           unit_price?: number

@@ -15,6 +15,7 @@ export interface LineItem extends LineItemInput {
   id: string;
   invoice_id: string;
   created_at: string;
+  sort_order: number;
 }
 
 /**
@@ -28,7 +29,17 @@ export class LineItemsService {
     invoiceId: string,
     items: LineItemInput[]
   ): Promise<LineItem[]> {
-    const lineItems = items.map(item => ({
+    // Get max current sort_order for this invoice
+    const { data: maxData } = await supabase
+      .from('invoice_line_items')
+      .select('sort_order')
+      .eq('invoice_id', invoiceId)
+      .order('sort_order', { ascending: false })
+      .limit(1);
+    
+    let nextSortOrder = ((maxData?.[0]?.sort_order as number) || 0) + 10;
+    
+    const lineItems = items.map((item, index) => ({
       invoice_id: invoiceId,
       title: item.title,
       description: item.description,
@@ -36,7 +47,8 @@ export class LineItemsService {
       unit_price: item.unit_price,
       total_price: item.total_price,
       category: item.category,
-      metadata: item.metadata || {}
+      metadata: item.metadata || {},
+      sort_order: nextSortOrder + (index * 10)
     }));
 
     const { data, error } = await supabase
@@ -112,6 +124,7 @@ export class LineItemsService {
       .from('invoice_line_items')
       .select('*')
       .eq('invoice_id', invoiceId)
+      .order('sort_order', { ascending: true })
       .order('created_at', { ascending: true });
 
     if (error) {
