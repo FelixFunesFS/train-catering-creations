@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { usePaymentTransactions } from '@/hooks/useInvoices';
+import { toast } from 'sonner';
 import { 
   Search, 
   Download, 
@@ -20,112 +20,18 @@ import {
 import { formatCurrency } from '@/lib/utils';
 import { format } from 'date-fns';
 
-interface PaymentRecord {
-  id: string;
-  invoice_id: string;
-  amount: number;
-  payment_method: string | null;
-  payment_type: string;
-  status: string;
-  processed_at: string | null;
-  created_at: string;
-  description: string | null;
-  customer_email: string;
-  stripe_payment_intent_id: string | null;
-  invoice_number?: string;
-  contact_name?: string;
-  event_name?: string;
-}
-
 interface UnifiedPaymentHistoryProps {
   invoiceId?: string; // Optional - if provided, filter to single invoice
 }
 
 export function UnifiedPaymentHistory({ invoiceId }: UnifiedPaymentHistoryProps) {
-  const [payments, setPayments] = useState<PaymentRecord[]>([]);
-  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [methodFilter, setMethodFilter] = useState<string>('all');
-  const { toast } = useToast();
 
-  useEffect(() => {
-    fetchPayments();
-  }, [invoiceId]);
+  const { data: payments = [], isLoading } = usePaymentTransactions(invoiceId);
 
-  const fetchPayments = async () => {
-    try {
-      setLoading(true);
-      
-      let query = supabase
-        .from('payment_transactions')
-        .select(`
-          id,
-          invoice_id,
-          amount,
-          payment_method,
-          payment_type,
-          status,
-          processed_at,
-          created_at,
-          description,
-          customer_email,
-          stripe_payment_intent_id
-        `)
-        .order('created_at', { ascending: false });
-
-      if (invoiceId) {
-        query = query.eq('invoice_id', invoiceId);
-      }
-
-      const { data: transactionsData, error } = await query;
-      if (error) throw error;
-
-      // Fetch invoice details for each transaction
-      if (transactionsData && transactionsData.length > 0) {
-        const invoiceIds = [...new Set(transactionsData.map(t => t.invoice_id).filter(Boolean))];
-        
-        const { data: invoicesData } = await supabase
-          .from('invoices')
-          .select('id, invoice_number, quote_request_id')
-          .in('id', invoiceIds);
-
-        const quoteIds = invoicesData?.map(i => i.quote_request_id).filter(Boolean) || [];
-        
-        const { data: quotesData } = await supabase
-          .from('quote_requests')
-          .select('id, contact_name, event_name')
-          .in('id', quoteIds);
-
-        // Merge data
-        const enrichedPayments = transactionsData.map(payment => {
-          const invoice = invoicesData?.find(i => i.id === payment.invoice_id);
-          const quote = quotesData?.find(q => q.id === invoice?.quote_request_id);
-          return {
-            ...payment,
-            invoice_number: invoice?.invoice_number,
-            contact_name: quote?.contact_name,
-            event_name: quote?.event_name
-          };
-        });
-
-        setPayments(enrichedPayments);
-      } else {
-        setPayments([]);
-      }
-    } catch (error) {
-      console.error('Error fetching payments:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to load payment history',
-        variant: 'destructive'
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const filteredPayments = payments.filter(payment => {
+  const filteredPayments = useMemo(() => payments.filter(payment => {
     const matchesSearch = 
       payment.customer_email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (payment.contact_name?.toLowerCase().includes(searchTerm.toLowerCase())) ||
@@ -136,7 +42,7 @@ export function UnifiedPaymentHistory({ invoiceId }: UnifiedPaymentHistoryProps)
     const matchesMethod = methodFilter === 'all' || payment.payment_method === methodFilter;
     
     return matchesSearch && matchesStatus && matchesMethod;
-  });
+  }), [payments, searchTerm, statusFilter, methodFilter]);
 
   const exportToCSV = () => {
     const headers = ['Date', 'Invoice', 'Customer', 'Event', 'Amount', 'Method', 'Status', 'Reference'];
@@ -160,7 +66,7 @@ export function UnifiedPaymentHistory({ invoiceId }: UnifiedPaymentHistoryProps)
     a.click();
     window.URL.revokeObjectURL(url);
 
-    toast({ title: 'Exported', description: 'Payment history exported to CSV' });
+    toast.success('Payment history exported to CSV');
   };
 
   const getMethodIcon = (method: string | null) => {
@@ -194,7 +100,7 @@ export function UnifiedPaymentHistory({ invoiceId }: UnifiedPaymentHistoryProps)
     .filter(p => p.status === 'completed')
     .reduce((sum, p) => sum + p.amount, 0);
 
-  if (loading) {
+  if (isLoading) {
     return (
       <Card>
         <CardContent className="flex items-center justify-center py-8">

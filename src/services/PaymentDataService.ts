@@ -452,4 +452,81 @@ export class PaymentDataService {
         .eq('id', invoiceId);
     }
   }
+
+  /**
+   * Get payment transactions with optional filtering
+   */
+  static async getPaymentTransactions(invoiceId?: string): Promise<PaymentTransaction[]> {
+    let query = supabase
+      .from('payment_transactions')
+      .select(`
+        id,
+        invoice_id,
+        amount,
+        payment_method,
+        payment_type,
+        status,
+        processed_at,
+        created_at,
+        description,
+        customer_email,
+        stripe_payment_intent_id
+      `)
+      .order('created_at', { ascending: false });
+
+    if (invoiceId) {
+      query = query.eq('invoice_id', invoiceId);
+    }
+
+    const { data: transactionsData, error } = await query;
+    if (error) throw error;
+
+    if (!transactionsData || transactionsData.length === 0) {
+      return [];
+    }
+
+    // Fetch invoice details for each transaction
+    const invoiceIds = [...new Set(transactionsData.map(t => t.invoice_id).filter(Boolean))];
+    
+    const { data: invoicesData } = await supabase
+      .from('invoices')
+      .select('id, invoice_number, quote_request_id')
+      .in('id', invoiceIds);
+
+    const quoteIds = invoicesData?.map(i => i.quote_request_id).filter(Boolean) || [];
+    
+    const { data: quotesData } = await supabase
+      .from('quote_requests')
+      .select('id, contact_name, event_name')
+      .in('id', quoteIds);
+
+    // Merge data
+    return transactionsData.map(payment => {
+      const invoice = invoicesData?.find(i => i.id === payment.invoice_id);
+      const quote = quotesData?.find(q => q.id === invoice?.quote_request_id);
+      return {
+        ...payment,
+        invoice_number: invoice?.invoice_number || null,
+        contact_name: quote?.contact_name || null,
+        event_name: quote?.event_name || null
+      };
+    });
+  }
+}
+
+export interface PaymentTransaction {
+  id: string;
+  invoice_id: string;
+  amount: number;
+  payment_method: string | null;
+  payment_type: string;
+  status: string;
+  processed_at: string | null;
+  created_at: string;
+  description: string | null;
+  customer_email: string;
+  stripe_payment_intent_id: string | null;
+  invoice_number: string | null;
+  contact_name: string | null;
+  event_name: string | null;
 }

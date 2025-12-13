@@ -63,6 +63,17 @@ export function useRevenue(startDate: Date | null, endDate: Date | null) {
 }
 
 /**
+ * Hook for fetching payment transactions with optional invoice filter
+ */
+export function usePaymentTransactions(invoiceId?: string) {
+  return useQuery({
+    queryKey: ['payment-transactions', invoiceId],
+    queryFn: () => PaymentDataService.getPaymentTransactions(invoiceId),
+    staleTime: 1000 * 60 * 2,
+  });
+}
+
+/**
  * Hook for recording a manual payment
  */
 export function useRecordPayment() {
@@ -85,6 +96,7 @@ export function useRecordPayment() {
       queryClient.invalidateQueries({ queryKey: ['invoices'] });
       queryClient.invalidateQueries({ queryKey: ['invoice', variables.invoiceId] });
       queryClient.invalidateQueries({ queryKey: ['payments'] });
+      queryClient.invalidateQueries({ queryKey: ['payment-transactions'] });
       queryClient.invalidateQueries({ queryKey: ['ar-dashboard'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard', 'kpis'] });
       toast.success('Payment recorded successfully');
