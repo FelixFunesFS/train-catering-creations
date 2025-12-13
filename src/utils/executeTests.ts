@@ -31,8 +31,9 @@ export async function executeComprehensiveTests() {
       location: 'Charleston Convention Center',
       guest_count: 50,
       service_type: 'full-service' as const,
-      primary_protein: 'grilled-chicken',
-      status: 'pending' as const
+      proteins: ['grilled-chicken'],
+      sides: ['mac-and-cheese', 'collard-greens'],
+      workflow_status: 'pending' as const
     };
 
     const { data: quote, error } = await supabase
@@ -51,7 +52,7 @@ export async function executeComprehensiveTests() {
     });
     testResults.summary.passed++;
     console.log('✅ Quote Request Created:', quote.id);
-  } catch (error) {
+  } catch (error: any) {
     testResults.results.push({
       test: 'Create Quote Request',
       status: 'failed',
@@ -63,7 +64,7 @@ export async function executeComprehensiveTests() {
     console.log('❌ Quote Request Failed:', error.message);
   }
 
-  // Test 2: Generate Estimate/Invoice
+  // Test 2: Generate Estimate/Invoice with $0 initial pricing
   try {
     console.log('\n💰 Test 2: Generating Estimate...');
     
@@ -78,16 +79,17 @@ export async function executeComprehensiveTests() {
 
     if (!recentQuote) throw new Error('No quote found for estimate generation');
 
+    // Create invoice with $0 initial pricing (manual admin pricing workflow)
     const invoiceData = {
       quote_request_id: recentQuote.id,
-      subtotal: recentQuote.guest_count * 2500, // $25 per person
-      tax_amount: Math.round(recentQuote.guest_count * 2500 * 0.08), // 8% tax
-      total_amount: Math.round(recentQuote.guest_count * 2500 * 1.08),
+      subtotal: 0, // $0 initial - admin sets pricing manually
+      tax_amount: 0,
+      total_amount: 0,
       document_type: 'estimate',
-      status: 'draft',
+      workflow_status: 'draft' as const,
       currency: 'usd',
       due_date: '2024-07-10',
-      is_draft: false,
+      is_draft: true,
       customer_access_token: crypto.randomUUID()
     };
 
@@ -99,15 +101,15 @@ export async function executeComprehensiveTests() {
 
     if (error) throw error;
 
-    // Create line items
+    // Create line items with $0 pricing (admin fills in later)
     const lineItems = [
       {
         invoice_id: invoice.id,
-        title: 'Catering Service',
-        description: `${recentQuote.service_type} for ${recentQuote.guest_count} guests`,
+        title: 'Main Meal Package',
+        description: `Full-service catering for ${recentQuote.guest_count} guests`,
         quantity: recentQuote.guest_count,
-        unit_price: 2500,
-        total_price: recentQuote.guest_count * 2500,
+        unit_price: 0, // Admin sets pricing manually
+        total_price: 0,
         category: 'catering'
       }
     ];
@@ -122,7 +124,7 @@ export async function executeComprehensiveTests() {
     });
     testResults.summary.passed++;
     console.log('✅ Estimate Generated:', invoice.id, `Token: ${invoice.customer_access_token}`);
-  } catch (error) {
+  } catch (error: any) {
     testResults.results.push({
       test: 'Generate Estimate',
       status: 'failed',
@@ -157,9 +159,9 @@ export async function executeComprehensiveTests() {
     const { data: approvedInvoice, error } = await supabase
       .from('invoices')
       .update({ 
-        status: 'approved',
+        workflow_status: 'approved' as const,
         status_changed_by: 'customer',
-        last_customer_action: new Date().toISOString()
+        last_customer_interaction: new Date().toISOString()
       })
       .eq('id', invoice.id)
       .select()
@@ -175,7 +177,7 @@ export async function executeComprehensiveTests() {
     });
     testResults.summary.passed++;
     console.log('✅ Customer Approval Simulated:', approvedInvoice.workflow_status);
-  } catch (error) {
+  } catch (error: any) {
     testResults.results.push({
       test: 'Customer Approval',
       status: 'failed',
@@ -209,7 +211,8 @@ export async function executeComprehensiveTests() {
         original_guest_count: 50,
         reason: 'More attendees confirmed'
       },
-      estimated_cost_change: 62500 // 25 guests * $25
+      estimated_cost_change: 0, // Admin determines cost impact
+      workflow_status: 'pending' as const
     };
 
     const { data: changeReq, error } = await supabase
@@ -228,7 +231,7 @@ export async function executeComprehensiveTests() {
     });
     testResults.summary.passed++;
     console.log('✅ Change Request Submitted:', changeReq.id);
-  } catch (error) {
+  } catch (error: any) {
     testResults.results.push({
       test: 'Submit Change Request',
       status: 'failed',
@@ -258,8 +261,8 @@ export async function executeComprehensiveTests() {
     const { data: approvedChange, error } = await supabase
       .from('change_requests')
       .update({
-        status: 'approved',
-        admin_response: 'Changes approved. Guest count updated to 75. Additional cost: $625.00',
+        workflow_status: 'approved' as const,
+        admin_response: 'Changes approved. Guest count updated to 75.',
         reviewed_by: 'admin',
         reviewed_at: new Date().toISOString()
       })
@@ -277,7 +280,7 @@ export async function executeComprehensiveTests() {
     });
     testResults.summary.passed++;
     console.log('✅ Change Request Approved:', approvedChange.workflow_status);
-  } catch (error) {
+  } catch (error: any) {
     testResults.results.push({
       test: 'Admin Approve Change',
       status: 'failed',

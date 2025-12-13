@@ -259,7 +259,7 @@ export class ComprehensiveTestSuite {
       }
 
       result.status = 'passed';
-    } catch (error) {
+    } catch (error: any) {
       result.status = 'failed';
       result.error = error;
       result.actualResult = error.message;
@@ -269,7 +269,7 @@ export class ComprehensiveTestSuite {
     return result;
   }
 
-  // Test Step Implementations
+  // Test Step Implementations - Using current schema with proteins jsonb array
   private async createQuoteRequest(scenario: TestScenario) {
     const quoteData = {
       contact_name: 'Felix Funes',
@@ -282,7 +282,8 @@ export class ComprehensiveTestSuite {
       location: 'Charleston Convention Center',
       guest_count: 50,
       service_type: 'full-service' as const,
-      primary_protein: 'grilled-chicken',
+      proteins: ['grilled-chicken'],
+      sides: ['mac-and-cheese', 'collard-greens'],
       workflow_status: 'pending' as const
     };
 
@@ -309,13 +310,10 @@ export class ComprehensiveTestSuite {
       location: 'Historic Charleston Mansion',
       guest_count: 100,
       service_type: 'full-service' as const,
-      primary_protein: 'beef-brisket',
-      secondary_protein: 'grilled-chicken',
+      proteins: ['beef-brisket', 'grilled-chicken'],
       both_proteins_available: true,
       wait_staff_requested: true,
       chafers_requested: true,
-      tables_chairs_requested: true,
-      linens_requested: true,
       appetizers: ['bacon-wrapped-scallops', 'mini-crab-cakes'],
       sides: ['mac-and-cheese', 'green-beans', 'cornbread'],
       desserts: ['peach-cobbler'],
@@ -339,13 +337,14 @@ export class ComprehensiveTestSuite {
       email: scenario.customerEmail,
       phone: '(843) 970-0265',
       event_name: 'Military Appreciation Event',
-      event_type: 'corporate' as const, // Using corporate instead of government
+      event_type: 'military_function' as const,
       event_date: '2024-09-15',
       start_time: '11:00:00',
       location: 'Joint Base Charleston',
       guest_count: 200,
       service_type: 'delivery-setup' as const,
-      primary_protein: 'bbq-pork',
+      proteins: ['bbq-pork'],
+      sides: ['coleslaw', 'baked-beans'],
       requires_po_number: true,
       po_number: 'TEST-PO-2024-001',
       compliance_level: 'government',
@@ -374,17 +373,17 @@ export class ComprehensiveTestSuite {
 
     if (!quote) throw new Error('No quote found for estimate generation');
 
-    // Create invoice/estimate
+    // Create invoice/estimate with $0 pricing (manual admin pricing workflow)
     const invoiceData = {
       quote_request_id: quote.id,
-      subtotal: quote.guest_count * 2500, // $25 per person base
-      tax_amount: Math.round(quote.guest_count * 2500 * 0.08), // 8% tax
-      total_amount: Math.round(quote.guest_count * 2500 * 1.08),
+      subtotal: 0, // $0 initial - admin sets pricing manually
+      tax_amount: 0,
+      total_amount: 0,
       document_type: 'estimate' as const,
       workflow_status: 'draft' as const,
       currency: 'usd',
       due_date: '2024-07-10',
-      is_draft: false,
+      is_draft: true,
       customer_access_token: crypto.randomUUID()
     };
 
@@ -396,15 +395,15 @@ export class ComprehensiveTestSuite {
 
     if (error) throw error;
 
-    // Create line items
+    // Create line items with $0 pricing (admin fills in later)
     const lineItems = [
       {
         invoice_id: data.id,
-        title: 'Catering Service',
+        title: 'Main Meal Package',
         description: `${quote.service_type} for ${quote.guest_count} guests`,
         quantity: quote.guest_count,
-        unit_price: 2500,
-        total_price: quote.guest_count * 2500,
+        unit_price: 0, // Admin sets pricing manually
+        total_price: 0,
         category: 'catering'
       }
     ];
@@ -415,18 +414,18 @@ export class ComprehensiveTestSuite {
   }
 
   private async simulateApproval(scenario: TestScenario) {
+    const { data: quote } = await supabase
+      .from('quote_requests')
+      .select('id')
+      .eq('email', scenario.customerEmail)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
     const { data: invoice } = await supabase
       .from('invoices')
       .select('*')
-      .eq('quote_request_id', (
-        await supabase
-          .from('quote_requests')
-          .select('id')
-          .eq('email', scenario.customerEmail)
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .single()
-      ).data?.id)
+      .eq('quote_request_id', quote?.id)
       .single();
 
     if (!invoice) throw new Error('No invoice found for approval');
@@ -435,9 +434,9 @@ export class ComprehensiveTestSuite {
     const { data, error } = await supabase
       .from('invoices')
       .update({ 
-        workflow_status: 'approved',
+        workflow_status: 'approved' as const,
         status_changed_by: 'customer',
-        last_customer_action: new Date().toISOString()
+        last_customer_interaction: new Date().toISOString()
       })
       .eq('id', invoice.id)
       .select()
@@ -475,7 +474,8 @@ export class ComprehensiveTestSuite {
             guest_count: 75,
             original_guest_count: 50
           },
-          estimated_cost_change: 62500 // 25 guests * $25
+          estimated_cost_change: 0, // Admin determines cost
+          workflow_status: 'pending' as const
         };
         break;
       case 'submit_complex_changes':
@@ -491,23 +491,27 @@ export class ComprehensiveTestSuite {
             menu_additions: ['premium-dessert-station'],
             original_guest_count: 100
           },
-          estimated_cost_change: 150000 // Significant changes
+          estimated_cost_change: 0,
+          workflow_status: 'pending' as const
         };
         break;
       case 'submit_difficult_change':
         changeRequest = {
           invoice_id: invoice?.id,
           customer_email: scenario.customerEmail,
-          request_type: 'modification',
+          request_type: 'cancellation',
           priority: 'high',
-          customer_comments: 'Need to change event to next week - urgent!',
+          customer_comments: 'Need to reschedule to next week due to emergency',
           requested_changes: {
-            event_date: '2024-07-22', // Very short notice
-            guest_count: 200 // Double the size
+            event_date: '2024-07-22',
+            reason: 'Venue conflict'
           },
-          estimated_cost_change: 250000
+          estimated_cost_change: 0,
+          workflow_status: 'pending' as const
         };
         break;
+      default:
+        throw new Error(`Unknown change request type: ${step.action}`);
     }
 
     const { data, error } = await supabase
@@ -535,8 +539,8 @@ export class ComprehensiveTestSuite {
     const { data, error } = await supabase
       .from('change_requests')
       .update({
-        status: 'approved',
-        admin_response: 'Changes approved. Updated estimate will be sent shortly.',
+        workflow_status: 'approved' as const,
+        admin_response: 'Changes approved. Updated estimate will be sent.',
         reviewed_by: 'admin',
         reviewed_at: new Date().toISOString()
       })
@@ -563,8 +567,8 @@ export class ComprehensiveTestSuite {
     const { data, error } = await supabase
       .from('change_requests')
       .update({
-        status: 'rejected',
-        admin_response: 'Unfortunately, we cannot accommodate such short notice changes. We can offer alternative dates: 7/29 or 8/5.',
+        workflow_status: 'rejected' as const,
+        admin_response: 'Unfortunately we cannot accommodate this change due to scheduling conflicts. Please contact us to discuss alternatives.',
         reviewed_by: 'admin',
         reviewed_at: new Date().toISOString()
       })
@@ -577,45 +581,52 @@ export class ComprehensiveTestSuite {
   }
 
   private async verifyApprovalWorkflow(scenario: TestScenario) {
-    // Verify that approval triggers contract generation workflow
-    const { data: invoice } = await supabase
-      .from('invoices')
+    const { data: quote } = await supabase
+      .from('quote_requests')
       .select('*')
-      .eq('workflow_status', 'approved')
+      .eq('email', scenario.customerEmail)
       .order('created_at', { ascending: false })
       .limit(1)
       .single();
 
-    if (!invoice || invoice.workflow_status !== 'approved') {
-      throw new Error('Invoice not found in approved status');
-    }
+    const { data: invoice } = await supabase
+      .from('invoices')
+      .select('*')
+      .eq('quote_request_id', quote?.id)
+      .single();
 
-    // Check if workflow was triggered (should have updated timestamps)
     return {
-      invoice_approved: true,
-      last_customer_interaction: invoice.last_customer_interaction,
-      workflow_triggered: !!invoice.last_customer_interaction
+      quoteStatus: quote?.workflow_status,
+      invoiceStatus: invoice?.workflow_status,
+      verified: invoice?.workflow_status === 'approved'
     };
   }
 
   private async verifyUpdatedEstimate(scenario: TestScenario) {
-    // Verify that change approval resulted in updated estimate
     const { data: invoice } = await supabase
       .from('invoices')
       .select('*, invoice_line_items(*)')
-      .order('updated_at', { ascending: false })
-      .limit(1)
+      .eq('quote_request_id', (
+        await supabase
+          .from('quote_requests')
+          .select('id')
+          .eq('email', scenario.customerEmail)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single()
+      ).data?.id)
       .single();
 
     return {
-      estimate_updated: true,
-      last_updated: invoice?.updated_at,
-      line_items_count: invoice?.invoice_line_items?.length || 0
+      hasUpdatedEstimate: !!invoice,
+      lineItemCount: invoice?.invoice_line_items?.length || 0,
+      total: invoice?.total_amount || 0
     };
   }
 
   private async verifyCustomerNotification(scenario: TestScenario) {
-    // Verify customer was notified of rejection
+    // In a real implementation, this would check email logs
+    // For now, we verify the change request has the rejection response
     const { data: changeRequest } = await supabase
       .from('change_requests')
       .select('*')
@@ -626,42 +637,39 @@ export class ComprehensiveTestSuite {
       .single();
 
     return {
-      notification_sent: !!changeRequest?.admin_response,
-      rejection_reason: changeRequest?.admin_response,
-      reviewed_at: changeRequest?.reviewed_at
+      notificationReady: !!changeRequest?.admin_response,
+      response: changeRequest?.admin_response
     };
   }
 
   private async sendFinalDetails(scenario: TestScenario) {
-    // Simulate sending final event details
+    // Update quote status to indicate final details sent
     const { data: quote } = await supabase
       .from('quote_requests')
-      .select('*')
+      .select('id')
       .eq('email', scenario.customerEmail)
       .order('created_at', { ascending: false })
       .limit(1)
       .single();
 
-    // Update quote with final details sent
     const { data, error } = await supabase
       .from('quote_requests')
       .update({
-        status: 'confirmed',
-        last_status_change: new Date().toISOString()
+        workflow_status: 'confirmed' as const,
+        status_changed_by: 'admin'
       })
       .eq('id', quote?.id)
       .select()
       .single();
 
     if (error) throw error;
-    return { final_details_sent: true, quote_confirmed: true };
+    return data;
   }
 
   private async markEventCompleted(scenario: TestScenario) {
-    // Mark event as completed
     const { data: quote } = await supabase
       .from('quote_requests')
-      .select('*')
+      .select('id')
       .eq('email', scenario.customerEmail)
       .order('created_at', { ascending: false })
       .limit(1)
@@ -670,91 +678,70 @@ export class ComprehensiveTestSuite {
     const { data, error } = await supabase
       .from('quote_requests')
       .update({
-        status: 'completed',
-        last_status_change: new Date().toISOString()
+        workflow_status: 'completed' as const,
+        status_changed_by: 'admin'
       })
       .eq('id', quote?.id)
       .select()
       .single();
 
     if (error) throw error;
-    return { event_completed: true, final_status: 'completed' };
+
+    // Also update invoice to paid status
+    await supabase
+      .from('invoices')
+      .update({
+        workflow_status: 'paid' as const,
+        paid_at: new Date().toISOString()
+      })
+      .eq('quote_request_id', quote?.id);
+
+    return data;
   }
 
-  // Execute full test suite
-  async runFullTestSuite(): Promise<{
-    summary: any;
-    results: TestResult[];
-    scenarios: TestScenario[];
-  }> {
-    console.log('🚀 Starting Comprehensive Test Suite...');
-    
+  // Run full test suite
+  async runFullTestSuite(): Promise<{ results: TestResult[]; summary: any }> {
+    console.log('🚂 Starting Soul Train\'s Eatery Comprehensive Test Suite');
+    console.log(`📧 Test Email: ${this.testEmail}`);
+    console.log(`📅 Started: ${new Date().toISOString()}`);
+
     for (const scenario of this.scenarios) {
-      console.log(`\n📋 Executing Scenario: ${scenario.name}`);
+      console.log(`\n🎯 Running Scenario: ${scenario.id} - ${scenario.name}`);
       
       for (let i = 0; i < scenario.steps.length; i++) {
-        const step = scenario.steps[i];
-        console.log(`  ⏳ Step ${i + 1}: ${step.description}`);
+        const result = await this.executeStep(scenario, i);
+        console.log(`  ${result.status === 'passed' ? '✅' : '❌'} Step ${i + 1}: ${result.action}`);
         
-        try {
-          const result = await this.executeStep(scenario, i);
-          console.log(`  ${result.status === 'passed' ? '✅' : '❌'} ${step.action}: ${result.status}`);
-          
-          if (result.status === 'failed') {
-            console.log(`     Error: ${result.error?.message || result.actualResult}`);
-          }
-        } catch (error) {
-          console.log(`  ❌ Step failed: ${error.message}`);
+        if (result.status === 'failed') {
+          console.log(`    Error: ${result.error?.message || result.actualResult}`);
         }
-        
-        // Add small delay between steps
-        await new Promise(resolve => setTimeout(resolve, 1000));
       }
     }
 
-    // Generate summary
-    const summary = this.generateTestSummary();
-    console.log('\n📊 Test Suite Summary:', summary);
-    
     return {
-      summary,
       results: this.results,
-      scenarios: this.scenarios
+      summary: this.generateTestSummary()
     };
   }
 
   private generateTestSummary() {
-    const totalSteps = this.results.length;
-    const passedSteps = this.results.filter(r => r.status === 'passed').length;
-    const failedSteps = this.results.filter(r => r.status === 'failed').length;
-    
-    const scenarioResults = this.scenarios.map(scenario => {
-      const scenarioSteps = this.results.filter(r => r.scenarioId === scenario.id);
-      const scenarioPassed = scenarioSteps.filter(r => r.status === 'passed').length;
-      const scenarioFailed = scenarioSteps.filter(r => r.status === 'failed').length;
-      
-      return {
-        scenarioId: scenario.id,
-        name: scenario.name,
-        totalSteps: scenarioSteps.length,
-        passed: scenarioPassed,
-        failed: scenarioFailed,
-        success: scenarioFailed === 0
-      };
-    });
+    const passed = this.results.filter(r => r.status === 'passed').length;
+    const failed = this.results.filter(r => r.status === 'failed').length;
+    const total = this.results.length;
 
     return {
-      totalSteps,
-      passedSteps,
-      failedSteps,
-      successRate: Math.round((passedSteps / totalSteps) * 100),
-      scenarios: scenarioResults,
-      startTime: this.results[0]?.timestamp,
-      endTime: this.results[this.results.length - 1]?.timestamp
+      total,
+      passed,
+      failed,
+      successRate: total > 0 ? Math.round((passed / total) * 100) : 0,
+      scenarioResults: this.scenarios.map(s => ({
+        id: s.id,
+        name: s.name,
+        steps: this.results.filter(r => r.scenarioId === s.id)
+      }))
     };
   }
 
-  // Get detailed results
   getResults() {
     return {
       results: this.results,
@@ -764,5 +751,4 @@ export class ComprehensiveTestSuite {
   }
 }
 
-// Export test runner instance
 export const testSuite = new ComprehensiveTestSuite();

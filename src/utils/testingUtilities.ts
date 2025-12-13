@@ -388,24 +388,25 @@ export const generateTestData = async (): Promise<TestResult> => {
         location: 'Test Venue',
         guest_count: 25,
         service_type: 'full-service' as const,
-        primary_protein: 'grilled-chicken',
-        status: 'pending' as const
+        proteins: ['grilled-chicken'],
+        sides: ['mac-and-cheese', 'collard-greens'],
+        workflow_status: 'pending' as const
       },
       {
         contact_name: 'Test Customer 2',
         email: 'test2@example.com',
         phone: '(843) 555-0002',
         event_name: 'Test Wedding Reception',
-        event_type: 'private_party' as const,
+        event_type: 'wedding' as const,
         event_date: '2024-08-20',
         start_time: '18:00:00',
         location: 'Test Garden',
         guest_count: 150,
         service_type: 'delivery-setup' as const,
-        primary_protein: 'beef-brisket',
-        secondary_protein: 'grilled-chicken',
+        proteins: ['beef-brisket', 'grilled-chicken'],
+        sides: ['mac-and-cheese', 'green-beans', 'cornbread'],
         both_proteins_available: true,
-        status: 'quoted' as const
+        workflow_status: 'estimated' as const
       }
     ];
 
