@@ -1,12 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { supabase } from '@/integrations/supabase/client';
 import { 
   TrendingUp, 
-  TrendingDown,
   DollarSign, 
   Calendar, 
   Users,
@@ -14,23 +12,10 @@ import {
   ArrowUpRight,
   ArrowDownRight
 } from 'lucide-react';
-import { format, startOfMonth, endOfMonth, subMonths, differenceInDays } from 'date-fns';
-
-interface ReportData {
-  totalRevenue: number;
-  previousRevenue: number;
-  totalEvents: number;
-  previousEvents: number;
-  averageEventSize: number;
-  conversionRate: number;
-  arAging: {
-    current: number;
-    days7: number;
-    days30: number;
-    days30Plus: number;
-  };
-  statusBreakdown: Record<string, number>;
-}
+import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns';
+import { useRevenue } from '@/hooks/useInvoices';
+import { useARDashboard } from '@/hooks/useARDashboard';
+import { useEvents } from '@/hooks/useEvents';
 
 const DATE_RANGES = [
   { value: 'this-month', label: 'This Month' },
@@ -41,14 +26,9 @@ const DATE_RANGES = [
 
 export function ReportingDashboard() {
   const [dateRange, setDateRange] = useState('this-month');
-  const [data, setData] = useState<ReportData | null>(null);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadReportData();
-  }, [dateRange]);
-
-  const getDateRange = () => {
+  // Calculate date ranges based on selection
+  const { currentDates, previousDates } = useMemo(() => {
     const now = new Date();
     let start: Date;
     let end: Date;
@@ -81,107 +61,68 @@ export function ReportingDashboard() {
         prevEnd = endOfMonth(subMonths(now, 1));
     }
 
-    return { start, end, prevStart, prevEnd };
-  };
+    return { 
+      currentDates: { start, end }, 
+      previousDates: { start: prevStart, end: prevEnd } 
+    };
+  }, [dateRange]);
 
-  const loadReportData = async () => {
-    try {
-      setLoading(true);
-      const { start, end, prevStart, prevEnd } = getDateRange();
-      const today = new Date();
+  // Use hooks for data fetching
+  const { data: currentRevenue, isLoading: revenueLoading } = useRevenue(currentDates.start, currentDates.end);
+  const { data: previousRevenue } = useRevenue(previousDates.start, previousDates.end);
+  const { agingBuckets, isLoading: arLoading } = useARDashboard();
+  const { data: currentEvents, isLoading: eventsLoading } = useEvents({
+    dateRange: currentDates
+  });
+  const { data: previousEvents } = useEvents({
+    dateRange: previousDates
+  });
 
-      // Current period quotes
-      const { data: currentQuotes } = await supabase
-        .from('quote_requests')
-        .select('id, workflow_status, guest_count, event_date')
-        .gte('event_date', start.toISOString().split('T')[0])
-        .lte('event_date', end.toISOString().split('T')[0]);
+  const loading = revenueLoading || arLoading || eventsLoading;
 
-      // Previous period quotes
-      const { data: prevQuotes } = await supabase
-        .from('quote_requests')
-        .select('id, workflow_status')
-        .gte('event_date', prevStart.toISOString().split('T')[0])
-        .lte('event_date', prevEnd.toISOString().split('T')[0]);
+  // Calculate metrics from data
+  const metrics = useMemo(() => {
+    const confirmedStatuses = ['confirmed', 'paid', 'completed'];
+    
+    const currentConfirmed = (currentEvents || []).filter(e => confirmedStatuses.includes(e.quote_status));
+    const previousConfirmed = (previousEvents || []).filter(e => confirmedStatuses.includes(e.quote_status));
+    
+    const totalEvents = currentConfirmed.length;
+    const prevEvents = previousConfirmed.length;
+    
+    const avgGuestCount = currentEvents && currentEvents.length > 0
+      ? Math.round(currentEvents.reduce((sum, e) => sum + (e.guest_count || 0), 0) / currentEvents.length)
+      : 0;
 
-      // Current period paid invoices
-      const { data: currentInvoices } = await supabase
-        .from('invoices')
-        .select('id, total_amount, workflow_status, created_at')
-        .eq('workflow_status', 'paid')
-        .gte('paid_at', start.toISOString())
-        .lte('paid_at', end.toISOString());
+    const totalLeads = currentEvents?.length || 0;
+    const conversionRate = totalLeads > 0 ? Math.round((totalEvents / totalLeads) * 100) : 0;
 
-      // Previous period paid invoices
-      const { data: prevInvoices } = await supabase
-        .from('invoices')
-        .select('id, total_amount')
-        .eq('workflow_status', 'paid')
-        .gte('paid_at', prevStart.toISOString())
-        .lte('paid_at', prevEnd.toISOString());
+    // Status breakdown
+    const statusBreakdown: Record<string, number> = {};
+    currentEvents?.forEach(e => {
+      statusBreakdown[e.quote_status] = (statusBreakdown[e.quote_status] || 0) + 1;
+    });
 
-      // Outstanding invoices for AR aging
-      const { data: outstandingInvoices } = await supabase
-        .from('invoices')
-        .select('id, total_amount, due_date, created_at, workflow_status')
-        .in('workflow_status', ['sent', 'viewed', 'approved', 'payment_pending', 'partially_paid', 'overdue']);
+    // Map aging buckets
+    const arAging = {
+      current: agingBuckets.find(b => b.label === 'Current')?.amount || 0,
+      days7: agingBuckets.find(b => b.label === '1-30 Days')?.amount || 0,
+      days30: agingBuckets.find(b => b.label === '31-60 Days')?.amount || 0,
+      days30Plus: (agingBuckets.find(b => b.label === '61-90 Days')?.amount || 0) + 
+                  (agingBuckets.find(b => b.label === '90+ Days')?.amount || 0),
+    };
 
-      // Calculate metrics
-      const totalRevenue = currentInvoices?.reduce((sum, inv) => sum + (inv.total_amount || 0), 0) || 0;
-      const previousRevenue = prevInvoices?.reduce((sum, inv) => sum + (inv.total_amount || 0), 0) || 0;
-      
-      const confirmedStatuses = ['confirmed', 'paid', 'completed'];
-      const totalEvents = currentQuotes?.filter(q => confirmedStatuses.includes(q.workflow_status)).length || 0;
-      const previousEvents = prevQuotes?.filter(q => confirmedStatuses.includes(q.workflow_status)).length || 0;
-
-      const avgGuestCount = currentQuotes && currentQuotes.length > 0
-        ? Math.round(currentQuotes.reduce((sum, q) => sum + (q.guest_count || 0), 0) / currentQuotes.length)
-        : 0;
-
-      const totalLeads = currentQuotes?.length || 0;
-      const convertedLeads = currentQuotes?.filter(q => confirmedStatuses.includes(q.workflow_status)).length || 0;
-      const conversionRate = totalLeads > 0 ? Math.round((convertedLeads / totalLeads) * 100) : 0;
-
-      // AR Aging calculation
-      const arAging = { current: 0, days7: 0, days30: 0, days30Plus: 0 };
-      outstandingInvoices?.forEach(inv => {
-        const dueDate = inv.due_date ? new Date(inv.due_date) : new Date(inv.created_at);
-        const daysOverdue = differenceInDays(today, dueDate);
-        const amount = inv.total_amount || 0;
-
-        if (daysOverdue <= 0) {
-          arAging.current += amount;
-        } else if (daysOverdue <= 7) {
-          arAging.days7 += amount;
-        } else if (daysOverdue <= 30) {
-          arAging.days30 += amount;
-        } else {
-          arAging.days30Plus += amount;
-        }
-      });
-
-      // Status breakdown
-      const statusBreakdown: Record<string, number> = {};
-      currentQuotes?.forEach(q => {
-        statusBreakdown[q.workflow_status] = (statusBreakdown[q.workflow_status] || 0) + 1;
-      });
-
-      setData({
-        totalRevenue,
-        previousRevenue,
-        totalEvents,
-        previousEvents,
-        averageEventSize: avgGuestCount,
-        conversionRate,
-        arAging,
-        statusBreakdown,
-      });
-    } catch (error) {
-      console.error('Error loading report data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    return {
+      totalRevenue: currentRevenue?.totalRevenue || 0,
+      previousRevenue: previousRevenue?.totalRevenue || 0,
+      totalEvents,
+      previousEvents: prevEvents,
+      averageEventSize: avgGuestCount,
+      conversionRate,
+      arAging,
+      statusBreakdown,
+    };
+  }, [currentEvents, previousEvents, currentRevenue, previousRevenue, agingBuckets]);
 
   const formatCurrency = (cents: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -197,24 +138,22 @@ export function ReportingDashboard() {
   };
 
   const exportCSV = () => {
-    if (!data) return;
-
     const csvContent = [
       ['Soul Trains Eatery - Financial Report'],
       [`Period: ${DATE_RANGES.find(r => r.value === dateRange)?.label}`],
       [`Generated: ${format(new Date(), 'yyyy-MM-dd HH:mm')}`],
       [],
       ['KPI', 'Value'],
-      ['Total Revenue', formatCurrency(data.totalRevenue)],
-      ['Total Events', data.totalEvents],
-      ['Average Event Size', `${data.averageEventSize} guests`],
-      ['Conversion Rate', `${data.conversionRate}%`],
+      ['Total Revenue', formatCurrency(metrics.totalRevenue)],
+      ['Total Events', metrics.totalEvents],
+      ['Average Event Size', `${metrics.averageEventSize} guests`],
+      ['Conversion Rate', `${metrics.conversionRate}%`],
       [],
       ['AR Aging', 'Amount'],
-      ['Current', formatCurrency(data.arAging.current)],
-      ['1-7 Days', formatCurrency(data.arAging.days7)],
-      ['8-30 Days', formatCurrency(data.arAging.days30)],
-      ['30+ Days', formatCurrency(data.arAging.days30Plus)],
+      ['Current', formatCurrency(metrics.arAging.current)],
+      ['1-7 Days', formatCurrency(metrics.arAging.days7)],
+      ['8-30 Days', formatCurrency(metrics.arAging.days30)],
+      ['30+ Days', formatCurrency(metrics.arAging.days30Plus)],
     ].map(row => row.join(',')).join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv' });
@@ -236,10 +175,8 @@ export function ReportingDashboard() {
     );
   }
 
-  if (!data) return null;
-
-  const revenueChange = getChangePercent(data.totalRevenue, data.previousRevenue);
-  const eventsChange = getChangePercent(data.totalEvents, data.previousEvents);
+  const revenueChange = getChangePercent(metrics.totalRevenue, metrics.previousRevenue);
+  const eventsChange = getChangePercent(metrics.totalEvents, metrics.previousEvents);
 
   return (
     <div className="space-y-6">
@@ -276,7 +213,7 @@ export function ReportingDashboard() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(data.totalRevenue)}</div>
+            <div className="text-2xl font-bold">{formatCurrency(metrics.totalRevenue)}</div>
             <div className="flex items-center gap-1 text-xs">
               {revenueChange >= 0 ? (
                 <ArrowUpRight className="h-3 w-3 text-green-500" />
@@ -297,7 +234,7 @@ export function ReportingDashboard() {
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{data.totalEvents}</div>
+            <div className="text-2xl font-bold">{metrics.totalEvents}</div>
             <div className="flex items-center gap-1 text-xs">
               {eventsChange >= 0 ? (
                 <ArrowUpRight className="h-3 w-3 text-green-500" />
@@ -318,7 +255,7 @@ export function ReportingDashboard() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{data.averageEventSize}</div>
+            <div className="text-2xl font-bold">{metrics.averageEventSize}</div>
             <p className="text-xs text-muted-foreground">guests per event</p>
           </CardContent>
         </Card>
@@ -329,7 +266,7 @@ export function ReportingDashboard() {
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{data.conversionRate}%</div>
+            <div className="text-2xl font-bold">{metrics.conversionRate}%</div>
             <p className="text-xs text-muted-foreground">leads to booked events</p>
           </CardContent>
         </Card>
@@ -344,22 +281,22 @@ export function ReportingDashboard() {
           <div className="grid gap-4 md:grid-cols-4">
             <div className="p-4 rounded-lg bg-green-500/10 border border-green-500/20">
               <p className="text-sm font-medium text-green-700">Current</p>
-              <p className="text-2xl font-bold text-green-700">{formatCurrency(data.arAging.current)}</p>
+              <p className="text-2xl font-bold text-green-700">{formatCurrency(metrics.arAging.current)}</p>
               <p className="text-xs text-green-600">Not yet due</p>
             </div>
             <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/20">
               <p className="text-sm font-medium text-amber-700">1-7 Days</p>
-              <p className="text-2xl font-bold text-amber-700">{formatCurrency(data.arAging.days7)}</p>
+              <p className="text-2xl font-bold text-amber-700">{formatCurrency(metrics.arAging.days7)}</p>
               <p className="text-xs text-amber-600">Recently overdue</p>
             </div>
             <div className="p-4 rounded-lg bg-orange-500/10 border border-orange-500/20">
               <p className="text-sm font-medium text-orange-700">8-30 Days</p>
-              <p className="text-2xl font-bold text-orange-700">{formatCurrency(data.arAging.days30)}</p>
+              <p className="text-2xl font-bold text-orange-700">{formatCurrency(metrics.arAging.days30)}</p>
               <p className="text-xs text-orange-600">Needs follow-up</p>
             </div>
             <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/20">
               <p className="text-sm font-medium text-red-700">30+ Days</p>
-              <p className="text-2xl font-bold text-red-700">{formatCurrency(data.arAging.days30Plus)}</p>
+              <p className="text-2xl font-bold text-red-700">{formatCurrency(metrics.arAging.days30Plus)}</p>
               <p className="text-xs text-red-600">Severely overdue</p>
             </div>
           </div>
@@ -373,7 +310,7 @@ export function ReportingDashboard() {
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-3">
-            {Object.entries(data.statusBreakdown).map(([status, count]) => (
+            {Object.entries(metrics.statusBreakdown).map(([status, count]) => (
               <Badge key={status} variant="secondary" className="text-sm px-3 py-1">
                 {status.replace('_', ' ')}: {count}
               </Badge>

@@ -51,10 +51,13 @@ export function usePaymentStats() {
 /**
  * Hook for fetching revenue by date range
  */
-export function useRevenue(startDate: Date, endDate: Date) {
+export function useRevenue(startDate: Date | null, endDate: Date | null) {
   return useQuery({
-    queryKey: ['revenue', startDate.toISOString(), endDate.toISOString()],
-    queryFn: () => PaymentDataService.getRevenueByDateRange(startDate, endDate),
+    queryKey: ['revenue', startDate?.toISOString(), endDate?.toISOString()],
+    queryFn: () => startDate && endDate 
+      ? PaymentDataService.getRevenueByDateRange(startDate, endDate) 
+      : Promise.resolve({ totalRevenue: 0, paidInvoices: 0, averageInvoiceValue: 0 }),
+    enabled: !!startDate && !!endDate,
     staleTime: 1000 * 60 * 5,
   });
 }
