@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -17,7 +17,14 @@ export function NewSubmissions() {
     (event) => event.quote_status === 'pending' || event.quote_status === 'under_review'
   ) || [];
 
-  const [isOpen, setIsOpen] = useState(newSubmissions.length > 0);
+  const [isOpen, setIsOpen] = useState(true);
+
+  // Auto-expand when submissions load, collapse when empty
+  useEffect(() => {
+    if (!isLoading) {
+      setIsOpen(newSubmissions.length > 0);
+    }
+  }, [isLoading, newSubmissions.length]);
 
   if (isLoading || newSubmissions.length === 0) {
     return null;
