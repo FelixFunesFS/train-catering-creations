@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AdminLayout } from '@/components/admin/AdminLayout';
-import { EventList, TodaysEvents } from '@/components/admin/events';
+import { EventList, TodaysEvents, NewSubmissions } from '@/components/admin/events';
 import { EstimateList, PaymentList } from '@/components/admin/billing';
 import { Settings, FileText, CreditCard } from 'lucide-react';
 
@@ -37,6 +37,7 @@ export function UnifiedAdminDashboard() {
       <div className="container mx-auto px-4 py-6">
         {currentView === 'events' && (
           <div className="space-y-6">
+            <NewSubmissions />
             <TodaysEvents />
             <EventList />
           </div>
