@@ -63,18 +63,6 @@ export class WorkflowOrchestrationService {
       // 3. Trigger notifications based on status
       await this.triggerNotifications(invoiceId, newStatus, triggeredBy);
 
-      // 4. Log analytics event
-      await supabase.from('analytics_events').insert({
-        event_type: 'workflow_transition',
-        entity_type: 'invoices',
-        entity_id: invoiceId,
-        metadata: {
-          previous_status: invoice.workflow_status,
-          new_status: newStatus,
-          triggered_by: triggeredBy,
-          ...metadata
-        }
-      });
 
       console.log(`[Workflow] Successfully transitioned to ${newStatus}`);
       return { success: true };

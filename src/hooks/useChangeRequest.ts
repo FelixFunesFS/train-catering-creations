@@ -33,13 +33,6 @@ export function useChangeRequest(invoiceId: string, customerEmail: string) {
 
       if (error) throw error;
 
-      // Track analytics
-      await supabase.from('analytics_events').insert({
-        event_type: 'change_request_submitted',
-        entity_type: 'change_request',
-        entity_id: changeRequest.id,
-        metadata: { invoice_id: invoiceId, request_type: data.requestType }
-      });
 
       toast({
         title: 'Change Request Submitted',
@@ -76,12 +69,6 @@ export function useChangeRequest(invoiceId: string, customerEmail: string) {
 
       if (error) throw error;
 
-      // Track analytics (fire and forget to avoid blocking)
-      void supabase.from('analytics_events').insert({
-        event_type: 'estimate_accepted',
-        entity_type: 'invoice',
-        entity_id: invoiceId
-      });
 
       toast({
         title: 'Estimate Accepted',
