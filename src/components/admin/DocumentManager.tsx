@@ -3,32 +3,25 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { 
   FileText, 
   Download, 
-  Upload, 
   Search,
-  Filter,
   Calendar,
-  User,
   DollarSign,
   Eye,
-  Edit,
-  Trash2,
-  Plus
+  Edit
 } from 'lucide-react';
 
 interface Document {
   id: string;
   name: string;
-  type: 'estimate' | 'invoice' | 'contract' | 'receipt' | 'other';
-  status: 'draft' | 'sent' | 'signed' | 'completed';
+  type: 'estimate' | 'invoice' | 'receipt' | 'other';
+  status: 'draft' | 'sent' | 'completed';
   created_at: string;
   file_url?: string;
-  related_quote_id?: string;
   related_invoice_id?: string;
   file_size?: number;
 }
@@ -83,32 +76,7 @@ export function DocumentManager() {
         file_size: Math.floor(Math.random() * 500) + 100 // Mock file size
       }));
 
-      // Fetch contracts
-      const { data: contracts } = await supabase
-        .from('contracts')
-        .select(`
-          id,
-          contract_type,
-          status,
-          created_at,
-          invoice_id,
-          signed_at,
-          invoices!invoice_id(quote_requests!quote_request_id(event_name, contact_name))
-        `)
-        .order('created_at', { ascending: false });
-
-      const contractDocs: Document[] = (contracts || []).map(contract => ({
-        id: contract.id,
-        name: `${contract.contract_type} Contract - ${contract.invoices?.quote_requests?.event_name}`,
-        type: 'contract',
-        status: contract.status === 'signed' ? 'signed' : 
-                contract.status === 'generated' ? 'sent' : 'draft',
-        created_at: contract.created_at,
-        related_invoice_id: contract.invoice_id,
-        file_size: Math.floor(Math.random() * 300) + 50
-      }));
-
-      setDocuments([...invoiceDocs, ...contractDocs]);
+      setDocuments(invoiceDocs);
     } catch (error) {
       console.error('Error fetching documents:', error);
       toast({
@@ -141,40 +109,6 @@ export function DocumentManager() {
     setFilteredDocs(filtered);
   };
 
-  const generateDocument = async (type: 'estimate' | 'invoice' | 'contract', quoteId?: string) => {
-    try {
-      let response;
-      
-      if (type === 'estimate' || type === 'invoice') {
-        // Generate estimate/invoice PDF
-        response = await supabase.functions.invoke('generate-pdf-document', {
-          body: { type, quoteId }
-        });
-      } else if (type === 'contract') {
-        // Generate contract
-        response = await supabase.functions.invoke('generate-contract', {
-          body: { quoteId }
-        });
-      }
-
-      if (response.error) throw response.error;
-
-      toast({
-        title: "Success",
-        description: `${type.charAt(0).toUpperCase() + type.slice(1)} generated successfully`
-      });
-
-      await fetchDocuments();
-    } catch (error) {
-      console.error('Error generating document:', error);
-      toast({
-        title: "Error",
-        description: `Failed to generate ${type}`,
-        variant: "destructive"
-      });
-    }
-  };
-
   const downloadDocument = async (doc: Document) => {
     if (doc.file_url) {
       window.open(doc.file_url, '_blank');
@@ -191,7 +125,6 @@ export function DocumentManager() {
     switch (status) {
       case 'draft': return 'secondary';
       case 'sent': return 'default';
-      case 'signed': return 'default';
       case 'completed': return 'default';
       default: return 'secondary';
     }
@@ -201,7 +134,6 @@ export function DocumentManager() {
     switch (type) {
       case 'estimate': return <FileText className="h-4 w-4 text-blue-600" />;
       case 'invoice': return <DollarSign className="h-4 w-4 text-green-600" />;
-      case 'contract': return <FileText className="h-4 w-4 text-purple-600" />;
       case 'receipt': return <FileText className="h-4 w-4 text-orange-600" />;
       default: return <FileText className="h-4 w-4 text-gray-600" />;
     }
@@ -219,17 +151,7 @@ export function DocumentManager() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">Document Management</h2>
-          <p className="text-muted-foreground">Manage estimates, invoices, contracts, and receipts</p>
-        </div>
-        <div className="flex gap-2">
-          <Button onClick={() => generateDocument('estimate')} variant="outline">
-            <Plus className="h-4 w-4 mr-2" />
-            New Estimate
-          </Button>
-          <Button onClick={() => generateDocument('contract')} variant="outline">
-            <Plus className="h-4 w-4 mr-2" />
-            New Contract
-          </Button>
+          <p className="text-muted-foreground">Manage estimates, invoices, and receipts</p>
         </div>
       </div>
 
@@ -257,7 +179,6 @@ export function DocumentManager() {
               <option value="all">All Types</option>
               <option value="estimate">Estimates</option>
               <option value="invoice">Invoices</option>
-              <option value="contract">Contracts</option>
               <option value="receipt">Receipts</option>
             </select>
 
@@ -269,7 +190,6 @@ export function DocumentManager() {
               <option value="all">All Status</option>
               <option value="draft">Draft</option>
               <option value="sent">Sent</option>
-              <option value="signed">Signed</option>
               <option value="completed">Completed</option>
             </select>
           </div>
