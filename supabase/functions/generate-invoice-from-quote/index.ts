@@ -42,6 +42,7 @@ const isGovernmentCustomer = (email: string): boolean => {
 // All items initialize at $0 for manual admin pricing
 const generateLineItems = (quote: any): any[] => {
   const lineItems: any[] = [];
+  let sortOrder = 10; // Start at 10, increment by 10 for each item
   
   // Get proteins from JSONB array (single source of truth)
   const proteins: string[] = Array.isArray(quote.proteins) ? quote.proteins.filter(Boolean) : [];
@@ -72,8 +73,10 @@ const generateLineItems = (quote: any): any[] => {
       quantity: quote.guest_count,
       unit_price: 0,
       total_price: 0,
-      category: 'package'
+      category: 'package',
+      sort_order: sortOrder
     });
+    sortOrder += 10;
   }
   
   // TIER 2: APPETIZER SELECTION
@@ -91,8 +94,10 @@ const generateLineItems = (quote: any): any[] => {
         quantity: quote.guest_count,
         unit_price: 0,
         total_price: 0,
-        category: 'appetizers'
+        category: 'appetizers',
+        sort_order: sortOrder
       });
+      sortOrder += 10;
     }
     
     // Dietary appetizers separately
@@ -110,8 +115,10 @@ const generateLineItems = (quote: any): any[] => {
         quantity: restrictionCount,
         unit_price: 0,
         total_price: 0,
-        category: 'appetizers'
+        category: 'appetizers',
+        sort_order: sortOrder
       });
+      sortOrder += 10;
     }
   }
   
@@ -124,8 +131,10 @@ const generateLineItems = (quote: any): any[] => {
       quantity: quote.guest_count,
       unit_price: 0,
       total_price: 0,
-      category: 'sides'
+      category: 'sides',
+      sort_order: sortOrder
     });
+    sortOrder += 10;
   }
   
   // TIER 4: DESSERT SELECTION
@@ -136,8 +145,10 @@ const generateLineItems = (quote: any): any[] => {
       quantity: quote.guest_count,
       unit_price: 0,
       total_price: 0,
-      category: 'desserts'
+      category: 'desserts',
+      sort_order: sortOrder
     });
+    sortOrder += 10;
   }
   
   // TIER 5: SERVICE PACKAGE & ADD-ONS
@@ -147,8 +158,10 @@ const generateLineItems = (quote: any): any[] => {
     quantity: 1,
     unit_price: 0,
     total_price: 0,
-    category: 'service'
+    category: 'service',
+    sort_order: sortOrder
   });
+  sortOrder += 10;
   
   // Service add-ons
   if (quote.wait_staff_requested) {
@@ -158,8 +171,10 @@ const generateLineItems = (quote: any): any[] => {
       quantity: 1,
       unit_price: 0,
       total_price: 0,
-      category: 'service'
+      category: 'service',
+      sort_order: sortOrder
     });
+    sortOrder += 10;
   }
   
   if (quote.bussing_tables_needed) {
@@ -169,8 +184,10 @@ const generateLineItems = (quote: any): any[] => {
       quantity: 1,
       unit_price: 0,
       total_price: 0,
-      category: 'service'
+      category: 'service',
+      sort_order: sortOrder
     });
+    sortOrder += 10;
   }
   
   // Consolidate all supply items into one "Supply & Equipment Package"
@@ -190,7 +207,8 @@ const generateLineItems = (quote: any): any[] => {
       quantity: 1,
       unit_price: 0,
       total_price: 0,
-      category: 'supplies'
+      category: 'supplies',
+      sort_order: sortOrder
     });
   }
   
@@ -310,7 +328,8 @@ const handler = async (req: Request): Promise<Response> => {
       quantity: item.quantity,
       unit_price: 0, // All items start at $0 for manual pricing
       total_price: 0,
-      category: item.category
+      category: item.category,
+      sort_order: item.sort_order
     }));
 
     console.log(`Generated ${lineItems.length} line items from quote`);
