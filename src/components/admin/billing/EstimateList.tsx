@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
+import { useSearchParams } from 'react-router-dom';
 import { useInvoices } from '@/hooks/useInvoices';
 import { InvoicePaymentSummary } from '@/services/PaymentDataService';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -34,7 +35,22 @@ function formatStatus(status: string): string {
 
 export function EstimateList() {
   const [selectedInvoice, setSelectedInvoice] = useState<InvoicePaymentSummary | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
   const { data: invoices, isLoading, error } = useInvoices();
+
+  // Auto-open invoice from URL param
+  useEffect(() => {
+    const invoiceId = searchParams.get('invoiceId');
+    if (invoiceId && invoices) {
+      const invoice = invoices.find(inv => inv.invoice_id === invoiceId);
+      if (invoice) {
+        setSelectedInvoice(invoice);
+        // Clear the param after opening
+        searchParams.delete('invoiceId');
+        setSearchParams(searchParams, { replace: true });
+      }
+    }
+  }, [invoices, searchParams, setSearchParams]);
 
   if (error) {
     return (

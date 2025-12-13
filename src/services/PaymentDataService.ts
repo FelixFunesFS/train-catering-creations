@@ -107,7 +107,6 @@ export class PaymentDataService {
           status
         )
       `)
-      .eq('is_draft', false)
       .order('created_at', { ascending: false });
 
     // Apply filters
@@ -385,7 +384,6 @@ export class PaymentDataService {
     const { data, error } = await supabase
       .from('invoices')
       .select('total_amount, workflow_status')
-      .eq('is_draft', false)
       .eq('workflow_status', 'paid')
       .gte('paid_at', startDate.toISOString())
       .lte('paid_at', endDate.toISOString());
