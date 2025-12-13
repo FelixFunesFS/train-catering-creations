@@ -1,0 +1,26 @@
+-- Disable triggers temporarily and truncate all event tables
+TRUNCATE TABLE 
+  invoice_audit_log,
+  payment_schedule_audit,
+  payment_history,
+  payment_transactions,
+  payment_milestones,
+  estimate_versions,
+  change_requests,
+  reminder_logs,
+  invoice_line_items_archive,
+  invoice_line_items,
+  invoices,
+  quote_request_history,
+  workflow_state_log,
+  workflow_step_completion,
+  admin_notes,
+  event_timeline_tasks,
+  calendar_events,
+  event_documents,
+  quote_line_items,
+  customers,
+  messages,
+  message_threads,
+  quote_requests
+CASCADE;
