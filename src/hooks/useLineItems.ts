@@ -1,6 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { LineItemsService, LineItemInput, LineItem } from '@/services/LineItemsService';
-import { InvoiceTotalsRecalculator } from '@/services/InvoiceTotalsRecalculator';
 import { toast } from 'sonner';
 
 /**
@@ -49,13 +48,8 @@ export function useUpdateLineItem() {
       updates: Partial<LineItemInput>;
       invoiceId: string;
     }) => LineItemsService.updateLineItem(lineItemId, updates),
-    onSuccess: async (_, variables) => {
-      // Recalculate invoice totals in the database
-      try {
-        await InvoiceTotalsRecalculator.recalculateInvoice(variables.invoiceId);
-      } catch (err) {
-        console.error('Failed to recalculate invoice totals:', err);
-      }
+    onSuccess: (_, variables) => {
+      // DB trigger handles recalculation - just invalidate queries
       queryClient.invalidateQueries({ queryKey: ['line-items', variables.invoiceId] });
       queryClient.invalidateQueries({ queryKey: ['invoice', variables.invoiceId] });
       queryClient.invalidateQueries({ queryKey: ['invoices'] });

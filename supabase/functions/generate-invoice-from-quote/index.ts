@@ -173,69 +173,24 @@ const generateLineItems = (quote: any): any[] => {
     });
   }
   
-  if (quote.chafers_requested) {
-    lineItems.push({
-      title: 'Chafers (Food Warmers)',
-      description: 'Stainless steel chafers to keep food warm throughout service',
-      quantity: 1,
-      unit_price: 0,
-      total_price: 0,
-      category: 'service'
-    });
-  }
+  // Consolidate all supply items into one "Supply & Equipment Package"
+  const supplyItems: string[] = [];
   
-  if (quote.serving_utensils_requested) {
-    lineItems.push({
-      title: 'Serving Utensils',
-      description: 'Professional serving spoons, tongs, and ladles for buffet service',
-      quantity: 1,
-      unit_price: 0,
-      total_price: 0,
-      category: 'service'
-    });
-  }
+  if (quote.chafers_requested) supplyItems.push('Stainless steel chafers with fuel');
+  if (quote.serving_utensils_requested) supplyItems.push('Professional serving utensils');
+  if (quote.plates_requested) supplyItems.push('Disposable plates');
+  if (quote.cups_requested) supplyItems.push('Disposable cups');
+  if (quote.napkins_requested) supplyItems.push('Napkins');
+  if (quote.ice_requested) supplyItems.push('Bagged ice');
   
-  if (quote.plates_requested) {
+  if (supplyItems.length > 0) {
     lineItems.push({
-      title: 'Disposable Plates',
-      description: 'High-quality disposable plates for guest dining',
+      title: 'Supply & Equipment Package',
+      description: supplyItems.join(', '),
       quantity: 1,
       unit_price: 0,
       total_price: 0,
-      category: 'service'
-    });
-  }
-  
-  if (quote.cups_requested) {
-    lineItems.push({
-      title: 'Disposable Cups',
-      description: 'Disposable cups for beverage service',
-      quantity: 1,
-      unit_price: 0,
-      total_price: 0,
-      category: 'service'
-    });
-  }
-  
-  if (quote.napkins_requested) {
-    lineItems.push({
-      title: 'Disposable Napkins',
-      description: 'Napkins for guest use during dining',
-      quantity: 1,
-      unit_price: 0,
-      total_price: 0,
-      category: 'service'
-    });
-  }
-  
-  if (quote.ice_requested) {
-    lineItems.push({
-      title: 'Ice Service',
-      description: 'Bagged ice for beverage service and cooling',
-      quantity: 1,
-      unit_price: 0,
-      total_price: 0,
-      category: 'service'
+      category: 'supplies'
     });
   }
   
