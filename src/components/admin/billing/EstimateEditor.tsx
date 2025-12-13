@@ -6,10 +6,11 @@ import { Separator } from '@/components/ui/separator';
 import { useLineItems, useUpdateLineItem } from '@/hooks/useLineItems';
 import { LineItemEditor } from './LineItemEditor';
 import { EstimateSummary } from './EstimateSummary';
+import { EmailPreview } from './EmailPreview';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
-import { FileText, Loader2, Send } from 'lucide-react';
+import { FileText, Loader2, Eye } from 'lucide-react';
 
 interface EstimateEditorProps {
   invoice: InvoicePaymentSummary;
@@ -20,6 +21,7 @@ export function EstimateEditor({ invoice, onClose }: EstimateEditorProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isSending, setIsSending] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
   
   const { data: lineItems, isLoading: loadingItems } = useLineItems(invoice.invoice_id);
   const updateLineItem = useUpdateLineItem();
@@ -40,7 +42,7 @@ export function EstimateEditor({ invoice, onClose }: EstimateEditorProps) {
     });
   };
 
-  const handleSendEstimate = async () => {
+  const handlePreviewClick = () => {
     // Check if all items have pricing
     const unpricedItems = lineItems?.filter(li => li.unit_price === 0) || [];
     if (unpricedItems.length > 0) {
@@ -51,11 +53,17 @@ export function EstimateEditor({ invoice, onClose }: EstimateEditorProps) {
       });
       return;
     }
+    setShowPreview(true);
+  };
 
+  const handleSendEstimate = async () => {
     setIsSending(true);
     try {
       const { error } = await supabase.functions.invoke('send-customer-portal-email', {
-        body: { invoiceId: invoice.invoice_id }
+        body: { 
+          type: 'estimate_ready',
+          quoteRequestId: invoice.quote_id,
+        }
       });
 
       if (error) throw error;
@@ -76,6 +84,7 @@ export function EstimateEditor({ invoice, onClose }: EstimateEditorProps) {
         title: 'Estimate Sent',
         description: 'Customer has been emailed the estimate.',
       });
+      setShowPreview(false);
       onClose();
     } catch (err: any) {
       toast({
@@ -90,6 +99,24 @@ export function EstimateEditor({ invoice, onClose }: EstimateEditorProps) {
 
   // Calculate totals
   const subtotal = lineItems?.reduce((sum, item) => sum + item.total_price, 0) || 0;
+  const taxAmount = isGovernment ? 0 : Math.round(subtotal * 0.09);
+  const total = subtotal + taxAmount;
+
+  if (showPreview && lineItems) {
+    return (
+      <EmailPreview
+        invoice={invoice}
+        lineItems={lineItems}
+        subtotal={subtotal}
+        taxAmount={taxAmount}
+        total={total}
+        isGovernment={isGovernment || false}
+        onClose={() => setShowPreview(false)}
+        onConfirmSend={handleSendEstimate}
+        isSending={isSending}
+      />
+    );
+  }
 
   return (
     <Dialog open onOpenChange={onClose}>
@@ -150,10 +177,9 @@ export function EstimateEditor({ invoice, onClose }: EstimateEditorProps) {
           <Button variant="outline" onClick={onClose}>
             Close
           </Button>
-          <Button onClick={handleSendEstimate} disabled={isSending || !lineItems?.length}>
-            {isSending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-            <Send className="h-4 w-4 mr-2" />
-            Send Estimate
+          <Button onClick={handlePreviewClick} disabled={!lineItems?.length}>
+            <Eye className="h-4 w-4 mr-2" />
+            Preview & Send
           </Button>
         </div>
       </DialogContent>
