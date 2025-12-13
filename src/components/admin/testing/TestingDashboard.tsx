@@ -375,7 +375,7 @@ export function TestingDashboard() {
                 <li>✓ Gmail OAuth working</li>
                 <li>✓ Email templates loading</li>
                 <li>✓ Preview before sending</li>
-                <li>✓ Track email opens</li>
+                <li>✓ Emails delivered successfully</li>
               </ul>
             </div>
 
