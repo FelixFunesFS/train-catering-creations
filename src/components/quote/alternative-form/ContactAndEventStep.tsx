@@ -204,27 +204,50 @@ export const ContactAndEventStep = ({ form, trackFieldInteraction, variant = 're
               Event Logistics
             </h3>
 
-            <FormField
-              control={form.control}
-              name="guest_count"
-              render={({ field }) => (
-                <FormItem className="mb-3">
-                  <FormLabel>Number of Guests *</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      placeholder="50"
-                      min="1"
-                      className="h-12 text-base input-clean"
-                      {...field}
-                      onFocus={() => trackFieldInteraction('guest_count')}
-                      onChange={(e) => field.onChange(parseInt(e.target.value) || '')}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-2 gap-3">
+              <FormField
+                control={form.control}
+                name="guest_count"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Number of Guests *</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        placeholder="50"
+                        min="1"
+                        className="h-12 text-base input-clean"
+                        {...field}
+                        onFocus={() => trackFieldInteraction('guest_count')}
+                        onChange={(e) => field.onChange(parseInt(e.target.value) || '')}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="guest_count_with_restrictions"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Vegetarian Portions</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        placeholder="0"
+                        min="0"
+                        className="h-12 text-base input-clean"
+                        {...field}
+                        onFocus={() => trackFieldInteraction('guest_count_with_restrictions')}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <FormField
               control={form.control}
