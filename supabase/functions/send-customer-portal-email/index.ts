@@ -20,6 +20,7 @@ const corsHeaders = {
 interface PortalEmailRequest {
   quote_request_id: string;
   type: 'welcome' | 'estimate_ready' | 'payment_reminder' | 'payment_confirmation';
+  preview_only?: boolean;
   metadata?: {
     amount?: number;
     payment_type?: string;
@@ -34,7 +35,7 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { quote_request_id, type }: PortalEmailRequest = await req.json();
+    const { quote_request_id, type, preview_only = false }: PortalEmailRequest = await req.json();
 
     if (!quote_request_id || !type) {
       throw new Error('Missing required fields: quote_request_id, type');
@@ -120,6 +121,23 @@ const handler = async (req: Request): Promise<Response> => {
         
       default:
         throw new Error(`Invalid email type: ${type}`);
+    }
+
+    // If preview_only, return the HTML without sending
+    if (preview_only) {
+      console.log('Returning email preview HTML');
+      return new Response(JSON.stringify({ 
+        success: true,
+        html: htmlContent,
+        subject,
+        email: quote.email
+      }), {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+          ...corsHeaders,
+        },
+      });
     }
 
     // Send email via the gmail email function

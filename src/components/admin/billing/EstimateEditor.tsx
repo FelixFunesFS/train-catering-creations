@@ -104,15 +104,10 @@ export function EstimateEditor({ invoice, onClose }: EstimateEditorProps) {
   const taxAmount = currentInvoice?.tax_amount ?? 0;
   const total = currentInvoice?.total_amount ?? 0;
 
-  if (showPreview && lineItems) {
+  if (showPreview) {
     return (
       <EmailPreview
         invoice={invoice}
-        lineItems={lineItems}
-        subtotal={subtotal}
-        taxAmount={taxAmount}
-        total={total}
-        isGovernment={isGovernment || false}
         onClose={() => setShowPreview(false)}
         onConfirmSend={handleSendEstimate}
         isSending={isSending}

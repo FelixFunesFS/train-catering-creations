@@ -13,7 +13,8 @@ export const BRAND_COLORS = {
   white: '#FFFFFF',
 };
 
-const formatServiceType = (serviceType: string): string => {
+// Exported formatting helpers - single source of truth
+export const formatServiceType = (serviceType: string): string => {
   if (!serviceType) return 'Full Service';
   
   const typeMap: Record<string, string> = {
@@ -26,6 +27,33 @@ const formatServiceType = (serviceType: string): string => {
     .split('-')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
+};
+
+export const formatCurrency = (cents: number): string => {
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100);
+};
+
+export const formatDate = (dateStr: string | null): string => {
+  if (!dateStr) return 'TBD';
+  return new Date(dateStr).toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  });
+};
+
+export const formatTime = (timeStr: string | null): string => {
+  if (!timeStr) return 'TBD';
+  try {
+    const [hours, minutes] = timeStr.split(':');
+    const hour = parseInt(hours, 10);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour % 12 || 12;
+    return `${displayHour}:${minutes} ${ampm}`;
+  } catch {
+    return timeStr;
+  }
 };
 
 export const EMAIL_STYLES = `
@@ -745,10 +773,23 @@ export function generateLineItemsTable(lineItems: any[], subtotal: number, taxAm
   `;
 
   if (taxAmount > 0) {
+    const hospitalityTax = Math.round(subtotal * 0.02);
+    const serviceTax = Math.round(subtotal * 0.07);
     tableHtml += `
       <tr style="background: #f8f9fa;">
-        <th scope="row" colspan="3" style="padding: 10px 8px; text-align: right; font-size: 14px;">Tax (8%):</th>
-        <td style="padding: 10px 8px; text-align: right; font-size: 14px;">${formatCurrency(taxAmount)}</td>
+        <th scope="row" colspan="3" style="padding: 8px; text-align: right; font-size: 13px; color: #666;">SC Hospitality Tax (2%):</th>
+        <td style="padding: 8px; text-align: right; font-size: 13px; color: #666;">${formatCurrency(hospitalityTax)}</td>
+      </tr>
+      <tr style="background: #f8f9fa;">
+        <th scope="row" colspan="3" style="padding: 8px; text-align: right; font-size: 13px; color: #666;">SC Service Tax (7%):</th>
+        <td style="padding: 8px; text-align: right; font-size: 13px; color: #666;">${formatCurrency(serviceTax)}</td>
+      </tr>
+    `;
+  } else {
+    tableHtml += `
+      <tr style="background: #f8f9fa;">
+        <th scope="row" colspan="3" style="padding: 8px; text-align: right; font-size: 13px; color: #3B82F6;">Tax (Exempt):</th>
+        <td style="padding: 8px; text-align: right; font-size: 13px; color: #3B82F6;">$0.00</td>
       </tr>
     `;
   }
