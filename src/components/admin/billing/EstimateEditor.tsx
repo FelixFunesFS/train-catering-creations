@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useLineItems, useUpdateLineItem } from '@/hooks/useLineItems';
+import { useInvoice } from '@/hooks/useInvoices';
 import { LineItemEditor } from './LineItemEditor';
 import { EstimateSummary } from './EstimateSummary';
 import { EmailPreview } from './EmailPreview';
@@ -24,6 +25,7 @@ export function EstimateEditor({ invoice, onClose }: EstimateEditorProps) {
   const [showPreview, setShowPreview] = useState(false);
   
   const { data: lineItems, isLoading: loadingItems } = useLineItems(invoice.invoice_id);
+  const { data: currentInvoice } = useInvoice(invoice.invoice_id);
   const updateLineItem = useUpdateLineItem();
 
   const isGovernment = invoice.compliance_level === 'government' || invoice.requires_po_number;
@@ -97,10 +99,10 @@ export function EstimateEditor({ invoice, onClose }: EstimateEditorProps) {
     }
   };
 
-  // Calculate totals
-  const subtotal = lineItems?.reduce((sum, item) => sum + item.total_price, 0) || 0;
-  const taxAmount = isGovernment ? 0 : Math.round(subtotal * 0.09);
-  const total = subtotal + taxAmount;
+  // Use database values as single source of truth (calculated by DB trigger)
+  const subtotal = currentInvoice?.subtotal ?? 0;
+  const taxAmount = currentInvoice?.tax_amount ?? 0;
+  const total = currentInvoice?.total_amount ?? 0;
 
   if (showPreview && lineItems) {
     return (
@@ -168,7 +170,9 @@ export function EstimateEditor({ invoice, onClose }: EstimateEditorProps) {
 
         {/* Totals */}
         <EstimateSummary 
-          subtotal={subtotal} 
+          subtotal={subtotal}
+          taxAmount={taxAmount}
+          total={total}
           isGovernment={isGovernment || false} 
         />
 
