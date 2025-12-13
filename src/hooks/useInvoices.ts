@@ -348,12 +348,14 @@ export function useRecordPayment() {
       sendConfirmationEmail?: boolean;
     }) => PaymentDataService.recordManualPayment(invoiceId, amount, paymentMethod, notes, sendConfirmationEmail),
     onSuccess: (_, variables) => {
-      // Invalidate related queries
+      // Force invalidate ALL related queries to ensure fresh data
       queryClient.invalidateQueries({ queryKey: invoiceKeys.all });
       queryClient.invalidateQueries({ queryKey: ['payments'] });
       queryClient.invalidateQueries({ queryKey: ['payment-transactions'] });
       queryClient.invalidateQueries({ queryKey: ['ar-dashboard'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard', 'kpis'] });
+      // Also invalidate specific invoice detail
+      queryClient.invalidateQueries({ queryKey: invoiceKeys.detail(variables.invoiceId) });
       toast({
         title: 'Payment recorded',
         description: variables.sendConfirmationEmail 

@@ -795,6 +795,9 @@ export type Database = {
           currency: string | null
           customer_access_token: string | null
           customer_id: string | null
+          discount_amount: number | null
+          discount_description: string | null
+          discount_type: string | null
           document_type: string | null
           due_date: string | null
           id: string
@@ -832,6 +835,9 @@ export type Database = {
           currency?: string | null
           customer_access_token?: string | null
           customer_id?: string | null
+          discount_amount?: number | null
+          discount_description?: string | null
+          discount_type?: string | null
           document_type?: string | null
           due_date?: string | null
           id?: string
@@ -869,6 +875,9 @@ export type Database = {
           currency?: string | null
           customer_access_token?: string | null
           customer_id?: string | null
+          discount_amount?: number | null
+          discount_description?: string | null
+          discount_type?: string | null
           document_type?: string | null
           due_date?: string | null
           id?: string

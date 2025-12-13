@@ -404,6 +404,46 @@ export class PaymentDataService {
   }
 
   /**
+   * Void pending transactions for an invoice
+   * Used when invoice is paid via alternate method
+   */
+  static async voidPendingTransactions(invoiceId: string): Promise<void> {
+    const { error } = await supabase
+      .from('payment_transactions')
+      .update({
+        status: 'voided',
+        failed_reason: 'Voided: Invoice paid via alternate method',
+        processed_at: new Date().toISOString()
+      })
+      .eq('invoice_id', invoiceId)
+      .eq('status', 'pending');
+
+    if (error) {
+      console.error('Error voiding pending transactions:', error);
+      // Don't throw - this is a cleanup action
+    }
+  }
+
+  /**
+   * Void a specific transaction
+   */
+  static async voidTransaction(transactionId: string, reason?: string): Promise<void> {
+    const { error } = await supabase
+      .from('payment_transactions')
+      .update({
+        status: 'voided',
+        failed_reason: reason || 'Manually voided',
+        processed_at: new Date().toISOString()
+      })
+      .eq('id', transactionId);
+
+    if (error) {
+      console.error('Error voiding transaction:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Record a manual payment
    */
   static async recordManualPayment(
@@ -446,6 +486,9 @@ export class PaymentDataService {
           paid_at: new Date().toISOString()
         })
         .eq('id', invoiceId);
+
+      // Auto-void any pending transactions (orphaned checkout sessions)
+      await this.voidPendingTransactions(invoiceId);
     } else if (invoice.workflow_status !== 'partially_paid') {
       await supabase
         .from('invoices')
