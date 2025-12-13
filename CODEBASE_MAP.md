@@ -59,43 +59,47 @@
 | `getARAgingBuckets()` | AR aging breakdown |
 | `getPaymentStats()` | Payment statistics |
 | `getRevenueByDateRange(start, end)` | Revenue reporting |
+| `getPaymentTransactions(invoiceId?)` | Payment transaction history |
 | `recordManualPayment(...)` | Record offline payments |
 
 ---
 
 ## 🎣 TanStack Query Hooks (Canonical Data Access)
 
+> **Refactoring Status**: All admin dashboard components have been refactored to use centralized hooks instead of direct Supabase queries.
+
 ### useEvents.ts
 **Location**: `src/hooks/useEvents.ts`
 
-| Hook | Purpose |
-|------|---------|
-| `useEvents(filters?)` | Fetch events with caching |
-| `useEvent(quoteId)` | Single event |
-| `useAtRiskEvents()` | At-risk events |
-| `useUpcomingEvents(days)` | Upcoming events |
-| `useEventsForMonth(year, month)` | Calendar data |
-| `useDashboardKPIs()` | Dashboard KPIs |
+| Hook | Purpose | Refactored Components |
+|------|---------|----------------------|
+| `useEvents(filters?)` | Fetch events with caching | `ReportingDashboard` |
+| `useEvent(quoteId)` | Single event | - |
+| `useAtRiskEvents()` | At-risk events | `DashboardHome` |
+| `useUpcomingEvents(days)` | Upcoming events | `DashboardHome` |
+| `useEventsForMonth(year, month)` | Calendar data | - |
+| `useDashboardKPIs()` | Dashboard KPIs | `DashboardHome` |
 
 ### useInvoices.ts
 **Location**: `src/hooks/useInvoices.ts`
 
-| Hook | Purpose |
-|------|---------|
-| `useInvoices(filters?)` | Fetch invoices with caching |
-| `useInvoice(invoiceId)` | Single invoice |
-| `useOverdueInvoices()` | Overdue invoices |
-| `usePaymentStats()` | Payment statistics |
-| `useRevenue(start, end)` | Revenue data |
-| `useRecordPayment()` | Mutation for recording payments |
+| Hook | Purpose | Refactored Components |
+|------|---------|----------------------|
+| `useInvoices(filters?)` | Fetch invoices with caching | `PaymentProcessingDashboard` |
+| `useInvoice(invoiceId)` | Single invoice | - |
+| `useOverdueInvoices()` | Overdue invoices | - |
+| `usePaymentStats()` | Payment statistics | `PaymentProcessingDashboard`, `ReportingDashboard` |
+| `useRevenue(start, end)` | Revenue data | `ReportingDashboard` |
+| `usePaymentTransactions(invoiceId?)` | Payment transaction history | `UnifiedPaymentHistory` |
+| `useRecordPayment()` | Mutation for recording payments | - |
 
 ### useARDashboard.ts
 **Location**: `src/hooks/useARDashboard.ts`
 
-| Hook | Purpose |
-|------|---------|
-| `useARAgingBuckets()` | AR aging data |
-| `useARDashboard()` | Combined AR dashboard data |
+| Hook | Purpose | Refactored Components |
+|------|---------|----------------------|
+| `useARAgingBuckets()` | AR aging data | `ReportingDashboard` |
+| `useARDashboard()` | Combined AR dashboard data | -
 
 ---
 
