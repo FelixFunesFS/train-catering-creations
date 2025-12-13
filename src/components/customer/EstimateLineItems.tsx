@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { formatCurrency } from '@/utils/formatters';
 
 interface LineItem {
@@ -8,6 +9,8 @@ interface LineItem {
   unit_price: number;
   total_price: number;
   category: string;
+  sort_order?: number;
+  created_at?: string;
 }
 
 interface EstimateLineItemsProps {
@@ -17,7 +20,7 @@ interface EstimateLineItemsProps {
   total: number;
 }
 
-// Group line items by category for display
+// Group line items by category for display, preserving sort order within each category
 function groupByCategory(items: LineItem[]): Record<string, LineItem[]> {
   return items.reduce((acc, item) => {
     const category = item.category || 'Other';
@@ -30,12 +33,27 @@ function groupByCategory(items: LineItem[]): Record<string, LineItem[]> {
 }
 
 export function EstimateLineItems({ lineItems, subtotal, taxAmount, total }: EstimateLineItemsProps) {
-  const groupedItems = groupByCategory(lineItems);
+  // Sort line items by sort_order first, then created_at for stable ordering
+  // This matches the email template and admin view ordering
+  const sortedLineItems = useMemo(() => {
+    return [...lineItems].sort((a, b) => {
+      const sortOrderA = a.sort_order ?? 999999;
+      const sortOrderB = b.sort_order ?? 999999;
+      if (sortOrderA !== sortOrderB) return sortOrderA - sortOrderB;
+      // Secondary sort by created_at
+      const createdAtA = a.created_at ? new Date(a.created_at).getTime() : 0;
+      const createdAtB = b.created_at ? new Date(b.created_at).getTime() : 0;
+      return createdAtA - createdAtB;
+    });
+  }, [lineItems]);
+
+  const groupedItems = groupByCategory(sortedLineItems);
   const categories = Object.keys(groupedItems);
   
-  // Calculate tax breakdown (2% hospitality + 7% service)
+  // Calculate tax breakdown using same method as email template for consistency
+  // 2% hospitality tax + 7% service tax = 9% total
   const hospitalityTax = Math.round(subtotal * 0.02);
-  const serviceTax = taxAmount - hospitalityTax;
+  const serviceTax = Math.round(subtotal * 0.07);
 
   return (
     <div className="space-y-6">
