@@ -1,11 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Calendar, Clock, Mail, Phone, ArrowLeft, Download, ExternalLink, Share2, Home } from "lucide-react";
+import { CheckCircle, Calendar, Clock, Mail, Phone, ArrowLeft, Download, Share2, Home } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 import { Link } from "react-router-dom";
-import { QuoteWorkflowProgress } from "@/components/customer/QuoteWorkflowProgress";
 import { downloadICSFile, getGoogleCalendarUrl } from "@/utils/calendarExport";
 import { useEffect } from "react";
 import confetti from "canvas-confetti";
@@ -88,6 +87,33 @@ export const SuccessStep = ({ estimatedCost, quoteId, eventData }: SuccessStepPr
     }
   };
 
+  // Simple workflow progress inline component
+  const WorkflowProgress = () => (
+    <div className="flex items-center justify-between gap-2 text-sm">
+      <div className="flex flex-col items-center">
+        <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
+          <CheckCircle className="h-4 w-4" />
+        </div>
+        <span className="mt-1 text-xs">Submitted</span>
+      </div>
+      <div className="flex-1 h-1 bg-muted rounded" />
+      <div className="flex flex-col items-center">
+        <div className="w-8 h-8 rounded-full bg-muted text-muted-foreground flex items-center justify-center">2</div>
+        <span className="mt-1 text-xs text-muted-foreground">Review</span>
+      </div>
+      <div className="flex-1 h-1 bg-muted rounded" />
+      <div className="flex flex-col items-center">
+        <div className="w-8 h-8 rounded-full bg-muted text-muted-foreground flex items-center justify-center">3</div>
+        <span className="mt-1 text-xs text-muted-foreground">Quote</span>
+      </div>
+      <div className="flex-1 h-1 bg-muted rounded" />
+      <div className="flex flex-col items-center">
+        <div className="w-8 h-8 rounded-full bg-muted text-muted-foreground flex items-center justify-center">4</div>
+        <span className="mt-1 text-xs text-muted-foreground">Confirmed</span>
+      </div>
+    </div>
+  );
+
   return (
     <div ref={ref} className={`max-w-2xl mx-auto ${animationClass}`}>
       <Card className="neumorphic-card-2 border-0 bg-gradient-to-br from-card via-card/95 to-primary/5 text-center">
@@ -117,7 +143,7 @@ export const SuccessStep = ({ estimatedCost, quoteId, eventData }: SuccessStepPr
           {/* Workflow Progress */}
           <div className="mb-8">
             <h3 className="font-elegant text-lg mb-4 text-center">Your Quote Journey</h3>
-            <QuoteWorkflowProgress currentStage="submitted" className="mb-2" />
+            <WorkflowProgress />
           </div>
 
           {/* Quick Actions */}

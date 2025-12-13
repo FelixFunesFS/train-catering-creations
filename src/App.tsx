@@ -29,9 +29,18 @@ import NotFound from "./pages/NotFound";
 
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCanceled from "./pages/PaymentCanceled";
-import { TokenBasedCustomerPortal } from "./components/customer/TokenBasedCustomerPortal";
 import UnifiedAdminDashboard from "./pages/UnifiedAdminDashboard";
 import EstimatePrintView from "./pages/EstimatePrintView";
+
+// Placeholder for customer portal - to be rebuilt
+const CustomerPortalPlaceholder = () => (
+  <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="text-center space-y-4">
+      <h1 className="text-2xl font-bold">Customer Portal</h1>
+      <p className="text-muted-foreground">Coming Soon - Portal is being rebuilt</p>
+    </div>
+  </div>
+);
 
 const AppContent = () => {
   useScrollToAnchor();
@@ -65,15 +74,13 @@ const AppContent = () => {
           <Route path="/admin/estimate-print/:invoiceId" element={<EstimatePrintView />} />
           <Route path="/admin/*" element={<UnifiedAdminDashboard />} />
           
-          {/* Customer-facing routes - Single portal route */}
-          <Route path="/estimate" element={<TokenBasedCustomerPortal />} />
-          
-          {/* Redirect old routes to new format */}
-          <Route path="/customer-portal" element={<TokenBasedCustomerPortal />} />
-          <Route path="/customer/estimate/:token" element={<TokenBasedCustomerPortal />} />
-          <Route path="/customer/estimate-preview/:invoiceId" element={<TokenBasedCustomerPortal />} />
-          <Route path="/estimate-preview/:token" element={<TokenBasedCustomerPortal />} />
-          <Route path="/invoice/public/:invoiceToken" element={<TokenBasedCustomerPortal />} />
+          {/* Customer-facing routes - Placeholder until rebuilt */}
+          <Route path="/estimate" element={<CustomerPortalPlaceholder />} />
+          <Route path="/customer-portal" element={<CustomerPortalPlaceholder />} />
+          <Route path="/customer/estimate/:token" element={<CustomerPortalPlaceholder />} />
+          <Route path="/customer/estimate-preview/:invoiceId" element={<CustomerPortalPlaceholder />} />
+          <Route path="/estimate-preview/:token" element={<CustomerPortalPlaceholder />} />
+          <Route path="/invoice/public/:invoiceToken" element={<CustomerPortalPlaceholder />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/payment-canceled" element={<PaymentCanceled />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
