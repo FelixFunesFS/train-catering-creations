@@ -8,6 +8,7 @@ import { Separator } from '@/components/ui/separator';
 import { CustomerEditor } from './CustomerEditor';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { formatMenuDescription } from '@/utils/invoiceFormatters';
 import { User, Calendar, MapPin, Users, Utensils, FileText, Loader2 } from 'lucide-react';
 
 type QuoteRequest = Database['public']['Tables']['quote_requests']['Row'];
@@ -29,7 +30,8 @@ function formatServiceType(type: string): string {
 
 function formatMenuItems(items: unknown): string {
   if (!items || !Array.isArray(items)) return 'None';
-  return items.length > 0 ? items.join(', ') : 'None';
+  if (items.length === 0) return 'None';
+  return items.map(item => formatMenuDescription(String(item))).join(', ');
 }
 
 export function EventDetail({ quote, onClose }: EventDetailProps) {
@@ -41,7 +43,7 @@ export function EventDetail({ quote, onClose }: EventDetailProps) {
     setIsGenerating(true);
     try {
       const { data, error } = await supabase.functions.invoke('generate-invoice-from-quote', {
-        body: { quoteId: quote.id }
+        body: { quote_request_id: quote.id }
       });
 
       if (error) throw error;
