@@ -1,180 +1,55 @@
-import React, { useState, useEffect } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
 import { PaymentMilestoneManager } from './PaymentMilestoneManager';
+import { useInvoices, usePaymentStats } from '@/hooks/useInvoices';
 import {
   Search,
-  Filter,
   DollarSign,
   FileText,
   Calendar,
   AlertCircle,
-  CheckCircle,
   Clock
 } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 
-interface Invoice {
-  id: string;
-  quote_request_id: string;
-  total_amount: number;
-  workflow_status: string;
-  document_type: string;
-  created_at: string;
-  due_date: string | null;
-  quote_requests: {
-    id: string;
-    contact_name: string;
-    email: string;
-    event_name: string;
-    event_date: string;
-    location: string;
-    guest_count: number;
-    compliance_level: string;
-  };
-}
-
-interface PaymentMilestone {
-  id: string;
-  invoice_id: string;
-  milestone_type: string;
-  amount_cents: number;
-  status: string;
-  is_due_now: boolean;
-  due_date: string | null;
-}
-
 export function PaymentProcessingDashboard() {
-  const [invoices, setInvoices] = useState<Invoice[]>([]);
-  const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
-  const [activeTab, setActiveTab] = useState('overview');
+  const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [loading, setLoading] = useState(true);
-  const [milestones, setMilestones] = useState<PaymentMilestone[]>([]);
-  const { toast } = useToast();
 
-  useEffect(() => {
-    loadInvoices();
-  }, []);
+  // Use hooks for data fetching
+  const { data: invoices = [], isLoading: invoicesLoading, refetch: refetchInvoices } = useInvoices({ 
+    status: 'approved' 
+  });
+  const { data: stats, isLoading: statsLoading } = usePaymentStats();
 
-  useEffect(() => {
-    if (selectedInvoice) {
-      loadMilestones(selectedInvoice.id);
+  // Find selected invoice from the list
+  const selectedInvoice = useMemo(() => 
+    invoices.find(inv => inv.invoice_id === selectedInvoiceId) || null,
+    [invoices, selectedInvoiceId]
+  );
+
+  // Auto-select first invoice if none selected
+  React.useEffect(() => {
+    if (invoices.length > 0 && !selectedInvoiceId) {
+      setSelectedInvoiceId(invoices[0].invoice_id);
     }
-  }, [selectedInvoice]);
+  }, [invoices, selectedInvoiceId]);
 
-  const loadInvoices = async () => {
-    try {
-      setLoading(true);
-      
-      // First get invoices
-      const { data: invoicesData, error: invoicesError } = await supabase
-        .from('invoices')
-        .select(`
-          id,
-          quote_request_id,
-          total_amount,
-          workflow_status,
-          document_type,
-          created_at,
-          due_date
-        `)
-        .eq('workflow_status', 'approved')
-        .eq('document_type', 'estimate')
-        .order('created_at', { ascending: false });
-
-      if (invoicesError) throw invoicesError;
-
-      // Then get quote requests for those invoices
-      if (invoicesData && invoicesData.length > 0) {
-        const quoteRequestIds = invoicesData.map(inv => inv.quote_request_id);
-        
-        const { data: quotesData, error: quotesError } = await supabase
-          .from('quote_requests')
-          .select(`
-            id,
-            contact_name,
-            email,
-            event_name,
-            event_date,
-            location,
-            guest_count,
-            compliance_level
-          `)
-          .in('id', quoteRequestIds);
-
-        if (quotesError) throw quotesError;
-
-        // Merge the data
-        const mergedData = invoicesData.map(invoice => ({
-          ...invoice,
-          quote_requests: quotesData?.find(quote => quote.id === invoice.quote_request_id) || {} as any
-        }));
-
-        setInvoices(mergedData as Invoice[]);
-        
-        if (mergedData.length > 0 && !selectedInvoice) {
-          setSelectedInvoice(mergedData[0] as Invoice);
-        }
-      } else {
-        setInvoices([]);
-      }
-    } catch (error) {
-      console.error('Error loading invoices:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load approved estimates",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const loadMilestones = async (invoiceId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('payment_milestones')
-        .select('*')
-        .eq('invoice_id', invoiceId)
-        .order('due_date', { ascending: true });
-
-      if (error) throw error;
-      setMilestones(data || []);
-    } catch (error) {
-      console.error('Error loading milestones:', error);
-    }
-  };
-
-  const filteredInvoices = invoices.filter(invoice => {
+  const filteredInvoices = useMemo(() => invoices.filter(invoice => {
     const matchesSearch = 
-      invoice.quote_requests.contact_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      invoice.quote_requests.event_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      invoice.quote_requests.email.toLowerCase().includes(searchTerm.toLowerCase());
+      invoice.contact_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      invoice.event_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      invoice.email.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesStatus = statusFilter === 'all' || invoice.workflow_status === statusFilter;
     
     return matchesSearch && matchesStatus;
-  });
+  }), [invoices, searchTerm, statusFilter]);
 
-  const getPaymentStats = () => {
-    const totalValue = invoices.reduce((sum, inv) => sum + inv.total_amount, 0);
-    const pendingPayments = milestones.filter(m => m.status === 'pending' || m.is_due_now).length;
-    const overduePayments = milestones.filter(m => {
-      if (!m.due_date) return false;
-      return new Date(m.due_date) < new Date() && m.status !== 'paid';
-    }).length;
-    
-    return { totalValue, pendingPayments, overduePayments };
-  };
-
-  const stats = getPaymentStats();
+  const loading = invoicesLoading || statsLoading;
 
   if (loading) {
     return (
@@ -206,8 +81,8 @@ export function PaymentProcessingDashboard() {
             <div className="flex items-center gap-2">
               <DollarSign className="h-4 w-4 text-green-600" />
               <div>
-                <div className="font-semibold">{formatCurrency(stats.totalValue / 100)}</div>
-                <div className="text-xs text-muted-foreground">Total Contract Value</div>
+                <div className="font-semibold">{formatCurrency((stats?.totalOutstanding || 0) / 100)}</div>
+                <div className="text-xs text-muted-foreground">Total Outstanding</div>
               </div>
             </div>
           </CardContent>
@@ -218,7 +93,7 @@ export function PaymentProcessingDashboard() {
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4 text-orange-600" />
               <div>
-                <div className="font-semibold">{stats.pendingPayments}</div>
+                <div className="font-semibold">{stats?.pendingCount || 0}</div>
                 <div className="text-xs text-muted-foreground">Pending Payments</div>
               </div>
             </div>
@@ -230,7 +105,7 @@ export function PaymentProcessingDashboard() {
             <div className="flex items-center gap-2">
               <AlertCircle className="h-4 w-4 text-red-600" />
               <div>
-                <div className="font-semibold">{stats.overduePayments}</div>
+                <div className="font-semibold">{stats?.overdueCount || 0}</div>
                 <div className="text-xs text-muted-foreground">Overdue Payments</div>
               </div>
             </div>
@@ -280,27 +155,27 @@ export function PaymentProcessingDashboard() {
             <div className="space-y-2 max-h-96 overflow-y-auto">
               {filteredInvoices.map((invoice) => (
                 <div
-                  key={invoice.id}
-                  onClick={() => setSelectedInvoice(invoice)}
+                  key={invoice.invoice_id}
+                  onClick={() => setSelectedInvoiceId(invoice.invoice_id)}
                   className={`p-3 border rounded-lg cursor-pointer transition-colors ${
-                    selectedInvoice?.id === invoice.id 
+                    selectedInvoiceId === invoice.invoice_id 
                       ? 'border-primary bg-primary/5' 
                       : 'hover:bg-muted/50'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-2">
                     <div className="font-medium text-sm">
-                      {invoice.quote_requests.event_name}
+                      {invoice.event_name}
                     </div>
                     <Badge variant="outline" className="text-xs">
                       {invoice.workflow_status}
                     </Badge>
                   </div>
                   <div className="text-xs text-muted-foreground space-y-1">
-                    <div>{invoice.quote_requests.contact_name}</div>
+                    <div>{invoice.contact_name}</div>
                     <div className="flex items-center gap-2">
                       <Calendar className="h-3 w-3" />
-                      {new Date(invoice.quote_requests.event_date).toLocaleDateString()}
+                      {new Date(invoice.event_date).toLocaleDateString()}
                     </div>
                     <div className="flex items-center gap-2">
                       <DollarSign className="h-3 w-3" />
@@ -322,14 +197,18 @@ export function PaymentProcessingDashboard() {
               </CardHeader>
               <CardContent>
                 <PaymentMilestoneManager
-                  invoiceId={selectedInvoice.id}
-                  quoteRequest={selectedInvoice.quote_requests}
-                  onPaymentProcessed={() => {
-                    loadInvoices();
-                    if (selectedInvoice) {
-                      loadMilestones(selectedInvoice.id);
-                    }
+                  invoiceId={selectedInvoice.invoice_id}
+                  quoteRequest={{
+                    id: selectedInvoice.quote_id || '',
+                    contact_name: selectedInvoice.contact_name,
+                    email: selectedInvoice.email,
+                    event_name: selectedInvoice.event_name,
+                    event_date: selectedInvoice.event_date,
+                    location: selectedInvoice.location,
+                    guest_count: selectedInvoice.guest_count,
+                    compliance_level: selectedInvoice.compliance_level || ''
                   }}
+                  onPaymentProcessed={() => refetchInvoices()}
                 />
               </CardContent>
             </Card>
