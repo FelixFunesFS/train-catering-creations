@@ -1,7 +1,9 @@
 import { useSearchParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { useEstimateAccess } from '@/hooks/useEstimateAccess';
 import { EstimateLineItems } from './EstimateLineItems';
 import { CustomerActions } from './CustomerActions';
+import { ChangeRequestModal } from './ChangeRequestModal';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -11,7 +13,21 @@ import { formatDate, formatTime, formatServiceType, getStatusColor } from '@/uti
 export function CustomerEstimateView() {
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token') || '';
+  const action = searchParams.get('action'); // 'approve' or 'changes'
   const { loading, estimateData, error, refetch } = useEstimateAccess(token);
+  const [showChangeModal, setShowChangeModal] = useState(false);
+  const [autoActionTriggered, setAutoActionTriggered] = useState(false);
+
+  // Handle action query params from email links
+  useEffect(() => {
+    if (!loading && estimateData && !autoActionTriggered) {
+      if (action === 'changes') {
+        setShowChangeModal(true);
+        setAutoActionTriggered(true);
+      }
+      // 'approve' action is handled by CustomerActions component
+    }
+  }, [action, loading, estimateData, autoActionTriggered]);
 
   if (loading) {
     return (
@@ -163,9 +179,22 @@ export function CustomerEstimateView() {
               customerEmail={quote.email}
               status={invoice.workflow_status}
               onStatusChange={refetch}
+              autoApprove={action === 'approve' && !autoActionTriggered}
             />
           </CardContent>
         </Card>
+
+        {/* Change Request Modal (triggered by action=changes) */}
+        <ChangeRequestModal
+          open={showChangeModal}
+          onOpenChange={setShowChangeModal}
+          invoiceId={invoice.id}
+          customerEmail={quote.email}
+          onSuccess={() => {
+            refetch();
+            setShowChangeModal(false);
+          }}
+        />
 
         {/* Contact Footer */}
         <div className="text-center space-y-2 pt-4">
