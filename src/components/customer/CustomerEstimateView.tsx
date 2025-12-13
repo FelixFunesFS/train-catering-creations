@@ -1,9 +1,10 @@
 import { useSearchParams } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useEstimateAccess } from '@/hooks/useEstimateAccess';
 import { EstimateLineItems } from './EstimateLineItems';
 import { CustomerActions } from './CustomerActions';
 import { ChangeRequestModal } from './ChangeRequestModal';
+import { PaymentOptions } from './PaymentOptions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -65,6 +66,14 @@ export function CustomerEstimateView() {
   }
 
   const { invoice, quote, lineItems, milestones } = estimateData;
+  
+  // Calculate payment progress
+  const amountPaid = useMemo(() => {
+    return milestones?.reduce((sum: number, m: any) => 
+      m.status === 'paid' ? sum + (m.amount_cents || 0) : sum, 0) || 0;
+  }, [milestones]);
+
+  const showPaymentOptions = ['approved', 'partially_paid', 'payment_pending'].includes(invoice.workflow_status);
 
   return (
     <div className="min-h-screen bg-muted/30 py-8 px-4">
@@ -183,6 +192,17 @@ export function CustomerEstimateView() {
             />
           </CardContent>
         </Card>
+
+        {/* Payment Options - Show after approval */}
+        {showPaymentOptions && (
+          <PaymentOptions
+            invoiceId={invoice.id}
+            totalAmount={invoice.total_amount}
+            amountPaid={amountPaid}
+            milestones={milestones || []}
+            customerEmail={quote.email}
+          />
+        )}
 
         {/* Change Request Modal (triggered by action=changes) */}
         <ChangeRequestModal

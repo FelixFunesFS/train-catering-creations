@@ -44,9 +44,19 @@ export function CustomerActions({
 
       if (error) throw error;
 
+      // Generate payment milestones
+      const { error: milestoneError } = await supabase.functions.invoke('generate-payment-milestones', {
+        body: { invoice_id: invoiceId }
+      });
+
+      if (milestoneError) {
+        console.error('Failed to generate milestones:', milestoneError);
+        // Non-blocking - don't fail approval if milestones fail
+      }
+
       toast({
         title: 'Estimate Approved!',
-        description: 'Thank you! We will send you payment details shortly.',
+        description: 'Your payment options are now available below.',
       });
 
       onStatusChange?.();
