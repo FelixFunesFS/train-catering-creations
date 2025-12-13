@@ -19,6 +19,13 @@ export function CustomerEstimateView() {
   const [showChangeModal, setShowChangeModal] = useState(false);
   const [autoActionTriggered, setAutoActionTriggered] = useState(false);
 
+  // Calculate payment progress - MUST be before any early returns
+  const amountPaid = useMemo(() => {
+    if (!estimateData?.milestones) return 0;
+    return estimateData.milestones.reduce((sum: number, m: any) => 
+      m.status === 'paid' ? sum + (m.amount_cents || 0) : sum, 0);
+  }, [estimateData?.milestones]);
+
   // Handle action query params from email links
   useEffect(() => {
     if (!loading && estimateData && !autoActionTriggered) {
@@ -66,12 +73,6 @@ export function CustomerEstimateView() {
   }
 
   const { invoice, quote, lineItems, milestones } = estimateData;
-  
-  // Calculate payment progress
-  const amountPaid = useMemo(() => {
-    return milestones?.reduce((sum: number, m: any) => 
-      m.status === 'paid' ? sum + (m.amount_cents || 0) : sum, 0) || 0;
-  }, [milestones]);
 
   const showPaymentOptions = ['approved', 'partially_paid', 'payment_pending'].includes(invoice.workflow_status);
 
