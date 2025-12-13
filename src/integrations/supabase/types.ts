@@ -1825,6 +1825,7 @@ export type Database = {
           event_name: string | null
           event_type: Database["public"]["Enums"]["event_type"] | null
           guest_count: number | null
+          guest_count_with_restrictions: string | null
           invoice_created_at: string | null
           invoice_id: string | null
           invoice_number: string | null
@@ -1838,6 +1839,7 @@ export type Database = {
           requires_po_number: boolean | null
           sent_at: string | null
           service_type: Database["public"]["Enums"]["service_type"] | null
+          special_requests: string | null
           subtotal: number | null
           tax_amount: number | null
           total_amount: number | null

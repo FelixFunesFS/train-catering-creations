@@ -15,7 +15,7 @@ import { DiscountEditor } from './DiscountEditor';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
-import { FileText, Loader2, Eye, Plus, RefreshCw } from 'lucide-react';
+import { FileText, Loader2, Eye, Plus, RefreshCw, MapPin, Leaf, MessageSquare } from 'lucide-react';
 import { 
   DndContext, 
   closestCenter, 
@@ -272,11 +272,27 @@ export function EstimateEditor({ invoice, onClose }: EstimateEditorProps) {
           </DialogTitle>
         </DialogHeader>
 
-        <div className="text-sm text-muted-foreground mb-4">
+        <div className="text-sm text-muted-foreground mb-4 space-y-1">
           <p><strong>{invoice.contact_name}</strong> • {invoice.event_name}</p>
           <p>{invoice.guest_count} guests • {invoice.email}</p>
+          {invoice.location && (
+            <p className="flex items-center gap-1">
+              <MapPin className="h-3 w-3" /> {invoice.location}
+            </p>
+          )}
+          {invoice.guest_count_with_restrictions && (
+            <p className="flex items-center gap-1 text-amber-600 dark:text-amber-400">
+              <Leaf className="h-3 w-3" /> Vegetarian Portions: {invoice.guest_count_with_restrictions} guests
+            </p>
+          )}
+          {invoice.special_requests && (
+            <p className="flex items-start gap-1 italic">
+              <MessageSquare className="h-3 w-3 mt-0.5 flex-shrink-0" /> 
+              <span>Special Requests: {invoice.special_requests}</span>
+            </p>
+          )}
           {isGovernment && (
-            <p className="text-blue-600 font-medium mt-1">Government Contract (Tax Exempt)</p>
+            <p className="text-blue-600 font-medium">Government Contract (Tax Exempt)</p>
           )}
         </div>
 
