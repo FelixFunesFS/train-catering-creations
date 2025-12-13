@@ -315,32 +315,6 @@ const MenuSelectionStepComponent = ({ form, trackFieldInteraction, variant = 're
           )}
         />
       </div>
-
-      {/* Vegetarian Portions */}
-      <FormField
-        control={form.control}
-        name="guest_count_with_restrictions"
-        render={({ field }) => (
-          <FormItem className="max-w-md">
-            <FormLabel className="text-base font-medium mb-2 block">
-              Vegetarian Portions
-            </FormLabel>
-            <FormControl>
-              <Input
-                type="number"
-                placeholder="Number of vegetarian meals needed"
-                min="0"
-                className="h-12 text-base input-neutral"
-                {...field}
-              />
-            </FormControl>
-            <p className="text-xs text-muted-foreground mt-1">
-              How many guests require vegetarian meal options?
-            </p>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
     </div>
   );
 };
