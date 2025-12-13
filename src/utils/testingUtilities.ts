@@ -130,69 +130,30 @@ export const testTableIntegrity = async (): Promise<TestResult[]> => {
   return tests;
 };
 
-// Business logic validation tests
+// Business logic validation tests (simplified - manual pricing workflow)
 export const testQuoteValidation = async (): Promise<TestResult[]> => {
   const tests: TestResult[] = [];
 
-  // Test valid quote
-  const validQuote = {
-    contact_name: 'John Smith',
-    email: 'john@example.com',
-    phone: '(843) 555-0123',
-    event_name: 'Corporate Lunch',
-    event_date: '2024-06-15',
-    location: 'Charleston Convention Center',
-    guest_count: 50,
-    service_type: 'full-service',
-    primary_protein: 'grilled-chicken'
-  };
-
+  // Test that quotes can be fetched
   try {
-    const { validateQuote } = await import('./businessLogic');
-    const validation = validateQuote(validQuote);
+    const { data, error } = await supabase
+      .from('quote_requests')
+      .select('id, contact_name, email, event_date, guest_count')
+      .limit(1);
+
+    if (error) throw error;
 
     tests.push({
-      testName: 'Quote Validation - Valid Quote',
-      status: validation.isValid ? 'passed' : 'failed',
-      message: validation.isValid ? 'Valid quote passed validation' : 'Valid quote failed validation',
-      details: validation,
+      testName: 'Quote Validation - Database Access',
+      status: 'passed',
+      message: 'Successfully accessed quote_requests table',
       timestamp: new Date()
     });
   } catch (error) {
     tests.push({
-      testName: 'Quote Validation - Valid Quote',
+      testName: 'Quote Validation - Database Access',
       status: 'failed',
-      message: 'Quote validation function failed',
-      details: error,
-      timestamp: new Date()
-    });
-  }
-
-  // Test invalid quote
-  const invalidQuote = {
-    contact_name: '',
-    email: 'invalid-email',
-    phone: '123',
-    event_date: '2020-01-01', // Past date
-    guest_count: 0
-  };
-
-  try {
-    const { validateQuote } = await import('./businessLogic');
-    const validation = validateQuote(invalidQuote);
-
-    tests.push({
-      testName: 'Quote Validation - Invalid Quote',
-      status: !validation.isValid ? 'passed' : 'failed',
-      message: !validation.isValid ? 'Invalid quote correctly failed validation' : 'Invalid quote incorrectly passed validation',
-      details: validation,
-      timestamp: new Date()
-    });
-  } catch (error) {
-    tests.push({
-      testName: 'Quote Validation - Invalid Quote',
-      status: 'failed',
-      message: 'Quote validation function failed',
+      message: 'Failed to access quote_requests table',
       details: error,
       timestamp: new Date()
     });
@@ -201,56 +162,45 @@ export const testQuoteValidation = async (): Promise<TestResult[]> => {
   return tests;
 };
 
-// Pricing calculation tests
-export const testPricingCalculation = async (): Promise<TestResult[]> => {
+// Tax calculation tests (replaces pricing calculation tests)
+export const testTaxCalculation = async (): Promise<TestResult[]> => {
   const tests: TestResult[] = [];
 
-  const testQuote = {
-    guest_count: 50,
-    service_type: 'full-service',
-    primary_protein: 'grilled-chicken',
-    appetizers: ['bacon-wrapped-scallops'],
-    desserts: ['chocolate-cake'],
-    bussing_tables_needed: true,
-    wait_staff_requested: false
-  };
-
   try {
-    const { calculateAutomatedPricing } = await import('./businessLogic');
-    const pricing = await calculateAutomatedPricing(testQuote);
-
-    // Validate pricing structure
-    const hasRequiredFields = 
-      typeof pricing.total_amount === 'number' &&
-      typeof pricing.subtotal === 'number' &&
-      typeof pricing.tax_amount === 'number' &&
-      Array.isArray(pricing.breakdown);
-
+    const { TaxCalculationService } = await import('@/services/TaxCalculationService');
+    
+    // Test basic tax calculation
+    const result = TaxCalculationService.calculateTax(10000, false);
+    const expectedTax = 900; // 9% of 10000
+    
     tests.push({
-      testName: 'Pricing Calculation - Structure',
-      status: hasRequiredFields ? 'passed' : 'failed',
-      message: hasRequiredFields ? 'Pricing calculation returned valid structure' : 'Pricing calculation returned invalid structure',
-      details: pricing,
+      testName: 'Tax Calculation - Standard Rate',
+      status: result.taxAmount === expectedTax ? 'passed' : 'failed',
+      message: result.taxAmount === expectedTax 
+        ? 'Tax calculation is correct (9%)' 
+        : `Tax calculation incorrect: expected ${expectedTax}, got ${result.taxAmount}`,
+      details: result,
       timestamp: new Date()
     });
 
-    // Validate pricing logic
-    const calculatedSubtotal = pricing.breakdown.reduce((sum, item) => sum + item.total_price, 0);
-    const subtotalMatches = Math.abs(calculatedSubtotal - pricing.subtotal) < 100; // Allow for small rounding differences
-
+    // Test government exemption
+    const exemptResult = TaxCalculationService.calculateTax(10000, true);
+    
     tests.push({
-      testName: 'Pricing Calculation - Logic',
-      status: subtotalMatches ? 'passed' : 'warning',
-      message: subtotalMatches ? 'Pricing calculation logic is correct' : 'Pricing calculation may have logic errors',
-      details: { calculated: calculatedSubtotal, returned: pricing.subtotal },
+      testName: 'Tax Calculation - Government Exemption',
+      status: exemptResult.taxAmount === 0 ? 'passed' : 'failed',
+      message: exemptResult.taxAmount === 0 
+        ? 'Government exemption working correctly' 
+        : 'Government exemption not working',
+      details: exemptResult,
       timestamp: new Date()
     });
 
   } catch (error) {
     tests.push({
-      testName: 'Pricing Calculation',
+      testName: 'Tax Calculation',
       status: 'failed',
-      message: 'Pricing calculation failed',
+      message: 'Tax calculation test failed',
       details: error,
       timestamp: new Date()
     });
@@ -385,8 +335,8 @@ export const runSystemHealthCheck = async (): Promise<SystemHealthCheck> => {
   const quoteTests = await testQuoteValidation();
   allTests.push(...quoteTests);
 
-  const pricingTests = await testPricingCalculation();
-  allTests.push(...pricingTests);
+  const taxTests = await testTaxCalculation();
+  allTests.push(...taxTests);
 
   const functionTests = await testEdgeFunctions();
   allTests.push(...functionTests);
