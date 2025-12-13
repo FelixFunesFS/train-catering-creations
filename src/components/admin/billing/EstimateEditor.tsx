@@ -64,7 +64,7 @@ export function EstimateEditor({ invoice, onClose }: EstimateEditorProps) {
       const { error } = await supabase.functions.invoke('send-customer-portal-email', {
         body: { 
           type: 'estimate_ready',
-          quoteRequestId: invoice.quote_id,
+          quote_request_id: invoice.quote_id,
         }
       });
 
