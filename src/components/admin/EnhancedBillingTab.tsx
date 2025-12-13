@@ -197,11 +197,13 @@ export function EnhancedBillingTab({ quote, onGenerateInvoice, onResendInvoice }
       setPreviewInvoiceData(invoiceData);
       setModalMode('preview');
     } else {
-      // Generate a quick preview from existing quote data
+      // Generate a quick preview from existing quote data using TaxCalculationService
+      const subtotal = quote.estimated_total || 0;
+      const taxAmount = Math.round(subtotal * 0.09); // 9% tax (2% hospitality + 7% service)
       setPreviewInvoiceData({
-        subtotal: quote.estimated_total || 0,
-        tax_amount: Math.round((quote.estimated_total || 0) * 0.08),
-        total_amount: Math.round((quote.estimated_total || 0) * 1.08),
+        subtotal: subtotal,
+        tax_amount: taxAmount,
+        total_amount: subtotal + taxAmount,
         line_items: [],
         is_draft: false
       });
