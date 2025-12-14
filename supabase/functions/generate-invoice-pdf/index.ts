@@ -153,6 +153,15 @@ serve(async (req) => {
       return types[type] || type.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
     };
 
+    // Sanitize text for PDF (remove newlines and control characters that WinAnsi can't encode)
+    const sanitizeText = (text: string | null | undefined): string => {
+      if (!text) return '';
+      return text
+        .replace(/[\n\r\t]/g, ' ')  // Replace newlines/tabs with spaces
+        .replace(/\s+/g, ' ')        // Collapse multiple spaces
+        .trim();
+    };
+
     // Create PDF document
     const pdfDoc = await PDFDocument.create();
     const helvetica = await pdfDoc.embedFont(StandardFonts.Helvetica);
@@ -168,9 +177,13 @@ serve(async (req) => {
     let y = pageHeight - margin;
 
     // Helper functions for drawing
-    const drawText = (text: string, x: number, yPos: number, options: { 
+    const drawText = (rawText: string, x: number, yPos: number, options: { 
       font?: any, size?: number, color?: any, maxWidth?: number 
     } = {}) => {
+      // Sanitize text to remove newlines and control characters
+      const text = sanitizeText(rawText);
+      if (!text) return 0;
+      
       const font = options.font || helvetica;
       const size = options.size || 10;
       const color = options.color || DARK_GRAY;
