@@ -548,10 +548,9 @@ export function generateEmailHeader(title: string = "Soul Train's Eatery"): stri
 export function generateEventDetailsCard(quote: any): string {
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
     });
   };
 
@@ -565,46 +564,20 @@ export function generateEventDetailsCard(quote: any): string {
   };
 
   return `
-    <section class="event-card" aria-labelledby="event-details-heading">
-      <h3 id="event-details-heading" style="margin: 0 0 15px 0; color: ${BRAND_COLORS.crimson};"><span aria-label="celebration">🎉</span> Your Event Details</h3>
-      <table role="presentation" style="width: 100%; border-collapse: collapse;">
-        <tr>
-          <td style="padding: 8px 0; width: 120px;"><strong>Event:</strong></td>
-          <td style="padding: 8px 0;">${quote.event_name}</td>
-        </tr>
-        <tr>
-          <td style="padding: 8px 0;"><strong>Date:</strong></td>
-          <td style="padding: 8px 0;"><time datetime="${quote.event_date}">${formatDate(quote.event_date)}</time></td>
-        </tr>
-        <tr>
-          <td style="padding: 8px 0;"><strong>Time:</strong></td>
-          <td style="padding: 8px 0;"><time datetime="${quote.start_time}">${formatTime(quote.start_time)}</time></td>
-        </tr>
-        <tr>
-          <td style="padding: 8px 0;"><strong>Location:</strong></td>
-          <td style="padding: 8px 0;">${quote.location}</td>
-        </tr>
-        <tr>
-          <td style="padding: 8px 0;"><strong>Guests:</strong></td>
-          <td style="padding: 8px 0;">${quote.guest_count} people</td>
-        </tr>
-        ${quote.event_type ? `
-        <tr>
-          <td style="padding: 8px 0;"><strong>Event Type:</strong></td>
-          <td style="padding: 8px 0;">${(quote.event_type as string).replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase())}</td>
-        </tr>
-        ` : ''}
-        <tr>
-          <td style="padding: 8px 0;"><strong>Service:</strong></td>
-          <td style="padding: 8px 0;">${formatServiceType(quote.service_type)}</td>
-        </tr>
-        ${quote.special_requests ? `
-        <tr>
-          <td style="padding: 8px 0; vertical-align: top;"><strong>Special Requests:</strong></td>
-          <td style="padding: 8px 0; font-style: italic;">${quote.special_requests}</td>
-        </tr>
-        ` : ''}
-      </table>
+    <section class="event-card" aria-labelledby="event-details-heading" style="padding: 16px;">
+      <h3 id="event-details-heading" style="margin: 0 0 12px 0; color: ${BRAND_COLORS.crimson}; font-size: 16px;">${quote.event_name}</h3>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px 16px; font-size: 14px;">
+        <div><span style="color: #666;">📅</span> <time datetime="${quote.event_date}">${formatDate(quote.event_date)}</time></div>
+        <div><span style="color: #666;">⏰</span> ${formatTime(quote.start_time)}</div>
+        <div><span style="color: #666;">📍</span> ${quote.location}</div>
+        <div><span style="color: #666;">👥</span> ${quote.guest_count} guests</div>
+        <div style="grid-column: span 2;"><span style="color: #666;">🍽️</span> ${formatServiceType(quote.service_type)}</div>
+      </div>
+      ${quote.special_requests ? `
+      <p style="margin: 10px 0 0 0; padding-top: 10px; border-top: 1px solid #eee; font-size: 13px; color: #666; font-style: italic;">
+        <strong>Note:</strong> ${quote.special_requests}
+      </p>
+      ` : ''}
     </section>
   `;
 }
