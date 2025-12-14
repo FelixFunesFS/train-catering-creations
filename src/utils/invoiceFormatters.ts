@@ -45,11 +45,17 @@ export interface QuoteRequest {
   both_proteins_available?: boolean;
   bussing_tables_needed?: boolean;
   guest_count_with_restrictions?: string;
+  vegetarian_entrees?: string[]; // JSONB array from database
   chafers_requested?: boolean;
   tables_chairs_requested?: boolean;
   linens_requested?: boolean;
   wait_staff_requested?: boolean;
   dietary_restrictions?: any[];
+  plates_requested?: boolean;
+  cups_requested?: boolean;
+  napkins_requested?: boolean;
+  serving_utensils_requested?: boolean;
+  ice_requested?: boolean;
 }
 
 // Professional name formatting (re-export from textFormatters)
@@ -264,7 +270,31 @@ export const generateProfessionalLineItems = (quote: QuoteRequest): LineItem[] =
     lineItems.push(createDessertSelection(quote.desserts, quote.guest_count));
   }
   
-  // TIER 5: SERVICE FEES - Service type and add-ons
+  // TIER 5: VEGETARIAN ENTRÉE SELECTION - For vegetarian guests
+  if (quote.guest_count_with_restrictions || (Array.isArray(quote.vegetarian_entrees) && quote.vegetarian_entrees.length > 0)) {
+    const vegMatch = quote.guest_count_with_restrictions?.match(/\d+/);
+    const vegCount = vegMatch ? parseInt(vegMatch[0]) : 1;
+    
+    let description = '';
+    const vegetarianEntrees = Array.isArray(quote.vegetarian_entrees) ? quote.vegetarian_entrees : [];
+    if (vegetarianEntrees.length > 0) {
+      description = `${vegetarianEntrees.map(formatMenuDescription).join(', ')} for ${vegCount} vegetarian guest${vegCount !== 1 ? 's' : ''}`;
+    } else {
+      description = `Vegetarian meal options for ${vegCount} guest${vegCount !== 1 ? 's' : ''}`;
+    }
+    
+    lineItems.push({
+      id: `vegetarian_selection_${Date.now()}`,
+      title: 'Vegetarian Entrée Selection',
+      description: description,
+      quantity: vegCount,
+      unit_price: 0,
+      total_price: 0,
+      category: 'dietary'
+    });
+  }
+  
+  // TIER 6: SERVICE FEES - Service type and add-ons
   lineItems.push(createServicePackage(quote));
   
   // Staff services (track source from customer form)
@@ -275,26 +305,25 @@ export const generateProfessionalLineItems = (quote: QuoteRequest): LineItem[] =
     lineItems.push(createServiceAddon('Table Bussing Service', 'Professional table clearing and maintenance during event', 'bussing_tables_needed'));
   }
 
-  // Equipment rentals (track source from customer form)
-  if (quote.chafers_requested) {
-    lineItems.push(createServiceAddon('Chafers (Food Warmers)', 'Stainless steel chafers to keep food warm throughout service', 'chafers_requested'));
-  }
-  if ((quote as any).serving_utensils_requested) {
-    lineItems.push(createServiceAddon('Serving Utensils', 'Professional serving spoons, tongs, and ladles for buffet service', 'serving_utensils_requested'));
-  }
+  // CONSOLIDATED SUPPLY & EQUIPMENT PACKAGE
+  const supplyItems: string[] = [];
+  if (quote.chafers_requested) supplyItems.push('Stainless steel chafers with fuel');
+  if (quote.serving_utensils_requested) supplyItems.push('Professional serving utensils');
+  if (quote.plates_requested) supplyItems.push('Disposable plates');
+  if (quote.cups_requested) supplyItems.push('Disposable cups');
+  if (quote.napkins_requested) supplyItems.push('Napkins');
+  if (quote.ice_requested) supplyItems.push('Bagged ice');
 
-  // Dining supplies (track source from customer form)
-  if ((quote as any).plates_requested) {
-    lineItems.push(createServiceAddon('Disposable Plates', 'High-quality disposable plates for guest dining', 'plates_requested'));
-  }
-  if ((quote as any).cups_requested) {
-    lineItems.push(createServiceAddon('Disposable Cups', 'Disposable cups for beverage service', 'cups_requested'));
-  }
-  if ((quote as any).napkins_requested) {
-    lineItems.push(createServiceAddon('Disposable Napkins', 'Napkins for guest use during dining', 'napkins_requested'));
-  }
-  if ((quote as any).ice_requested) {
-    lineItems.push(createServiceAddon('Ice Service', 'Bagged ice for beverage service and cooling', 'ice_requested'));
+  if (supplyItems.length > 0) {
+    lineItems.push({
+      id: `supply_package_${Date.now()}`,
+      title: 'Supply & Equipment Package',
+      description: supplyItems.join(', '),
+      quantity: 1,
+      unit_price: 0,
+      total_price: 0,
+      category: 'supplies'
+    });
   }
   
   return lineItems;
