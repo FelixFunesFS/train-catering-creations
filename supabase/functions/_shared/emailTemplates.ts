@@ -588,6 +588,12 @@ export function generateEventDetailsCard(quote: any): string {
           <td style="padding: 8px 0;"><strong>Guests:</strong></td>
           <td style="padding: 8px 0;">${quote.guest_count} people</td>
         </tr>
+        ${quote.event_type ? `
+        <tr>
+          <td style="padding: 8px 0;"><strong>Event Type:</strong></td>
+          <td style="padding: 8px 0;">${(quote.event_type as string).replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase())}</td>
+        </tr>
+        ` : ''}
         ${quote.guest_count_with_restrictions ? `
         <tr>
           <td style="padding: 8px 0;"><strong>Vegetarian:</strong></td>
