@@ -321,8 +321,6 @@ function generateEstimateReadyEmail(quote: any, invoice: any, portalUrl: string,
           
           ${generateEventDetailsCard(quote)}
           
-          ${generateMenuSection(lineItems)}
-          
           ${generateLineItemsTable(lineItems, subtotal, taxAmount, total)}
           
           <div style="background: #fff3cd; border: 1px solid ${BRAND_COLORS.gold}; padding: 20px; border-radius: 8px; margin: 20px 0;">

@@ -131,25 +131,6 @@ export function CustomerEstimateView() {
               </div>
             )}
 
-            {quote.guest_count_with_restrictions && (
-              <div className="flex items-center gap-2 text-sm">
-                <span className="text-amber-600">🥗</span>
-                <span className="text-muted-foreground">Vegetarian Portions:</span>
-                <span className="font-medium">{quote.guest_count_with_restrictions} guests</span>
-              </div>
-            )}
-
-            {quote.vegetarian_entrees && Array.isArray(quote.vegetarian_entrees) && quote.vegetarian_entrees.length > 0 && (
-              <div className="flex flex-wrap items-center gap-2 text-sm bg-green-50 dark:bg-green-950/20 p-2 rounded border border-green-200 dark:border-green-800">
-                <span className="text-green-600">🌱</span>
-                <span className="text-muted-foreground">Vegetarian Entrées:</span>
-                {quote.vegetarian_entrees.map((entree: string, idx: number) => (
-                  <Badge key={idx} variant="outline" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 border-green-300">
-                    {entree.split('-').map((word: string) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
-                  </Badge>
-                ))}
-              </div>
-            )}
 
             {quote.special_requests && (
               <div className="pt-2 border-t border-border">
@@ -186,43 +167,53 @@ export function CustomerEstimateView() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {milestones.map((milestone: any, index: number) => (
-                  <div
-                    key={milestone.id || index}
-                    className="flex items-center justify-between py-2 border-b border-border/50 last:border-0"
-                  >
-                    <div>
-                      <p className="font-medium text-foreground">
-                        {milestone.milestone_type.replace('_', ' ')}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {milestone.percentage}% of total
-                        {milestone.due_date && ` • Due ${formatDate(milestone.due_date)}`}
+                {milestones.map((milestone: any, index: number) => {
+                  const getMilestoneLabel = (type: string) => {
+                    switch (type) {
+                      case 'deposit': return 'Booking Deposit';
+                      case 'combined': return 'Booking Deposit';
+                      case 'milestone': return 'Milestone Payment';
+                      case 'balance': return 'Final Balance';
+                      case 'full': return 'Full Payment';
+                      case 'final': return 'Full Payment (Net 30)';
+                      default: return type.replace('_', ' ');
+                    }
+                  };
+                  const isPaid = milestone.status === 'paid';
+                  const isDue = milestone.is_due_now || (milestone.due_date && new Date(milestone.due_date) <= new Date());
+                  
+                  return (
+                    <div
+                      key={milestone.id || index}
+                      className={`flex items-center justify-between py-3 px-3 rounded-lg border ${
+                        isPaid 
+                          ? 'bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800' 
+                          : isDue 
+                            ? 'bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800'
+                            : 'bg-muted/30 border-border/50'
+                      }`}
+                    >
+                      <div>
+                        <p className="font-medium text-foreground flex items-center gap-2">
+                          {getMilestoneLabel(milestone.milestone_type)}
+                          {isPaid && <Badge variant="outline" className="bg-green-100 text-green-700 text-xs">✓ Paid</Badge>}
+                          {!isPaid && isDue && <Badge variant="outline" className="bg-amber-100 text-amber-700 text-xs">Due Now</Badge>}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {milestone.percentage}% of total
+                          {milestone.due_date && !isPaid && ` • Due ${formatDate(milestone.due_date)}`}
+                        </p>
+                      </div>
+                      <p className={`font-semibold ${isPaid ? 'text-green-600' : ''}`}>
+                        ${(milestone.amount_cents / 100).toFixed(2)}
                       </p>
                     </div>
-                    <p className="font-semibold">
-                      ${(milestone.amount_cents / 100).toFixed(2)}
-                    </p>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </CardContent>
           </Card>
         )}
-
-        {/* Actions */}
-        <Card>
-          <CardContent className="pt-6">
-            <CustomerActions
-              invoiceId={invoice.id}
-              customerEmail={quote.email}
-              status={invoice.workflow_status}
-              quoteRequestId={invoice.quote_request_id}
-              onStatusChange={refetch}
-              autoApprove={action === 'approve' && !autoActionTriggered}
-            />
-          </CardContent>
-        </Card>
 
         {/* Payment Options - Show after approval */}
         {showPaymentOptions && (
@@ -284,6 +275,20 @@ export function CustomerEstimateView() {
             </CollapsibleContent>
           </Card>
         </Collapsible>
+
+        {/* Actions - After Terms */}
+        <Card>
+          <CardContent className="pt-6">
+            <CustomerActions
+              invoiceId={invoice.id}
+              customerEmail={quote.email}
+              status={invoice.workflow_status}
+              quoteRequestId={invoice.quote_request_id}
+              onStatusChange={refetch}
+              autoApprove={action === 'approve' && !autoActionTriggered}
+            />
+          </CardContent>
+        </Card>
 
         {/* Contact Footer */}
         <div className="text-center space-y-2 pt-4">

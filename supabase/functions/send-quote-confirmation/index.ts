@@ -72,56 +72,6 @@ const handler = async (req: Request): Promise<Response> => {
       return supplies.length > 0 ? supplies.join(', ') : 'None requested';
     };
 
-    // Build comprehensive menu section
-    const menuSectionHtml = `
-      <div style="background: ${BRAND_COLORS.white}; border: 2px solid ${BRAND_COLORS.lightGray}; border-radius: 8px; padding: 20px; margin: 20px 0;">
-        <h3 style="margin: 0 0 20px 0; color: ${BRAND_COLORS.crimson}; text-align: center;">🍽️ Your Custom Menu</h3>
-        
-        ${quote.proteins && Array.isArray(quote.proteins) && quote.proteins.length > 0 ? `
-        <div style="margin: 15px 0; padding-bottom: 10px; border-bottom: 2px solid ${BRAND_COLORS.gold};">
-          <h4 style="color: ${BRAND_COLORS.crimson}; margin: 10px 0 5px 0; font-size: 16px;">Proteins</h4>
-          <p style="margin: 5px 0; padding: 8px 0;">${quote.proteins.map(formatMenuItem).join(', ')}</p>
-          ${quote.both_proteins_available && quote.proteins.length === 2 ? `<p style="margin: 5px 0; padding: 8px 0; font-style: italic; color: ${BRAND_COLORS.crimson};">Both proteins served to all guests</p>` : ''}
-        </div>
-        ` : ''}
-
-        ${quote.sides && (Array.isArray(quote.sides) ? quote.sides.length > 0 : quote.sides) ? `
-        <div style="margin: 15px 0; padding-bottom: 10px; border-bottom: 2px solid ${BRAND_COLORS.gold};">
-          <h4 style="color: ${BRAND_COLORS.crimson}; margin: 10px 0 5px 0; font-size: 16px;">Sides</h4>
-          <p style="margin: 5px 0; padding: 8px 0;">${formatMenuItems(quote.sides)}</p>
-        </div>
-        ` : ''}
-
-        ${quote.appetizers && (Array.isArray(quote.appetizers) ? quote.appetizers.length > 0 : quote.appetizers) ? `
-        <div style="margin: 15px 0; padding-bottom: 10px; border-bottom: 2px solid ${BRAND_COLORS.gold};">
-          <h4 style="color: ${BRAND_COLORS.crimson}; margin: 10px 0 5px 0; font-size: 16px;">Appetizers</h4>
-          <p style="margin: 5px 0; padding: 8px 0;">${formatMenuItems(quote.appetizers)}</p>
-        </div>
-        ` : ''}
-
-        ${quote.desserts && (Array.isArray(quote.desserts) ? quote.desserts.length > 0 : quote.desserts) ? `
-        <div style="margin: 15px 0; padding-bottom: 10px; border-bottom: 2px solid ${BRAND_COLORS.gold};">
-          <h4 style="color: ${BRAND_COLORS.crimson}; margin: 10px 0 5px 0; font-size: 16px;">Desserts</h4>
-          <p style="margin: 5px 0; padding: 8px 0;">${formatMenuItems(quote.desserts)}</p>
-        </div>
-        ` : ''}
-
-        ${quote.drinks && (Array.isArray(quote.drinks) ? quote.drinks.length > 0 : quote.drinks) ? `
-        <div style="margin: 15px 0; padding-bottom: 10px; border-bottom: 2px solid ${BRAND_COLORS.gold};">
-          <h4 style="color: ${BRAND_COLORS.crimson}; margin: 10px 0 5px 0; font-size: 16px;">Beverages</h4>
-          <p style="margin: 5px 0; padding: 8px 0;">${formatMenuItems(quote.drinks)}</p>
-        </div>
-        ` : ''}
-
-        ${(quote.guest_count_with_restrictions || (quote.vegetarian_entrees && Array.isArray(quote.vegetarian_entrees) && quote.vegetarian_entrees.length > 0)) ? `
-        <div style="margin: 15px 0; padding: 12px; background: #f0fdf4; border-radius: 6px; border-left: 4px solid #22c55e;">
-          <h4 style="color: #166534; margin: 0 0 8px 0; font-size: 16px;">🌱 Vegetarian Options</h4>
-          ${quote.guest_count_with_restrictions ? `<p style="margin: 5px 0; color: #166534;">${quote.guest_count_with_restrictions} vegetarian portions requested</p>` : ''}
-          ${quote.vegetarian_entrees && Array.isArray(quote.vegetarian_entrees) && quote.vegetarian_entrees.length > 0 ? `<p style="margin: 5px 0; color: #166534;"><strong>Entrées:</strong> ${quote.vegetarian_entrees.map(formatMenuItem).join(', ')}</p>` : ''}
-        </div>
-        ` : ''}
-      </div>
-    `;
 
     const emailSubject = `Quote Request Received - Reference #${quote_id.slice(0, 8).toUpperCase()}`;
     const preheaderText = "We've received your quote request and will send an estimate within 48 hours - Soul Train's Eatery";
@@ -154,8 +104,6 @@ const handler = async (req: Request): Promise<Response> => {
           <div class="content">
 
             ${generateEventDetailsCard(quote)}
-            
-            ${menuSectionHtml}
 
             <div class="event-card">
               <h3 style="margin: 0 0 15px 0; color: ${BRAND_COLORS.crimson};">📦 Your Additional Selections</h3>
