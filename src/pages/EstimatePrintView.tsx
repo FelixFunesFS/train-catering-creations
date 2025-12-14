@@ -52,6 +52,12 @@ interface EstimateData {
     compliance_level: string;
     guest_count_with_restrictions: string;
     vegetarian_entrees: unknown;
+    proteins: unknown;
+    sides: unknown;
+    appetizers: unknown;
+    desserts: unknown;
+    drinks: unknown;
+    both_proteins_available: boolean;
   };
 }
 
@@ -93,7 +99,8 @@ export default function EstimatePrintView() {
           quote_requests!quote_request_id (
             id, event_name, event_date, start_time, location, service_type,
             guest_count, special_requests, contact_name, email, phone,
-            event_type, compliance_level, guest_count_with_restrictions, vegetarian_entrees
+            event_type, compliance_level, guest_count_with_restrictions, vegetarian_entrees,
+            proteins, sides, appetizers, desserts, drinks, both_proteins_available
           )
         `)
         .eq('id', invoiceId)
@@ -248,6 +255,78 @@ export default function EstimatePrintView() {
               <p className="text-blue-700 font-medium text-sm">🏛️ Government Contract • Tax Exempt • Net 30 Payment Terms</p>
             </div>
           )}
+
+          {/* Menu Selections */}
+          <div className="mb-6 avoid-break">
+            <h3 className="font-semibold text-gray-800 mb-3 text-sm uppercase tracking-wide border-b-2 border-[#FFD700] pb-2">
+              🍽️ Your Custom Menu
+            </h3>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              {safeVegetarianEntrees(quote?.proteins).length > 0 && (
+                <div>
+                  <span className="font-medium text-gray-700">Proteins: </span>
+                  <span className="text-gray-600">
+                    {safeVegetarianEntrees(quote?.proteins).map(e => 
+                      e.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+                    ).join(', ')}
+                  </span>
+                  {quote?.both_proteins_available && (
+                    <span className="text-[#DC143C] italic ml-1">(Both served to all guests)</span>
+                  )}
+                </div>
+              )}
+              {safeVegetarianEntrees(quote?.sides).length > 0 && (
+                <div>
+                  <span className="font-medium text-gray-700">Sides: </span>
+                  <span className="text-gray-600">
+                    {safeVegetarianEntrees(quote?.sides).map(e => 
+                      e.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+                    ).join(', ')}
+                  </span>
+                </div>
+              )}
+              {safeVegetarianEntrees(quote?.appetizers).length > 0 && (
+                <div>
+                  <span className="font-medium text-gray-700">Appetizers: </span>
+                  <span className="text-gray-600">
+                    {safeVegetarianEntrees(quote?.appetizers).map(e => 
+                      e.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+                    ).join(', ')}
+                  </span>
+                </div>
+              )}
+              {safeVegetarianEntrees(quote?.desserts).length > 0 && (
+                <div>
+                  <span className="font-medium text-gray-700">Desserts: </span>
+                  <span className="text-gray-600">
+                    {safeVegetarianEntrees(quote?.desserts).map(e => 
+                      e.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+                    ).join(', ')}
+                  </span>
+                </div>
+              )}
+              {safeVegetarianEntrees(quote?.drinks).length > 0 && (
+                <div>
+                  <span className="font-medium text-gray-700">Beverages: </span>
+                  <span className="text-gray-600">
+                    {safeVegetarianEntrees(quote?.drinks).map(e => 
+                      e.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+                    ).join(', ')}
+                  </span>
+                </div>
+              )}
+              {safeVegetarianEntrees(quote?.vegetarian_entrees).length > 0 && (
+                <div className="col-span-2 text-green-700">
+                  <span className="font-medium">🌱 Vegetarian Entrées: </span>
+                  <span>
+                    {safeVegetarianEntrees(quote?.vegetarian_entrees).map(e => 
+                      e.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+                    ).join(', ')}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
 
           {/* Line Items Table */}
           <table className="w-full mb-6 avoid-break">
