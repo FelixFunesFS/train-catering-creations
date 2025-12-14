@@ -13,6 +13,7 @@ const logStep = (step: string, details?: any) => {
 
 interface MilestoneRequest {
   invoice_id: string;
+  force_regenerate?: boolean; // If true, delete existing and recreate
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -23,7 +24,7 @@ const handler = async (req: Request): Promise<Response> => {
   try {
     logStep("Received request");
 
-    const { invoice_id }: MilestoneRequest = await req.json();
+    const { invoice_id, force_regenerate = false }: MilestoneRequest = await req.json();
 
     if (!invoice_id) {
       throw new Error("invoice_id is required");
@@ -38,18 +39,45 @@ const handler = async (req: Request): Promise<Response> => {
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Check if milestones already exist
+    // Check existing milestones
     const { data: existingMilestones } = await supabase
       .from("payment_milestones")
-      .select("id")
+      .select("id, status, amount_cents")
       .eq("invoice_id", invoice_id);
 
+    // Calculate total already paid from existing milestones
+    let totalPaidCents = 0;
     if (existingMilestones && existingMilestones.length > 0) {
-      logStep("Milestones already exist", { count: existingMilestones.length });
-      return new Response(
-        JSON.stringify({ message: "Milestones already exist", milestones: existingMilestones }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
-      );
+      if (!force_regenerate) {
+        logStep("Milestones already exist, use force_regenerate to recreate", { count: existingMilestones.length });
+        return new Response(
+          JSON.stringify({ message: "Milestones already exist", milestones: existingMilestones }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
+        );
+      }
+
+      // Sum paid milestone amounts before deleting
+      for (const m of existingMilestones) {
+        if (m.status === 'paid') {
+          totalPaidCents += m.amount_cents || 0;
+        }
+      }
+
+      logStep("Deleting existing milestones for regeneration", { 
+        count: existingMilestones.length, 
+        totalPaidCents 
+      });
+
+      // Delete existing milestones
+      const { error: deleteError } = await supabase
+        .from("payment_milestones")
+        .delete()
+        .eq("invoice_id", invoice_id);
+
+      if (deleteError) {
+        logStep("Error deleting milestones", { error: deleteError });
+        throw new Error(`Failed to delete existing milestones: ${deleteError.message}`);
+      }
     }
 
     // Fetch invoice and quote details
@@ -85,7 +113,7 @@ const handler = async (req: Request): Promise<Response> => {
     // Determine customer type
     const isGovernment = quote?.compliance_level === 'government' || quote?.requires_po_number;
 
-    logStep("Calculating schedule", { daysUntilEvent, isGovernment, totalAmountCents });
+    logStep("Calculating schedule", { daysUntilEvent, isGovernment, totalAmountCents, totalPaidCents });
 
     const milestones: any[] = [];
 
@@ -103,7 +131,7 @@ const handler = async (req: Request): Promise<Response> => {
         due_date: dueDate.toISOString().split('T')[0],
         is_due_now: false,
         is_net30: true,
-        status: "pending",
+        status: totalPaidCents >= totalAmountCents ? "paid" : "pending",
         description: "Full payment due 30 days after event (Net 30)",
       });
     } else if (daysUntilEvent <= 14) {
@@ -116,7 +144,7 @@ const handler = async (req: Request): Promise<Response> => {
         due_date: now.toISOString().split('T')[0],
         is_due_now: true,
         is_net30: false,
-        status: "pending",
+        status: totalPaidCents >= totalAmountCents ? "paid" : "pending",
         description: "Full payment due immediately (rush event)",
       });
     } else if (daysUntilEvent <= 30) {
@@ -124,15 +152,31 @@ const handler = async (req: Request): Promise<Response> => {
       const finalDue = new Date(eventDate);
       finalDue.setDate(finalDue.getDate() - 7);
 
+      const depositAmount = Math.round(totalAmountCents * 0.6);
+      const finalAmount = totalAmountCents - depositAmount;
+
+      // Determine status based on what's been paid
+      let depositStatus = "pending";
+      let finalStatus = "pending";
+      let remainingPaid = totalPaidCents;
+
+      if (remainingPaid >= depositAmount) {
+        depositStatus = "paid";
+        remainingPaid -= depositAmount;
+        if (remainingPaid >= finalAmount) {
+          finalStatus = "paid";
+        }
+      }
+
       milestones.push({
         invoice_id,
         milestone_type: "DEPOSIT",
         percentage: 60,
-        amount_cents: Math.round(totalAmountCents * 0.6),
+        amount_cents: depositAmount,
         due_date: now.toISOString().split('T')[0],
         is_due_now: true,
         is_net30: false,
-        status: "pending",
+        status: depositStatus,
         description: "60% deposit due now",
       });
 
@@ -140,11 +184,11 @@ const handler = async (req: Request): Promise<Response> => {
         invoice_id,
         milestone_type: "FINAL",
         percentage: 40,
-        amount_cents: totalAmountCents - Math.round(totalAmountCents * 0.6),
+        amount_cents: finalAmount,
         due_date: finalDue.toISOString().split('T')[0],
         is_due_now: false,
         is_net30: false,
-        status: "pending",
+        status: finalStatus,
         description: "Final 40% due 7 days before event",
       });
     } else if (daysUntilEvent <= 44) {
@@ -152,15 +196,30 @@ const handler = async (req: Request): Promise<Response> => {
       const finalDue = new Date(eventDate);
       finalDue.setDate(finalDue.getDate() - 14);
 
+      const depositAmount = Math.round(totalAmountCents * 0.6);
+      const finalAmount = totalAmountCents - depositAmount;
+
+      let depositStatus = "pending";
+      let finalStatus = "pending";
+      let remainingPaid = totalPaidCents;
+
+      if (remainingPaid >= depositAmount) {
+        depositStatus = "paid";
+        remainingPaid -= depositAmount;
+        if (remainingPaid >= finalAmount) {
+          finalStatus = "paid";
+        }
+      }
+
       milestones.push({
         invoice_id,
         milestone_type: "DEPOSIT",
         percentage: 60,
-        amount_cents: Math.round(totalAmountCents * 0.6),
+        amount_cents: depositAmount,
         due_date: now.toISOString().split('T')[0],
         is_due_now: true,
         is_net30: false,
-        status: "pending",
+        status: depositStatus,
         description: "60% deposit due now",
       });
 
@@ -168,11 +227,11 @@ const handler = async (req: Request): Promise<Response> => {
         invoice_id,
         milestone_type: "FINAL",
         percentage: 40,
-        amount_cents: totalAmountCents - Math.round(totalAmountCents * 0.6),
+        amount_cents: finalAmount,
         due_date: finalDue.toISOString().split('T')[0],
         is_due_now: false,
         is_net30: false,
-        status: "pending",
+        status: finalStatus,
         description: "Final 40% due 14 days before event",
       });
     } else {
@@ -186,6 +245,24 @@ const handler = async (req: Request): Promise<Response> => {
       const midAmount = Math.round(totalAmountCents * 0.5);
       const finalAmount = totalAmountCents - bookingAmount - midAmount;
 
+      // Waterfall payment status based on total paid
+      let bookingStatus = "pending";
+      let midStatus = "pending";
+      let finalStatus = "pending";
+      let remainingPaid = totalPaidCents;
+
+      if (remainingPaid >= bookingAmount) {
+        bookingStatus = "paid";
+        remainingPaid -= bookingAmount;
+        if (remainingPaid >= midAmount) {
+          midStatus = "paid";
+          remainingPaid -= midAmount;
+          if (remainingPaid >= finalAmount) {
+            finalStatus = "paid";
+          }
+        }
+      }
+
       milestones.push({
         invoice_id,
         milestone_type: "DEPOSIT",
@@ -194,7 +271,7 @@ const handler = async (req: Request): Promise<Response> => {
         due_date: now.toISOString().split('T')[0],
         is_due_now: true,
         is_net30: false,
-        status: "pending",
+        status: bookingStatus,
         description: "10% booking deposit due now",
       });
 
@@ -206,7 +283,7 @@ const handler = async (req: Request): Promise<Response> => {
         due_date: midDue.toISOString().split('T')[0],
         is_due_now: false,
         is_net30: false,
-        status: "pending",
+        status: midStatus,
         description: "50% payment due 30 days before event",
       });
 
@@ -218,7 +295,7 @@ const handler = async (req: Request): Promise<Response> => {
         due_date: finalDue.toISOString().split('T')[0],
         is_due_now: false,
         is_net30: false,
-        status: "pending",
+        status: finalStatus,
         description: "Final 40% due 14 days before event",
       });
     }
@@ -238,7 +315,7 @@ const handler = async (req: Request): Promise<Response> => {
     logStep("Milestones created successfully", { count: insertedMilestones?.length });
 
     return new Response(
-      JSON.stringify({ success: true, milestones: insertedMilestones }),
+      JSON.stringify({ success: true, milestones: insertedMilestones, regenerated: force_regenerate }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
     );
   } catch (error) {

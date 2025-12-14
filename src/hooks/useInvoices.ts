@@ -374,7 +374,7 @@ export function useRecordPayment() {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: ({ 
+    mutationFn: async ({ 
       invoiceId, 
       amount, 
       paymentMethod, 
@@ -386,7 +386,21 @@ export function useRecordPayment() {
       paymentMethod: string; 
       notes?: string;
       sendConfirmationEmail?: boolean;
-    }) => PaymentDataService.recordManualPayment(invoiceId, amount, paymentMethod, notes, sendConfirmationEmail),
+    }) => {
+      // Record the payment
+      const result = await PaymentDataService.recordManualPayment(invoiceId, amount, paymentMethod, notes, sendConfirmationEmail);
+      
+      // Apply waterfall to update milestone statuses
+      try {
+        await supabase.functions.invoke('apply-payment-waterfall', {
+          body: { invoice_id: invoiceId, payment_amount_cents: amount }
+        });
+      } catch (waterfallError) {
+        console.error('Waterfall update failed (non-critical):', waterfallError);
+      }
+      
+      return result;
+    },
     onSuccess: (_, variables) => {
       // Remove queries entirely to force fresh fetch (not just invalidate)
       queryClient.removeQueries({ queryKey: invoiceKeys.all });
