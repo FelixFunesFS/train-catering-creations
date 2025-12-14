@@ -153,12 +153,17 @@ serve(async (req) => {
       return types[type] || type.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
     };
 
-    // Sanitize text for PDF (remove newlines and control characters that WinAnsi can't encode)
+    // Sanitize text for PDF (remove newlines, emojis, and control characters that WinAnsi can't encode)
     const sanitizeText = (text: string | null | undefined): string => {
       if (!text) return '';
       return text
-        .replace(/[\n\r\t]/g, ' ')  // Replace newlines/tabs with spaces
-        .replace(/\s+/g, ' ')        // Collapse multiple spaces
+        .replace(/[\n\r\t]/g, ' ')           // Replace newlines/tabs with spaces
+        .replace(/[\u{1F300}-\u{1F9FF}]/gu, '')  // Remove emojis (Miscellaneous Symbols and Pictographs)
+        .replace(/[\u{2600}-\u{26FF}]/gu, '')   // Remove misc symbols
+        .replace(/[\u{2700}-\u{27BF}]/gu, '')   // Remove dingbats
+        .replace(/[\u{2B50}]/gu, '*')           // Replace star emoji with asterisk
+        .replace(/[^\x00-\x7F]/g, '')           // Remove any remaining non-ASCII characters
+        .replace(/\s+/g, ' ')                   // Collapse multiple spaces
         .trim();
     };
 
