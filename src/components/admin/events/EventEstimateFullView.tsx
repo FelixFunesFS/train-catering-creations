@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useInvoice, useUpdateInvoice } from '@/hooks/useInvoices';
 import { useLineItems, useUpdateLineItem, useDeleteLineItem } from '@/hooks/useLineItems';
@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { formatDate, formatTime, formatServiceType, getStatusColor } from '@/utils/formatters';
 import { CustomerEditor } from './CustomerEditor';
+import { MenuEditor } from './MenuEditor';
 
 import { LineItemEditor } from '../billing/LineItemEditor';
 import { AddLineItemModal } from '../billing/AddLineItemModal';
@@ -59,16 +60,27 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
   const [isResendMode, setIsResendMode] = useState(false);
   const [showAddItem, setShowAddItem] = useState(false);
   const [showCustomerEdit, setShowCustomerEdit] = useState(false);
+  const [showMenuEdit, setShowMenuEdit] = useState(false);
   const [adminNotes, setAdminNotes] = useState('');
-  const [customerNotes, setCustomerNotes] = useState(invoice?.notes || '');
+  
+  // Notes state with dirty tracking
+  const initialNotes = invoice?.notes || '';
+  const [customerNotes, setCustomerNotes] = useState(initialNotes);
+  const hasAutoPopulatedNote = useRef(false);
+  
+  // Track if notes have changed
+  const notesChanged = customerNotes !== initialNotes;
 
-  // Auto-populate both proteins note when applicable
+  // Auto-populate both proteins note ONCE when applicable
   useEffect(() => {
-    if (quote?.both_proteins_available && !customerNotes.includes('Both proteins')) {
-      const note = '⭐ Both proteins will be served to all guests.';
-      setCustomerNotes(prev => prev ? `${prev}\n\n${note}` : note);
+    if (quote?.both_proteins_available && !hasAutoPopulatedNote.current) {
+      const bothProteinsNote = '⭐ Both proteins will be served to all guests.';
+      if (!customerNotes.includes(bothProteinsNote)) {
+        setCustomerNotes(prev => prev ? `${prev}\n\n${bothProteinsNote}` : bothProteinsNote);
+      }
+      hasAutoPopulatedNote.current = true;
     }
-  }, [quote?.both_proteins_available]);
+  }, [quote?.both_proteins_available, customerNotes]);
 
   // Helper to format menu items
   const formatMenuItems = (items: unknown): string => {
@@ -308,9 +320,14 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
 
       {/* Menu Selections Section */}
       <section className="space-y-3">
-        <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-2">
-          <Utensils className="h-4 w-4" /> Menu Selections
-        </h3>
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-2">
+            <Utensils className="h-4 w-4" /> Menu Selections
+          </h3>
+          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setShowMenuEdit(true)}>
+            <Pencil className="h-3 w-3" />
+          </Button>
+        </div>
         
         {/* Proteins */}
         {formatMenuItems(quote?.proteins) && (
@@ -395,9 +412,14 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
         <>
           <Separator />
           <section className="space-y-2">
-            <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-              <MessageSquare className="h-4 w-4" /> Special Requests
-            </h3>
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                <MessageSquare className="h-4 w-4" /> Special Requests
+              </h3>
+              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setShowMenuEdit(true)}>
+                <Pencil className="h-3 w-3" />
+              </Button>
+            </div>
             <p className="text-sm italic text-muted-foreground">{quote.special_requests}</p>
           </section>
         </>
@@ -482,7 +504,7 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
           rows={2}
           className="text-sm"
         />
-        <Button variant="outline" size="sm" onClick={handleSaveCustomerNotes} disabled={updateInvoice.isPending}>
+        <Button variant="outline" size="sm" onClick={handleSaveCustomerNotes} disabled={updateInvoice.isPending || !notesChanged}>
           Save Notes
         </Button>
       </div>
@@ -600,6 +622,24 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
             onSave={() => {
               setShowCustomerEdit(false);
               queryClient.invalidateQueries({ queryKey: ['quotes'] });
+            }} 
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Menu Edit Dialog */}
+      <Dialog open={showMenuEdit} onOpenChange={setShowMenuEdit}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Edit Menu Selections</DialogTitle>
+          </DialogHeader>
+          <MenuEditor 
+            quote={quote}
+            invoiceId={invoice?.id}
+            onSave={() => {
+              setShowMenuEdit(false);
+              queryClient.invalidateQueries({ queryKey: ['quotes'] });
+              queryClient.invalidateQueries({ queryKey: ['line-items', invoice?.id] });
             }} 
           />
         </DialogContent>
