@@ -12,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Eye, Loader2, FileText, Receipt, Mail, MailOpen, Globe, Maximize2, List, CalendarDays, CalendarRange } from 'lucide-react';
+import { Search, Eye, Loader2, FileText, Receipt, Mail, MailOpen, Globe, List, CalendarDays, CalendarRange } from 'lucide-react';
 import { EventDetail } from './EventDetail';
 import { EventWeekView } from './EventWeekView';
 import { EventMonthView } from './EventMonthView';
@@ -251,7 +251,7 @@ export function EventList() {
                         )}
                       </div>
                       
-                      <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between">
                         {invoice ? (
                           <Badge 
                             variant="outline" 
@@ -262,18 +262,6 @@ export function EventList() {
                         ) : (
                           <span className="text-xs text-muted-foreground">No estimate</span>
                         )}
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          className="min-h-[44px] min-w-[44px]"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate(`/admin/event/${event.id}`);
-                          }}
-                        >
-                          <Maximize2 className="h-4 w-4 mr-1" />
-                          <span className="text-xs">Full View</span>
-                        </Button>
                       </div>
                     </div>
                   );
@@ -358,35 +346,17 @@ export function EventList() {
                         <EmailTrackingIndicator invoice={invoice} />
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center gap-1">
-                          <Button 
-                            variant="ghost" 
-                            size="icon"
-                            title={actionLabel}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedQuote(event);
-                            }}
-                          >
-                            <ActionIcon className="h-4 w-4" />
-                          </Button>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button 
-                                variant="ghost" 
-                                size="icon"
-                                title="Open Full View"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  navigate(`/admin/event/${event.id}`);
-                                }}
-                              >
-                                <Maximize2 className="h-4 w-4" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>Full View</TooltipContent>
-                          </Tooltip>
-                        </div>
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          title={actionLabel}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedQuote(event);
+                          }}
+                        >
+                          <ActionIcon className="h-4 w-4" />
+                        </Button>
                       </TableCell>
                     </TableRow>
                   );
