@@ -16,9 +16,10 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { 
   X, FileText, Calendar, MapPin, Users, MessageSquare, DollarSign,
-  Plus, Eye, RefreshCw, Loader2, Printer, PartyPopper, Heart, ArrowLeft, Pencil, Utensils, CheckCircle2
+  Plus, Eye, RefreshCw, Loader2, Printer, PartyPopper, Heart, ArrowLeft, Pencil, Utensils, CheckCircle2, Phone, ExternalLink
 } from 'lucide-react';
 import { formatDate, formatTime, formatServiceType, getStatusColor } from '@/utils/formatters';
+import { formatLocationLink, formatPhoneLink } from '@/utils/linkFormatters';
 import { CustomerEditor } from './CustomerEditor';
 import { MenuEditorInline } from './MenuEditorInline';
 import { ChangeHistory } from './ChangeHistory';
@@ -399,7 +400,16 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
         </div>
         <p className="font-medium">{quote?.contact_name}</p>
         <p className="text-sm text-muted-foreground">{quote?.email}</p>
-        <p className="text-sm text-muted-foreground">{quote?.phone}</p>
+        {quote?.phone && (
+          <a 
+            href={formatPhoneLink(quote.phone) || '#'} 
+            className="text-sm text-primary hover:underline flex items-center gap-1"
+            aria-label="Call customer"
+          >
+            <Phone className="h-3 w-3" />
+            {quote.phone}
+          </a>
+        )}
       </section>
 
       <Separator />
@@ -415,10 +425,17 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
           <span>{formatDate(quote?.event_date)} {quote?.start_time && `at ${formatTime(quote?.start_time)}`}</span>
         </div>
         {quote?.location && (
-          <div className="flex items-start gap-2 text-sm text-muted-foreground">
+          <a 
+            href={formatLocationLink(quote.location) || '#'} 
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-start gap-2 text-sm text-primary hover:underline"
+            aria-label="Open in Maps"
+          >
             <MapPin className="h-3 w-3 mt-0.5" />
-            <span>{quote?.location}</span>
-          </div>
+            <span>{quote.location}</span>
+            <ExternalLink className="h-3 w-3 mt-0.5 opacity-50" />
+          </a>
         )}
         <div className="flex items-center gap-2 flex-wrap text-sm">
           <Users className="h-3 w-3 text-muted-foreground" />
