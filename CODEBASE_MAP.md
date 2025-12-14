@@ -301,6 +301,30 @@ payment_pending → partially_paid → paid
 4. **Email templates** must use shared functions from `emailTemplates.ts`
 5. **Tax calculations** must use `TaxCalculationService`
 6. **Payment schedules** must use `PaymentScheduleService`
+7. **Customer-facing changes** must follow `CUSTOMER_DISPLAY_CHECKLIST.md`
+
+---
+
+## 🔄 Customer Display Sync
+
+> **Important**: All customer-facing display changes must be applied to ALL applicable touchpoints.
+
+### Touchpoint Files
+| File | Type | Content |
+|------|------|---------|
+| `src/components/customer/CustomerEstimateView.tsx` | React | Customer portal view |
+| `supabase/functions/send-customer-portal-email/index.ts` | Edge | Estimate & approval emails |
+| `supabase/functions/send-quote-confirmation/index.ts` | Edge | Quote confirmation email |
+| `supabase/functions/generate-invoice-pdf/index.ts` | Edge | PDF generation |
+| `supabase/functions/_shared/emailTemplates.ts` | Shared | Reusable email templates |
+
+### Sync Rules
+1. Changes to event details display → Update all 5 files
+2. Changes to line items display → Update portal, estimate email, PDF
+3. Changes to payment schedule → Update portal, approval email, PDF
+4. Changes to terms display → Update portal and PDF only
+
+See `CUSTOMER_DISPLAY_CHECKLIST.md` for detailed matrix.
 
 ---
 

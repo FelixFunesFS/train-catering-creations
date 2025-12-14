@@ -1,3 +1,15 @@
+/**
+ * SYNC: Customer Portal Emails (Estimate Ready & Approval Confirmation)
+ * 
+ * This edge function sends customer-facing emails for estimates and approvals.
+ * Keep in sync with:
+ * - src/components/customer/CustomerEstimateView.tsx (portal display)
+ * - supabase/functions/generate-invoice-pdf/index.ts (PDF generation)
+ * - supabase/functions/_shared/emailTemplates.ts (shared email components)
+ * 
+ * See CUSTOMER_DISPLAY_CHECKLIST.md for full sync requirements.
+ */
+
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.52.1';
 import { 

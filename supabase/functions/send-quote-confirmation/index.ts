@@ -1,3 +1,14 @@
+/**
+ * SYNC: Quote Submission Confirmation Email
+ * 
+ * This edge function sends the confirmation email after customer submits a quote.
+ * Keep in sync with:
+ * - src/components/customer/CustomerEstimateView.tsx (for terminology consistency)
+ * - supabase/functions/_shared/emailTemplates.ts (shared email components)
+ * 
+ * See CUSTOMER_DISPLAY_CHECKLIST.md for full sync requirements.
+ */
+
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.52.1';
 import { BRAND_COLORS, EMAIL_STYLES, generateEmailHeader, generateEventDetailsCard, generateFooter, generatePreheader } from "../_shared/emailTemplates.ts";
