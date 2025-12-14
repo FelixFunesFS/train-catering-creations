@@ -384,14 +384,19 @@ serve(async (req) => {
     drawText("Total", totalCol, y - 11, { font: helveticaBold, size: 8 });
     y -= 20;
 
-    // Line items (compact)
+    // Line items (compact) - vertically centered text
+    const rowHeight = 14;
+    const fontSize = 9;
+    const textOffset = (rowHeight - fontSize) / 2 + fontSize - 2; // Center text vertically
+    
     for (const item of (lineItems || [])) {
       const title = item.title || 'Item';
-      drawText(title, descCol + 4, y, { font: helveticaBold, size: 9 });
-      drawText(item.quantity.toString(), qtyCol, y, { size: 9 });
-      drawText(formatCurrency(item.unit_price), priceCol, y, { size: 9 });
-      drawText(formatCurrency(item.total_price), totalCol, y, { font: helveticaBold, size: 9 });
-      y -= 11;
+      const rowY = y - textOffset;
+      drawText(title, descCol + 4, rowY, { font: helveticaBold, size: fontSize });
+      drawText(item.quantity.toString(), qtyCol, rowY, { size: fontSize });
+      drawText(formatCurrency(item.unit_price), priceCol, rowY, { size: fontSize });
+      drawText(formatCurrency(item.total_price), totalCol, rowY, { font: helveticaBold, size: fontSize });
+      y -= rowHeight;
       
       // Description (wrapped, smaller)
       if (item.description) {

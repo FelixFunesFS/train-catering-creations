@@ -388,13 +388,14 @@ const handler = async (req: Request): Promise<Response> => {
     // Mid-Range (31-44) = 60/40, Standard (45+) = 10/50/40
     let milestones: any[] = [];
     
+    // Valid milestone_type values: DEPOSIT, MILESTONE, BALANCE, FULL, COMBINED, FINAL
     if (isGovCustomer) {
       // Government: Net 30 (100% due 30 days after event)
       const dueDate = new Date(eventDate);
       dueDate.setDate(dueDate.getDate() + 30);
       milestones = [{
         invoice_id: invoice.id,
-        milestone_type: 'net30',
+        milestone_type: 'FULL',
         percentage: 100,
         amount_cents: 0,
         due_date: dueDate.toISOString().split('T')[0],
@@ -407,7 +408,7 @@ const handler = async (req: Request): Promise<Response> => {
       // Rush: 100% now
       milestones = [{
         invoice_id: invoice.id,
-        milestone_type: 'full',
+        milestone_type: 'FULL',
         percentage: 100,
         amount_cents: 0,
         due_date: new Date().toISOString().split('T')[0],
@@ -422,7 +423,7 @@ const handler = async (req: Request): Promise<Response> => {
       milestones = [
         {
           invoice_id: invoice.id,
-          milestone_type: 'deposit',
+          milestone_type: 'DEPOSIT',
           percentage: 60,
           amount_cents: 0,
           due_date: new Date().toISOString().split('T')[0],
@@ -432,7 +433,7 @@ const handler = async (req: Request): Promise<Response> => {
         },
         {
           invoice_id: invoice.id,
-          milestone_type: 'balance',
+          milestone_type: 'BALANCE',
           percentage: 40,
           amount_cents: 0,
           due_date: finalDue.toISOString().split('T')[0],
@@ -448,7 +449,7 @@ const handler = async (req: Request): Promise<Response> => {
       milestones = [
         {
           invoice_id: invoice.id,
-          milestone_type: 'deposit',
+          milestone_type: 'DEPOSIT',
           percentage: 60,
           amount_cents: 0,
           due_date: new Date().toISOString().split('T')[0],
@@ -458,7 +459,7 @@ const handler = async (req: Request): Promise<Response> => {
         },
         {
           invoice_id: invoice.id,
-          milestone_type: 'balance',
+          milestone_type: 'BALANCE',
           percentage: 40,
           amount_cents: 0,
           due_date: finalDue.toISOString().split('T')[0],
@@ -476,7 +477,7 @@ const handler = async (req: Request): Promise<Response> => {
       milestones = [
         {
           invoice_id: invoice.id,
-          milestone_type: 'deposit',
+          milestone_type: 'DEPOSIT',
           percentage: 10,
           amount_cents: 0,
           due_date: new Date().toISOString().split('T')[0],
@@ -486,7 +487,7 @@ const handler = async (req: Request): Promise<Response> => {
         },
         {
           invoice_id: invoice.id,
-          milestone_type: 'milestone',
+          milestone_type: 'MILESTONE',
           percentage: 50,
           amount_cents: 0,
           due_date: midDue.toISOString().split('T')[0],
@@ -496,7 +497,7 @@ const handler = async (req: Request): Promise<Response> => {
         },
         {
           invoice_id: invoice.id,
-          milestone_type: 'balance',
+          milestone_type: 'BALANCE',
           percentage: 40,
           amount_cents: 0,
           due_date: finalDue.toISOString().split('T')[0],

@@ -13,7 +13,7 @@ export default function AdminAuth() {
   const [password, setPassword] = useState('');
   const [resetEmail, setResetEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { user, loading, signIn, signUp, resetPassword, signInWithGoogle } = useAuth();
+  const { user, loading, signIn, resetPassword, signInWithGoogle } = useAuth();
 
 
   // Redirect if already authenticated
@@ -37,13 +37,6 @@ export default function AdminAuth() {
     setIsSubmitting(false);
   };
 
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    await signUp(email, password);
-    setIsSubmitting(false);
-  };
-
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -64,9 +57,8 @@ export default function AdminAuth() {
         <CardContent>
 
           <Tabs defaultValue="signin" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="signin">Sign In</TabsTrigger>
-              <TabsTrigger value="signup">Sign Up</TabsTrigger>
               <TabsTrigger value="reset">Reset Password</TabsTrigger>
             </TabsList>
             
@@ -157,44 +149,6 @@ export default function AdminAuth() {
                   </button>
                 </p>
               </div>
-            </TabsContent>
-            
-            <TabsContent value="signup">
-              <form onSubmit={handleSignUp} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="signup-email">Email</Label>
-                  <Input
-                    id="signup-email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    disabled={isSubmitting}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="signup-password">Password</Label>
-                  <Input
-                    id="signup-password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    disabled={isSubmitting}
-                    minLength={6}
-                  />
-                </div>
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  ) : null}
-                  Create Admin Account
-                </Button>
-              </form>
             </TabsContent>
             
             <TabsContent value="reset">
