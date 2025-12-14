@@ -377,12 +377,12 @@ serve(async (req) => {
     const priceCol = margin + contentWidth - 100;
     const totalCol = margin + contentWidth - 50;
 
-    page.drawRectangle({ x: margin, y: y - 12, width: contentWidth, height: 14, color: LIGHT_GRAY });
-    drawText("Description", descCol + 4, y - 9, { font: helveticaBold, size: 8 });
-    drawText("Qty", qtyCol, y - 9, { font: helveticaBold, size: 8 });
-    drawText("Unit", priceCol, y - 9, { font: helveticaBold, size: 8 });
-    drawText("Total", totalCol, y - 9, { font: helveticaBold, size: 8 });
-    y -= 16;
+    page.drawRectangle({ x: margin, y: y - 14, width: contentWidth, height: 18, color: LIGHT_GRAY });
+    drawText("Description", descCol + 4, y - 11, { font: helveticaBold, size: 8 });
+    drawText("Qty", qtyCol, y - 11, { font: helveticaBold, size: 8 });
+    drawText("Unit", priceCol, y - 11, { font: helveticaBold, size: 8 });
+    drawText("Total", totalCol, y - 11, { font: helveticaBold, size: 8 });
+    y -= 20;
 
     // Line items (compact)
     for (const item of (lineItems || [])) {
