@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { format } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
 import { useQuotes } from '@/hooks/useQuotes';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -9,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Search, Eye, Loader2, FileText, Receipt, Mail, MailOpen, Globe } from 'lucide-react';
+import { Search, Eye, Loader2, FileText, Receipt, Mail, MailOpen, Globe, Maximize2 } from 'lucide-react';
 import { EventDetail } from './EventDetail';
 import { Database } from '@/integrations/supabase/types';
 
@@ -97,6 +98,7 @@ interface EventWithInvoice extends QuoteRequest {
 export function EventList() {
   const [search, setSearch] = useState('');
   const [selectedQuote, setSelectedQuote] = useState<QuoteRequest | null>(null);
+  const navigate = useNavigate();
   
   const { data: quotes, isLoading: quotesLoading, error: quotesError } = useQuotes({ search: search || undefined });
   const { data: invoices, isLoading: invoicesLoading } = useRawInvoices();
@@ -222,17 +224,35 @@ export function EventList() {
                           <EmailTrackingIndicator invoice={invoice} />
                         </TableCell>
                         <TableCell>
-                          <Button 
-                            variant="ghost" 
-                            size="icon"
-                            title={actionLabel}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedQuote(event);
-                            }}
-                          >
-                            <ActionIcon className="h-4 w-4" />
-                          </Button>
+                          <div className="flex items-center gap-1">
+                            <Button 
+                              variant="ghost" 
+                              size="icon"
+                              title={actionLabel}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedQuote(event);
+                              }}
+                            >
+                              <ActionIcon className="h-4 w-4" />
+                            </Button>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon"
+                                  title="Open Full View"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigate(`/admin/event/${event.id}`);
+                                  }}
+                                >
+                                  <Maximize2 className="h-4 w-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Full View</TooltipContent>
+                            </Tooltip>
+                          </div>
                         </TableCell>
                       </TableRow>
                     );

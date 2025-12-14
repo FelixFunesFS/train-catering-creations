@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
 import { Database } from '@/integrations/supabase/types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -10,7 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useInvoiceByQuote, useInvoicePaymentSummary } from '@/hooks/useInvoices';
 import { supabase } from '@/integrations/supabase/client';
 import { formatMenuDescription } from '@/utils/invoiceFormatters';
-import { User, Calendar, MapPin, Users, Utensils, FileText, Loader2, Package, Eye, Pencil, Receipt, Play, CheckCircle, XCircle, MessageSquare, PartyPopper, Leaf } from 'lucide-react';
+import { User, Calendar, MapPin, Users, Utensils, FileText, Loader2, Package, Eye, Pencil, Receipt, Play, CheckCircle, XCircle, MessageSquare, PartyPopper, Leaf, Maximize2 } from 'lucide-react';
 import { useUpdateQuoteStatus } from '@/hooks/useQuotes';
 import { EstimateEditor } from '@/components/admin/billing/EstimateEditor';
 
@@ -43,6 +44,7 @@ export function EventDetail({ quote, onClose }: EventDetailProps) {
   const [showEstimateEditor, setShowEstimateEditor] = useState(false);
   const [generatedInvoiceId, setGeneratedInvoiceId] = useState<string | null>(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   // Check if estimate already exists
   const { data: existingInvoice, isLoading: checkingInvoice, refetch: refetchInvoice } = useInvoiceByQuote(quote.id);
@@ -411,6 +413,13 @@ export function EventDetail({ quote, onClose }: EventDetailProps) {
           <div className="flex flex-col sm:flex-row justify-end gap-2">
             <Button variant="outline" onClick={onClose}>
               Close
+            </Button>
+            <Button 
+              variant="outline"
+              onClick={() => navigate(`/admin/event/${quote.id}`)}
+            >
+              <Maximize2 className="h-4 w-4 mr-2" />
+              Full View
             </Button>
             {existingInvoice ? (
               (() => {

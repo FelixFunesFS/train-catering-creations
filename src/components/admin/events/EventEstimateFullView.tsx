@@ -16,7 +16,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
   X, FileText, Calendar, MapPin, Users, Leaf, MessageSquare, Clock, 
-  Plus, Eye, RefreshCw, Loader2, Printer, PartyPopper, Heart
+  Plus, Eye, RefreshCw, Loader2, Printer, PartyPopper, Heart, ArrowLeft
 } from 'lucide-react';
 import { formatDate, formatTime, formatServiceType, getStatusColor } from '@/utils/formatters';
 
@@ -493,10 +493,18 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
       <div className="fixed inset-0 z-50 bg-background">
         {/* Top Bar */}
         <div className="h-14 border-b bg-card flex items-center justify-between px-4">
-          <h1 className="font-semibold flex items-center gap-2">
-            <FileText className="h-5 w-5 text-primary" />
-            Event & Estimate
-          </h1>
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="sm" onClick={onClose} className="gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              <span className="hidden sm:inline">Back to Events</span>
+            </Button>
+            <div className="h-6 w-px bg-border" />
+            <h1 className="font-semibold flex items-center gap-2">
+              <FileText className="h-5 w-5 text-primary" />
+              <span className="hidden md:inline">{quote?.event_name || 'Event & Estimate'}</span>
+              <span className="md:hidden">Event Details</span>
+            </h1>
+          </div>
           <Button variant="ghost" size="icon" onClick={onClose}>
             <X className="h-5 w-5" />
           </Button>
