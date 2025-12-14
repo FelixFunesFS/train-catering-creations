@@ -11,6 +11,7 @@ interface AuthContextType {
   signUp: (email: string, password: string) => Promise<{ error?: any }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error?: any }>;
+  signInWithGoogle: () => Promise<{ error?: any }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -100,6 +101,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error };
   };
 
+  const signInWithGoogle = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/admin`
+      }
+    });
+    
+    if (error) {
+      toast.error(error.message);
+    }
+    
+    return { error };
+  };
 
   return (
     <AuthContext.Provider value={{
@@ -110,6 +125,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signUp,
       signOut,
       resetPassword,
+      signInWithGoogle,
     }}>
       {children}
     </AuthContext.Provider>
