@@ -1,21 +1,15 @@
 import * as React from "react"
-import { Check, ChevronDown, X } from "lucide-react"
+import { Check, ChevronDown, X, Search } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 export interface Option {
   label: string
@@ -43,6 +37,7 @@ export function MultiSelect({
   maxDisplayed = 3,
 }: MultiSelectProps) {
   const [open, setOpen] = React.useState(false)
+  const [searchValue, setSearchValue] = React.useState("")
 
   const handleSelect = (value: string) => {
     const newSelected = selected.includes(value)
@@ -51,7 +46,9 @@ export function MultiSelect({
     onChange(newSelected)
   }
 
-  const handleRemove = (value: string) => {
+  const handleRemove = (value: string, e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
     onChange(selected.filter((item) => item !== value))
   }
 
@@ -59,11 +56,22 @@ export function MultiSelect({
   const displayedSelected = selectedOptions.slice(0, maxDisplayed)
   const remainingCount = selectedOptions.length - maxDisplayed
 
-  // Group options by category if available
+  // Filter options based on search
+  const filteredOptions = React.useMemo(() => {
+    if (!searchValue.trim()) return options
+    const search = searchValue.toLowerCase()
+    return options.filter(
+      (option) =>
+        option.label.toLowerCase().includes(search) ||
+        option.category?.toLowerCase().includes(search)
+    )
+  }, [options, searchValue])
+
+  // Group filtered options by category
   const groupedOptions = React.useMemo(() => {
     const groups: { [key: string]: Option[] } = {}
     
-    options.forEach((option) => {
+    filteredOptions.forEach((option) => {
       const category = option.category || "Options"
       if (!groups[category]) {
         groups[category] = []
@@ -72,7 +80,7 @@ export function MultiSelect({
     })
     
     return groups
-  }, [options])
+  }, [filteredOptions])
 
   return (
     <Popover open={open} onOpenChange={setOpen} modal={false}>
@@ -105,11 +113,7 @@ export function MultiSelect({
                         e.preventDefault()
                         e.stopPropagation()
                       }}
-                      onClick={(e) => {
-                        e.preventDefault()
-                        e.stopPropagation()
-                        handleRemove(option.value)
-                      }}
+                      onClick={(e) => handleRemove(option.value, e)}
                     >
                       <X className="h-3 w-3 cursor-pointer hover:text-destructive" />
                     </button>
@@ -127,48 +131,69 @@ export function MultiSelect({
         </Button>
       </PopoverTrigger>
       <PopoverContent 
-        className="w-full p-0 bg-background border shadow-lg z-[100]" 
+        className="w-[var(--radix-popover-trigger-width)] min-w-[200px] p-0 bg-popover border shadow-lg z-[9999]" 
         align="start"
         onOpenAutoFocus={(e) => e.preventDefault()}
+        onCloseAutoFocus={(e) => e.preventDefault()}
       >
-        <Command>
-          <CommandInput 
-            placeholder={searchPlaceholder} 
-            className="focus-visible:outline-none [&>input]:focus-visible:outline-none"
+        {/* Search Input */}
+        <div className="flex items-center border-b px-3 py-2">
+          <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+          <input
+            type="text"
+            className="flex h-8 w-full rounded-md bg-transparent text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+            placeholder={searchPlaceholder}
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
           />
-          <CommandList>
-            <CommandEmpty>No items found.</CommandEmpty>
-            {Object.entries(groupedOptions).map(([category, categoryOptions]) => (
-              <CommandGroup key={category} heading={category}>
-                {categoryOptions.map((option) => (
-                  <CommandItem
-                    key={option.value}
-                    value={option.value}
-                    onSelect={() => handleSelect(option.value)}
-                    onPointerDown={(e) => {
-                      e.preventDefault()
-                      e.stopPropagation()
-                    }}
-                    onMouseUp={(e) => {
-                      e.preventDefault()
-                      e.stopPropagation()
-                      handleSelect(option.value)
-                    }}
-                    className="cursor-pointer"
-                  >
-                    <Check
+        </div>
+        
+        {/* Options List */}
+        <ScrollArea className="max-h-[300px]">
+          <div className="p-1">
+            {Object.keys(groupedOptions).length === 0 ? (
+              <div className="py-6 text-center text-sm text-muted-foreground">
+                No items found.
+              </div>
+            ) : (
+              Object.entries(groupedOptions).map(([category, categoryOptions]) => (
+                <div key={category}>
+                  <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
+                    {category}
+                  </div>
+                  {categoryOptions.map((option) => (
+                    <div
+                      key={option.value}
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => handleSelect(option.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault()
+                          handleSelect(option.value)
+                        }
+                      }}
                       className={cn(
-                        "mr-2 h-4 w-4",
-                        selected.includes(option.value) ? "opacity-100" : "opacity-0"
+                        "relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none",
+                        "hover:bg-accent hover:text-accent-foreground",
+                        "focus:bg-accent focus:text-accent-foreground",
+                        selected.includes(option.value) && "bg-accent/50"
                       )}
-                    />
-                    {option.label}
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            ))}
-          </CommandList>
-        </Command>
+                    >
+                      <Check
+                        className={cn(
+                          "mr-2 h-4 w-4",
+                          selected.includes(option.value) ? "opacity-100" : "opacity-0"
+                        )}
+                      />
+                      {option.label}
+                    </div>
+                  ))}
+                </div>
+              ))
+            )}
+          </div>
+        </ScrollArea>
       </PopoverContent>
     </Popover>
   )
