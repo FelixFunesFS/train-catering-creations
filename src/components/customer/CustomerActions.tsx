@@ -13,7 +13,6 @@ interface CustomerActionsProps {
   amountPaid?: number;
   onStatusChange?: () => void;
   autoApprove?: boolean;
-  termsAccepted?: boolean;
 }
 
 export function CustomerActions({
@@ -24,7 +23,6 @@ export function CustomerActions({
   amountPaid = 0,
   onStatusChange,
   autoApprove = false,
-  termsAccepted = false,
 }: CustomerActionsProps) {
   const [isApproving, setIsApproving] = useState(false);
   const [showChangeModal, setShowChangeModal] = useState(false);
@@ -36,8 +34,6 @@ export function CustomerActions({
   const isAlreadyApproved = ['approved', 'paid', 'partially_paid', 'payment_pending'].includes(status);
   // Allow change requests until payment starts (even after approval)
   const canRequestChanges = ['sent', 'viewed', 'approved', 'payment_pending'].includes(status) && amountPaid === 0;
-  // Can only approve if terms are accepted
-  const canApprove = isActionable && termsAccepted;
 
   const handleApprove = async () => {
     setIsApproving(true);
@@ -110,13 +106,13 @@ export function CustomerActions({
     }
   };
 
-  // Handle auto-approve from email link (only if terms accepted)
+  // Handle auto-approve from email link
   useEffect(() => {
-    if (autoApprove && canApprove && !autoApproveTriggered.current) {
+    if (autoApprove && isActionable && !autoApproveTriggered.current) {
       autoApproveTriggered.current = true;
       handleApprove();
     }
-  }, [autoApprove, canApprove]);
+  }, [autoApprove, isActionable]);
 
   // Show approved state with optional change request button
   if (isAlreadyApproved) {
@@ -160,26 +156,19 @@ export function CustomerActions({
   return (
     <>
       <div className="flex flex-col sm:flex-row gap-3">
-        <div className="flex-1 flex flex-col gap-1">
-          <Button
-            onClick={handleApprove}
-            disabled={isApproving || !termsAccepted}
-            size="lg"
-            className="w-full bg-primary hover:bg-primary/90"
-          >
-            {isApproving ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <CheckCircle className="mr-2 h-4 w-4" />
-            )}
-            Approve Estimate
-          </Button>
-          {!termsAccepted && (
-            <p className="text-xs text-muted-foreground text-center">
-              Please accept the Terms & Conditions above
-            </p>
+        <Button
+          onClick={handleApprove}
+          disabled={isApproving}
+          size="lg"
+          className="flex-1 bg-primary hover:bg-primary/90"
+        >
+          {isApproving ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <CheckCircle className="mr-2 h-4 w-4" />
           )}
-        </div>
+          Approve Estimate
+        </Button>
 
         <Button
           variant="outline"

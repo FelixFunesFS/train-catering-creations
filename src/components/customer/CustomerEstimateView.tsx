@@ -22,8 +22,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Loader2, Calendar, MapPin, Users, Clock, AlertCircle, FileText, ChevronDown, PenLine, MessageSquare } from 'lucide-react';
+import { Loader2, Calendar, MapPin, Users, Clock, AlertCircle, FileText, ChevronDown, PenLine, MessageSquare, Info } from 'lucide-react';
 import { formatDate, formatTime, formatServiceType, getStatusColor } from '@/utils/formatters';
 
 export function CustomerEstimateView() {
@@ -33,7 +32,6 @@ export function CustomerEstimateView() {
   const { loading, estimateData, error, refetch } = useEstimateAccess(token);
   const [showChangeModal, setShowChangeModal] = useState(false);
   const [autoActionTriggered, setAutoActionTriggered] = useState(false);
-  const [termsAccepted, setTermsAccepted] = useState(false);
 
   // Calculate payment progress - MUST be before any early returns
   const amountPaid = useMemo(() => {
@@ -290,27 +288,19 @@ export function CustomerEstimateView() {
           </Card>
         </Collapsible>
 
-        {/* Terms Acknowledgment Checkbox */}
-        {['sent', 'viewed'].includes(invoice.workflow_status) && (
-          <div className="flex items-start gap-3 px-4 py-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg">
-            <Checkbox
-              id="terms-accepted"
-              checked={termsAccepted}
-              onCheckedChange={(checked) => setTermsAccepted(checked === true)}
-              className="mt-0.5"
-            />
-            <label
-              htmlFor="terms-accepted"
-              className="text-sm text-amber-800 dark:text-amber-300 cursor-pointer leading-relaxed"
-            >
-              I have read and agree to the <strong>Terms & Conditions</strong> above. I understand the payment schedule and cancellation policy.
-            </label>
-          </div>
-        )}
-
         {/* Actions - After Terms */}
         <Card>
-          <CardContent className="pt-6">
+          <CardContent className="pt-6 space-y-4">
+            {/* Acceptance Note - approval implies agreement */}
+            {['sent', 'viewed'].includes(invoice.workflow_status) && (
+              <div className="flex items-start gap-2 p-3 bg-muted/50 rounded-lg border border-border/50">
+                <Info className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+                <p className="text-sm text-muted-foreground">
+                  By approving this estimate, you agree to our <strong>Terms & Conditions</strong> outlined above.
+                </p>
+              </div>
+            )}
+            
             <CustomerActions
               invoiceId={invoice.id}
               customerEmail={quote.email}
@@ -318,7 +308,6 @@ export function CustomerEstimateView() {
               quoteRequestId={invoice.quote_request_id}
               onStatusChange={refetch}
               autoApprove={action === 'approve' && !autoActionTriggered}
-              termsAccepted={termsAccepted}
             />
           </CardContent>
         </Card>
