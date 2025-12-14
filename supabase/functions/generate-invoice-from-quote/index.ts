@@ -86,10 +86,9 @@ const generateLineItems = (quote: any): any[] => {
     // Build description with selected entrées if available
     let description = '';
     if (vegetarianEntrees.length > 0) {
-      const entreesText = vegetarianEntrees.map(formatMenuDescription).join(', ');
-      description = `${entreesText} for ${vegCount} vegetarian guest${vegCount !== 1 ? 's' : ''}`;
+      description = vegetarianEntrees.map(formatMenuDescription).join(', ');
     } else {
-      description = `Vegetarian meal options for ${vegCount} guest${vegCount !== 1 ? 's' : ''}`;
+      description = 'Vegetarian meal accommodations';
     }
     
     lineItems.push({

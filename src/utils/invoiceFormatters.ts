@@ -278,9 +278,9 @@ export const generateProfessionalLineItems = (quote: QuoteRequest): LineItem[] =
     let description = '';
     const vegetarianEntrees = Array.isArray(quote.vegetarian_entrees) ? quote.vegetarian_entrees : [];
     if (vegetarianEntrees.length > 0) {
-      description = `${vegetarianEntrees.map(formatMenuDescription).join(', ')} for ${vegCount} vegetarian guest${vegCount !== 1 ? 's' : ''}`;
+      description = vegetarianEntrees.map(formatMenuDescription).join(', ');
     } else {
-      description = `Vegetarian meal options for ${vegCount} guest${vegCount !== 1 ? 's' : ''}`;
+      description = 'Vegetarian meal accommodations';
     }
     
     lineItems.push({
@@ -350,10 +350,7 @@ function createCateringPackage(quote: QuoteRequest, proteins: string[]): LineIte
   description += ', dinner rolls';
   if (drinksText) description += `, ${drinksText}`;
   
-  // Add dietary accommodations if present
-  if (quote.guest_count_with_restrictions) {
-    description += ` (includes accommodations for ${quote.guest_count_with_restrictions})`;
-  }
+  // Removed: dietary accommodations text - vegetarian line item handles this separately
   
   return {
     id: `catering_package_${Date.now()}`,
