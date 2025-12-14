@@ -22,6 +22,7 @@ import {
   generateTrackingPixel,
   BRAND_COLORS
 } from '../_shared/emailTemplates.ts';
+import { generateTermsSummaryHTML } from '../_shared/termsAndConditions.ts';
 import { generatePaymentConfirmationEmailWithNextSteps, generateEventReminderEmail } from './paymentConfirmationTemplate.ts';
 
 const corsHeaders = {
@@ -719,6 +720,8 @@ function generateApprovalConfirmationEmail(quote: any, invoice: any, portalUrl: 
             <li><strong>Planning Call:</strong> We'll schedule a call to finalize all the details</li>
             <li><strong>Event Day:</strong> We'll arrive early to set up and serve amazing food!</li>
           </ol>
+          
+          ${generateTermsSummaryHTML(portalUrl)}
           
           <div style="background: ${BRAND_COLORS.lightGray}; padding: 15px; border-radius: 8px; border-left: 4px solid ${BRAND_COLORS.gold}; margin: 20px 0;">
             <strong>💡 Tip:</strong> You can always access your event portal to view your estimate, make payments, or contact us using the link in this email.

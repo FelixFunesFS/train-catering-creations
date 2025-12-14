@@ -13,6 +13,7 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { PDFDocument, rgb, StandardFonts } from "https://esm.sh/pdf-lib@1.17.1";
 import fontkit from "https://esm.sh/@pdf-lib/fontkit@1.1.1";
+import { getTermsForPDF } from "../_shared/termsAndConditions.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -526,76 +527,9 @@ serve(async (req) => {
     drawLine(margin, y, pageWidth - margin, GOLD, 2);
     y -= 20;
 
-    // Full terms and conditions
-    const fullTerms = [
-      {
-        title: "PAYMENT TERMS",
-        items: [
-          "All deposits are non-refundable and due upon booking confirmation.",
-          "Final payment must be received before the event date unless Net 30 terms apply.",
-          "Accepted payment methods: Credit/Debit Card, ACH Bank Transfer, Check, Cash.",
-          "A 3% processing fee applies to credit card payments.",
-          "Returned checks are subject to a $35 fee."
-        ]
-      },
-      {
-        title: "CANCELLATION POLICY",
-        items: [
-          "Cancellations more than 14 days before event: Deposit forfeited only.",
-          "Cancellations 8-14 days before event: 50% of total amount forfeited.",
-          "Cancellations within 7 days of event: 100% of total amount forfeited.",
-          "Rescheduling requests must be made at least 14 days in advance.",
-          "One complimentary reschedule allowed per booking (subject to availability)."
-        ]
-      },
-      {
-        title: "GUEST COUNT & MENU CHANGES",
-        items: [
-          "Final guest count must be confirmed 7 days before the event.",
-          "Guest count increases may be accommodated based on availability (additional charges apply).",
-          "Guest count decreases after final confirmation will not reduce the total amount.",
-          "Menu changes must be requested at least 7 days before the event.",
-          "Same-day menu changes are subject to a 15% surcharge."
-        ]
-      },
-      {
-        title: "ALLERGIES & DIETARY RESTRICTIONS",
-        items: [
-          "Please inform us of any food allergies or dietary restrictions at time of booking.",
-          "We cannot guarantee a completely allergen-free environment.",
-          "Cross-contamination may occur during food preparation.",
-          "Guests with severe allergies should take appropriate precautions."
-        ]
-      },
-      {
-        title: "SERVICE DETAILS",
-        items: [
-          "Setup begins 1-2 hours before the scheduled service time.",
-          "Full-service packages include setup, serving, and cleanup.",
-          "All catering equipment will be retrieved within 24 hours after the event.",
-          "Client is responsible for providing adequate space for food service.",
-          "Leftover food may be packaged for client (containers not provided)."
-        ]
-      },
-      {
-        title: "GRATUITY & SERVICE CHARGES",
-        items: [
-          "A 20% service charge is included in full-service catering packages.",
-          "This service charge compensates our catering staff.",
-          "Additional gratuity for exceptional service is at your discretion.",
-          "Delivery-only orders do not include service charge."
-        ]
-      },
-      {
-        title: "LIABILITY",
-        items: [
-          "Soul Train's Eatery maintains comprehensive liability insurance.",
-          "Client is responsible for securing necessary permits for their venue.",
-          "We are not liable for issues arising from client-provided equipment or facilities.",
-          "Food safety is guaranteed until time of delivery/service completion."
-        ]
-      }
-    ];
+    // Get terms from shared source (government-specific if applicable)
+    const isGovernment = quoteData?.compliance_level === 'government';
+    const fullTerms = getTermsForPDF(isGovernment);
 
     for (const section of fullTerms) {
       // Section title

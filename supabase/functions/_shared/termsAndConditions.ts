@@ -1,16 +1,24 @@
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+/**
+ * SINGLE SOURCE OF TRUTH: Catering Agreement Terms & Conditions
+ * 
+ * This file is the canonical source for all terms displayed to customers.
+ * All edge functions and frontend components should use these terms.
+ * 
+ * Keep in sync with:
+ * - src/hooks/useCateringAgreement.ts (frontend fallback - should match DEFAULT_TERMS)
+ * - src/components/shared/StandardTermsAndConditions.tsx (frontend display)
+ */
 
-export interface CateringAgreementSection {
+export interface TermsSection {
   title: string;
   description?: string;
   items?: string[];
 }
 
-export interface CateringAgreementTerms {
+export interface CateringTerms {
   agreement_title: string;
   intro_text: string;
-  sections: CateringAgreementSection[];
+  sections: TermsSection[];
   acceptance_text: string;
   closing_text: string;
   owner_signature: {
@@ -19,9 +27,7 @@ export interface CateringAgreementTerms {
   };
 }
 
-// Default terms in case database fetch fails
-// MUST stay in sync with supabase/functions/_shared/termsAndConditions.ts
-const DEFAULT_TERMS: CateringAgreementTerms = {
+export const DEFAULT_TERMS: CateringTerms = {
   agreement_title: "Catering Services Agreement",
   intro_text: "This Catering Services Agreement (\"Agreement\") is entered into by and between Soul Train's Eatery (\"Caterer\") and the undersigned client (\"Client\"). By approving this estimate, you agree to the following terms and conditions:",
   sections: [
@@ -85,26 +91,73 @@ const DEFAULT_TERMS: CateringAgreementTerms = {
   }
 };
 
-export function useCateringAgreement() {
-  return useQuery({
-    queryKey: ['catering-agreement-terms'],
-    queryFn: async (): Promise<CateringAgreementTerms> => {
-      const { data, error } = await supabase
-        .from('business_config')
-        .select('config_value')
-        .eq('config_key', 'catering_agreement_terms')
-        .maybeSingle();
-      
-      if (error || !data) {
-        console.warn('Using default catering agreement terms:', error?.message);
-        return DEFAULT_TERMS;
-      }
-      
-      return data.config_value as unknown as CateringAgreementTerms;
-    },
-    staleTime: 1000 * 60 * 30, // 30 minutes
-  });
+/**
+ * Get government-specific additional terms
+ */
+export function getGovernmentTerms(): TermsSection {
+  return {
+    title: "Government Contract Terms",
+    items: [
+      "Payment terms: Net 30 days after event completion.",
+      "No deposit required for government contracts.",
+      "Tax-exempt status honored with valid documentation.",
+      "Purchase Order (PO) number required for invoicing."
+    ]
+  };
 }
 
-// Export default terms for use in edge functions
-export { DEFAULT_TERMS };
+/**
+ * Get all terms sections, optionally including government terms
+ */
+export function getTermsSections(isGovernment: boolean = false): TermsSection[] {
+  const sections = [...DEFAULT_TERMS.sections];
+  if (isGovernment) {
+    sections.push(getGovernmentTerms());
+  }
+  return sections;
+}
+
+/**
+ * Get a brief summary of key terms for email display
+ */
+export function getTermsSummary(): string[] {
+  return [
+    "10% non-refundable deposit secures your date",
+    "50% due 30 days before event, final 40% due 14 days before",
+    "Final guest count required 7 days before event",
+    "Cancellation within 7 days forfeits full amount"
+  ];
+}
+
+/**
+ * Generate HTML for terms summary in emails
+ */
+export function generateTermsSummaryHTML(portalUrl?: string): string {
+  const summaryPoints = getTermsSummary();
+  
+  return `
+    <div style="margin-top: 20px; padding: 16px; background-color: #f8f9fa; border-radius: 8px; border-left: 4px solid #DC143C;">
+      <h4 style="margin: 0 0 12px 0; font-size: 14px; color: #333;">📋 Key Terms Summary</h4>
+      <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: #555; line-height: 1.6;">
+        ${summaryPoints.map(point => `<li>${point}</li>`).join('')}
+      </ul>
+      ${portalUrl ? `
+      <p style="margin: 12px 0 0 0; font-size: 12px; color: #666;">
+        <a href="${portalUrl}" style="color: #DC143C; text-decoration: underline;">View full Terms & Conditions in your portal</a>
+      </p>
+      ` : ''}
+    </div>
+  `;
+}
+
+/**
+ * Generate full terms for PDF - returns array of sections with title and items
+ */
+export function getTermsForPDF(isGovernment: boolean = false): { title: string; items: string[] }[] {
+  const sections = getTermsSections(isGovernment);
+  
+  return sections.map(section => ({
+    title: section.title.toUpperCase(),
+    items: section.items || (section.description ? [section.description] : [])
+  }));
+}
