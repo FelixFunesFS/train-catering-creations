@@ -153,9 +153,16 @@ const handler = async (req: Request): Promise<Response> => {
             </div>
 
             ${requestData.guest_count_with_restrictions ? `
-            <div class="event-card" style="border-left-color: ${BRAND_COLORS.gold}; background: #FFF9E6;">
-              <h3 style="margin: 0 0 10px 0; color: ${BRAND_COLORS.crimson};">🥗 Vegetarian Portions</h3>
+            <div class="event-card" style="border-left-color: #22c55e; background: #f0fdf4;">
+              <h3 style="margin: 0 0 10px 0; color: #166534;">🥗 Vegetarian Portions</h3>
               <p style="margin: 5px 0; font-size: 16px; font-weight: bold;">${requestData.guest_count_with_restrictions} guests require vegetarian meals</p>
+            </div>
+            ` : ''}
+
+            ${requestData.vegetarian_entrees && Array.isArray(requestData.vegetarian_entrees) && requestData.vegetarian_entrees.length > 0 ? `
+            <div class="event-card" style="border-left-color: #22c55e; background: #f0fdf4;">
+              <h3 style="margin: 0 0 10px 0; color: #166534;">🌱 Vegetarian Entrées Selected</h3>
+              <p style="margin: 5px 0; font-size: 16px;">${requestData.vegetarian_entrees.map(formatMenuItem).join(', ')}</p>
             </div>
             ` : ''}
 

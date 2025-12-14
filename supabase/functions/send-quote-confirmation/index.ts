@@ -156,15 +156,22 @@ const handler = async (req: Request): Promise<Response> => {
               <p style="margin: 15px 0 5px 0; font-size: 14px; color: ${BRAND_COLORS.crimson};"><strong>Reference ID:</strong> #${quote_id.slice(0, 8).toUpperCase()}</p>
             </div>
 
-            ${(quote.guest_count_with_restrictions || quote.special_requests) ? `
-            <div class="event-card" style="border-left-color: ${BRAND_COLORS.gold}; background: #FFF9E6;">
-              <h3 style="margin: 0 0 10px 0; color: ${BRAND_COLORS.crimson};">📝 Additional Notes</h3>
+            ${(quote.guest_count_with_restrictions || quote.special_requests || (quote.vegetarian_entrees && Array.isArray(quote.vegetarian_entrees) && quote.vegetarian_entrees.length > 0)) ? `
+            <div class="event-card" style="border-left-color: #22c55e; background: #f0fdf4;">
+              <h3 style="margin: 0 0 10px 0; color: #166534;">🌱 Vegetarian Options</h3>
               ${quote.guest_count_with_restrictions ? `
               <p style="margin: 5px 0;"><strong>Vegetarian Portions:</strong> ${quote.guest_count_with_restrictions} guests require vegetarian meals</p>
               ` : ''}
-              ${quote.special_requests ? `
-              <p style="margin: 5px 0;"><strong>Special Requests:</strong> ${quote.special_requests}</p>
+              ${quote.vegetarian_entrees && Array.isArray(quote.vegetarian_entrees) && quote.vegetarian_entrees.length > 0 ? `
+              <p style="margin: 5px 0;"><strong>Vegetarian Entrées:</strong> ${quote.vegetarian_entrees.map(formatMenuItem).join(', ')}</p>
               ` : ''}
+            </div>
+            ` : ''}
+            
+            ${quote.special_requests ? `
+            <div class="event-card" style="border-left-color: ${BRAND_COLORS.gold}; background: #FFF9E6;">
+              <h3 style="margin: 0 0 10px 0; color: ${BRAND_COLORS.crimson};">📝 Special Requests</h3>
+              <p style="margin: 5px 0;">${quote.special_requests}</p>
             </div>
             ` : ''}
 
