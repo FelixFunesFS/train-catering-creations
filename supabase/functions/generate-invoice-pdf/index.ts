@@ -384,31 +384,30 @@ serve(async (req) => {
     drawText("Total", totalCol, y - 11, { font: helveticaBold, size: 8 });
     y -= 20;
 
-    // Line items (compact) - vertically centered text
-    const rowHeight = 14;
-    const fontSize = 9;
-    const textOffset = (rowHeight - fontSize) / 2 + fontSize - 2; // Center text vertically
-    
+    // Line items - proper spacing, move y DOWN first then draw
     for (const item of (lineItems || [])) {
       const title = item.title || 'Item';
-      const rowY = y - textOffset;
-      drawText(title, descCol + 4, rowY, { font: helveticaBold, size: fontSize });
-      drawText(item.quantity.toString(), qtyCol, rowY, { size: fontSize });
-      drawText(formatCurrency(item.unit_price), priceCol, rowY, { size: fontSize });
-      drawText(formatCurrency(item.total_price), totalCol, rowY, { font: helveticaBold, size: fontSize });
-      y -= rowHeight;
       
-      // Description (wrapped, smaller)
+      // Title row - move down first, then draw
+      y -= 14;
+      drawText(title, descCol + 4, y, { font: helveticaBold, size: 9 });
+      drawText(item.quantity.toString(), qtyCol, y, { size: 9 });
+      drawText(formatCurrency(item.unit_price), priceCol, y, { size: 9 });
+      drawText(formatCurrency(item.total_price), totalCol, y, { font: helveticaBold, size: 9 });
+      
+      // Description row - move down THEN draw (prevents overlap)
       if (item.description) {
+        y -= 12; // Gap between title and description
         const descHeight = drawText(item.description, descCol + 8, y, { 
           size: 8, color: MEDIUM_GRAY, maxWidth: qtyCol - descCol - 20 
         });
-        y -= descHeight + 2;
+        y -= Math.max(descHeight - 8, 0); // Account for wrapped text
       }
       
-      y -= 4;
-      drawLine(margin, y, pageWidth - margin);
+      // Separator line
       y -= 6;
+      drawLine(margin, y, pageWidth - margin);
+      y -= 4;
     }
 
     // === TOTALS (compact) ===
