@@ -31,6 +31,7 @@ import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCanceled from "./pages/PaymentCanceled";
 import UnifiedAdminDashboard from "./pages/UnifiedAdminDashboard";
 import EstimatePrintView from "./pages/EstimatePrintView";
+import { EventEstimateFullViewPage } from "./pages/EventEstimateFullViewPage";
 import { CustomerEstimateView } from "./components/customer/CustomerEstimateView";
 
 const AppContent = () => {
@@ -60,6 +61,9 @@ const AppContent = () => {
           <Route path="/admin/auth" element={<AdminAuth />} />
           {/* Admin Dashboard and Management */}
           <Route path="/admin" element={<UnifiedAdminDashboard />} />
+          
+          {/* Admin full-viewport event/estimate view */}
+          <Route path="/admin/event/:quoteId" element={<EventEstimateFullViewPage />} />
           
           {/* Admin estimate print route */}
           <Route path="/admin/estimate-print/:invoiceId" element={<EstimatePrintView />} />
