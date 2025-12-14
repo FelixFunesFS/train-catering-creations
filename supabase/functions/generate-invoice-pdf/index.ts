@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { PDFDocument, rgb, StandardFonts } from "https://esm.sh/pdf-lib@1.17.1";
+import fontkit from "https://esm.sh/@pdf-lib/fontkit@1.1.1";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -102,9 +103,9 @@ serve(async (req) => {
     const formatDate = (dateStr: string) => {
       if (!dateStr) return '';
       return new Date(dateStr).toLocaleDateString('en-US', {
-        weekday: 'long',
+        weekday: 'short',
         year: 'numeric',
-        month: 'long',
+        month: 'short',
         day: 'numeric'
       });
     };
@@ -132,9 +133,9 @@ serve(async (req) => {
     // Format service type
     const formatServiceType = (type: string) => {
       const types: Record<string, string> = {
-        'full-service': 'Full Service Catering',
+        'full-service': 'Full Service',
         'delivery-only': 'Delivery Only',
-        'delivery-setup': 'Delivery with Setup',
+        'delivery-setup': 'Delivery + Setup',
         'drop-off': 'Drop-Off'
       };
       return types[type] || type;
@@ -157,25 +158,61 @@ serve(async (req) => {
     const sanitizeText = (text: string | null | undefined): string => {
       if (!text) return '';
       return text
-        .replace(/[\n\r\t]/g, ' ')           // Replace newlines/tabs with spaces
-        .replace(/[\u{1F300}-\u{1F9FF}]/gu, '')  // Remove emojis (Miscellaneous Symbols and Pictographs)
-        .replace(/[\u{2600}-\u{26FF}]/gu, '')   // Remove misc symbols
-        .replace(/[\u{2700}-\u{27BF}]/gu, '')   // Remove dingbats
-        .replace(/[\u{2B50}]/gu, '*')           // Replace star emoji with asterisk
-        .replace(/[^\x00-\x7F]/g, '')           // Remove any remaining non-ASCII characters
-        .replace(/\s+/g, ' ')                   // Collapse multiple spaces
+        .replace(/[\n\r\t]/g, ' ')
+        .replace(/[\u{1F300}-\u{1F9FF}]/gu, '')
+        .replace(/[\u{2600}-\u{26FF}]/gu, '')
+        .replace(/[\u{2700}-\u{27BF}]/gu, '')
+        .replace(/[\u{2B50}]/gu, '*')
+        .replace(/[^\x00-\x7F]/g, '')
+        .replace(/\s+/g, ' ')
         .trim();
     };
 
     // Create PDF document
     const pdfDoc = await PDFDocument.create();
+    
+    // Register fontkit for custom fonts
+    pdfDoc.registerFontkit(fontkit);
+    
     const helvetica = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const helveticaBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
-    // Page settings
+    // Try to load Dancing Script font for brand name
+    let dancingScript = helveticaBold; // Fallback to bold
+    try {
+      const fontUrl = 'https://fonts.gstatic.com/s/dancingscript/v25/If2RXTr6YS-zF4S-kcSWSVi_szLgiuE.ttf';
+      const fontResponse = await fetch(fontUrl);
+      if (fontResponse.ok) {
+        const fontBytes = new Uint8Array(await fontResponse.arrayBuffer());
+        dancingScript = await pdfDoc.embedFont(fontBytes);
+        logStep("Dancing Script font loaded successfully");
+      }
+    } catch (fontError) {
+      logStep("Dancing Script font failed to load, using fallback", { error: String(fontError) });
+    }
+
+    // Try to load logo
+    let logoImage: any = null;
+    let logoDims = { width: 0, height: 0 };
+    try {
+      const logoUrl = 'https://qptprrqjlcvfkhfdnnoa.lovableproject.com/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png';
+      const logoResponse = await fetch(logoUrl);
+      if (logoResponse.ok) {
+        const logoBytes = new Uint8Array(await logoResponse.arrayBuffer());
+        logoImage = await pdfDoc.embedPng(logoBytes);
+        const targetHeight = 45;
+        const scale = targetHeight / logoImage.height;
+        logoDims = { width: logoImage.width * scale, height: targetHeight };
+        logStep("Logo loaded successfully", logoDims);
+      }
+    } catch (logoError) {
+      logStep("Logo failed to load", { error: String(logoError) });
+    }
+
+    // Page settings - optimized for compact layout
     const pageWidth = 612; // 8.5 inches
     const pageHeight = 792; // 11 inches
-    const margin = 50;
+    const margin = 40; // Reduced margin
     const contentWidth = pageWidth - (margin * 2);
     
     let page = pdfDoc.addPage([pageWidth, pageHeight]);
@@ -185,15 +222,13 @@ serve(async (req) => {
     const drawText = (rawText: string, x: number, yPos: number, options: { 
       font?: any, size?: number, color?: any, maxWidth?: number 
     } = {}) => {
-      // Sanitize text to remove newlines and control characters
       const text = sanitizeText(rawText);
       if (!text) return 0;
       
       const font = options.font || helvetica;
-      const size = options.size || 10;
+      const size = options.size || 9;
       const color = options.color || DARK_GRAY;
       
-      // Word wrap if maxWidth specified
       if (options.maxWidth) {
         const words = text.split(' ');
         let line = '';
@@ -206,19 +241,19 @@ serve(async (req) => {
           if (testWidth > options.maxWidth && line) {
             page.drawText(line, { x, y: currentY, size, font, color });
             line = word;
-            currentY -= size + 2;
+            currentY -= size + 1;
           } else {
             line = testLine;
           }
         }
         if (line) {
           page.drawText(line, { x, y: currentY, size, font, color });
-          currentY -= size + 2;
+          currentY -= size + 1;
         }
         return yPos - currentY;
       } else {
         page.drawText(text, { x, y: yPos, size, font, color });
-        return size + 2;
+        return size + 1;
       }
     };
 
@@ -226,274 +261,361 @@ serve(async (req) => {
       page.drawLine({ start: { x: x1, y: yPos }, end: { x: x2, y: yPos }, thickness, color });
     };
 
-    const checkNewPage = (neededHeight: number) => {
-      if (y - neededHeight < margin + 50) {
-        page = pdfDoc.addPage([pageWidth, pageHeight]);
-        y = pageHeight - margin;
-        return true;
-      }
-      return false;
-    };
+    // === PAGE 1 HEADER ===
+    const headerHeight = 55;
+    page.drawRectangle({ x: 0, y: pageHeight - headerHeight, width: pageWidth, height: headerHeight, color: CRIMSON });
+    
+    // Draw logo if available
+    let textStartX = margin;
+    if (logoImage) {
+      page.drawImage(logoImage, { 
+        x: margin, 
+        y: pageHeight - headerHeight + 5, 
+        width: logoDims.width, 
+        height: logoDims.height 
+      });
+      textStartX = margin + logoDims.width + 10;
+    }
+    
+    // Company name with Dancing Script
+    drawText("Soul Train's Eatery", textStartX, pageHeight - 30, { font: dancingScript, size: 20, color: WHITE });
+    drawText("Authentic Southern Catering", textStartX, pageHeight - 45, { size: 8, color: rgb(1, 0.9, 0.9) });
+    
+    // Contact info on right
+    const contactX = pageWidth - margin - 130;
+    drawText("(843) 970-0265", contactX, pageHeight - 28, { size: 8, color: WHITE });
+    drawText("soultrainseatery@gmail.com", contactX, pageHeight - 40, { size: 8, color: WHITE });
+    
+    y = pageHeight - headerHeight - 10;
+    
+    // Title row
+    page.drawRectangle({ x: margin, y: y - 16, width: 130, height: 20, color: rgb(0.95, 0.95, 0.95) });
+    drawText("CATERING ESTIMATE", margin + 8, y - 11, { font: helveticaBold, size: 10, color: CRIMSON });
+    
+    const estNumText = `#${invoiceData.invoice_number || 'DRAFT'}`;
+    const estNumWidth = helveticaBold.widthOfTextAtSize(estNumText, 12);
+    drawText(estNumText, pageWidth - margin - estNumWidth, y - 10, { font: helveticaBold, size: 12, color: CRIMSON });
+    
+    y -= 28;
+    drawLine(margin, y, pageWidth - margin, GOLD, 2);
+    y -= 15;
 
-    // Draw header with logo text (used on both pages)
-    const drawHeader = (pageTitle: string) => {
-      // Logo area - crimson background strip
-      page.drawRectangle({ x: 0, y: pageHeight - 80, width: pageWidth, height: 80, color: CRIMSON });
-      
-      // Company name
-      drawText("Soul Train's Eatery", margin, pageHeight - 45, { font: helveticaBold, size: 22, color: WHITE });
-      drawText("Authentic Southern Catering", margin, pageHeight - 62, { size: 10, color: rgb(1, 0.9, 0.9) });
-      
-      // Contact info on right
-      const contactX = pageWidth - margin - 150;
-      drawText("(843) 970-0265", contactX, pageHeight - 45, { size: 9, color: WHITE });
-      drawText("soultrainseatery@gmail.com", contactX, pageHeight - 56, { size: 9, color: WHITE });
-      
-      y = pageHeight - 100;
-      
-      // Page title
-      page.drawRectangle({ x: margin, y: y - 22, width: 160, height: 26, color: rgb(0.95, 0.95, 0.95) });
-      drawText(pageTitle, margin + 10, y - 16, { font: helveticaBold, size: 12, color: CRIMSON });
-      
-      // Estimate number
-      const estNumText = `#${invoiceData.invoice_number || 'DRAFT'}`;
-      const estNumWidth = helveticaBold.widthOfTextAtSize(estNumText, 14);
-      drawText(estNumText, pageWidth - margin - estNumWidth, y - 14, { font: helveticaBold, size: 14, color: CRIMSON });
-      
-      y -= 40;
-      drawLine(margin, y, pageWidth - margin, GOLD, 2);
-      y -= 25;
-    };
-
-    // === PAGE 1: ESTIMATE ===
-    drawHeader("CATERING ESTIMATE");
-
-    // === CUSTOMER & EVENT INFO (2 columns) ===
+    // === CUSTOMER & EVENT INFO (2 columns, compact) ===
     const col1X = margin;
     const col2X = margin + contentWidth / 2 + 10;
     const colWidth = contentWidth / 2 - 10;
 
     // Customer column
-    drawText("BILL TO", col1X, y, { font: helveticaBold, size: 9, color: MEDIUM_GRAY });
-    y -= 14;
-    drawText(customer?.name || quote?.contact_name || '', col1X, y, { font: helveticaBold, size: 11 });
-    y -= 14;
+    drawText("BILL TO", col1X, y, { font: helveticaBold, size: 8, color: MEDIUM_GRAY });
+    y -= 11;
+    drawText(customer?.name || quote?.contact_name || '', col1X, y, { font: helveticaBold, size: 10 });
+    y -= 11;
     if (customer?.email || quote?.email) {
-      drawText(customer?.email || quote?.email, col1X, y, { size: 10 });
-      y -= 12;
+      drawText(customer?.email || quote?.email, col1X, y, { size: 9 });
+      y -= 10;
     }
     if (customer?.phone) {
-      drawText(customer?.phone, col1X, y, { size: 10 });
-      y -= 12;
-    }
-
-    // Event column (reset y for parallel column)
-    let eventY = y + 40;
-    drawText("EVENT DETAILS", col2X, eventY, { font: helveticaBold, size: 9, color: MEDIUM_GRAY });
-    eventY -= 14;
-    drawText(quote?.event_name || 'Event', col2X, eventY, { font: helveticaBold, size: 11 });
-    eventY -= 14;
-    if (quote?.event_date) {
-      drawText(formatDate(quote.event_date), col2X, eventY, { size: 10 });
-      eventY -= 12;
-    }
-    if (quote?.start_time) {
-      drawText(`Start Time: ${formatTime(quote.start_time)}`, col2X, eventY, { size: 10 });
-      eventY -= 12;
-    }
-    if (quote?.location) {
-      drawText(quote.location, col2X, eventY, { size: 10, maxWidth: colWidth });
-      eventY -= 12;
-    }
-    if (quote?.guest_count) {
-      drawText(`${quote.guest_count} Guests | ${formatServiceType(quote.service_type)}`, col2X, eventY, { size: 10 });
-      eventY -= 12;
-    }
-
-    y = Math.min(y, eventY) - 20;
-
-    // Government badge if applicable
-    if (isGovernment) {
-      page.drawRectangle({ x: margin, y: y - 18, width: contentWidth, height: 22, color: rgb(0.93, 0.95, 1) });
-      drawText("Government Contract - Tax Exempt | Net 30 Payment Terms", margin + 10, y - 12, { 
-        font: helveticaBold, size: 10, color: BLUE 
-      });
-      y -= 35;
-    }
-
-    drawLine(margin, y, pageWidth - margin);
-    y -= 20;
-
-    // === LINE ITEMS TABLE ===
-    drawText("SERVICES & ITEMS", margin, y, { font: helveticaBold, size: 11, color: CRIMSON });
-    y -= 20;
-
-    // Table header
-    const descCol = margin;
-    const qtyCol = margin + contentWidth - 180;
-    const priceCol = margin + contentWidth - 120;
-    const totalCol = margin + contentWidth - 60;
-
-    page.drawRectangle({ x: margin, y: y - 14, width: contentWidth, height: 18, color: LIGHT_GRAY });
-    drawText("Description", descCol + 5, y - 10, { font: helveticaBold, size: 9 });
-    drawText("Qty", qtyCol, y - 10, { font: helveticaBold, size: 9 });
-    drawText("Unit", priceCol, y - 10, { font: helveticaBold, size: 9 });
-    drawText("Total", totalCol, y - 10, { font: helveticaBold, size: 9 });
-    y -= 22;
-
-    // Line items
-    for (const item of (lineItems || [])) {
-      checkNewPage(50);
-      
-      // Title
-      const title = item.title || 'Item';
-      drawText(title, descCol + 5, y, { font: helveticaBold, size: 10 });
-      
-      // Qty, Unit, Total on same row
-      drawText(item.quantity.toString(), qtyCol, y, { size: 10 });
-      drawText(formatCurrency(item.unit_price), priceCol, y, { size: 10 });
-      drawText(formatCurrency(item.total_price), totalCol, y, { font: helveticaBold, size: 10 });
-      y -= 14;
-      
-      // Description (wrapped)
-      if (item.description) {
-        const descHeight = drawText(item.description, descCol + 10, y, { 
-          size: 9, color: MEDIUM_GRAY, maxWidth: qtyCol - descCol - 20 
-        });
-        y -= descHeight + 4;
-      }
-      
-      y -= 8;
-      drawLine(margin, y, pageWidth - margin);
+      drawText(customer?.phone, col1X, y, { size: 9 });
       y -= 10;
     }
 
-    // === TOTALS ===
-    y -= 10;
-    const totalsX = margin + contentWidth - 160;
-    const totalsValueX = margin + contentWidth - 60;
+    // Event column
+    let eventY = y + 32;
+    drawText("EVENT DETAILS", col2X, eventY, { font: helveticaBold, size: 8, color: MEDIUM_GRAY });
+    eventY -= 11;
+    drawText(quote?.event_name || 'Event', col2X, eventY, { font: helveticaBold, size: 10 });
+    eventY -= 11;
+    if (quote?.event_date) {
+      const dateTimeStr = quote?.start_time 
+        ? `${formatDate(quote.event_date)} at ${formatTime(quote.start_time)}`
+        : formatDate(quote.event_date);
+      drawText(dateTimeStr, col2X, eventY, { size: 9 });
+      eventY -= 10;
+    }
+    if (quote?.location) {
+      const locHeight = drawText(quote.location, col2X, eventY, { size: 9, maxWidth: colWidth - 20 });
+      eventY -= locHeight;
+    }
+    if (quote?.guest_count) {
+      drawText(`${quote.guest_count} Guests | ${formatServiceType(quote.service_type)}`, col2X, eventY, { size: 9 });
+      eventY -= 10;
+    }
 
-    // Subtotal
-    drawText("Subtotal:", totalsX, y, { size: 10 });
-    drawText(formatCurrency(invoiceData.subtotal), totalsValueX, y, { size: 10 });
+    y = Math.min(y, eventY) - 10;
+
+    // Government badge if applicable
+    if (isGovernment) {
+      page.drawRectangle({ x: margin, y: y - 14, width: contentWidth, height: 18, color: rgb(0.93, 0.95, 1) });
+      drawText("Government Contract - Tax Exempt | Net 30 Payment Terms", margin + 8, y - 9, { 
+        font: helveticaBold, size: 9, color: BLUE 
+      });
+      y -= 22;
+    }
+
+    drawLine(margin, y, pageWidth - margin);
+    y -= 12;
+
+    // === LINE ITEMS TABLE ===
+    drawText("SERVICES & ITEMS", margin, y, { font: helveticaBold, size: 10, color: CRIMSON });
+    y -= 14;
+
+    // Table header
+    const descCol = margin;
+    const qtyCol = margin + contentWidth - 150;
+    const priceCol = margin + contentWidth - 100;
+    const totalCol = margin + contentWidth - 50;
+
+    page.drawRectangle({ x: margin, y: y - 12, width: contentWidth, height: 14, color: LIGHT_GRAY });
+    drawText("Description", descCol + 4, y - 9, { font: helveticaBold, size: 8 });
+    drawText("Qty", qtyCol, y - 9, { font: helveticaBold, size: 8 });
+    drawText("Unit", priceCol, y - 9, { font: helveticaBold, size: 8 });
+    drawText("Total", totalCol, y - 9, { font: helveticaBold, size: 8 });
     y -= 16;
 
-    // Discount if any
+    // Line items (compact)
+    for (const item of (lineItems || [])) {
+      const title = item.title || 'Item';
+      drawText(title, descCol + 4, y, { font: helveticaBold, size: 9 });
+      drawText(item.quantity.toString(), qtyCol, y, { size: 9 });
+      drawText(formatCurrency(item.unit_price), priceCol, y, { size: 9 });
+      drawText(formatCurrency(item.total_price), totalCol, y, { font: helveticaBold, size: 9 });
+      y -= 11;
+      
+      // Description (wrapped, smaller)
+      if (item.description) {
+        const descHeight = drawText(item.description, descCol + 8, y, { 
+          size: 8, color: MEDIUM_GRAY, maxWidth: qtyCol - descCol - 20 
+        });
+        y -= descHeight + 2;
+      }
+      
+      y -= 4;
+      drawLine(margin, y, pageWidth - margin);
+      y -= 6;
+    }
+
+    // === TOTALS (compact) ===
+    y -= 6;
+    const totalsX = margin + contentWidth - 140;
+    const totalsValueX = margin + contentWidth - 50;
+
+    drawText("Subtotal:", totalsX, y, { size: 9 });
+    drawText(formatCurrency(invoiceData.subtotal), totalsValueX, y, { size: 9 });
+    y -= 12;
+
     if (invoiceData.discount_amount && invoiceData.discount_amount > 0) {
       const discountText = invoiceData.discount_description || 'Discount';
-      drawText(`${discountText}:`, totalsX, y, { size: 10, color: rgb(0, 0.5, 0) });
-      drawText(`-${formatCurrency(invoiceData.discount_amount)}`, totalsValueX, y, { size: 10, color: rgb(0, 0.5, 0) });
-      y -= 16;
+      drawText(`${discountText}:`, totalsX, y, { size: 9, color: rgb(0, 0.5, 0) });
+      drawText(`-${formatCurrency(invoiceData.discount_amount)}`, totalsValueX, y, { size: 9, color: rgb(0, 0.5, 0) });
+      y -= 12;
     }
 
-    // Tax
     if (invoiceData.tax_amount && invoiceData.tax_amount > 0) {
-      drawText("Tax (9%):", totalsX, y, { size: 10 });
-      drawText(formatCurrency(invoiceData.tax_amount), totalsValueX, y, { size: 10 });
-      y -= 16;
+      drawText("Tax (9%):", totalsX, y, { size: 9 });
+      drawText(formatCurrency(invoiceData.tax_amount), totalsValueX, y, { size: 9 });
+      y -= 12;
     } else if (isGovernment) {
-      drawText("Tax:", totalsX, y, { size: 10 });
-      drawText("Exempt", totalsValueX, y, { size: 10, color: BLUE });
-      y -= 16;
+      drawText("Tax:", totalsX, y, { size: 9 });
+      drawText("Exempt", totalsValueX, y, { size: 9, color: BLUE });
+      y -= 12;
     }
 
-    // Total
-    drawLine(totalsX - 10, y + 4, pageWidth - margin, CRIMSON, 2);
-    y -= 8;
-    drawText("TOTAL:", totalsX, y, { font: helveticaBold, size: 12 });
-    drawText(formatCurrency(invoiceData.total_amount), totalsValueX - 10, y, { font: helveticaBold, size: 14, color: CRIMSON });
-    y -= 30;
+    drawLine(totalsX - 10, y + 2, pageWidth - margin, CRIMSON, 1.5);
+    y -= 6;
+    drawText("TOTAL:", totalsX, y, { font: helveticaBold, size: 11 });
+    drawText(formatCurrency(invoiceData.total_amount), totalsValueX - 10, y, { font: helveticaBold, size: 12, color: CRIMSON });
+    y -= 18;
 
-    // === NOTES ===
+    // === NOTES (compact) ===
     if (invoiceData.notes) {
-      checkNewPage(60);
-      drawText("NOTES", margin, y, { font: helveticaBold, size: 10, color: CRIMSON });
-      y -= 14;
-      drawText(invoiceData.notes, margin, y, { size: 10, maxWidth: contentWidth, color: MEDIUM_GRAY });
-      y -= 40;
+      drawText("NOTES", margin, y, { font: helveticaBold, size: 9, color: CRIMSON });
+      y -= 10;
+      const notesHeight = drawText(invoiceData.notes, margin, y, { size: 8, maxWidth: contentWidth, color: MEDIUM_GRAY });
+      y -= notesHeight + 10;
     }
 
-    // === PAGE 1 FOOTER ===
-    checkNewPage(80);
-    drawLine(margin, y, pageWidth - margin);
-    y -= 20;
-    drawText("Thank you for choosing Soul Train's Eatery!", margin, y, { font: helveticaBold, size: 11, color: CRIMSON });
-    y -= 16;
-    drawText("This estimate is valid for 30 days. Please contact us with any questions.", margin, y, { size: 9, color: MEDIUM_GRAY });
-
-    // === PAGE 2: PAYMENT SCHEDULE ===
+    // === PAYMENT SCHEDULE (compact, inline on page 1) ===
     if (milestones && milestones.length > 0) {
-      page = pdfDoc.addPage([pageWidth, pageHeight]);
-      y = pageHeight - margin;
+      drawLine(margin, y, pageWidth - margin, GOLD, 1);
+      y -= 12;
       
-      drawHeader("PAYMENT SCHEDULE");
+      drawText("PAYMENT SCHEDULE", margin, y, { font: helveticaBold, size: 10, color: CRIMSON });
+      y -= 14;
 
-      // Payment schedule table
-      const pmtDescCol = margin;
-      const pmtPctCol = margin + contentWidth - 200;
-      const pmtAmtCol = margin + contentWidth - 130;
-      const pmtDueCol = margin + contentWidth - 60;
+      // Compact payment table
+      page.drawRectangle({ x: margin, y: y - 10, width: contentWidth, height: 12, color: CRIMSON });
+      drawText("Payment", margin + 4, y - 7, { font: helveticaBold, size: 7, color: WHITE });
+      drawText("%", margin + contentWidth - 180, y - 7, { font: helveticaBold, size: 7, color: WHITE });
+      drawText("Amount", margin + contentWidth - 130, y - 7, { font: helveticaBold, size: 7, color: WHITE });
+      drawText("Due Date", margin + contentWidth - 70, y - 7, { font: helveticaBold, size: 7, color: WHITE });
+      y -= 14;
 
-      // Table header
-      page.drawRectangle({ x: margin, y: y - 14, width: contentWidth, height: 18, color: CRIMSON });
-      drawText("Payment", pmtDescCol + 5, y - 10, { font: helveticaBold, size: 9, color: WHITE });
-      drawText("%", pmtPctCol, y - 10, { font: helveticaBold, size: 9, color: WHITE });
-      drawText("Amount", pmtAmtCol, y - 10, { font: helveticaBold, size: 9, color: WHITE });
-      drawText("Due Date", pmtDueCol - 15, y - 10, { font: helveticaBold, size: 9, color: WHITE });
-      y -= 24;
-
-      // Milestone rows
       for (const milestone of milestones) {
         const isPaid = milestone.status === 'paid';
         const rowColor = isPaid ? rgb(0.95, 1, 0.95) : WHITE;
         
-        page.drawRectangle({ x: margin, y: y - 12, width: contentWidth, height: 20, color: rowColor });
+        page.drawRectangle({ x: margin, y: y - 10, width: contentWidth, height: 14, color: rowColor });
         
-        drawText(formatMilestoneType(milestone.milestone_type), pmtDescCol + 5, y - 6, { 
-          font: helveticaBold, size: 10, color: isPaid ? rgb(0, 0.5, 0) : DARK_GRAY 
+        drawText(formatMilestoneType(milestone.milestone_type), margin + 4, y - 6, { 
+          font: helveticaBold, size: 8, color: isPaid ? rgb(0, 0.5, 0) : DARK_GRAY 
         });
-        drawText(`${milestone.percentage}%`, pmtPctCol, y - 6, { size: 10 });
-        drawText(formatCurrency(milestone.amount_cents), pmtAmtCol, y - 6, { font: helveticaBold, size: 10 });
-        drawText(formatShortDate(milestone.due_date), pmtDueCol - 15, y - 6, { size: 10 });
+        drawText(`${milestone.percentage}%`, margin + contentWidth - 180, y - 6, { size: 8 });
+        drawText(formatCurrency(milestone.amount_cents), margin + contentWidth - 130, y - 6, { font: helveticaBold, size: 8 });
+        drawText(formatShortDate(milestone.due_date), margin + contentWidth - 70, y - 6, { size: 8 });
         
         if (isPaid) {
-          const paidWidth = helveticaBold.widthOfTextAtSize("PAID", 8);
-          page.drawRectangle({ x: pageWidth - margin - paidWidth - 10, y: y - 10, width: paidWidth + 8, height: 14, color: rgb(0, 0.6, 0) });
-          drawText("PAID", pageWidth - margin - paidWidth - 6, y - 6, { font: helveticaBold, size: 8, color: WHITE });
+          const paidWidth = helveticaBold.widthOfTextAtSize("PAID", 6);
+          page.drawRectangle({ x: pageWidth - margin - paidWidth - 6, y: y - 8, width: paidWidth + 4, height: 10, color: rgb(0, 0.6, 0) });
+          drawText("PAID", pageWidth - margin - paidWidth - 4, y - 5, { font: helveticaBold, size: 6, color: WHITE });
         }
         
-        y -= 24;
-        drawLine(margin, y + 4, pageWidth - margin);
+        y -= 16;
       }
-
-      y -= 30;
-
-      // === TERMS & CONDITIONS ===
-      drawText("TERMS & CONDITIONS", margin, y, { font: helveticaBold, size: 12, color: CRIMSON });
-      y -= 20;
-
-      const terms = [
-        "Payment Terms: All deposits are non-refundable. Final payment is due before the event date.",
-        "Cancellation Policy: Cancellations within 7 days of event forfeit 100% of payment. Cancellations 8-14 days out forfeit 50%. Cancellations more than 14 days out forfeit deposit only.",
-        "Guest Count Changes: Final guest count must be confirmed 7 days before event. Increases may be accommodated based on availability. Decreases after confirmation may not reduce total.",
-        "Allergies & Dietary: Please inform us of any allergies or dietary restrictions. We cannot guarantee a completely allergen-free environment.",
-        "Service: Setup begins 1-2 hours before service time. All equipment will be retrieved within 24 hours after event unless otherwise arranged.",
-        "Gratuity: A 20% service charge is included in full-service packages. Additional gratuity is at your discretion."
-      ];
-
-      for (const term of terms) {
-        checkNewPage(40);
-        const termHeight = drawText(`• ${term}`, margin + 5, y, { size: 9, maxWidth: contentWidth - 10, color: MEDIUM_GRAY });
-        y -= termHeight + 8;
-      }
-
-      y -= 20;
-      drawLine(margin, y, pageWidth - margin, GOLD, 2);
-      y -= 20;
-      drawText("Questions? Contact us at (843) 970-0265 or soultrainseatery@gmail.com", margin, y, { size: 9, color: MEDIUM_GRAY });
-      y -= 14;
-      drawText("Proudly serving Charleston's Lowcountry and surrounding areas.", margin, y, { size: 9, color: MEDIUM_GRAY });
+      y -= 6;
     }
+
+    // === PAGE 1 FOOTER ===
+    drawLine(margin, y, pageWidth - margin);
+    y -= 12;
+    drawText("Thank you for choosing Soul Train's Eatery!", margin, y, { font: helveticaBold, size: 9, color: CRIMSON });
+    y -= 10;
+    drawText("This estimate is valid for 30 days. See page 2 for complete terms and conditions.", margin, y, { size: 8, color: MEDIUM_GRAY });
+
+    // === PAGE 2: FULL TERMS & CONDITIONS ===
+    page = pdfDoc.addPage([pageWidth, pageHeight]);
+    y = pageHeight - margin;
+
+    // Page 2 header
+    page.drawRectangle({ x: 0, y: pageHeight - headerHeight, width: pageWidth, height: headerHeight, color: CRIMSON });
+    
+    if (logoImage) {
+      page.drawImage(logoImage, { 
+        x: margin, 
+        y: pageHeight - headerHeight + 5, 
+        width: logoDims.width, 
+        height: logoDims.height 
+      });
+      textStartX = margin + logoDims.width + 10;
+    } else {
+      textStartX = margin;
+    }
+    
+    drawText("Soul Train's Eatery", textStartX, pageHeight - 30, { font: dancingScript, size: 20, color: WHITE });
+    drawText("Authentic Southern Catering", textStartX, pageHeight - 45, { size: 8, color: rgb(1, 0.9, 0.9) });
+    
+    drawText("(843) 970-0265", contactX, pageHeight - 28, { size: 8, color: WHITE });
+    drawText("soultrainseatery@gmail.com", contactX, pageHeight - 40, { size: 8, color: WHITE });
+    
+    y = pageHeight - headerHeight - 10;
+    
+    page.drawRectangle({ x: margin, y: y - 16, width: 180, height: 20, color: rgb(0.95, 0.95, 0.95) });
+    drawText("TERMS & CONDITIONS", margin + 8, y - 11, { font: helveticaBold, size: 10, color: CRIMSON });
+    
+    y -= 35;
+    drawLine(margin, y, pageWidth - margin, GOLD, 2);
+    y -= 20;
+
+    // Full terms and conditions
+    const fullTerms = [
+      {
+        title: "PAYMENT TERMS",
+        items: [
+          "All deposits are non-refundable and due upon booking confirmation.",
+          "Final payment must be received before the event date unless Net 30 terms apply.",
+          "Accepted payment methods: Credit/Debit Card, ACH Bank Transfer, Check, Cash.",
+          "A 3% processing fee applies to credit card payments.",
+          "Returned checks are subject to a $35 fee."
+        ]
+      },
+      {
+        title: "CANCELLATION POLICY",
+        items: [
+          "Cancellations more than 14 days before event: Deposit forfeited only.",
+          "Cancellations 8-14 days before event: 50% of total amount forfeited.",
+          "Cancellations within 7 days of event: 100% of total amount forfeited.",
+          "Rescheduling requests must be made at least 14 days in advance.",
+          "One complimentary reschedule allowed per booking (subject to availability)."
+        ]
+      },
+      {
+        title: "GUEST COUNT & MENU CHANGES",
+        items: [
+          "Final guest count must be confirmed 7 days before the event.",
+          "Guest count increases may be accommodated based on availability (additional charges apply).",
+          "Guest count decreases after final confirmation will not reduce the total amount.",
+          "Menu changes must be requested at least 7 days before the event.",
+          "Same-day menu changes are subject to a 15% surcharge."
+        ]
+      },
+      {
+        title: "ALLERGIES & DIETARY RESTRICTIONS",
+        items: [
+          "Please inform us of any food allergies or dietary restrictions at time of booking.",
+          "We cannot guarantee a completely allergen-free environment.",
+          "Cross-contamination may occur during food preparation.",
+          "Guests with severe allergies should take appropriate precautions."
+        ]
+      },
+      {
+        title: "SERVICE DETAILS",
+        items: [
+          "Setup begins 1-2 hours before the scheduled service time.",
+          "Full-service packages include setup, serving, and cleanup.",
+          "All catering equipment will be retrieved within 24 hours after the event.",
+          "Client is responsible for providing adequate space for food service.",
+          "Leftover food may be packaged for client (containers not provided)."
+        ]
+      },
+      {
+        title: "GRATUITY & SERVICE CHARGES",
+        items: [
+          "A 20% service charge is included in full-service catering packages.",
+          "This service charge compensates our catering staff.",
+          "Additional gratuity for exceptional service is at your discretion.",
+          "Delivery-only orders do not include service charge."
+        ]
+      },
+      {
+        title: "LIABILITY",
+        items: [
+          "Soul Train's Eatery maintains comprehensive liability insurance.",
+          "Client is responsible for securing necessary permits for their venue.",
+          "We are not liable for issues arising from client-provided equipment or facilities.",
+          "Food safety is guaranteed until time of delivery/service completion."
+        ]
+      }
+    ];
+
+    for (const section of fullTerms) {
+      // Section title
+      page.drawRectangle({ x: margin, y: y - 12, width: contentWidth, height: 16, color: rgb(0.97, 0.97, 0.97) });
+      drawText(section.title, margin + 6, y - 8, { font: helveticaBold, size: 9, color: CRIMSON });
+      y -= 20;
+      
+      // Section items
+      for (const item of section.items) {
+        const itemHeight = drawText(`* ${item}`, margin + 10, y, { size: 8, maxWidth: contentWidth - 20, color: DARK_GRAY });
+        y -= itemHeight + 4;
+      }
+      
+      y -= 8;
+      
+      // Check if we need more space (shouldn't happen with current content)
+      if (y < margin + 80) {
+        page = pdfDoc.addPage([pageWidth, pageHeight]);
+        y = pageHeight - margin - 20;
+      }
+    }
+
+    // Footer
+    y -= 10;
+    drawLine(margin, y, pageWidth - margin, GOLD, 2);
+    y -= 15;
+    drawText("Questions? Contact us at (843) 970-0265 or soultrainseatery@gmail.com", margin, y, { size: 8, color: MEDIUM_GRAY });
+    y -= 10;
+    drawText("Proudly serving Charleston's Lowcountry and surrounding areas.", margin, y, { size: 8, color: MEDIUM_GRAY });
+    y -= 15;
+    drawText(`Estimate #${invoiceData.invoice_number || 'DRAFT'} | Generated ${new Date().toLocaleDateString('en-US')}`, margin, y, { size: 7, color: MEDIUM_GRAY });
 
     // Generate PDF bytes
     const pdfBytes = await pdfDoc.save();
