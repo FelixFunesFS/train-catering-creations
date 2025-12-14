@@ -100,6 +100,7 @@ export function MultiSelect({
                     {option.label}
                     <X
                       className="ml-1 h-3 w-3 cursor-pointer hover:text-destructive"
+                      onMouseDown={(e) => e.preventDefault()}
                       onClick={(e) => {
                         e.stopPropagation()
                         handleRemove(option.value)

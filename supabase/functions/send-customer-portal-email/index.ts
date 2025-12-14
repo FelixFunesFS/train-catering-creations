@@ -302,7 +302,7 @@ function generateEstimateReadyEmail(quote: any, invoice: any, portalUrl: string,
       <div class="email-container">
         <div style="background: linear-gradient(135deg, ${BRAND_COLORS.crimson}, ${BRAND_COLORS.crimsonDark}); padding: 25px; border-radius: 8px; margin-bottom: 25px; text-align: center;">
           <div style="background: linear-gradient(135deg, ${BRAND_COLORS.gold}, ${BRAND_COLORS.goldLight}); display: inline-block; padding: 8px 16px; border-radius: 20px; margin-bottom: 15px;">
-            <span style="color: ${BRAND_COLORS.darkGray}; font-weight: bold; font-size: 14px;">💰 ESTIMATE READY</span>
+            <span style="color: ${BRAND_COLORS.darkGray}; font-weight: bold; font-size: 14px;">📋 ESTIMATE READY</span>
           </div>
           <h2 style="color: white; margin: 0; font-size: 24px;">Your Custom Estimate is Ready!</h2>
         </div>

@@ -766,7 +766,7 @@ export function generateLineItemsTable(lineItems: any[], subtotal: number, taxAm
 
   let tableHtml = `
     <div style="margin: 24px 0; overflow-x: auto;" role="region" aria-labelledby="pricing-heading">
-      <h3 id="pricing-heading" style="color: ${BRAND_COLORS.crimson}; margin-bottom: 12px; font-size: 18px;"><span aria-hidden="true">💰</span> Detailed Pricing Breakdown</h3>
+      <h3 id="pricing-heading" style="color: ${BRAND_COLORS.crimson}; margin-bottom: 12px; font-size: 18px;"><span aria-hidden="true">📋</span> Detailed Pricing Breakdown</h3>
       <table class="pricing-table" style="width: 100%; min-width: 280px; border-collapse: collapse; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
         <caption class="sr-only">Line item pricing breakdown with quantities and totals</caption>
         <thead>
