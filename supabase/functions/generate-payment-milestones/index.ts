@@ -89,6 +89,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     const milestones: any[] = [];
 
+    // Valid milestone_type values: DEPOSIT, MILESTONE, BALANCE, FULL, COMBINED, FINAL
     if (isGovernment) {
       // Government: Net 30 after event
       const dueDate = new Date(eventDate);
@@ -96,7 +97,7 @@ const handler = async (req: Request): Promise<Response> => {
 
       milestones.push({
         invoice_id,
-        milestone_type: "full_payment",
+        milestone_type: "FULL",
         percentage: 100,
         amount_cents: totalAmountCents,
         due_date: dueDate.toISOString().split('T')[0],
@@ -109,7 +110,7 @@ const handler = async (req: Request): Promise<Response> => {
       // Rush: 100% due immediately
       milestones.push({
         invoice_id,
-        milestone_type: "full_payment",
+        milestone_type: "FULL",
         percentage: 100,
         amount_cents: totalAmountCents,
         due_date: now.toISOString().split('T')[0],
@@ -125,7 +126,7 @@ const handler = async (req: Request): Promise<Response> => {
 
       milestones.push({
         invoice_id,
-        milestone_type: "deposit",
+        milestone_type: "DEPOSIT",
         percentage: 60,
         amount_cents: Math.round(totalAmountCents * 0.6),
         due_date: now.toISOString().split('T')[0],
@@ -137,7 +138,7 @@ const handler = async (req: Request): Promise<Response> => {
 
       milestones.push({
         invoice_id,
-        milestone_type: "final_payment",
+        milestone_type: "FINAL",
         percentage: 40,
         amount_cents: totalAmountCents - Math.round(totalAmountCents * 0.6),
         due_date: finalDue.toISOString().split('T')[0],
@@ -153,7 +154,7 @@ const handler = async (req: Request): Promise<Response> => {
 
       milestones.push({
         invoice_id,
-        milestone_type: "deposit",
+        milestone_type: "DEPOSIT",
         percentage: 60,
         amount_cents: Math.round(totalAmountCents * 0.6),
         due_date: now.toISOString().split('T')[0],
@@ -165,7 +166,7 @@ const handler = async (req: Request): Promise<Response> => {
 
       milestones.push({
         invoice_id,
-        milestone_type: "final_payment",
+        milestone_type: "FINAL",
         percentage: 40,
         amount_cents: totalAmountCents - Math.round(totalAmountCents * 0.6),
         due_date: finalDue.toISOString().split('T')[0],
@@ -187,7 +188,7 @@ const handler = async (req: Request): Promise<Response> => {
 
       milestones.push({
         invoice_id,
-        milestone_type: "booking_deposit",
+        milestone_type: "DEPOSIT",
         percentage: 10,
         amount_cents: bookingAmount,
         due_date: now.toISOString().split('T')[0],
@@ -199,7 +200,7 @@ const handler = async (req: Request): Promise<Response> => {
 
       milestones.push({
         invoice_id,
-        milestone_type: "mid_payment",
+        milestone_type: "MILESTONE",
         percentage: 50,
         amount_cents: midAmount,
         due_date: midDue.toISOString().split('T')[0],
@@ -211,7 +212,7 @@ const handler = async (req: Request): Promise<Response> => {
 
       milestones.push({
         invoice_id,
-        milestone_type: "final_payment",
+        milestone_type: "FINAL",
         percentage: 40,
         amount_cents: finalAmount,
         due_date: finalDue.toISOString().split('T')[0],
