@@ -69,6 +69,7 @@ const handler = async (req: Request): Promise<Response> => {
     const { data: invoice, error: invoiceError } = await supabase
       .from('invoices')
       .select(`
+        id,
         customer_access_token,
         invoice_number,
         total_amount,
