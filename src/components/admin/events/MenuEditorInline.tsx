@@ -80,6 +80,15 @@ const WEDDING_VEGETARIAN: CardOption[] = [
   { id: "butternut-squash-ravioli", name: "Butternut Squash Ravioli", isDietary: true },
 ];
 
+const SUPPLY_ITEMS: CardOption[] = [
+  { id: 'plates', name: 'Disposable Plates' },
+  { id: 'cups', name: 'Disposable Cups' },
+  { id: 'napkins', name: 'Napkins' },
+  { id: 'serving_utensils', name: 'Serving Utensils' },
+  { id: 'chafers', name: 'Chafing Dishes with Fuel' },
+  { id: 'ice', name: 'Ice' },
+];
+
 interface CategorySectionProps {
   title: string;
   icon?: React.ReactNode;
@@ -101,7 +110,7 @@ function CategorySection({
   defaultOpen = false,
   className 
 }: CategorySectionProps) {
-  const [isOpen, setIsOpen] = useState(defaultOpen || selected.length > 0);
+  const [isOpen, setIsOpen] = useState(defaultOpen);
   
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className={cn("border rounded-lg", className)}>
@@ -140,6 +149,17 @@ export function MenuEditorInline({ quote, invoiceId, onSave }: MenuEditorInlineP
   
   const parseArray = (val: any): string[] => Array.isArray(val) ? val : [];
   
+  const getInitialSupplies = () => {
+    const supplies: string[] = [];
+    if (quote?.plates_requested) supplies.push('plates');
+    if (quote?.cups_requested) supplies.push('cups');
+    if (quote?.napkins_requested) supplies.push('napkins');
+    if (quote?.serving_utensils_requested) supplies.push('serving_utensils');
+    if (quote?.chafers_requested) supplies.push('chafers');
+    if (quote?.ice_requested) supplies.push('ice');
+    return supplies;
+  };
+
   const [formData, setFormData] = useState({
     proteins: parseArray(quote?.proteins),
     sides: parseArray(quote?.sides),
@@ -150,6 +170,7 @@ export function MenuEditorInline({ quote, invoiceId, onSave }: MenuEditorInlineP
     guest_count_with_restrictions: quote?.guest_count_with_restrictions || '',
     special_requests: quote?.special_requests || '',
     both_proteins_available: quote?.both_proteins_available || false,
+    supplies: getInitialSupplies(),
   });
 
   const updateQuote = useUpdateQuote();
@@ -157,7 +178,18 @@ export function MenuEditorInline({ quote, invoiceId, onSave }: MenuEditorInlineP
   const isLoading = updateQuote.isPending || regenerateLineItems.isPending;
 
   const handleSubmit = async () => {
-    await updateQuote.mutateAsync({ quoteId: quote.id, updates: formData });
+    // Convert supplies array back to individual booleans
+    const suppliesUpdate = {
+      plates_requested: formData.supplies.includes('plates'),
+      cups_requested: formData.supplies.includes('cups'),
+      napkins_requested: formData.supplies.includes('napkins'),
+      serving_utensils_requested: formData.supplies.includes('serving_utensils'),
+      chafers_requested: formData.supplies.includes('chafers'),
+      ice_requested: formData.supplies.includes('ice'),
+    };
+    
+    const { supplies, ...menuData } = formData;
+    await updateQuote.mutateAsync({ quoteId: quote.id, updates: { ...menuData, ...suppliesUpdate } });
     await regenerateLineItems.mutateAsync({ invoiceId, quoteId: quote.id });
     onSave();
   };
@@ -178,7 +210,7 @@ export function MenuEditorInline({ quote, invoiceId, onSave }: MenuEditorInlineP
           selected={formData.proteins}
           onChange={(val) => setFormData(prev => ({ ...prev, proteins: val }))}
           showLimit={8}
-          defaultOpen={true}
+          defaultOpen={false}
         />
         
         {/* Both Proteins Toggle */}
@@ -196,7 +228,7 @@ export function MenuEditorInline({ quote, invoiceId, onSave }: MenuEditorInlineP
 
         {/* Vegetarian Section */}
         <div className="border-l-2 border-green-500 rounded-r-lg bg-green-50/50 dark:bg-green-950/20">
-          <Collapsible defaultOpen={formData.vegetarian_entrees.length > 0 || !!formData.guest_count_with_restrictions}>
+          <Collapsible defaultOpen={false}>
             <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-green-100/50 dark:hover:bg-green-900/30 rounded-r-lg">
               <div className="flex items-center gap-2">
                 <Leaf className="h-4 w-4 text-green-600" />
@@ -265,6 +297,15 @@ export function MenuEditorInline({ quote, invoiceId, onSave }: MenuEditorInlineP
           options={drinkOptions}
           selected={formData.drinks}
           onChange={(val) => setFormData(prev => ({ ...prev, drinks: val }))}
+          showLimit={6}
+        />
+
+        {/* Supply & Equipment */}
+        <CategorySection
+          title="Supply & Equipment"
+          options={SUPPLY_ITEMS}
+          selected={formData.supplies}
+          onChange={(val) => setFormData(prev => ({ ...prev, supplies: val }))}
           showLimit={6}
         />
 

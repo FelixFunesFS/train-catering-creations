@@ -4,10 +4,17 @@ import { useUpdateQuote } from '@/hooks/useQuotes';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react';
+import { Loader2, CheckCircle2, Circle, Truck, Package, Users } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 
 type QuoteRequest = Database['public']['Tables']['quote_requests']['Row'];
+type ServiceType = Database['public']['Enums']['service_type'];
+
+const SERVICE_OPTIONS: { id: ServiceType; name: string; description: string; icon: React.ReactNode; badge?: string }[] = [
+  { id: 'drop-off', name: 'Drop-Off Service', description: 'Food delivered, you handle setup', icon: <Package className="h-4 w-4" /> },
+  { id: 'delivery-setup', name: 'Delivery + Setup', description: 'We deliver and set up everything', icon: <Truck className="h-4 w-4" />, badge: 'Most Popular' },
+  { id: 'full-service', name: 'Full-Service Catering', description: 'Complete service with staff', icon: <Users className="h-4 w-4" />, badge: 'Premium' },
+];
 
 interface CustomerEditorProps {
   quote: QuoteRequest;
@@ -23,6 +30,7 @@ export function CustomerEditor({ quote, onSave }: CustomerEditorProps) {
     event_date: quote.event_date,
     start_time: quote.start_time,
     guest_count: quote.guest_count,
+    service_type: quote.service_type,
   });
 
   const updateQuote = useUpdateQuote();
@@ -121,6 +129,46 @@ export function CustomerEditor({ quote, onSave }: CustomerEditorProps) {
               required
             />
           </div>
+        </div>
+      </div>
+
+      <Separator />
+
+      {/* Service Type Section */}
+      <div className="space-y-4">
+        <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Service Type</h4>
+        <div className="grid gap-2">
+          {SERVICE_OPTIONS.map((option) => (
+            <div
+              key={option.id}
+              className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors ${
+                formData.service_type === option.id 
+                  ? 'border-primary bg-primary/5' 
+                  : 'hover:bg-muted/50'
+              }`}
+              onClick={() => setFormData(prev => ({ ...prev, service_type: option.id }))}
+            >
+              {formData.service_type === option.id ? (
+                <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" />
+              ) : (
+                <Circle className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+              )}
+              <div className="flex items-center gap-2 text-muted-foreground">
+                {option.icon}
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="font-medium text-sm">{option.name}</span>
+                  {option.badge && (
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary">
+                      {option.badge}
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground">{option.description}</p>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
       
