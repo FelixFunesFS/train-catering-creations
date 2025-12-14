@@ -628,6 +628,7 @@ export function generateMenuSection(lineItems: any[], bothProteinsAvailable?: bo
   const categoryIcons: Record<string, string> = {
     'Proteins': '🥩',
     'Sides': '🥗',
+    'dietary': '🌱',
     'Appetizers': '🍤',
     'Desserts': '🍰',
     'Beverages': '🥤',
@@ -635,7 +636,12 @@ export function generateMenuSection(lineItems: any[], bothProteinsAvailable?: bo
     'Other Items': '📦'
   };
 
-  const categoryOrder = ['Proteins', 'Sides', 'Appetizers', 'Desserts', 'Beverages', 'Service Items', 'Other Items'];
+  // Category display labels for cleaner output
+  const categoryLabels: Record<string, string> = {
+    'dietary': 'Vegetarian Options',
+  };
+
+  const categoryOrder = ['Proteins', 'Sides', 'dietary', 'Appetizers', 'Desserts', 'Beverages', 'Service Items', 'Other Items'];
   
   let menuHtml = `
     <section class="menu-section" aria-labelledby="menu-heading">
@@ -653,11 +659,24 @@ export function generateMenuSection(lineItems: any[], bothProteinsAvailable?: bo
     if (itemsByCategory[category]) {
       const icon = categoryIcons[category] || '📦';
       const isProtein = category === 'Proteins';
+      const isDietary = category === 'dietary';
+      const displayLabel = categoryLabels[category] || category;
+      
+      // Determine styling based on category
+      let bgStyle = '#ffffff';
+      let borderColor = BRAND_COLORS.lightGray;
+      if (isProtein) {
+        bgStyle = 'linear-gradient(135deg, #FFF5E6, #FFE8CC)';
+        borderColor = BRAND_COLORS.gold;
+      } else if (isDietary) {
+        bgStyle = 'linear-gradient(135deg, #dcfce7, #bbf7d0)';
+        borderColor = '#22c55e';
+      }
       
       menuHtml += `
         <article class="menu-category" aria-labelledby="category-${category.toLowerCase().replace(/\s+/g, '-')}" style="
-          background: ${isProtein ? 'linear-gradient(135deg, #FFF5E6, #FFE8CC)' : '#ffffff'};
-          border: 2px solid ${isProtein ? BRAND_COLORS.gold : BRAND_COLORS.lightGray};
+          background: ${bgStyle};
+          border: 2px solid ${borderColor};
           border-radius: 10px;
           padding: 16px;
           margin: 16px 0;
@@ -667,12 +686,12 @@ export function generateMenuSection(lineItems: any[], bothProteinsAvailable?: bo
             <span aria-hidden="true" style="font-size: 28px; line-height: 1;">${icon}</span>
             <h4 id="category-${category.toLowerCase().replace(/\s+/g, '-')}" style="
               margin: 0;
-              color: ${BRAND_COLORS.crimson};
+              color: ${isDietary ? '#166534' : BRAND_COLORS.crimson};
               font-size: 18px;
               flex: 1;
-              border-bottom: 2px solid ${BRAND_COLORS.gold};
+              border-bottom: 2px solid ${isDietary ? '#22c55e' : BRAND_COLORS.gold};
               padding-bottom: 6px;
-            ">${category}</h4>
+            ">${displayLabel}</h4>
           </div>
       `;
       

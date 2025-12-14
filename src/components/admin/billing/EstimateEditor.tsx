@@ -152,6 +152,14 @@ export function EstimateEditor({ invoice, onClose }: EstimateEditorProps) {
     });
   };
 
+  const handleDescriptionChange = async (lineItemId: string, newDescription: string) => {
+    await updateLineItem.mutateAsync({
+      lineItemId,
+      invoiceId: invoice.invoice_id,
+      updates: { description: newDescription },
+    });
+  };
+
   const handlePreviewClick = () => {
     // Check if all items have pricing
     const unpricedItems = lineItems?.filter(li => li.unit_price === 0) || [];
@@ -337,6 +345,7 @@ export function EstimateEditor({ invoice, onClose }: EstimateEditorProps) {
                         item={item}
                         onPriceChange={(price) => handlePriceChange(item.id, price)}
                         onQuantityChange={(qty) => handleQuantityChange(item.id, qty)}
+                        onDescriptionChange={(desc) => handleDescriptionChange(item.id, desc)}
                         onDelete={() => handleDeleteItem(item.id)}
                         isUpdating={updateLineItem.isPending || deleteLineItem.isPending}
                       />

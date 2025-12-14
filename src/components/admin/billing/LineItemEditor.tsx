@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Database } from '@/integrations/supabase/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
 import { DollarSign, Trash2 } from 'lucide-react';
 
 type LineItem = Database['public']['Tables']['invoice_line_items']['Row'];
@@ -10,6 +11,7 @@ interface LineItemEditorProps {
   item: LineItem;
   onPriceChange: (price: number) => void;
   onQuantityChange?: (quantity: number) => void;
+  onDescriptionChange?: (description: string) => void;
   onDelete?: () => void;
   isUpdating?: boolean;
 }
@@ -22,11 +24,13 @@ export function LineItemEditor({
   item, 
   onPriceChange, 
   onQuantityChange,
+  onDescriptionChange,
   onDelete,
   isUpdating 
 }: LineItemEditorProps) {
   const [priceInput, setPriceInput] = useState(formatCents(item.unit_price));
   const [quantityInput, setQuantityInput] = useState(item.quantity.toString());
+  const [descriptionInput, setDescriptionInput] = useState(item.description || '');
 
   // Sync with external changes
   useEffect(() => {
@@ -36,6 +40,10 @@ export function LineItemEditor({
   useEffect(() => {
     setQuantityInput(item.quantity.toString());
   }, [item.quantity]);
+
+  useEffect(() => {
+    setDescriptionInput(item.description || '');
+  }, [item.description]);
 
   const handlePriceBlur = () => {
     const parsed = parseFloat(priceInput);
@@ -60,6 +68,12 @@ export function LineItemEditor({
     }
   };
 
+  const handleDescriptionBlur = () => {
+    if (onDescriptionChange && descriptionInput !== item.description) {
+      onDescriptionChange(descriptionInput);
+    }
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent, handler: () => void) => {
     if (e.key === 'Enter') {
       handler();
@@ -70,13 +84,24 @@ export function LineItemEditor({
 
   return (
     <div className="flex items-start gap-3 p-3 bg-muted/30 rounded-lg border group">
-      {/* Item Info */}
-      <div className="flex-1 min-w-0">
-        <p className="font-medium text-sm truncate">{item.title || item.category}</p>
-        {item.description && (
-          <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
-            {item.description}
-          </p>
+      {/* Item Info - Title + Editable Description */}
+      <div className="flex-1 min-w-0 space-y-2">
+        <p className="font-medium text-sm">{item.title || item.category}</p>
+        {onDescriptionChange ? (
+          <Textarea
+            value={descriptionInput}
+            onChange={(e) => setDescriptionInput(e.target.value)}
+            onBlur={handleDescriptionBlur}
+            className="text-xs min-h-[60px] resize-y"
+            disabled={isUpdating}
+            placeholder="Item description..."
+          />
+        ) : (
+          item.description && (
+            <p className="text-xs text-muted-foreground whitespace-pre-wrap">
+              {item.description}
+            </p>
+          )
         )}
       </div>
 
