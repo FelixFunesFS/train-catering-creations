@@ -306,6 +306,13 @@
   * {
     @apply border-border;
   }
+  
+  /* Prevent horizontal overflow at root level */
+  html, body, #root {
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+  
   body {
     @apply bg-background text-foreground transition-colors;
   }

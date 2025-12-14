@@ -116,6 +116,7 @@ export function EventList() {
   }, [quotes, invoices]);
 
   const isLoading = quotesLoading || invoicesLoading;
+  const isMobile = useMediaQuery('(max-width: 640px)');
 
   if (quotesError) {
     return (
@@ -141,133 +142,196 @@ export function EventList() {
           />
         </div>
 
-        {/* Table */}
+        {/* Content */}
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-lg">All Events</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-3 sm:p-6">
             {isLoading ? (
               <div className="flex items-center justify-center py-8">
                 <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
               </div>
             ) : !eventsWithInvoices?.length ? (
               <p className="text-center py-8 text-muted-foreground">No events found</p>
-            ) : (
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Event Date</TableHead>
-                      <TableHead>Customer</TableHead>
-                      <TableHead className="hidden sm:table-cell">Event</TableHead>
-                      <TableHead className="hidden md:table-cell">Guests</TableHead>
-                      <TableHead>Event Status</TableHead>
-                      <TableHead className="hidden lg:table-cell">Estimate</TableHead>
-                      <TableHead className="hidden xl:table-cell">Total</TableHead>
-                      <TableHead className="hidden lg:table-cell">Email</TableHead>
-                      <TableHead className="w-[60px]"></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                  {eventsWithInvoices.map((event) => {
-                    const { icon: ActionIcon, label: actionLabel } = getActionDetails(event.workflow_status);
-                    const invoice = event.invoice;
-                    
-                    return (
-                      <TableRow 
-                        key={event.id} 
-                        className="cursor-pointer hover:bg-muted/50"
-                        onClick={() => {
-                          if (isDesktop) {
-                            navigate(`/admin/event/${event.id}`);
-                          } else {
-                            setSelectedQuote(event);
-                          }
-                        }}
-                      >
-                        <TableCell className="font-medium">
-                          {format(new Date(event.event_date), 'MMM d, yyyy')}
-                        </TableCell>
-                        <TableCell>
-                          <div>
-                            <p className="font-medium">{event.contact_name}</p>
-                            <p className="text-xs text-muted-foreground hidden sm:block">{event.email}</p>
-                          </div>
-                        </TableCell>
-                        <TableCell className="hidden sm:table-cell">
-                          {event.event_name}
-                        </TableCell>
-                        <TableCell className="hidden md:table-cell">
-                          {event.guest_count}
-                        </TableCell>
-                        <TableCell>
+            ) : isMobile ? (
+              /* Mobile Card Layout */
+              <div className="space-y-3">
+                {eventsWithInvoices.map((event) => {
+                  const { icon: ActionIcon, label: actionLabel } = getActionDetails(event.workflow_status);
+                  const invoice = event.invoice;
+                  
+                  return (
+                    <div
+                      key={event.id}
+                      className="p-4 border rounded-lg bg-card active:bg-muted/50 transition-colors cursor-pointer"
+                      onClick={() => setSelectedQuote(event)}
+                    >
+                      <div className="flex justify-between items-start mb-2">
+                        <div className="min-w-0 flex-1">
+                          <p className="font-medium truncate">{event.contact_name}</p>
+                          <p className="text-sm text-muted-foreground truncate">{event.event_name}</p>
+                        </div>
+                        <Badge 
+                          variant="outline" 
+                          className={`shrink-0 ml-2 text-xs ${eventStatusColors[event.workflow_status] || ''}`}
+                        >
+                          {formatStatus(event.workflow_status)}
+                        </Badge>
+                      </div>
+                      
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground mb-3">
+                        <span>{format(new Date(event.event_date), 'MMM d, yyyy')}</span>
+                        <span>{event.guest_count} guests</span>
+                        {invoice && (
+                          <span className="font-medium text-foreground">
+                            {formatCurrency(invoice.total_amount)}
+                          </span>
+                        )}
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
+                        {invoice ? (
                           <Badge 
                             variant="outline" 
-                            className={eventStatusColors[event.workflow_status] || ''}
+                            className={`text-xs ${estimateStatusColors[invoice.workflow_status] || ''}`}
                           >
-                            {formatStatus(event.workflow_status)}
+                            Est: {formatStatus(invoice.workflow_status)}
                           </Badge>
-                        </TableCell>
-                        <TableCell className="hidden lg:table-cell">
-                          {invoice ? (
-                            <Badge 
-                              variant="outline" 
-                              className={estimateStatusColors[invoice.workflow_status] || ''}
-                            >
-                              {formatStatus(invoice.workflow_status)}
-                            </Badge>
-                          ) : (
-                            <span className="text-muted-foreground text-sm">—</span>
-                          )}
-                        </TableCell>
-                        <TableCell className="hidden xl:table-cell">
-                          {invoice ? (
-                            <span className="font-medium">{formatCurrency(invoice.total_amount)}</span>
-                          ) : (
-                            <span className="text-muted-foreground">—</span>
-                          )}
-                        </TableCell>
-                        <TableCell className="hidden lg:table-cell">
-                          <EmailTrackingIndicator invoice={invoice} />
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-1">
-                            <Button 
-                              variant="ghost" 
-                              size="icon"
-                              title={actionLabel}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setSelectedQuote(event);
-                              }}
-                            >
-                              <ActionIcon className="h-4 w-4" />
-                            </Button>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button 
-                                  variant="ghost" 
-                                  size="icon"
-                                  title="Open Full View"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    navigate(`/admin/event/${event.id}`);
-                                  }}
-                                >
-                                  <Maximize2 className="h-4 w-4" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>Full View</TooltipContent>
-                            </Tooltip>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                  </TableBody>
-                </Table>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">No estimate</span>
+                        )}
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          className="min-h-[44px] min-w-[44px]"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/admin/event/${event.id}`);
+                          }}
+                        >
+                          <Maximize2 className="h-4 w-4 mr-1" />
+                          <span className="text-xs">Full View</span>
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
+            ) : (
+              /* Desktop Table Layout */
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Event Date</TableHead>
+                    <TableHead>Customer</TableHead>
+                    <TableHead className="hidden sm:table-cell">Event</TableHead>
+                    <TableHead className="hidden md:table-cell">Guests</TableHead>
+                    <TableHead>Event Status</TableHead>
+                    <TableHead className="hidden lg:table-cell">Estimate</TableHead>
+                    <TableHead className="hidden xl:table-cell">Total</TableHead>
+                    <TableHead className="hidden lg:table-cell">Email</TableHead>
+                    <TableHead className="w-[60px]"></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                {eventsWithInvoices.map((event) => {
+                  const { icon: ActionIcon, label: actionLabel } = getActionDetails(event.workflow_status);
+                  const invoice = event.invoice;
+                  
+                  return (
+                    <TableRow 
+                      key={event.id} 
+                      className="cursor-pointer hover:bg-muted/50"
+                      onClick={() => {
+                        if (isDesktop) {
+                          navigate(`/admin/event/${event.id}`);
+                        } else {
+                          setSelectedQuote(event);
+                        }
+                      }}
+                    >
+                      <TableCell className="font-medium">
+                        {format(new Date(event.event_date), 'MMM d, yyyy')}
+                      </TableCell>
+                      <TableCell>
+                        <div>
+                          <p className="font-medium">{event.contact_name}</p>
+                          <p className="text-xs text-muted-foreground hidden sm:block">{event.email}</p>
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell">
+                        {event.event_name}
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        {event.guest_count}
+                      </TableCell>
+                      <TableCell>
+                        <Badge 
+                          variant="outline" 
+                          className={eventStatusColors[event.workflow_status] || ''}
+                        >
+                          {formatStatus(event.workflow_status)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="hidden lg:table-cell">
+                        {invoice ? (
+                          <Badge 
+                            variant="outline" 
+                            className={estimateStatusColors[invoice.workflow_status] || ''}
+                          >
+                            {formatStatus(invoice.workflow_status)}
+                          </Badge>
+                        ) : (
+                          <span className="text-muted-foreground text-sm">—</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="hidden xl:table-cell">
+                        {invoice ? (
+                          <span className="font-medium">{formatCurrency(invoice.total_amount)}</span>
+                        ) : (
+                          <span className="text-muted-foreground">—</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="hidden lg:table-cell">
+                        <EmailTrackingIndicator invoice={invoice} />
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1">
+                          <Button 
+                            variant="ghost" 
+                            size="icon"
+                            title={actionLabel}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedQuote(event);
+                            }}
+                          >
+                            <ActionIcon className="h-4 w-4" />
+                          </Button>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button 
+                                variant="ghost" 
+                                size="icon"
+                                title="Open Full View"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  navigate(`/admin/event/${event.id}`);
+                                }}
+                              >
+                                <Maximize2 className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Full View</TooltipContent>
+                          </Tooltip>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+                </TableBody>
+              </Table>
             )}
           </CardContent>
         </Card>

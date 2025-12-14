@@ -23,7 +23,7 @@ export function AdminNav({ currentView, onViewChange }: AdminNavProps) {
           variant={currentView === view ? 'default' : 'ghost'}
           onClick={() => onViewChange(view)}
           size="sm"
-          className="gap-2"
+          className="gap-2 min-h-[44px] min-w-[44px] px-2 sm:px-3"
         >
           <Icon className="h-4 w-4" />
           <span className="hidden sm:inline">{label}</span>

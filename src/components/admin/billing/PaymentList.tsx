@@ -116,22 +116,22 @@ export function PaymentList() {
         </Button>
       </div>
 
-      {/* Status Filter Tabs */}
+      {/* Status Filter Tabs - Responsive */}
       <Tabs value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="all" className="text-xs sm:text-sm">
+        <TabsList className="flex flex-wrap justify-start gap-1 h-auto p-1 sm:grid sm:grid-cols-5">
+          <TabsTrigger value="all" className="text-xs px-2 py-1.5 h-auto sm:px-3 sm:py-2">
             All ({paymentInvoices.length})
           </TabsTrigger>
-          <TabsTrigger value="awaiting" className="text-xs sm:text-sm">
+          <TabsTrigger value="awaiting" className="text-xs px-2 py-1.5 h-auto sm:px-3 sm:py-2">
             Awaiting ({paymentInvoices.filter(i => ['sent', 'viewed', 'approved', 'payment_pending'].includes(i.workflow_status || '')).length})
           </TabsTrigger>
-          <TabsTrigger value="partial" className="text-xs sm:text-sm">
+          <TabsTrigger value="partial" className="text-xs px-2 py-1.5 h-auto sm:px-3 sm:py-2">
             Partial ({paymentInvoices.filter(i => i.workflow_status === 'partially_paid').length})
           </TabsTrigger>
-          <TabsTrigger value="overdue" className="text-xs sm:text-sm">
+          <TabsTrigger value="overdue" className="text-xs px-2 py-1.5 h-auto sm:px-3 sm:py-2">
             Overdue ({paymentInvoices.filter(i => i.workflow_status === 'overdue').length})
           </TabsTrigger>
-          <TabsTrigger value="paid" className="text-xs sm:text-sm">
+          <TabsTrigger value="paid" className="text-xs px-2 py-1.5 h-auto sm:px-3 sm:py-2">
             Paid ({paymentInvoices.filter(i => i.workflow_status === 'paid').length})
           </TabsTrigger>
         </TabsList>

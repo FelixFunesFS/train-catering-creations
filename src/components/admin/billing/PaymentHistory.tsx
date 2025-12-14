@@ -167,16 +167,16 @@ export function PaymentHistory({ invoiceId, onClose }: PaymentHistoryProps) {
                 Payment Summary
               </div>
               
-              <div className="grid grid-cols-3 gap-4 text-center">
-                <div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4">
+                <div className="flex justify-between sm:block sm:text-center">
                   <p className="text-xs text-muted-foreground">Invoice Total</p>
                   <p className="font-semibold">{formatCurrency(summary.totalAmount)}</p>
                 </div>
-                <div>
+                <div className="flex justify-between sm:block sm:text-center">
                   <p className="text-xs text-muted-foreground">Total Paid</p>
                   <p className="font-semibold text-emerald-600">{formatCurrency(summary.totalPaid)}</p>
                 </div>
-                <div>
+                <div className="flex justify-between sm:block sm:text-center">
                   <p className="text-xs text-muted-foreground">Remaining</p>
                   <p className={`font-semibold ${summary.remaining > 0 ? 'text-amber-600' : 'text-emerald-600'}`}>
                     {formatCurrency(summary.remaining)}
