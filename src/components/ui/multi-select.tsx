@@ -145,7 +145,15 @@ export function MultiSelect({
                     key={option.value}
                     value={option.value}
                     onSelect={() => handleSelect(option.value)}
-                    onMouseDown={(e) => e.preventDefault()}
+                    onPointerDown={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                    }}
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      handleSelect(option.value)
+                    }}
                     className="cursor-pointer"
                   >
                     <Check
