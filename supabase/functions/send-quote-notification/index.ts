@@ -91,9 +91,17 @@ const handler = async (req: Request): Promise<Response> => {
         ` : ''}
 
         ${requestData.drinks && (Array.isArray(requestData.drinks) ? requestData.drinks.length > 0 : requestData.drinks) ? `
-        <div style="margin: 15px 0;">
+        <div style="margin: 15px 0; padding-bottom: 10px; border-bottom: 2px solid ${BRAND_COLORS.gold};">
           <h4 style="color: ${BRAND_COLORS.crimson}; margin: 10px 0 5px 0; font-size: 16px;">Beverages</h4>
           <p style="margin: 5px 0; padding: 8px 0;">${formatMenuItems(requestData.drinks)}</p>
+        </div>
+        ` : ''}
+
+        ${(requestData.guest_count_with_restrictions || (requestData.vegetarian_entrees && Array.isArray(requestData.vegetarian_entrees) && requestData.vegetarian_entrees.length > 0)) ? `
+        <div style="margin: 15px 0; padding: 12px; background: #f0fdf4; border-radius: 6px; border-left: 4px solid #22c55e;">
+          <h4 style="color: #166534; margin: 0 0 8px 0; font-size: 16px;">🌱 Vegetarian Options</h4>
+          ${requestData.guest_count_with_restrictions ? `<p style="margin: 5px 0; color: #166534;">${requestData.guest_count_with_restrictions} vegetarian portions requested</p>` : ''}
+          ${requestData.vegetarian_entrees && Array.isArray(requestData.vegetarian_entrees) && requestData.vegetarian_entrees.length > 0 ? `<p style="margin: 5px 0; color: #166534;"><strong>Entrées:</strong> ${requestData.vegetarian_entrees.map(formatMenuItem).join(', ')}</p>` : ''}
         </div>
         ` : ''}
       </div>
@@ -151,20 +159,6 @@ const handler = async (req: Request): Promise<Response> => {
               <h3 style="margin: 0 0 15px 0; color: ${BRAND_COLORS.crimson};">📦 Supplies & Equipment Requested</h3>
               <p style="margin: 5px 0; font-size: 15px;">${formatSupplies()}</p>
             </div>
-
-            ${requestData.guest_count_with_restrictions ? `
-            <div class="event-card" style="border-left-color: #22c55e; background: #f0fdf4;">
-              <h3 style="margin: 0 0 10px 0; color: #166534;">🥗 Vegetarian Portions</h3>
-              <p style="margin: 5px 0; font-size: 16px; font-weight: bold;">${requestData.guest_count_with_restrictions} guests require vegetarian meals</p>
-            </div>
-            ` : ''}
-
-            ${requestData.vegetarian_entrees && Array.isArray(requestData.vegetarian_entrees) && requestData.vegetarian_entrees.length > 0 ? `
-            <div class="event-card" style="border-left-color: #22c55e; background: #f0fdf4;">
-              <h3 style="margin: 0 0 10px 0; color: #166534;">🌱 Vegetarian Entrées Selected</h3>
-              <p style="margin: 5px 0; font-size: 16px;">${requestData.vegetarian_entrees.map(formatMenuItem).join(', ')}</p>
-            </div>
-            ` : ''}
 
             ${requestData.theme_colors ? `
             <div class="event-card" style="border-left-color: ${BRAND_COLORS.gold};">

@@ -9,16 +9,18 @@ import { supabase } from '@/integrations/supabase/client';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
-  X, FileText, Calendar, MapPin, Users, MessageSquare, Clock, 
-  Plus, Eye, RefreshCw, Loader2, Printer, PartyPopper, Heart, ArrowLeft
+  X, FileText, Calendar, MapPin, Users, MessageSquare, 
+  Plus, Eye, RefreshCw, Loader2, Printer, PartyPopper, Heart, ArrowLeft, Pencil, Utensils
 } from 'lucide-react';
 import { formatDate, formatTime, formatServiceType, getStatusColor } from '@/utils/formatters';
+import { CustomerEditor } from './CustomerEditor';
 
 import { LineItemEditor } from '../billing/LineItemEditor';
 import { AddLineItemModal } from '../billing/AddLineItemModal';
@@ -58,8 +60,17 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
   const [showPreview, setShowPreview] = useState(false);
   const [isResendMode, setIsResendMode] = useState(false);
   const [showAddItem, setShowAddItem] = useState(false);
+  const [showCustomerEdit, setShowCustomerEdit] = useState(false);
   const [adminNotes, setAdminNotes] = useState('');
   const [customerNotes, setCustomerNotes] = useState(invoice?.notes || '');
+
+  // Helper to format menu items
+  const formatMenuItems = (items: unknown): string => {
+    if (!items || !Array.isArray(items) || items.length === 0) return '';
+    return items.map((item: string) => 
+      item.split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+    ).join(', ');
+  };
 
   const { data: lineItems, isLoading: loadingItems } = useLineItems(invoice?.id);
   const { data: currentInvoice } = useInvoice(invoice?.id);
@@ -247,8 +258,13 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
       {/* Customer Info */}
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-base flex items-center gap-2">
-            <Users className="h-4 w-4" /> Customer
+          <CardTitle className="text-base flex items-center justify-between">
+            <span className="flex items-center gap-2">
+              <Users className="h-4 w-4" /> Customer
+            </span>
+            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setShowCustomerEdit(true)}>
+              <Pencil className="h-3 w-3" />
+            </Button>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-1 text-sm">
@@ -301,6 +317,66 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
                   </Badge>
                 ))}
               </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Menu Selections */}
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Utensils className="h-4 w-4" /> Menu Selections
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3 text-sm">
+          {formatMenuItems(quote?.proteins) && (
+            <div>
+              <span className="text-muted-foreground text-xs uppercase tracking-wide">Proteins</span>
+              <p className="font-medium">{formatMenuItems(quote?.proteins)}</p>
+              {quote?.both_proteins_available && (
+                <Badge variant="outline" className="mt-1 bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 text-xs">
+                  ⭐ Both proteins served to all guests
+                </Badge>
+              )}
+            </div>
+          )}
+          {formatMenuItems(quote?.sides) && (
+            <div>
+              <span className="text-muted-foreground text-xs uppercase tracking-wide">Sides</span>
+              <p className="font-medium">{formatMenuItems(quote?.sides)}</p>
+            </div>
+          )}
+          {formatMenuItems(quote?.appetizers) && (
+            <div>
+              <span className="text-muted-foreground text-xs uppercase tracking-wide">Appetizers</span>
+              <p className="font-medium">{formatMenuItems(quote?.appetizers)}</p>
+            </div>
+          )}
+          {formatMenuItems(quote?.desserts) && (
+            <div>
+              <span className="text-muted-foreground text-xs uppercase tracking-wide">Desserts</span>
+              <p className="font-medium">{formatMenuItems(quote?.desserts)}</p>
+            </div>
+          )}
+          {formatMenuItems(quote?.drinks) && (
+            <div>
+              <span className="text-muted-foreground text-xs uppercase tracking-wide">Beverages</span>
+              <p className="font-medium">{formatMenuItems(quote?.drinks)}</p>
+            </div>
+          )}
+          {/* Vegetarian options inline with menu */}
+          {(quote?.guest_count_with_restrictions || formatMenuItems(quote?.vegetarian_entrees)) && (
+            <div className="pt-2 border-t border-green-200 dark:border-green-800">
+              <span className="text-green-700 dark:text-green-400 text-xs uppercase tracking-wide flex items-center gap-1">
+                🌱 Vegetarian Options
+              </span>
+              {quote?.guest_count_with_restrictions && (
+                <p className="font-medium text-green-700 dark:text-green-300">{quote.guest_count_with_restrictions} vegetarian portions</p>
+              )}
+              {formatMenuItems(quote?.vegetarian_entrees) && (
+                <p className="font-medium text-green-700 dark:text-green-300">{formatMenuItems(quote?.vegetarian_entrees)}</p>
+              )}
             </div>
           )}
         </CardContent>
@@ -519,6 +595,22 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
         </ResizablePanelGroup>
 
         {showAddItem && <AddLineItemModal invoiceId={invoice?.id} onClose={() => setShowAddItem(false)} />}
+
+        {/* Customer Edit Dialog */}
+        <Dialog open={showCustomerEdit} onOpenChange={setShowCustomerEdit}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit Customer Details</DialogTitle>
+            </DialogHeader>
+            <CustomerEditor 
+              quote={quote} 
+              onSave={() => {
+                setShowCustomerEdit(false);
+                queryClient.invalidateQueries({ queryKey: ['quotes'] });
+              }} 
+            />
+          </DialogContent>
+        </Dialog>
       </div>
     );
   }
@@ -541,6 +633,22 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
 
         {showAddItem && <AddLineItemModal invoiceId={invoice?.id} onClose={() => setShowAddItem(false)} />}
       </SheetContent>
+
+      {/* Customer Edit Dialog */}
+      <Dialog open={showCustomerEdit} onOpenChange={setShowCustomerEdit}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Customer Details</DialogTitle>
+          </DialogHeader>
+          <CustomerEditor 
+            quote={quote} 
+            onSave={() => {
+              setShowCustomerEdit(false);
+              queryClient.invalidateQueries({ queryKey: ['quotes'] });
+            }} 
+          />
+        </DialogContent>
+      </Dialog>
     </Sheet>
   );
 }

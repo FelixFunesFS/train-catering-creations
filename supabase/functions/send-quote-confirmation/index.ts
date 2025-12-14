@@ -107,9 +107,17 @@ const handler = async (req: Request): Promise<Response> => {
         ` : ''}
 
         ${quote.drinks && (Array.isArray(quote.drinks) ? quote.drinks.length > 0 : quote.drinks) ? `
-        <div style="margin: 15px 0;">
+        <div style="margin: 15px 0; padding-bottom: 10px; border-bottom: 2px solid ${BRAND_COLORS.gold};">
           <h4 style="color: ${BRAND_COLORS.crimson}; margin: 10px 0 5px 0; font-size: 16px;">Beverages</h4>
           <p style="margin: 5px 0; padding: 8px 0;">${formatMenuItems(quote.drinks)}</p>
+        </div>
+        ` : ''}
+
+        ${(quote.guest_count_with_restrictions || (quote.vegetarian_entrees && Array.isArray(quote.vegetarian_entrees) && quote.vegetarian_entrees.length > 0)) ? `
+        <div style="margin: 15px 0; padding: 12px; background: #f0fdf4; border-radius: 6px; border-left: 4px solid #22c55e;">
+          <h4 style="color: #166534; margin: 0 0 8px 0; font-size: 16px;">🌱 Vegetarian Options</h4>
+          ${quote.guest_count_with_restrictions ? `<p style="margin: 5px 0; color: #166534;">${quote.guest_count_with_restrictions} vegetarian portions requested</p>` : ''}
+          ${quote.vegetarian_entrees && Array.isArray(quote.vegetarian_entrees) && quote.vegetarian_entrees.length > 0 ? `<p style="margin: 5px 0; color: #166534;"><strong>Entrées:</strong> ${quote.vegetarian_entrees.map(formatMenuItem).join(', ')}</p>` : ''}
         </div>
         ` : ''}
       </div>
@@ -156,18 +164,6 @@ const handler = async (req: Request): Promise<Response> => {
               <p style="margin: 15px 0 5px 0; font-size: 14px; color: ${BRAND_COLORS.crimson};"><strong>Reference ID:</strong> #${quote_id.slice(0, 8).toUpperCase()}</p>
             </div>
 
-            ${(quote.guest_count_with_restrictions || quote.special_requests || (quote.vegetarian_entrees && Array.isArray(quote.vegetarian_entrees) && quote.vegetarian_entrees.length > 0)) ? `
-            <div class="event-card" style="border-left-color: #22c55e; background: #f0fdf4;">
-              <h3 style="margin: 0 0 10px 0; color: #166534;">🌱 Vegetarian Options</h3>
-              ${quote.guest_count_with_restrictions ? `
-              <p style="margin: 5px 0;"><strong>Vegetarian Portions:</strong> ${quote.guest_count_with_restrictions} guests require vegetarian meals</p>
-              ` : ''}
-              ${quote.vegetarian_entrees && Array.isArray(quote.vegetarian_entrees) && quote.vegetarian_entrees.length > 0 ? `
-              <p style="margin: 5px 0;"><strong>Vegetarian Entrées:</strong> ${quote.vegetarian_entrees.map(formatMenuItem).join(', ')}</p>
-              ` : ''}
-            </div>
-            ` : ''}
-            
             ${quote.special_requests ? `
             <div class="event-card" style="border-left-color: ${BRAND_COLORS.gold}; background: #FFF9E6;">
               <h3 style="margin: 0 0 10px 0; color: ${BRAND_COLORS.crimson};">📝 Special Requests</h3>
