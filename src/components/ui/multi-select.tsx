@@ -149,7 +149,7 @@ export function MultiSelect({
                       e.preventDefault()
                       e.stopPropagation()
                     }}
-                    onClick={(e) => {
+                    onMouseUp={(e) => {
                       e.preventDefault()
                       e.stopPropagation()
                       handleSelect(option.value)
