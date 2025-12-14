@@ -1847,6 +1847,7 @@ export type Database = {
           tax_amount: number | null
           total_amount: number | null
           total_paid: number | null
+          vegetarian_entrees: Json | null
           viewed_at: string | null
           workflow_status:
             | Database["public"]["Enums"]["invoice_workflow_status"]

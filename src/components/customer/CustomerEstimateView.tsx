@@ -137,6 +137,18 @@ export function CustomerEstimateView() {
               </div>
             )}
 
+            {quote.vegetarian_entrees && Array.isArray(quote.vegetarian_entrees) && quote.vegetarian_entrees.length > 0 && (
+              <div className="flex flex-wrap items-center gap-2 text-sm bg-green-50 dark:bg-green-950/20 p-2 rounded border border-green-200 dark:border-green-800">
+                <span className="text-green-600">🌱</span>
+                <span className="text-muted-foreground">Vegetarian Entrées:</span>
+                {quote.vegetarian_entrees.map((entree: string, idx: number) => (
+                  <Badge key={idx} variant="outline" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 border-green-300">
+                    {entree.split('-').map((word: string) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                  </Badge>
+                ))}
+              </div>
+            )}
+
             {quote.special_requests && (
               <div className="pt-2 border-t border-border">
                 <span className="text-sm text-muted-foreground">📝 Special Requests:</span>

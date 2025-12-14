@@ -84,7 +84,8 @@ export function useEstimateAccess(accessToken: string) {
         start_time: quote.start_time || '',
         email: quote.email || '',
         phone: quote.phone || '',
-        workflow_status: quote.workflow_status || 'draft'
+        workflow_status: quote.workflow_status || 'draft',
+        vegetarian_entrees: quote.vegetarian_entrees || [],
       };
       
       setEstimateData({
