@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useInvoice, useUpdateInvoice } from '@/hooks/useInvoices';
 import { useLineItems, useUpdateLineItem, useDeleteLineItem } from '@/hooks/useLineItems';
@@ -8,13 +8,11 @@ import { supabase } from '@/integrations/supabase/client';
 
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
   X, FileText, Calendar, MapPin, Users, MessageSquare, 
   Plus, Eye, RefreshCw, Loader2, Printer, PartyPopper, Heart, ArrowLeft, Pencil, Utensils
@@ -63,6 +61,14 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
   const [showCustomerEdit, setShowCustomerEdit] = useState(false);
   const [adminNotes, setAdminNotes] = useState('');
   const [customerNotes, setCustomerNotes] = useState(invoice?.notes || '');
+
+  // Auto-populate both proteins note when applicable
+  useEffect(() => {
+    if (quote?.both_proteins_available && !customerNotes.includes('Both proteins')) {
+      const note = '⭐ Both proteins will be served to all guests.';
+      setCustomerNotes(prev => prev ? `${prev}\n\n${note}` : note);
+    }
+  }, [quote?.both_proteins_available]);
 
   // Helper to format menu items
   const formatMenuItems = (items: unknown): string => {
@@ -241,10 +247,10 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
     );
   }
 
-  // Event Details Panel Content
+  // Event Details Panel Content - Consolidated sections with Separators
   const EventDetailsPanel = () => (
     <div className="space-y-6 p-4 lg:p-6">
-      {/* Header */}
+      {/* Header with Status */}
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold flex items-center gap-2">
           <Calendar className="h-5 w-5 text-primary" />
@@ -255,152 +261,158 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
         </Badge>
       </div>
 
-      {/* Customer Info */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base flex items-center justify-between">
-            <span className="flex items-center gap-2">
-              <Users className="h-4 w-4" /> Customer
+      {/* Customer Section */}
+      <section className="space-y-1">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-2">
+            <Users className="h-4 w-4" /> Customer
+          </h3>
+          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setShowCustomerEdit(true)}>
+            <Pencil className="h-3 w-3" />
+          </Button>
+        </div>
+        <p className="font-medium">{quote?.contact_name}</p>
+        <p className="text-sm text-muted-foreground">{quote?.email}</p>
+        <p className="text-sm text-muted-foreground">{quote?.phone}</p>
+      </section>
+
+      <Separator />
+
+      {/* Event Section */}
+      <section className="space-y-2">
+        <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-2">
+          <PartyPopper className="h-4 w-4" /> Event
+        </h3>
+        <p className="font-medium">{quote?.event_name}</p>
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Calendar className="h-3 w-3" />
+          <span>{formatDate(quote?.event_date)} {quote?.start_time && `at ${formatTime(quote?.start_time)}`}</span>
+        </div>
+        {quote?.location && (
+          <div className="flex items-start gap-2 text-sm text-muted-foreground">
+            <MapPin className="h-3 w-3 mt-0.5" />
+            <span>{quote?.location}</span>
+          </div>
+        )}
+        <div className="flex items-center gap-2 flex-wrap text-sm">
+          <Users className="h-3 w-3 text-muted-foreground" />
+          <span>{quote?.guest_count} guests</span>
+          <Badge variant="outline" className="text-xs">{formatServiceType(quote?.service_type)}</Badge>
+        </div>
+        {quote?.event_type && (
+          <Badge variant="secondary" className="capitalize">{quote.event_type.replace('_', ' ')}</Badge>
+        )}
+      </section>
+
+      <Separator />
+
+      {/* Menu Selections Section */}
+      <section className="space-y-3">
+        <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-2">
+          <Utensils className="h-4 w-4" /> Menu Selections
+        </h3>
+        
+        {/* Proteins */}
+        {formatMenuItems(quote?.proteins) && (
+          <div>
+            <span className="text-muted-foreground text-xs uppercase tracking-wide">Proteins</span>
+            <p className="font-medium">{formatMenuItems(quote?.proteins)}</p>
+            {quote?.both_proteins_available && (
+              <Badge variant="outline" className="mt-1 bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 text-xs">
+                ⭐ Both proteins served to all guests
+              </Badge>
+            )}
+          </div>
+        )}
+
+        {/* Vegetarian - RIGHT AFTER proteins */}
+        {(quote?.guest_count_with_restrictions || formatMenuItems(quote?.vegetarian_entrees)) && (
+          <div className="border-l-2 border-green-500 pl-3 py-2 bg-green-50/50 dark:bg-green-950/20 rounded-r">
+            <span className="text-green-700 dark:text-green-400 text-xs uppercase tracking-wide flex items-center gap-1">
+              🌱 Vegetarian Options
             </span>
-            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setShowCustomerEdit(true)}>
-              <Pencil className="h-3 w-3" />
-            </Button>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-1 text-sm">
-          <p className="font-medium">{quote?.contact_name}</p>
-          <p className="text-muted-foreground">{quote?.email}</p>
-          <p className="text-muted-foreground">{quote?.phone}</p>
-        </CardContent>
-      </Card>
-
-      {/* Event Info */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base flex items-center gap-2">
-            <PartyPopper className="h-4 w-4" /> Event
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2 text-sm">
-          <p className="font-medium">{quote?.event_name}</p>
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Calendar className="h-3 w-3" />
-            <span>{formatDate(quote?.event_date)} {quote?.start_time && `at ${formatTime(quote?.start_time)}`}</span>
+            {quote?.guest_count_with_restrictions && (
+              <p className="font-medium text-green-700 dark:text-green-300">{quote.guest_count_with_restrictions} vegetarian portions</p>
+            )}
+            {formatMenuItems(quote?.vegetarian_entrees) && (
+              <p className="font-medium text-green-700 dark:text-green-300">{formatMenuItems(quote?.vegetarian_entrees)}</p>
+            )}
           </div>
-          {quote?.location && (
-            <div className="flex items-start gap-2 text-muted-foreground">
-              <MapPin className="h-3 w-3 mt-0.5" />
-              <span>{quote?.location}</span>
-            </div>
-          )}
-          <div className="flex items-center gap-2 flex-wrap">
-            <Users className="h-3 w-3 text-muted-foreground" />
-            <span>{quote?.guest_count} guests</span>
-            <Badge variant="outline" className="text-xs">{formatServiceType(quote?.service_type)}</Badge>
-          </div>
-          {quote?.event_type && (
-            <Badge variant="secondary" className="capitalize">{quote.event_type.replace('_', ' ')}</Badge>
-          )}
-        </CardContent>
-      </Card>
+        )}
 
-      {/* Menu Selections */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base flex items-center gap-2">
-            <Utensils className="h-4 w-4" /> Menu Selections
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3 text-sm">
-          {formatMenuItems(quote?.proteins) && (
-            <div>
-              <span className="text-muted-foreground text-xs uppercase tracking-wide">Proteins</span>
-              <p className="font-medium">{formatMenuItems(quote?.proteins)}</p>
-              {quote?.both_proteins_available && (
-                <Badge variant="outline" className="mt-1 bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 text-xs">
-                  ⭐ Both proteins served to all guests
-                </Badge>
-              )}
-            </div>
-          )}
-          {formatMenuItems(quote?.sides) && (
-            <div>
-              <span className="text-muted-foreground text-xs uppercase tracking-wide">Sides</span>
-              <p className="font-medium">{formatMenuItems(quote?.sides)}</p>
-            </div>
-          )}
-          {formatMenuItems(quote?.appetizers) && (
-            <div>
-              <span className="text-muted-foreground text-xs uppercase tracking-wide">Appetizers</span>
-              <p className="font-medium">{formatMenuItems(quote?.appetizers)}</p>
-            </div>
-          )}
-          {formatMenuItems(quote?.desserts) && (
-            <div>
-              <span className="text-muted-foreground text-xs uppercase tracking-wide">Desserts</span>
-              <p className="font-medium">{formatMenuItems(quote?.desserts)}</p>
-            </div>
-          )}
-          {formatMenuItems(quote?.drinks) && (
-            <div>
-              <span className="text-muted-foreground text-xs uppercase tracking-wide">Beverages</span>
-              <p className="font-medium">{formatMenuItems(quote?.drinks)}</p>
-            </div>
-          )}
-          {/* Vegetarian options inline with menu */}
-          {(quote?.guest_count_with_restrictions || formatMenuItems(quote?.vegetarian_entrees)) && (
-            <div className="pt-2 border-t border-green-200 dark:border-green-800">
-              <span className="text-green-700 dark:text-green-400 text-xs uppercase tracking-wide flex items-center gap-1">
-                🌱 Vegetarian Options
-              </span>
-              {quote?.guest_count_with_restrictions && (
-                <p className="font-medium text-green-700 dark:text-green-300">{quote.guest_count_with_restrictions} vegetarian portions</p>
-              )}
-              {formatMenuItems(quote?.vegetarian_entrees) && (
-                <p className="font-medium text-green-700 dark:text-green-300">{formatMenuItems(quote?.vegetarian_entrees)}</p>
-              )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+        {/* Sides */}
+        {formatMenuItems(quote?.sides) && (
+          <div>
+            <span className="text-muted-foreground text-xs uppercase tracking-wide">Sides</span>
+            <p className="font-medium">{formatMenuItems(quote?.sides)}</p>
+          </div>
+        )}
+
+        {/* Appetizers */}
+        {formatMenuItems(quote?.appetizers) && (
+          <div>
+            <span className="text-muted-foreground text-xs uppercase tracking-wide">Appetizers</span>
+            <p className="font-medium">{formatMenuItems(quote?.appetizers)}</p>
+          </div>
+        )}
+
+        {/* Desserts */}
+        {formatMenuItems(quote?.desserts) && (
+          <div>
+            <span className="text-muted-foreground text-xs uppercase tracking-wide">Desserts</span>
+            <p className="font-medium">{formatMenuItems(quote?.desserts)}</p>
+          </div>
+        )}
+
+        {/* Beverages */}
+        {formatMenuItems(quote?.drinks) && (
+          <div>
+            <span className="text-muted-foreground text-xs uppercase tracking-wide">Beverages</span>
+            <p className="font-medium">{formatMenuItems(quote?.drinks)}</p>
+          </div>
+        )}
+      </section>
 
       {/* Wedding Fields */}
       {quote?.event_type === 'wedding' && (
-        <Card className="border-pink-200 dark:border-pink-800 bg-pink-50/50 dark:bg-pink-950/20">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base flex items-center gap-2 text-pink-700 dark:text-pink-400">
+        <>
+          <Separator />
+          <section className="space-y-2">
+            <h3 className="text-sm font-medium text-pink-700 dark:text-pink-400 flex items-center gap-2">
               <Heart className="h-4 w-4" /> Wedding Details
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-wrap gap-2">
-            {quote?.ceremony_included && <Badge variant="outline">💒 Ceremony Included</Badge>}
-            {quote?.cocktail_hour && <Badge variant="outline">🍸 Cocktail Hour</Badge>}
-            {quote?.theme_colors && <Badge variant="outline">🎨 {quote.theme_colors}</Badge>}
-          </CardContent>
-        </Card>
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {quote?.ceremony_included && <Badge variant="outline">💒 Ceremony Included</Badge>}
+              {quote?.cocktail_hour && <Badge variant="outline">🍸 Cocktail Hour</Badge>}
+              {quote?.theme_colors && <Badge variant="outline">🎨 {quote.theme_colors}</Badge>}
+            </div>
+          </section>
+        </>
       )}
 
       {/* Special Requests */}
       {quote?.special_requests && (
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base flex items-center gap-2">
+        <>
+          <Separator />
+          <section className="space-y-2">
+            <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
               <MessageSquare className="h-4 w-4" /> Special Requests
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
+            </h3>
             <p className="text-sm italic text-muted-foreground">{quote.special_requests}</p>
-          </CardContent>
-        </Card>
+          </section>
+        </>
       )}
 
       {/* Government Badge */}
       {isGovernment && (
-        <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
-          <p className="text-blue-700 dark:text-blue-400 font-medium text-sm">
-            🏛️ Government Contract (Tax Exempt • Net 30)
-          </p>
-        </div>
+        <>
+          <Separator />
+          <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+            <p className="text-blue-700 dark:text-blue-400 font-medium text-sm">
+              🏛️ Government Contract (Tax Exempt • Net 30)
+            </p>
+          </div>
+        </>
       )}
     </div>
   );
@@ -536,91 +548,52 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
     </div>
   );
 
-  // Desktop: Resizable side-by-side panels
-  if (isDesktop) {
-    return (
-      <div className="fixed inset-0 z-50 bg-background">
-        {/* Top Bar */}
-        <div className="h-14 border-b bg-card flex items-center justify-between px-4">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" onClick={onClose} className="gap-2">
-              <ArrowLeft className="h-4 w-4" />
-              <span className="hidden sm:inline">Back to Events</span>
-            </Button>
-            <div className="h-6 w-px bg-border" />
-            <h1 className="font-semibold flex items-center gap-2">
-              <FileText className="h-5 w-5 text-primary" />
-              <span className="hidden md:inline">{quote?.event_name || 'Event & Estimate'}</span>
-              <span className="md:hidden">Event Details</span>
-            </h1>
-          </div>
-          <Button variant="ghost" size="icon" onClick={onClose}>
-            <X className="h-5 w-5" />
-          </Button>
-        </div>
-
-        {/* Resizable Panels */}
-        <ResizablePanelGroup direction="horizontal" className="h-[calc(100vh-3.5rem)]">
-          <ResizablePanel defaultSize={40} minSize={30}>
-            <ScrollArea className="h-full">
-              <EventDetailsPanel />
-            </ScrollArea>
-          </ResizablePanel>
-          
-          <ResizableHandle withHandle />
-          
-          <ResizablePanel defaultSize={60} minSize={40}>
-            <ScrollArea className="h-full">
-              <EstimatePanel />
-            </ScrollArea>
-          </ResizablePanel>
-        </ResizablePanelGroup>
-
-        {showAddItem && <AddLineItemModal invoiceId={invoice?.id} onClose={() => setShowAddItem(false)} />}
-
-        {/* Customer Edit Dialog */}
-        <Dialog open={showCustomerEdit} onOpenChange={setShowCustomerEdit}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Edit Customer Details</DialogTitle>
-            </DialogHeader>
-            <CustomerEditor 
-              quote={quote} 
-              onSave={() => {
-                setShowCustomerEdit(false);
-                queryClient.invalidateQueries({ queryKey: ['quotes'] });
-              }} 
-            />
-          </DialogContent>
-        </Dialog>
-      </div>
-    );
-  }
-
-  // Mobile/Tablet: Sheet slide-in
+  // Desktop-only full page view
   return (
-    <Sheet open onOpenChange={onClose}>
-      <SheetContent side="right" className="w-full sm:max-w-lg p-0 overflow-y-auto">
-        <SheetHeader className="p-4 border-b">
-          <SheetTitle className="flex items-center gap-2">
+    <div className="min-h-screen flex flex-col bg-background">
+      {/* Top Bar */}
+      <div className="h-14 border-b bg-card flex items-center justify-between px-4 flex-shrink-0">
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" size="sm" onClick={onClose} className="gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            <span className="hidden sm:inline">Back to Events</span>
+          </Button>
+          <div className="h-6 w-px bg-border" />
+          <h1 className="font-semibold flex items-center gap-2">
             <FileText className="h-5 w-5 text-primary" />
-            Event & Estimate
-          </SheetTitle>
-        </SheetHeader>
-        
-        <div className="divide-y">
-          <EventDetailsPanel />
-          <EstimatePanel />
+            <span className="hidden md:inline">{quote?.event_name || 'Event & Estimate'}</span>
+            <span className="md:hidden">Event Details</span>
+          </h1>
         </div>
+        <Button variant="ghost" size="icon" onClick={onClose}>
+          <X className="h-5 w-5" />
+        </Button>
+      </div>
 
-        {showAddItem && <AddLineItemModal invoiceId={invoice?.id} onClose={() => setShowAddItem(false)} />}
-      </SheetContent>
+      {/* Resizable Panels - fills remaining height */}
+      <ResizablePanelGroup direction="horizontal" className="flex-1 min-h-0">
+        <ResizablePanel defaultSize={40} minSize={30} className="overflow-hidden">
+          <ScrollArea className="h-full">
+            <EventDetailsPanel />
+          </ScrollArea>
+        </ResizablePanel>
+        
+        <ResizableHandle withHandle />
+        
+        <ResizablePanel defaultSize={60} minSize={40} className="overflow-hidden">
+          <ScrollArea className="h-full">
+            <EstimatePanel />
+          </ScrollArea>
+        </ResizablePanel>
+      </ResizablePanelGroup>
+
+      {showAddItem && <AddLineItemModal invoiceId={invoice?.id} onClose={() => setShowAddItem(false)} />}
 
       {/* Customer Edit Dialog */}
       <Dialog open={showCustomerEdit} onOpenChange={setShowCustomerEdit}>
-        <DialogContent>
+        <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>Edit Customer Details</DialogTitle>
+            <DialogTitle>Edit Customer & Event Details</DialogTitle>
           </DialogHeader>
           <CustomerEditor 
             quote={quote} 
@@ -631,6 +604,6 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
           />
         </DialogContent>
       </Dialog>
-    </Sheet>
+    </div>
   );
 }
