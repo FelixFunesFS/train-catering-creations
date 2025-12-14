@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { formatDate, formatTime, formatServiceType, getStatusColor } from '@/utils/formatters';
 import { CustomerEditor } from './CustomerEditor';
-import { MenuEditor } from './MenuEditor';
+import { MenuEditorInline } from './MenuEditorInline';
 
 import { LineItemEditor } from '../billing/LineItemEditor';
 import { AddLineItemModal } from '../billing/AddLineItemModal';
@@ -633,7 +633,7 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
           <DialogHeader>
             <DialogTitle>Edit Menu Selections</DialogTitle>
           </DialogHeader>
-          <MenuEditor 
+          <MenuEditorInline 
             quote={quote}
             invoiceId={invoice?.id}
             onSave={() => {
