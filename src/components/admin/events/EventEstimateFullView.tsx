@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
-import { useInvoice, useUpdateInvoice } from '@/hooks/useInvoices';
+import { useInvoice, useUpdateInvoice, useInvoiceWithMilestones } from '@/hooks/useInvoices';
 import { useLineItems, useUpdateLineItem, useDeleteLineItem } from '@/hooks/useLineItems';
 import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
@@ -14,8 +14,8 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { 
-  X, FileText, Calendar, MapPin, Users, MessageSquare, 
-  Plus, Eye, RefreshCw, Loader2, Printer, PartyPopper, Heart, ArrowLeft, Pencil, Utensils
+  X, FileText, Calendar, MapPin, Users, MessageSquare, DollarSign,
+  Plus, Eye, RefreshCw, Loader2, Printer, PartyPopper, Heart, ArrowLeft, Pencil, Utensils, CheckCircle2
 } from 'lucide-react';
 import { formatDate, formatTime, formatServiceType, getStatusColor } from '@/utils/formatters';
 import { CustomerEditor } from './CustomerEditor';
@@ -49,6 +49,108 @@ interface EventEstimateFullViewProps {
   quote: any;
   invoice: any;
   onClose: () => void;
+}
+
+// Payment Schedule Section Component
+function PaymentScheduleSection({ invoiceId }: { invoiceId: string | undefined }) {
+  const { data: invoiceWithMilestones, refetch } = useInvoiceWithMilestones(invoiceId);
+  const milestones = invoiceWithMilestones?.milestones || [];
+  const [isRegenerating, setIsRegenerating] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const formatMilestoneType = (type: string): string => {
+    const typeMap: Record<string, string> = {
+      'DEPOSIT': 'Booking Deposit',
+      'MILESTONE': 'Milestone Payment',
+      'BALANCE': 'Final Balance',
+      'FULL': 'Full Payment',
+      'FINAL': 'Final Payment',
+      'COMBINED': 'Combined Payment',
+    };
+    return typeMap[type] || type;
+  };
+
+  const handleRegenerate = async () => {
+    if (!invoiceId) return;
+    setIsRegenerating(true);
+    try {
+      const { error } = await supabase.functions.invoke('generate-payment-milestones', {
+        body: { invoice_id: invoiceId }
+      });
+      if (error) throw error;
+      await refetch();
+      queryClient.invalidateQueries({ queryKey: ['invoices'] });
+      toast({ title: 'Payment schedule regenerated' });
+    } catch (err: any) {
+      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+    } finally {
+      setIsRegenerating(false);
+    }
+  };
+
+  const formatCurrency = (cents: number) => {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100);
+  };
+
+  return (
+    <section className="space-y-3">
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+          <DollarSign className="h-4 w-4" /> Payment Schedule
+        </h3>
+        <Button 
+          variant="ghost" 
+          size="sm"
+          onClick={handleRegenerate}
+          disabled={isRegenerating || !invoiceId}
+        >
+          <RefreshCw className={`h-3 w-3 mr-1 ${isRegenerating ? 'animate-spin' : ''}`} />
+          Regenerate
+        </Button>
+      </div>
+      
+      {milestones.length === 0 ? (
+        <p className="text-sm text-muted-foreground italic">No payment schedule generated yet. Click Regenerate.</p>
+      ) : (
+        <div className="space-y-2">
+          {milestones.map((milestone: any) => {
+            const isPaid = milestone.status === 'paid';
+            const isDue = milestone.status === 'pending' && 
+              milestone.due_date && new Date(milestone.due_date) <= new Date();
+            return (
+              <div 
+                key={milestone.id} 
+                className={`flex items-center justify-between p-2 rounded-md border text-sm ${
+                  isPaid ? 'bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800' :
+                  isDue ? 'bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800' :
+                  'bg-muted/30 border-border'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  {isPaid && <CheckCircle2 className="h-4 w-4 text-green-600" />}
+                  <span className="font-medium">{formatMilestoneType(milestone.milestone_type)}</span>
+                  <span className="text-muted-foreground">({milestone.percentage}%)</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="font-semibold">{formatCurrency(milestone.amount_cents)}</span>
+                  {isPaid ? (
+                    <Badge variant="outline" className="text-green-600 border-green-600">Paid</Badge>
+                  ) : milestone.due_date ? (
+                    <span className="text-xs text-muted-foreground">
+                      Due {new Date(milestone.due_date).toLocaleDateString()}
+                    </span>
+                  ) : (
+                    <span className="text-xs text-muted-foreground">Upcoming</span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </section>
+  );
 }
 
 export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimateFullViewProps) {
@@ -425,6 +527,10 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
           </section>
         </>
       )}
+
+      {/* Payment Schedule */}
+      <Separator />
+      <PaymentScheduleSection invoiceId={invoice?.id} />
 
       {/* Government Badge */}
       {isGovernment && (
