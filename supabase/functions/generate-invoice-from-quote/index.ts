@@ -376,6 +376,148 @@ const handler = async (req: Request): Promise<Response> => {
       })
       .eq('id', quote_request_id);
 
+    // Generate payment milestones based on days until event
+    const eventDate = new Date(quote.event_date);
+    const today = new Date();
+    const daysUntilEvent = Math.ceil((eventDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    
+    console.log(`Days until event: ${daysUntilEvent}, generating payment milestones...`);
+    
+    // For now, create placeholder milestones at $0 (will be calculated when admin sets prices)
+    // Following tier system: Rush (≤14 days) = 100%, Short Notice (15-30) = 60/40, 
+    // Mid-Range (31-44) = 60/40, Standard (45+) = 10/50/40
+    let milestones: any[] = [];
+    
+    if (isGovCustomer) {
+      // Government: Net 30 (100% due 30 days after event)
+      const dueDate = new Date(eventDate);
+      dueDate.setDate(dueDate.getDate() + 30);
+      milestones = [{
+        invoice_id: invoice.id,
+        milestone_type: 'net30',
+        percentage: 100,
+        amount_cents: 0,
+        due_date: dueDate.toISOString().split('T')[0],
+        status: 'pending',
+        is_net30: true,
+        is_due_now: false,
+        description: 'Full payment due Net 30'
+      }];
+    } else if (daysUntilEvent <= 14) {
+      // Rush: 100% now
+      milestones = [{
+        invoice_id: invoice.id,
+        milestone_type: 'full',
+        percentage: 100,
+        amount_cents: 0,
+        due_date: new Date().toISOString().split('T')[0],
+        status: 'pending',
+        is_due_now: true,
+        description: 'Full payment due immediately (rush booking)'
+      }];
+    } else if (daysUntilEvent <= 30) {
+      // Short Notice: 60% now, 40% 7 days before
+      const finalDue = new Date(eventDate);
+      finalDue.setDate(finalDue.getDate() - 7);
+      milestones = [
+        {
+          invoice_id: invoice.id,
+          milestone_type: 'deposit',
+          percentage: 60,
+          amount_cents: 0,
+          due_date: new Date().toISOString().split('T')[0],
+          status: 'pending',
+          is_due_now: true,
+          description: 'Deposit (60%)'
+        },
+        {
+          invoice_id: invoice.id,
+          milestone_type: 'balance',
+          percentage: 40,
+          amount_cents: 0,
+          due_date: finalDue.toISOString().split('T')[0],
+          status: 'pending',
+          is_due_now: false,
+          description: 'Final balance (40%)'
+        }
+      ];
+    } else if (daysUntilEvent <= 44) {
+      // Mid-Range: 60% now, 40% 14 days before
+      const finalDue = new Date(eventDate);
+      finalDue.setDate(finalDue.getDate() - 14);
+      milestones = [
+        {
+          invoice_id: invoice.id,
+          milestone_type: 'deposit',
+          percentage: 60,
+          amount_cents: 0,
+          due_date: new Date().toISOString().split('T')[0],
+          status: 'pending',
+          is_due_now: true,
+          description: 'Deposit (60%)'
+        },
+        {
+          invoice_id: invoice.id,
+          milestone_type: 'balance',
+          percentage: 40,
+          amount_cents: 0,
+          due_date: finalDue.toISOString().split('T')[0],
+          status: 'pending',
+          is_due_now: false,
+          description: 'Final balance (40%)'
+        }
+      ];
+    } else {
+      // Standard (45+ days): 10% now, 50% at 30 days before, 40% at 14 days before
+      const midDue = new Date(eventDate);
+      midDue.setDate(midDue.getDate() - 30);
+      const finalDue = new Date(eventDate);
+      finalDue.setDate(finalDue.getDate() - 14);
+      milestones = [
+        {
+          invoice_id: invoice.id,
+          milestone_type: 'deposit',
+          percentage: 10,
+          amount_cents: 0,
+          due_date: new Date().toISOString().split('T')[0],
+          status: 'pending',
+          is_due_now: true,
+          description: 'Booking deposit (10%)'
+        },
+        {
+          invoice_id: invoice.id,
+          milestone_type: 'milestone',
+          percentage: 50,
+          amount_cents: 0,
+          due_date: midDue.toISOString().split('T')[0],
+          status: 'pending',
+          is_due_now: false,
+          description: 'Milestone payment (50%)'
+        },
+        {
+          invoice_id: invoice.id,
+          milestone_type: 'balance',
+          percentage: 40,
+          amount_cents: 0,
+          due_date: finalDue.toISOString().split('T')[0],
+          status: 'pending',
+          is_due_now: false,
+          description: 'Final balance (40%)'
+        }
+      ];
+    }
+
+    const { error: milestoneError } = await supabase
+      .from('payment_milestones')
+      .insert(milestones);
+
+    if (milestoneError) {
+      console.error('Milestone creation error:', milestoneError);
+      // Don't throw - milestones are not critical for invoice creation
+    } else {
+      console.log(`Created ${milestones.length} payment milestones`);
+    }
+
     console.log('Invoice generated successfully:', invoice.id);
 
     return new Response(
@@ -383,6 +525,7 @@ const handler = async (req: Request): Promise<Response> => {
         success: true, 
         invoice_id: invoice.id,
         line_items_count: lineItems.length,
+        milestones_count: milestones.length,
         is_gov_customer: isGovCustomer
       }),
       { 
