@@ -12,7 +12,7 @@ import { useInvoiceByQuote, useInvoicePaymentSummary } from '@/hooks/useInvoices
 import { supabase } from '@/integrations/supabase/client';
 import { formatMenuDescription } from '@/utils/invoiceFormatters';
 import { formatLocationLink, formatPhoneLink } from '@/utils/linkFormatters';
-import { User, Calendar, MapPin, Users, Utensils, FileText, Loader2, Package, Eye, Pencil, Receipt, Play, CheckCircle, XCircle, MessageSquare, PartyPopper, Leaf, Maximize2, Phone, ExternalLink } from 'lucide-react';
+import { User, Calendar, MapPin, Users, Utensils, FileText, Loader2, Package, Eye, Pencil, Receipt, Play, CheckCircle, XCircle, MessageSquare, PartyPopper, Leaf, Phone, ExternalLink } from 'lucide-react';
 import { useUpdateQuoteStatus } from '@/hooks/useQuotes';
 import { EstimateEditor } from '@/components/admin/billing/EstimateEditor';
 
@@ -432,13 +432,6 @@ export function EventDetail({ quote, onClose }: EventDetailProps) {
           <div className="flex flex-col sm:flex-row justify-end gap-2">
             <Button variant="outline" onClick={onClose}>
               Close
-            </Button>
-            <Button 
-              variant="outline"
-              onClick={() => navigate(`/admin/event/${quote.id}`)}
-            >
-              <Maximize2 className="h-4 w-4 mr-2" />
-              Full View
             </Button>
             {existingInvoice ? (
               (() => {
