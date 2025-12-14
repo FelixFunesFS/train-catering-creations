@@ -449,8 +449,49 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
           Estimate {invoice?.invoice_number && `#${invoice.invoice_number}`}
         </h2>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => window.open(`/admin/estimate-print/${invoice?.id}`, '_blank')}>
-            <Printer className="h-4 w-4 mr-1" /> Print
+          <Button 
+            variant="outline" 
+            size="sm" 
+            disabled={!invoice?.id}
+            onClick={async () => {
+              if (!invoice?.id) {
+                toast({ title: 'No estimate available', description: 'Generate an estimate first.', variant: 'destructive' });
+                return;
+              }
+              try {
+                toast({ title: 'Generating PDF...', description: 'Please wait' });
+                const { data, error } = await supabase.functions.invoke('generate-invoice-pdf', {
+                  body: { invoice_id: invoice.id }
+                });
+                if (error) throw error;
+                if (!data?.pdf_base64) throw new Error('No PDF generated');
+                
+                // Convert base64 to blob and download
+                const binaryString = atob(data.pdf_base64);
+                const bytes = new Uint8Array(binaryString.length);
+                for (let i = 0; i < binaryString.length; i++) {
+                  bytes[i] = binaryString.charCodeAt(i);
+                }
+                const blob = new Blob([bytes], { type: 'application/pdf' });
+                const url = URL.createObjectURL(blob);
+                
+                // Download
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = data.filename || `estimate-${invoice.invoice_number}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                toast({ title: 'PDF Downloaded' });
+              } catch (err: any) {
+                console.error('PDF generation error:', err);
+                toast({ title: 'PDF Error', description: err.message, variant: 'destructive' });
+              }
+            }}
+          >
+            <Printer className="h-4 w-4 mr-1" /> Download PDF
           </Button>
         </div>
       </div>
