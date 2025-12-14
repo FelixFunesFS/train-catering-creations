@@ -15,6 +15,8 @@ import { useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Database } from '@/integrations/supabase/types';
+import { MapPin, Phone } from 'lucide-react';
+import { formatLocationLink, formatPhoneLink } from '@/utils/linkFormatters';
 
 type QuoteRequest = Database['public']['Tables']['quote_requests']['Row'];
 
@@ -192,7 +194,36 @@ export function EventMonthView({ events, currentDate, onEventClick }: EventMonth
                       }`} />
                     </div>
                     <p className="text-xs text-muted-foreground mb-1">{event.event_name}</p>
-                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                    
+                    {/* Contact info with clickable links */}
+                    <div className="space-y-1 mt-2">
+                      {event.phone && (
+                        <a 
+                          href={formatPhoneLink(event.phone) || '#'}
+                          onClick={(e) => e.stopPropagation()}
+                          className="flex items-center gap-1 text-xs text-primary hover:underline"
+                          aria-label="Call customer"
+                        >
+                          <Phone className="h-3 w-3" />
+                          {event.phone}
+                        </a>
+                      )}
+                      {event.location && (
+                        <a 
+                          href={formatLocationLink(event.location) || '#'}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="flex items-center gap-1 text-xs text-primary hover:underline"
+                          aria-label="Open in Maps"
+                        >
+                          <MapPin className="h-3 w-3 flex-shrink-0" />
+                          <span className="truncate">{event.location}</span>
+                        </a>
+                      )}
+                    </div>
+                    
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground mt-2">
                       <span>{event.start_time?.slice(0, 5) || 'TBD'}</span>
                       <span>{event.guest_count} guests</span>
                     </div>

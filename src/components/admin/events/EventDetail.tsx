@@ -11,7 +11,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useInvoiceByQuote, useInvoicePaymentSummary } from '@/hooks/useInvoices';
 import { supabase } from '@/integrations/supabase/client';
 import { formatMenuDescription } from '@/utils/invoiceFormatters';
-import { User, Calendar, MapPin, Users, Utensils, FileText, Loader2, Package, Eye, Pencil, Receipt, Play, CheckCircle, XCircle, MessageSquare, PartyPopper, Leaf, Maximize2 } from 'lucide-react';
+import { formatLocationLink, formatPhoneLink } from '@/utils/linkFormatters';
+import { User, Calendar, MapPin, Users, Utensils, FileText, Loader2, Package, Eye, Pencil, Receipt, Play, CheckCircle, XCircle, MessageSquare, PartyPopper, Leaf, Maximize2, Phone, ExternalLink } from 'lucide-react';
 import { useUpdateQuoteStatus } from '@/hooks/useQuotes';
 import { EstimateEditor } from '@/components/admin/billing/EstimateEditor';
 
@@ -169,7 +170,14 @@ export function EventDetail({ quote, onClose }: EventDetailProps) {
                 </div>
                 <div>
                   <span className="text-muted-foreground">Phone:</span>
-                  <p className="font-medium">{quote.phone}</p>
+                  <a 
+                    href={formatPhoneLink(quote.phone) || '#'} 
+                    className="font-medium text-primary hover:underline flex items-center gap-1 min-h-[44px] py-2"
+                    aria-label="Call customer"
+                  >
+                    <Phone className="h-4 w-4" />
+                    {quote.phone}
+                  </a>
                 </div>
                 {quote.compliance_level === 'government' && (
                   <div>
@@ -203,7 +211,16 @@ export function EventDetail({ quote, onClose }: EventDetailProps) {
                 <span className="text-muted-foreground flex items-center gap-1">
                   <MapPin className="h-3 w-3" /> Location:
                 </span>
-                <p className="font-medium">{quote.location}</p>
+                <a 
+                  href={formatLocationLink(quote.location) || '#'} 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-primary hover:underline flex items-center gap-1 min-h-[44px] py-2"
+                  aria-label="Open in Maps"
+                >
+                  {quote.location}
+                  <ExternalLink className="h-3 w-3 opacity-50" />
+                </a>
               </div>
               <div>
                 <span className="text-muted-foreground flex items-center gap-1">

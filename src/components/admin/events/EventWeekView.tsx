@@ -3,8 +3,9 @@ import { format, startOfWeek, addDays, isSameDay, isToday, parseISO } from 'date
 import { useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import { Clock, Users, MapPin } from 'lucide-react';
+import { Clock, Users, MapPin, Phone } from 'lucide-react';
 import { Database } from '@/integrations/supabase/types';
+import { formatLocationLink, formatPhoneLink } from '@/utils/linkFormatters';
 
 type QuoteRequest = Database['public']['Tables']['quote_requests']['Row'];
 
@@ -121,6 +122,20 @@ export function EventWeekView({ events, currentDate, onEventClick }: EventWeekVi
                         <Users className="h-3 w-3" />
                         <span>{event.guest_count}</span>
                       </div>
+                      
+                      {event.location && (
+                        <a 
+                          href={formatLocationLink(event.location) || '#'}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="flex items-center gap-1 mt-0.5 text-xs text-primary hover:underline"
+                          aria-label="Open in Maps"
+                        >
+                          <MapPin className="h-3 w-3 flex-shrink-0" />
+                          <span className="truncate">{event.location}</span>
+                        </a>
+                      )}
                       
                       {event.invoice && (
                         <Badge 
