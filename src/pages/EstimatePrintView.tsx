@@ -230,21 +230,10 @@ export default function EstimatePrintView() {
               </p>
               <p className="text-gray-600">{quote?.location}</p>
               <p className="text-gray-600">
-                {quote?.guest_count} guests
-                {quote?.guest_count_with_restrictions && (
-                  <span className="text-green-700 font-medium"> (incl. {quote.guest_count_with_restrictions} vegetarian)</span>
-                )}
-                {' • '}{formatServiceType(quote?.service_type)}
+                {quote?.guest_count} guests • {formatServiceType(quote?.service_type)}
               </p>
               {quote?.event_type && (
                 <p className="text-gray-600 capitalize">{quote.event_type.replace('_', ' ')}</p>
-              )}
-              {safeVegetarianEntrees(quote?.vegetarian_entrees).length > 0 && (
-                <p className="text-green-700 text-sm mt-1">
-                  🌱 Vegetarian Entrées: {safeVegetarianEntrees(quote?.vegetarian_entrees).map(e => 
-                    e.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
-                  ).join(', ')}
-                </p>
               )}
             </div>
           </div>

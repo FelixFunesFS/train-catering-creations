@@ -296,28 +296,10 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
           <div className="flex items-center gap-2 flex-wrap">
             <Users className="h-3 w-3 text-muted-foreground" />
             <span>{quote?.guest_count} guests</span>
-            {quote?.guest_count_with_restrictions && (
-              <Badge variant="outline" className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 border-green-300 text-xs">
-                🥗 {quote.guest_count_with_restrictions} vegetarian
-              </Badge>
-            )}
             <Badge variant="outline" className="text-xs">{formatServiceType(quote?.service_type)}</Badge>
           </div>
           {quote?.event_type && (
             <Badge variant="secondary" className="capitalize">{quote.event_type.replace('_', ' ')}</Badge>
-          )}
-          {/* Vegetarian Entrées inline with menu */}
-          {quote?.vegetarian_entrees?.length > 0 && (
-            <div className="pt-2">
-              <span className="text-xs text-green-700 dark:text-green-400 font-medium">🌱 Vegetarian Entrées:</span>
-              <div className="flex flex-wrap gap-1 mt-1">
-                {quote.vegetarian_entrees.map((entree: string, idx: number) => (
-                  <Badge key={idx} variant="outline" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 border-green-300 text-xs">
-                    {entree.split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
-                  </Badge>
-                ))}
-              </div>
-            </div>
           )}
         </CardContent>
       </Card>
