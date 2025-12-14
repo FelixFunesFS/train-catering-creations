@@ -500,10 +500,6 @@ function generateEstimateReadyEmail(quote: any, invoice: any, portalUrl: string,
             <a href="${changesUrl}" class="btn btn-secondary">✏️ Request Changes</a>
           </div>
           
-          <p style="text-align: center; color: #888; font-size: 12px; margin-top: 15px;">
-            📝 You'll be asked to confirm you've read and agree to the terms before final approval.
-          </p>
-          
           <p style="text-align: center; color: #666; font-size: 14px;">
             <a href="${portalUrl}" style="color: ${BRAND_COLORS.crimson};">Or click here to view full details first</a>
           </p>
