@@ -5,10 +5,12 @@ import { EstimateLineItems } from './EstimateLineItems';
 import { CustomerActions } from './CustomerActions';
 import { ChangeRequestModal } from './ChangeRequestModal';
 import { PaymentOptions } from './PaymentOptions';
+import { StandardTermsAndConditions } from '@/components/shared/StandardTermsAndConditions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Loader2, Calendar, MapPin, Users, Clock, AlertCircle, FileText } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Loader2, Calendar, MapPin, Users, Clock, AlertCircle, FileText, ChevronDown, PenLine, MessageSquare } from 'lucide-react';
 import { formatDate, formatTime, formatServiceType, getStatusColor } from '@/utils/formatters';
 
 export function CustomerEstimateView() {
@@ -244,6 +246,44 @@ export function CustomerEstimateView() {
             setShowChangeModal(false);
           }}
         />
+
+        {/* Customer Notes from Caterer */}
+        {invoice.notes && (
+          <Card className="border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base flex items-center gap-2 text-amber-700 dark:text-amber-400">
+                <MessageSquare className="h-4 w-4" />
+                Notes from Soul Train's
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-amber-800 dark:text-amber-300">{invoice.notes}</p>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Terms & Conditions */}
+        <Collapsible>
+          <Card>
+            <CollapsibleTrigger className="w-full">
+              <CardHeader className="flex flex-row items-center justify-between py-4">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <PenLine className="h-4 w-4 text-primary" />
+                  Terms & Conditions
+                </CardTitle>
+                <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200" />
+              </CardHeader>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <CardContent className="pt-0">
+                <StandardTermsAndConditions 
+                  eventType={quote.compliance_level === 'government' ? 'government' : 'standard'} 
+                  variant="compact" 
+                />
+              </CardContent>
+            </CollapsibleContent>
+          </Card>
+        </Collapsible>
 
         {/* Contact Footer */}
         <div className="text-center space-y-2 pt-4">
