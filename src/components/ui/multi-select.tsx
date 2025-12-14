@@ -98,14 +98,21 @@ export function MultiSelect({
                     className="text-xs"
                   >
                     {option.label}
-                    <X
-                      className="ml-1 h-3 w-3 cursor-pointer hover:text-destructive"
-                      onMouseDown={(e) => e.preventDefault()}
+                    <button
+                      type="button"
+                      className="ml-1 rounded-full outline-none ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                      onMouseDown={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                      }}
                       onClick={(e) => {
+                        e.preventDefault()
                         e.stopPropagation()
                         handleRemove(option.value)
                       }}
-                    />
+                    >
+                      <X className="h-3 w-3 cursor-pointer hover:text-destructive" />
+                    </button>
                   </Badge>
                 ))}
                 {remainingCount > 0 && (
