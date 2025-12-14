@@ -1405,9 +1405,12 @@ export type Database = {
       quote_request_history: {
         Row: {
           change_reason: string | null
+          change_source: string | null
           change_timestamp: string
           changed_by: string | null
+          contact_info: string | null
           created_at: string
+          customer_summary: string | null
           field_name: string
           id: string
           new_value: string | null
@@ -1416,9 +1419,12 @@ export type Database = {
         }
         Insert: {
           change_reason?: string | null
+          change_source?: string | null
           change_timestamp?: string
           changed_by?: string | null
+          contact_info?: string | null
           created_at?: string
+          customer_summary?: string | null
           field_name: string
           id?: string
           new_value?: string | null
@@ -1427,9 +1433,12 @@ export type Database = {
         }
         Update: {
           change_reason?: string | null
+          change_source?: string | null
           change_timestamp?: string
           changed_by?: string | null
+          contact_info?: string | null
           created_at?: string
+          customer_summary?: string | null
           field_name?: string
           id?: string
           new_value?: string | null
