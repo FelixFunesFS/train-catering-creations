@@ -264,11 +264,31 @@ export function EventDetail({ quote, onClose }: EventDetailProps) {
                   <p className="font-medium">{formatMenuItems(quote.drinks)}</p>
                 </div>
               )}
+              {/* Vegetarian Options - consolidated here in Menu Selections */}
+              {(quote.guest_count_with_restrictions || (quote.vegetarian_entrees && (quote.vegetarian_entrees as any[]).length > 0)) && (
+                <div className="pt-2 mt-2 border-t border-green-200 dark:border-green-800">
+                  <span className="text-green-700 dark:text-green-400 text-xs uppercase tracking-wide flex items-center gap-1">
+                    <Leaf className="h-3 w-3" /> Vegetarian Options
+                  </span>
+                  {quote.guest_count_with_restrictions && (
+                    <p className="font-medium text-green-700 dark:text-green-300">{quote.guest_count_with_restrictions} vegetarian portions</p>
+                  )}
+                  {quote.vegetarian_entrees && Array.isArray(quote.vegetarian_entrees) && (quote.vegetarian_entrees as any[]).length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {(quote.vegetarian_entrees as string[]).map((entree, idx) => (
+                        <Badge key={idx} variant="outline" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 border-green-300 text-xs">
+                          {entree.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </section>
 
-          {/* Additional Notes */}
-          {(quote.guest_count_with_restrictions || quote.special_requests || (quote.vegetarian_entrees && (quote.vegetarian_entrees as any[]).length > 0) || quote.event_type === 'wedding') && (
+          {/* Additional Notes - only special requests, wedding details, referral */}
+          {(quote.special_requests || quote.event_type === 'wedding' || quote.referral_source) && (
             <>
               <Separator />
               <section>
@@ -277,24 +297,6 @@ export function EventDetail({ quote, onClose }: EventDetailProps) {
                   Additional Notes
                 </h3>
                 <div className="space-y-3 text-sm">
-                  {quote.guest_count_with_restrictions && (
-                    <div className="flex items-center gap-2">
-                      <span className="text-green-600">🥗</span>
-                      <span className="text-muted-foreground">Vegetarian Portions:</span>
-                      <span className="font-medium text-amber-700">{quote.guest_count_with_restrictions} guests</span>
-                    </div>
-                  )}
-                  {quote.vegetarian_entrees && Array.isArray(quote.vegetarian_entrees) && (quote.vegetarian_entrees as any[]).length > 0 && (
-                    <div className="flex flex-wrap items-center gap-2">
-                      <Leaf className="h-4 w-4 text-green-600" />
-                      <span className="text-muted-foreground">Vegetarian Entrées:</span>
-                      {(quote.vegetarian_entrees as string[]).map((entree, idx) => (
-                        <Badge key={idx} variant="outline" className="bg-green-100 text-green-800 border-green-300">
-                          {entree.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
-                        </Badge>
-                      ))}
-                    </div>
-                  )}
                   {quote.event_type === 'wedding' && (
                     <div className="flex flex-wrap gap-2">
                       {quote.ceremony_included && (
