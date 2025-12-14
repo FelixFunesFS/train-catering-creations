@@ -76,7 +76,7 @@ function PaymentScheduleSection({ invoiceId }: { invoiceId: string | undefined }
     setIsRegenerating(true);
     try {
       const { error } = await supabase.functions.invoke('generate-payment-milestones', {
-        body: { invoice_id: invoiceId }
+        body: { invoice_id: invoiceId, force_regenerate: true }
       });
       if (error) throw error;
       await refetch();
