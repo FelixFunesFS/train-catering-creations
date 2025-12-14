@@ -4,8 +4,105 @@
  */
 
 import { supabase } from '@/integrations/supabase/client';
+import { ChangeItem, ChangeContext, ChangeSource } from '@/utils/changeSummaryGenerator';
+
+export interface HistoryEntryInput {
+  quoteId: string;
+  fieldName: string;
+  oldValue: string | null;
+  newValue: string | null;
+  changedBy: string;
+  changeReason?: string;
+  changeSource?: ChangeSource;
+  contactInfo?: string;
+  customerSummary?: string;
+}
 
 export class HistoryLogger {
+  /**
+   * Log a change with full context (initials, source, notes, customer summary)
+   * This is the primary method for logging changes from the UI
+   */
+  async logChangeWithContext(
+    quoteId: string,
+    invoiceId: string | null,
+    changes: ChangeItem[],
+    context: ChangeContext
+  ): Promise<void> {
+    if (changes.length === 0) return;
+
+    // Build contact info string
+    const contactInfo = context.contactEmail || context.contactPhone || undefined;
+
+    // Insert history entries for each change
+    const entries = changes.map(change => ({
+      quote_request_id: quoteId,
+      field_name: change.field,
+      old_value: change.oldValue,
+      new_value: change.newValue,
+      changed_by: context.initials,
+      change_reason: context.internalNote || null,
+      change_source: context.source,
+      contact_info: contactInfo,
+      customer_summary: context.includeInCustomerNotes ? context.customerSummary : null,
+    }));
+
+    const { error: historyError } = await supabase
+      .from('quote_request_history')
+      .insert(entries);
+
+    if (historyError) {
+      console.error('Error logging history:', historyError);
+      throw historyError;
+    }
+
+    // If including in customer notes and we have an invoice, append to invoice.notes
+    if (context.includeInCustomerNotes && context.customerSummary && invoiceId) {
+      const { data: invoice } = await supabase
+        .from('invoices')
+        .select('notes')
+        .eq('id', invoiceId)
+        .single();
+
+      const existingNotes = invoice?.notes || '';
+      const newNotes = existingNotes
+        ? `${existingNotes}\n\n${context.customerSummary}`
+        : context.customerSummary;
+
+      const { error: updateError } = await supabase
+        .from('invoices')
+        .update({ notes: newNotes })
+        .eq('id', invoiceId);
+
+      if (updateError) {
+        console.error('Error updating invoice notes:', updateError);
+      }
+    }
+  }
+
+  /**
+   * Log a single history entry with full context
+   */
+  async logEntry(entry: HistoryEntryInput): Promise<void> {
+    const { error } = await supabase
+      .from('quote_request_history')
+      .insert({
+        quote_request_id: entry.quoteId,
+        field_name: entry.fieldName,
+        old_value: entry.oldValue,
+        new_value: entry.newValue,
+        changed_by: entry.changedBy,
+        change_reason: entry.changeReason,
+        change_source: entry.changeSource,
+        contact_info: entry.contactInfo,
+        customer_summary: entry.customerSummary,
+      });
+
+    if (error) {
+      console.error('Error logging history entry:', error);
+    }
+  }
+
   /**
    * Log change request approval with detailed history
    */

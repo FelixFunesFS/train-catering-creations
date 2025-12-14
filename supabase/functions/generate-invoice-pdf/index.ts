@@ -528,7 +528,7 @@ serve(async (req) => {
     y -= 20;
 
     // Get terms from shared source (government-specific if applicable)
-    const isGovernment = quoteData?.compliance_level === 'government';
+    // Note: isGovernment is already defined at line 104
     const fullTerms = getTermsForPDF(isGovernment);
 
     for (const section of fullTerms) {

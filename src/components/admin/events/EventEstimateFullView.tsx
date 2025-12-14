@@ -20,6 +20,7 @@ import {
 import { formatDate, formatTime, formatServiceType, getStatusColor } from '@/utils/formatters';
 import { CustomerEditor } from './CustomerEditor';
 import { MenuEditorInline } from './MenuEditorInline';
+import { ChangeHistory } from './ChangeHistory';
 
 import { LineItemEditor } from '../billing/LineItemEditor';
 import { AddLineItemModal } from '../billing/AddLineItemModal';
@@ -436,6 +437,10 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
           </div>
         </>
       )}
+
+      {/* Change History */}
+      <Separator />
+      <ChangeHistory quoteId={quote?.id} />
     </div>
   );
 
