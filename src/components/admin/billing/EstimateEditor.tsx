@@ -293,6 +293,17 @@ export function EstimateEditor({ invoice, onClose }: EstimateEditorProps) {
               <Leaf className="h-3 w-3" /> Vegetarian Portions: {invoice.guest_count_with_restrictions} guests
             </p>
           )}
+          {(invoice as any).vegetarian_entrees && Array.isArray((invoice as any).vegetarian_entrees) && (invoice as any).vegetarian_entrees.length > 0 && (
+            <div className="flex flex-wrap items-center gap-1 text-green-600 dark:text-green-400">
+              <Leaf className="h-3 w-3" />
+              <span className="text-xs">Vegetarian Entrées:</span>
+              {(invoice as any).vegetarian_entrees.map((entree: string, idx: number) => (
+                <span key={idx} className="text-xs bg-green-100 dark:bg-green-900 px-1.5 py-0.5 rounded border border-green-300 dark:border-green-700">
+                  {entree.split('-').map((word: string) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                </span>
+              ))}
+            </div>
+          )}
           {invoice.special_requests && (
             <p className="flex items-start gap-1 italic">
               <MessageSquare className="h-3 w-3 mt-0.5 flex-shrink-0" /> 
