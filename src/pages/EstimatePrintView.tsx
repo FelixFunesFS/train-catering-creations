@@ -223,30 +223,24 @@ export default function EstimatePrintView() {
               </p>
               <p className="text-gray-600">{quote?.location}</p>
               <p className="text-gray-600">
-                {quote?.guest_count} guests • {formatServiceType(quote?.service_type)}
+                {quote?.guest_count} guests
+                {quote?.guest_count_with_restrictions && (
+                  <span className="text-green-700 font-medium"> (incl. {quote.guest_count_with_restrictions} vegetarian)</span>
+                )}
+                {' • '}{formatServiceType(quote?.service_type)}
               </p>
               {quote?.event_type && (
                 <p className="text-gray-600 capitalize">{quote.event_type.replace('_', ' ')}</p>
               )}
-            </div>
-          </div>
-
-          {/* Dietary Info */}
-          {(quote?.guest_count_with_restrictions || safeVegetarianEntrees(quote?.vegetarian_entrees).length > 0) && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6 avoid-break">
-              <h3 className="font-semibold text-green-800 mb-2 text-sm">🌱 Dietary Accommodations</h3>
-              {quote?.guest_count_with_restrictions && (
-                <p className="text-green-700 text-sm">{quote.guest_count_with_restrictions} vegetarian portions</p>
-              )}
               {safeVegetarianEntrees(quote?.vegetarian_entrees).length > 0 && (
                 <p className="text-green-700 text-sm mt-1">
-                  Entrées: {safeVegetarianEntrees(quote?.vegetarian_entrees).map(e => 
+                  🌱 Vegetarian Entrées: {safeVegetarianEntrees(quote?.vegetarian_entrees).map(e => 
                     e.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
                   ).join(', ')}
                 </p>
               )}
             </div>
-          )}
+          </div>
 
           {/* Government Badge */}
           {isGovernment && (

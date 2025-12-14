@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQuotes } from '@/hooks/useQuotes';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -99,6 +100,7 @@ export function EventList() {
   const [search, setSearch] = useState('');
   const [selectedQuote, setSelectedQuote] = useState<QuoteRequest | null>(null);
   const navigate = useNavigate();
+  const isDesktop = useMediaQuery('(min-width: 1024px)');
   
   const { data: quotes, isLoading: quotesLoading, error: quotesError } = useQuotes({ search: search || undefined });
   const { data: invoices, isLoading: invoicesLoading } = useRawInvoices();
@@ -176,7 +178,13 @@ export function EventList() {
                       <TableRow 
                         key={event.id} 
                         className="cursor-pointer hover:bg-muted/50"
-                        onClick={() => setSelectedQuote(event)}
+                        onClick={() => {
+                          if (isDesktop) {
+                            navigate(`/admin/event/${event.id}`);
+                          } else {
+                            setSelectedQuote(event);
+                          }
+                        }}
                       >
                         <TableCell className="font-medium">
                           {format(new Date(event.event_date), 'MMM d, yyyy')}

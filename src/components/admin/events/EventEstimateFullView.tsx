@@ -15,7 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
-  X, FileText, Calendar, MapPin, Users, Leaf, MessageSquare, Clock, 
+  X, FileText, Calendar, MapPin, Users, MessageSquare, Clock, 
   Plus, Eye, RefreshCw, Loader2, Printer, PartyPopper, Heart, ArrowLeft
 } from 'lucide-react';
 import { formatDate, formatTime, formatServiceType, getStatusColor } from '@/utils/formatters';
@@ -277,43 +277,34 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
               <span>{quote?.location}</span>
             </div>
           )}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <Users className="h-3 w-3 text-muted-foreground" />
             <span>{quote?.guest_count} guests</span>
+            {quote?.guest_count_with_restrictions && (
+              <Badge variant="outline" className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 border-green-300 text-xs">
+                🥗 {quote.guest_count_with_restrictions} vegetarian
+              </Badge>
+            )}
             <Badge variant="outline" className="text-xs">{formatServiceType(quote?.service_type)}</Badge>
           </div>
           {quote?.event_type && (
             <Badge variant="secondary" className="capitalize">{quote.event_type.replace('_', ' ')}</Badge>
           )}
-        </CardContent>
-      </Card>
-
-      {/* Dietary & Vegetarian */}
-      {(quote?.guest_count_with_restrictions || quote?.vegetarian_entrees?.length > 0) && (
-        <Card className="border-green-200 dark:border-green-800 bg-green-50/50 dark:bg-green-950/20">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base flex items-center gap-2 text-green-700 dark:text-green-400">
-              <Leaf className="h-4 w-4" /> Vegetarian Options
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2 text-sm">
-            {quote?.guest_count_with_restrictions && (
-              <p className="text-green-700 dark:text-green-400">
-                🥗 {quote.guest_count_with_restrictions} vegetarian portions
-              </p>
-            )}
-            {quote?.vegetarian_entrees?.length > 0 && (
-              <div className="flex flex-wrap gap-1">
+          {/* Vegetarian Entrées inline with menu */}
+          {quote?.vegetarian_entrees?.length > 0 && (
+            <div className="pt-2">
+              <span className="text-xs text-green-700 dark:text-green-400 font-medium">🌱 Vegetarian Entrées:</span>
+              <div className="flex flex-wrap gap-1 mt-1">
                 {quote.vegetarian_entrees.map((entree: string, idx: number) => (
                   <Badge key={idx} variant="outline" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 border-green-300 text-xs">
                     {entree.split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
                   </Badge>
                 ))}
               </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Wedding Fields */}
       {quote?.event_type === 'wedding' && (
@@ -366,7 +357,7 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
           Estimate {invoice?.invoice_number && `#${invoice.invoice_number}`}
         </h2>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => window.open(`/estimate/print/${invoice?.id}`, '_blank')}>
+          <Button variant="outline" size="sm" onClick={() => window.open(`/admin/estimate-print/${invoice?.id}`, '_blank')}>
             <Printer className="h-4 w-4 mr-1" /> Print
           </Button>
         </div>
