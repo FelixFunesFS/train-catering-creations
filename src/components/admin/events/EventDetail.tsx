@@ -10,7 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useInvoiceByQuote, useInvoicePaymentSummary } from '@/hooks/useInvoices';
 import { supabase } from '@/integrations/supabase/client';
 import { formatMenuDescription } from '@/utils/invoiceFormatters';
-import { User, Calendar, MapPin, Users, Utensils, FileText, Loader2, Package, Eye, Pencil, Receipt, Play, CheckCircle, XCircle, MessageSquare } from 'lucide-react';
+import { User, Calendar, MapPin, Users, Utensils, FileText, Loader2, Package, Eye, Pencil, Receipt, Play, CheckCircle, XCircle, MessageSquare, PartyPopper, Leaf } from 'lucide-react';
 import { useUpdateQuoteStatus } from '@/hooks/useQuotes';
 import { EstimateEditor } from '@/components/admin/billing/EstimateEditor';
 
@@ -122,7 +122,7 @@ export function EventDetail({ quote, onClose }: EventDetailProps) {
 
   return (
     <Dialog open onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-lg lg:max-w-2xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FileText className="h-5 w-5" />
@@ -213,6 +213,12 @@ export function EventDetail({ quote, onClose }: EventDetailProps) {
                 <span className="text-muted-foreground">Service:</span>
                 <p className="font-medium">{formatServiceType(quote.service_type)}</p>
               </div>
+              <div>
+                <span className="text-muted-foreground flex items-center gap-1">
+                  <PartyPopper className="h-3 w-3" /> Event Type:
+                </span>
+                <p className="font-medium capitalize">{quote.event_type?.replace(/_/g, ' ')}</p>
+              </div>
             </div>
           </section>
 
@@ -229,6 +235,11 @@ export function EventDetail({ quote, onClose }: EventDetailProps) {
                 <span className="text-muted-foreground">Proteins:</span>
                 <p className="font-medium">{formatMenuItems(quote.proteins)}</p>
               </div>
+              {quote.both_proteins_available && (
+                <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
+                  ⭐ Both proteins served to all guests
+                </Badge>
+              )}
               <div>
                 <span className="text-muted-foreground">Sides:</span>
                 <p className="font-medium">{formatMenuItems(quote.sides)}</p>
@@ -255,7 +266,7 @@ export function EventDetail({ quote, onClose }: EventDetailProps) {
           </section>
 
           {/* Additional Notes */}
-          {(quote.guest_count_with_restrictions || quote.special_requests) && (
+          {(quote.guest_count_with_restrictions || quote.special_requests || (quote.vegetarian_entrees && (quote.vegetarian_entrees as any[]).length > 0) || quote.event_type === 'wedding') && (
             <>
               <Separator />
               <section>
@@ -263,17 +274,54 @@ export function EventDetail({ quote, onClose }: EventDetailProps) {
                   <MessageSquare className="h-4 w-4" />
                   Additional Notes
                 </h3>
-                <div className="space-y-2 text-sm">
+                <div className="space-y-3 text-sm">
                   {quote.guest_count_with_restrictions && (
-                    <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-green-600">🥗</span>
                       <span className="text-muted-foreground">Vegetarian Portions:</span>
-                      <span className="font-medium ml-2">{quote.guest_count_with_restrictions} guests</span>
+                      <span className="font-medium text-amber-700">{quote.guest_count_with_restrictions} guests</span>
+                    </div>
+                  )}
+                  {quote.vegetarian_entrees && Array.isArray(quote.vegetarian_entrees) && (quote.vegetarian_entrees as any[]).length > 0 && (
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Leaf className="h-4 w-4 text-green-600" />
+                      <span className="text-muted-foreground">Vegetarian Entrées:</span>
+                      {(quote.vegetarian_entrees as string[]).map((entree, idx) => (
+                        <Badge key={idx} variant="outline" className="bg-green-100 text-green-800 border-green-300">
+                          {entree.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                  {quote.event_type === 'wedding' && (
+                    <div className="flex flex-wrap gap-2">
+                      {quote.ceremony_included && (
+                        <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
+                          💒 Ceremony Included
+                        </Badge>
+                      )}
+                      {quote.cocktail_hour && (
+                        <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                          🥂 Cocktail Hour
+                        </Badge>
+                      )}
+                      {quote.theme_colors && (
+                        <Badge variant="outline" className="bg-pink-50 text-pink-700 border-pink-200">
+                          🎨 Theme: {quote.theme_colors}
+                        </Badge>
+                      )}
                     </div>
                   )}
                   {quote.special_requests && (
                     <div>
                       <span className="text-muted-foreground">Special Requests:</span>
-                      <p className="font-medium mt-1">{quote.special_requests}</p>
+                      <p className="font-medium mt-1 italic">{quote.special_requests}</p>
+                    </div>
+                  )}
+                  {quote.referral_source && (
+                    <div>
+                      <span className="text-muted-foreground">Referral Source:</span>
+                      <span className="font-medium ml-2">{quote.referral_source}</span>
                     </div>
                   )}
                 </div>
@@ -360,7 +408,7 @@ export function EventDetail({ quote, onClose }: EventDetailProps) {
           <Separator />
 
           {/* Actions */}
-          <div className="flex justify-end gap-2">
+          <div className="flex flex-col sm:flex-row justify-end gap-2">
             <Button variant="outline" onClick={onClose}>
               Close
             </Button>

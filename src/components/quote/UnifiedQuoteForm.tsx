@@ -189,6 +189,7 @@ export const UnifiedQuoteForm = ({ variant = 'regular', onSuccess }: UnifiedQuot
         drinks: data.drinks || [],
         dietary_restrictions: data.dietary_restrictions || [],
         guest_count_with_restrictions: data.guest_count_with_restrictions,
+        vegetarian_entrees: data.vegetarian_entrees || [],
         plates_requested: data.plates_requested,
         cups_requested: data.cups_requested,
         napkins_requested: data.napkins_requested,
