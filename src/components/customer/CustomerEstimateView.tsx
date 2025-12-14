@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Loader2, Calendar, MapPin, Users, Clock, AlertCircle, FileText, ChevronDown, PenLine, MessageSquare } from 'lucide-react';
 import { formatDate, formatTime, formatServiceType, getStatusColor } from '@/utils/formatters';
 
@@ -20,6 +21,7 @@ export function CustomerEstimateView() {
   const { loading, estimateData, error, refetch } = useEstimateAccess(token);
   const [showChangeModal, setShowChangeModal] = useState(false);
   const [autoActionTriggered, setAutoActionTriggered] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   // Calculate payment progress - MUST be before any early returns
   const amountPaid = useMemo(() => {
@@ -276,6 +278,24 @@ export function CustomerEstimateView() {
           </Card>
         </Collapsible>
 
+        {/* Terms Acknowledgment Checkbox */}
+        {['sent', 'viewed'].includes(invoice.workflow_status) && (
+          <div className="flex items-start gap-3 px-4 py-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+            <Checkbox
+              id="terms-accepted"
+              checked={termsAccepted}
+              onCheckedChange={(checked) => setTermsAccepted(checked === true)}
+              className="mt-0.5"
+            />
+            <label
+              htmlFor="terms-accepted"
+              className="text-sm text-amber-800 dark:text-amber-300 cursor-pointer leading-relaxed"
+            >
+              I have read and agree to the <strong>Terms & Conditions</strong> above. I understand the payment schedule and cancellation policy.
+            </label>
+          </div>
+        )}
+
         {/* Actions - After Terms */}
         <Card>
           <CardContent className="pt-6">
@@ -286,6 +306,7 @@ export function CustomerEstimateView() {
               quoteRequestId={invoice.quote_request_id}
               onStatusChange={refetch}
               autoApprove={action === 'approve' && !autoActionTriggered}
+              termsAccepted={termsAccepted}
             />
           </CardContent>
         </Card>
