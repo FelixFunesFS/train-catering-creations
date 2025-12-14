@@ -1,0 +1,25 @@
+-- Use TRUNCATE with CASCADE to clear all event data and handle foreign keys automatically
+TRUNCATE TABLE 
+  invoice_audit_log,
+  reminder_logs,
+  payment_history,
+  change_requests,
+  payment_transactions,
+  payment_milestones,
+  invoice_line_items_archive,
+  invoice_line_items,
+  estimate_versions,
+  payment_schedule_audit,
+  messages,
+  message_threads,
+  event_documents,
+  workflow_step_completion,
+  event_timeline_tasks,
+  quote_request_history,
+  workflow_state_log,
+  admin_notes,
+  calendar_events,
+  customers,
+  invoices,
+  quote_requests
+CASCADE;
