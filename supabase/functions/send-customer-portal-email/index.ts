@@ -294,6 +294,135 @@ function generateWelcomeEmail(quote: any, portalUrl: string): string {
   `;
 }
 
+/**
+ * Generates a payment schedule preview based on days until event and customer type
+ */
+function generatePaymentSchedulePreview(quote: any, totalAmountCents: number): string {
+  const eventDate = new Date(quote.event_date);
+  const now = new Date();
+  const daysUntilEvent = Math.ceil((eventDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+  
+  const isGovernment = quote.compliance_level === 'government' || quote.requires_po_number;
+  
+  const formatCurrency = (cents: number) => {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100);
+  };
+
+  // Determine tier and generate schedule rows
+  let tierLabel = '';
+  let scheduleRows = '';
+  
+  if (isGovernment) {
+    tierLabel = 'Government (Net 30)';
+    scheduleRows = `
+      <tr>
+        <td style="padding: 12px; border-bottom: 1px solid #e9ecef;">Full Payment</td>
+        <td style="padding: 12px; border-bottom: 1px solid #e9ecef; text-align: center;">100%</td>
+        <td style="padding: 12px; border-bottom: 1px solid #e9ecef; text-align: right;">${formatCurrency(totalAmountCents)}</td>
+        <td style="padding: 12px; border-bottom: 1px solid #e9ecef; text-align: right;">Net 30 after event</td>
+      </tr>
+    `;
+  } else if (daysUntilEvent <= 14) {
+    tierLabel = 'Rush Event';
+    scheduleRows = `
+      <tr>
+        <td style="padding: 12px; border-bottom: 1px solid #e9ecef;">Full Payment</td>
+        <td style="padding: 12px; border-bottom: 1px solid #e9ecef; text-align: center;">100%</td>
+        <td style="padding: 12px; border-bottom: 1px solid #e9ecef; text-align: right;">${formatCurrency(totalAmountCents)}</td>
+        <td style="padding: 12px; border-bottom: 1px solid #e9ecef; text-align: right;">Due upon approval</td>
+      </tr>
+    `;
+  } else if (daysUntilEvent <= 30) {
+    tierLabel = 'Short Notice';
+    const deposit = Math.round(totalAmountCents * 0.6);
+    const final = totalAmountCents - deposit;
+    scheduleRows = `
+      <tr>
+        <td style="padding: 12px; border-bottom: 1px solid #e9ecef;">Deposit</td>
+        <td style="padding: 12px; border-bottom: 1px solid #e9ecef; text-align: center;">60%</td>
+        <td style="padding: 12px; border-bottom: 1px solid #e9ecef; text-align: right;">${formatCurrency(deposit)}</td>
+        <td style="padding: 12px; border-bottom: 1px solid #e9ecef; text-align: right;">Due upon approval</td>
+      </tr>
+      <tr>
+        <td style="padding: 12px; border-bottom: 1px solid #e9ecef;">Final Balance</td>
+        <td style="padding: 12px; border-bottom: 1px solid #e9ecef; text-align: center;">40%</td>
+        <td style="padding: 12px; border-bottom: 1px solid #e9ecef; text-align: right;">${formatCurrency(final)}</td>
+        <td style="padding: 12px; border-bottom: 1px solid #e9ecef; text-align: right;">7 days before event</td>
+      </tr>
+    `;
+  } else if (daysUntilEvent <= 44) {
+    tierLabel = 'Mid-Range';
+    const deposit = Math.round(totalAmountCents * 0.6);
+    const final = totalAmountCents - deposit;
+    scheduleRows = `
+      <tr>
+        <td style="padding: 12px; border-bottom: 1px solid #e9ecef;">Deposit</td>
+        <td style="padding: 12px; border-bottom: 1px solid #e9ecef; text-align: center;">60%</td>
+        <td style="padding: 12px; border-bottom: 1px solid #e9ecef; text-align: right;">${formatCurrency(deposit)}</td>
+        <td style="padding: 12px; border-bottom: 1px solid #e9ecef; text-align: right;">Due upon approval</td>
+      </tr>
+      <tr>
+        <td style="padding: 12px; border-bottom: 1px solid #e9ecef;">Final Balance</td>
+        <td style="padding: 12px; border-bottom: 1px solid #e9ecef; text-align: center;">40%</td>
+        <td style="padding: 12px; border-bottom: 1px solid #e9ecef; text-align: right;">${formatCurrency(final)}</td>
+        <td style="padding: 12px; border-bottom: 1px solid #e9ecef; text-align: right;">14 days before event</td>
+      </tr>
+    `;
+  } else {
+    tierLabel = 'Standard';
+    const booking = Math.round(totalAmountCents * 0.1);
+    const milestone = Math.round(totalAmountCents * 0.5);
+    const final = totalAmountCents - booking - milestone;
+    scheduleRows = `
+      <tr>
+        <td style="padding: 12px; border-bottom: 1px solid #e9ecef;">Booking Deposit</td>
+        <td style="padding: 12px; border-bottom: 1px solid #e9ecef; text-align: center;">10%</td>
+        <td style="padding: 12px; border-bottom: 1px solid #e9ecef; text-align: right;">${formatCurrency(booking)}</td>
+        <td style="padding: 12px; border-bottom: 1px solid #e9ecef; text-align: right;">Due upon approval</td>
+      </tr>
+      <tr>
+        <td style="padding: 12px; border-bottom: 1px solid #e9ecef;">Milestone Payment</td>
+        <td style="padding: 12px; border-bottom: 1px solid #e9ecef; text-align: center;">50%</td>
+        <td style="padding: 12px; border-bottom: 1px solid #e9ecef; text-align: right;">${formatCurrency(milestone)}</td>
+        <td style="padding: 12px; border-bottom: 1px solid #e9ecef; text-align: right;">30 days before event</td>
+      </tr>
+      <tr>
+        <td style="padding: 12px; border-bottom: 1px solid #e9ecef;">Final Balance</td>
+        <td style="padding: 12px; border-bottom: 1px solid #e9ecef; text-align: center;">40%</td>
+        <td style="padding: 12px; border-bottom: 1px solid #e9ecef; text-align: right;">${formatCurrency(final)}</td>
+        <td style="padding: 12px; border-bottom: 1px solid #e9ecef; text-align: right;">14 days before event</td>
+      </tr>
+    `;
+  }
+
+  return `
+    <div style="background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 20px; margin: 20px 0;">
+      <h3 style="color: ${BRAND_COLORS.crimson}; margin: 0 0 10px 0;">💰 Your Payment Schedule</h3>
+      <p style="margin: 0 0 15px 0; color: #666; font-size: 14px;">
+        Based on your event date (${daysUntilEvent} days away), here's how payments will be structured:
+      </p>
+      
+      <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden;">
+        <thead>
+          <tr style="background: ${BRAND_COLORS.crimson}; color: white;">
+            <th style="padding: 12px; text-align: left; font-weight: 600;">Payment</th>
+            <th style="padding: 12px; text-align: center; font-weight: 600;">%</th>
+            <th style="padding: 12px; text-align: right; font-weight: 600;">Amount</th>
+            <th style="padding: 12px; text-align: right; font-weight: 600;">When Due</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${scheduleRows}
+        </tbody>
+      </table>
+      
+      <p style="margin: 15px 0 0 0; font-size: 12px; color: #888; font-style: italic;">
+        * Exact due dates will be confirmed upon approval. ${isGovernment ? 'Tax exempt - no sales tax applied.' : ''}
+      </p>
+    </div>
+  `;
+}
+
 function generateEstimateReadyEmail(quote: any, invoice: any, portalUrl: string, invoiceId: string): string {
   const approveUrl = `${portalUrl}&action=approve`;
   const changesUrl = `${portalUrl}&action=changes`;
@@ -341,6 +470,8 @@ function generateEstimateReadyEmail(quote: any, invoice: any, portalUrl: string,
           ${generateEventDetailsCard(quote)}
           
           ${generateLineItemsTable(lineItems, subtotal, taxAmount, total)}
+          
+          ${generatePaymentSchedulePreview(quote, total)}
           
           <div style="background: #fff3cd; border: 1px solid ${BRAND_COLORS.gold}; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <h3 style="margin: 0 0 10px 0; color: ${BRAND_COLORS.crimson};">⏰ Action Required</h3>

@@ -39,7 +39,7 @@
 | Discount | ✓ | ✓ | ✗ | ✗ | ✓ |
 | Total | ✓ | ✓ | ✓ | ✗ | ✓ |
 | **Payment** |
-| Payment Schedule | ✓ | ✓ (preview) | ✓ (full) | ✗ | ✓ |
+| Payment Schedule | ✓ | ✓ | ✓ (full) | ✗ | ✓ |
 | Payment Status | ✓ | ✗ | ✓ | ✗ | ✓ |
 | Amount Due Now | ✓ | ✓ | ✓ | ✗ | ✓ |
 | **Terms** |
