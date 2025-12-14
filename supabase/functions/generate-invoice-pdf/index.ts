@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { PDFDocument, rgb, StandardFonts } from "https://esm.sh/pdf-lib@1.17.1";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -10,6 +11,13 @@ const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
   console.log(`[GENERATE-PDF] ${step}${detailsStr}`);
 };
+
+// Color constants (RGB 0-1 scale)
+const CRIMSON = rgb(0.863, 0.078, 0.235); // #DC143C
+const GOLD = rgb(1, 0.843, 0); // #FFD700
+const DARK_GRAY = rgb(0.2, 0.2, 0.2);
+const MEDIUM_GRAY = rgb(0.4, 0.4, 0.4);
+const LIGHT_GRAY = rgb(0.9, 0.9, 0.9);
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -35,29 +43,19 @@ serve(async (req) => {
       .from("invoices")
       .select(`
         *,
-        customers (
-          id,
-          name,
-          email,
-          phone,
-          address
-        ),
+        customers (id, name, email, phone, address),
         quote_requests (
-          id,
-          event_name,
-          event_date,
-          location,
-          service_type,
-          guest_count,
-          special_requests,
-          contact_name,
-          email
+          id, event_name, event_date, location, service_type, guest_count, 
+          special_requests, contact_name, email, start_time, proteins, sides,
+          appetizers, desserts, drinks, vegetarian_entrees, guest_count_with_restrictions,
+          compliance_level, requires_po_number
         )
       `)
       .eq("id", invoice_id)
       .single();
 
     if (invoiceError || !invoiceData) {
+      logStep("Invoice not found", { error: invoiceError });
       throw new Error("Invoice not found");
     }
 
@@ -66,7 +64,8 @@ serve(async (req) => {
       .from("invoice_line_items")
       .select("*")
       .eq("invoice_id", invoice_id)
-      .order("created_at");
+      .order("sort_order", { ascending: true })
+      .order("created_at", { ascending: true });
 
     if (lineItemsError) {
       throw new Error("Failed to fetch line items");
@@ -77,6 +76,10 @@ serve(async (req) => {
       invoiceNumber: invoiceData.invoice_number 
     });
 
+    const quote = invoiceData.quote_requests;
+    const customer = invoiceData.customers;
+    const isGovernment = quote?.compliance_level === 'government' || quote?.requires_po_number;
+
     // Format currency function
     const formatCurrency = (amount: number) => {
       return new Intl.NumberFormat('en-US', {
@@ -85,181 +88,296 @@ serve(async (req) => {
       }).format(amount / 100);
     };
 
-    // Calculate payment schedule
-    const calculatePaymentSchedule = (totalAmount: number, eventDate: string, isGovernment = false) => {
-      const eventDateTime = new Date(eventDate);
-      const today = new Date();
-      const daysUntilEvent = Math.ceil((eventDateTime.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    // Format date
+    const formatDate = (dateStr: string) => {
+      return new Date(dateStr).toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    };
 
-      if (isGovernment) {
-        return {
-          deposit_percentage: 0,
-          deposit_amount: 0,
-          schedule: [{
-            amount: totalAmount,
-            description: "Full payment due 30 days after event completion"
-          }]
-        };
-      }
+    // Format time
+    const formatTime = (timeStr: string) => {
+      if (!timeStr) return '';
+      const [hours, minutes] = timeStr.split(':');
+      const h = parseInt(hours);
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      const hour12 = h % 12 || 12;
+      return `${hour12}:${minutes} ${ampm}`;
+    };
 
-      if (daysUntilEvent <= 30) {
-        return {
-          deposit_percentage: 50,
-          deposit_amount: Math.round(totalAmount * 0.5),
-          schedule: [
-            { amount: Math.round(totalAmount * 0.5), description: "Deposit to secure event date (50%)" },
-            { amount: totalAmount - Math.round(totalAmount * 0.5), description: "Final payment due 10 days prior to event" }
-          ]
-        };
+    // Format service type
+    const formatServiceType = (type: string) => {
+      const types: Record<string, string> = {
+        'full-service': 'Full Service Catering',
+        'delivery-only': 'Delivery Only',
+        'delivery-setup': 'Delivery with Setup',
+        'drop-off': 'Drop-Off'
+      };
+      return types[type] || type;
+    };
+
+    // Format menu items
+    const formatMenuItems = (items: any) => {
+      if (!items || !Array.isArray(items) || items.length === 0) return '';
+      return items.map((item: string) => 
+        item.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+      ).join(', ');
+    };
+
+    // Create PDF document
+    const pdfDoc = await PDFDocument.create();
+    const helvetica = await pdfDoc.embedFont(StandardFonts.Helvetica);
+    const helveticaBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+
+    // Page settings
+    const pageWidth = 612; // 8.5 inches
+    const pageHeight = 792; // 11 inches
+    const margin = 50;
+    const contentWidth = pageWidth - (margin * 2);
+    
+    let page = pdfDoc.addPage([pageWidth, pageHeight]);
+    let y = pageHeight - margin;
+
+    // Helper functions for drawing
+    const drawText = (text: string, x: number, yPos: number, options: { 
+      font?: any, size?: number, color?: any, maxWidth?: number 
+    } = {}) => {
+      const font = options.font || helvetica;
+      const size = options.size || 10;
+      const color = options.color || DARK_GRAY;
+      
+      // Word wrap if maxWidth specified
+      if (options.maxWidth) {
+        const words = text.split(' ');
+        let line = '';
+        let currentY = yPos;
+        
+        for (const word of words) {
+          const testLine = line + (line ? ' ' : '') + word;
+          const testWidth = font.widthOfTextAtSize(testLine, size);
+          
+          if (testWidth > options.maxWidth && line) {
+            page.drawText(line, { x, y: currentY, size, font, color });
+            line = word;
+            currentY -= size + 2;
+          } else {
+            line = testLine;
+          }
+        }
+        if (line) {
+          page.drawText(line, { x, y: currentY, size, font, color });
+          currentY -= size + 2;
+        }
+        return yPos - currentY;
       } else {
-        return {
-          deposit_percentage: 25,
-          deposit_amount: Math.round(totalAmount * 0.25),
-          schedule: [
-            { amount: Math.round(totalAmount * 0.25), description: "Deposit to secure event date (25%)" },
-            { amount: Math.round(totalAmount * 0.5), description: "Second payment due 30 days prior (50%)" },
-            { amount: totalAmount - Math.round(totalAmount * 0.25) - Math.round(totalAmount * 0.5), description: "Final payment due 10 days prior (25%)" }
-          ]
-        };
+        page.drawText(text, { x, y: yPos, size, font, color });
+        return size + 2;
       }
     };
 
-    const paymentSchedule = calculatePaymentSchedule(
-      invoiceData.total_amount,
-      invoiceData.quote_requests.event_date,
-      invoiceData.draft_data?.is_government_contract
-    );
+    const drawLine = (x1: number, yPos: number, x2: number, color = LIGHT_GRAY, thickness = 1) => {
+      page.drawLine({ start: { x: x1, y: yPos }, end: { x: x2, y: yPos }, thickness, color });
+    };
 
-    // Generate HTML content for PDF
-    const htmlContent = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8">
-      <title>Catering Estimate - ${invoiceData.invoice_number}</title>
-      <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 20px; }
-        .header { text-align: center; border-bottom: 2px solid #2563eb; padding-bottom: 20px; margin-bottom: 30px; }
-        .logo { font-size: 28px; font-weight: bold; color: #2563eb; }
-        .subtitle { color: #666; margin-top: 5px; }
-        .invoice-details { display: flex; justify-content: space-between; margin-bottom: 30px; }
-        .section { margin-bottom: 25px; }
-        .section-title { font-size: 18px; font-weight: bold; color: #2563eb; border-bottom: 1px solid #e5e7eb; padding-bottom: 5px; margin-bottom: 15px; }
-        .line-items { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        .line-items th, .line-items td { border: 1px solid #e5e7eb; padding: 12px; text-align: left; }
-        .line-items th { background-color: #ffffff; font-weight: bold; border-bottom: 2px solid #e5e7eb; }
-        .total-section { text-align: right; margin-top: 20px; }
-        .total-row { margin: 5px 0; }
-        .grand-total { font-size: 18px; font-weight: bold; color: #2563eb; border-top: 2px solid #2563eb; padding-top: 10px; }
-        .payment-info { background-color: #ffffff; border: 2px solid #2563eb; padding: 20px; border-radius: 8px; margin-top: 20px; }
-        .contact-info { background-color: #ffffff; border: 1px solid #e5e7eb; padding: 20px; border-radius: 8px; margin-top: 20px; }
-        .footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #e5e7eb; color: #666; }
-      </style>
-    </head>
-    <body>
-      <div class="header">
-        <div class="logo">Soul Train's Eatery</div>
-        <div class="subtitle">Charleston's Premier Catering Service</div>
-        <div style="margin-top: 10px; color: #666;">Phone: (843) 970-0265 | Email: soultrainseatery@gmail.com</div>
-      </div>
+    const checkNewPage = (neededHeight: number) => {
+      if (y - neededHeight < margin + 50) {
+        page = pdfDoc.addPage([pageWidth, pageHeight]);
+        y = pageHeight - margin;
+        return true;
+      }
+      return false;
+    };
 
-      <div class="invoice-details">
-        <div>
-          <strong>Estimate #:</strong> ${invoiceData.invoice_number}<br>
-          <strong>Date:</strong> ${new Date(invoiceData.created_at).toLocaleDateString()}<br>
-          <strong>Status:</strong> ${invoiceData.status.charAt(0).toUpperCase() + invoiceData.status.slice(1)}
-        </div>
-        <div>
-          <strong>Bill To:</strong><br>
-          ${invoiceData.customers.name}<br>
-          ${invoiceData.customers.email}<br>
-          ${invoiceData.customers.phone}<br>
-          ${invoiceData.customers.address || ''}
-        </div>
-      </div>
+    // === HEADER ===
+    drawText("Soul Train's Eatery", margin, y, { font: helveticaBold, size: 24, color: CRIMSON });
+    y -= 28;
+    drawText("Charleston's Premier Catering Service", margin, y, { size: 11, color: MEDIUM_GRAY });
+    y -= 14;
+    drawText("(843) 970-0265 | soultrainseatery@gmail.com", margin, y, { size: 9, color: MEDIUM_GRAY });
+    y -= 25;
+    
+    // Estimate badge
+    page.drawRectangle({ x: margin, y: y - 20, width: 120, height: 24, color: CRIMSON });
+    drawText("CATERING ESTIMATE", margin + 8, y - 14, { font: helveticaBold, size: 10, color: rgb(1, 1, 1) });
+    
+    // Estimate number on right
+    const estNumText = `#${invoiceData.invoice_number || 'DRAFT'}`;
+    const estNumWidth = helveticaBold.widthOfTextAtSize(estNumText, 14);
+    drawText(estNumText, pageWidth - margin - estNumWidth, y - 10, { font: helveticaBold, size: 14, color: CRIMSON });
+    y -= 40;
 
-      <div class="section">
-        <div class="section-title">Event Details</div>
-        <strong>Event:</strong> ${invoiceData.quote_requests.event_name}<br>
-        <strong>Date:</strong> ${new Date(invoiceData.quote_requests.event_date).toLocaleDateString()}<br>
-        <strong>Location:</strong> ${invoiceData.quote_requests.location}<br>
-        <strong>Service Type:</strong> ${invoiceData.quote_requests.service_type}<br>
-        <strong>Guest Count:</strong> ${invoiceData.quote_requests.guest_count}<br>
-        ${invoiceData.quote_requests.special_requests ? `<strong>Special Requests:</strong> ${invoiceData.quote_requests.special_requests}<br>` : ''}
-      </div>
+    drawLine(margin, y, pageWidth - margin, CRIMSON, 2);
+    y -= 25;
 
-      <div class="section">
-        <div class="section-title">Line Items</div>
-        <table class="line-items">
-          <thead>
-            <tr>
-              <th>Description</th>
-              <th>Quantity</th>
-              <th>Unit Price</th>
-              <th>Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${lineItems?.map(item => `
-              <tr>
-                <td>
-                  <strong>${item.title || 'Item'}</strong><br>
-                  <small>${item.description}</small>
-                </td>
-                <td>${item.quantity}</td>
-                <td>${formatCurrency(item.unit_price)}</td>
-                <td>${formatCurrency(item.total_price)}</td>
-              </tr>
-            `).join('') || '<tr><td colspan="4" style="text-align: center; color: #666;">No line items available</td></tr>'}
-          </tbody>
-        </table>
+    // === CUSTOMER & EVENT INFO (2 columns) ===
+    const col1X = margin;
+    const col2X = margin + contentWidth / 2 + 10;
+    const colWidth = contentWidth / 2 - 10;
 
-        <div class="total-section">
-          <div class="total-row">Subtotal: ${formatCurrency(invoiceData.subtotal)}</div>
-          ${invoiceData.tax_amount > 0 ? `<div class="total-row">Tax: ${formatCurrency(invoiceData.tax_amount)}</div>` : ''}
-          <div class="total-row grand-total">Total: ${formatCurrency(invoiceData.total_amount)}</div>
-        </div>
-      </div>
+    // Customer column
+    drawText("BILL TO", col1X, y, { font: helveticaBold, size: 9, color: MEDIUM_GRAY });
+    y -= 14;
+    drawText(customer?.name || quote?.contact_name || '', col1X, y, { font: helveticaBold, size: 11 });
+    y -= 14;
+    if (customer?.email || quote?.email) {
+      drawText(customer?.email || quote?.email, col1X, y, { size: 10 });
+      y -= 12;
+    }
+    if (customer?.phone) {
+      drawText(customer?.phone, col1X, y, { size: 10 });
+      y -= 12;
+    }
 
-      <div class="payment-info">
-        <div class="section-title">Payment Information</div>
-        <p><strong>Deposit Required:</strong> ${formatCurrency(paymentSchedule.deposit_amount)} (${paymentSchedule.deposit_percentage}%)</p>
-        <p><strong>Payment Schedule:</strong></p>
-        <ul>
-          ${paymentSchedule.schedule.map(payment => `
-            <li>${payment.description}: ${formatCurrency(payment.amount)}</li>
-          `).join('')}
-        </ul>
-      </div>
+    // Event column (reset y for parallel column)
+    let eventY = y + 40;
+    drawText("EVENT DETAILS", col2X, eventY, { font: helveticaBold, size: 9, color: MEDIUM_GRAY });
+    eventY -= 14;
+    drawText(quote?.event_name || 'Event', col2X, eventY, { font: helveticaBold, size: 11 });
+    eventY -= 14;
+    if (quote?.event_date) {
+      drawText(formatDate(quote.event_date), col2X, eventY, { size: 10 });
+      eventY -= 12;
+    }
+    if (quote?.start_time) {
+      drawText(`Start Time: ${formatTime(quote.start_time)}`, col2X, eventY, { size: 10 });
+      eventY -= 12;
+    }
+    if (quote?.location) {
+      drawText(quote.location, col2X, eventY, { size: 10, maxWidth: colWidth });
+      eventY -= 12;
+    }
+    if (quote?.guest_count) {
+      drawText(`${quote.guest_count} Guests • ${formatServiceType(quote.service_type)}`, col2X, eventY, { size: 10 });
+      eventY -= 12;
+    }
 
-      <div class="contact-info">
-        <div class="section-title">Contact Information</div>
-        <p><strong>Soul Train's Eatery</strong><br>
-        Phone: (843) 970-0265<br>
-        Email: soultrainseatery@gmail.com<br>
-        Proudly serving Charleston's Lowcountry and surrounding areas</p>
-      </div>
+    y = Math.min(y, eventY) - 20;
 
-      <div class="footer">
-        <p>Thank you for choosing Soul Train's Eatery for your catering needs!</p>
-        <p><em>This estimate is valid for 30 days from the date of issuance.</em></p>
-      </div>
-    </body>
-    </html>
-    `;
+    // Government badge if applicable
+    if (isGovernment) {
+      page.drawRectangle({ x: margin, y: y - 18, width: contentWidth, height: 22, color: rgb(0.93, 0.95, 1) });
+      drawText("🏛️ Government Contract — Tax Exempt • Net 30 Payment Terms", margin + 10, y - 12, { 
+        font: helveticaBold, size: 10, color: rgb(0.1, 0.3, 0.6) 
+      });
+      y -= 35;
+    }
 
-    // Create a proper PDF blob URL
-    const htmlBlob = new Blob([htmlContent], { type: 'text/html' });
-    const pdfUrl = `data:text/html;charset=utf-8,${encodeURIComponent(htmlContent)}`;
+    drawLine(margin, y, pageWidth - margin);
+    y -= 20;
 
-    logStep("PDF generation completed", { pdfUrl: "Generated" });
+    // === LINE ITEMS TABLE ===
+    drawText("SERVICES & ITEMS", margin, y, { font: helveticaBold, size: 11, color: CRIMSON });
+    y -= 20;
+
+    // Table header
+    const descCol = margin;
+    const qtyCol = margin + contentWidth - 180;
+    const priceCol = margin + contentWidth - 120;
+    const totalCol = margin + contentWidth - 60;
+
+    page.drawRectangle({ x: margin, y: y - 14, width: contentWidth, height: 18, color: LIGHT_GRAY });
+    drawText("Description", descCol + 5, y - 10, { font: helveticaBold, size: 9 });
+    drawText("Qty", qtyCol, y - 10, { font: helveticaBold, size: 9 });
+    drawText("Unit", priceCol, y - 10, { font: helveticaBold, size: 9 });
+    drawText("Total", totalCol, y - 10, { font: helveticaBold, size: 9 });
+    y -= 22;
+
+    // Line items
+    for (const item of (lineItems || [])) {
+      checkNewPage(50);
+      
+      // Title
+      const title = item.title || 'Item';
+      drawText(title, descCol + 5, y, { font: helveticaBold, size: 10 });
+      
+      // Qty, Unit, Total on same row
+      drawText(item.quantity.toString(), qtyCol, y, { size: 10 });
+      drawText(formatCurrency(item.unit_price), priceCol, y, { size: 10 });
+      drawText(formatCurrency(item.total_price), totalCol, y, { font: helveticaBold, size: 10 });
+      y -= 14;
+      
+      // Description (wrapped)
+      if (item.description) {
+        const descHeight = drawText(item.description, descCol + 10, y, { 
+          size: 9, color: MEDIUM_GRAY, maxWidth: qtyCol - descCol - 20 
+        });
+        y -= descHeight + 4;
+      }
+      
+      y -= 8;
+      drawLine(margin, y, pageWidth - margin);
+      y -= 10;
+    }
+
+    // === TOTALS ===
+    y -= 10;
+    const totalsX = margin + contentWidth - 160;
+    const totalsValueX = margin + contentWidth - 60;
+
+    // Subtotal
+    drawText("Subtotal:", totalsX, y, { size: 10 });
+    drawText(formatCurrency(invoiceData.subtotal), totalsValueX, y, { size: 10 });
+    y -= 16;
+
+    // Discount if any
+    if (invoiceData.discount_amount && invoiceData.discount_amount > 0) {
+      const discountText = invoiceData.discount_description || 'Discount';
+      drawText(`${discountText}:`, totalsX, y, { size: 10, color: rgb(0, 0.5, 0) });
+      drawText(`-${formatCurrency(invoiceData.discount_amount)}`, totalsValueX, y, { size: 10, color: rgb(0, 0.5, 0) });
+      y -= 16;
+    }
+
+    // Tax
+    if (invoiceData.tax_amount && invoiceData.tax_amount > 0) {
+      drawText("Tax (9%):", totalsX, y, { size: 10 });
+      drawText(formatCurrency(invoiceData.tax_amount), totalsValueX, y, { size: 10 });
+      y -= 16;
+    } else if (isGovernment) {
+      drawText("Tax:", totalsX, y, { size: 10 });
+      drawText("Exempt", totalsValueX, y, { size: 10, color: rgb(0.1, 0.3, 0.6) });
+      y -= 16;
+    }
+
+    // Total
+    drawLine(totalsX - 10, y + 4, pageWidth - margin, CRIMSON, 2);
+    y -= 8;
+    drawText("TOTAL:", totalsX, y, { font: helveticaBold, size: 12 });
+    drawText(formatCurrency(invoiceData.total_amount), totalsValueX - 10, y, { font: helveticaBold, size: 14, color: CRIMSON });
+    y -= 30;
+
+    // === NOTES ===
+    if (invoiceData.notes) {
+      checkNewPage(60);
+      drawText("NOTES", margin, y, { font: helveticaBold, size: 10, color: CRIMSON });
+      y -= 14;
+      drawText(invoiceData.notes, margin, y, { size: 10, maxWidth: contentWidth, color: MEDIUM_GRAY });
+      y -= 40;
+    }
+
+    // === FOOTER ===
+    checkNewPage(80);
+    drawLine(margin, y, pageWidth - margin);
+    y -= 20;
+    drawText("Thank you for choosing Soul Train's Eatery!", margin, y, { font: helveticaBold, size: 11, color: CRIMSON });
+    y -= 16;
+    drawText("This estimate is valid for 30 days. Please contact us with any questions.", margin, y, { size: 9, color: MEDIUM_GRAY });
+    y -= 12;
+    drawText("Proudly serving Charleston's Lowcountry and surrounding areas.", margin, y, { size: 9, color: MEDIUM_GRAY });
+
+    // Generate PDF bytes
+    const pdfBytes = await pdfDoc.save();
+    const base64Pdf = btoa(String.fromCharCode(...pdfBytes));
+
+    logStep("PDF generation completed", { size: pdfBytes.length });
 
     return new Response(JSON.stringify({
       success: true,
-      pdf_url: pdfUrl,
-      html_content: htmlContent,
+      pdf_base64: base64Pdf,
       invoice_number: invoiceData.invoice_number,
-      filename: `estimate-${invoiceData.invoice_number}.html`
+      filename: `Soul-Trains-Estimate-${invoiceData.invoice_number || 'draft'}.pdf`
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
