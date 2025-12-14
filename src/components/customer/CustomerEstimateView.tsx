@@ -1,3 +1,15 @@
+/**
+ * SYNC: Customer Portal Estimate View
+ * 
+ * This file displays the customer-facing estimate in the portal.
+ * Keep in sync with:
+ * - supabase/functions/send-customer-portal-email/index.ts (estimate & approval emails)
+ * - supabase/functions/generate-invoice-pdf/index.ts (PDF generation)
+ * - supabase/functions/_shared/emailTemplates.ts (shared email components)
+ * 
+ * See CUSTOMER_DISPLAY_CHECKLIST.md for full sync requirements.
+ */
+
 import { useSearchParams } from 'react-router-dom';
 import { useEffect, useState, useMemo } from 'react';
 import { useEstimateAccess } from '@/hooks/useEstimateAccess';
