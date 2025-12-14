@@ -63,15 +63,15 @@ const AppContent = () => {
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-conditions" element={<TermsConditions />} />
           <Route path="/admin/auth" element={<AdminAuth />} />
-          {/* Admin Dashboard and Management */}
-          <Route path="/admin" element={<UnifiedAdminDashboard />} />
+          {/* Admin Dashboard and Management - Protected */}
+          <Route path="/admin" element={<ProtectedRoute><UnifiedAdminDashboard /></ProtectedRoute>} />
           
-          {/* Admin full-viewport event/estimate view */}
-          <Route path="/admin/event/:quoteId" element={<EventEstimateFullViewPage />} />
+          {/* Admin full-viewport event/estimate view - Protected */}
+          <Route path="/admin/event/:quoteId" element={<ProtectedRoute><EventEstimateFullViewPage /></ProtectedRoute>} />
           
-          {/* Admin estimate print route */}
-          <Route path="/admin/estimate-print/:invoiceId" element={<EstimatePrintView />} />
-          <Route path="/admin/*" element={<UnifiedAdminDashboard />} />
+          {/* Admin estimate print route - Protected */}
+          <Route path="/admin/estimate-print/:invoiceId" element={<ProtectedRoute><EstimatePrintView /></ProtectedRoute>} />
+          <Route path="/admin/*" element={<ProtectedRoute><UnifiedAdminDashboard /></ProtectedRoute>} />
           
           {/* Customer-facing routes */}
           <Route path="/estimate" element={<CustomerEstimateView />} />
