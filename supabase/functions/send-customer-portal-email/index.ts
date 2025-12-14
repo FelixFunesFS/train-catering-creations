@@ -473,15 +473,35 @@ function generateEstimateReadyEmail(quote: any, invoice: any, portalUrl: string,
           
           ${generatePaymentSchedulePreview(quote, total)}
           
+          <!-- Terms & Conditions Reference -->
+          <div style="background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 16px; margin: 20px 0;">
+            <h4 style="color: ${BRAND_COLORS.crimson}; margin: 0 0 10px 0;">📋 Terms & Conditions</h4>
+            <p style="margin: 0 0 10px 0; font-size: 14px; color: #666;">
+              By approving this estimate, you agree to our catering terms including:
+            </p>
+            <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: #666; line-height: 1.6;">
+              <li>Payment schedule and due dates as outlined above</li>
+              <li>Cancellation policy (full refund if cancelled 30+ days in advance)</li>
+              <li>Service agreement and food handling standards</li>
+            </ul>
+            <p style="margin: 10px 0 0 0; font-size: 13px;">
+              <a href="${portalUrl}" style="color: ${BRAND_COLORS.crimson};">View full Terms & Conditions in your portal →</a>
+            </p>
+          </div>
+          
           <div style="background: #fff3cd; border: 1px solid ${BRAND_COLORS.gold}; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <h3 style="margin: 0 0 10px 0; color: ${BRAND_COLORS.crimson};">⏰ Action Required</h3>
             <p style="margin: 0;">Please review and approve your estimate to secure your event date. Our calendar fills up quickly, especially during peak season!</p>
           </div>
           
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${approveUrl}" class="btn btn-primary">✅ Approve Estimate</a>
+            <a href="${approveUrl}" class="btn btn-primary">✅ Review & Approve</a>
             <a href="${changesUrl}" class="btn btn-secondary">✏️ Request Changes</a>
           </div>
+          
+          <p style="text-align: center; color: #888; font-size: 12px; margin-top: 15px;">
+            📝 You'll be asked to confirm you've read and agree to the terms before final approval.
+          </p>
           
           <p style="text-align: center; color: #666; font-size: 14px;">
             <a href="${portalUrl}" style="color: ${BRAND_COLORS.crimson};">Or click here to view full details first</a>
