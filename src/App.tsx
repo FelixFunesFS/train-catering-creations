@@ -38,9 +38,13 @@ const AppContent = () => {
   useScrollToAnchor();
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
+  // Hide header/footer for full-page event view
+  const isEventFullView = /^\/admin\/event\/[^/]+$/.test(location.pathname);
+  const isEstimatePrint = /^\/admin\/estimate-print\/[^/]+$/.test(location.pathname);
+  const hideChrome = isEventFullView || isEstimatePrint;
   
   return <div className="min-h-screen bg-background font-clean flex flex-col transition-colors duration-300 py-0 my-0">
-      <Header />
+      {!hideChrome && <Header />}
       <main className={`flex-1 ${isAdminRoute ? 'p-0' : 'py-0 my-0'}`}>
         <Routes>
           <Route path="/" element={<Index />} />
@@ -82,7 +86,7 @@ const AppContent = () => {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
-      {!isAdminRoute && <Footer />}
+      {!hideChrome && !isAdminRoute && <Footer />}
     </div>;
 };
 const queryClient = new QueryClient();

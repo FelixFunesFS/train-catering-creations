@@ -264,6 +264,20 @@ export default function EstimatePrintView() {
                   )}
                 </div>
               )}
+              {/* Vegetarian - RIGHT AFTER proteins */}
+              {(safeVegetarianEntrees(quote?.vegetarian_entrees).length > 0 || quote?.guest_count_with_restrictions) && (
+                <div className="col-span-2 text-green-700 bg-green-50 p-2 rounded border-l-2 border-green-500">
+                  <span className="font-medium">🌱 Vegetarian: </span>
+                  {quote?.guest_count_with_restrictions && <span>{quote.guest_count_with_restrictions} portions. </span>}
+                  {safeVegetarianEntrees(quote?.vegetarian_entrees).length > 0 && (
+                    <span>
+                      {safeVegetarianEntrees(quote?.vegetarian_entrees).map(e => 
+                        e.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+                      ).join(', ')}
+                    </span>
+                  )}
+                </div>
+              )}
               {safeVegetarianEntrees(quote?.sides).length > 0 && (
                 <div>
                   <span className="font-medium text-gray-700">Sides: </span>
@@ -299,16 +313,6 @@ export default function EstimatePrintView() {
                   <span className="font-medium text-gray-700">Beverages: </span>
                   <span className="text-gray-600">
                     {safeVegetarianEntrees(quote?.drinks).map(e => 
-                      e.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
-                    ).join(', ')}
-                  </span>
-                </div>
-              )}
-              {safeVegetarianEntrees(quote?.vegetarian_entrees).length > 0 && (
-                <div className="col-span-2 text-green-700">
-                  <span className="font-medium">🌱 Vegetarian Entrées: </span>
-                  <span>
-                    {safeVegetarianEntrees(quote?.vegetarian_entrees).map(e => 
                       e.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
                     ).join(', ')}
                   </span>
