@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect, useRef } from 'react';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useInvoice, useUpdateInvoice, useInvoiceWithMilestones } from '@/hooks/useInvoices';
 import { useLineItems, useUpdateLineItem, useDeleteLineItem } from '@/hooks/useLineItems';
+import { useDebouncedInvoiceRefresh } from '@/hooks/useDebouncedInvoiceRefresh';
 import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -198,6 +199,7 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
   const updateLineItem = useUpdateLineItem();
   const deleteLineItem = useDeleteLineItem();
   const updateInvoice = useUpdateInvoice();
+  const { scheduleRefresh, forceRefresh } = useDebouncedInvoiceRefresh(invoice?.id);
 
   const isGovernment = quote?.compliance_level === 'government' || quote?.requires_po_number;
 
@@ -254,6 +256,7 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
       invoiceId: invoice?.id,
       updates: { unit_price: newPrice, total_price: newPrice * item.quantity },
     });
+    scheduleRefresh();
   };
 
   const handleQuantityChange = async (lineItemId: string, newQuantity: number) => {
@@ -264,6 +267,7 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
       invoiceId: invoice?.id,
       updates: { quantity: newQuantity, total_price: item.unit_price * newQuantity },
     });
+    scheduleRefresh();
   };
 
   const handleDeleteItem = async (lineItemId: string) => {
@@ -276,6 +280,13 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
       invoiceId: invoice?.id,
       updates: { description: desc },
     });
+    scheduleRefresh();
+  };
+
+  // Force refresh when closing to ensure totals are current
+  const handleClose = () => {
+    forceRefresh();
+    onClose();
   };
 
   const handleSaveCustomerNotes = async () => {
@@ -320,7 +331,7 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
       queryClient.invalidateQueries({ queryKey: ['invoices'] });
       toast({ title: isResendMode ? 'Estimate Resent' : 'Estimate Sent', description: `Email sent to ${overrideEmail || quote?.email}` });
       setShowPreview(false);
-      if (!isResendMode) onClose();
+      if (!isResendMode) handleClose();
     } catch (err: any) {
       toast({ title: 'Error', description: err.message, variant: 'destructive' });
     } finally {
@@ -706,7 +717,7 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
 
       {/* Actions */}
       <div className="flex flex-col sm:flex-row gap-2 pt-4">
-        <Button variant="outline" onClick={onClose} className="flex-1">
+        <Button variant="outline" onClick={handleClose} className="flex-1">
           <X className="h-4 w-4 mr-1" /> Close
         </Button>
         {isAlreadySent ? (
@@ -728,7 +739,7 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
       {/* Top Bar */}
       <div className="h-14 border-b bg-card flex items-center justify-between px-4 flex-shrink-0">
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="sm" onClick={onClose} className="gap-2">
+          <Button variant="ghost" size="sm" onClick={handleClose} className="gap-2">
             <ArrowLeft className="h-4 w-4" />
             <span className="hidden sm:inline">Back to Events</span>
           </Button>
@@ -739,7 +750,7 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
             <span className="md:hidden">Event Details</span>
           </h1>
         </div>
-        <Button variant="ghost" size="icon" onClick={onClose}>
+        <Button variant="ghost" size="icon" onClick={handleClose}>
           <X className="h-5 w-5" />
         </Button>
       </div>

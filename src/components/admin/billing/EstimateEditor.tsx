@@ -6,6 +6,7 @@ import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { useLineItems, useUpdateLineItem, useDeleteLineItem } from '@/hooks/useLineItems';
 import { useInvoice, useUpdateInvoice } from '@/hooks/useInvoices';
+import { useDebouncedInvoiceRefresh } from '@/hooks/useDebouncedInvoiceRefresh';
 import { LineItemEditor } from './LineItemEditor';
 import { AddLineItemModal } from './AddLineItemModal';
 import { EstimateSummary } from './EstimateSummary';
@@ -51,6 +52,7 @@ export function EstimateEditor({ invoice, onClose }: EstimateEditorProps) {
   const updateLineItem = useUpdateLineItem();
   const deleteLineItem = useDeleteLineItem();
   const updateInvoice = useUpdateInvoice();
+  const { scheduleRefresh, forceRefresh } = useDebouncedInvoiceRefresh(invoice.invoice_id);
 
   // Stable sorting to prevent items from jumping during edits
   const sortedLineItems = useMemo(() => {
@@ -129,6 +131,7 @@ export function EstimateEditor({ invoice, onClose }: EstimateEditorProps) {
         total_price: newPrice * item.quantity,
       },
     });
+    scheduleRefresh(); // Debounced - won't fire until 2s after last edit
   };
 
   const handleQuantityChange = async (lineItemId: string, newQuantity: number) => {
@@ -143,6 +146,7 @@ export function EstimateEditor({ invoice, onClose }: EstimateEditorProps) {
         total_price: item.unit_price * newQuantity,
       },
     });
+    scheduleRefresh();
   };
 
   const handleDeleteItem = async (lineItemId: string) => {
@@ -158,6 +162,13 @@ export function EstimateEditor({ invoice, onClose }: EstimateEditorProps) {
       invoiceId: invoice.invoice_id,
       updates: { description: newDescription },
     });
+    scheduleRefresh();
+  };
+
+  // Force refresh when closing editor to ensure totals are current
+  const handleClose = () => {
+    forceRefresh();
+    onClose();
   };
 
   const handlePreviewClick = () => {
@@ -271,7 +282,7 @@ export function EstimateEditor({ invoice, onClose }: EstimateEditorProps) {
   }
 
   return (
-    <Dialog open onOpenChange={onClose}>
+    <Dialog open onOpenChange={handleClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -413,7 +424,7 @@ export function EstimateEditor({ invoice, onClose }: EstimateEditorProps) {
 
         {/* Actions */}
         <div className="flex justify-end gap-2 mt-4">
-          <Button variant="outline" onClick={onClose}>
+          <Button variant="outline" onClick={handleClose}>
             Close
           </Button>
           {isAlreadySent ? (

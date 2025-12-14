@@ -48,17 +48,41 @@ export function useUpdateLineItem() {
       updates: Partial<LineItemInput>;
       invoiceId: string;
     }) => LineItemsService.updateLineItem(lineItemId, updates),
-    onSuccess: (_, variables) => {
-      // DB trigger handles recalculation - just invalidate queries
-      queryClient.invalidateQueries({ queryKey: ['line-items', variables.invoiceId] });
-      queryClient.invalidateQueries({ queryKey: ['invoice', variables.invoiceId] });
-      queryClient.invalidateQueries({ queryKey: ['invoices'] });
-      toast.success('Line item updated');
+    
+    // Optimistic update - update cache BEFORE API call completes
+    onMutate: async (variables) => {
+      // Cancel any in-flight queries to prevent overwriting optimistic update
+      await queryClient.cancelQueries({ queryKey: ['line-items', variables.invoiceId] });
+      
+      // Snapshot previous data for rollback
+      const previousItems = queryClient.getQueryData(['line-items', variables.invoiceId]);
+      
+      // Optimistically update cache
+      queryClient.setQueryData(['line-items', variables.invoiceId], (old: LineItem[] | undefined) => {
+        if (!old) return old;
+        return old.map(item => 
+          item.id === variables.lineItemId 
+            ? { ...item, ...variables.updates }
+            : item
+        );
+      });
+      
+      return { previousItems };
     },
-    onError: (error) => {
+    
+    onError: (error, variables, context) => {
+      // Rollback on error
+      if (context?.previousItems) {
+        queryClient.setQueryData(['line-items', variables.invoiceId], context.previousItems);
+      }
       console.error('Error updating line item:', error);
       toast.error('Failed to update line item');
-    }
+    },
+    
+    onSuccess: () => {
+      // Don't invalidate here - let debounced refresh handle it
+      // No toast per item - too noisy during rapid editing
+    },
   });
 }
 
