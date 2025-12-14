@@ -28,6 +28,7 @@ interface PortalEmailRequest {
     is_full_payment?: boolean;
     first_milestone_amount?: number;
     first_milestone_due?: string;
+    milestones?: any[];
   };
 }
 
@@ -140,9 +141,15 @@ const handler = async (req: Request): Promise<Response> => {
       }
       
       case 'approval_confirmation': {
-        const { first_milestone_amount, first_milestone_due } = metadata || {};
+        // Fetch milestones for this invoice to include full payment schedule
+        const { data: milestones } = await supabase
+          .from('payment_milestones')
+          .select('*')
+          .eq('invoice_id', invoice.id)
+          .order('due_date', { ascending: true });
+        
         subject = `✅ Estimate Approved - Next Steps for ${quote.event_name}`;
-        htmlContent = generateApprovalConfirmationEmail(quote, invoice, portalUrl, first_milestone_amount, first_milestone_due);
+        htmlContent = generateApprovalConfirmationEmail(quote, invoice, portalUrl, milestones || []);
         break;
       }
         
@@ -422,7 +429,7 @@ function generatePaymentReminderEmail(quote: any, portalUrl: string): string {
   `;
 }
 
-function generateApprovalConfirmationEmail(quote: any, invoice: any, portalUrl: string, firstMilestoneAmount?: number, firstMilestoneDue?: string): string {
+function generateApprovalConfirmationEmail(quote: any, invoice: any, portalUrl: string, milestones: any[]): string {
   const formatCurrency = (cents: number) => {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100);
   };
@@ -430,19 +437,74 @@ function generateApprovalConfirmationEmail(quote: any, invoice: any, portalUrl: 
   const formatDueDate = (dateStr: string | null | undefined): string => {
     if (!dateStr) return 'Due upon approval';
     return new Date(dateStr).toLocaleDateString('en-US', {
-      weekday: 'long',
-      month: 'long',
+      weekday: 'short',
+      month: 'short',
       day: 'numeric',
       year: 'numeric',
     });
   };
+
+  const getMilestoneLabel = (type: string): string => {
+    switch (type) {
+      case 'booking_deposit': return 'Booking Deposit';
+      case 'deposit': return 'Deposit';
+      case 'mid_payment': return 'Milestone Payment';
+      case 'final_payment': return 'Final Balance';
+      case 'full_payment': return 'Full Payment';
+      default: return type.replace('_', ' ');
+    }
+  };
   
   const total = invoice.total_amount || 0;
-  const firstPaymentDisplay = firstMilestoneAmount 
-    ? formatCurrency(firstMilestoneAmount)
-    : formatCurrency(Math.round(total * 0.5)); // Default to 50% if no milestone
+  const firstMilestone = milestones[0];
+  const firstPaymentDisplay = firstMilestone 
+    ? formatCurrency(firstMilestone.amount_cents)
+    : formatCurrency(Math.round(total * 0.5));
   
-  const dueDateDisplay = formatDueDate(firstMilestoneDue);
+  const dueDateDisplay = firstMilestone?.is_due_now 
+    ? 'Due Now' 
+    : formatDueDate(firstMilestone?.due_date);
+  
+  // Generate payment schedule table
+  const paymentScheduleHtml = milestones.length > 0 ? `
+    <div style="margin: 25px 0;">
+      <h3 style="color: ${BRAND_COLORS.crimson}; margin-bottom: 15px;">📅 Your Payment Schedule</h3>
+      <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+        <thead>
+          <tr style="background: ${BRAND_COLORS.lightGray};">
+            <th style="padding: 12px 10px; text-align: left; border-bottom: 2px solid ${BRAND_COLORS.gold};">Payment</th>
+            <th style="padding: 12px 10px; text-align: left; border-bottom: 2px solid ${BRAND_COLORS.gold};">Due Date</th>
+            <th style="padding: 12px 10px; text-align: right; border-bottom: 2px solid ${BRAND_COLORS.gold};">Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${milestones.map((m, i) => `
+            <tr style="background: ${i === 0 ? '#fff3cd' : (i % 2 === 0 ? '#fafafa' : '#ffffff')};">
+              <td style="padding: 12px 10px; border-bottom: 1px solid #e5e5e5;">
+                ${getMilestoneLabel(m.milestone_type)}
+                ${i === 0 ? '<span style="color: #d97706; font-weight: bold; margin-left: 8px;">← Pay Now</span>' : ''}
+              </td>
+              <td style="padding: 12px 10px; border-bottom: 1px solid #e5e5e5;">
+                ${m.is_due_now ? '<strong style="color: #d97706;">Due Now</strong>' : formatDueDate(m.due_date)}
+              </td>
+              <td style="padding: 12px 10px; text-align: right; border-bottom: 1px solid #e5e5e5; font-weight: ${i === 0 ? 'bold' : 'normal'};">
+                ${formatCurrency(m.amount_cents)}
+                <span style="color: #888; font-size: 12px;">(${m.percentage}%)</span>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+        <tfoot>
+          <tr style="background: ${BRAND_COLORS.lightGray};">
+            <td colspan="2" style="padding: 12px 10px; font-weight: bold; border-top: 2px solid ${BRAND_COLORS.gold};">Total</td>
+            <td style="padding: 12px 10px; text-align: right; font-weight: bold; border-top: 2px solid ${BRAND_COLORS.gold}; color: ${BRAND_COLORS.crimson};">
+              ${formatCurrency(total)}
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  ` : '';
   
   return `
     <!DOCTYPE html>
@@ -484,6 +546,8 @@ function generateApprovalConfirmationEmail(quote: any, invoice: any, portalUrl: 
           <div style="text-align: center; margin: 30px 0;">
             <a href="${portalUrl}" class="btn btn-primary" style="font-size: 18px; padding: 18px 36px;">Make Payment Now</a>
           </div>
+          
+          ${paymentScheduleHtml}
           
           <h3 style="color: ${BRAND_COLORS.crimson};">📋 What Happens Next:</h3>
           <ol style="line-height: 1.8;">

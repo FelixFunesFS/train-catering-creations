@@ -13,6 +13,7 @@ interface CustomerActionsProps {
   amountPaid?: number;
   onStatusChange?: () => void;
   autoApprove?: boolean;
+  termsAccepted?: boolean;
 }
 
 export function CustomerActions({
@@ -23,6 +24,7 @@ export function CustomerActions({
   amountPaid = 0,
   onStatusChange,
   autoApprove = false,
+  termsAccepted = false,
 }: CustomerActionsProps) {
   const [isApproving, setIsApproving] = useState(false);
   const [showChangeModal, setShowChangeModal] = useState(false);
@@ -34,6 +36,8 @@ export function CustomerActions({
   const isAlreadyApproved = ['approved', 'paid', 'partially_paid', 'payment_pending'].includes(status);
   // Allow change requests until payment starts (even after approval)
   const canRequestChanges = ['sent', 'viewed', 'approved', 'payment_pending'].includes(status) && amountPaid === 0;
+  // Can only approve if terms are accepted
+  const canApprove = isActionable && termsAccepted;
 
   const handleApprove = async () => {
     setIsApproving(true);
@@ -51,15 +55,22 @@ export function CustomerActions({
 
       if (error) throw error;
 
-      // Generate payment milestones
+      // Generate payment milestones (BLOCKING - must succeed for payment options)
       const { data: milestoneData, error: milestoneError } = await supabase.functions.invoke('generate-payment-milestones', {
         body: { invoice_id: invoiceId }
       });
 
       if (milestoneError) {
-        console.error('Failed to generate milestones:', milestoneError);
-        // Non-blocking - don't fail approval if milestones fail
+        console.error('Failed to generate payment milestones:', milestoneError);
+        toast({
+          title: 'Payment Schedule Error',
+          description: 'Unable to generate payment schedule. Please try again or contact us.',
+          variant: 'destructive',
+        });
+        throw new Error('Milestone generation failed');
       }
+
+      console.log('Payment milestones generated:', milestoneData);
 
       // Send approval confirmation email with payment link
       if (quoteRequestId) {
@@ -99,13 +110,13 @@ export function CustomerActions({
     }
   };
 
-  // Handle auto-approve from email link
+  // Handle auto-approve from email link (only if terms accepted)
   useEffect(() => {
-    if (autoApprove && isActionable && !autoApproveTriggered.current) {
+    if (autoApprove && canApprove && !autoApproveTriggered.current) {
       autoApproveTriggered.current = true;
       handleApprove();
     }
-  }, [autoApprove, isActionable]);
+  }, [autoApprove, canApprove]);
 
   // Show approved state with optional change request button
   if (isAlreadyApproved) {
@@ -149,19 +160,26 @@ export function CustomerActions({
   return (
     <>
       <div className="flex flex-col sm:flex-row gap-3">
-        <Button
-          onClick={handleApprove}
-          disabled={isApproving}
-          size="lg"
-          className="flex-1 bg-primary hover:bg-primary/90"
-        >
-          {isApproving ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          ) : (
-            <CheckCircle className="mr-2 h-4 w-4" />
+        <div className="flex-1 flex flex-col gap-1">
+          <Button
+            onClick={handleApprove}
+            disabled={isApproving || !termsAccepted}
+            size="lg"
+            className="w-full bg-primary hover:bg-primary/90"
+          >
+            {isApproving ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <CheckCircle className="mr-2 h-4 w-4" />
+            )}
+            Approve Estimate
+          </Button>
+          {!termsAccepted && (
+            <p className="text-xs text-muted-foreground text-center">
+              Please accept the Terms & Conditions above
+            </p>
           )}
-          Approve Estimate
-        </Button>
+        </div>
 
         <Button
           variant="outline"
