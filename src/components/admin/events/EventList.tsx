@@ -11,8 +11,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Search, Eye, Loader2, FileText, Receipt, Mail, MailOpen, Globe, Maximize2 } from 'lucide-react';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Search, Eye, Loader2, FileText, Receipt, Mail, MailOpen, Globe, Maximize2, List, CalendarDays, CalendarRange } from 'lucide-react';
 import { EventDetail } from './EventDetail';
+import { EventWeekView } from './EventWeekView';
+import { EventMonthView } from './EventMonthView';
+import { DateNavigation } from './DateNavigation';
 import { Database } from '@/integrations/supabase/types';
 
 type QuoteRequest = Database['public']['Tables']['quote_requests']['Row'];
@@ -96,9 +100,13 @@ interface EventWithInvoice extends QuoteRequest {
   invoice: InvoiceForEvent | null;
 }
 
+type ViewMode = 'list' | 'week' | 'month';
+
 export function EventList() {
   const [search, setSearch] = useState('');
   const [selectedQuote, setSelectedQuote] = useState<QuoteRequest | null>(null);
+  const [viewMode, setViewMode] = useState<ViewMode>('list');
+  const [currentDate, setCurrentDate] = useState(new Date());
   const navigate = useNavigate();
   const isDesktop = useMediaQuery('(min-width: 1024px)');
   
@@ -128,24 +136,65 @@ export function EventList() {
     );
   }
 
+  const handleEventClick = (event: QuoteRequest) => {
+    if (isDesktop) {
+      navigate(`/admin/event/${event.id}`);
+    } else {
+      setSelectedQuote(event);
+    }
+  };
+
   return (
     <TooltipProvider>
       <div className="space-y-4">
-        {/* Search */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search by name, email, or event..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-9"
-          />
+        {/* Controls Row */}
+        <div className="flex flex-col sm:flex-row gap-3">
+          {/* Search */}
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search by name, email, or event..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+          
+          {/* View Toggle */}
+          <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as ViewMode)}>
+            <TabsList className="h-9">
+              <TabsTrigger value="list" className="gap-1.5 px-3">
+                <List className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">List</span>
+              </TabsTrigger>
+              <TabsTrigger value="week" className="gap-1.5 px-3">
+                <CalendarDays className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Week</span>
+              </TabsTrigger>
+              <TabsTrigger value="month" className="gap-1.5 px-3">
+                <CalendarRange className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Month</span>
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
         </div>
+
+        {/* Date Navigation (only for week/month views) */}
+        {viewMode !== 'list' && (
+          <DateNavigation 
+            currentDate={currentDate} 
+            viewMode={viewMode} 
+            onDateChange={setCurrentDate} 
+          />
+        )}
 
         {/* Content */}
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-lg">All Events</CardTitle>
+            <CardTitle className="text-lg">
+              {viewMode === 'list' ? 'All Events' : 
+               viewMode === 'week' ? 'Week View' : 'Month View'}
+            </CardTitle>
           </CardHeader>
           <CardContent className="p-3 sm:p-6">
             {isLoading ? (
@@ -154,6 +203,18 @@ export function EventList() {
               </div>
             ) : !eventsWithInvoices?.length ? (
               <p className="text-center py-8 text-muted-foreground">No events found</p>
+            ) : viewMode === 'week' ? (
+              <EventWeekView 
+                events={eventsWithInvoices} 
+                currentDate={currentDate}
+                onEventClick={handleEventClick}
+              />
+            ) : viewMode === 'month' ? (
+              <EventMonthView 
+                events={eventsWithInvoices} 
+                currentDate={currentDate}
+                onEventClick={handleEventClick}
+              />
             ) : isMobile ? (
               /* Mobile Card Layout */
               <div className="space-y-3">
