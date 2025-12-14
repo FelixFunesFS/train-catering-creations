@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { format, isPast, parseISO } from 'date-fns';
+import { format, parseISO, isAfter, startOfDay, addDays, isEqual } from 'date-fns';
 import { useInvoices } from '@/hooks/useInvoices';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -69,10 +69,27 @@ export function PaymentList() {
     return milestones.find((m: any) => m.status === 'pending') || null;
   };
 
-  // Check if a milestone is overdue
-  const isMilestoneOverdue = (dueDate: string | null) => {
+  // Check if a milestone is overdue (with 7-day grace period for deposits)
+  const isMilestoneOverdue = (dueDate: string | null, milestoneType: string | null) => {
     if (!dueDate) return false;
-    return isPast(parseISO(dueDate));
+    const today = startOfDay(new Date());
+    const due = startOfDay(parseISO(dueDate));
+    
+    // 7-day grace period for deposit milestones
+    const isDeposit = milestoneType?.toLowerCase().includes('deposit') || 
+                      milestoneType?.toLowerCase().includes('booking');
+    const graceDays = isDeposit ? 7 : 0;
+    const effectiveDue = addDays(due, graceDays);
+    
+    return isAfter(today, effectiveDue);
+  };
+
+  // Check if milestone is due today
+  const isMilestoneDueToday = (dueDate: string | null) => {
+    if (!dueDate) return false;
+    const today = startOfDay(new Date());
+    const due = startOfDay(parseISO(dueDate));
+    return isEqual(today, due);
   };
 
   if (isLoading) {
@@ -158,7 +175,8 @@ export function PaymentList() {
             ? Math.min(100, Math.round((totalPaid / invoice.total_amount) * 100))
             : 0;
           const nextMilestone = getNextMilestone(invoice.milestones as any[] | null);
-          const milestoneOverdue = nextMilestone && isMilestoneOverdue(nextMilestone.due_date);
+          const milestoneOverdue = nextMilestone && isMilestoneOverdue(nextMilestone.due_date, nextMilestone.milestone_type);
+          const milestoneDueToday = nextMilestone && isMilestoneDueToday(nextMilestone.due_date);
 
           return (
             <Card key={invoice.invoice_id} className="hover:shadow-md transition-shadow">
@@ -200,9 +218,15 @@ export function PaymentList() {
 
                 {/* Next Milestone Due */}
                 {nextMilestone && balanceRemaining > 0 && (
-                  <div className={`flex items-center gap-3 p-3 rounded-lg ${milestoneOverdue ? 'bg-destructive/10' : 'bg-muted/50'}`}>
+                  <div className={`flex items-center gap-3 p-3 rounded-lg ${
+                    milestoneOverdue ? 'bg-destructive/10' : 
+                    milestoneDueToday ? 'bg-amber-500/10' : 
+                    'bg-muted/50'
+                  }`}>
                     {milestoneOverdue ? (
                       <AlertTriangle className="h-4 w-4 text-destructive" />
+                    ) : milestoneDueToday ? (
+                      <Clock className="h-4 w-4 text-amber-600" />
                     ) : (
                       <Clock className="h-4 w-4 text-muted-foreground" />
                     )}
@@ -210,12 +234,12 @@ export function PaymentList() {
                       <span className="font-medium">
                         {nextMilestone.milestone_type?.replace(/_/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())}:
                       </span>{' '}
-                      <span className={milestoneOverdue ? 'text-destructive font-medium' : ''}>
+                      <span className={milestoneOverdue ? 'text-destructive font-medium' : milestoneDueToday ? 'text-amber-600 font-medium' : ''}>
                         {formatCurrency(nextMilestone.amount_cents || 0)}
                       </span>
                       {nextMilestone.due_date && (
-                        <span className="text-muted-foreground">
-                          {' '}• {milestoneOverdue ? 'Was due' : 'Due'} {format(parseISO(nextMilestone.due_date), 'MMM d, yyyy')}
+                        <span className={milestoneDueToday ? 'text-amber-600' : 'text-muted-foreground'}>
+                          {' '}• {milestoneOverdue ? 'Overdue since' : milestoneDueToday ? 'Due today' : 'Due'} {!milestoneDueToday && format(parseISO(nextMilestone.due_date), 'MMM d, yyyy')}
                         </span>
                       )}
                     </div>
