@@ -912,7 +912,7 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
 
       {/* Customer Edit Dialog */}
       <Dialog open={showCustomerEdit} onOpenChange={setShowCustomerEdit}>
-        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
+        <DialogContent className="w-[calc(100vw-1rem)] sm:max-w-lg max-h-[90vh] overflow-y-auto p-4 sm:p-6">
           <DialogHeader>
             <DialogTitle>Edit Customer & Event Details</DialogTitle>
           </DialogHeader>
@@ -928,7 +928,7 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
 
       {/* Menu Edit Dialog */}
       <Dialog open={showMenuEdit} onOpenChange={setShowMenuEdit}>
-        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
+        <DialogContent className="w-[calc(100vw-1rem)] sm:max-w-lg max-h-[90vh] overflow-y-auto p-4 sm:p-6">
           <DialogHeader>
             <DialogTitle>Edit Menu Selections</DialogTitle>
           </DialogHeader>

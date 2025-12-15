@@ -74,7 +74,7 @@ export function EmailPreview({
 
   return (
     <Dialog open onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden p-0 flex flex-col">
+      <DialogContent className="w-[calc(100vw-1rem)] sm:w-auto sm:max-w-4xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden p-0 flex flex-col">
         <DialogHeader className="p-6 pb-0 flex-shrink-0">
           <DialogTitle className="flex items-center gap-2">
             <Eye className="h-5 w-5" />
