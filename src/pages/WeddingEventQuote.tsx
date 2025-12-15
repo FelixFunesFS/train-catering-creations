@@ -1,5 +1,4 @@
 import { SinglePageQuoteForm } from "@/components/quote/SinglePageQuoteForm";
-import ContactInfoCards from "@/components/quote/ContactInfoCards";
 import { CTASection } from "@/components/ui/cta-section";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
@@ -18,18 +17,11 @@ const WeddingEventQuote = () => {
     desktop: { variant: 'elastic', delay: 200 }
   });
   
-  const { ref: contactRef, isVisible: contactVisible, variant: contactVariant } = useScrollAnimation({ 
-    delay: 400, 
-    variant: 'scale-fade',
-    mobile: { variant: 'subtle', delay: 200 },
-    desktop: { variant: 'scale-fade', delay: 400 }
-  });
-  
   const { ref: ctaRef, isVisible: ctaVisible, variant: ctaVariant } = useScrollAnimation({ 
-    delay: 600, 
+    delay: 400, 
     variant: 'ios-spring',
-    mobile: { variant: 'medium', delay: 300 },
-    desktop: { variant: 'ios-spring', delay: 600 }
+    mobile: { variant: 'medium', delay: 200 },
+    desktop: { variant: 'ios-spring', delay: 400 }
   });
 
   return (
@@ -44,15 +36,6 @@ const WeddingEventQuote = () => {
             <div className="max-w-5xl mx-auto">
               <SinglePageQuoteForm variant="wedding" />
             </div>
-          </div>
-        </ResponsiveWrapper>
-      </section>
-      
-      {/* Contact Cards Section */}
-      <section className="py-8 lg:py-12">
-        <ResponsiveWrapper>
-          <div ref={contactRef} className={useAnimationClass(contactVariant, contactVisible)}>
-            <ContactInfoCards />
           </div>
         </ResponsiveWrapper>
       </section>
