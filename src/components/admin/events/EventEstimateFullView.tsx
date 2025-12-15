@@ -892,7 +892,7 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
       </div>
 
       {/* Resizable Panels - fills remaining height */}
-      <ResizablePanelGroup direction="horizontal" className="flex-1 min-h-0">
+      <ResizablePanelGroup direction="horizontal" className="flex-1 h-[calc(100vh-3.5rem)]">
         <ResizablePanel defaultSize={30} minSize={20} className="flex flex-col overflow-hidden">
           <ScrollArea className="flex-1 h-0">
             <EventDetailsPanel />
