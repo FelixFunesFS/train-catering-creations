@@ -33,6 +33,9 @@ const ServiceSelectionStepComponent = ({ form, trackFieldInteraction }: ServiceS
             name="service_type"
             render={({ field }) => (
               <FormItem>
+                <FormLabel className="text-base font-medium mb-4 block">
+                  Select Service Type <span className="text-destructive">*</span>
+                </FormLabel>
                 <FormControl>
                   <div className="space-y-4">
                     <div 
