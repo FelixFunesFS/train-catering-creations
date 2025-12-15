@@ -664,7 +664,7 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
     // If no invoice exists, show generate estimate prompt
     if (!invoice) {
       return (
-        <div className="flex flex-col items-center justify-center h-full min-h-[400px] p-8 text-center space-y-6">
+        <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] p-8 text-center space-y-6">
           <div className="rounded-full bg-muted p-6">
             <FileText className="h-12 w-12 text-muted-foreground" />
           </div>
