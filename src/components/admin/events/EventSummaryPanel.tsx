@@ -6,10 +6,12 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { 
   Mail, Phone, MapPin, Calendar, Clock, Users, 
-  Utensils, Leaf, MessageSquare, ExternalLink, X 
+  Utensils, Leaf, MessageSquare, ExternalLink, X,
+  Package, Flame, IceCream, GlassWater
 } from 'lucide-react';
 import { Database } from '@/integrations/supabase/types';
 import { formatLocationLink, formatPhoneLink, formatEmailLink } from '@/utils/linkFormatters';
+import { EventChecklistPanel } from './EventChecklistPanel';
 
 type QuoteRequest = Database['public']['Tables']['quote_requests']['Row'];
 
@@ -71,6 +73,19 @@ export function EventSummaryPanel({ event, onClose, onViewFull }: EventSummaryPa
 
   const hasMenuItems = proteins.length > 0 || sides.length > 0 || appetizers.length > 0 || 
                        desserts.length > 0 || drinks.length > 0 || vegetarianEntrees.length > 0;
+
+  // Supply & Equipment items
+  const supplies = [
+    { key: 'plates_requested', label: 'Plates', icon: Utensils },
+    { key: 'cups_requested', label: 'Cups', icon: GlassWater },
+    { key: 'napkins_requested', label: 'Napkins', icon: Package },
+    { key: 'serving_utensils_requested', label: 'Serving Utensils', icon: Utensils },
+    { key: 'chafers_requested', label: 'Chafers & Fuel', icon: Flame },
+    { key: 'ice_requested', label: 'Ice', icon: IceCream },
+  ].filter(s => event[s.key as keyof typeof event]);
+
+  const hasSupplies = supplies.length > 0;
+  const hasWaitStaff = event.wait_staff_requested;
 
   return (
     <div className="flex flex-col h-full">
@@ -156,6 +171,12 @@ export function EventSummaryPanel({ event, onClose, onViewFull }: EventSummaryPa
                 <span>{formatServiceType(event.service_type)}</span>
               </div>
             </div>
+            {event.guest_count_with_restrictions && (
+              <div className="flex items-center gap-2 text-sm text-green-600">
+                <Leaf className="h-3.5 w-3.5" />
+                <span>{event.guest_count_with_restrictions} vegetarian portions</span>
+              </div>
+            )}
           </div>
 
           {/* Menu Selections */}
@@ -179,6 +200,9 @@ export function EventSummaryPanel({ event, onClose, onViewFull }: EventSummaryPa
                               </Badge>
                             ))}
                           </div>
+                          {event.both_proteins_available && (
+                            <p className="text-xs text-amber-600 mt-1">⭐ Both proteins served to all guests</p>
+                          )}
                         </div>
                       )}
                       {vegetarianEntrees.length > 0 && (
@@ -249,6 +273,54 @@ export function EventSummaryPanel({ event, onClose, onViewFull }: EventSummaryPa
               </Accordion>
             </>
           )}
+
+          {/* Supply & Equipment */}
+          {hasSupplies && (
+            <>
+              <Separator />
+              <div className="space-y-2">
+                <h4 className="text-xs font-medium text-muted-foreground uppercase flex items-center gap-1">
+                  <Package className="h-3 w-3" /> Supply & Equipment
+                </h4>
+                <div className="flex flex-wrap gap-1">
+                  {supplies.map((s, i) => (
+                    <Badge key={i} variant="outline" className="text-xs">
+                      <s.icon className="h-3 w-3 mr-1" />
+                      {s.label}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Wait Staff */}
+          {hasWaitStaff && (
+            <>
+              <Separator />
+              <div className="space-y-2">
+                <h4 className="text-xs font-medium text-muted-foreground uppercase flex items-center gap-1">
+                  <Users className="h-3 w-3" /> Wait Staff
+                </h4>
+                <p className="text-sm text-muted-foreground">Wait staff requested</p>
+                {event.wait_staff_requirements && (
+                  <p className="text-xs text-muted-foreground">{event.wait_staff_requirements}</p>
+                )}
+              </div>
+            </>
+          )}
+
+          {/* Prep Checklist Summary */}
+          <Separator />
+          <div className="space-y-2">
+            <h4 className="text-xs font-medium text-muted-foreground uppercase">Prep Checklist</h4>
+            <EventChecklistPanel 
+              quoteId={event.id} 
+              eventDate={event.event_date}
+              eventType={event.event_type}
+              compact
+            />
+          </div>
 
           {/* Special Requests */}
           {event.special_requests && (
