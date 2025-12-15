@@ -16,6 +16,7 @@ import {
   EMAIL_STYLES, 
   generateEmailHeader, 
   generateEventDetailsCard, 
+  generateServiceAddonsSection,
   generateMenuSection,
   generateLineItemsTable,
   generateFooter,
@@ -259,6 +260,8 @@ function generateWelcomeEmail(quote: any, portalUrl: string): string {
           
           ${generateEventDetailsCard(quote)}
           
+          ${generateServiceAddonsSection(quote)}
+          
           <h3 style="color: ${BRAND_COLORS.crimson};">📱 Access Your Personal Event Portal</h3>
           <p>We've created a personalized portal where you can track your event planning progress, view estimates, make payments, and communicate with our team.</p>
           
@@ -469,6 +472,8 @@ function generateEstimateReadyEmail(quote: any, invoice: any, portalUrl: string,
           <p>We've ${isUpdated ? 'updated your' : 'carefully reviewed your event requirements and prepared a'} custom estimate for <strong>${quote.event_name}</strong>.</p>
           
           ${generateEventDetailsCard(quote)}
+          
+          ${generateServiceAddonsSection(quote)}
           
           ${generateLineItemsTable(lineItems, subtotal, taxAmount, total)}
           
@@ -693,6 +698,8 @@ function generateApprovalConfirmationEmail(quote: any, invoice: any, portalUrl: 
           <p>You've approved your catering estimate for <strong>${quote.event_name}</strong>. We're excited to be part of your special event!</p>
           
           ${generateEventDetailsCard(quote)}
+          
+          ${generateServiceAddonsSection(quote)}
           
           <div style="background: linear-gradient(135deg, ${BRAND_COLORS.crimson}, ${BRAND_COLORS.crimsonDark}); padding: 20px; border-radius: 8px; margin: 20px 0; color: white;">
             <h3 style="margin: 0 0 10px 0; color: ${BRAND_COLORS.gold};">💳 Next Step: Secure Your Date</h3>

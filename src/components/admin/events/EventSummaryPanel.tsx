@@ -318,16 +318,37 @@ export function EventSummaryPanel({ event, onClose, onViewFull }: EventSummaryPa
             </>
           )}
 
-          {/* Wait Staff */}
-          {hasWaitStaff && (
+          {/* Service Add-ons - Consolidated section for all services */}
+          {(hasWaitStaff || event.bussing_tables_needed || event.ceremony_included || event.cocktail_hour) && (
             <>
               <Separator />
               <div className="space-y-2">
                 <h4 className="text-xs font-medium text-muted-foreground uppercase flex items-center gap-1">
-                  <Users className="h-3 w-3" /> Wait Staff
+                  <Users className="h-3 w-3" /> Service Add-ons
                 </h4>
-                <p className="text-sm text-muted-foreground">Wait staff requested</p>
-                {event.wait_staff_requirements && (
+                <div className="flex flex-wrap gap-1">
+                  {hasWaitStaff && (
+                    <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-300 dark:border-blue-700">
+                      👨‍🍳 Wait Staff
+                    </Badge>
+                  )}
+                  {event.bussing_tables_needed && (
+                    <Badge variant="outline" className="text-xs bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/30 dark:text-purple-300 dark:border-purple-700">
+                      🧹 Table Bussing
+                    </Badge>
+                  )}
+                  {event.ceremony_included && (
+                    <Badge variant="outline" className="text-xs bg-pink-50 text-pink-700 border-pink-200 dark:bg-pink-950/30 dark:text-pink-300 dark:border-pink-700">
+                      💒 Ceremony Catering
+                    </Badge>
+                  )}
+                  {event.cocktail_hour && (
+                    <Badge variant="outline" className="text-xs bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-300 dark:border-amber-700">
+                      🍸 Cocktail Hour
+                    </Badge>
+                  )}
+                </div>
+                {hasWaitStaff && event.wait_staff_requirements && (
                   <p className="text-xs text-muted-foreground">{event.wait_staff_requirements}</p>
                 )}
               </div>
