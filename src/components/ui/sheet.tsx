@@ -33,9 +33,9 @@ const sheetVariants = cva(
   {
     variants: {
       side: {
-        top: "inset-x-0 top-0 border-b data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top max-h-[85dvh] pt-[env(safe-area-inset-top)]",
+        top: "inset-x-0 top-0 border-b data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top max-h-[calc(100dvh-2rem-env(safe-area-inset-bottom))] pt-[calc(1rem+env(safe-area-inset-top))]",
         bottom:
-          "inset-x-0 bottom-0 border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom max-h-[85dvh] rounded-t-xl pb-[env(safe-area-inset-bottom)]",
+          "inset-x-0 bottom-0 border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom max-h-[calc(100dvh-2rem-env(safe-area-inset-top))] rounded-t-xl pb-[calc(1rem+env(safe-area-inset-bottom))]",
         left: "inset-y-0 left-0 h-dvh w-[calc(100vw-1rem)] border-r data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left sm:w-3/4 sm:max-w-sm md:max-w-md pl-[env(safe-area-inset-left)]",
         right:
           "inset-y-0 right-0 h-dvh w-[calc(100vw-1rem)] border-l data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right sm:w-3/4 sm:max-w-sm md:max-w-md pr-[env(safe-area-inset-right)]",

@@ -78,7 +78,7 @@ export function ChangeContextModal({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="w-[calc(100vw-1rem)] sm:max-w-md max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Document This Change</DialogTitle>
         </DialogHeader>
