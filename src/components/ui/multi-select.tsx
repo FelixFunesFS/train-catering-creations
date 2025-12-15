@@ -8,8 +8,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { ScrollArea } from "@/components/ui/scroll-area"
 
 export interface Option {
   label: string
@@ -131,7 +129,7 @@ export function MultiSelect({
         </Button>
       </PopoverTrigger>
       <PopoverContent 
-        className="w-[var(--radix-popover-trigger-width)] min-w-[200px] p-0 bg-popover border shadow-lg z-[9999]" 
+        className="w-[var(--radix-popover-trigger-width)] min-w-[200px] p-0 bg-popover border shadow-lg z-[9999] max-h-[400px] overflow-hidden" 
         align="start"
         onOpenAutoFocus={(e) => e.preventDefault()}
         onCloseAutoFocus={(e) => e.preventDefault()}
@@ -149,7 +147,7 @@ export function MultiSelect({
         </div>
         
         {/* Options List */}
-        <ScrollArea className="max-h-[300px]">
+        <div className="max-h-[300px] overflow-y-auto">
           <div className="p-1">
             {Object.keys(groupedOptions).length === 0 ? (
               <div className="py-6 text-center text-sm text-muted-foreground">
@@ -193,7 +191,7 @@ export function MultiSelect({
               ))
             )}
           </div>
-        </ScrollArea>
+        </div>
       </PopoverContent>
     </Popover>
   )
