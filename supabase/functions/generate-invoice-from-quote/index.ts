@@ -214,6 +214,33 @@ const generateLineItems = (quote: any): any[] => {
     sortOrder += 10;
   }
   
+  // Wedding-specific services
+  if (quote.ceremony_included) {
+    lineItems.push({
+      title: 'Ceremony Catering Service',
+      description: 'On-site catering support during wedding ceremony',
+      quantity: 1,
+      unit_price: 0,
+      total_price: 0,
+      category: 'service',
+      sort_order: sortOrder
+    });
+    sortOrder += 10;
+  }
+
+  if (quote.cocktail_hour) {
+    lineItems.push({
+      title: 'Cocktail Hour Service',
+      description: 'Beverage and appetizer service during cocktail hour',
+      quantity: 1,
+      unit_price: 0,
+      total_price: 0,
+      category: 'service',
+      sort_order: sortOrder
+    });
+    sortOrder += 10;
+  }
+  
   // Consolidate all supply items into one "Supply & Equipment Package"
   const supplyItems: string[] = [];
   
