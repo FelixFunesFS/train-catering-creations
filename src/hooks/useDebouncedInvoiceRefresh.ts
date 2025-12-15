@@ -40,6 +40,9 @@ export function useDebouncedInvoiceRefresh(invoiceId: string | null | undefined,
       queryClient.invalidateQueries({ queryKey: ['invoice', invoiceId] });
       queryClient.invalidateQueries({ queryKey: ['invoices'] });
       queryClient.invalidateQueries({ queryKey: ['line-items', invoiceId] });
+      // Also invalidate events and quotes for data flow to calendar/summary views
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+      queryClient.invalidateQueries({ queryKey: ['quotes'] });
     }
   }, [invoiceId, queryClient, cancelRefresh]);
 

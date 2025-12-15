@@ -137,70 +137,71 @@ export function useEventChecklist(quoteRequestId: string) {
   };
 
   const generateStandardChecklist = async (eventDate: string, eventType: string) => {
+    // Using valid task_type values that match database CHECK constraint: 'pre_event', 'day_of', 'post_event'
     const standardTasks = [
       {
         task_name: 'Confirm final guest count',
-        task_type: 'confirmation',
+        task_type: 'pre_event',
         due_date: new Date(new Date(eventDate).setDate(new Date(eventDate).getDate() - 3)).toISOString(),
         notes: 'Contact client to confirm final headcount'
       },
       {
         task_name: 'Finalize menu selections',
-        task_type: 'menu',
+        task_type: 'pre_event',
         due_date: new Date(new Date(eventDate).setDate(new Date(eventDate).getDate() - 3)).toISOString(),
         notes: 'Confirm all menu items and dietary requirements'
       },
       {
         task_name: 'Order ingredients',
-        task_type: 'preparation',
+        task_type: 'pre_event',
         due_date: new Date(new Date(eventDate).setDate(new Date(eventDate).getDate() - 2)).toISOString(),
         notes: 'Place all orders with suppliers'
       },
       {
         task_name: 'Prep non-perishables',
-        task_type: 'preparation',
+        task_type: 'pre_event',
         due_date: new Date(new Date(eventDate).setDate(new Date(eventDate).getDate() - 1)).toISOString(),
         notes: 'Prepare items that can be made ahead'
       },
       {
         task_name: 'Confirm venue access time',
-        task_type: 'logistics',
+        task_type: 'pre_event',
         due_date: new Date(new Date(eventDate).setDate(new Date(eventDate).getDate() - 1)).toISOString(),
         notes: 'Verify setup time and location details'
       },
       {
         task_name: 'Pack equipment and supplies',
-        task_type: 'logistics',
+        task_type: 'day_of',
         due_date: new Date(eventDate).toISOString(),
         notes: 'Check all serving equipment, linens, utensils'
       },
       {
         task_name: 'Final food prep',
-        task_type: 'preparation',
+        task_type: 'day_of',
         due_date: new Date(eventDate).toISOString(),
         notes: 'Complete all cooking and food preparation'
       },
       {
         task_name: 'Setup at venue',
-        task_type: 'execution',
+        task_type: 'day_of',
         due_date: new Date(eventDate).toISOString(),
         notes: 'Arrive and setup service area'
       },
       {
         task_name: 'Event service',
-        task_type: 'execution',
+        task_type: 'day_of',
         due_date: new Date(eventDate).toISOString(),
         notes: 'Serve guests and maintain service standards'
       },
       {
         task_name: 'Cleanup and breakdown',
-        task_type: 'execution',
+        task_type: 'day_of',
         due_date: new Date(eventDate).toISOString(),
         notes: 'Clean area and pack all equipment'
       },
       {
         task_name: 'Send thank you email',
-        task_type: 'follow_up',
+        task_type: 'post_event',
         due_date: new Date(new Date(eventDate).setDate(new Date(eventDate).getDate() + 1)).toISOString(),
         notes: 'Thank client and request feedback'
       }

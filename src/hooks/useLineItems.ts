@@ -27,6 +27,8 @@ export function useCreateLineItems() {
       queryClient.invalidateQueries({ queryKey: ['line-items', variables.invoiceId] });
       queryClient.invalidateQueries({ queryKey: ['invoice', variables.invoiceId] });
       queryClient.invalidateQueries({ queryKey: ['invoices'] });
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+      queryClient.invalidateQueries({ queryKey: ['quotes'] });
       toast.success('Line items created');
     },
     onError: (error) => {
@@ -99,6 +101,8 @@ export function useDeleteLineItem() {
       queryClient.invalidateQueries({ queryKey: ['line-items', variables.invoiceId] });
       queryClient.invalidateQueries({ queryKey: ['invoice', variables.invoiceId] });
       queryClient.invalidateQueries({ queryKey: ['invoices'] });
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+      queryClient.invalidateQueries({ queryKey: ['quotes'] });
       toast.success('Line item deleted');
     },
     onError: (error) => {
@@ -121,6 +125,8 @@ export function useReplaceLineItems() {
       queryClient.invalidateQueries({ queryKey: ['line-items', variables.invoiceId] });
       queryClient.invalidateQueries({ queryKey: ['invoice', variables.invoiceId] });
       queryClient.invalidateQueries({ queryKey: ['invoices'] });
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+      queryClient.invalidateQueries({ queryKey: ['quotes'] });
       toast.success('Line items updated');
     },
     onError: (error) => {

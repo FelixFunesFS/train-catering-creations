@@ -18,13 +18,17 @@ interface EventChecklistPanelProps {
   compact?: boolean;
 }
 
+// Task type colors matching database CHECK constraint values
 const taskTypeColors: Record<string, string> = {
-  confirmation: 'bg-blue-100 text-blue-700 border-blue-200',
-  menu: 'bg-purple-100 text-purple-700 border-purple-200',
-  preparation: 'bg-orange-100 text-orange-700 border-orange-200',
-  logistics: 'bg-cyan-100 text-cyan-700 border-cyan-200',
-  execution: 'bg-green-100 text-green-700 border-green-200',
-  follow_up: 'bg-gray-100 text-gray-700 border-gray-200',
+  pre_event: 'bg-blue-100 text-blue-700 border-blue-200',
+  day_of: 'bg-orange-100 text-orange-700 border-orange-200',
+  post_event: 'bg-green-100 text-green-700 border-green-200',
+};
+
+const taskTypeLabels: Record<string, string> = {
+  pre_event: 'Pre-Event',
+  day_of: 'Day Of',
+  post_event: 'Post-Event',
 };
 
 export function EventChecklistPanel({ 
@@ -55,7 +59,7 @@ export function EventChecklistPanel({
     if (!newTaskName.trim()) return;
     await createTask({
       task_name: newTaskName.trim(),
-      task_type: 'preparation',
+      task_type: 'pre_event', // Default to pre_event for manually added tasks
     });
     setNewTaskName('');
     setShowAddTask(false);
@@ -186,9 +190,9 @@ export function EventChecklistPanel({
                   <div className="flex flex-wrap items-center gap-2 mt-1">
                     <Badge 
                       variant="outline" 
-                      className={`text-[10px] px-1.5 ${taskTypeColors[task.task_type] || ''}`}
+                      className={`text-[10px] px-1.5 ${taskTypeColors[task.task_type] || 'bg-gray-100 text-gray-700'}`}
                     >
-                      {task.task_type}
+                      {taskTypeLabels[task.task_type] || task.task_type}
                     </Badge>
                     
                     {task.due_date && (

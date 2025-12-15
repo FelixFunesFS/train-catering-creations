@@ -7,11 +7,13 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { 
   Mail, Phone, MapPin, Calendar, Clock, Users, 
   Utensils, Leaf, MessageSquare, ExternalLink, X,
-  Package, Flame, IceCream, GlassWater
+  Package, Flame, IceCream, GlassWater, DollarSign
 } from 'lucide-react';
 import { Database } from '@/integrations/supabase/types';
 import { formatLocationLink, formatPhoneLink, formatEmailLink } from '@/utils/linkFormatters';
 import { EventChecklistPanel } from './EventChecklistPanel';
+import { StaffAssignmentPanel } from './StaffAssignmentPanel';
+import { useLineItems } from '@/hooks/useLineItems';
 
 type QuoteRequest = Database['public']['Tables']['quote_requests']['Row'];
 
@@ -64,6 +66,8 @@ function formatServiceType(type: string): string {
 }
 
 export function EventSummaryPanel({ event, onClose, onViewFull }: EventSummaryPanelProps) {
+  const { data: lineItems = [] } = useLineItems(event.invoice?.id || null);
+  
   const proteins = Array.isArray(event.proteins) ? event.proteins as string[] : [];
   const sides = Array.isArray(event.sides) ? event.sides as string[] : [];
   const appetizers = Array.isArray(event.appetizers) ? event.appetizers as string[] : [];
@@ -310,6 +314,13 @@ export function EventSummaryPanel({ event, onClose, onViewFull }: EventSummaryPa
             </>
           )}
 
+          {/* Staff Assignments */}
+          <Separator />
+          <div className="space-y-2">
+            <h4 className="text-xs font-medium text-muted-foreground uppercase">Staff Assignments</h4>
+            <StaffAssignmentPanel quoteId={event.id} compact />
+          </div>
+
           {/* Prep Checklist Summary */}
           <Separator />
           <div className="space-y-2">
@@ -321,6 +332,29 @@ export function EventSummaryPanel({ event, onClose, onViewFull }: EventSummaryPa
               compact
             />
           </div>
+
+          {/* Line Items Preview */}
+          {lineItems.length > 0 && (
+            <>
+              <Separator />
+              <div className="space-y-2">
+                <h4 className="text-xs font-medium text-muted-foreground uppercase flex items-center gap-1">
+                  <DollarSign className="h-3 w-3" /> Line Items
+                </h4>
+                <div className="space-y-1">
+                  {lineItems.slice(0, 3).map((item) => (
+                    <div key={item.id} className="flex justify-between text-xs">
+                      <span className="truncate flex-1">{item.title || item.description}</span>
+                      <span className="font-medium ml-2">${(item.total_price / 100).toFixed(2)}</span>
+                    </div>
+                  ))}
+                  {lineItems.length > 3 && (
+                    <p className="text-xs text-muted-foreground">+{lineItems.length - 3} more items</p>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
 
           {/* Special Requests */}
           {event.special_requests && (
