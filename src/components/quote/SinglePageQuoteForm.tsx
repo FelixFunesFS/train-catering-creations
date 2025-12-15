@@ -254,11 +254,13 @@ export const SinglePageQuoteForm = ({ variant = 'regular', onSuccess }: SinglePa
         title: "✅ Quote Request Submitted!",
         description: "We'll respond within 48 hours. Check your email for confirmation.",
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Form submission error:', error);
+      const errorMessage = error?.message || error?.details || error?.hint || 
+        (typeof error === 'string' ? error : 'Unknown error');
       toast({
         title: "Submission Failed",
-        description: error instanceof Error ? error.message : "Please try again or contact us at (843) 970-0265.",
+        description: `${errorMessage}. Please try again or contact us at (843) 970-0265.`,
         variant: "destructive",
       });
       setIsSubmitted(false);
