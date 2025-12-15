@@ -6,7 +6,9 @@ interface FormAnalyticsConfig {
   enabled?: boolean;
 }
 
-export const useFormAnalytics = ({ formType, enabled = true }: FormAnalyticsConfig) => {
+export const useFormAnalytics = ({ formType, enabled = false }: FormAnalyticsConfig) => {
+  // Analytics disabled - track-analytics edge function doesn't exist
+  // TODO: Re-enable when analytics edge function is created
   const sessionId = useRef(crypto.randomUUID());
   const startTime = useRef(Date.now());
   const hasInteracted = useRef(false);
