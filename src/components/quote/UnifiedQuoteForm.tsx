@@ -7,12 +7,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Form } from "@/components/ui/form";
-import { ContactAndEventStep } from "./alternative-form/ContactAndEventStep";
+import { ContactInfoStep } from "./alternative-form/ContactInfoStep";
+import { EventDetailsStep } from "./alternative-form/EventDetailsStep";
 import { ServiceSelectionStep } from "./alternative-form/ServiceSelectionStep";
 import { MenuSelectionStep } from "./alternative-form/MenuSelectionStep";
-import { ReviewStep } from "./alternative-form/ReviewStep";
+import { ReviewStepSimplified } from "./alternative-form/ReviewStepSimplified";
 import { SuccessStep } from "./alternative-form/SuccessStep";
 import { FinalStep } from "./alternative-form/FinalStep";
+import { MobileStepIndicator } from "./MobileStepIndicator";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 import { ArrowLeft, ArrowRight, Check, Sparkles, Loader2 } from "lucide-react";
@@ -21,6 +23,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useFormAnalytics } from "@/hooks/useFormAnalytics";
 import { formatCustomerName, formatEventName, formatLocation } from "@/utils/textFormatters";
+import { cn } from "@/lib/utils";
 
 type FormData = z.infer<typeof formSchema>;
 
@@ -30,11 +33,12 @@ interface UnifiedQuoteFormProps {
 }
 
 const STEPS = [
-  { id: 'contact-event', title: 'Event & Contact', description: 'Basic info' },
+  { id: 'contact', title: 'Contact', description: 'Your info' },
+  { id: 'event', title: 'Event', description: 'Event details' },
   { id: 'service', title: 'Service', description: 'How we help' },
-  { id: 'menu', title: 'Menu', description: 'Perfect selections' },
-  { id: 'final', title: 'Final', description: 'Additional info' },
-  { id: 'review', title: 'Review', description: 'Final check' },
+  { id: 'menu', title: 'Menu', description: 'Your selections' },
+  { id: 'final', title: 'Details', description: 'Extra info' },
+  { id: 'review', title: 'Review', description: 'Confirm' },
 ];
 
 export const UnifiedQuoteForm = ({ variant = 'regular', onSuccess }: UnifiedQuoteFormProps) => {
@@ -130,19 +134,23 @@ export const UnifiedQuoteForm = ({ variant = 'regular', onSuccess }: UnifiedQuot
     }
   };
 
+  const handleEditSection = (stepIndex: number) => {
+    setCurrentStep(stepIndex);
+  };
+
   const getCurrentStepData = (): (keyof FormData)[] => {
     switch (currentStep) {
-      case 0:
+      case 0: // Contact Info
         return ['contact_name', 'email', 'phone'];
-      case 1:
+      case 1: // Event Details
         return ['event_name', 'event_type', 'event_date', 'start_time', 'guest_count', 'location'];
-      case 2:
+      case 2: // Service
         return ['service_type'];
-      case 3:
-        return []; // Menu step - selections are optional
-      case 4:
-        return []; // Final step - additional info is optional
-      case 5:
+      case 3: // Menu - optional
+        return [];
+      case 4: // Final - optional
+        return [];
+      case 5: // Review
         return ['contact_name', 'email', 'phone', 'event_name', 'event_type', 'event_date', 'start_time', 'guest_count', 'location', 'service_type'];
       default:
         return [];
@@ -174,7 +182,7 @@ export const UnifiedQuoteForm = ({ variant = 'regular', onSuccess }: UnifiedQuot
         email: data.email,
         phone: data.phone,
         event_name: formatEventName(data.event_name),
-        event_type: data.event_type as any, // Support wedding event types
+        event_type: data.event_type as any,
         event_date: data.event_date,
         start_time: data.start_time,
         guest_count: data.guest_count,
@@ -283,24 +291,26 @@ export const UnifiedQuoteForm = ({ variant = 'regular', onSuccess }: UnifiedQuot
   const renderStepContent = () => {
     switch (currentStep) {
       case 0:
-        return <ContactAndEventStep form={form} trackFieldInteraction={trackFieldInteraction} variant={variant} />;
+        return <ContactInfoStep form={form} trackFieldInteraction={trackFieldInteraction} />;
       case 1:
-        return <ServiceSelectionStep form={form} trackFieldInteraction={trackFieldInteraction} />;
+        return <EventDetailsStep form={form} trackFieldInteraction={trackFieldInteraction} variant={variant} />;
       case 2:
+        return <ServiceSelectionStep form={form} trackFieldInteraction={trackFieldInteraction} />;
+      case 3:
         return <MenuSelectionStep form={form} trackFieldInteraction={trackFieldInteraction} variant={variant} />;
       case 4:
         return <FinalStep form={form} variant={variant} />;
       case 5:
-        return <ReviewStep form={form} estimatedCost={null} />;
+        return <ReviewStepSimplified form={form} estimatedCost={null} onEditSection={handleEditSection} />;
       default:
         return null;
     }
   };
 
   return (
-    <div ref={formRef} className={`space-y-8 ${formAnimationClass}`}>
+    <div ref={formRef} className={`space-y-6 ${formAnimationClass}`}>
       <Card className="neumorphic-card-1 border-0 bg-gradient-to-r from-card/50 via-card to-card/50 backdrop-blur-sm">
-        <CardHeader className="pb-6">
+        <CardHeader className="pb-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-gradient-primary rounded-full flex items-center justify-center">
@@ -308,7 +318,7 @@ export const UnifiedQuoteForm = ({ variant = 'regular', onSuccess }: UnifiedQuot
               </div>
               <div>
                 <CardTitle className="text-lg font-elegant">
-                  {variant === 'wedding' ? 'Wedding Quote Builder' : 'Smart Quote Builder'}
+                  {variant === 'wedding' ? 'Wedding Quote Builder' : 'Quick Quote Builder'}
                 </CardTitle>
                 <p className="text-sm text-muted-foreground">Step {currentStep + 1} of {STEPS.length}</p>
               </div>
@@ -317,33 +327,45 @@ export const UnifiedQuoteForm = ({ variant = 'regular', onSuccess }: UnifiedQuot
           
           <Progress value={progress} className="h-2 mb-4" />
           
-          <div className="flex justify-center">
-            <div className="flex items-center gap-2 md:gap-4 overflow-x-auto pb-2">
+          {/* Mobile Step Indicator */}
+          <div className="md:hidden">
+            <MobileStepIndicator
+              steps={STEPS}
+              currentStep={currentStep}
+              completedSteps={completedSteps}
+              onStepClick={handleStepClick}
+            />
+          </div>
+          
+          {/* Desktop Step Indicator */}
+          <div className="hidden md:flex justify-center">
+            <div className="flex items-center gap-2">
               {STEPS.map((step, index) => (
                 <button
                   key={step.id}
                   onClick={() => handleStepClick(index)}
                   disabled={index > Math.max(...completedSteps, currentStep)}
-                  className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-all duration-300 min-w-[80px] ${
+                  className={cn(
+                    "flex flex-col items-center gap-1 p-2 rounded-lg transition-all duration-300 min-w-[70px]",
                     index === currentStep
-                      ? 'bg-primary/10 text-primary'
+                      ? "bg-primary/10 text-primary"
                       : completedSteps.includes(index)
-                      ? 'bg-muted/50 text-foreground hover:bg-muted'
-                      : 'text-muted-foreground opacity-50 cursor-not-allowed'
-                  }`}
+                      ? "bg-muted/50 text-foreground hover:bg-muted"
+                      : "text-muted-foreground opacity-50 cursor-not-allowed"
+                  )}
                 >
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                  <div className={cn(
+                    "w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all",
                     index === currentStep
-                      ? 'bg-primary text-primary-foreground'
+                      ? "bg-primary text-primary-foreground"
                       : completedSteps.includes(index)
-                      ? 'bg-primary/20 text-primary'
-                      : 'bg-muted text-muted-foreground'
-                  }`}>
+                      ? "bg-green-500 text-white"
+                      : "bg-muted text-muted-foreground"
+                  )}>
                     {completedSteps.includes(index) ? <Check className="h-4 w-4" /> : index + 1}
                   </div>
                   <div className="text-center">
                     <div className="text-xs font-medium">{step.title}</div>
-                    <div className="text-xs opacity-80 hidden md:block">{step.description}</div>
                   </div>
                 </button>
               ))}
@@ -374,10 +396,10 @@ export const UnifiedQuoteForm = ({ variant = 'regular', onSuccess }: UnifiedQuot
                   variant="outline"
                   onClick={handlePrevious}
                   disabled={currentStep === 0 || isSubmitting}
-                  className="gap-2"
+                  className="gap-2 min-h-[44px]"
                 >
                   <ArrowLeft className="h-4 w-4" />
-                  Previous
+                  <span className="hidden sm:inline">Previous</span>
                 </Button>
                 
                 {currentStep < STEPS.length - 1 ? (
@@ -385,7 +407,7 @@ export const UnifiedQuoteForm = ({ variant = 'regular', onSuccess }: UnifiedQuot
                     type="button"
                     onClick={handleNext}
                     disabled={isSubmitting}
-                    className="gap-2 min-w-[120px]"
+                    className="gap-2 min-w-[120px] min-h-[44px]"
                   >
                     Continue
                     <ArrowRight className="h-4 w-4" />
@@ -395,16 +417,16 @@ export const UnifiedQuoteForm = ({ variant = 'regular', onSuccess }: UnifiedQuot
                     type="submit"
                     disabled={isSubmitting}
                     onClick={() => setIsReadyToSubmit(true)}
-                    className="gap-2 min-w-[180px] bg-gradient-primary hover:opacity-90"
+                    className="gap-2 min-w-[140px] sm:min-w-[180px] min-h-[44px] bg-gradient-primary hover:opacity-90"
                   >
                     {isSubmitting ? (
                       <>
                         <Loader2 className="h-4 w-4 animate-spin" />
-                        Submitting...
+                        <span className="hidden sm:inline">Submitting...</span>
                       </>
                     ) : (
                       <>
-                        Submit Quote Request
+                        Submit Request
                         <Check className="h-4 w-4" />
                       </>
                     )}
