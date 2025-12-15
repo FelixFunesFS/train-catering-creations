@@ -59,11 +59,13 @@ serve(async (req) => {
       .select(`
         *,
         customers (id, name, email, phone, address),
-        quote_requests (
+      quote_requests (
           id, event_name, event_date, location, service_type, guest_count, 
           special_requests, contact_name, email, start_time, proteins, sides,
           appetizers, desserts, drinks, vegetarian_entrees, guest_count_with_restrictions,
-          compliance_level, requires_po_number
+          compliance_level, requires_po_number,
+          wait_staff_requested, wait_staff_requirements, bussing_tables_needed,
+          ceremony_included, cocktail_hour, theme_colors
         )
       `)
       .eq("id", invoice_id)
@@ -362,6 +364,58 @@ serve(async (req) => {
         font: helveticaBold, size: 9, color: BLUE 
       });
       y -= 22;
+    }
+
+    // === SERVICES INCLUDED (if any) ===
+    const serviceAddons: { label: string; color: any }[] = [];
+    if (quote?.wait_staff_requested) {
+      serviceAddons.push({ label: 'Wait Staff', color: BLUE });
+    }
+    if (quote?.bussing_tables_needed) {
+      serviceAddons.push({ label: 'Table Bussing', color: rgb(0.49, 0.23, 0.93) });
+    }
+    if (quote?.ceremony_included) {
+      serviceAddons.push({ label: 'Ceremony Catering', color: rgb(0.75, 0.09, 0.36) });
+    }
+    if (quote?.cocktail_hour) {
+      serviceAddons.push({ label: 'Cocktail Hour', color: rgb(0.85, 0.47, 0.02) });
+    }
+
+    if (serviceAddons.length > 0) {
+      drawText("SERVICES INCLUDED", margin, y, { font: helveticaBold, size: 8, color: MEDIUM_GRAY });
+      y -= 14;
+      
+      // Draw service badges inline
+      let badgeX = margin;
+      for (const addon of serviceAddons) {
+        const badgeWidth = helvetica.widthOfTextAtSize(addon.label, 8) + 12;
+        page.drawRectangle({ 
+          x: badgeX, 
+          y: y - 10, 
+          width: badgeWidth, 
+          height: 14, 
+          color: rgb(0.95, 0.95, 0.98) 
+        });
+        drawText(addon.label, badgeX + 6, y - 6, { size: 8, color: addon.color, font: helveticaBold });
+        badgeX += badgeWidth + 6;
+      }
+      y -= 18;
+      
+      // Wait staff requirements note if provided
+      if (quote?.wait_staff_requirements) {
+        drawText(`Staff Notes: ${sanitizeText(quote.wait_staff_requirements)}`, margin + 4, y, { 
+          size: 8, color: MEDIUM_GRAY, maxWidth: contentWidth - 10 
+        });
+        y -= 14;
+      }
+    }
+
+    // Wedding theme colors if provided
+    if (quote?.theme_colors) {
+      drawText(`Theme Colors: ${sanitizeText(quote.theme_colors)}`, margin, y, { 
+        size: 8, color: MEDIUM_GRAY 
+      });
+      y -= 12;
     }
 
     drawLine(margin, y, pageWidth - margin);
