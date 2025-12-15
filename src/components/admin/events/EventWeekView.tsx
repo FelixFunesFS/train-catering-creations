@@ -193,7 +193,7 @@ export function EventWeekView({ events, currentDate, onEventClick }: EventWeekVi
 
         {/* Event Summary Sheet */}
         <Sheet open={!!selectedEvent} onOpenChange={() => setSelectedEvent(null)}>
-          <SheetContent side="bottom" className="h-[85vh] p-0 rounded-t-xl">
+          <SheetContent side="bottom" className="h-[min(85vh,500px)] sm:h-[85vh] p-0 rounded-t-xl">
             {selectedEvent && (
               <EventSummaryPanel 
                 event={selectedEvent} 
@@ -265,7 +265,7 @@ export function EventWeekView({ events, currentDate, onEventClick }: EventWeekVi
 
       {/* Event Summary Sheet */}
       <Sheet open={!!selectedEvent} onOpenChange={() => setSelectedEvent(null)}>
-        <SheetContent className="w-[350px] sm:w-[400px] p-0">
+        <SheetContent className="w-[calc(100vw-1rem)] sm:w-[350px] md:w-[400px] p-0">
           {selectedEvent && (
             <EventSummaryPanel 
               event={selectedEvent} 

@@ -58,7 +58,7 @@ export function AddLineItemModal({ invoiceId, onClose }: AddLineItemModalProps) 
 
   return (
     <Dialog open onOpenChange={onClose}>
-      <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto">
+      <DialogContent className="w-[calc(100vw-1rem)] sm:max-w-md max-h-[90vh] overflow-y-auto p-4 sm:p-6">
         <DialogHeader>
           <DialogTitle>Add Line Item</DialogTitle>
         </DialogHeader>
