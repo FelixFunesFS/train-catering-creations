@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AdminLayout } from '@/components/admin/AdminLayout';
@@ -10,18 +9,17 @@ export type AdminView = 'events' | 'billing' | 'settings';
 
 export function UnifiedAdminDashboard() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const viewParam = searchParams.get('view') as AdminView | null;
-  const [currentView, setCurrentView] = useState<AdminView>(viewParam || 'events');
+  
+  // Single source of truth - derive state directly from URL
+  const currentView = (searchParams.get('view') as AdminView) || 'events';
 
-  useEffect(() => {
-    if (viewParam && viewParam !== currentView) {
-      setCurrentView(viewParam);
-    }
-  }, [viewParam, currentView]);
-
+  // Preserve other search params when switching views
   const handleViewChange = (view: AdminView) => {
-    setCurrentView(view);
-    setSearchParams({ view });
+    setSearchParams(prev => {
+      const newParams = new URLSearchParams(prev);
+      newParams.set('view', view);
+      return newParams;
+    }, { replace: true });
   };
 
   return (
