@@ -40,9 +40,61 @@ const statusColors: Record<string, string> = {
   cancelled: 'border-l-red-500 bg-red-500/5',
 };
 
+function EventCard({ event, onClick }: { event: EventWithInvoice; onClick: () => void }) {
+  return (
+    <div
+      onClick={onClick}
+      className={`p-2 rounded border-l-4 cursor-pointer hover:shadow-md transition-shadow ${
+        statusColors[event.workflow_status] || 'border-l-gray-300 bg-muted/20'
+      }`}
+    >
+      <p className="font-medium text-sm truncate">
+        {event.contact_name}
+      </p>
+      <p className="text-xs text-muted-foreground truncate">
+        {event.event_name}
+      </p>
+      
+      <div className="flex items-center gap-1 mt-1.5 text-xs text-muted-foreground">
+        <Clock className="h-3 w-3" />
+        <span>{event.start_time?.slice(0, 5) || 'TBD'}</span>
+      </div>
+      
+      <div className="flex items-center gap-1 mt-0.5 text-xs text-muted-foreground">
+        <Users className="h-3 w-3" />
+        <span>{event.guest_count}</span>
+      </div>
+      
+      {event.location && (
+        <a 
+          href={formatLocationLink(event.location) || '#'}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={(e) => e.stopPropagation()}
+          className="flex items-center gap-1 mt-0.5 text-xs text-primary hover:underline"
+          aria-label="Open in Maps"
+        >
+          <MapPin className="h-3 w-3 flex-shrink-0" />
+          <span className="truncate">{event.location}</span>
+        </a>
+      )}
+      
+      {event.invoice && (
+        <Badge 
+          variant="outline" 
+          className="mt-1.5 text-[10px] px-1.5 py-0"
+        >
+          ${(event.invoice.total_amount / 100).toLocaleString()}
+        </Badge>
+      )}
+    </div>
+  );
+}
+
 export function EventWeekView({ events, currentDate, onEventClick }: EventWeekViewProps) {
   const navigate = useNavigate();
   const isDesktop = useMediaQuery('(min-width: 1024px)');
+  const isMobile = useMediaQuery('(max-width: 639px)');
   const [selectedEvent, setSelectedEvent] = useState<EventWithInvoice | null>(null);
   
   // Generate 7 days starting from the week's Sunday
@@ -80,6 +132,82 @@ export function EventWeekView({ events, currentDate, onEventClick }: EventWeekVi
     }
   };
 
+  // Mobile: Vertical layout
+  if (isMobile) {
+    return (
+      <>
+        <div className="space-y-3">
+          {weekDays.map((day) => {
+            const dateKey = format(day, 'yyyy-MM-dd');
+            const dayEvents = eventsByDate[dateKey] || [];
+            const isCurrentDay = isToday(day);
+            
+            return (
+              <div 
+                key={dateKey}
+                className={`rounded-lg border ${
+                  isCurrentDay 
+                    ? 'border-primary bg-primary/5' 
+                    : 'border-border bg-card'
+                }`}
+              >
+                {/* Day Header */}
+                <div className={`px-3 py-2 flex items-center justify-between border-b ${
+                  isCurrentDay ? 'bg-primary/10' : 'bg-muted/30'
+                }`}>
+                  <div className="flex items-center gap-2">
+                    <span className={`text-lg font-semibold ${isCurrentDay ? 'text-primary' : ''}`}>
+                      {format(day, 'd')}
+                    </span>
+                    <span className="text-sm text-muted-foreground">
+                      {format(day, 'EEEE')}
+                    </span>
+                  </div>
+                  {dayEvents.length > 0 && (
+                    <Badge variant="secondary" className="text-xs">
+                      {dayEvents.length} event{dayEvents.length > 1 ? 's' : ''}
+                    </Badge>
+                  )}
+                </div>
+                
+                {/* Events */}
+                <div className="p-2 space-y-2">
+                  {dayEvents.length === 0 ? (
+                    <p className="text-xs text-muted-foreground text-center py-2">
+                      No events
+                    </p>
+                  ) : (
+                    dayEvents.map((event) => (
+                      <EventCard 
+                        key={event.id}
+                        event={event}
+                        onClick={() => handleEventCardClick(event)}
+                      />
+                    ))
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Event Summary Sheet */}
+        <Sheet open={!!selectedEvent} onOpenChange={() => setSelectedEvent(null)}>
+          <SheetContent side="bottom" className="h-[85vh] p-0 rounded-t-xl">
+            {selectedEvent && (
+              <EventSummaryPanel 
+                event={selectedEvent} 
+                onClose={() => setSelectedEvent(null)}
+                onViewFull={handleViewFull}
+              />
+            )}
+          </SheetContent>
+        </Sheet>
+      </>
+    );
+  }
+
+  // Tablet/Desktop: Horizontal layout
   return (
     <>
       <ScrollArea className="w-full">
@@ -120,53 +248,11 @@ export function EventWeekView({ events, currentDate, onEventClick }: EventWeekVi
                     </p>
                   ) : (
                     dayEvents.map((event) => (
-                      <div
+                      <EventCard 
                         key={event.id}
+                        event={event}
                         onClick={() => handleEventCardClick(event)}
-                        className={`p-2 rounded border-l-4 cursor-pointer hover:shadow-md transition-shadow ${
-                          statusColors[event.workflow_status] || 'border-l-gray-300 bg-muted/20'
-                        }`}
-                      >
-                        <p className="font-medium text-sm truncate">
-                          {event.contact_name}
-                        </p>
-                        <p className="text-xs text-muted-foreground truncate">
-                          {event.event_name}
-                        </p>
-                        
-                        <div className="flex items-center gap-1 mt-1.5 text-xs text-muted-foreground">
-                          <Clock className="h-3 w-3" />
-                          <span>{event.start_time?.slice(0, 5) || 'TBD'}</span>
-                        </div>
-                        
-                        <div className="flex items-center gap-1 mt-0.5 text-xs text-muted-foreground">
-                          <Users className="h-3 w-3" />
-                          <span>{event.guest_count}</span>
-                        </div>
-                        
-                        {event.location && (
-                          <a 
-                            href={formatLocationLink(event.location) || '#'}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={(e) => e.stopPropagation()}
-                            className="flex items-center gap-1 mt-0.5 text-xs text-primary hover:underline"
-                            aria-label="Open in Maps"
-                          >
-                            <MapPin className="h-3 w-3 flex-shrink-0" />
-                            <span className="truncate">{event.location}</span>
-                          </a>
-                        )}
-                        
-                        {event.invoice && (
-                          <Badge 
-                            variant="outline" 
-                            className="mt-1.5 text-[10px] px-1.5 py-0"
-                          >
-                            ${(event.invoice.total_amount / 100).toLocaleString()}
-                          </Badge>
-                        )}
-                      </div>
+                      />
                     ))
                   )}
                 </div>
