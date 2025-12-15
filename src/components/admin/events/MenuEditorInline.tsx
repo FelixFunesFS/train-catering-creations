@@ -73,11 +73,12 @@ const REGULAR_VEGETARIAN: CardOption[] = [
 ];
 
 const WEDDING_VEGETARIAN: CardOption[] = [
-  { id: "stuffed-portobello", name: "Stuffed Portobello Mushroom", isDietary: true },
-  { id: "vegetable-wellington", name: "Vegetable Wellington", isDietary: true },
-  { id: "eggplant-parmesan", name: "Eggplant Parmesan", isDietary: true },
-  { id: "wild-mushroom-risotto", name: "Wild Mushroom Risotto", isDietary: true },
-  { id: "butternut-squash-ravioli", name: "Butternut Squash Ravioli", isDietary: true },
+  { id: "vegetable-fettuccine-alfredo", name: "Creamy Vegetable Fettuccine Alfredo", isDietary: true },
+  { id: "stuffed-portobello", name: "Herb-Stuffed Portobello Mushroom", isDietary: true },
+  { id: "roasted-vegetable-medley", name: "Roasted Garden Vegetable Medley", isDietary: true },
+  { id: "southern-veggie-plate", name: "Southern Vegetable Plate", isDietary: true },
+  { id: "honey-glazed-carrots-yams", name: "Honey-Glazed Carrots & Yams", isDietary: true },
+  { id: "caprese-stuffed-tomatoes", name: "Caprese Stuffed Heirloom Tomatoes", isDietary: true },
 ];
 
 const SUPPLY_ITEMS: CardOption[] = [

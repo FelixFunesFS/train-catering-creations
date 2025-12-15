@@ -100,11 +100,12 @@ const MenuSelectionStepComponent = ({ form, trackFieldInteraction, variant = 're
   ];
 
   const WEDDING_VEGETARIAN_ENTREES: { id: string; name: string; category: string; isPremium?: boolean }[] = [
-    { id: "stuffed-portobello", name: "Stuffed Portobello Mushroom", isPremium: true, category: "Elegant" },
-    { id: "vegetable-wellington", name: "Vegetable Wellington", isPremium: true, category: "Elegant" },
-    { id: "eggplant-parmesan", name: "Eggplant Parmesan", category: "Italian" },
-    { id: "wild-mushroom-risotto", name: "Wild Mushroom Risotto", isPremium: true, category: "Italian" },
-    { id: "butternut-squash-ravioli", name: "Butternut Squash Ravioli", isPremium: true, category: "Pasta" },
+    { id: "vegetable-fettuccine-alfredo", name: "Creamy Vegetable Fettuccine Alfredo", isPremium: true, category: "Pasta" },
+    { id: "stuffed-portobello", name: "Herb-Stuffed Portobello Mushroom", isPremium: true, category: "Elegant" },
+    { id: "roasted-vegetable-medley", name: "Roasted Garden Vegetable Medley", category: "Elegant" },
+    { id: "southern-veggie-plate", name: "Southern Vegetable Plate", category: "Southern" },
+    { id: "honey-glazed-carrots-yams", name: "Honey-Glazed Carrots & Yams", category: "Southern" },
+    { id: "caprese-stuffed-tomatoes", name: "Caprese Stuffed Heirloom Tomatoes", isPremium: true, category: "Elegant" },
   ];
 
   const PROTEINS = variant === 'wedding' ? WEDDING_PROTEINS : REGULAR_PROTEINS;
