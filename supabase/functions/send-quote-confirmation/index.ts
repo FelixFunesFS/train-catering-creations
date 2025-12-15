@@ -11,15 +11,16 @@
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.52.1';
-import { BRAND_COLORS, EMAIL_STYLES, generateEmailHeader, generateEventDetailsCard, generateFooter, generatePreheader } from "../_shared/emailTemplates.ts";
-
-// Brand accent colors for quote confirmations
-const ACCENT_COLORS = {
-  success: '#16a34a',      // Green for approved/success states
-  warning: '#ea580c',      // Orange for pending/info needed
-  info: BRAND_COLORS.gold, // Gold for informational sections
-  urgent: BRAND_COLORS.crimson // Crimson for urgent/important
-};
+import { 
+  BRAND_COLORS, 
+  EMAIL_STYLES, 
+  generateEmailHeader, 
+  generateEventDetailsCard, 
+  generateFooter, 
+  generatePreheader,
+  generateServiceAddonsSection,
+  formatServiceType
+} from "../_shared/emailTemplates.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -65,14 +66,14 @@ const handler = async (req: Request): Promise<Response> => {
         .join(' ');
     };
 
-    const formatMenuItems = (items: any) => {
-      if (!items || (Array.isArray(items) && items.length === 0)) return 'None selected';
+    const formatMenuItems = (items: any): string => {
+      if (!items || (Array.isArray(items) && items.length === 0)) return '';
       if (typeof items === 'string') return formatMenuItem(items);
       if (Array.isArray(items)) return items.map(formatMenuItem).join(', ');
-      return JSON.stringify(items);
+      return '';
     };
 
-    const formatSupplies = () => {
+    const formatSupplies = (): string => {
       const supplies = [];
       if (quote.plates_requested) supplies.push('Plates');
       if (quote.cups_requested) supplies.push('Cups');
@@ -83,6 +84,110 @@ const handler = async (req: Request): Promise<Response> => {
       return supplies.length > 0 ? supplies.join(', ') : 'None requested';
     };
 
+    // Generate menu sections HTML
+    const generateMenuSelectionsSection = (): string => {
+      const proteins = formatMenuItems(quote.proteins);
+      const sides = formatMenuItems(quote.sides);
+      const appetizers = formatMenuItems(quote.appetizers);
+      const desserts = formatMenuItems(quote.desserts);
+      const drinks = formatMenuItems(quote.drinks);
+      const vegetarianEntrees = formatMenuItems(quote.vegetarian_entrees);
+      
+      // Check if any menu items were selected
+      const hasMenuSelections = proteins || sides || appetizers || desserts || drinks;
+      
+      if (!hasMenuSelections && !vegetarianEntrees) return '';
+
+      let menuHtml = `
+        <section style="
+          background: ${BRAND_COLORS.lightGray};
+          padding: 16px;
+          border-radius: 8px;
+          margin: 16px 0;
+          border-left: 4px solid ${BRAND_COLORS.gold};
+        ">
+          <h3 style="margin: 0 0 16px 0; color: ${BRAND_COLORS.crimson}; font-size: 16px;">
+            🍽️ Your Menu Selections
+          </h3>
+          <div style="font-size: 14px; line-height: 1.6;">
+      `;
+
+      if (proteins) {
+        menuHtml += `
+          <div style="margin-bottom: 10px;">
+            <strong style="color: ${BRAND_COLORS.crimson};">🥩 Proteins:</strong><br>
+            <span style="color: ${BRAND_COLORS.darkGray};">${proteins}</span>
+            ${quote.both_proteins_available ? `<br><span style="color: ${BRAND_COLORS.crimson}; font-size: 13px;">⭐ Both proteins served to all guests</span>` : ''}
+          </div>
+        `;
+      }
+
+      if (sides) {
+        menuHtml += `
+          <div style="margin-bottom: 10px;">
+            <strong style="color: ${BRAND_COLORS.crimson};">🥗 Sides:</strong><br>
+            <span style="color: ${BRAND_COLORS.darkGray};">${sides}</span>
+          </div>
+        `;
+      }
+
+      if (appetizers) {
+        menuHtml += `
+          <div style="margin-bottom: 10px;">
+            <strong style="color: ${BRAND_COLORS.crimson};">🍤 Appetizers:</strong><br>
+            <span style="color: ${BRAND_COLORS.darkGray};">${appetizers}</span>
+          </div>
+        `;
+      }
+
+      if (desserts) {
+        menuHtml += `
+          <div style="margin-bottom: 10px;">
+            <strong style="color: ${BRAND_COLORS.crimson};">🍰 Desserts:</strong><br>
+            <span style="color: ${BRAND_COLORS.darkGray};">${desserts}</span>
+          </div>
+        `;
+      }
+
+      if (drinks) {
+        menuHtml += `
+          <div style="margin-bottom: 10px;">
+            <strong style="color: ${BRAND_COLORS.crimson};">🥤 Beverages:</strong><br>
+            <span style="color: ${BRAND_COLORS.darkGray};">${drinks}</span>
+          </div>
+        `;
+      }
+
+      menuHtml += `</div></section>`;
+
+      return menuHtml;
+    };
+
+    // Generate vegetarian options section
+    const generateVegetarianSection = (): string => {
+      const vegetarianEntrees = formatMenuItems(quote.vegetarian_entrees);
+      const vegetarianCount = quote.guest_count_with_restrictions;
+      
+      if (!vegetarianEntrees && !vegetarianCount) return '';
+
+      return `
+        <section style="
+          background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+          padding: 16px;
+          border-radius: 8px;
+          margin: 16px 0;
+          border-left: 4px solid #22c55e;
+        ">
+          <h3 style="margin: 0 0 12px 0; color: #166534; font-size: 16px;">
+            🌱 Vegetarian Options
+          </h3>
+          <div style="font-size: 14px; line-height: 1.6; color: #166534;">
+            ${vegetarianCount ? `<p style="margin: 0 0 8px 0;"><strong>Vegetarian Portions:</strong> ${vegetarianCount} guests</p>` : ''}
+            ${vegetarianEntrees ? `<p style="margin: 0;"><strong>Selected Entrées:</strong> ${vegetarianEntrees}</p>` : ''}
+          </div>
+        </section>
+      `;
+    };
 
     const emailSubject = `Quote Request Received - Reference #${quote_id.slice(0, 8).toUpperCase()}`;
     const preheaderText = "We've received your quote request and will send an estimate within 48 hours - Soul Train's Eatery";
@@ -116,9 +221,15 @@ const handler = async (req: Request): Promise<Response> => {
 
             ${generateEventDetailsCard(quote)}
 
+            ${generateMenuSelectionsSection()}
+
+            ${generateVegetarianSection()}
+
+            ${generateServiceAddonsSection(quote)}
+
             <div class="event-card">
-              <h3 style="margin: 0 0 15px 0; color: ${BRAND_COLORS.crimson};">📦 Your Additional Selections</h3>
-              <p style="margin: 5px 0;"><strong>Supplies:</strong> ${formatSupplies()}</p>
+              <h3 style="margin: 0 0 15px 0; color: ${BRAND_COLORS.crimson};">📦 Supplies & Equipment</h3>
+              <p style="margin: 5px 0;"><strong>Requested:</strong> ${formatSupplies()}</p>
               ${quote.theme_colors ? `<p style="margin: 5px 0;"><strong>Theme/Colors:</strong> ${quote.theme_colors}</p>` : ''}
               <p style="margin: 15px 0 5px 0; font-size: 14px; color: ${BRAND_COLORS.crimson};"><strong>Reference ID:</strong> #${quote_id.slice(0, 8).toUpperCase()}</p>
             </div>

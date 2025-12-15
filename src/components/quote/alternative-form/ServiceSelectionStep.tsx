@@ -3,7 +3,7 @@ import { memo } from "react";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { TimeSelect } from "@/components/ui/time-select";
 import { Label } from "@/components/ui/label";
-import { Truck, Users, Clock, ChefHat, Circle, CheckCircle2 } from "lucide-react";
+import { Truck, Users, Clock, ChefHat, Circle, CheckCircle2, Check } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 
@@ -11,6 +11,25 @@ interface ServiceSelectionStepProps {
   form: UseFormReturn<any>;
   trackFieldInteraction: (fieldName: string) => void;
 }
+
+// Helper component for validation status
+const FieldStatus = ({ isValid }: { isValid: boolean }) => {
+  if (!isValid) return null;
+  return (
+    <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-green-500/20 text-green-600 ml-2">
+      <Check className="h-3 w-3" />
+    </span>
+  );
+};
+
+const RequiredBadge = ({ show }: { show: boolean }) => {
+  if (!show) return null;
+  return (
+    <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded ml-2">
+      Required
+    </span>
+  );
+};
 
 const ServiceSelectionStepComponent = ({ form, trackFieldInteraction }: ServiceSelectionStepProps) => {
   const { ref, isVisible } = useScrollAnimation({
@@ -31,10 +50,14 @@ const ServiceSelectionStepComponent = ({ form, trackFieldInteraction }: ServiceS
           <FormField
             control={form.control}
             name="service_type"
-            render={({ field }) => (
+            render={({ field }) => {
+              const isValid = !!field.value;
+              return (
               <FormItem>
-                <FormLabel className="text-base font-medium mb-4 block">
-                  Select Service Type <span className="text-destructive">*</span>
+                <FormLabel className="text-base font-medium mb-4 flex items-center">
+                  Select Service Type
+                  <RequiredBadge show={!isValid} />
+                  <FieldStatus isValid={isValid} />
                 </FormLabel>
                 <FormControl>
                   <div className="space-y-4">
@@ -133,7 +156,8 @@ const ServiceSelectionStepComponent = ({ form, trackFieldInteraction }: ServiceS
                 </FormControl>
                 <FormMessage />
               </FormItem>
-            )}
+              );
+            }}
           />
 
           {watchServiceType === "full-service" && (
