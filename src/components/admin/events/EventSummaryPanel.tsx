@@ -13,7 +13,7 @@ import { Database } from '@/integrations/supabase/types';
 import { formatLocationLink, formatPhoneLink, formatEmailLink } from '@/utils/linkFormatters';
 import { EventChecklistPanel } from './EventChecklistPanel';
 import { StaffAssignmentPanel } from './StaffAssignmentPanel';
-import { useLineItems } from '@/hooks/useLineItems';
+import { useCustomLineItems } from '@/hooks/useCustomLineItems';
 
 type QuoteRequest = Database['public']['Tables']['quote_requests']['Row'];
 
@@ -66,7 +66,7 @@ function formatServiceType(type: string): string {
 }
 
 export function EventSummaryPanel({ event, onClose, onViewFull }: EventSummaryPanelProps) {
-  const { data: lineItems = [] } = useLineItems(event.invoice?.id || null);
+  const { customItems, hasCustomItems } = useCustomLineItems(event.invoice?.id || null);
   
   const proteins = Array.isArray(event.proteins) ? event.proteins as string[] : [];
   const sides = Array.isArray(event.sides) ? event.sides as string[] : [];
@@ -271,6 +271,25 @@ export function EventSummaryPanel({ event, onClose, onViewFull }: EventSummaryPa
                           </div>
                         </div>
                       )}
+                      {/* Other/Custom Items from Line Items */}
+                      {hasCustomItems && (
+                        <div>
+                          <p className="text-xs font-medium mb-1 flex items-center gap-1 text-indigo-600">
+                            <Package className="h-3 w-3" /> Other Items
+                          </p>
+                          <div className="flex flex-wrap gap-1">
+                            {customItems.map((item) => (
+                              <Badge 
+                                key={item.id} 
+                                variant="secondary" 
+                                className="text-xs bg-indigo-100 text-indigo-700 border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-300 dark:border-indigo-700"
+                              >
+                                {item.title || item.description}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </AccordionContent>
                 </AccordionItem>
@@ -332,29 +351,6 @@ export function EventSummaryPanel({ event, onClose, onViewFull }: EventSummaryPa
               compact
             />
           </div>
-
-          {/* Line Items Preview */}
-          {lineItems.length > 0 && (
-            <>
-              <Separator />
-              <div className="space-y-2">
-                <h4 className="text-xs font-medium text-muted-foreground uppercase flex items-center gap-1">
-                  <DollarSign className="h-3 w-3" /> Line Items
-                </h4>
-                <div className="space-y-1">
-                  {lineItems.slice(0, 3).map((item) => (
-                    <div key={item.id} className="flex justify-between text-xs">
-                      <span className="truncate flex-1">{item.title || item.description}</span>
-                      <span className="font-medium ml-2">${(item.total_price / 100).toFixed(2)}</span>
-                    </div>
-                  ))}
-                  {lineItems.length > 3 && (
-                    <p className="text-xs text-muted-foreground">+{lineItems.length - 3} more items</p>
-                  )}
-                </div>
-              </div>
-            </>
-          )}
 
           {/* Special Requests */}
           {event.special_requests && (
