@@ -22,6 +22,7 @@ interface InvoiceForEvent {
   quote_request_id: string | null;
   workflow_status: Database['public']['Enums']['invoice_workflow_status'];
   total_amount: number;
+  notes?: string | null;
 }
 
 interface EventWithInvoice extends QuoteRequest {
@@ -333,26 +334,7 @@ export function EventSummaryPanel({ event, onClose, onViewFull }: EventSummaryPa
             </>
           )}
 
-          {/* Staff Assignments */}
-          <Separator />
-          <div className="space-y-2">
-            <h4 className="text-xs font-medium text-muted-foreground uppercase">Staff Assignments</h4>
-            <StaffAssignmentPanel quoteId={event.id} compact />
-          </div>
-
-          {/* Prep Checklist Summary */}
-          <Separator />
-          <div className="space-y-2">
-            <h4 className="text-xs font-medium text-muted-foreground uppercase">Prep Checklist</h4>
-            <EventChecklistPanel 
-              quoteId={event.id} 
-              eventDate={event.event_date}
-              eventType={event.event_type}
-              compact
-            />
-          </div>
-
-          {/* Special Requests */}
+          {/* Special Requests - Moved above Staff Assignments */}
           {event.special_requests && (
             <>
               <Separator />
@@ -364,6 +346,42 @@ export function EventSummaryPanel({ event, onClose, onViewFull }: EventSummaryPa
               </div>
             </>
           )}
+
+          {/* Customer Notes - from invoice.notes */}
+          {event.invoice && (event.invoice as any).notes && (
+            <>
+              <Separator />
+              <div className="space-y-2">
+                <h4 className="text-xs font-medium text-muted-foreground uppercase flex items-center gap-1">
+                  <MessageSquare className="h-3 w-3" /> Customer Notes
+                </h4>
+                <p className="text-sm text-muted-foreground whitespace-pre-wrap">{(event.invoice as any).notes}</p>
+              </div>
+            </>
+          )}
+
+          {/* Operations Section Separator */}
+          <Separator className="my-2" />
+          <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Operations</p>
+
+          {/* Staff Assignments */}
+          <div className="space-y-2">
+            <h4 className="text-xs font-medium text-muted-foreground uppercase">Staff Assignments</h4>
+            <StaffAssignmentPanel quoteId={event.id} compact />
+          </div>
+
+          {/* Prep Checklist Summary - with expand capability */}
+          <Separator />
+          <div className="space-y-2">
+            <h4 className="text-xs font-medium text-muted-foreground uppercase">Prep Checklist</h4>
+            <EventChecklistPanel 
+              quoteId={event.id} 
+              eventDate={event.event_date}
+              eventType={event.event_type}
+              compact
+              allowExpand
+            />
+          </div>
 
           {/* Invoice Total */}
           {event.invoice && (

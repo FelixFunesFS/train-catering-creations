@@ -1,13 +1,12 @@
 import { useState } from 'react';
 import { format, parseISO, isPast, isToday } from 'date-fns';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { 
   Plus, ListChecks, Calendar, AlertCircle, 
-  CheckCircle2, Circle, Loader2 
+  CheckCircle2, Circle, Loader2, ChevronDown, ChevronUp
 } from 'lucide-react';
 import { useEventChecklist } from '@/hooks/useEventChecklist';
 
@@ -16,6 +15,7 @@ interface EventChecklistPanelProps {
   eventDate: string;
   eventType: string;
   compact?: boolean;
+  allowExpand?: boolean;
 }
 
 // Task type colors matching database CHECK constraint values
@@ -35,12 +35,14 @@ export function EventChecklistPanel({
   quoteId, 
   eventDate, 
   eventType,
-  compact = false 
+  compact = false,
+  allowExpand = false
 }: EventChecklistPanelProps) {
   const { tasks, loading, toggleTask, createTask, generateStandardChecklist } = useEventChecklist(quoteId);
   const [showAddTask, setShowAddTask] = useState(false);
   const [newTaskName, setNewTaskName] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const completedCount = tasks.filter(t => t.completed).length;
   const totalCount = tasks.length;
@@ -82,7 +84,7 @@ export function EventChecklistPanel({
   }
 
   // Compact view for summary panel
-  if (compact) {
+  if (compact && !isExpanded) {
     return (
       <div className="space-y-2">
         <div className="flex items-center justify-between">
@@ -90,11 +92,24 @@ export function EventChecklistPanel({
             <ListChecks className="h-4 w-4 text-muted-foreground" />
             <span className="font-medium">{completedCount}/{totalCount} tasks</span>
           </div>
-          {totalCount > 0 && (
-            <span className="text-xs text-muted-foreground">
-              {Math.round(progressPercent)}% complete
-            </span>
-          )}
+          <div className="flex items-center gap-2">
+            {totalCount > 0 && (
+              <span className="text-xs text-muted-foreground">
+                {Math.round(progressPercent)}%
+              </span>
+            )}
+            {allowExpand && totalCount > 0 && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-6 px-2 text-xs"
+                onClick={() => setIsExpanded(true)}
+              >
+                <ChevronDown className="h-3 w-3 mr-1" />
+                View
+              </Button>
+            )}
+          </div>
         </div>
         {totalCount > 0 && (
           <Progress value={progressPercent} className="h-1.5" />
@@ -115,6 +130,57 @@ export function EventChecklistPanel({
             Generate Checklist
           </Button>
         )}
+      </div>
+    );
+  }
+
+  // Expanded compact view - show tasks inline with collapse option
+  if (compact && isExpanded) {
+    return (
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-sm">
+            <ListChecks className="h-4 w-4 text-muted-foreground" />
+            <span className="font-medium">{completedCount}/{totalCount} tasks</span>
+          </div>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="h-6 px-2 text-xs"
+            onClick={() => setIsExpanded(false)}
+          >
+            <ChevronUp className="h-3 w-3 mr-1" />
+            Collapse
+          </Button>
+        </div>
+        {totalCount > 0 && (
+          <Progress value={progressPercent} className="h-1.5" />
+        )}
+        <div className="space-y-1.5 max-h-64 overflow-y-auto">
+          {tasks.map((task) => {
+            const dueStatus = getTaskDueStatus(task.due_date);
+            return (
+              <div 
+                key={task.id}
+                className={`flex items-center gap-2 p-1.5 rounded text-xs ${
+                  task.completed ? 'opacity-50' : ''
+                }`}
+              >
+                <button onClick={() => toggleTask(task.id)} className="shrink-0">
+                  {task.completed ? (
+                    <CheckCircle2 className="h-4 w-4 text-green-600" />
+                  ) : (
+                    <Circle className="h-4 w-4 text-muted-foreground hover:text-primary" />
+                  )}
+                </button>
+                <span className={task.completed ? 'line-through' : ''}>{task.task_name}</span>
+                {dueStatus === 'overdue' && !task.completed && (
+                  <AlertCircle className="h-3 w-3 text-destructive ml-auto shrink-0" />
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
     );
   }
