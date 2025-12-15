@@ -1,24 +1,24 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
-import { Separator } from "@/components/ui/separator";
-import { ContactAndEventStep } from "./alternative-form/ContactAndEventStep";
+import { ContactInfoStep } from "./steps/ContactInfoStep";
+import { EventDetailsStep } from "./steps/EventDetailsStep";
 import { ServiceSelectionStep } from "./alternative-form/ServiceSelectionStep";
 import { MenuSelectionStep } from "./alternative-form/MenuSelectionStep";
-import { FinalStep } from "./alternative-form/FinalStep";
+import { SuppliesStep } from "./steps/SuppliesStep";
 import { SuccessStep } from "./alternative-form/SuccessStep";
-import { FormProgressBar } from "./FormProgressBar";
-import { FormSectionHeader } from "./FormSectionHeader";
+import { StepProgress } from "./StepProgress";
+import { StepNavigation } from "./StepNavigation";
 import { ReviewSummaryCard } from "./ReviewSummaryCard";
-import { Check, Loader2, User, Calendar, ChefHat, UtensilsCrossed, FileText } from "lucide-react";
+import { User, Calendar, ChefHat, UtensilsCrossed, Package, ClipboardCheck } from "lucide-react";
 import { formSchema } from "./alternative-form/formSchema";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useFormAnalytics } from "@/hooks/useFormAnalytics";
 import { formatCustomerName, formatEventName, formatLocation } from "@/utils/textFormatters";
+import { cn } from "@/lib/utils";
 
 type FormData = z.infer<typeof formSchema>;
 
@@ -27,19 +27,24 @@ interface SinglePageQuoteFormProps {
   onSuccess?: (quoteId: string) => void;
 }
 
-const SECTIONS = [
-  { id: 'contact-event', title: 'Event & Contact', icon: Calendar, required: true },
-  { id: 'service', title: 'Service Type', icon: ChefHat, required: true },
-  { id: 'menu', title: 'Menu Selection', icon: UtensilsCrossed, required: false },
-  { id: 'additional', title: 'Additional Info', icon: FileText, required: false },
+const STEPS = [
+  { id: 'contact', title: 'Contact Info', icon: User, required: true, fields: ['contact_name', 'email', 'phone'] },
+  { id: 'event', title: 'Event Details', icon: Calendar, required: true, fields: ['event_name', 'event_type', 'event_date', 'start_time', 'guest_count', 'location'] },
+  { id: 'service', title: 'Service Type', icon: ChefHat, required: true, fields: ['service_type'] },
+  { id: 'menu', title: 'Menu Selection', icon: UtensilsCrossed, required: false, fields: ['proteins', 'sides'] },
+  { id: 'supplies', title: 'Supplies & Details', icon: Package, required: false, fields: [] },
+  { id: 'review', title: 'Review & Submit', icon: ClipboardCheck, required: false, fields: [] },
 ];
 
 export const SinglePageQuoteForm = ({ variant = 'regular', onSuccess }: SinglePageQuoteFormProps) => {
-  const [completedSections, setCompletedSections] = useState<Set<string>>(new Set());
+  const [currentStep, setCurrentStep] = useState(0);
+  const [direction, setDirection] = useState<'forward' | 'backward'>('forward');
+  const [isAnimating, setIsAnimating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submittedQuoteId, setSubmittedQuoteId] = useState<string | null>(null);
   const [eventData, setEventData] = useState<any>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const { trackFieldInteraction, trackFormSubmission } = useFormAnalytics({ 
     formType: variant === 'wedding' ? 'wedding_event' : 'regular_event' 
@@ -90,66 +95,106 @@ export const SinglePageQuoteForm = ({ variant = 'regular', onSuccess }: SinglePa
     },
   });
 
-  // Check if a section is complete
-  const checkSectionCompletion = useCallback(async (sectionId: string): Promise<boolean> => {
-    let fields: (keyof FormData)[] = [];
+  // Check if current step is valid
+  const validateCurrentStep = useCallback(async (): Promise<boolean> => {
+    const step = STEPS[currentStep];
+    if (!step.required && step.fields.length === 0) return true;
+    if (step.fields.length === 0) return true;
     
-    switch (sectionId) {
-      case 'contact-event':
-        fields = ['contact_name', 'email', 'phone', 'event_name', 'event_type', 'event_date', 'start_time', 'guest_count', 'location'];
-        break;
-      case 'service':
-        fields = ['service_type'];
-        break;
-      case 'menu':
-      case 'additional':
-        return true; // Optional sections
-      default:
-        return false;
+    const isValid = await form.trigger(step.fields as (keyof FormData)[]);
+    return isValid;
+  }, [currentStep, form]);
+
+  // Check if step can proceed (has valid data or is optional)
+  const canProceed = useCallback((): boolean => {
+    const step = STEPS[currentStep];
+    if (!step.required) return true;
+    
+    const values = form.getValues();
+    return step.fields.every(field => {
+      const value = values[field as keyof FormData];
+      if (typeof value === 'string') return value.trim().length > 0;
+      if (typeof value === 'number') return value > 0;
+      if (Array.isArray(value)) return true; // Arrays are optional
+      return !!value;
+    });
+  }, [currentStep, form]);
+
+  // Navigate to next step
+  const handleNext = useCallback(async () => {
+    if (isAnimating) return;
+    
+    const isValid = await validateCurrentStep();
+    if (!isValid && STEPS[currentStep].required) {
+      toast({
+        title: "Please complete this step",
+        description: "Fill in all required fields before continuing.",
+        variant: "destructive",
+      });
+      return;
     }
 
-    const isValid = await form.trigger(fields);
-    return isValid;
-  }, [form]);
+    if (currentStep < STEPS.length - 1) {
+      setDirection('forward');
+      setIsAnimating(true);
+      setTimeout(() => {
+        setCurrentStep(prev => prev + 1);
+        setIsAnimating(false);
+        containerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 200);
+    }
+  }, [currentStep, isAnimating, validateCurrentStep, toast]);
 
-  // Track section completion
+  // Navigate to previous step
+  const handleBack = useCallback(() => {
+    if (isAnimating || currentStep === 0) return;
+    
+    setDirection('backward');
+    setIsAnimating(true);
+    setTimeout(() => {
+      setCurrentStep(prev => prev - 1);
+      setIsAnimating(false);
+      containerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 200);
+  }, [currentStep, isAnimating]);
+
+  // Keyboard navigation
   useEffect(() => {
-    const subscription = form.watch(async (value, { name }) => {
-      if (!name) return;
-
-      // Determine which section the changed field belongs to
-      let currentSection = '';
-      if (['contact_name', 'email', 'phone', 'event_name', 'event_type', 'event_date', 'start_time', 'guest_count', 'location'].includes(name)) {
-        currentSection = 'contact-event';
-      } else if (name === 'service_type') {
-        currentSection = 'service';
-      }
-
-      if (currentSection) {
-        const isComplete = await checkSectionCompletion(currentSection);
-        
-        if (isComplete) {
-          setCompletedSections(prev => new Set(prev).add(currentSection));
-        } else {
-          setCompletedSections(prev => {
-            const newSet = new Set(prev);
-            newSet.delete(currentSection);
-            return newSet;
-          });
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLTextAreaElement) return;
+      if (e.target instanceof HTMLInputElement && e.target.type !== 'checkbox') {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          handleNext();
         }
+        return;
       }
-    });
+      
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleNext();
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        handleBack();
+      }
+    };
 
-    return () => subscription.unsubscribe();
-  }, [form, checkSectionCompletion]);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleNext, handleBack]);
 
-  const onSubmit = async (data: FormData) => {
+  const onSubmit = async () => {
     if (isSubmitting) return;
     
+    const data = form.getValues();
     const validationResult = await form.trigger();
     const errors = form.formState.errors;
     
-    if (Object.keys(errors).length > 0 || !validationResult) {
+    // Only check required fields
+    const requiredFields = ['contact_name', 'email', 'phone', 'event_name', 'event_type', 'event_date', 'start_time', 'guest_count', 'location', 'service_type'];
+    const hasRequiredErrors = requiredFields.some(field => errors[field as keyof typeof errors]);
+    
+    if (hasRequiredErrors) {
       toast({
         title: "Please Fix Form Errors",
         description: "Some required fields are missing or invalid.",
@@ -274,98 +319,119 @@ export const SinglePageQuoteForm = ({ variant = 'regular', onSuccess }: SinglePa
     return <SuccessStep estimatedCost={null} quoteId={submittedQuoteId} eventData={eventData} />;
   }
 
-  const progress = (completedSections.size / SECTIONS.filter(s => s.required).length) * 100;
+  const renderStep = () => {
+    const animationClass = isAnimating
+      ? direction === 'forward'
+        ? 'animate-slide-out-left'
+        : 'animate-slide-out-right'
+      : direction === 'forward'
+        ? 'animate-slide-in-right'
+        : 'animate-slide-in-left';
 
-  return (
-    <div className="space-y-8 max-w-4xl mx-auto">
-      <FormProgressBar 
-        progress={progress} 
-        completedCount={completedSections.size}
-        totalCount={SECTIONS.filter(s => s.required).length}
-      />
-
-      <FormProvider {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-12">
-          {/* Section 1: Event & Contact Information */}
-          <div className="space-y-6">
-            <FormSectionHeader
-              icon={Calendar}
-              title="Event & Contact Information"
-              isComplete={completedSections.has('contact-event')}
-              isRequired
-            />
-            <div className="pl-14">
-              <ContactAndEventStep form={form} trackFieldInteraction={trackFieldInteraction} variant={variant} />
-            </div>
-            <Separator className="my-8" />
-          </div>
-
-          {/* Section 2: Service Type */}
-          <div className="space-y-6">
-            <FormSectionHeader
-              icon={ChefHat}
-              title="Service Type"
-              isComplete={completedSections.has('service')}
-              isRequired
-            />
-            <div className="pl-14">
+    const content = (() => {
+      switch (currentStep) {
+        case 0:
+          return <ContactInfoStep form={form} trackFieldInteraction={trackFieldInteraction} />;
+        case 1:
+          return <EventDetailsStep form={form} trackFieldInteraction={trackFieldInteraction} variant={variant} />;
+        case 2:
+          return (
+            <div className="w-full max-w-lg mx-auto">
+              <div className="text-center mb-8">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
+                  <ChefHat className="h-8 w-8 text-primary" />
+                </div>
+                <h2 className="text-2xl font-elegant font-semibold">Choose your service type</h2>
+                <p className="text-muted-foreground mt-2">Select how you'd like us to cater your event</p>
+              </div>
               <ServiceSelectionStep form={form} trackFieldInteraction={trackFieldInteraction} />
             </div>
-            <Separator className="my-8" />
-          </div>
-
-          {/* Section 3: Menu Selection */}
-          <div className="space-y-6">
-            <FormSectionHeader
-              icon={UtensilsCrossed}
-              title="Menu Selection"
-              isComplete={completedSections.has('menu')}
-              isRequired={false}
-            />
-            <div className="pl-14">
+          );
+        case 3:
+          return (
+            <div className="w-full max-w-2xl mx-auto">
+              <div className="text-center mb-8">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
+                  <UtensilsCrossed className="h-8 w-8 text-primary" />
+                </div>
+                <h2 className="text-2xl font-elegant font-semibold">Build your menu</h2>
+                <p className="text-muted-foreground mt-2">Select proteins, sides, and extras for your guests</p>
+              </div>
               <MenuSelectionStep form={form} trackFieldInteraction={trackFieldInteraction} variant={variant} />
             </div>
-            <Separator className="my-8" />
-          </div>
-
-          {/* Section 4: Additional Information */}
-          <div className="space-y-6">
-            <FormSectionHeader
-              icon={FileText}
-              title="Additional Information"
-              isComplete={completedSections.has('additional')}
-              isRequired={false}
-            />
-            <div className="pl-14">
-              <FinalStep form={form} variant={variant} />
+          );
+        case 4:
+          return <SuppliesStep form={form} variant={variant} />;
+        case 5:
+          return (
+            <div className="w-full max-w-lg mx-auto">
+              <div className="text-center mb-8">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
+                  <ClipboardCheck className="h-8 w-8 text-primary" />
+                </div>
+                <h2 className="text-2xl font-elegant font-semibold">Review your request</h2>
+                <p className="text-muted-foreground mt-2">Make sure everything looks good before submitting</p>
+              </div>
+              <ReviewSummaryCard form={form} variant={variant} />
             </div>
-          </div>
+          );
+        default:
+          return null;
+      }
+    })();
 
-          {/* Review Summary */}
-          <ReviewSummaryCard form={form} variant={variant} />
+    return (
+      <div 
+        key={currentStep}
+        className={cn("w-full", animationClass)}
+      >
+        {content}
+      </div>
+    );
+  };
 
-          {/* Submit Button */}
-          <div className="flex justify-center pt-6">
-            <Button
-              type="submit"
-              disabled={isSubmitting || completedSections.size < SECTIONS.filter(s => s.required).length}
-              className="gap-2 min-w-[280px] h-14 text-lg bg-gradient-primary hover:opacity-90"
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                  Submitting Your Request...
-                </>
-              ) : (
-                <>
-                  <Check className="h-5 w-5" />
-                  Submit Quote Request
-                </>
-              )}
-            </Button>
-          </div>
-        </form>
-      </FormProvider>
+  return (
+    <div className="min-h-[80vh] flex flex-col">
+      {/* Progress */}
+      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm py-4 border-b">
+        <div className="max-w-2xl mx-auto px-4">
+          <StepProgress 
+            currentStep={currentStep}
+            totalSteps={STEPS.length}
+            stepTitles={STEPS.map(s => s.title)}
+          />
+        </div>
+      </div>
+
+      {/* Step Content */}
+      <div 
+        ref={containerRef}
+        className="flex-1 overflow-y-auto py-8 px-4"
+      >
+        <FormProvider {...form}>
+          <Form {...form}>
+            <form onSubmit={(e) => e.preventDefault()} className="min-h-full flex flex-col">
+              <div className="flex-1 flex items-start justify-center">
+                {renderStep()}
+              </div>
+            </form>
+          </Form>
+        </FormProvider>
+      </div>
+
+      {/* Navigation */}
+      <div className="sticky bottom-0 z-10 bg-background/95 backdrop-blur-sm py-4 px-4 border-t">
+        <StepNavigation
+          currentStep={currentStep}
+          totalSteps={STEPS.length}
+          onNext={handleNext}
+          onBack={handleBack}
+          onSubmit={onSubmit}
+          isSubmitting={isSubmitting}
+          canProceed={canProceed()}
+          isOptionalStep={!STEPS[currentStep].required}
+        />
+      </div>
     </div>
   );
 };
