@@ -70,26 +70,23 @@ const MenuSelectionStepComponent = ({ form, trackFieldInteraction, variant = 're
   ];
 
   const WEDDING_PROTEINS = [
-    // Premium Poultry
-    { id: "herb-roasted-chicken", name: "Herb-Roasted Chicken Breast", isPopular: true, category: "Poultry" },
-    { id: "chicken-marsala", name: "Chicken Marsala", isPopular: true, category: "Poultry" },
-    { id: "stuffed-chicken", name: "Stuffed Chicken Breast", isPremium: true, category: "Poultry" },
-    { id: "cornish-hen", name: "Cornish Hen", isPremium: true, category: "Poultry" },
+    // Smoked & BBQ
+    { id: "applewood-herb-chicken", name: "Applewood-Smoked Herb Chicken", isPopular: true, category: "Smoked" },
+    { id: "hickory-beef-brisket", name: "Hickory-Smoked Beef Brisket", isPopular: true, category: "Smoked" },
+    { id: "pulled-pork-shoulder", name: "Hand-Pulled Smoked Pork Shoulder", category: "Smoked" },
+    { id: "honey-glazed-ribs", name: "Honey-Glazed Ribs", category: "Smoked" },
     
-    // Premium Beef
-    { id: "filet-mignon", name: "Filet Mignon", isPremium: true, isPopular: true, category: "Beef" },
-    { id: "beef-wellington", name: "Beef Wellington", isPremium: true, category: "Beef" },
-    { id: "prime-rib", name: "Prime Rib", isPremium: true, isPopular: true, category: "Beef" },
-    { id: "ribeye-steak", name: "Ribeye Steak", isPremium: true, category: "Beef" },
-    { id: "short-ribs", name: "Braised Short Ribs", isPremium: true, category: "Beef" },
+    // Premium Entrées
+    { id: "honey-bourbon-ham", name: "Glazed Honey-Bourbon Ham", category: "Premium" },
+    { id: "lemon-honey-salmon", name: "Lemon-Honey Seared Salmon", isPremium: true, category: "Seafood" },
+    { id: "cajun-turkey-wings", name: "Cajun Slow Cooked Turkey Wings", category: "Premium" },
+    { id: "smothered-pork-chops", name: "Smothered Pork Chops", category: "Premium" },
     
-    // Premium Seafood
-    { id: "lobster-tail", name: "Lobster Tail", isPremium: true, isPopular: true, category: "Seafood" },
-    { id: "crab-cakes", name: "Jumbo Lump Crab Cakes", isPremium: true, isPopular: true, category: "Seafood" },
-    { id: "grilled-salmon", name: "Grilled Salmon", isPremium: true, category: "Seafood" },
-    { id: "shrimp-scampi", name: "Shrimp Scampi", isPremium: true, category: "Seafood" },
-    { id: "seafood-medley", name: "Seafood Medley", isPremium: true, category: "Seafood" },
-    { id: "sea-bass", name: "Chilean Sea Bass", isPremium: true, category: "Seafood" },
+    // Classic Southern
+    { id: "buttermilk-fried-chicken", name: "Buttermilk Fried Chicken", isPopular: true, category: "Southern" },
+    { id: "glazed-meatloaf", name: "Homestyle Glazed Meatloaf", category: "Southern" },
+    { id: "fettuccine-alfredo", name: "Creamy Fettuccine Alfredo", category: "Pasta" },
+    { id: "lowcountry-boil", name: "Signature Lowcountry Boil", isPremium: true, category: "Seafood" },
   ];
 
   // Vegetarian entrée options - separated from main proteins
