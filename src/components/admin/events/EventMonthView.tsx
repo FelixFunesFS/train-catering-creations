@@ -14,9 +14,11 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
 import { Database } from '@/integrations/supabase/types';
-import { MapPin, Phone } from 'lucide-react';
-import { formatLocationLink, formatPhoneLink } from '@/utils/linkFormatters';
+import { ArrowLeft } from 'lucide-react';
+import { EventSummaryPanel } from './EventSummaryPanel';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 
 type QuoteRequest = Database['public']['Tables']['quote_requests']['Row'];
 
@@ -50,7 +52,9 @@ const statusDotColors: Record<string, string> = {
 
 export function EventMonthView({ events, currentDate, onEventClick }: EventMonthViewProps) {
   const navigate = useNavigate();
+  const isDesktop = useMediaQuery('(min-width: 1024px)');
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<EventWithInvoice | null>(null);
 
   // Generate calendar grid
   const calendarDays = useMemo(() => {
@@ -93,6 +97,17 @@ export function EventMonthView({ events, currentDate, onEventClick }: EventMonth
   }, [selectedDate, eventsByDate]);
 
   const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+  const handleViewFull = () => {
+    if (selectedEvent) {
+      if (isDesktop) {
+        navigate(`/admin/event/${selectedEvent.id}`);
+      } else {
+        onEventClick(selectedEvent);
+      }
+      setSelectedEvent(null);
+    }
+  };
 
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_300px]">
@@ -169,83 +184,78 @@ export function EventMonthView({ events, currentDate, onEventClick }: EventMonth
       </div>
 
       {/* Selected Day Events Panel */}
-      <div className="bg-card rounded-lg border p-4">
-        <h3 className="font-semibold mb-3">
-          {selectedDate 
-            ? format(selectedDate, 'EEEE, MMMM d')
-            : 'Select a day'
-          }
-        </h3>
-        
-        <ScrollArea className="h-[400px]">
-          {selectedDate ? (
-            selectedDayEvents.length > 0 ? (
-              <div className="space-y-2 pr-2">
-                {selectedDayEvents.map((event) => (
-                  <div
-                    key={event.id}
-                    onClick={() => onEventClick(event)}
-                    className="p-3 rounded-lg border bg-muted/20 cursor-pointer hover:bg-muted/40 transition-colors"
-                  >
-                    <div className="flex items-start justify-between gap-2 mb-1">
-                      <p className="font-medium text-sm">{event.contact_name}</p>
-                      <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${
-                        statusDotColors[event.workflow_status] || 'bg-gray-400'
-                      }`} />
-                    </div>
-                    <p className="text-xs text-muted-foreground mb-1">{event.event_name}</p>
-                    
-                    {/* Contact info with clickable links */}
-                    <div className="space-y-1 mt-2">
-                      {event.phone && (
-                        <a 
-                          href={formatPhoneLink(event.phone) || '#'}
-                          onClick={(e) => e.stopPropagation()}
-                          className="flex items-center gap-1 text-xs text-primary hover:underline"
-                          aria-label="Call customer"
-                        >
-                          <Phone className="h-3 w-3" />
-                          {event.phone}
-                        </a>
-                      )}
-                      {event.location && (
-                        <a 
-                          href={formatLocationLink(event.location) || '#'}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(e) => e.stopPropagation()}
-                          className="flex items-center gap-1 text-xs text-primary hover:underline"
-                          aria-label="Open in Maps"
-                        >
-                          <MapPin className="h-3 w-3 flex-shrink-0" />
-                          <span className="truncate">{event.location}</span>
-                        </a>
-                      )}
-                    </div>
-                    
-                    <div className="flex items-center gap-3 text-xs text-muted-foreground mt-2">
-                      <span>{event.start_time?.slice(0, 5) || 'TBD'}</span>
-                      <span>{event.guest_count} guests</span>
-                    </div>
-                    {event.invoice && (
-                      <Badge variant="outline" className="mt-2 text-xs">
-                        ${(event.invoice.total_amount / 100).toLocaleString()}
-                      </Badge>
-                    )}
+      <div className="bg-card rounded-lg border overflow-hidden">
+        {selectedEvent ? (
+          /* Show full event summary */
+          <EventSummaryPanel 
+            event={selectedEvent} 
+            onClose={() => setSelectedEvent(null)}
+            onViewFull={handleViewFull}
+          />
+        ) : (
+          /* Show day's event list */
+          <div className="p-4">
+            <div className="flex items-center gap-2 mb-3">
+              {selectedDate && selectedDayEvents.length > 0 && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6"
+                  onClick={() => setSelectedDate(null)}
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
+              )}
+              <h3 className="font-semibold">
+                {selectedDate 
+                  ? format(selectedDate, 'EEEE, MMMM d')
+                  : 'Select a day'
+                }
+              </h3>
+            </div>
+            
+            <ScrollArea className="h-[400px]">
+              {selectedDate ? (
+                selectedDayEvents.length > 0 ? (
+                  <div className="space-y-2 pr-2">
+                    {selectedDayEvents.map((event) => (
+                      <div
+                        key={event.id}
+                        onClick={() => setSelectedEvent(event)}
+                        className="p-3 rounded-lg border bg-muted/20 cursor-pointer hover:bg-muted/40 transition-colors"
+                      >
+                        <div className="flex items-start justify-between gap-2 mb-1">
+                          <p className="font-medium text-sm">{event.contact_name}</p>
+                          <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${
+                            statusDotColors[event.workflow_status] || 'bg-gray-400'
+                          }`} />
+                        </div>
+                        <p className="text-xs text-muted-foreground">{event.event_name}</p>
+                        <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
+                          <span>{event.start_time?.slice(0, 5) || 'TBD'}</span>
+                          <span>{event.guest_count} guests</span>
+                        </div>
+                        {event.invoice && (
+                          <Badge variant="outline" className="mt-2 text-xs">
+                            ${(event.invoice.total_amount / 100).toLocaleString()}
+                          </Badge>
+                        )}
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-muted-foreground text-center py-8">
-                No events on this day
-              </p>
-            )
-          ) : (
-            <p className="text-sm text-muted-foreground text-center py-8">
-              Click a day to see events
-            </p>
-          )}
-        </ScrollArea>
+                ) : (
+                  <p className="text-sm text-muted-foreground text-center py-8">
+                    No events on this day
+                  </p>
+                )
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-8">
+                  Click a day to see events
+                </p>
+              )}
+            </ScrollArea>
+          </div>
+        )}
       </div>
     </div>
   );

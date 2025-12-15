@@ -14,6 +14,7 @@ interface LineItemEditorProps {
   onDescriptionChange?: (description: string) => void;
   onDelete?: () => void;
   isUpdating?: boolean;
+  readOnly?: boolean;
 }
 
 function formatCents(cents: number): string {
@@ -26,7 +27,8 @@ export function LineItemEditor({
   onQuantityChange,
   onDescriptionChange,
   onDelete,
-  isUpdating 
+  isUpdating,
+  readOnly = false
 }: LineItemEditorProps) {
   const [priceInput, setPriceInput] = useState(formatCents(item.unit_price));
   const [quantityInput, setQuantityInput] = useState(item.quantity.toString());
@@ -81,6 +83,38 @@ export function LineItemEditor({
   };
 
   const totalCents = item.quantity * (parseFloat(priceInput) * 100 || 0);
+
+  const totalCentsCalculated = item.quantity * item.unit_price;
+
+  // Read-only display mode
+  if (readOnly) {
+    return (
+      <div className="flex flex-col sm:flex-row sm:items-start gap-3 p-3 bg-muted/30 rounded-lg border">
+        <div className="flex-1 min-w-0 space-y-1">
+          <p className="font-medium text-sm">{item.title || item.category}</p>
+          {item.description && (
+            <p className="text-xs text-muted-foreground whitespace-pre-wrap">
+              {item.description}
+            </p>
+          )}
+        </div>
+        <div className="flex items-end gap-4 text-sm">
+          <div className="text-center">
+            <p className="text-xs text-muted-foreground">Qty</p>
+            <p className="font-medium">{item.quantity}</p>
+          </div>
+          <div className="text-center">
+            <p className="text-xs text-muted-foreground">Unit</p>
+            <p className="font-medium">${formatCents(item.unit_price)}</p>
+          </div>
+          <div className="text-right min-w-[70px]">
+            <p className="text-xs text-muted-foreground">Total</p>
+            <p className="font-semibold">${formatCents(totalCentsCalculated)}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col sm:flex-row sm:items-start gap-3 p-3 bg-muted/30 rounded-lg border group">

@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { useQuotes } from '@/hooks/useQuotes';
 import { useQuery } from '@tanstack/react-query';
@@ -17,6 +17,7 @@ import { EventDetail } from './EventDetail';
 import { EventWeekView } from './EventWeekView';
 import { EventMonthView } from './EventMonthView';
 import { DateNavigation } from './DateNavigation';
+import { EventFilters, StatusFilter, ServiceTypeFilter, SortBy, SortOrder } from './EventFilters';
 import { Database } from '@/integrations/supabase/types';
 
 type QuoteRequest = Database['public']['Tables']['quote_requests']['Row'];
@@ -107,21 +108,64 @@ export function EventList() {
   const [selectedQuote, setSelectedQuote] = useState<QuoteRequest | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [currentDate, setCurrentDate] = useState(new Date());
+  
+  // Filter & Sort state
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [serviceTypeFilter, setServiceTypeFilter] = useState<ServiceTypeFilter>('all');
+  const [sortBy, setSortBy] = useState<SortBy>('date');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
+  
   const navigate = useNavigate();
   const isDesktop = useMediaQuery('(min-width: 1024px)');
   
   const { data: quotes, isLoading: quotesLoading, error: quotesError } = useQuotes({ search: search || undefined });
   const { data: invoices, isLoading: invoicesLoading } = useRawInvoices();
 
-  // Join quotes with their invoices
+  // Join quotes with their invoices and apply filters/sorting
   const eventsWithInvoices = useMemo((): EventWithInvoice[] => {
     if (!quotes) return [];
     
-    return quotes.map(quote => ({
+    let result = quotes.map(quote => ({
       ...quote,
       invoice: invoices?.find(inv => inv.quote_request_id === quote.id) || null,
     }));
-  }, [quotes, invoices]);
+
+    // Apply status filter
+    if (statusFilter !== 'all') {
+      const statusMap: Record<StatusFilter, string[]> = {
+        all: [],
+        pending: ['pending', 'under_review'],
+        confirmed: ['confirmed', 'approved', 'quoted', 'estimated'],
+        completed: ['completed'],
+        cancelled: ['cancelled'],
+      };
+      result = result.filter(e => statusMap[statusFilter].includes(e.workflow_status));
+    }
+
+    // Apply service type filter
+    if (serviceTypeFilter !== 'all') {
+      result = result.filter(e => e.service_type === serviceTypeFilter);
+    }
+
+    // Apply sorting
+    result.sort((a, b) => {
+      let comparison = 0;
+      switch (sortBy) {
+        case 'date':
+          comparison = parseISO(a.event_date).getTime() - parseISO(b.event_date).getTime();
+          break;
+        case 'name':
+          comparison = a.contact_name.localeCompare(b.contact_name);
+          break;
+        case 'total':
+          comparison = (a.invoice?.total_amount || 0) - (b.invoice?.total_amount || 0);
+          break;
+      }
+      return sortOrder === 'asc' ? comparison : -comparison;
+    });
+
+    return result;
+  }, [quotes, invoices, statusFilter, serviceTypeFilter, sortBy, sortOrder]);
 
   const isLoading = quotesLoading || invoicesLoading;
   const isMobile = useMediaQuery('(max-width: 640px)');
@@ -185,6 +229,20 @@ export function EventList() {
             currentDate={currentDate} 
             viewMode={viewMode} 
             onDateChange={setCurrentDate} 
+          />
+        )}
+
+        {/* Filters (only for list view) */}
+        {viewMode === 'list' && (
+          <EventFilters
+            statusFilter={statusFilter}
+            setStatusFilter={setStatusFilter}
+            serviceTypeFilter={serviceTypeFilter}
+            setServiceTypeFilter={setServiceTypeFilter}
+            sortBy={sortBy}
+            setSortBy={setSortBy}
+            sortOrder={sortOrder}
+            setSortOrder={setSortOrder}
           />
         )}
 
