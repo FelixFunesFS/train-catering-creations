@@ -56,6 +56,9 @@ export interface QuoteRequest {
   napkins_requested?: boolean;
   serving_utensils_requested?: boolean;
   ice_requested?: boolean;
+  // Wedding-specific fields
+  ceremony_included?: boolean;
+  cocktail_hour?: boolean;
 }
 
 // Professional name formatting (re-export from textFormatters)
@@ -303,6 +306,14 @@ export const generateProfessionalLineItems = (quote: QuoteRequest): LineItem[] =
   }
   if (quote.bussing_tables_needed) {
     lineItems.push(createServiceAddon('Table Bussing Service', 'Professional table clearing and maintenance during event', 'bussing_tables_needed'));
+  }
+
+  // Wedding-specific services
+  if (quote.ceremony_included) {
+    lineItems.push(createServiceAddon('Ceremony Catering Service', 'On-site catering support during wedding ceremony', 'ceremony_included'));
+  }
+  if (quote.cocktail_hour) {
+    lineItems.push(createServiceAddon('Cocktail Hour Service', 'Beverage and appetizer service during cocktail hour', 'cocktail_hour'));
   }
 
   // CONSOLIDATED SUPPLY & EQUIPMENT PACKAGE
