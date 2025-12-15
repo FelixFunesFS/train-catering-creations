@@ -912,11 +912,11 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
 
       {/* Customer Edit Dialog */}
       <Dialog open={showCustomerEdit} onOpenChange={setShowCustomerEdit}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Customer & Event Details</DialogTitle>
           </DialogHeader>
-          <CustomerEditor 
+          <CustomerEditor
             quote={quote} 
             onSave={() => {
               setShowCustomerEdit(false);
@@ -928,11 +928,11 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
 
       {/* Menu Edit Dialog */}
       <Dialog open={showMenuEdit} onOpenChange={setShowMenuEdit}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Menu Selections</DialogTitle>
           </DialogHeader>
-          <MenuEditorInline 
+          <MenuEditorInline
             quote={quote}
             invoiceId={invoice?.id}
             onSave={() => {
