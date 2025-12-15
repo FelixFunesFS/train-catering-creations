@@ -71,7 +71,8 @@ export const ReviewStep = ({ form, estimatedCost }: ReviewStepProps) => {
       weekday: 'long', 
       year: 'numeric', 
       month: 'long', 
-      day: 'numeric' 
+      day: 'numeric',
+      timeZone: 'America/New_York',
     });
   };
 
@@ -81,7 +82,7 @@ export const ReviewStep = ({ form, estimatedCost }: ReviewStepProps) => {
     const hour = parseInt(hours);
     const ampm = hour >= 12 ? 'PM' : 'AM';
     const displayHour = hour % 12 || 12;
-    return `${displayHour}:${minutes} ${ampm}`;
+    return `${displayHour}:${minutes} ${ampm} ET`;
   };
 
   const getSelectedItems = (category: string) => {

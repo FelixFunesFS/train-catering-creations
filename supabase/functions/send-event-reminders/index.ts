@@ -63,11 +63,11 @@ serve(async (req) => {
         subject = `Your Event with Soul Train's Eatery is Coming Up!`;
         body = `
           <h2>Hello ${event.contact_name},</h2>
-          <p>Your event <strong>"${event.event_name}"</strong> is coming up in one week on ${new Date(event.event_date).toLocaleDateString()}!</p>
+          <p>Your event <strong>"${event.event_name}"</strong> is coming up in one week on ${new Date(event.event_date).toLocaleDateString('en-US', { timeZone: 'America/New_York', weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}!</p>
           
           <h3>Event Details:</h3>
           <ul>
-            <li><strong>Date:</strong> ${new Date(event.event_date).toLocaleDateString()}</li>
+            <li><strong>Date:</strong> ${new Date(event.event_date).toLocaleDateString('en-US', { timeZone: 'America/New_York', weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</li>
             <li><strong>Time:</strong> ${event.start_time || 'TBD'}</li>
             <li><strong>Location:</strong> ${event.location}</li>
             <li><strong>Guest Count:</strong> ${event.guest_count}</li>
@@ -91,7 +91,7 @@ serve(async (req) => {
           
           <h3>Final Event Details:</h3>
           <ul>
-            <li><strong>Date:</strong> ${new Date(event.event_date).toLocaleDateString()}</li>
+            <li><strong>Date:</strong> ${new Date(event.event_date).toLocaleDateString('en-US', { timeZone: 'America/New_York', weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</li>
             <li><strong>Service Start:</strong> ${event.start_time || 'TBD'}</li>
             <li><strong>Location:</strong> ${event.location}</li>
             <li><strong>Guests:</strong> ${event.guest_count}</li>

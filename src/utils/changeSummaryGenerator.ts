@@ -54,13 +54,14 @@ const SOURCE_LABELS: Record<ChangeSource, string> = {
 };
 
 /**
- * Format a date for display in summaries
+ * Format a date for display in summaries (Eastern Time)
  */
 function formatDate(): string {
   return new Date().toLocaleDateString('en-US', {
     month: 'numeric',
     day: 'numeric',
     year: '2-digit',
+    timeZone: 'America/New_York',
   });
 }
 

@@ -40,6 +40,7 @@ export const formatDate = (dateStr: string | null): string => {
     month: 'long',
     day: 'numeric',
     year: 'numeric',
+    timeZone: 'America/New_York',
   });
 };
 
@@ -50,7 +51,7 @@ export const formatTime = (timeStr: string | null): string => {
     const hour = parseInt(hours, 10);
     const ampm = hour >= 12 ? 'PM' : 'AM';
     const displayHour = hour % 12 || 12;
-    return `${displayHour}:${minutes} ${ampm}`;
+    return `${displayHour}:${minutes} ${ampm} ET`;
   } catch {
     return timeStr;
   }

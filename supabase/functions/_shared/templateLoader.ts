@@ -84,7 +84,7 @@ export function formatCurrency(cents: number): string {
 }
 
 /**
- * Format date for display
+ * Format date for display (Eastern Time)
  */
 export function formatDate(dateString: string): string {
   const date = new Date(dateString);
@@ -92,7 +92,8 @@ export function formatDate(dateString: string): string {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
-    day: 'numeric'
+    day: 'numeric',
+    timeZone: 'America/New_York',
   });
 }
 
