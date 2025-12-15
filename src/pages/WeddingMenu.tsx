@@ -1,30 +1,14 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CTASection } from "@/components/ui/cta-section";
-import { useScrollAnimation } from "@/hooks/useScrollAnimation";
-import { useAnimationClass } from "@/hooks/useAnimationClass";
-import { CollapsibleMenuSection } from "@/components/wedding/CollapsibleMenuSection";
+import { ElegantMenuSection } from "@/components/wedding/ElegantMenuSection";
+import { ElegantServiceCard } from "@/components/wedding/ElegantServiceCard";
+import { MenuDivider } from "@/components/wedding/MenuDivider";
 import { MobileMenuNavigation } from "@/components/wedding/MobileMenuNavigation";
 import { QuickActionButton } from "@/components/wedding/QuickActionButton";
 import { WeddingMenuSplitHero } from "@/components/wedding/WeddingMenuSplitHero";
 import { MobileWeddingTaglineSection } from "@/components/wedding/MobileWeddingTaglineSection";
-const WeddingMenu = () => {
-  const {
-    ref: eventCardsRef,
-    isVisible: eventCardsVisible,
-    variant: eventCardsVariant
-  } = useScrollAnimation({
-    variant: 'fade-up',
-    delay: 200,
-    mobile: {
-      delay: 150
-    },
-    desktop: {
-      delay: 250
-    }
-  });
-  const eventCardsAnimationClass = useAnimationClass(eventCardsVariant, eventCardsVisible);
 
-  // Menu data organized for mobile-first approach
+const WeddingMenu = () => {
+  // Menu data organized for elegant presentation
   const appetizers = [{
     title: "Fresh Local Fruit Platter",
     description: "An elegant arrangement of the season's finest locally sourced fruits, artfully displayed for visual and flavorful delight.",
@@ -85,6 +69,7 @@ const WeddingMenu = () => {
     description: "Delicate smoked salmon served on crisp cucumber slices, finished with dill-infused cream cheese.",
     delay: 1500
   }];
+
   const entrees = [{
     title: "Applewood-Smoked Herb Chicken",
     description: "Juicy chicken smoked over applewood, infused with aromatic herbs for tender, flavorful depth.",
@@ -137,6 +122,7 @@ const WeddingMenu = () => {
     description: "A coastal celebration of shrimp, sausage, corn, and potatoes, simmered in bold, aromatic spices.",
     delay: 1300
   }];
+
   const sides = [{
     title: "Creamy Southern Macaroni & Cheese",
     description: "Baked to perfection in a rich, velvety blend of fine cheeses.",
@@ -180,7 +166,25 @@ const WeddingMenu = () => {
     description: "A colorful assortment of farm-fresh vegetables sautéed and lightly seasoned to perfection.",
     delay: 1100
   }];
-  return <div className="min-h-screen bg-gradient-hero">
+
+  const premiumServiceItems = [
+    "Elegant presentation and professional service staff",
+    "Custom menu design for dietary restrictions",
+    "Full-service setup and cleanup",
+    "ServSafe certified food handling",
+    "Coordination with your event planner"
+  ];
+
+  const specialtyOptions = [
+    "Cocktail hour hors d'oeuvres and canapés",
+    "Multi-course plated dinners",
+    "Elegant buffet presentations",
+    "Tanya's custom wedding desserts",
+    "Late-night snack stations"
+  ];
+
+  return (
+    <div className="min-h-screen bg-background">
       <MobileMenuNavigation />
       <QuickActionButton />
       
@@ -190,125 +194,90 @@ const WeddingMenu = () => {
       {/* Mobile Tagline Section */}
       <MobileWeddingTaglineSection />
       
-      
-
-      <section className="py-6 sm:py-8 lg:py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="space-y-12 lg:space-y-16">
-            <CollapsibleMenuSection id="appetizers" title="Hors d'Oeuvres & Small Bites" subtitle="Artfully crafted starters to elevate cocktail hours and refined gatherings" items={appetizers} defaultExpanded={false} />
+      {/* Elegant Menu Container */}
+      <div className="relative">
+        {/* Subtle paper texture background */}
+        <div className="absolute inset-0 bg-gradient-to-b from-muted/20 via-background to-muted/10 pointer-events-none" />
+        
+        {/* Menu Sections */}
+        <section className="relative py-12 md:py-20 lg:py-24">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             
-            <CollapsibleMenuSection id="entrees" title="Signature Entrées" subtitle="Premium proteins, thoughtfully prepared for elegant affairs" items={entrees} defaultExpanded={false} />
+            <ElegantMenuSection 
+              id="appetizers" 
+              title="Hors d'Oeuvres" 
+              subtitle="Artfully crafted starters to elevate cocktail hours and refined gatherings" 
+              items={appetizers} 
+              defaultExpanded={false} 
+            />
             
-            <CollapsibleMenuSection id="sides" title="Artful Accompaniments" subtitle="Side dishes that harmonize beautifully with your entrées" items={sides} defaultExpanded={false} />
+            <MenuDivider variant="ornamental" />
+            
+            <ElegantMenuSection 
+              id="entrees" 
+              title="Signature Entrées" 
+              subtitle="Premium proteins, thoughtfully prepared for elegant affairs" 
+              items={entrees} 
+              defaultExpanded={false} 
+            />
+            
+            <MenuDivider variant="ornamental" />
+            
+            <ElegantMenuSection 
+              id="sides" 
+              title="Artful Accompaniments" 
+              subtitle="Side dishes that harmonize beautifully with your entrées" 
+              items={sides} 
+              defaultExpanded={false} 
+            />
           </div>
-        </div>
-      </section>
+        </section>
 
-      <section className="py-6 sm:py-8 lg:py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
-            {(() => {
-            const {
-              ref: cardRef,
-              isVisible: cardVisible,
-              variant: cardVariant
-            } = useScrollAnimation({
-              variant: 'elastic',
-              delay: 0,
-              mobile: {
-                delay: 0
-              },
-              desktop: {
-                delay: 100
-              }
-            });
-            const cardAnimationClass = useAnimationClass(cardVariant, cardVisible);
-            return <Card ref={cardRef} className={`shadow-elegant ${cardAnimationClass}`}>
-                  <CardHeader>
-                    <CardTitle className="text-2xl font-elegant">Premium Service Features</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="flex items-start space-x-3">
-                      <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
-                      <span>Elegant presentation and professional service staff</span>
-                    </div>
-                    <div className="flex items-start space-x-3">
-                      <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
-                      <span>Custom menu design for dietary restrictions</span>
-                    </div>
-                    <div className="flex items-start space-x-3">
-                      <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
-                      <span>Full-service setup and cleanup</span>
-                    </div>
-                    <div className="flex items-start space-x-3">
-                      <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
-                      <span>ServSafe certified food handling</span>
-                    </div>
-                    <div className="flex items-start space-x-3">
-                      <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
-                      <span>Coordination with your event planner</span>
-                    </div>
-                  </CardContent>
-                </Card>;
-          })()}
-
-            {(() => {
-            const {
-              ref: cardRef,
-              isVisible: cardVisible,
-              variant: cardVariant
-            } = useScrollAnimation({
-              variant: 'elastic',
-              delay: 200,
-              mobile: {
-                delay: 150
-              },
-              desktop: {
-                delay: 250
-              }
-            });
-            const cardAnimationClass = useAnimationClass(cardVariant, cardVisible);
-            return <Card ref={cardRef} className={`shadow-elegant ${cardAnimationClass}`}>
-                  <CardHeader>
-                    <CardTitle className="text-2xl font-elegant">Specialty Options</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="flex items-start space-x-3">
-                      <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
-                      <span>Cocktail hour hors d'oeuvres and canapés</span>
-                    </div>
-                    <div className="flex items-start space-x-3">
-                      <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
-                      <span>Multi-course plated dinners</span>
-                    </div>
-                    <div className="flex items-start space-x-3">
-                      <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
-                      <span>Elegant buffet presentations</span>
-                    </div>
-                    <div className="flex items-start space-x-3">
-                      <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
-                      <span>Tanya's custom wedding desserts</span>
-                    </div>
-                    <div className="flex items-start space-x-3">
-                      <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
-                      <span>Late-night snack stations</span>
-                    </div>
-                  </CardContent>
-                </Card>;
-          })()}
+        {/* Service Cards Section */}
+        <section className="relative py-12 md:py-20 lg:py-24 bg-muted/10">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            {/* Section Header */}
+            <div className="text-center mb-12 md:mb-16">
+              <h2 className="font-script text-3xl sm:text-4xl md:text-5xl text-foreground mb-4">
+                Our Services
+              </h2>
+              <div className="flex justify-center">
+                <div className="w-16 md:w-24 h-px bg-gradient-to-r from-transparent via-primary/60 to-transparent" />
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 lg:gap-12">
+              <ElegantServiceCard 
+                title="Premium Service" 
+                items={premiumServiceItems}
+                delay={0}
+              />
+              <ElegantServiceCard 
+                title="Specialty Options" 
+                items={specialtyOptions}
+                delay={150}
+              />
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
 
-      <CTASection title="Create Your Perfect Wedding Menu" description="Let us design a custom menu that reflects your style and creates lasting memories for your special day." buttons={[{
-      text: "Call (843) 970-0265",
-      href: "tel:8439700265",
-      variant: "cta"
-    }, {
-      text: "Email for Quote",
-      href: "mailto:soultrainseatery@gmail.com",
-      variant: "cta-white"
-    }]} footer="Serving Charleston, SC and surrounding Lowcountry areas" />
-    </div>;
+      <CTASection 
+        title="Create Your Perfect Wedding Menu" 
+        description="Let us design a custom menu that reflects your style and creates lasting memories for your special day." 
+        buttons={[{
+          text: "Call (843) 970-0265",
+          href: "tel:8439700265",
+          variant: "cta"
+        }, {
+          text: "Email for Quote",
+          href: "mailto:soultrainseatery@gmail.com",
+          variant: "cta-white"
+        }]} 
+        footer="Serving Charleston, SC and surrounding Lowcountry areas" 
+      />
+    </div>
+  );
 };
+
 export default WeddingMenu;
