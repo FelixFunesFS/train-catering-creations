@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect, useRef } from 'react';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useInvoice, useUpdateInvoice, useInvoiceWithMilestones } from '@/hooks/useInvoices';
 import { useLineItems, useUpdateLineItem, useDeleteLineItem } from '@/hooks/useLineItems';
+import { useCustomLineItems } from '@/hooks/useCustomLineItems';
 import { useDebouncedInvoiceRefresh } from '@/hooks/useDebouncedInvoiceRefresh';
 import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
@@ -196,6 +197,7 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
   };
 
   const { data: lineItems, isLoading: loadingItems } = useLineItems(invoice?.id);
+  const { customItems, hasCustomItems } = useCustomLineItems(invoice?.id);
   const { data: currentInvoice } = useInvoice(invoice?.id);
   const updateLineItem = useUpdateLineItem();
   const deleteLineItem = useDeleteLineItem();
@@ -517,6 +519,26 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
           <div>
             <span className="text-muted-foreground text-xs uppercase tracking-wide">Beverages</span>
             <p className="font-medium">{formatMenuItems(quote?.drinks)}</p>
+          </div>
+        )}
+
+        {/* Other/Custom Items from Line Items */}
+        {hasCustomItems && (
+          <div className="border-l-2 border-indigo-500 pl-3 py-2 bg-indigo-50/50 dark:bg-indigo-950/20 rounded-r">
+            <span className="text-indigo-700 dark:text-indigo-400 text-xs uppercase tracking-wide flex items-center gap-1">
+              📦 Other Items
+            </span>
+            <div className="flex flex-wrap gap-1 mt-1">
+              {customItems.map((item) => (
+                <Badge 
+                  key={item.id} 
+                  variant="outline" 
+                  className="text-xs bg-indigo-100 text-indigo-700 border-indigo-300 dark:bg-indigo-900/30 dark:text-indigo-300 dark:border-indigo-600"
+                >
+                  {item.title || item.description}
+                </Badge>
+              ))}
+            </div>
           </div>
         )}
       </section>

@@ -14,9 +14,14 @@ interface AddLineItemModalProps {
 }
 
 const CATEGORIES = [
-  { value: 'food', label: 'Food' },
+  { value: 'food', label: 'Food Item' },
+  { value: 'appetizers', label: 'Appetizer' },
+  { value: 'sides', label: 'Side Dish' },
+  { value: 'desserts', label: 'Dessert' },
+  { value: 'beverages', label: 'Beverage' },
   { value: 'service', label: 'Service' },
   { value: 'equipment', label: 'Equipment' },
+  { value: 'supplies', label: 'Supplies' },
   { value: 'other', label: 'Other' },
 ];
 
