@@ -543,19 +543,52 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
         )}
       </section>
 
-      {/* Wedding Fields */}
-      {quote?.event_type === 'wedding' && (
+      {/* Service Add-ons - Consolidated section for all services */}
+      {(quote?.wait_staff_requested || quote?.bussing_tables_needed || quote?.ceremony_included || quote?.cocktail_hour) && (
+        <>
+          <Separator />
+          <section className="space-y-2">
+            <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-2">
+              <Users className="h-4 w-4" /> Service Add-ons
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {quote?.wait_staff_requested && (
+                <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-300">
+                  👨‍🍳 Wait Staff
+                </Badge>
+              )}
+              {quote?.bussing_tables_needed && (
+                <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/30 dark:text-purple-300">
+                  🧹 Table Bussing
+                </Badge>
+              )}
+              {quote?.ceremony_included && (
+                <Badge variant="outline" className="bg-pink-50 text-pink-700 border-pink-200 dark:bg-pink-950/30 dark:text-pink-300">
+                  💒 Ceremony Catering
+                </Badge>
+              )}
+              {quote?.cocktail_hour && (
+                <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-300">
+                  🍸 Cocktail Hour
+                </Badge>
+              )}
+            </div>
+            {quote?.wait_staff_requirements && (
+              <p className="text-sm text-muted-foreground italic">{quote.wait_staff_requirements}</p>
+            )}
+          </section>
+        </>
+      )}
+
+      {/* Wedding Theme Colors (if any) */}
+      {quote?.event_type === 'wedding' && quote?.theme_colors && (
         <>
           <Separator />
           <section className="space-y-2">
             <h3 className="text-sm font-medium text-pink-700 dark:text-pink-400 flex items-center gap-2">
               <Heart className="h-4 w-4" /> Wedding Details
             </h3>
-            <div className="flex flex-wrap gap-2">
-              {quote?.ceremony_included && <Badge variant="outline">💒 Ceremony Included</Badge>}
-              {quote?.cocktail_hour && <Badge variant="outline">🍸 Cocktail Hour</Badge>}
-              {quote?.theme_colors && <Badge variant="outline">🎨 {quote.theme_colors}</Badge>}
-            </div>
+            <Badge variant="outline" className="bg-pink-50 text-pink-700">🎨 {quote.theme_colors}</Badge>
           </section>
         </>
       )}

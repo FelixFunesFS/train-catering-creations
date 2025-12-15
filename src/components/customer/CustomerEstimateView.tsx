@@ -144,6 +144,35 @@ export function CustomerEstimateView() {
             )}
 
 
+            {/* Service Add-ons */}
+            {(quote.wait_staff_requested || quote.bussing_tables_needed || quote.ceremony_included || quote.cocktail_hour) && (
+              <div className="pt-3 border-t border-border">
+                <span className="text-sm text-muted-foreground block mb-2">🍽️ Services Included:</span>
+                <div className="flex flex-wrap gap-2">
+                  {quote.wait_staff_requested && (
+                    <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                      👨‍🍳 Wait Staff
+                    </Badge>
+                  )}
+                  {quote.bussing_tables_needed && (
+                    <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
+                      🧹 Table Bussing
+                    </Badge>
+                  )}
+                  {quote.ceremony_included && (
+                    <Badge variant="outline" className="bg-pink-50 text-pink-700 border-pink-200">
+                      💒 Ceremony Catering
+                    </Badge>
+                  )}
+                  {quote.cocktail_hour && (
+                    <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
+                      🍸 Cocktail Hour
+                    </Badge>
+                  )}
+                </div>
+              </div>
+            )}
+
             {quote.special_requests && (
               <div className="pt-2 border-t border-border">
                 <span className="text-sm text-muted-foreground">📝 Special Requests:</span>

@@ -582,6 +582,66 @@ export function generateEventDetailsCard(quote: any): string {
   `;
 }
 
+/**
+ * Generate a consolidated Service Add-ons section for emails
+ * Displays: Wait Staff, Table Bussing, Ceremony Catering, Cocktail Hour
+ */
+export function generateServiceAddonsSection(quote: any): string {
+  const services: { label: string; emoji: string; bgColor: string; textColor: string }[] = [];
+
+  if (quote.wait_staff_requested) {
+    services.push({ label: 'Wait Staff', emoji: '👨‍🍳', bgColor: '#dbeafe', textColor: '#1d4ed8' });
+  }
+  if (quote.bussing_tables_needed) {
+    services.push({ label: 'Table Bussing', emoji: '🧹', bgColor: '#f3e8ff', textColor: '#7c3aed' });
+  }
+  if (quote.ceremony_included) {
+    services.push({ label: 'Ceremony Catering', emoji: '💒', bgColor: '#fce7f3', textColor: '#be185d' });
+  }
+  if (quote.cocktail_hour) {
+    services.push({ label: 'Cocktail Hour', emoji: '🍸', bgColor: '#fef3c7', textColor: '#d97706' });
+  }
+
+  if (services.length === 0) {
+    return '';
+  }
+
+  const badgesHtml = services.map(s => `
+    <span style="
+      display: inline-block;
+      background: ${s.bgColor};
+      color: ${s.textColor};
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      margin: 4px;
+    ">${s.emoji} ${s.label}</span>
+  `).join('');
+
+  return `
+    <section style="
+      background: ${BRAND_COLORS.lightGray};
+      padding: 16px;
+      border-radius: 8px;
+      margin: 16px 0;
+      border-left: 4px solid ${BRAND_COLORS.crimson};
+    ">
+      <h3 style="margin: 0 0 12px 0; color: ${BRAND_COLORS.darkGray}; font-size: 16px;">
+        🍽️ Services Included
+      </h3>
+      <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+        ${badgesHtml}
+      </div>
+      ${quote.wait_staff_requirements ? `
+      <p style="margin: 12px 0 0 0; font-size: 13px; color: #666; font-style: italic;">
+        ${quote.wait_staff_requirements}
+      </p>
+      ` : ''}
+    </section>
+  `;
+}
+
 export function generateMenuSection(lineItems: any[], bothProteinsAvailable?: boolean): string {
   if (!lineItems || lineItems.length === 0) {
     return '';
