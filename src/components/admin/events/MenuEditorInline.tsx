@@ -260,7 +260,7 @@ export function MenuEditorInline({ quote, invoiceId, onSave }: MenuEditorInlineP
 
   return (
     <>
-      <ScrollArea className="max-h-[calc(90vh-8rem)] sm:max-h-[calc(85vh-8rem)]">
+      <ScrollArea className="flex-1 min-h-0">
         <div className="space-y-4 pr-4">
           {/* Proteins */}
           <CategorySection
