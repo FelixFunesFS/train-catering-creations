@@ -62,7 +62,7 @@ export const SinglePageQuoteForm = ({ variant = 'regular', onSuccess }: SinglePa
       start_time: "",
       guest_count: 1,
       location: "",
-      service_type: '' as any,
+      service_type: undefined,
       serving_start_time: "",
       proteins: [],
       both_proteins_available: false,
