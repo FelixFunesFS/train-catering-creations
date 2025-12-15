@@ -33,7 +33,7 @@ export const ReviewSummaryCard = ({ form, variant }: ReviewSummaryCardProps) => 
 
   const getServiceTypeLabel = (type: string) => {
     switch (type) {
-      case 'drop-off': return 'Drop-Off Service';
+      case 'delivery-only': return 'Delivery Only';
       case 'delivery-setup': return 'Delivery + Setup';
       case 'full-service': return 'Full-Service Catering';
       default: return 'Not selected';

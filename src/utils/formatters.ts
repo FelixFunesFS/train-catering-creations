@@ -53,9 +53,8 @@ export function formatTime(timeString: string): string {
  */
 export function formatServiceType(serviceType: string): string {
   const serviceTypeMap: Record<string, string> = {
-    'drop-off': 'Drop-Off',
-    'delivery-setup': 'Delivery + Setup',
     'delivery-only': 'Delivery Only',
+    'delivery-setup': 'Delivery + Setup',
     'full-service': 'Full-Service Catering',
   };
   return serviceTypeMap[serviceType] || serviceType;

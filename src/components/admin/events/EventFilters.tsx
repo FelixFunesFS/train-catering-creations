@@ -3,7 +3,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ArrowUpDown } from 'lucide-react';
 
 export type StatusFilter = 'all' | 'pending' | 'confirmed' | 'completed' | 'cancelled';
-export type ServiceTypeFilter = 'all' | 'drop-off' | 'delivery-setup' | 'full-service';
+export type ServiceTypeFilter = 'all' | 'delivery-only' | 'delivery-setup' | 'full-service';
 export type SortBy = 'date' | 'name' | 'total';
 export type SortOrder = 'asc' | 'desc';
 
@@ -60,7 +60,7 @@ export function EventFilters({
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All Services</SelectItem>
-          <SelectItem value="drop-off">Drop-Off</SelectItem>
+          <SelectItem value="delivery-only">Delivery Only</SelectItem>
           <SelectItem value="delivery-setup">Delivery + Setup</SelectItem>
           <SelectItem value="full-service">Full-Service</SelectItem>
         </SelectContent>

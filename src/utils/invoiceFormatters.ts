@@ -90,7 +90,7 @@ export const formatServiceType = (serviceType: string): string => {
   const serviceTypes: Record<string, string> = {
     'full-service': 'Full Service Catering',
     'delivery-setup': 'Delivery with Setup',
-    'drop-off': 'Drop Off Delivery',
+    'delivery-only': 'Delivery Only',
     // Legacy support
     'full_service': 'Full Service Catering',
     'drop_off': 'Drop Off Delivery',

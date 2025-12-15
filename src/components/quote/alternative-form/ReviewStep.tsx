@@ -57,7 +57,7 @@ export const ReviewStep = ({ form, estimatedCost }: ReviewStepProps) => {
 
   const formatServiceType = (type: string) => {
     const types: { [key: string]: string } = {
-      "drop-off": "Drop-Off Service",
+      "delivery-only": "Delivery Only",
       "delivery-setup": "Delivery + Setup", 
       "full-service": "Full-Service Catering"
     };
@@ -330,7 +330,7 @@ export const ReviewStep = ({ form, estimatedCost }: ReviewStepProps) => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="drop-off">Drop-Off Service</SelectItem>
+                        <SelectItem value="delivery-only">Delivery Only</SelectItem>
                         <SelectItem value="delivery-setup">Delivery + Setup</SelectItem>
                         <SelectItem value="full-service">Full-Service Catering</SelectItem>
                       </SelectContent>

@@ -49,7 +49,7 @@ export const formSchema = z.object({
   location: z.string().min(1, "Location is required"),
   
   // Service Details  
-  service_type: z.enum(["full-service", "delivery-setup", "drop-off"], {
+  service_type: z.enum(["full-service", "delivery-setup", "delivery-only"], {
     required_error: "Please select a service type"
   }),
   serving_start_time: z.string()
