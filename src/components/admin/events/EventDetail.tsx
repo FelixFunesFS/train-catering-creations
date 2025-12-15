@@ -132,7 +132,8 @@ export function EventDetail({ quote, onClose }: EventDetailProps) {
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6">
+        {/* Scrollable content */}
+        <div className="flex-1 overflow-y-auto -mx-4 px-4 space-y-6">
           {/* Customer Info */}
           <section>
             <div className="flex items-center justify-between mb-3">
@@ -424,47 +425,38 @@ export function EventDetail({ quote, onClose }: EventDetailProps) {
               </section>
             </>
           )}
+        </div>
 
-          <Separator />
-
-          {/* Actions */}
+        {/* Sticky footer - always visible */}
+        <div className="sticky bottom-0 bg-background pt-4 border-t mt-auto -mx-4 px-4 pb-[env(safe-area-inset-bottom)]">
           <div className="flex flex-col sm:flex-row justify-end gap-2">
-            <Button variant="outline" onClick={onClose}>
+            <Button variant="outline" onClick={onClose} className="min-h-[44px]">
               Close
             </Button>
             {existingInvoice ? (
-              (() => {
-                const status = existingInvoice.workflow_status;
-                const isInvoice = ['approved', 'paid', 'partially_paid', 'payment_pending'].includes(status);
-                const isDraft = status === 'draft';
-                
-                return (
-                  <Button onClick={handleViewEstimate}>
-                    {isInvoice ? (
-                      <>
-                        <Receipt className="h-4 w-4 mr-2" />
-                        View Invoice
-                      </>
-                    ) : isDraft ? (
-                      <>
-                        <Pencil className="h-4 w-4 mr-2" />
-                        Edit Estimate
-                      </>
-                    ) : (
-                      <>
-                        <Eye className="h-4 w-4 mr-2" />
-                        View Estimate
-                      </>
-                    )}
-                  </Button>
-                );
-              })()
+              <Button 
+                onClick={handleViewEstimate} 
+                disabled={checkingInvoice}
+                className="min-h-[44px]"
+              >
+                {checkingInvoice ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Eye className="h-4 w-4 mr-2" />
+                )}
+                {existingInvoice.workflow_status === 'draft' ? 'Edit Estimate' : 'View Estimate'}
+              </Button>
             ) : (
               <Button 
                 onClick={handleGenerateEstimate} 
                 disabled={isGenerating || checkingInvoice}
+                className="min-h-[44px]"
               >
-                {isGenerating && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                {isGenerating ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Receipt className="h-4 w-4 mr-2" />
+                )}
                 Generate Estimate
               </Button>
             )}

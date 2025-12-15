@@ -284,7 +284,7 @@ export function EstimateEditor({ invoice, onClose }: EstimateEditorProps) {
 
   return (
     <Dialog open onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl w-[95vw] sm:w-auto max-h-[95vh] sm:max-h-[90vh] overflow-y-auto p-3 sm:p-6">
+      <DialogContent className="sm:max-w-2xl flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FileText className="h-5 w-5" />
@@ -292,189 +292,194 @@ export function EstimateEditor({ invoice, onClose }: EstimateEditorProps) {
           </DialogTitle>
         </DialogHeader>
 
-        <div className="text-sm text-muted-foreground mb-4 space-y-1">
-          <p><strong>{invoice.contact_name}</strong> • {invoice.event_name}</p>
-          <p>{invoice.guest_count} guests • {invoice.email}</p>
-          {invoice.location && (
-            <p className="flex items-center gap-1">
-              <MapPin className="h-3 w-3" /> {invoice.location}
-            </p>
-          )}
-          {invoice.guest_count_with_restrictions && (
-            <p className="flex items-center gap-1 text-amber-600 dark:text-amber-400">
-              <Leaf className="h-3 w-3" /> Vegetarian Portions: {invoice.guest_count_with_restrictions} guests
-            </p>
-          )}
-          {(invoice as any).vegetarian_entrees && Array.isArray((invoice as any).vegetarian_entrees) && (invoice as any).vegetarian_entrees.length > 0 && (
-            <div className="flex flex-wrap items-center gap-1 text-green-600 dark:text-green-400">
-              <Leaf className="h-3 w-3" />
-              <span className="text-xs">Vegetarian Entrées:</span>
-              {(invoice as any).vegetarian_entrees.map((entree: string, idx: number) => (
-                <span key={idx} className="text-xs bg-green-100 dark:bg-green-900 px-1.5 py-0.5 rounded border border-green-300 dark:border-green-700">
-                  {entree.split('-').map((word: string) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
-                </span>
-              ))}
-            </div>
-          )}
-          {invoice.special_requests && (
-            <p className="flex items-start gap-1 italic">
-              <MessageSquare className="h-3 w-3 mt-0.5 flex-shrink-0" /> 
-              <span>Special Requests: {invoice.special_requests}</span>
-            </p>
-          )}
-          {isGovernment && (
-            <p className="text-blue-600 font-medium">Government Contract (Tax Exempt)</p>
-          )}
-        </div>
+        {/* Scrollable content */}
+        <div className="flex-1 overflow-y-auto -mx-4 px-4 space-y-4">
+          <div className="text-sm text-muted-foreground space-y-1">
+            <p><strong>{invoice.contact_name}</strong> • {invoice.event_name}</p>
+            <p>{invoice.guest_count} guests • {invoice.email}</p>
+            {invoice.location && (
+              <p className="flex items-center gap-1">
+                <MapPin className="h-3 w-3" /> {invoice.location}
+              </p>
+            )}
+            {invoice.guest_count_with_restrictions && (
+              <p className="flex items-center gap-1 text-amber-600 dark:text-amber-400">
+                <Leaf className="h-3 w-3" /> Vegetarian Portions: {invoice.guest_count_with_restrictions} guests
+              </p>
+            )}
+            {(invoice as any).vegetarian_entrees && Array.isArray((invoice as any).vegetarian_entrees) && (invoice as any).vegetarian_entrees.length > 0 && (
+              <div className="flex flex-wrap items-center gap-1 text-green-600 dark:text-green-400">
+                <Leaf className="h-3 w-3" />
+                <span className="text-xs">Vegetarian Entrées:</span>
+                {(invoice as any).vegetarian_entrees.map((entree: string, idx: number) => (
+                  <span key={idx} className="text-xs bg-green-100 dark:bg-green-900 px-1.5 py-0.5 rounded border border-green-300 dark:border-green-700">
+                    {entree.split('-').map((word: string) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                  </span>
+                ))}
+              </div>
+            )}
+            {invoice.special_requests && (
+              <p className="flex items-start gap-1 italic">
+                <MessageSquare className="h-3 w-3 mt-0.5 flex-shrink-0" /> 
+                <span>Special Requests: {invoice.special_requests}</span>
+              </p>
+            )}
+            {isGovernment && (
+              <p className="text-blue-600 font-medium">Government Contract (Tax Exempt)</p>
+            )}
+          </div>
 
-        <Separator />
+          <Separator />
 
-        {/* Line Items with Drag-and-Drop */}
-        <div className="space-y-4 my-4">
-          <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-sm">Line Items</h3>
-            <div className="flex gap-2">
-              {isEditMode ? (
-                <>
+          {/* Line Items with Drag-and-Drop */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="font-semibold text-sm">Line Items</h3>
+              <div className="flex gap-2">
+                {isEditMode ? (
+                  <>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => setShowAddItem(true)}
+                    >
+                      <Plus className="h-4 w-4 mr-1" />
+                      Add Item
+                    </Button>
+                    <Button 
+                      size="sm"
+                      onClick={() => {
+                        forceRefresh();
+                        setIsEditMode(false);
+                      }}
+                    >
+                      <Save className="h-4 w-4 mr-1" />
+                      Save
+                    </Button>
+                  </>
+                ) : (
                   <Button 
                     variant="outline" 
                     size="sm"
-                    onClick={() => setShowAddItem(true)}
+                    onClick={() => setIsEditMode(true)}
                   >
-                    <Plus className="h-4 w-4 mr-1" />
-                    Add Item
+                    <Pencil className="h-4 w-4 mr-1" />
+                    Edit
                   </Button>
-                  <Button 
-                    size="sm"
-                    onClick={() => {
-                      forceRefresh();
-                      setIsEditMode(false);
-                    }}
-                  >
-                    <Save className="h-4 w-4 mr-1" />
-                    Save
-                  </Button>
-                </>
-              ) : (
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => setIsEditMode(true)}
-                >
-                  <Pencil className="h-4 w-4 mr-1" />
-                  Edit
-                </Button>
-              )}
+                )}
+              </div>
             </div>
-          </div>
-          
-          {loadingItems ? (
-            <div className="flex items-center justify-center py-8">
-              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-            </div>
-          ) : !sortedLineItems?.length ? (
-            <p className="text-center py-4 text-muted-foreground">
-              No line items found. Generate from Events tab.
-            </p>
-          ) : isEditMode ? (
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragEnd={handleDragEnd}
-            >
-              <SortableContext
-                items={sortedLineItems.map(i => i.id)}
-                strategy={verticalListSortingStrategy}
+            
+            {loadingItems ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              </div>
+            ) : !sortedLineItems?.length ? (
+              <p className="text-center py-4 text-muted-foreground">
+                No line items found. Generate from Events tab.
+              </p>
+            ) : isEditMode ? (
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
               >
-                <div className="space-y-2">
-                  {sortedLineItems.map((item) => (
-                    <SortableLineItem key={item.id} id={item.id}>
-                      <LineItemEditor
-                        item={item}
-                        onPriceChange={(price) => handlePriceChange(item.id, price)}
-                        onQuantityChange={(qty) => handleQuantityChange(item.id, qty)}
-                        onDescriptionChange={(desc) => handleDescriptionChange(item.id, desc)}
-                        onDelete={() => handleDeleteItem(item.id)}
-                        isUpdating={updateLineItem.isPending || deleteLineItem.isPending}
-                      />
-                    </SortableLineItem>
-                  ))}
-                </div>
-              </SortableContext>
-            </DndContext>
-          ) : (
-            <div className="space-y-2">
-              {sortedLineItems.map((item) => (
-                <LineItemEditor
-                  key={item.id}
-                  item={item}
-                  onPriceChange={(price) => handlePriceChange(item.id, price)}
-                  readOnly
-                />
-              ))}
-            </div>
-          )}
-        </div>
+                <SortableContext
+                  items={sortedLineItems.map(i => i.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <div className="space-y-2">
+                    {sortedLineItems.map((item) => (
+                      <SortableLineItem key={item.id} id={item.id}>
+                        <LineItemEditor
+                          item={item}
+                          onPriceChange={(price) => handlePriceChange(item.id, price)}
+                          onQuantityChange={(qty) => handleQuantityChange(item.id, qty)}
+                          onDescriptionChange={(desc) => handleDescriptionChange(item.id, desc)}
+                          onDelete={() => handleDeleteItem(item.id)}
+                          isUpdating={updateLineItem.isPending || deleteLineItem.isPending}
+                        />
+                      </SortableLineItem>
+                    ))}
+                  </div>
+                </SortableContext>
+              </DndContext>
+            ) : (
+              <div className="space-y-2">
+                {sortedLineItems.map((item) => (
+                  <LineItemEditor
+                    key={item.id}
+                    item={item}
+                    onPriceChange={(price) => handlePriceChange(item.id, price)}
+                    readOnly
+                  />
+                ))}
+              </div>
+            )}
+          </div>
 
-        <Separator />
+          <Separator />
 
-        {/* Admin Notes */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Admin Notes (Internal)</label>
-          <Textarea
-            value={adminNotes}
-            onChange={(e) => setAdminNotes(e.target.value)}
-            placeholder="e.g., Customer called to add appetizers..."
-            rows={2}
-            className="text-sm"
-          />
-        </div>
+          {/* Admin Notes */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Admin Notes (Internal)</label>
+            <Textarea
+              value={adminNotes}
+              onChange={(e) => setAdminNotes(e.target.value)}
+              placeholder="e.g., Customer called to add appetizers..."
+              rows={2}
+              className="text-sm"
+            />
+          </div>
 
-        <Separator />
+          <Separator />
 
-        {/* Discount Section */}
-        <div className="flex items-center justify-between">
-          <span className="text-sm font-medium">Discount</span>
-          <DiscountEditor
+          {/* Discount Section */}
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium">Discount</span>
+            <DiscountEditor
+              discountAmount={discountAmount}
+              discountType={discountType}
+              discountDescription={discountDescription}
+              subtotal={subtotal}
+              onApplyDiscount={handleApplyDiscount}
+              onRemoveDiscount={handleRemoveDiscount}
+              disabled={updateInvoice.isPending}
+            />
+          </div>
+
+          <Separator />
+
+          {/* Totals */}
+          <EstimateSummary 
+            subtotal={subtotal}
+            taxAmount={taxAmount}
+            total={total}
+            isGovernment={isGovernment || false}
             discountAmount={discountAmount}
             discountType={discountType}
             discountDescription={discountDescription}
-            subtotal={subtotal}
-            onApplyDiscount={handleApplyDiscount}
-            onRemoveDiscount={handleRemoveDiscount}
-            disabled={updateInvoice.isPending}
           />
         </div>
 
-        <Separator />
-
-        {/* Totals */}
-        <EstimateSummary 
-          subtotal={subtotal}
-          taxAmount={taxAmount}
-          total={total}
-          isGovernment={isGovernment || false}
-          discountAmount={discountAmount}
-          discountType={discountType}
-          discountDescription={discountDescription}
-        />
-
-        {/* Actions */}
-        <div className="flex justify-end gap-2 mt-4">
-          <Button variant="outline" onClick={handleClose}>
-            Close
-          </Button>
-          {isAlreadySent ? (
-            <Button onClick={handleResendClick} disabled={!lineItems?.length} variant="outline">
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Resend Estimate
+        {/* Sticky footer - always visible */}
+        <div className="sticky bottom-0 bg-background pt-4 border-t mt-auto -mx-4 px-4 pb-[env(safe-area-inset-bottom)]">
+          <div className="flex flex-col sm:flex-row justify-end gap-2">
+            <Button variant="outline" onClick={handleClose} className="min-h-[44px]">
+              Close
             </Button>
-          ) : (
-            <Button onClick={handlePreviewClick} disabled={!lineItems?.length}>
-              <Eye className="h-4 w-4 mr-2" />
-              Preview & Send
-            </Button>
-          )}
+            {isAlreadySent ? (
+              <Button onClick={handleResendClick} disabled={!lineItems?.length} variant="outline" className="min-h-[44px]">
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Resend Estimate
+              </Button>
+            ) : (
+              <Button onClick={handlePreviewClick} disabled={!lineItems?.length} className="min-h-[44px]">
+                <Eye className="h-4 w-4 mr-2" />
+                Preview & Send
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Add Line Item Modal */}
