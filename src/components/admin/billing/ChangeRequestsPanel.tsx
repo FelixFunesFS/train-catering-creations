@@ -176,7 +176,7 @@ export function ChangeRequestsPanel() {
       {/* Review Dialog */}
       {selectedRequest && (
         <Dialog open onOpenChange={() => setSelectedRequest(null)}>
-          <DialogContent className="max-w-lg">
+          <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Review Change Request</DialogTitle>
             </DialogHeader>
