@@ -168,6 +168,32 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
   const [showCustomerEdit, setShowCustomerEdit] = useState(false);
   const [showMenuEdit, setShowMenuEdit] = useState(false);
   const [adminNotes, setAdminNotes] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  // Handle generating estimate when none exists
+  const handleGenerateEstimate = async () => {
+    if (!quote?.id) return;
+    setIsGenerating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-invoice-from-quote', {
+        body: { quote_request_id: quote.id }
+      });
+      if (error) throw error;
+
+      toast({ title: 'Estimate Generated', description: 'Line items created successfully.' });
+      
+      // Refresh all relevant queries
+      queryClient.invalidateQueries({ queryKey: ['invoices'] });
+      queryClient.invalidateQueries({ queryKey: ['invoice-by-quote', quote.id] });
+      queryClient.invalidateQueries({ queryKey: ['line-items'] });
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+      queryClient.invalidateQueries({ queryKey: ['quotes'] });
+    } catch (err: any) {
+      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
   
   // Notes state with dirty tracking
   const initialNotes = invoice?.notes || '';
@@ -634,14 +660,51 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
   );
 
   // Estimate/Invoice Panel Content  
-  const EstimatePanel = () => (
-    <div className="space-y-4 p-4 lg:p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold flex items-center gap-2">
-          <FileText className="h-5 w-5 text-primary" />
-          Estimate {invoice?.invoice_number && `#${invoice.invoice_number}`}
-        </h2>
+  const EstimatePanel = () => {
+    // If no invoice exists, show generate estimate prompt
+    if (!invoice) {
+      return (
+        <div className="flex flex-col items-center justify-center h-full min-h-[400px] p-8 text-center space-y-6">
+          <div className="rounded-full bg-muted p-6">
+            <FileText className="h-12 w-12 text-muted-foreground" />
+          </div>
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold">No Estimate Yet</h3>
+            <p className="text-sm text-muted-foreground max-w-md">
+              Generate an estimate to create line items from this event's menu selections 
+              and service options.
+            </p>
+          </div>
+          <Button 
+            onClick={handleGenerateEstimate}
+            disabled={isGenerating}
+            size="lg"
+            className="gap-2"
+          >
+            {isGenerating ? (
+              <>
+                <Loader2 className="h-5 w-5 animate-spin" />
+                Generating...
+              </>
+            ) : (
+              <>
+                <FileText className="h-5 w-5" />
+                Generate Estimate
+              </>
+            )}
+          </Button>
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-4 p-4 lg:p-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-semibold flex items-center gap-2">
+            <FileText className="h-5 w-5 text-primary" />
+            Estimate {invoice?.invoice_number && `#${invoice.invoice_number}`}
+          </h2>
         <div className="flex items-center gap-2">
           <Button 
             variant="outline" 
@@ -803,7 +866,8 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
         )}
       </div>
     </div>
-  );
+    );
+  };
 
   // Desktop-only full page view
   return (
