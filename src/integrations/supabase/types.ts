@@ -528,6 +528,64 @@ export type Database = {
           },
         ]
       }
+      event_shopping_items: {
+        Row: {
+          category: string
+          checked: boolean | null
+          created_at: string | null
+          id: string
+          item_name: string
+          quantity: string | null
+          quote_request_id: string
+          source: string | null
+          unit: string | null
+        }
+        Insert: {
+          category: string
+          checked?: boolean | null
+          created_at?: string | null
+          id?: string
+          item_name: string
+          quantity?: string | null
+          quote_request_id: string
+          source?: string | null
+          unit?: string | null
+        }
+        Update: {
+          category?: string
+          checked?: boolean | null
+          created_at?: string | null
+          id?: string
+          item_name?: string
+          quantity?: string | null
+          quote_request_id?: string
+          source?: string | null
+          unit?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_shopping_items_quote_request_id_fkey"
+            columns: ["quote_request_id"]
+            isOneToOne: false
+            referencedRelation: "event_summary"
+            referencedColumns: ["quote_id"]
+          },
+          {
+            foreignKeyName: "event_shopping_items_quote_request_id_fkey"
+            columns: ["quote_request_id"]
+            isOneToOne: false
+            referencedRelation: "invoice_payment_summary"
+            referencedColumns: ["quote_id"]
+          },
+          {
+            foreignKeyName: "event_shopping_items_quote_request_id_fkey"
+            columns: ["quote_request_id"]
+            isOneToOne: false
+            referencedRelation: "quote_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_timeline_tasks: {
         Row: {
           completed: boolean | null
@@ -1682,6 +1740,64 @@ export type Database = {
             columns: ["invoice_id"]
             isOneToOne: false
             referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      staff_assignments: {
+        Row: {
+          arrival_time: string | null
+          confirmed: boolean | null
+          created_at: string | null
+          id: string
+          notes: string | null
+          quote_request_id: string
+          role: string
+          staff_name: string
+          updated_at: string | null
+        }
+        Insert: {
+          arrival_time?: string | null
+          confirmed?: boolean | null
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          quote_request_id: string
+          role: string
+          staff_name: string
+          updated_at?: string | null
+        }
+        Update: {
+          arrival_time?: string | null
+          confirmed?: boolean | null
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          quote_request_id?: string
+          role?: string
+          staff_name?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_assignments_quote_request_id_fkey"
+            columns: ["quote_request_id"]
+            isOneToOne: false
+            referencedRelation: "event_summary"
+            referencedColumns: ["quote_id"]
+          },
+          {
+            foreignKeyName: "staff_assignments_quote_request_id_fkey"
+            columns: ["quote_request_id"]
+            isOneToOne: false
+            referencedRelation: "invoice_payment_summary"
+            referencedColumns: ["quote_id"]
+          },
+          {
+            foreignKeyName: "staff_assignments_quote_request_id_fkey"
+            columns: ["quote_request_id"]
+            isOneToOne: false
+            referencedRelation: "quote_requests"
             referencedColumns: ["id"]
           },
         ]
