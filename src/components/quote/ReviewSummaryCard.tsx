@@ -18,7 +18,8 @@ export const ReviewSummaryCard = ({ form, variant }: ReviewSummaryCardProps) => 
       weekday: 'long', 
       year: 'numeric', 
       month: 'long', 
-      day: 'numeric' 
+      day: 'numeric',
+      timeZone: 'America/New_York',
     });
   };
 
@@ -28,7 +29,7 @@ export const ReviewSummaryCard = ({ form, variant }: ReviewSummaryCardProps) => 
     const hour = parseInt(hours);
     const ampm = hour >= 12 ? 'PM' : 'AM';
     const displayHour = hour % 12 || 12;
-    return `${displayHour}:${minutes} ${ampm}`;
+    return `${displayHour}:${minutes} ${ampm} ET`;
   };
 
   const getServiceTypeLabel = (type: string) => {

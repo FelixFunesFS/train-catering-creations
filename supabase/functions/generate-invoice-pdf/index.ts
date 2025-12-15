@@ -113,35 +113,37 @@ serve(async (req) => {
       }).format(amount / 100);
     };
 
-    // Format date
+    // Format date (Eastern Time)
     const formatDate = (dateStr: string) => {
       if (!dateStr) return '';
       return new Date(dateStr).toLocaleDateString('en-US', {
         weekday: 'short',
         year: 'numeric',
         month: 'short',
-        day: 'numeric'
+        day: 'numeric',
+        timeZone: 'America/New_York',
       });
     };
 
-    // Format short date
+    // Format short date (Eastern Time)
     const formatShortDate = (dateStr: string) => {
       if (!dateStr) return 'TBD';
       return new Date(dateStr).toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric',
-        year: 'numeric'
+        year: 'numeric',
+        timeZone: 'America/New_York',
       });
     };
 
-    // Format time
+    // Format time (Eastern Time)
     const formatTime = (timeStr: string) => {
       if (!timeStr) return '';
       const [hours, minutes] = timeStr.split(':');
       const h = parseInt(hours);
       const ampm = h >= 12 ? 'PM' : 'AM';
       const hour12 = h % 12 || 12;
-      return `${hour12}:${minutes} ${ampm}`;
+      return `${hour12}:${minutes} ${ampm} ET`;
     };
 
     // Format service type

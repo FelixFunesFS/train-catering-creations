@@ -21,6 +21,7 @@ export function formatDate(dateString: string): string {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
+    timeZone: 'America/New_York',
   });
 }
 
@@ -33,6 +34,7 @@ export function formatDateShort(dateString: string): string {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
+    timeZone: 'America/New_York',
   });
 }
 
