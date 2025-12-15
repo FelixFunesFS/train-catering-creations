@@ -42,11 +42,11 @@ const ServiceSelectionStepComponent = ({ form, trackFieldInteraction }: ServiceS
                       className="bg-card p-4 rounded-lg border border-border/50 hover:border-primary/50 transition-colors duration-300 cursor-pointer"
                       onClick={() => {
                         trackFieldInteraction('service_type');
-                        field.onChange('drop-off');
+                        field.onChange('delivery-only');
                       }}
                     >
                       <div className="flex items-start space-x-3">
-                        {field.value === 'drop-off' ? (
+                        {field.value === 'delivery-only' ? (
                           <CheckCircle2 className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
                         ) : (
                           <Circle className="h-5 w-5 text-muted-foreground mt-1 flex-shrink-0" />
@@ -54,7 +54,7 @@ const ServiceSelectionStepComponent = ({ form, trackFieldInteraction }: ServiceS
                         <div className="flex-1">
                           <Label className="flex items-center gap-3 text-base font-medium cursor-pointer">
                             <Truck className="h-5 w-5 text-primary" />
-                            Drop-Off Service
+                            Delivery Only
                           </Label>
                           <p className="text-sm text-muted-foreground mt-2 ml-8">
                             We deliver beautifully prepared food in disposable containers. Perfect for casual events and budget-conscious hosts.

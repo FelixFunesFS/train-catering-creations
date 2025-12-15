@@ -25,10 +25,9 @@ interface EventDetailProps {
 
 function formatServiceType(type: string): string {
   const map: Record<string, string> = {
-    'drop-off': 'Drop-Off',
+    'delivery-only': 'Delivery Only',
     'delivery-setup': 'Delivery + Setup',
     'full-service': 'Full-Service Catering',
-    'delivery-only': 'Delivery Only',
   };
   return map[type] || type;
 }
