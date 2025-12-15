@@ -16,7 +16,7 @@ import { DiscountEditor } from './DiscountEditor';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
-import { FileText, Loader2, Eye, Plus, RefreshCw, MapPin, Leaf, MessageSquare } from 'lucide-react';
+import { FileText, Loader2, Eye, Plus, RefreshCw, MapPin, Leaf, MessageSquare, Pencil, Save, GripVertical } from 'lucide-react';
 import { 
   DndContext, 
   closestCenter, 
@@ -45,6 +45,7 @@ export function EstimateEditor({ invoice, onClose }: EstimateEditorProps) {
   const [showPreview, setShowPreview] = useState(false);
   const [isResendMode, setIsResendMode] = useState(false);
   const [showAddItem, setShowAddItem] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
   const [adminNotes, setAdminNotes] = useState('');
   
   const { data: lineItems, isLoading: loadingItems } = useLineItems(invoice.invoice_id);
@@ -332,14 +333,39 @@ export function EstimateEditor({ invoice, onClose }: EstimateEditorProps) {
         <div className="space-y-4 my-4">
           <div className="flex items-center justify-between">
             <h3 className="font-semibold text-sm">Line Items</h3>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => setShowAddItem(true)}
-            >
-              <Plus className="h-4 w-4 mr-1" />
-              Add Item
-            </Button>
+            <div className="flex gap-2">
+              {isEditMode ? (
+                <>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setShowAddItem(true)}
+                  >
+                    <Plus className="h-4 w-4 mr-1" />
+                    Add Item
+                  </Button>
+                  <Button 
+                    size="sm"
+                    onClick={() => {
+                      forceRefresh();
+                      setIsEditMode(false);
+                    }}
+                  >
+                    <Save className="h-4 w-4 mr-1" />
+                    Save
+                  </Button>
+                </>
+              ) : (
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setIsEditMode(true)}
+                >
+                  <Pencil className="h-4 w-4 mr-1" />
+                  Edit
+                </Button>
+              )}
+            </div>
           </div>
           
           {loadingItems ? (
@@ -350,7 +376,7 @@ export function EstimateEditor({ invoice, onClose }: EstimateEditorProps) {
             <p className="text-center py-4 text-muted-foreground">
               No line items found. Generate from Events tab.
             </p>
-          ) : (
+          ) : isEditMode ? (
             <DndContext
               sensors={sensors}
               collisionDetection={closestCenter}
@@ -376,6 +402,17 @@ export function EstimateEditor({ invoice, onClose }: EstimateEditorProps) {
                 </div>
               </SortableContext>
             </DndContext>
+          ) : (
+            <div className="space-y-2">
+              {sortedLineItems.map((item) => (
+                <LineItemEditor
+                  key={item.id}
+                  item={item}
+                  onPriceChange={(price) => handlePriceChange(item.id, price)}
+                  readOnly
+                />
+              ))}
+            </div>
           )}
         </div>
 

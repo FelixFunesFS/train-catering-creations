@@ -1,11 +1,14 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { format, startOfWeek, addDays, isSameDay, isToday, parseISO } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import { Clock, Users, MapPin, Phone } from 'lucide-react';
+import { Sheet, SheetContent } from '@/components/ui/sheet';
+import { Clock, Users, MapPin } from 'lucide-react';
 import { Database } from '@/integrations/supabase/types';
-import { formatLocationLink, formatPhoneLink } from '@/utils/linkFormatters';
+import { formatLocationLink } from '@/utils/linkFormatters';
+import { EventSummaryPanel } from './EventSummaryPanel';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 
 type QuoteRequest = Database['public']['Tables']['quote_requests']['Row'];
 
@@ -39,6 +42,8 @@ const statusColors: Record<string, string> = {
 
 export function EventWeekView({ events, currentDate, onEventClick }: EventWeekViewProps) {
   const navigate = useNavigate();
+  const isDesktop = useMediaQuery('(min-width: 1024px)');
+  const [selectedEvent, setSelectedEvent] = useState<EventWithInvoice | null>(null);
   
   // Generate 7 days starting from the week's Sunday
   const weekDays = useMemo(() => {
@@ -60,100 +65,130 @@ export function EventWeekView({ events, currentDate, onEventClick }: EventWeekVi
     return grouped;
   }, [events, weekDays]);
 
+  const handleEventCardClick = (event: EventWithInvoice) => {
+    setSelectedEvent(event);
+  };
+
+  const handleViewFull = () => {
+    if (selectedEvent) {
+      if (isDesktop) {
+        navigate(`/admin/event/${selectedEvent.id}`);
+      } else {
+        onEventClick(selectedEvent);
+      }
+      setSelectedEvent(null);
+    }
+  };
+
   return (
-    <ScrollArea className="w-full">
-      <div className="flex gap-2 pb-4 min-w-[900px] lg:min-w-0">
-        {weekDays.map((day) => {
-          const dateKey = format(day, 'yyyy-MM-dd');
-          const dayEvents = eventsByDate[dateKey] || [];
-          const isCurrentDay = isToday(day);
-          
-          return (
-            <div 
-              key={dateKey}
-              className={`flex-1 min-w-[140px] rounded-lg border ${
-                isCurrentDay 
-                  ? 'border-primary bg-primary/5' 
-                  : 'border-border bg-card'
-              }`}
-            >
-              {/* Day Header */}
-              <div className={`p-2 text-center border-b ${
-                isCurrentDay ? 'bg-primary/10' : 'bg-muted/30'
-              }`}>
-                <div className="text-xs font-medium text-muted-foreground uppercase">
-                  {format(day, 'EEE')}
-                </div>
-                <div className={`text-lg font-semibold ${
-                  isCurrentDay ? 'text-primary' : ''
+    <>
+      <ScrollArea className="w-full">
+        <div className="flex gap-2 pb-4 min-w-[900px] lg:min-w-0">
+          {weekDays.map((day) => {
+            const dateKey = format(day, 'yyyy-MM-dd');
+            const dayEvents = eventsByDate[dateKey] || [];
+            const isCurrentDay = isToday(day);
+            
+            return (
+              <div 
+                key={dateKey}
+                className={`flex-1 min-w-[140px] rounded-lg border ${
+                  isCurrentDay 
+                    ? 'border-primary bg-primary/5' 
+                    : 'border-border bg-card'
+                }`}
+              >
+                {/* Day Header */}
+                <div className={`p-2 text-center border-b ${
+                  isCurrentDay ? 'bg-primary/10' : 'bg-muted/30'
                 }`}>
-                  {format(day, 'd')}
+                  <div className="text-xs font-medium text-muted-foreground uppercase">
+                    {format(day, 'EEE')}
+                  </div>
+                  <div className={`text-lg font-semibold ${
+                    isCurrentDay ? 'text-primary' : ''
+                  }`}>
+                    {format(day, 'd')}
+                  </div>
+                </div>
+                
+                {/* Events */}
+                <div className="p-2 space-y-2 min-h-[200px]">
+                  {dayEvents.length === 0 ? (
+                    <p className="text-xs text-muted-foreground text-center py-4">
+                      No events
+                    </p>
+                  ) : (
+                    dayEvents.map((event) => (
+                      <div
+                        key={event.id}
+                        onClick={() => handleEventCardClick(event)}
+                        className={`p-2 rounded border-l-4 cursor-pointer hover:shadow-md transition-shadow ${
+                          statusColors[event.workflow_status] || 'border-l-gray-300 bg-muted/20'
+                        }`}
+                      >
+                        <p className="font-medium text-sm truncate">
+                          {event.contact_name}
+                        </p>
+                        <p className="text-xs text-muted-foreground truncate">
+                          {event.event_name}
+                        </p>
+                        
+                        <div className="flex items-center gap-1 mt-1.5 text-xs text-muted-foreground">
+                          <Clock className="h-3 w-3" />
+                          <span>{event.start_time?.slice(0, 5) || 'TBD'}</span>
+                        </div>
+                        
+                        <div className="flex items-center gap-1 mt-0.5 text-xs text-muted-foreground">
+                          <Users className="h-3 w-3" />
+                          <span>{event.guest_count}</span>
+                        </div>
+                        
+                        {event.location && (
+                          <a 
+                            href={formatLocationLink(event.location) || '#'}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="flex items-center gap-1 mt-0.5 text-xs text-primary hover:underline"
+                            aria-label="Open in Maps"
+                          >
+                            <MapPin className="h-3 w-3 flex-shrink-0" />
+                            <span className="truncate">{event.location}</span>
+                          </a>
+                        )}
+                        
+                        {event.invoice && (
+                          <Badge 
+                            variant="outline" 
+                            className="mt-1.5 text-[10px] px-1.5 py-0"
+                          >
+                            ${(event.invoice.total_amount / 100).toLocaleString()}
+                          </Badge>
+                        )}
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
-              
-              {/* Events */}
-              <div className="p-2 space-y-2 min-h-[200px]">
-                {dayEvents.length === 0 ? (
-                  <p className="text-xs text-muted-foreground text-center py-4">
-                    No events
-                  </p>
-                ) : (
-                  dayEvents.map((event) => (
-                    <div
-                      key={event.id}
-                      onClick={() => onEventClick(event)}
-                      className={`p-2 rounded border-l-4 cursor-pointer hover:shadow-md transition-shadow ${
-                        statusColors[event.workflow_status] || 'border-l-gray-300 bg-muted/20'
-                      }`}
-                    >
-                      <p className="font-medium text-sm truncate">
-                        {event.contact_name}
-                      </p>
-                      <p className="text-xs text-muted-foreground truncate">
-                        {event.event_name}
-                      </p>
-                      
-                      <div className="flex items-center gap-1 mt-1.5 text-xs text-muted-foreground">
-                        <Clock className="h-3 w-3" />
-                        <span>{event.start_time?.slice(0, 5) || 'TBD'}</span>
-                      </div>
-                      
-                      <div className="flex items-center gap-1 mt-0.5 text-xs text-muted-foreground">
-                        <Users className="h-3 w-3" />
-                        <span>{event.guest_count}</span>
-                      </div>
-                      
-                      {event.location && (
-                        <a 
-                          href={formatLocationLink(event.location) || '#'}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(e) => e.stopPropagation()}
-                          className="flex items-center gap-1 mt-0.5 text-xs text-primary hover:underline"
-                          aria-label="Open in Maps"
-                        >
-                          <MapPin className="h-3 w-3 flex-shrink-0" />
-                          <span className="truncate">{event.location}</span>
-                        </a>
-                      )}
-                      
-                      {event.invoice && (
-                        <Badge 
-                          variant="outline" 
-                          className="mt-1.5 text-[10px] px-1.5 py-0"
-                        >
-                          ${(event.invoice.total_amount / 100).toLocaleString()}
-                        </Badge>
-                      )}
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-      <ScrollBar orientation="horizontal" />
-    </ScrollArea>
+            );
+          })}
+        </div>
+        <ScrollBar orientation="horizontal" />
+      </ScrollArea>
+
+      {/* Event Summary Sheet */}
+      <Sheet open={!!selectedEvent} onOpenChange={() => setSelectedEvent(null)}>
+        <SheetContent className="w-[350px] sm:w-[400px] p-0">
+          {selectedEvent && (
+            <EventSummaryPanel 
+              event={selectedEvent} 
+              onClose={() => setSelectedEvent(null)}
+              onViewFull={handleViewFull}
+            />
+          )}
+        </SheetContent>
+      </Sheet>
+    </>
   );
 }
