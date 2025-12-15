@@ -604,31 +604,49 @@ export const menuData = {
   }
 };
 
-// Wedding-specific premium menu items
+// Wedding-specific premium menu items (matches WeddingMenu.tsx page)
 export const weddingMenuItems = {
   appetizers: [
-    { id: "charcuterie-board", name: "Charcuterie Board", description: "Artisan meats, cheeses, and accompaniments", isPopular: true, isPremium: true },
-    { id: "shrimp-cocktail", name: "Shrimp Cocktail", description: "Jumbo shrimp with cocktail sauce", isPremium: true },
-    { id: "smoked-salmon-cucumber", name: "Smoked Salmon Cucumber Bites", description: "Refreshing and elegant appetizer", isPremium: true },
-    { id: "tomato-caprese", name: "Tomato Caprese", description: "Fresh mozzarella, tomatoes, and basil", isPremium: true },
-    { id: "tomato-bruschetta", name: "Tomato Bruschetta", description: "Classic Italian appetizer on toasted bread", isPremium: true },
-    { id: "fruit-platter", name: "Fruit Platter", description: "Fresh seasonal fruits beautifully arranged", isPremium: true }
+    { id: "fresh-fruit-platter", name: "Fresh Local Fruit Platter", description: "Beautifully arranged seasonal fruits", isPopular: true, isPremium: true },
+    { id: "signature-charcuterie", name: "Signature Charcuterie Board", description: "Artisan meats, cheeses, and accompaniments", isPopular: true, isPremium: true },
+    { id: "cheese-platter", name: "Exquisite Cheese Platter", description: "Premium cheeses with crackers and honey", isPremium: true },
+    { id: "grazing-table", name: "Grazing Table", description: "Interactive display of gourmet bites", isPremium: true },
+    { id: "chocolate-covered-fruit", name: "Chocolate-Covered Fruit", description: "Seasonal fruits dipped in premium chocolate", isPremium: true },
+    { id: "smoked-chicken-sliders", name: "Slow-Smoked Chicken Sliders", description: "Tender pulled chicken on brioche buns", isPremium: true },
+    { id: "smoked-pork-sliders", name: "Slow-Smoked Pork Sliders", description: "Savory pulled pork on brioche buns", isPremium: true },
+    { id: "italian-meatballs", name: "Italian-Style Meatballs", description: "Served with marinara sauce", isPremium: true },
+    { id: "deviled-eggs", name: "Velvety Deviled Eggs", description: "Classic Southern appetizer", isPremium: true },
+    { id: "mini-chicken-waffles", name: "Mini Chicken & Waffles", description: "Bite-sized Southern comfort", isPopular: true, isPremium: true },
+    { id: "tomato-caprese", name: "Tomato Caprese Skewers", description: "Fresh mozzarella, tomatoes, and basil", isPremium: true },
+    { id: "loaded-potato-bites", name: "Petite Loaded Potato Bites", description: "Topped with cheese, bacon, and sour cream", isPremium: true },
+    { id: "tomato-bruschetta", name: "Heirloom Tomato Bruschetta", description: "Toasted bread with fresh tomatoes", isPremium: true },
+    { id: "smoked-salmon-cucumber", name: "Smoked Salmon Cucumber Rounds", description: "Refreshing and elegant bites", isPremium: true }
   ],
   entrees: [
-    { id: "baked-salmon", name: "Baked Salmon", description: "Fresh Atlantic salmon with herbs", isPremium: true, isGlutenFree: true },
-    { id: "filet-mignon", name: "Filet Mignon", description: "Premium beef tenderloin", isPremium: true, isPopular: true },
-    { id: "grilled-chicken-breast", name: "Grilled Chicken Breast", description: "Herb-marinated chicken breast", isPremium: true },
-    { id: "glazed-ham", name: "Glazed Ham", description: "Honey-glazed spiral ham", isPremium: true },
-    { id: "prime-rib", name: "Prime Rib", description: "Slow-roasted prime rib", isPremium: true, isPopular: true },
-    { id: "shrimp-alfredo", name: "Shrimp Alfredo", description: "Creamy pasta with succulent shrimp", isPremium: true }
+    { id: "applewood-herb-chicken", name: "Applewood-Smoked Herb Chicken", description: "Slow-smoked with aromatic herbs", isPopular: true, isPremium: true },
+    { id: "hickory-beef-brisket", name: "Hickory-Smoked Beef Brisket", description: "Tender, slow-smoked brisket", isPopular: true, isPremium: true },
+    { id: "honey-bourbon-ham", name: "Glazed Honey-Bourbon Ham", description: "Sweet and savory glazed ham", isPremium: true },
+    { id: "lemon-honey-salmon", name: "Lemon-Honey Seared Salmon", description: "Fresh salmon with citrus glaze", isPremium: true },
+    { id: "pulled-pork-shoulder", name: "Hand-Pulled Smoked Pork Shoulder", description: "Traditional Southern-style pulled pork", isPremium: true },
+    { id: "honey-glazed-ribs", name: "Honey-Glazed Ribs", description: "Fall-off-the-bone tender ribs", isPremium: true },
+    { id: "cajun-turkey-wings", name: "Cajun Slow Cooked Turkey Wings", description: "Seasoned with Cajun spices", isPremium: true },
+    { id: "fettuccine-alfredo", name: "Creamy Fettuccine Alfredo", description: "Rich and creamy pasta", isPremium: true },
+    { id: "glazed-meatloaf", name: "Homestyle Glazed Meatloaf", description: "Classic comfort with signature glaze", isPremium: true },
+    { id: "smothered-pork-chops", name: "Smothered Pork Chops", description: "Tender chops in savory gravy", isPremium: true },
+    { id: "buttermilk-fried-chicken", name: "Buttermilk Fried Chicken", description: "Crispy Southern-style fried chicken", isPopular: true, isPremium: true },
+    { id: "lowcountry-boil", name: "Signature Lowcountry Boil", description: "Shrimp, sausage, corn, and potatoes", isPremium: true }
   ],
   sides: [
-    { id: "roasted-asparagus", name: "Roasted Asparagus", description: "Fresh asparagus with garlic butter", isPremium: true },
-    { id: "garlic-mashed-potatoes", name: "Garlic Mashed Potatoes", description: "Creamy potatoes with roasted garlic", isPremium: true },
-    { id: "wild-rice-pilaf", name: "Wild Rice Pilaf", description: "Herb-infused wild rice blend", isPremium: true },
-    { id: "grilled-vegetables", name: "Grilled Vegetable Medley", description: "Seasonal vegetables grilled to perfection", isPremium: true },
-    { id: "caesar-salad", name: "Caesar Salad", description: "Classic Caesar with parmesan", isPremium: true },
-    { id: "garden-salad", name: "Garden Salad", description: "Fresh mixed greens with vegetables", isPremium: true }
+    { id: "southern-mac-cheese", name: "Creamy Southern Macaroni & Cheese", description: "Rich, baked mac and cheese", isPopular: true, isPremium: true },
+    { id: "southern-potato-salad", name: "Classic Southern Potato Salad", description: "Traditional family recipe", isPremium: true },
+    { id: "steamed-green-beans", name: "Steamed Garden Green Beans", description: "Fresh green beans with butter", isPremium: true },
+    { id: "slow-simmered-cabbage", name: "Slow-Simmered Cabbage", description: "Southern-style braised cabbage", isPremium: true },
+    { id: "butter-sweet-corn", name: "Butter Sweet Corn", description: "Fresh corn with melted butter", isPremium: true },
+    { id: "garlic-mashed-potatoes", name: "Garlic Butter Mashed Potatoes", description: "Creamy potatoes with roasted garlic", isPopular: true, isPremium: true },
+    { id: "pan-gravy", name: "House-Made Pan Gravy", description: "Rich, savory gravy", isPremium: true },
+    { id: "herbed-yellow-rice", name: "Herbed Yellow Rice", description: "Seasoned rice with fresh herbs", isPremium: true },
+    { id: "honey-roasted-yams", name: "Honey-Roasted Yams with Warm Spices", description: "Sweet potatoes with cinnamon", isPremium: true },
+    { id: "seasonal-vegetable-medley", name: "Seasonal Vegetable Medley", description: "Fresh vegetables grilled to perfection", isPremium: true }
   ],
   desserts: [
     { id: "tiramisu", name: "Tiramisu", description: "Classic Italian coffee-flavored dessert", isPremium: true },

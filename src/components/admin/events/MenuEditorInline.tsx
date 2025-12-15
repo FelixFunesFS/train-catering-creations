@@ -49,21 +49,18 @@ const REGULAR_PROTEINS: CardOption[] = [
 ];
 
 const WEDDING_PROTEINS: CardOption[] = [
-  { id: "herb-roasted-chicken", name: "Herb-Roasted Chicken Breast", isPopular: true },
-  { id: "chicken-marsala", name: "Chicken Marsala", isPopular: true },
-  { id: "stuffed-chicken", name: "Stuffed Chicken Breast" },
-  { id: "cornish-hen", name: "Cornish Hen", isPremium: true },
-  { id: "filet-mignon", name: "Filet Mignon", isPremium: true },
-  { id: "beef-wellington", name: "Beef Wellington", isPremium: true },
-  { id: "prime-rib", name: "Prime Rib", isPremium: true },
-  { id: "ribeye-steak", name: "Ribeye Steak", isPremium: true },
-  { id: "short-ribs", name: "Braised Short Ribs" },
-  { id: "lobster-tail", name: "Lobster Tail", isPremium: true },
-  { id: "crab-cakes", name: "Jumbo Lump Crab Cakes", isPremium: true },
-  { id: "grilled-salmon", name: "Grilled Salmon" },
-  { id: "shrimp-scampi", name: "Shrimp Scampi" },
-  { id: "seafood-medley", name: "Seafood Medley", isPremium: true },
-  { id: "sea-bass", name: "Chilean Sea Bass", isPremium: true },
+  { id: "applewood-herb-chicken", name: "Applewood-Smoked Herb Chicken", isPopular: true },
+  { id: "hickory-beef-brisket", name: "Hickory-Smoked Beef Brisket", isPopular: true },
+  { id: "honey-bourbon-ham", name: "Glazed Honey-Bourbon Ham" },
+  { id: "lemon-honey-salmon", name: "Lemon-Honey Seared Salmon", isPremium: true },
+  { id: "pulled-pork-shoulder", name: "Hand-Pulled Smoked Pork Shoulder" },
+  { id: "honey-glazed-ribs", name: "Honey-Glazed Ribs" },
+  { id: "cajun-turkey-wings", name: "Cajun Slow Cooked Turkey Wings" },
+  { id: "fettuccine-alfredo", name: "Creamy Fettuccine Alfredo" },
+  { id: "glazed-meatloaf", name: "Homestyle Glazed Meatloaf" },
+  { id: "smothered-pork-chops", name: "Smothered Pork Chops" },
+  { id: "buttermilk-fried-chicken", name: "Buttermilk Fried Chicken", isPopular: true },
+  { id: "lowcountry-boil", name: "Signature Lowcountry Boil", isPremium: true },
 ];
 
 const REGULAR_VEGETARIAN: CardOption[] = [
