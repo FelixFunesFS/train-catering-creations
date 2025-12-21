@@ -134,7 +134,7 @@
     --secondary: 60 6% 92%;
     --secondary-foreground: 220 25% 20%;
     --muted: 60 6% 92%;
-    --muted-foreground: 220 15% 35%;
+    --muted-foreground: 220 18% 30%;
     --accent: 210 5% 75%;
     --accent-foreground: 220 25% 20%;
     
@@ -169,7 +169,7 @@
     /* Enhanced accessibility colors - WCAG 2.1 AA compliant */
     --text-high-contrast: 220 25% 20%;
     --text-medium-contrast: 220 20% 25%;
-    --text-low-contrast: 220 15% 35%;
+    --text-low-contrast: 220 18% 30%;
     --focus-ring: 0 80% 45%;
     --focus-ring-offset: 0 0% 100%;
 
