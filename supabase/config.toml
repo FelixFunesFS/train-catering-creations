@@ -63,16 +63,14 @@ verify_jwt = false
 [functions.send-custom-invoice-email]
 verify_jwt = false
 
-[functions.send-automated-reminders]
-verify_jwt = false
-
-[functions.send-reminders]
-verify_jwt = false
-
 [functions.send-approval-workflow]
 verify_jwt = false
 
 [functions.send-event-reminders]
+verify_jwt = false
+
+# Unified Reminder System (replaces send-automated-reminders, send-reminders, auto-workflow-manager reminders)
+[functions.unified-reminder-system]
 verify_jwt = false
 
 # Stripe Functions
