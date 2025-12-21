@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { 
   FileText, Plus, Loader2, Printer, X, Eye, RefreshCw, Save, Undo2
 } from 'lucide-react';
@@ -215,8 +216,9 @@ export const EstimatePanelContent = memo(function EstimatePanelContent({
 
       {/* Customer Notes (visible on estimate) */}
       <div className="space-y-2">
-        <label className="text-sm font-medium">Notes for Customer</label>
+        <Label htmlFor="customer-notes" className="text-sm font-medium">Notes for Customer</Label>
         <Textarea
+          id="customer-notes"
           value={customerNotes}
           onChange={e => onCustomerNotesChange(e.target.value)}
           placeholder="These notes will appear on the customer's estimate..."
@@ -258,8 +260,9 @@ export const EstimatePanelContent = memo(function EstimatePanelContent({
 
       {/* Admin Notes (internal only) */}
       <div className="space-y-2">
-        <label className="text-sm font-medium text-muted-foreground">Admin Notes (Internal)</label>
+        <Label htmlFor="admin-notes" className="text-sm font-medium text-muted-foreground">Admin Notes (Internal)</Label>
         <Textarea
+          id="admin-notes"
           value={adminNotes}
           onChange={e => onAdminNotesChange(e.target.value)}
           placeholder="Internal notes..."

@@ -3,6 +3,7 @@ import { Database } from '@/integrations/supabase/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { DollarSign, Trash2 } from 'lucide-react';
 
 type LineItem = Database['public']['Tables']['invoice_line_items']['Row'];
@@ -122,7 +123,7 @@ export function LineItemEditor({
       <div className="flex-1 min-w-0 space-y-2">
         <div className="flex items-start justify-between sm:block">
           <p className="font-medium text-sm">{item.title || item.category}</p>
-          {/* Mobile delete button */}
+        {/* Mobile delete button */}
           {onDelete && (
             <Button
               variant="ghost"
@@ -130,6 +131,7 @@ export function LineItemEditor({
               className="h-8 w-8 text-muted-foreground hover:text-destructive sm:hidden"
               onClick={onDelete}
               disabled={isUpdating}
+              aria-label="Delete line item"
             >
               <Trash2 className="h-4 w-4" />
             </Button>
@@ -156,9 +158,10 @@ export function LineItemEditor({
       <div className="flex items-end gap-2 sm:gap-3">
         {/* Quantity */}
         <div className="flex-1 sm:flex-none sm:w-16">
-          <p className="text-xs text-muted-foreground mb-1">Qty</p>
+          <Label htmlFor={`qty-${item.id}`} className="text-xs text-muted-foreground mb-1 block">Qty</Label>
           {onQuantityChange ? (
             <Input
+              id={`qty-${item.id}`}
               type="number"
               min={1}
               value={quantityInput}
@@ -175,10 +178,11 @@ export function LineItemEditor({
 
         {/* Unit Price Input */}
         <div className="flex-1 sm:flex-none sm:w-24">
-          <p className="text-xs text-muted-foreground mb-1">Unit Price</p>
+          <Label htmlFor={`price-${item.id}`} className="text-xs text-muted-foreground mb-1 block">Unit Price</Label>
           <div className="relative">
             <DollarSign className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
             <Input
+              id={`price-${item.id}`}
               type="text"
               inputMode="decimal"
               value={priceInput}
@@ -208,6 +212,7 @@ export function LineItemEditor({
               className="h-8 w-8 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
               onClick={onDelete}
               disabled={isUpdating}
+              aria-label="Delete line item"
             >
               <Trash2 className="h-4 w-4" />
             </Button>
