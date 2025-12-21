@@ -15,7 +15,6 @@ import { ReviewSummaryCard } from "./ReviewSummaryCard";
 import { User, Calendar, ChefHat, UtensilsCrossed, Package, ClipboardCheck } from "lucide-react";
 import { formSchema } from "./alternative-form/formSchema";
 import { supabase } from "@/integrations/supabase/client";
-import { anonSupabase } from "@/integrations/supabase/anonymousClient";
 import { useToast } from "@/hooks/use-toast";
 import { useFormAnalytics } from "@/hooks/useFormAnalytics";
 import { formatCustomerName, formatEventName, formatLocation } from "@/utils/textFormatters";
@@ -207,12 +206,12 @@ export const SinglePageQuoteForm = ({ variant = 'regular', onSuccess }: SinglePa
     setIsSubmitting(true);
     
     try {
-      const insertPayload = {
+      const submitPayload = {
         contact_name: formatCustomerName(data.contact_name),
         email: data.email,
         phone: data.phone,
         event_name: formatEventName(data.event_name),
-        event_type: data.event_type as any,
+        event_type: data.event_type,
         event_date: data.event_date,
         start_time: data.start_time,
         guest_count: data.guest_count,
@@ -244,18 +243,17 @@ export const SinglePageQuoteForm = ({ variant = 'regular', onSuccess }: SinglePa
         theme_colors: data.theme_colors,
         ceremony_included: data.ceremony_included,
         cocktail_hour: data.cocktail_hour,
-        workflow_status: 'pending' as const
       };
       
-      // Use anonymous client for public form submissions to avoid stale session interference
-      const { data: insertedData, error } = await anonSupabase
-        .from('quote_requests')
-        .insert([insertPayload])
-        .select();
+      // Use edge function to bypass RLS for public form submissions
+      const { data: result, error } = await supabase.functions.invoke('submit-quote-request', {
+        body: submitPayload
+      });
 
       if (error) throw error;
+      if (!result?.success) throw new Error(result?.error || 'Submission failed');
       
-      const quoteId = insertedData?.[0]?.id;
+      const quoteId = result.quote_id;
       setSubmittedQuoteId(quoteId);
       
       setEventData({
