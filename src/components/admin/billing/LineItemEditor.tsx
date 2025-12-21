@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Database } from '@/integrations/supabase/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -15,6 +15,7 @@ interface LineItemEditorProps {
   onDelete?: () => void;
   isUpdating?: boolean;
   readOnly?: boolean;
+  isDirty?: boolean;
 }
 
 function formatCents(cents: number): string {
@@ -28,63 +29,59 @@ export function LineItemEditor({
   onDescriptionChange,
   onDelete,
   isUpdating,
-  readOnly = false
+  readOnly = false,
+  isDirty = false
 }: LineItemEditorProps) {
+  // Local input state for controlled inputs
   const [priceInput, setPriceInput] = useState(formatCents(item.unit_price));
   const [quantityInput, setQuantityInput] = useState(item.quantity.toString());
-  const [descriptionInput, setDescriptionInput] = useState(item.description || '');
 
-  // Sync with external changes
-  useEffect(() => {
-    setPriceInput(formatCents(item.unit_price));
-  }, [item.unit_price]);
-
-  useEffect(() => {
-    setQuantityInput(item.quantity.toString());
-  }, [item.quantity]);
-
-  useEffect(() => {
-    setDescriptionInput(item.description || '');
-  }, [item.description]);
-
+  // Handle price change - update local state immediately, call onChange on blur
+  const handlePriceChange = (value: string) => {
+    setPriceInput(value);
+  };
+  
   const handlePriceBlur = () => {
     const parsed = parseFloat(priceInput);
     if (!isNaN(parsed) && parsed >= 0) {
       const cents = Math.round(parsed * 100);
-      if (cents !== item.unit_price) {
-        onPriceChange(cents);
-      }
+      onPriceChange(cents);
     } else {
+      // Reset to item value if invalid
       setPriceInput(formatCents(item.unit_price));
     }
   };
 
+  // Handle quantity change - update local state immediately, call onChange on blur
+  const handleQuantityInputChange = (value: string) => {
+    setQuantityInput(value);
+  };
+  
   const handleQuantityBlur = () => {
     const parsed = parseInt(quantityInput);
     if (!isNaN(parsed) && parsed > 0 && onQuantityChange) {
-      if (parsed !== item.quantity) {
-        onQuantityChange(parsed);
-      }
+      onQuantityChange(parsed);
     } else {
+      // Reset to item value if invalid
       setQuantityInput(item.quantity.toString());
     }
   };
 
-  const handleDescriptionBlur = () => {
-    if (onDescriptionChange && descriptionInput !== item.description) {
-      onDescriptionChange(descriptionInput);
+  // Handle description change - call onChange immediately for local state update
+  const handleDescriptionChange = (desc: string) => {
+    if (onDescriptionChange) {
+      onDescriptionChange(desc);
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent, handler: () => void) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, handler: () => void) => {
     if (e.key === 'Enter') {
+      (e.currentTarget as HTMLInputElement).blur();
       handler();
     }
   };
 
-  const totalCents = item.quantity * (parseFloat(priceInput) * 100 || 0);
-
-  const totalCentsCalculated = item.quantity * item.unit_price;
+  const totalCents = item.quantity * item.unit_price;
 
   // Read-only display mode
   if (readOnly) {
@@ -109,15 +106,18 @@ export function LineItemEditor({
           </div>
           <div className="text-right min-w-[70px]">
             <p className="text-xs text-muted-foreground">Total</p>
-            <p className="font-semibold">${formatCents(totalCentsCalculated)}</p>
+            <p className="font-semibold">${formatCents(totalCents)}</p>
           </div>
         </div>
       </div>
     );
   }
 
+  // Dirty indicator styling
+  const borderStyle = isDirty ? 'border-amber-400 dark:border-amber-600' : 'border';
+
   return (
-    <div className="flex flex-col sm:flex-row sm:items-start gap-3 p-3 bg-muted/30 rounded-lg border group">
+    <div className={`flex flex-col sm:flex-row sm:items-start gap-3 p-3 bg-muted/30 rounded-lg ${borderStyle} group`}>
       {/* Item Info - Title + Editable Description */}
       <div className="flex-1 min-w-0 space-y-2">
         <div className="flex items-start justify-between sm:block">
@@ -137,9 +137,8 @@ export function LineItemEditor({
         </div>
         {onDescriptionChange ? (
           <Textarea
-            value={descriptionInput}
-            onChange={(e) => setDescriptionInput(e.target.value)}
-            onBlur={handleDescriptionBlur}
+            value={item.description || ''}
+            onChange={(e) => handleDescriptionChange(e.target.value)}
             className="text-xs min-h-[60px] resize-y"
             disabled={isUpdating}
             placeholder="Item description..."

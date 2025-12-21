@@ -1,9 +1,9 @@
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useInvoice, useUpdateInvoice, useInvoiceWithMilestones } from '@/hooks/useInvoices';
-import { useLineItems, useUpdateLineItem, useDeleteLineItem } from '@/hooks/useLineItems';
+import { useLineItems, useDeleteLineItem } from '@/hooks/useLineItems';
 import { useCustomLineItems } from '@/hooks/useCustomLineItems';
-import { useDebouncedInvoiceRefresh } from '@/hooks/useDebouncedInvoiceRefresh';
+import { useEditableInvoice } from '@/hooks/useEditableInvoice';
 import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -17,7 +17,7 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { 
   X, FileText, Calendar, MapPin, Users, MessageSquare, DollarSign,
-  Plus, Eye, RefreshCw, Loader2, Printer, PartyPopper, Heart, ArrowLeft, Pencil, Utensils, CheckCircle2, Phone, ExternalLink
+  Plus, Eye, RefreshCw, Loader2, Printer, PartyPopper, Heart, ArrowLeft, Pencil, Utensils, CheckCircle2, Phone, ExternalLink, Save, Undo2
 } from 'lucide-react';
 import { formatDate, formatTime, formatServiceType, getStatusColor } from '@/utils/formatters';
 import { formatLocationLink, formatPhoneLink } from '@/utils/linkFormatters';
@@ -167,7 +167,6 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
   const [showAddItem, setShowAddItem] = useState(false);
   const [showCustomerEdit, setShowCustomerEdit] = useState(false);
   const [showMenuEdit, setShowMenuEdit] = useState(false);
-  const [adminNotes, setAdminNotes] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
 
   // Handle generating estimate when none exists
@@ -195,25 +194,6 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
     }
   };
   
-  // Notes state with dirty tracking
-  const initialNotes = invoice?.notes || '';
-  const [customerNotes, setCustomerNotes] = useState(initialNotes);
-  const hasAutoPopulatedNote = useRef(false);
-  
-  // Track if notes have changed
-  const notesChanged = customerNotes !== initialNotes;
-
-  // Auto-populate both proteins note ONCE when applicable
-  useEffect(() => {
-    if (quote?.both_proteins_available && !hasAutoPopulatedNote.current) {
-      const bothProteinsNote = '⭐ Both proteins will be served to all guests.';
-      if (!customerNotes.includes(bothProteinsNote)) {
-        setCustomerNotes(prev => prev ? `${prev}\n\n${bothProteinsNote}` : bothProteinsNote);
-      }
-      hasAutoPopulatedNote.current = true;
-    }
-  }, [quote?.both_proteins_available, customerNotes]);
-
   // Helper to format menu items
   const formatMenuItems = (items: unknown): string => {
     if (!items || !Array.isArray(items) || items.length === 0) return '';
@@ -225,10 +205,24 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
   const { data: lineItems, isLoading: loadingItems } = useLineItems(invoice?.id);
   const { customItems, hasCustomItems } = useCustomLineItems(invoice?.id);
   const { data: currentInvoice } = useInvoice(invoice?.id);
-  const updateLineItem = useUpdateLineItem();
   const deleteLineItem = useDeleteLineItem();
   const updateInvoice = useUpdateInvoice();
-  const { scheduleRefresh, forceRefresh } = useDebouncedInvoiceRefresh(invoice?.id);
+  
+  // Use the unified editable invoice hook for local state management
+  const {
+    localLineItems: editableLineItems,
+    customerNotes,
+    adminNotes,
+    updateLineItem: updateLocalLineItem,
+    setCustomerNotes,
+    setAdminNotes,
+    hasUnsavedChanges,
+    dirtyItemIds,
+    saveAllChanges,
+    discardAllChanges,
+    syncFromSource,
+    isSaving,
+  } = useEditableInvoice(invoice?.id, lineItems || [], currentInvoice?.notes);
 
   const isGovernment = quote?.compliance_level === 'government' || quote?.requires_po_number;
 
@@ -277,56 +271,42 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
     }
   };
 
-  const handlePriceChange = async (lineItemId: string, newPrice: number) => {
-    const item = lineItems?.find(li => li.id === lineItemId);
-    if (!item) return;
-    await updateLineItem.mutateAsync({
-      lineItemId,
-      invoiceId: invoice?.id,
-      updates: { unit_price: newPrice, total_price: newPrice * item.quantity },
-    });
-    scheduleRefresh();
+  // Handle line item changes - update LOCAL state only (no DB call)
+  const handlePriceChange = (lineItemId: string, newPrice: number) => {
+    updateLocalLineItem(lineItemId, { unit_price: newPrice });
   };
 
-  const handleQuantityChange = async (lineItemId: string, newQuantity: number) => {
-    const item = lineItems?.find(li => li.id === lineItemId);
-    if (!item) return;
-    await updateLineItem.mutateAsync({
-      lineItemId,
-      invoiceId: invoice?.id,
-      updates: { quantity: newQuantity, total_price: item.unit_price * newQuantity },
-    });
-    scheduleRefresh();
+  const handleQuantityChange = (lineItemId: string, newQuantity: number) => {
+    updateLocalLineItem(lineItemId, { quantity: newQuantity });
   };
 
   const handleDeleteItem = async (lineItemId: string) => {
     await deleteLineItem.mutateAsync({ lineItemId, invoiceId: invoice?.id });
   };
 
-  const handleDescriptionChange = async (lineItemId: string, desc: string) => {
-    await updateLineItem.mutateAsync({
-      lineItemId,
-      invoiceId: invoice?.id,
-      updates: { description: desc },
-    });
-    scheduleRefresh();
+  const handleDescriptionChange = (lineItemId: string, desc: string) => {
+    updateLocalLineItem(lineItemId, { description: desc });
   };
 
-  // Force refresh when closing to ensure totals are current
-  const handleClose = () => {
-    forceRefresh();
+  // Handle close - warn if unsaved changes
+  const handleClose = useCallback(() => {
+    if (hasUnsavedChanges) {
+      const confirmDiscard = window.confirm('You have unsaved changes. Discard them?');
+      if (!confirmDiscard) return;
+      discardAllChanges();
+    }
+    // Refresh to get latest from server
+    queryClient.invalidateQueries({ queryKey: ['invoice', invoice?.id] });
+    queryClient.invalidateQueries({ queryKey: ['line-items', invoice?.id] });
     onClose();
-  };
-
-  const handleSaveCustomerNotes = async () => {
-    await updateInvoice.mutateAsync({
-      invoiceId: invoice?.id,
-      updates: { notes: customerNotes },
-    });
-    toast({ title: 'Notes saved' });
-  };
+  }, [hasUnsavedChanges, discardAllChanges, queryClient, invoice?.id, onClose]);
 
   const handlePreviewClick = () => {
+    // Check for unsaved changes before preview
+    if (hasUnsavedChanges) {
+      toast({ title: 'Unsaved Changes', description: 'Please save your changes before previewing.', variant: 'destructive' });
+      return;
+    }
     const unpricedItems = lineItems?.filter(li => li.unit_price === 0) || [];
     if (unpricedItems.length > 0) {
       toast({ title: 'Missing Prices', description: `${unpricedItems.length} item(s) need pricing.`, variant: 'destructive' });
@@ -772,18 +752,24 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
             <SortableContext items={sortedLineItems.map(i => i.id)} strategy={verticalListSortingStrategy}>
               <div className="space-y-2">
-                {sortedLineItems.map(item => (
-                  <SortableLineItem key={item.id} id={item.id}>
-                    <LineItemEditor
-                      item={item}
-                      onPriceChange={price => handlePriceChange(item.id, price)}
-                      onQuantityChange={qty => handleQuantityChange(item.id, qty)}
-                      onDescriptionChange={desc => handleDescriptionChange(item.id, desc)}
-                      onDelete={() => handleDeleteItem(item.id)}
-                      isUpdating={updateLineItem.isPending || deleteLineItem.isPending}
-                    />
-                  </SortableLineItem>
-                ))}
+                {sortedLineItems.map(item => {
+                  // Find the local editable version of the item
+                  const editableItem = editableLineItems.find(li => li.id === item.id) || item;
+                  const isDirty = dirtyItemIds.has(item.id);
+                  return (
+                    <SortableLineItem key={item.id} id={item.id}>
+                      <LineItemEditor
+                        item={editableItem}
+                        onPriceChange={price => handlePriceChange(item.id, price)}
+                        onQuantityChange={qty => handleQuantityChange(item.id, qty)}
+                        onDescriptionChange={desc => handleDescriptionChange(item.id, desc)}
+                        onDelete={() => handleDeleteItem(item.id)}
+                        isUpdating={deleteLineItem.isPending || isSaving}
+                        isDirty={isDirty}
+                      />
+                    </SortableLineItem>
+                  );
+                })}
               </div>
             </SortableContext>
           </DndContext>
@@ -802,9 +788,6 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
           rows={2}
           className="text-sm"
         />
-        <Button variant="outline" size="sm" onClick={handleSaveCustomerNotes} disabled={updateInvoice.isPending || !notesChanged}>
-          Save Notes
-        </Button>
       </div>
 
       <Separator />
@@ -850,17 +833,35 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
         />
       </div>
 
+      {/* Unified Save Bar - appears when there are unsaved changes */}
+      {hasUnsavedChanges && (
+        <div className="sticky bottom-0 -mx-4 lg:-mx-6 px-4 lg:px-6 py-3 bg-amber-50 dark:bg-amber-950/50 border-t border-amber-200 dark:border-amber-800 flex items-center justify-between gap-3">
+          <Badge variant="outline" className="text-amber-700 dark:text-amber-300 border-amber-400 bg-amber-100 dark:bg-amber-900/30">
+            ⚠️ Unsaved changes
+          </Badge>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={discardAllChanges} disabled={isSaving}>
+              <Undo2 className="h-4 w-4 mr-1" /> Discard
+            </Button>
+            <Button size="sm" onClick={saveAllChanges} disabled={isSaving} className="bg-primary">
+              {isSaving ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Save className="h-4 w-4 mr-1" />}
+              Save Changes
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Actions */}
       <div className="flex flex-col sm:flex-row gap-2 pt-4">
         <Button variant="outline" onClick={handleClose} className="flex-1">
           <X className="h-4 w-4 mr-1" /> Close
         </Button>
         {isAlreadySent ? (
-          <Button onClick={handleResendClick} disabled={!lineItems?.length} variant="outline" className="flex-1">
+          <Button onClick={handleResendClick} disabled={!lineItems?.length || hasUnsavedChanges} variant="outline" className="flex-1">
             <RefreshCw className="h-4 w-4 mr-1" /> Resend
           </Button>
         ) : (
-          <Button onClick={handlePreviewClick} disabled={!lineItems?.length} className="flex-1">
+          <Button onClick={handlePreviewClick} disabled={!lineItems?.length || hasUnsavedChanges} className="flex-1">
             <Eye className="h-4 w-4 mr-1" /> Preview & Send
           </Button>
         )}
