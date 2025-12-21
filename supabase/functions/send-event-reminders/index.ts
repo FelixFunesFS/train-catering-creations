@@ -134,7 +134,7 @@ serve(async (req) => {
 
       // Send email if type is set
       if (emailType) {
-        const { error: emailError } = await supabaseClient.functions.invoke('send-gmail-email', {
+        const { error: emailError } = await supabaseClient.functions.invoke('send-smtp-email', {
           body: {
             to: event.email,
             subject,

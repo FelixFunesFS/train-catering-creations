@@ -193,7 +193,7 @@ const handler = async (req: Request): Promise<Response> => {
     console.log(`Sending email to: ${recipientEmail}${override_email ? ' (override)' : ''}`);
 
     // Send email via the gmail email function
-    const { error: emailError } = await supabase.functions.invoke('send-gmail-email', {
+    const { error: emailError } = await supabase.functions.invoke('send-smtp-email', {
       body: {
         to: recipientEmail,
         subject,

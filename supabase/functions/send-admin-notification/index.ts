@@ -118,7 +118,7 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     // Send email using Gmail edge function
-    const { error: emailError } = await supabase.functions.invoke('send-gmail-email', {
+    const { error: emailError } = await supabase.functions.invoke('send-smtp-email', {
       body: {
         to: 'soultrainseatery@gmail.com',
         subject,

@@ -179,7 +179,7 @@ const handler = async (req: Request): Promise<Response> => {
 
         if (!existingReminder || existingReminder.length === 0) {
           // Send reminder email
-          const { error: emailError } = await supabase.functions.invoke('send-gmail-email', {
+          const { error: emailError } = await supabase.functions.invoke('send-smtp-email', {
             body: {
               to: milestone.invoices.quote_requests.email,
               subject: `Payment Reminder - ${milestone.invoices.quote_requests.event_name}`,

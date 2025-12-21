@@ -281,7 +281,7 @@ const handler = async (req: Request): Promise<Response> => {
     let emailError = null;
 
     try {
-      const { error } = await supabase.functions.invoke('send-gmail-email', {
+      const { error } = await supabase.functions.invoke('send-smtp-email', {
         body: {
           to: quote.email,
           subject: emailSubject,

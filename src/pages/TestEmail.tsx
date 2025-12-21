@@ -1,152 +1,71 @@
-import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from '@/integrations/supabase/client';
+import { Mail, CheckCircle2, Send } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Info } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 
 const TestEmail = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const [isAuthLoading, setIsAuthLoading] = useState(false);
-  const [isCheckingTokens, setIsCheckingTokens] = useState(false);
-  const [hasTokens, setHasTokens] = useState(false);
-  const [fromEmail, setFromEmail] = useState("soultrainseatery@gmail.com");
-  const [toEmail, setToEmail] = useState("felixfunes2001.ff@gmail.com");
+  const [fromEmail] = useState('soultrainseatery@gmail.com');
+  const [toEmail, setToEmail] = useState('');
   const { toast } = useToast();
 
-  const checkTokenStatus = async () => {
-    setIsCheckingTokens(true);
-    try {
-      console.log("Checking token status for:", fromEmail);
-      
-      const { data, error } = await supabase
-        .from('gmail_tokens')
-        .select('id, email, refresh_token, expires_at')
-        .eq('email', fromEmail)
-        .maybeSingle();
-
-      console.log("Token query result:", { data, error });
-
-      if (error) {
-        console.error("Error checking token status:", error);
-        setHasTokens(false);
-      } else if (data) {
-        // Check if refresh token exists (access token expiration is handled automatically)
-        const hasRefreshToken = !!data.refresh_token;
-        console.log("Has refresh token:", hasRefreshToken);
-        
-        setHasTokens(hasRefreshToken);
-        
-        if (hasRefreshToken) {
-          toast({
-            title: "Gmail Connected",
-            description: "Gmail authorization is valid and ready to send emails.",
-          });
-        }
-      } else {
-        console.log("No tokens found for this email");
-        setHasTokens(false);
-      }
-    } catch (error) {
-      console.error("Error checking token status:", error);
-      setHasTokens(false);
-    } finally {
-      setIsCheckingTokens(false);
-    }
-  };
-
-  useEffect(() => {
-    checkTokenStatus();
-  }, [fromEmail]);
-
-  const handleGmailAuth = async () => {
-    setIsAuthLoading(true);
-    try {
-      console.log("Initiating Gmail OAuth...");
-      
-      const { data, error } = await supabase.functions.invoke('gmail-oauth-init');
-
-      if (error) {
-        console.error("OAuth init error:", error);
-        throw error;
-      }
-
-      if (data?.authUrl) {
-        // Open OAuth URL in a new window
-        const authWindow = window.open(
-          data.authUrl,
-          'gmail-auth',
-          'width=500,height=600,scrollbars=yes,resizable=yes'
-        );
-
-        if (authWindow) {
-          // Check if the window is closed (user completed auth)
-          const checkClosed = setInterval(() => {
-            if (authWindow.closed) {
-              clearInterval(checkClosed);
-              // Re-check token status after auth
-              setTimeout(() => {
-                checkTokenStatus();
-                toast({
-                  title: "Authorization Complete",
-                  description: "Gmail account has been connected. You can now send emails.",
-                });
-              }, 1000);
-            }
-          }, 1000);
-        }
-      } else {
-        throw new Error("No authorization URL received");
-      }
-    } catch (error: any) {
-      console.error("Error initiating Gmail auth:", error);
-      toast({
-        title: "Authorization Error",
-        description: `Failed to initiate Gmail authorization: ${error.message}`,
-        variant: "destructive",
-      });
-    } finally {
-      setIsAuthLoading(false);
-    }
-  };
-
   const sendTestEmail = async () => {
+    if (!toEmail) {
+      toast({
+        title: "Missing recipient",
+        description: "Please enter a recipient email address",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
-      console.log("Sending test email...");
-      
-      const { data, error } = await supabase.functions.invoke('send-test-email', {
+      const { data, error } = await supabase.functions.invoke('send-smtp-email', {
         body: {
-          fromEmail,
-          toEmail,
-        },
+          to: toEmail,
+          subject: "Test Email - Soul Train's Eatery SMTP Integration",
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+              <div style="background: linear-gradient(135deg, #DC143C, #8B0000); padding: 30px; text-align: center; border-radius: 8px;">
+                <h1 style="color: #FFD700; margin: 0;">🚂 Soul Train's Eatery</h1>
+                <p style="color: white; margin: 10px 0 0 0;">SMTP Email Test</p>
+              </div>
+              <div style="padding: 30px; background: #fff; border: 1px solid #eee; border-radius: 0 0 8px 8px;">
+                <h2 style="color: #333;">✅ SMTP Email Test Successful!</h2>
+                <p>This is a test email sent via SMTP (smtp.gmail.com).</p>
+                <p><strong>From:</strong> ${fromEmail}</p>
+                <p><strong>To:</strong> ${toEmail}</p>
+                <p><strong>Sent at:</strong> ${new Date().toLocaleString()}</p>
+                <hr style="margin: 20px 0; border: none; border-top: 1px solid #eee;">
+                <p style="color: #666; font-size: 14px;">
+                  If you're seeing this email, the SMTP integration is working correctly!
+                </p>
+              </div>
+            </div>
+          `,
+          from: `Soul Train's Eatery <${fromEmail}>`
+        }
       });
 
-      if (error) {
-        console.error("Supabase function error:", error);
-        throw error;
-      }
+      if (error) throw error;
 
-      console.log("Test email response:", data);
-
-      if (data?.success) {
-        toast({
-          title: "Success!",
-          description: `Test email sent successfully from ${fromEmail} to ${toEmail}`,
-        });
-      } else {
-        throw new Error(data?.error || "Unknown error occurred");
-      }
-    } catch (error: any) {
-      console.error("Error sending test email:", error);
       toast({
-        title: "Error",
-        description: `Failed to send test email: ${error.message}`,
-        variant: "destructive",
+        title: "Test email sent!",
+        description: `Email sent successfully to ${toEmail}`,
+      });
+    } catch (error: any) {
+      console.error('Error sending test email:', error);
+      toast({
+        title: "Failed to send test email",
+        description: error.message || "Please check SMTP configuration",
+        variant: "destructive"
       });
     } finally {
       setIsLoading(false);
@@ -158,52 +77,36 @@ const TestEmail = () => {
       <Card className="max-w-2xl mx-auto">
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
-            Gmail OAuth Setup
-            {isCheckingTokens ? (
-              <Badge variant="secondary">Checking...</Badge>
-            ) : hasTokens ? (
-              <Badge variant="default">Connected</Badge>
-            ) : (
-              <Badge variant="destructive">Not Connected</Badge>
-            )}
+            <span className="flex items-center gap-2">
+              <CheckCircle2 className="h-5 w-5 text-green-500" />
+              SMTP Email Configuration
+            </span>
+            <Badge variant="default" className="bg-green-500">Connected</Badge>
           </CardTitle>
           <CardDescription>
-            {hasTokens 
-              ? "Gmail is connected and ready to send emails."
-              : "First, authorize Gmail access to enable email sending."
-            }
+            Emails are sent via SMTP using smtp.gmail.com with app password authentication.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Alert className="mb-4 border-blue-200 bg-blue-50 dark:bg-blue-950 dark:border-blue-900">
-            <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-            <AlertTitle className="text-blue-800 dark:text-blue-300">One-Time Setup</AlertTitle>
-            <AlertDescription className="text-blue-700 dark:text-blue-400">
-              You only need to authorize Gmail <strong>once</strong>. After authorization, 
-              the system will automatically refresh access tokens as needed. Re-authorization 
-              is only required if you manually revoke access in your Google Account settings.
+          <Alert className="border-green-200 bg-green-50 dark:bg-green-950 dark:border-green-900">
+            <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
+            <AlertTitle className="text-green-800 dark:text-green-300">SMTP Configured</AlertTitle>
+            <AlertDescription className="text-green-700 dark:text-green-400">
+              Using Gmail SMTP with existing credentials. No OAuth token management or periodic 
+              reauthorization required. Emails will be sent reliably without token expiration issues.
             </AlertDescription>
           </Alert>
-          
-          <Button 
-            onClick={handleGmailAuth} 
-            disabled={isAuthLoading || isCheckingTokens}
-            className="w-full mb-4"
-            variant={hasTokens ? "outline" : "default"}
-          >
-            {isAuthLoading ? "Authorizing..." : hasTokens ? "Re-authorize Gmail" : "Authorize Gmail Access"}
-          </Button>
-          <p className="text-sm text-muted-foreground">
-            This will open a new window to authorize Gmail access for sending emails from your account.
-          </p>
         </CardContent>
       </Card>
 
       <Card className="max-w-2xl mx-auto">
         <CardHeader>
-          <CardTitle>Test Email System</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Send className="h-5 w-5" />
+            Send Test Email
+          </CardTitle>
           <CardDescription>
-            Send a test email to verify the email delivery system is working correctly.
+            Send a test email to verify the SMTP configuration is working correctly.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -213,9 +116,12 @@ const TestEmail = () => {
               id="from"
               type="email"
               value={fromEmail}
-              onChange={(e) => setFromEmail(e.target.value)}
-              placeholder="sender@example.com"
+              disabled
+              className="bg-muted"
             />
+            <p className="text-xs text-muted-foreground">
+              Emails are sent from the configured SMTP account
+            </p>
           </div>
           
           <div className="space-y-2">
@@ -231,20 +137,15 @@ const TestEmail = () => {
           
           <Button 
             onClick={sendTestEmail} 
-            disabled={isLoading || !fromEmail || !toEmail || !hasTokens || isCheckingTokens}
+            disabled={isLoading || !toEmail}
             className="w-full"
           >
+            <Mail className="mr-2 h-4 w-4" />
             {isLoading ? "Sending..." : "Send Test Email"}
           </Button>
           
-          {!hasTokens && (
-            <p className="text-sm text-orange-600 dark:text-orange-400">
-              ⚠️ Gmail authorization required before sending emails.
-            </p>
-          )}
-          
           <p className="text-sm text-muted-foreground">
-            This will send a test email using the Gmail API to verify 
+            This will send a test email using SMTP to verify 
             that email delivery is working correctly.
           </p>
         </CardContent>
