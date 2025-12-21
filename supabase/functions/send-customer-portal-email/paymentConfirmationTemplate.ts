@@ -3,7 +3,8 @@ import {
   generateEmailHeader, 
   generateEventDetailsCard, 
   generateFooter,
-  BRAND_COLORS
+  BRAND_COLORS,
+  LOGO_URLS
 } from '../_shared/emailTemplates.ts';
 
 export function generatePaymentConfirmationEmailWithNextSteps(

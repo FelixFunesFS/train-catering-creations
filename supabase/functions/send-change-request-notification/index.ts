@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { BRAND_COLORS, EMAIL_STYLES, generateEmailHeader, generateFooter } from "../_shared/emailTemplates.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.52.1";
+import { BRAND_COLORS, EMAIL_STYLES, generateEmailHeader, generateFooter, LOGO_URLS } from "../_shared/emailTemplates.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
