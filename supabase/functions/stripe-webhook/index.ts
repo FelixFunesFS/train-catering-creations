@@ -27,28 +27,38 @@ serve(async (req) => {
       throw new Error("STRIPE_SECRET_KEY is not configured");
     }
 
+    // SECURITY: Require webhook secret in production
+    if (!webhookSecret) {
+      logStep("CRITICAL: STRIPE_WEBHOOK_SECRET not configured - rejecting request");
+      return new Response(
+        JSON.stringify({ error: "Webhook secret not configured" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
     const signature = req.headers.get("stripe-signature");
     const body = await req.text();
 
-    let event: Stripe.Event;
+    // SECURITY: Always verify webhook signature - no dev mode fallback
+    if (!signature) {
+      logStep("Missing Stripe signature header");
+      return new Response(
+        JSON.stringify({ error: "Missing signature" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
-    // Verify webhook signature if secret is configured
-    if (webhookSecret && signature) {
-      try {
-        event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
-        logStep("Webhook signature verified");
-      } catch (err) {
-        logStep("Webhook signature verification failed", { error: err.message });
-        return new Response(JSON.stringify({ error: "Invalid signature" }), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 400,
-        });
-      }
-    } else {
-      // For development/testing without webhook secret
-      event = JSON.parse(body);
-      logStep("Processing webhook without signature verification (development mode)");
+    let event: Stripe.Event;
+    try {
+      event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+      logStep("Webhook signature verified");
+    } catch (err) {
+      logStep("Webhook signature verification failed", { error: err.message });
+      return new Response(JSON.stringify({ error: "Invalid signature" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+      });
     }
 
     const supabaseClient = createClient(
@@ -124,7 +134,7 @@ serve(async (req) => {
             fullyPaid: totalPaid >= (invoice?.total_amount || 0)
           });
 
-            if (invoice && totalPaid >= invoice.total_amount) {
+          if (invoice && totalPaid >= invoice.total_amount) {
             // Invoice is fully paid
             const { error: invoiceError } = await supabaseClient
               .from('invoices')

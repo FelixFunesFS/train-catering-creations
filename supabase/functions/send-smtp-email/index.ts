@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
+import { isInternalRequest } from '../_shared/security.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -21,6 +22,16 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    // SECURITY: Only allow internal edge function calls (server-to-server)
+    // This prevents abuse of the email sending endpoint from external sources
+    if (!isInternalRequest(req)) {
+      console.warn('[send-smtp-email] Rejected external request - internal only');
+      return new Response(
+        JSON.stringify({ error: 'This endpoint is for internal use only', code: 'UNAUTHORIZED' }),
+        { status: 401, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+      );
+    }
+
     const { to, subject, html, from = 'soultrainseatery@gmail.com', replyTo }: EmailRequest = await req.json();
 
     if (!to || !subject || !html) {
