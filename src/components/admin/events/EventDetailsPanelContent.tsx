@@ -205,11 +205,27 @@ export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
         </div>
 
         <div className="space-y-2 text-sm">
+          {/* Appetizers */}
+          {quote?.appetizers && Array.isArray(quote.appetizers) && quote.appetizers.length > 0 && (
+            <div className="space-y-1">
+              <p className="font-medium text-xs text-muted-foreground">Appetizers</p>
+              <p>{formatMenuItems(quote.appetizers)}</p>
+            </div>
+          )}
           {/* Proteins */}
           {quote?.proteins && Array.isArray(quote.proteins) && quote.proteins.length > 0 && (
             <div className="space-y-1">
               <p className="font-medium text-xs text-muted-foreground">Proteins</p>
               <p>{formatMenuItems(quote.proteins)}</p>
+            </div>
+          )}
+          {/* Vegetarian Entrées */}
+          {quote?.vegetarian_entrees && Array.isArray(quote.vegetarian_entrees) && quote.vegetarian_entrees.length > 0 && (
+            <div className="space-y-1">
+              <p className="font-medium text-xs text-muted-foreground">
+                Vegetarian Entrées{quote.guest_count_with_restrictions && ` (${quote.guest_count_with_restrictions} guests)`}
+              </p>
+              <p>{formatMenuItems(quote.vegetarian_entrees)}</p>
             </div>
           )}
           {/* Sides */}
@@ -235,6 +251,26 @@ export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
           )}
         </div>
       </section>
+
+      {/* Supplies & Equipment */}
+      {(quote?.plates_requested || quote?.cups_requested || quote?.napkins_requested || 
+        quote?.serving_utensils_requested || quote?.ice_requested) && (
+        <>
+          <Separator />
+          <section className="space-y-2">
+            <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+              Supplies & Equipment
+            </h3>
+            <ul className="text-sm space-y-1">
+              {quote?.plates_requested && <li>• Plates</li>}
+              {quote?.cups_requested && <li>• Cups</li>}
+              {quote?.napkins_requested && <li>• Napkins</li>}
+              {quote?.serving_utensils_requested && <li>• Serving Utensils</li>}
+              {quote?.ice_requested && <li>• Ice</li>}
+            </ul>
+          </section>
+        </>
+      )}
 
       {/* Service Add-ons */}
       {(quote?.chafers_requested || quote?.wait_staff_requested || quote?.bussing_tables_needed) && (
