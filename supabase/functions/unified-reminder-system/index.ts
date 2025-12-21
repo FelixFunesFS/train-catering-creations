@@ -1,5 +1,12 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.52.1';
+import { 
+  BRAND_COLORS, 
+  LOGO_URLS, 
+  generateEmailHeader, 
+  generateFooter,
+  formatCurrency as formatCurrencyShared 
+} from '../_shared/emailTemplates.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -475,131 +482,156 @@ const handler = async (req: Request): Promise<Response> => {
   }
 };
 
+/**
+ * Generate branded email templates using Soul Train's brand colors
+ * TABLE-BASED layouts for maximum email client compatibility
+ */
 function generateEmailTemplate(type: string, data: any): string {
-  const baseStyle = `
-    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
-    .header { text-align: center; padding: 20px; background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; border-radius: 8px 8px 0 0; }
-    .content { padding: 30px; background: #ffffff; }
-    .highlight { background-color: #eff6ff; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #3b82f6; }
-    .urgent { background-color: #fef2f2; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ef4444; }
-    .success { background-color: #f0fdf4; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #22c55e; }
-    .footer { text-align: center; color: #666; padding: 20px; background: #f9fafb; border-radius: 0 0 8px 8px; }
-    .btn { display: inline-block; padding: 12px 24px; background: #2563eb; color: white; text-decoration: none; border-radius: 6px; margin: 10px 0; }
-  `;
-
-  let content = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8">
-      <style>${baseStyle}</style>
-    </head>
-    <body>
-      <div class="header">
-        <h1 style="margin: 0;">Soul Train's Eatery</h1>
-      </div>
-      <div class="content">
-        <p>Dear ${data.contactName},</p>
-  `;
+  const siteUrl = Deno.env.get('SITE_URL') || 'https://soultrainseatery.lovable.app';
+  
+  let content = '';
 
   switch (type) {
     case 'overdue_payment':
-      content += `
-        <div class="urgent">
-          <h3 style="margin-top: 0;">⚠️ Payment Overdue</h3>
-          <p>Your payment for <strong>${data.eventName}</strong> was due on ${new Date(data.dueDate).toLocaleDateString()}.</p>
-          <p><strong>Amount Due:</strong> ${formatCurrency(data.totalAmount)}</p>
-        </div>
-        <p>Please contact us immediately at (843) 970-0265 to arrange payment and ensure your event proceeds as planned.</p>
-      `;
+      content = `
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#fee2e2;border-radius:8px;border-left:4px solid ${BRAND_COLORS.crimson};margin:20px 0;border-collapse:collapse;">
+<tr><td style="padding:20px;">
+<h3 style="margin:0 0 12px 0;color:${BRAND_COLORS.crimson};font-size:18px;">⚠️ Payment Overdue</h3>
+<p style="margin:0 0 12px 0;font-size:15px;line-height:1.6;color:#333;">Your payment for <strong>${data.eventName}</strong> was due on ${new Date(data.dueDate).toLocaleDateString()}.</p>
+<p style="margin:0;font-size:16px;color:${BRAND_COLORS.crimson};font-weight:bold;">Amount Due: ${formatCurrency(data.totalAmount)}</p>
+</td></tr>
+</table>
+<p style="margin:16px 0;font-size:15px;line-height:1.6;color:#333;">Please contact us immediately at <a href="tel:+18439700265" style="color:${BRAND_COLORS.crimson};font-weight:bold;">(843) 970-0265</a> to arrange payment and ensure your event proceeds as planned.</p>
+`;
       break;
 
     case 'payment_due_soon':
-      content += `
-        <div class="highlight">
-          <h3 style="margin-top: 0;">Payment Due Soon</h3>
-          <p>A ${data.milestoneType.replace('_', ' ')} payment is coming due for your event.</p>
-          <p><strong>Event:</strong> ${data.eventName}<br>
-          <strong>Amount:</strong> ${formatCurrency(data.amount)}<br>
-          <strong>Due Date:</strong> ${new Date(data.dueDate).toLocaleDateString()}</p>
-        </div>
-        <p>Please arrange payment before the due date to keep your event on track.</p>
-      `;
+      content = `
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${BRAND_COLORS.lightGray};border-radius:8px;border-left:4px solid ${BRAND_COLORS.gold};margin:20px 0;border-collapse:collapse;">
+<tr><td style="padding:20px;">
+<h3 style="margin:0 0 12px 0;color:${BRAND_COLORS.crimson};font-size:18px;">Payment Due Soon</h3>
+<p style="margin:0 0 8px 0;font-size:15px;line-height:1.6;color:#333;">A ${data.milestoneType.replace('_', ' ')} payment is coming due for your event.</p>
+<table cellpadding="0" cellspacing="0" border="0" style="margin:12px 0;border-collapse:collapse;">
+<tr><td style="padding:4px 0;font-size:14px;"><strong>Event:</strong> ${data.eventName}</td></tr>
+<tr><td style="padding:4px 0;font-size:14px;"><strong>Amount:</strong> ${formatCurrency(data.amount)}</td></tr>
+<tr><td style="padding:4px 0;font-size:14px;"><strong>Due Date:</strong> ${new Date(data.dueDate).toLocaleDateString()}</td></tr>
+</table>
+</td></tr>
+</table>
+<p style="margin:16px 0;font-size:15px;line-height:1.6;color:#333;">Please arrange payment before the due date to keep your event on track.</p>
+`;
       break;
 
     case 'event_7_day':
-      content += `
-        <div class="highlight">
-          <h3 style="margin-top: 0;">📋 Final Details Confirmation</h3>
-          <p>Your event is just <strong>one week away</strong>! We need to confirm the final details:</p>
-          <ul>
-            <li>Final guest count (currently ${data.guestCount})</li>
-            <li>Menu modifications or dietary restrictions</li>
-            <li>Setup timing and location access</li>
-            <li>Contact person for the day of event</li>
-          </ul>
-          <p><strong>Event:</strong> ${data.eventName}<br>
-          <strong>Date:</strong> ${new Date(data.eventDate).toLocaleDateString()}<br>
-          <strong>Location:</strong> ${data.location}</p>
-        </div>
-        <p>Please call us at (843) 970-0265 or reply to this email with any updates.</p>
-      `;
+      content = `
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${BRAND_COLORS.lightGray};border-radius:8px;border-left:4px solid ${BRAND_COLORS.gold};margin:20px 0;border-collapse:collapse;">
+<tr><td style="padding:20px;">
+<h3 style="margin:0 0 12px 0;color:${BRAND_COLORS.crimson};font-size:18px;">📋 Final Details Confirmation</h3>
+<p style="margin:0 0 12px 0;font-size:15px;line-height:1.6;color:#333;">Your event is just <strong>one week away</strong>! We need to confirm the final details:</p>
+<ul style="margin:0;padding-left:20px;line-height:1.8;">
+<li>Final guest count (currently ${data.guestCount})</li>
+<li>Menu modifications or dietary restrictions</li>
+<li>Setup timing and location access</li>
+<li>Contact person for the day of event</li>
+</ul>
+<table cellpadding="0" cellspacing="0" border="0" style="margin:16px 0;border-collapse:collapse;">
+<tr><td style="padding:4px 0;font-size:14px;"><strong>Event:</strong> ${data.eventName}</td></tr>
+<tr><td style="padding:4px 0;font-size:14px;"><strong>Date:</strong> ${new Date(data.eventDate).toLocaleDateString()}</td></tr>
+<tr><td style="padding:4px 0;font-size:14px;"><strong>Location:</strong> ${data.location}</td></tr>
+</table>
+</td></tr>
+</table>
+<p style="margin:16px 0;font-size:15px;line-height:1.6;color:#333;">Please call us at <a href="tel:+18439700265" style="color:${BRAND_COLORS.crimson};font-weight:bold;">(843) 970-0265</a> or reply to this email with any updates.</p>
+`;
       break;
 
     case 'event_2_day':
-      content += `
-        <div class="urgent">
-          <h3 style="margin-top: 0;">🎉 Your Event is in 2 Days!</h3>
-          <p>We're excited to cater your event! Here's what you need to know:</p>
-          <p><strong>Event:</strong> ${data.eventName}<br>
-          <strong>Date:</strong> ${new Date(data.eventDate).toLocaleDateString()}<br>
-          <strong>Location:</strong> ${data.location}<br>
-          <strong>Start Time:</strong> ${data.startTime || 'As scheduled'}</p>
-        </div>
-        <p><strong>Please ensure:</strong></p>
-        <ul>
-          <li>Venue access is arranged for our team</li>
-          <li>A contact person is available at the venue</li>
-          <li>Setup area is cleared and ready</li>
-        </ul>
-        <p>Emergency contact: (843) 970-0265</p>
-      `;
+      content = `
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:linear-gradient(135deg,${BRAND_COLORS.gold}20,${BRAND_COLORS.gold}40);border-radius:8px;border:2px solid ${BRAND_COLORS.gold};margin:20px 0;border-collapse:collapse;">
+<tr><td style="padding:20px;">
+<h3 style="margin:0 0 12px 0;color:${BRAND_COLORS.crimson};font-size:20px;">🎉 Your Event is in 2 Days!</h3>
+<p style="margin:0 0 12px 0;font-size:15px;line-height:1.6;color:#333;">We're excited to cater your event! Here's what you need to know:</p>
+<table cellpadding="0" cellspacing="0" border="0" style="margin:12px 0;border-collapse:collapse;">
+<tr><td style="padding:4px 0;font-size:14px;"><strong>Event:</strong> ${data.eventName}</td></tr>
+<tr><td style="padding:4px 0;font-size:14px;"><strong>Date:</strong> ${new Date(data.eventDate).toLocaleDateString()}</td></tr>
+<tr><td style="padding:4px 0;font-size:14px;"><strong>Location:</strong> ${data.location}</td></tr>
+<tr><td style="padding:4px 0;font-size:14px;"><strong>Start Time:</strong> ${data.startTime || 'As scheduled'}</td></tr>
+</table>
+</td></tr>
+</table>
+<p style="margin:16px 0;font-size:15px;line-height:1.6;color:#333;"><strong>Please ensure:</strong></p>
+<ul style="margin:0;padding-left:20px;line-height:1.8;">
+<li>Venue access is arranged for our team</li>
+<li>A contact person is available at the venue</li>
+<li>Setup area is cleared and ready</li>
+</ul>
+<p style="margin:16px 0;font-size:15px;color:#333;">Emergency contact: <a href="tel:+18439700265" style="color:${BRAND_COLORS.crimson};font-weight:bold;">(843) 970-0265</a></p>
+`;
       break;
 
     case 'post_event_thankyou':
-      content += `
-        <div class="success">
-          <h3 style="margin-top: 0;">🙏 Thank You!</h3>
-          <p>We hope your event, <strong>${data.eventName}</strong>, was everything you dreamed it would be!</p>
-        </div>
-        <p>It was our pleasure to serve you and your guests. We'd love to hear about your experience:</p>
-        <ul>
-          <li>Leave us a review on Google or Facebook</li>
-          <li>Share photos from your event (we love seeing happy guests!)</li>
-          <li>Let us know if anything exceeded or fell short of expectations</li>
-        </ul>
-        <p>Thank you for trusting Soul Train's Eatery with your special day. We look forward to catering your future events!</p>
-      `;
+      content = `
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#dcfce7;border-radius:8px;border-left:4px solid #22c55e;margin:20px 0;border-collapse:collapse;">
+<tr><td style="padding:20px;">
+<h3 style="margin:0 0 12px 0;color:#166534;font-size:18px;">🙏 Thank You!</h3>
+<p style="margin:0;font-size:15px;line-height:1.6;color:#333;">We hope your event, <strong>${data.eventName}</strong>, was everything you dreamed it would be!</p>
+</td></tr>
+</table>
+<p style="margin:16px 0;font-size:15px;line-height:1.6;color:#333;">It was our pleasure to serve you and your guests. We'd love to hear about your experience:</p>
+<ul style="margin:0;padding-left:20px;line-height:1.8;">
+<li>Leave us a review on Google or Facebook</li>
+<li>Share photos from your event (we love seeing happy guests!)</li>
+<li>Let us know if anything exceeded or fell short of expectations</li>
+</ul>
+<p style="margin:16px 0;font-size:15px;line-height:1.6;color:#333;">Thank you for trusting Soul Train's Eatery with your special day. We look forward to catering your future events!</p>
+`;
       break;
 
     default:
-      content += `<p>This is a reminder about your event with Soul Train's Eatery.</p>`;
+      content = `<p style="margin:16px 0;font-size:15px;line-height:1.6;color:#333;">This is a reminder about your event with Soul Train's Eatery.</p>`;
   }
 
-  content += `
-        <p>Questions? Call us at (843) 970-0265 or reply to this email.</p>
-        <p>Best regards,<br><strong>The Soul Train's Eatery Team</strong></p>
-      </div>
-      <div class="footer">
-        <p><strong>Soul Train's Eatery</strong><br>
-        Phone: (843) 970-0265 | Email: soultrainseatery@gmail.com<br>
-        Proudly serving Charleston's Lowcountry and surrounding areas</p>
-      </div>
-    </body>
-    </html>
-  `;
-
-  return content;
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Soul Train's Eatery</title>
+</head>
+<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background-color:#f5f5f5;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f5f5f5;padding:20px 0;border-collapse:collapse;">
+<tr>
+<td align="center">
+<table width="100%" style="max-width:600px;background:white;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.1);border-collapse:collapse;">
+<tr>
+<td style="background:linear-gradient(135deg,${BRAND_COLORS.crimson} 0%,${BRAND_COLORS.crimsonDark} 100%);padding:30px;text-align:center;">
+<img src="${LOGO_URLS.white}" alt="Soul Train's Eatery" width="70" height="70" style="display:block;width:70px;height:70px;margin:0 auto 12px auto;" />
+<h1 style="color:${BRAND_COLORS.gold};margin:0;font-size:26px;font-weight:bold;">Soul Train's Eatery</h1>
+<p style="color:rgba(255,255,255,0.9);margin:8px 0 0 0;font-size:14px;font-style:italic;">Authentic Southern Cooking from the Heart</p>
+</td>
+</tr>
+<tr>
+<td style="padding:30px;">
+<p style="margin:0 0 16px 0;font-size:16px;color:#333;">Dear ${data.contactName},</p>
+${content}
+<p style="margin:24px 0 0 0;font-size:15px;color:#333;">Questions? Call us at <a href="tel:+18439700265" style="color:${BRAND_COLORS.crimson};font-weight:bold;">(843) 970-0265</a> or reply to this email.</p>
+<p style="margin:16px 0 0 0;font-size:15px;color:#333;">Best regards,<br><strong>The Soul Train's Eatery Team</strong></p>
+</td>
+</tr>
+<tr>
+<td style="background:${BRAND_COLORS.darkGray};padding:24px;text-align:center;">
+<img src="${LOGO_URLS.white}" alt="" width="40" height="40" style="display:block;width:40px;height:40px;margin:0 auto 8px auto;opacity:0.8;" />
+<p style="color:${BRAND_COLORS.gold};margin:0 0 4px 0;font-weight:bold;font-size:14px;">Soul Train's Eatery</p>
+<p style="color:rgba(255,255,255,0.7);margin:0;font-size:12px;">Charleston's Trusted Catering Partner</p>
+<p style="color:rgba(255,255,255,0.5);margin:10px 0 0 0;font-size:11px;">(843) 970-0265 | soultrainseatery@gmail.com</p>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</body>
+</html>`;
 }
 
 serve(handler);
