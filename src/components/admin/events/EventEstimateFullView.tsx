@@ -318,7 +318,7 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
             <span className="md:hidden">Event Details</span>
           </h1>
         </div>
-        <Button variant="ghost" size="icon" onClick={handleClose}>
+        <Button variant="ghost" size="icon" onClick={handleClose} aria-label="Close panel">
           <X className="h-5 w-5" />
         </Button>
       </div>

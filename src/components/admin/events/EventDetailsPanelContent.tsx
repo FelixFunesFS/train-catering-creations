@@ -141,7 +141,7 @@ export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
           <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-2">
             <Users className="h-4 w-4" /> Customer
           </h3>
-          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={onEditCustomer}>
+          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={onEditCustomer} aria-label="Edit customer details">
             <Pencil className="h-3 w-3" />
           </Button>
         </div>
@@ -199,7 +199,7 @@ export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
           <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-2">
             <Utensils className="h-4 w-4" /> Menu Selections
           </h3>
-          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={onEditMenu}>
+          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={onEditMenu} aria-label="Edit menu selections">
             <Pencil className="h-3 w-3" />
           </Button>
         </div>
@@ -298,7 +298,7 @@ export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
               <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                 <MessageSquare className="h-4 w-4" /> Special Requests
               </h3>
-              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={onEditMenu}>
+              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={onEditMenu} aria-label="Edit special requests">
                 <Pencil className="h-3 w-3" />
               </Button>
             </div>

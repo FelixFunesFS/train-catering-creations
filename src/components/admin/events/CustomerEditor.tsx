@@ -189,24 +189,33 @@ export function CustomerEditor({ quote, invoiceId, onSave }: CustomerEditorProps
 
         {/* Service Type Section */}
         <div className="space-y-4">
-          <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Service Type</h4>
-          <div className="grid gap-2">
+          <h4 id="service-type-label" className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Service Type</h4>
+          <div className="grid gap-2" role="radiogroup" aria-labelledby="service-type-label">
             {SERVICE_OPTIONS.map((option) => (
               <div
                 key={option.id}
-                className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors ${
+                role="radio"
+                aria-checked={formData.service_type === option.id}
+                tabIndex={0}
+                className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
                   formData.service_type === option.id 
                     ? 'border-primary bg-primary/5' 
                     : 'hover:bg-muted/50'
                 }`}
                 onClick={() => setFormData(prev => ({ ...prev, service_type: option.id }))}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setFormData(prev => ({ ...prev, service_type: option.id }));
+                  }
+                }}
               >
                 {formData.service_type === option.id ? (
-                  <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" />
+                  <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" aria-hidden="true" />
                 ) : (
-                  <Circle className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                  <Circle className="h-5 w-5 text-muted-foreground flex-shrink-0" aria-hidden="true" />
                 )}
-                <div className="flex items-center gap-2 text-muted-foreground">
+                <div className="flex items-center gap-2 text-muted-foreground" aria-hidden="true">
                   {option.icon}
                 </div>
                 <div className="flex-1">

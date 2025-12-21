@@ -89,6 +89,7 @@ export function DiscountEditor({
           onClick={handleRemove}
           disabled={disabled}
           className="h-7 w-7 p-0 text-emerald-600 hover:text-destructive hover:bg-destructive/10"
+          aria-label="Remove discount"
         >
           <X className="h-4 w-4" />
         </Button>
