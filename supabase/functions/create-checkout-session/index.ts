@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { createErrorResponse } from "../_shared/security.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -45,8 +46,8 @@ const handler = async (req: Request): Promise<Response> => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
     const siteUrl = Deno.env.get("SITE_URL") || Deno.env.get("FRONTEND_URL");
 
-    if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not configured");
-    if (!supabaseUrl || !supabaseServiceKey) throw new Error("Supabase credentials not configured");
+    if (!stripeKey) throw new Error("Payment service not configured");
+    if (!supabaseUrl || !supabaseServiceKey) throw new Error("Service configuration error");
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
@@ -71,7 +72,7 @@ const handler = async (req: Request): Promise<Response> => {
       .single();
 
     if (invoiceError || !invoice) {
-      logStep("Invoice not found", { error: invoiceError });
+      logStep("Invoice not found");
       throw new Error("Invoice not found");
     }
 
@@ -104,7 +105,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (existingCustomer?.stripe_customer_id) {
       stripeCustomerId = existingCustomer.stripe_customer_id;
-      logStep("Using existing Stripe customer", { stripeCustomerId });
+      logStep("Using existing Stripe customer");
     } else {
       const stripeCustomer = await stripe.customers.create({
         email: customerEmail,
@@ -113,7 +114,7 @@ const handler = async (req: Request): Promise<Response> => {
       });
 
       stripeCustomerId = stripeCustomer.id;
-      logStep("Created new Stripe customer", { stripeCustomerId });
+      logStep("Created new Stripe customer");
 
       await supabase.from("customers").upsert({
         email: customerEmail,
@@ -172,16 +173,7 @@ const handler = async (req: Request): Promise<Response> => {
       }
     );
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    logStep("ERROR", { message: errorMessage });
-
-    return new Response(
-      JSON.stringify({ error: errorMessage }),
-      {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 500,
-      }
-    );
+    return createErrorResponse(error, 'create-checkout-session', corsHeaders);
   }
 };
 

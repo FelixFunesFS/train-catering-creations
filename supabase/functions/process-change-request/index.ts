@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.52.1';
+import { escapeHtml, createErrorResponse } from '../_shared/security.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -43,7 +44,7 @@ const handler = async (req: Request): Promise<Response> => {
     const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
     if (!supabaseUrl || !serviceRoleKey) {
-      throw new Error('Missing required environment variables');
+      throw new Error('Service configuration error');
     }
 
     const supabase = createClient(supabaseUrl, serviceRoleKey);
@@ -73,13 +74,12 @@ const handler = async (req: Request): Promise<Response> => {
       .single();
 
     if (fetchError || !changeRequest) {
-      throw new Error(`Change request not found: ${fetchError?.message}`);
+      throw new Error('Change request not found');
     }
 
     logStep("Change request data fetched", { 
       requestType: changeRequest.request_type,
-      status: changeRequest.status,
-      customerEmail: changeRequest.customer_email 
+      status: changeRequest.status
     });
 
     let newStatus = changeRequest.status;
@@ -148,7 +148,7 @@ const handler = async (req: Request): Promise<Response> => {
       .eq('id', change_request_id);
 
     if (updateError) {
-      throw new Error(`Failed to update change request: ${updateError.message}`);
+      throw new Error('Failed to update change request');
     }
 
     logStep("Change request updated", { newStatus, action });
@@ -157,7 +157,7 @@ const handler = async (req: Request): Promise<Response> => {
     try {
       const emailData = {
         to: changeRequest.customer_email,
-        subject: `Change Request Update - ${changeRequest.invoices.quote_requests.event_name}`,
+        subject: `Change Request Update - ${escapeHtml(changeRequest.invoices.quote_requests.event_name)}`,
         html: generateResponseEmail(changeRequest, action, admin_response, estimated_cost_change)
       };
 
@@ -166,12 +166,12 @@ const handler = async (req: Request): Promise<Response> => {
       });
 
       if (emailError) {
-        logStep("Warning: Failed to send notification email", { error: emailError.message });
+        logStep("Warning: Failed to send notification email");
       } else {
         logStep("Notification email sent successfully");
       }
     } catch (emailError) {
-      logStep("Warning: Email notification failed", { error: emailError });
+      logStep("Warning: Email notification failed");
     }
 
     return new Response(JSON.stringify({ 
@@ -188,21 +188,15 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
   } catch (error: any) {
-    logStep("ERROR in change request processing", { message: error.message });
-    console.error('Error in process-change-request:', error);
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      {
-        status: 500,
-        headers: { 'Content-Type': 'application/json', ...corsHeaders },
-      }
-    );
+    return createErrorResponse(error, 'process-change-request', corsHeaders);
   }
 };
 
 function generateResponseEmail(changeRequest: any, action: string, adminResponse?: string, costChange?: number): string {
-  const eventName = changeRequest.invoices.quote_requests.event_name;
-  const customerName = changeRequest.invoices.customers.name;
+  // Sanitize all user-provided data
+  const safeEventName = escapeHtml(changeRequest.invoices.quote_requests.event_name);
+  const safeCustomerName = escapeHtml(changeRequest.invoices.customers.name);
+  const safeAdminResponse = escapeHtml(adminResponse);
   
   let statusMessage = '';
   let nextSteps = '';
@@ -239,13 +233,13 @@ function generateResponseEmail(changeRequest: any, action: string, adminResponse
       </div>
       
       <div style="background: white; padding: 30px; border-radius: 0 0 10px 10px; border: 1px solid #e5e7eb;">
-        <h2 style="color: #1f2937; margin-top: 0;">Hello ${customerName},</h2>
+        <h2 style="color: #1f2937; margin-top: 0;">Hello ${safeCustomerName},</h2>
         
-        <p>We've reviewed your change request for <strong>${eventName}</strong>.</p>
+        <p>We've reviewed your change request for <strong>${safeEventName}</strong>.</p>
         
         <div style="background: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
           <h3 style="margin-top: 0; color: #374151;">Request Status: ${statusMessage}</h3>
-          ${adminResponse ? `<p><strong>Our Response:</strong> ${adminResponse}</p>` : ''}
+          ${safeAdminResponse ? `<p><strong>Our Response:</strong> ${safeAdminResponse}</p>` : ''}
         </div>
         
         ${nextSteps}

@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.52.1';
+import { createErrorResponse } from '../_shared/security.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -41,7 +42,7 @@ const handler = async (req: Request): Promise<Response> => {
     const clientSecret = Deno.env.get('GMAIL_CLIENT_SECRET');
 
     if (!supabaseUrl || !serviceRoleKey || !clientId || !clientSecret) {
-      throw new Error('Missing required environment variables');
+      throw new Error('Service configuration error');
     }
 
     const supabase = createClient(supabaseUrl, serviceRoleKey);
@@ -54,11 +55,11 @@ const handler = async (req: Request): Promise<Response> => {
       .single();
 
     if (tokenError || !tokenData) {
-      console.error('Gmail token lookup failed:', { fromEmail, tokenError, tokenData });
-      throw new Error(`No Gmail tokens found for ${fromEmail}. Please authorize Gmail access first. Visit /admin to set up Gmail integration.`);
+      console.error('Gmail token lookup failed for email');
+      throw new Error('Gmail not configured. Please authorize Gmail access first.');
     }
 
-    console.log('Found Gmail tokens for:', from);
+    console.log('Found Gmail tokens for sending');
 
     let accessToken = tokenData.access_token;
 
@@ -67,11 +68,7 @@ const handler = async (req: Request): Promise<Response> => {
     const now = new Date();
     
     if (now >= expiresAt) {
-      console.log('Token expired, refreshing...', {
-        refresh_token_preview: tokenData.refresh_token.substring(0, 15) + '...',
-        expires_at: tokenData.expires_at,
-        now: now.toISOString()
-      });
+      console.log('Token expired, refreshing...');
       
       const refreshResponse = await fetch('https://oauth2.googleapis.com/token', {
         method: 'POST',
@@ -87,11 +84,8 @@ const handler = async (req: Request): Promise<Response> => {
       });
 
       if (!refreshResponse.ok) {
-        const errorData = await refreshResponse.text();
-        console.error('Token refresh failed:', errorData);
-        
-        // If refresh fails, the user needs to re-authenticate
-        throw new Error(`Gmail authentication has expired and cannot be refreshed. Please re-authenticate by visiting the Test Email page at /test-email and clicking "Authorize Gmail Access". Error: ${errorData}`);
+        console.error('Token refresh failed');
+        throw new Error('Gmail authentication expired. Please re-authorize Gmail access.');
       }
 
       const refreshTokens = await refreshResponse.json();
@@ -118,11 +112,9 @@ const handler = async (req: Request): Promise<Response> => {
         .eq('id', tokenData.id);
 
       if (updateError) {
-        console.error('Failed to update tokens:', updateError);
+        console.error('Failed to update tokens');
       } else {
-        console.log('Token refreshed successfully', {
-          updated_refresh_token: !!refreshTokens.refresh_token
-        });
+        console.log('Token refreshed successfully');
       }
     }
 
@@ -148,7 +140,7 @@ const handler = async (req: Request): Promise<Response> => {
       const binaryString = String.fromCharCode(...messageBytes);
       base64String = btoa(binaryString);
     } catch (error) {
-      console.error('Base64 encoding error:', error);
+      console.error('Base64 encoding error');
       // Fallback: use manual base64 encoding
       const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
       let result = '';
@@ -181,13 +173,12 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     if (!gmailResponse.ok) {
-      const errorData = await gmailResponse.text();
-      console.error('Gmail API error:', errorData);
-      throw new Error(`Gmail API failed: ${gmailResponse.status} - ${errorData}`);
+      console.error('Gmail API error');
+      throw new Error('Failed to send email via Gmail');
     }
 
     const result = await gmailResponse.json();
-    console.log('Email sent successfully:', result.id);
+    console.log('Email sent successfully');
 
     return new Response(JSON.stringify({ 
       success: true, 
@@ -203,14 +194,7 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
   } catch (error: any) {
-    console.error('Error in send-gmail-email:', error);
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      {
-        status: 500,
-        headers: { 'Content-Type': 'application/json', ...corsHeaders },
-      }
-    );
+    return createErrorResponse(error, 'send-gmail-email', corsHeaders);
   }
 };
 

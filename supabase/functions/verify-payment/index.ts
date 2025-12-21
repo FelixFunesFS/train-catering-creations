@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.52.1';
+import { createErrorResponse } from '../_shared/security.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -30,7 +31,7 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error('Session ID is required');
     }
 
-    console.log('Verifying payment for session:', session_id);
+    console.log('Verifying payment for session');
 
     // Retrieve the checkout session from Stripe
     const session = await stripe.checkout.sessions.retrieve(session_id);
@@ -54,7 +55,7 @@ const handler = async (req: Request): Promise<Response> => {
       .single();
 
     if (updateError) {
-      console.error('Error updating transaction:', updateError);
+      console.error('Error updating transaction');
       throw new Error('Failed to update payment record');
     }
 
@@ -69,9 +70,9 @@ const handler = async (req: Request): Promise<Response> => {
         .eq('id', transaction.invoice_id);
 
       if (invoiceUpdateError) {
-        console.error('Error updating invoice status:', invoiceUpdateError);
+        console.error('Error updating invoice status');
       } else {
-        console.log('Invoice marked as paid:', transaction.invoice_id);
+        console.log('Invoice marked as paid');
       }
 
       // Add payment to history
@@ -86,7 +87,7 @@ const handler = async (req: Request): Promise<Response> => {
         });
 
       if (historyError) {
-        console.error('Error adding payment history:', historyError);
+        console.error('Error adding payment history');
       }
     }
 
@@ -104,15 +105,7 @@ const handler = async (req: Request): Promise<Response> => {
     );
 
   } catch (error) {
-    console.error('Error verifying payment:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-    return new Response(
-      JSON.stringify({ error: errorMessage }),
-      { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
-    );
+    return createErrorResponse(error, 'verify-payment', corsHeaders);
   }
 };
 

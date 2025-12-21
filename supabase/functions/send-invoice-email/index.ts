@@ -8,6 +8,7 @@ import {
   generateFooter,
   BRAND_COLORS
 } from '../_shared/emailTemplates.ts';
+import { escapeHtml, createErrorResponse } from '../_shared/security.ts';
 
 
 const corsHeaders = {
@@ -40,8 +41,8 @@ const handler = async (req: Request): Promise<Response> => {
       .limit(1);
 
     if (tokenError || !gmailTokens || gmailTokens.length === 0) {
-      console.error('Gmail tokens not configured:', tokenError);
-      throw new Error('Gmail integration not configured. Please set up Gmail OAuth first.');
+      console.error('Gmail tokens not configured');
+      throw new Error('Gmail integration not configured');
     }
 
     console.log('Gmail tokens found, proceeding with email send');
@@ -69,6 +70,10 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error('Invoice not found');
     }
 
+    // Sanitize user-provided data for HTML embedding
+    const safeCustomerName = escapeHtml(invoice.customers?.name || invoice.quote_requests?.contact_name);
+    const safeEventName = escapeHtml(invoice.quote_requests?.event_name);
+
     // Determine if this is an estimate or invoice based on document_type
     const isEstimate = invoice.workflow_status === 'draft' || invoice.document_type === 'estimate';
     const documentType = isEstimate ? 'estimate' : 'invoice';
@@ -79,7 +84,7 @@ const handler = async (req: Request): Promise<Response> => {
     // Send email via Gmail API
     const emailBody = {
       to: invoice.customers?.email,
-      subject: `Your ${documentType} from Soul Train's Eatery - ${invoice.quote_requests?.event_name}`,
+      subject: `Your ${documentType} from Soul Train's Eatery - ${safeEventName}`,
       html: `
         <!DOCTYPE html>
         <html>
@@ -98,7 +103,7 @@ const handler = async (req: Request): Promise<Response> => {
                 </div>
                 <h2 style="color: white; margin: 0 0 10px 0; font-size: 24px;">Your Custom Estimate is Ready!</h2>
                 <p style="color: white; margin: 0; font-size: 16px; opacity: 0.95;">
-                  Hi ${invoice.customers?.name || invoice.quote_requests?.contact_name},<br>
+                  Hi ${safeCustomerName},<br>
                   Your custom pricing is ready for review
                 </p>
               </div>
@@ -109,14 +114,14 @@ const handler = async (req: Request): Promise<Response> => {
                 </div>
                 <h2 style="color: ${BRAND_COLORS.crimsonDark}; margin: 0 0 10px 0; font-size: 24px;">Your Invoice is Ready!</h2>
                 <p style="color: ${BRAND_COLORS.darkGray}; margin: 0; font-size: 16px;">
-                  Hi ${invoice.customers?.name || invoice.quote_requests?.contact_name},<br>
+                  Hi ${safeCustomerName},<br>
                   Your invoice is ready for payment
                 </p>
               </div>
             `}
             
             <div class="content">
-              <h2 style="color: ${BRAND_COLORS.crimson};">Dear ${invoice.customers?.name || invoice.quote_requests?.contact_name},</h2>
+              <h2 style="color: ${BRAND_COLORS.crimson};">Dear ${safeCustomerName},</h2>
               
               <p>Thank you for choosing Soul Train's Eatery for your upcoming event!</p>
               
@@ -156,8 +161,8 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     if (emailError) {
-      console.error('Email sending failed:', emailError);
-      throw new Error('Failed to send email: ' + emailError.message);
+      console.error('Email sending failed');
+      throw new Error('Failed to send email');
     }
 
     // Update invoice status
@@ -186,7 +191,7 @@ const handler = async (req: Request): Promise<Response> => {
     return new Response(
       JSON.stringify({ 
         success: true,
-        message: `${documentType.charAt(0).toUpperCase() + documentType.slice(1)} sent to ${invoice.customers?.email}`,
+        message: `${documentType.charAt(0).toUpperCase() + documentType.slice(1)} sent successfully`,
         sent_at: new Date().toISOString()
       }),
       { 
@@ -195,15 +200,7 @@ const handler = async (req: Request): Promise<Response> => {
     );
 
   } catch (error) {
-    console.error('Error sending invoice email:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-    return new Response(
-      JSON.stringify({ error: errorMessage }),
-      { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
-    );
+    return createErrorResponse(error, 'send-invoice-email', corsHeaders);
   }
 };
 
