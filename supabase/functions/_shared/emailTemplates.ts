@@ -13,6 +13,15 @@ export const BRAND_COLORS = {
   white: '#FFFFFF',
 };
 
+// Production URL for logo assets
+const SITE_URL = Deno.env.get('SITE_URL') || 'https://soultrainseatery.lovable.app';
+
+// Logo URLs - using hosted SVGs for email compatibility
+export const LOGO_URLS = {
+  red: `${SITE_URL}/images/logo-red.svg`,
+  white: `${SITE_URL}/images/logo-white.svg`,
+};
+
 // Exported formatting helpers - single source of truth
 export const formatServiceType = (serviceType: string): string => {
   if (!serviceType) return 'Full Service';
@@ -539,9 +548,20 @@ export const EMAIL_STYLES = `
 
 export function generateEmailHeader(title: string = "Soul Train's Eatery"): string {
   return `
-    <header class="header" role="banner">
-      <h1><span aria-label="Soul Train's Eatery">🚂 ${title}</span></h1>
-      <p class="tagline">Authentic Southern Cooking from the Heart</p>
+    <header class="header" role="banner" style="background:linear-gradient(135deg,${BRAND_COLORS.crimson},${BRAND_COLORS.crimsonDark});color:${BRAND_COLORS.white};padding:24px 16px;text-align:center;">
+      <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+        <tr>
+          <td align="center" style="padding-bottom:12px;">
+            <img src="${LOGO_URLS.white}" alt="Soul Train's Eatery Logo" width="80" height="80" style="display:block;width:80px;height:80px;max-width:80px;" />
+          </td>
+        </tr>
+        <tr>
+          <td align="center">
+            <h1 style="margin:0 0 8px 0;font-size:22px;font-weight:bold;text-shadow:2px 2px 4px rgba(0,0,0,0.2);line-height:1.2;color:${BRAND_COLORS.white};">${title}</h1>
+            <p class="tagline" style="margin:0;font-size:14px;font-style:italic;opacity:0.95;line-height:1.3;color:${BRAND_COLORS.white};">Authentic Southern Cooking from the Heart</p>
+          </td>
+        </tr>
+      </table>
     </header>
   `;
 }
@@ -776,20 +796,37 @@ export function generateMenuSection(lineItems: any[], bothProteinsAvailable?: bo
 
 export function generateFooter(): string {
   return `
-    <footer class="footer" role="contentinfo">
-      <h3 style="margin: 0 0 15px 0; color: ${BRAND_COLORS.crimson};">Soul Train's Eatery</h3>
-      <p style="margin: 5px 0;"><strong>A Family-Run Business Since Day One</strong></p>
-      <hr role="separator" style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
-      <address style="font-style: normal;">
-        <p style="margin: 5px 0;"><span aria-hidden="true">📞</span> <strong>Phone:</strong> <a href="tel:+18439700265" style="color: ${BRAND_COLORS.crimson}; text-decoration: none;">(843) 970-0265</a></p>
-        <p style="margin: 5px 0;"><span aria-hidden="true">📧</span> <strong>Email:</strong> <a href="mailto:soultrainseatery@gmail.com" style="color: ${BRAND_COLORS.crimson}; text-decoration: none;">soultrainseatery@gmail.com</a></p>
-      </address>
-      <p style="margin: 15px 0 5px 0; font-size: 12px;">
-        Proudly serving Charleston's Lowcountry and surrounding areas
-      </p>
-      <p style="margin: 5px 0; font-size: 12px; color: #999;">
-        Trusted catering partner for weddings, graduations, military functions, corporate events & social gatherings
-      </p>
+    <footer class="footer" role="contentinfo" style="background:${BRAND_COLORS.lightGray};padding:24px 16px;text-align:center;font-size:13px;color:#666;border-top:3px solid ${BRAND_COLORS.gold};">
+      <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+        <tr>
+          <td align="center" style="padding-bottom:12px;">
+            <img src="${LOGO_URLS.red}" alt="Soul Train's Eatery" width="50" height="50" style="display:block;width:50px;height:50px;max-width:50px;margin:0 auto;" />
+          </td>
+        </tr>
+        <tr>
+          <td align="center">
+            <h3 style="margin:0 0 8px 0;color:${BRAND_COLORS.crimson};font-size:18px;">Soul Train's Eatery</h3>
+            <p style="margin:5px 0;font-weight:600;">A Family-Run Business Since Day One</p>
+          </td>
+        </tr>
+        <tr>
+          <td align="center" style="padding:15px 0;">
+            <hr style="border:none;border-top:1px solid #ddd;margin:0;width:80%;" />
+          </td>
+        </tr>
+        <tr>
+          <td align="center">
+            <p style="margin:5px 0;">Phone: <a href="tel:+18439700265" style="color:${BRAND_COLORS.crimson};text-decoration:none;font-weight:600;">(843) 970-0265</a></p>
+            <p style="margin:5px 0;">Email: <a href="mailto:soultrainseatery@gmail.com" style="color:${BRAND_COLORS.crimson};text-decoration:none;font-weight:600;">soultrainseatery@gmail.com</a></p>
+          </td>
+        </tr>
+        <tr>
+          <td align="center" style="padding-top:12px;">
+            <p style="margin:0 0 5px 0;font-size:12px;color:#888;">Proudly serving Charleston's Lowcountry and surrounding areas</p>
+            <p style="margin:0;font-size:11px;color:#999;">Trusted catering partner for weddings, graduations, military functions, corporate events & social gatherings</p>
+          </td>
+        </tr>
+      </table>
     </footer>
   `;
 }

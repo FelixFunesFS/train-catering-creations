@@ -6,7 +6,8 @@ import {
   generateEventDetailsCard,
   generateLineItemsTable,
   generateFooter,
-  BRAND_COLORS
+  BRAND_COLORS,
+  LOGO_URLS
 } from '../_shared/emailTemplates.ts';
 import { escapeHtml, createErrorResponse } from '../_shared/security.ts';
 
@@ -137,11 +138,13 @@ const handler = async (req: Request): Promise<Response> => {
                 </div>
               `}
           
-          <p>We look forward to making your event memorable!</p>
-          
-          <p>Best regards,<br>
-          The Soul Train's Eatery Team</p>
+          <p style="margin:16px 0;line-height:1.6;">We look forward to making your event memorable!</p>
+          <p style="margin:16px 0;">Best regards,<br/>The Soul Train's Eatery Team</p>
         </div>
+        ${generateFooter()}
+      </div>
+    </body>
+    </html>
       `
     };
 

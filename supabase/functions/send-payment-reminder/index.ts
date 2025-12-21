@@ -81,107 +81,84 @@ const handler = async (req: Request): Promise<Response> => {
         urgencyMessage = `This is a friendly reminder that you have an outstanding balance of <strong>${formatCurrency(balanceRemaining)}</strong>.`;
     }
 
-    // Build email HTML
-    const emailHtml = `
-<!DOCTYPE html>
-<html>
+    // Build email HTML with logo
+    const emailHtml = `<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Payment Reminder - Soul Train's Eatery</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Payment Reminder - Soul Train's Eatery</title>
 </head>
-<body style="margin: 0; padding: 0; font-family: 'Georgia', serif; background-color: #FDF8F3;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #FDF8F3; padding: 20px 0;">
-    <tr>
-      <td align="center">
-        <table width="100%" style="max-width: 600px; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
-          
-          <!-- Header -->
-          <tr>
-            <td style="background: linear-gradient(135deg, #DC143C 0%, #8B0000 100%); padding: 30px; text-align: center;">
-              <h1 style="color: #FFD700; margin: 0; font-size: 28px; font-weight: bold;">🚂 Soul Train's Eatery</h1>
-              <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0 0; font-size: 14px;">Payment Reminder</p>
-            </td>
-          </tr>
-
-          <!-- Badge -->
-          <tr>
-            <td style="padding: 20px 30px 0; text-align: center;">
-              ${urgencyBadge}
-            </td>
-          </tr>
-
-          <!-- Main Content -->
-          <tr>
-            <td style="padding: 30px;">
-              <p style="font-size: 16px; color: #333; margin: 0 0 20px;">
-                Dear ${customerName || 'Valued Customer'},
-              </p>
-              
-              <p style="font-size: 16px; color: #333; margin: 0 0 20px; line-height: 1.6;">
-                ${urgencyMessage}
-              </p>
-
-              ${eventName ? `
-              <div style="background: #FDF8F3; border-left: 4px solid #DC143C; padding: 15px 20px; margin: 20px 0;">
-                <p style="margin: 0; color: #666; font-size: 14px;">Event</p>
-                <p style="margin: 5px 0 0; color: #333; font-size: 16px; font-weight: bold;">${eventName}</p>
-              </div>
-              ` : ''}
-
-              <!-- Payment Details -->
-              <table width="100%" style="margin: 25px 0; border: 1px solid #E5E5E5; border-radius: 8px; overflow: hidden;">
-                <tr style="background: #F9FAFB;">
-                  <td style="padding: 15px 20px; border-bottom: 1px solid #E5E5E5;">
-                    <span style="color: #666; font-size: 14px;">Invoice Number</span>
-                  </td>
-                  <td style="padding: 15px 20px; border-bottom: 1px solid #E5E5E5; text-align: right;">
-                    <span style="color: #333; font-weight: bold;">${invoice.invoice_number || 'N/A'}</span>
-                  </td>
-                </tr>
-                <tr>
-                  <td style="padding: 15px 20px;">
-                    <span style="color: #666; font-size: 14px;">Amount Due</span>
-                  </td>
-                  <td style="padding: 15px 20px; text-align: right;">
-                    <span style="color: #DC143C; font-size: 24px; font-weight: bold;">${formatCurrency(balanceRemaining)}</span>
-                  </td>
-                </tr>
-              </table>
-
-              <!-- CTA Button -->
-              <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
-                <tr>
-                  <td align="center">
-                    <a href="${paymentLink}" style="display: inline-block; background: linear-gradient(135deg, #DC143C 0%, #8B0000 100%); color: white; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-size: 16px; font-weight: bold; box-shadow: 0 4px 15px rgba(220,20,60,0.3);">
-                      Pay Now
-                    </a>
-                  </td>
-                </tr>
-              </table>
-
-              <p style="font-size: 14px; color: #666; margin: 0; line-height: 1.6; text-align: center;">
-                If you have already made this payment, please disregard this reminder.<br>
-                Questions? Contact us at <a href="mailto:soultrainseatery@gmail.com" style="color: #DC143C;">soultrainseatery@gmail.com</a>
-              </p>
-            </td>
-          </tr>
-
-          <!-- Footer -->
-          <tr>
-            <td style="background: #1A1A1A; padding: 25px 30px; text-align: center;">
-              <p style="color: #FFD700; margin: 0 0 8px; font-weight: bold;">Soul Train's Eatery</p>
-              <p style="color: rgba(255,255,255,0.7); margin: 0; font-size: 12px;">Charleston's Trusted Catering Partner</p>
-              <p style="color: rgba(255,255,255,0.5); margin: 10px 0 0; font-size: 11px;">
-                (843) 970-0265 | soultrainseatery@gmail.com
-              </p>
-            </td>
-          </tr>
-
-        </table>
-      </td>
-    </tr>
-  </table>
+<body style="margin:0;padding:0;font-family:Georgia,serif;background-color:#FDF8F3;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#FDF8F3;padding:20px 0;">
+<tr>
+<td align="center">
+<table width="100%" style="max-width:600px;background:white;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.1);">
+<tr>
+<td style="background:linear-gradient(135deg,#DC143C 0%,#8B0000 100%);padding:30px;text-align:center;">
+<img src="${Deno.env.get('SITE_URL') || 'https://soultrainseatery.lovable.app'}/images/logo-white.svg" alt="Soul Train's Eatery" width="70" height="70" style="display:block;width:70px;height:70px;margin:0 auto 12px auto;" />
+<h1 style="color:#FFD700;margin:0;font-size:26px;font-weight:bold;">Soul Train's Eatery</h1>
+<p style="color:rgba(255,255,255,0.9);margin:8px 0 0 0;font-size:14px;">Payment Reminder</p>
+</td>
+</tr>
+<tr>
+<td style="padding:20px 30px 0;text-align:center;">
+${urgencyBadge}
+</td>
+</tr>
+<tr>
+<td style="padding:30px;">
+<p style="font-size:16px;color:#333;margin:0 0 20px;">Dear ${customerName || 'Valued Customer'},</p>
+<p style="font-size:16px;color:#333;margin:0 0 20px;line-height:1.6;">${urgencyMessage}</p>
+${eventName ? `
+<div style="background:#FDF8F3;border-left:4px solid #DC143C;padding:15px 20px;margin:20px 0;border-radius:0 8px 8px 0;">
+<p style="margin:0;color:#666;font-size:14px;">Event</p>
+<p style="margin:5px 0 0;color:#333;font-size:16px;font-weight:bold;">${eventName}</p>
+</div>
+` : ''}
+<table width="100%" style="margin:25px 0;border:1px solid #E5E5E5;border-radius:8px;overflow:hidden;border-collapse:collapse;">
+<tr style="background:#F9FAFB;">
+<td style="padding:15px 20px;border-bottom:1px solid #E5E5E5;">
+<span style="color:#666;font-size:14px;">Invoice Number</span>
+</td>
+<td style="padding:15px 20px;border-bottom:1px solid #E5E5E5;text-align:right;">
+<span style="color:#333;font-weight:bold;">${invoice.invoice_number || 'N/A'}</span>
+</td>
+</tr>
+<tr>
+<td style="padding:15px 20px;">
+<span style="color:#666;font-size:14px;">Amount Due</span>
+</td>
+<td style="padding:15px 20px;text-align:right;">
+<span style="color:#DC143C;font-size:24px;font-weight:bold;">${formatCurrency(balanceRemaining)}</span>
+</td>
+</tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0" style="margin:30px 0;">
+<tr>
+<td align="center">
+<a href="${paymentLink}" style="display:inline-block;background:linear-gradient(135deg,#DC143C 0%,#8B0000 100%);color:white;text-decoration:none;padding:16px 40px;border-radius:8px;font-size:16px;font-weight:bold;box-shadow:0 4px 15px rgba(220,20,60,0.3);">Pay Now</a>
+</td>
+</tr>
+</table>
+<p style="font-size:14px;color:#666;margin:0;line-height:1.6;text-align:center;">
+If you have already made this payment, please disregard this reminder.<br/>
+Questions? Contact us at <a href="mailto:soultrainseatery@gmail.com" style="color:#DC143C;">soultrainseatery@gmail.com</a>
+</p>
+</td>
+</tr>
+<tr>
+<td style="background:#1A1A1A;padding:25px 30px;text-align:center;">
+<img src="${Deno.env.get('SITE_URL') || 'https://soultrainseatery.lovable.app'}/images/logo-white.svg" alt="" width="40" height="40" style="display:block;width:40px;height:40px;margin:0 auto 8px auto;opacity:0.8;" />
+<p style="color:#FFD700;margin:0 0 4px;font-weight:bold;font-size:14px;">Soul Train's Eatery</p>
+<p style="color:rgba(255,255,255,0.7);margin:0;font-size:12px;">Charleston's Trusted Catering Partner</p>
+<p style="color:rgba(255,255,255,0.5);margin:10px 0 0;font-size:11px;">(843) 970-0265 | soultrainseatery@gmail.com</p>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
 </body>
 </html>`;
 
