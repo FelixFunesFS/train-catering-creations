@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useInvoice, useUpdateInvoice, useInvoiceWithMilestones } from '@/hooks/useInvoices';
 import { useLineItems, useDeleteLineItem } from '@/hooks/useLineItems';
@@ -12,148 +12,21 @@ import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/componen
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
-import { Textarea } from '@/components/ui/textarea';
-import { 
-  X, FileText, Calendar, MapPin, Users, MessageSquare, DollarSign,
-  Plus, Eye, RefreshCw, Loader2, Printer, PartyPopper, Heart, ArrowLeft, Pencil, Utensils, CheckCircle2, Phone, ExternalLink, Save, Undo2
-} from 'lucide-react';
-import { formatDate, formatTime, formatServiceType, getStatusColor } from '@/utils/formatters';
-import { formatLocationLink, formatPhoneLink } from '@/utils/linkFormatters';
+import { X, FileText, ArrowLeft } from 'lucide-react';
 import { CustomerEditor } from './CustomerEditor';
 import { MenuEditorInline } from './MenuEditorInline';
-import { ChangeHistory } from './ChangeHistory';
-
-import { LineItemEditor } from '../billing/LineItemEditor';
 import { AddLineItemModal } from '../billing/AddLineItemModal';
-import { EstimateSummary } from '../billing/EstimateSummary';
 import { EmailPreview } from '../billing/EmailPreview';
-import { SortableLineItem } from '../billing/SortableLineItem';
-import { DiscountEditor } from '../billing/DiscountEditor';
 import { LineItemsService } from '@/services/LineItemsService';
+import { DragEndEvent } from '@dnd-kit/core';
 
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragEndEvent,
-} from '@dnd-kit/core';
-import {
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
+import { EstimatePanelContent } from './EstimatePanelContent';
+import { EventDetailsPanelContent } from './EventDetailsPanelContent';
 
 interface EventEstimateFullViewProps {
   quote: any;
   invoice: any;
   onClose: () => void;
-}
-
-// Payment Schedule Section Component
-function PaymentScheduleSection({ invoiceId }: { invoiceId: string | undefined }) {
-  const { data: invoiceWithMilestones, refetch } = useInvoiceWithMilestones(invoiceId);
-  const milestones = invoiceWithMilestones?.milestones || [];
-  const [isRegenerating, setIsRegenerating] = useState(false);
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-
-  const formatMilestoneType = (type: string): string => {
-    const typeMap: Record<string, string> = {
-      'DEPOSIT': 'Booking Deposit',
-      'MILESTONE': 'Milestone Payment',
-      'BALANCE': 'Final Balance',
-      'FULL': 'Full Payment',
-      'FINAL': 'Final Payment',
-      'COMBINED': 'Combined Payment',
-    };
-    return typeMap[type] || type;
-  };
-
-  const handleRegenerate = async () => {
-    if (!invoiceId) return;
-    setIsRegenerating(true);
-    try {
-      const { error } = await supabase.functions.invoke('generate-payment-milestones', {
-        body: { invoice_id: invoiceId, force_regenerate: true }
-      });
-      if (error) throw error;
-      await refetch();
-      queryClient.invalidateQueries({ queryKey: ['invoices'] });
-      toast({ title: 'Payment schedule regenerated' });
-    } catch (err: any) {
-      toast({ title: 'Error', description: err.message, variant: 'destructive' });
-    } finally {
-      setIsRegenerating(false);
-    }
-  };
-
-  const formatCurrency = (cents: number) => {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100);
-  };
-
-  return (
-    <section className="space-y-3">
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-          <DollarSign className="h-4 w-4" /> Payment Schedule
-        </h3>
-        <Button 
-          variant="ghost" 
-          size="sm"
-          onClick={handleRegenerate}
-          disabled={isRegenerating || !invoiceId}
-        >
-          <RefreshCw className={`h-3 w-3 mr-1 ${isRegenerating ? 'animate-spin' : ''}`} />
-          Regenerate
-        </Button>
-      </div>
-      
-      {milestones.length === 0 ? (
-        <p className="text-sm text-muted-foreground italic">No payment schedule generated yet. Click Regenerate.</p>
-      ) : (
-        <div className="space-y-2">
-          {milestones.map((milestone: any) => {
-            const isPaid = milestone.status === 'paid';
-            const isDue = milestone.status === 'pending' && 
-              milestone.due_date && new Date(milestone.due_date) <= new Date();
-            return (
-              <div 
-                key={milestone.id} 
-                className={`flex items-center justify-between p-2 rounded-md border text-sm ${
-                  isPaid ? 'bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800' :
-                  isDue ? 'bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800' :
-                  'bg-muted/30 border-border'
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  {isPaid && <CheckCircle2 className="h-4 w-4 text-green-600" />}
-                  <span className="font-medium">{formatMilestoneType(milestone.milestone_type)}</span>
-                  <span className="text-muted-foreground">({milestone.percentage}%)</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="font-semibold">{formatCurrency(milestone.amount_cents)}</span>
-                  {isPaid ? (
-                    <Badge variant="outline" className="text-green-600 border-green-600">Paid</Badge>
-                  ) : milestone.due_date ? (
-                    <span className="text-xs text-muted-foreground">
-                      Due {new Date(milestone.due_date).toLocaleDateString()}
-                    </span>
-                  ) : (
-                    <span className="text-xs text-muted-foreground">Upcoming</span>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-    </section>
-  );
 }
 
 export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimateFullViewProps) {
@@ -168,43 +41,14 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
   const [showCustomerEdit, setShowCustomerEdit] = useState(false);
   const [showMenuEdit, setShowMenuEdit] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isRegenerating, setIsRegenerating] = useState(false);
 
-  // Handle generating estimate when none exists
-  const handleGenerateEstimate = async () => {
-    if (!quote?.id) return;
-    setIsGenerating(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('generate-invoice-from-quote', {
-        body: { quote_request_id: quote.id }
-      });
-      if (error) throw error;
-
-      toast({ title: 'Estimate Generated', description: 'Line items created successfully.' });
-      
-      // Refresh all relevant queries
-      queryClient.invalidateQueries({ queryKey: ['invoices'] });
-      queryClient.invalidateQueries({ queryKey: ['invoice-by-quote', quote.id] });
-      queryClient.invalidateQueries({ queryKey: ['line-items'] });
-      queryClient.invalidateQueries({ queryKey: ['events'] });
-      queryClient.invalidateQueries({ queryKey: ['quotes'] });
-    } catch (err: any) {
-      toast({ title: 'Error', description: err.message, variant: 'destructive' });
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-  
-  // Helper to format menu items
-  const formatMenuItems = (items: unknown): string => {
-    if (!items || !Array.isArray(items) || items.length === 0) return '';
-    return items.map((item: string) => 
-      item.split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
-    ).join(', ');
-  };
-
+  // Data queries
   const { data: lineItems, isLoading: loadingItems } = useLineItems(invoice?.id);
   const { customItems, hasCustomItems } = useCustomLineItems(invoice?.id);
   const { data: currentInvoice } = useInvoice(invoice?.id);
+  const { data: invoiceWithMilestones, refetch: refetchMilestones } = useInvoiceWithMilestones(invoice?.id);
+  const milestones = invoiceWithMilestones?.milestones || [];
   const deleteLineItem = useDeleteLineItem();
   const updateInvoice = useUpdateInvoice();
   
@@ -237,12 +81,49 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
     });
   }, [lineItems]);
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
-  );
+  // Handle generating estimate when none exists
+  const handleGenerateEstimate = useCallback(async () => {
+    if (!quote?.id) return;
+    setIsGenerating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-invoice-from-quote', {
+        body: { quote_request_id: quote.id }
+      });
+      if (error) throw error;
 
-  const handleDragEnd = async (event: DragEndEvent) => {
+      toast({ title: 'Estimate Generated', description: 'Line items created successfully.' });
+      
+      queryClient.invalidateQueries({ queryKey: ['invoices'] });
+      queryClient.invalidateQueries({ queryKey: ['invoice-by-quote', quote.id] });
+      queryClient.invalidateQueries({ queryKey: ['line-items'] });
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+      queryClient.invalidateQueries({ queryKey: ['quotes'] });
+    } catch (err: any) {
+      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+    } finally {
+      setIsGenerating(false);
+    }
+  }, [quote?.id, toast, queryClient]);
+
+  const handleRegenerateMilestones = useCallback(async () => {
+    if (!invoice?.id) return;
+    setIsRegenerating(true);
+    try {
+      const { error } = await supabase.functions.invoke('generate-payment-milestones', {
+        body: { invoice_id: invoice.id, force_regenerate: true }
+      });
+      if (error) throw error;
+      await refetchMilestones();
+      queryClient.invalidateQueries({ queryKey: ['invoices'] });
+      toast({ title: 'Payment schedule regenerated' });
+    } catch (err: any) {
+      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+    } finally {
+      setIsRegenerating(false);
+    }
+  }, [invoice?.id, refetchMilestones, queryClient, toast]);
+
+  const handleDragEnd = useCallback(async (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
@@ -269,24 +150,24 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
     } catch {
       toast({ title: 'Reorder Failed', variant: 'destructive' });
     }
-  };
+  }, [sortedLineItems, invoice?.id, queryClient, toast]);
 
-  // Handle line item changes - update LOCAL state only (no DB call)
-  const handlePriceChange = (lineItemId: string, newPrice: number) => {
+  // Stable callbacks for line item changes
+  const handlePriceChange = useCallback((lineItemId: string, newPrice: number) => {
     updateLocalLineItem(lineItemId, { unit_price: newPrice });
-  };
+  }, [updateLocalLineItem]);
 
-  const handleQuantityChange = (lineItemId: string, newQuantity: number) => {
+  const handleQuantityChange = useCallback((lineItemId: string, newQuantity: number) => {
     updateLocalLineItem(lineItemId, { quantity: newQuantity });
-  };
+  }, [updateLocalLineItem]);
 
-  const handleDeleteItem = async (lineItemId: string) => {
+  const handleDeleteItem = useCallback(async (lineItemId: string) => {
     await deleteLineItem.mutateAsync({ lineItemId, invoiceId: invoice?.id });
-  };
+  }, [deleteLineItem, invoice?.id]);
 
-  const handleDescriptionChange = (lineItemId: string, desc: string) => {
+  const handleDescriptionChange = useCallback((lineItemId: string, desc: string) => {
     updateLocalLineItem(lineItemId, { description: desc });
-  };
+  }, [updateLocalLineItem]);
 
   // Handle close - warn if unsaved changes
   const handleClose = useCallback(() => {
@@ -295,14 +176,12 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
       if (!confirmDiscard) return;
       discardAllChanges();
     }
-    // Refresh to get latest from server
     queryClient.invalidateQueries({ queryKey: ['invoice', invoice?.id] });
     queryClient.invalidateQueries({ queryKey: ['line-items', invoice?.id] });
     onClose();
   }, [hasUnsavedChanges, discardAllChanges, queryClient, invoice?.id, onClose]);
 
-  const handlePreviewClick = () => {
-    // Check for unsaved changes before preview
+  const handlePreviewClick = useCallback(() => {
     if (hasUnsavedChanges) {
       toast({ title: 'Unsaved Changes', description: 'Please save your changes before previewing.', variant: 'destructive' });
       return;
@@ -314,14 +193,14 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
     }
     setIsResendMode(false);
     setShowPreview(true);
-  };
+  }, [hasUnsavedChanges, lineItems, toast]);
 
-  const handleResendClick = () => {
+  const handleResendClick = useCallback(() => {
     setIsResendMode(true);
     setShowPreview(true);
-  };
+  }, []);
 
-  const handleSendEstimate = async (overrideEmail?: string) => {
+  const handleSendEstimate = useCallback(async (overrideEmail?: string) => {
     setIsSending(true);
     try {
       const { error } = await supabase.functions.invoke('send-customer-portal-email', {
@@ -346,7 +225,7 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
     } finally {
       setIsSending(false);
     }
-  };
+  }, [quote?.id, quote?.email, invoice?.id, isResendMode, queryClient, toast, handleClose]);
 
   const subtotal = currentInvoice?.subtotal ?? 0;
   const taxAmount = currentInvoice?.tax_amount ?? 0;
@@ -356,19 +235,59 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
   const discountDescription = (currentInvoice as any)?.discount_description as string | null;
   const isAlreadySent = currentInvoice?.workflow_status === 'sent' || currentInvoice?.workflow_status === 'viewed';
 
-  const handleApplyDiscount = async (amount: number, type: 'percentage' | 'fixed', description: string) => {
+  const handleApplyDiscount = useCallback(async (amount: number, type: 'percentage' | 'fixed', description: string) => {
     await updateInvoice.mutateAsync({
       invoiceId: invoice?.id,
       updates: { discount_amount: amount, discount_type: type, discount_description: description } as any,
     });
-  };
+  }, [updateInvoice, invoice?.id]);
 
-  const handleRemoveDiscount = async () => {
+  const handleRemoveDiscount = useCallback(async () => {
     await updateInvoice.mutateAsync({
       invoiceId: invoice?.id,
       updates: { discount_amount: 0, discount_type: null, discount_description: null } as any,
     });
-  };
+  }, [updateInvoice, invoice?.id]);
+
+  const handleDownloadPdf = useCallback(async () => {
+    if (!invoice?.id) {
+      toast({ title: 'No estimate available', description: 'Generate an estimate first.', variant: 'destructive' });
+      return;
+    }
+    try {
+      toast({ title: 'Generating PDF...', description: 'Please wait' });
+      const { data, error } = await supabase.functions.invoke('generate-invoice-pdf', {
+        body: { invoice_id: invoice.id }
+      });
+      if (error) throw error;
+      if (!data?.pdf_base64) throw new Error('No PDF generated');
+      
+      const binaryString = atob(data.pdf_base64);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      const blob = new Blob([bytes], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = data.filename || `estimate-${invoice.invoice_number}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      toast({ title: 'PDF Downloaded' });
+    } catch (err: any) {
+      console.error('PDF generation error:', err);
+      toast({ title: 'PDF Error', description: err.message, variant: 'destructive' });
+    }
+  }, [invoice?.id, invoice?.invoice_number, toast]);
+
+  const handleAddItemClick = useCallback(() => setShowAddItem(true), []);
+  const handleEditCustomer = useCallback(() => setShowCustomerEdit(true), []);
+  const handleEditMenu = useCallback(() => setShowMenuEdit(true), []);
 
   if (showPreview) {
     return (
@@ -381,494 +300,6 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
       />
     );
   }
-
-  // Event Details Panel Content - Consolidated sections with Separators
-  const EventDetailsPanel = () => (
-    <div className="space-y-6 p-4 lg:p-6">
-      {/* Header with Status */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold flex items-center gap-2">
-          <Calendar className="h-5 w-5 text-primary" />
-          Event Details
-        </h2>
-        <Badge className={getStatusColor(quote?.workflow_status || 'pending')} variant="secondary">
-          {quote?.workflow_status?.replace('_', ' ').toUpperCase()}
-        </Badge>
-      </div>
-
-      {/* Customer Section */}
-      <section className="space-y-1">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-2">
-            <Users className="h-4 w-4" /> Customer
-          </h3>
-          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setShowCustomerEdit(true)}>
-            <Pencil className="h-3 w-3" />
-          </Button>
-        </div>
-        <p className="font-medium">{quote?.contact_name}</p>
-        <p className="text-sm text-muted-foreground">{quote?.email}</p>
-        {quote?.phone && (
-          <a 
-            href={formatPhoneLink(quote.phone) || '#'} 
-            className="text-sm text-primary hover:underline flex items-center gap-1"
-            aria-label="Call customer"
-          >
-            <Phone className="h-3 w-3" />
-            {quote.phone}
-          </a>
-        )}
-      </section>
-
-      <Separator />
-
-      {/* Event Section */}
-      <section className="space-y-2">
-        <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-2">
-          <PartyPopper className="h-4 w-4" /> Event
-        </h3>
-        <p className="font-medium">{quote?.event_name}</p>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Calendar className="h-3 w-3" />
-          <span>{formatDate(quote?.event_date)} {quote?.start_time && `at ${formatTime(quote?.start_time)}`}</span>
-        </div>
-        {quote?.location && (
-          <a 
-            href={formatLocationLink(quote.location) || '#'} 
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-start gap-2 text-sm text-primary hover:underline"
-            aria-label="Open in Maps"
-          >
-            <MapPin className="h-3 w-3 mt-0.5" />
-            <span>{quote.location}</span>
-            <ExternalLink className="h-3 w-3 mt-0.5 opacity-50" />
-          </a>
-        )}
-        <div className="flex items-center gap-2 flex-wrap text-sm">
-          <Users className="h-3 w-3 text-muted-foreground" />
-          <span>{quote?.guest_count} guests</span>
-          <Badge variant="outline" className="text-xs">{formatServiceType(quote?.service_type)}</Badge>
-        </div>
-        {quote?.event_type && (
-          <Badge variant="secondary" className="capitalize">{quote.event_type.replace('_', ' ')}</Badge>
-        )}
-      </section>
-
-      <Separator />
-
-      {/* Menu Selections Section */}
-      <section className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-2">
-            <Utensils className="h-4 w-4" /> Menu Selections
-          </h3>
-          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setShowMenuEdit(true)}>
-            <Pencil className="h-3 w-3" />
-          </Button>
-        </div>
-        
-        {/* Proteins */}
-        {formatMenuItems(quote?.proteins) && (
-          <div>
-            <span className="text-muted-foreground text-xs uppercase tracking-wide">Proteins</span>
-            <p className="font-medium">{formatMenuItems(quote?.proteins)}</p>
-            {quote?.both_proteins_available && (
-              <Badge variant="outline" className="mt-1 bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 text-xs">
-                ⭐ Both proteins served to all guests
-              </Badge>
-            )}
-          </div>
-        )}
-
-        {/* Vegetarian - RIGHT AFTER proteins */}
-        {(quote?.guest_count_with_restrictions || formatMenuItems(quote?.vegetarian_entrees)) && (
-          <div className="border-l-2 border-green-500 pl-3 py-2 bg-green-50/50 dark:bg-green-950/20 rounded-r">
-            <span className="text-green-700 dark:text-green-400 text-xs uppercase tracking-wide flex items-center gap-1">
-              🌱 Vegetarian Options
-            </span>
-            {quote?.guest_count_with_restrictions && (
-              <p className="font-medium text-green-700 dark:text-green-300">{quote.guest_count_with_restrictions} vegetarian portions</p>
-            )}
-            {formatMenuItems(quote?.vegetarian_entrees) && (
-              <p className="font-medium text-green-700 dark:text-green-300">{formatMenuItems(quote?.vegetarian_entrees)}</p>
-            )}
-          </div>
-        )}
-
-        {/* Sides */}
-        {formatMenuItems(quote?.sides) && (
-          <div>
-            <span className="text-muted-foreground text-xs uppercase tracking-wide">Sides</span>
-            <p className="font-medium">{formatMenuItems(quote?.sides)}</p>
-          </div>
-        )}
-
-        {/* Appetizers */}
-        {formatMenuItems(quote?.appetizers) && (
-          <div>
-            <span className="text-muted-foreground text-xs uppercase tracking-wide">Appetizers</span>
-            <p className="font-medium">{formatMenuItems(quote?.appetizers)}</p>
-          </div>
-        )}
-
-        {/* Desserts */}
-        {formatMenuItems(quote?.desserts) && (
-          <div>
-            <span className="text-muted-foreground text-xs uppercase tracking-wide">Desserts</span>
-            <p className="font-medium">{formatMenuItems(quote?.desserts)}</p>
-          </div>
-        )}
-
-        {/* Beverages */}
-        {formatMenuItems(quote?.drinks) && (
-          <div>
-            <span className="text-muted-foreground text-xs uppercase tracking-wide">Beverages</span>
-            <p className="font-medium">{formatMenuItems(quote?.drinks)}</p>
-          </div>
-        )}
-
-        {/* Other/Custom Items from Line Items */}
-        {hasCustomItems && (
-          <div className="border-l-2 border-indigo-500 pl-3 py-2 bg-indigo-50/50 dark:bg-indigo-950/20 rounded-r">
-            <span className="text-indigo-700 dark:text-indigo-400 text-xs uppercase tracking-wide flex items-center gap-1">
-              📦 Other Items
-            </span>
-            <div className="flex flex-wrap gap-1 mt-1">
-              {customItems.map((item) => (
-                <Badge 
-                  key={item.id} 
-                  variant="outline" 
-                  className="text-xs bg-indigo-100 text-indigo-700 border-indigo-300 dark:bg-indigo-900/30 dark:text-indigo-300 dark:border-indigo-600"
-                >
-                  {item.title || item.description}
-                </Badge>
-              ))}
-            </div>
-          </div>
-        )}
-      </section>
-
-      {/* Service Add-ons - Consolidated section for all services */}
-      {(quote?.wait_staff_requested || quote?.bussing_tables_needed || quote?.ceremony_included || quote?.cocktail_hour) && (
-        <>
-          <Separator />
-          <section className="space-y-2">
-            <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-2">
-              <Users className="h-4 w-4" /> Service Add-ons
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {quote?.wait_staff_requested && (
-                <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-300">
-                  👨‍🍳 Wait Staff
-                </Badge>
-              )}
-              {quote?.bussing_tables_needed && (
-                <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/30 dark:text-purple-300">
-                  🧹 Table Bussing
-                </Badge>
-              )}
-              {quote?.ceremony_included && (
-                <Badge variant="outline" className="bg-pink-50 text-pink-700 border-pink-200 dark:bg-pink-950/30 dark:text-pink-300">
-                  💒 Ceremony Catering
-                </Badge>
-              )}
-              {quote?.cocktail_hour && (
-                <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-300">
-                  🍸 Cocktail Hour
-                </Badge>
-              )}
-            </div>
-            {quote?.wait_staff_requirements && (
-              <p className="text-sm text-muted-foreground italic">{quote.wait_staff_requirements}</p>
-            )}
-          </section>
-        </>
-      )}
-
-      {/* Wedding Theme Colors (if any) */}
-      {quote?.event_type === 'wedding' && quote?.theme_colors && (
-        <>
-          <Separator />
-          <section className="space-y-2">
-            <h3 className="text-sm font-medium text-pink-700 dark:text-pink-400 flex items-center gap-2">
-              <Heart className="h-4 w-4" /> Wedding Details
-            </h3>
-            <Badge variant="outline" className="bg-pink-50 text-pink-700">🎨 {quote.theme_colors}</Badge>
-          </section>
-        </>
-      )}
-
-      {/* Special Requests */}
-      {quote?.special_requests && (
-        <>
-          <Separator />
-          <section className="space-y-2">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                <MessageSquare className="h-4 w-4" /> Special Requests
-              </h3>
-              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setShowMenuEdit(true)}>
-                <Pencil className="h-3 w-3" />
-              </Button>
-            </div>
-            <p className="text-sm italic text-muted-foreground">{quote.special_requests}</p>
-          </section>
-        </>
-      )}
-
-      {/* Payment Schedule */}
-      <Separator />
-      <PaymentScheduleSection invoiceId={invoice?.id} />
-
-      {/* Government Badge */}
-      {isGovernment && (
-        <>
-          <Separator />
-          <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
-            <p className="text-blue-700 dark:text-blue-400 font-medium text-sm">
-              🏛️ Government Contract (Tax Exempt • Net 30)
-            </p>
-          </div>
-        </>
-      )}
-
-      {/* Change History */}
-      <Separator />
-      <ChangeHistory quoteId={quote?.id} />
-    </div>
-  );
-
-  // Estimate/Invoice Panel Content  
-  const EstimatePanel = () => {
-    // If no invoice exists, show generate estimate prompt
-    if (!invoice) {
-      return (
-        <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] p-8 text-center space-y-6">
-          <div className="rounded-full bg-muted p-6">
-            <FileText className="h-12 w-12 text-muted-foreground" />
-          </div>
-          <div className="space-y-2">
-            <h3 className="text-lg font-semibold">No Estimate Yet</h3>
-            <p className="text-sm text-muted-foreground max-w-md">
-              Generate an estimate to create line items from this event's menu selections 
-              and service options.
-            </p>
-          </div>
-          <Button 
-            onClick={handleGenerateEstimate}
-            disabled={isGenerating}
-            size="lg"
-            className="gap-2"
-          >
-            {isGenerating ? (
-              <>
-                <Loader2 className="h-5 w-5 animate-spin" />
-                Generating...
-              </>
-            ) : (
-              <>
-                <FileText className="h-5 w-5" />
-                Generate Estimate
-              </>
-            )}
-          </Button>
-        </div>
-      );
-    }
-
-    return (
-      <div className="space-y-4 p-4 lg:p-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold flex items-center gap-2">
-            <FileText className="h-5 w-5 text-primary" />
-            Estimate {invoice?.invoice_number && `#${invoice.invoice_number}`}
-          </h2>
-        <div className="flex items-center gap-2">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            disabled={!invoice?.id}
-            onClick={async () => {
-              if (!invoice?.id) {
-                toast({ title: 'No estimate available', description: 'Generate an estimate first.', variant: 'destructive' });
-                return;
-              }
-              try {
-                toast({ title: 'Generating PDF...', description: 'Please wait' });
-                const { data, error } = await supabase.functions.invoke('generate-invoice-pdf', {
-                  body: { invoice_id: invoice.id }
-                });
-                if (error) throw error;
-                if (!data?.pdf_base64) throw new Error('No PDF generated');
-                
-                // Convert base64 to blob and download
-                const binaryString = atob(data.pdf_base64);
-                const bytes = new Uint8Array(binaryString.length);
-                for (let i = 0; i < binaryString.length; i++) {
-                  bytes[i] = binaryString.charCodeAt(i);
-                }
-                const blob = new Blob([bytes], { type: 'application/pdf' });
-                const url = URL.createObjectURL(blob);
-                
-                // Download
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = data.filename || `estimate-${invoice.invoice_number}.pdf`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                
-                toast({ title: 'PDF Downloaded' });
-              } catch (err: any) {
-                console.error('PDF generation error:', err);
-                toast({ title: 'PDF Error', description: err.message, variant: 'destructive' });
-              }
-            }}
-          >
-            <Printer className="h-4 w-4 mr-1" /> Download PDF
-          </Button>
-        </div>
-      </div>
-
-      {/* Line Items */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h3 className="font-medium text-sm">Line Items</h3>
-          <Button variant="outline" size="sm" onClick={() => setShowAddItem(true)}>
-            <Plus className="h-4 w-4 mr-1" /> Add
-          </Button>
-        </div>
-
-        {loadingItems ? (
-          <div className="flex justify-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-          </div>
-        ) : !sortedLineItems?.length ? (
-          <p className="text-center py-4 text-muted-foreground text-sm">No line items</p>
-        ) : (
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-            <SortableContext items={sortedLineItems.map(i => i.id)} strategy={verticalListSortingStrategy}>
-              <div className="space-y-2">
-                {sortedLineItems.map(item => {
-                  // Find the local editable version of the item
-                  const editableItem = editableLineItems.find(li => li.id === item.id) || item;
-                  const isDirty = dirtyItemIds.has(item.id);
-                  return (
-                    <SortableLineItem key={item.id} id={item.id}>
-                      <LineItemEditor
-                        item={editableItem}
-                        onPriceChange={price => handlePriceChange(item.id, price)}
-                        onQuantityChange={qty => handleQuantityChange(item.id, qty)}
-                        onDescriptionChange={desc => handleDescriptionChange(item.id, desc)}
-                        onDelete={() => handleDeleteItem(item.id)}
-                        isUpdating={deleteLineItem.isPending || isSaving}
-                        isDirty={isDirty}
-                      />
-                    </SortableLineItem>
-                  );
-                })}
-              </div>
-            </SortableContext>
-          </DndContext>
-        )}
-      </div>
-
-      <Separator />
-
-      {/* Customer Notes (visible on estimate) */}
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Notes for Customer</label>
-        <Textarea
-          value={customerNotes}
-          onChange={e => setCustomerNotes(e.target.value)}
-          placeholder="These notes will appear on the customer's estimate..."
-          rows={2}
-          className="text-sm"
-        />
-      </div>
-
-      <Separator />
-
-      {/* Discount */}
-      <div className="flex items-center justify-between">
-        <span className="text-sm font-medium">Discount</span>
-        <DiscountEditor
-          discountAmount={discountAmount}
-          discountType={discountType}
-          discountDescription={discountDescription}
-          subtotal={subtotal}
-          onApplyDiscount={handleApplyDiscount}
-          onRemoveDiscount={handleRemoveDiscount}
-          disabled={updateInvoice.isPending}
-        />
-      </div>
-
-      <Separator />
-
-      {/* Totals */}
-      <EstimateSummary
-        subtotal={subtotal}
-        taxAmount={taxAmount}
-        total={total}
-        isGovernment={isGovernment}
-        discountAmount={discountAmount}
-        discountType={discountType}
-        discountDescription={discountDescription}
-      />
-
-      <Separator />
-
-      {/* Admin Notes (internal only) */}
-      <div className="space-y-2">
-        <label className="text-sm font-medium text-muted-foreground">Admin Notes (Internal)</label>
-        <Textarea
-          value={adminNotes}
-          onChange={e => setAdminNotes(e.target.value)}
-          placeholder="Internal notes..."
-          rows={2}
-          className="text-sm"
-        />
-      </div>
-
-      {/* Unified Save Bar - appears when there are unsaved changes */}
-      {hasUnsavedChanges && (
-        <div className="sticky bottom-0 -mx-4 lg:-mx-6 px-4 lg:px-6 py-3 bg-amber-50 dark:bg-amber-950/50 border-t border-amber-200 dark:border-amber-800 flex items-center justify-between gap-3">
-          <Badge variant="outline" className="text-amber-700 dark:text-amber-300 border-amber-400 bg-amber-100 dark:bg-amber-900/30">
-            ⚠️ Unsaved changes
-          </Badge>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={discardAllChanges} disabled={isSaving}>
-              <Undo2 className="h-4 w-4 mr-1" /> Discard
-            </Button>
-            <Button size="sm" onClick={saveAllChanges} disabled={isSaving} className="bg-primary">
-              {isSaving ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Save className="h-4 w-4 mr-1" />}
-              Save Changes
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {/* Actions */}
-      <div className="flex flex-col sm:flex-row gap-2 pt-4">
-        <Button variant="outline" onClick={handleClose} className="flex-1">
-          <X className="h-4 w-4 mr-1" /> Close
-        </Button>
-        {isAlreadySent ? (
-          <Button onClick={handleResendClick} disabled={!lineItems?.length || hasUnsavedChanges} variant="outline" className="flex-1">
-            <RefreshCw className="h-4 w-4 mr-1" /> Resend
-          </Button>
-        ) : (
-          <Button onClick={handlePreviewClick} disabled={!lineItems?.length || hasUnsavedChanges} className="flex-1">
-            <Eye className="h-4 w-4 mr-1" /> Preview & Send
-          </Button>
-        )}
-      </div>
-    </div>
-    );
-  };
 
   // Desktop-only full page view
   return (
@@ -892,11 +323,19 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
         </Button>
       </div>
 
-      {/* Resizable Panels - fills remaining height */}
+      {/* Resizable Panels */}
       <ResizablePanelGroup direction="horizontal" className="flex-1 h-[calc(100vh-3.5rem)]">
         <ResizablePanel defaultSize={30} minSize={20} className="flex flex-col overflow-hidden">
           <ScrollArea className="flex-1 h-0">
-            <EventDetailsPanel />
+            <EventDetailsPanelContent
+              quote={quote}
+              invoice={invoice}
+              milestones={milestones}
+              isRegenerating={isRegenerating}
+              onRegenerateMilestones={handleRegenerateMilestones}
+              onEditCustomer={handleEditCustomer}
+              onEditMenu={handleEditMenu}
+            />
           </ScrollArea>
         </ResizablePanel>
         
@@ -904,7 +343,46 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
         
         <ResizablePanel defaultSize={70} minSize={40} className="flex flex-col overflow-hidden">
           <ScrollArea className="flex-1 h-0">
-            <EstimatePanel />
+            <EstimatePanelContent
+              invoice={invoice}
+              quote={quote}
+              sortedLineItems={sortedLineItems}
+              editableLineItems={editableLineItems}
+              dirtyItemIds={dirtyItemIds}
+              loadingItems={loadingItems}
+              customerNotes={customerNotes}
+              adminNotes={adminNotes}
+              subtotal={subtotal}
+              taxAmount={taxAmount}
+              total={total}
+              discountAmount={discountAmount}
+              discountType={discountType}
+              discountDescription={discountDescription}
+              isGovernment={isGovernment}
+              isAlreadySent={isAlreadySent}
+              hasUnsavedChanges={hasUnsavedChanges}
+              isSaving={isSaving}
+              isGenerating={isGenerating}
+              isUpdating={deleteLineItem.isPending || isSaving}
+              onGenerateEstimate={handleGenerateEstimate}
+              onCustomerNotesChange={setCustomerNotes}
+              onAdminNotesChange={setAdminNotes}
+              onPriceChange={handlePriceChange}
+              onQuantityChange={handleQuantityChange}
+              onDescriptionChange={handleDescriptionChange}
+              onDeleteItem={handleDeleteItem}
+              onDragEnd={handleDragEnd}
+              onApplyDiscount={handleApplyDiscount}
+              onRemoveDiscount={handleRemoveDiscount}
+              onAddItemClick={handleAddItemClick}
+              onPreviewClick={handlePreviewClick}
+              onResendClick={handleResendClick}
+              onClose={handleClose}
+              onSaveAllChanges={saveAllChanges}
+              onDiscardAllChanges={discardAllChanges}
+              onDownloadPdf={handleDownloadPdf}
+              toast={toast}
+            />
           </ScrollArea>
         </ResizablePanel>
       </ResizablePanelGroup>
