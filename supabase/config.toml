@@ -141,6 +141,14 @@ verify_jwt = false
 [functions.token-renewal-manager]
 verify_jwt = false
 
+# Quote Submission (public, bypasses RLS)
+[functions.submit-quote-request]
+verify_jwt = false
+
+# Quote Confirmation Email
+[functions.send-quote-confirmation]
+verify_jwt = false
+
 [edge-runtime]
 enabled = true
 ip_version = "dual"
