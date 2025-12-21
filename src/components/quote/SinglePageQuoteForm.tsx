@@ -15,6 +15,7 @@ import { ReviewSummaryCard } from "./ReviewSummaryCard";
 import { User, Calendar, ChefHat, UtensilsCrossed, Package, ClipboardCheck } from "lucide-react";
 import { formSchema } from "./alternative-form/formSchema";
 import { supabase } from "@/integrations/supabase/client";
+import { anonSupabase } from "@/integrations/supabase/anonymousClient";
 import { useToast } from "@/hooks/use-toast";
 import { useFormAnalytics } from "@/hooks/useFormAnalytics";
 import { formatCustomerName, formatEventName, formatLocation } from "@/utils/textFormatters";
@@ -246,7 +247,8 @@ export const SinglePageQuoteForm = ({ variant = 'regular', onSuccess }: SinglePa
         workflow_status: 'pending' as const
       };
       
-      const { data: insertedData, error } = await supabase
+      // Use anonymous client for public form submissions to avoid stale session interference
+      const { data: insertedData, error } = await anonSupabase
         .from('quote_requests')
         .insert([insertPayload])
         .select();
