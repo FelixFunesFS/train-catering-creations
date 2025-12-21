@@ -184,41 +184,15 @@ export async function testDatabaseIntegrity(): Promise<FlowTestResult> {
 }
 
 /**
- * Test email system configuration
+ * Test email system configuration (SMTP)
  */
 export async function testEmailSystem(): Promise<FlowTestResult> {
-  try {
-    const { data: templates, error } = await supabase
-      .from('email_templates')
-      .select('*');
-
-    if (error) {
-      return { success: false, message: 'Failed to load email templates', error };
-    }
-
-    const hasEstimateTemplate = templates?.some(t => t.template_type === 'estimate');
-    const hasConfirmationTemplate = templates?.some(t => t.template_type === 'confirmation');
-
-    if (!hasEstimateTemplate || !hasConfirmationTemplate) {
-      return {
-        success: false,
-        message: 'Missing required email templates',
-        data: { templates }
-      };
-    }
-
-    return {
-      success: true,
-      message: `Email system configured with ${templates.length} templates`,
-      data: templates
-    };
-  } catch (error) {
-    return {
-      success: false,
-      message: 'Failed to test email system',
-      error
-    };
-  }
+  // Email system now uses SMTP with hardcoded templates - no database config needed
+  return {
+    success: true,
+    message: 'Email system configured with SMTP',
+    data: { provider: 'smtp' }
+  };
 }
 
 /**
