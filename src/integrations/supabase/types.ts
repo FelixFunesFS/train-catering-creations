@@ -351,39 +351,6 @@ export type Database = {
           },
         ]
       }
-      email_templates: {
-        Row: {
-          body_template: string
-          created_at: string
-          id: string
-          is_default: boolean | null
-          subject_template: string
-          template_name: string
-          template_type: string
-          updated_at: string
-        }
-        Insert: {
-          body_template: string
-          created_at?: string
-          id?: string
-          is_default?: boolean | null
-          subject_template: string
-          template_name: string
-          template_type: string
-          updated_at?: string
-        }
-        Update: {
-          body_template?: string
-          created_at?: string
-          id?: string
-          is_default?: boolean | null
-          subject_template?: string
-          template_name?: string
-          template_type?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       estimate_versions: {
         Row: {
           change_request_id: string | null
