@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { BRAND_COLORS, EMAIL_STYLES, generateEmailHeader, generateEventDetailsCard, generateFooter, generatePreheader } from "../_shared/emailTemplates.ts";
+import { escapeHtml, createErrorResponse } from "../_shared/security.ts";
 
 // Brand accent colors for admin notifications
 const ACCENT_COLORS = {
@@ -27,11 +28,21 @@ const handler = async (req: Request): Promise<Response> => {
 
   try {
     const requestData = await req.json();
-    console.log('Quote notification request:', requestData);
+    console.log('Quote notification request received');
 
-    // Helper to format menu items with proper title case
+    // Sanitize user-provided data for HTML embedding
+    const safeContactName = escapeHtml(requestData.contact_name);
+    const safeEmail = escapeHtml(requestData.email);
+    const safePhone = escapeHtml(requestData.phone);
+    const safeEventName = escapeHtml(requestData.event_name);
+    const safeLocation = escapeHtml(requestData.location);
+    const safeThemeColors = escapeHtml(requestData.theme_colors);
+    const safeSpecialRequests = escapeHtml(requestData.special_requests);
+    const safeGuestCountWithRestrictions = escapeHtml(requestData.guest_count_with_restrictions);
+
+    // Helper to format menu items with proper title case and sanitization
     const formatMenuItem = (item: string): string => {
-      return item
+      return escapeHtml(item)
         .split('-')
         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
         .join(' ');
@@ -41,7 +52,7 @@ const handler = async (req: Request): Promise<Response> => {
       if (!items || (Array.isArray(items) && items.length === 0)) return 'None selected';
       if (typeof items === 'string') return formatMenuItem(items);
       if (Array.isArray(items)) return items.map(formatMenuItem).join(', ');
-      return JSON.stringify(items);
+      return escapeHtml(JSON.stringify(items));
     };
 
     // Helper to format supplies
@@ -56,7 +67,7 @@ const handler = async (req: Request): Promise<Response> => {
       return supplies.length > 0 ? supplies.join(', ') : 'None requested';
     };
 
-    // Build menu section HTML
+    // Build menu section HTML with sanitized content
     const menuSectionHtml = `
       <div style="background: ${BRAND_COLORS.white}; border: 2px solid ${BRAND_COLORS.lightGray}; border-radius: 8px; padding: 20px; margin: 20px 0;">
         <h3 style="margin: 0 0 20px 0; color: ${BRAND_COLORS.crimson}; text-align: center;">🍽️ Menu Selections</h3>
@@ -97,17 +108,17 @@ const handler = async (req: Request): Promise<Response> => {
         </div>
         ` : ''}
 
-        ${(requestData.guest_count_with_restrictions || (requestData.vegetarian_entrees && Array.isArray(requestData.vegetarian_entrees) && requestData.vegetarian_entrees.length > 0)) ? `
+        ${(safeGuestCountWithRestrictions || (requestData.vegetarian_entrees && Array.isArray(requestData.vegetarian_entrees) && requestData.vegetarian_entrees.length > 0)) ? `
         <div style="margin: 15px 0; padding: 12px; background: #f0fdf4; border-radius: 6px; border-left: 4px solid #22c55e;">
           <h4 style="color: #166534; margin: 0 0 8px 0; font-size: 16px;">🌱 Vegetarian Options</h4>
-          ${requestData.guest_count_with_restrictions ? `<p style="margin: 5px 0; color: #166534;">${requestData.guest_count_with_restrictions} vegetarian portions requested</p>` : ''}
+          ${safeGuestCountWithRestrictions ? `<p style="margin: 5px 0; color: #166534;">${safeGuestCountWithRestrictions} vegetarian portions requested</p>` : ''}
           ${requestData.vegetarian_entrees && Array.isArray(requestData.vegetarian_entrees) && requestData.vegetarian_entrees.length > 0 ? `<p style="margin: 5px 0; color: #166534;"><strong>Entrées:</strong> ${requestData.vegetarian_entrees.map(formatMenuItem).join(', ')}</p>` : ''}
         </div>
         ` : ''}
       </div>
     `;
 
-    const preheaderText = `New quote from ${requestData.contact_name} for ${requestData.event_name} - ${requestData.guest_count} guests`;
+    const preheaderText = `New quote from ${safeContactName} for ${safeEventName} - ${requestData.guest_count} guests`;
     
     // Admin notification email with comprehensive details and brand colors
     const adminEmailHtml = `
@@ -117,7 +128,7 @@ const handler = async (req: Request): Promise<Response> => {
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>New Quote Request from ${requestData.contact_name}</title>
+        <title>New Quote Request from ${safeContactName}</title>
         <style>${EMAIL_STYLES}</style>
       </head>
       <body>
@@ -129,25 +140,25 @@ const handler = async (req: Request): Promise<Response> => {
               <span style="color: white; font-weight: bold; font-size: 14px;"><span aria-label="Soul Train">🚂</span> NEW QUOTE SUBMISSION</span>
             </div>
             <h2 style="color: white; margin: 0 0 10px 0; font-size: 24px;"><span aria-hidden="true">📧</span> New Quote Request From:</h2>
-            <h3 style="color: white; margin: 0; font-size: 24px;">${requestData.contact_name}</h3>
+            <h3 style="color: white; margin: 0; font-size: 24px;">${safeContactName}</h3>
             <p style="color: white; margin: 5px 0; font-size: 16px;">
-              <span aria-hidden="true">📧</span> <a href="mailto:${requestData.email}" style="color: white; text-decoration: none;">${requestData.email}</a> | <span aria-hidden="true">📞</span> <a href="tel:${requestData.phone}" style="color: white; text-decoration: none;">${requestData.phone}</a>
+              <span aria-hidden="true">📧</span> <a href="mailto:${safeEmail}" style="color: white; text-decoration: none;">${safeEmail}</a> | <span aria-hidden="true">📞</span> <a href="tel:${safePhone}" style="color: white; text-decoration: none;">${safePhone}</a>
             </p>
             <p style="color: white; margin: 15px 0 0 0; font-size: 14px; opacity: 0.9;">
-              <a href="mailto:${requestData.email}" style="color: white; text-decoration: underline;" aria-label="Reply directly to ${requestData.contact_name}">
+              <a href="mailto:${safeEmail}" style="color: white; text-decoration: underline;" aria-label="Reply directly to ${safeContactName}">
                 Click to reply directly to customer →
               </a>
             </p>
-            <p style="color: white; margin: 10px 0 0 0; opacity: 0.95;">Event: ${requestData.event_name}</p>
+            <p style="color: white; margin: 10px 0 0 0; opacity: 0.95;">Event: ${safeEventName}</p>
           </div>
           
           <div class="content">
             <section style="background: linear-gradient(135deg, ${BRAND_COLORS.gold}, ${BRAND_COLORS.goldLight}); padding: 20px; border-radius: 8px; margin-bottom: 25px;" aria-labelledby="customer-details-heading">
               <h2 id="customer-details-heading" style="color: ${BRAND_COLORS.darkGray}; margin: 0 0 10px 0;"><span aria-hidden="true">📋</span> Customer Details</h2>
               <table role="presentation" style="width: 100%;">
-                <tr><td style="padding: 5px 0;"><strong>Name:</strong></td><td>${requestData.contact_name}</td></tr>
-                <tr><td style="padding: 5px 0;"><strong>Email:</strong></td><td><a href="mailto:${requestData.email}" style="color: ${BRAND_COLORS.crimson};" aria-label="Email ${requestData.contact_name}">${requestData.email}</a></td></tr>
-                <tr><td style="padding: 5px 0;"><strong>Phone:</strong></td><td><a href="tel:${requestData.phone}" style="color: ${BRAND_COLORS.crimson};" aria-label="Call ${requestData.contact_name}">${requestData.phone}</a></td></tr>
+                <tr><td style="padding: 5px 0;"><strong>Name:</strong></td><td>${safeContactName}</td></tr>
+                <tr><td style="padding: 5px 0;"><strong>Email:</strong></td><td><a href="mailto:${safeEmail}" style="color: ${BRAND_COLORS.crimson};" aria-label="Email ${safeContactName}">${safeEmail}</a></td></tr>
+                <tr><td style="padding: 5px 0;"><strong>Phone:</strong></td><td><a href="tel:${safePhone}" style="color: ${BRAND_COLORS.crimson};" aria-label="Call ${safeContactName}">${safePhone}</a></td></tr>
               </table>
             </section>
 
@@ -160,17 +171,17 @@ const handler = async (req: Request): Promise<Response> => {
               <p style="margin: 5px 0; font-size: 15px;">${formatSupplies()}</p>
             </div>
 
-            ${requestData.theme_colors ? `
+            ${safeThemeColors ? `
             <div class="event-card" style="border-left-color: ${BRAND_COLORS.gold};">
               <h3 style="margin: 0 0 10px 0; color: ${BRAND_COLORS.crimson};">🎨 Theme/Colors</h3>
-              <p style="margin: 5px 0;">${requestData.theme_colors}</p>
+              <p style="margin: 5px 0;">${safeThemeColors}</p>
             </div>
             ` : ''}
 
-            ${requestData.special_requests ? `
+            ${safeSpecialRequests ? `
             <div class="event-card" style="border-left-color: ${BRAND_COLORS.crimson}; background: #FFF0F0;">
               <h3 style="margin: 0 0 10px 0; color: ${BRAND_COLORS.crimson};">💬 Special Requests</h3>
-              <p style="margin: 5px 0; white-space: pre-wrap;">${requestData.special_requests}</p>
+              <p style="margin: 5px 0; white-space: pre-wrap;">${safeSpecialRequests}</p>
             </div>
             ` : ''}
 
@@ -196,23 +207,23 @@ const handler = async (req: Request): Promise<Response> => {
       const { error: adminEmailError } = await supabase.functions.invoke('send-gmail-email', {
         body: {
           to: 'soultrainseatery@gmail.com',
-          subject: `🚂 NEW QUOTE from ${requestData.contact_name} - ${requestData.event_name}`,
+          subject: `🚂 NEW QUOTE from ${safeContactName} - ${safeEventName}`,
           html: adminEmailHtml,
           from: `Soul Train's Eatery <soultrainseatery@gmail.com>`,
-          replyTo: `${requestData.contact_name} <${requestData.email}>`
+          replyTo: `${safeContactName} <${safeEmail}>`
         }
       });
 
       if (adminEmailError) {
         console.warn('Admin email failed (non-critical):', adminEmailError);
-        emailError = adminEmailError.message || 'Failed to send admin notification';
+        emailError = 'Failed to send admin notification';
       } else {
         console.log('Admin notification email sent successfully');
         adminEmailSent = true;
       }
     } catch (error) {
       console.warn('Admin email exception (non-critical):', error);
-      emailError = error instanceof Error ? error.message : 'Exception sending admin notification';
+      emailError = 'Exception sending admin notification';
     }
 
     return new Response(
@@ -230,17 +241,7 @@ const handler = async (req: Request): Promise<Response> => {
       }
     );
   } catch (error) {
-    console.error("Error in send-quote-notification:", error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-    return new Response(
-      JSON.stringify({ 
-        error: errorMessage
-      }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
-    );
+    return createErrorResponse(error, 'send-quote-notification', corsHeaders);
   }
 };
 
