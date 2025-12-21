@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.52.1';
-import { escapeHtml, createErrorResponse } from '../_shared/security.ts';
+import { escapeHtml, createErrorResponse, verifyAdminAuth, createUnauthorizedResponse } from '../_shared/security.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -27,6 +27,15 @@ const handler = async (req: Request): Promise<Response> => {
 
   try {
     logStep("Change request processing started");
+
+    // Verify admin authentication
+    const { isAdmin, userId, error: authError } = await verifyAdminAuth(req);
+    if (!isAdmin) {
+      logStep("Admin auth failed", { error: authError });
+      return createUnauthorizedResponse(authError || 'Admin access required', corsHeaders);
+    }
+
+    logStep("Admin authenticated", { userId });
 
     const { 
       change_request_id, 
@@ -79,15 +88,15 @@ const handler = async (req: Request): Promise<Response> => {
 
     logStep("Change request data fetched", { 
       requestType: changeRequest.request_type,
-      status: changeRequest.status
+      status: changeRequest.workflow_status
     });
 
-    let newStatus = changeRequest.status;
+    let newStatus = changeRequest.workflow_status;
     let updates: any = {
       admin_response: admin_response,
       estimated_cost_change: estimated_cost_change,
       reviewed_at: new Date().toISOString(),
-      reviewed_by: 'admin',
+      reviewed_by: userId || 'admin',
       updated_at: new Date().toISOString()
     };
 
@@ -139,7 +148,7 @@ const handler = async (req: Request): Promise<Response> => {
         throw new Error('Invalid action');
     }
 
-    updates.status = newStatus;
+    updates.workflow_status = newStatus;
 
     // Update change request
     const { error: updateError } = await supabase

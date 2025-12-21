@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
-import { createErrorResponse } from "../_shared/security.ts";
+import { createErrorResponse, verifyInvoiceAccess } from "../_shared/security.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -15,6 +15,7 @@ const logStep = (step: string, details?: any) => {
 
 interface CheckoutRequest {
   invoice_id: string;
+  access_token: string; // Required for customer authentication
   payment_type: 'full' | 'deposit' | 'milestone';
   amount?: number;
   milestone_id?: string;
@@ -32,6 +33,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     const {
       invoice_id,
+      access_token,
       payment_type,
       amount: customAmount,
       milestone_id,
@@ -39,7 +41,27 @@ const handler = async (req: Request): Promise<Response> => {
       cancel_url
     }: CheckoutRequest = await req.json();
 
-    logStep("Request data", { invoice_id, payment_type, milestone_id });
+    logStep("Request data", { invoice_id, payment_type, milestone_id, hasToken: !!access_token });
+
+    // SECURITY: Verify invoice access using customer access token
+    if (!access_token) {
+      logStep("Missing access token");
+      return new Response(
+        JSON.stringify({ error: "Access token is required", code: "UNAUTHORIZED" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const hasAccess = await verifyInvoiceAccess(invoice_id, access_token);
+    if (!hasAccess) {
+      logStep("Invalid access token for invoice");
+      return new Response(
+        JSON.stringify({ error: "Invalid or expired access token", code: "UNAUTHORIZED" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    logStep("Invoice access verified");
 
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     const supabaseUrl = Deno.env.get("SUPABASE_URL");

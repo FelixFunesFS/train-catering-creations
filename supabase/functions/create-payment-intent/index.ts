@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { verifyInvoiceAccess } from '../_shared/security.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -12,7 +13,27 @@ serve(async (req) => {
   }
 
   try {
-    const { invoice_id, amount, milestone_id } = await req.json();
+    const { invoice_id, access_token, amount, milestone_id } = await req.json();
+
+    // SECURITY: Verify invoice access using customer access token
+    if (!access_token) {
+      console.log('[create-payment-intent] Missing access token');
+      return new Response(
+        JSON.stringify({ error: 'Access token is required' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const hasAccess = await verifyInvoiceAccess(invoice_id, access_token);
+    if (!hasAccess) {
+      console.log('[create-payment-intent] Invalid access token for invoice');
+      return new Response(
+        JSON.stringify({ error: 'Invalid or expired access token' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log('[create-payment-intent] Invoice access verified');
 
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
