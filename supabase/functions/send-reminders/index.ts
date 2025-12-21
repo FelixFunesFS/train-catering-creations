@@ -140,7 +140,7 @@ serve(async (req) => {
       try {
         const emailContent = generateReminderEmail(reminder);
         
-        const { data: emailResult, error: emailError } = await supabaseClient.functions.invoke('send-gmail-email', {
+        const { data: emailResult, error: emailError } = await supabaseClient.functions.invoke('send-smtp-email', {
           body: {
             to: reminder.invoice.customers.email,
             subject: reminder.subject,

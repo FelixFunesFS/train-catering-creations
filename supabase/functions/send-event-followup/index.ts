@@ -92,7 +92,7 @@ serve(async (req) => {
         `
       };
 
-      const { error: emailError } = await supabaseClient.functions.invoke('send-gmail-email', {
+      const { error: emailError } = await supabaseClient.functions.invoke('send-smtp-email', {
         body: emailBody
       });
 

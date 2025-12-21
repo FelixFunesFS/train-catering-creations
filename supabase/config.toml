@@ -36,7 +36,7 @@ enable_signup = true
 enable_manual_linking = false
 
 # Core Email Functions
-[functions.send-gmail-email]
+[functions.send-smtp-email]
 verify_jwt = false
 
 [functions.send-quote-notification]
@@ -72,11 +72,7 @@ verify_jwt = false
 [functions.send-approval-workflow]
 verify_jwt = false
 
-# Gmail OAuth
-[functions.gmail-oauth-init]
-verify_jwt = false
-
-[functions.gmail-oauth-callback]
+[functions.send-event-reminders]
 verify_jwt = false
 
 # Stripe Functions
@@ -142,6 +138,9 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.track-email-open]
+verify_jwt = false
+
+[functions.token-renewal-manager]
 verify_jwt = false
 
 [edge-runtime]

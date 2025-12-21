@@ -204,7 +204,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     try {
       console.log('Sending admin notification email...');
-      const { error: adminEmailError } = await supabase.functions.invoke('send-gmail-email', {
+      const { error: adminEmailError } = await supabase.functions.invoke('send-smtp-email', {
         body: {
           to: 'soultrainseatery@gmail.com',
           subject: `🚂 NEW QUOTE from ${safeContactName} - ${safeEventName}`,

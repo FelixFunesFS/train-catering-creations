@@ -186,7 +186,7 @@ const handler = async (req: Request): Promise<Response> => {
 </html>`;
 
     // Send email using Gmail API
-    const { error: emailError } = await supabase.functions.invoke('send-gmail-email', {
+    const { error: emailError } = await supabase.functions.invoke('send-smtp-email', {
       body: {
         to: customerEmail,
         subject,

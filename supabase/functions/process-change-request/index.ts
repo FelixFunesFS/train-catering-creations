@@ -161,7 +161,7 @@ const handler = async (req: Request): Promise<Response> => {
         html: generateResponseEmail(changeRequest, action, admin_response, estimated_cost_change)
       };
 
-      const { error: emailError } = await supabase.functions.invoke('send-gmail-email', {
+      const { error: emailError } = await supabase.functions.invoke('send-smtp-email', {
         body: emailData
       });
 

@@ -92,7 +92,7 @@ const handler = async (req: Request): Promise<Response> => {
             const siteUrl = Deno.env.get('SITE_URL') || 'https://train-catering-creations.lovable.app';
             const estimateLink = `${siteUrl}/estimate?token=${invoice.customer_access_token}`;
 
-            const { error: emailError } = await supabase.functions.invoke('send-gmail-email', {
+            const { error: emailError } = await supabase.functions.invoke('send-smtp-email', {
               body: {
                 to: invoice.quote_requests.email,
                 subject: `Action Required: Your Quote Link is Expiring Soon - ${invoice.quote_requests.event_name}`,

@@ -52,7 +52,7 @@ const handler = async (req: Request): Promise<Response> => {
       preheaderText 
     });
 
-    const { error } = await supabase.functions.invoke('send-gmail-email', {
+    const { error } = await supabase.functions.invoke('send-smtp-email', {
       body: {
         to,
         subject,

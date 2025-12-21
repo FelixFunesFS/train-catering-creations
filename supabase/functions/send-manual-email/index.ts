@@ -143,7 +143,7 @@ serve(async (req) => {
     }
 
     // Send email using the existing gmail function
-    const emailResponse = await supabaseClient.functions.invoke('send-gmail-email', {
+    const emailResponse = await supabaseClient.functions.invoke('send-smtp-email', {
       body: {
         to: customer.email,
         subject: subject,

@@ -107,7 +107,7 @@ const handler = async (req: Request): Promise<Response> => {
     `;
 
     // Send test email via Gmail
-    const { data: emailResult, error: emailError } = await supabase.functions.invoke('send-gmail-email', {
+    const { data: emailResult, error: emailError } = await supabase.functions.invoke('send-smtp-email', {
       body: {
         to: toEmail,
         subject: `Test Email - Soul Train's Eatery Gmail Integration`,

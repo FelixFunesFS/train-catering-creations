@@ -214,7 +214,7 @@ serve(async (req) => {
     `;
 
     // Send contract email
-    const { data: emailResult, error: emailError } = await supabaseClient.functions.invoke('send-gmail-email', {
+    const { data: emailResult, error: emailError } = await supabaseClient.functions.invoke('send-smtp-email', {
       body: {
         to: invoiceData.customers.email,
         subject: `🎉 Estimate Approved - Next Steps for ${invoiceData.quote_requests.event_name}`,
