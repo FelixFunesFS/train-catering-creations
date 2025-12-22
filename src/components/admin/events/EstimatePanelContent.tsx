@@ -165,7 +165,7 @@ export const EstimatePanelContent = memo(function EstimatePanelContent({
             disabled={!invoice?.id}
             onClick={onDownloadPdf}
           >
-            <Printer className="h-4 w-4 mr-1" /> Download PDF
+            <Printer className="h-4 w-4 mr-1 text-navy" /> Download PDF
           </Button>
         </div>
       </div>
@@ -175,7 +175,7 @@ export const EstimatePanelContent = memo(function EstimatePanelContent({
         <div className="flex items-center justify-between">
           <h3 className="font-medium text-sm">Line Items</h3>
           <Button variant="outline" size="sm" onClick={onAddItemClick}>
-            <Plus className="h-4 w-4 mr-1" /> Add
+            <Plus className="h-4 w-4 mr-1 text-primary" /> Add
           </Button>
         </div>
 
@@ -223,7 +223,7 @@ export const EstimatePanelContent = memo(function EstimatePanelContent({
           onChange={e => onCustomerNotesChange(e.target.value)}
           placeholder="These notes will appear on the customer's estimate..."
           rows={2}
-          className="text-sm"
+          className="text-sm bg-white dark:bg-slate-900"
         />
       </div>
 
@@ -267,7 +267,7 @@ export const EstimatePanelContent = memo(function EstimatePanelContent({
           onChange={e => onAdminNotesChange(e.target.value)}
           placeholder="Internal notes..."
           rows={2}
-          className="text-sm"
+          className="text-sm bg-white dark:bg-slate-900"
         />
       </div>
 
@@ -279,7 +279,7 @@ export const EstimatePanelContent = memo(function EstimatePanelContent({
           </Badge>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={onDiscardAllChanges} disabled={isSaving}>
-              <Undo2 className="h-4 w-4 mr-1" /> Discard
+              <Undo2 className="h-4 w-4 mr-1 text-amber-600" /> Discard
             </Button>
             <Button size="sm" onClick={onSaveAllChanges} disabled={isSaving} className="bg-primary">
               {isSaving ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Save className="h-4 w-4 mr-1" />}
@@ -296,7 +296,7 @@ export const EstimatePanelContent = memo(function EstimatePanelContent({
         </Button>
         {isAlreadySent ? (
           <Button onClick={onResendClick} disabled={!sortedLineItems?.length || hasUnsavedChanges} variant="outline" className="flex-1">
-            <RefreshCw className="h-4 w-4 mr-1" /> Resend
+            <RefreshCw className="h-4 w-4 mr-1 text-navy" /> Resend
           </Button>
         ) : (
           <Button onClick={onPreviewClick} disabled={!sortedLineItems?.length || hasUnsavedChanges} className="flex-1">

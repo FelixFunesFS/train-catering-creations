@@ -135,12 +135,12 @@ export function LineItemEditor({
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 text-muted-foreground hover:text-destructive sm:hidden"
+              className="h-8 w-8 text-destructive/70 hover:text-destructive hover:bg-destructive/10 sm:hidden"
               onClick={onDelete}
               disabled={isUpdating}
               aria-label="Delete line item"
             >
-              <Trash2 className="h-4 w-4" />
+              <Trash2 className="h-4 w-4 text-destructive" />
             </Button>
           )}
         </div>
@@ -148,7 +148,7 @@ export function LineItemEditor({
           <Textarea
             value={item.description || ''}
             onChange={(e) => handleDescriptionChange(e.target.value)}
-            className="text-xs min-h-[60px] resize-y"
+            className="text-xs min-h-[60px] resize-y bg-white dark:bg-slate-900"
             disabled={isUpdating}
             placeholder="Item description..."
           />
@@ -175,7 +175,7 @@ export function LineItemEditor({
               onChange={(e) => setQuantityInput(e.target.value)}
               onBlur={handleQuantityBlur}
               onKeyDown={(e) => handleKeyDown(e, handleQuantityBlur)}
-              className="h-9 sm:h-8 text-sm text-center"
+              className="h-9 sm:h-8 text-sm text-center bg-white dark:bg-slate-900"
               disabled={isUpdating}
             />
           ) : (
@@ -187,7 +187,7 @@ export function LineItemEditor({
         <div className="flex-1 sm:flex-none sm:w-24">
           <Label htmlFor={`price-${item.id}`} className="text-xs text-muted-foreground mb-1 block">Unit Price</Label>
           <div className="relative">
-            <DollarSign className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
+            <DollarSign className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-gold-dark" />
             <Input
               id={`price-${item.id}`}
               type="text"
@@ -196,7 +196,7 @@ export function LineItemEditor({
               onChange={(e) => setPriceInput(e.target.value)}
               onBlur={handlePriceBlur}
               onKeyDown={(e) => handleKeyDown(e, handlePriceBlur)}
-              className="pl-6 h-9 sm:h-8 text-sm"
+              className="pl-6 h-9 sm:h-8 text-sm bg-white dark:bg-slate-900"
               disabled={isUpdating}
             />
           </div>
@@ -216,12 +216,12 @@ export function LineItemEditor({
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+              className="h-8 w-8 text-destructive/70 hover:text-destructive hover:bg-destructive/10 opacity-0 group-hover:opacity-100 transition-opacity"
               onClick={onDelete}
               disabled={isUpdating}
               aria-label="Delete line item"
             >
-              <Trash2 className="h-4 w-4" />
+              <Trash2 className="h-4 w-4 text-destructive" />
             </Button>
           </div>
         )}
