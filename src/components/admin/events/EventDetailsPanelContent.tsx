@@ -35,7 +35,7 @@ function PaymentScheduleSectionInner({ invoiceId, milestones, isRegenerating, on
   };
 
   return (
-    <section className="space-y-3">
+    <section className="space-y-3 pl-4 border-l-4 border-gold/40 bg-gold/5 rounded-r-md py-3 -ml-4 lg:-ml-6 pr-4 lg:pr-6">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
           <span className="text-base">💵</span> Payment Schedule
@@ -135,8 +135,8 @@ export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
         </Badge>
       </div>
 
-      {/* Customer Section */}
-      <section className="space-y-1">
+      {/* Customer Section - Ruby/Primary accent */}
+      <section className="space-y-1 pl-4 border-l-4 border-primary/40 bg-primary/5 rounded-r-md py-3 -ml-4 lg:-ml-6 pr-4 lg:pr-6">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-2">
             <Users className="h-4 w-4" /> Customer
@@ -161,8 +161,8 @@ export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
 
       <Separator />
 
-      {/* Event Section */}
-      <section className="space-y-2">
+      {/* Event Section - Navy accent */}
+      <section className="space-y-2 pl-4 border-l-4 border-navy/40 bg-navy/5 rounded-r-md py-3 -ml-4 lg:-ml-6 pr-4 lg:pr-6">
         <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-2">
           <PartyPopper className="h-4 w-4" /> Event
         </h3>
@@ -193,8 +193,8 @@ export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
 
       <Separator />
 
-      {/* Menu Section */}
-      <section className="space-y-2">
+      {/* Menu Section - Gold accent */}
+      <section className="space-y-2 pl-4 border-l-4 border-gold/50 bg-gold/5 rounded-r-md py-3 -ml-4 lg:-ml-6 pr-4 lg:pr-6">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-2">
             <Utensils className="h-4 w-4" /> Menu Selections
@@ -208,21 +208,28 @@ export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
           {/* Appetizers */}
           {quote?.appetizers && Array.isArray(quote.appetizers) && quote.appetizers.length > 0 && (
             <div className="space-y-1">
-              <p className="font-medium text-xs text-muted-foreground">Appetizers</p>
+              <p className="font-medium text-xs text-muted-foreground flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-category-appetizers" aria-hidden="true" />
+                Appetizers
+              </p>
               <p>{formatMenuItems(quote.appetizers)}</p>
             </div>
           )}
           {/* Proteins */}
           {quote?.proteins && Array.isArray(quote.proteins) && quote.proteins.length > 0 && (
             <div className="space-y-1">
-              <p className="font-medium text-xs text-muted-foreground">Proteins</p>
+              <p className="font-medium text-xs text-muted-foreground flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-category-proteins" aria-hidden="true" />
+                Proteins
+              </p>
               <p>{formatMenuItems(quote.proteins)}</p>
             </div>
           )}
           {/* Vegetarian Entrées */}
           {quote?.vegetarian_entrees && Array.isArray(quote.vegetarian_entrees) && quote.vegetarian_entrees.length > 0 && (
             <div className="space-y-1">
-              <p className="font-medium text-xs text-muted-foreground">
+              <p className="font-medium text-xs text-muted-foreground flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-category-vegetarian" aria-hidden="true" />
                 Vegetarian Entrées{quote.guest_count_with_restrictions && ` (${quote.guest_count_with_restrictions} guests)`}
               </p>
               <p>{formatMenuItems(quote.vegetarian_entrees)}</p>
@@ -231,33 +238,42 @@ export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
           {/* Sides */}
           {quote?.sides && Array.isArray(quote.sides) && quote.sides.length > 0 && (
             <div className="space-y-1">
-              <p className="font-medium text-xs text-muted-foreground">Sides</p>
+              <p className="font-medium text-xs text-muted-foreground flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-category-sides" aria-hidden="true" />
+                Sides
+              </p>
               <p>{formatMenuItems(quote.sides)}</p>
             </div>
           )}
           {/* Desserts */}
           {quote?.desserts && Array.isArray(quote.desserts) && quote.desserts.length > 0 && (
             <div className="space-y-1">
-              <p className="font-medium text-xs text-muted-foreground">Desserts</p>
+              <p className="font-medium text-xs text-muted-foreground flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-category-desserts" aria-hidden="true" />
+                Desserts
+              </p>
               <p>{formatMenuItems(quote.desserts)}</p>
             </div>
           )}
           {/* Drinks */}
           {quote?.drinks && Array.isArray(quote.drinks) && quote.drinks.length > 0 && (
             <div className="space-y-1">
-              <p className="font-medium text-xs text-muted-foreground">Drinks</p>
+              <p className="font-medium text-xs text-muted-foreground flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-category-drinks" aria-hidden="true" />
+                Drinks
+              </p>
               <p>{formatMenuItems(quote.drinks)}</p>
             </div>
           )}
         </div>
       </section>
 
-      {/* Supplies & Equipment */}
+      {/* Supplies & Equipment - Platinum accent */}
       {(quote?.plates_requested || quote?.cups_requested || quote?.napkins_requested || 
         quote?.serving_utensils_requested || quote?.ice_requested) && (
         <>
           <Separator />
-          <section className="space-y-2">
+          <section className="space-y-2 pl-4 border-l-4 border-platinum/60 bg-platinum/5 rounded-r-md py-3 -ml-4 lg:-ml-6 pr-4 lg:pr-6">
             <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
               Supplies & Equipment
             </h3>

@@ -87,9 +87,9 @@ export function EstimateSummary({
         </>
       )}
       
-      <div className="border-t pt-2 mt-2 flex justify-between">
-        <span className="font-semibold">Total</span>
-        <span className="font-bold text-lg">{formatCents(total)}</span>
+      <div className="border-t-2 border-gold/30 pt-3 mt-2 flex justify-between items-center">
+        <span className="font-semibold text-lg">Total</span>
+        <span className="font-bold text-xl text-gold-dark dark:text-gold">{formatCents(total)}</span>
       </div>
     </div>
   );
