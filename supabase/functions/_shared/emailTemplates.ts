@@ -1271,6 +1271,386 @@ ${generateFooter()}
 // EMAIL CONFIGURATION PRESETS - For use with preview and consistent emails
 // ============================================================================
 
+// ============================================================================
+// EMAIL CONTENT BLOCKS GENERATOR - Single source of truth for email content
+// ============================================================================
+
+export interface EmailContentContext {
+  quote: any;
+  invoice?: any;
+  lineItems?: any[];
+  milestones?: any[];
+  portalUrl?: string;
+  isUpdated?: boolean;
+  paymentAmount?: number;
+  isFullPayment?: boolean;
+}
+
+/**
+ * Get standardized content blocks for any email type
+ * This is the SINGLE SOURCE OF TRUTH for email content structure
+ * Both preview-email and send-customer-portal-email MUST use this function
+ */
+export function getEmailContentBlocks(
+  emailType: EmailType,
+  variant: 'customer' | 'admin',
+  context: EmailContentContext
+): { contentBlocks: ContentBlock[]; ctaButton?: { text: string; href: string; variant: 'primary' | 'secondary' } } {
+  const { quote, invoice, lineItems, milestones, portalUrl, isUpdated, paymentAmount, isFullPayment } = context;
+  const siteUrl = Deno.env.get('SITE_URL') || 'https://soultrainseatery.lovable.app';
+  const effectivePortalUrl = portalUrl || `${siteUrl}/estimate?token=${invoice?.customer_access_token || 'sample-token'}`;
+
+  let contentBlocks: ContentBlock[] = [];
+  let ctaButton: { text: string; href: string; variant: 'primary' | 'secondary' } | undefined;
+
+  switch (emailType) {
+    case 'quote_received':
+      // Admin notification of new quote
+      contentBlocks = [
+        { type: 'text', data: { html: `<p style="margin:0 0 16px 0;font-size:15px;color:#333;"><strong>${quote.contact_name}</strong> has submitted a new quote request for <strong>${quote.event_name}</strong>.</p>` }},
+        { type: 'customer_contact' },
+        { type: 'event_details' },
+        { type: 'menu_summary' },
+        { type: 'supplies_summary' },
+        { type: 'service_addons' },
+      ];
+      ctaButton = { text: 'View in Admin Dashboard', href: `${siteUrl}/admin?view=events`, variant: 'primary' };
+      break;
+
+    case 'quote_confirmation':
+      // Customer welcome/confirmation
+      contentBlocks = [
+        { type: 'text', data: { html: `<p style="font-size:16px;margin:0 0 16px 0;">Welcome, ${quote.contact_name}!</p><p style="font-size:15px;margin:0 0 16px 0;line-height:1.6;">Thank you for choosing Soul Train's Eatery for your upcoming event. We're thrilled to be part of your special occasion!</p>` }},
+        { type: 'event_details' },
+        { type: 'service_addons' },
+        { type: 'custom_html', data: { html: `
+          <div style="background:${BRAND_COLORS.lightGray};padding:15px;border-radius:8px;border-left:4px solid ${BRAND_COLORS.gold};margin:20px 0;">
+            <strong>🔒 Secure Access:</strong> Your personal link is valid for one year and can be used anytime to check your event status.
+          </div>
+        ` }},
+        { type: 'custom_html', data: { html: `
+          <h3 style="color:${BRAND_COLORS.crimson};margin:24px 0 12px 0;">🎯 What Happens Next?</h3>
+          <ol style="line-height:1.8;margin:0;padding-left:20px;">
+            <li><strong>Review Period:</strong> Our family is carefully reviewing your requirements</li>
+            <li><strong>Custom Estimate:</strong> We'll prepare a detailed estimate within 24 hours</li>
+            <li><strong>Approval:</strong> Review and approve your estimate through the portal</li>
+            <li><strong>Payment:</strong> Secure online payment to confirm your booking</li>
+            <li><strong>Event Day:</strong> We'll arrive early to set up and serve amazing food!</li>
+          </ol>
+        ` }},
+        { type: 'text', data: { html: `<p style="font-size:15px;margin:20px 0 0 0;">Questions? Call us at <strong>(843) 970-0265</strong> or reply to this email. We're here to help!</p>` }}
+      ];
+      ctaButton = { text: 'Access Your Event Portal', href: effectivePortalUrl, variant: 'primary' };
+      break;
+
+    case 'estimate_ready':
+      contentBlocks = [
+        { type: 'text', data: { html: `<p style="font-size:16px;margin:0 0 16px 0;">${isUpdated ? 'Updated' : 'Great news'}, ${quote.contact_name}!</p><p style="font-size:15px;margin:0 0 16px 0;line-height:1.6;">We've ${isUpdated ? 'updated your' : 'prepared a custom'} estimate for <strong>${quote.event_name}</strong>.</p>` }},
+        { type: 'event_details' },
+        { type: 'menu_with_pricing' },
+        { type: 'service_addons' },
+        { type: 'text', data: { html: `<p style="font-size:15px;margin:20px 0 0 0;">Questions? Call us at <strong>(843) 970-0265</strong> or reply to this email!</p>` }}
+      ];
+      ctaButton = { text: 'Review Your Estimate', href: effectivePortalUrl, variant: 'primary' };
+      break;
+
+    case 'estimate_reminder':
+      contentBlocks = [
+        { type: 'text', data: { html: `<p style="margin:0 0 16px 0;font-size:15px;color:#333;">Dear ${quote.contact_name},</p><p style="margin:0 0 16px 0;font-size:15px;color:#333;">Just a friendly reminder that your catering estimate for <strong>${quote.event_name}</strong> is still waiting for your review!</p><p style="margin:0 0 16px 0;font-size:15px;color:#333;">Your event is coming up on <strong>${formatDate(quote.event_date)}</strong>. To ensure we can accommodate your request, please review and approve your estimate soon.</p>` }},
+        { type: 'event_details' },
+        { type: 'menu_summary' },
+        { type: 'service_addons' },
+      ];
+      ctaButton = { text: 'Review Your Estimate', href: effectivePortalUrl, variant: 'primary' };
+      break;
+
+    case 'approval_confirmation':
+      if (variant === 'customer') {
+        const total = invoice?.total_amount || 0;
+        const firstMilestone = milestones?.[0];
+        const firstPaymentDisplay = firstMilestone 
+          ? formatCurrency(firstMilestone.amount_cents)
+          : formatCurrency(Math.round(total * 0.5));
+
+        const getMilestoneLabel = (type: string): string => {
+          const labels: Record<string, string> = {
+            'booking_deposit': 'Booking Deposit',
+            'deposit': 'Deposit',
+            'mid_payment': 'Milestone Payment',
+            'final_payment': 'Final Balance',
+            'full_payment': 'Full Payment'
+          };
+          return labels[type] || type.replace('_', ' ');
+        };
+
+        const paymentBoxHtml = `
+          <div style="background:linear-gradient(135deg,${BRAND_COLORS.crimson},${BRAND_COLORS.crimsonDark});padding:20px;border-radius:8px;margin:20px 0;color:white;">
+            <h3 style="margin:0 0 10px 0;color:${BRAND_COLORS.gold};">💳 Next Step: Secure Your Date</h3>
+            <p style="margin:0 0 10px 0;">To confirm your booking, complete your first payment:</p>
+            <div style="background:rgba(255,255,255,0.1);padding:15px;border-radius:8px;margin-top:10px;">
+              <div style="font-size:24px;font-weight:bold;color:${BRAND_COLORS.gold};">${firstPaymentDisplay}</div>
+              <div style="font-size:14px;opacity:0.9;">${firstMilestone?.is_due_now ? 'Due Now' : 'Due upon approval'}</div>
+            </div>
+          </div>
+        `;
+
+        const paymentScheduleHtml = milestones && milestones.length > 0 ? `
+          <div style="margin:25px 0;">
+            <h3 style="color:${BRAND_COLORS.crimson};margin-bottom:15px;">📅 Your Payment Schedule</h3>
+            <table style="width:100%;border-collapse:collapse;font-size:14px;">
+              <thead>
+                <tr style="background:${BRAND_COLORS.lightGray};">
+                  <th style="padding:12px 10px;text-align:left;border-bottom:2px solid ${BRAND_COLORS.gold};">Payment</th>
+                  <th style="padding:12px 10px;text-align:left;border-bottom:2px solid ${BRAND_COLORS.gold};">Due Date</th>
+                  <th style="padding:12px 10px;text-align:right;border-bottom:2px solid ${BRAND_COLORS.gold};">Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${milestones.map((m: any, i: number) => `
+                  <tr style="background:${i === 0 ? '#fff3cd' : (i % 2 === 0 ? '#fafafa' : '#ffffff')};">
+                    <td style="padding:12px 10px;border-bottom:1px solid #e5e5e5;">
+                      ${getMilestoneLabel(m.milestone_type)}
+                      ${i === 0 ? '<span style="color:#d97706;font-weight:bold;margin-left:8px;">← Pay Now</span>' : ''}
+                    </td>
+                    <td style="padding:12px 10px;border-bottom:1px solid #e5e5e5;">
+                      ${m.is_due_now ? '<strong style="color:#d97706;">Due Now</strong>' : formatDate(m.due_date)}
+                    </td>
+                    <td style="padding:12px 10px;text-align:right;border-bottom:1px solid #e5e5e5;font-weight:${i === 0 ? 'bold' : 'normal'};">
+                      ${formatCurrency(m.amount_cents)} (${m.percentage}%)
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+              <tfoot>
+                <tr style="background:${BRAND_COLORS.lightGray};">
+                  <td colspan="2" style="padding:12px 10px;font-weight:bold;border-top:2px solid ${BRAND_COLORS.gold};">Total</td>
+                  <td style="padding:12px 10px;text-align:right;font-weight:bold;border-top:2px solid ${BRAND_COLORS.gold};color:${BRAND_COLORS.crimson};">${formatCurrency(total)}</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        ` : '';
+
+        contentBlocks = [
+          { type: 'text', data: { html: `<p style="font-size:16px;margin:0 0 16px 0;">Great news, ${quote.contact_name}!</p><p style="font-size:15px;margin:0 0 16px 0;line-height:1.6;">You've approved your catering estimate for <strong>${quote.event_name}</strong>. We're excited to be part of your special event!</p>` }},
+          { type: 'event_details' },
+          { type: 'service_addons' },
+          { type: 'custom_html', data: { html: paymentBoxHtml }},
+          { type: 'custom_html', data: { html: paymentScheduleHtml }},
+          { type: 'custom_html', data: { html: `
+            <h3 style="color:${BRAND_COLORS.crimson};margin:24px 0 12px 0;">📋 What Happens Next:</h3>
+            <ol style="line-height:1.8;margin:0;padding-left:20px;">
+              <li><strong>Complete Payment:</strong> Click the button above to pay securely online</li>
+              <li><strong>Booking Confirmed:</strong> Once payment is received, your date is locked in</li>
+              <li><strong>Planning Call:</strong> We'll schedule a call to finalize all the details</li>
+              <li><strong>Event Day:</strong> We'll arrive early to set up and serve amazing food!</li>
+            </ol>
+          ` }},
+          { type: 'terms' },
+          { type: 'text', data: { html: `
+            <div style="background:${BRAND_COLORS.lightGray};padding:15px;border-radius:8px;border-left:4px solid ${BRAND_COLORS.gold};margin:20px 0;">
+              <strong>💡 Tip:</strong> You can always access your event portal to view your estimate, make payments, or contact us using the link in this email.
+            </div>
+            <p style="font-size:15px;margin:20px 0 0 0;">Questions? Call us at <strong>(843) 970-0265</strong> or reply to this email!</p>
+          ` }}
+        ];
+        ctaButton = { text: 'Make Payment Now', href: effectivePortalUrl, variant: 'primary' };
+      } else {
+        // Admin variant
+        contentBlocks = [
+          { type: 'status_badge', data: { status: 'approved', title: 'Customer Approved Estimate', description: `${quote.contact_name} has approved their estimate for ${quote.event_name}.` }},
+          { type: 'customer_contact' },
+          { type: 'event_details' },
+          { type: 'menu_with_pricing' },
+          { type: 'service_addons' },
+          { type: 'text', data: { html: `<p style="margin:16px 0;font-size:15px;color:#333;"><strong>Total Amount:</strong> ${formatCurrency(invoice?.total_amount || 0)}<br><strong>Payment Status:</strong> Awaiting deposit</p>` }},
+        ];
+        ctaButton = { text: 'View in Dashboard', href: `${siteUrl}/admin?view=events`, variant: 'primary' };
+      }
+      break;
+
+    case 'payment_received':
+      if (variant === 'customer') {
+        const daysUntilEvent = Math.ceil((new Date(quote.event_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+        const amount = paymentAmount || 0;
+        const fullPay = isFullPayment || false;
+
+        const paymentStatusHtml = fullPay ? `
+          <div style="background:linear-gradient(135deg,${BRAND_COLORS.gold}30,${BRAND_COLORS.gold}50);padding:25px;border-radius:12px;margin:20px 0;text-align:center;border:2px solid ${BRAND_COLORS.gold};">
+            <h3 style="color:${BRAND_COLORS.crimson};margin:0 0 10px 0;font-size:24px;">✅ Your Event is Fully Confirmed!</h3>
+            <p style="margin:0;font-size:18px;font-weight:bold;">We've received your full payment of ${formatCurrency(amount)}</p>
+          </div>
+        ` : `
+          <div style="background:${BRAND_COLORS.lightGray};padding:20px;border-radius:8px;margin:20px 0;border-left:4px solid ${BRAND_COLORS.gold};">
+            <h3 style="color:${BRAND_COLORS.crimson};margin:0 0 10px 0;">💰 Deposit Received</h3>
+            <p style="margin:0;font-size:16px;">We've received your deposit of ${formatCurrency(amount)}</p>
+            <p style="margin:10px 0 0 0;color:#666;">Remaining balance: ${formatCurrency((invoice?.total_amount || 0) - amount)}</p>
+          </div>
+        `;
+
+        const nextStepsHtml = `
+          <h3 style="color:${BRAND_COLORS.crimson};margin:24px 0 12px 0;">📅 What Happens Next?</h3>
+          <div style="background:${BRAND_COLORS.lightGray};padding:20px;border-radius:8px;margin:20px 0;">
+            ${!fullPay ? `
+              <div style="border-bottom:1px solid #dee2e6;padding:12px 0;display:flex;align-items:flex-start;">
+                <span style="font-size:24px;margin-right:12px;">💳</span>
+                <div>
+                  <strong style="color:${BRAND_COLORS.crimson};">Final Payment Due</strong>
+                  <p style="margin:5px 0 0 0;color:#666;">Remaining balance due 7 days before your event</p>
+                </div>
+              </div>
+            ` : ''}
+            ${daysUntilEvent > 7 ? `
+              <div style="border-bottom:1px solid #dee2e6;padding:12px 0;display:flex;align-items:flex-start;">
+                <span style="font-size:24px;margin-right:12px;">📞</span>
+                <div>
+                  <strong style="color:${BRAND_COLORS.crimson};">Final Planning Call</strong>
+                  <p style="margin:5px 0 0 0;color:#666;">We'll contact you 2 weeks before your event to confirm final details</p>
+                </div>
+              </div>
+            ` : ''}
+            <div style="padding:12px 0;display:flex;align-items:flex-start;">
+              <span style="font-size:24px;margin-right:12px;">🎉</span>
+              <div>
+                <strong style="color:${BRAND_COLORS.crimson};">Event Day!</strong>
+                <p style="margin:5px 0 0 0;color:#666;">We arrive early to set up and ensure everything is perfect!</p>
+              </div>
+            </div>
+          </div>
+        `;
+
+        contentBlocks = [
+          { type: 'text', data: { html: `<p style="font-size:16px;margin:0 0 16px 0;">Thank you, ${quote.contact_name}!</p>` }},
+          { type: 'custom_html', data: { html: paymentStatusHtml }},
+          { type: 'event_details' },
+          { type: 'menu_summary' },
+          { type: 'custom_html', data: { html: nextStepsHtml }},
+          { type: 'text', data: { html: `<p style="font-size:15px;margin:20px 0 0 0;">Need to make changes? Reply to this email or call <strong>(843) 970-0265</strong>.</p>` }}
+        ];
+        ctaButton = { text: 'View My Event Portal', href: effectivePortalUrl, variant: 'primary' };
+      } else {
+        // Admin variant
+        const amount = paymentAmount || 0;
+        contentBlocks = [
+          { type: 'status_badge', data: { status: 'approved', title: 'Payment Received', description: `${quote.contact_name} has made a payment of ${formatCurrency(amount)}.` }},
+          { type: 'customer_contact' },
+          { type: 'event_details' },
+          { type: 'menu_with_pricing' },
+          { type: 'text', data: { html: `<p style="margin:16px 0;font-size:15px;color:#333;"><strong>Invoice:</strong> ${invoice?.invoice_number || 'N/A'}<br><strong>Amount Paid:</strong> ${formatCurrency(amount)}<br><strong>Remaining Balance:</strong> ${formatCurrency((invoice?.total_amount || 0) - amount)}</p>` }},
+        ];
+        ctaButton = { text: 'View Payment Details', href: `${siteUrl}/admin?view=billing`, variant: 'primary' };
+      }
+      break;
+
+    case 'payment_reminder':
+      contentBlocks = [
+        { type: 'text', data: { html: `<p style="font-size:16px;margin:0 0 16px 0;">Hi ${quote.contact_name},</p><p style="font-size:15px;margin:0 0 16px 0;line-height:1.6;">We hope you're as excited as we are about catering <strong>${quote.event_name}</strong>!</p>` }},
+        { type: 'custom_html', data: { html: `
+          <div style="background:#fff3cd;border-left:4px solid ${BRAND_COLORS.gold};padding:20px;margin:20px 0;border-radius:8px;">
+            <h3 style="margin:0 0 10px 0;color:${BRAND_COLORS.crimson};">🔒 Secure Your Event Date</h3>
+            <p style="margin:0;">Your approved estimate is waiting for payment to confirm your booking. Don't risk losing your date - our calendar fills up fast!</p>
+          </div>
+        ` }},
+        { type: 'event_details' },
+        { type: 'menu_summary' },
+        { type: 'service_addons' },
+        { type: 'custom_html', data: { html: `
+          <h3 style="color:${BRAND_COLORS.crimson};margin:24px 0 12px 0;">💳 Easy, Secure Payment Options:</h3>
+          <ul style="line-height:1.8;margin:0;padding-left:20px;">
+            <li>💳 Credit/Debit Cards</li>
+            <li>🏦 Bank Transfer</li>
+            <li>📱 Digital Wallets (Apple Pay, Google Pay)</li>
+          </ul>
+        ` }},
+        { type: 'text', data: { html: `<p style="font-size:15px;margin:20px 0 0 0;"><strong>Need to make changes?</strong> No problem! Contact us before completing payment if you need to adjust anything.</p>` }}
+      ];
+      ctaButton = { text: 'Complete Payment Now', href: effectivePortalUrl, variant: 'primary' };
+      break;
+
+    case 'event_reminder':
+      if (variant === 'customer') {
+        contentBlocks = [
+          { type: 'text', data: { html: `<p style="margin:0 0 16px 0;font-size:15px;color:#333;">Dear ${quote.contact_name},</p><p style="margin:0 0 16px 0;font-size:15px;color:#333;">Your event is just around the corner! We're getting everything ready to make <strong>${quote.event_name}</strong> a memorable occasion.</p>` }},
+          { type: 'event_details' },
+          { type: 'menu_summary' },
+          { type: 'service_addons' },
+          { type: 'text', data: { html: `<p style="margin:16px 0;font-size:15px;color:#333;">If you have any last-minute questions or changes, please don't hesitate to contact us at <a href="tel:+18439700265">(843) 970-0265</a>.</p>` }},
+        ];
+      } else {
+        contentBlocks = [
+          { type: 'text', data: { html: `<p style="margin:0 0 16px 0;font-size:15px;color:#333;"><strong>${quote.event_name}</strong> is coming up soon! Here are the event details:</p>` }},
+          { type: 'customer_contact' },
+          { type: 'event_details' },
+          { type: 'menu_summary' },
+          { type: 'service_addons' },
+        ];
+        ctaButton = { text: 'View Event Details', href: `${siteUrl}/admin?view=events`, variant: 'primary' };
+      }
+      break;
+
+    case 'change_request_submitted':
+      if (variant === 'customer') {
+        contentBlocks = [
+          { type: 'status_badge', data: { status: 'info', title: 'Change Request Received', description: "We've received your change request and will review it shortly." }},
+          { type: 'text', data: { html: `<p style="margin:16px 0;font-size:15px;color:#333;">Dear ${quote.contact_name},</p><p style="margin:0 0 16px 0;font-size:15px;color:#333;">Thank you for submitting your change request. Our team will review it and get back to you within 24-48 hours with an updated estimate if needed.</p>` }},
+          { type: 'event_details' },
+          { type: 'menu_summary' },
+        ];
+      } else {
+        contentBlocks = [
+          { type: 'status_badge', data: { status: 'pending', title: 'New Change Request', description: `${quote.contact_name} has requested changes to their order.` }},
+          { type: 'customer_contact' },
+          { type: 'text', data: { html: `<p style="margin:16px 0;font-size:15px;color:#333;"><strong>Request Type:</strong> Menu Modification<br><strong>Customer Comments:</strong> "I'd like to add an appetizer course and increase the guest count by 10."</p>` }},
+          { type: 'event_details' },
+          { type: 'menu_summary' },
+          { type: 'service_addons' },
+        ];
+        ctaButton = { text: 'Review Change Request', href: `${siteUrl}/admin?view=events`, variant: 'primary' };
+      }
+      break;
+
+    case 'change_request_response':
+      contentBlocks = [
+        { type: 'status_badge', data: { status: 'approved', title: 'Change Request Approved', description: "We've updated your order based on your request." }},
+        { type: 'text', data: { html: `<p style="margin:16px 0;font-size:15px;color:#333;">Dear ${quote.contact_name},</p><p style="margin:0 0 16px 0;font-size:15px;color:#333;">Great news! We've reviewed and approved your change request. Your updated estimate is now available for review.</p>` }},
+        { type: 'event_details' },
+        { type: 'menu_with_pricing' },
+        { type: 'service_addons' },
+      ];
+      ctaButton = { text: 'View Updated Estimate', href: effectivePortalUrl, variant: 'primary' };
+      break;
+
+    case 'admin_notification':
+      contentBlocks = [
+        { type: 'customer_contact' },
+        { type: 'text', data: { html: `<p style="margin:0 0 16px 0;font-size:15px;color:#333;"><strong>Notification Type:</strong> Customer Action Required<br><strong>Event:</strong> ${quote.event_name}</p><p style="margin:0 0 16px 0;font-size:15px;color:#333;">A customer action requires your attention. Please review the details in the admin dashboard.</p>` }},
+        { type: 'event_details' },
+        { type: 'menu_summary' },
+        { type: 'service_addons' },
+      ];
+      ctaButton = { text: 'View in Dashboard', href: `${siteUrl}/admin?view=events`, variant: 'primary' };
+      break;
+
+    case 'event_followup':
+      contentBlocks = [
+        { type: 'text', data: { html: `<p style="margin:0 0 16px 0;font-size:15px;color:#333;">Dear ${quote.contact_name},</p><p style="margin:0 0 16px 0;font-size:15px;color:#333;">Thank you so much for choosing Soul Train's Eatery for your ${quote.event_name}! We hope everyone enjoyed the food and that your event was everything you dreamed of.</p><p style="margin:0 0 16px 0;font-size:15px;color:#333;">We'd love to hear how we did! Your feedback helps us continue to provide the best Southern catering experience in the Lowcountry.</p><p style="margin:0 0 16px 0;font-size:15px;color:#333;"><em>— The Soul Train's Eatery Family</em></p>` }},
+        { type: 'menu_summary' },
+      ];
+      break;
+
+    default:
+      contentBlocks = [
+        { type: 'text', data: { html: `<p>No content available for ${emailType}</p>` }},
+      ];
+  }
+
+  return { contentBlocks, ctaButton };
+}
+
+// ============================================================================
+// EMAIL CONFIGURATION PRESETS - Hero sections and preheaders only
+// ============================================================================
+
 export const EMAIL_CONFIGS: Record<EmailType, { 
   customer?: { heroSection: HeroConfig; preheaderText: string };
   admin?: { heroSection: HeroConfig; preheaderText: string };
