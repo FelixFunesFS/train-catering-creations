@@ -1,10 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import {
   generateStandardEmail,
-  generateEventDetailsCard,
-  generateMenuSection,
-  generateLineItemsTable,
-  generateServiceAddonsSection,
   EMAIL_CONFIGS,
   type EmailType,
   type StandardEmailConfig,
@@ -18,24 +14,42 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Sample data for email previews
+// Sample data for email previews - includes FULL menu selections
 const SAMPLE_QUOTE = {
   id: "sample-quote-id",
   contact_name: "Sarah Johnson",
   email: "sarah.johnson@example.com",
   phone: "(843) 555-0123",
   event_name: "Johnson Family Reunion",
-  event_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 days from now
+  event_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
   start_time: "14:00",
   location: "Magnolia Gardens, 1500 Ashley River Rd, Charleston, SC 29407",
   guest_count: 75,
   service_type: "full-service",
   special_requests: "Please include extra napkins and serving utensils for the buffet line.",
+  // Service add-ons
   wait_staff_requested: true,
   bussing_tables_needed: true,
   ceremony_included: false,
   cocktail_hour: true,
+  wait_staff_requirements: "3 servers for 4-hour event",
+  // Menu selections (used by menu_summary)
+  proteins: ["smoked-brisket", "pulled-pork"],
+  sides: ["mac-cheese", "collard-greens", "cornbread"],
+  appetizers: ["deviled-eggs", "pimento-cheese"],
+  desserts: ["peach-cobbler"],
+  drinks: ["sweet-tea", "lemonade"],
+  vegetarian_entrees: ["grilled-portobello"],
   both_proteins_available: true,
+  guest_count_with_restrictions: "5 vegetarian guests",
+  // Supplies
+  plates_requested: true,
+  cups_requested: true,
+  napkins_requested: true,
+  serving_utensils_requested: true,
+  chafers_requested: true,
+  ice_requested: true,
+  theme_colors: "Navy blue and gold",
   compliance_level: "standard",
 };
 
@@ -46,7 +60,7 @@ const SAMPLE_LINE_ITEMS = [
   { id: "4", title: "Collard Greens", description: "Traditional slow-cooked collards", category: "Sides", quantity: 75, unit_price: 400, total_price: 30000 },
   { id: "5", title: "Cornbread", description: "Sweet honey cornbread", category: "Sides", quantity: 75, unit_price: 250, total_price: 18750 },
   { id: "6", title: "Sweet Tea", description: "Southern sweet tea", category: "Beverages", quantity: 75, unit_price: 200, total_price: 15000 },
-  { id: "7", title: "Wait Staff (3 servers)", description: "Professional service for 3 hours", category: "Service Items", quantity: 1, unit_price: 45000, total_price: 45000 },
+  { id: "7", title: "Wait Staff (3 servers)", description: "Professional service for 4 hours", category: "Service Items", quantity: 1, unit_price: 45000, total_price: 45000 },
 ];
 
 const SAMPLE_INVOICE = {
@@ -73,7 +87,6 @@ function generateEmailPreview(emailType: EmailType, variant: 'customer' | 'admin
   const variantConfig = config?.[variant];
 
   if (!variantConfig) {
-    // Fallback for types that don't have this variant
     return {
       html: `<html><body><p>No ${variant} template defined for ${emailType}</p></body></html>`,
       subject: `No template: ${emailType}`
@@ -84,8 +97,10 @@ function generateEmailPreview(emailType: EmailType, variant: 'customer' | 'admin
   let ctaButton: { text: string; href: string; variant: 'primary' | 'secondary' } | undefined;
 
   // Build content blocks based on email type
+  // UPDATED: All relevant emails now include menu_summary or menu_with_pricing
   switch (emailType) {
     case 'quote_received':
+      // Admin notification of new quote - includes full menu selections
       contentBlocks = [
         { type: 'text', data: { html: `
           <p style="margin:0 0 16px 0;font-size:15px;color:#333;">
@@ -93,13 +108,17 @@ function generateEmailPreview(emailType: EmailType, variant: 'customer' | 'admin
             <strong>${SAMPLE_QUOTE.event_name}</strong>.
           </p>
         `}},
+        { type: 'customer_contact' },
         { type: 'event_details' },
+        { type: 'menu_summary' },
+        { type: 'supplies_summary' },
         { type: 'service_addons' },
       ];
       ctaButton = { text: 'View in Admin Dashboard', href: `${siteUrl}/admin?view=events`, variant: 'primary' };
       break;
 
     case 'quote_confirmation':
+      // Customer confirmation - includes their menu selections
       contentBlocks = [
         { type: 'text', data: { html: `
           <p style="margin:0 0 16px 0;font-size:15px;color:#333;">
@@ -116,6 +135,9 @@ function generateEmailPreview(emailType: EmailType, variant: 'customer' | 'admin
           </p>
         `}},
         { type: 'event_details' },
+        { type: 'menu_summary' },
+        { type: 'supplies_summary' },
+        { type: 'service_addons' },
       ];
       break;
 
@@ -132,6 +154,7 @@ function generateEmailPreview(emailType: EmailType, variant: 'customer' | 'admin
         `}},
         { type: 'event_details' },
         { type: 'menu_with_pricing' },
+        { type: 'service_addons' },
       ];
       ctaButton = { text: 'Review Your Estimate', href: `${siteUrl}/estimate?token=sample-token`, variant: 'primary' };
       break;
@@ -152,6 +175,8 @@ function generateEmailPreview(emailType: EmailType, variant: 'customer' | 'admin
           </p>
         `}},
         { type: 'event_details' },
+        { type: 'menu_summary' },
+        { type: 'service_addons' },
       ];
       ctaButton = { text: 'Review Your Estimate', href: `${siteUrl}/estimate?token=sample-token`, variant: 'primary' };
       break;
@@ -176,12 +201,18 @@ function generateEmailPreview(emailType: EmailType, variant: 'customer' | 'admin
             </p>
           `}},
           { type: 'event_details' },
+          { type: 'menu_with_pricing' },
+          { type: 'service_addons' },
         ];
         ctaButton = { text: 'Make Deposit Payment', href: `${siteUrl}/estimate?token=sample-token`, variant: 'primary' };
       } else {
+        // Admin variant - includes customer contact and full menu
         contentBlocks = [
           { type: 'status_badge', data: { status: 'approved', title: 'Customer Approved Estimate', description: `${SAMPLE_QUOTE.contact_name} has approved their estimate for ${SAMPLE_QUOTE.event_name}.` }},
+          { type: 'customer_contact' },
           { type: 'event_details' },
+          { type: 'menu_with_pricing' },
+          { type: 'service_addons' },
           { type: 'text', data: { html: `
             <p style="margin:16px 0;font-size:15px;color:#333;">
               <strong>Total Amount:</strong> ${formatCurrency(SAMPLE_INVOICE.total_amount)}<br>
@@ -206,11 +237,16 @@ function generateEmailPreview(emailType: EmailType, variant: 'customer' | 'admin
             </p>
           `}},
           { type: 'event_details' },
+          { type: 'menu_summary' },
+          { type: 'service_addons' },
         ];
       } else {
+        // Admin variant - includes customer contact and full pricing
         contentBlocks = [
           { type: 'status_badge', data: { status: 'approved', title: 'Payment Received', description: `${SAMPLE_QUOTE.contact_name} has made a payment of ${formatCurrency(SAMPLE_MILESTONES[0].amount_cents)}.` }},
+          { type: 'customer_contact' },
           { type: 'event_details' },
+          { type: 'menu_with_pricing' },
           { type: 'text', data: { html: `
             <p style="margin:16px 0;font-size:15px;color:#333;">
               <strong>Invoice:</strong> ${SAMPLE_INVOICE.invoice_number}<br>
@@ -235,6 +271,8 @@ function generateEmailPreview(emailType: EmailType, variant: 'customer' | 'admin
           </p>
         `}},
         { type: 'event_details' },
+        { type: 'menu_summary' },
+        { type: 'service_addons' },
       ];
       ctaButton = { text: 'Make Payment Now', href: `${siteUrl}/estimate?token=sample-token`, variant: 'primary' };
       break;
@@ -252,6 +290,7 @@ function generateEmailPreview(emailType: EmailType, variant: 'customer' | 'admin
             </p>
           `}},
           { type: 'event_details' },
+          { type: 'menu_summary' },
           { type: 'service_addons' },
           { type: 'text', data: { html: `
             <p style="margin:16px 0;font-size:15px;color:#333;">
@@ -261,13 +300,16 @@ function generateEmailPreview(emailType: EmailType, variant: 'customer' | 'admin
           `}},
         ];
       } else {
+        // Admin variant
         contentBlocks = [
           { type: 'text', data: { html: `
             <p style="margin:0 0 16px 0;font-size:15px;color:#333;">
               <strong>${SAMPLE_QUOTE.event_name}</strong> is coming up soon! Here are the event details:
             </p>
           `}},
+          { type: 'customer_contact' },
           { type: 'event_details' },
+          { type: 'menu_summary' },
           { type: 'service_addons' },
         ];
         ctaButton = { text: 'View Event Details', href: `${siteUrl}/admin?view=events`, variant: 'primary' };
@@ -288,10 +330,13 @@ function generateEmailPreview(emailType: EmailType, variant: 'customer' | 'admin
             </p>
           `}},
           { type: 'event_details' },
+          { type: 'menu_summary' },
         ];
       } else {
+        // Admin variant - includes customer contact
         contentBlocks = [
           { type: 'status_badge', data: { status: 'pending', title: 'New Change Request', description: `${SAMPLE_QUOTE.contact_name} has requested changes to their order.` }},
+          { type: 'customer_contact' },
           { type: 'text', data: { html: `
             <p style="margin:16px 0;font-size:15px;color:#333;">
               <strong>Request Type:</strong> Menu Modification<br>
@@ -299,6 +344,8 @@ function generateEmailPreview(emailType: EmailType, variant: 'customer' | 'admin
             </p>
           `}},
           { type: 'event_details' },
+          { type: 'menu_summary' },
+          { type: 'service_addons' },
         ];
         ctaButton = { text: 'Review Change Request', href: `${siteUrl}/admin?view=events`, variant: 'primary' };
       }
@@ -317,23 +364,28 @@ function generateEmailPreview(emailType: EmailType, variant: 'customer' | 'admin
           </p>
         `}},
         { type: 'event_details' },
+        { type: 'menu_with_pricing' },
+        { type: 'service_addons' },
       ];
       ctaButton = { text: 'View Updated Estimate', href: `${siteUrl}/estimate?token=sample-token`, variant: 'primary' };
       break;
 
     case 'admin_notification':
+      // General admin notification - includes customer contact
       contentBlocks = [
+        { type: 'customer_contact' },
         { type: 'text', data: { html: `
           <p style="margin:0 0 16px 0;font-size:15px;color:#333;">
             <strong>Notification Type:</strong> Customer Action Required<br>
-            <strong>Event:</strong> ${SAMPLE_QUOTE.event_name}<br>
-            <strong>Customer:</strong> ${SAMPLE_QUOTE.contact_name}
+            <strong>Event:</strong> ${SAMPLE_QUOTE.event_name}
           </p>
           <p style="margin:0 0 16px 0;font-size:15px;color:#333;">
             A customer action requires your attention. Please review the details in the admin dashboard.
           </p>
         `}},
         { type: 'event_details' },
+        { type: 'menu_summary' },
+        { type: 'service_addons' },
       ];
       ctaButton = { text: 'View in Dashboard', href: `${siteUrl}/admin?view=events`, variant: 'primary' };
       break;
@@ -356,6 +408,7 @@ function generateEmailPreview(emailType: EmailType, variant: 'customer' | 'admin
             <em>— The Soul Train's Eatery Family</em>
           </p>
         `}},
+        { type: 'menu_summary' },
       ];
       break;
 
@@ -396,16 +449,21 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    console.log(`Generating email preview: ${emailType} (${variant})`);
+    console.log(`[Preview Email] Type: ${emailType}, Variant: ${variant}`);
 
-    const { html, subject } = generateEmailPreview(emailType as EmailType, variant);
+    const preview = generateEmailPreview(emailType as EmailType, variant as 'customer' | 'admin');
 
     return new Response(
-      JSON.stringify({ html, subject, emailType, variant }),
+      JSON.stringify({
+        html: preview.html,
+        subject: preview.subject,
+        emailType,
+        variant,
+      }),
       { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
     );
-  } catch (error) {
-    console.error("Error generating email preview:", error);
+  } catch (error: any) {
+    console.error("[Preview Email] Error:", error);
     return new Response(
       JSON.stringify({ error: error.message }),
       { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }

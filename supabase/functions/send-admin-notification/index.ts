@@ -1,6 +1,15 @@
+// Supabase Edge Function for sending admin notifications
+// REFACTORED: Uses generateStandardEmail() for consistent branding
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.52.1';
-import { BRAND_COLORS, LOGO_URLS } from '../_shared/emailTemplates.ts';
+import {
+  generateStandardEmail,
+  EMAIL_CONFIGS,
+  type StandardEmailConfig,
+  type ContentBlock,
+  type HeroConfig,
+  formatCurrency,
+} from '../_shared/emailTemplates.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -27,6 +36,7 @@ const handler = async (req: Request): Promise<Response> => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
+    // Fetch invoice with quote data
     const { data: invoice, error: invoiceError } = await supabase
       .from('invoices')
       .select(`*,quote_requests!invoices_quote_request_id_fkey(*)`)
@@ -39,123 +49,30 @@ const handler = async (req: Request): Promise<Response> => {
 
     const quote = invoice.quote_requests as any;
 
-    let subject = '';
-    let body = '';
-    let statusColor = BRAND_COLORS.crimson;
+    // Fetch line items for menu context
+    const { data: lineItems } = await supabase
+      .from('invoice_line_items')
+      .select('*')
+      .eq('invoice_id', invoiceId)
+      .order('sort_order', { ascending: true });
 
-    switch (notificationType) {
-      case 'customer_approval':
-        subject = `Customer Approved: ${quote.event_name}`;
-        statusColor = '#16a34a';
-        body = `
-          <h2 style="margin:0 0 16px 0;color:${statusColor};font-size:20px;">Great news! Customer has approved the estimate.</h2>
-          <div style="margin:20px 0;padding:20px;background:${BRAND_COLORS.lightGray};border-radius:8px;border-left:4px solid ${statusColor};">
-            <h3 style="margin:0 0 12px 0;color:${BRAND_COLORS.darkGray};font-size:16px;">Event Details:</h3>
-            <p style="margin:6px 0;color:${BRAND_COLORS.darkGray};"><strong>Event:</strong> ${quote.event_name}</p>
-            <p style="margin:6px 0;color:${BRAND_COLORS.darkGray};"><strong>Customer:</strong> ${quote.contact_name}</p>
-            <p style="margin:6px 0;color:${BRAND_COLORS.darkGray};"><strong>Email:</strong> ${quote.email}</p>
-            <p style="margin:6px 0;color:${BRAND_COLORS.darkGray};"><strong>Date:</strong> ${new Date(quote.event_date).toLocaleDateString()}</p>
-            <p style="margin:6px 0;color:${BRAND_COLORS.darkGray};"><strong>Guests:</strong> ${quote.guest_count}</p>
-            <p style="margin:6px 0;color:${BRAND_COLORS.darkGray};"><strong>Total:</strong> $${(invoice.total_amount / 100).toFixed(2)}</p>
-          </div>
-          ${metadata.feedback ? `<p style="margin:16px 0;"><strong>Customer Feedback:</strong> ${metadata.feedback}</p>` : ''}
-        `;
-        break;
+    const siteUrl = Deno.env.get('SITE_URL') || 'https://soultrainseatery.lovable.app';
 
-      case 'change_request':
-        subject = `Change Request: ${quote.event_name}`;
-        statusColor = '#f59e0b';
-        body = `
-          <h2 style="margin:0 0 16px 0;color:${statusColor};font-size:20px;">Customer has requested changes to their estimate.</h2>
-          <div style="margin:20px 0;padding:20px;background:#fef3c7;border-radius:8px;border-left:4px solid ${statusColor};">
-            <h3 style="margin:0 0 12px 0;color:${BRAND_COLORS.darkGray};font-size:16px;">Event Details:</h3>
-            <p style="margin:6px 0;color:${BRAND_COLORS.darkGray};"><strong>Event:</strong> ${quote.event_name}</p>
-            <p style="margin:6px 0;color:${BRAND_COLORS.darkGray};"><strong>Customer:</strong> ${quote.contact_name}</p>
-            <p style="margin:6px 0;color:${BRAND_COLORS.darkGray};"><strong>Email:</strong> ${quote.email}</p>
-            <p style="margin:6px 0;color:${BRAND_COLORS.darkGray};"><strong>Date:</strong> ${new Date(quote.event_date).toLocaleDateString()}</p>
-          </div>
-          <div style="margin:20px 0;padding:20px;background:#fff5e6;border-radius:8px;border-left:4px solid ${BRAND_COLORS.gold};">
-            <h3 style="margin:0 0 12px 0;color:${BRAND_COLORS.darkGray};font-size:16px;">Requested Changes:</h3>
-            <p style="margin:0;color:${BRAND_COLORS.darkGray};">${metadata.changes || 'See admin dashboard for details'}</p>
-            ${metadata.urgency === 'high' ? `<p style="margin:12px 0 0 0;color:${BRAND_COLORS.crimson};font-weight:bold;">HIGH PRIORITY</p>` : ''}
-          </div>
-        `;
-        break;
-
-      case 'payment_received':
-        subject = `Payment Received: ${quote.event_name}`;
-        statusColor = '#16a34a';
-        body = `
-          <h2 style="margin:0 0 16px 0;color:${statusColor};font-size:20px;">Payment has been received!</h2>
-          <div style="margin:20px 0;padding:20px;background:#d1fae5;border-radius:8px;border-left:4px solid ${statusColor};">
-            <h3 style="margin:0 0 12px 0;color:${BRAND_COLORS.darkGray};font-size:16px;">Payment Details:</h3>
-            <p style="margin:6px 0;color:${BRAND_COLORS.darkGray};"><strong>Event:</strong> ${quote.event_name}</p>
-            <p style="margin:6px 0;color:${BRAND_COLORS.darkGray};"><strong>Customer:</strong> ${quote.contact_name}</p>
-            <p style="margin:6px 0;color:${BRAND_COLORS.darkGray};"><strong>Amount:</strong> $${((metadata.amount || 0) / 100).toFixed(2)}</p>
-            <p style="margin:6px 0;color:${BRAND_COLORS.darkGray};"><strong>Type:</strong> ${metadata.payment_type === 'full' ? 'Full Payment' : '50% Deposit'}</p>
-            ${metadata.full_payment ? `<p style="margin:12px 0 0 0;color:${statusColor};font-weight:bold;">PAID IN FULL</p>` : ''}
-          </div>
-        `;
-        break;
-
-      case 'payment_failed':
-        subject = `Payment Failed: ${quote.event_name}`;
-        statusColor = BRAND_COLORS.crimson;
-        body = `
-          <h2 style="margin:0 0 16px 0;color:${statusColor};font-size:20px;">Payment attempt failed</h2>
-          <div style="margin:20px 0;padding:20px;background:#fee2e2;border-radius:8px;border-left:4px solid ${statusColor};">
-            <h3 style="margin:0 0 12px 0;color:${BRAND_COLORS.darkGray};font-size:16px;">Event Details:</h3>
-            <p style="margin:6px 0;color:${BRAND_COLORS.darkGray};"><strong>Event:</strong> ${quote.event_name}</p>
-            <p style="margin:6px 0;color:${BRAND_COLORS.darkGray};"><strong>Customer:</strong> ${quote.contact_name}</p>
-            <p style="margin:6px 0;color:${BRAND_COLORS.darkGray};"><strong>Email:</strong> ${quote.email}</p>
-            <p style="margin:6px 0;color:${BRAND_COLORS.darkGray};"><strong>Reason:</strong> ${metadata.error || 'Unknown'}</p>
-          </div>
-          <p style="margin:16px 0;color:${BRAND_COLORS.darkGray};">You may need to follow up with the customer.</p>
-        `;
-        break;
-    }
+    // Build email based on notification type
+    const emailContent = buildAdminNotificationEmail(
+      notificationType,
+      quote,
+      invoice,
+      lineItems || [],
+      metadata,
+      siteUrl
+    );
 
     const { error: emailError } = await supabase.functions.invoke('send-smtp-email', {
       body: {
         to: 'soultrainseatery@gmail.com',
-        subject,
-        html: `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>${subject}</title>
-</head>
-<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background-color:#f5f5f5;">
-<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f5f5f5;padding:20px 0;">
-<tr>
-<td align="center">
-<table width="100%" style="max-width:600px;background:${BRAND_COLORS.white};border-radius:8px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.1);">
-<tr>
-<td style="background:linear-gradient(135deg,${BRAND_COLORS.crimson},${BRAND_COLORS.crimsonDark});padding:24px;text-align:center;">
-<img src="${LOGO_URLS.white}" alt="Soul Train's Eatery" width="60" height="60" style="display:block;width:60px;height:60px;margin:0 auto 8px auto;" />
-<h1 style="color:${BRAND_COLORS.gold};margin:0;font-size:20px;font-weight:bold;">Admin Notification</h1>
-</td>
-</tr>
-<tr>
-<td style="padding:24px;">
-${body}
-<div style="margin:24px 0;text-align:center;">
-<a href="${Deno.env.get('SITE_URL') || 'https://soultrainseatery.lovable.app'}/admin" style="display:inline-block;background:linear-gradient(135deg,${BRAND_COLORS.crimson},${BRAND_COLORS.crimsonDark});color:${BRAND_COLORS.white};padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:bold;font-size:14px;">View in Admin Dashboard</a>
-</div>
-</td>
-</tr>
-<tr>
-<td style="background:${BRAND_COLORS.lightGray};padding:16px;text-align:center;border-top:1px solid #e5e7eb;">
-<p style="color:#6b7280;font-size:12px;margin:0;">Soul Train's Eatery - Admin Notification</p>
-</td>
-</tr>
-</table>
-</td>
-</tr>
-</table>
-</body>
-</html>`
+        subject: emailContent.subject,
+        html: emailContent.html,
       }
     });
 
@@ -178,5 +95,193 @@ ${body}
     );
   }
 };
+
+function buildAdminNotificationEmail(
+  notificationType: string,
+  quote: any,
+  invoice: any,
+  lineItems: any[],
+  metadata: Record<string, any>,
+  siteUrl: string
+): { subject: string; html: string } {
+  const eventName = quote?.event_name || 'Event';
+  const contactName = quote?.contact_name || 'Customer';
+  const hasLineItems = lineItems && lineItems.length > 0;
+
+  let subject = '';
+  let preheaderText = '';
+  let heroConfig: HeroConfig;
+  let contentBlocks: ContentBlock[] = [];
+  let ctaButton: { text: string; href: string; variant: 'primary' | 'secondary' } | undefined;
+
+  switch (notificationType) {
+    case 'customer_approval':
+      subject = `✅ Customer Approved: ${eventName}`;
+      preheaderText = `${contactName} has approved their estimate`;
+      heroConfig = {
+        badge: '✅ CUSTOMER APPROVED',
+        title: 'Estimate Approved!',
+        subtitle: `${contactName} has approved their catering order`,
+        variant: 'green'
+      };
+
+      contentBlocks = [
+        { type: 'status_badge', data: { 
+          status: 'approved', 
+          title: 'Customer Approved Estimate', 
+          description: `${contactName} has approved their estimate for ${eventName}. Total: ${formatCurrency(invoice.total_amount || 0)}` 
+        }},
+        { type: 'customer_contact' },
+        { type: 'event_details' },
+        ...(hasLineItems ? [{ type: 'menu_with_pricing' as const }] : [{ type: 'menu_summary' as const }]),
+        { type: 'service_addons' },
+      ];
+
+      if (metadata.feedback) {
+        contentBlocks.push({
+          type: 'text',
+          data: { html: `
+            <div style="margin:16px 0;padding:16px;background:#f0fdf4;border-left:4px solid #22c55e;border-radius:4px;">
+              <strong style="color:#166534;">Customer Feedback:</strong>
+              <p style="margin:8px 0 0 0;color:#333;">${metadata.feedback}</p>
+            </div>
+          `}
+        });
+      }
+
+      ctaButton = { text: 'View in Dashboard', href: `${siteUrl}/admin?view=events`, variant: 'primary' };
+      break;
+
+    case 'change_request':
+      subject = `📝 Change Request: ${eventName}`;
+      preheaderText = `${contactName} has requested changes to their order`;
+      heroConfig = {
+        badge: '📝 CHANGE REQUEST',
+        title: 'Change Request Received',
+        subtitle: `${contactName} has requested changes`,
+        variant: 'orange'
+      };
+
+      contentBlocks = [
+        { type: 'status_badge', data: { 
+          status: 'pending', 
+          title: 'Change Request Submitted', 
+          description: `${contactName} has requested modifications to their order` 
+        }},
+        { type: 'customer_contact' },
+        { type: 'event_details' },
+        { type: 'text', data: { html: `
+          <div style="margin:16px 0;padding:16px;background:#fef3c7;border-left:4px solid #f59e0b;border-radius:4px;">
+            <strong style="color:#92400e;">Requested Changes:</strong>
+            <p style="margin:8px 0 0 0;color:#333;">${metadata.changes || 'See admin dashboard for details'}</p>
+            ${metadata.urgency === 'high' ? '<p style="margin:8px 0 0 0;color:#dc2626;font-weight:bold;">⚠️ HIGH PRIORITY</p>' : ''}
+          </div>
+        `}},
+        { type: 'menu_summary' },
+        { type: 'service_addons' },
+      ];
+
+      ctaButton = { text: 'Review Change Request', href: `${siteUrl}/admin?view=events`, variant: 'primary' };
+      break;
+
+    case 'payment_received':
+      const paymentAmount = metadata.amount || 0;
+      const isFullPayment = metadata.full_payment || false;
+      const paymentType = metadata.payment_type === 'full' ? 'Full Payment' : '50% Deposit';
+
+      subject = `💰 Payment Received: ${eventName}`;
+      preheaderText = `${formatCurrency(paymentAmount)} received from ${contactName}`;
+      heroConfig = {
+        badge: '💰 PAYMENT RECEIVED',
+        title: isFullPayment ? 'Paid in Full!' : 'Payment Received',
+        subtitle: `${formatCurrency(paymentAmount)} - ${paymentType}`,
+        variant: 'green'
+      };
+
+      contentBlocks = [
+        { type: 'status_badge', data: { 
+          status: 'approved', 
+          title: isFullPayment ? 'Paid in Full!' : 'Payment Received', 
+          description: `${contactName} has made a ${paymentType.toLowerCase()} of ${formatCurrency(paymentAmount)}` 
+        }},
+        { type: 'customer_contact' },
+        { type: 'event_details' },
+        { type: 'text', data: { html: `
+          <div style="margin:16px 0;padding:16px;background:#d1fae5;border-left:4px solid #22c55e;border-radius:4px;">
+            <strong style="color:#166534;">Payment Details:</strong>
+            <p style="margin:8px 0 4px 0;color:#333;"><strong>Amount:</strong> ${formatCurrency(paymentAmount)}</p>
+            <p style="margin:4px 0;color:#333;"><strong>Type:</strong> ${paymentType}</p>
+            <p style="margin:4px 0;color:#333;"><strong>Invoice:</strong> ${invoice.invoice_number || 'N/A'}</p>
+            <p style="margin:4px 0;color:#333;"><strong>Total Invoice:</strong> ${formatCurrency(invoice.total_amount || 0)}</p>
+            ${isFullPayment ? '<p style="margin:8px 0 0 0;color:#22c55e;font-weight:bold;">✅ PAID IN FULL</p>' : ''}
+          </div>
+        `}},
+        ...(hasLineItems ? [{ type: 'menu_with_pricing' as const }] : [{ type: 'menu_summary' as const }]),
+      ];
+
+      ctaButton = { text: 'View Payment Details', href: `${siteUrl}/admin?view=billing`, variant: 'primary' };
+      break;
+
+    case 'payment_failed':
+      subject = `❌ Payment Failed: ${eventName}`;
+      preheaderText = `Payment attempt failed for ${contactName}`;
+      heroConfig = {
+        badge: '❌ PAYMENT FAILED',
+        title: 'Payment Failed',
+        subtitle: 'Customer payment attempt was unsuccessful',
+        variant: 'crimson'
+      };
+
+      contentBlocks = [
+        { type: 'status_badge', data: { 
+          status: 'rejected', 
+          title: 'Payment Failed', 
+          description: `Payment attempt by ${contactName} was unsuccessful` 
+        }},
+        { type: 'customer_contact' },
+        { type: 'event_details' },
+        { type: 'text', data: { html: `
+          <div style="margin:16px 0;padding:16px;background:#fee2e2;border-left:4px solid #dc2626;border-radius:4px;">
+            <strong style="color:#991b1b;">Failure Details:</strong>
+            <p style="margin:8px 0 0 0;color:#333;"><strong>Reason:</strong> ${metadata.error || 'Unknown error'}</p>
+            <p style="margin:8px 0 0 0;color:#666;font-style:italic;">You may need to follow up with the customer.</p>
+          </div>
+        `}},
+        { type: 'menu_summary' },
+      ];
+
+      ctaButton = { text: 'View in Dashboard', href: `${siteUrl}/admin?view=events`, variant: 'primary' };
+      break;
+
+    default:
+      subject = `🔔 Notification: ${eventName}`;
+      preheaderText = `Admin notification for ${eventName}`;
+      heroConfig = EMAIL_CONFIGS.admin_notification.admin!.heroSection;
+
+      contentBlocks = [
+        { type: 'customer_contact' },
+        { type: 'event_details' },
+        { type: 'menu_summary' },
+      ];
+
+      ctaButton = { text: 'View in Dashboard', href: `${siteUrl}/admin?view=events`, variant: 'primary' };
+  }
+
+  // Build the email using generateStandardEmail
+  const emailConfig: StandardEmailConfig = {
+    preheaderText,
+    heroSection: heroConfig,
+    contentBlocks,
+    ctaButton,
+    quote,
+    invoice,
+    lineItems,
+  };
+
+  return {
+    subject,
+    html: generateStandardEmail(emailConfig),
+  };
+}
 
 serve(handler);
