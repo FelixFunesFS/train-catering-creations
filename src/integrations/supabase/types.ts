@@ -1927,6 +1927,10 @@ export type Database = {
           issues: Json
         }[]
       }
+      force_recalculate_invoice_totals: {
+        Args: { p_invoice_id: string }
+        Returns: undefined
+      }
       generate_invoice_number: { Args: never; Returns: string }
       get_estimate_with_line_items: {
         Args: { access_token: string }

@@ -138,6 +138,7 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
     if (!quote?.id) return;
     
     try {
+      // 1. Update quote's compliance level
       const { error } = await supabase
         .from('quote_requests')
         .update({ 
@@ -148,22 +149,34 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
         
       if (error) throw error;
       
-      // Invalidate queries to refresh data
+      // 2. Force recalculate invoice totals (single source of truth)
+      if (invoice?.id) {
+        const { error: rpcError } = await supabase.rpc('force_recalculate_invoice_totals', {
+          p_invoice_id: invoice.id
+        });
+        if (rpcError) {
+          console.error('RPC error:', rpcError);
+        }
+      }
+      
+      // 3. Invalidate queries to refresh data
       queryClient.invalidateQueries({ queryKey: ['quotes'] });
       queryClient.invalidateQueries({ queryKey: ['events'] });
       queryClient.invalidateQueries({ queryKey: ['quote', quote.id] });
+      queryClient.invalidateQueries({ queryKey: ['invoice', invoice?.id] });
+      queryClient.invalidateQueries({ queryKey: ['invoices'] });
       
       toast({ 
         title: checked ? 'Government Contract Enabled' : 'Government Contract Disabled',
         description: checked ? 'Tax exemption and Net 30 terms applied.' : 'Standard payment terms applied.',
       });
       
-      // Regenerate milestones with new government status
+      // 4. Regenerate milestones with new government status
       handleRegenerateMilestones();
     } catch (err: any) {
       toast({ title: 'Error', description: err.message, variant: 'destructive' });
     }
-  }, [quote?.id, queryClient, toast, handleRegenerateMilestones]);
+  }, [quote?.id, invoice?.id, queryClient, toast, handleRegenerateMilestones]);
 
   const handleDragEnd = useCallback(async (event: DragEndEvent) => {
     const { active, over } = event;
