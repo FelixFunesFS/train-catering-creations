@@ -9,97 +9,17 @@ import {
 import { formatDate, formatTime, formatServiceType, getStatusColor } from '@/utils/formatters';
 import { formatLocationLink, formatPhoneLink } from '@/utils/linkFormatters';
 import { ChangeHistory } from './ChangeHistory';
-
-interface PaymentScheduleSectionProps {
-  invoiceId: string | undefined;
-  milestones: any[];
-  isRegenerating: boolean;
-  onRegenerate: () => void;
-}
-
-function PaymentScheduleSectionInner({ invoiceId, milestones, isRegenerating, onRegenerate }: PaymentScheduleSectionProps) {
-  const formatMilestoneType = (type: string): string => {
-    const typeMap: Record<string, string> = {
-      'DEPOSIT': 'Booking Deposit',
-      'MILESTONE': 'Milestone Payment',
-      'BALANCE': 'Final Balance',
-      'FULL': 'Full Payment',
-      'FINAL': 'Final Payment',
-      'COMBINED': 'Combined Payment',
-    };
-    return typeMap[type] || type;
-  };
-
-  const formatCurrency = (cents: number) => {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100);
-  };
-
-  return (
-    <section className="space-y-3">
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-          <span className="text-base">💵</span> Payment Schedule
-        </h3>
-        <Button 
-          variant="ghost" 
-          size="sm"
-          onClick={onRegenerate}
-          disabled={isRegenerating || !invoiceId}
-        >
-          <span className={`mr-1 ${isRegenerating ? 'animate-spin' : ''}`}>🔄</span>
-          Regenerate
-        </Button>
-      </div>
-      
-      {milestones.length === 0 ? (
-        <p className="text-sm text-muted-foreground italic">No payment schedule generated yet. Click Regenerate.</p>
-      ) : (
-        <div className="space-y-2">
-          {milestones.map((milestone: any) => {
-            const isPaid = milestone.status === 'paid';
-            const isDue = milestone.status === 'pending' && 
-              milestone.due_date && new Date(milestone.due_date) <= new Date();
-            return (
-              <div 
-                key={milestone.id} 
-                className={`flex items-center justify-between p-2 rounded-md border text-sm ${
-                  isPaid ? 'bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800' :
-                  isDue ? 'bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800' :
-                  'bg-muted/30 border-border'
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  {isPaid && <span className="text-green-600">✓</span>}
-                  <span className="font-medium">{formatMilestoneType(milestone.milestone_type)}</span>
-                  <span className="text-muted-foreground">({milestone.percentage}%)</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="font-semibold">{formatCurrency(milestone.amount_cents)}</span>
-                  {isPaid ? (
-                    <Badge variant="outline" className="text-green-600 border-green-600">Paid</Badge>
-                  ) : milestone.due_date ? (
-                    <span className="text-xs text-muted-foreground">
-                      Due {new Date(milestone.due_date).toLocaleDateString()}
-                    </span>
-                  ) : (
-                    <span className="text-xs text-muted-foreground">Upcoming</span>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-    </section>
-  );
-}
+import { PaymentScheduleSection } from './PaymentScheduleSection';
 
 interface EventDetailsPanelContentProps {
   quote: any;
   invoice: any;
   milestones: any[];
+  totalAmount: number;
+  isGovernment: boolean;
   isRegenerating: boolean;
   onRegenerateMilestones: () => void;
+  onToggleGovernment: (checked: boolean) => void;
   onEditCustomer: () => void;
   onEditMenu: () => void;
 }
@@ -108,13 +28,14 @@ export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
   quote,
   invoice,
   milestones,
+  totalAmount,
+  isGovernment,
   isRegenerating,
   onRegenerateMilestones,
+  onToggleGovernment,
   onEditCustomer,
   onEditMenu,
 }: EventDetailsPanelContentProps) {
-  const isGovernment = quote?.compliance_level === 'government' || quote?.requires_po_number;
-  
   const formatMenuItems = (items: unknown): string => {
     if (!items || !Array.isArray(items) || items.length === 0) return '';
     return items.map((item: string) => 
@@ -309,24 +230,15 @@ export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
 
       {/* Payment Schedule */}
       <Separator />
-      <PaymentScheduleSectionInner 
+      <PaymentScheduleSection 
         invoiceId={invoice?.id} 
         milestones={milestones}
+        totalAmount={totalAmount}
+        isGovernment={isGovernment}
         isRegenerating={isRegenerating}
         onRegenerate={onRegenerateMilestones}
+        onToggleGovernment={onToggleGovernment}
       />
-
-      {/* Government Badge */}
-      {isGovernment && (
-        <>
-          <Separator />
-          <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
-            <p className="text-blue-700 dark:text-blue-400 font-medium text-sm">
-              🏛️ Government Contract (Tax Exempt • Net 30)
-            </p>
-          </div>
-        </>
-      )}
 
       {/* Change History */}
       <Separator />
