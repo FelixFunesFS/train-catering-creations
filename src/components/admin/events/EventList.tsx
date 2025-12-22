@@ -195,6 +195,9 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
         case 'total':
           comparison = (a.invoice?.total_amount || 0) - (b.invoice?.total_amount || 0);
           break;
+        case 'edited':
+          comparison = new Date(a.updated_at || 0).getTime() - new Date(b.updated_at || 0).getTime();
+          break;
       }
       return sortOrder === 'asc' ? comparison : -comparison;
     });
@@ -343,9 +346,12 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                           </span>
                         )}
                       </div>
-                      <p className="text-xs text-muted-foreground mb-2">
-                        Submitted: {formatDateTimeShortET(event.created_at!)}
-                      </p>
+                      <div className="flex flex-wrap gap-x-3 text-xs text-muted-foreground mb-2">
+                        <span>Submitted: {formatDateTimeShortET(event.created_at!)}</span>
+                        {event.updated_at && event.updated_at !== event.created_at && (
+                          <span>Edited: {formatDateTimeShortET(event.updated_at)}</span>
+                        )}
+                      </div>
                       
                         <div className="flex items-center justify-between">
                         {invoice ? (
@@ -421,6 +427,14 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                       onSort={handleSort}
                       className="hidden xl:table-cell"
                     />
+                    <SortableTableHead 
+                      label="Last Edited" 
+                      sortKey="edited" 
+                      currentSortBy={sortBy} 
+                      currentSortOrder={sortOrder}
+                      onSort={handleSort}
+                      className="hidden xl:table-cell"
+                    />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -472,6 +486,9 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                         ) : (
                           <span className="text-muted-foreground">—</span>
                         )}
+                      </TableCell>
+                      <TableCell className="hidden xl:table-cell text-muted-foreground text-sm whitespace-nowrap">
+                        {event.updated_at ? formatDateTimeShortET(event.updated_at) : '—'}
                       </TableCell>
                     </TableRow>
                   );
