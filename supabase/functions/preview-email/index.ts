@@ -58,22 +58,23 @@ const SAMPLE_QUOTE = {
   compliance_level: "standard",
 };
 
+// Sample line items structured like REAL invoice data (package-based categories)
 const SAMPLE_LINE_ITEMS = [
-  { id: "1", title: "Smoked Brisket", description: "Slow-smoked Texas-style brisket", category: "Proteins", quantity: 75, unit_price: 1500, total_price: 112500 },
-  { id: "2", title: "Pulled Pork", description: "Carolina-style pulled pork", category: "Proteins", quantity: 75, unit_price: 1200, total_price: 90000 },
-  { id: "3", title: "Mac & Cheese", description: "Creamy Southern mac & cheese", category: "Sides", quantity: 75, unit_price: 500, total_price: 37500 },
-  { id: "4", title: "Collard Greens", description: "Traditional slow-cooked collards", category: "Sides", quantity: 75, unit_price: 400, total_price: 30000 },
-  { id: "5", title: "Cornbread", description: "Sweet honey cornbread", category: "Sides", quantity: 75, unit_price: 250, total_price: 18750 },
-  { id: "6", title: "Sweet Tea", description: "Southern sweet tea", category: "Beverages", quantity: 75, unit_price: 200, total_price: 15000 },
-  { id: "7", title: "Wait Staff (3 servers)", description: "Professional service for 4 hours", category: "Service Items", quantity: 1, unit_price: 45000, total_price: 45000 },
+  { id: "1", title: "Catering Package", description: "Smoked Brisket & Pulled Pork with Mac & Cheese, Collard Greens, Cornbread, and Sweet Tea", category: "package", quantity: 75, unit_price: 3000, total_price: 225000 },
+  { id: "2", title: "Vegetarian Entrée Selection", description: "Grilled Portobello", category: "dietary", quantity: 5, unit_price: 1200, total_price: 6000 },
+  { id: "3", title: "Appetizer Selection", description: "Deviled Eggs, Pimento Cheese", category: "appetizers", quantity: 75, unit_price: 400, total_price: 30000 },
+  { id: "4", title: "Dessert Selection", description: "Peach Cobbler", category: "desserts", quantity: 75, unit_price: 300, total_price: 22500 },
+  { id: "5", title: "Full-Service Catering", description: "Professional setup and service", category: "service", quantity: 1, unit_price: 25000, total_price: 25000 },
+  { id: "6", title: "Wait Staff Service", description: "3 servers for 4-hour event", category: "service", quantity: 1, unit_price: 45000, total_price: 45000 },
+  { id: "7", title: "Supply & Equipment Package", description: "Plates, cups, napkins, serving utensils, chafers, ice", category: "supplies", quantity: 1, unit_price: 10000, total_price: 10000 },
 ];
 
 const SAMPLE_INVOICE = {
   id: "sample-invoice-id",
   invoice_number: "INV-2025-0042",
-  subtotal: 348750,
-  tax_amount: 31388,
-  total_amount: 380138,
+  subtotal: 363500, // Sum of all line items
+  tax_amount: 32715, // 9% tax
+  total_amount: 396215,
   due_date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
   workflow_status: "sent",
   customer_access_token: "sample-token",
