@@ -131,8 +131,7 @@ function generateEmailPreview(emailType: EmailType, variant: 'customer' | 'admin
           </p>
         `}},
         { type: 'event_details' },
-        { type: 'menu' },
-        { type: 'pricing' },
+        { type: 'menu_with_pricing' },
       ];
       ctaButton = { text: 'Review Your Estimate', href: `${siteUrl}/estimate?token=sample-token`, variant: 'primary' };
       break;

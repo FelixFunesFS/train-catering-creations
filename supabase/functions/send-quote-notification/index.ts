@@ -1,15 +1,15 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { BRAND_COLORS, EMAIL_STYLES, generateEmailHeader, generateEventDetailsCard, generateFooter, generatePreheader } from "../_shared/emailTemplates.ts";
+import { 
+  generateStandardEmail,
+  generateMenuSection,
+  EMAIL_CONFIGS,
+  BRAND_COLORS,
+  type StandardEmailConfig,
+  type ContentBlock,
+  formatServiceType,
+} from "../_shared/emailTemplates.ts";
 import { escapeHtml, createErrorResponse } from "../_shared/security.ts";
-
-// Brand accent colors for admin notifications
-const ACCENT_COLORS = {
-  success: '#16a34a',      // Green for approved/success states
-  warning: '#ea580c',      // Orange for pending/info needed
-  info: BRAND_COLORS.gold, // Gold for informational sections
-  urgent: BRAND_COLORS.crimson // Crimson for urgent/important
-};
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -67,136 +67,130 @@ const handler = async (req: Request): Promise<Response> => {
       return supplies.length > 0 ? supplies.join(', ') : 'None requested';
     };
 
-    // Build menu section HTML with sanitized content
+    const siteUrl = Deno.env.get('SITE_URL') || 'https://soultrainseatery.lovable.app';
+
+    // Build menu section HTML for admin notification
     const menuSectionHtml = `
-      <div style="background: ${BRAND_COLORS.white}; border: 2px solid ${BRAND_COLORS.lightGray}; border-radius: 8px; padding: 20px; margin: 20px 0;">
-        <h3 style="margin: 0 0 20px 0; color: ${BRAND_COLORS.crimson}; text-align: center;">🍽️ Menu Selections</h3>
-        
-        ${requestData.proteins && Array.isArray(requestData.proteins) && requestData.proteins.length > 0 ? `
-        <div style="margin: 15px 0; padding-bottom: 10px; border-bottom: 2px solid ${BRAND_COLORS.gold};">
-          <h4 style="color: ${BRAND_COLORS.crimson}; margin: 10px 0 5px 0; font-size: 16px;">Proteins</h4>
-          <p style="margin: 5px 0; padding: 8px 0;">${requestData.proteins.map(formatMenuItem).join(', ')}</p>
-          ${requestData.both_proteins_available && requestData.proteins.length === 2 ? `<p style="margin: 5px 0; padding: 8px 0; font-style: italic; color: ${BRAND_COLORS.crimson};">Both proteins served to all guests</p>` : ''}
-        </div>
-        ` : ''}
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${BRAND_COLORS.white};border:2px solid ${BRAND_COLORS.lightGray};border-radius:8px;margin:16px 0;padding:20px;border-collapse:collapse;">
+<tr>
+<td style="padding:20px;">
+<h3 style="margin:0 0 20px 0;color:${BRAND_COLORS.crimson};text-align:center;">🍽️ Menu Selections</h3>
 
-        ${requestData.sides && (Array.isArray(requestData.sides) ? requestData.sides.length > 0 : requestData.sides) ? `
-        <div style="margin: 15px 0; padding-bottom: 10px; border-bottom: 2px solid ${BRAND_COLORS.gold};">
-          <h4 style="color: ${BRAND_COLORS.crimson}; margin: 10px 0 5px 0; font-size: 16px;">Sides</h4>
-          <p style="margin: 5px 0; padding: 8px 0;">${formatMenuItems(requestData.sides)}</p>
-        </div>
-        ` : ''}
+${requestData.proteins && Array.isArray(requestData.proteins) && requestData.proteins.length > 0 ? `
+<div style="margin:15px 0;padding-bottom:10px;border-bottom:2px solid ${BRAND_COLORS.gold};">
+<h4 style="color:${BRAND_COLORS.crimson};margin:10px 0 5px 0;font-size:16px;">🥩 Proteins</h4>
+<p style="margin:5px 0;padding:8px 0;">${requestData.proteins.map(formatMenuItem).join(', ')}</p>
+${requestData.both_proteins_available && requestData.proteins.length === 2 ? `<p style="margin:5px 0;padding:8px 0;font-style:italic;color:${BRAND_COLORS.crimson};">⭐ Both proteins served to all guests</p>` : ''}
+</div>
+` : ''}
 
-        ${requestData.appetizers && (Array.isArray(requestData.appetizers) ? requestData.appetizers.length > 0 : requestData.appetizers) ? `
-        <div style="margin: 15px 0; padding-bottom: 10px; border-bottom: 2px solid ${BRAND_COLORS.gold};">
-          <h4 style="color: ${BRAND_COLORS.crimson}; margin: 10px 0 5px 0; font-size: 16px;">Appetizers</h4>
-          <p style="margin: 5px 0; padding: 8px 0;">${formatMenuItems(requestData.appetizers)}</p>
-        </div>
-        ` : ''}
+${requestData.sides && (Array.isArray(requestData.sides) ? requestData.sides.length > 0 : requestData.sides) ? `
+<div style="margin:15px 0;padding-bottom:10px;border-bottom:2px solid ${BRAND_COLORS.gold};">
+<h4 style="color:${BRAND_COLORS.crimson};margin:10px 0 5px 0;font-size:16px;">🥗 Sides</h4>
+<p style="margin:5px 0;padding:8px 0;">${formatMenuItems(requestData.sides)}</p>
+</div>
+` : ''}
 
-        ${requestData.desserts && (Array.isArray(requestData.desserts) ? requestData.desserts.length > 0 : requestData.desserts) ? `
-        <div style="margin: 15px 0; padding-bottom: 10px; border-bottom: 2px solid ${BRAND_COLORS.gold};">
-          <h4 style="color: ${BRAND_COLORS.crimson}; margin: 10px 0 5px 0; font-size: 16px;">Desserts</h4>
-          <p style="margin: 5px 0; padding: 8px 0;">${formatMenuItems(requestData.desserts)}</p>
-        </div>
-        ` : ''}
+${requestData.appetizers && (Array.isArray(requestData.appetizers) ? requestData.appetizers.length > 0 : requestData.appetizers) ? `
+<div style="margin:15px 0;padding-bottom:10px;border-bottom:2px solid ${BRAND_COLORS.gold};">
+<h4 style="color:${BRAND_COLORS.crimson};margin:10px 0 5px 0;font-size:16px;">🍤 Appetizers</h4>
+<p style="margin:5px 0;padding:8px 0;">${formatMenuItems(requestData.appetizers)}</p>
+</div>
+` : ''}
 
-        ${requestData.drinks && (Array.isArray(requestData.drinks) ? requestData.drinks.length > 0 : requestData.drinks) ? `
-        <div style="margin: 15px 0; padding-bottom: 10px; border-bottom: 2px solid ${BRAND_COLORS.gold};">
-          <h4 style="color: ${BRAND_COLORS.crimson}; margin: 10px 0 5px 0; font-size: 16px;">Beverages</h4>
-          <p style="margin: 5px 0; padding: 8px 0;">${formatMenuItems(requestData.drinks)}</p>
-        </div>
-        ` : ''}
+${requestData.desserts && (Array.isArray(requestData.desserts) ? requestData.desserts.length > 0 : requestData.desserts) ? `
+<div style="margin:15px 0;padding-bottom:10px;border-bottom:2px solid ${BRAND_COLORS.gold};">
+<h4 style="color:${BRAND_COLORS.crimson};margin:10px 0 5px 0;font-size:16px;">🍰 Desserts</h4>
+<p style="margin:5px 0;padding:8px 0;">${formatMenuItems(requestData.desserts)}</p>
+</div>
+` : ''}
 
-        ${(safeGuestCountWithRestrictions || (requestData.vegetarian_entrees && Array.isArray(requestData.vegetarian_entrees) && requestData.vegetarian_entrees.length > 0)) ? `
-        <div style="margin: 15px 0; padding: 12px; background: #f0fdf4; border-radius: 6px; border-left: 4px solid #22c55e;">
-          <h4 style="color: #166534; margin: 0 0 8px 0; font-size: 16px;">🌱 Vegetarian Options</h4>
-          ${safeGuestCountWithRestrictions ? `<p style="margin: 5px 0; color: #166534;">${safeGuestCountWithRestrictions} vegetarian portions requested</p>` : ''}
-          ${requestData.vegetarian_entrees && Array.isArray(requestData.vegetarian_entrees) && requestData.vegetarian_entrees.length > 0 ? `<p style="margin: 5px 0; color: #166534;"><strong>Entrées:</strong> ${requestData.vegetarian_entrees.map(formatMenuItem).join(', ')}</p>` : ''}
-        </div>
-        ` : ''}
-      </div>
-    `;
+${requestData.drinks && (Array.isArray(requestData.drinks) ? requestData.drinks.length > 0 : requestData.drinks) ? `
+<div style="margin:15px 0;padding-bottom:10px;border-bottom:2px solid ${BRAND_COLORS.gold};">
+<h4 style="color:${BRAND_COLORS.crimson};margin:10px 0 5px 0;font-size:16px;">🥤 Beverages</h4>
+<p style="margin:5px 0;padding:8px 0;">${formatMenuItems(requestData.drinks)}</p>
+</div>
+` : ''}
 
-    const preheaderText = `New quote from ${safeContactName} for ${safeEventName} - ${requestData.guest_count} guests`;
-    
-    // Admin notification email with comprehensive details and brand colors
-    const adminEmailHtml = `
-      <!DOCTYPE html>
-      <html lang="en">
-      <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>New Quote Request from ${safeContactName}</title>
-        <style>${EMAIL_STYLES}</style>
-      </head>
-      <body>
-        ${generatePreheader(preheaderText)}
-        
-        <div class="email-container" role="main">
-          <div style="background: linear-gradient(135deg, ${BRAND_COLORS.crimson}, ${BRAND_COLORS.crimsonDark}); padding: 25px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
-            <div style="background: rgba(255,215,0,0.2); display: inline-block; padding: 8px 16px; border-radius: 20px; margin-bottom: 15px;">
-              <span style="color: white; font-weight: bold; font-size: 14px;"><span aria-label="Soul Train">🚂</span> NEW QUOTE SUBMISSION</span>
-            </div>
-            <h2 style="color: white; margin: 0 0 10px 0; font-size: 24px;"><span aria-hidden="true">📧</span> New Quote Request From:</h2>
-            <h3 style="color: white; margin: 0; font-size: 24px;">${safeContactName}</h3>
-            <p style="color: white; margin: 5px 0; font-size: 16px;">
-              <span aria-hidden="true">📧</span> <a href="mailto:${safeEmail}" style="color: white; text-decoration: none;">${safeEmail}</a> | <span aria-hidden="true">📞</span> <a href="tel:${safePhone}" style="color: white; text-decoration: none;">${safePhone}</a>
-            </p>
-            <p style="color: white; margin: 15px 0 0 0; font-size: 14px; opacity: 0.9;">
-              <a href="mailto:${safeEmail}" style="color: white; text-decoration: underline;" aria-label="Reply directly to ${safeContactName}">
-                Click to reply directly to customer →
-              </a>
-            </p>
-            <p style="color: white; margin: 10px 0 0 0; opacity: 0.95;">Event: ${safeEventName}</p>
-          </div>
-          
-          <div class="content">
-            <section style="background: linear-gradient(135deg, ${BRAND_COLORS.gold}, ${BRAND_COLORS.goldLight}); padding: 20px; border-radius: 8px; margin-bottom: 25px;" aria-labelledby="customer-details-heading">
-              <h2 id="customer-details-heading" style="color: ${BRAND_COLORS.darkGray}; margin: 0 0 10px 0;"><span aria-hidden="true">📋</span> Customer Details</h2>
-              <table role="presentation" style="width: 100%;">
-                <tr><td style="padding: 5px 0;"><strong>Name:</strong></td><td>${safeContactName}</td></tr>
-                <tr><td style="padding: 5px 0;"><strong>Email:</strong></td><td><a href="mailto:${safeEmail}" style="color: ${BRAND_COLORS.crimson};" aria-label="Email ${safeContactName}">${safeEmail}</a></td></tr>
-                <tr><td style="padding: 5px 0;"><strong>Phone:</strong></td><td><a href="tel:${safePhone}" style="color: ${BRAND_COLORS.crimson};" aria-label="Call ${safeContactName}">${safePhone}</a></td></tr>
-              </table>
-            </section>
+${(safeGuestCountWithRestrictions || (requestData.vegetarian_entrees && Array.isArray(requestData.vegetarian_entrees) && requestData.vegetarian_entrees.length > 0)) ? `
+<div style="margin:15px 0;padding:12px;background:#f0fdf4;border-radius:6px;border-left:4px solid #22c55e;">
+<h4 style="color:#166534;margin:0 0 8px 0;font-size:16px;">🌱 Vegetarian Options</h4>
+${safeGuestCountWithRestrictions ? `<p style="margin:5px 0;color:#166534;">${safeGuestCountWithRestrictions} vegetarian portions requested</p>` : ''}
+${requestData.vegetarian_entrees && Array.isArray(requestData.vegetarian_entrees) && requestData.vegetarian_entrees.length > 0 ? `<p style="margin:5px 0;color:#166534;"><strong>Entrées:</strong> ${requestData.vegetarian_entrees.map(formatMenuItem).join(', ')}</p>` : ''}
+</div>
+` : ''}
 
-            ${generateEventDetailsCard(requestData)}
-            
-            ${menuSectionHtml}
+</td>
+</tr>
+</table>
+`;
 
-            <div class="event-card" style="border-left-color: ${BRAND_COLORS.crimson};">
-              <h3 style="margin: 0 0 15px 0; color: ${BRAND_COLORS.crimson};">📦 Supplies & Equipment Requested</h3>
-              <p style="margin: 5px 0; font-size: 15px;">${formatSupplies()}</p>
-            </div>
+    // Build supplies section
+    const suppliesHtml = `
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${BRAND_COLORS.lightGray};border-radius:8px;border-left:4px solid ${BRAND_COLORS.crimson};margin:16px 0;border-collapse:collapse;">
+<tr>
+<td style="padding:16px;">
+<h3 style="margin:0 0 15px 0;color:${BRAND_COLORS.crimson};">📦 Supplies & Equipment Requested</h3>
+<p style="margin:5px 0;font-size:15px;">${formatSupplies()}</p>
+</td>
+</tr>
+</table>
+`;
 
-            ${safeThemeColors ? `
-            <div class="event-card" style="border-left-color: ${BRAND_COLORS.gold};">
-              <h3 style="margin: 0 0 10px 0; color: ${BRAND_COLORS.crimson};">🎨 Theme/Colors</h3>
-              <p style="margin: 5px 0;">${safeThemeColors}</p>
-            </div>
-            ` : ''}
+    // Build special notes section
+    const notesHtml = `
+${safeThemeColors ? `
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${BRAND_COLORS.lightGray};border-radius:8px;border-left:4px solid ${BRAND_COLORS.gold};margin:16px 0;border-collapse:collapse;">
+<tr>
+<td style="padding:16px;">
+<h3 style="margin:0 0 10px 0;color:${BRAND_COLORS.crimson};">🎨 Theme/Colors</h3>
+<p style="margin:5px 0;">${safeThemeColors}</p>
+</td>
+</tr>
+</table>
+` : ''}
 
-            ${safeSpecialRequests ? `
-            <div class="event-card" style="border-left-color: ${BRAND_COLORS.crimson}; background: #FFF0F0;">
-              <h3 style="margin: 0 0 10px 0; color: ${BRAND_COLORS.crimson};">💬 Special Requests</h3>
-              <p style="margin: 5px 0; white-space: pre-wrap;">${safeSpecialRequests}</p>
-            </div>
-            ` : ''}
+${safeSpecialRequests ? `
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#FFF0F0;border-radius:8px;border-left:4px solid ${BRAND_COLORS.crimson};margin:16px 0;border-collapse:collapse;">
+<tr>
+<td style="padding:16px;">
+<h3 style="margin:0 0 10px 0;color:${BRAND_COLORS.crimson};">💬 Special Requests</h3>
+<p style="margin:5px 0;white-space:pre-wrap;">${safeSpecialRequests}</p>
+</td>
+</tr>
+</table>
+` : ''}
+`;
 
-            <div style="text-align: center; margin-top: 30px;">
-              <a href="https://qptprrqjlcvfkhfdnnoa.supabase.co/admin/workflow" class="btn btn-primary" role="button" aria-label="View quote request in admin dashboard">
-                View in Admin Dashboard →
-              </a>
-            </div>
-          </div>
-          
-          ${generateFooter()}
-        </div>
-      </body>
-      </html>
-    `;
+    // Get hero config
+    const heroConfig = EMAIL_CONFIGS.quote_received.admin?.heroSection || {
+      badge: '🚂 NEW QUOTE REQUEST',
+      title: 'New Quote Submission',
+      subtitle: `From ${safeContactName}`,
+      variant: 'crimson' as const
+    };
+
+    // Build content blocks for admin email
+    const contentBlocks: ContentBlock[] = [
+      { type: 'customer_contact' },
+      { type: 'event_details' },
+      { type: 'service_addons' },
+      { 
+        type: 'custom_html', 
+        data: { html: menuSectionHtml + suppliesHtml + notesHtml }
+      },
+    ];
+
+    // Build email using generateStandardEmail
+    const emailConfig: StandardEmailConfig = {
+      preheaderText: `New quote from ${safeContactName} for ${safeEventName} - ${requestData.guest_count} guests`,
+      heroSection: heroConfig,
+      contentBlocks,
+      ctaButton: { text: 'View in Admin Dashboard →', href: `${siteUrl}/admin?view=events`, variant: 'primary' },
+      quote: requestData,
+    };
+
+    const adminEmailHtml = generateStandardEmail(emailConfig);
 
     // Send admin email only (customer email handled by send-quote-confirmation)
     let adminEmailSent = false;
