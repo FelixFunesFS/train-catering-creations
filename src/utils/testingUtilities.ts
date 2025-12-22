@@ -215,7 +215,7 @@ export const testEdgeFunctions = async (): Promise<TestResult[]> => {
   
   const functions = [
     'generate-invoice-from-quote',
-    'send-invoice-email',
+    'send-customer-portal-email',
     'process-change-request'
   ];
 
