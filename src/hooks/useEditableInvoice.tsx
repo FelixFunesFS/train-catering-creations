@@ -64,9 +64,10 @@ export function useEditableInvoice(
   const [isSaving, setIsSaving] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   
-  // Initialize local state from source data (only once on mount or when invoice changes)
+  // Initialize local state when sourceLineItems first load
   useEffect(() => {
-    if (sourceLineItems.length > 0 || sourceNotes !== null) {
+    // Only initialize if we have data and haven't initialized yet for this invoice
+    if (!isInitialized && (sourceLineItems.length > 0 || sourceNotes !== null)) {
       const itemsMap = new Map<string, LocalLineItem>();
       sourceLineItems.forEach(item => {
         itemsMap.set(item.id, { ...item, isDirty: false });
@@ -81,7 +82,45 @@ export function useEditableInvoice(
       });
       setIsInitialized(true);
     }
-  }, [invoiceId]); // Only re-init when invoiceId changes
+  }, [sourceLineItems, sourceNotes, isInitialized]);
+  
+  // Reset initialization when invoice changes
+  useEffect(() => {
+    setIsInitialized(false);
+  }, [invoiceId]);
+  
+  // Handle new/deleted items from external sources (e.g., AddLineItemModal)
+  useEffect(() => {
+    if (!isInitialized) return;
+    
+    // Check for items that don't have dirty changes
+    const hasDirtyItems = Array.from(state.localLineItems.values()).some(item => item.isDirty);
+    const notesChanged = state.customerNotes !== state.originalCustomerNotes;
+    
+    // If no unsaved changes, sync new items and remove deleted items
+    if (!hasDirtyItems && !notesChanged) {
+      const currentIds = new Set(state.localLineItems.keys());
+      const sourceIds = new Set(sourceLineItems.map(i => i.id));
+      
+      // Check if there are differences
+      const hasNewItems = sourceLineItems.some(item => !currentIds.has(item.id));
+      const hasDeletedItems = Array.from(currentIds).some(id => !sourceIds.has(id));
+      
+      if (hasNewItems || hasDeletedItems) {
+        const itemsMap = new Map<string, LocalLineItem>();
+        sourceLineItems.forEach(item => {
+          itemsMap.set(item.id, { ...item, isDirty: false });
+        });
+        
+        setState(prev => ({
+          ...prev,
+          localLineItems: itemsMap,
+          customerNotes: sourceNotes || prev.customerNotes,
+          originalCustomerNotes: sourceNotes || prev.originalCustomerNotes,
+        }));
+      }
+    }
+  }, [sourceLineItems, sourceNotes, isInitialized, state.localLineItems, state.customerNotes, state.originalCustomerNotes]);
   
   // Sync from source - called when external data loads/changes and there are no unsaved changes
   const syncFromSource = useCallback((lineItems: LineItem[], notes: string | null) => {
