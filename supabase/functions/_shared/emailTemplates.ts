@@ -607,12 +607,12 @@ export function generateMenuWithPricingSection(
   };
 
   const categoryLabels: Record<string, string> = {
-    'dietary': 'Vegetarian Options',
-    'package': 'Catering Package',
-    'appetizers': 'Appetizers',
-    'desserts': 'Desserts',
-    'service': 'Service',
-    'supplies': 'Supplies & Equipment',
+    'dietary': 'Dietary Accommodations',
+    'package': 'Main Entrées',
+    'appetizers': 'Starters',
+    'desserts': 'Sweets',
+    'service': 'Service & Staffing',
+    'supplies': 'Equipment',
   };
 
   const categoryOrder = ['package', 'Proteins', 'Sides', 'dietary', 'Appetizers', 'appetizers', 'Desserts', 'desserts', 'Beverages', 'Service Items', 'service', 'supplies', 'Other Items'];
@@ -650,13 +650,26 @@ export function generateMenuWithPricingSection(
 </table>
 `;
 
-  // Render each category with inline pricing
+  // Render each category with inline pricing - compact mode
   categoryOrder.forEach(category => {
     if (itemsByCategory[category]) {
+      const items = itemsByCategory[category];
       const icon = categoryIcons[category] || '📦';
       const isProtein = category === 'Proteins';
       const isDietary = category === 'dietary';
       const displayLabel = categoryLabels[category] || category;
+      
+      // Check if we should skip the category header (single item with title matching category label)
+      const isSingleItem = items.length === 1;
+      const firstItemTitle = items[0]?.title?.toLowerCase() || '';
+      const categoryLower = (categoryLabels[category] || category).toLowerCase();
+      const skipHeader = isSingleItem && (
+        firstItemTitle.includes(categoryLower) || 
+        categoryLower.includes(firstItemTitle.split(' ')[0]) ||
+        firstItemTitle.includes('package') && category === 'package' ||
+        firstItemTitle.includes('selection') ||
+        firstItemTitle.includes('service')
+      );
       
       let bgColor = '#ffffff';
       let borderColor = BRAND_COLORS.lightGray;
@@ -669,36 +682,45 @@ export function generateMenuWithPricingSection(
       }
       
       html += `
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${bgColor};border:2px solid ${borderColor};border-radius:10px;margin:12px 0;border-collapse:collapse;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${bgColor};border:1px solid ${borderColor};border-radius:8px;margin:8px 0;border-collapse:collapse;">
 <tr>
-<td style="padding:16px;">
+<td style="padding:${skipHeader ? '12px' : '14px'};">
+`;
+      
+      // Only show category header if not skipping
+      if (!skipHeader) {
+        html += `
 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
 <tr>
-<td style="padding-bottom:12px;">
-<span style="font-size:24px;vertical-align:middle;">${icon}</span>
-<span style="font-size:18px;font-weight:bold;color:${isDietary ? '#166534' : BRAND_COLORS.crimson};vertical-align:middle;margin-left:8px;">${displayLabel}</span>
+<td style="padding-bottom:8px;">
+<span style="font-size:18px;vertical-align:middle;">${icon}</span>
+<span style="font-size:15px;font-weight:bold;color:${isDietary ? '#166534' : BRAND_COLORS.crimson};vertical-align:middle;margin-left:6px;">${displayLabel}</span>
 </td>
 </tr>
 </table>
 `;
+      }
       
-      // Add each item with inline pricing
-      itemsByCategory[category].forEach((item: any, index: number) => {
-        const borderBottom = index < itemsByCategory[category].length - 1 ? 'border-bottom:1px solid #eee;' : '';
+      // Add each item with inline pricing - more compact
+      items.forEach((item: any, index: number) => {
+        const borderBottom = index < items.length - 1 ? 'border-bottom:1px solid #eee;' : '';
         const unitPriceStr = item.unit_price ? fmtCurrency(item.unit_price) : '';
         const totalPriceStr = item.total_price ? fmtCurrency(item.total_price) : '';
         const qtyStr = item.quantity > 1 ? `${item.quantity} × ${unitPriceStr}` : '';
         
+        // Show icon inline if we skipped the header
+        const inlineIcon = skipHeader ? `<span style="font-size:16px;margin-right:6px;">${icon}</span>` : '';
+        
         html += `
 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="${borderBottom}border-collapse:collapse;">
 <tr>
-<td style="padding:10px 0;width:60%;">
-<strong style="color:#2d2d2d;font-size:15px;">${item.title || item.description}</strong>
-${item.description && item.title ? `<br><span style="color:#666;font-size:13px;">${item.description}</span>` : ''}
-${qtyStr ? `<br><span style="color:#888;font-size:12px;">${qtyStr}</span>` : ''}
+<td style="padding:6px 0;width:65%;">
+${inlineIcon}<strong style="color:#2d2d2d;font-size:14px;">${item.title || item.description}</strong>
+${item.description && item.title ? `<br><span style="color:#666;font-size:12px;line-height:1.4;">${item.description}</span>` : ''}
+${qtyStr ? `<span style="color:#888;font-size:11px;margin-left:8px;">(${qtyStr})</span>` : ''}
 </td>
-<td style="padding:10px 0;text-align:right;width:40%;">
-<span style="color:${BRAND_COLORS.crimson};font-weight:bold;font-size:15px;">${totalPriceStr}</span>
+<td style="padding:6px 0;text-align:right;width:35%;vertical-align:top;">
+<span style="color:${BRAND_COLORS.crimson};font-weight:bold;font-size:14px;">${totalPriceStr}</span>
 </td>
 </tr>
 </table>
@@ -708,10 +730,10 @@ ${qtyStr ? `<br><span style="color:#888;font-size:12px;">${qtyStr}</span>` : ''}
       // Add "both proteins" note if applicable
       if (isProtein && bothProteinsAvailable) {
         html += `
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:linear-gradient(135deg,${BRAND_COLORS.crimson},${BRAND_COLORS.crimsonDark});border-radius:8px;margin-top:12px;border-collapse:collapse;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:linear-gradient(135deg,${BRAND_COLORS.crimson},${BRAND_COLORS.crimsonDark});border-radius:6px;margin-top:8px;border-collapse:collapse;">
 <tr>
-<td align="center" style="padding:12px 16px;">
-<span style="color:white;font-size:14px;font-weight:bold;">⭐ Both proteins served to all guests</span>
+<td align="center" style="padding:8px 12px;">
+<span style="color:white;font-size:13px;font-weight:bold;">⭐ Both proteins served to all guests</span>
 </td>
 </tr>
 </table>
@@ -1328,10 +1350,12 @@ export function getEmailContentBlocks(
       break;
 
     case 'quote_confirmation':
-      // Customer welcome/confirmation
+      // Customer welcome/confirmation - now includes menu selections
       contentBlocks = [
         { type: 'text', data: { html: `<p style="font-size:16px;margin:0 0 16px 0;">Welcome, ${quote.contact_name}!</p><p style="font-size:15px;margin:0 0 16px 0;line-height:1.6;">Thank you for choosing Soul Train's Eatery for your upcoming event. We're thrilled to be part of your special occasion!</p>` }},
         { type: 'event_details' },
+        { type: 'menu_summary' },
+        { type: 'supplies_summary' },
         { type: 'service_addons' },
         { type: 'custom_html', data: { html: `
           <div style="background:${BRAND_COLORS.lightGray};padding:15px;border-radius:8px;border-left:4px solid ${BRAND_COLORS.gold};margin:20px 0;">
