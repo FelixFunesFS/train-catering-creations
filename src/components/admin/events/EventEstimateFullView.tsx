@@ -287,9 +287,18 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
   const discountDescription = (currentInvoice as any)?.discount_description as string | null;
   const isAlreadySent = currentInvoice?.workflow_status === 'sent' || currentInvoice?.workflow_status === 'viewed';
 
-  // Live-calculated totals from editable line items
+  // Totals: use database values when no unsaved changes, otherwise calculate live
   const { subtotal, taxAmount, total } = useMemo(() => {
-    // Calculate subtotal from local editable line items
+    // When no unsaved changes, use database values (single source of truth)
+    if (!hasUnsavedChanges && currentInvoice) {
+      return {
+        subtotal: currentInvoice.subtotal ?? 0,
+        taxAmount: currentInvoice.tax_amount ?? 0,
+        total: currentInvoice.total_amount ?? 0,
+      };
+    }
+    
+    // Otherwise, calculate live from editable line items for immediate preview
     const calculatedSubtotal = editableLineItems.reduce(
       (sum, item) => sum + (item.total_price || 0), 
       0
@@ -309,7 +318,7 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
       taxAmount: taxCalc.taxAmount,
       total: taxCalc.totalAmount,
     };
-  }, [editableLineItems, discountAmount, discountType, discountDescription, isGovernment]);
+  }, [hasUnsavedChanges, currentInvoice, editableLineItems, discountAmount, discountType, discountDescription, isGovernment]);
 
   const handleApplyDiscount = useCallback(async (amount: number, type: 'percentage' | 'fixed', description: string) => {
     await updateInvoice.mutateAsync({
