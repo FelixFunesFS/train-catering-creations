@@ -124,3 +124,64 @@ export function formatDateTimeShortET(timestamp: string): string {
   // Shorten AM/PM to a/p for compactness
   return formatted.replace(' AM', 'a').replace(' PM', 'p');
 }
+
+/**
+ * Get category color classes for menu items and line items
+ */
+export function getCategoryColors(category: string): { 
+  border: string; 
+  bg: string; 
+  text: string; 
+  dot: string;
+} {
+  const categoryColors: Record<string, { border: string; bg: string; text: string; dot: string }> = {
+    appetizers: {
+      border: 'border-l-category-appetizers',
+      bg: 'bg-category-appetizers/10',
+      text: 'text-category-appetizers-foreground',
+      dot: 'bg-category-appetizers',
+    },
+    proteins: {
+      border: 'border-l-category-proteins',
+      bg: 'bg-category-proteins/10',
+      text: 'text-category-proteins-foreground',
+      dot: 'bg-category-proteins',
+    },
+    vegetarian: {
+      border: 'border-l-category-vegetarian',
+      bg: 'bg-category-vegetarian/10',
+      text: 'text-category-vegetarian-foreground',
+      dot: 'bg-category-vegetarian',
+    },
+    sides: {
+      border: 'border-l-category-sides',
+      bg: 'bg-category-sides/10',
+      text: 'text-category-sides-foreground',
+      dot: 'bg-category-sides',
+    },
+    desserts: {
+      border: 'border-l-category-desserts',
+      bg: 'bg-category-desserts/10',
+      text: 'text-category-desserts-foreground',
+      dot: 'bg-category-desserts',
+    },
+    drinks: {
+      border: 'border-l-category-drinks',
+      bg: 'bg-category-drinks/10',
+      text: 'text-category-drinks-foreground',
+      dot: 'bg-category-drinks',
+    },
+    services: {
+      border: 'border-l-category-services',
+      bg: 'bg-category-services/10',
+      text: 'text-category-services-foreground',
+      dot: 'bg-category-services',
+    },
+  };
+  
+  // Normalize category name for matching
+  const normalized = category?.toLowerCase().replace(/[^a-z]/g, '') || 'services';
+  const match = Object.keys(categoryColors).find(key => normalized.includes(key));
+  
+  return categoryColors[match || 'services'];
+}
