@@ -1,6 +1,5 @@
 /**
  * Shared formatting utilities for consistent display across the application
- * All timestamps are displayed in Eastern Time (ET) unless otherwise specified
  */
 
 /**
@@ -88,100 +87,4 @@ export function getStatusColor(status: string): string {
     cancelled: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200',
   };
   return statusColors[status] || 'bg-muted text-muted-foreground';
-}
-
-/**
- * Format timestamp to date and time in Eastern Time (e.g., "Dec 21, 2025 4:34 PM ET")
- */
-export function formatDateTimeET(timestamp: string): string {
-  const date = new Date(timestamp);
-  return date.toLocaleString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true,
-    timeZone: 'America/New_York',
-  }) + ' ET';
-}
-
-/**
- * Format timestamp to short date/time in Eastern Time (e.g., "Dec 21 4:34p")
- * Useful for table columns where space is limited
- */
-export function formatDateTimeShortET(timestamp: string): string {
-  if (!timestamp) return '—';
-  const date = new Date(timestamp);
-  const formatted = date.toLocaleString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true,
-    timeZone: 'America/New_York',
-  });
-  // Shorten AM/PM to a/p for compactness
-  return formatted.replace(' AM', 'a').replace(' PM', 'p');
-}
-
-/**
- * Get category color classes for menu items and line items
- */
-export function getCategoryColors(category: string): { 
-  border: string; 
-  bg: string; 
-  text: string; 
-  dot: string;
-} {
-  const categoryColors: Record<string, { border: string; bg: string; text: string; dot: string }> = {
-    appetizers: {
-      border: 'border-l-category-appetizers',
-      bg: 'bg-category-appetizers/10',
-      text: 'text-category-appetizers-foreground',
-      dot: 'bg-category-appetizers',
-    },
-    proteins: {
-      border: 'border-l-category-proteins',
-      bg: 'bg-category-proteins/10',
-      text: 'text-category-proteins-foreground',
-      dot: 'bg-category-proteins',
-    },
-    vegetarian: {
-      border: 'border-l-category-vegetarian',
-      bg: 'bg-category-vegetarian/10',
-      text: 'text-category-vegetarian-foreground',
-      dot: 'bg-category-vegetarian',
-    },
-    sides: {
-      border: 'border-l-category-sides',
-      bg: 'bg-category-sides/10',
-      text: 'text-category-sides-foreground',
-      dot: 'bg-category-sides',
-    },
-    desserts: {
-      border: 'border-l-category-desserts',
-      bg: 'bg-category-desserts/10',
-      text: 'text-category-desserts-foreground',
-      dot: 'bg-category-desserts',
-    },
-    drinks: {
-      border: 'border-l-category-drinks',
-      bg: 'bg-category-drinks/10',
-      text: 'text-category-drinks-foreground',
-      dot: 'bg-category-drinks',
-    },
-    services: {
-      border: 'border-l-category-services',
-      bg: 'bg-category-services/10',
-      text: 'text-category-services-foreground',
-      dot: 'bg-category-services',
-    },
-  };
-  
-  // Normalize category name for matching
-  const normalized = category?.toLowerCase().replace(/[^a-z]/g, '') || 'services';
-  const match = Object.keys(categoryColors).find(key => normalized.includes(key));
-  
-  return categoryColors[match || 'services'];
 }

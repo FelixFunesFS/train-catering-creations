@@ -227,9 +227,24 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
     }
   }, [quote?.id, quote?.email, invoice?.id, isResendMode, queryClient, toast, handleClose]);
 
-  const subtotal = currentInvoice?.subtotal ?? 0;
-  const taxAmount = currentInvoice?.tax_amount ?? 0;
-  const total = currentInvoice?.total_amount ?? 0;
+  // Calculate local totals from editable line items for real-time updates
+  const localSubtotal = useMemo(() => {
+    return editableLineItems.reduce((sum, item) => sum + item.total_price, 0);
+  }, [editableLineItems]);
+
+  const localTaxAmount = useMemo(() => {
+    return isGovernment ? 0 : Math.round(localSubtotal * 0.09);
+  }, [localSubtotal, isGovernment]);
+
+  const localTotal = useMemo(() => {
+    return localSubtotal + localTaxAmount;
+  }, [localSubtotal, localTaxAmount]);
+
+  // Use local calculations when there are unsaved changes, otherwise use DB values
+  const subtotal = hasUnsavedChanges ? localSubtotal : (currentInvoice?.subtotal ?? 0);
+  const taxAmount = hasUnsavedChanges ? localTaxAmount : (currentInvoice?.tax_amount ?? 0);
+  const total = hasUnsavedChanges ? localTotal : (currentInvoice?.total_amount ?? 0);
+  
   const discountAmount = (currentInvoice as any)?.discount_amount ?? 0;
   const discountType = (currentInvoice as any)?.discount_type as 'percentage' | 'fixed' | null;
   const discountDescription = (currentInvoice as any)?.discount_description as string | null;

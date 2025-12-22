@@ -226,22 +226,6 @@
     --mobile-spacing-tight: 0.75rem;
     --mobile-spacing-normal: 1rem;
     --mobile-spacing-loose: 1.25rem;
-
-    /* Menu Category Colors */
-    --category-appetizers: 28 85% 55%;
-    --category-appetizers-foreground: 28 85% 25%;
-    --category-proteins: 348 70% 50%;
-    --category-proteins-foreground: 348 70% 20%;
-    --category-sides: 145 50% 45%;
-    --category-sides-foreground: 145 50% 20%;
-    --category-desserts: 330 60% 55%;
-    --category-desserts-foreground: 330 60% 25%;
-    --category-drinks: 200 70% 50%;
-    --category-drinks-foreground: 200 70% 20%;
-    --category-services: 210 25% 45%;
-    --category-services-foreground: 210 25% 20%;
-    --category-vegetarian: 90 50% 45%;
-    --category-vegetarian-foreground: 90 50% 20%;
   }
 
   .dark {
@@ -294,22 +278,6 @@
     
     --cream: 60 8% 12%;
     --cream-foreground: 60 8% 95%;
-
-    /* Menu Category Colors - Dark Mode */
-    --category-appetizers: 28 80% 60%;
-    --category-appetizers-foreground: 28 80% 80%;
-    --category-proteins: 348 65% 60%;
-    --category-proteins-foreground: 348 65% 80%;
-    --category-sides: 145 45% 55%;
-    --category-sides-foreground: 145 45% 80%;
-    --category-desserts: 330 55% 60%;
-    --category-desserts-foreground: 330 55% 80%;
-    --category-drinks: 200 65% 55%;
-    --category-drinks-foreground: 200 65% 80%;
-    --category-services: 210 20% 55%;
-    --category-services-foreground: 210 20% 80%;
-    --category-vegetarian: 90 45% 55%;
-    --category-vegetarian-foreground: 90 45% 80%;
 
     /* Dark mode accessibility */
     --text-high-contrast: 60 8% 95%;
