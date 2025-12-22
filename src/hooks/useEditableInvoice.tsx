@@ -3,6 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Database } from '@/integrations/supabase/types';
+import { useInvoiceTotalSync } from './useInvoiceTotalSync';
 
 type LineItem = Database['public']['Tables']['invoice_line_items']['Row'];
 
@@ -50,6 +51,7 @@ export function useEditableInvoice(
   sourceNotes: string | null = null
 ): UseEditableInvoiceReturn {
   const queryClient = useQueryClient();
+  const { syncInvoiceTotals } = useInvoiceTotalSync();
   
   const [state, setState] = useState<EditableInvoiceState>({
     localLineItems: new Map(),
@@ -215,14 +217,8 @@ export function useEditableInvoice(
         if (error) throw error;
       }
       
-      // Force recalculate invoice totals (single source of truth)
-      const { error: recalcError } = await supabase.rpc('force_recalculate_invoice_totals', {
-        p_invoice_id: invoiceId
-      });
-      
-      if (recalcError) {
-        console.error('Error recalculating invoice totals:', recalcError);
-      }
+      // Force recalculate invoice totals using shared sync utility
+      await syncInvoiceTotals(invoiceId);
       
       // Mark all items as clean and update originals
       setState(prev => {
@@ -237,13 +233,6 @@ export function useEditableInvoice(
           originalAdminNotes: prev.adminNotes,
         };
       });
-      
-      // Invalidate queries to refresh totals and payment schedule
-      queryClient.invalidateQueries({ queryKey: ['invoice', invoiceId] });
-      queryClient.invalidateQueries({ queryKey: ['invoices'] });
-      queryClient.invalidateQueries({ queryKey: ['line-items', invoiceId] });
-      queryClient.invalidateQueries({ queryKey: ['events'] });
-      queryClient.invalidateQueries({ queryKey: ['payment-milestones', invoiceId] });
       
       toast.success('All changes saved');
       return true;

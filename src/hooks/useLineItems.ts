@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { LineItemsService, LineItemInput, LineItem } from '@/services/LineItemsService';
 import { toast } from 'sonner';
+import { useInvoiceTotalSync } from './useInvoiceTotalSync';
 
 /**
  * Hook for fetching line items for an invoice
@@ -16,19 +17,18 @@ export function useLineItems(invoiceId: string | null) {
 
 /**
  * Hook for creating line items
+ * Automatically syncs invoice totals after creation
  */
 export function useCreateLineItems() {
   const queryClient = useQueryClient();
+  const { syncInvoiceTotals } = useInvoiceTotalSync();
 
   return useMutation({
     mutationFn: ({ invoiceId, items }: { invoiceId: string; items: LineItemInput[] }) =>
       LineItemsService.createLineItems(invoiceId, items),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['line-items', variables.invoiceId] });
-      queryClient.invalidateQueries({ queryKey: ['invoice', variables.invoiceId] });
-      queryClient.invalidateQueries({ queryKey: ['invoices'] });
-      queryClient.invalidateQueries({ queryKey: ['events'] });
-      queryClient.invalidateQueries({ queryKey: ['quotes'] });
+    onSuccess: async (_, variables) => {
+      // Sync invoice totals (waits for DB trigger, then verifies with RPC)
+      await syncInvoiceTotals(variables.invoiceId);
       toast.success('Line items created');
     },
     onError: (error) => {
@@ -40,9 +40,11 @@ export function useCreateLineItems() {
 
 /**
  * Hook for updating a single line item
+ * Uses optimistic updates for responsive UI
  */
 export function useUpdateLineItem() {
   const queryClient = useQueryClient();
+  const { syncInvoiceTotals } = useInvoiceTotalSync();
 
   return useMutation({
     mutationFn: ({ lineItemId, updates, invoiceId }: { 
@@ -81,28 +83,27 @@ export function useUpdateLineItem() {
       toast.error('Failed to update line item');
     },
     
-    onSuccess: () => {
-      // Don't invalidate here - let debounced refresh handle it
-      // No toast per item - too noisy during rapid editing
+    onSuccess: async (_, variables) => {
+      // Sync invoice totals after successful update
+      await syncInvoiceTotals(variables.invoiceId, { delay: 100 });
     },
   });
 }
 
 /**
  * Hook for deleting a single line item
+ * Automatically syncs invoice totals after deletion
  */
 export function useDeleteLineItem() {
   const queryClient = useQueryClient();
+  const { syncInvoiceTotals } = useInvoiceTotalSync();
 
   return useMutation({
     mutationFn: ({ lineItemId, invoiceId }: { lineItemId: string; invoiceId: string }) =>
       LineItemsService.deleteLineItem(lineItemId),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['line-items', variables.invoiceId] });
-      queryClient.invalidateQueries({ queryKey: ['invoice', variables.invoiceId] });
-      queryClient.invalidateQueries({ queryKey: ['invoices'] });
-      queryClient.invalidateQueries({ queryKey: ['events'] });
-      queryClient.invalidateQueries({ queryKey: ['quotes'] });
+    onSuccess: async (_, variables) => {
+      // Sync invoice totals (waits for DB trigger, then verifies with RPC)
+      await syncInvoiceTotals(variables.invoiceId);
       toast.success('Line item deleted');
     },
     onError: (error) => {
@@ -114,19 +115,18 @@ export function useDeleteLineItem() {
 
 /**
  * Hook for replacing all line items for an invoice
+ * Automatically syncs invoice totals after replacement
  */
 export function useReplaceLineItems() {
   const queryClient = useQueryClient();
+  const { syncInvoiceTotals } = useInvoiceTotalSync();
 
   return useMutation({
     mutationFn: ({ invoiceId, items }: { invoiceId: string; items: LineItemInput[] }) =>
       LineItemsService.replaceLineItems(invoiceId, items),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['line-items', variables.invoiceId] });
-      queryClient.invalidateQueries({ queryKey: ['invoice', variables.invoiceId] });
-      queryClient.invalidateQueries({ queryKey: ['invoices'] });
-      queryClient.invalidateQueries({ queryKey: ['events'] });
-      queryClient.invalidateQueries({ queryKey: ['quotes'] });
+    onSuccess: async (_, variables) => {
+      // Sync invoice totals (waits for DB trigger, then verifies with RPC)
+      await syncInvoiceTotals(variables.invoiceId);
       toast.success('Line items updated');
     },
     onError: (error) => {
