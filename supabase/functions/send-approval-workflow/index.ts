@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { generateStandardEmail, EMAIL_CONFIGS, formatCurrency } from '../_shared/emailTemplates.ts';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -28,7 +29,7 @@ serve(async (req) => {
     const { invoice_id } = await req.json();
     if (!invoice_id) throw new Error("invoice_id is required");
 
-    // Fetch invoice data
+    // Fetch invoice data with line items
     const { data: invoiceData, error: invoiceError } = await supabaseClient
       .from("invoices")
       .select(`
@@ -49,7 +50,21 @@ serve(async (req) => {
           guest_count,
           special_requests,
           contact_name,
-          email
+          email,
+          phone,
+          start_time,
+          both_proteins_available,
+          compliance_level
+        ),
+        invoice_line_items (
+          id,
+          title,
+          description,
+          quantity,
+          unit_price,
+          total_price,
+          category,
+          sort_order
         )
       `)
       .eq("id", invoice_id)
@@ -61,14 +76,14 @@ serve(async (req) => {
 
     logStep("Invoice data fetched", { 
       invoiceNumber: invoiceData.invoice_number,
-      status: invoiceData.status 
+      status: invoiceData.workflow_status 
     });
 
-    if (invoiceData.status !== 'approved') {
+    if (invoiceData.workflow_status !== 'approved') {
       throw new Error("Invoice must be approved to trigger workflow");
     }
 
-    // Calculate payment schedule for email
+    // Calculate payment schedule
     const calculatePaymentSchedule = (totalAmount: number, eventDate: string, isGovernment = false) => {
       const eventDateTime = new Date(eventDate);
       const today = new Date();
@@ -100,118 +115,81 @@ serve(async (req) => {
       }
     };
 
+    const isGovernment = invoiceData.quote_requests.compliance_level === 'government';
     const paymentSchedule = calculatePaymentSchedule(
       invoiceData.total_amount,
       invoiceData.quote_requests.event_date,
-      invoiceData.draft_data?.is_government_contract
+      isGovernment
     );
 
-    // Format currency
-    const formatCurrency = (amount: number) => {
-      return new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD'
-      }).format(amount / 100);
-    };
+    // Build portal URL
+    const siteUrl = Deno.env.get('SITE_URL') || 'https://soultrainseatery.lovable.app';
+    const portalUrl = `${siteUrl}/estimate?token=${invoiceData.customer_access_token}`;
 
-    // Step 1: Send contract and payment instructions email
-    const contractEmailContent = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8">
-      <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { text-align: center; padding: 20px; background-color: #2563eb; color: white; margin-bottom: 30px; }
-        .content { padding: 20px; }
-        .highlight { background-color: #eff6ff; padding: 15px; border-radius: 8px; margin: 20px 0; }
-        .payment-box { background-color: #f0fdf4; border: 2px solid #22c55e; padding: 20px; border-radius: 8px; margin: 20px 0; }
-        .footer { text-align: center; color: #666; margin-top: 40px; padding-top: 20px; border-top: 1px solid #e5e7eb; }
-      </style>
-    </head>
-    <body>
-      <div class="header">
-        <h1>Soul Train's Eatery</h1>
-        <p>Estimate Approved - Next Steps</p>
-      </div>
-      
-      <div class="content">
-        <p>Congratulations ${invoiceData.customers.name}!</p>
-        
-        <p>Your catering estimate for <strong>${invoiceData.quote_requests.event_name}</strong> has been approved. We're excited to make your event delicious and memorable!</p>
-        
-        <div class="highlight">
-          <h3>Your Event Details</h3>
-          <p><strong>Event:</strong> ${invoiceData.quote_requests.event_name}</p>
-          <p><strong>Date:</strong> ${new Date(invoiceData.quote_requests.event_date).toLocaleDateString()}</p>
-          <p><strong>Location:</strong> ${invoiceData.quote_requests.location}</p>
-          <p><strong>Guest Count:</strong> ${invoiceData.quote_requests.guest_count}</p>
-          <p><strong>Total Amount:</strong> ${formatCurrency(invoiceData.total_amount)}</p>
+    // Sort line items
+    const lineItems = (invoiceData.invoice_line_items || []).sort((a: any, b: any) => {
+      const sortA = a.sort_order ?? 999;
+      const sortB = b.sort_order ?? 999;
+      return sortA - sortB;
+    });
+
+    // Generate email using standard template
+    const emailConfig = EMAIL_CONFIGS.approval_confirmation.customer!;
+    
+    const paymentInfoHtml = paymentSchedule.deposit_amount > 0 ? `
+      <div style="background:#f0fdf4;border:2px solid #22c55e;padding:20px;border-radius:10px;margin:20px 0;">
+        <h3 style="margin:0 0 12px 0;color:#15803d;">💳 Next Step: Secure Your Date</h3>
+        <p style="margin:0 0 8px 0;"><strong>Contract Type:</strong> ${paymentSchedule.contract_type}</p>
+        <p style="margin:0 0 8px 0;"><strong>Deposit Required:</strong> ${formatCurrency(paymentSchedule.deposit_amount)} (${paymentSchedule.deposit_percentage}%)</p>
+        <p style="margin:0 0 12px 0;"><strong>Payment Terms:</strong> ${paymentSchedule.payment_terms}</p>
+        <div style="background:white;padding:15px;border-radius:6px;margin-top:10px;">
+          <strong>To submit your deposit:</strong><br>
+          • Call us at (843) 970-0265 to pay by card<br>
+          • Or we can send you a secure payment link<br>
+          • Venmo: @SoulTrainsEatery<br>
+          • Zelle: soultrainseatery@gmail.com
         </div>
-        
-        <h3>Next Steps to Secure Your Event:</h3>
-        
-        <div class="payment-box">
-          <h3 style="color: #15803d; margin-top: 0;">💳 Step 1: Deposit Payment</h3>
-          <p><strong>Contract Type:</strong> ${paymentSchedule.contract_type}</p>
-          <p><strong>Deposit Required:</strong> ${formatCurrency(paymentSchedule.deposit_amount)} (${paymentSchedule.deposit_percentage}%)</p>
-          <p><strong>Payment Terms:</strong> ${paymentSchedule.payment_terms}</p>
-          
-          ${paymentSchedule.deposit_amount > 0 ? `
-          <p style="background-color: white; padding: 15px; border-radius: 6px; margin: 15px 0;">
-            <strong>To submit your deposit:</strong><br>
-            • Call us at (843) 970-0265 to pay by card<br>
-            • Or we can send you a secure payment link<br>
-            • Venmo: @SoulTrainsEatery<br>
-            • Zelle: soultrainseatery@gmail.com
-          </p>
-          ` : `
-          <p style="background-color: white; padding: 15px; border-radius: 6px; margin: 15px 0;">
-            <strong>Government Contract:</strong> Full payment will be invoiced after event completion per contract terms.
-          </p>
-          `}
-        </div>
-        
-        <h3>📋 Step 2: Contract Signature</h3>
-        <p>We'll email you a service agreement within 24 hours for your digital signature. This contract will include:</p>
-        <ul>
-          <li>Complete menu details and service specifications</li>
-          <li>Event timeline and setup requirements</li>
-          <li>Payment schedule and terms</li>
-          <li>Cancellation and change policies</li>
-        </ul>
-        
-        <h3>📅 Step 3: Final Details Confirmation</h3>
-        <p>One week before your event, we'll contact you to:</p>
-        <ul>
-          <li>Confirm final guest count</li>
-          <li>Review setup and timing details</li>
-          <li>Address any last-minute requests</li>
-          <li>Collect remaining balance (if applicable)</li>
-        </ul>
-        
-        <div class="highlight">
-          <h3>Important Information</h3>
-          <p><strong>Your event date is secured once we receive your deposit and signed contract.</strong></p>
-          <p>Changes to menu or guest count can be made up to 7 days before your event.</p>
-        </div>
-        
-        <p>Thank you for choosing Soul Train's Eatery! We can't wait to serve you and your guests.</p>
-        
-        <p>Questions? Call us at (843) 970-0265 or reply to this email.</p>
-        
-        <p>Best regards,<br>
-        The Soul Train's Eatery Team</p>
       </div>
-      
-      <div class="footer">
-        <p><strong>Soul Train's Eatery</strong><br>
-        Phone: (843) 970-0265 | Email: soultrainseatery@gmail.com<br>
-        Proudly serving Charleston's Lowcountry and surrounding areas</p>
+    ` : `
+      <div style="background:#dbeafe;border:2px solid #3b82f6;padding:20px;border-radius:10px;margin:20px 0;">
+        <h3 style="margin:0 0 12px 0;color:#1d4ed8;">📋 Government Contract</h3>
+        <p style="margin:0;">Full payment will be invoiced after event completion per Net 30 terms.</p>
       </div>
-    </body>
-    </html>
     `;
+
+    const nextStepsHtml = `
+      <h3 style="color:#DC143C;margin:24px 0 12px 0;">📋 What Happens Next:</h3>
+      <ol style="line-height:1.8;margin:0;padding-left:20px;">
+        <li><strong>Complete Payment:</strong> Submit your deposit to secure your date</li>
+        <li><strong>Contract Signature:</strong> We'll email you a service agreement within 24 hours</li>
+        <li><strong>Final Details:</strong> One week before, we'll confirm final guest count and details</li>
+        <li><strong>Event Day:</strong> We arrive early to set up and serve amazing food!</li>
+      </ol>
+      
+      <div style="background:#fef3c7;border-left:4px solid #f59e0b;padding:15px;border-radius:0 8px 8px 0;margin:20px 0;">
+        <strong>⏰ Important:</strong> Your event date is secured once we receive your deposit and signed contract.
+      </div>
+    `;
+
+    const contractEmailContent = generateStandardEmail({
+      preheaderText: emailConfig.preheaderText,
+      heroSection: {
+        ...emailConfig.heroSection,
+        subtitle: `Congratulations, ${invoiceData.customers.name}!`
+      },
+      contentBlocks: [
+        { type: 'text', data: { html: `<p style="font-size:16px;margin:0 0 16px 0;">Your catering estimate for <strong>${invoiceData.quote_requests.event_name}</strong> has been approved. We're excited to make your event delicious and memorable!</p>` }},
+        { type: 'event_details' },
+        { type: 'menu_with_pricing' },
+        { type: 'custom_html', data: { html: paymentInfoHtml }},
+        { type: 'custom_html', data: { html: nextStepsHtml }},
+        { type: 'text', data: { html: `<p style="margin:24px 0 0 0;">Questions? Call us at <strong>(843) 970-0265</strong> or reply to this email. We're here to help!</p>` }}
+      ],
+      ctaButton: { text: 'View Your Estimate Portal', href: portalUrl, variant: 'primary' },
+      quote: invoiceData.quote_requests,
+      invoice: invoiceData,
+      lineItems: lineItems
+    });
 
     // Send contract email
     const { data: emailResult, error: emailError } = await supabaseClient.functions.invoke('send-smtp-email', {
@@ -230,7 +208,7 @@ serve(async (req) => {
     const { error: updateError } = await supabaseClient
       .from('invoices')
       .update({
-        status: 'contract_sent',
+        workflow_status: 'approved',
         notes: `Contract and payment instructions sent to ${invoiceData.customers.email}`
       })
       .eq('id', invoice_id);
@@ -243,8 +221,7 @@ serve(async (req) => {
     const { error: quoteUpdateError } = await supabaseClient
       .from('quote_requests')
       .update({
-        status: 'approved',
-        invoice_status: 'contract_sent'
+        workflow_status: 'approved'
       })
       .eq('id', invoiceData.quote_request_id);
 
@@ -254,7 +231,7 @@ serve(async (req) => {
 
     logStep("Approval workflow completed successfully", {
       emailSent: !!emailResult,
-      invoiceStatus: 'contract_sent'
+      invoiceStatus: 'approved'
     });
 
     return new Response(JSON.stringify({

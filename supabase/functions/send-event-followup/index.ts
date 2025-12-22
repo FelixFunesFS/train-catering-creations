@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { generateStandardEmail, EMAIL_CONFIGS, BRAND_COLORS } from '../_shared/emailTemplates.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -45,7 +46,7 @@ serve(async (req) => {
     if (quotesError) throw quotesError;
 
     let emailsSent = 0;
-    const FRONTEND_URL = Deno.env.get('FRONTEND_URL') || 'http://localhost:5173';
+    const FRONTEND_URL = Deno.env.get('FRONTEND_URL') || 'https://soultrainseatery.lovable.app';
 
     for (const quote of quotes || []) {
       const invoice = quote.invoices?.[0];
@@ -54,46 +55,45 @@ serve(async (req) => {
       // Create feedback link
       const feedbackLink = `${FRONTEND_URL}/feedback?token=${invoice.customer_access_token}`;
 
-      // Send thank you + feedback request email
-      const emailBody = {
-        to: quote.email,
-        subject: `Thank you for choosing Soul Train's Eatery - ${quote.event_name}`,
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #333;">Thank You, ${quote.contact_name}!</h2>
-            
-            <p>We hope ${quote.event_name} was a wonderful success and that you and your guests enjoyed the authentic Southern flavors we prepared with love.</p>
-            
-            <p>It was an honor to be part of your special day, and we're grateful you chose Soul Train's Eatery to serve your guests.</p>
-            
-            <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <h3 style="margin-top: 0;">We'd Love Your Feedback</h3>
-              <p>Your feedback helps us continue serving Charleston families with the best Southern catering experience.</p>
-              <a href="${feedbackLink}" style="display: inline-block; background: #333; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; margin-top: 10px;">
-                Share Your Feedback
-              </a>
-            </div>
-            
-            <p><strong>Loved our service?</strong> We'd be honored if you could leave us a review:</p>
-            <ul>
-              <li><a href="https://g.page/r/YOUR_GOOGLE_PLACE_ID/review">Google Reviews</a></li>
-              <li><a href="https://www.facebook.com/YOUR_FB_PAGE/reviews">Facebook Reviews</a></li>
-            </ul>
-            
-            <p>We look forward to serving you again soon!</p>
-            
-            <p style="margin-top: 30px;">
-              Warm regards,<br>
-              <strong>Soul Train's Eatery</strong><br>
-              Charleston's Lowcountry Catering<br>
-              (843) 970-0265 | soultrainseatery@gmail.com
-            </p>
+      // Generate email using standard template
+      const feedbackBoxHtml = `
+        <div style="background:${BRAND_COLORS.lightGray};border:2px solid ${BRAND_COLORS.gold};padding:25px;border-radius:12px;margin:20px 0;text-align:center;">
+          <h3 style="margin:0 0 12px 0;color:${BRAND_COLORS.crimson};">We'd Love Your Feedback</h3>
+          <p style="margin:0 0 16px 0;font-size:15px;line-height:1.6;">Your feedback helps us continue serving Charleston families with the best Southern catering experience.</p>
+          <a href="${feedbackLink}" style="display:inline-block;background:linear-gradient(135deg,${BRAND_COLORS.crimson},${BRAND_COLORS.crimsonDark});color:white;text-decoration:none;padding:14px 28px;border-radius:8px;font-weight:bold;">Share Your Feedback</a>
+        </div>
+      `;
+
+      const reviewLinksHtml = `
+        <div style="margin:25px 0;">
+          <p style="font-size:15px;margin:0 0 12px 0;"><strong>Loved our service?</strong> We'd be honored if you could leave us a review:</p>
+          <div style="text-align:center;">
+            <a href="https://www.google.com/search?q=soul+train%27s+eatery+charleston" style="display:inline-block;background:${BRAND_COLORS.gold};color:${BRAND_COLORS.darkGray};text-decoration:none;padding:12px 24px;border-radius:6px;font-weight:bold;margin:4px;">⭐ Google Review</a>
+            <a href="https://www.facebook.com/soultrainseatery/reviews" style="display:inline-block;background:#1877f2;color:white;text-decoration:none;padding:12px 24px;border-radius:6px;font-weight:bold;margin:4px;">📘 Facebook Review</a>
           </div>
-        `
-      };
+        </div>
+      `;
+
+      const emailHtml = generateStandardEmail({
+        preheaderText: EMAIL_CONFIGS.event_followup.customer!.preheaderText,
+        heroSection: {
+          ...EMAIL_CONFIGS.event_followup.customer!.heroSection,
+          subtitle: quote.event_name
+        },
+        contentBlocks: [
+          { type: 'text', data: { html: `<p style="font-size:16px;margin:0 0 16px 0;">Thank You, ${quote.contact_name}!</p><p style="font-size:15px;margin:0 0 16px 0;line-height:1.6;">We hope <strong>${quote.event_name}</strong> was a wonderful success and that you and your guests enjoyed the authentic Southern flavors we prepared with love.</p><p style="font-size:15px;margin:0;line-height:1.6;">It was an honor to be part of your special day, and we're grateful you chose Soul Train's Eatery to serve your guests.</p>` }},
+          { type: 'custom_html', data: { html: feedbackBoxHtml }},
+          { type: 'custom_html', data: { html: reviewLinksHtml }},
+          { type: 'text', data: { html: `<p style="font-size:15px;margin:20px 0 0 0;">We look forward to serving you again soon!</p><p style="margin-top:20px;"><strong>Warm regards,</strong><br/>Soul Train's Eatery<br/>Charleston's Lowcountry Catering<br/>(843) 970-0265 | soultrainseatery@gmail.com</p>` }}
+        ]
+      });
 
       const { error: emailError } = await supabaseClient.functions.invoke('send-smtp-email', {
-        body: emailBody
+        body: {
+          to: quote.email,
+          subject: `Thank you for choosing Soul Train's Eatery - ${quote.event_name}`,
+          html: emailHtml
+        }
       });
 
       if (!emailError) {

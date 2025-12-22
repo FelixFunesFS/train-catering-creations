@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.52.1';
-import { BRAND_COLORS, LOGO_URLS } from '../_shared/emailTemplates.ts';
+import { generateStandardEmail, EMAIL_CONFIGS, formatCurrency, BRAND_COLORS } from '../_shared/emailTemplates.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -52,127 +52,85 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error('Invoice not found');
     }
 
-    // Format currency
-    const formatCurrency = (cents: number) => 
-      new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100);
-
     // Build payment link
     const frontendUrl = Deno.env.get('FRONTEND_URL') || 'https://soultrainseatery.lovable.app';
     const paymentLink = `${frontendUrl}/estimate?token=${invoice.customer_access_token}`;
-    const siteUrl = Deno.env.get('SITE_URL') || frontendUrl;
 
-    // Determine subject and tone based on urgency
+    // Determine subject and content based on urgency
     let subject = '';
-    let urgencyBadgeBg = '';
-    let urgencyBadgeText = '';
+    let urgencyBadge = '';
     let urgencyMessage = '';
+    let heroVariant: 'orange' | 'crimson' = 'orange';
     
     switch (urgency) {
       case 'high':
         subject = `⚠️ URGENT: Payment Overdue - ${eventName || 'Your Event'}`;
-        urgencyBadgeBg = BRAND_COLORS.crimson;
-        urgencyBadgeText = `OVERDUE ${daysOverdue} DAYS`;
+        urgencyBadge = `OVERDUE ${daysOverdue} DAYS`;
         urgencyMessage = `Your payment of <strong>${formatCurrency(balanceRemaining)}</strong> is now <strong>${daysOverdue} days overdue</strong>. Please complete your payment immediately to avoid service disruption.`;
+        heroVariant = 'crimson';
         break;
       case 'medium':
         subject = `Payment Reminder - ${eventName || 'Your Event'}`;
-        urgencyBadgeBg = '#F59E0B';
-        urgencyBadgeText = 'PAYMENT DUE';
+        urgencyBadge = 'PAYMENT DUE';
         urgencyMessage = `Your payment of <strong>${formatCurrency(balanceRemaining)}</strong> is due. Please complete your payment at your earliest convenience.`;
         break;
       default:
         subject = `Payment Reminder - ${eventName || 'Your Event'}`;
-        urgencyBadgeBg = BRAND_COLORS.gold;
-        urgencyBadgeText = 'REMINDER';
+        urgencyBadge = 'REMINDER';
         urgencyMessage = `This is a friendly reminder that you have an outstanding balance of <strong>${formatCurrency(balanceRemaining)}</strong>.`;
     }
 
-    // Build email HTML with TABLE-BASED layout
-    const emailHtml = `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Payment Reminder - Soul Train's Eatery</title>
-</head>
-<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background-color:#f5f5f5;">
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f5f5f5;padding:20px 0;border-collapse:collapse;">
-<tr>
-<td align="center">
-<table width="100%" style="max-width:600px;background:white;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.1);border-collapse:collapse;">
-<tr>
-<td style="background:linear-gradient(135deg,${BRAND_COLORS.crimson} 0%,${BRAND_COLORS.crimsonDark} 100%);padding:30px;text-align:center;">
-<img src="${siteUrl}/images/logo-white.svg" alt="Soul Train's Eatery" width="70" height="70" style="display:block;width:70px;height:70px;margin:0 auto 12px auto;" />
-<h1 style="color:${BRAND_COLORS.gold};margin:0;font-size:26px;font-weight:bold;">Soul Train's Eatery</h1>
-<p style="color:rgba(255,255,255,0.9);margin:8px 0 0 0;font-size:14px;font-style:italic;">Payment Reminder</p>
-</td>
-</tr>
-<tr>
-<td align="center" style="padding:20px 30px 0;">
-<span style="display:inline-block;background:${urgencyBadgeBg};color:white;padding:6px 16px;border-radius:4px;font-size:12px;font-weight:bold;">${urgencyBadgeText}</span>
-</td>
-</tr>
-<tr>
-<td style="padding:30px;">
-<p style="font-size:16px;color:#333;margin:0 0 20px;">Dear ${customerName || 'Valued Customer'},</p>
-<p style="font-size:16px;color:#333;margin:0 0 20px;line-height:1.6;">${urgencyMessage}</p>
-${eventName ? `
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${BRAND_COLORS.lightGray};border-left:4px solid ${BRAND_COLORS.crimson};border-radius:0 8px 8px 0;margin:20px 0;border-collapse:collapse;">
-<tr>
-<td style="padding:15px 20px;">
-<p style="margin:0;color:#666;font-size:14px;">Event</p>
-<p style="margin:5px 0 0;color:#333;font-size:16px;font-weight:bold;">${eventName}</p>
-</td>
-</tr>
-</table>
-` : ''}
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:25px 0;border:1px solid #E5E5E5;border-radius:8px;overflow:hidden;border-collapse:collapse;">
-<tr style="background:#F9FAFB;">
-<td style="padding:15px 20px;border-bottom:1px solid #E5E5E5;">
-<span style="color:#666;font-size:14px;">Invoice Number</span>
-</td>
-<td style="padding:15px 20px;border-bottom:1px solid #E5E5E5;text-align:right;">
-<span style="color:#333;font-weight:bold;">${invoice.invoice_number || 'N/A'}</span>
-</td>
-</tr>
-<tr>
-<td style="padding:15px 20px;">
-<span style="color:#666;font-size:14px;">Amount Due</span>
-</td>
-<td style="padding:15px 20px;text-align:right;">
-<span style="color:${BRAND_COLORS.crimson};font-size:24px;font-weight:bold;">${formatCurrency(balanceRemaining)}</span>
-</td>
-</tr>
-</table>
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:30px 0;border-collapse:collapse;">
-<tr>
-<td align="center">
-<a href="${paymentLink}" style="display:inline-block;background:linear-gradient(135deg,${BRAND_COLORS.crimson} 0%,${BRAND_COLORS.crimsonDark} 100%);color:white;text-decoration:none;padding:16px 40px;border-radius:8px;font-size:16px;font-weight:bold;">Pay Now</a>
-</td>
-</tr>
-</table>
-<p style="font-size:14px;color:#666;margin:0;line-height:1.6;text-align:center;">
-If you have already made this payment, please disregard this reminder.<br/>
-Questions? Contact us at <a href="mailto:soultrainseatery@gmail.com" style="color:${BRAND_COLORS.crimson};">soultrainseatery@gmail.com</a>
-</p>
-</td>
-</tr>
-<tr>
-<td style="background:${BRAND_COLORS.darkGray};padding:25px 30px;text-align:center;">
-<img src="${siteUrl}/images/logo-white.svg" alt="" width="40" height="40" style="display:block;width:40px;height:40px;margin:0 auto 8px auto;opacity:0.8;" />
-<p style="color:${BRAND_COLORS.gold};margin:0 0 4px;font-weight:bold;font-size:14px;">Soul Train's Eatery</p>
-<p style="color:rgba(255,255,255,0.7);margin:0;font-size:12px;">Charleston's Trusted Catering Partner</p>
-<p style="color:rgba(255,255,255,0.5);margin:10px 0 0;font-size:11px;">(843) 970-0265 | soultrainseatery@gmail.com</p>
-</td>
-</tr>
-</table>
-</td>
-</tr>
-</table>
-</body>
-</html>`;
+    // Build urgency box HTML
+    const urgencyBoxHtml = urgency === 'high' ? `
+      <div style="background:#fee2e2;border:2px solid #dc2626;padding:20px;border-radius:10px;margin:20px 0;">
+        <div style="display:inline-block;background:#dc2626;color:white;padding:4px 12px;border-radius:4px;font-size:12px;font-weight:bold;margin-bottom:10px;">${urgencyBadge}</div>
+        <p style="margin:0;font-size:16px;line-height:1.6;">${urgencyMessage}</p>
+      </div>
+    ` : `
+      <div style="background:#fef3c7;border-left:4px solid #f59e0b;padding:20px;border-radius:0 8px 8px 0;margin:20px 0;">
+        <div style="display:inline-block;background:#f59e0b;color:white;padding:4px 12px;border-radius:4px;font-size:12px;font-weight:bold;margin-bottom:10px;">${urgencyBadge}</div>
+        <p style="margin:0;font-size:16px;line-height:1.6;">${urgencyMessage}</p>
+      </div>
+    `;
 
-    // Send email using Gmail API
+    // Invoice details HTML
+    const invoiceDetailsHtml = `
+      <div style="background:${BRAND_COLORS.lightGray};border:1px solid #e5e5e5;border-radius:8px;overflow:hidden;margin:20px 0;">
+        <div style="background:#f9fafb;padding:12px 16px;border-bottom:1px solid #e5e5e5;">
+          <span style="color:#666;font-size:14px;">Invoice Number</span>
+          <span style="float:right;font-weight:bold;color:#333;">${invoice.invoice_number || 'N/A'}</span>
+        </div>
+        <div style="padding:16px;">
+          <span style="color:#666;font-size:14px;">Amount Due</span>
+          <div style="font-size:28px;font-weight:bold;color:${BRAND_COLORS.crimson};margin-top:8px;">${formatCurrency(balanceRemaining)}</div>
+        </div>
+      </div>
+    `;
+
+    // Generate email using standard template
+    const emailHtml = generateStandardEmail({
+      preheaderText: EMAIL_CONFIGS.payment_reminder.customer!.preheaderText,
+      heroSection: {
+        badge: urgency === 'high' ? '⚠️ URGENT' : '⏰ PAYMENT REMINDER',
+        title: urgency === 'high' ? 'Payment Overdue' : 'Payment Due',
+        subtitle: eventName || 'Your Catering Event',
+        variant: heroVariant
+      },
+      contentBlocks: [
+        { type: 'text', data: { html: `<p style="font-size:16px;margin:0 0 16px 0;">Dear ${customerName || 'Valued Customer'},</p>` }},
+        { type: 'custom_html', data: { html: urgencyBoxHtml }},
+        { type: 'custom_html', data: { html: invoiceDetailsHtml }},
+        { type: 'text', data: { html: `
+          <p style="font-size:14px;color:#666;margin:20px 0;text-align:center;line-height:1.6;">
+            If you have already made this payment, please disregard this reminder.<br/>
+            Questions? Contact us at <a href="mailto:soultrainseatery@gmail.com" style="color:${BRAND_COLORS.crimson};">soultrainseatery@gmail.com</a>
+          </p>
+        ` }}
+      ],
+      ctaButton: { text: 'Pay Now', href: paymentLink, variant: 'primary' }
+    });
+
+    // Send email
     const { error: emailError } = await supabase.functions.invoke('send-smtp-email', {
       body: {
         to: customerEmail,
