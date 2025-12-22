@@ -52,7 +52,7 @@ export interface HeroConfig {
 }
 
 export interface ContentBlock {
-  type: 'event_details' | 'menu' | 'pricing' | 'menu_with_pricing' | 'customer_contact' | 'payment_schedule' | 'cta' | 'custom_html' | 'status_badge' | 'terms' | 'service_addons' | 'text';
+  type: 'event_details' | 'menu' | 'pricing' | 'menu_with_pricing' | 'customer_contact' | 'payment_schedule' | 'cta' | 'custom_html' | 'status_badge' | 'terms' | 'service_addons' | 'text' | 'menu_summary' | 'supplies_summary';
   data?: any;
 }
 
@@ -426,6 +426,133 @@ export function generateCustomerContactCard(quote: any): string {
 </td>
 </tr>
 </table>
+</td>
+</tr>
+</table>
+`;
+}
+
+/**
+ * Generate Menu Summary Section - Compact display WITHOUT pricing
+ * Perfect for payment confirmations and event reminders
+ */
+export function generateMenuSummarySection(quote: any): string {
+  const formatItems = (items: any): string => {
+    if (!items || (Array.isArray(items) && items.length === 0)) return '';
+    if (typeof items === 'string') return items.split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    if (Array.isArray(items)) return items.map((item: string) => item.split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')).join(', ');
+    return '';
+  };
+
+  const proteins = formatItems(quote.proteins);
+  const sides = formatItems(quote.sides);
+  const appetizers = formatItems(quote.appetizers);
+  const desserts = formatItems(quote.desserts);
+  const drinks = formatItems(quote.drinks);
+  const vegetarianEntrees = formatItems(quote.vegetarian_entrees);
+
+  const hasContent = proteins || sides || appetizers || desserts || drinks || vegetarianEntrees;
+  if (!hasContent) return '';
+
+  let html = `
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${BRAND_COLORS.lightGray};border-radius:10px;border-left:4px solid ${BRAND_COLORS.gold};margin:16px 0;border-collapse:collapse;">
+<tr>
+<td style="padding:20px;">
+<h3 style="margin:0 0 16px 0;color:${BRAND_COLORS.crimson};font-size:18px;">🍽️ Your Menu</h3>
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+`;
+
+  if (proteins) {
+    html += `
+<tr>
+<td style="padding:8px 0;font-size:14px;color:${BRAND_COLORS.darkGray};">
+<strong style="color:${BRAND_COLORS.crimson};">🥩 Proteins:</strong> ${proteins}
+${quote.both_proteins_available ? '<br><span style="color:#D97706;font-size:13px;">⭐ Both proteins served to all guests</span>' : ''}
+</td>
+</tr>`;
+  }
+
+  if (sides) {
+    html += `
+<tr>
+<td style="padding:8px 0;font-size:14px;color:${BRAND_COLORS.darkGray};">
+<strong style="color:${BRAND_COLORS.crimson};">🥗 Sides:</strong> ${sides}
+</td>
+</tr>`;
+  }
+
+  if (appetizers) {
+    html += `
+<tr>
+<td style="padding:8px 0;font-size:14px;color:${BRAND_COLORS.darkGray};">
+<strong style="color:${BRAND_COLORS.crimson};">🍤 Appetizers:</strong> ${appetizers}
+</td>
+</tr>`;
+  }
+
+  if (desserts) {
+    html += `
+<tr>
+<td style="padding:8px 0;font-size:14px;color:${BRAND_COLORS.darkGray};">
+<strong style="color:${BRAND_COLORS.crimson};">🍰 Desserts:</strong> ${desserts}
+</td>
+</tr>`;
+  }
+
+  if (drinks) {
+    html += `
+<tr>
+<td style="padding:8px 0;font-size:14px;color:${BRAND_COLORS.darkGray};">
+<strong style="color:${BRAND_COLORS.crimson};">🥤 Beverages:</strong> ${drinks}
+</td>
+</tr>`;
+  }
+
+  if (vegetarianEntrees) {
+    html += `
+<tr>
+<td style="padding:8px 0;font-size:14px;color:#166534;background:#dcfce7;border-radius:6px;padding-left:12px;margin-top:8px;">
+<strong>🌱 Vegetarian:</strong> ${vegetarianEntrees}${quote.guest_count_with_restrictions ? ` (${quote.guest_count_with_restrictions} guests)` : ''}
+</td>
+</tr>`;
+  }
+
+  html += `
+</table>
+</td>
+</tr>
+</table>
+`;
+
+  return html;
+}
+
+/**
+ * Generate Supplies Summary Section - Compact display of requested supplies
+ */
+export function generateSuppliesSummarySection(quote: any): string {
+  const supplies: string[] = [];
+  
+  if (quote.plates_requested) supplies.push('Plates');
+  if (quote.cups_requested) supplies.push('Cups');
+  if (quote.napkins_requested) supplies.push('Napkins');
+  if (quote.serving_utensils_requested) supplies.push('Serving Utensils');
+  if (quote.chafers_requested) supplies.push('Chafing Dishes');
+  if (quote.ice_requested) supplies.push('Ice');
+
+  if (supplies.length === 0 && !quote.theme_colors) return '';
+
+  const suppliesBadges = supplies.map(s => 
+    `<span style="display:inline-block;background:${BRAND_COLORS.white};color:${BRAND_COLORS.darkGray};padding:6px 12px;border-radius:6px;font-size:13px;margin:3px;border:1px solid #ddd;">✓ ${s}</span>`
+  ).join('');
+
+  return `
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${BRAND_COLORS.lightGray};border-radius:10px;border-left:4px solid ${BRAND_COLORS.crimson};margin:16px 0;border-collapse:collapse;">
+<tr>
+<td style="padding:20px;">
+<h3 style="margin:0 0 12px 0;color:${BRAND_COLORS.crimson};font-size:16px;">📦 Supplies & Equipment</h3>
+${supplies.length > 0 ? `<div style="margin-bottom:10px;">${suppliesBadges}</div>` : '<p style="margin:0 0 10px 0;font-size:14px;color:#666;">No additional supplies requested</p>'}
+${quote.theme_colors ? `<p style="margin:0;font-size:14px;color:${BRAND_COLORS.darkGray};"><strong>🎨 Theme/Colors:</strong> ${quote.theme_colors}</p>` : ''}
 </td>
 </tr>
 </table>
@@ -1067,6 +1194,12 @@ function renderContentBlock(block: ContentBlock, config: StandardEmailConfig): s
     case 'cta':
       if (!block.data) return '';
       return generateCTAButton(block.data.text, block.data.href, block.data.variant || 'primary');
+    
+    case 'menu_summary':
+      return config.quote ? generateMenuSummarySection(config.quote) : '';
+    
+    case 'supplies_summary':
+      return config.quote ? generateSuppliesSummarySection(config.quote) : '';
     
     default:
       return '';

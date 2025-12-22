@@ -396,6 +396,7 @@ function generatePaymentConfirmationEmail(quote: any, invoice: any, amount: numb
       { type: 'text', data: { html: `<p style="font-size:16px;margin:0 0 16px 0;">Thank you, ${quote.contact_name}!</p>` }},
       { type: 'custom_html', data: { html: paymentStatusHtml }},
       { type: 'event_details' },
+      { type: 'menu_summary' },
       { type: 'custom_html', data: { html: nextStepsHtml }},
       { type: 'text', data: { html: `<p style="font-size:15px;margin:20px 0 0 0;">Need to make changes? Reply to this email or call <strong>(843) 970-0265</strong>.</p>` }}
     ],

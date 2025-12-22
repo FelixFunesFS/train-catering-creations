@@ -2,24 +2,15 @@
  * SYNC: Quote Submission Confirmation Email
  * 
  * This edge function sends the confirmation email after customer submits a quote.
- * Keep in sync with:
- * - src/components/customer/CustomerEstimateView.tsx (for terminology consistency)
- * - supabase/functions/_shared/emailTemplates.ts (shared email components)
- * 
- * See CUSTOMER_DISPLAY_CHECKLIST.md for full sync requirements.
+ * Uses generateStandardEmail for consistent branding.
  */
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.52.1';
 import { 
-  BRAND_COLORS, 
-  EMAIL_STYLES, 
-  generateEmailHeader, 
-  generateEventDetailsCard, 
-  generateFooter, 
-  generatePreheader,
-  generateServiceAddonsSection,
-  formatServiceType
+  generateStandardEmail,
+  EMAIL_CONFIGS,
+  BRAND_COLORS
 } from "../_shared/emailTemplates.ts";
 
 const corsHeaders = {
@@ -58,225 +49,56 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error('Quote not found');
     }
 
-    // Helper functions for formatting
-    const formatMenuItem = (item: string): string => {
-      return item
-        .split('-')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ');
-    };
-
-    const formatMenuItems = (items: any): string => {
-      if (!items || (Array.isArray(items) && items.length === 0)) return '';
-      if (typeof items === 'string') return formatMenuItem(items);
-      if (Array.isArray(items)) return items.map(formatMenuItem).join(', ');
-      return '';
-    };
-
-    const formatSupplies = (): string => {
-      const supplies = [];
-      if (quote.plates_requested) supplies.push('Plates');
-      if (quote.cups_requested) supplies.push('Cups');
-      if (quote.napkins_requested) supplies.push('Napkins');
-      if (quote.serving_utensils_requested) supplies.push('Serving Utensils');
-      if (quote.chafers_requested) supplies.push('Chafing Dishes with Fuel');
-      if (quote.ice_requested) supplies.push('Ice');
-      return supplies.length > 0 ? supplies.join(', ') : 'None requested';
-    };
-
-    // Generate menu sections HTML
-    const generateMenuSelectionsSection = (): string => {
-      const proteins = formatMenuItems(quote.proteins);
-      const sides = formatMenuItems(quote.sides);
-      const appetizers = formatMenuItems(quote.appetizers);
-      const desserts = formatMenuItems(quote.desserts);
-      const drinks = formatMenuItems(quote.drinks);
-      const vegetarianEntrees = formatMenuItems(quote.vegetarian_entrees);
-      
-      // Check if any menu items were selected
-      const hasMenuSelections = proteins || sides || appetizers || desserts || drinks;
-      
-      if (!hasMenuSelections && !vegetarianEntrees) return '';
-
-      let menuHtml = `
-        <section style="
-          background: ${BRAND_COLORS.lightGray};
-          padding: 16px;
-          border-radius: 8px;
-          margin: 16px 0;
-          border-left: 4px solid ${BRAND_COLORS.gold};
-        ">
-          <h3 style="margin: 0 0 16px 0; color: ${BRAND_COLORS.crimson}; font-size: 16px;">
-            🍽️ Your Menu Selections
-          </h3>
-          <div style="font-size: 14px; line-height: 1.6;">
-      `;
-
-      if (proteins) {
-        menuHtml += `
-          <div style="margin-bottom: 10px;">
-            <strong style="color: ${BRAND_COLORS.crimson};">🥩 Proteins:</strong><br>
-            <span style="color: ${BRAND_COLORS.darkGray};">${proteins}</span>
-            ${quote.both_proteins_available ? `<br><span style="color: ${BRAND_COLORS.crimson}; font-size: 13px;">⭐ Both proteins served to all guests</span>` : ''}
-          </div>
-        `;
-      }
-
-      if (sides) {
-        menuHtml += `
-          <div style="margin-bottom: 10px;">
-            <strong style="color: ${BRAND_COLORS.crimson};">🥗 Sides:</strong><br>
-            <span style="color: ${BRAND_COLORS.darkGray};">${sides}</span>
-          </div>
-        `;
-      }
-
-      if (appetizers) {
-        menuHtml += `
-          <div style="margin-bottom: 10px;">
-            <strong style="color: ${BRAND_COLORS.crimson};">🍤 Appetizers:</strong><br>
-            <span style="color: ${BRAND_COLORS.darkGray};">${appetizers}</span>
-          </div>
-        `;
-      }
-
-      if (desserts) {
-        menuHtml += `
-          <div style="margin-bottom: 10px;">
-            <strong style="color: ${BRAND_COLORS.crimson};">🍰 Desserts:</strong><br>
-            <span style="color: ${BRAND_COLORS.darkGray};">${desserts}</span>
-          </div>
-        `;
-      }
-
-      if (drinks) {
-        menuHtml += `
-          <div style="margin-bottom: 10px;">
-            <strong style="color: ${BRAND_COLORS.crimson};">🥤 Beverages:</strong><br>
-            <span style="color: ${BRAND_COLORS.darkGray};">${drinks}</span>
-          </div>
-        `;
-      }
-
-      menuHtml += `</div></section>`;
-
-      return menuHtml;
-    };
-
-    // Generate vegetarian options section
-    const generateVegetarianSection = (): string => {
-      const vegetarianEntrees = formatMenuItems(quote.vegetarian_entrees);
-      const vegetarianCount = quote.guest_count_with_restrictions;
-      
-      if (!vegetarianEntrees && !vegetarianCount) return '';
-
-      return `
-        <section style="
-          background: linear-gradient(135deg, #dcfce7, #bbf7d0);
-          padding: 16px;
-          border-radius: 8px;
-          margin: 16px 0;
-          border-left: 4px solid #22c55e;
-        ">
-          <h3 style="margin: 0 0 12px 0; color: #166534; font-size: 16px;">
-            🌱 Vegetarian Options
-          </h3>
-          <div style="font-size: 14px; line-height: 1.6; color: #166534;">
-            ${vegetarianCount ? `<p style="margin: 0 0 8px 0;"><strong>Vegetarian Portions:</strong> ${vegetarianCount} guests</p>` : ''}
-            ${vegetarianEntrees ? `<p style="margin: 0;"><strong>Selected Entrées:</strong> ${vegetarianEntrees}</p>` : ''}
-          </div>
-        </section>
-      `;
-    };
-
     const emailSubject = `Quote Request Received - Reference #${quote_id.slice(0, 8).toUpperCase()}`;
-    const preheaderText = "We've received your quote request and will send an estimate within 48 hours - Soul Train's Eatery";
     
-    const emailBody = `
-      <!DOCTYPE html>
-      <html lang="en">
-      <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>Quote Request Received - ${quote.event_name}</title>
-        <style>${EMAIL_STYLES}</style>
-      </head>
-      <body>
-        ${generatePreheader(preheaderText)}
-        
-        <div class="email-container" role="main">
-          <div style="background: linear-gradient(135deg, ${BRAND_COLORS.crimson}, ${BRAND_COLORS.crimsonDark}); padding: 25px; border-radius: 8px; margin-bottom: 25px; text-align: center;">
-            <div style="background: rgba(255,215,0,0.2); display: inline-block; padding: 8px 16px; border-radius: 20px; margin-bottom: 15px;">
-              <span style="color: white; font-weight: bold; font-size: 14px;"><span aria-label="plate with food">🍽️</span> QUOTE RECEIVED</span>
-            </div>
-            <h2 style="color: white; margin: 0 0 10px 0; font-size: 24px;"><span aria-hidden="true">✓</span> Quote Request Received!</h2>
-            <p style="color: white; margin: 0; font-size: 16px; opacity: 0.95;">
-              Hi ${quote.contact_name},<br><br>
-              Thank you for choosing Soul Train's Eatery! We've received your quote request and our team is excited to make your event exceptional.
-            </p>
-          </div>
-          
-          <div class="content">
-
-            ${generateEventDetailsCard(quote)}
-
-            ${generateMenuSelectionsSection()}
-
-            ${generateVegetarianSection()}
-
-            ${generateServiceAddonsSection(quote)}
-
-            <div class="event-card">
-              <h3 style="margin: 0 0 15px 0; color: ${BRAND_COLORS.crimson};">📦 Supplies & Equipment</h3>
-              <p style="margin: 5px 0;"><strong>Requested:</strong> ${formatSupplies()}</p>
-              ${quote.theme_colors ? `<p style="margin: 5px 0;"><strong>Theme/Colors:</strong> ${quote.theme_colors}</p>` : ''}
-              <p style="margin: 15px 0 5px 0; font-size: 14px; color: ${BRAND_COLORS.crimson};"><strong>Reference ID:</strong> #${quote_id.slice(0, 8).toUpperCase()}</p>
-            </div>
-
-            ${quote.special_requests ? `
-            <div class="event-card" style="border-left-color: ${BRAND_COLORS.gold}; background: #FFF9E6;">
-              <h3 style="margin: 0 0 10px 0; color: ${BRAND_COLORS.crimson};">📝 Special Requests</h3>
-              <p style="margin: 5px 0;">${quote.special_requests}</p>
-            </div>
-            ` : ''}
-
-            <nav aria-labelledby="next-steps-heading" style="margin: 30px 0;">
-              <h3 id="next-steps-heading" style="color: ${BRAND_COLORS.crimson};">What Happens Next?</h3>
-              <ol style="color: ${BRAND_COLORS.darkGray}; line-height: 1.8; padding-left: 20px;">
-                <li><strong style="color: ${BRAND_COLORS.crimson};">Review (You are here!)</strong> - Our team is carefully reviewing your request</li>
-                <li><strong style="color: ${BRAND_COLORS.crimson};">Detailed Estimate</strong> - You'll receive a comprehensive estimate with pricing within 48 hours</li>
-                <li><strong style="color: ${BRAND_COLORS.crimson};">Optional Consultation</strong> - We're happy to discuss any details by phone</li>
-                <li><strong style="color: ${BRAND_COLORS.crimson};">Finalization</strong> - Once approved, we'll handle all the details for your special day</li>
-              </ol>
-            </nav>
-
-            <div style="background: linear-gradient(135deg, ${BRAND_COLORS.crimson}, ${BRAND_COLORS.crimsonDark}); padding: 25px; border-radius: 8px; margin: 25px 0; text-align: center;">
-              <h3 style="color: white; margin: 0 0 15px 0;">📅 Next Steps</h3>
-              <p style="color: white; margin-bottom: 15px; opacity: 0.95;">
-                Our team will review your request and send you a detailed estimate within 48 hours. 
-                The estimate will include a secure link to view pricing, approve, or request changes.
-              </p>
-            </div>
-
-            <aside style="border-top: 3px solid ${BRAND_COLORS.gold}; padding-top: 20px; margin-top: 30px; text-align: center;">
-              <h3 style="color: ${BRAND_COLORS.crimson}; margin-top: 0;">Questions? We're Here to Help!</h3>
-              <address style="font-style: normal;">
-                <p style="color: ${BRAND_COLORS.darkGray}; margin: 10px 0; font-size: 16px;">
-                  <span aria-hidden="true">📞</span> <a href="tel:+18439700265" style="color: ${BRAND_COLORS.crimson}; text-decoration: none; font-weight: bold;" aria-label="Call us at (843) 970-0265">(843) 970-0265</a><br>
-                  <span aria-hidden="true">📧</span> <a href="mailto:soultrainseatery@gmail.com" style="color: ${BRAND_COLORS.crimson}; text-decoration: none; font-weight: bold;" aria-label="Email us at soultrainseatery@gmail.com">soultrainseatery@gmail.com</a>
-                </p>
-              </address>
-            </aside>
-          </div>
-          
-          ${generateFooter()}
-        </div>
-      </body>
-      </html>
+    // Build next steps HTML
+    const nextStepsHtml = `
+      <h3 style="color:${BRAND_COLORS.crimson};margin:24px 0 12px 0;">📋 What Happens Next?</h3>
+      <ol style="line-height:1.8;margin:0;padding-left:20px;">
+        <li><strong style="color:${BRAND_COLORS.crimson};">Review (You are here!)</strong> - Our team is carefully reviewing your request</li>
+        <li><strong style="color:${BRAND_COLORS.crimson};">Detailed Estimate</strong> - You'll receive a comprehensive estimate with pricing within 48 hours</li>
+        <li><strong style="color:${BRAND_COLORS.crimson};">Optional Consultation</strong> - We're happy to discuss any details by phone</li>
+        <li><strong style="color:${BRAND_COLORS.crimson};">Finalization</strong> - Once approved, we'll handle all the details for your special day</li>
+      </ol>
     `;
 
-    // Send email using Gmail function (non-blocking - log failures but don't throw)
+    const referenceHtml = `
+      <div style="background:${BRAND_COLORS.lightGray};padding:16px;border-radius:8px;border-left:4px solid ${BRAND_COLORS.gold};margin:20px 0;">
+        <p style="margin:0;font-size:14px;"><strong>📎 Reference ID:</strong> #${quote_id.slice(0, 8).toUpperCase()}</p>
+        <p style="margin:8px 0 0 0;font-size:13px;color:#666;">Keep this for your records - you'll receive your secure portal link within 48 hours.</p>
+      </div>
+    `;
+
+    const emailBody = generateStandardEmail({
+      preheaderText: EMAIL_CONFIGS.quote_confirmation.customer!.preheaderText,
+      heroSection: {
+        badge: '🍽️ QUOTE RECEIVED',
+        title: 'Quote Request Received!',
+        subtitle: `Hi ${quote.contact_name}, thank you for choosing Soul Train's Eatery!`,
+        variant: 'crimson'
+      },
+      contentBlocks: [
+        { type: 'text', data: { html: `<p style="font-size:16px;margin:0 0 16px 0;line-height:1.6;">We've received your quote request and our team is excited to make your event exceptional. Here's a summary of what you submitted:</p>` }},
+        { type: 'event_details' },
+        { type: 'menu_summary' },
+        { type: 'supplies_summary' },
+        { type: 'service_addons' },
+        { type: 'custom_html', data: { html: referenceHtml }},
+        { type: 'custom_html', data: { html: nextStepsHtml }},
+        { type: 'text', data: { html: `
+          <div style="border-top:3px solid ${BRAND_COLORS.gold};padding-top:20px;margin-top:30px;text-align:center;">
+            <h3 style="color:${BRAND_COLORS.crimson};margin-top:0;">Questions? We're Here to Help!</h3>
+            <p style="color:${BRAND_COLORS.darkGray};margin:10px 0;font-size:16px;">
+              📞 <a href="tel:+18439700265" style="color:${BRAND_COLORS.crimson};text-decoration:none;font-weight:bold;">(843) 970-0265</a><br>
+              📧 <a href="mailto:soultrainseatery@gmail.com" style="color:${BRAND_COLORS.crimson};text-decoration:none;font-weight:bold;">soultrainseatery@gmail.com</a>
+            </p>
+          </div>
+        ` }}
+      ],
+      quote: quote
+    });
+
+    // Send email using SMTP function (non-blocking - log failures but don't throw)
     let emailSent = false;
     let emailError = null;
 
