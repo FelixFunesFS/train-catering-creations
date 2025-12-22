@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo } from 'react';
 import { format, parseISO } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { useQuotes } from '@/hooks/useQuotes';
@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Search, Eye, Loader2, FileText, Receipt, Mail, MailOpen, Globe, List, CalendarDays, CalendarRange } from 'lucide-react';
@@ -18,8 +18,6 @@ import { EventWeekView } from './EventWeekView';
 import { EventMonthView } from './EventMonthView';
 import { DateNavigation } from './DateNavigation';
 import { EventFilters, StatusFilter, ServiceTypeFilter, SortBy, SortOrder } from './EventFilters';
-import { SortableTableHead } from './SortableTableHead';
-import { formatDateTimeShortET } from '@/utils/formatters';
 import { Database } from '@/integrations/supabase/types';
 
 type QuoteRequest = Database['public']['Tables']['quote_requests']['Row'];
@@ -111,23 +109,11 @@ export function EventList() {
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [currentDate, setCurrentDate] = useState(new Date());
   
-  // Filter & Sort state - default to newest submissions first
+  // Filter & Sort state
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [serviceTypeFilter, setServiceTypeFilter] = useState<ServiceTypeFilter>('all');
-  const [sortBy, setSortBy] = useState<SortBy>('submitted');
-  const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
-  
-  // Handle column header clicks for sorting
-  const handleSort = useCallback((key: SortBy) => {
-    if (sortBy === key) {
-      // Toggle order if clicking same column
-      setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortBy(key);
-      // Default to desc for submitted (newest first), asc for others
-      setSortOrder(key === 'submitted' ? 'desc' : 'asc');
-    }
-  }, [sortBy]);
+  const [sortBy, setSortBy] = useState<SortBy>('date');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
   
   const navigate = useNavigate();
   const isDesktop = useMediaQuery('(min-width: 1024px)');
@@ -165,23 +151,11 @@ export function EventList() {
     result.sort((a, b) => {
       let comparison = 0;
       switch (sortBy) {
-        case 'submitted':
-          comparison = new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime();
-          break;
         case 'date':
           comparison = parseISO(a.event_date).getTime() - parseISO(b.event_date).getTime();
           break;
         case 'name':
           comparison = a.contact_name.localeCompare(b.contact_name);
-          break;
-        case 'event':
-          comparison = a.event_name.localeCompare(b.event_name);
-          break;
-        case 'guests':
-          comparison = a.guest_count - b.guest_count;
-          break;
-        case 'status':
-          comparison = a.workflow_status.localeCompare(b.workflow_status);
           break;
         case 'total':
           comparison = (a.invoice?.total_amount || 0) - (b.invoice?.total_amount || 0);
@@ -334,9 +308,6 @@ export function EventList() {
                           </span>
                         )}
                       </div>
-                      <p className="text-xs text-muted-foreground mb-2">
-                        Submitted: {formatDateTimeShortET(event.created_at!)}
-                      </p>
                       
                         <div className="flex items-center justify-between">
                         {invoice ? (
@@ -359,59 +330,15 @@ export function EventList() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <SortableTableHead 
-                      label="Submitted" 
-                      sortKey="submitted" 
-                      currentSortBy={sortBy} 
-                      currentSortOrder={sortOrder}
-                      onSort={handleSort}
-                      className="hidden xl:table-cell"
-                    />
-                    <SortableTableHead 
-                      label="Event Date" 
-                      sortKey="date" 
-                      currentSortBy={sortBy} 
-                      currentSortOrder={sortOrder}
-                      onSort={handleSort}
-                    />
-                    <SortableTableHead 
-                      label="Customer" 
-                      sortKey="name" 
-                      currentSortBy={sortBy} 
-                      currentSortOrder={sortOrder}
-                      onSort={handleSort}
-                    />
-                    <SortableTableHead 
-                      label="Event" 
-                      sortKey="event" 
-                      currentSortBy={sortBy} 
-                      currentSortOrder={sortOrder}
-                      onSort={handleSort}
-                      className="hidden sm:table-cell"
-                    />
-                    <SortableTableHead 
-                      label="Guests" 
-                      sortKey="guests" 
-                      currentSortBy={sortBy} 
-                      currentSortOrder={sortOrder}
-                      onSort={handleSort}
-                      className="hidden md:table-cell"
-                    />
-                    <SortableTableHead 
-                      label="Status" 
-                      sortKey="status" 
-                      currentSortBy={sortBy} 
-                      currentSortOrder={sortOrder}
-                      onSort={handleSort}
-                    />
-                    <SortableTableHead 
-                      label="Total" 
-                      sortKey="total" 
-                      currentSortBy={sortBy} 
-                      currentSortOrder={sortOrder}
-                      onSort={handleSort}
-                      className="hidden xl:table-cell"
-                    />
+                    <TableHead>Event Date</TableHead>
+                    <TableHead>Customer</TableHead>
+                    <TableHead className="hidden sm:table-cell">Event</TableHead>
+                    <TableHead className="hidden md:table-cell">Guests</TableHead>
+                    <TableHead>Event Status</TableHead>
+                    <TableHead className="hidden lg:table-cell">Estimate</TableHead>
+                    <TableHead className="hidden xl:table-cell">Total</TableHead>
+                    <TableHead className="hidden lg:table-cell">Email</TableHead>
+                    <TableHead className="w-[60px]"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -431,10 +358,7 @@ export function EventList() {
                         }
                       }}
                     >
-                      <TableCell className="hidden xl:table-cell text-muted-foreground text-sm whitespace-nowrap">
-                        {formatDateTimeShortET(event.created_at!)}
-                      </TableCell>
-                      <TableCell className="font-medium whitespace-nowrap">
+                      <TableCell className="font-medium">
                         {format(new Date(event.event_date), 'MMM d, yyyy')}
                       </TableCell>
                       <TableCell>
@@ -457,12 +381,40 @@ export function EventList() {
                           {formatStatus(event.workflow_status)}
                         </Badge>
                       </TableCell>
+                      <TableCell className="hidden lg:table-cell">
+                        {invoice ? (
+                          <Badge 
+                            variant="outline" 
+                            className={estimateStatusColors[invoice.workflow_status] || ''}
+                          >
+                            {formatStatus(invoice.workflow_status)}
+                          </Badge>
+                        ) : (
+                          <span className="text-muted-foreground text-sm">—</span>
+                        )}
+                      </TableCell>
                       <TableCell className="hidden xl:table-cell">
                         {invoice ? (
                           <span className="font-medium">{formatCurrency(invoice.total_amount)}</span>
                         ) : (
                           <span className="text-muted-foreground">—</span>
                         )}
+                      </TableCell>
+                      <TableCell className="hidden lg:table-cell">
+                        <EmailTrackingIndicator invoice={invoice} />
+                      </TableCell>
+                      <TableCell>
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          title={actionLabel}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedQuote(event);
+                          }}
+                        >
+                          <ActionIcon className="h-4 w-4" />
+                        </Button>
                       </TableCell>
                     </TableRow>
                   );
