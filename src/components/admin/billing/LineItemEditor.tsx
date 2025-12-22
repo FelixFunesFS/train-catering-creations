@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Database } from '@/integrations/supabase/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -37,32 +37,45 @@ export function LineItemEditor({
   const [priceInput, setPriceInput] = useState(formatCents(item.unit_price));
   const [quantityInput, setQuantityInput] = useState(item.quantity.toString());
 
-  // Handle price change - update local state immediately, call onChange on blur
+  // Sync local state when item prop changes (e.g., after discard or external update)
+  useEffect(() => {
+    setPriceInput(formatCents(item.unit_price));
+  }, [item.unit_price]);
+
+  useEffect(() => {
+    setQuantityInput(item.quantity.toString());
+  }, [item.quantity]);
+
+  // Handle price change - trigger onChange on every keystroke for immediate dirty tracking
   const handlePriceChange = (value: string) => {
     setPriceInput(value);
+    const parsed = parseFloat(value);
+    if (!isNaN(parsed) && parsed >= 0) {
+      const cents = Math.round(parsed * 100);
+      onPriceChange(cents);
+    }
   };
   
   const handlePriceBlur = () => {
     const parsed = parseFloat(priceInput);
-    if (!isNaN(parsed) && parsed >= 0) {
-      const cents = Math.round(parsed * 100);
-      onPriceChange(cents);
-    } else {
+    if (isNaN(parsed) || parsed < 0) {
       // Reset to item value if invalid
       setPriceInput(formatCents(item.unit_price));
     }
   };
 
-  // Handle quantity change - update local state immediately, call onChange on blur
-  const handleQuantityInputChange = (value: string) => {
+  // Handle quantity change - trigger onChange on every keystroke
+  const handleQuantityChange = (value: string) => {
     setQuantityInput(value);
+    const parsed = parseInt(value);
+    if (!isNaN(parsed) && parsed > 0 && onQuantityChange) {
+      onQuantityChange(parsed);
+    }
   };
   
   const handleQuantityBlur = () => {
     const parsed = parseInt(quantityInput);
-    if (!isNaN(parsed) && parsed > 0 && onQuantityChange) {
-      onQuantityChange(parsed);
-    } else {
+    if (isNaN(parsed) || parsed <= 0) {
       // Reset to item value if invalid
       setQuantityInput(item.quantity.toString());
     }
@@ -75,14 +88,16 @@ export function LineItemEditor({
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, handler: () => void) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       (e.currentTarget as HTMLInputElement).blur();
-      handler();
     }
   };
 
-  const totalCents = item.quantity * item.unit_price;
+  // Calculate total from current input values for live preview
+  const displayQty = parseInt(quantityInput) || item.quantity;
+  const displayPrice = Math.round((parseFloat(priceInput) || 0) * 100);
+  const totalCents = displayQty * displayPrice;
 
   // Read-only display mode
   if (readOnly) {
@@ -165,9 +180,9 @@ export function LineItemEditor({
               type="number"
               min={1}
               value={quantityInput}
-              onChange={(e) => setQuantityInput(e.target.value)}
+              onChange={(e) => handleQuantityChange(e.target.value)}
               onBlur={handleQuantityBlur}
-              onKeyDown={(e) => handleKeyDown(e, handleQuantityBlur)}
+              onKeyDown={handleKeyDown}
               className="h-9 sm:h-8 text-sm text-center"
               disabled={isUpdating}
             />
@@ -186,9 +201,9 @@ export function LineItemEditor({
               type="text"
               inputMode="decimal"
               value={priceInput}
-              onChange={(e) => setPriceInput(e.target.value)}
+              onChange={(e) => handlePriceChange(e.target.value)}
               onBlur={handlePriceBlur}
-              onKeyDown={(e) => handleKeyDown(e, handlePriceBlur)}
+              onKeyDown={handleKeyDown}
               className="pl-6 h-9 sm:h-8 text-sm"
               disabled={isUpdating}
             />
