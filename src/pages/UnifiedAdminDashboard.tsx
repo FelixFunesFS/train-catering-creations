@@ -1,7 +1,7 @@
 import { useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AdminLayout } from '@/components/admin/AdminLayout';
-import { EventList } from '@/components/admin/events';
+import { EventsView } from '@/components/admin/events';
 import { PaymentList } from '@/components/admin/billing';
 import { Settings } from 'lucide-react';
 
@@ -25,7 +25,7 @@ export function UnifiedAdminDashboard() {
   return (
     <AdminLayout currentView={currentView} onViewChange={handleViewChange}>
       <div className="container mx-auto px-4 py-6">
-        {currentView === 'events' && <EventList />}
+        {currentView === 'events' && <EventsView />}
         
         {currentView === 'billing' && <PaymentList />}
         

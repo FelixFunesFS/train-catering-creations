@@ -105,7 +105,11 @@ interface EventWithInvoice extends QuoteRequest {
 
 type ViewMode = 'list' | 'week' | 'month';
 
-export function EventList() {
+interface EventListProps {
+  excludeStatuses?: string[];
+}
+
+export function EventList({ excludeStatuses = [] }: EventListProps) {
   const [search, setSearch] = useState('');
   const [selectedQuote, setSelectedQuote] = useState<QuoteRequest | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('list');
@@ -143,6 +147,11 @@ export function EventList() {
       ...quote,
       invoice: invoices?.find(inv => inv.quote_request_id === quote.id) || null,
     }));
+
+    // Exclude specified statuses (for use when SubmissionsCard handles pending/under_review)
+    if (excludeStatuses.length > 0) {
+      result = result.filter(e => !excludeStatuses.includes(e.workflow_status));
+    }
 
     // Apply status filter
     if (statusFilter !== 'all') {
@@ -191,7 +200,7 @@ export function EventList() {
     });
 
     return result;
-  }, [quotes, invoices, statusFilter, serviceTypeFilter, sortBy, sortOrder]);
+  }, [quotes, invoices, excludeStatuses, statusFilter, serviceTypeFilter, sortBy, sortOrder]);
 
   const isLoading = quotesLoading || invoicesLoading;
   const isMobile = useMediaQuery('(max-width: 640px)');
