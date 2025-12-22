@@ -215,10 +215,14 @@ export function useEditableInvoice(
         if (error) throw error;
       }
       
-      // Trigger recalculation
-      const { error: recalcError } = await supabase.rpc('recalculate_invoice_totals' as any, {
+      // Force recalculate invoice totals (single source of truth)
+      const { error: recalcError } = await supabase.rpc('force_recalculate_invoice_totals', {
         p_invoice_id: invoiceId
-      }).maybeSingle();
+      });
+      
+      if (recalcError) {
+        console.error('Error recalculating invoice totals:', recalcError);
+      }
       
       // Mark all items as clean and update originals
       setState(prev => {
@@ -234,11 +238,12 @@ export function useEditableInvoice(
         };
       });
       
-      // Invalidate queries to refresh totals
+      // Invalidate queries to refresh totals and payment schedule
       queryClient.invalidateQueries({ queryKey: ['invoice', invoiceId] });
       queryClient.invalidateQueries({ queryKey: ['invoices'] });
       queryClient.invalidateQueries({ queryKey: ['line-items', invoiceId] });
       queryClient.invalidateQueries({ queryKey: ['events'] });
+      queryClient.invalidateQueries({ queryKey: ['payment-milestones', invoiceId] });
       
       toast.success('All changes saved');
       return true;
