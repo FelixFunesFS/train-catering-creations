@@ -149,6 +149,10 @@ verify_jwt = false
 [functions.send-quote-confirmation]
 verify_jwt = false
 
+# Email Preview (admin)
+[functions.preview-email]
+verify_jwt = false
+
 [edge-runtime]
 enabled = true
 ip_version = "dual"

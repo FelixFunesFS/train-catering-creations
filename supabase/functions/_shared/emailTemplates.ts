@@ -3,6 +3,7 @@
 // ============================================================================
 // Brand Colors: Crimson (#DC143C) and Gold (#FFD700)
 // All templates use TABLE-BASED layouts for maximum email client compatibility
+// SINGLE SOURCE OF TRUTH - All emails MUST use generateStandardEmail()
 
 export const BRAND_COLORS = {
   crimson: '#DC143C',
@@ -22,6 +23,48 @@ export const LOGO_URLS = {
   red: `${SITE_URL}/images/logo-red.svg`,
   white: `${SITE_URL}/images/logo-white.svg`,
 };
+
+// ============================================================================
+// EMAIL TYPE DEFINITIONS - Single source of truth for all email types
+// ============================================================================
+
+export type EmailType = 
+  | 'quote_received' 
+  | 'quote_confirmation'
+  | 'estimate_ready' 
+  | 'estimate_reminder'
+  | 'approval_confirmation'
+  | 'payment_received' 
+  | 'payment_reminder'
+  | 'event_reminder'
+  | 'change_request_submitted'
+  | 'change_request_response'
+  | 'admin_notification'
+  | 'event_followup';
+
+export type HeroVariant = 'crimson' | 'gold' | 'green' | 'blue' | 'orange';
+
+export interface HeroConfig {
+  badge: string;
+  title: string;
+  subtitle?: string;
+  variant: HeroVariant;
+}
+
+export interface ContentBlock {
+  type: 'event_details' | 'menu' | 'pricing' | 'payment_schedule' | 'cta' | 'custom_html' | 'status_badge' | 'terms' | 'service_addons' | 'text';
+  data?: any;
+}
+
+export interface StandardEmailConfig {
+  preheaderText: string;
+  heroSection: HeroConfig;
+  contentBlocks: ContentBlock[];
+  ctaButton?: { text: string; href: string; variant: 'primary' | 'secondary' };
+  quote?: any;
+  invoice?: any;
+  lineItems?: any[];
+}
 
 // Exported formatting helpers - single source of truth
 export const formatServiceType = (serviceType: string): string => {
@@ -659,3 +702,264 @@ export function generateCTAButton(text: string, href: string, variant: 'primary'
 </table>
 `;
 }
+
+// ============================================================================
+// HERO SECTION GENERATOR - Consistent branded hero for all emails
+// ============================================================================
+
+/**
+ * Generate a branded hero section - replaces inconsistent headers across emails
+ * This is the ONLY hero generator that should be used in emails
+ */
+export function generateHeroSection(config: HeroConfig): string {
+  const variantColors: Record<HeroVariant, { bg: string; bgDark: string }> = {
+    crimson: { bg: BRAND_COLORS.crimson, bgDark: BRAND_COLORS.crimsonDark },
+    gold: { bg: '#d4a017', bgDark: '#b8860b' },
+    green: { bg: '#16a34a', bgDark: '#15803d' },
+    blue: { bg: '#2563eb', bgDark: '#1d4ed8' },
+    orange: { bg: '#ea580c', bgDark: '#c2410c' },
+  };
+
+  const colors = variantColors[config.variant] || variantColors.crimson;
+
+  return `
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:linear-gradient(135deg,${colors.bg},${colors.bgDark});border-collapse:collapse;">
+<tr>
+<td align="center" style="padding:30px 20px;">
+<table cellpadding="0" cellspacing="0" border="0">
+<tr>
+<td align="center" style="padding-bottom:12px;">
+<img src="${LOGO_URLS.white}" alt="Soul Train's Eatery" width="70" height="70" style="display:block;width:70px;height:70px;" />
+</td>
+</tr>
+<tr>
+<td align="center">
+<div style="display:inline-block;background:rgba(255,255,255,0.2);padding:6px 16px;border-radius:20px;margin-bottom:12px;">
+<span style="color:${BRAND_COLORS.white};font-size:13px;font-weight:600;letter-spacing:0.5px;">${config.badge}</span>
+</div>
+</td>
+</tr>
+<tr>
+<td align="center">
+<h1 style="margin:0 0 8px 0;font-size:26px;font-weight:bold;color:${BRAND_COLORS.white};line-height:1.2;">${config.title}</h1>
+${config.subtitle ? `<p style="margin:0;font-size:14px;color:rgba(255,255,255,0.9);line-height:1.3;">${config.subtitle}</p>` : ''}
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+`;
+}
+
+// ============================================================================
+// MASTER EMAIL GENERATOR - Single source of truth for all emails
+// ============================================================================
+
+/**
+ * Render a content block based on its type
+ * Internal helper for generateStandardEmail
+ */
+function renderContentBlock(block: ContentBlock, config: StandardEmailConfig): string {
+  switch (block.type) {
+    case 'event_details':
+      return config.quote ? generateEventDetailsCard(config.quote) : '';
+    
+    case 'menu':
+      return config.lineItems && config.lineItems.length > 0 
+        ? generateMenuSection(config.lineItems, config.quote?.both_proteins_available)
+        : '';
+    
+    case 'pricing':
+      if (!config.lineItems || !config.invoice) return '';
+      return generateLineItemsTable(
+        config.lineItems,
+        config.invoice.subtotal || 0,
+        config.invoice.tax_amount || 0,
+        config.invoice.total_amount || 0
+      );
+    
+    case 'service_addons':
+      return config.quote ? generateServiceAddonsSection(config.quote) : '';
+    
+    case 'status_badge':
+      if (!block.data) return '';
+      return generateStatusBadge(block.data.status, block.data.title, block.data.description);
+    
+    case 'terms':
+      const eventType = config.quote?.compliance_level === 'government' ? 'government' : 'standard';
+      return generateCateringAgreementHTML(eventType);
+    
+    case 'text':
+      return block.data?.html || `<p style="margin:16px 0;font-size:15px;color:#333;line-height:1.6;">${block.data?.text || ''}</p>`;
+    
+    case 'custom_html':
+      return block.data?.html || '';
+    
+    case 'cta':
+      if (!block.data) return '';
+      return generateCTAButton(block.data.text, block.data.href, block.data.variant || 'primary');
+    
+    default:
+      return '';
+  }
+}
+
+/**
+ * MASTER EMAIL GENERATOR
+ * All emails MUST use this function to ensure consistent branding.
+ * This is the single source of truth for email structure.
+ * 
+ * @param config - Email configuration with hero, content blocks, and optional CTA
+ * @returns Minified HTML string ready for email sending
+ */
+export function generateStandardEmail(config: StandardEmailConfig): string {
+  const contentHtml = config.contentBlocks
+    .map(block => renderContentBlock(block, config))
+    .filter(html => html.length > 0)
+    .join('');
+
+  const ctaHtml = config.ctaButton 
+    ? generateCTAButton(config.ctaButton.text, config.ctaButton.href, config.ctaButton.variant)
+    : '';
+
+  const emailHtml = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>${config.heroSection.title}</title>
+<style>${EMAIL_STYLES}</style>
+</head>
+<body style="margin:0;padding:0;background-color:#f5f5f5;">
+${generatePreheader(config.preheaderText)}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f5f5f5;">
+<tr>
+<td align="center" style="padding:20px 10px;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;background:${BRAND_COLORS.white};border-radius:12px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.1);">
+<tr>
+<td>
+${generateHeroSection(config.heroSection)}
+</td>
+</tr>
+<tr>
+<td style="padding:24px 20px;background:${BRAND_COLORS.white};">
+${contentHtml}
+${ctaHtml}
+</td>
+</tr>
+<tr>
+<td>
+${generateFooter()}
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</body>
+</html>
+`;
+
+  return minifyEmailHTML(emailHtml);
+}
+
+// ============================================================================
+// EMAIL CONFIGURATION PRESETS - For use with preview and consistent emails
+// ============================================================================
+
+export const EMAIL_CONFIGS: Record<EmailType, { 
+  customer?: { heroSection: HeroConfig; preheaderText: string };
+  admin?: { heroSection: HeroConfig; preheaderText: string };
+}> = {
+  quote_received: {
+    admin: {
+      heroSection: { badge: '🚂 NEW QUOTE REQUEST', title: 'New Quote Submission', subtitle: 'A customer has submitted a quote request', variant: 'crimson' },
+      preheaderText: 'New catering quote request received'
+    }
+  },
+  quote_confirmation: {
+    customer: {
+      heroSection: { badge: '✅ QUOTE RECEIVED', title: 'Thank You!', subtitle: "We've received your catering request", variant: 'blue' },
+      preheaderText: "Thank you for your quote request - we'll be in touch soon!"
+    }
+  },
+  estimate_ready: {
+    customer: {
+      heroSection: { badge: '📋 ESTIMATE READY', title: 'Your Estimate is Ready', subtitle: 'Review your custom catering proposal', variant: 'gold' },
+      preheaderText: 'Your personalized catering estimate is ready for review'
+    }
+  },
+  estimate_reminder: {
+    customer: {
+      heroSection: { badge: '⏰ FRIENDLY REMINDER', title: 'Your Estimate Awaits', subtitle: "Don't miss out on your special event", variant: 'orange' },
+      preheaderText: 'Reminder: Your catering estimate is waiting for your review'
+    }
+  },
+  approval_confirmation: {
+    customer: {
+      heroSection: { badge: '🎉 APPROVED!', title: 'Estimate Approved', subtitle: "We're excited to cater your event!", variant: 'green' },
+      preheaderText: 'Your catering estimate has been approved - next steps inside'
+    },
+    admin: {
+      heroSection: { badge: '✅ CUSTOMER APPROVED', title: 'Estimate Approved', subtitle: 'Customer has approved their estimate', variant: 'green' },
+      preheaderText: 'Customer has approved their catering estimate'
+    }
+  },
+  payment_received: {
+    customer: {
+      heroSection: { badge: '💰 PAYMENT RECEIVED', title: 'Thank You!', subtitle: 'Your payment has been processed', variant: 'green' },
+      preheaderText: 'Payment confirmation for your catering order'
+    },
+    admin: {
+      heroSection: { badge: '💵 PAYMENT RECEIVED', title: 'Payment Confirmed', subtitle: 'A customer payment has been processed', variant: 'green' },
+      preheaderText: 'Payment received for catering order'
+    }
+  },
+  payment_reminder: {
+    customer: {
+      heroSection: { badge: '⏰ PAYMENT REMINDER', title: 'Payment Due', subtitle: 'Please complete your payment to confirm your event', variant: 'orange' },
+      preheaderText: 'Reminder: Payment due for your upcoming catering event'
+    }
+  },
+  event_reminder: {
+    customer: {
+      heroSection: { badge: '📅 EVENT REMINDER', title: 'Your Event is Coming Up!', subtitle: "We're getting ready to serve you", variant: 'blue' },
+      preheaderText: 'Reminder: Your catering event is approaching'
+    },
+    admin: {
+      heroSection: { badge: '📅 UPCOMING EVENT', title: 'Event Reminder', subtitle: 'An event is coming up soon', variant: 'blue' },
+      preheaderText: 'Reminder: Upcoming catering event'
+    }
+  },
+  change_request_submitted: {
+    customer: {
+      heroSection: { badge: '📝 REQUEST RECEIVED', title: 'Change Request Submitted', subtitle: "We'll review your request shortly", variant: 'blue' },
+      preheaderText: "We've received your change request"
+    },
+    admin: {
+      heroSection: { badge: '📝 CHANGE REQUEST', title: 'New Change Request', subtitle: 'A customer has requested changes', variant: 'orange' },
+      preheaderText: 'New change request from customer'
+    }
+  },
+  change_request_response: {
+    customer: {
+      heroSection: { badge: '📋 UPDATE', title: 'Change Request Update', subtitle: "We've reviewed your request", variant: 'blue' },
+      preheaderText: 'Update on your change request'
+    }
+  },
+  admin_notification: {
+    admin: {
+      heroSection: { badge: '🔔 NOTIFICATION', title: 'Admin Alert', subtitle: 'Action may be required', variant: 'crimson' },
+      preheaderText: 'Admin notification from Soul Train\'s Eatery'
+    }
+  },
+  event_followup: {
+    customer: {
+      heroSection: { badge: '🙏 THANK YOU', title: 'Thank You!', subtitle: 'We hope you enjoyed your event', variant: 'gold' },
+      preheaderText: 'Thank you for choosing Soul Train\'s Eatery!'
+    }
+  }
+};
