@@ -24,6 +24,7 @@ interface PaymentOptionsProps {
   amountPaid: number;
   milestones: Milestone[];
   customerEmail: string;
+  accessToken: string;
 }
 
 export function PaymentOptions({
@@ -31,6 +32,7 @@ export function PaymentOptions({
   totalAmount,
   amountPaid,
   milestones,
+  accessToken,
 }: PaymentOptionsProps) {
   const { initiatePayment, isProcessing } = usePaymentCheckout();
   const [customAmount, setCustomAmount] = useState('');
@@ -44,6 +46,7 @@ export function PaymentOptions({
   const handlePayMilestone = (milestone: Milestone) => {
     initiatePayment({
       invoiceId,
+      accessToken,
       paymentType: 'milestone',
       amount: milestone.amount_cents,
       milestoneId: milestone.id,
@@ -55,6 +58,7 @@ export function PaymentOptions({
     if (amountInCents > 0 && amountInCents <= remaining) {
       initiatePayment({
         invoiceId,
+        accessToken,
         paymentType: 'custom',
         amount: amountInCents,
       });
@@ -64,6 +68,7 @@ export function PaymentOptions({
   const handlePayFull = () => {
     initiatePayment({
       invoiceId,
+      accessToken,
       paymentType: 'full',
       amount: remaining,
     });
