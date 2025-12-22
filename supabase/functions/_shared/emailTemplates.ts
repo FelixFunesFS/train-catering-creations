@@ -595,17 +595,27 @@ export function generateMenuWithPricingSection(
     'Sides': '🥗',
     'dietary': '🌱',
     'Appetizers': '🍤',
+    'appetizers': '🍤',
     'Desserts': '🍰',
+    'desserts': '🍰',
     'Beverages': '🥤',
     'Service Items': '🍴',
+    'service': '🍴',
+    'package': '📦',
+    'supplies': '🧊',
     'Other Items': '📦'
   };
 
   const categoryLabels: Record<string, string> = {
     'dietary': 'Vegetarian Options',
+    'package': 'Catering Package',
+    'appetizers': 'Appetizers',
+    'desserts': 'Desserts',
+    'service': 'Service',
+    'supplies': 'Supplies & Equipment',
   };
 
-  const categoryOrder = ['Proteins', 'Sides', 'dietary', 'Appetizers', 'Desserts', 'Beverages', 'Service Items', 'Other Items'];
+  const categoryOrder = ['package', 'Proteins', 'Sides', 'dietary', 'Appetizers', 'appetizers', 'Desserts', 'desserts', 'Beverages', 'Service Items', 'service', 'supplies', 'Other Items'];
 
   // Format service type
   const serviceLabel = serviceType ? formatServiceType(serviceType) : 'Catering';
