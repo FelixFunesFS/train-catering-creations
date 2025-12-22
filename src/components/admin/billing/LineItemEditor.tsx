@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { DollarSign, Trash2 } from 'lucide-react';
+import { getCategoryColors } from '@/utils/formatters';
+import { cn } from '@/lib/utils';
 
 type LineItem = Database['public']['Tables']['invoice_line_items']['Row'];
 
@@ -83,11 +85,15 @@ export function LineItemEditor({
   };
 
   const totalCents = item.quantity * item.unit_price;
+  const categoryColors = getCategoryColors(item.category || 'services');
 
   // Read-only display mode
   if (readOnly) {
     return (
-      <div className="flex flex-col sm:flex-row sm:items-start gap-3 p-3 bg-muted/30 rounded-lg border">
+      <div className={cn(
+        "flex flex-col sm:flex-row sm:items-start gap-3 p-3 bg-muted/30 rounded-lg border-l-4",
+        categoryColors.border
+      )}>
         <div className="flex-1 min-w-0 space-y-1">
           <p className="font-medium text-sm">{item.title || item.category}</p>
           {item.description && (
@@ -114,11 +120,12 @@ export function LineItemEditor({
     );
   }
 
-  // Dirty indicator styling
-  const borderStyle = isDirty ? 'border-amber-400 dark:border-amber-600' : 'border';
-
   return (
-    <div className={`flex flex-col sm:flex-row sm:items-start gap-3 p-3 bg-muted/30 rounded-lg ${borderStyle} group`}>
+    <div className={cn(
+      "flex flex-col sm:flex-row sm:items-start gap-3 p-3 bg-muted/30 rounded-lg group border-l-4",
+      categoryColors.border,
+      isDirty ? "border border-amber-400 dark:border-amber-600" : "border"
+    )}>
       {/* Item Info - Title + Editable Description */}
       <div className="flex-1 min-w-0 space-y-2">
         <div className="flex items-start justify-between sm:block">
@@ -128,12 +135,12 @@ export function LineItemEditor({
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 text-muted-foreground hover:text-destructive sm:hidden"
+              className="h-8 w-8 text-destructive/70 hover:text-destructive hover:bg-destructive/10 sm:hidden"
               onClick={onDelete}
               disabled={isUpdating}
               aria-label="Delete line item"
             >
-              <Trash2 className="h-4 w-4" />
+              <Trash2 className="h-4 w-4 text-destructive" />
             </Button>
           )}
         </div>
@@ -141,7 +148,7 @@ export function LineItemEditor({
           <Textarea
             value={item.description || ''}
             onChange={(e) => handleDescriptionChange(e.target.value)}
-            className="text-xs min-h-[60px] resize-y"
+            className="text-xs min-h-[60px] resize-y bg-white dark:bg-slate-900"
             disabled={isUpdating}
             placeholder="Item description..."
           />
@@ -168,7 +175,7 @@ export function LineItemEditor({
               onChange={(e) => setQuantityInput(e.target.value)}
               onBlur={handleQuantityBlur}
               onKeyDown={(e) => handleKeyDown(e, handleQuantityBlur)}
-              className="h-9 sm:h-8 text-sm text-center"
+              className="h-9 sm:h-8 text-sm text-center bg-white dark:bg-slate-900"
               disabled={isUpdating}
             />
           ) : (
@@ -180,7 +187,7 @@ export function LineItemEditor({
         <div className="flex-1 sm:flex-none sm:w-24">
           <Label htmlFor={`price-${item.id}`} className="text-xs text-muted-foreground mb-1 block">Unit Price</Label>
           <div className="relative">
-            <DollarSign className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
+            <DollarSign className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-gold-dark" />
             <Input
               id={`price-${item.id}`}
               type="text"
@@ -189,7 +196,7 @@ export function LineItemEditor({
               onChange={(e) => setPriceInput(e.target.value)}
               onBlur={handlePriceBlur}
               onKeyDown={(e) => handleKeyDown(e, handlePriceBlur)}
-              className="pl-6 h-9 sm:h-8 text-sm"
+              className="pl-6 h-9 sm:h-8 text-sm bg-white dark:bg-slate-900"
               disabled={isUpdating}
             />
           </div>
@@ -209,12 +216,12 @@ export function LineItemEditor({
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+              className="h-8 w-8 text-destructive/70 hover:text-destructive hover:bg-destructive/10 opacity-0 group-hover:opacity-100 transition-opacity"
               onClick={onDelete}
               disabled={isUpdating}
               aria-label="Delete line item"
             >
-              <Trash2 className="h-4 w-4" />
+              <Trash2 className="h-4 w-4 text-destructive" />
             </Button>
           </div>
         )}
