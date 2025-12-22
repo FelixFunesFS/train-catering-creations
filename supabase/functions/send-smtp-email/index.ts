@@ -2,6 +2,17 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 import { isInternalRequest } from '../_shared/security.ts';
 
+// Minify HTML to prevent Quoted-Printable encoding issues (=20 artifacts)
+function minifyEmailHTML(html: string): string {
+  return html
+    .split('\n')
+    .map(line => line.trim())
+    .filter(line => line.length > 0)
+    .join('')
+    .replace(/\s{2,}/g, ' ')
+    .replace(/>\s+</g, '><');
+}
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -80,13 +91,17 @@ const handler = async (req: Request): Promise<Response> => {
       },
     });
 
+    // Minify HTML to prevent line-length issues causing =20 encoding
+    const minifiedHtml = minifyEmailHTML(html);
+    console.log(`HTML minified: ${html.length} -> ${minifiedHtml.length} chars`);
+
     // Build email message
     const emailMessage: any = {
       from: fromParts.name ? `${fromParts.name} <${fromParts.email}>` : fromParts.email,
       to: to,
       subject: subject,
       content: "Please view this email in an HTML-capable email client.",
-      html: html,
+      html: minifiedHtml,
     };
 
     // Add reply-to if specified
