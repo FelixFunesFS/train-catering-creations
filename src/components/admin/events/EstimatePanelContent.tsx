@@ -117,7 +117,7 @@ export const EstimatePanelContent = memo(function EstimatePanelContent({
   // If no invoice exists, show generate estimate prompt
   if (!invoice) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] p-8 text-center space-y-6">
+      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] p-8 text-center space-y-6 bg-white dark:bg-card">
         <div className="rounded-full bg-muted p-6">
           <FileText className="h-12 w-12 text-muted-foreground" />
         </div>
@@ -151,7 +151,7 @@ export const EstimatePanelContent = memo(function EstimatePanelContent({
   }
 
   return (
-    <div className="space-y-4 p-4 lg:p-6">
+    <div className="space-y-4 p-4 lg:p-6 bg-white dark:bg-card min-h-full">
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold flex items-center gap-2">
