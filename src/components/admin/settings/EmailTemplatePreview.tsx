@@ -54,25 +54,19 @@ export function EmailTemplatePreview() {
 
   const handleSendTestEmail = async () => {
     setIsSending(true);
+    const testEmailRecipient = 'soultrainseatery@gmail.com';
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user?.email) {
-        toast.error('No email address found. Please log in.');
-        return;
-      }
-
-       const { error } = await supabase.functions.invoke('send-test-email', {
-         body: {
-           toEmail: user.email,
-           emailType: selectedType,
-           variant: selectedVariant,
-         }
-       });
+      const { error } = await supabase.functions.invoke('send-test-email', {
+        body: {
+          toEmail: testEmailRecipient,
+          emailType: selectedType,
+          variant: selectedVariant,
+        }
+      });
 
       if (error) throw error;
 
-      toast.success(`Test email sent to ${user.email}`);
+      toast.success(`Test email sent to ${testEmailRecipient}`);
     } catch (error) {
       console.error('Error sending test email:', error);
       toast.error('Failed to send test email');

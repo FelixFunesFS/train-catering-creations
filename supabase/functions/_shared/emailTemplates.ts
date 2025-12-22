@@ -52,7 +52,7 @@ export interface HeroConfig {
 }
 
 export interface ContentBlock {
-  type: 'event_details' | 'menu' | 'pricing' | 'payment_schedule' | 'cta' | 'custom_html' | 'status_badge' | 'terms' | 'service_addons' | 'text';
+  type: 'event_details' | 'menu' | 'pricing' | 'menu_with_pricing' | 'customer_contact' | 'payment_schedule' | 'cta' | 'custom_html' | 'status_badge' | 'terms' | 'service_addons' | 'text';
   data?: any;
 }
 
@@ -386,6 +386,258 @@ ${item.quantity > 1 ? `<td align="right" style="padding:10px 0;"><span style="co
 
   menuHtml += `</td></tr></table>`;
   return menuHtml;
+}
+
+/**
+ * Generate Customer Contact Card for Admin emails
+ * Shows customer name, email (clickable), phone (clickable)
+ */
+export function generateCustomerContactCard(quote: any): string {
+  const contactName = quote.contact_name || 'Customer';
+  const email = quote.email || '';
+  const phone = quote.phone || '';
+
+  return `
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:linear-gradient(135deg,${BRAND_COLORS.gold},${BRAND_COLORS.goldLight});border-radius:10px;margin:16px 0;border-collapse:collapse;">
+<tr>
+<td style="padding:20px;">
+<h3 style="margin:0 0 12px 0;color:${BRAND_COLORS.darkGray};font-size:16px;font-weight:bold;">📋 Customer Details</h3>
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+<tr>
+<td style="padding:6px 0;font-size:14px;color:${BRAND_COLORS.darkGray};">
+<strong>Name:</strong> ${contactName}
+</td>
+</tr>
+<tr>
+<td style="padding:6px 0;font-size:14px;color:${BRAND_COLORS.darkGray};">
+<strong>Email:</strong> <a href="mailto:${email}" style="color:${BRAND_COLORS.crimson};text-decoration:underline;">${email}</a>
+</td>
+</tr>
+<tr>
+<td style="padding:6px 0;font-size:14px;color:${BRAND_COLORS.darkGray};">
+<strong>Phone:</strong> <a href="tel:${phone}" style="color:${BRAND_COLORS.crimson};text-decoration:underline;">${phone}</a>
+</td>
+</tr>
+</table>
+<table cellpadding="0" cellspacing="0" border="0" style="margin-top:12px;border-collapse:collapse;">
+<tr>
+<td style="background:${BRAND_COLORS.crimson};border-radius:6px;">
+<a href="mailto:${email}" style="display:inline-block;padding:10px 20px;color:${BRAND_COLORS.white};font-size:13px;font-weight:600;text-decoration:none;">📧 Reply to Customer</a>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+`;
+}
+
+/**
+ * Generate Menu with Integrated Pricing Section
+ * Combines menu items with inline pricing, total at top
+ */
+export function generateMenuWithPricingSection(
+  lineItems: any[], 
+  subtotal: number, 
+  taxAmount: number, 
+  totalAmount: number,
+  bothProteinsAvailable?: boolean,
+  isGovernment?: boolean,
+  guestCount?: number,
+  serviceType?: string
+): string {
+  if (!lineItems || lineItems.length === 0) {
+    return '';
+  }
+
+  const fmtCurrency = (cents: number) => 
+    new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100);
+
+  // Group items by category
+  const itemsByCategory = lineItems.reduce((acc: any, item: any) => {
+    const category = item.category || 'Other Items';
+    if (!acc[category]) {
+      acc[category] = [];
+    }
+    acc[category].push(item);
+    return acc;
+  }, {});
+
+  const categoryIcons: Record<string, string> = {
+    'Proteins': '🥩',
+    'Sides': '🥗',
+    'dietary': '🌱',
+    'Appetizers': '🍤',
+    'Desserts': '🍰',
+    'Beverages': '🥤',
+    'Service Items': '🍴',
+    'Other Items': '📦'
+  };
+
+  const categoryLabels: Record<string, string> = {
+    'dietary': 'Vegetarian Options',
+  };
+
+  const categoryOrder = ['Proteins', 'Sides', 'dietary', 'Appetizers', 'Desserts', 'Beverages', 'Service Items', 'Other Items'];
+
+  // Format service type
+  const serviceLabel = serviceType ? formatServiceType(serviceType) : 'Catering';
+
+  // Start with prominent total at top
+  let html = `
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:20px 0;border-collapse:collapse;">
+<tr>
+<td>
+<!-- Total Summary Box -->
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:linear-gradient(135deg,${BRAND_COLORS.crimson},${BRAND_COLORS.crimsonDark});border-radius:12px;margin-bottom:20px;border-collapse:collapse;">
+<tr>
+<td align="center" style="padding:24px;">
+<span style="font-size:14px;color:rgba(255,255,255,0.9);text-transform:uppercase;letter-spacing:1px;">Your Total</span>
+<h2 style="margin:8px 0 4px 0;font-size:36px;color:${BRAND_COLORS.white};font-weight:bold;">${fmtCurrency(totalAmount)}</h2>
+<span style="font-size:14px;color:rgba(255,255,255,0.85);">${guestCount ? `${guestCount} guests • ` : ''}${serviceLabel}</span>
+</td>
+</tr>
+</table>
+
+<!-- Menu & Pricing Section -->
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${BRAND_COLORS.white};border:2px solid ${BRAND_COLORS.lightGray};border-radius:12px;border-collapse:collapse;">
+<tr>
+<td style="padding:24px;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+<tr>
+<td align="center" style="padding-bottom:20px;">
+<h3 style="margin:0 0 8px 0;color:${BRAND_COLORS.crimson};font-size:22px;">🍽️ Your Custom Menu & Pricing</h3>
+<p style="margin:0;color:#666;font-size:14px;font-style:italic;">Carefully curated Southern cuisine</p>
+</td>
+</tr>
+</table>
+`;
+
+  // Render each category with inline pricing
+  categoryOrder.forEach(category => {
+    if (itemsByCategory[category]) {
+      const icon = categoryIcons[category] || '📦';
+      const isProtein = category === 'Proteins';
+      const isDietary = category === 'dietary';
+      const displayLabel = categoryLabels[category] || category;
+      
+      let bgColor = '#ffffff';
+      let borderColor = BRAND_COLORS.lightGray;
+      if (isProtein) {
+        bgColor = '#FFF5E6';
+        borderColor = BRAND_COLORS.gold;
+      } else if (isDietary) {
+        bgColor = '#dcfce7';
+        borderColor = '#22c55e';
+      }
+      
+      html += `
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${bgColor};border:2px solid ${borderColor};border-radius:10px;margin:12px 0;border-collapse:collapse;">
+<tr>
+<td style="padding:16px;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+<tr>
+<td style="padding-bottom:12px;">
+<span style="font-size:24px;vertical-align:middle;">${icon}</span>
+<span style="font-size:18px;font-weight:bold;color:${isDietary ? '#166534' : BRAND_COLORS.crimson};vertical-align:middle;margin-left:8px;">${displayLabel}</span>
+</td>
+</tr>
+</table>
+`;
+      
+      // Add each item with inline pricing
+      itemsByCategory[category].forEach((item: any, index: number) => {
+        const borderBottom = index < itemsByCategory[category].length - 1 ? 'border-bottom:1px solid #eee;' : '';
+        const unitPriceStr = item.unit_price ? fmtCurrency(item.unit_price) : '';
+        const totalPriceStr = item.total_price ? fmtCurrency(item.total_price) : '';
+        const qtyStr = item.quantity > 1 ? `${item.quantity} × ${unitPriceStr}` : '';
+        
+        html += `
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="${borderBottom}border-collapse:collapse;">
+<tr>
+<td style="padding:10px 0;width:60%;">
+<strong style="color:#2d2d2d;font-size:15px;">${item.title || item.description}</strong>
+${item.description && item.title ? `<br><span style="color:#666;font-size:13px;">${item.description}</span>` : ''}
+${qtyStr ? `<br><span style="color:#888;font-size:12px;">${qtyStr}</span>` : ''}
+</td>
+<td style="padding:10px 0;text-align:right;width:40%;">
+<span style="color:${BRAND_COLORS.crimson};font-weight:bold;font-size:15px;">${totalPriceStr}</span>
+</td>
+</tr>
+</table>
+`;
+      });
+      
+      // Add "both proteins" note if applicable
+      if (isProtein && bothProteinsAvailable) {
+        html += `
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:linear-gradient(135deg,${BRAND_COLORS.crimson},${BRAND_COLORS.crimsonDark});border-radius:8px;margin-top:12px;border-collapse:collapse;">
+<tr>
+<td align="center" style="padding:12px 16px;">
+<span style="color:white;font-size:14px;font-weight:bold;">⭐ Both proteins served to all guests</span>
+</td>
+</tr>
+</table>
+`;
+      }
+      
+      html += `</td></tr></table>`;
+    }
+  });
+
+  // Add subtotal, tax, and total at bottom
+  html += `
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:20px;border-top:2px solid ${BRAND_COLORS.lightGray};border-collapse:collapse;">
+<tr>
+<td style="padding:12px 0;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+<tr>
+<td style="padding:6px 0;font-size:14px;color:#666;">Subtotal</td>
+<td style="padding:6px 0;text-align:right;font-size:14px;color:#666;">${fmtCurrency(subtotal)}</td>
+</tr>
+`;
+
+  if (taxAmount > 0) {
+    const hospitalityTax = Math.round(subtotal * 0.02);
+    const serviceTax = Math.round(subtotal * 0.07);
+    html += `
+<tr>
+<td style="padding:4px 0;font-size:13px;color:#888;">SC Hospitality Tax (2%)</td>
+<td style="padding:4px 0;text-align:right;font-size:13px;color:#888;">${fmtCurrency(hospitalityTax)}</td>
+</tr>
+<tr>
+<td style="padding:4px 0;font-size:13px;color:#888;">SC Service Tax (7%)</td>
+<td style="padding:4px 0;text-align:right;font-size:13px;color:#888;">${fmtCurrency(serviceTax)}</td>
+</tr>
+`;
+  } else {
+    html += `
+<tr>
+<td style="padding:4px 0;font-size:13px;color:#3B82F6;">Tax (Exempt)</td>
+<td style="padding:4px 0;text-align:right;font-size:13px;color:#3B82F6;">$0.00</td>
+</tr>
+`;
+  }
+
+  html += `
+<tr>
+<td style="padding:12px 0 0 0;font-size:18px;font-weight:bold;color:${BRAND_COLORS.crimson};border-top:2px solid ${BRAND_COLORS.gold};">Total Due</td>
+<td style="padding:12px 0 0 0;text-align:right;font-size:18px;font-weight:bold;color:${BRAND_COLORS.crimson};border-top:2px solid ${BRAND_COLORS.gold};">${fmtCurrency(totalAmount)}</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+`;
+
+  return html;
 }
 
 export function generateFooter(): string {
@@ -778,6 +1030,22 @@ function renderContentBlock(block: ContentBlock, config: StandardEmailConfig): s
         config.invoice.tax_amount || 0,
         config.invoice.total_amount || 0
       );
+    
+    case 'menu_with_pricing':
+      if (!config.lineItems || !config.invoice) return '';
+      return generateMenuWithPricingSection(
+        config.lineItems,
+        config.invoice.subtotal || 0,
+        config.invoice.tax_amount || 0,
+        config.invoice.total_amount || 0,
+        config.quote?.both_proteins_available,
+        config.quote?.compliance_level === 'government',
+        config.quote?.guest_count,
+        config.quote?.service_type
+      );
+    
+    case 'customer_contact':
+      return config.quote ? generateCustomerContactCard(config.quote) : '';
     
     case 'service_addons':
       return config.quote ? generateServiceAddonsSection(config.quote) : '';
