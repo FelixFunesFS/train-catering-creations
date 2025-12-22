@@ -1,9 +1,10 @@
 import { useSearchParams } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { EventsView } from '@/components/admin/events';
 import { PaymentList } from '@/components/admin/billing';
-import { Settings } from 'lucide-react';
+import { EmailTemplatePreview } from '@/components/admin/settings/EmailTemplatePreview';
+import { Mail, Cog } from 'lucide-react';
 
 export type AdminView = 'events' | 'billing' | 'settings';
 
@@ -30,19 +31,27 @@ export function UnifiedAdminDashboard() {
         {currentView === 'billing' && <PaymentList />}
         
         {currentView === 'settings' && (
-          <Card className="max-w-lg mx-auto">
-            <CardHeader className="text-center">
-              <div className="mx-auto w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mb-3">
-                <Settings className="h-7 w-7 text-primary" />
+          <Tabs defaultValue="emails" className="space-y-4">
+            <TabsList>
+              <TabsTrigger value="emails" className="gap-2">
+                <Mail className="h-4 w-4" />
+                Email Templates
+              </TabsTrigger>
+              <TabsTrigger value="general" className="gap-2">
+                <Cog className="h-4 w-4" />
+                General
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="emails" className="mt-4">
+              <EmailTemplatePreview />
+            </TabsContent>
+            <TabsContent value="general" className="mt-4">
+              <div className="text-center py-12 text-muted-foreground">
+                <Cog className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p>General settings coming soon</p>
               </div>
-              <CardTitle>Settings</CardTitle>
-            </CardHeader>
-            <CardContent className="text-center">
-              <p className="text-muted-foreground text-sm">
-                Email templates and configuration coming next
-              </p>
-            </CardContent>
-          </Card>
+            </TabsContent>
+          </Tabs>
         )}
       </div>
     </AdminLayout>
