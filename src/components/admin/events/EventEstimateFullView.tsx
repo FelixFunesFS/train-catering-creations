@@ -5,6 +5,7 @@ import { useInvoice, useUpdateInvoice, useInvoiceWithMilestones } from '@/hooks/
 import { useLineItems, useDeleteLineItem } from '@/hooks/useLineItems';
 import { useCustomLineItems } from '@/hooks/useCustomLineItems';
 import { useEditableInvoice } from '@/hooks/useEditableInvoice';
+import { usePaymentScheduleSync } from '@/hooks/usePaymentScheduleSync';
 import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -71,6 +72,14 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
 
   const isGovernment = quote?.compliance_level === 'government' || quote?.requires_po_number;
 
+  // Auto-sync payment milestones when total or government status changes (after initial save)
+  usePaymentScheduleSync({
+    invoiceId: invoice?.id,
+    totalAmount: currentInvoice?.total_amount ?? 0,
+    isGovernment,
+    enabled: !!invoice?.id && !hasUnsavedChanges, // Only sync when no unsaved changes
+  });
+
   // Stable sorting
   const sortedLineItems = useMemo(() => {
     if (!lineItems) return [];
@@ -123,6 +132,38 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
       setIsRegenerating(false);
     }
   }, [invoice?.id, refetchMilestones, queryClient, toast]);
+
+  // Handle government contract toggle
+  const handleToggleGovernment = useCallback(async (checked: boolean) => {
+    if (!quote?.id) return;
+    
+    try {
+      const { error } = await supabase
+        .from('quote_requests')
+        .update({ 
+          compliance_level: checked ? 'government' : 'standard',
+          requires_po_number: checked,
+        })
+        .eq('id', quote.id);
+        
+      if (error) throw error;
+      
+      // Invalidate queries to refresh data
+      queryClient.invalidateQueries({ queryKey: ['quotes'] });
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+      queryClient.invalidateQueries({ queryKey: ['quote', quote.id] });
+      
+      toast({ 
+        title: checked ? 'Government Contract Enabled' : 'Government Contract Disabled',
+        description: checked ? 'Tax exemption and Net 30 terms applied.' : 'Standard payment terms applied.',
+      });
+      
+      // Regenerate milestones with new government status
+      handleRegenerateMilestones();
+    } catch (err: any) {
+      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+    }
+  }, [quote?.id, queryClient, toast, handleRegenerateMilestones]);
 
   const handleDragEnd = useCallback(async (event: DragEndEvent) => {
     const { active, over } = event;
@@ -353,8 +394,11 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
               quote={quote}
               invoice={invoice}
               milestones={milestones}
+              totalAmount={total}
+              isGovernment={isGovernment}
               isRegenerating={isRegenerating}
               onRegenerateMilestones={handleRegenerateMilestones}
+              onToggleGovernment={handleToggleGovernment}
               onEditCustomer={handleEditCustomer}
               onEditMenu={handleEditMenu}
             />
