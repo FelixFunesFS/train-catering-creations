@@ -45,9 +45,6 @@ verify_jwt = false
 [functions.send-customer-portal-email]
 verify_jwt = false
 
-[functions.send-invoice-email]
-verify_jwt = false
-
 [functions.send-payment-reminder]
 verify_jwt = false
 
@@ -55,9 +52,6 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.send-admin-notification]
-verify_jwt = false
-
-[functions.send-workflow-email]
 verify_jwt = false
 
 [functions.send-custom-invoice-email]
