@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
+import { TaxCalculationService } from '@/services/TaxCalculationService';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useInvoice, useUpdateInvoice, useInvoiceWithMilestones } from '@/hooks/useInvoices';
 import { useLineItems, useDeleteLineItem } from '@/hooks/useLineItems';
@@ -227,13 +228,34 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
     }
   }, [quote?.id, quote?.email, invoice?.id, isResendMode, queryClient, toast, handleClose]);
 
-  const subtotal = currentInvoice?.subtotal ?? 0;
-  const taxAmount = currentInvoice?.tax_amount ?? 0;
-  const total = currentInvoice?.total_amount ?? 0;
   const discountAmount = (currentInvoice as any)?.discount_amount ?? 0;
   const discountType = (currentInvoice as any)?.discount_type as 'percentage' | 'fixed' | null;
   const discountDescription = (currentInvoice as any)?.discount_description as string | null;
   const isAlreadySent = currentInvoice?.workflow_status === 'sent' || currentInvoice?.workflow_status === 'viewed';
+
+  // Live-calculated totals from editable line items
+  const { subtotal, taxAmount, total } = useMemo(() => {
+    // Calculate subtotal from local editable line items
+    const calculatedSubtotal = editableLineItems.reduce(
+      (sum, item) => sum + (item.total_price || 0), 
+      0
+    );
+    
+    // Use TaxCalculationService for consistent tax calculation with discount
+    const taxCalc = TaxCalculationService.calculateTaxWithDiscount(
+      calculatedSubtotal,
+      discountAmount,
+      discountType,
+      discountDescription,
+      isGovernment
+    );
+    
+    return {
+      subtotal: calculatedSubtotal,
+      taxAmount: taxCalc.taxAmount,
+      total: taxCalc.totalAmount,
+    };
+  }, [editableLineItems, discountAmount, discountType, discountDescription, isGovernment]);
 
   const handleApplyDiscount = useCallback(async (amount: number, type: 'percentage' | 'fixed', description: string) => {
     await updateInvoice.mutateAsync({
