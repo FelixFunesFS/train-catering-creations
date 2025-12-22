@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.52.1';
+import { generateStandardEmail, EMAIL_CONFIGS, EmailType } from '../_shared/emailTemplates.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -7,9 +8,46 @@ const corsHeaders = {
 };
 
 interface TestEmailRequest {
-  fromEmail: string;
+  // Legacy mode (SMTP test)
+  fromEmail?: string;
   toEmail: string;
+  // New mode (template preview test)
+  emailType?: EmailType;
+  variant?: 'customer' | 'admin';
 }
+
+// Sample data for email previews
+const SAMPLE_DATA = {
+  quote: {
+    contact_name: 'Sarah Johnson',
+    email: 'customer@example.com',
+    phone: '(843) 555-1234',
+    event_name: 'Johnson Family Reunion',
+    event_date: '2025-02-15',
+    start_time: '14:00',
+    location: 'Magnolia Gardens, Charleston SC',
+    guest_count: 75,
+    service_type: 'full-service',
+    proteins: ['Smoked Brisket', 'Pulled Pork'],
+    sides: ['Mac & Cheese', 'Collard Greens', 'Cornbread'],
+    special_requests: 'Please include extra sauce on the side'
+  },
+  invoice: {
+    invoice_number: 'INV-2025-0042',
+    total_amount: 287500,
+    subtotal: 263761,
+    tax_amount: 23739,
+    due_date: '2025-02-01'
+  },
+  accessToken: 'preview-token-12345',
+  paymentAmount: 143750,
+  milestoneType: 'deposit',
+  changeRequest: {
+    type: 'menu_change',
+    details: 'Customer requested to add vegetarian option'
+  },
+  adminResponse: 'We can add grilled vegetable skewers at $8 per person.'
+};
 
 const handler = async (req: Request): Promise<Response> => {
   // Handle CORS preflight requests
@@ -18,10 +56,11 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { fromEmail, toEmail }: TestEmailRequest = await req.json();
+    const body: TestEmailRequest = await req.json();
+    const { fromEmail, toEmail, emailType, variant } = body;
 
-    if (!fromEmail || !toEmail) {
-      throw new Error('Missing required fields: fromEmail and toEmail');
+    if (!toEmail) {
+      throw new Error('Missing required field: toEmail');
     }
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
@@ -33,10 +72,32 @@ const handler = async (req: Request): Promise<Response> => {
 
     const supabase = createClient(supabaseUrl, serviceRoleKey);
 
-    console.log(`Attempting to send test email from ${fromEmail} to ${toEmail}`);
+    let testEmailHtml: string;
+    let subject: string;
 
-    // Generate test email HTML
-    const testEmailHtml = `
+    // Check if this is a template preview test or legacy SMTP test
+    if (emailType && EMAIL_CONFIGS[emailType]) {
+      // New mode: Generate email from template system
+      const config = EMAIL_CONFIGS[emailType];
+      const selectedConfig = variant === 'admin' && config.admin ? config.admin : config.customer;
+      
+      testEmailHtml = generateStandardEmail({
+        ...selectedConfig,
+        quote: SAMPLE_DATA.quote,
+        invoice: SAMPLE_DATA.invoice,
+        accessToken: SAMPLE_DATA.accessToken,
+        paymentAmount: SAMPLE_DATA.paymentAmount,
+        milestoneType: SAMPLE_DATA.milestoneType,
+        changeRequest: SAMPLE_DATA.changeRequest,
+        adminResponse: SAMPLE_DATA.adminResponse
+      });
+      
+      subject = `[TEST] ${selectedConfig.heroSection.title} - Soul Train's Eatery`;
+      console.log(`Sending test email for template: ${emailType} (${variant || 'customer'})`);
+    } else {
+      // Legacy mode: Simple SMTP test email
+      subject = `Test Email - Soul Train's Eatery Gmail Integration`;
+      testEmailHtml = `
 <!DOCTYPE html>
 <html>
 <head>
@@ -74,7 +135,7 @@ const handler = async (req: Request): Promise<Response> => {
       
       <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin: 20px 0;">
         <h4 style="color: #8B4513; margin-top: 0;">Test Details</h4>
-        <p><strong>From:</strong> ${fromEmail}</p>
+        <p><strong>From:</strong> ${fromEmail || 'soultrainseatery@gmail.com'}</p>
         <p><strong>To:</strong> ${toEmail}</p>
         <p><strong>Sent:</strong> ${new Date().toLocaleString()}</p>
         <p><strong>Service:</strong> Gmail API Integration</p>
@@ -104,15 +165,18 @@ const handler = async (req: Request): Promise<Response> => {
   </div>
 </body>
 </html>
-    `;
+      `;
+    }
 
-    // Send test email via Gmail
+    console.log(`Attempting to send test email to ${toEmail}`);
+
+    // Send test email via SMTP
     const { data: emailResult, error: emailError } = await supabase.functions.invoke('send-smtp-email', {
       body: {
         to: toEmail,
-        subject: `Test Email - Soul Train's Eatery Gmail Integration`,
+        subject: subject,
         html: testEmailHtml,
-        from: fromEmail
+        from: fromEmail || 'soultrainseatery@gmail.com'
       }
     });
 
@@ -125,9 +189,10 @@ const handler = async (req: Request): Promise<Response> => {
 
     return new Response(JSON.stringify({ 
       success: true, 
-      message: 'Test email sent successfully via Gmail',
+      message: emailType ? `Test email for "${emailType}" sent successfully` : 'Test email sent successfully via Gmail',
       messageId: emailResult?.messageId,
-      from: fromEmail,
+      emailType: emailType || 'smtp_test',
+      variant: variant || 'default',
       to: toEmail
     }), {
       status: 200,
