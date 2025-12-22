@@ -169,6 +169,9 @@ serve(async (req) => {
       sessionMetadata.milestone_id = milestone_id;
     }
 
+    // Use SITE_URL for consistent redirect URLs across all payment functions
+    const siteUrl = Deno.env.get("SITE_URL") || Deno.env.get("FRONTEND_URL") || "https://mkqdevtesting.com";
+
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       line_items: [
@@ -186,8 +189,8 @@ serve(async (req) => {
         },
       ],
       mode: "payment",
-      success_url: `${req.headers.get("origin")}/payment-success?session_id={CHECKOUT_SESSION_ID}${milestone_id ? `&milestone_id=${milestone_id}` : ''}`,
-      cancel_url: `${req.headers.get("origin")}/payment-canceled${milestone_id ? `?milestone_id=${milestone_id}` : ''}`,
+      success_url: `${siteUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}${milestone_id ? `&milestone_id=${milestone_id}` : ''}`,
+      cancel_url: `${siteUrl}/payment-canceled${milestone_id ? `?milestone_id=${milestone_id}` : ''}`,
       metadata: sessionMetadata,
       payment_intent_data: {
         metadata: sessionMetadata
