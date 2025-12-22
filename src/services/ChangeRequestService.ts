@@ -38,6 +38,19 @@ export class ChangeRequestService {
       throw new Error('Failed to submit change request');
     }
 
+    // Send admin notification about change request
+    await supabase.functions.invoke('send-admin-notification', {
+      body: {
+        invoiceId: input.invoiceId,
+        notificationType: 'change_request',
+        metadata: {
+          requestType: input.requestType,
+          customerComments: input.customerComments,
+          customerEmail: input.customerEmail
+        }
+      }
+    });
+
     return { id: data.id };
   }
 

@@ -264,6 +264,7 @@ export function CustomerEstimateView() {
             amountPaid={amountPaid}
             milestones={milestones || []}
             customerEmail={quote.email}
+            accessToken={token}
           />
         )}
 

@@ -88,6 +88,15 @@ export function CustomerActions({
         }
       }
 
+      // Send admin notification about customer approval
+      await supabase.functions.invoke('send-admin-notification', {
+        body: {
+          invoiceId,
+          notificationType: 'customer_approval',
+          metadata: { customerEmail }
+        }
+      });
+
       toast({
         title: 'Estimate Approved!',
         description: 'Your payment options are now available below. Check your email for payment details.',
