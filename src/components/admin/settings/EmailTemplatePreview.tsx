@@ -62,13 +62,13 @@ export function EmailTemplatePreview() {
         return;
       }
 
-      const { error } = await supabase.functions.invoke('send-test-email', {
-        body: { 
-          to: user.email,
-          subject: `[TEST] ${previewSubject}`,
-          html: previewHtml
-        }
-      });
+       const { error } = await supabase.functions.invoke('send-test-email', {
+         body: {
+           toEmail: user.email,
+           emailType: selectedType,
+           variant: selectedVariant,
+         }
+       });
 
       if (error) throw error;
 
