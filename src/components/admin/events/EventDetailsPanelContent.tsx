@@ -35,7 +35,7 @@ function PaymentScheduleSectionInner({ invoiceId, milestones, isRegenerating, on
   };
 
   return (
-    <section className="space-y-3 pl-4 border-l-4 border-gold/40 bg-gold/5 rounded-r-md py-3 -ml-4 lg:-ml-6 pr-4 lg:pr-6">
+    <section className="space-y-3 pl-4 border-l-4 border-gold/40 rounded-r-md py-3 -ml-4 lg:-ml-6 pr-4 lg:pr-6">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
           <span className="text-base">💵</span> Payment Schedule
@@ -123,7 +123,7 @@ export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
   };
 
   return (
-    <div className="space-y-6 p-4 lg:p-6">
+    <div className="space-y-6 p-4 lg:p-6 bg-white dark:bg-card min-h-full">
       {/* Header with Status */}
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold flex items-center gap-2">
@@ -136,7 +136,7 @@ export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
       </div>
 
       {/* Customer Section - Ruby/Primary accent */}
-      <section className="space-y-1 pl-4 border-l-4 border-primary/40 bg-primary/5 rounded-r-md py-3 -ml-4 lg:-ml-6 pr-4 lg:pr-6">
+      <section className="space-y-1 pl-4 border-l-4 border-primary/40 rounded-r-md py-3 -ml-4 lg:-ml-6 pr-4 lg:pr-6">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-2">
             <Users className="h-4 w-4" /> Customer
@@ -162,7 +162,7 @@ export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
       <Separator />
 
       {/* Event Section - Navy accent */}
-      <section className="space-y-2 pl-4 border-l-4 border-navy/40 bg-navy/5 rounded-r-md py-3 -ml-4 lg:-ml-6 pr-4 lg:pr-6">
+      <section className="space-y-2 pl-4 border-l-4 border-navy/40 rounded-r-md py-3 -ml-4 lg:-ml-6 pr-4 lg:pr-6">
         <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-2">
           <PartyPopper className="h-4 w-4" /> Event
         </h3>
@@ -194,7 +194,7 @@ export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
       <Separator />
 
       {/* Menu Section - Gold accent */}
-      <section className="space-y-2 pl-4 border-l-4 border-gold/50 bg-gold/5 rounded-r-md py-3 -ml-4 lg:-ml-6 pr-4 lg:pr-6">
+      <section className="space-y-2 pl-4 border-l-4 border-gold/50 rounded-r-md py-3 -ml-4 lg:-ml-6 pr-4 lg:pr-6">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-2">
             <Utensils className="h-4 w-4" /> Menu Selections
@@ -273,7 +273,7 @@ export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
         quote?.serving_utensils_requested || quote?.ice_requested) && (
         <>
           <Separator />
-          <section className="space-y-2 pl-4 border-l-4 border-platinum/60 bg-platinum/5 rounded-r-md py-3 -ml-4 lg:-ml-6 pr-4 lg:pr-6">
+          <section className="space-y-2 pl-4 border-l-4 border-platinum/60 rounded-r-md py-3 -ml-4 lg:-ml-6 pr-4 lg:pr-6">
             <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
               Supplies & Equipment
             </h3>
