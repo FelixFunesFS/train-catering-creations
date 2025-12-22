@@ -1,5 +1,6 @@
 /**
  * Shared formatting utilities for consistent display across the application
+ * All timestamps are displayed in Eastern Time (ET) unless otherwise specified
  */
 
 /**
@@ -87,4 +88,39 @@ export function getStatusColor(status: string): string {
     cancelled: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200',
   };
   return statusColors[status] || 'bg-muted text-muted-foreground';
+}
+
+/**
+ * Format timestamp to date and time in Eastern Time (e.g., "Dec 21, 2025 4:34 PM ET")
+ */
+export function formatDateTimeET(timestamp: string): string {
+  const date = new Date(timestamp);
+  return date.toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+    timeZone: 'America/New_York',
+  }) + ' ET';
+}
+
+/**
+ * Format timestamp to short date/time in Eastern Time (e.g., "Dec 21 4:34p")
+ * Useful for table columns where space is limited
+ */
+export function formatDateTimeShortET(timestamp: string): string {
+  if (!timestamp) return '—';
+  const date = new Date(timestamp);
+  const formatted = date.toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+    timeZone: 'America/New_York',
+  });
+  // Shorten AM/PM to a/p for compactness
+  return formatted.replace(' AM', 'a').replace(' PM', 'p');
 }

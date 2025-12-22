@@ -1,10 +1,9 @@
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowUpDown } from 'lucide-react';
 
 export type StatusFilter = 'all' | 'pending' | 'confirmed' | 'completed' | 'cancelled';
 export type ServiceTypeFilter = 'all' | 'delivery-only' | 'delivery-setup' | 'full-service';
-export type SortBy = 'date' | 'name' | 'total';
+export type SortBy = 'submitted' | 'date' | 'name' | 'event' | 'guests' | 'status' | 'total';
 export type SortOrder = 'asc' | 'desc';
 
 interface EventFiltersProps {
@@ -31,10 +30,6 @@ export function EventFilters({
   setStatusFilter,
   serviceTypeFilter,
   setServiceTypeFilter,
-  sortBy,
-  setSortBy,
-  sortOrder,
-  setSortOrder,
 }: EventFiltersProps) {
   return (
     <div className="flex flex-wrap items-center gap-2">
@@ -65,29 +60,6 @@ export function EventFilters({
           <SelectItem value="full-service">Full-Service</SelectItem>
         </SelectContent>
       </Select>
-
-      {/* Sort Dropdown */}
-      <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortBy)}>
-        <SelectTrigger className="w-[110px] h-8 text-xs">
-          <SelectValue placeholder="Sort by" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="date">Date</SelectItem>
-          <SelectItem value="name">Name</SelectItem>
-          <SelectItem value="total">Total</SelectItem>
-        </SelectContent>
-      </Select>
-
-      {/* Sort Order Toggle */}
-      <Button
-        variant="outline"
-        size="sm"
-        className="h-8 px-2"
-        onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-      >
-        <ArrowUpDown className="h-3.5 w-3.5" />
-        <span className="ml-1 text-xs">{sortOrder === 'asc' ? 'Asc' : 'Desc'}</span>
-      </Button>
     </div>
   );
 }
