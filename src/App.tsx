@@ -10,6 +10,8 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useScrollToAnchor } from "@/hooks/useScrollToAnchor";
+import { InstallBanner } from "@/components/pwa/InstallBanner";
+import { OfflineIndicator } from "@/components/pwa/OfflineIndicator";
 import Index from "./pages/Index";
 import About from "./pages/About";
 import Menu from "./pages/Menu";
@@ -26,6 +28,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsConditions from "./pages/TermsConditions";
 import AdminAuth from "./pages/AdminAuth";
 import NotFound from "./pages/NotFound";
+import Install from "./pages/Install";
 
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCanceled from "./pages/PaymentCanceled";
@@ -44,6 +47,7 @@ const AppContent = () => {
   const hideChrome = isEventFullView || isEstimatePrint;
   
   return <div className="min-h-screen bg-background font-clean flex flex-col transition-colors duration-300 py-0 my-0">
+      <OfflineIndicator />
       {!hideChrome && <Header />}
       <main className={`flex-1 ${isAdminRoute ? 'p-0' : 'py-0 my-0'}`}>
         <Routes>
@@ -58,6 +62,7 @@ const AppContent = () => {
           <Route path="/gallery" element={<PhotoGallery />} />
           <Route path="/gallery-alt" element={<AlternativeGallery />} />
           <Route path="/faq" element={<FAQ />} />
+          <Route path="/install" element={<Install />} />
           {/* Development routes - remove in production */}
           {process.env.NODE_ENV === 'development' && <Route path="/test-email" element={<TestEmail />} />}
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
@@ -87,6 +92,7 @@ const AppContent = () => {
         </Routes>
       </main>
       {!hideChrome && !isAdminRoute && <Footer />}
+      {!hideChrome && !isAdminRoute && <InstallBanner />}
     </div>;
 };
 const queryClient = new QueryClient();
