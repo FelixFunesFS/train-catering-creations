@@ -3,10 +3,10 @@ import { useQuote } from '@/hooks/useQuotes';
 import { useInvoiceByQuote } from '@/hooks/useInvoices';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { EventEstimateFullView } from '@/components/admin/events/EventEstimateFullView';
-import { Button } from '@/components/ui/button';
+import { MobileEstimateView } from '@/components/admin/mobile/MobileEstimateView';
 import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
-import { useEffect } from 'react';
 
 export function EventEstimateFullViewPage() {
   const { quoteId } = useParams<{ quoteId: string }>();
@@ -16,25 +16,9 @@ export function EventEstimateFullViewPage() {
   const { data: quote, isLoading: quoteLoading, error: quoteError } = useQuote(quoteId);
   const { data: invoice, isLoading: invoiceLoading } = useInvoiceByQuote(quoteId);
 
-  // Redirect mobile users to admin modal view
-  useEffect(() => {
-    if (!isDesktop && quoteId) {
-      navigate(`/admin?view=events&tab=list&quoteId=${quoteId}`, { replace: true });
-    }
-  }, [isDesktop, quoteId, navigate]);
-
   const handleClose = () => {
     navigate('/admin?view=events');
   };
-
-  // Don't render on mobile (redirecting)
-  if (!isDesktop) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
 
   if (quoteLoading || invoiceLoading) {
     return (
@@ -64,6 +48,17 @@ export function EventEstimateFullViewPage() {
           </CardContent>
         </Card>
       </div>
+    );
+  }
+
+  // Use mobile view on smaller screens, desktop view on larger
+  if (!isDesktop) {
+    return (
+      <MobileEstimateView 
+        quote={quote} 
+        invoice={invoice} 
+        onClose={handleClose} 
+      />
     );
   }
 
