@@ -18,7 +18,10 @@ export default defineConfig(({ mode }) => ({
       includeAssets: ['favicon.svg', 'favicon.ico', 'apple-touch-icon.png', 'icon-192.png', 'icon-512.png'],
       manifest: false, // We use our own manifest.json
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
+        globPatterns: ['**/*.{js,css,html,ico,svg,woff,woff2}'],
+        // Exclude large uploads and allow larger JS bundles
+        globIgnores: ['**/lovable-uploads/**'],
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MB limit
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
@@ -58,6 +61,21 @@ export default defineConfig(({ mode }) => ({
                 maxAgeSeconds: 60 * 5 // 5 minutes
               },
               networkTimeoutSeconds: 10
+            }
+          },
+          {
+            // Cache large uploads at runtime instead of precache
+            urlPattern: /\/lovable-uploads\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'uploads-cache',
+              expiration: {
+                maxEntries: 20,
+                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
             }
           }
         ]
