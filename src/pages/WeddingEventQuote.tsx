@@ -5,6 +5,7 @@ import { useAnimationClass } from "@/hooks/useAnimationClass";
 import { useFormAnalytics } from "@/hooks/useFormAnalytics";
 import { ResponsiveWrapper } from "@/components/ui/responsive-wrapper";
 import { WeddingQuoteSplitHero } from "@/components/wedding/WeddingQuoteSplitHero";
+import { RequestThrottling } from "@/components/security/RequestThrottling";
 
 const WeddingEventQuote = () => {
   // Track page view
@@ -34,7 +35,9 @@ const WeddingEventQuote = () => {
         <ResponsiveWrapper>
           <div ref={formRef} className={useAnimationClass(formVariant, formVisible)}>
             <div className="max-w-5xl mx-auto">
-              <SinglePageQuoteForm variant="wedding" />
+              <RequestThrottling maxRequests={3} timeWindowMinutes={60} storageKey="wedding_quote_requests">
+                <SinglePageQuoteForm variant="wedding" />
+              </RequestThrottling>
             </div>
           </div>
         </ResponsiveWrapper>

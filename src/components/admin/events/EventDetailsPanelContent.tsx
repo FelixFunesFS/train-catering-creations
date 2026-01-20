@@ -194,7 +194,8 @@ export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
       )}
 
       {/* Service Add-ons */}
-      {(quote?.chafers_requested || quote?.wait_staff_requested || quote?.bussing_tables_needed) && (
+      {(quote?.chafers_requested || quote?.wait_staff_requested || quote?.bussing_tables_needed ||
+        quote?.ceremony_included || quote?.cocktail_hour) && (
         <>
           <Separator />
           <section className="space-y-2">
@@ -205,6 +206,8 @@ export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
               {quote?.chafers_requested && <li>• Chafer Setup</li>}
               {quote?.wait_staff_requested && <li>• Wait Staff</li>}
               {quote?.bussing_tables_needed && <li>• Bussing Tables</li>}
+              {quote?.ceremony_included && <li>• Ceremony Catering</li>}
+              {quote?.cocktail_hour && <li>• Cocktail Hour</li>}
             </ul>
           </section>
         </>
