@@ -35,9 +35,16 @@ import {
   Loader2,
   Download,
   Pencil,
-  Building2
+  Building2,
+  Clock,
+  Truck,
+  Palette,
+  PartyPopper,
+  Utensils,
+  Package
 } from 'lucide-react';
 import { format } from 'date-fns';
+import { formatTime, formatServiceType, formatEventType } from '@/utils/formatters';
 import { AddLineItemModal } from '@/components/admin/billing/AddLineItemModal';
 import { EmailPreview } from '@/components/admin/billing/EmailPreview';
 import { DiscountEditor } from '@/components/admin/billing/DiscountEditor';
@@ -283,12 +290,42 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
                       </div>
                     </div>
                     <div className="flex items-start gap-2">
+                      <Clock className="h-4 w-4 text-muted-foreground mt-0.5" />
+                      <div>
+                        <p className="text-muted-foreground text-xs">Start Time</p>
+                        <p className="font-medium">{quote?.start_time ? formatTime(quote.start_time) : 'TBD'}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
                       <Users className="h-4 w-4 text-muted-foreground mt-0.5" />
                       <div>
                         <p className="text-muted-foreground text-xs">Guests</p>
                         <p className="font-medium">{quote?.guest_count || 0}</p>
                       </div>
                     </div>
+                    <div className="flex items-start gap-2">
+                      <PartyPopper className="h-4 w-4 text-muted-foreground mt-0.5" />
+                      <div>
+                        <p className="text-muted-foreground text-xs">Event Type</p>
+                        <p className="font-medium">{quote?.event_type ? formatEventType(quote.event_type) : 'TBD'}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Truck className="h-4 w-4 text-muted-foreground mt-0.5" />
+                      <div>
+                        <p className="text-muted-foreground text-xs">Service Type</p>
+                        <p className="font-medium">{quote?.service_type ? formatServiceType(quote.service_type) : 'TBD'}</p>
+                      </div>
+                    </div>
+                    {quote?.theme_colors && (
+                      <div className="flex items-start gap-2">
+                        <Palette className="h-4 w-4 text-muted-foreground mt-0.5" />
+                        <div>
+                          <p className="text-muted-foreground text-xs">Theme/Colors</p>
+                          <p className="font-medium">{quote.theme_colors}</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                   
                   <div className="flex items-start gap-2 text-sm">
@@ -326,21 +363,109 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
                     />
                   </div>
 
-                  {/* Menu Selections Summary */}
-                  {quote?.proteins && Array.isArray(quote.proteins) && quote.proteins.length > 0 && (
+                  {/* Menu Selections - Collapsible */}
+                  <Collapsible>
+                    <CollapsibleTrigger asChild>
+                      <div className="flex items-center justify-between p-2 bg-muted/50 rounded-md cursor-pointer">
+                        <p className="text-xs font-medium flex items-center gap-1">
+                          <Utensils className="h-3 w-3" /> Menu Selections
+                        </p>
+                        <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform data-[state=open]:rotate-180" />
+                      </div>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="pt-2 space-y-2">
+                      {/* Appetizers */}
+                      {quote?.appetizers && Array.isArray(quote.appetizers) && quote.appetizers.length > 0 && (
+                        <div>
+                          <p className="text-xs text-muted-foreground">Appetizers</p>
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {quote.appetizers.map((item: string, idx: number) => (
+                              <Badge key={idx} variant="outline" className="text-xs">{item}</Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Proteins */}
+                      {quote?.proteins && Array.isArray(quote.proteins) && quote.proteins.length > 0 && (
+                        <div>
+                          <p className="text-xs text-muted-foreground">
+                            Proteins {quote.both_proteins_available && <span className="text-primary">(Both Available)</span>}
+                          </p>
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {quote.proteins.map((item: string, idx: number) => (
+                              <Badge key={idx} variant="secondary" className="text-xs">{item}</Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Vegetarian Entrées */}
+                      {quote?.vegetarian_entrees && Array.isArray(quote.vegetarian_entrees) && quote.vegetarian_entrees.length > 0 && (
+                        <div>
+                          <p className="text-xs text-muted-foreground">
+                            Vegetarian {quote.guest_count_with_restrictions && `(${quote.guest_count_with_restrictions} guests)`}
+                          </p>
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {quote.vegetarian_entrees.map((item: string, idx: number) => (
+                              <Badge key={idx} variant="outline" className="text-xs bg-green-500/10 border-green-500/30">{item}</Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Sides */}
+                      {quote?.sides && Array.isArray(quote.sides) && quote.sides.length > 0 && (
+                        <div>
+                          <p className="text-xs text-muted-foreground">Sides</p>
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {quote.sides.map((item: string, idx: number) => (
+                              <Badge key={idx} variant="outline" className="text-xs">{item}</Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Desserts */}
+                      {quote?.desserts && Array.isArray(quote.desserts) && quote.desserts.length > 0 && (
+                        <div>
+                          <p className="text-xs text-muted-foreground">Desserts</p>
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {quote.desserts.map((item: string, idx: number) => (
+                              <Badge key={idx} variant="outline" className="text-xs">{item}</Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Beverages */}
+                      {quote?.drinks && Array.isArray(quote.drinks) && quote.drinks.length > 0 && (
+                        <div>
+                          <p className="text-xs text-muted-foreground">Beverages</p>
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {quote.drinks.map((item: string, idx: number) => (
+                              <Badge key={idx} variant="outline" className="text-xs">{item}</Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </CollapsibleContent>
+                  </Collapsible>
+
+                  {/* Supplies & Equipment */}
+                  {(quote?.plates_requested || quote?.cups_requested || quote?.napkins_requested || 
+                    quote?.serving_utensils_requested || quote?.chafers_requested || quote?.ice_requested) && (
                     <div className="space-y-1">
-                      <p className="text-xs text-muted-foreground font-medium">Menu Selections</p>
+                      <p className="text-xs text-muted-foreground font-medium flex items-center gap-1">
+                        <Package className="h-3 w-3" /> Supplies & Equipment
+                      </p>
                       <div className="flex flex-wrap gap-1">
-                        {quote.proteins.map((protein: string, idx: number) => (
-                          <Badge key={`protein-${idx}`} variant="secondary" className="text-xs">
-                            {protein}
-                          </Badge>
-                        ))}
-                        {quote?.sides && Array.isArray(quote.sides) && quote.sides.map((side: string, idx: number) => (
-                          <Badge key={`side-${idx}`} variant="outline" className="text-xs">
-                            {side}
-                          </Badge>
-                        ))}
+                        {quote.plates_requested && <Badge variant="outline" className="text-xs">Plates</Badge>}
+                        {quote.cups_requested && <Badge variant="outline" className="text-xs">Cups</Badge>}
+                        {quote.napkins_requested && <Badge variant="outline" className="text-xs">Napkins</Badge>}
+                        {quote.serving_utensils_requested && <Badge variant="outline" className="text-xs">Serving Utensils</Badge>}
+                        {quote.chafers_requested && <Badge variant="outline" className="text-xs">Chafers</Badge>}
+                        {quote.ice_requested && <Badge variant="outline" className="text-xs">Ice</Badge>}
                       </div>
                     </div>
                   )}
