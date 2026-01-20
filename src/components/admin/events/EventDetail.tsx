@@ -15,6 +15,7 @@ import { formatLocationLink, formatPhoneLink } from '@/utils/linkFormatters';
 import { User, Calendar, MapPin, Users, Utensils, FileText, Loader2, Package, Eye, Pencil, Receipt, Play, CheckCircle, XCircle, MessageSquare, PartyPopper, Leaf, Phone, ExternalLink } from 'lucide-react';
 import { useUpdateQuoteStatus } from '@/hooks/useQuotes';
 import { EstimateEditor } from '@/components/admin/billing/EstimateEditor';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 
 type QuoteRequest = Database['public']['Tables']['quote_requests']['Row'];
 
@@ -45,6 +46,7 @@ export function EventDetail({ quote, onClose }: EventDetailProps) {
   const [generatedInvoiceId, setGeneratedInvoiceId] = useState<string | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const isMobile = useMediaQuery('(max-width: 1024px)');
   
   // Check if estimate already exists
   const { data: existingInvoice, isLoading: checkingInvoice, refetch: refetchInvoice } = useInvoiceByQuote(quote.id);
@@ -74,6 +76,12 @@ export function EventDetail({ quote, onClose }: EventDetailProps) {
 
   const handleViewEstimate = () => {
     if (!existingInvoice) return;
+    // On mobile, navigate to full-page view instead of nested dialog
+    if (isMobile) {
+      onClose();
+      navigate(`/admin/event/${quote.id}`);
+      return;
+    }
     setShowEstimateEditor(true);
   };
 
@@ -91,7 +99,14 @@ export function EventDetail({ quote, onClose }: EventDetailProps) {
         description: 'Opening estimate editor...',
       });
       
-      // Set the generated invoice ID and show the editor
+      // On mobile, navigate to full-page view
+      if (isMobile) {
+        onClose();
+        navigate(`/admin/event/${quote.id}`);
+        return;
+      }
+      
+      // Desktop: Set the generated invoice ID and show the editor
       setGeneratedInvoiceId(data.invoice_id);
       setShowEstimateEditor(true);
       refetchInvoice();

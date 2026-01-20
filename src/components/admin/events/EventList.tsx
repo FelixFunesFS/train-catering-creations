@@ -225,11 +225,8 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
   }
 
   const handleEventClick = (event: QuoteRequest) => {
-    if (isDesktop) {
-      navigate(`/admin/event/${event.id}`);
-    } else {
-      setSelectedQuote(event);
-    }
+    // Always navigate to full event view - route handles mobile/desktop rendering
+    navigate(`/admin/event/${event.id}`);
   };
 
   return (
@@ -328,7 +325,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                     <div
                       key={event.id}
                       className="p-4 border rounded-lg bg-card active:bg-muted/50 transition-colors cursor-pointer"
-                      onClick={() => setSelectedQuote(event)}
+                      onClick={() => navigate(`/admin/event/${event.id}`)}
                     >
                       <div className="flex justify-between items-start mb-2">
                         <div className="min-w-0 flex-1">
@@ -405,7 +402,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                                 className="h-8 w-8"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  setSelectedQuote(event);
+                                  navigate(`/admin/event/${event.id}`);
                                 }}
                               >
                                 <ActionIcon className="h-4 w-4" />
