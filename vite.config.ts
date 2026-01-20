@@ -29,8 +29,13 @@ export default defineConfig(({ mode }) => ({
           /^\/rest/,
           /^\/auth/,
           /^\/supabase/,
+          /^\/estimate/,        // Customer portal routes
+          /^\/customer-portal/, // Customer portal routes
           /\.(?:png|jpg|jpeg|gif|svg|ico|webp|mp4|pdf)$/i,
         ],
+        // Force update on new deployments
+        skipWaiting: true,
+        clientsClaim: true,
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
