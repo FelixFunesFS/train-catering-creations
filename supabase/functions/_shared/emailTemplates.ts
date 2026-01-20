@@ -147,7 +147,7 @@ a{color:${BRAND_COLORS.crimson};text-decoration:underline}
 
 export function generateEmailHeader(title: string = "Soul Train's Eatery"): string {
   return `
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:linear-gradient(135deg,${BRAND_COLORS.crimson},${BRAND_COLORS.crimsonDark});border-collapse:collapse;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${BRAND_COLORS.crimson}" style="background:linear-gradient(135deg,${BRAND_COLORS.crimson},${BRAND_COLORS.crimsonDark});border-collapse:collapse;">
 <tr>
 <td align="center" style="padding:30px 20px;">
 <table cellpadding="0" cellspacing="0" border="0">
@@ -189,7 +189,7 @@ export function generateEventDetailsCard(quote: any): string {
 
   // Table-based layout for email compatibility
   return `
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${BRAND_COLORS.lightGray};border-radius:8px;border-left:4px solid ${BRAND_COLORS.gold};margin:16px 0;border-collapse:collapse;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${BRAND_COLORS.lightGray}" style="background:${BRAND_COLORS.lightGray};border-radius:8px;border-left:4px solid ${BRAND_COLORS.gold};margin:16px 0;border-collapse:collapse;">
 <tr>
 <td style="padding:16px;">
 <h3 style="margin:0 0 12px 0;color:${BRAND_COLORS.crimson};font-size:18px;">${quote.event_name || 'Your Event'}</h3>
@@ -258,7 +258,7 @@ export function generateServiceAddonsSection(quote: any): string {
 `).join('');
 
   return `
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${BRAND_COLORS.lightGray};border-radius:8px;border-left:4px solid ${BRAND_COLORS.crimson};margin:16px 0;border-collapse:collapse;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${BRAND_COLORS.lightGray}" style="background:${BRAND_COLORS.lightGray};border-radius:8px;border-left:4px solid ${BRAND_COLORS.crimson};margin:16px 0;border-collapse:collapse;">
 <tr>
 <td style="padding:16px;">
 <h3 style="margin:0 0 12px 0;color:${BRAND_COLORS.darkGray};font-size:16px;">🍽️ Services Included</h3>
@@ -309,14 +309,13 @@ export function generateMenuSection(lineItems: any[], bothProteinsAvailable?: bo
   const categoryOrder = ['Proteins', 'Sides', 'dietary', 'Appetizers', 'Desserts', 'Beverages', 'Service Items', 'Other Items'];
   
   let menuHtml = `
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${BRAND_COLORS.white};border:2px solid ${BRAND_COLORS.lightGray};border-radius:8px;margin:16px 0;border-collapse:collapse;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${BRAND_COLORS.white}" style="background:${BRAND_COLORS.white};border:2px solid ${BRAND_COLORS.lightGray};border-radius:8px;margin:16px 0;border-collapse:collapse;">
 <tr>
 <td style="padding:20px;">
 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
 <tr>
-<td align="center" style="padding-bottom:20px;">
-<h3 style="margin:0 0 8px 0;color:${BRAND_COLORS.crimson};font-size:22px;">🍽️ Your Custom Menu</h3>
-<p style="margin:0;color:#666;font-size:14px;font-style:italic;">Carefully curated Southern cuisine</p>
+<td align="center" style="padding-bottom:16px;">
+<h3 style="margin:0;color:${BRAND_COLORS.crimson};font-size:20px;">🍽️ Menu Selections</h3>
 </td>
 </tr>
 </table>
@@ -455,7 +454,7 @@ export function generateMenuSummarySection(quote: any): string {
   if (!hasContent) return '';
 
   let html = `
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${BRAND_COLORS.lightGray};border-radius:10px;border-left:4px solid ${BRAND_COLORS.gold};margin:16px 0;border-collapse:collapse;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${BRAND_COLORS.lightGray}" style="background:${BRAND_COLORS.lightGray};border-radius:10px;border-left:4px solid ${BRAND_COLORS.gold};margin:16px 0;border-collapse:collapse;">
 <tr>
 <td style="padding:20px;">
 <h3 style="margin:0 0 16px 0;color:${BRAND_COLORS.crimson};font-size:18px;">🍽️ Your Menu</h3>
@@ -625,8 +624,8 @@ export function generateMenuWithPricingSection(
 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:20px 0;border-collapse:collapse;">
 <tr>
 <td>
-<!-- Total Summary Box -->
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:linear-gradient(135deg,${BRAND_COLORS.crimson},${BRAND_COLORS.crimsonDark});border-radius:12px;margin-bottom:20px;border-collapse:collapse;">
+<!-- Total Summary Box - bgcolor for Outlook -->
+<table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${BRAND_COLORS.crimson}" style="background:linear-gradient(135deg,${BRAND_COLORS.crimson},${BRAND_COLORS.crimsonDark});border-radius:12px;margin-bottom:20px;border-collapse:collapse;">
 <tr>
 <td align="center" style="padding:24px;">
 <span style="font-size:14px;color:rgba(255,255,255,0.9);text-transform:uppercase;letter-spacing:1px;">Your Total</span>
@@ -637,14 +636,13 @@ export function generateMenuWithPricingSection(
 </table>
 
 <!-- Menu & Pricing Section -->
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${BRAND_COLORS.white};border:2px solid ${BRAND_COLORS.lightGray};border-radius:12px;border-collapse:collapse;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${BRAND_COLORS.white}" style="background:${BRAND_COLORS.white};border:2px solid ${BRAND_COLORS.lightGray};border-radius:12px;border-collapse:collapse;">
 <tr>
 <td style="padding:24px;">
 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
 <tr>
-<td align="center" style="padding-bottom:20px;">
-<h3 style="margin:0 0 8px 0;color:${BRAND_COLORS.crimson};font-size:22px;">🍽️ Your Custom Menu & Pricing</h3>
-<p style="margin:0;color:#666;font-size:14px;font-style:italic;">Carefully curated Southern cuisine</p>
+<td align="center" style="padding-bottom:16px;">
+<h3 style="margin:0;color:${BRAND_COLORS.crimson};font-size:20px;">🍽️ Menu & Pricing</h3>
 </td>
 </tr>
 </table>
@@ -801,7 +799,7 @@ ${qtyStr ? `<span style="color:#888;font-size:11px;margin-left:8px;">(${qtyStr})
 
 export function generateFooter(): string {
   return `
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${BRAND_COLORS.lightGray};border-top:3px solid ${BRAND_COLORS.gold};border-collapse:collapse;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${BRAND_COLORS.lightGray}" style="background:${BRAND_COLORS.lightGray};border-top:3px solid ${BRAND_COLORS.gold};border-collapse:collapse;">
 <tr>
 <td align="center" style="padding:24px 16px;">
 <table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
@@ -1133,8 +1131,12 @@ export function generateHeroSection(config: HeroConfig): string {
 
   const colors = variantColors[config.variant] || variantColors.crimson;
 
+  // Use VML for Outlook gradient fallback + bgcolor attribute for plain fallback
   return `
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:linear-gradient(135deg,${colors.bg},${colors.bgDark});border-collapse:collapse;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${colors.bg}" style="background:linear-gradient(135deg,${colors.bg},${colors.bgDark});border-collapse:collapse;">
+<!--[if gte mso 9]>
+<tr><td bgcolor="${colors.bg}" style="background-color:${colors.bg};">
+<![endif]-->
 <tr>
 <td align="center" style="padding:30px 20px;">
 <table cellpadding="0" cellspacing="0" border="0">
@@ -1152,13 +1154,16 @@ export function generateHeroSection(config: HeroConfig): string {
 </tr>
 <tr>
 <td align="center">
-<h1 style="margin:0 0 8px 0;font-size:26px;font-weight:bold;color:${BRAND_COLORS.white};line-height:1.2;">${config.title}</h1>
-${config.subtitle ? `<p style="margin:0;font-size:14px;color:rgba(255,255,255,0.9);line-height:1.3;">${config.subtitle}</p>` : ''}
+<h1 style="margin:0;font-size:26px;font-weight:bold;color:${BRAND_COLORS.white};line-height:1.2;">${config.title}</h1>
+${config.subtitle ? `<p style="margin:8px 0 0 0;font-size:14px;color:rgba(255,255,255,0.9);line-height:1.3;">${config.subtitle}</p>` : ''}
 </td>
 </tr>
 </table>
 </td>
 </tr>
+<!--[if gte mso 9]>
+</td></tr>
+<![endif]-->
 </table>
 `;
 }
@@ -1691,89 +1696,89 @@ export const EMAIL_CONFIGS: Record<EmailType, {
 }> = {
   quote_received: {
     admin: {
-      heroSection: { badge: '🚂 NEW QUOTE REQUEST', title: 'New Quote Submission', subtitle: 'A customer has submitted a quote request', variant: 'crimson' },
+      heroSection: { badge: '🚂 NEW QUOTE', title: 'New Quote Submission', variant: 'crimson' },
       preheaderText: 'New catering quote request received'
     }
   },
   quote_confirmation: {
     customer: {
-      heroSection: { badge: '✅ QUOTE RECEIVED', title: 'Thank You!', subtitle: "We've received your catering request", variant: 'blue' },
+      heroSection: { badge: '✅ REQUEST RECEIVED', title: 'Thank You for Your Request!', variant: 'blue' },
       preheaderText: "Thank you for your quote request - we'll be in touch soon!"
     }
   },
   estimate_ready: {
     customer: {
-      heroSection: { badge: '📋 ESTIMATE READY', title: 'Your Estimate is Ready', subtitle: 'Review your custom catering proposal', variant: 'gold' },
+      heroSection: { badge: '📋 ESTIMATE READY', title: 'Your Custom Estimate', variant: 'gold' },
       preheaderText: 'Your personalized catering estimate is ready for review'
     }
   },
   estimate_reminder: {
     customer: {
-      heroSection: { badge: '⏰ FRIENDLY REMINDER', title: 'Your Estimate Awaits', subtitle: "Don't miss out on your special event", variant: 'orange' },
+      heroSection: { badge: '⏰ FRIENDLY REMINDER', title: 'Your Estimate Awaits', variant: 'orange' },
       preheaderText: 'Reminder: Your catering estimate is waiting for your review'
     }
   },
   approval_confirmation: {
     customer: {
-      heroSection: { badge: '🎉 APPROVED!', title: 'Estimate Approved', subtitle: "We're excited to cater your event!", variant: 'green' },
+      heroSection: { badge: '🎉 BOOKING CONFIRMED', title: "You're All Set!", variant: 'green' },
       preheaderText: 'Your catering estimate has been approved - next steps inside'
     },
     admin: {
-      heroSection: { badge: '✅ CUSTOMER APPROVED', title: 'Estimate Approved', subtitle: 'Customer has approved their estimate', variant: 'green' },
+      heroSection: { badge: '✅ APPROVED', title: 'Customer Approved Estimate', variant: 'green' },
       preheaderText: 'Customer has approved their catering estimate'
     }
   },
   payment_received: {
     customer: {
-      heroSection: { badge: '💰 PAYMENT RECEIVED', title: 'Thank You!', subtitle: 'Your payment has been processed', variant: 'green' },
+      heroSection: { badge: '💰 PAYMENT CONFIRMED', title: 'Thank You!', variant: 'green' },
       preheaderText: 'Payment confirmation for your catering order'
     },
     admin: {
-      heroSection: { badge: '💵 PAYMENT RECEIVED', title: 'Payment Confirmed', subtitle: 'A customer payment has been processed', variant: 'green' },
+      heroSection: { badge: '💵 PAYMENT RECEIVED', title: 'Payment Confirmed', variant: 'green' },
       preheaderText: 'Payment received for catering order'
     }
   },
   payment_reminder: {
     customer: {
-      heroSection: { badge: '⏰ PAYMENT REMINDER', title: 'Payment Due', subtitle: 'Please complete your payment to confirm your event', variant: 'orange' },
+      heroSection: { badge: '⏰ PAYMENT DUE', title: 'Payment Reminder', variant: 'orange' },
       preheaderText: 'Reminder: Payment due for your upcoming catering event'
     }
   },
   event_reminder: {
     customer: {
-      heroSection: { badge: '📅 EVENT REMINDER', title: 'Your Event is Coming Up!', subtitle: "We're getting ready to serve you", variant: 'blue' },
+      heroSection: { badge: '📅 COMING UP', title: 'Your Event is Approaching!', variant: 'blue' },
       preheaderText: 'Reminder: Your catering event is approaching'
     },
     admin: {
-      heroSection: { badge: '📅 UPCOMING EVENT', title: 'Event Reminder', subtitle: 'An event is coming up soon', variant: 'blue' },
+      heroSection: { badge: '📅 UPCOMING', title: 'Event Reminder', variant: 'blue' },
       preheaderText: 'Reminder: Upcoming catering event'
     }
   },
   change_request_submitted: {
     customer: {
-      heroSection: { badge: '📝 REQUEST RECEIVED', title: 'Change Request Submitted', subtitle: "We'll review your request shortly", variant: 'blue' },
+      heroSection: { badge: '📝 RECEIVED', title: 'Change Request Submitted', variant: 'blue' },
       preheaderText: "We've received your change request"
     },
     admin: {
-      heroSection: { badge: '📝 CHANGE REQUEST', title: 'New Change Request', subtitle: 'A customer has requested changes', variant: 'orange' },
+      heroSection: { badge: '📝 CHANGE REQUEST', title: 'Customer Requested Changes', variant: 'orange' },
       preheaderText: 'New change request from customer'
     }
   },
   change_request_response: {
     customer: {
-      heroSection: { badge: '📋 UPDATE', title: 'Change Request Update', subtitle: "We've reviewed your request", variant: 'blue' },
+      heroSection: { badge: '📋 UPDATE', title: 'Your Request Has Been Reviewed', variant: 'blue' },
       preheaderText: 'Update on your change request'
     }
   },
   admin_notification: {
     admin: {
-      heroSection: { badge: '🔔 NOTIFICATION', title: 'Admin Alert', subtitle: 'Action may be required', variant: 'crimson' },
+      heroSection: { badge: '🔔 ALERT', title: 'Admin Notification', variant: 'crimson' },
       preheaderText: 'Admin notification from Soul Train\'s Eatery'
     }
   },
   event_followup: {
     customer: {
-      heroSection: { badge: '🙏 THANK YOU', title: 'Thank You!', subtitle: 'We hope you enjoyed your event', variant: 'gold' },
+      heroSection: { badge: '🙏 THANK YOU', title: 'We Hope You Enjoyed!', variant: 'gold' },
       preheaderText: 'Thank you for choosing Soul Train\'s Eatery!'
     }
   }
