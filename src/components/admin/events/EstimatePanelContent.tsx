@@ -4,6 +4,7 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { 
   FileText, Plus, Loader2, Printer, X, Eye, RefreshCw, Save, Undo2
 } from 'lucide-react';
@@ -313,9 +314,27 @@ export const EstimatePanelContent = memo(function EstimatePanelContent({
           <X className="h-4 w-4 mr-1" /> Close
         </Button>
         {isAlreadySent ? (
-          <Button onClick={onResendClick} disabled={!sortedLineItems?.length || hasUnsavedChanges} variant="outline" className="flex-1">
-            <RefreshCw className="h-4 w-4 mr-1" /> Resend
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="flex-1">
+                  <Button 
+                    onClick={onResendClick} 
+                    disabled={!sortedLineItems?.length || hasUnsavedChanges} 
+                    variant="outline" 
+                    className="w-full"
+                  >
+                    <RefreshCw className="h-4 w-4 mr-1" /> Resend
+                  </Button>
+                </span>
+              </TooltipTrigger>
+              {hasUnsavedChanges && (
+                <TooltipContent>
+                  <p>Save your changes before resending</p>
+                </TooltipContent>
+              )}
+            </Tooltip>
+          </TooltipProvider>
         ) : (
           <Button onClick={onPreviewClick} disabled={!sortedLineItems?.length || hasUnsavedChanges} className="flex-1">
             <Eye className="h-4 w-4 mr-1" /> Preview & Send

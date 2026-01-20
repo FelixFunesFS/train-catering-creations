@@ -59,6 +59,7 @@ function groupByCategory(items: LineItem[]): Record<string, LineItem[]> {
 }
 
 // Check if we should skip the category header (single item that already describes category)
+// Enhanced v2 - covers all common descriptive terms to prevent redundancy
 function shouldSkipCategoryHeader(category: string, items: LineItem[]): boolean {
   if (items.length !== 1) return false;
   
@@ -66,14 +67,17 @@ function shouldSkipCategoryHeader(category: string, items: LineItem[]): boolean 
   const categoryLower = category.toLowerCase();
   const labelLower = (categoryLabels[category] || category).toLowerCase();
   
+  // Comprehensive list of descriptive terms that make headers redundant
+  const descriptiveTerms = [
+    'package', 'selection', 'service', 'catering',
+    'supply', 'equipment', 'entrée', 'entree'
+  ];
+  
   // Skip if the item title already contains descriptive category info
   return (
     firstItemTitle.includes(categoryLower) ||
     firstItemTitle.includes(labelLower.split(' ')[0]) ||
-    firstItemTitle.includes('package') ||
-    firstItemTitle.includes('selection') ||
-    firstItemTitle.includes('service') ||
-    firstItemTitle.includes('catering')
+    descriptiveTerms.some(term => firstItemTitle.includes(term))
   );
 }
 
