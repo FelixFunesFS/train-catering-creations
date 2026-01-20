@@ -48,6 +48,7 @@ interface EstimatePanelContentProps {
   isSaving: boolean;
   isGenerating: boolean;
   isUpdating: boolean;
+  isRegeneratingItems?: boolean;
   // Callbacks
   onGenerateEstimate: () => void;
   onCustomerNotesChange: (notes: string) => void;
@@ -66,6 +67,7 @@ interface EstimatePanelContentProps {
   onSaveAllChanges: () => void;
   onDiscardAllChanges: () => void;
   onDownloadPdf: () => void;
+  onRegenerateLineItems?: () => void;
   toast: (options: any) => void;
 }
 
@@ -90,6 +92,7 @@ export const EstimatePanelContent = memo(function EstimatePanelContent({
   isSaving,
   isGenerating,
   isUpdating,
+  isRegeneratingItems,
   onGenerateEstimate,
   onCustomerNotesChange,
   onAdminNotesChange,
@@ -107,6 +110,7 @@ export const EstimatePanelContent = memo(function EstimatePanelContent({
   onSaveAllChanges,
   onDiscardAllChanges,
   onDownloadPdf,
+  onRegenerateLineItems,
   toast,
 }: EstimatePanelContentProps) {
   const sensors = useSensors(
@@ -174,9 +178,22 @@ export const EstimatePanelContent = memo(function EstimatePanelContent({
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <h3 className="font-medium text-sm">Line Items</h3>
-          <Button variant="outline" size="sm" onClick={onAddItemClick}>
-            <Plus className="h-4 w-4 mr-1" /> Add
-          </Button>
+          <div className="flex gap-2">
+            {onRegenerateLineItems && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={onRegenerateLineItems}
+                disabled={isRegeneratingItems || hasUnsavedChanges}
+              >
+                <RefreshCw className={`h-4 w-4 mr-1 ${isRegeneratingItems ? 'animate-spin' : ''}`} />
+                Regenerate
+              </Button>
+            )}
+            <Button variant="outline" size="sm" onClick={onAddItemClick}>
+              <Plus className="h-4 w-4 mr-1" /> Add
+            </Button>
+          </div>
         </div>
 
         {loadingItems ? (

@@ -4,9 +4,10 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { 
   Calendar, MapPin, Users, MessageSquare, 
-  PartyPopper, Heart, Pencil, Utensils, Phone, ExternalLink
+  PartyPopper, Heart, Pencil, Utensils, Phone, ExternalLink,
+  Clock, Truck, Palette, Info
 } from 'lucide-react';
-import { formatDate, formatTime, formatServiceType, getStatusColor } from '@/utils/formatters';
+import { formatDate, formatTime, formatServiceType, formatEventType, formatReferralSource, getStatusColor } from '@/utils/formatters';
 import { formatLocationLink, formatPhoneLink } from '@/utils/linkFormatters';
 import { ChangeHistory } from './ChangeHistory';
 import { PaymentScheduleSection } from './PaymentScheduleSection';
@@ -88,10 +89,30 @@ export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
           <PartyPopper className="h-4 w-4" /> Event
         </h3>
         <p className="font-medium">{quote?.event_name}</p>
+        
+        {/* Event Type */}
+        {quote?.event_type && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <PartyPopper className="h-3 w-3" />
+            <span>{formatEventType(quote.event_type)}</span>
+          </div>
+        )}
+        
+        {/* Date & Time */}
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Calendar className="h-3 w-3" />
           <span>{formatDate(quote?.event_date)} {quote?.start_time && `at ${formatTime(quote?.start_time)}`}</span>
         </div>
+        
+        {/* Serving Start Time (if different from event start) */}
+        {quote?.serving_start_time && quote.serving_start_time !== quote.start_time && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Clock className="h-3 w-3" />
+            <span>Serving begins at {formatTime(quote.serving_start_time)}</span>
+          </div>
+        )}
+        
+        {/* Location */}
         {quote?.location && (
           <a 
             href={formatLocationLink(quote.location) || '#'} 
@@ -104,12 +125,24 @@ export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
             <ExternalLink className="h-3 w-3" />
           </a>
         )}
+        
+        {/* Guest Count & Service Type */}
         <div className="flex items-center gap-4 text-sm text-muted-foreground">
           <span className="flex items-center gap-1">
             <Users className="h-3 w-3" /> {quote?.guest_count} guests
           </span>
-          <span>{formatServiceType(quote?.service_type)}</span>
+          <span className="flex items-center gap-1">
+            <Truck className="h-3 w-3" /> {formatServiceType(quote?.service_type)}
+          </span>
         </div>
+        
+        {/* Theme/Colors (for weddings) */}
+        {quote?.theme_colors && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Palette className="h-3 w-3" />
+            <span>Theme: {quote.theme_colors}</span>
+          </div>
+        )}
       </section>
 
       <Separator />
@@ -136,7 +169,9 @@ export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
           {/* Proteins */}
           {quote?.proteins && Array.isArray(quote.proteins) && quote.proteins.length > 0 && (
             <div className="space-y-1">
-              <p className="font-medium text-xs text-muted-foreground">Proteins</p>
+              <p className="font-medium text-xs text-muted-foreground">
+                Proteins {quote.both_proteins_available && <span className="text-primary">(Both Available)</span>}
+              </p>
               <p>{formatMenuItems(quote.proteins)}</p>
             </div>
           )}
@@ -242,6 +277,19 @@ export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
         onRegenerate={onRegenerateMilestones}
         onToggleGovernment={onToggleGovernment}
       />
+
+      {/* Referral Source (Business Intelligence) */}
+      {quote?.referral_source && (
+        <>
+          <Separator />
+          <section className="space-y-1">
+            <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-2">
+              <Info className="h-4 w-4" /> How They Found Us
+            </h3>
+            <p className="text-sm">{formatReferralSource(quote.referral_source)}</p>
+          </section>
+        </>
+      )}
 
       {/* Change History */}
       <Separator />

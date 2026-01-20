@@ -124,3 +124,26 @@ export function formatDateTimeShortET(timestamp: string): string {
   // Shorten AM/PM to a/p for compactness
   return formatted.replace(' AM', 'a').replace(' PM', 'p');
 }
+
+/**
+ * Format referral source for display (e.g., "google_search" → "Google Search")
+ */
+export function formatReferralSource(source: string): string {
+  if (!source) return '';
+  const sourceMap: Record<string, string> = {
+    'google': 'Google Search',
+    'google_search': 'Google Search',
+    'social_media': 'Social Media',
+    'facebook': 'Facebook',
+    'instagram': 'Instagram',
+    'friend_family': 'Friend/Family Referral',
+    'friend_family_referral': 'Friend/Family Referral',
+    'previous_customer': 'Previous Customer',
+    'local_business': 'Local Business Referral',
+    'local_business_referral': 'Local Business Referral',
+    'website': 'Website',
+    'word_of_mouth': 'Word of Mouth',
+    'other': 'Other',
+  };
+  return sourceMap[source] || source.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+}
