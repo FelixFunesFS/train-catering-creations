@@ -31,7 +31,7 @@ function useRawInvoices() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('invoices')
-        .select('id, quote_request_id, workflow_status, total_amount, sent_at, viewed_at, email_opened_at')
+        .select('id, quote_request_id, workflow_status, total_amount, sent_at, viewed_at, email_opened_at, invoice_number')
         .order('created_at', { ascending: false });
       
       if (error) throw error;
@@ -97,6 +97,7 @@ type InvoiceForEvent = {
   sent_at: string | null;
   viewed_at: string | null;
   email_opened_at: string | null;
+  invoice_number: string | null;
 };
 
 interface EventWithInvoice extends QuoteRequest {
@@ -191,6 +192,11 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
           break;
         case 'status':
           comparison = a.workflow_status.localeCompare(b.workflow_status);
+          break;
+        case 'invoice':
+          const aInv = a.invoice?.invoice_number || '';
+          const bInv = b.invoice?.invoice_number || '';
+          comparison = aInv.localeCompare(bInv);
           break;
         case 'total':
           comparison = (a.invoice?.total_amount || 0) - (b.invoice?.total_amount || 0);
@@ -420,6 +426,14 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                       onSort={handleSort}
                     />
                     <SortableTableHead 
+                      label="Invoice #" 
+                      sortKey="invoice" 
+                      currentSortBy={sortBy} 
+                      currentSortOrder={sortOrder}
+                      onSort={handleSort}
+                      className="hidden lg:table-cell"
+                    />
+                    <SortableTableHead 
                       label="Total" 
                       sortKey="total" 
                       currentSortBy={sortBy} 
@@ -479,6 +493,13 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                         >
                           {formatStatus(event.workflow_status)}
                         </Badge>
+                      </TableCell>
+                      <TableCell className="hidden lg:table-cell">
+                        {invoice?.invoice_number ? (
+                          <span className="font-mono text-sm">{invoice.invoice_number}</span>
+                        ) : (
+                          <span className="text-muted-foreground">—</span>
+                        )}
                       </TableCell>
                       <TableCell className="hidden xl:table-cell">
                         {invoice ? (
