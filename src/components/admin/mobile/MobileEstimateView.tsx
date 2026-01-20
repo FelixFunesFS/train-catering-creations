@@ -345,6 +345,28 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
                     </div>
                   )}
 
+                  {/* Service Add-ons */}
+                  {(quote?.wait_staff_requested || quote?.bussing_tables_needed || 
+                    quote?.ceremony_included || quote?.cocktail_hour) && (
+                    <div className="space-y-1">
+                      <p className="text-xs text-muted-foreground font-medium">Services</p>
+                      <div className="flex flex-wrap gap-1">
+                        {quote.wait_staff_requested && <Badge variant="outline" className="text-xs">Wait Staff</Badge>}
+                        {quote.bussing_tables_needed && <Badge variant="outline" className="text-xs">Table Bussing</Badge>}
+                        {quote.ceremony_included && <Badge variant="outline" className="text-xs">Ceremony</Badge>}
+                        {quote.cocktail_hour && <Badge variant="outline" className="text-xs">Cocktail Hour</Badge>}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Special Requests */}
+                  {quote?.special_requests && (
+                    <div className="space-y-1">
+                      <p className="text-xs text-muted-foreground font-medium">Special Requests</p>
+                      <p className="text-sm">{quote.special_requests}</p>
+                    </div>
+                  )}
+
                   {/* Edit Menu Button */}
                   <Button 
                     variant="outline" 
@@ -533,26 +555,39 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
                 </div>
               </CardHeader>
               <CardContent className="pt-0 space-y-2">
-                {milestones.map((milestone: any) => (
-                  <div 
-                    key={milestone.id}
-                    className="flex items-center justify-between text-sm p-2 rounded-lg bg-muted/50"
-                  >
-                    <div>
-                      <p className="font-medium">{milestone.milestone_type}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {milestone.percentage}%
-                        {milestone.due_date && ` • Due ${format(new Date(milestone.due_date), 'MMM d')}`}
-                      </p>
+                {milestones.map((milestone: any) => {
+                  const getMilestoneLabel = (type: string) => {
+                    switch (type) {
+                      case 'deposit': return 'Booking Deposit';
+                      case 'combined': return 'Booking Deposit';
+                      case 'milestone': return 'Milestone Payment';
+                      case 'balance': return 'Final Balance';
+                      case 'full': return 'Full Payment';
+                      case 'final': return 'Full Payment (Net 30)';
+                      default: return type.replace('_', ' ');
+                    }
+                  };
+                  return (
+                    <div 
+                      key={milestone.id}
+                      className="flex items-center justify-between text-sm p-2 rounded-lg bg-muted/50"
+                    >
+                      <div>
+                        <p className="font-medium">{getMilestoneLabel(milestone.milestone_type)}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {milestone.percentage}%
+                          {milestone.due_date && ` • Due ${format(new Date(milestone.due_date), 'MMM d')}`}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-medium">{formatCurrency(milestone.amount_cents)}</p>
+                        <Badge variant={milestone.status === 'paid' ? 'default' : 'outline'} className="text-xs">
+                          {milestone.status}
+                        </Badge>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <p className="font-medium">{formatCurrency(milestone.amount_cents)}</p>
-                      <Badge variant={milestone.status === 'paid' ? 'default' : 'outline'} className="text-xs">
-                        {milestone.status}
-                      </Badge>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </CardContent>
             </Card>
           )}

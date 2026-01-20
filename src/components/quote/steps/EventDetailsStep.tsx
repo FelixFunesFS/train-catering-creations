@@ -43,6 +43,8 @@ const REGULAR_EVENT_TYPES = [
 const WEDDING_EVENT_TYPES = [
   { value: "wedding", label: "Wedding Reception", icon: Heart },
   { value: "black_tie", label: "Black Tie Event", icon: Users },
+  { value: "anniversary", label: "Anniversary Celebration", icon: Heart },
+  { value: "military_function", label: "Military Function", icon: Briefcase },
 ];
 
 const FieldStatus = ({ isValid, isTouched }: { isValid: boolean; isTouched: boolean }) => {

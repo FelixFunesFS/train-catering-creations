@@ -1,6 +1,7 @@
 import { ResponsiveWrapper } from "@/components/ui/responsive-wrapper";
 import { SinglePageQuoteForm } from "@/components/quote/SinglePageQuoteForm";
 import { RequestThrottling } from "@/components/security/RequestThrottling";
+import { CTASection } from "@/components/ui/cta-section";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 import { useFormAnalytics } from "@/hooks/useFormAnalytics";
@@ -47,6 +48,25 @@ export default function RegularEventQuote() {
           </RequestThrottling>
         </div>
       </ResponsiveWrapper>
+
+      {/* CTA Section */}
+      <CTASection
+        title="Questions About Your Event?"
+        description="Let us help plan your perfect gathering. Contact us directly for personalized consultation."
+        buttons={[
+          {
+            text: "Call (843) 970-0265",
+            href: "tel:8439700265",
+            variant: "cta"
+          },
+          {
+            text: "Email Us",
+            href: "mailto:soultrainseatery@gmail.com",
+            variant: "cta-white"
+          }
+        ]}
+        footer="Response time: Usually within 48 hours"
+      />
     </div>
   );
 }
