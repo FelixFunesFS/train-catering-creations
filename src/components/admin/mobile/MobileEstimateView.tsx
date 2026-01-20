@@ -1,13 +1,12 @@
 import { useState, useMemo, useCallback } from 'react';
 import { TaxCalculationService } from '@/services/TaxCalculationService';
-import { useInvoice, useUpdateInvoice, useInvoiceWithMilestones } from '@/hooks/useInvoices';
+import { useInvoice, useInvoiceWithMilestones } from '@/hooks/useInvoices';
 import { useLineItems, useDeleteLineItem } from '@/hooks/useLineItems';
-import { useCustomLineItems } from '@/hooks/useCustomLineItems';
 import { useEditableInvoice } from '@/hooks/useEditableInvoice';
 import { usePaymentScheduleSync } from '@/hooks/usePaymentScheduleSync';
+import { useEstimateActions } from '@/hooks/useEstimateActions';
 import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
@@ -15,6 +14,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { Separator } from '@/components/ui/separator';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { 
   ArrowLeft, 
@@ -33,12 +36,16 @@ import {
   AlertCircle,
   Check,
   Loader2,
-  Download
+  Download,
+  Pencil,
+  Building2
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { AddLineItemModal } from '@/components/admin/billing/AddLineItemModal';
 import { EmailPreview } from '@/components/admin/billing/EmailPreview';
-import { LineItemsService } from '@/services/LineItemsService';
+import { DiscountEditor } from '@/components/admin/billing/DiscountEditor';
+import { CustomerEditor } from '@/components/admin/events/CustomerEditor';
+import { MenuEditorInline } from '@/components/admin/events/MenuEditorInline';
 
 interface MobileEstimateViewProps {
   quote: any;
@@ -50,11 +57,11 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const [isSending, setIsSending] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [isResendMode, setIsResendMode] = useState(false);
   const [showAddItem, setShowAddItem] = useState(false);
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [showCustomerEdit, setShowCustomerEdit] = useState(false);
+  const [showMenuEdit, setShowMenuEdit] = useState(false);
   
   // Collapsible sections
   const [eventOpen, setEventOpen] = useState(true);
@@ -70,7 +77,6 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
   const { data: invoiceWithMilestones } = useInvoiceWithMilestones(invoice?.id);
   const milestones = invoiceWithMilestones?.milestones || [];
   const deleteLineItem = useDeleteLineItem();
-  const updateInvoice = useUpdateInvoice();
   
   // Use the unified editable invoice hook
   const {
@@ -88,6 +94,25 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
 
   const isGovernment = quote?.compliance_level === 'government' || quote?.requires_po_number;
 
+  // Use shared estimate actions hook
+  const {
+    handleGenerateEstimate,
+    isGenerating,
+    handleSendEstimate,
+    isSending,
+    handleDownloadPdf,
+    handleApplyDiscount,
+    handleRemoveDiscount,
+    handleToggleGovernment,
+    handleRegenerateMilestones,
+    isRegenerating,
+  } = useEstimateActions({
+    quoteId: quote?.id,
+    invoiceId: invoice?.id,
+    invoiceNumber: invoice?.invoice_number,
+    onClose,
+  });
+
   usePaymentScheduleSync({
     invoiceId: invoice?.id,
     totalAmount: currentInvoice?.total_amount ?? 0,
@@ -104,27 +129,6 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
       return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
     });
   }, [lineItems]);
-
-  // Generate estimate
-  const handleGenerateEstimate = useCallback(async () => {
-    if (!quote?.id) return;
-    setIsGenerating(true);
-    try {
-      const { error } = await supabase.functions.invoke('generate-invoice-from-quote', {
-        body: { quote_request_id: quote.id }
-      });
-      if (error) throw error;
-
-      toast({ title: 'Estimate Generated' });
-      queryClient.invalidateQueries({ queryKey: ['invoices'] });
-      queryClient.invalidateQueries({ queryKey: ['invoice-by-quote', quote.id] });
-      queryClient.invalidateQueries({ queryKey: ['line-items'] });
-    } catch (err: any) {
-      toast({ title: 'Error', description: err.message, variant: 'destructive' });
-    } finally {
-      setIsGenerating(false);
-    }
-  }, [quote?.id, toast, queryClient]);
 
   // Line item handlers
   const handlePriceChange = useCallback((lineItemId: string, newPrice: number) => {
@@ -149,61 +153,15 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
     setShowPreview(true);
   }, [hasUnsavedChanges, toast]);
 
-  const handleSendEstimate = useCallback(async (overrideEmail?: string) => {
-    setIsSending(true);
-    try {
-      const { error } = await supabase.functions.invoke('send-customer-portal-email', {
-        body: { type: 'estimate_ready', quote_request_id: quote?.id, override_email: overrideEmail },
-      });
-      if (error) throw error;
+  const handleResendClick = useCallback(() => {
+    setIsResendMode(true);
+    setShowPreview(true);
+  }, []);
 
-      if (!isResendMode) {
-        await supabase.from('invoices').update({
-          workflow_status: 'sent',
-          sent_at: new Date().toISOString(),
-          is_draft: false,
-        }).eq('id', invoice?.id);
-      }
-
-      queryClient.invalidateQueries({ queryKey: ['invoices'] });
-      toast({ title: isResendMode ? 'Estimate Resent' : 'Estimate Sent' });
-      setShowPreview(false);
-    } catch (err: any) {
-      toast({ title: 'Error', description: err.message, variant: 'destructive' });
-    } finally {
-      setIsSending(false);
-    }
-  }, [quote?.id, invoice?.id, isResendMode, queryClient, toast]);
-
-  // PDF Download
-  const handleDownloadPdf = useCallback(async () => {
-    if (!invoice?.id) return;
-    try {
-      toast({ title: 'Generating PDF...' });
-      const { data, error } = await supabase.functions.invoke('generate-invoice-pdf', {
-        body: { invoice_id: invoice.id }
-      });
-      if (error) throw error;
-      if (!data?.pdf_base64) throw new Error('No PDF generated');
-      
-      const binaryString = atob(data.pdf_base64);
-      const bytes = new Uint8Array(binaryString.length);
-      for (let i = 0; i < binaryString.length; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-      }
-      const blob = new Blob([bytes], { type: 'application/pdf' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = data.filename || `estimate-${invoice.invoice_number}.pdf`;
-      a.click();
-      URL.revokeObjectURL(url);
-      
-      toast({ title: 'PDF Downloaded' });
-    } catch (err: any) {
-      toast({ title: 'PDF Error', description: err.message, variant: 'destructive' });
-    }
-  }, [invoice?.id, invoice?.invoice_number, toast]);
+  const handleConfirmSend = useCallback(async (overrideEmail?: string) => {
+    await handleSendEstimate(overrideEmail, isResendMode);
+    setShowPreview(false);
+  }, [handleSendEstimate, isResendMode]);
 
   const discountAmount = (currentInvoice as any)?.discount_amount ?? 0;
   const discountType = (currentInvoice as any)?.discount_type as 'percentage' | 'fixed' | null;
@@ -252,7 +210,7 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
       <EmailPreview
         invoice={{ ...invoice, quote_id: quote?.id, email: quote?.email, contact_name: quote?.contact_name }}
         onClose={() => setShowPreview(false)}
-        onConfirmSend={handleSendEstimate}
+        onConfirmSend={handleConfirmSend}
         isSending={isSending}
         isResend={isResendMode}
       />
@@ -297,7 +255,17 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
                       <Calendar className="h-4 w-4 text-primary" />
                       Event Details
                     </CardTitle>
-                    {eventOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                    <div className="flex items-center gap-2">
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={(e) => { e.stopPropagation(); setShowCustomerEdit(true); }}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      {eventOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                    </div>
                   </div>
                 </CardHeader>
               </CollapsibleTrigger>
@@ -340,11 +308,32 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
                     </div>
                   </div>
 
-                  {isGovernment && (
-                    <Badge variant="secondary" className="text-xs">
-                      Government Contract (Tax Exempt)
-                    </Badge>
-                  )}
+                  {/* Government Contract Toggle */}
+                  <Separator />
+                  <div className="flex items-center justify-between py-2">
+                    <div className="flex items-center gap-2">
+                      <Building2 className="h-4 w-4 text-muted-foreground" />
+                      <div>
+                        <Label className="text-sm font-medium">Government Contract</Label>
+                        <p className="text-xs text-muted-foreground">Tax exempt, Net 30 terms</p>
+                      </div>
+                    </div>
+                    <Switch
+                      checked={isGovernment}
+                      onCheckedChange={handleToggleGovernment}
+                      disabled={isRegenerating}
+                    />
+                  </div>
+
+                  {/* Edit Menu Button */}
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => setShowMenuEdit(true)}
+                    className="w-full"
+                  >
+                    <Pencil className="h-4 w-4 mr-2" /> Edit Menu Selections
+                  </Button>
                 </CardContent>
               </CollapsibleContent>
             </Card>
@@ -450,7 +439,7 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
                                       </div>
                                     ) : (
                                       <div 
-                                        className="flex items-center justify-between cursor-pointer"
+                                        className="flex items-center justify-between cursor-pointer min-h-[44px]"
                                         onClick={() => setEditingItemId(item.id)}
                                       >
                                         <div className="flex-1 min-w-0">
@@ -471,7 +460,7 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
                               ))}
                               <Button 
                                 variant="outline" 
-                                className="w-full"
+                                className="w-full min-h-[44px]"
                                 onClick={() => setShowAddItem(true)}
                               >
                                 <Plus className="h-4 w-4 mr-2" />
@@ -482,9 +471,9 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
                         </CollapsibleContent>
                       </Collapsible>
 
-                      {/* Notes */}
+                      {/* Customer Notes */}
                       <div className="space-y-2">
-                        <label className="text-sm font-medium">Notes for Customer</label>
+                        <Label className="text-sm font-medium">Notes for Customer</Label>
                         <Textarea
                           value={customerNotes}
                           onChange={(e) => setCustomerNotes(e.target.value)}
@@ -493,8 +482,39 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
                         />
                       </div>
 
+                      <Separator />
+
+                      {/* Admin Notes (Internal) */}
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium text-muted-foreground">Admin Notes (Internal)</Label>
+                        <Textarea
+                          value={adminNotes}
+                          onChange={(e) => setAdminNotes(e.target.value)}
+                          placeholder="Internal notes..."
+                          className="min-h-[60px]"
+                        />
+                      </div>
+
+                      <Separator />
+
+                      {/* Discount Editor */}
+                      <div className="flex items-center justify-between py-2">
+                        <span className="text-sm font-medium">Discount</span>
+                        <DiscountEditor
+                          discountAmount={discountAmount}
+                          discountType={discountType}
+                          discountDescription={discountDescription}
+                          subtotal={subtotal}
+                          onApplyDiscount={handleApplyDiscount}
+                          onRemoveDiscount={handleRemoveDiscount}
+                          disabled={isSaving}
+                        />
+                      </div>
+
+                      <Separator />
+
                       {/* Totals */}
-                      <div className="border-t pt-3 space-y-2">
+                      <div className="space-y-2">
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground">Subtotal</span>
                           <span>{formatCurrency(subtotal)}</span>
@@ -502,13 +522,19 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
                         {discountAmount > 0 && (
                           <div className="flex justify-between text-sm text-destructive">
                             <span>Discount</span>
-                            <span>-{formatCurrency(discountAmount)}</span>
+                            <span>-{formatCurrency(discountType === 'percentage' ? Math.round(subtotal * discountAmount / 100) : discountAmount)}</span>
                           </div>
                         )}
                         {!isGovernment && (
                           <div className="flex justify-between text-sm">
                             <span className="text-muted-foreground">Tax (9%)</span>
                             <span>{formatCurrency(taxAmount)}</span>
+                          </div>
+                        )}
+                        {isGovernment && (
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Tax</span>
+                            <Badge variant="secondary" className="text-xs">Exempt</Badge>
                           </div>
                         )}
                         <div className="flex justify-between font-bold text-lg border-t pt-2">
@@ -527,10 +553,20 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
           {milestones.length > 0 && (
             <Card>
               <CardHeader className="py-3">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <DollarSign className="h-4 w-4 text-primary" />
-                  Payment Schedule
-                </CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <DollarSign className="h-4 w-4 text-primary" />
+                    Payment Schedule
+                  </CardTitle>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={handleRegenerateMilestones}
+                    disabled={isRegenerating}
+                  >
+                    {isRegenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Refresh'}
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent className="pt-0 space-y-2">
                 {milestones.map((milestone: any) => (
@@ -576,18 +612,22 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
             <Button 
               onClick={saveAllChanges} 
               disabled={isSaving}
-              className="col-span-2"
+              className="col-span-2 min-h-[44px]"
             >
               {isSaving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
               Save Changes
             </Button>
           ) : (
             <>
-              <Button variant="outline" onClick={handleDownloadPdf} disabled={!invoice}>
+              <Button variant="outline" onClick={handleDownloadPdf} disabled={!invoice} className="min-h-[44px]">
                 <Download className="h-4 w-4 mr-2" />
                 PDF
               </Button>
-              <Button onClick={handlePreviewClick} disabled={!invoice}>
+              <Button 
+                onClick={isAlreadySent ? handleResendClick : handlePreviewClick} 
+                disabled={!invoice}
+                className="min-h-[44px]"
+              >
                 <Send className="h-4 w-4 mr-2" />
                 {isAlreadySent ? 'Resend' : 'Send'}
               </Button>
@@ -598,6 +638,40 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
 
       {/* Add Line Item Modal */}
       {showAddItem && <AddLineItemModal invoiceId={invoice?.id} onClose={() => setShowAddItem(false)} />}
+
+      {/* Customer Edit Dialog */}
+      <Dialog open={showCustomerEdit} onOpenChange={setShowCustomerEdit}>
+        <DialogContent className="w-[calc(100vw-2rem)] max-w-md max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Customer & Event</DialogTitle>
+          </DialogHeader>
+          <CustomerEditor
+            quote={quote} 
+            onSave={() => {
+              setShowCustomerEdit(false);
+              queryClient.invalidateQueries({ queryKey: ['quotes'] });
+            }} 
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Menu Edit Dialog */}
+      <Dialog open={showMenuEdit} onOpenChange={setShowMenuEdit}>
+        <DialogContent className="w-[calc(100vw-2rem)] max-w-md max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Menu Selections</DialogTitle>
+          </DialogHeader>
+          <MenuEditorInline
+            quote={quote}
+            invoiceId={invoice?.id}
+            onSave={() => {
+              setShowMenuEdit(false);
+              queryClient.invalidateQueries({ queryKey: ['quotes'] });
+              queryClient.invalidateQueries({ queryKey: ['line-items', invoice?.id] });
+            }} 
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
