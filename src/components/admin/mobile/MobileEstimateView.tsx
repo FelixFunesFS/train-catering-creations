@@ -12,7 +12,6 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
@@ -31,10 +30,8 @@ import {
   DollarSign,
   Save,
   Send,
-  Trash2,
   Plus,
   AlertCircle,
-  Check,
   Loader2,
   Download,
   Pencil,
@@ -44,6 +41,7 @@ import { format } from 'date-fns';
 import { AddLineItemModal } from '@/components/admin/billing/AddLineItemModal';
 import { EmailPreview } from '@/components/admin/billing/EmailPreview';
 import { DiscountEditor } from '@/components/admin/billing/DiscountEditor';
+import { LineItemEditor } from '@/components/admin/billing/LineItemEditor';
 import { CustomerEditor } from '@/components/admin/events/CustomerEditor';
 import { MenuEditorInline } from '@/components/admin/events/MenuEditorInline';
 
@@ -68,8 +66,6 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
   const [estimateOpen, setEstimateOpen] = useState(true);
   const [itemsOpen, setItemsOpen] = useState(true);
   
-  // Editing state
-  const [editingItemId, setEditingItemId] = useState<string | null>(null);
 
   // Data queries
   const { data: lineItems, isLoading: loadingItems } = useLineItems(invoice?.id);
@@ -87,6 +83,7 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
     setCustomerNotes,
     setAdminNotes,
     hasUnsavedChanges,
+    dirtyItemIds,
     saveAllChanges,
     discardAllChanges,
     isSaving,
@@ -137,6 +134,10 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
 
   const handleQuantityChange = useCallback((lineItemId: string, newQuantity: number) => {
     updateLocalLineItem(lineItemId, { quantity: newQuantity });
+  }, [updateLocalLineItem]);
+
+  const handleDescriptionChange = useCallback((lineItemId: string, newDescription: string) => {
+    updateLocalLineItem(lineItemId, { description: newDescription });
   }, [updateLocalLineItem]);
 
   const handleDeleteItem = useCallback(async (lineItemId: string) => {
@@ -325,6 +326,25 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
                     />
                   </div>
 
+                  {/* Menu Selections Summary */}
+                  {quote?.proteins && Array.isArray(quote.proteins) && quote.proteins.length > 0 && (
+                    <div className="space-y-1">
+                      <p className="text-xs text-muted-foreground font-medium">Menu Selections</p>
+                      <div className="flex flex-wrap gap-1">
+                        {quote.proteins.map((protein: string, idx: number) => (
+                          <Badge key={`protein-${idx}`} variant="secondary" className="text-xs">
+                            {protein}
+                          </Badge>
+                        ))}
+                        {quote?.sides && Array.isArray(quote.sides) && quote.sides.map((side: string, idx: number) => (
+                          <Badge key={`side-${idx}`} variant="outline" className="text-xs">
+                            {side}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   {/* Edit Menu Button */}
                   <Button 
                     variant="outline" 
@@ -391,72 +411,16 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
                           ) : (
                             <>
                               {editableLineItems.map((item) => (
-                                <Card key={item.id} className="bg-muted/50">
-                                  <CardContent className="p-3">
-                                    {editingItemId === item.id ? (
-                                      <div className="space-y-2">
-                                        <div className="flex items-center justify-between">
-                                          <p className="font-medium text-sm truncate flex-1">
-                                            {item.title || item.description}
-                                          </p>
-                                          <Button 
-                                            variant="ghost" 
-                                            size="sm"
-                                            onClick={() => setEditingItemId(null)}
-                                          >
-                                            <Check className="h-4 w-4" />
-                                          </Button>
-                                        </div>
-                                        <div className="grid grid-cols-2 gap-2">
-                                          <div>
-                                            <label className="text-xs text-muted-foreground">Qty</label>
-                                            <Input
-                                              type="number"
-                                              value={item.quantity}
-                                              onChange={(e) => handleQuantityChange(item.id, parseInt(e.target.value) || 0)}
-                                              className="h-9"
-                                            />
-                                          </div>
-                                          <div>
-                                            <label className="text-xs text-muted-foreground">Price</label>
-                                            <Input
-                                              type="number"
-                                              value={(item.unit_price / 100).toFixed(2)}
-                                              onChange={(e) => handlePriceChange(item.id, Math.round(parseFloat(e.target.value || '0') * 100))}
-                                              className="h-9"
-                                            />
-                                          </div>
-                                        </div>
-                                        <Button
-                                          variant="destructive"
-                                          size="sm"
-                                          className="w-full"
-                                          onClick={() => handleDeleteItem(item.id)}
-                                        >
-                                          <Trash2 className="h-4 w-4 mr-2" />
-                                          Remove
-                                        </Button>
-                                      </div>
-                                    ) : (
-                                      <div 
-                                        className="flex items-center justify-between cursor-pointer min-h-[44px]"
-                                        onClick={() => setEditingItemId(item.id)}
-                                      >
-                                        <div className="flex-1 min-w-0">
-                                          <p className="font-medium text-sm truncate">
-                                            {item.title || item.description}
-                                          </p>
-                                          <p className="text-xs text-muted-foreground">
-                                            {item.quantity} × {formatCurrency(item.unit_price)}
-                                          </p>
-                                        </div>
-                                        <span className="font-medium text-sm ml-2">
-                                          {formatCurrency(item.total_price)}
-                                        </span>
-                                      </div>
-                                    )}
-                                  </CardContent>
-                                </Card>
+                                <LineItemEditor
+                                  key={item.id}
+                                  item={item}
+                                  onPriceChange={(price) => handlePriceChange(item.id, price)}
+                                  onQuantityChange={(qty) => handleQuantityChange(item.id, qty)}
+                                  onDescriptionChange={(desc) => handleDescriptionChange(item.id, desc)}
+                                  onDelete={() => handleDeleteItem(item.id)}
+                                  isUpdating={isSaving}
+                                  isDirty={dirtyItemIds.has(item.id)}
+                                />
                               ))}
                               <Button 
                                 variant="outline" 
