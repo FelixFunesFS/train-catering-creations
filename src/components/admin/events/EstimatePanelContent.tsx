@@ -185,9 +185,10 @@ export const EstimatePanelContent = memo(function EstimatePanelContent({
                 size="sm" 
                 onClick={onRegenerateLineItems}
                 disabled={isRegeneratingItems || hasUnsavedChanges}
+                title="Regenerate line items from quote data (preserves manual prices)"
               >
                 <RefreshCw className={`h-4 w-4 mr-1 ${isRegeneratingItems ? 'animate-spin' : ''}`} />
-                Regenerate
+                Regenerate from Quote
               </Button>
             )}
             <Button variant="outline" size="sm" onClick={onAddItemClick}>

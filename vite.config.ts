@@ -22,6 +22,15 @@ export default defineConfig(({ mode }) => ({
         // Exclude large uploads and allow larger JS bundles
         globIgnores: ['**/lovable-uploads/**'],
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MB limit
+        // SPA routing - fallback to index.html for client-side routes
+        navigateFallback: 'index.html',
+        navigateFallbackDenylist: [
+          /^\/api/,
+          /^\/rest/,
+          /^\/auth/,
+          /^\/supabase/,
+          /\.(?:png|jpg|jpeg|gif|svg|ico|webp|mp4|pdf)$/i,
+        ],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
