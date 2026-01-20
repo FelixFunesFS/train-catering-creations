@@ -115,6 +115,19 @@ const handler = async (req: Request): Promise<Response> => {
 
     logStep("Calculating schedule", { daysUntilEvent, isGovernment, totalAmountCents, totalPaidCents });
 
+    // Guard: Cannot create milestones for zero or negative totals
+    if (!totalAmountCents || totalAmountCents <= 0) {
+      logStep("Cannot create milestones - invoice total is zero or negative", { totalAmountCents });
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          message: "Cannot create payment milestones: Invoice total must be greater than zero. Please add line items first.",
+          milestones: []
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
+      );
+    }
+
     const milestones: any[] = [];
 
     // Valid milestone_type values: DEPOSIT, MILESTONE, BALANCE, FULL, COMBINED, FINAL
