@@ -41,10 +41,13 @@ import {
   Palette,
   PartyPopper,
   Utensils,
-  Package
+  Package,
+  RefreshCw,
+  Info
 } from 'lucide-react';
 import { format } from 'date-fns';
-import { formatTime, formatServiceType, formatEventType } from '@/utils/formatters';
+import { formatTime, formatServiceType, formatEventType, formatReferralSource } from '@/utils/formatters';
+import { useRegenerateLineItems } from '@/hooks/useRegenerateLineItems';
 import { AddLineItemModal } from '@/components/admin/billing/AddLineItemModal';
 import { EmailPreview } from '@/components/admin/billing/EmailPreview';
 import { DiscountEditor } from '@/components/admin/billing/DiscountEditor';
@@ -80,7 +83,7 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
   const { data: invoiceWithMilestones } = useInvoiceWithMilestones(invoice?.id);
   const milestones = invoiceWithMilestones?.milestones || [];
   const deleteLineItem = useDeleteLineItem();
-  
+  const { mutate: regenerateLineItems, isPending: isRegeneratingItems } = useRegenerateLineItems();
   // Use the unified editable invoice hook
   const {
     localLineItems: editableLineItems,
@@ -294,6 +297,9 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
                       <div>
                         <p className="text-muted-foreground text-xs">Start Time</p>
                         <p className="font-medium">{quote?.start_time ? formatTime(quote.start_time) : 'TBD'}</p>
+                        {quote?.serving_start_time && quote.serving_start_time !== quote.start_time && (
+                          <p className="text-xs text-muted-foreground">Serving: {formatTime(quote.serving_start_time)}</p>
+                        )}
                       </div>
                     </div>
                     <div className="flex items-start gap-2">
@@ -492,6 +498,15 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
                     </div>
                   )}
 
+                  {/* Referral Source */}
+                  {quote?.referral_source && (
+                    <div className="pt-2 border-t">
+                      <p className="text-xs text-muted-foreground flex items-center gap-1">
+                        <Info className="h-3 w-3" /> Found us via: {formatReferralSource(quote.referral_source)}
+                      </p>
+                    </div>
+                  )}
+
                   {/* Edit Menu Button */}
                   <Button 
                     variant="outline" 
@@ -576,6 +591,16 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
                               >
                                 <Plus className="h-4 w-4 mr-2" />
                                 Add Item
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                className="w-full text-xs text-muted-foreground"
+                                onClick={() => regenerateLineItems({ invoiceId: invoice.id, quoteId: quote.id })}
+                                disabled={isRegeneratingItems || hasUnsavedChanges}
+                              >
+                                <RefreshCw className={`h-3 w-3 mr-1 ${isRegeneratingItems ? 'animate-spin' : ''}`} />
+                                Regenerate from Quote
                               </Button>
                             </>
                           )}

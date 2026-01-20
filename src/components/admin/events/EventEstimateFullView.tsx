@@ -7,6 +7,7 @@ import { useCustomLineItems } from '@/hooks/useCustomLineItems';
 import { useEditableInvoice } from '@/hooks/useEditableInvoice';
 import { usePaymentScheduleSync } from '@/hooks/usePaymentScheduleSync';
 import { useEstimateActions } from '@/hooks/useEstimateActions';
+import { useRegenerateLineItems } from '@/hooks/useRegenerateLineItems';
 import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -49,7 +50,7 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
   const { data: invoiceWithMilestones } = useInvoiceWithMilestones(invoice?.id);
   const milestones = invoiceWithMilestones?.milestones || [];
   const deleteLineItem = useDeleteLineItem();
-  
+  const { mutate: regenerateLineItems, isPending: isRegeneratingItems } = useRegenerateLineItems();
   // Use the unified editable invoice hook for local state management
   const {
     localLineItems: editableLineItems,
@@ -230,6 +231,11 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
   const handleAddItemClick = useCallback(() => setShowAddItem(true), []);
   const handleEditCustomer = useCallback(() => setShowCustomerEdit(true), []);
   const handleEditMenu = useCallback(() => setShowMenuEdit(true), []);
+  const handleRegenerateLineItems = useCallback(() => {
+    if (invoice?.id && quote?.id) {
+      regenerateLineItems({ invoiceId: invoice.id, quoteId: quote.id });
+    }
+  }, [invoice?.id, quote?.id, regenerateLineItems]);
 
   if (showPreview) {
     return (
@@ -309,6 +315,7 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
               isSaving={isSaving}
               isGenerating={isGenerating}
               isUpdating={deleteLineItem.isPending || isSaving}
+              isRegeneratingItems={isRegeneratingItems}
               onGenerateEstimate={handleGenerateEstimate}
               onCustomerNotesChange={setCustomerNotes}
               onAdminNotesChange={setAdminNotes}
@@ -326,6 +333,7 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
               onSaveAllChanges={saveAllChanges}
               onDiscardAllChanges={discardAllChanges}
               onDownloadPdf={handleDownloadPdf}
+              onRegenerateLineItems={handleRegenerateLineItems}
               toast={toast}
             />
           </ScrollArea>
