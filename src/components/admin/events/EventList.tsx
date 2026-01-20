@@ -12,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Eye, Loader2, FileText, Receipt, Mail, MailOpen, Globe, List, CalendarDays, CalendarRange } from 'lucide-react';
+import { Search, Eye, Loader2, FileText, Receipt, Mail, MailOpen, Globe, List, CalendarDays, CalendarRange, Phone } from 'lucide-react';
 import { EventDetail } from './EventDetail';
 import { EventWeekView } from './EventWeekView';
 import { EventMonthView } from './EventMonthView';
@@ -346,6 +346,9 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground mb-3">
                         <span>{format(new Date(event.event_date), 'MMM d, yyyy')}</span>
                         <span>{event.guest_count} guests</span>
+                        {invoice?.invoice_number && (
+                          <span className="font-mono text-xs">{invoice.invoice_number}</span>
+                        )}
                         {invoice && (
                           <span className="font-medium text-foreground">
                             {formatCurrency(invoice.total_amount)}
@@ -359,7 +362,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                         )}
                       </div>
                       
-                        <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between">
                         {invoice ? (
                           <Badge 
                             variant="outline" 
@@ -370,6 +373,81 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                         ) : (
                           <span className="text-xs text-muted-foreground">No estimate</span>
                         )}
+                        
+                        {/* Quick action buttons */}
+                        <div className="flex items-center gap-1">
+                          {/* Call customer */}
+                          {event.phone && (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    window.location.href = `tel:${event.phone}`;
+                                  }}
+                                >
+                                  <Phone className="h-4 w-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Call customer</TooltipContent>
+                            </Tooltip>
+                          )}
+                          
+                          {/* View estimate/event */}
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedQuote(event);
+                                }}
+                              >
+                                <ActionIcon className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>{actionLabel}</TooltipContent>
+                          </Tooltip>
+                          
+                          {/* Email tracking indicators */}
+                          {invoice?.sent_at && (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div className="p-1.5">
+                                  {invoice.email_opened_at ? (
+                                    <MailOpen className="h-4 w-4 text-green-600" />
+                                  ) : (
+                                    <Mail className="h-4 w-4 text-blue-600" />
+                                  )}
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                {invoice.email_opened_at 
+                                  ? `Email opened ${format(new Date(invoice.email_opened_at), 'MMM d, h:mm a')}`
+                                  : `Email sent ${format(new Date(invoice.sent_at), 'MMM d, h:mm a')}`
+                                }
+                              </TooltipContent>
+                            </Tooltip>
+                          )}
+                          
+                          {invoice?.viewed_at && (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div className="p-1.5">
+                                  <Globe className="h-4 w-4 text-purple-600" />
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                Portal viewed {format(new Date(invoice.viewed_at), 'MMM d, h:mm a')}
+                              </TooltipContent>
+                            </Tooltip>
+                          )}
+                        </div>
                       </div>
                     </div>
                   );
