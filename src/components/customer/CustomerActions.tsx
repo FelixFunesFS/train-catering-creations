@@ -119,7 +119,8 @@ export function CustomerActions({
   useEffect(() => {
     if (autoApprove && isActionable && !autoApproveTriggered.current) {
       autoApproveTriggered.current = true;
-      handleApprove();
+      // Small delay to ensure UI is ready
+      setTimeout(() => handleApprove(), 100);
     }
   }, [autoApprove, isActionable]);
 

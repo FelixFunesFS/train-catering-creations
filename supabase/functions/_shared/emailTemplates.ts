@@ -1112,6 +1112,83 @@ export function generateCTAButton(text: string, href: string, variant: 'primary'
 `;
 }
 
+/**
+ * Generate multi-button CTA section for estimate emails
+ * Allows customers to take action directly from email
+ */
+export function generateEstimateActionButtons(portalUrl: string): string {
+  // Ensure proper URL parameter handling
+  const separator = portalUrl.includes('?') ? '&' : '?';
+  const approveUrl = `${portalUrl}${separator}action=approve`;
+  const changesUrl = `${portalUrl}${separator}action=changes`;
+
+  return `
+<div style="margin:30px 0;text-align:center;">
+  <p style="margin:0 0 20px 0;font-size:16px;color:#666;">Ready to move forward?</p>
+  
+  <!-- Primary: Approve Button -->
+  <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto 15px auto;border-collapse:collapse;">
+    <tr>
+      <td align="center" style="background:linear-gradient(135deg,${BRAND_COLORS.crimson},${BRAND_COLORS.crimsonDark});border-radius:8px;">
+        <!--[if mso]>
+        <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="${approveUrl}" style="height:50px;v-text-anchor:middle;width:250px;" arcsize="16%" stroke="f" fillcolor="${BRAND_COLORS.crimson}">
+        <w:anchorlock/>
+        <center style="color:#ffffff;font-weight:bold;font-size:16px;">✅ Approve Estimate</center>
+        </v:roundrect>
+        <![endif]-->
+        <!--[if !mso]><!-->
+        <a href="${approveUrl}" style="display:inline-block;padding:16px 40px;color:${BRAND_COLORS.white};font-weight:bold;font-size:16px;text-decoration:none;border-radius:8px;text-align:center;">✅ Approve Estimate</a>
+        <!--<![endif]-->
+      </td>
+    </tr>
+  </table>
+  
+  <!-- Secondary buttons row -->
+  <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;border-collapse:collapse;">
+    <tr>
+      <!-- Request Changes Button -->
+      <td align="center" style="padding:0 8px;">
+        <table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+          <tr>
+            <td align="center" style="background:${BRAND_COLORS.gold};border-radius:6px;">
+              <!--[if mso]>
+              <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="${changesUrl}" style="height:44px;v-text-anchor:middle;width:160px;" arcsize="14%" stroke="f" fillcolor="${BRAND_COLORS.gold}">
+              <w:anchorlock/>
+              <center style="color:#333333;font-weight:600;font-size:14px;">💬 Request Changes</center>
+              </v:roundrect>
+              <![endif]-->
+              <!--[if !mso]><!-->
+              <a href="${changesUrl}" style="display:inline-block;padding:12px 24px;color:${BRAND_COLORS.darkGray};font-weight:600;font-size:14px;text-decoration:none;border-radius:6px;text-align:center;">💬 Request Changes</a>
+              <!--<![endif]-->
+            </td>
+          </tr>
+        </table>
+      </td>
+      
+      <!-- View Details Button -->
+      <td align="center" style="padding:0 8px;">
+        <table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+          <tr>
+            <td align="center" style="background:#f5f5f5;border-radius:6px;border:1px solid #ddd;">
+              <!--[if mso]>
+              <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="${portalUrl}" style="height:44px;v-text-anchor:middle;width:140px;" arcsize="14%" stroke="t" strokecolor="#dddddd" fillcolor="#f5f5f5">
+              <w:anchorlock/>
+              <center style="color:#333333;font-size:14px;">View Full Details</center>
+              </v:roundrect>
+              <![endif]-->
+              <!--[if !mso]><!-->
+              <a href="${portalUrl}" style="display:inline-block;padding:12px 24px;color:${BRAND_COLORS.darkGray};font-size:14px;text-decoration:none;border-radius:6px;text-align:center;">View Full Details</a>
+              <!--<![endif]-->
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</div>
+`;
+}
+
 // ============================================================================
 // HERO SECTION GENERATOR - Consistent branded hero for all emails
 // ============================================================================
@@ -1383,14 +1460,17 @@ export function getEmailContentBlocks(
       break;
 
     case 'estimate_ready':
+      // Add multi-button CTA for direct actions from email
+      const estimateActionButtonsHtml = generateEstimateActionButtons(effectivePortalUrl);
       contentBlocks = [
         { type: 'text', data: { html: `<p style="font-size:16px;margin:0 0 16px 0;">${isUpdated ? 'Updated' : 'Great news'}, ${quote.contact_name}!</p><p style="font-size:15px;margin:0 0 16px 0;line-height:1.6;">We've ${isUpdated ? 'updated your' : 'prepared a custom'} estimate for <strong>${quote.event_name}</strong>.</p>` }},
         { type: 'event_details' },
         { type: 'menu_with_pricing' },
         { type: 'service_addons' },
+        { type: 'custom_html', data: { html: estimateActionButtonsHtml }},
         { type: 'text', data: { html: `<p style="font-size:15px;margin:20px 0 0 0;">Questions? Call us at <strong>(843) 970-0265</strong> or reply to this email!</p>` }}
       ];
-      ctaButton = { text: 'Review Your Estimate', href: effectivePortalUrl, variant: 'primary' };
+      ctaButton = undefined; // Multi-button layout replaces single CTA
       break;
 
     case 'estimate_reminder':
