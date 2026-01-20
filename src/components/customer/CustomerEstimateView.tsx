@@ -16,14 +16,15 @@ import { useEstimateAccess } from '@/hooks/useEstimateAccess';
 import { EstimateLineItems } from './EstimateLineItems';
 import { CustomerActions } from './CustomerActions';
 import { ChangeRequestModal } from './ChangeRequestModal';
-import { PaymentOptions } from './PaymentOptions';
+import { PaymentCard } from './PaymentCard';
 import { StandardTermsAndConditions } from '@/components/shared/StandardTermsAndConditions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Loader2, Calendar, MapPin, Users, Clock, AlertCircle, FileText, ChevronDown, PenLine, MessageSquare, Info } from 'lucide-react';
+import { Loader2, Calendar, MapPin, Users, AlertCircle, FileText, ChevronDown, PenLine, MessageSquare, Info } from 'lucide-react';
 import { formatDate, formatTime, formatServiceType, getStatusColor } from '@/utils/formatters';
+import { calculatePaymentProgress, type Milestone } from '@/utils/paymentFormatters';
 
 export function CustomerEstimateView() {
   const [searchParams] = useSearchParams();
@@ -36,8 +37,8 @@ export function CustomerEstimateView() {
   // Calculate payment progress - MUST be before any early returns
   const amountPaid = useMemo(() => {
     if (!estimateData?.milestones) return 0;
-    return estimateData.milestones.reduce((sum: number, m: any) => 
-      m.status === 'paid' ? sum + (m.amount_cents || 0) : sum, 0);
+    const { amountPaid: paid } = calculatePaymentProgress(estimateData.milestones as Milestone[]);
+    return paid;
   }, [estimateData?.milestones]);
 
   // Handle action query params from email links
@@ -87,8 +88,6 @@ export function CustomerEstimateView() {
   }
 
   const { invoice, quote, lineItems, milestones } = estimateData;
-
-  const showPaymentOptions = ['approved', 'partially_paid', 'payment_pending'].includes(invoice.workflow_status);
 
   return (
     <div className="min-h-screen bg-muted/30 py-8 px-4">
@@ -197,76 +196,15 @@ export function CustomerEstimateView() {
           </CardContent>
         </Card>
 
-        {/* Payment Schedule Preview */}
-        {milestones && milestones.length > 0 && (
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Clock className="h-5 w-5 text-primary" />
-                Payment Schedule
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {milestones.map((milestone: any, index: number) => {
-                  const getMilestoneLabel = (type: string) => {
-                    switch (type) {
-                      case 'deposit': return 'Booking Deposit';
-                      case 'combined': return 'Booking Deposit';
-                      case 'milestone': return 'Milestone Payment';
-                      case 'balance': return 'Final Balance';
-                      case 'full': return 'Full Payment';
-                      case 'final': return 'Full Payment (Net 30)';
-                      default: return type.replace('_', ' ');
-                    }
-                  };
-                  const isPaid = milestone.status === 'paid';
-                  const isDue = milestone.is_due_now || (milestone.due_date && new Date(milestone.due_date) <= new Date());
-                  
-                  return (
-                    <div
-                      key={milestone.id || index}
-                      className={`flex items-center justify-between py-3 px-3 rounded-lg border ${
-                        isPaid 
-                          ? 'bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800' 
-                          : isDue 
-                            ? 'bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800'
-                            : 'bg-muted/30 border-border/50'
-                      }`}
-                    >
-                      <div>
-                        <p className="font-medium text-foreground flex items-center gap-2">
-                          {getMilestoneLabel(milestone.milestone_type)}
-                          {isPaid && <Badge variant="outline" className="bg-green-100 text-green-700 text-xs">✓ Paid</Badge>}
-                          {!isPaid && isDue && <Badge variant="outline" className="bg-amber-100 text-amber-700 text-xs">Due Now</Badge>}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {milestone.percentage}% of total
-                          {milestone.due_date && !isPaid && ` • Due ${formatDate(milestone.due_date)}`}
-                        </p>
-                      </div>
-                      <p className={`font-semibold ${isPaid ? 'text-green-600' : ''}`}>
-                        ${(milestone.amount_cents / 100).toFixed(2)}
-                      </p>
-                    </div>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Payment Options - Show after approval */}
-        {showPaymentOptions && (
-          <PaymentOptions
-            invoiceId={invoice.id}
-            totalAmount={invoice.total_amount}
-            amountPaid={amountPaid}
-            milestones={milestones || []}
-            customerEmail={quote.email}
-            accessToken={token}
-          />
-        )}
+        {/* Unified Payment Card - handles both schedule display and payment actions */}
+        <PaymentCard
+          invoiceId={invoice.id}
+          totalAmount={invoice.total_amount}
+          milestones={(milestones || []) as Milestone[]}
+          workflowStatus={invoice.workflow_status}
+          customerEmail={quote.email}
+          accessToken={token}
+        />
 
         {/* Change Request Modal (triggered by action=changes) */}
         <ChangeRequestModal
