@@ -13,6 +13,7 @@ import type { Option } from "@/components/ui/multi-select";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 import { getMenuItems, additionalMenuItems } from "@/data/menuData";
+import { VEGETARIAN_ENTREE_OPTIONS, getVegetarianEntreeLabel } from "@/data/vegetarianOptions";
 
 interface MenuSelectionStepProps {
   form: UseFormReturn<any>;
@@ -89,27 +90,12 @@ const MenuSelectionStepComponent = ({ form, trackFieldInteraction, variant = 're
     { id: "lowcountry-boil", name: "Signature Lowcountry Boil", isPremium: true, category: "Seafood" },
   ];
 
-  // Vegetarian entrée options - separated from main proteins
-  const REGULAR_VEGETARIAN_ENTREES: { id: string; name: string; category: string; isPremium?: boolean }[] = [
-    { id: "quinoa-power-bowl", name: "Quinoa Power Bowl", category: "Plant-Based" },
-    { id: "stuffed-bell-peppers", name: "Stuffed Bell Peppers", category: "Plant-Based" },
-    { id: "black-bean-burgers", name: "Black Bean Burgers", category: "Plant-Based" },
-    { id: "roasted-vegetable-medley", name: "Roasted Vegetable Medley", category: "Plant-Based" },
-    { id: "veggie-pasta-primavera", name: "Veggie Pasta Primavera", category: "Pasta" },
-    { id: "garden-stir-fry", name: "Garden Stir Fry", category: "Asian" },
-  ];
-
-  const WEDDING_VEGETARIAN_ENTREES: { id: string; name: string; category: string; isPremium?: boolean }[] = [
-    { id: "vegetable-fettuccine-alfredo", name: "Creamy Vegetable Fettuccine Alfredo", isPremium: true, category: "Pasta" },
-    { id: "stuffed-portobello", name: "Herb-Stuffed Portobello Mushroom", isPremium: true, category: "Elegant" },
-    { id: "roasted-vegetable-medley", name: "Roasted Garden Vegetable Medley", category: "Elegant" },
-    { id: "southern-veggie-plate", name: "Southern Vegetable Plate", category: "Southern" },
-    { id: "honey-glazed-carrots-yams", name: "Honey-Glazed Carrots & Yams", category: "Southern" },
-    { id: "caprese-stuffed-tomatoes", name: "Caprese Stuffed Heirloom Tomatoes", isPremium: true, category: "Elegant" },
-  ];
-
   const PROTEINS = variant === 'wedding' ? WEDDING_PROTEINS : REGULAR_PROTEINS;
-  const VEGETARIAN_ENTREES = variant === 'wedding' ? WEDDING_VEGETARIAN_ENTREES : REGULAR_VEGETARIAN_ENTREES;
+  const vegetarianOptions: Option[] = VEGETARIAN_ENTREE_OPTIONS.map((item) => ({
+    value: item.id,
+    label: getVegetarianEntreeLabel(item.id, variant),
+    category: "Vegetarian",
+  }));
 
   // Convert to MultiSelect options with formatted labels
   const proteinOptions: Option[] = PROTEINS.map(protein => {
@@ -121,17 +107,6 @@ const MenuSelectionStepComponent = ({ form, trackFieldInteraction, variant = 're
       value: protein.id,
       label: label,
       category: protein.category
-    };
-  });
-
-  const vegetarianOptions: Option[] = VEGETARIAN_ENTREES.map(entree => {
-    let label = entree.name;
-    if (entree.isPremium) label += " 💎";
-    
-    return {
-      value: entree.id,
-      label: label,
-      category: entree.category
     };
   });
 
@@ -272,7 +247,6 @@ const MenuSelectionStepComponent = ({ form, trackFieldInteraction, variant = 're
                 <FormControl>
                   <Input
                     type="number"
-                    placeholder="0"
                     min="0"
                     className="h-12 text-base input-clean bg-background"
                     {...field}
@@ -307,9 +281,6 @@ const MenuSelectionStepComponent = ({ form, trackFieldInteraction, variant = 're
                     className="input-neutral bg-background"
                   />
                 </FormControl>
-                <p className="text-xs text-muted-foreground">
-                  💎 Premium options available
-                </p>
                 <FormMessage />
               </FormItem>
             )}

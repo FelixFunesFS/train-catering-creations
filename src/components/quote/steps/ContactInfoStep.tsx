@@ -76,7 +76,6 @@ export const ContactInfoStep = ({ form, trackFieldInteraction }: ContactInfoStep
               </FormLabel>
               <FormControl>
                 <Input
-                  placeholder="John Smith"
                   className={cn(
                     "h-14 text-lg input-clean transition-all",
                     validation.isValid && "border-green-500/50 focus:border-green-500"
@@ -89,6 +88,7 @@ export const ContactInfoStep = ({ form, trackFieldInteraction }: ContactInfoStep
                   }}
                 />
               </FormControl>
+              <p className="text-xs text-muted-foreground">Example: John Smith</p>
               <FormMessage />
             </FormItem>
           );
@@ -111,7 +111,6 @@ export const ContactInfoStep = ({ form, trackFieldInteraction }: ContactInfoStep
               <FormControl>
                 <Input
                   type="email"
-                  placeholder="john@example.com"
                   className={cn(
                     "h-14 text-lg input-clean transition-all",
                     validation.isValid && "border-green-500/50 focus:border-green-500"
@@ -125,6 +124,7 @@ export const ContactInfoStep = ({ form, trackFieldInteraction }: ContactInfoStep
                   }}
                 />
               </FormControl>
+              <p className="text-xs text-muted-foreground">Example: name@email.com</p>
               <FormMessage />
             </FormItem>
           );
@@ -147,7 +147,6 @@ export const ContactInfoStep = ({ form, trackFieldInteraction }: ContactInfoStep
               <FormControl>
                 <Input
                   type="tel"
-                  placeholder="(843) 555-0123"
                   className={cn(
                     "h-14 text-lg input-clean transition-all",
                     validation.isValid && "border-green-500/50 focus:border-green-500"
@@ -160,6 +159,7 @@ export const ContactInfoStep = ({ form, trackFieldInteraction }: ContactInfoStep
                   }}
                 />
               </FormControl>
+              <p className="text-xs text-muted-foreground">Example: (843) 970-0265</p>
               <FormMessage />
             </FormItem>
           );
