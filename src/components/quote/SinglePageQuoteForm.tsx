@@ -8,7 +8,6 @@ import { EventDetailsStep } from "./steps/EventDetailsStep";
 import { ServiceSelectionStep } from "./alternative-form/ServiceSelectionStep";
 import { MenuSelectionStep } from "./alternative-form/MenuSelectionStep";
 import { SuppliesStep } from "./steps/SuppliesStep";
-import { SuccessStep } from "./alternative-form/SuccessStep";
 import { StepProgress } from "./StepProgress";
 import { StepNavigation } from "./StepNavigation";
 import { ReviewSummaryCard } from "./ReviewSummaryCard";
@@ -19,6 +18,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useFormAnalytics } from "@/hooks/useFormAnalytics";
 import { formatCustomerName, formatEventName, formatLocation } from "@/utils/textFormatters";
 import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
 
 type FormData = z.infer<typeof formSchema>;
 
@@ -41,11 +41,9 @@ export const SinglePageQuoteForm = ({ variant = 'regular', onSuccess }: SinglePa
   const [direction, setDirection] = useState<'forward' | 'backward'>('forward');
   const [isAnimating, setIsAnimating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [submittedQuoteId, setSubmittedQuoteId] = useState<string | null>(null);
-  const [eventData, setEventData] = useState<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
   const { trackFieldInteraction, trackFormSubmission } = useFormAnalytics({ 
     formType: variant === 'wedding' ? 'wedding_event' : 'regular_event' 
   });
@@ -254,15 +252,18 @@ export const SinglePageQuoteForm = ({ variant = 'regular', onSuccess }: SinglePa
       if (!result?.success) throw new Error(result?.error || 'Submission failed');
       
       const quoteId = result.quote_id;
-      setSubmittedQuoteId(quoteId);
-      
-      setEventData({
-        eventName: data.event_name,
-        eventDate: data.event_date,
-        startTime: data.start_time,
-        location: data.location,
-        contactName: data.contact_name
-      });
+
+      // Persist event data for the Thank You page (calendar/share actions)
+      sessionStorage.setItem(
+        "quote_thankyou_eventData",
+        JSON.stringify({
+          eventName: data.event_name,
+          eventDate: data.event_date,
+          startTime: data.start_time,
+          location: data.location,
+          contactName: data.contact_name,
+        })
+      );
       
       await trackFormSubmission(quoteId);
       
@@ -289,8 +290,6 @@ export const SinglePageQuoteForm = ({ variant = 'regular', onSuccess }: SinglePa
         console.error('Notification email failed:', emailError);
       }
 
-      setIsSubmitted(true);
-      
       if (onSuccess) {
         onSuccess(quoteId);
       }
@@ -299,6 +298,9 @@ export const SinglePageQuoteForm = ({ variant = 'regular', onSuccess }: SinglePa
         title: "✅ Quote Request Submitted!",
         description: "We'll respond within 48 hours. Check your email for confirmation.",
       });
+
+      // Restore full-site chrome by redirecting to the Thank You page
+      navigate(`/request-quote/thank-you?quoteId=${encodeURIComponent(quoteId)}`, { replace: true });
     } catch (error: any) {
       console.error('Form submission error:', error);
       const errorMessage = error?.message || error?.details || error?.hint || 
@@ -308,16 +310,11 @@ export const SinglePageQuoteForm = ({ variant = 'regular', onSuccess }: SinglePa
         description: `${errorMessage}. Please try again or contact us at (843) 970-0265.`,
         variant: "destructive",
       });
-      setIsSubmitted(false);
-      setSubmittedQuoteId(null);
+      sessionStorage.removeItem("quote_thankyou_eventData");
     } finally {
       setIsSubmitting(false);
     }
   };
-
-  if (isSubmitted) {
-    return <SuccessStep estimatedCost={null} quoteId={submittedQuoteId} eventData={eventData} />;
-  }
 
   const renderStep = () => {
     const animationClass = isAnimating

@@ -37,16 +37,17 @@ import UnifiedAdminDashboard from "./pages/UnifiedAdminDashboard";
 import EstimatePrintView from "./pages/EstimatePrintView";
 import { EventEstimateFullViewPage } from "./pages/EventEstimateFullViewPage";
 import { CustomerEstimateView } from "./components/customer/CustomerEstimateView";
+import QuoteThankYou from "./pages/QuoteThankYou";
 
 const AppContent = () => {
   useScrollToAnchor();
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
-  const isQuoteRoute = location.pathname.startsWith('/request-quote');
+  const isQuoteWizardRoute = /^\/request-quote\/(regular|wedding)$/.test(location.pathname);
   // Hide header/footer for full-page event view
   const isEventFullView = /^\/admin\/event\/[^/]+$/.test(location.pathname);
   const isEstimatePrint = /^\/admin\/estimate-print\/[^/]+$/.test(location.pathname);
-  const hideChrome = isEventFullView || isEstimatePrint || isQuoteRoute;
+  const hideChrome = isEventFullView || isEstimatePrint || isQuoteWizardRoute;
   
   return <div className="min-h-screen bg-background font-clean flex flex-col transition-colors duration-300 py-0 my-0">
       <OfflineIndicator />
@@ -61,6 +62,7 @@ const AppContent = () => {
           <Route path="/request-quote" element={<RequestQuote />} />
           <Route path="/request-quote/regular" element={<RegularEventQuote />} />
           <Route path="/request-quote/wedding" element={<WeddingEventQuote />} />
+          <Route path="/request-quote/thank-you" element={<QuoteThankYou />} />
           <Route path="/reviews" element={<Reviews />} />
           <Route path="/gallery" element={<PhotoGallery />} />
           <Route path="/gallery-alt" element={<AlternativeGallery />} />

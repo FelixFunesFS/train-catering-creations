@@ -2,6 +2,7 @@ import { UseFormReturn } from "react-hook-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { User, Calendar, MapPin, Users, ChefHat, UtensilsCrossed, MessageSquare } from "lucide-react";
+import { getVegetarianEntreeLabel } from "@/data/vegetarianOptions";
 
 interface ReviewSummaryCardProps {
   form: UseFormReturn<any>;
@@ -158,7 +159,7 @@ export const ReviewSummaryCard = ({ form, variant }: ReviewSummaryCardProps) => 
                       <div className="flex flex-wrap gap-1">
                         {watchedValues.vegetarian_entrees.map((id: string, idx: number) => (
                           <Badge key={idx} className="text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                            {id.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                            {getVegetarianEntreeLabel(id, variant)}
                           </Badge>
                         ))}
                       </div>

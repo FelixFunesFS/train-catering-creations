@@ -107,7 +107,6 @@ export const EventDetailsStep = ({ form, trackFieldInteraction, variant = 'regul
                 </FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="Summer Company Picnic"
                     className={cn(
                       "h-12 text-base input-clean transition-all",
                       validation.isValid && "border-green-500/50 focus:border-green-500"
@@ -120,6 +119,7 @@ export const EventDetailsStep = ({ form, trackFieldInteraction, variant = 'regul
                     }}
                   />
                 </FormControl>
+              <p className="text-xs text-muted-foreground">Example: Summer Company Picnic</p>
                 <FormMessage />
               </FormItem>
             );
@@ -187,7 +187,6 @@ export const EventDetailsStep = ({ form, trackFieldInteraction, variant = 'regul
                   <FormControl>
                     <Input
                       type="number"
-                      placeholder="50"
                       min="1"
                       className={cn(
                         "h-12 text-base input-clean transition-all",
@@ -198,6 +197,7 @@ export const EventDetailsStep = ({ form, trackFieldInteraction, variant = 'regul
                       onChange={(e) => field.onChange(parseInt(e.target.value) || '')}
                     />
                   </FormControl>
+                  <p className="text-xs text-muted-foreground">Example: 50</p>
                   <FormMessage />
                 </FormItem>
               );
@@ -279,7 +279,6 @@ export const EventDetailsStep = ({ form, trackFieldInteraction, variant = 'regul
                   </FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="Charleston, SC"
                       className={cn(
                         "h-12 text-base input-clean transition-all",
                         validation.isValid && "border-green-500/50 focus:border-green-500"
@@ -288,6 +287,7 @@ export const EventDetailsStep = ({ form, trackFieldInteraction, variant = 'regul
                       onFocus={() => trackFieldInteraction('location')}
                     />
                   </FormControl>
+                  <p className="text-xs text-muted-foreground">Example: Charleston, SC</p>
                   <FormMessage />
                 </FormItem>
               );

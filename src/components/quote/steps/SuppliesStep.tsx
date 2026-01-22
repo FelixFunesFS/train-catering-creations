@@ -122,7 +122,6 @@ export const SuppliesStep = ({ form, variant = 'regular' }: SuppliesStepProps) =
               </FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="Tell us about any special accommodations, setup requirements, or other details..."
                   className="min-h-[100px] input-clean resize-none"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') e.preventDefault();
@@ -130,6 +129,9 @@ export const SuppliesStep = ({ form, variant = 'regular' }: SuppliesStepProps) =
                   {...field}
                 />
               </FormControl>
+              <p className="text-xs text-muted-foreground">
+                Example: buffet setup details, serving area notes, allergies, timing constraints.
+              </p>
               <FormMessage />
             </FormItem>
           )}
