@@ -391,7 +391,7 @@ export const SinglePageQuoteForm = ({ variant = 'regular', onSuccess }: SinglePa
   };
 
   return (
-    <div className="min-h-[80vh] flex flex-col">
+    <div className="min-h-screen flex flex-col">
       {/* Progress */}
       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm py-4 border-b">
         <div className="max-w-2xl mx-auto px-4">
@@ -406,7 +406,7 @@ export const SinglePageQuoteForm = ({ variant = 'regular', onSuccess }: SinglePa
       {/* Step Content */}
       <div 
         ref={containerRef}
-        className="flex-1 overflow-y-auto py-8 px-4"
+        className="flex-1 min-h-0 overflow-y-auto py-8 px-4"
       >
         <FormProvider {...form}>
           <Form {...form}>

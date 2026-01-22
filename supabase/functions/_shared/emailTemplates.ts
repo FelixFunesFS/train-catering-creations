@@ -918,6 +918,7 @@ ${item.description ? `<div style="font-size:12px;color:#666;margin-top:2px;">${i
 
 export function generateTrackingPixel(invoiceId: string, emailType: string): string {
   const supabaseUrl = Deno.env.get('SUPABASE_URL');
+  if (!supabaseUrl) return '';
   return `<img src="${supabaseUrl}/functions/v1/track-email-open?invoice=${invoiceId}&type=${emailType}&t=${Date.now()}" alt="" width="1" height="1" style="display:block;width:1px;height:1px;border:0;" />`;
 }
 
@@ -943,7 +944,7 @@ export function generateStatusBadge(
   const config = statusConfig[status];
 
   return `
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:linear-gradient(135deg,${config.bgColor},${config.bgColorDark});border-radius:12px;margin:25px 0;border-collapse:collapse;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${config.bgColor}" style="background-color:${config.bgColor};background:linear-gradient(135deg,${config.bgColor},${config.bgColorDark});border-radius:12px;margin:25px 0;border-collapse:collapse;">
 <tr>
 <td style="padding:20px;">
 <table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
@@ -1095,7 +1096,7 @@ export function generateCTAButton(text: string, href: string, variant: 'primary'
   return `
 <table cellpadding="0" cellspacing="0" border="0" style="margin:20px auto;border-collapse:collapse;">
 <tr>
-<td align="center" style="background:${bgColor};border-radius:8px;">
+<td align="center" bgcolor="${variant === 'primary' ? BRAND_COLORS.crimson : BRAND_COLORS.gold}" style="background-color:${variant === 'primary' ? BRAND_COLORS.crimson : BRAND_COLORS.gold};background:${bgColor};border-radius:8px;">
 <!--[if mso]>
 <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="${href}" style="height:50px;v-text-anchor:middle;width:200px;" arcsize="16%" stroke="f" fillcolor="${variant === 'primary' ? BRAND_COLORS.crimson : BRAND_COLORS.gold}">
 <w:anchorlock/>
@@ -1109,6 +1110,10 @@ export function generateCTAButton(text: string, href: string, variant: 'primary'
 </td>
 </tr>
 </table>
+<p style="margin:8px 0 0 0;text-align:center;font-size:12px;color:#666;line-height:1.4;">
+  If the button doesn't work, copy and paste this link:<br>
+  <a href="${href}" style="color:${BRAND_COLORS.crimson};text-decoration:underline;">${href}</a>
+</p>
 `;
 }
 
@@ -1353,7 +1358,7 @@ ${generatePreheader(config.preheaderText)}
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f5f5f5;">
 <tr>
 <td align="center" style="padding:20px 10px;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;background:${BRAND_COLORS.white};border-radius:12px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.1);">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${BRAND_COLORS.white}" style="max-width:600px;background:${BRAND_COLORS.white};border-collapse:collapse;">
 <tr>
 <td>
 ${generateHeroSection(config.heroSection)}

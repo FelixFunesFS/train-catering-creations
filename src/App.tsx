@@ -42,10 +42,11 @@ const AppContent = () => {
   useScrollToAnchor();
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
+  const isQuoteRoute = location.pathname.startsWith('/request-quote');
   // Hide header/footer for full-page event view
   const isEventFullView = /^\/admin\/event\/[^/]+$/.test(location.pathname);
   const isEstimatePrint = /^\/admin\/estimate-print\/[^/]+$/.test(location.pathname);
-  const hideChrome = isEventFullView || isEstimatePrint;
+  const hideChrome = isEventFullView || isEstimatePrint || isQuoteRoute;
   
   return <div className="min-h-screen bg-background font-clean flex flex-col transition-colors duration-300 py-0 my-0">
       <OfflineIndicator />
