@@ -294,6 +294,9 @@ export function CustomerEstimateView() {
               soultrainseatery@gmail.com
             </a>
           </p>
+           <p className="text-xs text-muted-foreground">
+             Build: {new Date(__APP_BUILD_TIME__).toLocaleString()}
+           </p>
         </div>
       </div>
     </div>
