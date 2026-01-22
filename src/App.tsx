@@ -12,6 +12,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useScrollToAnchor } from "@/hooks/useScrollToAnchor";
 import { InstallBanner } from "@/components/pwa/InstallBanner";
 import { OfflineIndicator } from "@/components/pwa/OfflineIndicator";
+import { PwaUpdateBanner } from "@/components/pwa/PwaUpdateBanner";
 import Index from "./pages/Index";
 import About from "./pages/About";
 import Menu from "./pages/Menu";
@@ -48,6 +49,7 @@ const AppContent = () => {
   
   return <div className="min-h-screen bg-background font-clean flex flex-col transition-colors duration-300 py-0 my-0">
       <OfflineIndicator />
+      <PwaUpdateBanner />
       {!hideChrome && <Header />}
       <main className={`flex-1 ${isAdminRoute ? 'p-0' : 'py-0 my-0'}`}>
         <Routes>
