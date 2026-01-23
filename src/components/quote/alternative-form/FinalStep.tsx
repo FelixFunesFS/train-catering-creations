@@ -13,6 +13,13 @@ interface FinalStepProps {
 }
 
 const FinalStepComponent = ({ form, variant = 'regular' }: FinalStepProps) => {
+  const serviceType = form.watch('service_type');
+  const isFullService = serviceType === 'full-service' || serviceType === 'full_service';
+  const chaferLabel = isFullService ? 'Chafing Dishes with Fuel' : 'Food Warmers with Fuel';
+  const chaferDescription = isFullService
+    ? 'Chafing dishes with fuel to keep food warm'
+    : 'Food warmers with fuel to keep food warm';
+
   const { ref, isVisible } = useScrollAnimation({
     threshold: 0.2,
     triggerOnce: true,
@@ -209,9 +216,9 @@ const FinalStepComponent = ({ form, variant = 'regular' }: FinalStepProps) => {
                   )}
                 </FormControl>
                 <div className="space-y-1 leading-none">
-                  <FormLabel className="text-sm font-medium cursor-pointer">Chafing Dishes with Fuel</FormLabel>
+                  <FormLabel className="text-sm font-medium cursor-pointer">{chaferLabel}</FormLabel>
                   <p className="text-xs text-muted-foreground">
-                    Disposable chafing dishes with fuel to keep food warm
+                    {chaferDescription}
                   </p>
                 </div>
               </FormItem>

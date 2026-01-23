@@ -36,6 +36,13 @@ const formatServiceType = (serviceType: string): string => {
   return serviceTypes[serviceType] || '';
 };
 
+// Helper: label for chafers_requested based on service type
+const getChaferSupplyLabel = (serviceType?: string): string => {
+  const normalized = (serviceType || '').toLowerCase();
+  const isFullService = normalized === 'full-service' || normalized === 'full_service';
+  return isFullService ? 'Chafing Dishes with Fuel' : 'Food Warmers with Fuel';
+};
+
 // Helper: detect government customer (tax exempt)
 const isGovernmentCustomer = (email: string): boolean => {
   const govDomains = ['.gov', '.mil', '.state.'];
@@ -251,7 +258,7 @@ const generateLineItems = (quote: any): any[] => {
   // Consolidate all supply items into one "Supply & Equipment Package"
   const supplyItems: string[] = [];
   
-  if (quote.chafers_requested) supplyItems.push('Stainless steel chafers with fuel');
+  if (quote.chafers_requested) supplyItems.push(getChaferSupplyLabel(quote.service_type));
   if (quote.serving_utensils_requested) supplyItems.push('Professional serving utensils');
   if (quote.plates_requested) supplyItems.push('Disposable plates');
   if (quote.cups_requested) supplyItems.push('Disposable cups');

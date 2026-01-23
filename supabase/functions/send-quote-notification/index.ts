@@ -80,12 +80,16 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Helper to format supplies
     const formatSupplies = () => {
+      const serviceType = (quote.service_type || '').toLowerCase();
+      const isFullService = serviceType === 'full-service' || serviceType === 'full_service';
+      const chaferLabel = isFullService ? 'Chafing Dishes with Fuel' : 'Food Warmers with Fuel';
+
       const supplies = [];
        if (quote.plates_requested) supplies.push('Plates');
        if (quote.cups_requested) supplies.push('Cups');
        if (quote.napkins_requested) supplies.push('Napkins');
        if (quote.serving_utensils_requested) supplies.push('Serving Utensils');
-       if (quote.chafers_requested) supplies.push('Chafing Dishes with Fuel');
+       if (quote.chafers_requested) supplies.push(chaferLabel);
        if (quote.ice_requested) supplies.push('Ice');
       return supplies.length > 0 ? supplies.join(', ') : 'None requested';
     };
