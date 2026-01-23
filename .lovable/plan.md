@@ -1,101 +1,115 @@
 
-Goal
-- Make all user input fields (inputs, selects, date/time pickers, textareas) feel clearly “fillable” with stronger visual contrast, while staying accessible (WCAG-friendly) and consistent across mobile/desktop for both Regular and Wedding quote flows.
+Goal (what you’ll get)
+- A site-wide, mobile-only sticky action bar that makes “Request Quote” the primary action.
+- A secondary “Text / Message” action for immediate contact.
+- No conflicts with the mobile quote wizard (which already has its own sticky navigation) and no overlap with admin pages.
 
-What’s causing the “blends in” issue (current state)
-- Most form controls use `bg-background` (pure white) and `border-input`, where `--input` is currently set to a very light gray (`220 14% 96%`). On a vibrant white page, that border and fill are too close to the background.
-- The current `.input-clean` utility explicitly removes shadows and only changes border color slightly on hover/focus. It doesn’t add a visible focus ring, so keyboard/touch focus states can feel subtle.
-- Select triggers use Radix + `SelectTrigger` styling; in steps they also add `input-clean`, but the underlying trigger currently lacks a strong focus-visible ring and relies mainly on border changes.
+What “best way to think about mobile features” means in this codebase
+1) Treat mobile actions as a reusable system component (not page-by-page tweaks)
+   - If we add call/text/top/email in 10 places, it will drift and break consistency.
+   - Instead: one Mobile Action Bar component that:
+     - Knows when it should show (route + device)
+     - Reserves space so it never covers content
+     - Uses the same phone/email values everywhere
+2) Prioritize by user intent
+   - On mobile, the main user intent is usually “start the quote” (conversion).
+   - Secondary intent is “quick contact” (text).
+   - Everything else (scroll-to-top, email) can be optional later or behind a menu if needed.
+3) Avoid UI collisions
+   - Your quote wizard on mobile already has a sticky bottom navigation (`SinglePageQuoteForm`).
+   - So we must hide the site-wide action bar on those “fullscreen wizard” routes to prevent double sticky bars.
 
-Best way to think about it (design system approach)
-1) Define a single “form control surface” style and apply it everywhere
-   - Inputs/selects/textarea/date/time should share:
-     - A slightly tinted background (not pure white) so the control is visually distinct.
-     - A more visible default border.
-     - A very clear focus state (ring + border) that works in light and dark modes.
-2) Use tokens + 1 utility class to avoid chasing styles in every form step
-   - Update the global CSS variables (`--input`, `--border`) and the `.input-clean` utility so every place that already uses `input-clean` improves instantly.
-   - Add focus-visible ring styles to the shared UI primitives (`Input`, `Textarea`, `SelectTrigger`) so controls remain accessible even if a step forgets `input-clean`.
-3) Validate on the toughest screens first
-   - Test on mobile (small width) and in dark mode:
-     - Are fields clearly visible without scrolling zoom issues?
-     - Is focus state obvious?
-     - Do dropdowns remain opaque with sufficient z-index?
+Decisions you already made (we’ll implement exactly this)
+- Placement: Site-wide mobile
+- UI: Sticky bottom bar
+- Primary: Request Quote
+- Secondary: Text / Message
 
-Scope (what will change)
-A) Strengthen design tokens for form borders/surfaces
-- Update `src/index.css` tokens (light + dark):
-  - Make `--input` darker than it is now (used for borders via `border-input`), so the outline reads against white.
-  - Optionally nudge `--border` slightly darker as well to keep consistent hierarchy.
-  - Ensure dark mode tokens remain balanced (don’t over-brighten borders).
+Implementation design
 
-B) Make `.input-clean` actually “prominent” (without looking heavy)
-- Update `.input-clean` in `src/index.css` to:
-  - Use a subtle tinted fill (e.g., `bg-secondary/40` or `bg-muted/30`) instead of pure white, so fields are distinct from the page.
-  - Use a clearer default border (still `border-input` but now with improved token values).
-  - Add an accessible focus ring using existing tokens:
-    - `focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background`
-  - Keep hover/focus transitions smooth and consistent.
+A) Add a dedicated component: `MobileActionBar`
+Responsibilities:
+- Show only on mobile (`useIsMobile()`).
+- Hide on:
+  - Admin routes (`/admin...`)
+  - Mobile quote wizard routes (`/request-quote/regular` and `/request-quote/wedding` when the wizard runs fullscreen on mobile)
+  - Any other full-viewport routes you don’t want covered (we’ll start with the above; can extend later).
+- Render two large, thumb-friendly buttons:
+  - Primary: “Request Quote” → navigates to `/request-quote`
+  - Secondary: “Text Us” → `sms:8439700265`
+- Use safe-area padding for iPhone bottom inset:
+  - `pb-[calc(0.75rem+env(safe-area-inset-bottom))]`
+- Use strong contrast and minimum tap size (≥ 44px height).
 
-C) Add consistent focus-visible styles directly to the UI primitives
-Even with `.input-clean`, controls should be accessible by default.
-- Update:
-  - `src/components/ui/input.tsx`
-  - `src/components/ui/textarea.tsx`
-  - `src/components/ui/select.tsx` (at least `SelectTrigger`)
-to include:
-  - `focus-visible` ring styles (not just border color changes)
-  - Consistent border treatment (avoid “invisible” outline)
-This ensures any input used outside the quote flow still looks correct.
+Where it will be rendered:
+- In `AppContent` (in `src/App.tsx`), near the bottom of the app layout so it’s truly site-wide:
+  - Ideally after `<main>` and before footer/install banner, or just above them.
+  - Important: it should still show on pages that have a footer; it will float above the footer when you scroll to the bottom.
 
-D) Align “picker” controls with the same field styling
-- `src/components/ui/date-picker.tsx` currently uses `<Button variant="outline" ... input-clean>`.
-  - Change to use a button variant intended for input-like appearance (your `Button` already has `variant="input"`).
-  - Keep `input-clean` (or updated `.input-clean`) so DatePicker matches other fields.
-- Ensure `TimeSelect` remains consistent (it uses `SelectTrigger` + `input-clean` already; it will benefit automatically once SelectTrigger + `.input-clean` are improved).
+B) Reserve space so content isn’t covered
+- When the action bar is visible, we’ll add bottom padding to the main content container.
+- Best practice in this app (you already use safe-area math in the wizard):
+  - Add `pb-[calc(5rem+env(safe-area-inset-bottom))]` (tunable) to the `<main>` element only when the bar is visible.
+- This prevents “Submit” buttons, text areas, and bottom content from being hidden behind the sticky bar.
 
-E) Quick audit pass over quote steps to remove any “one-off” field styling
-- Verify these files don’t override new styles with extra `bg-background`/`border-muted` combos that reduce contrast:
-  - `src/components/quote/steps/ContactInfoStep.tsx`
-  - `src/components/quote/steps/EventDetailsStep.tsx`
-  - `src/components/quote/steps/SuppliesStep.tsx`
-  - `src/components/quote/alternative-form/ContactAndEventStep.tsx`
-  - `src/components/quote/alternative-form/FinalStep.tsx`
-  - `src/components/quote/alternative-form/ServiceSelectionStep.tsx`
-  - `src/components/quote/alternative-form/MenuSelectionStep.tsx`
-(Expectation: minimal/no changes needed because most already use `input-clean`; we’ll just ensure nothing is fighting it.)
+C) Make “Request Quote” the main CTA consistently (small CTA hierarchy fix)
+Even with a site-wide bar, it’s worth making the Thank You screen align with the same priority:
+- In `src/components/quote/alternative-form/SuccessStep.tsx`, update the final button row so:
+  - Primary button: “Request Quote” (goes to `/request-quote`) with the strongest variant.
+  - Secondary: “Return to Home” (outline/secondary).
+- Rename “Submit Another Quote” to “Request Quote” (simpler, clearer, consistent with your site-wide CTA language).
 
-Quality / acceptance checks
+(We will keep the existing email/phone links inside the “Need to Reach Us?” section as informational, since the sticky bar is now the fast action area.)
+
+D) Accessibility + UX details (mobile-first)
+- Buttons:
+  - Must remain keyboard accessible (tab order) and screen-reader clear labels.
+  - Use explicit text (not icon-only) to avoid ambiguity.
 - Visual:
-  - Inputs and textareas are visibly distinct from the page background (especially “Special Requests”).
-  - Select triggers look like real fields, not flat text.
-- Accessibility:
-  - Focus states are clearly visible with keyboard navigation (Tab/Shift+Tab) on all field types.
-  - Dropdown content remains opaque (not see-through) and above other UI (z-index).
-- Responsiveness:
-  - On small mobile screens, fields remain readable, with sufficient hit area and no clipped rings.
-  - On desktop, the new contrast doesn’t look “too heavy (boxed in)”.
+  - Use a slightly translucent background with blur (like other sticky surfaces in your app) but keep enough opacity to meet contrast.
+  - Add `border-t` so it reads as a separate layer.
+- Behavior:
+  - The bar is always visible while scrolling (sticky fixed).
+  - It does not animate excessively (avoid distracting “bouncing” CTAs).
 
-Files to be edited (implementation)
-- Global tokens + shared utility class:
-  - `src/index.css`
-- Field primitives:
-  - `src/components/ui/input.tsx`
-  - `src/components/ui/textarea.tsx`
-  - `src/components/ui/select.tsx`
-- Picker alignment:
-  - `src/components/ui/date-picker.tsx`
+Files we will read/update (expected)
+- Add new:
+  - `src/components/mobile/MobileActionBar.tsx` (or similar existing components folder pattern; we’ll match your conventions)
+- Update:
+  - `src/App.tsx` (render the bar + add conditional bottom padding)
+  - `src/components/quote/alternative-form/SuccessStep.tsx` (CTA priority change at the bottom)
 
-Implementation sequence (safe and fast)
-1) Update `--input` / `--border` tokens in `src/index.css` (light + dark).
-2) Update `.input-clean` styles to include subtle fill + strong focus ring.
-3) Add focus-visible ring styling to `Input`, `Textarea`, and `SelectTrigger`.
-4) Update `DatePicker` to use input-like button variant and ensure styling matches.
-5) Manually verify on:
-   - `/request-quote/regular`
-   - `/request-quote/wedding`
-   - mobile preview sizes + dark mode toggle
+Route/visibility logic (clear rules)
+- Show MobileActionBar when:
+  - `useIsMobile() === true`
+  - `pathname` does NOT start with `/admin`
+  - `pathname` is NOT `/request-quote/regular` or `/request-quote/wedding` (mobile wizard routes)
+- Optional follow-up (not required now): hide on `/install` if you prefer that screen to stay clean.
 
-Notes (to keep brand polish)
-- Keep the “vibrant white” theme by using a very subtle tinted fill (light gray) rather than a heavy border-only look.
-- Use Ruby primary only for focus/active states (ring/border), not for default borders, so the page remains calm and premium.
+Acceptance checklist (what you’ll verify in preview1)
+1) On any normal page on mobile (Home, About, Menu, Request Quote landing, Thank You):
+   - Sticky bar shows at bottom with “Request Quote” + “Text Us”.
+   - Content can scroll fully without being covered.
+2) On mobile quote wizard pages (`/request-quote/regular`, `/request-quote/wedding`):
+   - Sticky bar does NOT show (no double sticky footers).
+3) On admin pages:
+   - Sticky bar does NOT show.
+4) On the Thank You page:
+   - The primary on-page CTA becomes “Request Quote”, aligning with your conversion goal.
+
+Optional phase 2 (if you want the “scroll to top or email” later)
+- Convert the secondary button into a small “More” menu (bottom sheet using your existing Radix/Vaul stack) with:
+  - Text Us
+  - Email Us
+  - Scroll to Top
+This keeps the main bar simple while still supporting all actions.
+
+Implementation order (safe sequencing)
+1) Create `MobileActionBar` component with correct styling + links.
+2) Wire it into `App.tsx` with visibility logic and main padding adjustment.
+3) Update `SuccessStep` CTA buttons to prioritize “Request Quote”.
+4) Quick mobile verification on:
+   - `/request-quote/thank-you?...`
+   - `/request-quote`
+   - `/request-quote/regular` (ensure hidden)
+   - `/` and `/menu`
