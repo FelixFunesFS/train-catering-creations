@@ -143,7 +143,9 @@ const handler = async (req: Request): Promise<Response> => {
       }
     }
 
-    const portalUrl = `${siteUrl}/estimate?token=${encodeURIComponent(token)}#payment`;
+	// Same-site only: return a relative URL so the SPA router can handle navigation reliably.
+	// (Emails can still construct absolute URLs elsewhere using SITE_URL.)
+	const portalUrl = `/estimate?token=${encodeURIComponent(token)}#payment`;
 
     return new Response(JSON.stringify({ success: true, portalUrl }), {
       status: 200,
