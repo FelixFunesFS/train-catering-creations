@@ -11,7 +11,7 @@
  */
 
 import { useSearchParams } from 'react-router-dom';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useEstimateAccess } from '@/hooks/useEstimateAccess';
 import { EstimateLineItems } from './EstimateLineItems';
 import { CustomerActions } from './CustomerActions';
@@ -33,6 +33,13 @@ export function CustomerEstimateView() {
   const { loading, estimateData, error, refetch } = useEstimateAccess(token);
   const [showChangeModal, setShowChangeModal] = useState(false);
   const [autoActionTriggered, setAutoActionTriggered] = useState(false);
+  const [shouldAutoApprove, setShouldAutoApprove] = useState(false);
+
+  // Prevent mobile "action=approve" links from re-triggering in reload/remount scenarios
+  const autoApproveLockKey = useMemo(() => {
+    if (!token) return null;
+    return `st_portal_autoapprove:${token}`;
+  }, [token]);
 
   // Calculate payment progress - MUST be before any early returns
   const amountPaid = useMemo(() => {
@@ -48,9 +55,34 @@ export function CustomerEstimateView() {
         setShowChangeModal(true);
         setAutoActionTriggered(true);
       }
-      // 'approve' action is handled by CustomerActions component
+
+      if (action === 'approve' && token) {
+        const alreadyRan = autoApproveLockKey ? sessionStorage.getItem(autoApproveLockKey) === '1' : false;
+        if (!alreadyRan) {
+          if (autoApproveLockKey) sessionStorage.setItem(autoApproveLockKey, '1');
+
+          // Strip the action param immediately so refresh/remount doesn't keep re-triggering
+          try {
+            window.history.replaceState({}, '', `/estimate?token=${encodeURIComponent(token)}`);
+          } catch {
+            // no-op
+          }
+
+          setShouldAutoApprove(true);
+        }
+
+        // Mark as handled so we don't keep toggling state while data refetches
+        setAutoActionTriggered(true);
+      }
     }
-  }, [action, loading, estimateData, autoActionTriggered]);
+  }, [action, loading, estimateData, autoActionTriggered, token, autoApproveLockKey]);
+
+  // Ensure auto-approve is a one-shot signal to CustomerActions
+  useEffect(() => {
+    if (!shouldAutoApprove) return;
+    const t = window.setTimeout(() => setShouldAutoApprove(false), 0);
+    return () => window.clearTimeout(t);
+  }, [shouldAutoApprove]);
 
   if (loading) {
     return (
@@ -276,7 +308,7 @@ export function CustomerEstimateView() {
               quoteRequestId={invoice.quote_request_id}
               amountPaid={amountPaid}
               onStatusChange={refetch}
-              autoApprove={action === 'approve' && !autoActionTriggered}
+              autoApprove={shouldAutoApprove}
             />
           </CardContent>
         </Card>
