@@ -1,20 +1,27 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Heart, Utensils, Users, Sparkles } from "lucide-react";
+import { Heart, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 
-const QuoteFormSelector = () => {
+type QuoteFormSelectorProps = {
+  /** When false, renders just the two option cards (used on /request-quote). */
+  showHeader?: boolean;
+};
+
+const QuoteFormSelector = ({ showHeader = true }: QuoteFormSelectorProps) => {
   return (
     <div className="max-w-6xl mx-auto">
-      <div className="text-center mb-10 sm:mb-12">
-        <h2 className="text-4xl font-elegant text-foreground mb-4">Choose Your Event Type</h2>
-        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-          Select the option that best matches your event so we can provide you with the most accurate quote and service recommendations.
-        </p>
-      </div>
+      {showHeader && (
+        <div className="text-center mb-10 sm:mb-12">
+          <h2 className="text-4xl font-elegant text-foreground mb-4">Choose Your Event Type</h2>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Select the option that best matches your event so we can provide you with the most accurate quote and service recommendations.
+          </p>
+        </div>
+      )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className={showHeader ? "grid grid-cols-1 lg:grid-cols-2 gap-8" : "mt-6 sm:mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8"}>
         {/* Regular Events Card */}
         <Card className="shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-[1.02] bg-gradient-to-br from-background via-primary/5 to-accent/10 border-2 border-primary/30 hover:border-primary/50 relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-primary/20 to-transparent rounded-bl-full" />
