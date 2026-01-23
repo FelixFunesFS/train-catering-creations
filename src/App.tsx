@@ -31,6 +31,7 @@ import TermsConditions from "./pages/TermsConditions";
 import AdminAuth from "./pages/AdminAuth";
 import NotFound from "./pages/NotFound";
 import Install from "./pages/Install";
+import ApproveEstimate from "./pages/ApproveEstimate";
 
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCanceled from "./pages/PaymentCanceled";
@@ -70,6 +71,7 @@ const AppContent = () => {
           <Route path="/gallery-alt" element={<AlternativeGallery />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/install" element={<Install />} />
+          <Route path="/approve" element={<ApproveEstimate />} />
           {/* Development routes - remove in production */}
           {process.env.NODE_ENV === 'development' && <Route path="/test-email" element={<TestEmail />} />}
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />

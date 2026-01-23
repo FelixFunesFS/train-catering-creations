@@ -84,6 +84,17 @@ export function CustomerEstimateView() {
     return () => window.clearTimeout(t);
   }, [shouldAutoApprove]);
 
+  // If we arrived from an approval flow, jump straight to payment.
+  useEffect(() => {
+    if (loading) return;
+    if (!estimateData) return;
+    if (window.location.hash !== '#payment') return;
+
+    const el = document.getElementById('payment');
+    if (!el) return;
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [loading, estimateData]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -120,6 +131,8 @@ export function CustomerEstimateView() {
   }
 
   const { invoice, quote, lineItems, milestones } = estimateData;
+
+  const showPaymentFirst = ['approved', 'paid', 'partially_paid', 'payment_pending'].includes(invoice.workflow_status);
 
   return (
     <div className="min-h-screen bg-muted/30 py-8 px-4">
@@ -213,6 +226,20 @@ export function CustomerEstimateView() {
           </CardContent>
         </Card>
 
+        {/* Payment-first after approval */}
+        {showPaymentFirst && (
+          <div id="payment">
+            <PaymentCard
+              invoiceId={invoice.id}
+              totalAmount={invoice.total_amount}
+              milestones={(milestones || []) as Milestone[]}
+              workflowStatus={invoice.workflow_status}
+              customerEmail={quote.email}
+              accessToken={token}
+            />
+          </div>
+        )}
+
         {/* Line Items Card */}
         <Card>
           <CardHeader className="pb-3">
@@ -228,15 +255,19 @@ export function CustomerEstimateView() {
           </CardContent>
         </Card>
 
-        {/* Unified Payment Card - handles both schedule display and payment actions */}
-        <PaymentCard
-          invoiceId={invoice.id}
-          totalAmount={invoice.total_amount}
-          milestones={(milestones || []) as Milestone[]}
-          workflowStatus={invoice.workflow_status}
-          customerEmail={quote.email}
-          accessToken={token}
-        />
+        {/* Schedule-first before approval */}
+        {!showPaymentFirst && (
+          <div id="payment">
+            <PaymentCard
+              invoiceId={invoice.id}
+              totalAmount={invoice.total_amount}
+              milestones={(milestones || []) as Milestone[]}
+              workflowStatus={invoice.workflow_status}
+              customerEmail={quote.email}
+              accessToken={token}
+            />
+          </div>
+        )}
 
         {/* Change Request Modal (triggered by action=changes) */}
         <ChangeRequestModal

@@ -1124,8 +1124,24 @@ export function generateCTAButton(text: string, href: string, variant: 'primary'
 export function generateEstimateActionButtons(portalUrl: string): string {
   // Ensure proper URL parameter handling
   const separator = portalUrl.includes('?') ? '&' : '?';
-  const approveUrl = `${portalUrl}${separator}action=approve`;
+  // Default/fallback (older flow): approve inside portal
+  let approveUrl = `${portalUrl}${separator}action=approve`;
   const changesUrl = `${portalUrl}${separator}action=changes`;
+
+  // Preferred flow: one-click approve page (keeps approval out of the portal UI)
+  // /approve?token=...
+  try {
+    const siteUrl = Deno.env.get('SITE_URL') || 'https://soultrainseatery.lovable.app';
+    const u = new URL(portalUrl);
+    const token = u.searchParams.get('token');
+    if (token) {
+      const approve = new URL('/approve', siteUrl);
+      approve.searchParams.set('token', token);
+      approveUrl = approve.toString();
+    }
+  } catch {
+    // keep fallback
+  }
 
   return `
 <div style="margin:30px 0;text-align:center;">
@@ -1142,7 +1158,7 @@ export function generateEstimateActionButtons(portalUrl: string): string {
         </v:roundrect>
         <![endif]-->
         <!--[if !mso]><!-->
-        <a href="${approveUrl}" style="display:inline-block;padding:16px 40px;color:${BRAND_COLORS.white};font-weight:bold;font-size:16px;text-decoration:none;border-radius:8px;text-align:center;">✅ Approve Estimate</a>
+         <a href="${approveUrl}" target="_blank" rel="noopener" style="display:inline-block;padding:16px 40px;color:${BRAND_COLORS.white};font-weight:bold;font-size:16px;text-decoration:none;border-radius:8px;text-align:center;">✅ Approve Estimate</a>
         <!--<![endif]-->
       </td>
     </tr>
@@ -1163,7 +1179,7 @@ export function generateEstimateActionButtons(portalUrl: string): string {
               </v:roundrect>
               <![endif]-->
               <!--[if !mso]><!-->
-              <a href="${changesUrl}" style="display:inline-block;padding:12px 24px;color:${BRAND_COLORS.darkGray};font-weight:600;font-size:14px;text-decoration:none;border-radius:6px;text-align:center;">💬 Request Changes</a>
+               <a href="${changesUrl}" target="_blank" rel="noopener" style="display:inline-block;padding:12px 24px;color:${BRAND_COLORS.darkGray};font-weight:600;font-size:14px;text-decoration:none;border-radius:6px;text-align:center;">💬 Request Changes</a>
               <!--<![endif]-->
             </td>
           </tr>
@@ -1182,7 +1198,7 @@ export function generateEstimateActionButtons(portalUrl: string): string {
               </v:roundrect>
               <![endif]-->
               <!--[if !mso]><!-->
-              <a href="${portalUrl}" style="display:inline-block;padding:12px 24px;color:${BRAND_COLORS.darkGray};font-size:14px;text-decoration:none;border-radius:6px;text-align:center;">View Full Details</a>
+               <a href="${portalUrl}" target="_blank" rel="noopener" style="display:inline-block;padding:12px 24px;color:${BRAND_COLORS.darkGray};font-size:14px;text-decoration:none;border-radius:6px;text-align:center;">View Full Details</a>
               <!--<![endif]-->
             </td>
           </tr>
