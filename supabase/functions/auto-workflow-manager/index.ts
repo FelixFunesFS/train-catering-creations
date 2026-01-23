@@ -23,6 +23,10 @@ const handler = async (req: Request): Promise<Response> => {
 
     logStep("Starting automated workflow transitions");
 
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const todayStartIso = todayStart.toISOString();
+
     const results = {
       autoApproved: 0,
       markedOverdue: 0,
@@ -145,6 +149,9 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     // 4. Send payment reminders for upcoming milestones
+    // NOTE: This is scheduled every 15 minutes via cron, so we must be careful to:
+    // - Deduplicate reminders (once per day per invoice)
+    // - Avoid immediately nagging customers right after approval (24h cooldown)
     logStep("Checking for payment reminders");
     const threeDaysFromNow = new Date();
     threeDaysFromNow.setDate(threeDaysFromNow.getDate() + 3);
@@ -154,8 +161,11 @@ const handler = async (req: Request): Promise<Response> => {
       .select(`
         id,
         due_date,
+        amount_cents,
         invoice_id,
         invoices (
+          workflow_status,
+          last_status_change,
           quote_requests (
             email,
             contact_name,
@@ -169,30 +179,53 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (!milestoneError && upcomingMilestones) {
       for (const milestone of upcomingMilestones as any) {
+        const invoiceStatus: string | undefined = milestone.invoices?.workflow_status;
+        const lastStatusChange: string | undefined = milestone.invoices?.last_status_change;
+
+        // 24-hour post-approval cooldown (prevents immediate follow-up after approval)
+        if (invoiceStatus && ['approved', 'payment_pending'].includes(invoiceStatus) && lastStatusChange) {
+          const hoursSinceStatusChange = (Date.now() - new Date(lastStatusChange).getTime()) / (1000 * 60 * 60);
+          if (Number.isFinite(hoursSinceStatusChange) && hoursSinceStatusChange < 24) {
+            logStep('Skipping reminder due to 24h post-approval cooldown', {
+              invoice_id: milestone.invoice_id,
+              invoice_status: invoiceStatus,
+              hours_since_status_change: Math.round(hoursSinceStatusChange * 10) / 10,
+              milestone_due_date: milestone.due_date,
+            });
+            continue;
+          }
+        }
+
         // Check if reminder already sent today
-        const { data: existingReminder } = await supabase
+        const { data: existingReminder, error: existingReminderError } = await supabase
           .from('reminder_logs')
           .select('id')
           .eq('invoice_id', milestone.invoice_id)
           .eq('reminder_type', 'payment_due_soon')
-          .gte('sent_at', new Date().toISOString().split('T')[0]);
+          .gte('sent_at', todayStartIso);
+
+        if (existingReminderError) {
+          results.errors.push(`Failed to check reminder_logs for invoice ${milestone.invoice_id}: ${existingReminderError.message}`);
+          continue;
+        }
 
         if (!existingReminder || existingReminder.length === 0) {
-          // Send reminder email
-          const { error: emailError } = await supabase.functions.invoke('send-smtp-email', {
+          // Send reminder email (canonical template + payment link)
+          const customerEmail = milestone.invoices?.quote_requests?.email;
+          const customerName = milestone.invoices?.quote_requests?.contact_name;
+          const eventName = milestone.invoices?.quote_requests?.event_name;
+
+          if (!customerEmail) continue;
+
+          const { error: emailError } = await supabase.functions.invoke('send-payment-reminder', {
             body: {
-              to: milestone.invoices.quote_requests.email,
-              subject: `Payment Reminder - ${milestone.invoices.quote_requests.event_name}`,
-              html: `
-                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                  <h2>Payment Reminder</h2>
-                  <p>Dear ${milestone.invoices.quote_requests.contact_name},</p>
-                  <p>This is a friendly reminder that a payment is due soon for your upcoming event: <strong>${milestone.invoices.quote_requests.event_name}</strong>.</p>
-                  <p>Due date: ${new Date(milestone.due_date).toLocaleDateString()}</p>
-                  <p>Please ensure payment is made on time to avoid any delays.</p>
-                  <p>Best regards,<br>Soul Train's Eatery</p>
-                </div>
-              `
+              invoiceId: milestone.invoice_id,
+              customerEmail,
+              customerName,
+              eventName,
+              balanceRemaining: milestone.amount_cents || 0,
+              daysOverdue: 0,
+              urgency: 'medium'
             }
           });
 
