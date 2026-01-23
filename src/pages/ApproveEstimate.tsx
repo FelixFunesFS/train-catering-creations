@@ -16,11 +16,28 @@ export default function ApproveEstimate() {
   const navigate = useNavigate();
   const token = searchParams.get("token") || "";
   const [state, setState] = useState<ApproveState>({ status: "idle" });
+  const [showFallback, setShowFallback] = useState(false);
 
   const portalUrl = useMemo(() => {
     if (!token) return "";
     return `/estimate?token=${encodeURIComponent(token)}#payment`;
   }, [token]);
+
+  const normalizeSameSitePath = (rawUrl: unknown, fallback: string) => {
+    if (typeof rawUrl !== "string" || !rawUrl) return fallback;
+    // If an absolute URL slips through, enforce same-site only by extracting path from same-origin.
+    if (rawUrl.startsWith("http://") || rawUrl.startsWith("https://")) {
+      try {
+        const u = new URL(rawUrl);
+        if (u.origin !== window.location.origin) return fallback;
+        return `${u.pathname}${u.search}${u.hash}`;
+      } catch {
+        return fallback;
+      }
+    }
+    // Ensure we only navigate to app paths.
+    return rawUrl.startsWith("/") ? rawUrl : fallback;
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -43,7 +60,9 @@ export default function ApproveEstimate() {
         return;
       }
 
-      setState({ status: "success", portalUrl: data?.portalUrl || portalUrl });
+      const safePortalUrl = normalizeSameSitePath(data?.portalUrl, portalUrl);
+      setShowFallback(false);
+      setState({ status: "success", portalUrl: safePortalUrl });
     };
 
     run();
@@ -56,12 +75,20 @@ export default function ApproveEstimate() {
   useEffect(() => {
     if (state.status !== "success") return;
 
-    const t = setTimeout(() => {
-      // Use replace to avoid leaving an extra history entry (prevents back/forward confusion on mobile)
+    // Use replace to avoid leaving an extra history entry (prevents back/forward confusion on mobile)
+    const redirectTimer = setTimeout(() => {
       navigate(state.portalUrl, { replace: true });
-    }, 600);
+    }, 300);
 
-    return () => clearTimeout(t);
+    // Mobile/in-app browser resilience: if we're still here after 2s, show a clear manual fallback.
+    const fallbackTimer = setTimeout(() => {
+      setShowFallback(true);
+    }, 2000);
+
+    return () => {
+      clearTimeout(redirectTimer);
+      clearTimeout(fallbackTimer);
+    };
   }, [state, navigate]);
 
   return (
@@ -92,6 +119,11 @@ export default function ApproveEstimate() {
                 <p className="text-sm text-muted-foreground">
                   Redirecting you to payment to secure your date…
                 </p>
+                {showFallback && (
+                  <p className="text-sm text-muted-foreground mt-1">
+                    If you’re not redirected automatically, tap Continue to Payment below.
+                  </p>
+                )}
               </div>
             </div>
           )}
@@ -107,11 +139,17 @@ export default function ApproveEstimate() {
           )}
 
           <div className="grid gap-3 sm:grid-cols-2">
-            <Button asChild size="lg" disabled={state.status !== "success"}>
-              <Link to={state.status === "success" ? state.portalUrl : "#"}>
-                <CreditCard className="mr-2 h-4 w-4" />
-                Continue to Payment
-              </Link>
+            <Button
+              size="lg"
+              disabled={state.status !== "success"}
+              onClick={() => {
+                if (state.status !== "success") return;
+                // Hard navigation improves reliability in some mobile/in-app browsers.
+                window.location.assign(state.portalUrl);
+              }}
+            >
+              <CreditCard className="mr-2 h-4 w-4" />
+              Continue to Payment
             </Button>
 
             <Button asChild size="lg" variant="outline" disabled={state.status !== "success"}>
