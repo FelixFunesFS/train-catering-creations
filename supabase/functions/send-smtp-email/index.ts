@@ -26,6 +26,10 @@ interface EmailRequest {
   replyTo?: string;
 }
 
+const DEFAULT_FROM_EMAIL = 'soultrainseatery@gmail.com';
+const DEFAULT_FROM_DISPLAY = "Soul Train’s Eatery";
+const DEFAULT_FROM = `${DEFAULT_FROM_DISPLAY} <${DEFAULT_FROM_EMAIL}>`;
+
 const handler = async (req: Request): Promise<Response> => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -43,7 +47,7 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    const { to, subject, html, from = 'soultrainseatery@gmail.com', replyTo }: EmailRequest = await req.json();
+    const { to, subject, html, from = DEFAULT_FROM, replyTo }: EmailRequest = await req.json();
 
     if (!to || !subject || !html) {
       throw new Error('Missing required fields: to, subject, html');
@@ -76,7 +80,18 @@ const handler = async (req: Request): Promise<Response> => {
       return { email: emailString.trim() };
     };
 
-    const fromParts = extractEmailParts(from);
+    // Normalize From header to ensure consistent branded display name.
+    // If caller passes a bare email, upgrade it to "Soul Train’s Eatery <email>".
+    const normalizedFrom = (() => {
+      const trimmed = String(from || '').trim();
+      if (!trimmed) return DEFAULT_FROM;
+      const hasDisplayName = /<.+?>/.test(trimmed) && !/^<.+?>$/.test(trimmed);
+      if (hasDisplayName) return trimmed;
+      // Bare address or malformed display-name: enforce our standard.
+      return `${DEFAULT_FROM_DISPLAY} <${trimmed.replace(/[<>]/g, '')}>`;
+    })();
+
+    const fromParts = extractEmailParts(normalizedFrom);
 
     // Create SMTP client
     const client = new SMTPClient({
