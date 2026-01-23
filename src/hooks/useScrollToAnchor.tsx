@@ -28,7 +28,8 @@ export const useScrollToAnchor = () => {
       return () => clearTimeout(timer);
     } else {
       // No hash, immediately scroll to top
-      window.scrollTo({ top: 0, behavior: 'instant' });
+      // Use standard behavior values for maximum browser compatibility
+      window.scrollTo({ top: 0, behavior: 'auto' });
       // Then smooth scroll to ensure it's at the top
       setTimeout(() => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
