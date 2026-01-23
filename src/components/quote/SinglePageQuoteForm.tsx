@@ -70,6 +70,8 @@ export const SinglePageQuoteForm = ({
     formType: variant === 'wedding' ? 'wedding_event' : 'regular_event' 
   });
 
+  const showMobileChrome = layout === 'fullscreen' && isMobile;
+
   const returnTo = useCallback(() => {
     const params = new URLSearchParams(location.search);
     const v = params.get('returnTo');
@@ -450,8 +452,8 @@ export const SinglePageQuoteForm = ({
 
   return (
     <div className={cn(layout === 'fullscreen' ? "min-h-screen flex flex-col" : "w-full")}>      
-      {/* Mobile Exit Bar (only for fullscreen mobile wizard) */}
-      {layout === 'fullscreen' && isMobile && (
+      {/* Mobile sticky header (Exit + Progress) */}
+      {showMobileChrome ? (
         <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b">
           <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
             <Button
@@ -469,30 +471,39 @@ export const SinglePageQuoteForm = ({
             </div>
             <div className="w-[64px]" />
           </div>
+
+          <div className="py-4 border-t">
+            <div className="max-w-2xl mx-auto px-4">
+              <StepProgress
+                currentStep={currentStep}
+                totalSteps={STEPS.length}
+                stepTitles={STEPS.map(s => s.title)}
+              />
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className={cn(
+          layout === 'fullscreen'
+            ? "sticky top-0 z-10 bg-background/95 backdrop-blur-sm py-4 border-b"
+            : "bg-background/95 backdrop-blur-sm py-4 border-b rounded-lg"
+        )}>
+          <div className="max-w-2xl mx-auto px-4">
+            <StepProgress
+              currentStep={currentStep}
+              totalSteps={STEPS.length}
+              stepTitles={STEPS.map(s => s.title)}
+            />
+          </div>
         </div>
       )}
-
-      {/* Progress */}
-      <div className={cn(
-        layout === 'fullscreen'
-          ? "sticky top-0 z-10 bg-background/95 backdrop-blur-sm py-4 border-b"
-          : "bg-background/95 backdrop-blur-sm py-4 border-b rounded-lg"
-      )}>
-        <div className="max-w-2xl mx-auto px-4">
-          <StepProgress
-            currentStep={currentStep}
-            totalSteps={STEPS.length}
-            stepTitles={STEPS.map(s => s.title)}
-          />
-        </div>
-      </div>
 
       {/* Step Content */}
       <div
         ref={containerRef}
         className={cn(
           layout === 'fullscreen'
-            ? "flex-1 min-h-0 overflow-y-auto py-8 px-4"
+            ? "flex-1 min-h-0 overflow-y-auto pt-8 pb-[calc(7rem+env(safe-area-inset-bottom))] px-4"
             : "py-8 px-4"
         )}
       >
@@ -510,7 +521,7 @@ export const SinglePageQuoteForm = ({
       {/* Navigation */}
       <div className={cn(
         layout === 'fullscreen'
-          ? "sticky bottom-0 z-10 bg-background/95 backdrop-blur-sm py-4 px-4 border-t"
+          ? "sticky bottom-0 z-10 bg-background/95 backdrop-blur-sm pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))] px-4 border-t"
           : "bg-background/95 backdrop-blur-sm py-4 px-4 border-t rounded-lg"
       )}>
         <StepNavigation
