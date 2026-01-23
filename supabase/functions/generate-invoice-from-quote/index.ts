@@ -26,8 +26,12 @@ const formatMenuDescription = (description: string): string => {
 const formatServiceType = (serviceType: string): string => {
   const serviceTypes: Record<string, string> = {
     'full-service': 'Full Service Catering',
+    'delivery-only': 'Delivery Only',
     'delivery-setup': 'Delivery with Setup',
+    // Legacy/alias values (older data)
     'drop-off': 'Drop Off Delivery',
+    'drop_off': 'Drop Off Delivery',
+    'delivery_only': 'Delivery Only',
   };
   return serviceTypes[serviceType] || 'Catering Service';
 };
