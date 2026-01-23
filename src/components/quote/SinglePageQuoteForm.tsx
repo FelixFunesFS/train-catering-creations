@@ -18,13 +18,27 @@ import { useToast } from "@/hooks/use-toast";
 import { useFormAnalytics } from "@/hooks/useFormAnalytics";
 import { formatCustomerName, formatEventName, formatLocation } from "@/utils/textFormatters";
 import { cn } from "@/lib/utils";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
 
 type FormData = z.infer<typeof formSchema>;
 
 interface SinglePageQuoteFormProps {
   variant?: 'regular' | 'wedding';
   onSuccess?: (quoteId: string) => void;
+  /**
+   * fullscreen: mobile wizard with internal scroll + sticky progress/nav
+   * embedded: desktop-in-page (no internal scroll, no sticky bars)
+   */
+  layout?: 'fullscreen' | 'embedded';
+  /**
+   * container: scroll the form's internal containerRef
+   * window: scroll the page to scrollToRef
+   */
+  scrollMode?: 'container' | 'window';
+  scrollToRef?: React.RefObject<HTMLElement>;
 }
 
 const STEPS = [
@@ -36,7 +50,13 @@ const STEPS = [
   { id: 'review', title: 'Review & Submit', icon: ClipboardCheck, required: false, fields: [] },
 ];
 
-export const SinglePageQuoteForm = ({ variant = 'regular', onSuccess }: SinglePageQuoteFormProps) => {
+export const SinglePageQuoteForm = ({
+  variant = 'regular',
+  onSuccess,
+  layout = 'fullscreen',
+  scrollMode = 'container',
+  scrollToRef,
+}: SinglePageQuoteFormProps) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [direction, setDirection] = useState<'forward' | 'backward'>('forward');
   const [isAnimating, setIsAnimating] = useState(false);
@@ -44,9 +64,30 @@ export const SinglePageQuoteForm = ({ variant = 'regular', onSuccess }: SinglePa
   const containerRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
+  const isMobile = useIsMobile();
   const { trackFieldInteraction, trackFormSubmission } = useFormAnalytics({ 
     formType: variant === 'wedding' ? 'wedding_event' : 'regular_event' 
   });
+
+  const returnTo = useCallback(() => {
+    const params = new URLSearchParams(location.search);
+    const v = params.get('returnTo');
+    return v && v.startsWith('/') ? v : '/request-quote';
+  }, [location.search]);
+
+  const scrollToTop = useCallback((behavior: ScrollBehavior = 'smooth') => {
+    if (scrollMode === 'window') {
+      if (scrollToRef?.current) {
+        scrollToRef.current.scrollIntoView({ behavior, block: 'start' });
+        return;
+      }
+      window.scrollTo({ top: 0, behavior });
+      return;
+    }
+
+    containerRef.current?.scrollTo({ top: 0, behavior });
+  }, [scrollMode, scrollToRef]);
 
   const getDefaultEventType = () => {
     return variant === 'wedding' ? 'wedding' : 'birthday';
@@ -93,6 +134,17 @@ export const SinglePageQuoteForm = ({ variant = 'regular', onSuccess }: SinglePa
     },
   });
 
+  const focusFirstInvalidFieldInStep = useCallback(() => {
+    const step = STEPS[currentStep];
+    if (!step?.fields?.length) return;
+
+    const errors = form.formState.errors;
+    const firstInvalid = step.fields.find((f) => !!errors[f as keyof typeof errors]);
+    if (!firstInvalid) return;
+
+    form.setFocus(firstInvalid as any);
+  }, [currentStep, form]);
+
   // Check if current step is valid
   const validateCurrentStep = useCallback(async (): Promise<boolean> => {
     const step = STEPS[currentStep];
@@ -129,6 +181,12 @@ export const SinglePageQuoteForm = ({ variant = 'regular', onSuccess }: SinglePa
         description: "Fill in all required fields before continuing.",
         variant: "destructive",
       });
+
+      // Ensure the user sees the top of the step + focus the first invalid field.
+      requestAnimationFrame(() => {
+        scrollToTop('smooth');
+        focusFirstInvalidFieldInStep();
+      });
       return;
     }
 
@@ -138,10 +196,10 @@ export const SinglePageQuoteForm = ({ variant = 'regular', onSuccess }: SinglePa
       setTimeout(() => {
         setCurrentStep(prev => prev + 1);
         setIsAnimating(false);
-        containerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+        requestAnimationFrame(() => scrollToTop('smooth'));
       }, 200);
     }
-  }, [currentStep, isAnimating, validateCurrentStep, toast]);
+  }, [currentStep, isAnimating, validateCurrentStep, toast, scrollToTop, focusFirstInvalidFieldInStep]);
 
   // Navigate to previous step
   const handleBack = useCallback(() => {
@@ -152,9 +210,16 @@ export const SinglePageQuoteForm = ({ variant = 'regular', onSuccess }: SinglePa
     setTimeout(() => {
       setCurrentStep(prev => prev - 1);
       setIsAnimating(false);
-      containerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+      requestAnimationFrame(() => scrollToTop('smooth'));
     }, 200);
-  }, [currentStep, isAnimating]);
+  }, [currentStep, isAnimating, scrollToTop]);
+
+  // When embedded, ensure the initial mount starts at the form top.
+  useEffect(() => {
+    if (layout === 'embedded') {
+      requestAnimationFrame(() => scrollToTop('auto'));
+    }
+  }, [layout, scrollToTop]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -197,6 +262,11 @@ export const SinglePageQuoteForm = ({ variant = 'regular', onSuccess }: SinglePa
         title: "Please Fix Form Errors",
         description: "Some required fields are missing or invalid.",
         variant: "destructive",
+      });
+
+      requestAnimationFrame(() => {
+        scrollToTop('smooth');
+        focusFirstInvalidFieldInStep();
       });
       return;
     }
@@ -388,11 +458,37 @@ export const SinglePageQuoteForm = ({ variant = 'regular', onSuccess }: SinglePa
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className={cn(layout === 'fullscreen' ? "min-h-screen flex flex-col" : "w-full")}>      
+      {/* Mobile Exit Bar (only for fullscreen mobile wizard) */}
+      {layout === 'fullscreen' && isMobile && (
+        <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b">
+          <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate(returnTo())}
+              className="gap-2"
+            >
+              <X className="h-4 w-4" />
+              Exit
+            </Button>
+            <div className="text-sm font-medium text-foreground">
+              {variant === 'wedding' ? 'Wedding Quote' : 'Event Quote'}
+            </div>
+            <div className="w-[64px]" />
+          </div>
+        </div>
+      )}
+
       {/* Progress */}
-      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm py-4 border-b">
+      <div className={cn(
+        layout === 'fullscreen'
+          ? "sticky top-0 z-10 bg-background/95 backdrop-blur-sm py-4 border-b"
+          : "bg-background/95 backdrop-blur-sm py-4 border-b rounded-lg"
+      )}>
         <div className="max-w-2xl mx-auto px-4">
-          <StepProgress 
+          <StepProgress
             currentStep={currentStep}
             totalSteps={STEPS.length}
             stepTitles={STEPS.map(s => s.title)}
@@ -401,14 +497,18 @@ export const SinglePageQuoteForm = ({ variant = 'regular', onSuccess }: SinglePa
       </div>
 
       {/* Step Content */}
-      <div 
+      <div
         ref={containerRef}
-        className="flex-1 min-h-0 overflow-y-auto py-8 px-4"
+        className={cn(
+          layout === 'fullscreen'
+            ? "flex-1 min-h-0 overflow-y-auto py-8 px-4"
+            : "py-8 px-4"
+        )}
       >
         <FormProvider {...form}>
           <Form {...form}>
-            <form onSubmit={(e) => e.preventDefault()} className="min-h-full flex flex-col">
-              <div className="flex-1 flex items-start justify-center">
+            <form onSubmit={(e) => e.preventDefault()} className={cn(layout === 'fullscreen' ? "min-h-full flex flex-col" : "")}>              
+              <div className={cn(layout === 'fullscreen' ? "flex-1 flex items-start justify-center" : "flex items-start justify-center")}>                
                 {renderStep()}
               </div>
             </form>
@@ -417,7 +517,11 @@ export const SinglePageQuoteForm = ({ variant = 'regular', onSuccess }: SinglePa
       </div>
 
       {/* Navigation */}
-      <div className="sticky bottom-0 z-10 bg-background/95 backdrop-blur-sm py-4 px-4 border-t">
+      <div className={cn(
+        layout === 'fullscreen'
+          ? "sticky bottom-0 z-10 bg-background/95 backdrop-blur-sm py-4 px-4 border-t"
+          : "bg-background/95 backdrop-blur-sm py-4 px-4 border-t rounded-lg"
+      )}>
         <StepNavigation
           currentStep={currentStep}
           totalSteps={STEPS.length}

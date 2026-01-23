@@ -13,6 +13,7 @@ import { useScrollToAnchor } from "@/hooks/useScrollToAnchor";
 import { InstallBanner } from "@/components/pwa/InstallBanner";
 import { OfflineIndicator } from "@/components/pwa/OfflineIndicator";
 import { PwaUpdateBanner } from "@/components/pwa/PwaUpdateBanner";
+import { useIsMobile } from "@/hooks/use-mobile";
 import Index from "./pages/Index";
 import About from "./pages/About";
 import Menu from "./pages/Menu";
@@ -42,12 +43,13 @@ import QuoteThankYou from "./pages/QuoteThankYou";
 const AppContent = () => {
   useScrollToAnchor();
   const location = useLocation();
+  const isMobile = useIsMobile();
   const isAdminRoute = location.pathname.startsWith('/admin');
   const isQuoteWizardRoute = /^\/request-quote\/(regular|wedding)$/.test(location.pathname);
   // Hide header/footer for full-page event view
   const isEventFullView = /^\/admin\/event\/[^/]+$/.test(location.pathname);
   const isEstimatePrint = /^\/admin\/estimate-print\/[^/]+$/.test(location.pathname);
-  const hideChrome = isEventFullView || isEstimatePrint || isQuoteWizardRoute;
+  const hideChrome = isEventFullView || isEstimatePrint || (isQuoteWizardRoute && isMobile);
   
   return <div className="min-h-screen bg-background font-clean flex flex-col transition-colors duration-300 py-0 my-0">
       <OfflineIndicator />
