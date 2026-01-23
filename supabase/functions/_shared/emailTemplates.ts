@@ -1468,6 +1468,26 @@ export function getEmailContentBlocks(
       // Add multi-button CTA for direct actions from email
       const estimateActionButtonsHtml = generateEstimateActionButtons(effectivePortalUrl);
 
+      const isGovernment = String(quote?.compliance_level || '').toLowerCase() === 'government';
+      const firstMilestone = milestones?.[0];
+      const depositText = isGovernment
+        ? `Government contract terms apply. Payment is due Net 30 (after services are completed).`
+        : (firstMilestone
+            ? `To secure your date, your first payment is <strong>${formatCurrency(firstMilestone.amount_cents)}</strong>${firstMilestone.percentage != null ? ` (${firstMilestone.percentage}%)` : ''}.`
+            : `To secure your date, a deposit is required after you approve your estimate.`);
+
+      const estimateValidityHtml = `
+        <div style="background:${BRAND_COLORS.lightGray};padding:16px 16px;border-radius:10px;border-left:4px solid ${BRAND_COLORS.gold};margin:18px 0;">
+          <p style="margin:0 0 10px 0;font-size:14px;line-height:1.6;">
+            <strong>⏳ Estimate Validity:</strong> This estimate is valid for <strong>7 days</strong> from the date this email was sent.
+          </p>
+          <p style="margin:0 0 10px 0;font-size:14px;line-height:1.6;">
+            <strong>📅 Dates Fill Up Quickly:</strong> We recommend approving your estimate as soon as you’re ready.
+          </p>
+          <p style="margin:0;font-size:14px;line-height:1.6;">${depositText}</p>
+        </div>
+      `;
+
       // Optional schedule preview (when milestones exist)
       const estimatePaymentScheduleHtml = milestones && milestones.length > 0 ? `
         <div style="margin:25px 0;">
@@ -1502,13 +1522,17 @@ export function getEmailContentBlocks(
       ` : '';
 
       contentBlocks = [
-        { type: 'text', data: { html: `<p style="font-size:16px;margin:0 0 16px 0;">${isUpdated ? 'Updated' : 'Great news'}, ${quote.contact_name}!</p><p style="font-size:15px;margin:0 0 16px 0;line-height:1.6;">We've ${isUpdated ? 'updated your' : 'prepared a custom'} estimate for <strong>${quote.event_name}</strong>.</p>` }},
+        { type: 'text', data: { html: `
+          <p style="font-size:16px;margin:0 0 12px 0;">Thank you for reaching out, ${quote.contact_name}!</p>
+          <p style="font-size:15px;margin:0 0 0 0;line-height:1.6;">Please review ${isUpdated ? 'the updated' : 'your'} catering estimate for <strong>${quote.event_name}</strong>.</p>
+        ` }},
+        { type: 'custom_html', data: { html: estimateValidityHtml } },
         { type: 'event_details' },
         { type: 'menu_with_pricing' },
         { type: 'service_addons' },
         ...(estimatePaymentScheduleHtml ? [{ type: 'custom_html', data: { html: estimatePaymentScheduleHtml } }] : []),
         { type: 'custom_html', data: { html: estimateActionButtonsHtml }},
-        { type: 'text', data: { html: `<p style="font-size:15px;margin:20px 0 0 0;">Questions? Call us at <strong>(843) 970-0265</strong> or reply to this email!</p>` }}
+        { type: 'text', data: { html: `<p style="font-size:15px;margin:20px 0 0 0;">If you have any questions, call us at <strong>(843) 970-0265</strong> or reply to this email — our family is happy to help.</p>` }}
       ];
       ctaButton = undefined; // Multi-button layout replaces single CTA
       break;
@@ -1828,8 +1852,8 @@ export const EMAIL_CONFIGS: Record<EmailType, {
   },
   estimate_ready: {
     customer: {
-      heroSection: { badge: '📋 ESTIMATE READY', title: 'Your Custom Estimate', variant: 'gold' },
-      preheaderText: 'Your personalized catering estimate is ready for review'
+      heroSection: { badge: '📋 ESTIMATE READY', title: 'Thank You for Reaching Out!', subtitle: 'Please review your estimate', variant: 'gold' },
+      preheaderText: 'Your catering estimate is ready — valid for 7 days from send date'
     }
   },
   estimate_reminder: {

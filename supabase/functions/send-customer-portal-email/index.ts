@@ -167,8 +167,11 @@ const handler = async (req: Request): Promise<Response> => {
       preheaderText: variantConfig.preheaderText,
       heroSection: {
         ...variantConfig.heroSection,
-        subtitle: isUpdated && emailType === 'estimate_ready' 
-          ? 'Updated Estimate Ready' 
+        title: isUpdated && emailType === 'estimate_ready'
+          ? 'Updated Estimate Ready'
+          : variantConfig.heroSection.title,
+        subtitle: emailType === 'estimate_ready'
+          ? (isUpdated ? 'Please review your updated estimate' : 'Please review your estimate')
           : variantConfig.heroSection.subtitle
       },
       contentBlocks,
