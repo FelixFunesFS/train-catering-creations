@@ -40,6 +40,7 @@ import EstimatePrintView from "./pages/EstimatePrintView";
 import { EventEstimateFullViewPage } from "./pages/EventEstimateFullViewPage";
 import { CustomerEstimateView } from "./components/customer/CustomerEstimateView";
 import QuoteThankYou from "./pages/QuoteThankYou";
+import { MobileActionBar } from "@/components/mobile/MobileActionBar";
 
 const AppContent = () => {
   useScrollToAnchor();
@@ -51,12 +52,14 @@ const AppContent = () => {
   const isEventFullView = /^\/admin\/event\/[^/]+$/.test(location.pathname);
   const isEstimatePrint = /^\/admin\/estimate-print\/[^/]+$/.test(location.pathname);
   const hideChrome = isEventFullView || isEstimatePrint || (isQuoteWizardRoute && isMobile);
+
+  const showMobileActionBar = isMobile && !isAdminRoute && !isQuoteWizardRoute;
   
   return <div className="min-h-screen bg-background font-clean flex flex-col transition-colors duration-300 py-0 my-0">
       <OfflineIndicator />
       <PwaUpdateBanner />
       {!hideChrome && <Header />}
-      <main className={`flex-1 ${isAdminRoute ? 'p-0' : 'py-0 my-0'}`}>
+      <main className={`flex-1 ${isAdminRoute ? 'p-0' : 'py-0 my-0'} ${showMobileActionBar ? 'pb-[calc(5rem+env(safe-area-inset-bottom))]' : ''}`}>
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/about" element={<About />} />
@@ -104,6 +107,7 @@ const AppContent = () => {
       </main>
       {!hideChrome && !isAdminRoute && <Footer />}
       {!hideChrome && !isAdminRoute && <InstallBanner />}
+      {showMobileActionBar && <MobileActionBar />}
     </div>;
 };
 const queryClient = new QueryClient();
