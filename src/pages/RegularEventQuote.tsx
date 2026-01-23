@@ -5,10 +5,15 @@ import { CTASection } from "@/components/ui/cta-section";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 import { useFormAnalytics } from "@/hooks/useFormAnalytics";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useRef } from "react";
 
 export default function RegularEventQuote() {
   // Track page view
   useFormAnalytics({ formType: 'regular_event' });
+
+  const isMobile = useIsMobile();
+  const formTopRef = useRef<HTMLDivElement>(null);
   
   const { ref: heroRef, isVisible: heroVisible } = useScrollAnimation({
     threshold: 0.1,
@@ -44,7 +49,13 @@ export default function RegularEventQuote() {
       <ResponsiveWrapper>
         <div className="max-w-5xl mx-auto pb-20">
           <RequestThrottling maxRequests={3} timeWindowMinutes={60} storageKey="regular_quote_requests">
-            <SinglePageQuoteForm variant="regular" />
+            <div ref={formTopRef} />
+            <SinglePageQuoteForm
+              variant="regular"
+              layout={isMobile ? 'fullscreen' : 'embedded'}
+              scrollMode={isMobile ? 'container' : 'window'}
+              scrollToRef={formTopRef}
+            />
           </RequestThrottling>
         </div>
       </ResponsiveWrapper>
