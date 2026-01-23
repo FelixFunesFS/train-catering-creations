@@ -1,110 +1,136 @@
 
 Goal
-- Remove the “otherwise” fallback label “Catering Service” anywhere service type is formatted for estimates/line items.
-- Fix “Edit Menu Selections” so it’s a full-page editor (not a modal) and always scrollable on desktop, matching your request and avoiding viewport/overflow issues.
+- Update the wording for the “chafers_requested” supply so it displays:
+  - Delivery Only / Delivery with Setup / Drop Off: “Food Warmers with Fuel”
+  - Full Service Catering: “Chafing Dishes with Fuel”
+- Do this without breaking any existing workflows (quote submission, menu edit, regenerate line items, emails).
 
-What’s happening now (confirmed from code + data)
-1) Why you still see “Catering Service”
-- The event you’re on has `quote_requests.service_type = 'delivery-only'` (confirmed in DB for `4b13d793-8c4f-4048-a02d-8c72ac456794`).
-- There are two different “generators” that can create/regenerate line items:
-  - The Edge Function `supabase/functions/generate-invoice-from-quote/index.ts` (used when initially generating an invoice)
-  - The client-side regeneration path `QuoteUpdateService.updateInvoiceLineItems(...)` which uses `src/utils/invoiceFormatters.ts` (`generateProfessionalLineItems`) (used by “Regenerate from Quote” and also after menu edits)
-- We updated the edge function mapping, but **the client-side invoice formatter still has a fallback**:
-  - `src/utils/invoiceFormatters.ts -> formatServiceType()` returns `... || 'Catering Service'`
-- So if your line items were generated/regenerated via the client path (very common), you can still get the “Catering Service” default.
+Key principle (best way to avoid breaking functionality)
+- Do NOT change any database fields, booleans, IDs, or selection keys.
+- Keep using the existing boolean: `quote_requests.chafers_requested` (and the internal supply id `chafers` in MenuEditorInline).
+- Only change the *display text* (labels in UI) and the *generated description text* in line items.
+- This ensures:
+  - old quotes still load correctly
+  - menu editor save logic still maps supplies back to the correct boolean
+  - “Regenerate from Quote” still works
+  - no migration is required
 
-2) Why “Edit Menu Selections” doesn’t scroll reliably
-- In desktop `EventEstimateFullView`, “Edit Menu Selections” opens inside a Radix `DialogContent`.
-- `MenuEditorInline` internally wraps everything in a `ScrollArea className="flex-1 min-h-0"`.
-- But the dialog content is not structured as a proper `flex flex-col` container with a constrained height for the ScrollArea to calculate against, so the ScrollArea can end up with no effective height to scroll within (classic nested flex/overflow issue).
-- You explicitly chose “Full-page editor” which avoids this entire class of modal scroll issues.
+Where the text currently comes from (so we update all relevant generators)
+There are multiple places that turn `chafers_requested` into text:
 
-Decisions (based on your answers)
-- Service label when missing/unrecognized: “do not display in item”
-  - Interpreting this as: do not show the “Service Package” description when not recognized; and do not substitute “Catering Service” ever.
-- Menu edit scrolling: Full-page editor
+1) Invoice/estimate line item generation (authoritative for what you see in the estimate)
+- Edge function: `supabase/functions/generate-invoice-from-quote/index.ts`
+  - currently pushes: “Stainless steel chafers with fuel”
+- Client-side regeneration: `src/utils/invoiceFormatters.ts`
+  - currently pushes: “Stainless steel chafers with fuel”
+  - this is commonly used by “Regenerate from Quote” and after menu edits
 
-Implementation changes
+2) UI selection labels (what the user/admin clicks)
+- Public quote form (alternate): `src/components/quote/alternative-form/FinalStep.tsx`
+  - currently shows “Chafing Dishes with Fuel”
+- Public quote form (step-based): `src/components/quote/steps/SuppliesStep.tsx`
+  - currently shows “Chafing Dishes”
+- Admin menu editor: `src/components/admin/events/MenuEditorInline.tsx`
+  - currently shows “Chafing Dishes with Fuel” in SUPPLY_ITEMS
+- Admin event detail badges: `src/components/admin/events/EventDetail.tsx`
+  - currently shows “Chafing Dishes” badge (optional to update, but recommended for consistency)
 
-A) Remove “Catering Service” fallback everywhere it can appear in estimates
-1) Update client-side formatter used for regeneration
-- File: `src/utils/invoiceFormatters.ts`
-- Change `formatServiceType(serviceType)` to:
-  - Return a mapped label for recognized values
-  - Return `''` (empty string) for unknown/missing values
-  - Never return “Catering Service”
+3) Emails (recommended for consistency, even though you asked “line items”)
+- Shared email supplies summary: `supabase/functions/_shared/emailTemplates.ts`
+  - currently shows “Chafing Dishes”
+- Admin quote notification email: `supabase/functions/send-quote-notification/index.ts`
+  - currently shows “Chafing Dishes with Fuel”
 
-2) Ensure “Service Package” line item doesn’t show an “unknown” description
-- File: `src/utils/invoiceFormatters.ts`
-- Update `createServicePackage(quote)` (and any other service line-item creator) so:
-  - If `formatServiceType(...)` returns `''`, then:
-    - either omit the Service Package line item entirely (preferred per “do not display in item”), OR
-    - include it with an empty description only if you want the placeholder line item to exist
-  - I’ll implement the “omit the line item” behavior to match your instruction.
+Implementation approach (safe + consistent)
 
-3) Keep edge function consistent (defense-in-depth)
-- File: `supabase/functions/generate-invoice-from-quote/index.ts`
-- Update `formatServiceType(...)` there as well:
-  - Remove the `|| 'Catering Service'` fallback
-  - Return `''` if unknown
-- Update the line item creation logic so:
-  - If formatted service type is `''`, do not add the “Service Package” line item.
+A) Add one tiny “label helper” (same logic in both places where line items are generated)
+We’ll implement the same rule in:
+- `supabase/functions/generate-invoice-from-quote/index.ts`
+- `src/utils/invoiceFormatters.ts`
 
-Result
-- If the service type is valid (`delivery-only`, `delivery-setup`, `full-service`), it will always show the correct label.
-- If it’s ever missing/unknown, the estimate will not silently display “Catering Service”.
+Helper behavior:
+- If `quote.chafers_requested` is true:
+  - If service type is “full-service” (and its legacy aliases), label = “Chafing Dishes with Fuel”
+  - Else if service type is delivery-only / delivery-setup / drop-off (and legacy aliases), label = “Food Warmers with Fuel”
+  - Else (unknown service type): default to the delivery-style label (“Food Warmers with Fuel”) to avoid accidentally implying full-service equipment
 
-B) Convert “Edit Menu Selections” to a full-page editor (desktop)
-1) Add a new protected admin route
-- File: `src/App.tsx`
-- Add:
-  - `/admin/event/:quoteId/menu` → ProtectedRoute → new page component (see next step)
-- Update `hideChrome` logic so Header/Footer remain hidden on this route too, consistent with the full-viewport admin experience.
-  - Expand the regex so `/admin/event/:id/menu` is treated like the other full-page admin views.
+Then replace the current hardcoded push:
+- from: “Stainless steel chafers with fuel”
+- to: the service-type-aware label returned by the helper
 
-2) Create a full-page Menu Edit screen
-- New file (example name): `src/pages/AdminMenuEditPage.tsx`
-- Responsibilities:
-  - Load `quote` and `invoice` for the given `quoteId` (same hooks as `EventEstimateFullViewPage`)
-  - Render a full-page layout:
-    - Top bar: Back button (returns to `/admin/event/:quoteId`), page title “Edit Menu Selections”
-    - Body: `MenuEditorInline` in a properly constrained scroll container
-  - Ensure scrolling always works:
-    - Use a full-height flex layout similar to other full-page views (explicit height, `min-h-0`, and ScrollArea with `h-0 flex-1` pattern)
+Why this won’t break anything:
+- It only changes a string in the description of the existing consolidated “Supply & Equipment Package” line item.
+- No IDs change, no categories change, no schema changes.
 
-3) Change “Edit Menu” actions to navigate instead of opening a modal
-- File: `src/components/admin/events/EventEstimateFullView.tsx`
-- Replace `showMenuEdit` dialog flow with navigation:
-  - `onEditMenu` should do: `navigate(/admin/event/${quote.id}/menu)`
-- This removes the modal that currently traps scrolling.
+B) Update the UI labels (selection text) without changing the underlying boolean/key
+1) Public quote form (both variants)
+- `src/components/quote/alternative-form/FinalStep.tsx`
+- `src/components/quote/steps/SuppliesStep.tsx`
 
-4) Optional parity (recommended): also update mobile estimate view if it opens menu edit in a modal
-- File: `src/components/admin/mobile/MobileEstimateView.tsx`
-- If it uses a modal for menu editing, switch it to navigate to the same full-page menu editor route (mobile will benefit too).
-- If mobile already has a better pattern, we’ll keep it consistent.
+Implementation:
+- Read/watch the current `service_type` from the form state.
+- Display:
+  - “Food Warmers with Fuel” when service type is delivery-only/delivery-setup/drop-off
+  - “Chafing Dishes with Fuel” when service type is full-service
+- Keep the field name `chafers_requested` exactly as-is.
 
-Verification checklist (what we’ll test right after)
-1) Service Package label:
-- Regenerate line items for the event you’re on:
-  - Confirm the “Service Package” description shows “Delivery Only” (not “Catering Service”).
-- Also confirm there is no “Catering Service” fallback anywhere in regenerated items.
+2) Admin Menu Editor (full-page editor route you’re on now)
+- `src/components/admin/events/MenuEditorInline.tsx`
 
-2) Full-page menu editor:
-- From `/admin/event/4b13d793-...`, click Edit Menu:
-  - You should land on `/admin/event/4b13d793-.../menu`
-- Confirm:
-  - The page scrolls fully (can reach all categories and the Save button)
-  - No content is hidden / no trapped scroll
-  - After saving, it returns you to the event view and line items update (and prices preserved as before)
+Implementation:
+- Build SUPPLY_ITEMS with a dynamic label for the `chafers` option based on `quote.service_type`.
+- Keep the option id as `chafers` so saving still maps to `chafers_requested`.
 
-Files expected to change
-- src/utils/invoiceFormatters.ts
+3) (Optional but recommended) Admin EventDetail badges
+- `src/components/admin/events/EventDetail.tsx`
+- Change the badge label from a generic “Chafing Dishes” to the service-type-aware label.
+- This is purely display; it won’t affect functionality.
+
+C) Update email wording for consistency (recommended)
+Even though your request is “line items,” emails currently render supplies too, and it’s confusing if the estimate says “Food Warmers with Fuel” but an email says “Chafing Dishes”.
+
+We’ll update:
+- `supabase/functions/_shared/emailTemplates.ts` (Supplies summary)
+- `supabase/functions/send-quote-notification/index.ts` (Admin notification supplies list)
+
+Using the same service-type-aware label logic.
+
+D) How to update existing estimates already generated
+Because line items are stored as text at the time of generation, existing invoices won’t magically change until regenerated.
+
+Best safe method:
+- Use your existing “Regenerate from Quote” (or “Save & Update Estimate” after menu edits).
+- This will rebuild the line items from the quote and update the supplies description while preserving manual prices (per your system design).
+
+Verification checklist
+1) Create/adjust a quote with `chafers_requested = true` and test three service types:
+- Delivery Only → Supply package description includes “Food Warmers with Fuel”
+- Delivery with Setup → Supply package description includes “Food Warmers with Fuel”
+- Full Service → Supply package description includes “Chafing Dishes with Fuel”
+
+2) UI verification
+- On the public quote form supplies step, the checkbox label changes appropriately after picking service type
+- On the admin menu editor page (/admin/event/:id/menu), the supply option label shows the correct text
+- After “Save & Update Estimate,” the estimate line item text matches the service type
+
+3) Email verification (if we include the email updates)
+- Preview or send a quote confirmation/admin notification and confirm supplies wording matches the service type.
+
+Files we’ll update (expected)
+Line items:
 - supabase/functions/generate-invoice-from-quote/index.ts
-- src/App.tsx
-- src/components/admin/events/EventEstimateFullView.tsx
-- (new) src/pages/AdminMenuEditPage.tsx
-- (optional) src/components/admin/mobile/MobileEstimateView.tsx (if needed for parity)
+- src/utils/invoiceFormatters.ts
 
-Notes / risk management
-- This approach fixes the real source of the “Catering Service” fallback (client-side regeneration) and prevents it at the edge-function layer too.
-- Moving menu editing to a full-page route is the cleanest way to eliminate modal viewport scroll bugs long-term, and aligns with your admin architecture that already uses `/admin/event/:quoteId` as the full-viewport hub.
+UI labels:
+- src/components/quote/alternative-form/FinalStep.tsx
+- src/components/quote/steps/SuppliesStep.tsx
+- src/components/admin/events/MenuEditorInline.tsx
+- (optional) src/components/admin/events/EventDetail.tsx
+
+Emails (recommended):
+- supabase/functions/_shared/emailTemplates.ts
+- supabase/functions/send-quote-notification/index.ts
+
+Notes / edge cases
+- Legacy service_type values (drop-off, drop_off, delivery_only, full_service) will be handled in the service-type check so older records still display correctly.
+- If a quote is missing service_type entirely, we’ll default to “Food Warmers with Fuel” to avoid implying full-service equipment when it may be a drop-off style request.
