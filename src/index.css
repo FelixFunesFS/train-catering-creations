@@ -115,8 +115,8 @@
     --safe-area-inset-left: env(safe-area-inset-left, 0px);
     --safe-area-inset-right: env(safe-area-inset-right, 0px);
     
-    /* Ruby & Pearl Core Color System */
-    --background: 60 8% 96%;
+    /* Ruby & Pearl Core Color System (vibrant white + cool neutrals) */
+    --background: 0 0% 100%;
     --foreground: 220 25% 20%;
     --card: 0 0% 100%;
     --card-foreground: 220 25% 20%;
@@ -130,18 +130,18 @@
     --primary-glow: 348 83% 47%;
     --primary-foreground: 0 0% 100%;
     
-    /* Pearl & Platinum Supporting Colors */
-    --secondary: 60 6% 92%;
+    /* Pearl & Platinum Supporting Colors (light gray sections on white) */
+    --secondary: 220 14% 96%;
     --secondary-foreground: 220 25% 20%;
-    --muted: 60 6% 92%;
-    --muted-foreground: 220 18% 30%;
-    --accent: 210 5% 75%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 16% 34%;
+    --accent: 220 13% 92%;
     --accent-foreground: 220 25% 20%;
     
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-    --border: 210 5% 85%;
-    --input: 60 6% 92%;
+    --border: 220 13% 90%;
+    --input: 220 14% 96%;
     --ring: 0 80% 45%;
     --radius: 0.75rem;
 
@@ -163,7 +163,7 @@
     --platinum-dark: 210 5% 65%;
     --platinum-foreground: 220 25% 20%;
     
-    --cream: 60 8% 96%;
+    --cream: 0 0% 100%;
     --cream-foreground: 220 25% 20%;
 
     /* Enhanced accessibility colors - WCAG 2.1 AA compliant */
@@ -174,19 +174,19 @@
     --focus-ring-offset: 0 0% 100%;
 
     /* Extremely subtle alternating section gradients for gallery */
-    --gradient-pattern-a: linear-gradient(135deg, hsl(60, 8%, 96%) 0%, hsl(0, 80%, 45%, 0.008) 30%, hsl(0, 80%, 30%, 0.012) 70%, hsl(60, 8%, 96%) 100%);
-    --gradient-pattern-b: linear-gradient(225deg, hsl(0, 80%, 45%, 0.004) 0%, hsl(0, 0%, 100%) 40%, hsl(210, 5%, 75%, 0.020) 80%, hsl(60, 8%, 96%) 100%);
-    --gradient-pattern-c: linear-gradient(45deg, hsl(210, 5%, 75%, 0.016) 0%, hsl(0, 0%, 100%) 30%, hsl(45, 85%, 55%, 0.008) 70%, hsl(60, 8%, 96%) 100%);
-    --gradient-pattern-d: linear-gradient(315deg, hsl(60, 8%, 96%) 0%, hsl(0, 80%, 45%, 0.006) 40%, hsl(210, 5%, 75%, 0.010) 80%, hsl(0, 0%, 100%) 100%);
+    --gradient-pattern-a: linear-gradient(135deg, hsl(0, 0%, 100%) 0%, hsl(0, 80%, 45%, 0.008) 30%, hsl(0, 80%, 30%, 0.012) 70%, hsl(0, 0%, 100%) 100%);
+    --gradient-pattern-b: linear-gradient(225deg, hsl(0, 80%, 45%, 0.004) 0%, hsl(0, 0%, 100%) 40%, hsl(210, 5%, 75%, 0.020) 80%, hsl(220, 14%, 96%) 100%);
+    --gradient-pattern-c: linear-gradient(45deg, hsl(210, 5%, 75%, 0.016) 0%, hsl(0, 0%, 100%) 30%, hsl(45, 85%, 55%, 0.008) 70%, hsl(220, 14%, 96%) 100%);
+    --gradient-pattern-d: linear-gradient(315deg, hsl(220, 14%, 96%) 0%, hsl(0, 80%, 45%, 0.006) 40%, hsl(210, 5%, 75%, 0.010) 80%, hsl(0, 0%, 100%) 100%);
 
     /* Enhanced gradients with Ruby & Pearl - Ruby is now primary */
     --gradient-primary: linear-gradient(135deg, hsl(0, 80%, 45%) 0%, hsl(0, 80%, 60%) 100%);
     --gradient-gold: linear-gradient(135deg, hsl(45, 85%, 55%) 0%, hsl(45, 85%, 40%) 100%);
     --gradient-navy: linear-gradient(135deg, hsl(220, 25%, 20%) 0%, hsl(220, 25%, 15%) 100%);
     --gradient-platinum: linear-gradient(135deg, hsl(210, 5%, 75%) 0%, hsl(210, 5%, 65%) 100%);
-    --gradient-hero: linear-gradient(180deg, hsl(60, 8%, 96%) 0%, hsl(0, 0%, 100%) 50%, hsl(60, 8%, 96%) 100%);
-    --gradient-card: linear-gradient(145deg, hsl(0, 0%, 100%) 0%, hsl(60, 6%, 92%) 100%);
-    --gradient-nav: linear-gradient(180deg, hsl(60, 8%, 96%, 0.95) 0%, hsl(0, 0%, 100%, 0.90) 100%);
+    --gradient-hero: linear-gradient(180deg, hsl(0, 0%, 100%) 0%, hsl(0, 0%, 100%) 50%, hsl(220, 14%, 96%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(0, 0%, 100%) 0%, hsl(220, 14%, 96%) 100%);
+    --gradient-nav: linear-gradient(180deg, hsl(0, 0%, 100%, 0.96) 0%, hsl(0, 0%, 100%, 0.90) 100%);
     
     /* Ruby Red Gradient System for Accents */
     --gradient-ruby-primary: linear-gradient(135deg, hsl(0, 80%, 45%) 0%, hsl(0, 80%, 60%) 100%);
@@ -230,11 +230,11 @@
 
   .dark {
     /* Enhanced Dark Mode - Ruby & Pearl Luxury Theme */
-    --background: 220 25% 8%;
+    --background: 220 25% 7%;
     --foreground: 60 8% 95%;
-    --card: 220 25% 12%;
+    --card: 220 22% 11%;
     --card-foreground: 60 8% 95%;
-    --popover: 220 25% 12%;
+    --popover: 220 22% 11%;
     --popover-foreground: 60 8% 95%;
     
     /* Ruby Red Primary - Enhanced for dark mode */
@@ -244,18 +244,18 @@
     --primary-glow: 348 83% 65%;
     --primary-foreground: 0 0% 100%;
     
-    /* Pearl & Platinum - Dark mode variants */
-    --secondary: 220 15% 18%;
+    /* Pearl & Platinum - Dark mode variants (clear hierarchy) */
+    --secondary: 220 15% 17%;
     --secondary-foreground: 60 8% 90%;
-    --muted: 220 15% 15%;
-    --muted-foreground: 210 10% 65%;
-    --accent: 210 15% 25%;
+    --muted: 220 15% 14%;
+    --muted-foreground: 210 10% 72%;
+    --accent: 210 15% 24%;
     --accent-foreground: 60 8% 95%;
     
     --destructive: 0 84% 65%;
     --destructive-foreground: 210 20% 98%;
-    --border: 220 15% 20%;
-    --input: 220 15% 18%;
+    --border: 220 12% 24%;
+    --input: 220 15% 17%;
     --ring: 0 80% 60%;
 
     /* Luxury colors - Dark mode optimized */
@@ -276,7 +276,7 @@
     --platinum-dark: 210 15% 50%;
     --platinum-foreground: 220 25% 10%;
     
-    --cream: 60 8% 12%;
+    --cream: 220 22% 11%;
     --cream-foreground: 60 8% 95%;
 
     /* Dark mode accessibility */
