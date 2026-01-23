@@ -303,13 +303,13 @@ export const SuccessStep = ({ estimatedCost, quoteId, eventData }: SuccessStepPr
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button asChild variant="outline" className="neumorphic-button-secondary">
+            <Button asChild variant="cta" className="neumorphic-button-primary">
               <Link to="/request-quote" className="flex items-center gap-2">
                 <ArrowLeft className="h-4 w-4" />
-                Submit Another Quote
+                Request Quote
               </Link>
             </Button>
-            <Button asChild className="neumorphic-button-primary">
+            <Button asChild variant="outline" className="neumorphic-button-secondary">
               <Link to="/" className="flex items-center gap-2">
                 <Home className="h-4 w-4" />
                 Return to Home
