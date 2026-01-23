@@ -88,9 +88,8 @@ const handler = async (req: Request): Promise<Response> => {
         { type: 'text', data: { html: `
           <div style="border-top:3px solid ${BRAND_COLORS.gold};padding-top:20px;margin-top:30px;text-align:center;">
             <h3 style="color:${BRAND_COLORS.crimson};margin-top:0;">Questions? We're Here to Help!</h3>
-            <p style="color:${BRAND_COLORS.darkGray};margin:10px 0;font-size:16px;">
-              📞 <a href="tel:+18439700265" style="color:${BRAND_COLORS.crimson};text-decoration:none;font-weight:bold;">(843) 970-0265</a><br>
-              📧 <a href="mailto:soultrainseatery@gmail.com" style="color:${BRAND_COLORS.crimson};text-decoration:none;font-weight:bold;">soultrainseatery@gmail.com</a>
+            <p style="color:${BRAND_COLORS.darkGray};margin:10px 0;font-size:16px;line-height:1.6;">
+              Just reply to this email and our family will get back to you as soon as possible.
             </p>
           </div>
         ` }}

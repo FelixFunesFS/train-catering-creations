@@ -1475,7 +1475,7 @@ export function getEmailContentBlocks(
             <li><strong>Event Day:</strong> We'll arrive early to set up and serve amazing food!</li>
           </ol>
         ` }},
-        { type: 'text', data: { html: `<p style="font-size:15px;margin:20px 0 0 0;">Questions? Call us at <strong>(843) 970-0265</strong> or reply to this email. We're here to help!</p>` }}
+        { type: 'text', data: { html: `<p style="font-size:15px;margin:20px 0 0 0;">Questions? Just reply to this email — our family is happy to help.</p>` }}
       ];
       ctaButton = { text: 'Access Your Event Portal', href: effectivePortalUrl, variant: 'primary' };
       break;
@@ -1540,7 +1540,7 @@ export function getEmailContentBlocks(
       contentBlocks = [
         { type: 'text', data: { html: `
           <p style="font-size:16px;margin:0 0 12px 0;">Thank you for reaching out, ${quote.contact_name}!</p>
-          <p style="font-size:15px;margin:0 0 0 0;line-height:1.6;">Please review ${isUpdated ? 'the updated' : 'your'} catering estimate for <strong>${quote.event_name}</strong>.</p>
+          <p style="font-size:15px;margin:0 0 0 0;line-height:1.6;">We’ve prepared ${isUpdated ? 'an updated' : 'your'} catering estimate for <strong>${quote.event_name}</strong>. Review the details below, then approve when you’re ready.</p>
         ` }},
         { type: 'custom_html', data: { html: estimateValidityHtml } },
         { type: 'event_details' },
@@ -1548,7 +1548,7 @@ export function getEmailContentBlocks(
         { type: 'service_addons' },
         ...(estimatePaymentScheduleHtml ? [{ type: 'custom_html', data: { html: estimatePaymentScheduleHtml } }] : []),
         { type: 'custom_html', data: { html: estimateActionButtonsHtml }},
-        { type: 'text', data: { html: `<p style="font-size:15px;margin:20px 0 0 0;">If you have any questions, call us at <strong>(843) 970-0265</strong> or reply to this email — our family is happy to help.</p>` }}
+        { type: 'text', data: { html: `<p style="font-size:15px;margin:20px 0 0 0;">If you have any questions, just reply to this email — our family is happy to help.</p>` }}
       ];
       ctaButton = undefined; // Multi-button layout replaces single CTA
       break;
