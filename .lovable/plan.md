@@ -1,82 +1,110 @@
 
-Context / what you’re seeing
-- In the invoice/estimate generator (`supabase/functions/generate-invoice-from-quote/index.ts`), the “Service Package” line item is always created (it’s not conditional), and its description is derived from `quote.service_type` via a helper function `formatServiceType()`.
-- Your quote form + database currently use `service_type = 'delivery-only' | 'delivery-setup' | 'full-service'` (confirmed by frontend schema + submit payload code patterns), but the generator’s `formatServiceType()` mapping is missing `'delivery-only'` and instead has a legacy `'drop-off'` key.
-- Because of that mismatch, when the quote has `service_type: 'delivery-only'`, the generator falls back to the default label `'Catering Service'`, which is exactly what you’re reporting (“I do not see the delivery only… instead of catering service”).
+Goal
+- Remove the “otherwise” fallback label “Catering Service” anywhere service type is formatted for estimates/line items.
+- Fix “Edit Menu Selections” so it’s a full-page editor (not a modal) and always scrollable on desktop, matching your request and avoiding viewport/overflow issues.
 
-What fields are grouped into the “Service Package grouping” (in the estimate generator)
-In `generate-invoice-from-quote/index.ts`, the “service package grouping” is:
-1) Always-added base “Service Package” line item
-   - title: `Service Package`
-   - description: `formatServiceType(quote.service_type)`
-   - quantity: `1`
-   - category: `service`
-   - sort_order: incrementing (Tier 5)
-   - Source field: `quote.service_type`
+What’s happening now (confirmed from code + data)
+1) Why you still see “Catering Service”
+- The event you’re on has `quote_requests.service_type = 'delivery-only'` (confirmed in DB for `4b13d793-8c4f-4048-a02d-8c72ac456794`).
+- There are two different “generators” that can create/regenerate line items:
+  - The Edge Function `supabase/functions/generate-invoice-from-quote/index.ts` (used when initially generating an invoice)
+  - The client-side regeneration path `QuoteUpdateService.updateInvoiceLineItems(...)` which uses `src/utils/invoiceFormatters.ts` (`generateProfessionalLineItems`) (used by “Regenerate from Quote” and also after menu edits)
+- We updated the edge function mapping, but **the client-side invoice formatter still has a fallback**:
+  - `src/utils/invoiceFormatters.ts -> formatServiceType()` returns `... || 'Catering Service'`
+- So if your line items were generated/regenerated via the client path (very common), you can still get the “Catering Service” default.
 
-2) Service add-ons (each becomes its own line item in the same `category: 'service'` group)
-   - `quote.wait_staff_requested` → “Wait Staff Service”
-   - `quote.bussing_tables_needed` → “Table Bussing Service”
-   - `quote.ceremony_included` → “Ceremony Catering Service”
-   - `quote.cocktail_hour` → “Cocktail Hour Service”
-   These are separate line items, not merged into the “Service Package” line item—only grouped conceptually by category and sort order.
+2) Why “Edit Menu Selections” doesn’t scroll reliably
+- In desktop `EventEstimateFullView`, “Edit Menu Selections” opens inside a Radix `DialogContent`.
+- `MenuEditorInline` internally wraps everything in a `ScrollArea className="flex-1 min-h-0"`.
+- But the dialog content is not structured as a proper `flex flex-col` container with a constrained height for the ScrollArea to calculate against, so the ScrollArea can end up with no effective height to scroll within (classic nested flex/overflow issue).
+- You explicitly chose “Full-page editor” which avoids this entire class of modal scroll issues.
 
-Root cause
-- `supabase/functions/generate-invoice-from-quote/index.ts`:
-  - `formatServiceType()` currently supports:
-    - `'full-service'` → “Full Service Catering”
-    - `'delivery-setup'` → “Delivery with Setup”
-    - `'drop-off'` → “Drop Off Delivery”
-    - otherwise → “Catering Service”
-  - Missing: `'delivery-only'` (your actual stored value)
-- Meanwhile the frontend utilities already support `'delivery-only'` (e.g., `src/utils/formatters.ts` and `src/utils/invoiceFormatters.ts`), so the inconsistency is specific to the edge function generator.
+Decisions (based on your answers)
+- Service label when missing/unrecognized: “do not display in item”
+  - Interpreting this as: do not show the “Service Package” description when not recognized; and do not substitute “Catering Service” ever.
+- Menu edit scrolling: Full-page editor
 
-Plan to fix (code + data recovery)
-1) Update the generator’s service type mapping to match the real system values
-   - File: `supabase/functions/generate-invoice-from-quote/index.ts`
-   - Change `formatServiceType()` mapping to include:
-     - `'delivery-only'` → “Delivery Only” (or “Drop Off Delivery” if you want that phrasing consistently)
-   - Keep legacy aliases to be safe (so older data still formats correctly):
-     - `'drop-off'`, `'drop_off'`, etc.
-   - Result: new invoices/estimates generated from quotes will correctly show “Delivery Only” instead of “Catering Service”.
+Implementation changes
 
-2) Verify all other email/admin surfaces use the same service type labels
-   - Quick audit targets (read-only verification first, then adjust if needed):
-     - `supabase/functions/send-event-reminders/index.ts` (it formats service type for emails)
-     - `_shared/emailTemplates.ts` (if it has its own mapping)
-     - Any other edge function that includes service type text
-   - Goal: ensure “Delivery Only” appears consistently everywhere.
+A) Remove “Catering Service” fallback everywhere it can appear in estimates
+1) Update client-side formatter used for regeneration
+- File: `src/utils/invoiceFormatters.ts`
+- Change `formatServiceType(serviceType)` to:
+  - Return a mapped label for recognized values
+  - Return `''` (empty string) for unknown/missing values
+  - Never return “Catering Service”
 
-3) Fix existing estimates already generated with the wrong label (“Catering Service”)
-   You have two safe options; we can do either or both:
+2) Ensure “Service Package” line item doesn’t show an “unknown” description
+- File: `src/utils/invoiceFormatters.ts`
+- Update `createServicePackage(quote)` (and any other service line-item creator) so:
+  - If `formatServiceType(...)` returns `''`, then:
+    - either omit the Service Package line item entirely (preferred per “do not display in item”), OR
+    - include it with an empty description only if you want the placeholder line item to exist
+  - I’ll implement the “omit the line item” behavior to match your instruction.
 
-   Option A (recommended): Use your existing “Regenerate from Quote” workflow
-   - Because the generator is described as the authoritative source and you already have a “Regenerate from Quote” action in the admin UI (per project memory), once the mapping is fixed, regenerating will rebuild the line items and correct the “Service Package” description.
-   - Important behavior to confirm during implementation:
-     - It should preserve manually set prices (as intended).
-     - It should update descriptions/titles if they’re currently wrong.
-   - This is the cleanest path because it keeps “quote → line items” logic centralized.
+3) Keep edge function consistent (defense-in-depth)
+- File: `supabase/functions/generate-invoice-from-quote/index.ts`
+- Update `formatServiceType(...)` there as well:
+  - Remove the `|| 'Catering Service'` fallback
+  - Return `''` if unknown
+- Update the line item creation logic so:
+  - If formatted service type is `''`, do not add the “Service Package” line item.
 
-   Option B: Direct one-off patch for affected invoices
-   - After mapping fix, we can identify invoices whose “Service Package” line item description is “Catering Service” but whose related quote had `service_type='delivery-only'`, then update that line item’s description.
-   - This requires a small admin script/edge function or a SQL update (riskier without carefully joining invoice ↔ quote ↔ line items).
-   - I’d only do this if you have many existing estimates and regenerating would be disruptive.
+Result
+- If the service type is valid (`delivery-only`, `delivery-setup`, `full-service`), it will always show the correct label.
+- If it’s ever missing/unknown, the estimate will not silently display “Catering Service”.
 
-4) Acceptance checks (what you will see after the fix)
-   - Create/generate a new estimate from a quote with `service_type = delivery-only`
-   - In the estimate line items, the “Service Package” line item should read:
-     - “Delivery Only” (or your chosen text)
-   - No instances should fall back to “Catering Service” unless the stored `service_type` is genuinely unknown/blank.
+B) Convert “Edit Menu Selections” to a full-page editor (desktop)
+1) Add a new protected admin route
+- File: `src/App.tsx`
+- Add:
+  - `/admin/event/:quoteId/menu` → ProtectedRoute → new page component (see next step)
+- Update `hideChrome` logic so Header/Footer remain hidden on this route too, consistent with the full-viewport admin experience.
+  - Expand the regex so `/admin/event/:id/menu` is treated like the other full-page admin views.
 
-Technical notes / why it happened
-- The generator is still using an older naming convention (`'drop-off'`) while the modern system uses `'delivery-only'`.
-- The frontend already uses the correct mapping, which is why the form summary may look correct but the generated invoice line item does not.
+2) Create a full-page Menu Edit screen
+- New file (example name): `src/pages/AdminMenuEditPage.tsx`
+- Responsibilities:
+  - Load `quote` and `invoice` for the given `quoteId` (same hooks as `EventEstimateFullViewPage`)
+  - Render a full-page layout:
+    - Top bar: Back button (returns to `/admin/event/:quoteId`), page title “Edit Menu Selections”
+    - Body: `MenuEditorInline` in a properly constrained scroll container
+  - Ensure scrolling always works:
+    - Use a full-height flex layout similar to other full-page views (explicit height, `min-h-0`, and ScrollArea with `h-0 flex-1` pattern)
 
-Scope of changes (expected)
-- Primary fix:
-  - `supabase/functions/generate-invoice-from-quote/index.ts` (mapping update)
-- Possible consistency follow-up (only if found inconsistent during audit):
-  - any email-related edge function that formats `service_type`
+3) Change “Edit Menu” actions to navigate instead of opening a modal
+- File: `src/components/admin/events/EventEstimateFullView.tsx`
+- Replace `showMenuEdit` dialog flow with navigation:
+  - `onEditMenu` should do: `navigate(/admin/event/${quote.id}/menu)`
+- This removes the modal that currently traps scrolling.
 
-After approval (next step in default mode)
-- I’ll implement the mapping fix in the edge function, deploy it, then we can regenerate the specific estimate for the event you’re on (`/admin/event/4b13d793-...`) to confirm it flips from “Catering Service” to “Delivery Only” without losing your priced amounts.
+4) Optional parity (recommended): also update mobile estimate view if it opens menu edit in a modal
+- File: `src/components/admin/mobile/MobileEstimateView.tsx`
+- If it uses a modal for menu editing, switch it to navigate to the same full-page menu editor route (mobile will benefit too).
+- If mobile already has a better pattern, we’ll keep it consistent.
+
+Verification checklist (what we’ll test right after)
+1) Service Package label:
+- Regenerate line items for the event you’re on:
+  - Confirm the “Service Package” description shows “Delivery Only” (not “Catering Service”).
+- Also confirm there is no “Catering Service” fallback anywhere in regenerated items.
+
+2) Full-page menu editor:
+- From `/admin/event/4b13d793-...`, click Edit Menu:
+  - You should land on `/admin/event/4b13d793-.../menu`
+- Confirm:
+  - The page scrolls fully (can reach all categories and the Save button)
+  - No content is hidden / no trapped scroll
+  - After saving, it returns you to the event view and line items update (and prices preserved as before)
+
+Files expected to change
+- src/utils/invoiceFormatters.ts
+- supabase/functions/generate-invoice-from-quote/index.ts
+- src/App.tsx
+- src/components/admin/events/EventEstimateFullView.tsx
+- (new) src/pages/AdminMenuEditPage.tsx
+- (optional) src/components/admin/mobile/MobileEstimateView.tsx (if needed for parity)
+
+Notes / risk management
+- This approach fixes the real source of the “Catering Service” fallback (client-side regeneration) and prevents it at the edge-function layer too.
+- Moving menu editing to a full-page route is the cleanest way to eliminate modal viewport scroll bugs long-term, and aligns with your admin architecture that already uses `/admin/event/:quoteId` as the full-viewport hub.
