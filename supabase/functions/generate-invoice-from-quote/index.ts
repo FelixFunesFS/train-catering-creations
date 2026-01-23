@@ -33,7 +33,7 @@ const formatServiceType = (serviceType: string): string => {
     'drop_off': 'Drop Off Delivery',
     'delivery_only': 'Delivery Only',
   };
-  return serviceTypes[serviceType] || 'Catering Service';
+  return serviceTypes[serviceType] || '';
 };
 
 // Helper: detect government customer (tax exempt)
@@ -180,16 +180,19 @@ const generateLineItems = (quote: any): any[] => {
   }
   
   // TIER 5: SERVICE PACKAGE & ADD-ONS
-  lineItems.push({
-    title: 'Service Package',
-    description: formatServiceType(quote.service_type),
-    quantity: 1,
-    unit_price: 0,
-    total_price: 0,
-    category: 'service',
-    sort_order: sortOrder
-  });
-  sortOrder += 10;
+  const serviceTypeLabel = formatServiceType(quote.service_type);
+  if (serviceTypeLabel) {
+    lineItems.push({
+      title: 'Service Package',
+      description: serviceTypeLabel,
+      quantity: 1,
+      unit_price: 0,
+      total_price: 0,
+      category: 'service',
+      sort_order: sortOrder
+    });
+    sortOrder += 10;
+  }
   
   // Service add-ons
   if (quote.wait_staff_requested) {

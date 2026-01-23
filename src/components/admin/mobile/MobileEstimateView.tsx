@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { TaxCalculationService } from '@/services/TaxCalculationService';
 import { useInvoice, useInvoiceWithMilestones } from '@/hooks/useInvoices';
 import { useLineItems, useDeleteLineItem } from '@/hooks/useLineItems';
@@ -53,7 +54,6 @@ import { EmailPreview } from '@/components/admin/billing/EmailPreview';
 import { DiscountEditor } from '@/components/admin/billing/DiscountEditor';
 import { LineItemEditor } from '@/components/admin/billing/LineItemEditor';
 import { CustomerEditor } from '@/components/admin/events/CustomerEditor';
-import { MenuEditorInline } from '@/components/admin/events/MenuEditorInline';
 
 interface MobileEstimateViewProps {
   quote: any;
@@ -64,12 +64,12 @@ interface MobileEstimateViewProps {
 export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateViewProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const [showPreview, setShowPreview] = useState(false);
   const [isResendMode, setIsResendMode] = useState(false);
   const [showAddItem, setShowAddItem] = useState(false);
   const [showCustomerEdit, setShowCustomerEdit] = useState(false);
-  const [showMenuEdit, setShowMenuEdit] = useState(false);
   
   // Collapsible sections
   const [eventOpen, setEventOpen] = useState(true);
@@ -511,7 +511,10 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    onClick={() => setShowMenuEdit(true)}
+                    onClick={() => {
+                      if (!quote?.id) return;
+                      navigate(`/admin/event/${quote.id}/menu`);
+                    }}
                     className="w-full"
                   >
                     <Pencil className="h-4 w-4 mr-2" /> Edit Menu Selections
@@ -799,24 +802,6 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
             onSave={() => {
               setShowCustomerEdit(false);
               queryClient.invalidateQueries({ queryKey: ['quotes'] });
-            }} 
-          />
-        </DialogContent>
-      </Dialog>
-
-      {/* Menu Edit Dialog */}
-      <Dialog open={showMenuEdit} onOpenChange={setShowMenuEdit}>
-        <DialogContent className="w-[calc(100vw-2rem)] max-w-md max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Edit Menu Selections</DialogTitle>
-          </DialogHeader>
-          <MenuEditorInline
-            quote={quote}
-            invoiceId={invoice?.id}
-            onSave={() => {
-              setShowMenuEdit(false);
-              queryClient.invalidateQueries({ queryKey: ['quotes'] });
-              queryClient.invalidateQueries({ queryKey: ['line-items', invoice?.id] });
             }} 
           />
         </DialogContent>

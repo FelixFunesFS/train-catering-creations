@@ -97,7 +97,7 @@ export const formatServiceType = (serviceType: string): string => {
     'drop_off_with_setup': 'Delivery with Setup'
   };
   
-  return serviceTypes[serviceType] || 'Catering Service';
+  return serviceTypes[serviceType] || '';
 };
 
 // Create meal bundle for proteins
@@ -298,7 +298,8 @@ export const generateProfessionalLineItems = (quote: QuoteRequest): LineItem[] =
   }
   
   // TIER 6: SERVICE FEES - Service type and add-ons
-  lineItems.push(createServicePackage(quote));
+  const servicePackage = createServicePackage(quote);
+  if (servicePackage) lineItems.push(servicePackage);
   
   // Staff services (track source from customer form)
   if (quote.wait_staff_requested) {
@@ -444,8 +445,11 @@ function createDessertSelection(desserts: string[], guestCount: number): LineIte
   };
 }
 
-function createServicePackage(quote: QuoteRequest): LineItem {
+function createServicePackage(quote: QuoteRequest): LineItem | null {
   const serviceTypeFormatted = formatServiceType(quote.service_type);
+
+  // Do not show a fallback label when service type is missing/unknown.
+  if (!serviceTypeFormatted) return null;
   
   return {
     id: `service_package_${Date.now()}`,

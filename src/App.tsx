@@ -41,6 +41,7 @@ import { EventEstimateFullViewPage } from "./pages/EventEstimateFullViewPage";
 import { CustomerEstimateView } from "./components/customer/CustomerEstimateView";
 import QuoteThankYou from "./pages/QuoteThankYou";
 import { MobileActionBar } from "@/components/mobile/MobileActionBar";
+import AdminMenuEditPage from "./pages/AdminMenuEditPage";
 
 const AppContent = () => {
   useScrollToAnchor();
@@ -50,8 +51,9 @@ const AppContent = () => {
   const isQuoteWizardRoute = /^\/request-quote\/(regular|wedding)$/.test(location.pathname);
   // Hide header/footer for full-page event view
   const isEventFullView = /^\/admin\/event\/[^/]+$/.test(location.pathname);
+  const isEventMenuEdit = /^\/admin\/event\/[^/]+\/menu$/.test(location.pathname);
   const isEstimatePrint = /^\/admin\/estimate-print\/[^/]+$/.test(location.pathname);
-  const hideChrome = isEventFullView || isEstimatePrint || (isQuoteWizardRoute && isMobile);
+  const hideChrome = isEventFullView || isEventMenuEdit || isEstimatePrint || (isQuoteWizardRoute && isMobile);
 
   const showMobileActionBar = isMobile && !isAdminRoute && !isQuoteWizardRoute;
   
@@ -87,6 +89,9 @@ const AppContent = () => {
           
           {/* Admin full-viewport event/estimate view - Protected */}
           <Route path="/admin/event/:quoteId" element={<ProtectedRoute><EventEstimateFullViewPage /></ProtectedRoute>} />
+
+           {/* Admin full-viewport menu editor - Protected */}
+           <Route path="/admin/event/:quoteId/menu" element={<ProtectedRoute><AdminMenuEditPage /></ProtectedRoute>} />
           
           {/* Admin estimate print route - Protected */}
           <Route path="/admin/estimate-print/:invoiceId" element={<ProtectedRoute><EstimatePrintView /></ProtectedRoute>} />
