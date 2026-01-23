@@ -24,7 +24,7 @@ export default function AdminAuth() {
   // Show loading spinner while checking auth state
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 to-amber-50">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-muted/40">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
@@ -46,7 +46,7 @@ export default function AdminAuth() {
 
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 to-amber-50 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-muted/40 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold text-primary">
