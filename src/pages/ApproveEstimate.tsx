@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams, Link } from "react-router-dom";
+import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ type ApproveState =
 
 export default function ApproveEstimate() {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const token = searchParams.get("token") || "";
   const [state, setState] = useState<ApproveState>({ status: "idle" });
 
@@ -51,6 +52,18 @@ export default function ApproveEstimate() {
     };
   }, [token, portalUrl]);
 
+  // After successful approval, automatically take the customer to payment.
+  useEffect(() => {
+    if (state.status !== "success") return;
+
+    const t = setTimeout(() => {
+      // Use replace to avoid leaving an extra history entry (prevents back/forward confusion on mobile)
+      navigate(state.portalUrl, { replace: true });
+    }, 600);
+
+    return () => clearTimeout(t);
+  }, [state, navigate]);
+
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <Card className="w-full max-w-lg">
@@ -77,7 +90,7 @@ export default function ApproveEstimate() {
               <div>
                 <p className="font-medium">Approved!</p>
                 <p className="text-sm text-muted-foreground">
-                  Next, submit your first payment to secure your date.
+                  Redirecting you to payment to secure your date…
                 </p>
               </div>
             </div>
