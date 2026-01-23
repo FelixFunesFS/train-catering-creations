@@ -248,9 +248,12 @@ export const SinglePageQuoteForm = ({
 
   const onSubmit = async () => {
     if (isSubmitting) return;
+
+    // Guard against fast double-clicks before validation completes.
+    setIsSubmitting(true);
     
     const data = form.getValues();
-    const validationResult = await form.trigger();
+    const isValid = await form.trigger();
     const errors = form.formState.errors;
     
     // Only check required fields
@@ -268,10 +271,16 @@ export const SinglePageQuoteForm = ({
         scrollToTop('smooth');
         focusFirstInvalidFieldInStep();
       });
+
+      setIsSubmitting(false);
       return;
     }
 
-    setIsSubmitting(true);
+    // Extra safety: if validation fails for any reason, don't proceed.
+    if (!isValid) {
+      setIsSubmitting(false);
+      return;
+    }
     
     try {
       const submitPayload = {
@@ -339,26 +348,8 @@ export const SinglePageQuoteForm = ({
       
       toast({
         title: "Quote Saved Successfully!",
-        description: "Your quote request has been saved. Sending notifications...",
+         description: "Your quote request has been saved.",
       });
-
-      // Send confirmation email
-      try {
-        await supabase.functions.invoke('send-quote-confirmation', {
-          body: { quote_id: quoteId }
-        });
-      } catch (emailError) {
-        console.error('Confirmation email failed:', emailError);
-      }
-
-      // Send notification email
-      try {
-        await supabase.functions.invoke('send-quote-notification', {
-          body: { ...data, quote_id: quoteId }
-        });
-      } catch (emailError) {
-        console.error('Notification email failed:', emailError);
-      }
 
       if (onSuccess) {
         onSuccess(quoteId);
