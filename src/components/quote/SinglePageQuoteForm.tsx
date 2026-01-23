@@ -91,10 +91,6 @@ export const SinglePageQuoteForm = ({
     containerRef.current?.scrollTo({ top: 0, behavior });
   }, [scrollMode, scrollToRef]);
 
-  const getDefaultEventType = () => {
-    return variant === 'wedding' ? 'wedding' : 'birthday';
-  };
-
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     mode: "onBlur",
@@ -103,7 +99,8 @@ export const SinglePageQuoteForm = ({
       email: "",
       phone: "",
       event_name: "",
-      event_type: getDefaultEventType(),
+      // Require explicit customer selection (no default)
+      event_type: undefined,
       event_date: "",
       start_time: "",
       guest_count: 1,
@@ -198,7 +195,6 @@ export const SinglePageQuoteForm = ({
       setTimeout(() => {
         setCurrentStep(prev => prev + 1);
         setIsAnimating(false);
-        requestAnimationFrame(() => scrollToTop('smooth'));
       }, 200);
     }
   }, [currentStep, isAnimating, validateCurrentStep, toast, scrollToTop, focusFirstInvalidFieldInStep]);
@@ -212,9 +208,16 @@ export const SinglePageQuoteForm = ({
     setTimeout(() => {
       setCurrentStep(prev => prev - 1);
       setIsAnimating(false);
-      requestAnimationFrame(() => scrollToTop('smooth'));
     }, 200);
   }, [currentStep, isAnimating, scrollToTop]);
+
+  // Always reset scroll to the top whenever the user changes steps.
+  // This prevents landing mid-step on mobile (internal scroll) and missing fields.
+  useEffect(() => {
+    const behavior: ScrollBehavior = scrollMode === 'container' ? 'auto' : 'smooth';
+    const raf = requestAnimationFrame(() => scrollToTop(behavior));
+    return () => cancelAnimationFrame(raf);
+  }, [currentStep, scrollMode, scrollToTop]);
 
   // When embedded, ensure the initial mount starts at the form top.
   useEffect(() => {

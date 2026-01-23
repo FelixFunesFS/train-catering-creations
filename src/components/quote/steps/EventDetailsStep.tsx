@@ -140,7 +140,7 @@ export const EventDetailsStep = ({ form, trackFieldInteraction, variant = 'regul
                 </FormLabel>
                 <Select 
                   onValueChange={field.onChange} 
-                  value={field.value}
+                  value={field.value ?? ""}
                   onOpenChange={(open) => open && trackFieldInteraction('event_type')}
                 >
                   <FormControl>
