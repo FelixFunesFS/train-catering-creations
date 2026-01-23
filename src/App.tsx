@@ -71,7 +71,9 @@ const AppContent = () => {
           <Route path="/gallery-alt" element={<AlternativeGallery />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/install" element={<Install />} />
-          <Route path="/approve" element={<ApproveEstimate />} />
+          {/* Customer approval deep links (email clients may append trailing slashes) */}
+          <Route path="/approve/*" element={<ApproveEstimate />} />
+          <Route path="/approve-estimate" element={<ApproveEstimate />} />
           {/* Development routes - remove in production */}
           {process.env.NODE_ENV === 'development' && <Route path="/test-email" element={<TestEmail />} />}
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
