@@ -1,115 +1,99 @@
 
-Goal (what you’ll get)
-- A site-wide, mobile-only sticky action bar that makes “Request Quote” the primary action.
-- A secondary “Text / Message” action for immediate contact.
-- No conflicts with the mobile quote wizard (which already has its own sticky navigation) and no overlap with admin pages.
+Goal
+- Fix missing quote-submission emails (customer confirmation + business/admin notification) for submissions like envision@mkqconsulting.com.
+- Add a reliable way to “review the most recent emails” inside the app (delivery auditing).
+- Adjust the Estimate Ready (customer) email layout so the “Estimate Validity” card appears after menu selection and before the payment schedule.
 
-What “best way to think about mobile features” means in this codebase
-1) Treat mobile actions as a reusable system component (not page-by-page tweaks)
-   - If we add call/text/top/email in 10 places, it will drift and break consistency.
-   - Instead: one Mobile Action Bar component that:
-     - Knows when it should show (route + device)
-     - Reserves space so it never covers content
-     - Uses the same phone/email values everywhere
-2) Prioritize by user intent
-   - On mobile, the main user intent is usually “start the quote” (conversion).
-   - Secondary intent is “quick contact” (text).
-   - Everything else (scroll-to-top, email) can be optional later or behind a menu if needed.
-3) Avoid UI collisions
-   - Your quote wizard on mobile already has a sticky bottom navigation (`SinglePageQuoteForm`).
-   - So we must hide the site-wide action bar on those “fullscreen wizard” routes to prevent double sticky bars.
+What I found (root cause + why emails appear “not sent”)
+1) Admin notification email is currently broken for public quote submissions
+- The public form calls the `submit-quote-request` edge function.
+- `submit-quote-request` invokes:
+  - `send-quote-confirmation` with `{ quote_id }`  ✅ (matches expected input)
+  - `send-quote-notification` with `{ quote_id }`  ❌ (BUT `send-quote-notification` currently expects the entire quote payload like `contact_name`, `email`, `event_name`, etc.)
+- Result: the admin notification function can generate an email with missing data and may fail (but it returns 200 “non-critical” in many flows), so the admin inbox never receives the notification.
 
-Decisions you already made (we’ll implement exactly this)
-- Placement: Site-wide mobile
-- UI: Sticky bottom bar
-- Primary: Request Quote
-- Secondary: Text / Message
+2) Customer confirmation may “silently fail” without a central audit trail
+- `send-quote-confirmation` is explicitly “non-blocking” and returns HTTP 200 even if SMTP fails.
+- That’s good UX for not blocking submission, but it makes it hard to “review what happened” later unless we log delivery attempts somewhere persistent.
+- Right now there isn’t a dedicated delivery log table, and the existing edge logs don’t provide a per-recipient history you can browse in-app.
 
-Implementation design
+3) Estimate email content order change is straightforward
+- In `_shared/emailTemplates.ts`, the `estimate_ready` customer template inserts `estimateValidityHtml` very early (right after the intro text).
+- You want it moved to: after menu selection, before the payment schedule block.
 
-A) Add a dedicated component: `MobileActionBar`
-Responsibilities:
-- Show only on mobile (`useIsMobile()`).
-- Hide on:
-  - Admin routes (`/admin...`)
-  - Mobile quote wizard routes (`/request-quote/regular` and `/request-quote/wedding` when the wizard runs fullscreen on mobile)
-  - Any other full-viewport routes you don’t want covered (we’ll start with the above; can extend later).
-- Render two large, thumb-friendly buttons:
-  - Primary: “Request Quote” → navigates to `/request-quote`
-  - Secondary: “Text Us” → `sms:8439700265`
-- Use safe-area padding for iPhone bottom inset:
-  - `pb-[calc(0.75rem+env(safe-area-inset-bottom))]`
-- Use strong contrast and minimum tap size (≥ 44px height).
+Implementation plan
 
-Where it will be rendered:
-- In `AppContent` (in `src/App.tsx`), near the bottom of the app layout so it’s truly site-wide:
-  - Ideally after `<main>` and before footer/install banner, or just above them.
-  - Important: it should still show on pages that have a footer; it will float above the footer when you scroll to the bottom.
+A) Fix admin notification email so it works with `submit-quote-request` (most important)
+1) Update `supabase/functions/send-quote-notification/index.ts` to accept `{ quote_id: string }` as input (same pattern as `send-quote-confirmation`).
+2) Inside the function:
+- Fetch the quote record from `quote_requests` using the provided `quote_id`.
+- Build the admin email using the fetched quote (and existing HTML generation), ensuring `replyTo` uses the customer’s name/email.
+- Send to the business inbox (currently hardcoded `soultrainseatery@gmail.com`), and return a JSON response including:
+  - `admin_email_sent: boolean`
+  - `email_error?: string`
+  - `quote_id`
+3) Ensure the function no longer relies on “requestData.contact_name” coming from the caller.
 
-B) Reserve space so content isn’t covered
-- When the action bar is visible, we’ll add bottom padding to the main content container.
-- Best practice in this app (you already use safe-area math in the wizard):
-  - Add `pb-[calc(5rem+env(safe-area-inset-bottom))]` (tunable) to the `<main>` element only when the bar is visible.
-- This prevents “Submit” buttons, text areas, and bottom content from being hidden behind the sticky bar.
+Why this solves your problem:
+- The public form can keep sending `{quote_id}` exactly as it does today.
+- The admin notification becomes deterministic and consistent for every quote submission.
 
-C) Make “Request Quote” the main CTA consistently (small CTA hierarchy fix)
-Even with a site-wide bar, it’s worth making the Thank You screen align with the same priority:
-- In `src/components/quote/alternative-form/SuccessStep.tsx`, update the final button row so:
-  - Primary button: “Request Quote” (goes to `/request-quote`) with the strongest variant.
-  - Secondary: “Return to Home” (outline/secondary).
-- Rename “Submit Another Quote” to “Request Quote” (simpler, clearer, consistent with your site-wide CTA language).
+B) Add persistent “Email Delivery Audit” logging so you can review recent emails (customer + admin)
+Goal: When you say “review the most recent emails,” we should be able to answer that with actual data, not guesses.
 
-(We will keep the existing email/phone links inside the “Need to Reach Us?” section as informational, since the sticky bar is now the fast action area.)
+Approach (no schema migration required):
+- Use the existing `analytics_events` table (already in your schema) to log email attempts.
 
-D) Accessibility + UX details (mobile-first)
-- Buttons:
-  - Must remain keyboard accessible (tab order) and screen-reader clear labels.
-  - Use explicit text (not icon-only) to avoid ambiguity.
-- Visual:
-  - Use a slightly translucent background with blur (like other sticky surfaces in your app) but keep enough opacity to meet contrast.
-  - Add `border-t` so it reads as a separate layer.
-- Behavior:
-  - The bar is always visible while scrolling (sticky fixed).
-  - It does not animate excessively (avoid distracting “bouncing” CTAs).
+1) Update `supabase/functions/send-smtp-email/index.ts` to insert a row into `analytics_events` for every send attempt:
+- event_type: e.g. `email_send_attempt` and `email_send_success` / `email_send_failure`
+- entity_type: `email`
+- metadata: include `{ to, subject, from, ok, errorMessage?, timestamp }`
+2) Log both outcomes:
+- Success after `client.send(...)`
+- Failure in the catch block with the sanitized error message
 
-Files we will read/update (expected)
-- Add new:
-  - `src/components/mobile/MobileActionBar.tsx` (or similar existing components folder pattern; we’ll match your conventions)
-- Update:
-  - `src/App.tsx` (render the bar + add conditional bottom padding)
-  - `src/components/quote/alternative-form/SuccessStep.tsx` (CTA priority change at the bottom)
+Why this is the best “review recent emails” foundation:
+- Every single email in the system funnels through `send-smtp-email`, so you get a single source of truth for delivery attempts.
+- You can later add an Admin UI page that reads `analytics_events` and filters `event_type like 'email_%'` to show a “Recent Emails” feed (recipient, subject, status, time).
 
-Route/visibility logic (clear rules)
-- Show MobileActionBar when:
-  - `useIsMobile() === true`
-  - `pathname` does NOT start with `/admin`
-  - `pathname` is NOT `/request-quote/regular` or `/request-quote/wedding` (mobile wizard routes)
-- Optional follow-up (not required now): hide on `/install` if you prefer that screen to stay clean.
+C) Reorder “Estimate Validity” card in the Estimate Ready customer email
+Update `supabase/functions/_shared/emailTemplates.ts` in the `case 'estimate_ready'` block:
+- Current order (simplified):
+  1) Intro text
+  2) Estimate validity card
+  3) Event details
+  4) Menu with pricing
+  5) Add-ons
+  6) Payment schedule
+  7) Action buttons
+- Desired order:
+  1) Intro text
+  2) Event details
+  3) Menu with pricing (menu selection)
+  4) Add-ons (optional, but typically “part of the selection” experience)
+  5) Estimate validity card
+  6) Payment schedule
+  7) Action buttons
 
-Acceptance checklist (what you’ll verify in preview1)
-1) On any normal page on mobile (Home, About, Menu, Request Quote landing, Thank You):
-   - Sticky bar shows at bottom with “Request Quote” + “Text Us”.
-   - Content can scroll fully without being covered.
-2) On mobile quote wizard pages (`/request-quote/regular`, `/request-quote/wedding`):
-   - Sticky bar does NOT show (no double sticky footers).
-3) On admin pages:
-   - Sticky bar does NOT show.
-4) On the Thank You page:
-   - The primary on-page CTA becomes “Request Quote”, aligning with your conversion goal.
+D) Verification steps (we’ll do this right after changes)
+1) Quote submission emails:
+- Submit a new quote using the public form with:
+  - Customer email: envision@mkqconsulting.com (or a test inbox you control)
+- Confirm:
+  - Customer receives confirmation email
+  - Business receives admin notification email
+2) Delivery audit:
+- Check `analytics_events` for the last ~20 email events and confirm:
+  - both “attempt” and “success/failure” records exist with correct `to` + `subject`
+3) Estimate template content order:
+- Use Email Preview (admin) for `estimate_ready` and visually confirm:
+  - validity card is below the menu selection block and above payment schedule
 
-Optional phase 2 (if you want the “scroll to top or email” later)
-- Convert the secondary button into a small “More” menu (bottom sheet using your existing Radix/Vaul stack) with:
-  - Text Us
-  - Email Us
-  - Scroll to Top
-This keeps the main bar simple while still supporting all actions.
+Files that will change
+- supabase/functions/send-quote-notification/index.ts
+- supabase/functions/send-smtp-email/index.ts
+- supabase/functions/_shared/emailTemplates.ts
 
-Implementation order (safe sequencing)
-1) Create `MobileActionBar` component with correct styling + links.
-2) Wire it into `App.tsx` with visibility logic and main padding adjustment.
-3) Update `SuccessStep` CTA buttons to prioritize “Request Quote”.
-4) Quick mobile verification on:
-   - `/request-quote/thank-you?...`
-   - `/request-quote`
-   - `/request-quote/regular` (ensure hidden)
-   - `/` and `/menu`
+Notes / edge cases we’ll handle
+- Gmail recipients: If deliverability issues persist (spam/quarantine), the new audit logs will at least confirm whether SMTP accepted the send attempt and whether the function errored.
+- If you want admin notifications sent to a different address than `soultrainseatery@gmail.com`, we can move that recipient into `business_config` (configurable) as a follow-up.
