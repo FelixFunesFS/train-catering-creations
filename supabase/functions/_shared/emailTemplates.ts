@@ -531,12 +531,15 @@ ${quote.both_proteins_available ? '<br><span style="color:#D97706;font-size:13px
  */
 export function generateSuppliesSummarySection(quote: any): string {
   const supplies: string[] = [];
+  const serviceType = (quote?.service_type || '').toLowerCase();
+  const isFullService = serviceType === 'full-service' || serviceType === 'full_service';
+  const chaferLabel = isFullService ? 'Chafing Dishes with Fuel' : 'Food Warmers with Fuel';
   
   if (quote.plates_requested) supplies.push('Plates');
   if (quote.cups_requested) supplies.push('Cups');
   if (quote.napkins_requested) supplies.push('Napkins');
   if (quote.serving_utensils_requested) supplies.push('Serving Utensils');
-  if (quote.chafers_requested) supplies.push('Chafing Dishes');
+  if (quote.chafers_requested) supplies.push(chaferLabel);
   if (quote.ice_requested) supplies.push('Ice');
 
   if (supplies.length === 0 && !quote.theme_colors) return '';

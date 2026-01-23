@@ -10,12 +10,19 @@ interface SuppliesStepProps {
 }
 
 export const SuppliesStep = ({ form, variant = 'regular' }: SuppliesStepProps) => {
+  const serviceType = form.watch('service_type');
+  const isFullService = serviceType === 'full-service' || serviceType === 'full_service';
+  const chaferLabel = isFullService ? 'Chafing Dishes with Fuel' : 'Food Warmers with Fuel';
+  const chaferDescription = isFullService
+    ? 'Chafing dishes with fuel to keep food warm'
+    : 'Food warmers with fuel to keep food warm';
+
   const supplies = [
     { name: "plates_requested", label: "Disposable Plates", description: "Heavy-duty disposable plates" },
     { name: "cups_requested", label: "Disposable Cups", description: "Cups for beverages" },
     { name: "napkins_requested", label: "Napkins", description: "Disposable napkins" },
     { name: "serving_utensils_requested", label: "Serving Utensils", description: "Tongs, spoons, serving tools" },
-    { name: "chafers_requested", label: "Chafing Dishes", description: "Disposable chafers with fuel" },
+    { name: "chafers_requested", label: chaferLabel, description: chaferDescription },
     { name: "ice_requested", label: "Ice", description: "Ice for beverages and cooling" },
   ];
 

@@ -81,14 +81,21 @@ const WEDDING_VEGETARIAN: CardOption[] = [
   { id: "caprese-stuffed-tomatoes", name: "Caprese Stuffed Heirloom Tomatoes", isDietary: true },
 ];
 
-const SUPPLY_ITEMS: CardOption[] = [
-  { id: 'plates', name: 'Disposable Plates' },
-  { id: 'cups', name: 'Disposable Cups' },
-  { id: 'napkins', name: 'Napkins' },
-  { id: 'serving_utensils', name: 'Serving Utensils' },
-  { id: 'chafers', name: 'Chafing Dishes with Fuel' },
-  { id: 'ice', name: 'Ice' },
-];
+const getSupplyItems = (serviceType?: string): CardOption[] => {
+  const normalized = (serviceType || '').toLowerCase();
+  const isFullService = normalized === 'full-service' || normalized === 'full_service';
+  const chaferLabel = isFullService ? 'Chafing Dishes with Fuel' : 'Food Warmers with Fuel';
+
+  return [
+    { id: 'plates', name: 'Disposable Plates' },
+    { id: 'cups', name: 'Disposable Cups' },
+    { id: 'napkins', name: 'Napkins' },
+    { id: 'serving_utensils', name: 'Serving Utensils' },
+    // Keep id = 'chafers' so it still maps to quote_requests.chafers_requested
+    { id: 'chafers', name: chaferLabel },
+    { id: 'ice', name: 'Ice' },
+  ];
+};
 
 const TRACKED_FIELDS = [
   'proteins', 'sides', 'appetizers', 'desserts', 'drinks', 
@@ -153,6 +160,7 @@ export function MenuEditorInline({ quote, invoiceId, onSave }: MenuEditorInlineP
   
   const PROTEINS = isWedding ? WEDDING_PROTEINS : REGULAR_PROTEINS;
   const VEGETARIAN = isWedding ? WEDDING_VEGETARIAN : REGULAR_VEGETARIAN;
+  const SUPPLY_ITEMS = useMemo(() => getSupplyItems(quote?.service_type), [quote?.service_type]);
   
   const parseArray = (val: any): string[] => Array.isArray(val) ? val : [];
   

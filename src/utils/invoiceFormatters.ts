@@ -100,6 +100,12 @@ export const formatServiceType = (serviceType: string): string => {
   return serviceTypes[serviceType] || '';
 };
 
+const getChaferSupplyLabel = (serviceType?: string): string => {
+  const normalized = (serviceType || '').toLowerCase();
+  const isFullService = normalized === 'full-service' || normalized === 'full_service';
+  return isFullService ? 'Chafing Dishes with Fuel' : 'Food Warmers with Fuel';
+};
+
 // Create meal bundle for proteins
 export const createMealBundle = (quote: QuoteRequest): LineItem => {
   const proteins = getSelectedProteins(quote);
@@ -319,7 +325,7 @@ export const generateProfessionalLineItems = (quote: QuoteRequest): LineItem[] =
 
   // CONSOLIDATED SUPPLY & EQUIPMENT PACKAGE
   const supplyItems: string[] = [];
-  if (quote.chafers_requested) supplyItems.push('Stainless steel chafers with fuel');
+  if (quote.chafers_requested) supplyItems.push(getChaferSupplyLabel(quote.service_type));
   if (quote.serving_utensils_requested) supplyItems.push('Professional serving utensils');
   if (quote.plates_requested) supplyItems.push('Disposable plates');
   if (quote.cups_requested) supplyItems.push('Disposable cups');
