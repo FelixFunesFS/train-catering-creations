@@ -109,6 +109,37 @@ serve(async (req) => {
 
     console.log('Quote request created successfully:', data.id);
 
+    // Server-owned email triggers (non-blocking)
+    // Rationale: prevents client-side navigation/abort from skipping confirmations.
+    // Note: SMTP acceptance is not the same as inbox delivery; we still log outcomes here.
+    const quoteId = data.id;
+
+    const invokeEmailFn = async (fnName: string) => {
+      try {
+        const { data: fnData, error: fnError } = await supabase.functions.invoke(fnName, {
+          body: { quote_id: quoteId },
+        });
+
+        if (fnError) {
+          console.warn(`[email] ${fnName} returned error for quote ${quoteId}:`, fnError);
+          return { ok: false, error: fnError.message };
+        }
+
+        console.log(`[email] ${fnName} invoked for quote ${quoteId}`, fnData ?? null);
+        return { ok: true };
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e);
+        console.warn(`[email] ${fnName} threw for quote ${quoteId}:`, msg);
+        return { ok: false, error: msg };
+      }
+    };
+
+    // Run in parallel; don't block quote creation success on email deliverability.
+    await Promise.all([
+      invokeEmailFn('send-quote-confirmation'),
+      invokeEmailFn('send-quote-notification'),
+    ]);
+
     return new Response(
       JSON.stringify({ success: true, quote_id: data.id }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
