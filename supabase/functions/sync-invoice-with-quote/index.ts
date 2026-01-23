@@ -124,22 +124,27 @@ serve(async (req) => {
 
     // Add service charges with zero pricing (manual pricing only)
     const serviceTypeMap: Record<string, string> = {
-      'drop-off': 'Drop-off Service',
-      'buffet': 'Buffet Service', 
-      'plated': 'Plated Service',
-      'full-service': 'Full Service'
+      'delivery-only': 'Delivery Only',
+      'delivery-setup': 'Delivery with Setup',
+      'full-service': 'Full Service Catering',
+      // Legacy/alias values
+      'drop-off': 'Drop Off Delivery',
+      'drop_off': 'Drop Off Delivery',
+      'delivery_only': 'Delivery Only',
     };
-    
-    const serviceName = serviceTypeMap[quote.service_type] || 'Catering Service';
-    
-    // Always add service with zero pricing for manual input
-    newLineItems.push({
-      description: `${serviceName} for ${quote.guest_count} guests - requires manual pricing`,
-      category: 'service',
-      quantity: 1,
-      unit_price: 0,
-      total_price: 0,
-    });
+
+    const serviceName = serviceTypeMap[quote.service_type] || '';
+
+    // Do not display a fallback service label when the value is missing/unknown.
+    if (serviceName) {
+      newLineItems.push({
+        description: `${serviceName} for ${quote.guest_count} guests - requires manual pricing`,
+        category: 'service',
+        quantity: 1,
+        unit_price: 0,
+        total_price: 0,
+      });
+    }
 
     // Check if government contract (tax-exempt)
     const isGovContract = quote.compliance_level === 'government' || quote.requires_po_number === true;

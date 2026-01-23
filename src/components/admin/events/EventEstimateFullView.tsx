@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { TaxCalculationService } from '@/services/TaxCalculationService';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useInvoice, useInvoiceWithMilestones } from '@/hooks/useInvoices';
@@ -17,7 +18,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { X, FileText, ArrowLeft } from 'lucide-react';
 import { CustomerEditor } from './CustomerEditor';
-import { MenuEditorInline } from './MenuEditorInline';
 import { AddLineItemModal } from '../billing/AddLineItemModal';
 import { EmailPreview } from '../billing/EmailPreview';
 import { LineItemsService } from '@/services/LineItemsService';
@@ -36,12 +36,12 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
   const isDesktop = useMediaQuery('(min-width: 1024px)');
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const [showPreview, setShowPreview] = useState(false);
   const [isResendMode, setIsResendMode] = useState(false);
   const [showAddItem, setShowAddItem] = useState(false);
   const [showCustomerEdit, setShowCustomerEdit] = useState(false);
-  const [showMenuEdit, setShowMenuEdit] = useState(false);
 
   // Data queries
   const { data: lineItems, isLoading: loadingItems } = useLineItems(invoice?.id);
@@ -230,7 +230,10 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
 
   const handleAddItemClick = useCallback(() => setShowAddItem(true), []);
   const handleEditCustomer = useCallback(() => setShowCustomerEdit(true), []);
-  const handleEditMenu = useCallback(() => setShowMenuEdit(true), []);
+  const handleEditMenu = useCallback(() => {
+    if (!quote?.id) return;
+    navigate(`/admin/event/${quote.id}/menu`);
+  }, [navigate, quote?.id]);
   const handleRegenerateLineItems = useCallback(() => {
     if (invoice?.id && quote?.id) {
       regenerateLineItems({ invoiceId: invoice.id, quoteId: quote.id });
@@ -353,24 +356,6 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
             onSave={() => {
               setShowCustomerEdit(false);
               queryClient.invalidateQueries({ queryKey: ['quotes'] });
-            }} 
-          />
-        </DialogContent>
-      </Dialog>
-
-      {/* Menu Edit Dialog */}
-      <Dialog open={showMenuEdit} onOpenChange={setShowMenuEdit}>
-        <DialogContent className="w-[calc(100vw-1rem)] sm:max-w-lg max-h-[90vh] overflow-y-auto p-4 sm:p-6">
-          <DialogHeader>
-            <DialogTitle>Edit Menu Selections</DialogTitle>
-          </DialogHeader>
-          <MenuEditorInline
-            quote={quote}
-            invoiceId={invoice?.id}
-            onSave={() => {
-              setShowMenuEdit(false);
-              queryClient.invalidateQueries({ queryKey: ['quotes'] });
-              queryClient.invalidateQueries({ queryKey: ['line-items', invoice?.id] });
             }} 
           />
         </DialogContent>
