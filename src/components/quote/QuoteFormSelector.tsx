@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 const QuoteFormSelector = () => {
   return (
     <div className="max-w-6xl mx-auto">
-      <div className="text-center mb-12">
+      <div className="text-center mb-10 sm:mb-12">
         <h2 className="text-4xl font-elegant text-foreground mb-4">Choose Your Event Type</h2>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
           Select the option that best matches your event so we can provide you with the most accurate quote and service recommendations.
@@ -99,32 +99,7 @@ const QuoteFormSelector = () => {
         </Card>
       </div>
 
-      <div className="text-center mt-12">
-        <Card className="shadow-card bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-center space-x-3 mb-3">
-              <Sparkles className="h-5 w-5 text-primary" />
-              <span className="text-lg font-semibold text-foreground">Not sure which option to choose?</span>
-              <Sparkles className="h-5 w-5 text-primary" />
-            </div>
-            <p className="text-muted-foreground mb-4">
-              No worries! You can always call us directly for personalized assistance.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button asChild variant="cta-white" size="responsive-sm">
-                <a href="tel:8439700265">
-                  Call (843) 970-0265
-                </a>
-              </Button>
-              <Button asChild variant="outline" size="responsive-sm">
-                <a href="mailto:soultrainseatery@gmail.com">
-                  Email Us
-                </a>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      {/* Duplicate support CTA removed (handled elsewhere on the quote page) */}
     </div>
   );
 };
