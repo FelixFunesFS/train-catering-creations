@@ -1467,11 +1467,46 @@ export function getEmailContentBlocks(
     case 'estimate_ready':
       // Add multi-button CTA for direct actions from email
       const estimateActionButtonsHtml = generateEstimateActionButtons(effectivePortalUrl);
+
+      // Optional schedule preview (when milestones exist)
+      const estimatePaymentScheduleHtml = milestones && milestones.length > 0 ? `
+        <div style="margin:25px 0;">
+          <h3 style="color:${BRAND_COLORS.crimson};margin-bottom:15px;">📅 Your Payment Schedule</h3>
+          <table style="width:100%;border-collapse:collapse;font-size:14px;">
+            <thead>
+              <tr style="background:${BRAND_COLORS.lightGray};">
+                <th style="padding:12px 10px;text-align:left;border-bottom:2px solid ${BRAND_COLORS.gold};">Payment</th>
+                <th style="padding:12px 10px;text-align:left;border-bottom:2px solid ${BRAND_COLORS.gold};">Due</th>
+                <th style="padding:12px 10px;text-align:right;border-bottom:2px solid ${BRAND_COLORS.gold};">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${milestones.map((m: any, i: number) => `
+                <tr style="background:${i === 0 ? '#fff3cd' : (i % 2 === 0 ? '#fafafa' : '#ffffff')};">
+                  <td style="padding:12px 10px;border-bottom:1px solid #e5e5e5;">
+                    ${(m.milestone_type || 'payment').replaceAll('_', ' ')}
+                    ${i === 0 ? '<span style="color:#d97706;font-weight:bold;margin-left:8px;">← First Payment</span>' : ''}
+                  </td>
+                  <td style="padding:12px 10px;border-bottom:1px solid #e5e5e5;">
+                    ${m.is_due_now ? '<strong style="color:#d97706;">Due Now</strong>' : (m.due_date ? formatDate(m.due_date) : 'Due upon approval')}
+                  </td>
+                  <td style="padding:12px 10px;text-align:right;border-bottom:1px solid #e5e5e5;font-weight:${i === 0 ? 'bold' : 'normal'};">
+                    ${formatCurrency(m.amount_cents)}${m.percentage != null ? ` (${m.percentage}%)` : ''}
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+          <p style="margin:10px 0 0 0;font-size:13px;color:#666;">Your full payment options will appear in the portal after you approve the estimate.</p>
+        </div>
+      ` : '';
+
       contentBlocks = [
         { type: 'text', data: { html: `<p style="font-size:16px;margin:0 0 16px 0;">${isUpdated ? 'Updated' : 'Great news'}, ${quote.contact_name}!</p><p style="font-size:15px;margin:0 0 16px 0;line-height:1.6;">We've ${isUpdated ? 'updated your' : 'prepared a custom'} estimate for <strong>${quote.event_name}</strong>.</p>` }},
         { type: 'event_details' },
         { type: 'menu_with_pricing' },
         { type: 'service_addons' },
+        ...(estimatePaymentScheduleHtml ? [{ type: 'custom_html', data: { html: estimatePaymentScheduleHtml } }] : []),
         { type: 'custom_html', data: { html: estimateActionButtonsHtml }},
         { type: 'text', data: { html: `<p style="font-size:15px;margin:20px 0 0 0;">Questions? Call us at <strong>(843) 970-0265</strong> or reply to this email!</p>` }}
       ];

@@ -134,9 +134,10 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error(`No customer template defined for ${emailType}`);
     }
 
-    // Fetch milestones for approval confirmation
+    // Fetch milestones when needed for customer-facing schedule previews
+    // (estimate emails may include a schedule preview; approval emails include the full schedule)
     let milestones: any[] = [];
-    if (type === 'approval_confirmation') {
+    if (type === 'approval_confirmation' || type === 'estimate_ready') {
       const { data: milestonesData } = await supabase
         .from('payment_milestones')
         .select('*')
