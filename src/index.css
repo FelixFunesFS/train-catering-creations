@@ -140,8 +140,9 @@
     
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-    --border: 220 13% 90%;
-    --input: 220 14% 96%;
+    /* Slightly stronger borders/inputs for visibility on vibrant white */
+    --border: 220 13% 88%;
+    --input: 220 13% 90%;
     --ring: 0 80% 45%;
     --radius: 0.75rem;
 
@@ -254,8 +255,9 @@
     
     --destructive: 0 84% 65%;
     --destructive-foreground: 210 20% 98%;
-    --border: 220 12% 24%;
-    --input: 220 15% 17%;
+    /* Dark mode borders/inputs tuned for clear separation */
+    --border: 220 12% 26%;
+    --input: 220 14% 18%;
     --ring: 0 80% 60%;
 
     /* Luxury colors - Dark mode optimized */
@@ -374,9 +376,10 @@
 
   /* Clean input styles - no glassmorphism, no lift */
   .input-clean {
-    @apply bg-background border border-input;
+    /* Subtle tinted surface so fields read on white, plus strong focus ring */
+    @apply bg-secondary/40 border border-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background;
     box-shadow: none;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
   }
 
   .input-clean:hover {

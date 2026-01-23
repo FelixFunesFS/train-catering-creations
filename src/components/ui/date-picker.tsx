@@ -31,7 +31,7 @@ export function DatePicker({
     <Popover>
       <PopoverTrigger asChild>
         <Button
-          variant="outline"
+          variant="input"
           className={cn(
             "h-12 text-base w-full justify-start text-left font-normal input-clean",
             !value && "text-muted-foreground",
