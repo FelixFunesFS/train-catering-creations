@@ -29,20 +29,21 @@ const RequestQuote = () => {
 
   return (
     <div className="min-h-screen bg-gradient-hero">
-      {/* Header Section */}
-      <section className="py-8 lg:py-12">
+      {/* Consolidated Hero + Selector */}
+      <section className="py-10 lg:py-14">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div ref={headerRef} className={useAnimationClass(headerVariant, headerVisible)}>
             <QuoteHeader />
           </div>
-        </div>
-      </section>
-      
-      {/* Form Selector Section */}
-      <section className="py-8 lg:py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div ref={selectorRef} className={useAnimationClass(selectorVariant, selectorVisible)}>
-            <QuoteFormSelector />
+
+          <div
+            ref={selectorRef}
+            className={
+              "mt-6 sm:mt-8 " +
+              useAnimationClass(selectorVariant, selectorVisible)
+            }
+          >
+            <QuoteFormSelector showHeader={false} />
           </div>
         </div>
       </section>
