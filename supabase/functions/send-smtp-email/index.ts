@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { isInternalRequest } from '../_shared/security.ts';
 
 // Minify HTML to prevent Quoted-Printable encoding issues (=20 artifacts)
@@ -30,11 +31,45 @@ const DEFAULT_FROM_EMAIL = 'soultrainseatery@gmail.com';
 const DEFAULT_FROM_DISPLAY = "Soul Train’s Eatery";
 const DEFAULT_FROM = `${DEFAULT_FROM_DISPLAY} <${DEFAULT_FROM_EMAIL}>`;
 
+const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+async function logEmailEvent(params: {
+  event_type: 'email_send_attempt' | 'email_send_success' | 'email_send_failure';
+  to?: string;
+  subject?: string;
+  from?: string;
+  replyTo?: string;
+  messageId?: string;
+  errorMessage?: string;
+}) {
+  try {
+    const { event_type, ...rest } = params;
+    await supabase.from('analytics_events').insert({
+      event_type,
+      entity_type: 'email',
+      metadata: {
+        ...rest,
+        ts: new Date().toISOString(),
+      },
+    });
+  } catch (e) {
+    // Never block email sending if analytics logging fails
+    console.warn('[send-smtp-email] Failed to write analytics_events', e);
+  }
+}
+
 const handler = async (req: Request): Promise<Response> => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
+
+  let auditTo: string | undefined;
+  let auditSubject: string | undefined;
+  let auditFrom: string | undefined;
+  let auditReplyTo: string | undefined;
 
   try {
     // SECURITY: Only allow internal edge function calls (server-to-server)
@@ -48,10 +83,22 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const { to, subject, html, from = DEFAULT_FROM, replyTo }: EmailRequest = await req.json();
+    auditTo = to;
+    auditSubject = subject;
+    auditFrom = from;
+    auditReplyTo = replyTo;
 
     if (!to || !subject || !html) {
       throw new Error('Missing required fields: to, subject, html');
     }
+
+    await logEmailEvent({
+      event_type: 'email_send_attempt',
+      to,
+      subject,
+      from,
+      replyTo,
+    });
 
     // Get SMTP configuration from environment
     const smtpHost = Deno.env.get('SMTP_HOST');
@@ -132,9 +179,19 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log(`Email sent successfully via SMTP to: ${to}`);
 
+    const messageId = `smtp-${Date.now()}`;
+    await logEmailEvent({
+      event_type: 'email_send_success',
+      to,
+      subject,
+      from,
+      replyTo,
+      messageId,
+    });
+
     return new Response(JSON.stringify({ 
       success: true, 
-      messageId: `smtp-${Date.now()}`,
+      messageId,
       to,
       subject 
     }), {
@@ -152,6 +209,16 @@ const handler = async (req: Request): Promise<Response> => {
     const safeMessage = error.message?.includes('SMTP') || error.message?.includes('Missing') 
       ? error.message 
       : 'Failed to send email via SMTP';
+
+    // Best-effort audit log
+    await logEmailEvent({
+      event_type: 'email_send_failure',
+      to: auditTo,
+      subject: auditSubject,
+      from: auditFrom,
+      replyTo: auditReplyTo,
+      errorMessage: safeMessage,
+    });
     
     return new Response(
       JSON.stringify({ 

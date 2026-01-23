@@ -21,24 +21,47 @@ const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
 const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+interface QuoteNotificationRequest {
+  quote_id: string;
+}
+
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const requestData = await req.json();
+    const { quote_id }: QuoteNotificationRequest = await req.json();
     console.log('Quote notification request received');
 
+    if (!quote_id) {
+      throw new Error('Missing required field: quote_id');
+    }
+
+    // Load canonical quote data (submit-quote-request invokes this function with quote_id)
+    const { data: quote, error: quoteError } = await supabase
+      .from('quote_requests')
+      .select('*')
+      .eq('id', quote_id)
+      .maybeSingle();
+
+    if (quoteError) {
+      console.error('Failed to load quote_requests row:', quoteError);
+      throw new Error('Failed to load quote data');
+    }
+    if (!quote) {
+      throw new Error('Quote not found');
+    }
+
     // Sanitize user-provided data for HTML embedding
-    const safeContactName = escapeHtml(requestData.contact_name);
-    const safeEmail = escapeHtml(requestData.email);
-    const safePhone = escapeHtml(requestData.phone);
-    const safeEventName = escapeHtml(requestData.event_name);
-    const safeLocation = escapeHtml(requestData.location);
-    const safeThemeColors = escapeHtml(requestData.theme_colors);
-    const safeSpecialRequests = escapeHtml(requestData.special_requests);
-    const safeGuestCountWithRestrictions = escapeHtml(requestData.guest_count_with_restrictions);
+    const safeContactName = escapeHtml(quote.contact_name);
+    const safeEmail = escapeHtml(quote.email);
+    const safePhone = escapeHtml(quote.phone);
+    const safeEventName = escapeHtml(quote.event_name);
+    const safeLocation = escapeHtml(quote.location);
+    const safeThemeColors = escapeHtml(quote.theme_colors);
+    const safeSpecialRequests = escapeHtml(quote.special_requests);
+    const safeGuestCountWithRestrictions = escapeHtml(quote.guest_count_with_restrictions);
 
     // Helper to format menu items with proper title case and sanitization
     const formatMenuItem = (item: string): string => {
@@ -58,12 +81,12 @@ const handler = async (req: Request): Promise<Response> => {
     // Helper to format supplies
     const formatSupplies = () => {
       const supplies = [];
-      if (requestData.plates_requested) supplies.push('Plates');
-      if (requestData.cups_requested) supplies.push('Cups');
-      if (requestData.napkins_requested) supplies.push('Napkins');
-      if (requestData.serving_utensils_requested) supplies.push('Serving Utensils');
-      if (requestData.chafers_requested) supplies.push('Chafing Dishes with Fuel');
-      if (requestData.ice_requested) supplies.push('Ice');
+       if (quote.plates_requested) supplies.push('Plates');
+       if (quote.cups_requested) supplies.push('Cups');
+       if (quote.napkins_requested) supplies.push('Napkins');
+       if (quote.serving_utensils_requested) supplies.push('Serving Utensils');
+       if (quote.chafers_requested) supplies.push('Chafing Dishes with Fuel');
+       if (quote.ice_requested) supplies.push('Ice');
       return supplies.length > 0 ? supplies.join(', ') : 'None requested';
     };
 
@@ -76,47 +99,47 @@ const handler = async (req: Request): Promise<Response> => {
 <td style="padding:20px;">
 <h3 style="margin:0 0 20px 0;color:${BRAND_COLORS.crimson};text-align:center;">🍽️ Menu Selections</h3>
 
-${requestData.proteins && Array.isArray(requestData.proteins) && requestData.proteins.length > 0 ? `
+ ${quote.proteins && Array.isArray(quote.proteins) && quote.proteins.length > 0 ? `
 <div style="margin:15px 0;padding-bottom:10px;border-bottom:2px solid ${BRAND_COLORS.gold};">
 <h4 style="color:${BRAND_COLORS.crimson};margin:10px 0 5px 0;font-size:16px;">🥩 Proteins</h4>
-<p style="margin:5px 0;padding:8px 0;">${requestData.proteins.map(formatMenuItem).join(', ')}</p>
-${requestData.both_proteins_available && requestData.proteins.length === 2 ? `<p style="margin:5px 0;padding:8px 0;font-style:italic;color:${BRAND_COLORS.crimson};">⭐ Both proteins served to all guests</p>` : ''}
+ <p style="margin:5px 0;padding:8px 0;">${quote.proteins.map(formatMenuItem).join(', ')}</p>
+ ${quote.both_proteins_available && quote.proteins.length === 2 ? `<p style="margin:5px 0;padding:8px 0;font-style:italic;color:${BRAND_COLORS.crimson};">⭐ Both proteins served to all guests</p>` : ''}
 </div>
 ` : ''}
 
-${requestData.sides && (Array.isArray(requestData.sides) ? requestData.sides.length > 0 : requestData.sides) ? `
+ ${quote.sides && (Array.isArray(quote.sides) ? quote.sides.length > 0 : quote.sides) ? `
 <div style="margin:15px 0;padding-bottom:10px;border-bottom:2px solid ${BRAND_COLORS.gold};">
 <h4 style="color:${BRAND_COLORS.crimson};margin:10px 0 5px 0;font-size:16px;">🥗 Sides</h4>
-<p style="margin:5px 0;padding:8px 0;">${formatMenuItems(requestData.sides)}</p>
+ <p style="margin:5px 0;padding:8px 0;">${formatMenuItems(quote.sides)}</p>
 </div>
 ` : ''}
 
-${requestData.appetizers && (Array.isArray(requestData.appetizers) ? requestData.appetizers.length > 0 : requestData.appetizers) ? `
+ ${quote.appetizers && (Array.isArray(quote.appetizers) ? quote.appetizers.length > 0 : quote.appetizers) ? `
 <div style="margin:15px 0;padding-bottom:10px;border-bottom:2px solid ${BRAND_COLORS.gold};">
 <h4 style="color:${BRAND_COLORS.crimson};margin:10px 0 5px 0;font-size:16px;">🍤 Appetizers</h4>
-<p style="margin:5px 0;padding:8px 0;">${formatMenuItems(requestData.appetizers)}</p>
+ <p style="margin:5px 0;padding:8px 0;">${formatMenuItems(quote.appetizers)}</p>
 </div>
 ` : ''}
 
-${requestData.desserts && (Array.isArray(requestData.desserts) ? requestData.desserts.length > 0 : requestData.desserts) ? `
+ ${quote.desserts && (Array.isArray(quote.desserts) ? quote.desserts.length > 0 : quote.desserts) ? `
 <div style="margin:15px 0;padding-bottom:10px;border-bottom:2px solid ${BRAND_COLORS.gold};">
 <h4 style="color:${BRAND_COLORS.crimson};margin:10px 0 5px 0;font-size:16px;">🍰 Desserts</h4>
-<p style="margin:5px 0;padding:8px 0;">${formatMenuItems(requestData.desserts)}</p>
+ <p style="margin:5px 0;padding:8px 0;">${formatMenuItems(quote.desserts)}</p>
 </div>
 ` : ''}
 
-${requestData.drinks && (Array.isArray(requestData.drinks) ? requestData.drinks.length > 0 : requestData.drinks) ? `
+ ${quote.drinks && (Array.isArray(quote.drinks) ? quote.drinks.length > 0 : quote.drinks) ? `
 <div style="margin:15px 0;padding-bottom:10px;border-bottom:2px solid ${BRAND_COLORS.gold};">
 <h4 style="color:${BRAND_COLORS.crimson};margin:10px 0 5px 0;font-size:16px;">🥤 Beverages</h4>
-<p style="margin:5px 0;padding:8px 0;">${formatMenuItems(requestData.drinks)}</p>
+ <p style="margin:5px 0;padding:8px 0;">${formatMenuItems(quote.drinks)}</p>
 </div>
 ` : ''}
 
-${(safeGuestCountWithRestrictions || (requestData.vegetarian_entrees && Array.isArray(requestData.vegetarian_entrees) && requestData.vegetarian_entrees.length > 0)) ? `
+ ${(safeGuestCountWithRestrictions || (quote.vegetarian_entrees && Array.isArray(quote.vegetarian_entrees) && quote.vegetarian_entrees.length > 0)) ? `
 <div style="margin:15px 0;padding:12px;background:#f0fdf4;border-radius:6px;border-left:4px solid #22c55e;">
 <h4 style="color:#166534;margin:0 0 8px 0;font-size:16px;">🌱 Vegetarian Options</h4>
 ${safeGuestCountWithRestrictions ? `<p style="margin:5px 0;color:#166534;">${safeGuestCountWithRestrictions} vegetarian portions requested</p>` : ''}
-${requestData.vegetarian_entrees && Array.isArray(requestData.vegetarian_entrees) && requestData.vegetarian_entrees.length > 0 ? `<p style="margin:5px 0;color:#166534;"><strong>Entrées:</strong> ${requestData.vegetarian_entrees.map(formatMenuItem).join(', ')}</p>` : ''}
+ ${quote.vegetarian_entrees && Array.isArray(quote.vegetarian_entrees) && quote.vegetarian_entrees.length > 0 ? `<p style="margin:5px 0;color:#166534;"><strong>Entrées:</strong> ${quote.vegetarian_entrees.map(formatMenuItem).join(', ')}</p>` : ''}
 </div>
 ` : ''}
 
@@ -182,12 +205,12 @@ ${safeSpecialRequests ? `
     ];
 
     // Build email using generateStandardEmail
-    const emailConfig: StandardEmailConfig = {
-      preheaderText: `New quote from ${safeContactName} for ${safeEventName} - ${requestData.guest_count} guests`,
+      const emailConfig: StandardEmailConfig = {
+        preheaderText: `New quote from ${safeContactName} for ${safeEventName} - ${quote.guest_count} guests`,
       heroSection: heroConfig,
       contentBlocks,
       ctaButton: { text: 'View in Admin Dashboard →', href: `${siteUrl}/admin?view=events`, variant: 'primary' },
-      quote: requestData,
+        quote,
     };
 
     const adminEmailHtml = generateStandardEmail(emailConfig);

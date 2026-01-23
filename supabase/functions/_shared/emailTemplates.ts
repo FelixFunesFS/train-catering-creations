@@ -1542,10 +1542,10 @@ export function getEmailContentBlocks(
           <p style="font-size:16px;margin:0 0 12px 0;">Thank you for reaching out, ${quote.contact_name}!</p>
           <p style="font-size:15px;margin:0 0 0 0;line-height:1.6;">We’ve prepared ${isUpdated ? 'an updated' : 'your'} catering estimate for <strong>${quote.event_name}</strong>. Review the details below, then approve when you’re ready.</p>
         ` }},
-        { type: 'custom_html', data: { html: estimateValidityHtml } },
         { type: 'event_details' },
         { type: 'menu_with_pricing' },
         { type: 'service_addons' },
+        { type: 'custom_html', data: { html: estimateValidityHtml } },
         ...(estimatePaymentScheduleHtml ? [{ type: 'custom_html', data: { html: estimatePaymentScheduleHtml } }] : []),
         { type: 'custom_html', data: { html: estimateActionButtonsHtml }},
         { type: 'text', data: { html: `<p style="font-size:15px;margin:20px 0 0 0;">If you have any questions, just reply to this email — our family is happy to help.</p>` }}
