@@ -129,7 +129,9 @@ export function MultiSelect({
         </Button>
       </PopoverTrigger>
       <PopoverContent 
-        className="w-[var(--radix-popover-trigger-width)] min-w-[200px] p-0 bg-popover border shadow-lg z-[9999] max-h-[400px] overflow-hidden" 
+        side="bottom"
+        collisionPadding={12}
+        className="w-[var(--radix-popover-trigger-width)] min-w-[200px] p-0 bg-popover border shadow-lg z-[9999] max-h-[min(60vh,420px)] overflow-hidden" 
         align="start"
         onOpenAutoFocus={(e) => e.preventDefault()}
         onCloseAutoFocus={(e) => e.preventDefault()}
@@ -147,7 +149,7 @@ export function MultiSelect({
         </div>
         
         {/* Options List */}
-        <div className="max-h-[300px] overflow-y-auto">
+        <div className="max-h-[min(52vh,340px)] overflow-y-auto">
           <div className="p-1">
             {Object.keys(groupedOptions).length === 0 ? (
               <div className="py-6 text-center text-sm text-muted-foreground">

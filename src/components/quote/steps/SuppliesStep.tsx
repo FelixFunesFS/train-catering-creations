@@ -31,7 +31,7 @@ export const SuppliesStep = ({ form, variant = 'regular' }: SuppliesStepProps) =
 
       {/* Wedding-specific options */}
       {variant === 'wedding' && (
-        <div className="grid grid-cols-2 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
           <FormField
             control={form.control}
             name="ceremony_included"
@@ -81,7 +81,7 @@ export const SuppliesStep = ({ form, variant = 'regular' }: SuppliesStepProps) =
       )}
 
       {/* Supply & Equipment Grid */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {supplies.map((supply) => (
           <FormField
             key={supply.name}
@@ -149,7 +149,7 @@ export const SuppliesStep = ({ form, variant = 'regular' }: SuppliesStepProps) =
                     <SelectValue placeholder="Select an option..." />
                   </SelectTrigger>
                 </FormControl>
-                <SelectContent className="bg-background border shadow-lg">
+                <SelectContent className="bg-background border shadow-lg z-50">
                   <SelectItem value="google_search">Google Search</SelectItem>
                   <SelectItem value="social_media">Social Media</SelectItem>
                   <SelectItem value="friend_family_referral">Friend/Family Referral</SelectItem>
