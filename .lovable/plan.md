@@ -1,99 +1,82 @@
 
-Goal
-- Fix missing quote-submission emails (customer confirmation + business/admin notification) for submissions like envision@mkqconsulting.com.
-- Add a reliable way to “review the most recent emails” inside the app (delivery auditing).
-- Adjust the Estimate Ready (customer) email layout so the “Estimate Validity” card appears after menu selection and before the payment schedule.
+Context / what you’re seeing
+- In the invoice/estimate generator (`supabase/functions/generate-invoice-from-quote/index.ts`), the “Service Package” line item is always created (it’s not conditional), and its description is derived from `quote.service_type` via a helper function `formatServiceType()`.
+- Your quote form + database currently use `service_type = 'delivery-only' | 'delivery-setup' | 'full-service'` (confirmed by frontend schema + submit payload code patterns), but the generator’s `formatServiceType()` mapping is missing `'delivery-only'` and instead has a legacy `'drop-off'` key.
+- Because of that mismatch, when the quote has `service_type: 'delivery-only'`, the generator falls back to the default label `'Catering Service'`, which is exactly what you’re reporting (“I do not see the delivery only… instead of catering service”).
 
-What I found (root cause + why emails appear “not sent”)
-1) Admin notification email is currently broken for public quote submissions
-- The public form calls the `submit-quote-request` edge function.
-- `submit-quote-request` invokes:
-  - `send-quote-confirmation` with `{ quote_id }`  ✅ (matches expected input)
-  - `send-quote-notification` with `{ quote_id }`  ❌ (BUT `send-quote-notification` currently expects the entire quote payload like `contact_name`, `email`, `event_name`, etc.)
-- Result: the admin notification function can generate an email with missing data and may fail (but it returns 200 “non-critical” in many flows), so the admin inbox never receives the notification.
+What fields are grouped into the “Service Package grouping” (in the estimate generator)
+In `generate-invoice-from-quote/index.ts`, the “service package grouping” is:
+1) Always-added base “Service Package” line item
+   - title: `Service Package`
+   - description: `formatServiceType(quote.service_type)`
+   - quantity: `1`
+   - category: `service`
+   - sort_order: incrementing (Tier 5)
+   - Source field: `quote.service_type`
 
-2) Customer confirmation may “silently fail” without a central audit trail
-- `send-quote-confirmation` is explicitly “non-blocking” and returns HTTP 200 even if SMTP fails.
-- That’s good UX for not blocking submission, but it makes it hard to “review what happened” later unless we log delivery attempts somewhere persistent.
-- Right now there isn’t a dedicated delivery log table, and the existing edge logs don’t provide a per-recipient history you can browse in-app.
+2) Service add-ons (each becomes its own line item in the same `category: 'service'` group)
+   - `quote.wait_staff_requested` → “Wait Staff Service”
+   - `quote.bussing_tables_needed` → “Table Bussing Service”
+   - `quote.ceremony_included` → “Ceremony Catering Service”
+   - `quote.cocktail_hour` → “Cocktail Hour Service”
+   These are separate line items, not merged into the “Service Package” line item—only grouped conceptually by category and sort order.
 
-3) Estimate email content order change is straightforward
-- In `_shared/emailTemplates.ts`, the `estimate_ready` customer template inserts `estimateValidityHtml` very early (right after the intro text).
-- You want it moved to: after menu selection, before the payment schedule block.
+Root cause
+- `supabase/functions/generate-invoice-from-quote/index.ts`:
+  - `formatServiceType()` currently supports:
+    - `'full-service'` → “Full Service Catering”
+    - `'delivery-setup'` → “Delivery with Setup”
+    - `'drop-off'` → “Drop Off Delivery”
+    - otherwise → “Catering Service”
+  - Missing: `'delivery-only'` (your actual stored value)
+- Meanwhile the frontend utilities already support `'delivery-only'` (e.g., `src/utils/formatters.ts` and `src/utils/invoiceFormatters.ts`), so the inconsistency is specific to the edge function generator.
 
-Implementation plan
+Plan to fix (code + data recovery)
+1) Update the generator’s service type mapping to match the real system values
+   - File: `supabase/functions/generate-invoice-from-quote/index.ts`
+   - Change `formatServiceType()` mapping to include:
+     - `'delivery-only'` → “Delivery Only” (or “Drop Off Delivery” if you want that phrasing consistently)
+   - Keep legacy aliases to be safe (so older data still formats correctly):
+     - `'drop-off'`, `'drop_off'`, etc.
+   - Result: new invoices/estimates generated from quotes will correctly show “Delivery Only” instead of “Catering Service”.
 
-A) Fix admin notification email so it works with `submit-quote-request` (most important)
-1) Update `supabase/functions/send-quote-notification/index.ts` to accept `{ quote_id: string }` as input (same pattern as `send-quote-confirmation`).
-2) Inside the function:
-- Fetch the quote record from `quote_requests` using the provided `quote_id`.
-- Build the admin email using the fetched quote (and existing HTML generation), ensuring `replyTo` uses the customer’s name/email.
-- Send to the business inbox (currently hardcoded `soultrainseatery@gmail.com`), and return a JSON response including:
-  - `admin_email_sent: boolean`
-  - `email_error?: string`
-  - `quote_id`
-3) Ensure the function no longer relies on “requestData.contact_name” coming from the caller.
+2) Verify all other email/admin surfaces use the same service type labels
+   - Quick audit targets (read-only verification first, then adjust if needed):
+     - `supabase/functions/send-event-reminders/index.ts` (it formats service type for emails)
+     - `_shared/emailTemplates.ts` (if it has its own mapping)
+     - Any other edge function that includes service type text
+   - Goal: ensure “Delivery Only” appears consistently everywhere.
 
-Why this solves your problem:
-- The public form can keep sending `{quote_id}` exactly as it does today.
-- The admin notification becomes deterministic and consistent for every quote submission.
+3) Fix existing estimates already generated with the wrong label (“Catering Service”)
+   You have two safe options; we can do either or both:
 
-B) Add persistent “Email Delivery Audit” logging so you can review recent emails (customer + admin)
-Goal: When you say “review the most recent emails,” we should be able to answer that with actual data, not guesses.
+   Option A (recommended): Use your existing “Regenerate from Quote” workflow
+   - Because the generator is described as the authoritative source and you already have a “Regenerate from Quote” action in the admin UI (per project memory), once the mapping is fixed, regenerating will rebuild the line items and correct the “Service Package” description.
+   - Important behavior to confirm during implementation:
+     - It should preserve manually set prices (as intended).
+     - It should update descriptions/titles if they’re currently wrong.
+   - This is the cleanest path because it keeps “quote → line items” logic centralized.
 
-Approach (no schema migration required):
-- Use the existing `analytics_events` table (already in your schema) to log email attempts.
+   Option B: Direct one-off patch for affected invoices
+   - After mapping fix, we can identify invoices whose “Service Package” line item description is “Catering Service” but whose related quote had `service_type='delivery-only'`, then update that line item’s description.
+   - This requires a small admin script/edge function or a SQL update (riskier without carefully joining invoice ↔ quote ↔ line items).
+   - I’d only do this if you have many existing estimates and regenerating would be disruptive.
 
-1) Update `supabase/functions/send-smtp-email/index.ts` to insert a row into `analytics_events` for every send attempt:
-- event_type: e.g. `email_send_attempt` and `email_send_success` / `email_send_failure`
-- entity_type: `email`
-- metadata: include `{ to, subject, from, ok, errorMessage?, timestamp }`
-2) Log both outcomes:
-- Success after `client.send(...)`
-- Failure in the catch block with the sanitized error message
+4) Acceptance checks (what you will see after the fix)
+   - Create/generate a new estimate from a quote with `service_type = delivery-only`
+   - In the estimate line items, the “Service Package” line item should read:
+     - “Delivery Only” (or your chosen text)
+   - No instances should fall back to “Catering Service” unless the stored `service_type` is genuinely unknown/blank.
 
-Why this is the best “review recent emails” foundation:
-- Every single email in the system funnels through `send-smtp-email`, so you get a single source of truth for delivery attempts.
-- You can later add an Admin UI page that reads `analytics_events` and filters `event_type like 'email_%'` to show a “Recent Emails” feed (recipient, subject, status, time).
+Technical notes / why it happened
+- The generator is still using an older naming convention (`'drop-off'`) while the modern system uses `'delivery-only'`.
+- The frontend already uses the correct mapping, which is why the form summary may look correct but the generated invoice line item does not.
 
-C) Reorder “Estimate Validity” card in the Estimate Ready customer email
-Update `supabase/functions/_shared/emailTemplates.ts` in the `case 'estimate_ready'` block:
-- Current order (simplified):
-  1) Intro text
-  2) Estimate validity card
-  3) Event details
-  4) Menu with pricing
-  5) Add-ons
-  6) Payment schedule
-  7) Action buttons
-- Desired order:
-  1) Intro text
-  2) Event details
-  3) Menu with pricing (menu selection)
-  4) Add-ons (optional, but typically “part of the selection” experience)
-  5) Estimate validity card
-  6) Payment schedule
-  7) Action buttons
+Scope of changes (expected)
+- Primary fix:
+  - `supabase/functions/generate-invoice-from-quote/index.ts` (mapping update)
+- Possible consistency follow-up (only if found inconsistent during audit):
+  - any email-related edge function that formats `service_type`
 
-D) Verification steps (we’ll do this right after changes)
-1) Quote submission emails:
-- Submit a new quote using the public form with:
-  - Customer email: envision@mkqconsulting.com (or a test inbox you control)
-- Confirm:
-  - Customer receives confirmation email
-  - Business receives admin notification email
-2) Delivery audit:
-- Check `analytics_events` for the last ~20 email events and confirm:
-  - both “attempt” and “success/failure” records exist with correct `to` + `subject`
-3) Estimate template content order:
-- Use Email Preview (admin) for `estimate_ready` and visually confirm:
-  - validity card is below the menu selection block and above payment schedule
-
-Files that will change
-- supabase/functions/send-quote-notification/index.ts
-- supabase/functions/send-smtp-email/index.ts
-- supabase/functions/_shared/emailTemplates.ts
-
-Notes / edge cases we’ll handle
-- Gmail recipients: If deliverability issues persist (spam/quarantine), the new audit logs will at least confirm whether SMTP accepted the send attempt and whether the function errored.
-- If you want admin notifications sent to a different address than `soultrainseatery@gmail.com`, we can move that recipient into `business_config` (configurable) as a follow-up.
+After approval (next step in default mode)
+- I’ll implement the mapping fix in the edge function, deploy it, then we can regenerate the specific estimate for the event you’re on (`/admin/event/4b13d793-...`) to confirm it flips from “Catering Service” to “Delivery Only” without losing your priced amounts.
