@@ -1,82 +1,91 @@
 
 
-# Fix Glassmorphic Testimonial Card - Override Neumorphic Styles
+# Our Values Icons - Three Complementary Accessible Colors
 
-## Problem Identified
+## Overview
 
-The Card component has a base class `neumorphic-card-2` that applies:
-```css
-@apply bg-gradient-to-br from-card to-muted border border-border/30;
-box-shadow: var(--shadow-neumorphic-2);
+Instead of using a single gold color for all three icons, we'll use three distinct brand colors that create visual variety while maintaining accessibility against the dark glassmorphic background (`bg-black/35`).
+
+---
+
+## Color Selection
+
+Based on the theme's color system, here are three complementary colors with excellent contrast on dark backgrounds:
+
+| Card | Icon | Color Class | HSL Value | Contrast Rationale |
+|------|------|-------------|-----------|-------------------|
+| Quality First | Award | `text-gold` | 45, 85%, 55% | Warm gold - represents excellence and premium quality |
+| Family Spirit | Users | `text-ruby-light` | 348, 83%, 62% | Light ruby/crimson - represents warmth and love (brand primary) |
+| Reliability | Clock | `text-platinum-light` | 210, 5%, 85% | Light platinum/silver - represents dependability and timelessness |
+
+---
+
+## Visual Preview
+
+```text
+┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐
+│  🏆 GOLD        │  │  ❤️ RUBY        │  │  ⏱️ PLATINUM    │
+│  Quality First  │  │  Family Spirit  │  │  Reliability    │
+│  ...            │  │  ...            │  │  ...            │
+└─────────────────┘  └─────────────────┘  └─────────────────┘
 ```
 
-This solid gradient background overrides our `bg-white/15` glassmorphism styling. The stats cards at the bottom of the testimonials section already work correctly because they use `!important` flags (`!bg-none !bg-black/35`).
-
----
-
-## Solution
-
-Use Tailwind's `!important` modifier to override the neumorphic base styles, similar to how the stats cards do it.
-
----
-
-## File to Modify
-
-`src/components/home/TestimonialsCarousel.tsx`
+This creates a warm-to-cool progression across the three cards while using the established brand palette.
 
 ---
 
 ## Implementation Details
 
-### Change 1: Main Testimonial Card (line 170)
+**File:** `src/pages/About.tsx`
 
-**Before:**
+### Change 1: Award Icon - Gold (line 161)
 ```tsx
-<Card 
-  className="relative p-5 lg:p-6 bg-white/15 backdrop-blur-xl border border-white/30 shadow-2xl ring-1 ring-white/20 overflow-hidden"
+// Before
+<Award className="h-12 w-12 text-white mx-auto mb-4 drop-shadow-sm" />
+
+// After
+<Award className="h-12 w-12 text-gold mx-auto mb-4 drop-shadow-sm" />
 ```
 
-**After:**
+### Change 2: Users Icon - Ruby Light (line 169)
 ```tsx
-<Card 
-  className="relative p-5 lg:p-6 !bg-white/15 !backdrop-blur-xl !border-white/30 !shadow-2xl ring-1 ring-white/20 overflow-hidden"
+// Before
+<Users className="h-12 w-12 text-white mx-auto mb-4 drop-shadow-sm" />
+
+// After
+<Users className="h-12 w-12 text-ruby-light mx-auto mb-4 drop-shadow-sm" />
 ```
 
-Key changes:
-- `bg-white/15` to `!bg-white/15` - forces the glass background
-- `backdrop-blur-xl` to `!backdrop-blur-xl` - ensures blur effect applies
-- `border-white/30` to `!border-white/30` - overrides neumorphic border
-- `shadow-2xl` to `!shadow-2xl` - overrides neumorphic shadow
+### Change 3: Clock Icon - Platinum Light (line 177)
+```tsx
+// Before
+<Clock className="h-12 w-12 text-white mx-auto mb-4 drop-shadow-sm" />
+
+// After
+<Clock className="h-12 w-12 text-platinum-light mx-auto mb-4 drop-shadow-sm" />
+```
 
 ---
 
-## Visual Comparison
+## Accessibility Considerations
 
-```text
-BEFORE (Current - Broken):
-┌─────────────────────────────────────┐
-│ ███████████████████████████████████ │  ← Solid white/card color
-│ █  "Quote text..."                █ │     (neumorphic-card-2 wins)
-│ █  - Author Name                  █ │     White text invisible
-│ ███████████████████████████████████ │
-└─────────────────────────────────────┘
+All three colors have strong contrast against the `bg-black/35` backdrop:
 
-AFTER (Fixed):
-┌─────────────────────────────────────┐
-│ ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ │  ← Frosted glass (bg-white/15)
-│ ░  "Quote text..."                ░ │     Background image visible through
-│ ░  - Author Name                  ░ │     White text readable
-│ ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ │
-└─────────────────────────────────────┘
-```
+- **Gold** (HSL 45, 85%, 55%): Bright warm tone, ~7:1 contrast ratio
+- **Ruby Light** (HSL 348, 83%, 62%): Lighter crimson, ~5:1 contrast ratio, maintains brand identity
+- **Platinum Light** (HSL 210, 5%, 85%): Near-white silver, ~10:1 contrast ratio
+
+All exceed WCAG AA requirements for graphical elements (3:1 minimum).
 
 ---
 
 ## Summary
 
-| Issue | Cause | Fix |
-|-------|-------|-----|
-| White-on-white card | `neumorphic-card-2` base class overrides background | Use `!important` modifiers on bg, blur, border, shadow |
+| Element | Before | After | Semantic Meaning |
+|---------|--------|-------|------------------|
+| Award icon | `text-white` | `text-gold` | Excellence, premium |
+| Users icon | `text-white` | `text-ruby-light` | Warmth, family love |
+| Clock icon | `text-white` | `text-platinum-light` | Timeless reliability |
 
-This single line change will make the testimonial card properly glassmorphic with the frosted glass effect showing the dark background image behind it, ensuring white text is readable with high contrast.
+This approach adds visual interest through color variety while staying within the brand palette and maintaining excellent accessibility.
 
