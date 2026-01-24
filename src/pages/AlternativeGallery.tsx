@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Camera } from "lucide-react";
 import { galleryImages } from "@/data/galleryImages";
 import { galleryCategories } from "@/data/galleryCategories";
 import { ImmersiveMobileHero } from "@/components/gallery/ImmersiveMobileHero";
@@ -7,6 +8,7 @@ import { InteractiveImageGrid } from "@/components/gallery/InteractiveImageGrid"
 import { EnhancedImageModal } from "@/components/gallery/EnhancedImageModal";
 import { GalleryCTA } from "@/components/gallery/GalleryCTA";
 import { PageSection } from "@/components/ui/page-section";
+import { Badge } from "@/components/ui/badge";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 
@@ -83,9 +85,23 @@ const AlternativeGallery = () => {
       {/* Brand Intro - Family Story */}
       <PageSection pattern="b" className="py-8 sm:py-12">
         <div className="max-w-3xl mx-auto text-center px-4">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant font-bold mb-4">
+          {/* Badge + Icon (matching home page pattern) */}
+          <div className="flex items-center justify-center space-x-2 mb-3">
+            <Camera className="h-5 w-5 text-ruby" />
+            <Badge variant="outline" className="border-ruby text-ruby font-script text-sm">
+              Our Gallery
+            </Badge>
+          </div>
+          
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant font-bold mb-3">
             From Our Family Kitchen to Your Special Event
           </h2>
+          
+          {/* Script subtitle */}
+          <p className="text-xl sm:text-2xl font-script text-ruby font-medium mb-3">
+            Memories in Every Bite
+          </p>
+          
           <p className="text-muted-foreground text-base sm:text-lg leading-relaxed">
             As a family-run catering company rooted in authentic Southern cooking, we take pride in bringing 
             people together around exceptional food. Every event we cater receives the same love and attention 
