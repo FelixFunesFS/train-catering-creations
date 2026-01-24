@@ -4,6 +4,7 @@ import { AdminLayout } from '@/components/admin/AdminLayout';
 import { EventsView } from '@/components/admin/events';
 import { PaymentList } from '@/components/admin/billing';
 import { EmailTemplatePreview } from '@/components/admin/settings/EmailTemplatePreview';
+import { EmailDeliveryPanel } from '@/components/admin/settings/EmailDeliveryPanel';
 import { Mail, Cog } from 'lucide-react';
 
 export type AdminView = 'events' | 'billing' | 'settings';
@@ -37,6 +38,10 @@ export function UnifiedAdminDashboard() {
                 <Mail className="h-4 w-4" />
                 Email Templates
               </TabsTrigger>
+              <TabsTrigger value="delivery" className="gap-2">
+                <Mail className="h-4 w-4" />
+                Email Delivery
+              </TabsTrigger>
               <TabsTrigger value="general" className="gap-2">
                 <Cog className="h-4 w-4" />
                 General
@@ -44,6 +49,9 @@ export function UnifiedAdminDashboard() {
             </TabsList>
             <TabsContent value="emails" className="mt-4">
               <EmailTemplatePreview />
+            </TabsContent>
+            <TabsContent value="delivery" className="mt-4">
+              <EmailDeliveryPanel />
             </TabsContent>
             <TabsContent value="general" className="mt-4">
               <div className="text-center py-12 text-muted-foreground">
