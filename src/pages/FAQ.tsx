@@ -106,19 +106,19 @@ const FAQ = () => {
               Our team is here to help! Contact us directly for personalized assistance with your catering needs.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button asChild size="lg" className="neumorphic-button-primary">
+              <Button asChild variant="cta" size="responsive-lg">
                 <a href="tel:8439700265" className="flex items-center gap-2">
                   <Phone className="h-5 w-5" />
                   Call (843) 970-0265
                 </a>
               </Button>
-              <Button asChild variant="outline" size="lg" className="neumorphic-button-secondary">
+              <Button asChild variant="cta-white" size="responsive-lg">
                 <a href="mailto:soultrainseatery@gmail.com" className="flex items-center gap-2">
                   <Mail className="h-5 w-5" />
                   Email Us
                 </a>
               </Button>
-              <Button asChild variant="outline" size="lg" className="neumorphic-button-secondary">
+              <Button asChild variant="outline" size="responsive-lg">
                 <Link to="/request-quote#page-header" className="flex items-center gap-2">
                   <MessageCircle className="h-5 w-5" />
                   Request Quote

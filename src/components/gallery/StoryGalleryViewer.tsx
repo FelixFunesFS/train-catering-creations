@@ -256,7 +256,7 @@ export const StoryGalleryViewer = ({
                     Featured
                   </Badge>
                 )}
-                <Badge className="bg-white/10 text-white border-white/20">
+                <Badge className="bg-black/50 text-white border-white/30 backdrop-blur-sm">
                   {category}
                 </Badge>
               </div>

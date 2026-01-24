@@ -33,9 +33,8 @@ export const MenuCTASection = () => {
                 </Button>
                 <Button 
                   asChild 
-                  variant="outline" 
-                  size="responsive-lg" 
-                  className="border-white border-2 text-white bg-transparent hover:bg-white hover:text-primary"
+                  variant="cta-white" 
+                  size="responsive-lg"
                 >
                   <a href="tel:8439700265">Call (843) 970-0265</a>
                 </Button>
