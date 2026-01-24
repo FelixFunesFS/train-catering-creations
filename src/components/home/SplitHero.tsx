@@ -9,7 +9,6 @@ import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 import { useHeroVisibility } from "@/contexts/HeroVisibilityContext";
 import { Link } from "react-router-dom";
-
 interface HeroImage {
   src: string;
   alt: string;
@@ -24,9 +23,10 @@ export const SplitHero = () => {
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const isMobile = useIsMobile();
-  const { setIsHeroVisible } = useHeroVisibility();
+  const {
+    setIsHeroVisible
+  } = useHeroVisibility();
   const heroSentinelRef = useRef<HTMLDivElement>(null);
-  
   const {
     ref: visualRef,
     isVisible: visualVisible
@@ -48,23 +48,19 @@ export const SplitHero = () => {
   useEffect(() => {
     const sentinel = heroSentinelRef.current;
     if (!sentinel) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsHeroVisible(entry.isIntersecting);
-      },
-      { threshold: 0, rootMargin: '0px' }
-    );
-
+    const observer = new IntersectionObserver(([entry]) => {
+      setIsHeroVisible(entry.isIntersecting);
+    }, {
+      threshold: 0,
+      rootMargin: '0px'
+    });
     observer.observe(sentinel);
-
     return () => {
       observer.disconnect();
       // Reset to not visible when unmounting (leaving home page)
       setIsHeroVisible(false);
     };
   }, [setIsHeroVisible]);
-
   const heroImages: HeroImage[] = [{
     src: "/lovable-uploads/eb77404f-369f-484f-a9ce-786b7f1ddc94.png",
     alt: "Professional catering setup with chafing dishes and elegant floral arrangements",
@@ -199,17 +195,9 @@ export const SplitHero = () => {
         <div ref={visualRef} className={`relative h-[55vh] sm:h-[60vh] md:h-[65vh] overflow-hidden ${visualAnimationClass}`} onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} role="region" aria-label="Image carousel">
           {/* Progress Indicators */}
           <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-20 flex space-x-1">
-            {heroImages.map((_, index) => (
-              <button 
-                key={index} 
-                onClick={() => setCurrentIndex(index)} 
-                className="min-w-[24px] min-h-[24px] flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black/20"
-                aria-label={`Go to slide ${index + 1} of ${heroImages.length}`} 
-                aria-current={index === currentIndex ? 'true' : 'false'}
-              >
+            {heroImages.map((_, index) => <button key={index} onClick={() => setCurrentIndex(index)} className="min-w-[24px] min-h-[24px] flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black/20" aria-label={`Go to slide ${index + 1} of ${heroImages.length}`} aria-current={index === currentIndex ? 'true' : 'false'}>
                 <span className={`h-1 rounded-full transition-all duration-500 ${index === currentIndex ? 'w-8 bg-gradient-ruby-primary' : 'w-3 bg-white/40'}`} />
-              </button>
-            ))}
+              </button>)}
           </div>
 
           {/* Main Image with responsive aspect ratios */}
@@ -220,7 +208,7 @@ export const SplitHero = () => {
 
           {/* Controls */}
           <div className="absolute top-4 right-4 z-20 flex space-x-2">
-            <Button variant="ghost" size="icon" onClick={togglePlayPause} className="bg-black/60 backdrop-blur-sm text-white hover:bg-black/70 min-w-[44px] min-h-[44px] shadow-lg border border-white/20" aria-label={isPlaying ? 'Pause slideshow' : 'Play slideshow'}>
+            <Button variant="ghost" size="icon" onClick={togglePlayPause} className="bg-black/60 backdrop-blur-sm hover:bg-black/70 min-w-[44px] min-h-[44px] shadow-lg border border-white/20 text-primary" aria-label={isPlaying ? 'Pause slideshow' : 'Play slideshow'}>
               {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
             </Button>
           </div>
@@ -290,12 +278,7 @@ export const SplitHero = () => {
         </div>
         
         {/* Hero Sentinel - triggers MobileActionBar visibility */}
-        <div 
-          ref={heroSentinelRef}
-          id="hero-sentinel"
-          aria-hidden="true"
-          className="absolute bottom-0 left-0 w-full h-1 pointer-events-none"
-        />
+        <div ref={heroSentinelRef} id="hero-sentinel" aria-hidden="true" className="absolute bottom-0 left-0 w-full h-1 pointer-events-none" />
       </section>;
   }
 
@@ -311,17 +294,9 @@ export const SplitHero = () => {
 
         {/* Progress Indicators */}
         <div className="absolute top-6 left-6 z-20 flex space-x-1">
-          {heroImages.map((_, index) => (
-            <button 
-              key={index} 
-              onClick={() => setCurrentIndex(index)} 
-              className="min-w-[24px] min-h-[24px] flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black/20 hover:scale-110 transition-transform"
-              aria-label={`Go to slide ${index + 1} of ${heroImages.length}`} 
-              aria-current={index === currentIndex ? 'true' : 'false'}
-            >
+          {heroImages.map((_, index) => <button key={index} onClick={() => setCurrentIndex(index)} className="min-w-[24px] min-h-[24px] flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black/20 hover:scale-110 transition-transform" aria-label={`Go to slide ${index + 1} of ${heroImages.length}`} aria-current={index === currentIndex ? 'true' : 'false'}>
               <span className={`h-2 rounded-full transition-all duration-500 ${index === currentIndex ? 'w-12 bg-gradient-ruby-primary' : 'w-4 bg-white/50 hover:bg-white/70'}`} />
-            </button>
-          ))}
+            </button>)}
         </div>
 
         {/* Controls */}
