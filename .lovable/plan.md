@@ -1,178 +1,184 @@
 
-# Wedding Menu Descriptions, Elegant Typography, and Color Fixes
+
+# Wedding Menu Elegance & Layout Fixes
 
 ## Overview
 
-This plan addresses four issues on the menu page:
-1. Display descriptions for wedding menu items
-2. Use elegant script font for wedding menu section titles
-3. Remove faded overlay affecting page visibility
-4. Fix the CTA "Call" button visibility to match other pages
+This plan addresses four improvements to the menu page:
+1. Remove descriptions from regular catering menu items (keep only on wedding)
+2. Keep category title fonts consistent between both menus (remove script font)
+3. Add elegant styling to wedding menu sections while maintaining 3-column layout
+4. Remove the decorative red dot separator under the toggle
 
 ---
 
 ## Issue Analysis
 
-### Issue 1: Wedding Descriptions Not Showing
-The `CompactMenuItem` component only displays `name`. Wedding menu items in `weddingMenuItems` have rich `description` fields that should be shown for the elegant wedding experience.
+### Issue 1: Descriptions Showing on Both Menus
+Currently `CompactMenuItem` always displays the `description` prop when provided. Regular menu items from `menuData` don't have descriptions (just names), but passing the prop unconditionally is problematic. Need to conditionally pass descriptions only when in wedding mode.
 
-### Issue 2: Wedding Section Titles Need Elegant Font
-When viewing the wedding menu, section headers like "Appetizers", "Entrées" should use `font-script` (Dancing Script) for an elegant, wedding-invitation feel.
-
-### Issue 3: Decorative Overlays Fading Content
-Lines 94-96 in `SimplifiedMenu.tsx` contain:
+### Issue 2: Different Title Fonts
+Lines 57-60 in `CollapsibleCategory.tsx` apply `font-script` for wedding mode:
 ```tsx
-<div className="absolute inset-0 bg-gradient-to-br from-background/50 to-accent/5 pointer-events-none" />
-<div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/2 rounded-full blur-3xl pointer-events-none" />
-<div className="absolute bottom-1/3 right-1/4 w-64 h-64 bg-accent/3 rounded-full blur-2xl pointer-events-none" />
+isWeddingMode ? "font-script text-xl sm:text-2xl" : "font-elegant"
 ```
-These create a subtle wash over the entire page that makes the crimson CTA appear faded compared to the footer.
+User wants both to use `font-elegant` consistently.
 
-### Issue 4: Call Button Nearly Invisible
-The menu CTA uses `border-primary-foreground/50` for the outline button, but the home page CTA uses `cta-white` variant which provides much better contrast.
+### Issue 3: Wedding Menu Needs More Elegance
+Current wedding items look identical to regular items. Need to add:
+- Subtle decorative ornaments in the category header
+- Enhanced item cards with elegant borders/styling
+- Possibly a cream/pearl background tint for wedding sections
+
+### Issue 4: Red Circle Dot
+Lines 127-139 in `SimplifiedMenu.tsx` create a decorative separator with a centered red dot:
+```tsx
+<div className="w-8 h-8 bg-primary/8 rounded-full flex items-center justify-center">
+  <div className="w-2 h-2 bg-primary rounded-full" />
+</div>
+```
+User wants this removed.
 
 ---
 
 ## Solution Design
 
-### Change 1: Add Description to CompactMenuItem
+### Change 1: Conditional Description Display
+
+**File: `src/components/menu/CollapsibleCategory.tsx`**
+
+Only pass `description` to `CompactMenuItem` when in wedding mode:
+
+```tsx
+<CompactMenuItem
+  key={item.id}
+  name={item.name}
+  description={isWeddingMode ? item.description : undefined}
+  isWeddingMode={isWeddingMode}
+/>
+```
+
+### Change 2: Consistent Category Title Font
+
+**File: `src/components/menu/CollapsibleCategory.tsx`**
+
+Remove the conditional font styling, use `font-elegant` for both:
+
+```tsx
+// BEFORE:
+isWeddingMode ? "font-script text-xl sm:text-2xl" : "font-elegant"
+
+// AFTER:
+"font-elegant"  // Same for both modes
+```
+
+### Change 3: Elegant Wedding Item Styling
 
 **File: `src/components/menu/CompactMenuItem.tsx`**
 
-Add optional `description` prop and display it below the name when provided:
+Add `isWeddingMode` prop to apply elegant styling:
 
 ```tsx
 interface CompactMenuItemProps {
   name: string;
-  description?: string;  // NEW
+  description?: string;
+  isWeddingMode?: boolean;  // NEW
   className?: string;
 }
-
-export const CompactMenuItem = ({ 
-  name, 
-  description,  // NEW
-  className 
-}: CompactMenuItemProps) => {
-  return (
-    <div className={cn(...)}>
-      <div className="flex-1">
-        <h4 className="font-medium text-foreground ...">
-          {name}
-        </h4>
-        {description && (
-          <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-            {description}
-          </p>
-        )}
-      </div>
-    </div>
-  );
-};
 ```
 
-### Change 2: Pass Description from CollapsibleCategory
-
-**File: `src/components/menu/CollapsibleCategory.tsx`**
-
-Update the `CompactMenuItem` usage to pass the description:
-
-```tsx
-{visibleItems.map((item) => (
-  <CompactMenuItem
-    key={item.id}
-    name={item.name}
-    description={item.description}  // NEW
-  />
-))}
-```
-
-### Change 3: Add Elegant Font for Wedding Mode
-
-**File: `src/components/menu/CollapsibleCategory.tsx`**
-
-Add a prop to indicate wedding mode and apply `font-script` to titles:
+When `isWeddingMode` is true, apply:
+- Cream/pearl background tint
+- Elegant gold/primary border accent
+- Decorative flourish element
+- Refined typography styling for descriptions
 
 ```tsx
-interface CollapsibleCategoryProps {
-  id: string;
-  title: string;
-  subtitle: string;
-  items: MenuItem[];
-  defaultExpanded?: boolean;
-  initialItemCount?: number;
-  isWeddingMode?: boolean;  // NEW
-}
-
-// In the component:
-<h2 className={cn(
-  "text-lg sm:text-xl font-semibold text-foreground",
-  isWeddingMode ? "font-script text-xl sm:text-2xl" : "font-elegant"
+<div className={cn(
+  "group relative rounded-lg p-4 transition-all duration-200",
+  "touch-target-comfortable min-h-[48px]",
+  isWeddingMode
+    ? "bg-cream/30 border border-primary/20 hover:border-primary/40 hover:bg-cream/50 shadow-sm"
+    : "bg-background/20 hover:bg-background/40 border border-border/10 hover:border-primary/30",
+  className
 )}>
-  {title}
-</h2>
+  {/* Wedding mode decorative corner */}
+  {isWeddingMode && (
+    <div className="absolute top-0 right-0 w-6 h-6 border-t border-r border-primary/20 rounded-tr-lg" />
+  )}
+  
+  <div className="flex-1">
+    <h4 className={cn(
+      "font-medium transition-colors text-base leading-relaxed",
+      isWeddingMode 
+        ? "text-foreground font-elegant group-hover:text-primary" 
+        : "text-foreground group-hover:text-primary"
+    )}>
+      {name}
+    </h4>
+    {description && (
+      <p className={cn(
+        "mt-1 leading-relaxed",
+        isWeddingMode 
+          ? "text-sm text-muted-foreground italic font-light"
+          : "text-xs text-muted-foreground"
+      )}>
+        {description}
+      </p>
+    )}
+  </div>
+</div>
 ```
+
+**File: `src/components/menu/CollapsibleCategory.tsx`**
+
+Add elegant styling to the category wrapper when in wedding mode:
+
+```tsx
+<div className={cn(
+  "rounded-xl overflow-hidden border bg-card/50 backdrop-blur-sm",
+  isWeddingMode 
+    ? "border-primary/20 shadow-md" 
+    : "border-border/50"
+)}>
+```
+
+Add decorative ornament after the category header for wedding mode:
+
+```tsx
+{/* Wedding mode decorative divider */}
+{isWeddingMode && isExpanded && (
+  <div className="flex items-center justify-center py-2 bg-cream/10">
+    <div className="flex items-center gap-2">
+      <div className="w-8 h-px bg-primary/30" />
+      <span className="text-primary/40 text-xs">✦</span>
+      <div className="w-8 h-px bg-primary/30" />
+    </div>
+  </div>
+)}
+```
+
+### Change 4: Remove Red Dot Separator
 
 **File: `src/pages/SimplifiedMenu.tsx`**
 
-Pass the wedding mode prop:
+Remove the entire visual separator block (lines 127-139):
 
 ```tsx
-<CollapsibleCategory
-  key={`${menuStyle}-${category.id}`}
-  id={category.id}
-  title={category.title}
-  subtitle={category.subtitle}
-  items={category.items}
-  defaultExpanded={index === 0}
-  isWeddingMode={menuStyle === 'wedding'}  // NEW
-/>
-```
-
-### Change 4: Remove Decorative Overlays
-
-**File: `src/pages/SimplifiedMenu.tsx`**
-
-Remove or significantly reduce the faded overlay elements (lines 94-96):
-
-**BEFORE:**
-```tsx
-{/* Decorative background elements */}
-<div className="absolute inset-0 bg-gradient-to-br from-background/50 to-accent/5 pointer-events-none" />
-<div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/2 rounded-full blur-3xl pointer-events-none" />
-<div className="absolute bottom-1/3 right-1/4 w-64 h-64 bg-accent/3 rounded-full blur-2xl pointer-events-none" />
-```
-
-**AFTER:**
-Remove these entirely, or make them extremely subtle so they don't affect the CTA:
-```tsx
-{/* Subtle background accent - does not affect content visibility */}
-<div className="absolute top-0 right-0 w-72 h-72 bg-primary/[0.02] rounded-full blur-3xl pointer-events-none" />
-```
-
-### Change 5: Fix Call Button Visibility
-
-**File: `src/components/menu/MenuCTASection.tsx`**
-
-Change the outline button to use full white border like the home page:
-
-**BEFORE:**
-```tsx
-<Button 
-  asChild 
-  variant="outline" 
-  size="responsive-lg" 
-  className="border-primary-foreground/50 text-primary-foreground hover:bg-primary-foreground hover:text-primary"
->
-```
-
-**AFTER:**
-```tsx
-<Button 
-  asChild 
-  variant="outline" 
-  size="responsive-lg" 
-  className="border-white border-2 text-white bg-transparent hover:bg-white hover:text-primary"
->
+// DELETE THIS ENTIRE BLOCK:
+{/* Visual separator */}
+<div className="relative">
+  <div className="absolute inset-0 flex items-center" aria-hidden="true">
+    <div className="w-full border-t border-muted/40" />
+  </div>
+  <div className="relative flex justify-center">
+    <span className="px-6 bg-gradient-hero text-muted-foreground">
+      <div className="w-8 h-8 bg-primary/8 rounded-full flex items-center justify-center">
+        <div className="w-2 h-2 bg-primary rounded-full" />
+      </div>
+    </span>
+  </div>
+</div>
 ```
 
 ---
@@ -181,53 +187,66 @@ Change the outline button to use full white border like the home page:
 
 | File | Changes |
 |------|---------|
-| `src/components/menu/CompactMenuItem.tsx` | Add description prop and render it |
-| `src/components/menu/CollapsibleCategory.tsx` | Pass description to items, add isWeddingMode prop for elegant font |
-| `src/pages/SimplifiedMenu.tsx` | Remove faded overlays, pass isWeddingMode prop |
-| `src/components/menu/MenuCTASection.tsx` | Fix Call button border visibility |
+| `src/components/menu/CompactMenuItem.tsx` | Add `isWeddingMode` prop for elegant styling |
+| `src/components/menu/CollapsibleCategory.tsx` | Remove script font, add elegant wrapper/divider for wedding mode, pass `isWeddingMode` to items |
+| `src/pages/SimplifiedMenu.tsx` | Remove red dot separator |
 
 ---
 
-## Visual Result
+## Visual Comparison
 
-### Before
-- Wedding items show name only
-- Section titles use same font for both menus
-- Page has subtle faded overlay affecting colors
-- Call button outline is nearly invisible
-
-### After
-- Wedding items show name + description for premium feel
-- Wedding section titles use elegant script font (Dancing Script)
-- Clean background without color-washing overlays
-- Call button has visible white border matching home page
-
----
-
-## Typography Preview
-
-**Catering Menu Mode:**
+### Regular Catering Menu Item
 ```text
-Appetizers (font-elegant, sans-serif)
-├── Charcuterie Board
-├── Fruit Platter
-└── ...
++-------------------------+
+| Charcuterie Board       |
++-------------------------+
+(Simple, clean, no description)
 ```
 
-**Wedding Menu Mode:**
+### Wedding Menu Item
 ```text
-𝒜𝓅𝓅𝑒𝓉𝒾𝓏𝑒𝓇𝓈 (font-script, elegant cursive)
-├── Fresh Local Fruit Platter
-│   "Beautifully arranged seasonal fruits"
-├── Signature Charcuterie Board
-│   "Artisan meats, cheeses, and accompaniments"
-└── ...
++-------------------------+
+|  ┌─ decorative corner ─┐
+| Signature Charcuterie   |
+| Board                   |
+| "Artisan meats and      |
+|  cheeses elegantly      |
+|  presented"             |
++-------------------------+
+(Cream background, gold accents, italic description)
+```
+
+### Wedding Category Header
+```text
++----------------------------------------+
+| ▾ Appetizers      (12 items)           |
+|         ——— ✦ ———                      |
+|  [Item] [Item] [Item]                  |
+|  [Item] [Item] [Item]                  |
++----------------------------------------+
 ```
 
 ---
 
-## Mobile Considerations
+## Responsiveness
 
-- Descriptions on wedding items will be smaller text (text-xs) to maintain compact grid
-- Script font will be slightly larger on wedding mode (text-xl vs text-lg) for readability
-- All touch targets remain 44px minimum
+The 3-column layout is preserved:
+- Mobile: 2 columns (`grid-cols-2`)
+- Desktop: 3 columns (`md:grid-cols-3`)
+
+Wedding styling adjustments for mobile:
+- Smaller decorative corner (4px instead of 6px)
+- Slightly reduced padding on cream background
+- Description text stays at `text-sm` for readability
+
+---
+
+## Red Dot Answer
+
+The red circle dot underneath the toggle (lines 127-139 in `SimplifiedMenu.tsx`) is a **decorative visual separator**. It consists of:
+- A horizontal line across the full width
+- A centered container with a soft red circular background
+- A small solid red dot in the center
+
+It was added as a visual break between the toggle and the menu content, but will be removed as requested.
+
