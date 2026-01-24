@@ -18,15 +18,15 @@ export const galleryCategories: GalleryCategory[] = [
     previewImage: "/lovable-uploads/wedding-card-preview.jpg"
   },
   { 
-    id: "desserts", 
-    name: "Artisan Desserts",
-    description: "Custom cakes, pastries, and beautifully crafted sweet treats",
-    previewImage: "/lovable-uploads/desserts-card-preview.jpg"
-  },
-  { 
     id: "buffet", 
     name: "Buffet Service",
     description: "Professional buffet service for large events and gatherings",
     previewImage: "/lovable-uploads/buffet-card-preview.png"
+  },
+  { 
+    id: "desserts", 
+    name: "Artisan Desserts",
+    description: "Custom cakes, pastries, and beautifully crafted sweet treats",
+    previewImage: "/lovable-uploads/desserts-card-preview.jpg"
   }
 ];

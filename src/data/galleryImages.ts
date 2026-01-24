@@ -32,4 +32,4 @@ const allImages: GalleryImage[] = [
   ...privateImages
 ];
 
-export const galleryImages: GalleryImage[] = allImages.sort(() => 0.5 - Math.random());
+export const galleryImages: GalleryImage[] = allImages;
