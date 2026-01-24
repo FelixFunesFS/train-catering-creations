@@ -1,158 +1,210 @@
 
-# Unified Menu Page with Regular/Wedding Toggle
+# Simplified Menu with Collapsible Categories
 
-## ✅ IMPLEMENTATION COMPLETE
+## Overview
 
-This plan consolidates the separate `/menu` and `/wedding-menu` pages into a single unified menu experience at `/menu`. Users will toggle between "Catering Menu" (regular events) and "Wedding & Events" (elegant weddings) using a prominent toggle at the top, while each mode maintains its distinct visual aesthetic.
+Redesign the unified menu page to remove the Regular/Wedding toggle and replace it with a single, easy-to-scan menu featuring all categories as collapsible sections. The layout will use 2-3 columns on desktop for quick scanning, and the "Request Quote" CTA will be moved to after all menu sections.
 
 ---
 
 ## Design Philosophy
 
 ### User Experience Goals
-- **Quick scanning**: Both modes present items in clean, scannable lists
-- **Clear differentiation**: Visual cues distinguish regular vs. wedding menus
-- **Easy quote access**: Context-aware CTA button adapts to selected menu type
-- **Mobile-first**: Toggle is thumb-friendly; menu sections scroll smoothly
+- **Instant scanning**: All categories visible at a glance with expand/collapse
+- **Clean hierarchy**: Category headers as accordion triggers, items in grid
+- **Minimal friction**: No toggles or mode switching - one unified view
+- **Clear conversion path**: CTA appears after users browse the full menu
 
-### Visual Distinction
+### Layout Strategy
 
-| Aspect | Catering Menu | Wedding Menu |
-|--------|---------------|--------------|
-| Typography | Clean sans-serif headers | Elegant script headers |
-| Layout | Compact grid cards | Flowing list with descriptions |
-| Items shown | Name only | Name + description + featured badges |
-| Sections | Category tabs (Appetizers, Entrees...) | All categories stacked with dividers |
-| Background | Gradient with hero images | Paper texture with ornamental dividers |
+```text
+MOBILE (1 column):
++---------------------------+
+|    [Page Header]          |
+|    (no CTA button)        |
++---------------------------+
+| [v] Appetizers            |
+|   Item  |  Item           |
+|   Item  |  Item           |
++---------------------------+
+| [v] Entrees               |
+|   Item  |  Item           |
+|   Item  |  Item           |
++---------------------------+
+| [v] Sides                 |
++---------------------------+
+| [v] Desserts              |
++---------------------------+
+|    [Request Quote CTA]    |
++---------------------------+
+```
+
+```text
+DESKTOP (3 columns):
++------------------------------------------+
+|           [Page Header]                  |
+|           (no CTA button)                |
++------------------------------------------+
+| [v] Appetizers                           |
+|  Item   |   Item   |   Item              |
+|  Item   |   Item   |   Item              |
++------------------------------------------+
+| [v] Entrees                              |
+|  Item   |   Item   |   Item              |
++------------------------------------------+
+| [v] Sides                                |
++------------------------------------------+
+| [v] Desserts                             |
++------------------------------------------+
+|         [Request Quote CTA]              |
++------------------------------------------+
+```
 
 ---
 
-## Architecture
+## Component Architecture
 
-### Route Changes
+### New/Modified Components
 
-```text
-BEFORE:
-  /menu         → Menu.tsx (regular)
-  /wedding-menu → WeddingMenu.tsx (wedding)
+| Component | Status | Purpose |
+|-----------|--------|---------|
+| `SimplifiedMenu.tsx` | NEW | Main page replacing UnifiedMenu |
+| `CollapsibleCategory.tsx` | NEW | Accordion category with grid items |
+| `SimpleMenuHeader.tsx` | NEW | Simplified header without CTA |
+| `MenuCTASection.tsx` | NEW | Bottom CTA after menu content |
 
-AFTER:
-  /menu                  → UnifiedMenu.tsx (default: regular)
-  /menu?style=wedding    → UnifiedMenu.tsx (wedding mode)
-  /wedding-menu          → Redirect to /menu?style=wedding
-```
+### Components to Remove/Deprecate
 
-### Component Structure
-
-```text
-src/pages/
-  └── UnifiedMenu.tsx (NEW - main unified page)
-
-src/components/menu/
-  ├── MenuStyleToggle.tsx (NEW - Regular/Wedding toggle)
-  ├── RegularMenuView.tsx (NEW - extracted from Menu.tsx)
-  ├── WeddingMenuView.tsx (NEW - extracted from WeddingMenu.tsx)
-  ├── UnifiedMenuHeader.tsx (NEW - adapts title to style)
-  └── [existing components remain]
-```
+| Component | Action |
+|-----------|--------|
+| `MenuStyleToggle.tsx` | Remove (no longer needed) |
+| `UnifiedMenuHeader.tsx` | Replace with SimpleMenuHeader |
+| `RegularMenuView.tsx` | Remove (consolidated) |
+| `WeddingMenuView.tsx` | Remove (consolidated) |
+| `UnifiedMenu.tsx` | Replace with SimplifiedMenu |
 
 ---
 
 ## Component Details
 
-### 1. MenuStyleToggle (NEW)
+### 1. CollapsibleCategory (NEW)
 
-A prominent toggle component at the top of the menu page:
+A full-width accordion section for each menu category:
 
-**Desktop Layout:**
 ```text
-+------------------------------------------------------------+
-|  [  Catering Menu  ]    [  Wedding & Events  ]             |
-|       (active)                                              |
-+------------------------------------------------------------+
-```
-
-**Mobile Layout:**
-```text
-+----------------------------------+
-|   [ Catering ]  [ Weddings ]     |
-+----------------------------------+
++--------------------------------------------------+
+| [Chevron] Appetizers (19 items)            [-/+] |
++--------------------------------------------------+
+| When expanded:                                   |
+| +------------+ +------------+ +------------+     |
+| | Charcuterie| | Fruit      | | Cheese     |     |
+| | Board    ★ | | Platter    | | Platter    |     |
+| +------------+ +------------+ +------------+     |
+| +------------+ +------------+ +------------+     |
+| | Deviled    | | Bruschetta | | Sliders    |     |
+| | Eggs       | |            | |          ★ |     |
+| +------------+ +------------+ +------------+     |
+|            [ Show 13 More Items ]                |
++--------------------------------------------------+
 ```
 
 **Features:**
-- Pill-style toggle with smooth animation
-- Active state uses primary color with subtle shadow
-- URL updates to include `?style=wedding` when toggled
-- Preserves scroll position on toggle
+- Chevron icon rotates on expand/collapse
+- Item count shown in header
+- Grid layout: `grid-cols-2 sm:grid-cols-2 md:grid-cols-3`
+- Show first 6-9 items, "Show More" button for rest
+- Smooth height animation on expand/collapse
+- Popular items marked with star badge
 
-### 2. UnifiedMenuHeader (NEW)
+**Props:**
+```tsx
+interface CollapsibleCategoryProps {
+  id: string;
+  title: string;
+  subtitle: string;
+  items: MenuItem[];
+  defaultExpanded?: boolean;
+  initialItemCount?: number; // Default 9
+}
+```
 
-Adapts the page header based on selected style:
+### 2. SimpleMenuHeader (NEW)
 
-**Catering Mode:**
-- Title: "Crafted with Soul, Seasoned with Love"
-- Description: Current MenuHeader description
-- CTA: "Request Quote" → `/request-quote/regular#page-header`
-
-**Wedding Mode:**
-- Title: "Elegant Wedding Catering with Southern Soul"
-- Description: Refined wedding description
-- CTA: "Plan Your Wedding" → `/request-quote/wedding#page-header`
-
-### 3. RegularMenuView (NEW)
-
-Extracted from current `Menu.tsx`:
-- `HorizontalCategoryNav` for category tabs
-- Category hero image with overlay
-- `CompactMenuLayout` sections with `CompactMenuItem` grid
-- Clean, scannable format
-
-### 4. WeddingMenuView (NEW)
-
-Extracted from current `WeddingMenu.tsx`:
-- All sections visible (stacked, no tabs)
-- `ElegantMenuSection` with `ElegantMenuItem` components
-- `MenuDivider` between sections
-- Script typography and ornamental elements
-- Service cards section at bottom
-
-### 5. UnifiedMenu (NEW)
-
-Main page component:
+Streamlined header without the CTA button:
 
 ```tsx
-const UnifiedMenu = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const menuStyle = searchParams.get('style') === 'wedding' ? 'wedding' : 'regular';
-  
-  const handleStyleChange = (style: 'regular' | 'wedding') => {
-    if (style === 'wedding') {
-      setSearchParams({ style: 'wedding' });
-    } else {
-      setSearchParams({});
-    }
-  };
-  
+<div className="text-center py-8 lg:py-12">
+  <h1 className="text-3xl sm:text-4xl lg:text-5xl font-elegant">
+    Our Catering Menu
+  </h1>
+  <p className="text-muted-foreground max-w-2xl mx-auto mt-4">
+    Authentic Southern cuisine crafted with love for weddings, 
+    corporate events, and special celebrations
+  </p>
+</div>
+```
+
+### 3. MenuCTASection (NEW)
+
+Prominent CTA section appearing after all menu categories:
+
+```text
++--------------------------------------------------+
+|                                                  |
+|     Ready to Plan Your Event?                    |
+|                                                  |
+|  Browse our menu and let us create a custom      |
+|  quote for your special occasion.                |
+|                                                  |
+|     [ Request a Free Quote ]                     |
+|                                                  |
++--------------------------------------------------+
+```
+
+**Features:**
+- Warm background pattern (pattern-a or primary gradient)
+- Large, prominent CTA button
+- Optional secondary link to contact/FAQ
+- Responsive padding
+
+### 4. SimplifiedMenu (NEW - Main Page)
+
+```tsx
+const SimplifiedMenu = () => {
+  // Combine all menu items from menuData
+  const categories = [
+    { id: 'appetizers', ...menuData.appetizers },
+    { id: 'entrees', ...menuData.entrees },
+    { id: 'sides', ...menuData.sides },
+    { id: 'desserts', ...menuData.desserts },
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-hero">
-      <QuickActionButton style={menuStyle} />
+      <QuickActionButton />
+      
+      <SimpleMenuHeader />
       
       <section className="py-6 lg:py-12">
-        <UnifiedMenuHeader style={menuStyle} />
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="space-y-4 lg:space-y-6">
+            {categories.map((category, index) => (
+              <CollapsibleCategory
+                key={category.id}
+                id={category.id}
+                title={category.title}
+                subtitle={category.subtitle}
+                items={flattenCategoryItems(category.sections)}
+                defaultExpanded={index === 0}
+              />
+            ))}
+          </div>
+        </div>
       </section>
       
-      <MenuStyleToggle 
-        activeStyle={menuStyle} 
-        onStyleChange={handleStyleChange} 
-      />
+      <MenuCTASection />
       
-      {menuStyle === 'regular' ? (
-        <RegularMenuView />
-      ) : (
-        <WeddingMenuView />
-      )}
-      
-      <MenuContact style={menuStyle} />
+      <MenuContact />
     </div>
   );
 };
@@ -160,127 +212,54 @@ const UnifiedMenu = () => {
 
 ---
 
-## Data Flow
+## Data Handling
 
-### Existing Data (No Changes Needed)
+### Flattening Menu Items
 
-The `menuData.ts` file already has both data structures:
+The current `menuData` has nested sections within categories. For the simplified view, flatten all section items into a single array per category:
 
 ```tsx
-// Regular menu (nested with sections)
-export const menuData = {
-  appetizers: { sections: [...] },
-  entrees: { sections: [...] },
-  sides: { sections: [...] },
-  desserts: { sections: [...] }
-};
-
-// Wedding menu (flat premium items)
-export const weddingMenuItems = {
-  appetizers: [...],
-  entrees: [...],
-  sides: [...],
-  desserts: [...]
+const flattenCategoryItems = (sections: MenuSection[]): MenuItem[] => {
+  return sections.flatMap(section => 
+    section.items.map(item => {
+      if (typeof item === 'string') {
+        return { id: item.toLowerCase().replace(/\s/g, '-'), name: item };
+      }
+      return item;
+    })
+  );
 };
 ```
 
+**Result:**
+- Appetizers: ~19 items (combined from Platters, Signature Bites, Classic Starters)
+- Entrees: ~29 items (combined from Poultry, Beef & Pork, Seafood, Plant-Based)
+- Sides: ~20 items (combined from Comfort Classics, Fresh & Light)
+- Desserts: ~10 items (combined from Signature Cakes, Specialty Treats)
+
 ---
 
-## Navigation Updates
+## Grid Responsiveness
 
-### Header.tsx
+### Column Breakpoints
 
-Update navigation link:
-```tsx
-// FROM:
-{ name: "Wedding & Events", href: "/wedding-menu" }
+```css
+/* Item grid within each category */
+.menu-item-grid {
+  grid-template-columns: repeat(2, 1fr);  /* Mobile: 2 columns */
+}
 
-// TO:
-{ name: "Wedding Menu", href: "/menu?style=wedding" }
+@media (min-width: 768px) {
+  .menu-item-grid {
+    grid-template-columns: repeat(3, 1fr);  /* Tablet+: 3 columns */
+  }
+}
 ```
 
-### App.tsx Route Changes
-
-```tsx
-// Add redirect for old wedding-menu URL
-<Route path="/wedding-menu" element={<Navigate to="/menu?style=wedding" replace />} />
-
-// Update menu route
-<Route path="/menu" element={<UnifiedMenu />} />
-```
-
-### CTA Links Throughout Site
-
-Update links in:
-- `WeddingMenuSplitHero.tsx` - Link to `/menu?style=wedding`
-- `SplitHero.tsx` - Keep regular menu link
-- Footer links - Update if present
-
----
-
-## Mobile Considerations
-
-### Toggle Behavior
-- Fixed position below sticky header when scrolling
-- Large touch targets (44px minimum)
-- Smooth fade transition between views
-
-### Menu Sections
-- Regular: Category tabs scroll horizontally
-- Wedding: All sections stacked vertically with collapse/expand
-
-### Quick Action Button
-- Adapts CTA based on current menu style
-- "Request Quote" for regular, "Plan Wedding" for wedding
-
----
-
-## Implementation Steps
-
-### Phase 1: Create New Components
-
-1. **Create `MenuStyleToggle.tsx`**
-   - Pill-style toggle with animation
-   - URL parameter management
-   - Mobile-responsive design
-
-2. **Create `UnifiedMenuHeader.tsx`**
-   - Dynamic title/description based on style
-   - Context-aware CTA button
-
-3. **Create `RegularMenuView.tsx`**
-   - Extract render logic from `Menu.tsx`
-   - Keep all existing animations and interactions
-
-4. **Create `WeddingMenuView.tsx`**
-   - Extract menu sections from `WeddingMenu.tsx`
-   - Include service cards section
-
-### Phase 2: Create Main Page
-
-5. **Create `UnifiedMenu.tsx`**
-   - Import and compose all components
-   - URL parameter handling with `useSearchParams`
-   - Smooth transition between views
-
-### Phase 3: Update Routes & Navigation
-
-6. **Update `App.tsx`**
-   - Change `/menu` route to `UnifiedMenu`
-   - Add redirect from `/wedding-menu` to `/menu?style=wedding`
-   - Remove old `WeddingMenu` route
-
-7. **Update `Header.tsx`**
-   - Change "Wedding & Events" nav link
-
-8. **Update CTA links site-wide**
-   - Update any hardcoded `/wedding-menu` links
-
-### Phase 4: Cleanup (Optional)
-
-9. **Archive old pages** (keep for reference initially)
-   - `Menu.tsx` → functionality extracted
-   - `WeddingMenu.tsx` → functionality extracted
+### Touch Targets
+- Category headers: Full-width clickable area, min-height 48px
+- Menu items: min-height 48px with comfortable padding
+- Show More button: min-height 44px
 
 ---
 
@@ -288,70 +267,127 @@ Update links in:
 
 | File | Purpose |
 |------|---------|
-| `src/components/menu/MenuStyleToggle.tsx` | Toggle component |
-| `src/components/menu/UnifiedMenuHeader.tsx` | Dynamic header |
-| `src/components/menu/RegularMenuView.tsx` | Regular menu content |
-| `src/components/menu/WeddingMenuView.tsx` | Wedding menu content |
-| `src/pages/UnifiedMenu.tsx` | Main unified page |
+| `src/pages/SimplifiedMenu.tsx` | Main menu page |
+| `src/components/menu/CollapsibleCategory.tsx` | Accordion category section |
+| `src/components/menu/SimpleMenuHeader.tsx` | Simplified page header |
+| `src/components/menu/MenuCTASection.tsx` | Bottom CTA section |
 
 ## Files to Modify
 
 | File | Changes |
 |------|---------|
-| `src/App.tsx` | Update routes, add redirect |
-| `src/components/Header.tsx` | Update nav link |
-| `src/components/menu/QuickActionButton.tsx` | Add style prop for context-aware CTA |
-| `src/components/menu/MenuContact.tsx` | Add style prop for context-aware content |
+| `src/App.tsx` | Update `/menu` route to use `SimplifiedMenu` |
+| `src/components/Header.tsx` | Update "Wedding & Events" nav to just point to `/menu` (or remove if redundant) |
 
-## Files to Archive (After Verification)
+## Files to Remove (After Verification)
 
-| File | Status |
+| File | Reason |
 |------|--------|
-| `src/pages/Menu.tsx` | Can be removed after extraction |
-| `src/pages/WeddingMenu.tsx` | Can be removed after extraction |
+| `src/pages/UnifiedMenu.tsx` | Replaced by SimplifiedMenu |
+| `src/components/menu/MenuStyleToggle.tsx` | No longer needed |
+| `src/components/menu/UnifiedMenuHeader.tsx` | Replaced by SimpleMenuHeader |
+| `src/components/menu/RegularMenuView.tsx` | Consolidated into SimplifiedMenu |
+| `src/components/menu/WeddingMenuView.tsx` | Consolidated into SimplifiedMenu |
 
 ---
 
-## Technical Notes
+## Implementation Steps
 
-### URL Parameter Strategy
+### Phase 1: Create Core Components
 
-Using `?style=wedding` instead of a separate route:
-- Enables deep linking to specific menu style
-- Allows browser back/forward to work naturally
-- Can easily share links to specific menu type
+1. **Create `CollapsibleCategory.tsx`**
+   - Accordion header with chevron animation
+   - Item count badge
+   - Grid layout for items (2-col mobile, 3-col desktop)
+   - Show More/Less functionality
+   - Reuse `CompactMenuItem` for individual items
 
-### Animation Transitions
+2. **Create `SimpleMenuHeader.tsx`**
+   - Clean header without CTA
+   - Inclusive messaging for all event types
 
-When toggling between styles:
+3. **Create `MenuCTASection.tsx`**
+   - Warm background section
+   - Prominent quote request button
+   - Links to `/request-quote#page-header`
+
+### Phase 2: Create Main Page
+
+4. **Create `SimplifiedMenu.tsx`**
+   - Import all categories from `menuData`
+   - Flatten section items per category
+   - Render CollapsibleCategory for each
+   - First category expanded by default
+
+### Phase 3: Update Routes & Navigation
+
+5. **Update `App.tsx`**
+   - Change `/menu` route to `SimplifiedMenu`
+   - Keep `/wedding-menu` redirect to `/menu`
+
+6. **Update `Header.tsx`**
+   - Simplify navigation (optionally remove separate Wedding link)
+
+### Phase 4: Cleanup
+
+7. **Remove deprecated components**
+   - After verifying the new menu works correctly
+
+---
+
+## Visual Styling
+
+### Category Header Styling
+
 ```tsx
-<motion.div
-  key={menuStyle}
-  initial={{ opacity: 0, y: 20 }}
-  animate={{ opacity: 1, y: 0 }}
-  exit={{ opacity: 0, y: -20 }}
-  transition={{ duration: 0.3 }}
+<button 
+  className={cn(
+    "w-full flex items-center justify-between",
+    "p-4 sm:p-5 lg:p-6",
+    "bg-card hover:bg-card/90",
+    "border border-border/50 rounded-xl",
+    "transition-all duration-200",
+    "touch-target-comfortable"
+  )}
 >
-  {menuStyle === 'regular' ? <RegularMenuView /> : <WeddingMenuView />}
-</motion.div>
+  <div className="flex items-center gap-3">
+    <ChevronDown className={cn(
+      "h-5 w-5 text-primary transition-transform duration-200",
+      isExpanded && "rotate-180"
+    )} />
+    <div className="text-left">
+      <h2 className="text-lg sm:text-xl font-elegant">{title}</h2>
+      <p className="text-sm text-muted-foreground">{subtitle}</p>
+    </div>
+  </div>
+  <span className="text-sm text-muted-foreground bg-muted px-2 py-1 rounded">
+    {items.length} items
+  </span>
+</button>
 ```
 
-Note: If motion library is not available, use CSS transitions with key-based re-rendering.
+### Expand/Collapse Animation
 
-### SEO Considerations
-
-- Keep `/menu` as the canonical URL
-- Add meta description that mentions both catering and wedding services
-- Ensure both views are indexable (no JavaScript-only rendering issues)
+```tsx
+<div className={cn(
+  "grid transition-all duration-300 ease-out",
+  isExpanded ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+)}>
+  <div className="overflow-hidden">
+    {/* Grid content */}
+  </div>
+</div>
+```
 
 ---
 
 ## Summary
 
-This unified approach provides:
-1. **Simpler navigation** - One menu page instead of two
-2. **Easy comparison** - Users can toggle to see different options
-3. **Maintained aesthetics** - Each style keeps its distinct visual identity
-4. **Context-aware CTAs** - Quote requests route to the appropriate form
-5. **SEO benefits** - Single authoritative menu page
-6. **Mobile-friendly** - Large toggle targets, smooth transitions
+This simplified approach provides:
+
+1. **Single unified view** - No toggle confusion, all items accessible
+2. **Quick scanning** - 2-3 column grid with collapsible sections
+3. **Clear hierarchy** - Category accordions make navigation intuitive
+4. **Mobile-optimized** - 2 columns on mobile, touch-friendly targets
+5. **Focused conversion** - CTA appears after browsing, not before
+6. **Reduced complexity** - Fewer components, simpler architecture
