@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { OptimizedImage } from "@/components/ui/optimized-image";
 import { Badge } from "@/components/ui/badge";
-import { Play, Pause, ChevronDown, Heart, Star } from "lucide-react";
+import { Play, Pause, Heart, Star } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
@@ -225,17 +225,6 @@ export const ModernHero = () => {
           </div>
         </Card>
 
-        {/* Scroll Indicator */}
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20">
-          <Button
-            variant="glass-white"
-            size="icon"
-            onClick={handleScrollToDiscover}
-            className="animate-bounce"
-          >
-            <ChevronDown className="h-4 w-4" />
-          </Button>
-        </div>
       </section>
     );
   }
@@ -336,17 +325,6 @@ export const ModernHero = () => {
         </div>
       </Card>
 
-      {/* Scroll Indicator */}
-      <div className="absolute bottom-8 right-8 z-20">
-        <Button
-          variant="glass-white"
-          size="icon"
-          onClick={handleScrollToDiscover}
-          className="animate-bounce"
-        >
-          <ChevronDown className="h-5 w-5" />
-        </Button>
-      </div>
     </section>
   );
 };
