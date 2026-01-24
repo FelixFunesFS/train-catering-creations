@@ -124,9 +124,9 @@ export const Footer = () => {
             </div>
 
             {/* Customer Testimonial */}
-            <div className="text-center lg:text-right p-4 bg-muted/30 rounded-lg border border-border/50">
+            <div className="text-center lg:text-right p-4 bg-muted/30 rounded-lg border border-border/50 max-w-md lg:max-w-none mx-auto lg:mx-0">
               <p className="text-sm text-muted-foreground italic">
-                "The Soul Train's Eatery family treated us like their own. From planning to the final plate, every detail was handled with care and love!"
+                "From planning to the final plate, every detail was handled with care and love!"
               </p>
               <p className="text-xs text-muted-foreground mt-2 font-medium">— The Williams Family, Charleston Wedding</p>
             </div>
