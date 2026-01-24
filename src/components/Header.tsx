@@ -11,7 +11,6 @@ export const Header = () => {
 
   // Hide header on admin routes - must be after hooks
   const isAdminRoute = location.pathname.startsWith('/admin');
-  
   const navigation = [{
     name: "Home",
     href: "/"
@@ -44,7 +43,6 @@ export const Header = () => {
   if (isAdminRoute) {
     return null;
   }
-
   return <>
       <SkipToContent targetId="main-content">
         Skip to main content
@@ -73,7 +71,7 @@ export const Header = () => {
 
             {/* Mobile controls */}
             <div className="lg:hidden flex items-center">
-              <Button onClick={() => setIsMenuOpen(!isMenuOpen)} aria-expanded={isMenuOpen} aria-controls="mobile-menu" aria-label={isMenuOpen ? "Close menu" : "Open menu"} className="neumorphic-button bg-transparent hover:bg-muted/30 text-foreground hover:text-foreground transition-all duration-300 focus-visible-enhanced p-2 h-auto w-auto px-[10px] py-[10px]">
+              <Button onClick={() => setIsMenuOpen(!isMenuOpen)} aria-expanded={isMenuOpen} aria-controls="mobile-menu" aria-label={isMenuOpen ? "Close menu" : "Open menu"} className="neumorphic-button transition-all duration-300 focus-visible-enhanced p-2 h-auto w-auto px-[10px] py-[10px] bg-primary text-primary-foreground">
                 {isMenuOpen ? <X className="h-10 w-10 md:h-12 md:w-12 text-primary" strokeWidth={2.5} /> : <svg className="h-10 w-10 md:h-12 md:w-12" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16" />
                     <path strokeLinecap="round" strokeLinejoin="round" d="M4 12h16" />
