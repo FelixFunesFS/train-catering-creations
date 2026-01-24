@@ -281,17 +281,17 @@ export const TestimonialsCarousel = () => {
 
         {/* Stats */}
         <div className={`grid grid-cols-3 gap-3 mt-6 lg:mt-8 max-w-2xl mx-auto ${animationClass}`}>
-          <Card className="p-3 text-center !bg-white/10 !backdrop-blur-sm !border-white/20 !shadow-none">
-            <div className="text-lg lg:text-xl font-bold text-white">500+</div>
-            <div className="text-sm text-white/70">Events Catered</div>
+          <Card className="p-3 text-center !bg-none !bg-black/35 !backdrop-blur-md !border-white/20 !shadow-none ring-1 ring-white/10">
+            <div className="text-lg lg:text-xl font-bold text-white drop-shadow-sm">500+</div>
+            <div className="text-sm text-white/70 drop-shadow-sm">Events Catered</div>
           </Card>
-          <Card className="p-3 text-center !bg-white/10 !backdrop-blur-sm !border-white/20 !shadow-none">
-            <div className="text-lg lg:text-xl font-bold text-white">★ 4.9</div>
-            <div className="text-sm text-white/70">Average Rating</div>
+          <Card className="p-3 text-center !bg-none !bg-black/35 !backdrop-blur-md !border-white/20 !shadow-none ring-1 ring-white/10">
+            <div className="text-lg lg:text-xl font-bold text-white drop-shadow-sm">★ 4.9</div>
+            <div className="text-sm text-white/70 drop-shadow-sm">Average Rating</div>
           </Card>
-          <Card className="p-3 text-center !bg-white/10 !backdrop-blur-sm !border-white/20 !shadow-none">
-            <div className="text-lg lg:text-xl font-bold text-white">98%</div>
-            <div className="text-sm text-white/70">Would Recommend</div>
+          <Card className="p-3 text-center !bg-none !bg-black/35 !backdrop-blur-md !border-white/20 !shadow-none ring-1 ring-white/10">
+            <div className="text-lg lg:text-xl font-bold text-white drop-shadow-sm">98%</div>
+            <div className="text-sm text-white/70 drop-shadow-sm">Would Recommend</div>
           </Card>
         </div>
       </div>
