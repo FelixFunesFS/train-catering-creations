@@ -4,43 +4,43 @@ export const weddingImages: GalleryImage[] = [
   {
     src: "/lovable-uploads/eca9632d-b79e-4584-8287-00cc36515fc6.png",
     category: "wedding",
-    title: "Wedding Reception Setup",
-    description: "Beautiful round table setup for elegant wedding reception",
+    title: "Romantic Reception Tables",
+    description: "Candlelit round tables with elegant linens ready for a magical wedding celebration",
     quality: 8
   },
   {
     src: "/lovable-uploads/84f43173-e79d-4c53-b5d4-e8a596d1d614.png",
     category: "wedding",
-    title: "Wedding Venue Dining",
-    description: "Elegant venue setup with floral arrangements and formal place settings",
+    title: "Garden Wedding Dining",
+    description: "Breathtaking venue with cascading florals and crystal-clear place settings",
     quality: 9
   },
   {
     src: "/lovable-uploads/1cd54e2e-3991-4795-ad2a-6e8c18fb530f.png",
     category: "wedding",
-    title: "Wedding Cake Display",
-    description: "Custom wedding cake and dessert station by Tanya Ward",
+    title: "Sweet Celebration Corner",
+    description: "Custom wedding cake and artisan desserts creating a memorable sweet station",
     quality: 7
   },
   {
     src: "/lovable-uploads/894051bf-31c6-4930-bb88-e3e1d74f7ee1.png",
     category: "wedding",
-    title: "Rustic Wedding Venue",
-    description: "Stunning rustic venue with chandeliers, string lights, and elegant dining setup",
+    title: "Enchanted Barn Reception",
+    description: "A dreamy rustic venue glowing with chandeliers and twinkling string lights",
     quality: 9
   },
   {
     src: "/lovable-uploads/e61537fa-d421-490b-932f-402236a093aa.png",
     category: "wedding",
-    title: "Elegant Wedding Buffet",
-    description: "Beautiful outdoor wedding buffet with fresh floral arrangements and chafing dishes",
+    title: "Garden Wedding Buffet",
+    description: "Fresh florals and polished chafing dishes for an unforgettable outdoor reception",
     quality: 8
   },
   {
     src: "/lovable-uploads/26d2d500-6017-41a2-99b2-b7050cefedba.png",
     category: "wedding",
-    title: "Elegant Outdoor Wedding Tent",
-    description: "Stunning wedding reception setup with chandeliers, string lights, and formal table service",
+    title: "Fairy Tale Tent Reception",
+    description: "Stunning tented reception with sparkling chandeliers and romantic string lights",
     quality: 9
   }
 ];
