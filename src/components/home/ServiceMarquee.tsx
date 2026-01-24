@@ -2,9 +2,9 @@
 import { useMarqueeAnimation } from '@/hooks/useMarqueeAnimation';
 
 export const ServiceMarquee = () => {
-  // Speed is 'normal' for readability - CSS handles responsive adjustments
+  // Speed is 'slow' for comfortable reading - CSS handles responsive adjustments
   const { ref, className, style } = useMarqueeAnimation({
-    speed: 'normal',
+    speed: 'slow',
     direction: 'left',
     pauseOnHover: false
   });

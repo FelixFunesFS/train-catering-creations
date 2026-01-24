@@ -8,7 +8,7 @@ interface TrustItem {
 
 export const TrustMarquee = () => {
   const { ref, className, style } = useMarqueeAnimation({
-    speed: 'normal',
+    speed: 'slow',
     direction: 'left',
     pauseOnHover: true
   });
