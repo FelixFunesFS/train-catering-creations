@@ -16,7 +16,8 @@ import {
   Share2, 
   Heart,
   Maximize2,
-  ArrowLeft
+  ArrowLeft,
+  Sparkles
 } from "lucide-react";
 
 interface StoryGalleryViewerProps {
@@ -249,9 +250,12 @@ export const StoryGalleryViewer = ({
             {/* Content overlay */}
             <div className="absolute bottom-0 left-0 right-0 p-4">
               <div className="flex items-center gap-2 mb-2">
-                <Badge className="bg-primary/20 text-white border-primary/20">
-                  Quality: {currentImage.quality}/10
-                </Badge>
+                {currentImage.quality >= 8 && (
+                  <Badge className="bg-primary/20 text-white border-primary/20 gap-1">
+                    <Sparkles className="h-3 w-3" />
+                    Featured
+                  </Badge>
+                )}
                 <Badge className="bg-white/10 text-white border-white/20">
                   {category}
                 </Badge>
@@ -354,15 +358,18 @@ export const StoryGalleryViewer = ({
             
             {/* Details */}
             <div className="space-y-6">
-              <div>
-                <div className="flex items-center gap-2 mb-4">
-                  <Badge className="bg-primary/10 text-primary border-primary/20">
-                    Quality: {currentImage.quality}/10
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                {currentImage.quality >= 8 && (
+                  <Badge className="bg-primary/10 text-primary border-primary/20 gap-1">
+                    <Sparkles className="h-3 w-3" />
+                    Featured
                   </Badge>
-                  <Badge variant="outline">
-                    {category}
-                  </Badge>
-                </div>
+                )}
+                <Badge variant="outline">
+                  {category}
+                </Badge>
+              </div>
                 
                 <h3 className="text-2xl font-elegant font-bold mb-3">
                   {currentImage.title}
