@@ -86,7 +86,7 @@ const Reviews = () => {
                 <Heart className="h-6 w-6 sm:h-8 sm:w-8" />,
                 <ThumbsUp className="h-6 w-6 sm:h-8 sm:w-8" />
               ]}
-              buttons={[{ text: "About Us", href: "/about#page-header", variant: "cta" }]}
+              buttons={[{ text: "About Us", href: "/about", variant: "cta" }]}
             />
             
             {/* Additional content that was previously children */}

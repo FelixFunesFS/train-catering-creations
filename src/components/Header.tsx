@@ -17,22 +17,22 @@ export const Header = () => {
     href: "/"
   }, {
     name: "About Us",
-    href: "/about#page-header"
+    href: "/about"
   }, {
     name: "Menu",
-    href: "/menu#page-header"
+    href: "/menu"
   }, {
     name: "Wedding & Events",
-    href: "/wedding-menu#page-header"
+    href: "/wedding-menu"
   }, {
     name: "Gallery",
     href: "/gallery"
   }, {
     name: "Reviews",
-    href: "/reviews#page-header"
+    href: "/reviews"
   }, {
     name: "FAQ",
-    href: "/faq#faq-header"
+    href: "/faq"
   }];
   const isActive = (path: string) => location.pathname === path;
   useEffect(() => {
