@@ -1,148 +1,156 @@
 
-# Updated Plan: Shorten Footer Quote + Mobile Spacing Review
 
-## Part 1: Shorten Footer Quote
+# Slow Down Scrolling Marquees + Ensure Responsiveness
 
-### Current State (line 129 in `src/components/Footer.tsx`)
-```tsx
-"The Soul Train's Eatery family treated us like their own. From planning to the final plate, every detail was handled with care and love!"
-```
+## Current State Analysis
 
-### Updated Quote
-```tsx
-"From planning to the final plate, every detail was handled with care and love!"
-```
+### Marquee Components on Home Page
+| Component | Current Speed | pauseOnHover | Content Repetition |
+|-----------|---------------|--------------|-------------------|
+| **ServiceMarquee** | `normal` | false | 6x repeats |
+| **TrustMarquee** | `normal` | true | 6x repeats |
+| **BrandMarquee** | `slow` | false | 8x repeats |
 
-This removes "The Soul Train's Eatery family treated us like their own." as requested.
+### Current CSS Animation Speeds (in `src/index.css`)
+| Class | Mobile | Tablet (768px+) | Desktop (1024px+) |
+|-------|--------|-----------------|-------------------|
+| `.marquee` (normal) | 70s | 60s | 50s |
+| `.marquee-slow` | 100s | 80s | 70s |
+| `.marquee-fast` | 55s | 48s | 38s |
 
----
-
-## Part 2: CTA-to-Footer Spacing Audit
-
-### Architecture Overview
-
-```text
-┌─────────────────────────────────────────────────────────────────┐
-│  Page Content (PageSection components)                          │
-│  └─ py-10 sm:py-12 lg:py-16 (standard content padding)          │
-├─────────────────────────────────────────────────────────────────┤
-│  CTASection Component                                            │
-│  └─ py-10 sm:py-12 lg:py-16 (outer section)                     │
-│      └─ mx-4 sm:mx-6 lg:mx-8 (card margins)                     │
-│          └─ py-8 sm:py-10 lg:py-12 (inner card)                 │
-├─────────────────────────────────────────────────────────────────┤
-│  Footer                                                          │
-│  └─ py-10 lg:py-12 (main content)                               │
-│  └─ py-4 (copyright bar)                                         │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-### Spacing Consistency Matrix
-
-| Component | Mobile (py) | Tablet (sm:py) | Desktop (lg:py) | Status |
-|-----------|-------------|----------------|-----------------|--------|
-| **PageSection (standard)** | 10 (40px) | 12 (48px) | 16 (64px) | Baseline |
-| **CTASection (outer)** | 10 (40px) | 12 (48px) | 16 (64px) | Matches |
-| **CTASection (inner card)** | 8 (32px) | 10 (40px) | 12 (48px) | Good |
-| **Footer Main** | 10 (40px) | 10 (40px) | 12 (48px) | Matches memory |
-| **Footer Copyright** | 4 (16px) | 4 (16px) | 4 (16px) | Correct |
-
-### CTA-to-Footer Gap Analysis
-
-**Current Flow (About page example):**
-1. CTASection outer padding: `py-10 sm:py-12 lg:py-16` (bottom: 40/48/64px)
-2. Footer border-t creates visual separation
-3. Footer padding: `py-10 lg:py-12` (top: 40/48px)
-
-**Total visual gap**: ~80px mobile, ~96px tablet, ~112px desktop
-
-**Verdict**: This is **consistent and appropriate**. The CTASection padding + Footer top padding creates adequate breathing room, and the footer's `border-t border-border` provides clear visual separation.
-
-### Container Width Consistency
-
-| Location | Padding | Standard | Status |
-|----------|---------|----------|--------|
-| **PageSection content** | `px-4 sm:px-6 lg:px-8` | Standard | Baseline |
-| **CTASection card margin** | `mx-4 sm:mx-6 lg:mx-8` | Matches | Good |
-| **Footer content** | `px-6 sm:px-8 lg:px-12` | Intentional deviation | Memory-approved |
-| **FAQ content** | `px-6 sm:px-8 lg:px-12` | Matches Footer | Consistent |
-
-The Footer uses slightly larger horizontal padding (`px-6` vs `px-4`) which is an intentional design choice documented in memory for visual hierarchy.
+**Issue**: While the speeds are already mobile-first (slower on mobile), users may find the current speeds too fast for comfortable reading.
 
 ---
 
-## Part 3: Mobile-Specific Findings
+## Proposed Changes
 
-### Good Patterns (No Changes Needed)
+### 1. Slow Down All Animation Speeds
+Increase animation durations by ~30-40% across all breakpoints for a more relaxed, elegant feel.
 
-1. **CTA buttons stack properly on mobile**
-   - `flex-col sm:flex-row` in CTASection (line 63)
-   - Full-width buttons: `w-full sm:w-auto`
+**New CSS Speeds:**
+| Class | Mobile | Tablet (768px+) | Desktop (1024px+) |
+|-------|--------|-----------------|-------------------|
+| `.marquee` (normal) | 95s | 80s | 65s |
+| `.marquee-slow` | 130s | 110s | 90s |
+| `.marquee-fast` | 75s | 65s | 50s |
 
-2. **Footer grid stacks correctly**
-   - `grid-cols-1 md:grid-cols-2 lg:grid-cols-4` (line 34)
+### 2. Update Component Speed Settings
+Change marquee components to use slower speeds for better readability:
 
-3. **Footer testimonial stacks properly**
-   - `flex-col lg:flex-row` for social/testimonial row (line 111)
+| Component | Current | Proposed |
+|-----------|---------|----------|
+| **ServiceMarquee** | `normal` | `slow` |
+| **TrustMarquee** | `normal` | `slow` |
+| **BrandMarquee** | `slow` | `slow` (no change) |
 
-4. **Copyright bar stacks on mobile**
-   - `flex-col sm:flex-row` (line 140)
+### 3. Responsiveness Verification
 
-5. **Mobile Action Bar padding accounted for**
-   - `pb-[calc(5rem+env(safe-area-inset-bottom))]` in App.tsx (line 63)
+**Already Good (No Changes Needed):**
+- Text sizing: `text-sm sm:text-base lg:text-lg` (ServiceMarquee, TrustMarquee)
+- Gap scaling: `gap-6 sm:gap-8 lg:gap-12` or `gap-8 lg:gap-12`
+- Icon sizing: `h-4 w-4` (consistent across breakpoints)
+- Padding: `py-4 sm:py-5 lg:py-6` responsive vertical padding
+- Container: `overflow-hidden` prevents horizontal scroll issues
 
-### Minor Enhancement (Optional)
-
-**Footer testimonial max-width on tablets**: The testimonial box could become quite wide on mid-sized tablets. Adding a constraint would improve readability:
-
-```tsx
-// Current (line 127)
-<div className="text-center lg:text-right p-4 bg-muted/30 rounded-lg border border-border/50">
-
-// Enhanced
-<div className="text-center lg:text-right p-4 bg-muted/30 rounded-lg border border-border/50 max-w-md lg:max-w-none mx-auto lg:mx-0">
-```
+**BrandMarquee Enhancement:**
+- Current text: `text-lg sm:text-xl lg:text-2xl xl:text-3xl` - Good
+- Current logo: `h-6 w-6 lg:h-8 lg:w-8` - Add `sm:h-7 sm:w-7` for smoother tablet transition
 
 ---
 
-## Implementation Summary
+## Technical Implementation
 
-### Required Changes
+### File 1: `src/index.css` (lines 662-702)
 
-| File | Line | Change |
-|------|------|--------|
-| `src/components/Footer.tsx` | 129 | Shorten quote text |
+Update marquee animation speeds:
 
-### Code Change
+```css
+/* Mobile: Slowest speeds for comfortable reading on smaller viewports */
+.marquee {
+  animation: marquee 95s linear infinite;
+}
 
-**Line 129** - Update quote text:
-```tsx
-// Current
-"The Soul Train's Eatery family treated us like their own. From planning to the final plate, every detail was handled with care and love!"
+.marquee-slow {
+  animation: marquee 130s linear infinite;
+}
 
-// Updated
-"From planning to the final plate, every detail was handled with care and love!"
+.marquee-fast {
+  animation: marquee 75s linear infinite;
+}
+
+/* Tablet: Medium speeds */
+@media (min-width: 768px) {
+  .marquee {
+    animation: marquee 80s linear infinite;
+  }
+
+  .marquee-slow {
+    animation: marquee 110s linear infinite;
+  }
+
+  .marquee-fast {
+    animation: marquee 65s linear infinite;
+  }
+}
+
+/* Desktop: Comfortable speeds for visual rhythm */
+@media (min-width: 1024px) {
+  .marquee {
+    animation: marquee 65s linear infinite;
+  }
+
+  .marquee-slow {
+    animation: marquee 90s linear infinite;
+  }
+
+  .marquee-fast {
+    animation: marquee 50s linear infinite;
+  }
+}
 ```
 
-### Optional Enhancement
+### File 2: `src/components/home/ServiceMarquee.tsx` (line 7)
 
-**Line 127** - Add testimonial max-width constraint:
 ```tsx
-// Current
-<div className="text-center lg:text-right p-4 bg-muted/30 rounded-lg border border-border/50">
+// Change from 'normal' to 'slow'
+speed: 'slow',
+```
 
-// Enhanced
-<div className="text-center lg:text-right p-4 bg-muted/30 rounded-lg border border-border/50 max-w-md lg:max-w-none mx-auto lg:mx-0">
+### File 3: `src/components/home/TrustMarquee.tsx` (line 11)
+
+```tsx
+// Change from 'normal' to 'slow'
+speed: 'slow',
+```
+
+### File 4: `src/components/home/BrandMarquee.tsx` (lines 19, 26, 33, 40, 47, 54)
+
+Add tablet breakpoint for logo sizing (`sm:h-7 sm:w-7`):
+
+```tsx
+className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 flex-shrink-0"
 ```
 
 ---
 
-## Spacing Verification Summary
+## Speed Comparison Summary
 
-| Transition | Mobile | Tablet | Desktop | Verdict |
-|------------|--------|--------|---------|---------|
-| **Content to CTA** | 80px | 96px | 128px | Appropriate |
-| **CTA to Footer** | 80px | 96px | 112px | Consistent |
-| **Within Footer** | 40px | 40px | 48px | Matches memory |
+| Before | After | Change |
+|--------|-------|--------|
+| Mobile normal: 70s | Mobile slow: 130s | ~85% slower |
+| Tablet normal: 60s | Tablet slow: 110s | ~83% slower |
+| Desktop normal: 50s | Desktop slow: 90s | ~80% slower |
 
-All CTA-to-Footer spacing is consistent across pages (About, Reviews, Menu, Home) because they all use the same `CTASection` component which has standardized padding.
+This creates a much more relaxed, elegant scrolling experience that allows users to comfortably read the content.
+
+---
+
+## Files to Modify
+
+| File | Changes |
+|------|---------|
+| `src/index.css` | Update all marquee animation durations (lines 662-702) |
+| `src/components/home/ServiceMarquee.tsx` | Change speed to `'slow'` (line 7) |
+| `src/components/home/TrustMarquee.tsx` | Change speed to `'slow'` (line 11) |
+| `src/components/home/BrandMarquee.tsx` | Add `sm:h-7 sm:w-7` to logo images (6 occurrences) |
+
