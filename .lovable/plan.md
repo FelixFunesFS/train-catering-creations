@@ -1,70 +1,52 @@
 
+Goal
+- Fix the 3 “stats” cards under “What Our Clients Say” so their content (“500+”, “★ 4.9”, “98%”) is clearly readable and not “white on white”.
 
-# Fix Stats Cards Contrast in Testimonials Section
+What’s happening (root cause)
+- The shared <Card /> component always includes the class `neumorphic-card-2` (see `src/components/ui/card.tsx`).
+- `neumorphic-card-2` applies `bg-gradient-to-br from-card to-muted`, which is a background-image gradient (light/white).
+- Our earlier fix only set `background-color` (`!bg-white/10`), but it did not remove the existing background-image gradient, so the card still renders as a light/white surface.
+- Because the numbers/labels inside the cards are `text-white`, they disappear on that light background.
 
-## Problem Identified
+Fix approach (minimal, localized)
+- Keep using <Card /> but explicitly disable the neumorphic gradient background-image on those 3 stats cards.
+- Add Tailwind `bg-none` (background-image: none) with `!` so it wins.
+- Then apply a darker translucent background (recommended: `!bg-black/35` or `!bg-black/40`) so white text remains readable regardless of the background photo brightness.
+- Keep the blur + border, and remove neumorphic shadow.
 
-The 3 stats cards below the testimonial quote appear as "white on white" because:
+Exact file to change
+- `src/components/home/TestimonialsCarousel.tsx`
 
-1. The `Card` component uses `neumorphic-card-2` class by default
-2. This class applies `bg-gradient-to-br from-card to-muted` (white gradient background)
-3. The `bg-white/10` utility class I added gets overridden due to CSS specificity
+Implementation details (what will be edited)
+1) Update the 3 stats Card classNames (lines ~284–295)
+- Current:
+  - `!bg-white/10` … (but gradient still shows)
+- Updated (example):
+  - Add: `!bg-none` (removes gradient background-image)
+  - Change background color to: `!bg-black/35` (stronger contrast)
+  - Keep: `!backdrop-blur-sm !border-white/20 !shadow-none`
+  - Optionally add: `ring-1 ring-white/10` for crisp separation on busy parts of the photo
 
----
+Example className for each stats card
+- Replace each stats card with something like:
+  - `className="p-3 text-center !bg-none !bg-black/35 !backdrop-blur-md !border-white/20 !shadow-none ring-1 ring-white/10"`
 
-## Solution
+2) (Optional but recommended) Add subtle text clarity helpers
+- Add `drop-shadow` to the numbers and labels so they stay readable even if the background gets brighter:
+  - Number: `drop-shadow-sm`
+  - Label: `drop-shadow-sm`
+- This is optional because the darker card background should already solve it, but it’s a safe accessibility boost.
 
-Override the neumorphic background by using the `!important` flag via Tailwind's `!` prefix, or by explicitly adding background override. For this case, I'll use Tailwind's `!bg-white/10` syntax to ensure the transparent background takes precedence.
+Why this solves it
+- `!bg-none` removes the neumorphic gradient (background-image) that was making the cards look white.
+- A dark translucent background ensures the white text is visible in all scenarios (desktop/mobile, bright parts of the photo, etc.).
 
----
-
-## Technical Changes
-
-### File: `src/components/home/TestimonialsCarousel.tsx`
-
-**Lines 284-295 - Update Stats Cards:**
-
-```tsx
-// Current (gets overridden by neumorphic-card-2)
-<Card className="p-3 text-center bg-white/10 backdrop-blur-sm border-white/20">
-
-// Fixed (using ! prefix to override neumorphic defaults)
-<Card className="p-3 text-center !bg-white/10 !backdrop-blur-sm !border-white/20 !shadow-none">
-```
-
-The `!` prefix forces these utilities to take precedence over the neumorphic-card-2 base styles.
-
-Also add `!shadow-none` to remove the neumorphic shadow which doesn't work well on dark backgrounds.
-
----
-
-## All Card Updates
-
-| Line | Current | Fixed |
-|------|---------|-------|
-| 284 | `bg-white/10 backdrop-blur-sm border-white/20` | `!bg-white/10 !backdrop-blur-sm !border-white/20 !shadow-none` |
-| 288 | Same | Same fix |
-| 292 | Same | Same fix |
-
----
-
-## Mobile Swipe Text Fix
-
-Also update line 277 for the mobile swipe instruction text, which uses `text-muted-foreground` (dark text on dark background):
-
-```tsx
-// Current
-<p className="text-center text-xs text-muted-foreground mt-4">
-
-// Fixed
-<p className="text-center text-xs text-white/60 mt-4">
-```
-
----
-
-## Result
-
-- Stats cards will have a subtle glassmorphism effect with 10% white background
-- White text will be clearly visible against the dark image background
-- Maintains the premium aesthetic established by the full-bleed design
-
+Testing checklist (after implementation)
+- Home page: confirm the 3 stats cards show:
+  - “500+ Events Catered”
+  - “★ 4.9 Average Rating”
+  - “98% Would Recommend”
+- Verify on:
+  - Mobile width (stack stays 3-across, readable)
+  - Desktop width
+- Confirm the main testimonial quote card still looks correct (white glass card) and the stats cards remain glassy/dark below it.
