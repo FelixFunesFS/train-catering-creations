@@ -1,12 +1,10 @@
 
 import { useMarqueeAnimation } from '@/hooks/useMarqueeAnimation';
-import { useIsMobile } from '@/hooks/use-mobile';
 
 export const ServiceMarquee = () => {
-  const isMobile = useIsMobile();
-  
+  // Speed is 'normal' for readability - CSS handles responsive adjustments
   const { ref, className, style } = useMarqueeAnimation({
-    speed: 'fast',
+    speed: 'normal',
     direction: 'left',
     pauseOnHover: false
   });
