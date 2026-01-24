@@ -8,7 +8,6 @@ import {
   Clock, 
   Facebook, 
   Instagram, 
-  Twitter,
   ChefHat,
   Heart,
   Award
@@ -36,9 +35,8 @@ const footerLinks = {
 };
 
 const socialLinks = [
-  { icon: Facebook, href: "#", label: "Facebook" },
-  { icon: Instagram, href: "#", label: "Instagram" },
-  { icon: Twitter, href: "#", label: "Twitter" }
+  { icon: Facebook, href: "https://www.facebook.com/soultrainseatery", label: "Facebook" },
+  { icon: Instagram, href: "#", label: "Instagram" }
 ];
 
 const trustBadges = [

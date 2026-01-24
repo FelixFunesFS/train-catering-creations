@@ -1,19 +1,24 @@
-import { FileText, Scale, Handshake, AlertTriangle, Mail, Globe, Shield } from "lucide-react";
+import { FileText, Mail, Globe, Shield, AlertTriangle } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
+import { PageSection } from "@/components/ui/page-section";
 import { Link } from "react-router-dom";
 
 const TermsConditions = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
-      <PageHeader
-        title="Terms & Conditions"
-        description="Please read these terms carefully before using our catering services. They outline the agreement between you and Soul Train's Eatery."
-        icons={[
-          <FileText className="h-6 w-6 sm:h-8 sm:w-8" />,
-          <Scale className="h-6 w-6 sm:h-8 sm:w-8" />,
-          <Handshake className="h-6 w-6 sm:h-8 sm:w-8" />,
-        ]}
-      />
+    <div className="min-h-screen bg-gradient-hero">
+      <PageSection pattern="a">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <PageHeader
+            badge={{
+              icon: <FileText className="h-5 w-5" />,
+              text: "Legal"
+            }}
+            title="Terms & Conditions"
+            subtitle="Our Commitment to You"
+            description="Please read these terms carefully before using our catering services. They outline the agreement between you and Soul Train's Eatery."
+          />
+        </div>
+      </PageSection>
 
       <div className="w-full px-6 sm:px-8 lg:px-12 xl:px-16 py-12">
         <div className="prose prose-lg max-w-none">

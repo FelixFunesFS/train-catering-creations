@@ -1,4 +1,3 @@
-
 import { Star, Heart, ThumbsUp } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { CTASection } from "@/components/ui/cta-section";
@@ -79,13 +78,13 @@ const Reviews = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div ref={headerRef} className={headerAnimationClass}>
             <PageHeader
+              badge={{
+                icon: <Star className="h-5 w-5" />,
+                text: "Testimonials"
+              }}
               title="Client Reviews"
+              subtitle="Real Stories, Real Satisfaction"
               description="See what our clients say about their experience with Soul Train's Eatery"
-              icons={[
-                <Star className="h-6 w-6 sm:h-8 sm:w-8" />,
-                <Heart className="h-6 w-6 sm:h-8 sm:w-8" />,
-                <ThumbsUp className="h-6 w-6 sm:h-8 sm:w-8" />
-              ]}
               buttons={[{ text: "About Us", href: "/about", variant: "cta" }]}
             />
             
