@@ -41,15 +41,6 @@ const About = () => {
           {/* Dark gradient overlay for text contrast */}
           <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/40" />
           
-          {/* Watermark Logo - repositioned to left side for visibility */}
-          <div className="absolute left-4 sm:left-8 lg:left-16 top-1/2 -translate-y-1/2 pointer-events-none z-[8]">
-            <img 
-              src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
-              alt="" 
-              aria-hidden="true"
-              className="w-56 sm:w-64 lg:w-80 h-56 sm:h-64 lg:h-80 object-contain opacity-[0.20]"
-            />
-          </div>
           
           {/* Content */}
           <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -84,8 +75,18 @@ const About = () => {
         </section>
 
         {/* Team Section - Pattern C */}
-        <PageSection pattern="c" withBorder>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <PageSection pattern="c" withBorder className="relative">
+          {/* Watermark Logo - centered behind team cards */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <img 
+              src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
+              alt="" 
+              aria-hidden="true"
+              className="w-64 sm:w-80 lg:w-96 h-64 sm:h-80 lg:h-96 object-contain opacity-[0.10]"
+            />
+          </div>
+          
+          <div className="relative z-[1] max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant text-foreground mb-6">
                 Meet Our Team
