@@ -173,16 +173,19 @@ export const MobileFirstHero = () => {
                 </div>
 
                 {/* Carousel Indicators */}
-                <div className="absolute top-4 right-4 flex gap-1">
+                <div className="absolute top-4 right-4 flex">
                   {heroImages.map((_, index) => (
                     <button
                       key={index}
                       onClick={() => setCurrentImageIndex(index)}
-                      className={`w-2 h-2 rounded-full transition-colors ${
+                      className="min-w-[24px] min-h-[24px] flex items-center justify-center"
+                      aria-label={`View image ${index + 1} of ${heroImages.length}`}
+                      aria-current={index === currentImageIndex ? 'true' : 'false'}
+                    >
+                      <span className={`w-2 h-2 rounded-full transition-colors ${
                         index === currentImageIndex ? 'bg-white' : 'bg-white/50'
-                      }`}
-                      aria-label={`View image ${index + 1}`}
-                    />
+                      }`} />
+                    </button>
                   ))}
                 </div>
               </div>

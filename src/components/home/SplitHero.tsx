@@ -170,8 +170,18 @@ export const SplitHero = () => {
         {/* Visual Area - Responsive height */}
         <div ref={visualRef} className={`relative h-[55vh] sm:h-[60vh] md:h-[65vh] overflow-hidden ${visualAnimationClass}`} onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} role="region" aria-label="Image carousel">
           {/* Progress Indicators */}
-          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-20 flex space-x-2">
-            {heroImages.map((_, index) => <button key={index} onClick={() => setCurrentIndex(index)} className={`h-1 rounded-full transition-all duration-500 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black/20 ${index === currentIndex ? 'w-8 bg-gradient-ruby-primary' : 'w-3 bg-white/40'}`} aria-label={`Go to slide ${index + 1} of ${heroImages.length}`} aria-current={index === currentIndex ? 'true' : 'false'} />)}
+          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-20 flex space-x-1">
+            {heroImages.map((_, index) => (
+              <button 
+                key={index} 
+                onClick={() => setCurrentIndex(index)} 
+                className="min-w-[24px] min-h-[24px] flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black/20"
+                aria-label={`Go to slide ${index + 1} of ${heroImages.length}`} 
+                aria-current={index === currentIndex ? 'true' : 'false'}
+              >
+                <span className={`h-1 rounded-full transition-all duration-500 ${index === currentIndex ? 'w-8 bg-gradient-ruby-primary' : 'w-3 bg-white/40'}`} />
+              </button>
+            ))}
           </div>
 
           {/* Main Image with responsive aspect ratios */}
@@ -264,8 +274,18 @@ export const SplitHero = () => {
         <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/20" />
 
         {/* Progress Indicators */}
-        <div className="absolute top-6 left-6 z-20 flex space-x-2">
-          {heroImages.map((_, index) => <button key={index} onClick={() => setCurrentIndex(index)} className={`h-2 rounded-full transition-all duration-500 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black/20 ${index === currentIndex ? 'w-12 bg-gradient-ruby-primary' : 'w-4 bg-white/50 hover:bg-white/70'}`} aria-label={`Go to slide ${index + 1} of ${heroImages.length}`} aria-current={index === currentIndex ? 'true' : 'false'} />)}
+        <div className="absolute top-6 left-6 z-20 flex space-x-1">
+          {heroImages.map((_, index) => (
+            <button 
+              key={index} 
+              onClick={() => setCurrentIndex(index)} 
+              className="min-w-[24px] min-h-[24px] flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black/20 hover:scale-110 transition-transform"
+              aria-label={`Go to slide ${index + 1} of ${heroImages.length}`} 
+              aria-current={index === currentIndex ? 'true' : 'false'}
+            >
+              <span className={`h-2 rounded-full transition-all duration-500 ${index === currentIndex ? 'w-12 bg-gradient-ruby-primary' : 'w-4 bg-white/50 hover:bg-white/70'}`} />
+            </button>
+          ))}
         </div>
 
         {/* Controls */}
