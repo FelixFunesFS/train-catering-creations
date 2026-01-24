@@ -206,12 +206,6 @@ export const SplitHero = () => {
           {/* Enhanced Gradient Overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
 
-          {/* Controls */}
-          <div className="absolute top-4 right-4 z-20 flex space-x-2">
-            <Button variant="ghost" size="icon" onClick={togglePlayPause} className="bg-black/60 backdrop-blur-sm hover:bg-black/70 min-w-[44px] min-h-[44px] shadow-lg border border-white/20 text-primary" aria-label={isPlaying ? 'Pause slideshow' : 'Play slideshow'}>
-              {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-            </Button>
-          </div>
 
           {/* Brand Badge */}
           <div className="absolute top-4 left-4 z-20">
@@ -268,12 +262,6 @@ export const SplitHero = () => {
               </Button>
             </div>
 
-            {/* Scroll Indicator - Integrated into content */}
-            <div className="pt-8 flex justify-center">
-              <Button variant="ghost" size="icon" onClick={handleScrollToDiscover} className="bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground animate-bounce min-w-[44px] min-h-[44px]" aria-label="Scroll to next section">
-                <ChevronDown className="h-4 w-4" />
-              </Button>
-            </div>
           </div>
         </div>
         
@@ -324,7 +312,7 @@ export const SplitHero = () => {
       </div>
 
       {/* Content Area - 40% */}
-      <div ref={contentRef} className={`relative w-2/5 h-full bg-background p-8 lg:p-12 flex flex-col justify-center ${contentAnimationClass}`} role="region" aria-label="Content section">
+      <div ref={contentRef} className={`relative w-2/5 h-full bg-background p-6 md:p-8 lg:p-12 flex flex-col justify-center ${contentAnimationClass}`} role="region" aria-label="Content section">
         <div className="max-w-lg space-y-6">
           <div className="flex items-center justify-between">
             <Badge variant={badge.variant} className="text-sm">
@@ -334,7 +322,7 @@ export const SplitHero = () => {
           </div>
           
           <div className="space-y-4">
-            <h1 className="text-4xl lg:text-5xl xl:text-6xl font-elegant font-bold text-foreground leading-tight">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-elegant font-bold text-foreground leading-tight">
               {currentImage.title}
             </h1>
             <p className="text-xl lg:text-2xl font-script text-ruby font-medium">
@@ -346,7 +334,7 @@ export const SplitHero = () => {
           </div>
 
           <div className="space-y-4">
-            <div className="flex space-x-4">
+            <div className="flex flex-col md:flex-row space-y-3 md:space-y-0 md:space-x-4">
               <Button size="lg" className="flex-1 bg-gradient-ruby-primary hover:bg-gradient-ruby-accent text-white font-semibold min-h-[48px]" asChild>
                 <a href="/request-quote#page-header" className="flex items-center justify-center space-x-2">
                   <Calendar className="h-5 w-5" />
