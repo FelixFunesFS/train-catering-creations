@@ -39,6 +39,7 @@ const buttonVariants = cva(
         "responsive-md": "min-h-[48px] px-8 py-3 text-base font-semibold sm:text-base sm:px-10 w-full sm:w-auto justify-center",
         "responsive-lg": "min-h-[48px] px-10 py-3 text-base font-bold sm:text-lg sm:px-12 w-full sm:w-auto justify-center",
         "responsive-xl": "min-h-[52px] px-12 py-4 text-lg font-bold sm:text-xl sm:px-16 w-full sm:w-auto justify-center",
+        "responsive-compact": "min-h-[44px] px-4 py-2.5 text-sm font-semibold w-full justify-center",
       },
     },
     defaultVariants: {
