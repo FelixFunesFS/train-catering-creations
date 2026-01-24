@@ -8,7 +8,6 @@ import { GallerySearchInterface } from "@/components/gallery/GallerySearchInterf
 import { EnhancedImageModal } from "@/components/gallery/EnhancedImageModal";
 import { GalleryCTA } from "@/components/gallery/GalleryCTA";
 import { PageSection } from "@/components/ui/page-section";
-import { ServiceMarquee } from "@/components/home/ServiceMarquee";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -93,9 +92,6 @@ const AlternativeGallery = () => {
 
   return (
     <div className="min-h-screen bg-gradient-hero">
-      {/* Service Marquee - Above Hero */}
-      <ServiceMarquee />
-      
       {/* Mobile-First Hero Section */}
       <PageSection pattern="a" skipToContentId="gallery-hero" className="py-0">
         <div ref={heroRef} className={useAnimationClass(heroVariant, heroVisible)}>

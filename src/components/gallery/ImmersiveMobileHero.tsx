@@ -77,7 +77,7 @@ export const ImmersiveMobileHero = ({
   if (!currentImage) return null;
 
   return (
-    <div className="relative h-[85vh] lg:h-screen overflow-hidden bg-gradient-primary">
+    <div className="relative h-[85vh] lg:h-screen overflow-hidden bg-gradient-primary pt-16 lg:pt-20">
       {/* Background Image with Parallax Effect */}
       <div className="absolute inset-0">
         <OptimizedImage
