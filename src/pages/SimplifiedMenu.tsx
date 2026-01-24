@@ -124,19 +124,6 @@ const SimplifiedMenu = () => {
         </div>
       </div>
 
-      {/* Visual separator */}
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center" aria-hidden="true">
-          <div className="w-full border-t border-muted/40" />
-        </div>
-        <div className="relative flex justify-center">
-          <span className="px-6 bg-gradient-hero text-muted-foreground">
-            <div className="w-8 h-8 bg-primary/8 rounded-full flex items-center justify-center">
-              <div className="w-2 h-2 bg-primary rounded-full" />
-            </div>
-          </span>
-        </div>
-      </div>
 
       {/* Menu Categories */}
       <section className="py-6 lg:py-12 relative">

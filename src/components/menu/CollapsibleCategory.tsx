@@ -31,7 +31,10 @@ export const CollapsibleCategory = ({
   const remainingCount = items.length - initialItemCount;
 
   return (
-    <div className="rounded-xl overflow-hidden border border-border/50 bg-card/50 backdrop-blur-sm">
+    <div className={cn(
+      "rounded-xl overflow-hidden border bg-card/50 backdrop-blur-sm",
+      isWeddingMode ? "border-primary/20 shadow-md" : "border-border/50"
+    )}>
       {/* Category Header */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
@@ -54,10 +57,7 @@ export const CollapsibleCategory = ({
             )}
           />
           <div>
-            <h2 className={cn(
-              "text-lg sm:text-xl font-semibold text-foreground",
-              isWeddingMode ? "font-script text-xl sm:text-2xl" : "font-elegant"
-            )}>
+            <h2 className="text-lg sm:text-xl font-semibold text-foreground font-elegant">
               {title}
             </h2>
             <p className="text-sm text-muted-foreground">{subtitle}</p>
@@ -67,6 +67,17 @@ export const CollapsibleCategory = ({
           {items.length} items
         </span>
       </button>
+
+      {/* Wedding mode decorative divider */}
+      {isWeddingMode && isExpanded && (
+        <div className="flex items-center justify-center py-2 bg-accent/10">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-px bg-primary/30" />
+            <span className="text-primary/40 text-xs">✦</span>
+            <div className="w-8 h-px bg-primary/30" />
+          </div>
+        </div>
+      )}
 
       {/* Collapsible Content */}
       <div
@@ -84,7 +95,8 @@ export const CollapsibleCategory = ({
                 <CompactMenuItem
                   key={item.id}
                   name={item.name}
-                  description={item.description}
+                  description={isWeddingMode ? item.description : undefined}
+                  isWeddingMode={isWeddingMode}
                 />
               ))}
             </div>
