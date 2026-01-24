@@ -131,45 +131,58 @@ const About = () => {
           </div>
         </PageSection>
 
-        {/* Values Section - Pattern B */}
-        <PageSection pattern="b" withBorder>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Values Section - Full-width Background Image */}
+        <section className="relative py-16 sm:py-20 lg:py-24 overflow-hidden">
+          {/* Full-width Background Image */}
+          <div 
+            className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
+            style={{ 
+              backgroundImage: `url('/lovable-uploads/894051bf-31c6-4930-bb88-e3e1d74f7ee1.png')` 
+            }}
+            aria-hidden="true"
+          />
+          
+          {/* Dark overlay for text contrast */}
+          <div className="absolute inset-0 bg-black/60" />
+          
+          {/* Content */}
+          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant text-foreground mb-6">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant text-white mb-6 drop-shadow-sm">
                 Our Values
               </h2>
-              <p className="text-sm sm:text-base lg:text-lg text-muted-foreground max-w-3xl mx-auto">
+              <p className="text-sm sm:text-base lg:text-lg text-white/80 max-w-3xl mx-auto drop-shadow-sm">
                 These core values guide everything we do, from sourcing ingredients to serving your guests.
               </p>
             </div>
             
             <div className="grid md:grid-cols-3 gap-8 lg:gap-12">
-              <NeumorphicCard level={2} className="text-center hover:scale-105 transition-transform duration-300">
-                <Award className="h-12 w-12 text-primary mx-auto mb-4" />
-                <h3 className="text-xl font-elegant font-semibold text-foreground mb-4">Quality First</h3>
-                <p className="text-sm text-muted-foreground">
+              <div className="bg-black/35 backdrop-blur-md rounded-xl p-6 text-center border border-white/20 ring-1 ring-white/10 hover:scale-105 transition-transform duration-300">
+                <Award className="h-12 w-12 text-white mx-auto mb-4 drop-shadow-sm" />
+                <h3 className="text-xl font-elegant font-semibold text-white mb-4 drop-shadow-sm">Quality First</h3>
+                <p className="text-sm text-white/80 drop-shadow-sm">
                   We source the finest ingredients and maintain the highest standards in food preparation and presentation.
                 </p>
-              </NeumorphicCard>
+              </div>
               
-              <NeumorphicCard level={2} className="text-center hover:scale-105 transition-transform duration-300">
-                <Users className="h-12 w-12 text-primary mx-auto mb-4" />
-                <h3 className="text-xl font-elegant font-semibold text-foreground mb-4">Family Spirit</h3>
-                <p className="text-sm text-muted-foreground">
+              <div className="bg-black/35 backdrop-blur-md rounded-xl p-6 text-center border border-white/20 ring-1 ring-white/10 hover:scale-105 transition-transform duration-300">
+                <Users className="h-12 w-12 text-white mx-auto mb-4 drop-shadow-sm" />
+                <h3 className="text-xl font-elegant font-semibold text-white mb-4 drop-shadow-sm">Family Spirit</h3>
+                <p className="text-sm text-white/80 drop-shadow-sm">
                   As a family-run business, we treat every client like family and every event like our own celebration.
                 </p>
-              </NeumorphicCard>
+              </div>
               
-              <NeumorphicCard level={2} className="text-center hover:scale-105 transition-transform duration-300">
-                <Clock className="h-12 w-12 text-primary mx-auto mb-4" />
-                <h3 className="text-xl font-elegant font-semibold text-foreground mb-4">Reliability</h3>
-                <p className="text-sm text-muted-foreground">
+              <div className="bg-black/35 backdrop-blur-md rounded-xl p-6 text-center border border-white/20 ring-1 ring-white/10 hover:scale-105 transition-transform duration-300">
+                <Clock className="h-12 w-12 text-white mx-auto mb-4 drop-shadow-sm" />
+                <h3 className="text-xl font-elegant font-semibold text-white mb-4 drop-shadow-sm">Reliability</h3>
+                <p className="text-sm text-white/80 drop-shadow-sm">
                   Count on us to deliver exceptional service on time, every time, with the professionalism you deserve.
                 </p>
-              </NeumorphicCard>
+              </div>
             </div>
           </div>
-        </PageSection>
+        </section>
 
         {/* CTA Section - Pattern A */}
         <PageSection pattern="a" withBorder>
