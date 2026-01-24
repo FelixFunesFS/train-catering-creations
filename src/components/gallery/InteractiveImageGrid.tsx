@@ -3,11 +3,11 @@ import { GalleryImage } from "@/data/gallery/types";
 import { galleryCategories } from "@/data/galleryCategories";
 import { OptimizedImage } from "@/components/ui/optimized-image";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
-import { Heart, Sparkles } from "lucide-react";
+import { Heart } from "lucide-react";
 
 interface InteractiveImageGridProps {
   images: GalleryImage[];
@@ -78,16 +78,6 @@ export const InteractiveImageGrid = ({
         
         {/* Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-navy-dark/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-        
-        {/* Featured Badge - Always visible */}
-        {image.quality >= 8 && (
-          <div className="absolute top-3 left-3">
-            <Badge className="bg-white/10 text-white border-white/20 text-xs gap-1 backdrop-blur-sm">
-              <Sparkles className="h-3 w-3" />
-              Featured
-            </Badge>
-          </div>
-        )}
         
         {/* Content - Visible on hover */}
         <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
