@@ -1,173 +1,144 @@
 
-# Add Full-Width Background Image to "Our Values" Section
+
+# Change "Our Values" Background Image + UX Design Guidance
 
 ## Overview
 
-Transform the "Our Values" section on the About page from a pattern-based background to a cinematic full-bleed section, matching the visual treatment applied to the "Our Story" section above it.
+This plan addresses two requests:
+1. **Replace the background image** in the "Our Values" section with a different, complementary image
+2. **UX guidance** on when to use the Badge + Script pattern
 
 ---
 
-## Current State (Lines 134-172)
+## UX Design Guidance: Badge + Script Pattern
 
-The "Our Values" section currently has:
-- `PageSection` wrapper with `pattern="b"` (solid color pattern)
-- Three-column grid of NeumorphicCards with icons (Award, Users, Clock)
-- Standard light background with dark text
-- Values displayed: Quality First, Family Spirit, Reliability
+### Current Site Pattern Analysis
+
+The site uses a consistent **Badge + Icon + Script** pattern for section headers:
+
+| Location | Treatment | Rationale |
+|----------|-----------|-----------|
+| Page headers | Full treatment (badge + script) | First impression, sets tone |
+| Home page sections | Full treatment | "Selling" each section to visitors |
+| Content sections | Plain headings only | Let content/imagery speak |
+| Full-bleed background sections | Plain headings (white text) | Imagery provides the visual hook |
+
+### Best Practice Recommendation
+
+**Use badges + script for:**
+- Page entry points (hero headers)
+- Home page section intros where you need to "hook" visitors
+- Marketing-focused sections
+
+**Omit badges + script for:**
+- Interior content sections (like "Our Story", "Team", "Values")
+- Sections with cinematic full-bleed backgrounds (the imagery IS the decoration)
+- Utility sections (forms, CTAs)
+
+**Why:** Overusing decorative elements dilutes their impact. The About page correctly uses the full treatment for the page header, then lets the immersive backgrounds and content carry the middle sections. This creates rhythm and prevents visual fatigue.
+
+**Current About page is well-designed** - no changes needed to the badge/script pattern. The interior sections intentionally use plain headings because the full-bleed images provide sufficient visual interest.
 
 ---
 
-## Proposed Design
+## Background Image Change
+
+### Current State
+
+The "Our Values" section uses:
+```
+/lovable-uploads/894051bf-31c6-4930-bb88-e3e1d74f7ee1.png
+```
+This appears to be a rustic venue with chandeliers - similar in feel to the "Our Story" section.
+
+### Recommended Alternative Images
+
+Based on available uploads that would complement the "values" theme (Quality, Family, Reliability) while providing visual variety from "Our Story":
+
+**Option 1 (Recommended):** A professional service/plating image
+- Shows craftsmanship and attention to detail
+- Reinforces "Quality First" and "Reliability" values
+
+**Option 2:** An elegant table setting or buffet display
+- Conveys hospitality and celebration
+- Reinforces "Family Spirit" value
+
+**Option 3:** Chef in action or team collaboration shot
+- Shows professionalism and dedication
+- Reinforces all three values
+
+### Implementation
+
+**File:** `src/pages/About.tsx`
+
+**Change:** Line 140 - Replace the background image URL
+
+```tsx
+// Current
+style={{ 
+  backgroundImage: `url('/lovable-uploads/894051bf-31c6-4930-bb88-e3e1d74f7ee1.png')` 
+}}
+
+// Updated (example - will use a different image)
+style={{ 
+  backgroundImage: `url('/lovable-uploads/[new-image-id].png')` 
+}}
+```
+
+### Suggested Images to Consider
+
+Based on the file list, some candidates that would work well:
+
+1. **`eb77404f-369f-484f-a9ce-786b7f1ddc94.png`** - If this is the professional chafing dish/buffet setup from the hero
+2. **`e8d1f833-d15b-4779-8141-cb7641a62227.png`** - If this is the corporate/professional service image
+3. **`e3c0d1ae-fb6a-4700-8007-a8c8c8136e57.png`** - Elegant event space from hero carousel
+
+The key is selecting an image that:
+- Has a different color tone than "Our Story" (avoid two similar brown/warm venue shots back-to-back)
+- Shows professionalism, quality, or human connection
+- Works well with the dark overlay for text readability
+
+---
+
+## Visual Flow After Change
 
 ```text
-+------------------------------------------------------------------+
-|                                                                  |
-|   [FULL-WIDTH BACKGROUND IMAGE - Rustic venue with chandeliers] |
-|   [Dark gradient overlay for text contrast - center-focused]    |
-|                                                                  |
-|                        Our Values                                |
-|              "These core values guide..."                        |
-|                                                                  |
-|    ┌───────────────┐  ┌───────────────┐  ┌───────────────┐      |
-|    │   ★ Award    │  │   ★ Users    │  │   ★ Clock    │      |
-|    │               │  │               │  │               │      |
-|    │  Quality     │  │  Family      │  │  Reliability │      |
-|    │  First       │  │  Spirit      │  │               │      |
-|    │               │  │               │  │               │      |
-|    │  Glassmorphism│  │  Glassmorphism│  │  Glassmorphism│      |
-|    │  dark cards  │  │  dark cards  │  │  dark cards  │      |
-|    └───────────────┘  └───────────────┘  └───────────────┘      |
-|                                                                  |
-+------------------------------------------------------------------+
+About Page Flow:
+
+┌─────────────────────────────────────────┐
+│  PAGE HEADER (Pattern A - light)        │
+│  Badge: "Our Story" | Script subtitle   │
+└─────────────────────────────────────────┘
+           ↓
+┌─────────────────────────────────────────┐
+│  OUR STORY (Full-bleed - Military Arch) │
+│  Dark overlay | White text              │
+│  Background: Military ceremony venue    │
+└─────────────────────────────────────────┘
+           ↓
+┌─────────────────────────────────────────┐
+│  MEET OUR TEAM (Pattern C - light)      │
+│  Clean background | Dark text           │
+│  Team member cards                      │
+└─────────────────────────────────────────┘
+           ↓
+┌─────────────────────────────────────────┐
+│  OUR VALUES (Full-bleed - NEW IMAGE)    │
+│  Dark overlay | White text              │
+│  Background: Professional service shot  │  ← DIFFERENT from Our Story
+└─────────────────────────────────────────┘
+           ↓
+┌─────────────────────────────────────────┐
+│  CTA SECTION (Pattern A - light)        │
+└─────────────────────────────────────────┘
 ```
 
----
-
-## Background Image Selection
-
-**Recommended**: `/lovable-uploads/894051bf-31c6-4930-bb88-e3e1d74f7ee1.png`
-- Rustic venue with chandeliers, string lights, and elegant dining setup
-- Different from the military ceremony image used in "Our Story"
-- Warm, inviting atmosphere that complements the "values" messaging
+This creates alternating visual rhythm: **light → dark → light → dark → light**
 
 ---
 
-## File to Modify
+## Summary
 
-`src/pages/About.tsx`
+1. **Badge/Script pattern:** Current usage is correct and follows UX best practices - no changes needed
+2. **Background image:** Will be updated to a different image that provides visual variety while reinforcing the values messaging
 
----
-
-## Implementation Details
-
-### 1. Replace PageSection with Custom Section (Lines 134-172)
-
-**Current structure:**
-```tsx
-<PageSection pattern="b" withBorder>
-  <div className="max-w-7xl mx-auto...">
-    ...
-  </div>
-</PageSection>
-```
-
-**New structure:**
-```tsx
-<section className="relative py-16 sm:py-20 lg:py-24 overflow-hidden">
-  {/* Full-width Background Image */}
-  <div 
-    className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
-    style={{ 
-      backgroundImage: `url('/lovable-uploads/894051bf-31c6-4930-bb88-e3e1d74f7ee1.png')` 
-    }}
-    aria-hidden="true"
-  />
-  
-  {/* Dark gradient overlay */}
-  <div className="absolute inset-0 bg-black/60" />
-  
-  {/* Content */}
-  <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    ...
-  </div>
-</section>
-```
-
-### 2. Update Text Colors for Contrast
-
-| Element | Current | Updated |
-|---------|---------|---------|
-| Section heading | `text-foreground` | `text-white` |
-| Section subtitle | `text-muted-foreground` | `text-white/80` |
-
-### 3. Update Value Cards - Glassmorphism Dark Style
-
-Replace NeumorphicCard with glassmorphism dark cards:
-
-**Current:**
-```tsx
-<NeumorphicCard level={2} className="text-center hover:scale-105...">
-  <Award className="h-12 w-12 text-primary..." />
-  <h3 className="...text-foreground...">Quality First</h3>
-  <p className="...text-muted-foreground">...</p>
-</NeumorphicCard>
-```
-
-**Updated:**
-```tsx
-<div className="!bg-none !bg-black/35 !backdrop-blur-md rounded-xl p-6 text-center border border-white/20 ring-1 ring-white/10 hover:scale-105 transition-transform duration-300">
-  <Award className="h-12 w-12 text-white mx-auto mb-4 drop-shadow-sm" />
-  <h3 className="text-xl font-elegant font-semibold text-white mb-4 drop-shadow-sm">Quality First</h3>
-  <p className="text-sm text-white/80 drop-shadow-sm">...</p>
-</div>
-```
-
-### 4. Icon Color Updates
-
-| Icon | Current | Updated |
-|------|---------|---------|
-| Award | `text-primary` | `text-white` |
-| Users | `text-primary` | `text-white` |
-| Clock | `text-primary` | `text-white` |
-
----
-
-## Gradient Overlay Choice
-
-Using `bg-black/60` (uniform dark overlay) because:
-- The section has centered content (heading + 3 cards in a row)
-- A uniform overlay works better than a directional gradient for this layout
-- Ensures all three value cards remain equally readable
-
----
-
-## Accessibility Considerations
-
-- Dark overlay ensures WCAG AA contrast for white text
-- `aria-hidden="true"` on decorative background image
-- `drop-shadow-sm` on text provides additional legibility boost
-- Cards have clear visual boundaries with ring and border
-
----
-
-## Visual Result
-
-| Element | Before | After |
-|---------|--------|-------|
-| Section background | Light pattern | Elegant venue photo |
-| Text colors | Dark text | White text with drop shadows |
-| Value cards | Neumorphic (light) | Glassmorphism (dark, blurred) |
-| Icons | Ruby red | White |
-| Overall feel | Standard | Premium/immersive |
-
----
-
-## Consistency with "Our Story" Section
-
-This treatment matches the "Our Story" section pattern:
-- Full-bleed background image
-- Dark overlay for contrast
-- White text colors
-- Glassmorphism card styling
-
-Creates visual rhythm: Hero → Our Story (full-bleed) → Team (light) → Values (full-bleed) → CTA
