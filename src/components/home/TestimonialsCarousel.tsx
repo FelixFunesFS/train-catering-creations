@@ -223,6 +223,7 @@ export const TestimonialsCarousel = () => {
                   size="icon"
                   className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white border border-ruby/20"
                   onClick={goToPrevious}
+                  aria-label="Previous testimonial"
                 >
                   <ChevronLeft className="h-4 w-4 text-ruby" />
                 </Button>
@@ -231,6 +232,7 @@ export const TestimonialsCarousel = () => {
                   size="icon"
                   className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white border border-ruby/20"
                   onClick={goToNext}
+                  aria-label="Next testimonial"
                 >
                   <ChevronRight className="h-4 w-4 text-ruby" />
                 </Button>
@@ -244,6 +246,8 @@ export const TestimonialsCarousel = () => {
               <button
                 key={index}
                 onClick={() => setCurrentIndex(index)}
+                aria-label={`Go to testimonial ${index + 1} of ${testimonials.length}`}
+                aria-current={index === currentIndex ? 'true' : undefined}
                 className={`h-2 rounded-full transition-all duration-300 ${
                   index === currentIndex 
                     ? 'w-8 bg-gradient-ruby-primary' 
