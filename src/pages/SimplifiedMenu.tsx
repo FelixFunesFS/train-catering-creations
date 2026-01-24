@@ -90,10 +90,8 @@ const SimplifiedMenu = () => {
       {/* Mobile Quick Actions */}
       <QuickActionButton />
 
-      {/* Decorative background elements */}
-      <div className="absolute inset-0 bg-gradient-to-br from-background/50 to-accent/5 pointer-events-none" />
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/2 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/3 right-1/4 w-64 h-64 bg-accent/3 rounded-full blur-2xl pointer-events-none" />
+      {/* Subtle background accent */}
+      <div className="absolute top-0 right-0 w-72 h-72 bg-primary/[0.02] rounded-full blur-3xl pointer-events-none" />
 
       {/* Page Header */}
       <SimpleMenuHeader />
@@ -152,6 +150,7 @@ const SimplifiedMenu = () => {
                 subtitle={category.subtitle}
                 items={category.items}
                 defaultExpanded={index === 0}
+                isWeddingMode={menuStyle === 'wedding'}
               />
             ))}
           </div>
