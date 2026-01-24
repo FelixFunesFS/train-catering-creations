@@ -1,147 +1,150 @@
 
-# Simplify Gallery Experience
+
+# Simplify Image Modal
 
 ## Overview
-Streamline the gallery page by removing complexity:
-1. Remove "Wedding Venue Dining" from hero
-2. Remove search/filter components and story mode
-3. Combine Wedding and Formal categories into one
-4. Default to masonry grid for all images
+Streamline the gallery image modal by removing unnecessary controls and ensuring the description doesn't cover the image. The result will be a clean, focused image viewer with essential navigation only.
 
 ---
 
-## Changes Summary
+## Current Issues
 
-| File | Change |
-|------|--------|
-| `src/data/heroImages.ts` | Remove "Wedding Venue Dining" image |
-| `src/data/galleryCategories.ts` | Combine Wedding and Formal into "Weddings & Black Tie" |
-| `src/pages/AlternativeGallery.tsx` | Remove story/search mode logic, simplify to masonry grid only |
-| `src/components/gallery/DiscoveryCategoryNav.tsx` | Remove view mode toggle buttons, simplify to grid-only |
-| `src/components/gallery/InteractiveImageGrid.tsx` | Remove search bar, view mode toggle, and filters - default to masonry |
-
----
-
-## Detailed Changes
-
-### 1. Hero Images (`src/data/heroImages.ts`)
-
-Remove the "Wedding Venue Dining" entry (lines 29-35), leaving 3 hero images:
-- Rustic Wedding Venue
-- Grand Banquet Hall
-- Military Formal Ceremony
+| Problem | Details |
+|---------|---------|
+| Too many controls | Zoom in/out, fullscreen, share, download, info toggle, thumbnail strip |
+| Description overlay | Full-width overlay at bottom covers part of the image |
+| Keyboard shortcut hints | Clutters the info panel with technical instructions |
+| Complex state management | isZoomed, zoomLevel, showInfo, isFullscreen |
 
 ---
 
-### 2. Gallery Categories (`src/data/galleryCategories.ts`)
+## Simplification Changes
 
-**Before:**
+### Remove These Features
+- Zoom in/out buttons and functionality
+- Fullscreen toggle button
+- Download button
+- Thumbnail strip navigation (desktop only)
+- Keyboard shortcut hints text
+- Info toggle button (mobile)
+- Category badge with colored backgrounds
+
+### Keep These Features
+- Previous/Next navigation arrows
+- Image counter (e.g., "1 of 24")
+- Close button
+- Swipe navigation (mobile)
+- Arrow key navigation (desktop)
+- Title and brief description
+
+---
+
+## New Layout Design
+
 ```text
-1. Wedding Celebrations
-2. Formal & Black Tie Events
-3. Artisan Desserts
-4. Buffet Service
++--------------------------------+
+|  1 of 24              [X]      |  <- Counter + Close (above image)
++--------------------------------+
+|         [<]          [>]       |  <- Nav arrows on sides
+|                                |
+|        [IMAGE]                 |  <- Full image, no overlay
+|                                |
++--------------------------------+
+|  Title                         |  <- Info BELOW image
+|  Brief description             |     (not covering it)
++--------------------------------+
 ```
 
-**After:**
-```text
-1. Weddings & Black Tie  (combines wedding + formal)
-2. Artisan Desserts
-3. Buffet Service
-```
-
-The new combined category will:
-- Use ID: "weddings-formal" or keep filtering for both "wedding" and "formal"
-- Display images from both original categories
-
 ---
 
-### 3. Alternative Gallery Page (`src/pages/AlternativeGallery.tsx`)
+## File Change
 
+**File: `src/components/gallery/EnhancedImageModal.tsx`**
+
+### State Simplification
 Remove:
-- `viewMode` state (no story/search modes)
-- `searchQuery` and `qualityFilter` state
-- `handleStoryModeSelect` and `handleSearchModeSelect` functions
-- `GallerySearchInterface` and `StoryGalleryViewer` imports and usage
-
-Simplify:
-- Always render `InteractiveImageGrid` (no conditional view modes)
-- Update filter logic to handle combined "weddings-formal" category
-
----
-
-### 4. Discovery Category Nav (`src/components/gallery/DiscoveryCategoryNav.tsx`)
-
-Remove:
-- View mode toggle buttons (Story Mode, Grid View, Smart Search)
-- Props: `onStoryModeSelect`, `onSearchModeSelect`, `viewMode`, `setViewMode`
-- Subtitle text about "stories, grids, or smart search"
+- `isZoomed`, `zoomLevel` state
+- `showInfo` state
+- `isFullscreen` state
 
 Keep:
-- Category cards for browsing
-- Clean section header
+- `currentIndex` state
+- Touch refs for swipe
 
----
-
-### 5. Interactive Image Grid (`src/components/gallery/InteractiveImageGrid.tsx`)
-
-Remove:
-- Search input bar
-- View mode toggle (masonry/grid/list buttons)
-- Sort and filter dropdowns
-- `showFilters` state and filter panel
-- `filterOption` and `sortOption` state
+### Keyboard Handlers
+Remove handlers for:
+- `+`/`-` (zoom)
+- `f`/`F` (fullscreen)
+- `i`/`I` (info toggle)
 
 Keep:
-- Masonry grid layout as default and only view
-- Favorites functionality (heart icons)
-- Featured badge for quality 8+ images
-- Clean header with category name and image count
+- Arrow keys (navigation)
+- Escape (close)
+
+### JSX Simplification
+Remove:
+- Desktop controls bar (zoom, fullscreen, share, download)
+- Mobile info toggle button
+- Thumbnail strip component
+- Category badge and shortcut hints from info panel
+
+Change:
+- Move info panel BELOW the image (not overlapping)
+- Use a clean layout with rounded corners
+- Keep minimal info: title + short description
 
 ---
 
-## Visual Result
+## Responsive Approach
 
-```text
-Before:
-+----------------------------------+
-| Discover Our Work                |
-| [Story] [Grid] [Search]          |  <-- REMOVED
-+----------------------------------+
-| [Wedding] [Formal] [Desserts]    |
-+----------------------------------+
-| [Search bar............]         |  <-- REMOVED
-| [Filters] [View Mode]            |  <-- REMOVED
-+----------------------------------+
+### Mobile (default)
+- Full-width image with padding
+- Swipe gestures for navigation
+- Compact nav arrows at sides
+- Title/description below image
 
-After:
-+----------------------------------+
-| Discover Our Work                |
-+----------------------------------+
-| [Weddings & Black Tie] [Desserts]|
-| [Buffet]                         |
-+----------------------------------+
-| All Images (24 images)           |
-| [Masonry Grid of Images]         |
-+----------------------------------+
+### Desktop (lg breakpoint)
+- Larger modal container (max-w-5xl)
+- Same clean layout
+- Arrow keys work
+
+---
+
+## Technical Details
+
+**Simplified component structure:**
+```jsx
+<Dialog>
+  <DialogContent>
+    {/* Top bar: counter + close */}
+    <div className="flex justify-between mb-4">
+      <span>1 of 24</span>
+      <Button onClick={onClose}><X /></Button>
+    </div>
+    
+    {/* Image with nav arrows */}
+    <div className="relative">
+      <Button left arrow />
+      <img src={...} className="max-h-[70vh]" />
+      <Button right arrow />
+    </div>
+    
+    {/* Info below image (not overlapping) */}
+    <div className="mt-4 text-center">
+      <h3>{title}</h3>
+      <p>{description}</p>
+    </div>
+  </DialogContent>
+</Dialog>
 ```
 
 ---
 
-## Files Modified
+## Result
 
-| File | Lines Changed | Summary |
-|------|--------------|---------|
-| `src/data/heroImages.ts` | ~7 lines removed | Remove Wedding Venue Dining |
-| `src/data/galleryCategories.ts` | ~8 lines modified | Combine categories |
-| `src/pages/AlternativeGallery.tsx` | ~30 lines simplified | Remove story/search modes |
-| `src/components/gallery/DiscoveryCategoryNav.tsx` | ~40 lines removed | Remove view mode toggles |
-| `src/components/gallery/InteractiveImageGrid.tsx` | ~80 lines removed | Remove search, filters, view toggles |
+- Fewer buttons (3 instead of 8+)
+- Image is fully visible without overlay
+- Clean, minimal interface
+- Maintains swipe and keyboard navigation
+- Fully responsive
 
----
-
-## Technical Notes
-
-- Category filtering will need to handle the combined category by filtering for images where `category === 'wedding' OR category === 'formal'`
-- Existing gallery image data categories remain unchanged (still "wedding" and "formal" in the source data)
-- Masonry layout CSS classes are already implemented and will be the only view
