@@ -10,7 +10,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useScrollToAnchor } from "@/hooks/useScrollToAnchor";
-import { InstallBanner } from "@/components/pwa/InstallBanner";
+
 import { OfflineIndicator } from "@/components/pwa/OfflineIndicator";
 import { PwaUpdateBanner } from "@/components/pwa/PwaUpdateBanner";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -111,7 +111,7 @@ const AppContent = () => {
         </Routes>
       </main>
       {!hideChrome && !isAdminRoute && <Footer />}
-      {!hideChrome && !isAdminRoute && !isMobile && <InstallBanner />}
+      
       {showMobileActionBar && <MobileActionBar />}
     </div>;
 };
