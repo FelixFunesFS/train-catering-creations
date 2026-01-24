@@ -52,9 +52,7 @@ export const DiscoveryCategoryNav = ({
 
   const getCategoryPreviewImage = (categoryId: string) => {
     const category = galleryCategories.find(cat => cat.id === categoryId);
-    const filterIds = category?.filterIds || [categoryId];
-    const categoryImages = galleryImages.filter(img => filterIds.includes(img.category) && img.quality >= 7);
-    return categoryImages[0] || galleryImages[0];
+    return category?.previewImage || "";
   };
 
   const getCategoryImageCount = (categoryId: string) => {
@@ -103,7 +101,7 @@ export const DiscoveryCategoryNav = ({
                     onClick={() => onCategorySelect(category.id)}
                   >
                     <OptimizedImage
-                      src={previewImage.src}
+                      src={previewImage}
                       alt={category.name}
                       className="w-full h-full object-cover"
                       containerClassName="w-full h-full"
@@ -151,7 +149,7 @@ export const DiscoveryCategoryNav = ({
                   onClick={() => onCategorySelect(category.id)}
                 >
                   <OptimizedImage
-                    src={previewImage.src}
+                    src={previewImage}
                     alt={category.name}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     containerClassName="w-full h-full"
