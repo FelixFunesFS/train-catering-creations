@@ -215,14 +215,6 @@ export const SplitHero = () => {
             </div>
           </div>
 
-          {/* Navigation Arrows */}
-          <button onClick={handlePrevious} className="absolute left-4 top-1/2 transform -translate-y-1/2 z-20 bg-black/60 backdrop-blur-sm text-white hover:bg-black/70 p-2 rounded-full min-w-[44px] min-h-[44px] flex items-center justify-center transition-all duration-200 shadow-lg border border-white/20" aria-label="Previous image">
-            <ArrowLeft className="h-4 w-4" />
-          </button>
-          
-          <button onClick={handleNext} className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20 bg-black/60 backdrop-blur-sm text-white hover:bg-black/70 p-2 rounded-full min-w-[44px] min-h-[44px] flex items-center justify-center transition-all duration-200 shadow-lg border border-white/20" aria-label="Next image">
-            <ArrowRight className="h-4 w-4" />
-          </button>
         </div>
 
         {/* Content Area - Responsive with proper spacing */}
@@ -289,15 +281,15 @@ export const SplitHero = () => {
 
         {/* Controls */}
         <div className="absolute top-6 right-6 z-20 flex space-x-2">
-          <Button variant="ghost" size="icon" onClick={handlePrevious} aria-label="Previous image" className="bg-black/20 backdrop-blur-sm hover:bg-black/30 text-red-500">
+          <Button variant="ghost" size="icon" onClick={handlePrevious} aria-label="Previous image" className="bg-white/10 backdrop-blur-md hover:bg-white/20 text-white/70 hover:text-white opacity-60 hover:opacity-100 transition-all duration-200 border border-white/10">
             <ArrowLeft className="h-5 w-5" />
           </Button>
           
-          <Button variant="ghost" size="icon" onClick={togglePlayPause} aria-label={isPlaying ? 'Pause slideshow' : 'Play slideshow'} className="bg-black/20 backdrop-blur-sm hover:bg-black/30 text-red-500">
+          <Button variant="ghost" size="icon" onClick={togglePlayPause} aria-label={isPlaying ? 'Pause slideshow' : 'Play slideshow'} className="bg-white/10 backdrop-blur-md hover:bg-white/20 text-white/70 hover:text-white opacity-60 hover:opacity-100 transition-all duration-200 border border-white/10">
             {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
           </Button>
           
-          <Button variant="ghost" size="icon" onClick={handleNext} aria-label="Next image" className="bg-black/20 backdrop-blur-sm hover:bg-black/30 text-red-500">
+          <Button variant="ghost" size="icon" onClick={handleNext} aria-label="Next image" className="bg-white/10 backdrop-blur-md hover:bg-white/20 text-white/70 hover:text-white opacity-60 hover:opacity-100 transition-all duration-200 border border-white/10">
             <ArrowRight className="h-5 w-5" />
           </Button>
         </div>
