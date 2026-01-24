@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { OptimizedImage } from "@/components/ui/optimized-image";
 import { Badge } from "@/components/ui/badge";
-import { Play, Pause, ChevronDown, Heart, Star, Phone, Calendar, ArrowLeft, ArrowRight } from "lucide-react";
+import { Play, Pause, ChevronDown, Heart, Star, Phone, Calendar, ArrowLeft, ArrowRight, Award } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
@@ -225,6 +225,26 @@ export const SplitHero = () => {
             ))}
           </div>
 
+          {/* Compact Trust Marquee */}
+          <div className="absolute top-12 left-0 right-0 z-20 overflow-hidden">
+            <div className="flex items-center justify-center gap-4 px-4 py-2 bg-black/40 backdrop-blur-sm">
+              <div className="flex items-center gap-1.5 text-xs text-white/90">
+                <Star className="h-3 w-3 text-gold fill-gold" />
+                <span>500+ Events</span>
+              </div>
+              <span className="text-white/40">•</span>
+              <div className="flex items-center gap-1.5 text-xs text-white/90">
+                <Award className="h-3 w-3 text-gold" />
+                <span>5-Star Rated</span>
+              </div>
+              <span className="text-white/40">•</span>
+              <div className="flex items-center gap-1.5 text-xs text-white/90">
+                <Heart className="h-3 w-3 text-gold" />
+                <span>Family-Owned</span>
+              </div>
+            </div>
+          </div>
+
           {/* Full Screen Background Image */}
           <OptimizedImage 
             src={currentImage.src} 
@@ -238,10 +258,10 @@ export const SplitHero = () => {
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
         </div>
 
-        {/* Content Overlay - Positioned at Bottom */}
+        {/* Content Overlay - Positioned Up 20% */}
         <div 
           ref={contentRef} 
-          className={`absolute inset-x-0 bottom-0 z-20 p-4 sm:p-6 pb-8 sm:pb-12 ${contentAnimationClass}`}
+          className={`absolute inset-x-0 bottom-[20%] z-20 p-4 sm:p-6 ${contentAnimationClass}`}
           role="region" 
           aria-label="Content section"
         >
@@ -267,11 +287,11 @@ export const SplitHero = () => {
               </p>
             </div>
 
-            {/* CTA Buttons */}
+            {/* CTA Buttons - High Contrast */}
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
               <Button 
                 size="lg" 
-                className="w-full sm:flex-1 bg-white text-primary hover:bg-white/90 font-semibold min-h-[48px]" 
+                className="w-full sm:flex-1 bg-gradient-ruby-primary hover:opacity-90 text-white font-semibold min-h-[48px] shadow-lg" 
                 asChild
               >
                 <Link to="/request-quote#page-header" className="flex items-center justify-center gap-2">
@@ -282,7 +302,7 @@ export const SplitHero = () => {
               <Button 
                 variant="outline" 
                 size="lg" 
-                className="w-full sm:flex-1 border-white/50 text-white hover:bg-white/10 min-h-[48px]" 
+                className="w-full sm:flex-1 border-2 border-white text-white bg-white/10 backdrop-blur-sm hover:bg-white/20 min-h-[48px] shadow-lg" 
                 asChild
               >
                 <a href="tel:8439700265" className="flex items-center justify-center gap-2">
