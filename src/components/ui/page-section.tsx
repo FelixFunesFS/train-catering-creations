@@ -17,7 +17,7 @@ const PageSection = React.forwardRef<HTMLElement, PageSectionProps>(
         ref={ref}
         id={skipToContentId}
         className={cn(
-          "py-6 sm:py-8 lg:py-12",
+          "py-10 sm:py-12 lg:py-16",
           pattern && `section-pattern-${pattern}`,
           withBorder && "section-border",
           className

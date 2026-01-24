@@ -30,7 +30,7 @@ export const Footer = () => {
   const services = ["Military Functions", "Corporate Catering", "Wedding Catering", "Private Events", "Holiday Parties", "Funeral Repasts", "Custom Menus"];
   return <footer className="bg-gradient-to-br from-background via-muted/20 to-background border-t border-border">
       {/* Main Footer Content */}
-      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-[38px] my-0">
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-10 lg:py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
           
           {/* Company Information */}
