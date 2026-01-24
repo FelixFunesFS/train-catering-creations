@@ -1,136 +1,88 @@
 
-Goal
-- Update the wording for the “chafers_requested” supply so it displays:
-  - Delivery Only / Delivery with Setup / Drop Off: “Food Warmers with Fuel”
-  - Full Service Catering: “Chafing Dishes with Fuel”
-- Do this without breaking any existing workflows (quote submission, menu edit, regenerate line items, emails).
+Context & what we already know (from logs)
+- The system is successfully attempting and completing SMTP sends to `envision@mkqconsulting.com`.
+  - Edge function logs show:
+    - `Sending email via SMTP to: envision@mkqconsulting.com …`
+    - `Email sent successfully via SMTP to: envision@mkqconsulting.com`
+  - The `analytics_events` table also shows `email_send_attempt` and `email_send_success` events for that address (multiple times).
+- That means: the app/backend is not failing at “send time”; the problem is downstream delivery (filtering/quarantine/rejection after SMTP accept), especially common with Outlook/Exchange.
 
-Key principle (best way to avoid breaking functionality)
-- Do NOT change any database fields, booleans, IDs, or selection keys.
-- Keep using the existing boolean: `quote_requests.chafers_requested` (and the internal supply id `chafers` in MenuEditorInline).
-- Only change the *display text* (labels in UI) and the *generated description text* in line items.
-- This ensures:
-  - old quotes still load correctly
-  - menu editor save logic still maps supplies back to the correct boolean
-  - “Regenerate from Quote” still works
-  - no migration is required
+Most likely root causes (Outlook/Exchange-specific)
+- Exchange-side filtering/quarantine is capturing or silently dropping the messages (common when the sending domain/IP reputation is low or content triggers filters).
+- DMARC/SPF alignment issues if we ever send “From” as anything other than the authenticated SMTP account domain (or if Exchange interprets it as spoofing).
+- Content/links can trigger filtering (lots of HTML, buttons, external links, tracking pixels). Even without tracking pixels, some templates can still trip policies.
+- Recipient address policies (blocked sender, blocked domain, transport rules, ATP/Safe Links) can block without user-visible spam.
 
-Where the text currently comes from (so we update all relevant generators)
-There are multiple places that turn `chafers_requested` into text:
+What we’ll do next (fastest way to confirm what’s happening)
+1) Confirm whether Exchange is quarantining or rejecting
+- Ask you (or the customer’s IT) to check Exchange Admin Center:
+  - Quarantine
+  - Message trace (search for messages from `soultrainseatery@gmail.com` around the send times)
+  - Transport rules / anti-spam policies for the recipient mailbox
+- If you can get one data point from Message Trace, it will immediately tell us: “delivered”, “quarantined”, or “dropped/rejected”.
 
-1) Invoice/estimate line item generation (authoritative for what you see in the estimate)
-- Edge function: `supabase/functions/generate-invoice-from-quote/index.ts`
-  - currently pushes: “Stainless steel chafers with fuel”
-- Client-side regeneration: `src/utils/invoiceFormatters.ts`
-  - currently pushes: “Stainless steel chafers with fuel”
-  - this is commonly used by “Regenerate from Quote” and after menu edits
+2) Confirm the exact “From” address used for the email type you’re testing
+- We currently standardize to `Soul Train’s Eatery <soultrainseatery@gmail.com>`.
+- If any path is overriding `from` to a different domain (or a non-existent address), Exchange is much more likely to drop/spoof-block it.
+- We’ll verify in code paths that generate estimate emails, quote confirmations, and admin notifications.
 
-2) UI selection labels (what the user/admin clicks)
-- Public quote form (alternate): `src/components/quote/alternative-form/FinalStep.tsx`
-  - currently shows “Chafing Dishes with Fuel”
-- Public quote form (step-based): `src/components/quote/steps/SuppliesStep.tsx`
-  - currently shows “Chafing Dishes”
-- Admin menu editor: `src/components/admin/events/MenuEditorInline.tsx`
-  - currently shows “Chafing Dishes with Fuel” in SUPPLY_ITEMS
-- Admin event detail badges: `src/components/admin/events/EventDetail.tsx`
-  - currently shows “Chafing Dishes” badge (optional to update, but recommended for consistency)
+Implementation plan (code + configuration) to improve deliverability without breaking functionality
+A) Add stronger delivery diagnostics (so we stop guessing)
+1) Expand analytics logging in `send-smtp-email`
+- Log additional metadata (best-effort, no PII beyond addresses/subject):
+  - email “type” (estimate_ready, quote_confirmation, admin_notification, etc.) passed in from callers
+  - quote_id / invoice_id correlation (if applicable)
+  - the resolved `from` actually used (normalizedFrom / fromParts)
+- Benefit: from the admin UI we can see what was sent, which template, and correlate to user actions.
 
-3) Emails (recommended for consistency, even though you asked “line items”)
-- Shared email supplies summary: `supabase/functions/_shared/emailTemplates.ts`
-  - currently shows “Chafing Dishes”
-- Admin quote notification email: `supabase/functions/send-quote-notification/index.ts`
-  - currently shows “Chafing Dishes with Fuel”
+2) Add an “Email Delivery” panel in Admin > Settings (or Admin > Events)
+- Pull from `analytics_events` and show:
+  - attempts, successes, failures
+  - to/from/subject/type/timestamp
+- Benefit: lets you confirm “we did send” and when, without digging in logs.
 
-Implementation approach (safe + consistent)
+B) Improve deliverability for Outlook/Exchange (highest impact)
+1) Move away from “gmail-from-smtp” for production deliverability
+- Best practice for Outlook/Exchange deliverability is a verified sending domain with SPF/DKIM/DMARC.
+- Two safe options:
+  Option 1 (recommended if available): Lovable workspace email domain (transactional sending)
+  Option 2: Resend (or similar) with verified domain
+- We will keep the current SMTP path as a fallback until the new sender is verified to avoid downtime.
 
-A) Add one tiny “label helper” (same logic in both places where line items are generated)
-We’ll implement the same rule in:
-- `supabase/functions/generate-invoice-from-quote/index.ts`
-- `src/utils/invoiceFormatters.ts`
+2) Ensure SPF/DKIM/DMARC are set for `soultrainseatery.com`
+- Add SPF record for the chosen provider.
+- Enable DKIM signing.
+- Add a basic DMARC policy (start with `p=none` for monitoring, then tighten later).
+- Outcome: Exchange stops treating your messages as suspicious/spoofed.
 
-Helper behavior:
-- If `quote.chafers_requested` is true:
-  - If service type is “full-service” (and its legacy aliases), label = “Chafing Dishes with Fuel”
-  - Else if service type is delivery-only / delivery-setup / drop-off (and legacy aliases), label = “Food Warmers with Fuel”
-  - Else (unknown service type): default to the delivery-style label (“Food Warmers with Fuel”) to avoid accidentally implying full-service equipment
+C) Template hardening for Exchange (lower impact, but helps)
+1) Ensure a real plain-text alternative is always included
+- Some Exchange configurations are harsher on HTML-only messages.
+- We’ll ensure every send includes a meaningful plain-text `content` (not just “view in HTML client”).
 
-Then replace the current hardcoded push:
-- from: “Stainless steel chafers with fuel”
-- to: the service-type-aware label returned by the helper
+2) Reduce “spam-like” signals in certain templates (if needed)
+- Avoid overly promotional phrasing in transactional emails.
+- Keep consistent footer identity, physical mailing address if required for certain policies, and stable link domains.
 
-Why this won’t break anything:
-- It only changes a string in the description of the existing consolidated “Supply & Equipment Package” line item.
-- No IDs change, no categories change, no schema changes.
+What we will not change (to avoid breaking functionality)
+- We will not change:
+  - database schema
+  - quote/invoice workflows
+  - internal function names
+  - current UI flows for sending previews vs sending real emails
+- Any email provider switch will be done behind the existing edge function interfaces so the rest of the app keeps working.
 
-B) Update the UI labels (selection text) without changing the underlying boolean/key
-1) Public quote form (both variants)
-- `src/components/quote/alternative-form/FinalStep.tsx`
-- `src/components/quote/steps/SuppliesStep.tsx`
+Acceptance criteria (how we’ll know it’s fixed)
+- For a test send to `envision@mkqconsulting.com`:
+  - Admin “Email Delivery” panel shows attempt + success with the correct email type and sender.
+  - Exchange Message Trace confirms “Delivered” (not “Quarantined”).
+  - The email appears in Inbox (or at minimum Spam, and we can then tune policies).
 
-Implementation:
-- Read/watch the current `service_type` from the form state.
-- Display:
-  - “Food Warmers with Fuel” when service type is delivery-only/delivery-setup/drop-off
-  - “Chafing Dishes with Fuel” when service type is full-service
-- Keep the field name `chafers_requested` exactly as-is.
+Questions I still need answered to proceed efficiently (non-technical)
+- Do you (or the customer) have access to Exchange Admin Center to run a Message Trace, or is there an IT contact who can share the trace result?
+- Do you want emails to come from `soultrainseatery.com` (recommended) instead of the Gmail address for best deliverability?
 
-2) Admin Menu Editor (full-page editor route you’re on now)
-- `src/components/admin/events/MenuEditorInline.tsx`
-
-Implementation:
-- Build SUPPLY_ITEMS with a dynamic label for the `chafers` option based on `quote.service_type`.
-- Keep the option id as `chafers` so saving still maps to `chafers_requested`.
-
-3) (Optional but recommended) Admin EventDetail badges
-- `src/components/admin/events/EventDetail.tsx`
-- Change the badge label from a generic “Chafing Dishes” to the service-type-aware label.
-- This is purely display; it won’t affect functionality.
-
-C) Update email wording for consistency (recommended)
-Even though your request is “line items,” emails currently render supplies too, and it’s confusing if the estimate says “Food Warmers with Fuel” but an email says “Chafing Dishes”.
-
-We’ll update:
-- `supabase/functions/_shared/emailTemplates.ts` (Supplies summary)
-- `supabase/functions/send-quote-notification/index.ts` (Admin notification supplies list)
-
-Using the same service-type-aware label logic.
-
-D) How to update existing estimates already generated
-Because line items are stored as text at the time of generation, existing invoices won’t magically change until regenerated.
-
-Best safe method:
-- Use your existing “Regenerate from Quote” (or “Save & Update Estimate” after menu edits).
-- This will rebuild the line items from the quote and update the supplies description while preserving manual prices (per your system design).
-
-Verification checklist
-1) Create/adjust a quote with `chafers_requested = true` and test three service types:
-- Delivery Only → Supply package description includes “Food Warmers with Fuel”
-- Delivery with Setup → Supply package description includes “Food Warmers with Fuel”
-- Full Service → Supply package description includes “Chafing Dishes with Fuel”
-
-2) UI verification
-- On the public quote form supplies step, the checkbox label changes appropriately after picking service type
-- On the admin menu editor page (/admin/event/:id/menu), the supply option label shows the correct text
-- After “Save & Update Estimate,” the estimate line item text matches the service type
-
-3) Email verification (if we include the email updates)
-- Preview or send a quote confirmation/admin notification and confirm supplies wording matches the service type.
-
-Files we’ll update (expected)
-Line items:
-- supabase/functions/generate-invoice-from-quote/index.ts
-- src/utils/invoiceFormatters.ts
-
-UI labels:
-- src/components/quote/alternative-form/FinalStep.tsx
-- src/components/quote/steps/SuppliesStep.tsx
-- src/components/admin/events/MenuEditorInline.tsx
-- (optional) src/components/admin/events/EventDetail.tsx
-
-Emails (recommended):
-- supabase/functions/_shared/emailTemplates.ts
-- supabase/functions/send-quote-notification/index.ts
-
-Notes / edge cases
-- Legacy service_type values (drop-off, drop_off, delivery_only, full_service) will be handled in the service-type check so older records still display correctly.
-- If a quote is missing service_type entirely, we’ll default to “Food Warmers with Fuel” to avoid implying full-service equipment when it may be a drop-off style request.
+Technical work items (for implementation once you approve in Default mode)
+- Update `supabase/functions/send-smtp-email/index.ts` to log `email_type` + correlation IDs and include a richer plain-text body.
+- Add a small admin UI page/component to view `analytics_events` email logs.
+- Add a provider abstraction so we can switch to a verified-domain sender (Lovable domain or Resend) without changing the rest of the app.
