@@ -1,116 +1,99 @@
 
 
 ## Goal
-Simplify the Regular Event Quote and Wedding Event Quote pages by removing the Hero/Header sections and CTA sections, leaving only the core form with clear exit navigation. This creates a focused, distraction-free form experience.
+Remove the PWA Install Banner on mobile views and ensure the mobile action bar (Request Quote/Text Us) is properly sized and responsive.
 
 ## Current State Analysis
 
-Looking at the desktop screenshot and code:
+### PWA Install Banner (`src/components/pwa/InstallBanner.tsx`)
+- Positioned at `fixed bottom-0 left-0 right-0 z-50`
+- Shows after 2 page views on devices where PWA install is available
+- **Problem**: Conflicts with `MobileActionBar` which is also at `bottom-0 z-40`
+- When both show, they overlap and create a poor mobile experience
 
-**Current flow (desktop)**:
-```text
-┌─────────────────────────────────────┐
-│           Site Header               │
-├─────────────────────────────────────┤
-│         HERO SECTION                │  ← Remove this
-│  "Request Your Perfect Event Quote" │
-│       (marketing copy)              │
-├─────────────────────────────────────┤
-│         STEP PROGRESS               │
-│       (Step 1 of 6 • Contact)       │
-├─────────────────────────────────────┤
-│           FORM CONTENT              │  ← Keep this
-│      (fields, navigation)           │
-├─────────────────────────────────────┤
-│          CTA SECTION                │  ← Remove this
-│   "Questions About Your Event?"     │
-├─────────────────────────────────────┤
-│           Site Footer               │
-└─────────────────────────────────────┘
+### Mobile Action Bar (`src/components/mobile/MobileActionBar.tsx`)
+- Contains: "Request Quote" (primary CTA) and "Text Us" buttons
+- Uses `size="responsive-xl"` = `min-h-[52px] px-12 py-4 text-lg`
+- Already mobile-first with good touch targets (52px minimum height)
+
+### App.tsx Integration
+- Line 114: `{!hideChrome && !isAdminRoute && <InstallBanner />}` - shows on all public pages
+- Line 115: `{showMobileActionBar && <MobileActionBar />}` - shows on mobile only
+
+## Solution
+
+### A) Hide Install Banner on Mobile
+Update `App.tsx` to only show `<InstallBanner />` on desktop devices. This removes the PWA download prompt from mobile views entirely, eliminating the overlap with the action bar.
+
+**Change in App.tsx:**
+```tsx
+// Before:
+{!hideChrome && !isAdminRoute && <InstallBanner />}
+
+// After:
+{!hideChrome && !isAdminRoute && !isMobile && <InstallBanner />}
 ```
 
-**Current flow (mobile)**: Already simpler—Header/Footer are hidden, and there's a sticky "Exit" bar at top. But the page wrapper still includes the Hero above the form.
+### B) Refine Mobile Action Bar Button Sizing
+The current `responsive-xl` size may be too large on small phones. Adjust to a more balanced sizing that works well across all mobile device widths:
 
-## Proposed Simplified Flow
+**Changes in MobileActionBar.tsx:**
+1. Change button size from `responsive-xl` to `responsive-lg` for better fit on smaller phones
+2. Adjust icon sizing to be proportional
+3. Ensure proper touch target minimums (48px) while not being overly large
 
-**After changes (both desktop and mobile)**:
-```text
-┌─────────────────────────────────────┐
-│   Exit Bar (logo + "Exit" button)   │  ← New: Always visible on desktop too
-├─────────────────────────────────────┤
-│         STEP PROGRESS               │
-│       (Step 1 of 6 • Contact)       │
-├─────────────────────────────────────┤
-│           FORM CONTENT              │
-│      (fields, navigation)           │
-│                                     │
-│   (contact info shown in footer     │
-│    of form or on final step)        │
-└─────────────────────────────────────┘
+**Updated button styling:**
+```tsx
+<Button
+  asChild
+  variant="cta"
+  size="responsive-lg"  // Changed from responsive-xl
+  className="flex-1"
+>
 ```
 
-## Why This Is the Right MVP Approach
+### C) Optional: Add Call Button
+Since the user mentioned "get quote/send text/call", consider whether a third "Call" button should be added. However, this may crowd the mobile bar.
 
-1. **Reduces cognitive load**: Users clicking "Get Quote" from the homepage have already made the decision—they don't need more marketing copy
-2. **Faster time-to-first-field**: The form fields are immediately visible without scrolling
-3. **Consistent experience**: Desktop and mobile both feel like a focused "wizard" flow
-4. **No functionality breakage**: We're only removing wrapper elements (Hero, CTA), not touching form logic, validation, submission, or edge functions
-5. **Contact info preserved**: The form's Review step and the Thank You page already show contact info; we can optionally add a subtle help link in the form footer
-
-## Implementation Details
-
-### A) Update `RegularEventQuote.tsx`
-- Remove the Hero section (`<div ref={heroRef} ...>` block with title/description)
-- Remove the `<CTASection>` component
-- Remove unused animation hooks (`useScrollAnimation`, `useAnimationClass` for hero)
-- Simplify to just render the `<SinglePageQuoteForm>` with appropriate layout
-- For desktop: switch to `layout="fullscreen"` (or keep as embedded but hide site chrome)
-
-### B) Update `WeddingEventQuote.tsx`
-- Same changes: remove `<header>` hero block, remove `<CTASection>`
-- Remove unused animation hooks
-- Simplify to just the form
-
-### C) Update `App.tsx` (optional enhancement)
-- For MVP simplicity, consider hiding Header/Footer for quote wizard routes on **all devices** (not just mobile)
-- This gives a consistent "focused wizard" experience
-- Change: `const hideChrome = isEventFullView || isEventMenuEdit || isEstimatePrint || isQuoteWizardRoute;`
-- (Remove the `&& isMobile` condition)
-
-### D) Enhance `SinglePageQuoteForm.tsx` Exit Experience (desktop)
-- Currently, the "Exit" button only shows in the mobile sticky header
-- For desktop fullscreen mode, add an Exit option to the progress bar area or as a subtle link
-- This ensures users can always exit without confusion
-
-### E) Optional: Add Help/Contact Link in Form
-- Since we're removing the CTA section, add a small "Need help? Call (843) 970-0265" link in the form navigation footer or on the Review step
-- This preserves the contact info without the marketing section
+**Recommendation**: Keep the two-button layout (Request Quote + Text Us) for simplicity. The phone number is accessible via the Text Us flow or footer.
 
 ## Files to Modify
 
 | File | Changes |
 |------|---------|
-| `src/pages/RegularEventQuote.tsx` | Remove Hero section, remove CTASection, simplify imports |
-| `src/pages/WeddingEventQuote.tsx` | Remove Hero section, remove CTASection, simplify imports |
-| `src/App.tsx` | (Optional) Hide chrome for all quote wizard routes, not just mobile |
-| `src/components/quote/SinglePageQuoteForm.tsx` | Add Exit button for desktop layout |
-| `src/components/quote/StepNavigation.tsx` | (Optional) Add subtle help link |
+| `src/App.tsx` | Add `!isMobile` condition to InstallBanner rendering |
+| `src/components/mobile/MobileActionBar.tsx` | Adjust button sizes from `responsive-xl` to `responsive-lg` |
 
 ## What Will NOT Change
-- Form validation logic (`formSchema.ts`)
-- Submission handlers and edge function integrations
-- Step navigation and progress tracking
-- Database schema
-- Email workflows
-- Thank You page experience
+- PWA functionality (install still works from browser menu)
+- Desktop PWA banner behavior (will continue to show)
+- Form submission flows
+- Text message (sms:) protocol handling
+- Mobile action bar visibility logic (admin/quote wizard exclusions)
+
+## Technical Details
+
+### Button Size Comparison
+```text
+responsive-xl: min-h-[52px] px-12 py-4 text-lg  (current)
+responsive-lg: min-h-[48px] px-10 py-3 text-base (proposed)
+```
+
+The `responsive-lg` size provides:
+- 48px minimum height (meets Apple/Google touch target guidelines)
+- Slightly smaller horizontal padding for better fit on narrow phones
+- Base text size that's still readable
+
+### Z-Index Stack
+After changes:
+- Mobile Action Bar: `z-40` at bottom (only element at bottom on mobile)
+- Offline Indicator / PWA Update Banner: `z-50` at top (for critical notifications)
 
 ## Verification
-1. Navigate to `/request-quote/regular` on desktop—should show only the form wizard with Exit option
-2. Navigate to `/request-quote/wedding` on desktop—same behavior
-3. Test on mobile—same focused experience (already close to this)
-4. Complete a test submission—confirm workflow still works end-to-end
-5. Click Exit—should return to `/request-quote` selection page
-
-## Summary
-Yes, this is the best way to simplify without breaking functionality. We're only removing presentational wrapper elements (Hero marketing copy, CTA section) and keeping all form logic intact. The result is a cleaner, faster, more focused quote request experience that matches modern wizard patterns.
+1. Open site on mobile device or mobile emulator
+2. Verify PWA Install Banner does NOT appear
+3. Verify Mobile Action Bar shows with properly sized buttons
+4. Test "Request Quote" navigates to `/request-quote`
+5. Test "Text Us" opens SMS app with correct number
+6. Verify buttons are easily tappable on both small and large phones
 
