@@ -136,9 +136,9 @@ const About = () => {
           {/* Full-width Background Image */}
           <div 
             className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
-            style={{ 
-              backgroundImage: `url('/lovable-uploads/894051bf-31c6-4930-bb88-e3e1d74f7ee1.png')` 
-            }}
+          style={{ 
+            backgroundImage: `url('/lovable-uploads/eb77404f-369f-484f-a9ce-786b7f1ddc94.png')` 
+          }}
             aria-hidden="true"
           />
           
