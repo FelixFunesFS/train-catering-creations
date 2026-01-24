@@ -1,120 +1,68 @@
 
 
-# Comprehensive Logo Placement Strategy - All Main Pages
+# Revised Logo Placement Strategy - Cleaner Approach
 
-## Overview
+## My Recommendation
 
-The original plan only addressed the **home page hero (SplitHero)**. This expanded plan covers logo placement across **all main public-facing pages** to create consistent brand presence throughout the site.
+**Less is more.** The logo should appear strategically, not everywhere. Here's the refined approach:
 
----
+### What to REMOVE (Cluttered)
 
-## Current Logo Inventory
+The small logos next to the badge icons on Menu and Gallery pages add visual clutter without adding value - the badge already identifies the page, and the header already shows the logo.
 
-| Location | Current Status | Size |
-|----------|---------------|------|
-| **Header** (global) | ✅ Logo present | h-6/w-6 → h-8/w-8 (lg) |
-| **Footer** (global) | ✅ Logo present | w-10/h-10 |
-| **SplitHero** (Home) | ❌ Heart icon only | N/A |
-| **StoryHero** (alternate) | ✅ Logo present | h-16/w-16 |
-| **About** page | ❌ No logo | N/A |
-| **Menu** page | ❌ No logo | N/A |
-| **Reviews** page | ❌ No logo | N/A |
-| **Gallery** page | ❌ No logo | N/A |
-| **FAQ** page | ❌ No logo | N/A |
-| **Request Quote** page | ❌ No logo | N/A |
+| Page | Current Issue | Action |
+|------|--------------|--------|
+| **Menu** (`SimpleMenuHeader.tsx`) | Small `h-6` logo next to Utensils icon | **Remove** - redundant |
+| **Gallery** (`AlternativeGallery.tsx`) | Small `h-6` logo next to Camera icon | **Remove** - redundant |
 
----
+### What to KEEP/ADD (Strategic)
 
-## Proposed Changes by Page
+| Location | Logo Type | Why |
+|----------|-----------|-----|
+| **Header** (global) | Active logo | Navigation/brand identity |
+| **Footer** (global) | Active logo | Closing brand presence |
+| **Home Hero** | Badge + watermark | First impression, hero moment |
+| **Home CTA** | Subtle watermark | Reinforces brand at conversion point |
+| **About "Our Story"** | Background watermark | Storytelling section |
 
-### 1. HOME PAGE - SplitHero.tsx (Primary Focus)
+### CTA Watermark Strategy
 
-**Current:** Heart icon + "Soul Train's" text badge
-**Proposed:** Replace with actual logo + text
+**Only the Home page CTA should have the watermark.** 
 
-**Mobile (lines 210-216):**
-```tsx
-<div className="absolute top-4 left-4 z-20">
-  <div className="flex items-center space-x-2 bg-black/40 backdrop-blur-sm px-3 py-1.5 rounded-full">
-    <img 
-      src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
-      alt="Soul Train's Eatery Logo" 
-      className="h-8 w-8 object-contain"
-    />
-    <span className="text-white font-script text-lg">Soul Train's</span>
-  </div>
-</div>
-```
-
-**Desktop (lines 283-289):**
-```tsx
-<div className="absolute bottom-6 left-6 z-20">
-  <div className="flex items-center space-x-3 bg-black/30 backdrop-blur-sm px-4 py-2 rounded-xl">
-    <img 
-      src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
-      alt="Soul Train's Eatery Logo" 
-      className="h-12 w-12 object-contain"
-    />
-    <span className="text-white font-script text-2xl">Soul Train's Eatery</span>
-  </div>
-</div>
-```
-
-**Desktop Content Watermark (line ~293):**
-```tsx
-<div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
-  <img 
-    src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
-    alt="" 
-    aria-hidden="true"
-    className="w-72 h-72 object-contain opacity-[0.04]"
-  />
-</div>
-```
+Rationale:
+- Home page is the primary landing page - maximum brand impact
+- Other CTAs (Menu, Reviews, FAQ, Quote) are on secondary pages where users have already seen the brand multiple times
+- Adding watermarks to every CTA creates visual fatigue
 
 ---
 
-### 2. ABOUT PAGE - About.tsx
+## Implementation Details
 
-**Location:** "Our Story" section background (lines 31-74)
-**Proposed:** Add subtle watermark logo in the background behind content
+### 1. Remove Logo from Menu Badge
 
-```tsx
-{/* Add inside the relative section, after the dark gradient overlay */}
-<div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none overflow-hidden opacity-[0.06]">
-  <img 
-    src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
-    alt="" 
-    aria-hidden="true"
-    className="w-64 h-64 object-contain"
-  />
-</div>
-```
-
----
-
-### 3. MENU PAGE - SimplifiedMenu.tsx
-
-**Location:** SimpleMenuHeader component (would need to check component)
-**Proposed:** Add small logo accent next to the menu style toggle or as a decorative element
-
-**Alternative:** Add watermark behind category sections
-
----
-
-### 4. GALLERY PAGE - AlternativeGallery.tsx
-
-**Location:** "Family Story" section (lines 86-110)
-**Proposed:** Add logo next to the Camera icon badge for brand consistency
+**File:** `src/components/menu/SimpleMenuHeader.tsx`
 
 ```tsx
-{/* Update the badge area */}
+// REMOVE lines 21-25 (the img tag)
 <div className="flex items-center justify-center space-x-2 mb-3">
-  <img 
-    src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
-    alt="" 
-    className="h-6 w-6 object-contain"
-  />
+  {/* Remove this img block */}
+  <Utensils className="h-5 w-5 text-ruby" />
+  <Badge variant="outline" className="border-ruby text-ruby font-script text-sm">
+    Our Menu
+  </Badge>
+</div>
+```
+
+---
+
+### 2. Remove Logo from Gallery Badge
+
+**File:** `src/pages/AlternativeGallery.tsx` (lines 88-99)
+
+```tsx
+// REMOVE lines 90-94 (the img tag)
+<div className="flex items-center justify-center space-x-2 mb-3">
+  {/* Remove this img block */}
   <Camera className="h-5 w-5 text-ruby" />
   <Badge variant="outline" className="border-ruby text-ruby font-script text-sm">
     Our Gallery
@@ -124,69 +72,110 @@ The original plan only addressed the **home page hero (SplitHero)**. This expand
 
 ---
 
-### 5. REVIEWS PAGE - Reviews.tsx
+### 3. Add Watermark to CTA Section (Home Only)
 
-**Location:** Header section (lines 77-100)
-**Proposed:** Consider adding logo as part of the rating display or as a watermark behind testimonial cards
+**File:** `src/components/ui/cta-section.tsx`
+
+Add an optional `showWatermark` prop that defaults to `false`:
+
+```tsx
+interface CTASectionProps {
+  title: string;
+  description: string;
+  buttons: CTAButton[];
+  footer?: string;
+  showWatermark?: boolean; // NEW prop
+}
+
+export const CTASection = ({ title, description, buttons, footer, showWatermark = false }: CTASectionProps) => {
+  // ... existing code ...
+  
+  return (
+    <section className="py-10 sm:py-12 lg:py-16">
+      <div className="mx-4 sm:mx-6 lg:mx-8 rounded-xl sm:rounded-2xl overflow-hidden shadow-elevated">
+        <div className="relative bg-gradient-to-r from-primary to-primary-dark py-8 sm:py-10 lg:py-12 overflow-hidden">
+          
+          {/* Watermark Logo - only shown when prop is true */}
+          {showWatermark && (
+            <div className="absolute right-4 sm:right-8 lg:right-12 top-1/2 -translate-y-1/2 pointer-events-none">
+              <img 
+                src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
+                alt="" 
+                aria-hidden="true"
+                className="w-28 sm:w-36 lg:w-44 h-28 sm:h-36 lg:h-44 object-contain opacity-[0.08]"
+              />
+            </div>
+          )}
+          
+          <div ref={contentRef} className={...}>
+            {/* existing content */}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+```
+
+Then update only the **Home page** to use the watermark:
+
+**File:** `src/pages/Index.tsx` (or wherever HomeCTA is used)
+
+```tsx
+<CTASection 
+  title="..."
+  description="..."
+  buttons={...}
+  showWatermark={true}  // Enable for home only
+/>
+```
 
 ---
 
-### 6. FAQ PAGE - FAQ.tsx
+### 4. Fix About Page Watermark Visibility
 
-**Location:** Header section (lines 50-66)
-**Proposed:** Subtle watermark in the "Contact CTA" section at the bottom
+**File:** `src/pages/About.tsx` (lines 44-52)
 
----
+Increase opacity from 6% to 12% for better visibility:
 
-### 7. REQUEST QUOTE PAGE - RequestQuote.tsx
-
-**Location:** CTASection component at bottom (lines 51-69)
-**Proposed:** Add watermark logo behind the CTA card for brand reinforcement at decision point
-
----
-
-## Priority Implementation Order
-
-| Priority | Page | Change Type | Impact |
-|----------|------|-------------|--------|
-| 1 | Home (SplitHero) | Replace icon with logo + add watermark | High - first impression |
-| 2 | About | Background watermark | Medium - storytelling |
-| 3 | Gallery | Badge enhancement | Medium - visual storytelling |
-| 4 | Request Quote | CTA watermark | Medium - conversion point |
-| 5 | Menu | Decorative accent | Low - functional page |
-| 6 | Reviews | Subtle watermark | Low - testimonial focus |
-| 7 | FAQ | Subtle watermark | Low - functional page |
+```tsx
+<div className="absolute right-4 sm:right-8 lg:right-16 top-1/2 -translate-y-1/2 pointer-events-none z-[5]">
+  <img 
+    src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
+    alt="" 
+    aria-hidden="true"
+    className="w-48 sm:w-56 lg:w-64 h-48 sm:h-56 lg:h-64 object-contain opacity-[0.12]"
+  />
+</div>
+```
 
 ---
 
-## Design Guidelines
+## Summary of Changes
 
-**Watermark Specifications:**
-- Opacity: 3-6% (`opacity-[0.03]` to `opacity-[0.06]`)
-- Size: w-48 to w-72 depending on context
-- Position: Offset from center to avoid competing with content
-- Always use `aria-hidden="true"` and `pointer-events-none`
-
-**Active Logo Specifications:**
-- Always include proper `alt` text
-- Use glassmorphic containers on image backgrounds
-- Maintain consistent sizing within context (hero vs. accent)
+| File | Action |
+|------|--------|
+| `src/components/menu/SimpleMenuHeader.tsx` | Remove logo img from badge area |
+| `src/pages/AlternativeGallery.tsx` | Remove logo img from badge area |
+| `src/components/ui/cta-section.tsx` | Add optional `showWatermark` prop + watermark element |
+| `src/pages/Index.tsx` | Pass `showWatermark={true}` to home CTA |
+| `src/pages/About.tsx` | Increase watermark opacity (6% → 12%) |
 
 ---
 
-## Summary
+## Final Logo Presence
 
-| Page | Current | Proposed |
-|------|---------|----------|
-| **Home Hero** | Heart icon | Logo + text badge, content watermark |
-| **About** | None | Background watermark in story section |
-| **Menu** | None | Optional decorative accent |
-| **Gallery** | None | Logo in "Family Story" badge area |
-| **Reviews** | None | Optional subtle watermark |
-| **FAQ** | None | Optional contact section watermark |
-| **Quote** | None | CTA section watermark |
-| **Header** | ✅ Present | No change |
-| **Footer** | ✅ Present | No change |
+| Location | Type | Visibility |
+|----------|------|------------|
+| Header | Active | Always visible |
+| Footer | Active | Always visible |
+| Home Hero | Badge + Text | Prominent |
+| Home Hero Content | Watermark | Subtle (4%) |
+| Home CTA | Watermark | Subtle (8%) |
+| About "Our Story" | Watermark | Subtle (12%) |
+| Menu Badge | **None** | Cleaned up |
+| Gallery Badge | **None** | Cleaned up |
+| Other CTAs | **None** | Clean |
 
-This comprehensive approach ensures the Soul Train's Eatery brand is consistently reinforced across all visitor touchpoints while maintaining visual elegance and avoiding over-saturation.
+This creates a cohesive brand experience: strong presence on the home page, subtle reinforcement on storytelling pages, and clean functional pages elsewhere.
 
