@@ -41,13 +41,13 @@ const About = () => {
           {/* Dark gradient overlay for text contrast */}
           <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/40" />
           
-          {/* Watermark Logo */}
-          <div className="absolute right-4 sm:right-8 lg:right-16 top-1/2 -translate-y-1/2 pointer-events-none z-[5]">
+          {/* Watermark Logo - repositioned to left side for visibility */}
+          <div className="absolute left-4 sm:left-8 lg:left-16 top-1/2 -translate-y-1/2 pointer-events-none z-[8]">
             <img 
               src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
               alt="" 
               aria-hidden="true"
-              className="w-48 sm:w-56 lg:w-64 h-48 sm:h-56 lg:h-64 object-contain opacity-[0.12]"
+              className="w-56 sm:w-64 lg:w-80 h-56 sm:h-64 lg:h-80 object-contain opacity-[0.15]"
             />
           </div>
           
