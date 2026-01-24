@@ -3,11 +3,13 @@ import { cn } from "@/lib/utils";
 
 interface CompactMenuItemProps {
   name: string;
+  description?: string;
   className?: string;
 }
 
 export const CompactMenuItem = ({ 
   name, 
+  description,
   className 
 }: CompactMenuItemProps) => {
   return (
@@ -20,6 +22,11 @@ export const CompactMenuItem = ({
         <h4 className="font-medium text-foreground group-hover:text-primary transition-colors text-base leading-relaxed">
           {name}
         </h4>
+        {description && (
+          <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+            {description}
+          </p>
+        )}
       </div>
     </div>
   );

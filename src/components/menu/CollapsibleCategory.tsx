@@ -11,6 +11,7 @@ interface CollapsibleCategoryProps {
   items: MenuItem[];
   defaultExpanded?: boolean;
   initialItemCount?: number;
+  isWeddingMode?: boolean;
 }
 
 export const CollapsibleCategory = ({
@@ -20,6 +21,7 @@ export const CollapsibleCategory = ({
   items,
   defaultExpanded = false,
   initialItemCount = 9,
+  isWeddingMode = false,
 }: CollapsibleCategoryProps) => {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
   const [showAll, setShowAll] = useState(false);
@@ -52,7 +54,10 @@ export const CollapsibleCategory = ({
             )}
           />
           <div>
-            <h2 className="text-lg sm:text-xl font-elegant font-semibold text-foreground">
+            <h2 className={cn(
+              "text-lg sm:text-xl font-semibold text-foreground",
+              isWeddingMode ? "font-script text-xl sm:text-2xl" : "font-elegant"
+            )}>
               {title}
             </h2>
             <p className="text-sm text-muted-foreground">{subtitle}</p>
@@ -79,6 +84,7 @@ export const CollapsibleCategory = ({
                 <CompactMenuItem
                   key={item.id}
                   name={item.name}
+                  description={item.description}
                 />
               ))}
             </div>
