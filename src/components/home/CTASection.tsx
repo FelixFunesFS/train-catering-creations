@@ -20,6 +20,7 @@ export const CTASection = () => {
         }
       ]}
       footer="Proudly serving Charleston, SC and the surrounding Lowcountry"
+      showWatermark={true}
     />
   );
 };
