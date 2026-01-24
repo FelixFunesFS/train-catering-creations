@@ -100,10 +100,10 @@ export const EnhancedImageModal = ({
             {currentIndex + 1} of {images.length}
           </span>
           <Button 
-            variant="ghost" 
-            size="sm" 
+            variant="modal-control" 
+            size="icon" 
             onClick={onClose}
-            className="text-white bg-black/50 hover:bg-black/70 h-10 w-10 p-0 rounded-full backdrop-blur-sm"
+            className="rounded-full backdrop-blur-sm"
             aria-label="Close modal"
           >
             <X className="h-5 w-5" />
@@ -120,9 +120,9 @@ export const EnhancedImageModal = ({
           >
             {/* Previous button */}
             <Button 
-              variant="ghost" 
-              size="sm" 
-              className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-10 text-white bg-black/50 hover:bg-black/70 h-10 w-10 sm:h-12 sm:w-12 p-0 rounded-full backdrop-blur-sm"
+              variant="modal-control" 
+              size="icon" 
+              className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-10 sm:h-12 sm:w-12 rounded-full backdrop-blur-sm"
               onClick={handlePrevious}
               disabled={images.length <= 1}
               aria-label="Previous image"
@@ -139,9 +139,9 @@ export const EnhancedImageModal = ({
 
             {/* Next button */}
             <Button 
-              variant="ghost" 
-              size="sm" 
-              className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-10 text-white bg-black/50 hover:bg-black/70 h-10 w-10 sm:h-12 sm:w-12 p-0 rounded-full backdrop-blur-sm"
+              variant="modal-control" 
+              size="icon" 
+              className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-10 sm:h-12 sm:w-12 rounded-full backdrop-blur-sm"
               onClick={handleNext}
               disabled={images.length <= 1}
               aria-label="Next image"
