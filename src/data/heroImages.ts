@@ -25,12 +25,5 @@ export const heroImages: GalleryImage[] = [
     title: "Military Formal Ceremony",
     description: "Elegant ceremony with decorative lighting arch and professional presentation",
     quality: 9
-  },
-  {
-    src: "/lovable-uploads/84f43173-e79d-4c53-b5d4-e8a596d1d614.png",
-    category: "wedding",
-    title: "Wedding Venue Dining",
-    description: "Elegant venue with floral arrangements and formal place settings",
-    quality: 9
   }
 ];

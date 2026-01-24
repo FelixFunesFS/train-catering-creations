@@ -1,25 +1,18 @@
 import { useState } from "react";
 import { galleryImages } from "@/data/galleryImages";
+import { galleryCategories } from "@/data/galleryCategories";
 import { ImmersiveMobileHero } from "@/components/gallery/ImmersiveMobileHero";
 import { DiscoveryCategoryNav } from "@/components/gallery/DiscoveryCategoryNav";
-import { StoryGalleryViewer } from "@/components/gallery/StoryGalleryViewer";
 import { InteractiveImageGrid } from "@/components/gallery/InteractiveImageGrid";
-import { GallerySearchInterface } from "@/components/gallery/GallerySearchInterface";
 import { EnhancedImageModal } from "@/components/gallery/EnhancedImageModal";
 import { GalleryCTA } from "@/components/gallery/GalleryCTA";
 import { PageSection } from "@/components/ui/page-section";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 const AlternativeGallery = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<'story' | 'grid' | 'search'>('grid');
-  const [searchQuery, setSearchQuery] = useState("");
-  const [qualityFilter, setQualityFilter] = useState(0);
-  
-  const isMobile = useIsMobile();
   
   const { ref: heroRef, isVisible: heroVisible, variant: heroVariant } = useScrollAnimation({ 
     delay: 0, 
@@ -51,41 +44,26 @@ const AlternativeGallery = () => {
     setSelectedImageIndex(null);
   };
 
-  const handleCategorySelect = (category: string) => {
-    setSelectedCategory(category);
-    setViewMode('grid');
+  const handleCategorySelect = (categoryId: string) => {
+    setSelectedCategory(categoryId === selectedCategory ? null : categoryId);
   };
 
-  const handleStoryModeSelect = (category: string) => {
-    setSelectedCategory(category);
-    setViewMode('story');
-  };
-
-  const handleSearchModeSelect = () => {
-    setViewMode('search');
-  };
-
-  // Filter images based on selection
+  // Filter images based on selected category
   const getFilteredImages = () => {
-    let filtered = galleryImages;
-    
-    if (selectedCategory) {
-      filtered = filtered.filter(img => img.category === selectedCategory);
+    if (!selectedCategory) {
+      return galleryImages;
     }
     
-    if (searchQuery) {
-      filtered = filtered.filter(img => 
-        img.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        img.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        img.category.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+    // Find the category config
+    const categoryConfig = galleryCategories.find(cat => cat.id === selectedCategory);
+    
+    if (categoryConfig?.filterIds) {
+      // Combined category - filter by multiple IDs
+      return galleryImages.filter(img => categoryConfig.filterIds!.includes(img.category));
     }
     
-    if (qualityFilter > 0) {
-      filtered = filtered.filter(img => img.quality >= qualityFilter);
-    }
-    
-    return filtered;
+    // Single category - filter by exact match
+    return galleryImages.filter(img => img.category === selectedCategory);
   };
 
   const filteredImages = getFilteredImages();
@@ -123,46 +101,20 @@ const AlternativeGallery = () => {
             <DiscoveryCategoryNav 
               selectedCategory={selectedCategory}
               onCategorySelect={handleCategorySelect}
-              onStoryModeSelect={handleStoryModeSelect}
-              onSearchModeSelect={handleSearchModeSelect}
-              viewMode={viewMode}
-              setViewMode={setViewMode}
             />
           </div>
         </div>
       </PageSection>
       
-      {/* Dynamic Content Based on View Mode */}
+      {/* Image Grid */}
       <PageSection pattern="c" withBorder>
         <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8">
           <div ref={contentRef} className={useAnimationClass(contentVariant, contentVisible)}>
-            {viewMode === 'search' && (
-              <GallerySearchInterface 
-                searchQuery={searchQuery}
-                setSearchQuery={setSearchQuery}
-                qualityFilter={qualityFilter}
-                setQualityFilter={setQualityFilter}
-                images={filteredImages}
-                onImageClick={handleImageClick}
-              />
-            )}
-            
-            {viewMode === 'story' && selectedCategory && (
-              <StoryGalleryViewer 
-                images={filteredImages}
-                category={selectedCategory}
-                onImageClick={handleImageClick}
-                onCategoryChange={setSelectedCategory}
-              />
-            )}
-            
-            {viewMode === 'grid' && (
-              <InteractiveImageGrid 
-                images={filteredImages}
-                onImageClick={handleImageClick}
-                category={selectedCategory}
-              />
-            )}
+            <InteractiveImageGrid 
+              images={filteredImages}
+              onImageClick={handleImageClick}
+              category={selectedCategory}
+            />
           </div>
         </div>
       </PageSection>
