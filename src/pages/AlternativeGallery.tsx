@@ -6,6 +6,7 @@ import { StoryGalleryViewer } from "@/components/gallery/StoryGalleryViewer";
 import { InteractiveImageGrid } from "@/components/gallery/InteractiveImageGrid";
 import { GallerySearchInterface } from "@/components/gallery/GallerySearchInterface";
 import { EnhancedImageModal } from "@/components/gallery/EnhancedImageModal";
+import { ServiceMarquee } from "@/components/home/ServiceMarquee";
 import { PageSection } from "@/components/ui/page-section";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
@@ -117,6 +118,9 @@ const AlternativeGallery = () => {
           </div>
         </div>
       </PageSection>
+
+      {/* Service Marquee */}
+      <ServiceMarquee />
       
       {/* Dynamic Content Based on View Mode */}
       <PageSection pattern="c" withBorder>

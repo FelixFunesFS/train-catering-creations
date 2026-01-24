@@ -9,11 +9,9 @@ export const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
 
-  // Hide header on admin routes
+  // Hide header on admin routes - must be after hooks
   const isAdminRoute = location.pathname.startsWith('/admin');
-  if (isAdminRoute) {
-    return null;
-  }
+  
   const navigation = [{
     name: "Home",
     href: "/"
@@ -28,7 +26,7 @@ export const Header = () => {
     href: "/wedding-menu#page-header"
   }, {
     name: "Gallery",
-    href: "/gallery#page-header"
+    href: "/gallery"
   }, {
     name: "Reviews",
     href: "/reviews#page-header"
@@ -44,6 +42,12 @@ export const Header = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Hide header on admin routes
+  if (isAdminRoute) {
+    return null;
+  }
+
   return <>
       <SkipToContent targetId="main-content">
         Skip to main content

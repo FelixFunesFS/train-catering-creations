@@ -163,7 +163,7 @@ export const InteractiveGallerySection = () => {
                 Let our portfolio inspire your next celebration. View our complete gallery or start planning your event today.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <Link to="/gallery#page-header">
+                <Link to="/gallery">
                   <Button variant="cta" size="responsive-md" className="w-full sm:w-auto">
                     View Full Gallery
                   </Button>
