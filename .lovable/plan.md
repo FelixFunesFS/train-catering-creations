@@ -1,223 +1,143 @@
 
-# Mobile UX Enhancement Plan
+# Marquee Speed and Responsiveness Optimization Plan
 
 ## Overview
-This plan addresses four key areas for improving the mobile user experience on the home page:
-1. Scroll-aware MobileActionBar (hide until past hero)
-2. Above-the-fold CTA visibility in the hero
-3. Strategic scrolling marquees for engagement
-4. General mobile responsiveness improvements
+This plan addresses marquee animation speed inconsistencies and ensures appropriate responsiveness across all screen sizes while maintaining the visual design and user experience.
 
 ---
 
-## 1. Scroll-Aware MobileActionBar
+## Issues Identified
 
-### Current Behavior
-The sticky bottom bar with "Request Quote" and "Text Us" buttons appears immediately when the page loads, which can:
-- Obstruct the hero CTAs that are already visible
-- Create redundant visual noise above the fold
-- Cover important hero content on smaller phones
+### 1. Conflicting Animation Definitions
+Two different speed configurations exist:
+- **index.css**: `marquee: 30s`, `marquee-slow: 50s`, `marquee-fast: 20s`
+- **tailwind.config.ts**: `marquee: 15s`, `marquee-slow: 25s`, `marquee-fast: 8s`
 
-### Proposed Solution
-Add scroll-position detection to `MobileActionBar.tsx` using IntersectionObserver (matching existing patterns in the codebase).
+The CSS in `index.css` takes precedence, but this inconsistency creates maintenance confusion.
 
-**Implementation Details:**
-- Create a sentinel element at the bottom of the hero section
-- Use IntersectionObserver to track when the hero exits the viewport
-- Only show MobileActionBar after the hero is scrolled past
-- Add a smooth fade-in transition (200-300ms) for polish
+### 2. Non-Reactive Device Detection
+`BrandMarquee.tsx` uses a static window width check that only runs on mount and does not respond to viewport changes.
 
-**Technical Approach:**
-```text
-+------------------+        +------------------+
-|      Hero        |        |   Services...    |
-|  [CTAs visible]  |  -->   |                  |
-|                  |        +------------------+
-+------------------+        | [Sticky Bar] ↑   |
-| Bar hidden here  |        | appears here     |
-+------------------+        +------------------+
+### 3. Speed Appropriateness by Screen Size
+- **Mobile**: Content travels less distance but at the same speed, making text harder to read
+- **Desktop**: Larger viewports benefit from slightly faster animations to maintain visual energy
+
+### 4. Current Speed Settings
+| Component | Speed | Duration | Issue |
+|-----------|-------|----------|-------|
+| TrustMarquee | normal | 30s | Acceptable |
+| ServiceMarquee | fast | 20s | Too fast on mobile |
+| BrandMarquee | slow/normal | 50s/30s | Detection not reactive |
+
+---
+
+## Proposed Solution
+
+### Phase 1: Consolidate Animation Definitions
+
+**File: `src/index.css`**
+
+Update marquee speeds with responsive breakpoints using CSS media queries. This approach:
+- Keeps speed logic in CSS (performant, no JS overhead)
+- Automatically responds to viewport changes
+- Works with reduced-motion preferences
+
+**New responsive marquee classes:**
+```css
+/* Base speeds (mobile-first) */
+.marquee { animation: marquee 40s linear infinite; }
+.marquee-slow { animation: marquee 60s linear infinite; }
+.marquee-fast { animation: marquee 30s linear infinite; }
+
+/* Tablet speeds */
+@media (min-width: 768px) {
+  .marquee { animation: marquee 35s linear infinite; }
+  .marquee-slow { animation: marquee 50s linear infinite; }
+  .marquee-fast { animation: marquee 25s linear infinite; }
+}
+
+/* Desktop speeds */
+@media (min-width: 1024px) {
+  .marquee { animation: marquee 30s linear infinite; }
+  .marquee-slow { animation: marquee 45s linear infinite; }
+  .marquee-fast { animation: marquee 20s linear infinite; }
+}
 ```
 
-**Files to modify:**
-- `src/components/mobile/MobileActionBar.tsx` - Add scroll detection logic
-- `src/components/home/SplitHero.tsx` - Add sentinel div with ID for observer
+**Rationale**: 
+- Mobile gets slower speeds (40s base) because content covers less distance
+- Desktop gets faster speeds (30s base) for visual energy
+- This creates a consistent perceived speed across all devices
 
 ---
 
-## 2. Ensure CTAs are Visible Above the Fold
+### Phase 2: Simplify Component Logic
 
-### Current State
-The hero has CTAs ("Request Quote" / "Call Now") in the content area below the image carousel. On mobile (55vh image + content), the CTAs may be partially below the fold on shorter screens.
+**File: `src/components/home/BrandMarquee.tsx`**
 
-### Proposed Improvements
+Remove the unreliable tablet detection and simplify to use a single speed setting:
+- Remove: `const isTablet = typeof window !== 'undefined' && ...`
+- Change: `speed: 'slow'` (the CSS will handle responsive adjustments)
 
-**Option A: Overlay CTAs on Hero Image (Recommended)**
-Add a compact floating CTA overlay directly on the hero image, ensuring visibility regardless of scroll position.
+**File: `src/components/home/ServiceMarquee.tsx`**
 
-```text
-+------------------------+
-|   [Image Carousel]     |
-|                        |
-|   +--[Quick CTAs]--+   |  <-- Semi-transparent overlay
-|   | Quote | Text   |   |
-|   +----------------+   |
-+------------------------+
-|   Content Area...      |
-```
+Keep `speed: 'fast'` but the CSS responsive rules will slow it down on mobile automatically.
 
-**Option B: Adjust Hero Proportions**
-- Reduce image height from 55vh to 45vh on mobile
-- This ensures content CTAs are always above the fold
-- Trade-off: Less dramatic hero imagery
+**File: `src/components/home/TrustMarquee.tsx`**
 
-**Recommended: Hybrid Approach**
-1. Keep current layout proportions
-2. Add subtle "Tap for Quote" floating badge on the hero image (bottom-right corner)
-3. Keep the full CTAs in the content area for detailed context
-
-**Files to modify:**
-- `src/components/home/SplitHero.tsx` - Add floating CTA overlay for mobile
+Keep `speed: 'normal'` - no changes needed as CSS handles responsiveness.
 
 ---
 
-## 3. Scrolling Marquees for Home Page
+### Phase 3: Sync Tailwind Config (Optional Cleanup)
 
-### Current Marquees
-- `BrandMarquee.tsx` - Exists but NOT used on HomePage
-- `ServiceMarquee.tsx` - Exists but NOT used on HomePage
+**File: `tailwind.config.ts`**
 
-### Recommended Marquee Strategy
-
-**Marquee 1: Trust/Social Proof Marquee (After Hero)**
-Position: Between SplitHero and ServiceCategoriesSection
-Content: "500+ Events Catered | 5-Star Reviews | 20+ Years Experience | Charleston's Choice"
-Style: Subtle, fast-moving, muted colors
-
-**Marquee 2: Service Types Marquee (Mid-page)**
-Position: After ServiceCategoriesSection
-Content: "Weddings | Corporate Events | Military Functions | Graduations | Family Reunions"
-Style: Use existing ServiceMarquee component
-
-**Marquee 3: Brand Tagline Marquee (Before CTA)**
-Position: Before final CTASection
-Content: Soul Train's brand phrases (existing BrandMarquee)
-Style: Script font, slower pace
-
-**Implementation:**
-```text
-HomePage Layout:
-  SplitHero
-  ↓
-  [NEW: TrustMarquee]      <-- Social proof
-  ↓
-  ServiceCategoriesSection
-  ↓
-  [NEW: ServiceMarquee]    <-- Service types
-  ↓
-  InteractiveGalleryPreview
-  ↓
-  AboutPreviewSection
-  ↓
-  TestimonialsCarousel
-  ↓
-  FeaturedVenueSection
-  ↓
-  [NEW: BrandMarquee]      <-- Brand closing
-  ↓
-  CTASection
-```
-
-**Files to modify:**
-- `src/pages/HomePage.tsx` - Import and position marquee components
-- `src/components/home/TrustMarquee.tsx` - NEW component for social proof
+Either remove the marquee animations from Tailwind config (since CSS classes handle it) or sync them with the CSS values. Recommendation: Keep them for utility but note they're overridden.
 
 ---
 
-## 4. Mobile Responsiveness and UX Improvements
-
-### Quick Wins
-
-**A. Touch Target Sizes (WCAG 2.2 AA)**
-Already addressed in previous fixes, but verify all interactive elements meet 44x44px minimum.
-
-**B. Hero Content Spacing**
-- Add proper safe-area padding for devices with home indicators
-- Ensure content doesn't touch screen edges
-
-**C. Scroll Performance**
-- Add `will-change: transform` to animated elements
-- Use `passive: true` on scroll listeners (already in place)
-
-**D. Visual Hierarchy Improvements**
-- Make primary CTA more prominent (larger, bolder)
-- Add micro-animations on CTA hover/tap states
-- Consider pulsing effect on main CTA to draw attention
-
-### Medium-term Improvements
-
-**E. Progressive Disclosure**
-- Collapse less critical content on mobile
-- Use expandable sections for detailed service info
-
-**F. Thumb-Zone Optimization**
-```text
-Phone held in one hand:
-
-    Awkward Zone (top)
-    +----------------+
-    |                |
-    +----------------+
-    Natural Zone (middle/bottom)
-    +----------------+
-    |  Place CTAs    |
-    |     HERE       |
-    +----------------+
-```
-
-Primary CTAs should be in the lower 60% of the screen where thumbs naturally reach.
-
----
-
-## Technical Implementation Summary
-
-### Files to Create
-1. `src/hooks/useHeroVisible.tsx` - Custom hook for hero visibility detection
-2. `src/components/home/TrustMarquee.tsx` - Social proof marquee component
+## Technical Implementation Details
 
 ### Files to Modify
-1. `src/components/mobile/MobileActionBar.tsx`
-   - Add scroll-aware visibility
-   - Add fade-in animation
 
-2. `src/components/home/SplitHero.tsx`
-   - Add hero sentinel for intersection observer
-   - Add floating CTA overlay for mobile
+1. **`src/index.css`** - Add responsive marquee speed breakpoints
+2. **`src/components/home/BrandMarquee.tsx`** - Remove flaky tablet detection, simplify speed
+3. **`src/components/home/ServiceMarquee.tsx`** - Optional: Consider using 'normal' instead of 'fast'
 
-3. `src/pages/HomePage.tsx`
-   - Import and position marquee components strategically
+### Speed Recommendations by Purpose
 
-### No Breaking Changes
-- All existing functionality preserved
-- Mobile action bar still works on all pages
-- Hero carousel behavior unchanged
-- Touch interactions maintained
+| Marquee Type | Purpose | Recommended Speed | Reasoning |
+|--------------|---------|-------------------|-----------|
+| **Trust/Social Proof** | Quick credibility scan | normal | Users glance, don't need to read every word |
+| **Service Types** | Service awareness | normal (changed from fast) | Users should be able to read services |
+| **Brand Taglines** | Emotional connection | slow | Script font needs more time to process |
 
 ---
 
-## Estimated Impact
+## No Breaking Changes
 
-| Metric | Expected Improvement |
-|--------|---------------------|
-| Above-fold CTA visibility | +40% (always visible) |
-| Scroll obstruction | Eliminated in hero |
-| Mobile engagement | +15-25% with marquees |
-| Touch accessibility | WCAG 2.2 AA compliant |
+- All existing marquee functionality preserved
+- Visual appearance unchanged (just speed adjustments)
+- Reduced-motion support already in place and will continue to work
+- No changes to marquee direction, pause-on-hover, or content
+
+---
+
+## Expected Improvements
+
+| Metric | Before | After |
+|--------|--------|-------|
+| Mobile readability | Content moves too fast | Comfortable reading speed |
+| Cross-device consistency | Different perceived speeds | Uniform visual rhythm |
+| Code maintainability | Conflicting definitions | Single source of truth |
+| Reactive to resize | Static on-mount check | CSS-based, always reactive |
 
 ---
 
 ## Implementation Order
 
-1. **Phase 1**: MobileActionBar scroll awareness (highest impact, lowest risk)
-2. **Phase 2**: Marquee integration on HomePage
-3. **Phase 3**: Hero floating CTA overlay
-4. **Phase 4**: Additional UX polish and micro-interactions
+1. Update CSS with responsive breakpoints (highest impact)
+2. Simplify BrandMarquee component
+3. Optionally adjust ServiceMarquee speed setting
+4. Clean up Tailwind config (optional)
