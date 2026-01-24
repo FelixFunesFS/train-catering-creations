@@ -111,7 +111,7 @@ const AppContent = () => {
         </Routes>
       </main>
       {!hideChrome && !isAdminRoute && <Footer />}
-      {!hideChrome && !isAdminRoute && <InstallBanner />}
+      {!hideChrome && !isAdminRoute && !isMobile && <InstallBanner />}
       {showMobileActionBar && <MobileActionBar />}
     </div>;
 };
