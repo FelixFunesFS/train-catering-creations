@@ -47,7 +47,7 @@ const About = () => {
               src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
               alt="" 
               aria-hidden="true"
-              className="w-56 sm:w-64 lg:w-80 h-56 sm:h-64 lg:h-80 object-contain opacity-[0.15]"
+              className="w-56 sm:w-64 lg:w-80 h-56 sm:h-64 lg:h-80 object-contain opacity-[0.20]"
             />
           </div>
           
