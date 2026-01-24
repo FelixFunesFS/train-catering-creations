@@ -1,12 +1,15 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { OptimizedImage } from "@/components/ui/optimized-image";
 import { Badge } from "@/components/ui/badge";
-import { Play, Pause, ChevronDown, Heart, Star, Phone, Calendar, ArrowLeft, ArrowRight } from "lucide-react";
+import { Play, Pause, ChevronDown, Heart, Star, Phone, Calendar, ArrowLeft, ArrowRight, Sparkles } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
+import { useHeroVisibility } from "@/contexts/HeroVisibilityContext";
+import { Link } from "react-router-dom";
+
 interface HeroImage {
   src: string;
   alt: string;
@@ -21,6 +24,9 @@ export const SplitHero = () => {
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const isMobile = useIsMobile();
+  const { setIsHeroVisible } = useHeroVisibility();
+  const heroSentinelRef = useRef<HTMLDivElement>(null);
+  
   const {
     ref: visualRef,
     isVisible: visualVisible
@@ -37,6 +43,28 @@ export const SplitHero = () => {
   });
   const visualAnimationClass = useAnimationClass('scale-fade', visualVisible);
   const contentAnimationClass = useAnimationClass('fade-up', contentVisible);
+
+  // Intersection observer for hero visibility (controls MobileActionBar)
+  useEffect(() => {
+    const sentinel = heroSentinelRef.current;
+    if (!sentinel) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsHeroVisible(entry.isIntersecting);
+      },
+      { threshold: 0, rootMargin: '0px' }
+    );
+
+    observer.observe(sentinel);
+
+    return () => {
+      observer.disconnect();
+      // Reset to not visible when unmounting (leaving home page)
+      setIsHeroVisible(false);
+    };
+  }, [setIsHeroVisible]);
+
   const heroImages: HeroImage[] = [{
     src: "/lovable-uploads/eb77404f-369f-484f-a9ce-786b7f1ddc94.png",
     alt: "Professional catering setup with chafing dishes and elegant floral arrangements",
@@ -213,6 +241,16 @@ export const SplitHero = () => {
           <button onClick={handleNext} className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20 bg-black/20 backdrop-blur-sm text-white hover:bg-black/30 p-2 rounded-full min-w-[44px] min-h-[44px] flex items-center justify-center transition-all duration-200" aria-label="Next image">
             <ArrowRight className="h-4 w-4" />
           </button>
+
+          {/* Floating CTA Badge - Always visible on mobile */}
+          <Link 
+            to="/request-quote"
+            className="absolute bottom-4 right-4 z-30 flex items-center gap-2 px-4 py-2.5 bg-ruby/90 backdrop-blur-sm text-white rounded-full shadow-lg hover:bg-ruby transition-all duration-200 min-h-[44px] animate-pulse hover:animate-none"
+            aria-label="Request a quote"
+          >
+            <Sparkles className="h-4 w-4" />
+            <span className="font-semibold text-sm">Get Quote</span>
+          </Link>
         </div>
 
         {/* Content Area - Responsive with proper spacing */}
@@ -260,6 +298,14 @@ export const SplitHero = () => {
             </div>
           </div>
         </div>
+        
+        {/* Hero Sentinel - triggers MobileActionBar visibility */}
+        <div 
+          ref={heroSentinelRef}
+          id="hero-sentinel"
+          aria-hidden="true"
+          className="absolute bottom-0 left-0 w-full h-1 pointer-events-none"
+        />
       </section>;
   }
 

@@ -14,6 +14,7 @@ import { useScrollToAnchor } from "@/hooks/useScrollToAnchor";
 import { OfflineIndicator } from "@/components/pwa/OfflineIndicator";
 import { PwaUpdateBanner } from "@/components/pwa/PwaUpdateBanner";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { HeroVisibilityProvider } from "@/contexts/HeroVisibilityContext";
 import Index from "./pages/Index";
 import About from "./pages/About";
 import Menu from "./pages/Menu";
@@ -128,7 +129,9 @@ const App = () => (
             v7_startTransition: true
           }}>
             <AuthProvider>
-              <AppContent />
+              <HeroVisibilityProvider>
+                <AppContent />
+              </HeroVisibilityProvider>
             </AuthProvider>
           </BrowserRouter>
         </TooltipProvider>
