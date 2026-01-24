@@ -1,147 +1,117 @@
 
-# Gallery Consolidation and Marquee Optimization Plan
+
+# Gallery Marquee Repositioning Plan (Revised)
 
 ## Overview
-This plan consolidates the gallery pages by removing PhotoGallery and making AlternativeGallery the sole gallery experience, moves the ServiceMarquee from the home page to the gallery, and further slows down marquee speeds for better readability.
+This plan repositions the ServiceMarquee to appear at the very top of the gallery page, directly after the site navigation header and above the immersive hero section. This creates a smooth visual transition from navigation into the gallery experience.
+
+---
+
+## Current vs. Proposed Layout
+
+**Current Layout:**
+```
+[Site Header/Nav]
+ImmersiveMobileHero (full-screen hero)
+DiscoveryCategoryNav (Discover Our Work)
+ServiceMarquee           <-- CURRENT POSITION (line 123)
+Dynamic Content
+```
+
+**Proposed Layout:**
+```
+[Site Header/Nav]
+ServiceMarquee           <-- NEW POSITION (first element in page)
+ImmersiveMobileHero (full-screen hero)
+DiscoveryCategoryNav (Discover Our Work)
+Dynamic Content
+```
 
 ---
 
 ## Changes Summary
 
-### 1. Remove ServiceMarquee from Home Page
-
-**File: `src/pages/HomePage.tsx`**
-
-Remove the `ServiceMarquee` import and component from the home page layout.
-
-Current layout:
-```
-SplitHero
-TrustMarquee
-ServiceCategoriesSection
-ServiceMarquee          <-- REMOVE THIS
-InteractiveGalleryPreview
-AboutPreviewSection
-...
-```
-
-New layout:
-```
-SplitHero
-TrustMarquee
-ServiceCategoriesSection
-InteractiveGalleryPreview
-AboutPreviewSection
-...
-```
-
----
-
-### 2. Add ServiceMarquee to Alternative Gallery
+### 1. Move ServiceMarquee to Top of Page
 
 **File: `src/pages/AlternativeGallery.tsx`**
 
-Import and add `ServiceMarquee` between the Discovery Navigation and the Dynamic Content sections.
+Move the `<ServiceMarquee />` component from line 123 to line 95, making it the first element inside the page container, directly above the hero `PageSection`.
 
-New gallery layout:
-```
-ImmersiveMobileHero
-DiscoveryCategoryNav
-ServiceMarquee          <-- ADD HERE
-Dynamic Content (grid/story/search)
-EnhancedImageModal
-```
+This placement:
+- Creates an elegant header transition from nav into the gallery
+- Sets context about services before the visual showcase begins
+- Provides visual rhythm at the entry point of the page
 
 ---
 
-### 3. Replace PhotoGallery with AlternativeGallery
-
-**File: `src/App.tsx`**
-
-Change the `/gallery` route to use `AlternativeGallery` instead of `PhotoGallery`:
-- Keep the import for `AlternativeGallery`
-- Remove the import for `PhotoGallery`
-- Update the route: `<Route path="/gallery" element={<AlternativeGallery />} />`
-- Remove the `/gallery-alt` route (no longer needed)
-
----
-
-### 4. Update Navigation Links
-
-All existing links point to `/gallery#page-header`, which will now show the AlternativeGallery. The hash anchor may need adjustment since AlternativeGallery uses `gallery-hero` as its content ID.
-
-**Files to update:**
-- `src/components/Header.tsx` - Change `/gallery#page-header` to `/gallery`
-- `src/components/Footer.tsx` - Change `/gallery#page-header` to `/gallery`
-- `src/components/home/InteractiveGalleryPreview.tsx` - Change `/gallery` links
-- `src/components/home/InteractiveGallerySection.tsx` - Change `/gallery#page-header`
-- `src/components/wedding/MobileWeddingTaglineSection.tsx` - Change `/gallery#page-header`
-
----
-
-### 5. Slow Down Marquee Speeds (Gallery-Optimized)
+### 2. Further Slow Down Marquee Speed
 
 **File: `src/index.css`**
 
-The current speeds are still too fast. Increase all durations by approximately 50%:
+Reduce marquee speeds by approximately 30% for a calm, readable experience:
 
 | Speed | Current Mobile | New Mobile | Current Tablet | New Tablet | Current Desktop | New Desktop |
 |-------|----------------|------------|----------------|------------|-----------------|-------------|
-| normal | 40s | 55s | 35s | 48s | 30s | 40s |
-| slow | 60s | 80s | 50s | 65s | 45s | 55s |
-| fast | 30s | 45s | 25s | 38s | 20s | 30s |
-
-This creates a more relaxed, comfortable reading pace that complements a visual gallery experience.
+| normal | 55s | 70s | 48s | 60s | 40s | 50s |
+| slow | 80s | 100s | 65s | 80s | 55s | 70s |
+| fast | 45s | 55s | 38s | 48s | 30s | 38s |
 
 ---
 
-### 6. Optional: Remove PhotoGallery.tsx (Cleanup)
+### 3. Enhance ServiceMarquee Styling
 
-**File: `src/pages/PhotoGallery.tsx`**
+**File: `src/components/home/ServiceMarquee.tsx`**
 
-This file can be deleted since it will no longer be used. However, keeping it temporarily is safe if you want to reference its design patterns.
+Update styling for better visual complement to the gallery:
+- Increase vertical padding for breathing room
+- Add subtle bottom border for clean separation from hero
+- Ensure responsive text sizing across all breakpoints
+
+Current: `py-3 lg:py-4 border-b border-border/20`
+Proposed: `py-4 sm:py-5 lg:py-6 border-b border-border/30 bg-background`
+
+The `bg-background` ensures a clean, solid surface that contrasts nicely with the dramatic hero below.
 
 ---
 
-## Technical Implementation Details
+## Technical Implementation
 
 ### Files to Modify
 
-| File | Action |
-|------|--------|
-| `src/pages/HomePage.tsx` | Remove ServiceMarquee |
-| `src/pages/AlternativeGallery.tsx` | Add ServiceMarquee import and component |
-| `src/App.tsx` | Remove PhotoGallery import, remove /gallery-alt route, update /gallery to use AlternativeGallery |
-| `src/index.css` | Slow down all marquee speeds by ~50% |
-| `src/components/Header.tsx` | Update gallery link |
-| `src/components/Footer.tsx` | Update gallery link |
-| `src/components/home/InteractiveGalleryPreview.tsx` | Update gallery links |
-| `src/components/home/InteractiveGallerySection.tsx` | Update gallery link |
-| `src/components/wedding/MobileWeddingTaglineSection.tsx` | Update gallery link |
+| File | Changes |
+|------|---------|
+| `src/pages/AlternativeGallery.tsx` | Move ServiceMarquee from line 123 to line 95 (before hero PageSection) |
+| `src/index.css` | Slow all marquee animation speeds by ~30% |
+| `src/components/home/ServiceMarquee.tsx` | Increase padding, add background color |
 
-### Files to Delete (Optional)
-| File | Reason |
-|------|--------|
-| `src/pages/PhotoGallery.tsx` | No longer used |
+---
+
+## Visual Flow
+
+```
++---------------------------+
+|      Header Navigation    |
++---------------------------+
+|     ServiceMarquee        |  <-- NEW: Sets context
+|  Corporate Events • ...   |
++---------------------------+
+|                           |
+|    Immersive Hero         |
+|    (Full-screen images)   |
+|                           |
++---------------------------+
+|    Discovery Navigation   |
++---------------------------+
+|    Gallery Content        |
++---------------------------+
+```
 
 ---
 
 ## No Breaking Changes
 
-- All `/gallery` links will continue to work (now showing the enhanced alternative gallery)
-- The home page will still have 2 marquees (TrustMarquee at top, BrandMarquee before CTA)
-- Gallery page gains the ServiceMarquee for visual rhythm
-- Marquee speeds will be noticeably slower and more readable
-- All existing functionality (modals, filtering, search) preserved
+- All existing gallery functionality preserved
+- Hero interactions unchanged
+- Navigation and filtering intact
+- Modal behavior unaffected
 
----
-
-## Expected Improvements
-
-| Metric | Before | After |
-|--------|--------|-------|
-| Marquee readability | Too fast | Comfortable reading pace |
-| Home page marquees | 3 marquees | 2 marquees (cleaner) |
-| Gallery engagement | No marquee | ServiceMarquee adds visual interest |
-| Code duplication | 2 gallery pages | 1 consolidated gallery |
-| Perceived speed (mobile) | 40s/30s/60s | 55s/45s/80s |
