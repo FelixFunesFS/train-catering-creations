@@ -1,52 +1,176 @@
 
-Goal
-- Fix the 3 “stats” cards under “What Our Clients Say” so their content (“500+”, “★ 4.9”, “98%”) is clearly readable and not “white on white”.
 
-What’s happening (root cause)
-- The shared <Card /> component always includes the class `neumorphic-card-2` (see `src/components/ui/card.tsx`).
-- `neumorphic-card-2` applies `bg-gradient-to-br from-card to-muted`, which is a background-image gradient (light/white).
-- Our earlier fix only set `background-color` (`!bg-white/10`), but it did not remove the existing background-image gradient, so the card still renders as a light/white surface.
-- Because the numbers/labels inside the cards are `text-white`, they disappear on that light background.
+# Add Full-Width Background Image to "Our Story" Section
 
-Fix approach (minimal, localized)
-- Keep using <Card /> but explicitly disable the neumorphic gradient background-image on those 3 stats cards.
-- Add Tailwind `bg-none` (background-image: none) with `!` so it wins.
-- Then apply a darker translucent background (recommended: `!bg-black/35` or `!bg-black/40`) so white text remains readable regardless of the background photo brightness.
-- Keep the blur + border, and remove neumorphic shadow.
+## Overview
 
-Exact file to change
-- `src/components/home/TestimonialsCarousel.tsx`
+Transform the "Our Story" section on the About page from a plain pattern-based background to a cinematic full-bleed section with a background image, matching the visual treatment we just applied to the testimonials section.
 
-Implementation details (what will be edited)
-1) Update the 3 stats Card classNames (lines ~284–295)
-- Current:
-  - `!bg-white/10` … (but gradient still shows)
-- Updated (example):
-  - Add: `!bg-none` (removes gradient background-image)
-  - Change background color to: `!bg-black/35` (stronger contrast)
-  - Keep: `!backdrop-blur-sm !border-white/20 !shadow-none`
-  - Optionally add: `ring-1 ring-white/10` for crisp separation on busy parts of the photo
+---
 
-Example className for each stats card
-- Replace each stats card with something like:
-  - `className="p-3 text-center !bg-none !bg-black/35 !backdrop-blur-md !border-white/20 !shadow-none ring-1 ring-white/10"`
+## Current State
 
-2) (Optional but recommended) Add subtle text clarity helpers
-- Add `drop-shadow` to the numbers and labels so they stay readable even if the background gets brighter:
-  - Number: `drop-shadow-sm`
-  - Label: `drop-shadow-sm`
-- This is optional because the darker card background should already solve it, but it’s a safe accessibility boost.
+The "Our Story" section currently has:
+- `PageSection` wrapper with `pattern="b"` (solid color pattern)
+- Two-column grid layout with text and image card
+- Standard white/light background
 
-Why this solves it
-- `!bg-none` removes the neumorphic gradient (background-image) that was making the cards look white.
-- A dark translucent background ensures the white text is visible in all scenarios (desktop/mobile, bright parts of the photo, etc.).
+---
 
-Testing checklist (after implementation)
-- Home page: confirm the 3 stats cards show:
-  - “500+ Events Catered”
-  - “★ 4.9 Average Rating”
-  - “98% Would Recommend”
-- Verify on:
-  - Mobile width (stack stays 3-across, readable)
-  - Desktop width
-- Confirm the main testimonial quote card still looks correct (white glass card) and the stats cards remain glassy/dark below it.
+## Proposed Design
+
+```text
++------------------------------------------------------------------+
+|                                                                  |
+|   [FULL-WIDTH BACKGROUND IMAGE - Military formal venue photo]   |
+|   [Dark gradient overlay for text contrast]                      |
+|                                                                  |
+|    ┌─────────────────────┐    ┌──────────────────────┐          |
+|    │                     │    │                      │          |
+|    │   Our Story         │    │   [Chef Train &     │          |
+|    │                     │    │    Team Photo]      │          |
+|    │   Soul Train's      │    │                      │          |
+|    │   Eatery was born   │    │   Glassmorphism     │          |
+|    │   from a deep love  │    │   card effect       │          |
+|    │   of Southern...    │    │                      │          |
+|    │                     │    └──────────────────────┘          |
+|    │   [See Our Work]    │                                      |
+|    │                     │                                      |
+|    └─────────────────────┘                                      |
+|                                                                  |
++------------------------------------------------------------------+
+```
+
+---
+
+## Implementation Details
+
+### File: `src/pages/About.tsx`
+
+### Changes:
+
+1. **Replace PageSection with custom section** - Remove `pattern="b"` wrapper and create a relative container with background image
+2. **Add background image container** - Use the military formal ceremony image that complements the section's existing photo
+3. **Add dark gradient overlay** - For text legibility
+4. **Update text colors** - Switch to white text for contrast
+5. **Update card styling** - Glassmorphism effect on the image card
+6. **Update button styling** - Ensure visibility on dark background
+
+### Background Image Selected:
+
+```
+/lovable-uploads/9ea8f6b7-e1cd-4f55-a434-1ffedf0b96dc.png
+```
+- Military Formal Ceremony with decorative lighting arch
+- Quality rating: 9
+- Complements the existing team photo showing a military event
+
+---
+
+## Key Code Changes
+
+### 1. Replace PageSection (Lines 30-61)
+
+**Current:**
+```tsx
+<PageSection pattern="b" withBorder>
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    ...
+  </div>
+</PageSection>
+```
+
+**Updated:**
+```tsx
+{/* Our Story Section - Full-width Background Image */}
+<section className="relative py-16 sm:py-20 lg:py-24 overflow-hidden">
+  {/* Full-width Background Image */}
+  <div 
+    className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
+    style={{ 
+      backgroundImage: `url('/lovable-uploads/9ea8f6b7-e1cd-4f55-a434-1ffedf0b96dc.png')` 
+    }}
+    aria-hidden="true"
+  />
+  
+  {/* Dark gradient overlay for text contrast */}
+  <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/40" />
+  
+  {/* Content */}
+  <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    ...
+  </div>
+</section>
+```
+
+### 2. Text Color Updates
+
+| Element | Current | Updated |
+|---------|---------|---------|
+| Heading | `text-foreground` | `text-white` |
+| Paragraphs | `text-muted-foreground` | `text-white/90` |
+
+### 3. Image Card Styling
+
+**Current:**
+```tsx
+<NeumorphicCard level={3} className="overflow-hidden p-3">
+```
+
+**Updated:**
+```tsx
+<div className="overflow-hidden p-3 bg-white/95 backdrop-blur-md rounded-xl shadow-2xl border border-white/20">
+```
+
+### 4. Button Styling
+
+The existing `variant="cta"` button should remain visible, but we'll ensure it has proper contrast:
+```tsx
+<Button asChild variant="cta" size="lg" className="shadow-lg">
+```
+
+---
+
+## Gradient Direction Note
+
+Using `bg-gradient-to-r from-black/80 via-black/60 to-black/40` (horizontal gradient):
+- Darker on the **left side** where the text is
+- Lighter on the **right side** where the image card is
+- This ensures text readability while still showing the background image on the right
+
+---
+
+## Accessibility Considerations
+
+- Gradient overlay ensures WCAG AA contrast for white text
+- `aria-hidden="true"` on decorative background image
+- Button maintains high contrast with CTA styling
+- Image in card remains fully visible with white card background
+
+---
+
+## Visual Result
+
+| Element | Before | After |
+|---------|--------|-------|
+| Section background | Light pattern | Cinematic venue photo |
+| Text colors | Dark text | White text |
+| Image card | Neumorphic shadow | Glassmorphism blur |
+| Overall feel | Standard | Premium/immersive |
+
+---
+
+## Files Modified
+
+- `src/pages/About.tsx`
+
+---
+
+## Result
+
+The "Our Story" section will transform into a visually striking, full-bleed cinematic experience that:
+- Creates visual consistency with the testimonials section
+- Elevates the premium feel of the About page
+- Showcases Soul Train's professional catering work as the backdrop
+- Maintains excellent readability with the horizontal gradient overlay
+
