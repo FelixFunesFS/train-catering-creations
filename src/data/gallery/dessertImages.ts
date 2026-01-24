@@ -1,8 +1,16 @@
 import { GalleryImage } from './types';
 import dessertParfaitDisplay from '@/assets/gallery/dessert-parfait-display.jpg';
 import dessertMiniCheesecakes from '@/assets/gallery/dessert-mini-cheesecakes.jpg';
+import dessertHolidayCupcakes from '@/assets/gallery/dessert-holiday-cupcakes.jpg';
 
 export const dessertImages: GalleryImage[] = [
+  {
+    src: dessertHolidayCupcakes,
+    category: "desserts",
+    title: "Holiday Cupcake Collection",
+    description: "Festive assortment of gourmet cupcakes with holiday poinsettia accents",
+    quality: 9
+  },
   {
     src: dessertParfaitDisplay,
     category: "desserts",

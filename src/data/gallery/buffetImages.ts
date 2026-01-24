@@ -8,6 +8,10 @@ import foodGreenBeans from '@/assets/gallery/food-green-beans.jpg';
 import foodMacCheese from '@/assets/gallery/food-mac-cheese.jpg';
 import foodSalmon from '@/assets/gallery/food-salmon.jpg';
 import foodGreenBeansPeppers from '@/assets/gallery/food-green-beans-peppers.jpg';
+import buffetLabeledPatriotic from '@/assets/gallery/buffet-labeled-patriotic.jpg';
+import buffetChefDuo from '@/assets/gallery/buffet-chef-duo.jpg';
+import buffetOutdoorTent from '@/assets/gallery/buffet-outdoor-tent.jpg';
+import buffetTeamService from '@/assets/gallery/buffet-team-service.jpg';
 
 export const buffetImages: GalleryImage[] = [
   {
@@ -212,5 +216,33 @@ export const buffetImages: GalleryImage[] = [
     title: "Green Beans with Peppers",
     description: "Fresh green beans tossed with colorful bell peppers and water chestnuts",
     quality: 7
+  },
+  {
+    src: buffetLabeledPatriotic,
+    category: "buffet",
+    title: "Labeled Patriotic Buffet",
+    description: "Professionally labeled chafing dishes with American flag place cards and fresh florals",
+    quality: 9
+  },
+  {
+    src: buffetChefDuo,
+    category: "buffet",
+    title: "Soul Train's Chef Team",
+    description: "Our talented chefs ready to serve with Southern hospitality and professional care",
+    quality: 8
+  },
+  {
+    src: buffetOutdoorTent,
+    category: "buffet",
+    title: "Outdoor Tent Service",
+    description: "Chef presenting signature mac & cheese and green beans at a beautiful outdoor event",
+    quality: 9
+  },
+  {
+    src: buffetTeamService,
+    category: "buffet",
+    title: "Full Service Team",
+    description: "Our complete service team ready to make your event unforgettable",
+    quality: 8
   }
 ];
