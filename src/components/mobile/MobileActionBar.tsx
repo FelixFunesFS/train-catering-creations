@@ -43,7 +43,7 @@ export function MobileActionBar({ className }: MobileActionBarProps) {
         <Button
           asChild
           variant="cta"
-          size="responsive-xl"
+          size="responsive-lg"
           className="flex-1"
         >
           <Link to="/request-quote" aria-label="Request a quote">
@@ -55,7 +55,7 @@ export function MobileActionBar({ className }: MobileActionBarProps) {
         <Button
           asChild
           variant="outline"
-          size="responsive-xl"
+          size="responsive-lg"
           className="flex-1"
         >
           <a
