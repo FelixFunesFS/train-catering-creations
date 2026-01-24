@@ -34,20 +34,6 @@ export const heroImages: GalleryImage[] = [
     quality: 9
   },
   {
-    src: "/lovable-uploads/61ae11ed-0e85-4a03-bf2a-c743182a3599.png",
-    category: "desserts",
-    title: "Multi-Tier Dessert Display",
-    description: "Premium dessert presentation featuring shooters and individual cakes",
-    quality: 9
-  },
-  {
-    src: "/lovable-uploads/eecf9726-8cce-48e5-8abb-f0dd78ebcb4e.png",
-    category: "desserts",
-    title: "Layered Dessert Cups",
-    description: "Professional layered dessert cups beautifully arranged",
-    quality: 9
-  },
-  {
     src: "/lovable-uploads/9ea8f6b7-e1cd-4f55-a434-1ffedf0b96dc.png",
     category: "formal",
     title: "Military Formal Ceremony",
