@@ -13,24 +13,10 @@ export const heroImages: GalleryImage[] = [
     quality: 9
   },
   {
-    src: "/lovable-uploads/26d2d500-6017-41a2-99b2-b7050cefedba.png",
-    category: "wedding",
-    title: "Elegant Outdoor Wedding Tent",
-    description: "Stunning wedding reception setup with chandeliers, string lights, and formal table service",
-    quality: 9
-  },
-  {
     src: "/lovable-uploads/a68ac24e-cf0d-4941-9059-568c9b92bebf.png",
     category: "formal",
     title: "Grand Banquet Hall",
     description: "Elegant banquet hall with gold linens and professional service",
-    quality: 9
-  },
-  {
-    src: "/lovable-uploads/9f908ab3-500f-481a-b35b-3fe663708efe.png",
-    category: "desserts",
-    title: "Fresh Berry Tart Display",
-    description: "Elegant tiered display of individual berry tarts with fresh berries",
     quality: 9
   },
   {
