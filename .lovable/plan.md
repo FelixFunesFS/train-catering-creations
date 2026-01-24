@@ -1,167 +1,224 @@
 
 
-# Remove/Restyle Hero Carousel Control Buttons
+# Remove Hero Controls & Add Glassmorphic Testimonial Cards
 
 ## Overview
 
-Address the visual competition between the carousel navigation controls (left/right arrows and play/pause button) and the primary CTAs in the hero section. The solution is to make these controls more subtle with glassmorphism styling so they don't compete with the main call-to-action buttons.
+Two focused changes to clean up the hero section and enhance the testimonials visual design with accessible glassmorphism.
 
 ---
 
-## Current State
+## Part 1: Remove Hero Carousel Controls
 
-### Desktop Controls (lines 290-303)
+### Current State (lines 282-295 in SplitHero.tsx)
 ```tsx
-<Button variant="ghost" size="icon" 
-  className="bg-black/20 backdrop-blur-sm hover:bg-black/30 text-red-500">
+{/* Controls */}
+<div className="absolute top-6 right-6 z-20 flex space-x-2">
+  <Button ... onClick={handlePrevious}>...</Button>
+  <Button ... onClick={togglePlayPause}>...</Button>
+  <Button ... onClick={handleNext}>...</Button>
+</div>
 ```
 
-### Mobile Controls (lines 218-225)
-```tsx
-<button className="bg-black/60 backdrop-blur-sm text-white hover:bg-black/70 
-  p-2 rounded-full min-w-[44px] min-h-[44px] ... shadow-lg border border-white/20">
-```
+### Action
+Delete the entire controls div (lines 282-295). Navigation will rely on:
+- Progress indicator dots (already in place, lines 275-280)
+- Auto-play functionality (already enabled)
 
-**Issues:**
-- Desktop uses `text-red-500` which is jarring
-- Both layouts have visible arrow buttons that compete with CTAs
-- The play/pause button adds visual clutter
+### Impact
+- Cleaner hero visual
+- CTAs become the sole focal point
+- Progress dots remain for manual navigation
 
 ---
 
-## Recommended Solution
+## Part 2: Glassmorphic Testimonial Card
 
-### Option A: Glassmorphism Controls (Recommended)
+### Current State (line 169-170 in TestimonialsCarousel.tsx)
+```tsx
+<Card className="relative p-5 lg:p-6 bg-white/95 backdrop-blur-md border border-white/20 shadow-2xl overflow-hidden">
+```
 
-Make the controls ultra-subtle with transparent, frosted glass styling that only becomes visible on hover or focus:
+This is almost glassmorphic but uses `bg-white/95` which is nearly opaque.
 
-**Desktop:**
-- Change `bg-black/20` to `bg-white/10` for a lighter, more subtle appearance
-- Change `text-red-500` to `text-white/70` for softer icons
-- Add `opacity-60 hover:opacity-100` for reveal-on-hover behavior
+### Proposed Glassmorphism Styling
 
-**Mobile:**
-- Remove the left/right arrow buttons entirely (rely on swipe gestures + auto-play)
-- Keep swipe functionality which is already implemented
-- This follows the memory recommendation to minimize visual clutter
+| Property | Current | Proposed | Rationale |
+|----------|---------|----------|-----------|
+| Background | `bg-white/95` | `bg-white/20` | More see-through for glass effect |
+| Backdrop blur | `backdrop-blur-md` | `backdrop-blur-xl` | Stronger frosted glass |
+| Border | `border-white/20` | `border-white/30` | Slightly more visible edge |
+| Shadow | `shadow-2xl` | `shadow-2xl` | Keep for depth |
+| Ring | none | `ring-1 ring-white/20` | Subtle inner glow |
+
+### Accessibility Considerations
+
+With a more transparent background, text contrast becomes critical. The section already has a dark overlay (`bg-black/70 via-black/60 to-black/70`), but we need to ensure text remains readable.
+
+**Text Color Adjustments:**
+- Quote text: Change from `text-foreground` to `text-white` for maximum contrast
+- Author name: Change from `text-foreground` to `text-white`
+- Role text: Keep `text-ruby` but ensure it's visible (ruby on dark = good contrast)
+- Event text: Change from `text-muted-foreground` to `text-white/80`
+- Quote icon: Keep `text-ruby` with reduced opacity
+
+**Contrast Ratios (WCAG AA requires 4.5:1 for normal text):**
+- White text on dark blur background: ~15:1 (exceeds requirement)
+- Ruby (#9B2335) on dark background: ~5.2:1 (passes AA)
 
 ---
 
 ## Implementation Details
 
-### File: `src/components/home/SplitHero.tsx`
+### File 1: `src/components/home/SplitHero.tsx`
 
-### Change 1: Desktop Controls (lines 291-302)
-
-**Before:**
+**Delete lines 282-295** (the Controls div):
 ```tsx
-<Button variant="ghost" size="icon" onClick={handlePrevious} 
-  aria-label="Previous image" 
-  className="bg-black/20 backdrop-blur-sm hover:bg-black/30 text-red-500">
-  <ArrowLeft className="h-5 w-5" />
-</Button>
-
-<Button variant="ghost" size="icon" onClick={togglePlayPause} 
-  aria-label={isPlaying ? 'Pause slideshow' : 'Play slideshow'} 
-  className="bg-black/20 backdrop-blur-sm hover:bg-black/30 text-red-500">
-  {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
-</Button>
-
-<Button variant="ghost" size="icon" onClick={handleNext} 
-  aria-label="Next image" 
-  className="bg-black/20 backdrop-blur-sm hover:bg-black/30 text-red-500">
-  <ArrowRight className="h-5 w-5" />
-</Button>
+// DELETE THIS ENTIRE BLOCK:
+{/* Controls */}
+<div className="absolute top-6 right-6 z-20 flex space-x-2">
+  <Button variant="ghost" size="icon" onClick={handlePrevious} ...>
+    <ArrowLeft className="h-5 w-5" />
+  </Button>
+  
+  <Button variant="ghost" size="icon" onClick={togglePlayPause} ...>
+    {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+  </Button>
+  
+  <Button variant="ghost" size="icon" onClick={handleNext} ...>
+    <ArrowRight className="h-5 w-5" />
+  </Button>
+</div>
 ```
 
-**After:**
+**Note:** The `togglePlayPause`, `Pause`, and `Play` imports can also be cleaned up since they'll no longer be used.
+
+### File 2: `src/components/home/TestimonialsCarousel.tsx`
+
+**Change 1: Card styling (line 169-170)**
+
+Before:
 ```tsx
-<Button variant="ghost" size="icon" onClick={handlePrevious} 
-  aria-label="Previous image" 
-  className="bg-white/10 backdrop-blur-md hover:bg-white/20 text-white/70 hover:text-white opacity-60 hover:opacity-100 transition-all duration-200 border border-white/10">
-  <ArrowLeft className="h-5 w-5" />
-</Button>
-
-<Button variant="ghost" size="icon" onClick={togglePlayPause} 
-  aria-label={isPlaying ? 'Pause slideshow' : 'Play slideshow'} 
-  className="bg-white/10 backdrop-blur-md hover:bg-white/20 text-white/70 hover:text-white opacity-60 hover:opacity-100 transition-all duration-200 border border-white/10">
-  {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
-</Button>
-
-<Button variant="ghost" size="icon" onClick={handleNext} 
-  aria-label="Next image" 
-  className="bg-white/10 backdrop-blur-md hover:bg-white/20 text-white/70 hover:text-white opacity-60 hover:opacity-100 transition-all duration-200 border border-white/10">
-  <ArrowRight className="h-5 w-5" />
-</Button>
+<Card 
+  className="relative p-5 lg:p-6 bg-white/95 backdrop-blur-md border border-white/20 shadow-2xl overflow-hidden"
 ```
 
-### Change 2: Remove Mobile Arrow Buttons (lines 218-225)
-
-**Before:**
+After:
 ```tsx
-{/* Navigation Arrows */}
-<button onClick={handlePrevious} className="absolute left-4 top-1/2 ...">
-  <ArrowLeft className="h-4 w-4" />
-</button>
-
-<button onClick={handleNext} className="absolute right-4 top-1/2 ...">
-  <ArrowRight className="h-4 w-4" />
-</button>
+<Card 
+  className="relative p-5 lg:p-6 bg-white/15 backdrop-blur-xl border border-white/30 shadow-2xl ring-1 ring-white/20 overflow-hidden"
 ```
 
-**After:**
-Remove entirely - mobile users can swipe left/right (already implemented) or tap the progress indicators.
+**Change 2: Quote icon (line 177)**
+
+Before:
+```tsx
+<Quote className="h-12 w-12 lg:h-16 lg:w-16 text-ruby" />
+```
+
+After:
+```tsx
+<Quote className="h-12 w-12 lg:h-16 lg:w-16 text-white/30" />
+```
+
+**Change 3: Quote text (line 189)**
+
+Before:
+```tsx
+<blockquote className="text-center text-base lg:text-lg text-foreground leading-relaxed italic">
+```
+
+After:
+```tsx
+<blockquote className="text-center text-base lg:text-lg text-white leading-relaxed italic">
+```
+
+**Change 4: Author name (line 204)**
+
+Before:
+```tsx
+<h4 className="font-elegant font-bold text-foreground text-lg">
+```
+
+After:
+```tsx
+<h4 className="font-elegant font-bold text-white text-lg">
+```
+
+**Change 5: Event text (line 217)**
+
+Before:
+```tsx
+<p className="text-sm text-muted-foreground">
+```
+
+After:
+```tsx
+<p className="text-sm text-white/80">
+```
+
+**Change 6: Navigation buttons (lines 236, 245) - adjust for glass context**
+
+Before:
+```tsx
+className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white border border-ruby/20"
+```
+
+After:
+```tsx
+className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/20 backdrop-blur-sm hover:bg-white/30 border border-white/30 text-white"
+```
+
+Also update ChevronLeft/ChevronRight icons from `text-ruby` to `text-white`.
 
 ---
 
-## Visual Comparison
+## Visual Result
 
 ```text
-BEFORE (Desktop):
+BEFORE (Hero):
 ┌────────────────────────────────────────────┐
-│  [●●○]                      [◀][⏸][▶]     │  ← Dark buttons, red icons
+│  [●●○]                      [◁][⏸][▷]     │  ← Controls visible
 │                                            │
 │         [Image Area]                       │
 │                                            │
 │  ❤ Soul Train's Eatery                     │
 └────────────────────────────────────────────┘
 
-AFTER (Desktop):
+AFTER (Hero):
 ┌────────────────────────────────────────────┐
-│  [●●○]                      [◁][⏸][▷]     │  ← Frosted glass, subtle
-│                                            │     60% opacity until hover
+│  [●●○]                                     │  ← Clean, dots only
+│                                            │
 │         [Image Area]                       │
 │                                            │
 │  ❤ Soul Train's Eatery                     │
 └────────────────────────────────────────────┘
 
-BEFORE (Mobile):
-┌─────────────────────────┐
-│  [●●○]                  │
-│                         │
-│  [◀]    Image    [▶]   │  ← Arrow buttons visible
-│                         │
-└─────────────────────────┘
+BEFORE (Testimonials):
+┌─────────────────────────────────────┐
+│ ███████████████████████████████████ │  ← Nearly opaque white
+│ █  "Quote text..."                █ │
+│ █  - Author Name                  █ │
+│ ███████████████████████████████████ │
+└─────────────────────────────────────┘
 
-AFTER (Mobile):
-┌─────────────────────────┐
-│  [●●○]                  │  ← Clean, swipe to navigate
-│                         │
-│         Image           │  ← No arrow buttons
-│                         │
-└─────────────────────────┘
+AFTER (Testimonials):
+┌─────────────────────────────────────┐
+│ ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ │  ← Frosted glass, sees through
+│ ░  "Quote text..."                ░ │     White text for contrast
+│ ░  - Author Name                  ░ │
+│ ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ │
+└─────────────────────────────────────┘
 ```
 
 ---
 
 ## Summary
 
-| Change | Rationale |
-|--------|-----------|
-| Desktop: Glassmorphism controls | Subtle, elegant, doesn't compete with CTAs |
-| Desktop: 60% opacity with hover reveal | Controls visible but not demanding attention |
-| Mobile: Remove arrow buttons | Rely on swipe gestures (already implemented) |
-| Fix `text-red-500` to `text-white/70` | Consistent color scheme |
-
-This approach maintains full functionality while creating clear visual hierarchy where the CTAs are the focal point.
+| Change | File | Impact |
+|--------|------|--------|
+| Remove hero controls | SplitHero.tsx | Cleaner hero, dots remain for navigation |
+| Glassmorphic card | TestimonialsCarousel.tsx | Elegant frosted glass effect |
+| White text colors | TestimonialsCarousel.tsx | High contrast for accessibility |
+| Glass nav buttons | TestimonialsCarousel.tsx | Consistent glass aesthetic |
 
