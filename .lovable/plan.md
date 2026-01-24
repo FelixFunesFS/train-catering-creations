@@ -1,157 +1,175 @@
 
-# Hero Section Mobile UX Fixes
+
+# Hero Section Mobile & Tablet UX Fixes
 
 ## Overview
 
-Fix four issues with the home page hero section:
-1. Remove duplicate "Get Quote" floating badge on mobile
-2. Fix hamburger menu contrast (white on white)
-3. Fix play/pause button contrast on mobile
-4. Remove desktop bouncing scroll arrow
+Address three issues with the home page hero section:
+1. Remove the bouncing scroll arrow from mobile view
+2. Remove the play/pause button from mobile view
+3. Ensure tablet view (768px-1024px) has no horizontal scrolling or overlapping elements
 
 ---
 
-## Issue 1: Remove Extra "Get Quote" Button on Mobile
+## Issue 1: Remove Bouncing Arrow on Mobile
 
 **File: `src/components/home/SplitHero.tsx`**
 
-The mobile view currently has TWO quote CTAs:
-- Floating "Get Quote" badge over the image (lines 245-254)
-- Main "Request Quote" button in content area (lines 278-284)
+The mobile content area still has a bouncing scroll indicator that should be removed for a cleaner UX.
 
-**Solution**: Remove the floating badge since the main CTA buttons are already within viewport in the content section.
-
-### Lines to Remove (245-254):
+### Current Code (Lines 271-276):
 ```tsx
-// DELETE THIS ENTIRE BLOCK:
-{/* Floating CTA Badge - Always visible on mobile */}
-<Link 
-  to="/request-quote"
-  className="absolute bottom-4 right-4 z-30 flex items-center gap-2 px-4 py-2.5 bg-ruby/90 backdrop-blur-sm text-white rounded-full shadow-lg hover:bg-ruby transition-all duration-200 min-h-[44px] animate-pulse hover:animate-none"
-  aria-label="Request a quote"
->
-  <Sparkles className="h-4 w-4" />
-  <span className="font-semibold text-sm">Get Quote</span>
-</Link>
-```
-
-Also remove the `Sparkles` import since it's only used for that badge (line 6).
-
----
-
-## Issue 2: Fix Hamburger Menu Contrast
-
-**File: `src/components/Header.tsx`**
-
-The hamburger icon uses hardcoded `stroke="white"` which doesn't adapt to the light background.
-
-### Current (line 77):
-```tsx
-<svg className="h-10 w-10 md:h-12 md:w-12" fill="none" stroke="white" strokeWidth={2.5} viewBox="0 0 24 24" aria-hidden="true">
-```
-
-### Updated:
-```tsx
-<svg className="h-10 w-10 md:h-12 md:w-12" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24" aria-hidden="true">
-```
-
-This uses `currentColor` which inherits from the parent's `text-foreground` class (already on the Button), ensuring proper contrast in both light and dark modes.
-
----
-
-## Issue 3: Fix Play/Pause Button Contrast on Mobile
-
-**File: `src/components/home/SplitHero.tsx`**
-
-The play/pause button uses `text-white` but may lack contrast on lighter image areas.
-
-### Current (lines 222-226):
-```tsx
-<Button variant="ghost" size="icon" onClick={togglePlayPause} className="bg-black/20 backdrop-blur-sm text-white hover:bg-black/30 min-w-[44px] min-h-[44px]" aria-label={isPlaying ? 'Pause slideshow' : 'Play slideshow'}>
-```
-
-### Updated:
-```tsx
-<Button variant="ghost" size="icon" onClick={togglePlayPause} className="bg-black/40 backdrop-blur-sm text-white hover:bg-black/50 min-w-[44px] min-h-[44px] shadow-md" aria-label={isPlaying ? 'Pause slideshow' : 'Play slideshow'}>
-```
-
-**Changes:**
-- Increased background opacity: `bg-black/20` → `bg-black/40`
-- Increased hover opacity: `bg-black/30` → `bg-black/50`
-- Added `shadow-md` for additional separation
-
-### Also update navigation arrows (lines 237-243):
-```tsx
-// Left arrow
-<button onClick={handlePrevious} className="absolute left-4 top-1/2 transform -translate-y-1/2 z-20 bg-black/40 backdrop-blur-sm text-white hover:bg-black/50 p-2 rounded-full min-w-[44px] min-h-[44px] flex items-center justify-center transition-all duration-200 shadow-md" aria-label="Previous image">
-
-// Right arrow  
-<button onClick={handleNext} className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20 bg-black/40 backdrop-blur-sm text-white hover:bg-black/50 p-2 rounded-full min-w-[44px] min-h-[44px] flex items-center justify-center transition-all duration-200 shadow-md" aria-label="Next image">
-```
-
----
-
-## Issue 4: Remove Desktop Bouncing Arrow
-
-**File: `src/components/home/SplitHero.tsx`**
-
-### Lines to Remove (408-413):
-```tsx
-// DELETE THIS ENTIRE BLOCK:
-{/* Scroll Indicator */}
-<div className="absolute bottom-8 right-8 z-20">
-  <Button variant="ghost" size="icon" onClick={handleScrollToDiscover} className="bg-muted/50 backdrop-blur-sm text-foreground hover:bg-muted animate-bounce" aria-label="Scroll to next section">
-    <ChevronDown className="h-5 w-5" />
+{/* Scroll Indicator - Integrated into content */}
+<div className="pt-8 flex justify-center">
+  <Button variant="ghost" size="icon" onClick={handleScrollToDiscover} className="bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground animate-bounce min-w-[44px] min-h-[44px]" aria-label="Scroll to next section">
+    <ChevronDown className="h-4 w-4" />
   </Button>
 </div>
 ```
 
-This removes the distracting bouncing arrow on desktop while keeping the scroll indicator on mobile (inside the content area, lines 293-298) which is more contextually appropriate.
+### Solution:
+Delete this entire block (lines 271-276).
+
+---
+
+## Issue 2: Remove Play/Pause Button on Mobile
+
+**File: `src/components/home/SplitHero.tsx`**
+
+The play/pause control should be hidden on mobile for a cleaner interface. Users can still swipe or use the navigation arrows to browse images.
+
+### Current Code (Lines 209-214):
+```tsx
+{/* Controls */}
+<div className="absolute top-4 right-4 z-20 flex space-x-2">
+  <Button variant="ghost" size="icon" onClick={togglePlayPause} className="bg-black/60 backdrop-blur-sm hover:bg-black/70 min-w-[44px] min-h-[44px] shadow-lg border border-white/20 text-primary" aria-label={isPlaying ? 'Pause slideshow' : 'Play slideshow'}>
+    {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+  </Button>
+</div>
+```
+
+### Solution:
+Delete this entire block (lines 209-214). The auto-play will continue seamlessly, and users can navigate via swipe gestures or the navigation arrows.
+
+---
+
+## Issue 3: Tablet View Responsiveness (768px-1024px)
+
+**Analysis:**
+
+The current `useIsMobile` hook uses `768px` as the breakpoint, meaning:
+- **Below 768px**: Mobile layout (stacked)
+- **768px and above**: Desktop layout (60/40 split)
+
+The desktop layout uses:
+- `w-3/5` (60%) for the image area
+- `w-2/5` (40%) for the content area
+
+On tablets (768px-1024px), this split may feel cramped but should not cause horizontal scrolling since percentage-based widths are fluid.
+
+### Potential Issues to Check:
+1. Fixed-width elements that could overflow
+2. Padding/margin that could cause content to exceed viewport
+
+### Current Desktop Layout Structure:
+```tsx
+<section className="relative h-screen overflow-hidden bg-background flex pb-8 lg:pb-16">
+  <div className="relative w-3/5 h-full overflow-hidden"> {/* Image: 60% */}
+  <div className="relative w-2/5 h-full bg-background p-8 lg:p-12 flex flex-col justify-center"> {/* Content: 40% */}
+```
+
+### Solution - Add Tablet-Specific Refinements:
+
+1. **Adjust content padding for tablets**: Currently uses `p-8 lg:p-12`. For tablets, `p-6` would provide more breathing room.
+
+2. **Add `md:` breakpoint for text sizing**: Ensure text doesn't overflow on smaller tablet screens.
+
+**Updated Desktop Content Area (Line 327):**
+```tsx
+<div ref={contentRef} className={`relative w-2/5 h-full bg-background p-6 md:p-8 lg:p-12 flex flex-col justify-center ${contentAnimationClass}`} role="region" aria-label="Content section">
+```
+
+**Updated Title Sizing (Line 337):**
+```tsx
+<h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-elegant font-bold text-foreground leading-tight">
+```
+
+**Updated CTA Buttons (Lines 349-361):**
+Ensure buttons stack on smaller tablets if needed:
+```tsx
+<div className="flex flex-col md:flex-row space-y-3 md:space-y-0 md:space-x-4">
+```
 
 ---
 
 ## Summary of Changes
 
-| File | Change |
-|------|--------|
-| `src/components/home/SplitHero.tsx` | Remove floating "Get Quote" badge, remove Sparkles import, increase control button contrast, remove desktop scroll arrow |
-| `src/components/Header.tsx` | Change hamburger `stroke="white"` to `stroke="currentColor"` |
+| File | Lines | Change |
+|------|-------|--------|
+| `src/components/home/SplitHero.tsx` | 209-214 | Remove play/pause button from mobile |
+| `src/components/home/SplitHero.tsx` | 271-276 | Remove bouncing scroll indicator from mobile |
+| `src/components/home/SplitHero.tsx` | 327 | Adjust tablet padding: `p-6 md:p-8 lg:p-12` |
+| `src/components/home/SplitHero.tsx` | 337 | Add tablet text size: `text-3xl md:text-4xl lg:text-5xl` |
+| `src/components/home/SplitHero.tsx` | 349 | Responsive CTA stacking: `flex-col md:flex-row` |
 
 ---
 
-## Visual Before/After
+## Visual Comparison
 
-### Mobile Hero Controls (Before):
+### Mobile View (Before):
 ```text
 ┌─────────────────────────────────────┐
-│ [Soul Train's]     [⏯ light btn]   │
+│ [Soul Train's]     [⏯ play/pause]  │ ← REMOVE
 │                                     │
 │  [◀]              [▶]               │
 │                                     │
-│              [✨ Get Quote] (pulse) │ ← REMOVE
 └─────────────────────────────────────┘
-│ Content with [Request Quote] [Call] │ ← KEEP
+│ Content Area                        │
+│ [Request Quote] [Call Now]          │
+│                                     │
+│            [↓ bounce]               │ ← REMOVE
+└─────────────────────────────────────┘
 ```
 
-### Mobile Hero Controls (After):
+### Mobile View (After):
 ```text
 ┌─────────────────────────────────────┐
-│ [Soul Train's]     [⏯ dark btn]    │ ← Better contrast
+│ [Soul Train's]                      │ ← Cleaner top bar
 │                                     │
-│  [◀]              [▶]               │ ← Better contrast
+│  [◀]              [▶]               │ ← Navigation arrows remain
 │                                     │
 └─────────────────────────────────────┘
-│ Content with [Request Quote] [Call] │ ← Single CTA area
+│ Content Area                        │
+│ [Request Quote] [Call Now]          │
+│                                     │ ← No distracting elements
+└─────────────────────────────────────┘
 ```
 
-### Header Hamburger (Before/After):
+### Tablet View (768px-1024px):
 ```text
-Before: stroke="white" → invisible on white header
-After:  stroke="currentColor" → inherits text-foreground color
+Before (cramped):
+┌──────────────────────────────────────────────────────────────┐
+│ [────────── 60% Image ──────────] │ [──40% Content──]        │
+│                                   │  p-8 (too much)          │
+│                                   │  text-4xl (may clip)     │
+└──────────────────────────────────────────────────────────────┘
+
+After (optimized):
+┌──────────────────────────────────────────────────────────────┐
+│ [────────── 60% Image ──────────] │ [──40% Content──]        │
+│                                   │  p-6 (breathing room)    │
+│                                   │  text-3xl (fits better)  │
+│                                   │  CTAs stack if needed    │
+└──────────────────────────────────────────────────────────────┘
 ```
 
-### Desktop Layout (Before/After):
-```text
-Before: [↓] bouncing arrow bottom-right
-After:  Clean layout, no distracting animation
-```
+---
+
+## Technical Notes
+
+- The `overflow-hidden` on the main section prevents horizontal scrolling
+- Percentage-based widths (`w-3/5`, `w-2/5`) are inherently fluid and responsive
+- The `ChevronDown` import can remain since it may be used elsewhere (no cleanup needed)
+- Auto-play continues on mobile without the play/pause button - users can swipe to navigate
+- Navigation arrows provide explicit manual control on mobile
+
