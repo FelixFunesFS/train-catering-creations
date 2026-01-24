@@ -1,295 +1,157 @@
 
-# Comprehensive UX/Design Audit: CTA Consistency, Accessibility & Visual Enhancement
+# Remove All Scroll-Down Chevron Indicators
 
-## Executive Summary
+## Overview
 
-After reviewing all pages and components, I've identified several areas for improvement related to CTA consistency, accessibility/contrast issues, and opportunities for visual enhancement with full-width imagery. This plan addresses these findings with a conversion-optimization mindset.
+Remove all decorative chevron scroll-down buttons and scroll indicators from hero sections across the website. These are the bouncing/animated arrows that prompt users to scroll down.
 
 ---
 
-## Part 1: CTA Consistency & Accessibility Issues
+## Files to Modify
 
-### Issue 1.1: `cta-white` Button Variant Has Contrast Issues
+### 1. Gallery Hero - `src/components/gallery/ImmersiveMobileHero.tsx`
 
-**Current Problem:**
-The `cta-white` variant in `button.tsx` is defined as:
+**Remove lines 172-182:**
 ```tsx
-"cta-white": "border-2 border-white text-navy bg-white hover:bg-white/90 hover:text-navy ..."
-```
-
-When used on the ruby/crimson CTA sections, this works well. However, when used outside of colored backgrounds (which doesn't happen often), the white background with navy text could have issues on white page backgrounds.
-
-**Recommendation:** The current implementation is correct for its intended use (CTA sections with ruby backgrounds). No change needed, but we should audit where it's used to ensure proper context.
-
-**Files using `cta-white`:**
-- `src/components/quote/ContactInfoCards.tsx` - On ruby gradient background (correct usage)
-- `src/components/menu/MenuCTASection.tsx` - On ruby CTA section (correct usage)
-- `src/components/ui/cta-section.tsx` - On ruby gradient background (correct usage)
-
----
-
-### Issue 1.2: Menu CTA Section - Secondary Button Has Invisible Border
-
-**File:** `src/components/menu/MenuCTASection.tsx`
-
-**Current (line 36-40):**
-```tsx
-<Button 
-  variant="outline" 
-  className="border-white border-2 text-white bg-transparent hover:bg-white hover:text-primary"
->
-```
-
-**Problem:** This button uses `variant="outline"` which applies default outline styles, then overrides with `border-white`. On the ruby background, the white border/text works, but on hover it becomes white with primary text - this is correct.
-
-**Recommendation:** Change to use the existing `cta-white` variant for consistency:
-```tsx
-<Button 
-  variant="cta-white"
-  size="responsive-lg"
->
-  <a href="tel:8439700265">Call (843) 970-0265</a>
-</Button>
-```
-
----
-
-### Issue 1.3: Gallery Hero - Bouncing Arrow Animation Still Present
-
-**File:** `src/components/gallery/ImmersiveMobileHero.tsx`
-
-**Current (lines 173-181):**
-```tsx
-<Button
-  variant="ghost"
-  className="text-white/60 hover:text-white animate-bounce"
->
-  <ChevronDown className="h-5 w-5" />
-</Button>
-```
-
-**Problem:** Bouncing arrow animation is distracting (same issue we fixed on home page).
-
-**Recommendation:** Remove `animate-bounce` class or remove the entire scroll indicator for cleaner UX.
-
----
-
-### Issue 1.4: CTA Button Variant Inconsistency Across Pages
-
-**Audit Results:**
-
-| Page | Primary CTA | Secondary CTA | Consistent? |
-|------|-------------|---------------|-------------|
-| Home (CTASection) | `cta` (ruby gradient) | `cta-white` | Yes |
-| Gallery (GalleryCTA) | `cta` | `cta-white` | Yes |
-| About | `cta` | `cta-white` | Yes |
-| Reviews | `cta` | `cta-white` | Yes |
-| Menu | `cta-white` | `outline` (custom) | **No** |
-| FAQ | `default` (neumorphic) | `outline` (neumorphic) | **Different style** |
-
-**Issues Found:**
-1. **Menu page CTA** uses different button styling than other pages
-2. **FAQ page** uses `neumorphic-button-primary/secondary` classes instead of `cta/cta-white` variants
-
-**Recommendation:** Standardize all bottom-of-page CTA sections to use:
-- Primary: `variant="cta"` (ruby gradient with white text)
-- Secondary: `variant="cta-white"` (white with navy text)
-
----
-
-### Issue 1.5: Quote Selection Page - Inconsistent Button Hierarchy
-
-**File:** `src/pages/RequestQuote.tsx` (uses `QuoteFormSelector`)
-
-The CTA section at the bottom uses different variants than other pages. Should be unified.
-
----
-
-## Part 2: Contrast & Accessibility Fixes
-
-### Issue 2.1: Service Category Cards - Icon Contrast
-
-**File:** `src/components/home/ServiceCategoriesSection.tsx`
-
-**Current (line 136):**
-```tsx
-<div className="bg-white/20 backdrop-blur-sm rounded-full p-3 text-white">
-  {service.icon}
+{/* Scroll Indicator */}
+<div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20">
+  <Button
+    variant="ghost"
+    size="sm"
+    onClick={onScrollToGallery}
+    className="text-white/60 hover:text-white"
+  >
+    <ChevronDown className="h-5 w-5" />
+  </Button>
 </div>
 ```
 
-**Problem:** `bg-white/20` with `text-white` relies entirely on the image behind for contrast. On lighter images, the icon could be hard to see.
+**Also remove** the `ChevronDown` import if no longer needed.
 
-**Recommendation:** Increase background opacity:
+---
+
+### 2. Story Hero (Mobile) - `src/components/home/StoryHero.tsx`
+
+**Remove lines 315-326:**
 ```tsx
-<div className="bg-black/40 backdrop-blur-sm rounded-full p-3 text-white">
-  {service.icon}
+{/* Scroll Indicator */}
+<div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2">
+  <Button
+    variant="ghost"
+    size="sm"
+    onClick={handleScrollToDiscover}
+    className="text-muted-foreground hover:text-foreground animate-bounce"
+    aria-label="Scroll to next section"
+  >
+    <ChevronDown className="h-5 w-5" />
+  </Button>
 </div>
 ```
 
 ---
 
-### Issue 2.2: Gallery Story Viewer - Badge Contrast
+### 3. Story Hero (Desktop) - `src/components/home/StoryHero.tsx`
 
-**File:** `src/components/gallery/StoryGalleryViewer.tsx`
-
-**Current (line 259):**
+**Remove lines 461-472:**
 ```tsx
-<Badge className="bg-white/10 text-white border-white/20">
+{/* Scroll Indicator */}
+<div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20">
+  <Button
+    variant="ghost"
+    size="sm"
+    onClick={handleScrollToDiscover}
+    className="text-white/60 hover:text-white animate-bounce"
+    aria-label="Scroll to next section"
+  >
+    <ChevronDown className="h-5 w-5" />
+  </Button>
+</div>
 ```
 
-**Problem:** Very low contrast badge on image backgrounds.
-
-**Recommendation:** Increase to `bg-black/50 text-white border-white/30` for better readability.
+**Note:** Keep the `ChevronDown` import as it's used elsewhere in navigation components.
 
 ---
 
-### Issue 2.3: Interactive Gallery Preview - Story Dots Contrast
+### 4. Modern Hero (Mobile) - `src/components/home/ModernHero.tsx`
 
-**File:** `src/components/home/InteractiveGalleryPreview.tsx`
-
-**Current (line 171-176):**
+**Remove lines 228-238:**
 ```tsx
-<button
-  className={`w-2 h-2 rounded-full transition-all duration-300 ${
-    index === currentStoryIndex 
-      ? 'bg-ruby w-6' 
-      : 'bg-ruby/30'
-  }`}
-/>
+{/* Scroll Indicator */}
+<div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20">
+  <Button
+    variant="glass-white"
+    size="icon"
+    onClick={handleScrollToDiscover}
+    className="animate-bounce"
+  >
+    <ChevronDown className="h-4 w-4" />
+  </Button>
+</div>
 ```
 
-**Problem:** Touch target is only 8px (w-2), below WCAG 2.2 AA minimum of 24px.
+---
 
-**Recommendation:** Wrap in larger touch target container:
+### 5. Modern Hero (Desktop) - `src/components/home/ModernHero.tsx`
+
+**Remove lines 339-349:**
 ```tsx
-<button
-  className="min-w-[24px] min-h-[24px] flex items-center justify-center"
->
-  <span className={`h-2 rounded-full ${...}`} />
-</button>
+{/* Scroll Indicator */}
+<div className="absolute bottom-8 right-8 z-20">
+  <Button
+    variant="glass-white"
+    size="icon"
+    onClick={handleScrollToDiscover}
+    className="animate-bounce"
+  >
+    <ChevronDown className="h-5 w-5" />
+  </Button>
+</div>
 ```
 
 ---
 
-## Part 3: Visual Enhancement Opportunities
+### 6. Cinematic Ruby Hero - `src/components/home/alternative-third/CinematicRubyHero.tsx`
 
-### Opportunity 3.1: Full-Width Quote/Testimonial Section
-
-**Concept:** Add a cinematic full-bleed testimonial section between key content areas, featuring a large background image with an overlaid quote.
-
-**Proposed Location:** Between ServiceCategoriesSection and InteractiveGalleryPreview on HomePage
-
-**Design:**
-```text
-+----------------------------------------------------------+
-|                                                          |
-|   [FULL-WIDTH BACKGROUND IMAGE - Wedding/Event Photo]   |
-|                                                          |
-|        "Soul Train's Eatery made our wedding day         |
-|           absolutely perfect. Our guests are             |
-|              still talking about the food."              |
-|                                                          |
-|                  - Sarah & Michael Chen                  |
-|                    Wedding Reception                     |
-|                                                          |
-+----------------------------------------------------------+
-```
-
-**Implementation:** Create new `FullBleedTestimonial` component with:
-- Full-viewport-width background image
-- Dark gradient overlay for text contrast
-- Large elegant quote typography
-- Subtle parallax effect
-
----
-
-### Opportunity 3.2: Featured Dish Showcase Section
-
-**Concept:** A full-width image strip showcasing signature dishes with hover details.
-
-**Proposed Location:** Could replace or enhance `BrandMarquee` section
-
-**Design:**
-```text
-+----------------------------------------------------------+
-| [Brisket]  [Mac&Cheese] [Shrimp]  [Desserts] [Grazing]   |
-|  Full-width horizontal scroll of hero food images        |
-|  Each with overlay text on hover                         |
-+----------------------------------------------------------+
+**Remove lines 110-115:**
+```tsx
+{/* Scroll Indicator */}
+<div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
+  <div className="w-6 h-10 border-2 border-white/40 rounded-full flex justify-center">
+    <div className="w-1 h-3 bg-white/60 rounded-full mt-2 animate-pulse" />
+  </div>
+</div>
 ```
 
 ---
 
-### Opportunity 3.3: Immersive About Section
+## Summary
 
-**Current:** The AboutPreviewSection uses a standard grid layout.
-
-**Enhancement:** Create a full-bleed version where the chef image extends edge-to-edge on one side:
-
-```text
-+----------------------------------------------------------+
-|                    |                                      |
-| [Content Area]     |   [FULL-BLEED CHEF IMAGE]           |
-| Story text, quote, |   Edge-to-edge, no padding           |
-| and CTAs           |                                      |
-|                    |                                      |
-+----------------------------------------------------------+
-```
+| Component | Location | Type |
+|-----------|----------|------|
+| ImmersiveMobileHero | Gallery page | ChevronDown button |
+| StoryHero (mobile) | Home alternate | ChevronDown button with bounce |
+| StoryHero (desktop) | Home alternate | ChevronDown button with bounce |
+| ModernHero (mobile) | Home alternate | ChevronDown button with bounce |
+| ModernHero (desktop) | Home alternate | ChevronDown button with bounce |
+| CinematicRubyHero | Home alternate | Pill-style indicator with pulse |
 
 ---
 
-## Part 4: Implementation Priority
+## What's NOT Being Removed
 
-### Phase 1: Critical Fixes (Accessibility/Contrast)
-1. Fix Menu CTA button inconsistency
-2. Fix Gallery Hero bouncing arrow
-3. Fix Service Category icon contrast
-4. Fix Interactive Gallery touch targets
-5. Fix Gallery Story Viewer badge contrast
+These functional ChevronDown icons will remain:
+- **Navigation dropdown indicators** (`navigation-menu.tsx`)
+- **Select component scroll buttons** (`select.tsx`)
+- **Collapsible menu section toggles** (expand/collapse menus)
+- **Admin panel accordions** (event details, line items, etc.)
 
-### Phase 2: CTA Standardization
-1. Standardize FAQ page CTA buttons to match site pattern
-2. Ensure all pages use consistent `cta` + `cta-white` pairing
-3. Update PageHeader button defaults for consistency
-
-### Phase 3: Visual Enhancements (Optional)
-1. Create FullBleedTestimonial component
-2. Consider Featured Dish Showcase
-3. Explore immersive About section redesign
+These serve interactive purposes and are not decorative scroll prompts.
 
 ---
 
-## Technical Summary
+## Files Changed
 
-### Files to Modify:
-
-| File | Changes |
-|------|---------|
-| `src/components/menu/MenuCTASection.tsx` | Update secondary button to use `cta-white` variant |
-| `src/components/gallery/ImmersiveMobileHero.tsx` | Remove `animate-bounce` from scroll indicator |
-| `src/components/home/ServiceCategoriesSection.tsx` | Increase icon background contrast |
-| `src/components/home/InteractiveGalleryPreview.tsx` | Fix touch target sizes for story dots |
-| `src/components/gallery/StoryGalleryViewer.tsx` | Increase badge contrast |
-| `src/components/gallery/GallerySearchInterface.tsx` | Increase badge contrast |
-| `src/pages/FAQ.tsx` | Standardize CTA button variants |
-
-### New Components (Optional Phase 3):
-- `src/components/home/FullBleedTestimonial.tsx` - Full-width quote section
-
----
-
-## Design Tokens Reference
-
-For consistency, all CTAs should follow this hierarchy:
-
-| Context | Primary Button | Secondary Button |
-|---------|----------------|------------------|
-| On ruby/crimson background | `cta` | `cta-white` |
-| On white/neutral background | `cta` | `outline` |
-| In forms | `cta` | `outline` |
-
-Color contrast minimums (WCAG AA):
-- Text on backgrounds: 4.5:1 ratio minimum
-- Large text (18pt+): 3:1 ratio minimum
-- Touch targets: 24x24px minimum (WCAG 2.2)
+1. `src/components/gallery/ImmersiveMobileHero.tsx`
+2. `src/components/home/StoryHero.tsx`
+3. `src/components/home/ModernHero.tsx`
+4. `src/components/home/alternative-third/CinematicRubyHero.tsx`
