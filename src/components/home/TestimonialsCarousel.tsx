@@ -273,7 +273,7 @@ export const TestimonialsCarousel = () => {
 
           {/* Swipe Instruction for Mobile */}
           {isMobile && (
-            <p className="text-center text-xs text-muted-foreground mt-4">
+            <p className="text-center text-xs text-white/60 mt-4">
               Swipe left or right to see more testimonials
             </p>
           )}
@@ -281,15 +281,15 @@ export const TestimonialsCarousel = () => {
 
         {/* Stats */}
         <div className={`grid grid-cols-3 gap-3 mt-6 lg:mt-8 max-w-2xl mx-auto ${animationClass}`}>
-          <Card className="p-3 text-center bg-white/10 backdrop-blur-sm border-white/20">
+          <Card className="p-3 text-center !bg-white/10 !backdrop-blur-sm !border-white/20 !shadow-none">
             <div className="text-lg lg:text-xl font-bold text-white">500+</div>
             <div className="text-sm text-white/70">Events Catered</div>
           </Card>
-          <Card className="p-3 text-center bg-white/10 backdrop-blur-sm border-white/20">
+          <Card className="p-3 text-center !bg-white/10 !backdrop-blur-sm !border-white/20 !shadow-none">
             <div className="text-lg lg:text-xl font-bold text-white">★ 4.9</div>
             <div className="text-sm text-white/70">Average Rating</div>
           </Card>
-          <Card className="p-3 text-center bg-white/10 backdrop-blur-sm border-white/20">
+          <Card className="p-3 text-center !bg-white/10 !backdrop-blur-sm !border-white/20 !shadow-none">
             <div className="text-lg lg:text-xl font-bold text-white">98%</div>
             <div className="text-sm text-white/70">Would Recommend</div>
           </Card>
