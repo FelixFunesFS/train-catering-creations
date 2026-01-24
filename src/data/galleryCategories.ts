@@ -3,18 +3,16 @@ export interface GalleryCategory {
   id: string;
   name: string;
   description: string;
+  // For combined categories, filter by multiple IDs
+  filterIds?: string[];
 }
 
 export const galleryCategories: GalleryCategory[] = [
   { 
-    id: "wedding", 
-    name: "Wedding Celebrations",
-    description: "Elegant wedding receptions and ceremonies with impeccable service"
-  },
-  { 
-    id: "formal", 
-    name: "Formal & Black Tie Events",
-    description: "Sophisticated catering for corporate galas and upscale gatherings"
+    id: "weddings-formal", 
+    name: "Weddings & Black Tie",
+    description: "Elegant weddings, receptions, and sophisticated formal gatherings",
+    filterIds: ["wedding", "formal"]
   },
   { 
     id: "desserts", 

@@ -1,18 +1,12 @@
 import { galleryCategories } from "@/data/galleryCategories";
 import { galleryImages } from "@/data/galleryImages";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { OptimizedImage } from "@/components/ui/optimized-image";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 import { 
-  Grid3X3, 
-  Play, 
-  Search, 
   Sparkles, 
   Heart, 
-  Users, 
   Building, 
   Cake,
   ChefHat,
@@ -22,19 +16,11 @@ import {
 interface DiscoveryCategoryNavProps {
   selectedCategory: string | null;
   onCategorySelect: (category: string) => void;
-  onStoryModeSelect: (category: string) => void;
-  onSearchModeSelect: () => void;
-  viewMode: 'story' | 'grid' | 'search';
-  setViewMode: (mode: 'story' | 'grid' | 'search') => void;
 }
 
 export const DiscoveryCategoryNav = ({
   selectedCategory,
-  onCategorySelect,
-  onStoryModeSelect,
-  onSearchModeSelect,
-  viewMode,
-  setViewMode
+  onCategorySelect
 }: DiscoveryCategoryNavProps) => {
   const isMobile = useIsMobile();
   
@@ -45,45 +31,36 @@ export const DiscoveryCategoryNav = ({
     desktop: { variant: 'ios-spring', delay: 0 }
   });
   
-  const { ref: buttonsRef, isVisible: buttonsVisible, variant: buttonsVariant } = useScrollAnimation({ 
-    delay: 100, 
-    variant: 'fade-up',
-    mobile: { variant: 'slide-up', delay: 50 },
-    desktop: { variant: 'elastic', delay: 100 }
-  });
-  
   const { ref: categoriesRef, isVisible: categoriesVisible, variant: categoriesVariant } = useScrollAnimation({ 
-    delay: 200, 
+    delay: 100, 
     variant: 'slide-up',
-    mobile: { variant: 'medium', delay: 100 },
-    desktop: { variant: 'ios-spring', delay: 200 }
+    mobile: { variant: 'medium', delay: 50 },
+    desktop: { variant: 'ios-spring', delay: 100 }
   });
 
   const getCategoryIcon = (categoryId: string) => {
     const iconMap: Record<string, React.ReactNode> = {
+      'weddings-formal': <Heart className="h-4 w-4" />,
       'wedding': <Heart className="h-4 w-4" />,
       'formal': <Star className="h-4 w-4" />,
       'corporate': <Building className="h-4 w-4" />,
       'desserts': <Cake className="h-4 w-4" />,
       'buffet': <ChefHat className="h-4 w-4" />,
-      'family': <Users className="h-4 w-4" />,
     };
     return iconMap[categoryId] || <Sparkles className="h-4 w-4" />;
   };
 
   const getCategoryPreviewImage = (categoryId: string) => {
-    const categoryImages = galleryImages.filter(img => img.category === categoryId && img.quality >= 7);
+    const category = galleryCategories.find(cat => cat.id === categoryId);
+    const filterIds = category?.filterIds || [categoryId];
+    const categoryImages = galleryImages.filter(img => filterIds.includes(img.category) && img.quality >= 7);
     return categoryImages[0] || galleryImages[0];
   };
 
-  const getCategoryStats = (categoryId: string) => {
-    const categoryImages = galleryImages.filter(img => img.category === categoryId);
-    const premiumImages = categoryImages.filter(img => img.quality >= 8);
-    return {
-      total: categoryImages.length,
-      premium: premiumImages.length,
-      avgQuality: Math.round(categoryImages.reduce((sum, img) => sum + img.quality, 0) / categoryImages.length)
-    };
+  const getCategoryImageCount = (categoryId: string) => {
+    const category = galleryCategories.find(cat => cat.id === categoryId);
+    const filterIds = category?.filterIds || [categoryId];
+    return galleryImages.filter(img => filterIds.includes(img.category)).length;
   };
 
   return (
@@ -97,41 +74,8 @@ export const DiscoveryCategoryNav = ({
           Discover Our Work
         </h2>
         <p className="text-muted-foreground text-base sm:text-lg lg:text-xl max-w-2xl mx-auto">
-          Explore our portfolio through immersive stories, interactive grids, or smart search
+          Browse our portfolio of beautifully catered events
         </p>
-      </div>
-
-      {/* View Mode Toggle */}
-      <div 
-        ref={buttonsRef}
-        className={`flex flex-wrap justify-center gap-2 sm:gap-3 mb-8 sm:mb-10 ${useAnimationClass(buttonsVariant, buttonsVisible)}`}
-      >
-        <Button
-          variant={viewMode === 'story' ? 'default' : 'outline'}
-          onClick={() => setViewMode('story')}
-          className="gap-2"
-        >
-          <Play className="h-4 w-4" />
-          Story Mode
-        </Button>
-        
-        <Button
-          variant={viewMode === 'grid' ? 'default' : 'outline'}
-          onClick={() => setViewMode('grid')}
-          className="gap-2"
-        >
-          <Grid3X3 className="h-4 w-4" />
-          Grid View
-        </Button>
-        
-        <Button
-          variant={viewMode === 'search' ? 'default' : 'outline'}
-          onClick={onSearchModeSelect}
-          className="gap-2"
-        >
-          <Search className="h-4 w-4" />
-          Smart Search
-        </Button>
       </div>
 
       {/* Category Cards */}
@@ -143,9 +87,9 @@ export const DiscoveryCategoryNav = ({
           // Mobile: Horizontal scrolling cards
           <div className="overflow-x-auto pb-4">
             <div className="flex gap-4 px-4" style={{ width: 'max-content' }}>
-              {galleryCategories.map((category, index) => {
+              {galleryCategories.map((category) => {
                 const previewImage = getCategoryPreviewImage(category.id);
-                const stats = getCategoryStats(category.id);
+                const imageCount = getCategoryImageCount(category.id);
                 const isSelected = selectedCategory === category.id;
                 
                 return (
@@ -156,13 +100,7 @@ export const DiscoveryCategoryNav = ({
                         ? 'ring-2 ring-primary ring-offset-2 shadow-glow' 
                         : 'hover:shadow-elevated hover:scale-105'
                     }`}
-                    onClick={() => {
-                      if (viewMode === 'story') {
-                        onStoryModeSelect(category.id);
-                      } else {
-                        onCategorySelect(category.id);
-                      }
-                    }}
+                    onClick={() => onCategorySelect(category.id)}
                   >
                     <OptimizedImage
                       src={previewImage.src}
@@ -181,9 +119,12 @@ export const DiscoveryCategoryNav = ({
                         </h3>
                       </div>
                       
-                      
                       <p className="text-white/80 text-sm line-clamp-2">
                         {category.description}
+                      </p>
+                      
+                      <p className="text-white/60 text-xs mt-1">
+                        {imageCount} images
                       </p>
                     </div>
                   </div>
@@ -194,9 +135,9 @@ export const DiscoveryCategoryNav = ({
         ) : (
           // Desktop: Grid layout
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {galleryCategories.map((category, index) => {
+            {galleryCategories.map((category) => {
               const previewImage = getCategoryPreviewImage(category.id);
-              const stats = getCategoryStats(category.id);
+              const imageCount = getCategoryImageCount(category.id);
               const isSelected = selectedCategory === category.id;
               
               return (
@@ -207,13 +148,7 @@ export const DiscoveryCategoryNav = ({
                       ? 'ring-2 ring-primary ring-offset-2 shadow-glow scale-105' 
                       : 'hover:shadow-elevated hover:scale-105'
                   }`}
-                  onClick={() => {
-                    if (viewMode === 'story') {
-                      onStoryModeSelect(category.id);
-                    } else {
-                      onCategorySelect(category.id);
-                    }
-                  }}
+                  onClick={() => onCategorySelect(category.id)}
                 >
                   <OptimizedImage
                     src={previewImage.src}
@@ -234,9 +169,12 @@ export const DiscoveryCategoryNav = ({
                       </h3>
                     </div>
                     
-                    
                     <p className="text-white/90 text-sm group-hover:text-white transition-colors duration-300">
                       {category.description}
+                    </p>
+                    
+                    <p className="text-white/60 text-xs mt-2">
+                      {imageCount} images
                     </p>
                   </div>
                 </div>
