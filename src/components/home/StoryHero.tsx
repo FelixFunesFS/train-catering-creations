@@ -312,18 +312,6 @@ export const StoryHero = () => {
             </div>
           </div>
 
-          {/* Scroll Indicator */}
-          <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleScrollToDiscover}
-              className="text-muted-foreground hover:text-foreground animate-bounce focus:ring-2 focus:ring-primary/50"
-              aria-label="Scroll to next section"
-            >
-              <ChevronDown className="h-5 w-5" />
-            </Button>
-          </div>
         </div>
       </div>
     );
@@ -458,18 +446,6 @@ export const StoryHero = () => {
         </div>
       </div>
 
-      {/* Scroll Indicator */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleScrollToDiscover}
-          className="text-white/60 hover:text-white animate-bounce focus:ring-2 focus:ring-white/50"
-          aria-label="Scroll to next section"
-        >
-          <ChevronDown className="h-5 w-5" />
-        </Button>
-      </div>
     </div>
   );
 };

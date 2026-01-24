@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
-import { ChevronDown, Play, Pause, Sparkles, Grid } from "lucide-react";
+import { Play, Pause, Sparkles, Grid } from "lucide-react";
 import { heroImages } from "@/data/heroImages";
 
 interface ImmersiveMobileHeroProps {
@@ -169,17 +169,6 @@ export const ImmersiveMobileHero = ({
           </Button>
         </div>
 
-        {/* Scroll Indicator */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onScrollToGallery}
-            className="text-white/60 hover:text-white"
-          >
-            <ChevronDown className="h-5 w-5" />
-          </Button>
-        </div>
       </div>
 
       {/* Touch Instruction Overlay (shown briefly on mobile) */}
