@@ -44,7 +44,7 @@ export const MobileWeddingTaglineSection = () => {
               </Button>
               
               <Button asChild variant="outline" className="w-4/5 sm:w-auto px-6 py-2.5 min-w-[160px]">
-                <Link to="/gallery#page-header">
+                <Link to="/gallery">
                   View Gallery
                 </Link>
               </Button>

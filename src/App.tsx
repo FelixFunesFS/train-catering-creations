@@ -23,7 +23,6 @@ import RequestQuote from "./pages/RequestQuote";
 import RegularEventQuote from "./pages/RegularEventQuote";
 import WeddingEventQuote from "./pages/WeddingEventQuote";
 import Reviews from "./pages/Reviews";
-import PhotoGallery from "./pages/PhotoGallery";
 import AlternativeGallery from "./pages/AlternativeGallery";
 import FAQ from "./pages/FAQ";
 import TestEmail from "./pages/TestEmail";
@@ -73,8 +72,7 @@ const AppContent = () => {
           <Route path="/request-quote/wedding" element={<WeddingEventQuote />} />
           <Route path="/request-quote/thank-you" element={<QuoteThankYou />} />
           <Route path="/reviews" element={<Reviews />} />
-          <Route path="/gallery" element={<PhotoGallery />} />
-          <Route path="/gallery-alt" element={<AlternativeGallery />} />
+          <Route path="/gallery" element={<AlternativeGallery />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/install" element={<Install />} />
           {/* Customer approval deep links (email clients may append trailing slashes) */}

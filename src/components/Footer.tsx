@@ -16,7 +16,7 @@ export const Footer = () => {
     href: "/wedding-menu#page-header"
   }, {
     name: "Gallery",
-    href: "/gallery#page-header"
+    href: "/gallery"
   }, {
     name: "Reviews",
     href: "/reviews#page-header"

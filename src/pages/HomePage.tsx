@@ -6,7 +6,6 @@ import { AboutPreviewSection } from "@/components/home/AboutPreviewSection";
 import { TestimonialsCarousel } from "@/components/home/TestimonialsCarousel";
 import { CTASection } from "@/components/home/CTASection";
 import { TrustMarquee } from "@/components/home/TrustMarquee";
-import { ServiceMarquee } from "@/components/home/ServiceMarquee";
 import { BrandMarquee } from "@/components/home/BrandMarquee";
 
 const HomePage = () => {
@@ -15,7 +14,6 @@ const HomePage = () => {
       <SplitHero />
       <TrustMarquee />
       <ServiceCategoriesSection />
-      <ServiceMarquee />
       <InteractiveGalleryPreview />
       <AboutPreviewSection />
       <TestimonialsCarousel />
