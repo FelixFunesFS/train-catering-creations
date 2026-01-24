@@ -132,22 +132,34 @@ export const TestimonialsCarousel = () => {
   return (
     <section 
       ref={ref}
-      className="py-16 sm:py-20 lg:py-24 bg-background"
+      className="relative py-16 sm:py-20 lg:py-24 overflow-hidden"
     >
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Full-width Background Image */}
+      <div 
+        className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
+        style={{ 
+          backgroundImage: `url('/lovable-uploads/894051bf-31c6-4930-bb88-e3e1d74f7ee1.png')` 
+        }}
+        aria-hidden="true"
+      />
+      
+      {/* Dark gradient overlay for text contrast */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-black/70" />
+
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header */}
         <div className={`text-center mb-6 lg:mb-10 space-y-3 ${animationClass}`}>
           <div className="flex items-center justify-center space-x-2 mb-3">
-            <Quote className="h-5 w-5 text-ruby" />
-            <Badge variant="outline" className="border-ruby text-ruby font-script text-sm">
+            <Quote className="h-5 w-5 text-white" />
+            <Badge variant="outline" className="border-white/50 text-white font-script text-sm">
               Client Love
             </Badge>
           </div>
           
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-elegant font-bold text-foreground">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-elegant font-bold text-white">
             What Our Clients Say
           </h2>
-          <p className="text-xl sm:text-2xl font-script text-ruby font-medium">
+          <p className="text-xl sm:text-2xl font-script text-white/90 font-medium">
             Real Stories, Real Satisfaction
           </p>
         </div>
@@ -155,7 +167,7 @@ export const TestimonialsCarousel = () => {
         {/* Testimonial Carousel */}
         <div className={`max-w-4xl mx-auto ${animationClass}`}>
           <Card 
-            className="relative p-5 lg:p-6 bg-white/95 backdrop-blur-sm border-2 border-ruby/20 overflow-hidden"
+            className="relative p-5 lg:p-6 bg-white/95 backdrop-blur-md border border-white/20 shadow-2xl overflow-hidden"
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
@@ -269,17 +281,17 @@ export const TestimonialsCarousel = () => {
 
         {/* Stats */}
         <div className={`grid grid-cols-3 gap-3 mt-6 lg:mt-8 max-w-2xl mx-auto ${animationClass}`}>
-          <Card className="p-3 text-center bg-white/60 border-ruby/20">
-            <div className="text-lg lg:text-xl font-bold text-ruby">500+</div>
-            <div className="text-sm text-muted-foreground">Events Catered</div>
+          <Card className="p-3 text-center bg-white/10 backdrop-blur-sm border-white/20">
+            <div className="text-lg lg:text-xl font-bold text-white">500+</div>
+            <div className="text-sm text-white/70">Events Catered</div>
           </Card>
-          <Card className="p-3 text-center bg-white/60 border-ruby/20">
-            <div className="text-lg lg:text-xl font-bold text-ruby">★ 4.9</div>
-            <div className="text-sm text-muted-foreground">Average Rating</div>
+          <Card className="p-3 text-center bg-white/10 backdrop-blur-sm border-white/20">
+            <div className="text-lg lg:text-xl font-bold text-white">★ 4.9</div>
+            <div className="text-sm text-white/70">Average Rating</div>
           </Card>
-          <Card className="p-3 text-center bg-white/60 border-ruby/20">
-            <div className="text-lg lg:text-xl font-bold text-ruby">98%</div>
-            <div className="text-sm text-muted-foreground">Would Recommend</div>
+          <Card className="p-3 text-center bg-white/10 backdrop-blur-sm border-white/20">
+            <div className="text-lg lg:text-xl font-bold text-white">98%</div>
+            <div className="text-sm text-white/70">Would Recommend</div>
           </Card>
         </div>
       </div>
