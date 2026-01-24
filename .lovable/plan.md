@@ -1,181 +1,68 @@
 
 
-# Revised Logo Placement Strategy - Cleaner Approach
+# Fix "Our Story" Watermark Visibility
 
-## My Recommendation
+## Problem Analysis
 
-**Less is more.** The logo should appear strategically, not everywhere. Here's the refined approach:
+The watermark logo is currently invisible due to:
 
-### What to REMOVE (Cluttered)
+1. **Z-index layering issue** - Content at `z-10` covers the watermark at `z-[5]`
+2. **Positioned behind the photo card** - Right-aligned watermark sits exactly where the photo is placed
+3. **Low contrast** - 12% opacity against `from-black/80 via-black/60 to-black/40` gradient makes it invisible
+4. **Gradient overlay covers it** - The dark gradient overlay is applied after the background image but before the watermark, dimming it further
 
-The small logos next to the badge icons on Menu and Gallery pages add visual clutter without adding value - the badge already identifies the page, and the header already shows the logo.
+## Solution
 
-| Page | Current Issue | Action |
-|------|--------------|--------|
-| **Menu** (`SimpleMenuHeader.tsx`) | Small `h-6` logo next to Utensils icon | **Remove** - redundant |
-| **Gallery** (`AlternativeGallery.tsx`) | Small `h-6` logo next to Camera icon | **Remove** - redundant |
+Reposition the watermark and increase visibility:
 
-### What to KEEP/ADD (Strategic)
+### File: `src/pages/About.tsx` (lines 44-52)
 
-| Location | Logo Type | Why |
-|----------|-----------|-----|
-| **Header** (global) | Active logo | Navigation/brand identity |
-| **Footer** (global) | Active logo | Closing brand presence |
-| **Home Hero** | Badge + watermark | First impression, hero moment |
-| **Home CTA** | Subtle watermark | Reinforces brand at conversion point |
-| **About "Our Story"** | Background watermark | Storytelling section |
-
-### CTA Watermark Strategy
-
-**Only the Home page CTA should have the watermark.** 
-
-Rationale:
-- Home page is the primary landing page - maximum brand impact
-- Other CTAs (Menu, Reviews, FAQ, Quote) are on secondary pages where users have already seen the brand multiple times
-- Adding watermarks to every CTA creates visual fatigue
-
----
-
-## Implementation Details
-
-### 1. Remove Logo from Menu Badge
-
-**File:** `src/components/menu/SimpleMenuHeader.tsx`
-
-```tsx
-// REMOVE lines 21-25 (the img tag)
-<div className="flex items-center justify-center space-x-2 mb-3">
-  {/* Remove this img block */}
-  <Utensils className="h-5 w-5 text-ruby" />
-  <Badge variant="outline" className="border-ruby text-ruby font-script text-sm">
-    Our Menu
-  </Badge>
-</div>
+**Current positioning (hidden behind photo):**
+```
+right-4 sm:right-8 lg:right-16 top-1/2 -translate-y-1/2 z-[5] opacity-[0.12]
 ```
 
----
-
-### 2. Remove Logo from Gallery Badge
-
-**File:** `src/pages/AlternativeGallery.tsx` (lines 88-99)
-
-```tsx
-// REMOVE lines 90-94 (the img tag)
-<div className="flex items-center justify-center space-x-2 mb-3">
-  {/* Remove this img block */}
-  <Camera className="h-5 w-5 text-ruby" />
-  <Badge variant="outline" className="border-ruby text-ruby font-script text-sm">
-    Our Gallery
-  </Badge>
-</div>
-```
-
----
-
-### 3. Add Watermark to CTA Section (Home Only)
-
-**File:** `src/components/ui/cta-section.tsx`
-
-Add an optional `showWatermark` prop that defaults to `false`:
+**New positioning (visible on the left side, behind text content):**
+- Move to the **left side** of the section (where the text is)
+- Increase z-index to appear above the gradient overlay
+- Increase opacity to 15-18% for better visibility against dark background
+- Position slightly offset from center-left for visual balance
 
 ```tsx
-interface CTASectionProps {
-  title: string;
-  description: string;
-  buttons: CTAButton[];
-  footer?: string;
-  showWatermark?: boolean; // NEW prop
-}
-
-export const CTASection = ({ title, description, buttons, footer, showWatermark = false }: CTASectionProps) => {
-  // ... existing code ...
-  
-  return (
-    <section className="py-10 sm:py-12 lg:py-16">
-      <div className="mx-4 sm:mx-6 lg:mx-8 rounded-xl sm:rounded-2xl overflow-hidden shadow-elevated">
-        <div className="relative bg-gradient-to-r from-primary to-primary-dark py-8 sm:py-10 lg:py-12 overflow-hidden">
-          
-          {/* Watermark Logo - only shown when prop is true */}
-          {showWatermark && (
-            <div className="absolute right-4 sm:right-8 lg:right-12 top-1/2 -translate-y-1/2 pointer-events-none">
-              <img 
-                src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
-                alt="" 
-                aria-hidden="true"
-                className="w-28 sm:w-36 lg:w-44 h-28 sm:h-36 lg:h-44 object-contain opacity-[0.08]"
-              />
-            </div>
-          )}
-          
-          <div ref={contentRef} className={...}>
-            {/* existing content */}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-};
-```
-
-Then update only the **Home page** to use the watermark:
-
-**File:** `src/pages/Index.tsx` (or wherever HomeCTA is used)
-
-```tsx
-<CTASection 
-  title="..."
-  description="..."
-  buttons={...}
-  showWatermark={true}  // Enable for home only
-/>
-```
-
----
-
-### 4. Fix About Page Watermark Visibility
-
-**File:** `src/pages/About.tsx` (lines 44-52)
-
-Increase opacity from 6% to 12% for better visibility:
-
-```tsx
-<div className="absolute right-4 sm:right-8 lg:right-16 top-1/2 -translate-y-1/2 pointer-events-none z-[5]">
+{/* Watermark Logo - repositioned to left side for visibility */}
+<div className="absolute left-4 sm:left-8 lg:left-16 top-1/2 -translate-y-1/2 pointer-events-none z-[8]">
   <img 
     src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
     alt="" 
     aria-hidden="true"
-    className="w-48 sm:w-56 lg:w-64 h-48 sm:h-56 lg:h-64 object-contain opacity-[0.12]"
+    className="w-56 sm:w-64 lg:w-80 h-56 sm:h-64 lg:h-80 object-contain opacity-[0.15]"
   />
 </div>
 ```
 
----
+## Visual Result
 
-## Summary of Changes
+```
+┌─────────────────────────────────────────────────────────┐
+│  [Dark Background Image]                                │
+│                                                         │
+│  ╭─────────────╮                                        │
+│  │    🍴       │  Our Story                             │
+│  │  WATERMARK  │  Soul Train's Eatery was...   [Photo]  │
+│  │   (15%)     │  ...                                   │
+│  ╰─────────────╯  [See Our Work]                        │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
+```
 
-| File | Action |
-|------|--------|
-| `src/components/menu/SimpleMenuHeader.tsx` | Remove logo img from badge area |
-| `src/pages/AlternativeGallery.tsx` | Remove logo img from badge area |
-| `src/components/ui/cta-section.tsx` | Add optional `showWatermark` prop + watermark element |
-| `src/pages/Index.tsx` | Pass `showWatermark={true}` to home CTA |
-| `src/pages/About.tsx` | Increase watermark opacity (6% → 12%) |
+## Technical Details
 
----
+| Property | Before | After |
+|----------|--------|-------|
+| Position | `right-4/8/16` | `left-4/8/16` |
+| Z-index | `z-[5]` | `z-[8]` |
+| Opacity | `0.12` (12%) | `0.15` (15%) |
+| Size | `w-48/56/64` | `w-56/64/80` (slightly larger) |
 
-## Final Logo Presence
-
-| Location | Type | Visibility |
-|----------|------|------------|
-| Header | Active | Always visible |
-| Footer | Active | Always visible |
-| Home Hero | Badge + Text | Prominent |
-| Home Hero Content | Watermark | Subtle (4%) |
-| Home CTA | Watermark | Subtle (8%) |
-| About "Our Story" | Watermark | Subtle (12%) |
-| Menu Badge | **None** | Cleaned up |
-| Gallery Badge | **None** | Cleaned up |
-| Other CTAs | **None** | Clean |
-
-This creates a cohesive brand experience: strong presence on the home page, subtle reinforcement on storytelling pages, and clean functional pages elsewhere.
+This places the watermark behind the text content where it will be visible as a subtle brand element without competing with the photo or being hidden by it.
 
