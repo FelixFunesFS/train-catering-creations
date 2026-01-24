@@ -168,12 +168,16 @@ export const InteractiveGalleryPreview = () => {
                 <button
                   key={index}
                   onClick={() => setCurrentStoryIndex(index)}
-                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  className="min-w-[24px] min-h-[24px] flex items-center justify-center"
+                  aria-label={`Go to slide ${index + 1} of ${galleryItems.length}`}
+                  aria-current={index === currentStoryIndex ? 'true' : undefined}
+                >
+                  <span className={`h-2 rounded-full transition-all duration-300 ${
                     index === currentStoryIndex 
                       ? 'bg-ruby w-6' 
-                      : 'bg-ruby/30'
-                  }`}
-                />
+                      : 'bg-ruby/30 w-2'
+                  }`} />
+                </button>
               ))}
             </div>
 

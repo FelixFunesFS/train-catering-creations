@@ -133,7 +133,7 @@ export const ServiceCategoriesSection = () => {
 
                 {/* Icon */}
                 <div className="absolute top-4 left-4">
-                  <div className="bg-white/20 backdrop-blur-sm rounded-full p-3 text-white">
+                  <div className="bg-black/40 backdrop-blur-sm rounded-full p-3 text-white">
                     {service.icon}
                   </div>
                 </div>

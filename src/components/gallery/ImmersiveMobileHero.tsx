@@ -175,7 +175,7 @@ export const ImmersiveMobileHero = ({
             variant="ghost"
             size="sm"
             onClick={onScrollToGallery}
-            className="text-white/60 hover:text-white animate-bounce"
+            className="text-white/60 hover:text-white"
           >
             <ChevronDown className="h-5 w-5" />
           </Button>

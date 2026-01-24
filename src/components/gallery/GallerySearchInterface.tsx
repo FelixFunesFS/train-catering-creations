@@ -367,7 +367,7 @@ export const GallerySearchInterface = ({
                     </p>
                     
                     <div className="flex items-center justify-between">
-                      <Badge className="bg-white/10 text-white border-white/20">
+                      <Badge className="bg-black/50 text-white border-white/30 backdrop-blur-sm">
                         {getCategoryDisplayName(image.category)}
                       </Badge>
                       {image.quality >= 8 && (
