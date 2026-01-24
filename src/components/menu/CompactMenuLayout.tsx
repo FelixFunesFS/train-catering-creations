@@ -4,16 +4,15 @@ import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 import { CompactMenuItem } from "./CompactMenuItem";
 
-interface CompactMenuItem {
+interface CleanMenuItem {
   name: string;
-  isPopular?: boolean;
 }
 
 interface CompactMenuLayoutProps {
   title: string;
   subtitle: string;
   color: string;
-  items: (string | CompactMenuItem)[];
+  items: (string | { name: string })[];
   showFilters?: boolean;
   className?: string;
 }
@@ -36,16 +35,13 @@ export const CompactMenuLayout = ({
   
   const headerAnimationClass = useAnimationClass(headerVariant, headerVisible);
 
-  // Convert items to clean format (only popular flag)
-  const cleanItems: CompactMenuItem[] = useMemo(() => {
+  // Convert items to clean format
+  const cleanItems: CleanMenuItem[] = useMemo(() => {
     return items.map(item => {
       if (typeof item === 'string') {
-        return {
-          name: item,
-          isPopular: Math.random() > 0.8
-        };
+        return { name: item };
       }
-      return { name: item.name, isPopular: item.isPopular };
+      return { name: item.name };
     });
   }, [items]);
 
@@ -66,7 +62,6 @@ export const CompactMenuLayout = ({
             <CompactMenuItem
               key={`${item.name}-${index}`}
               name={item.name}
-              isPopular={item.isPopular}
             />
           ))}
         </div>

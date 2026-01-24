@@ -1,9 +1,10 @@
-import { menuData, MenuItem, MenuSection } from "@/data/menuData";
+import { useState } from "react";
+import { menuData, weddingMenuItems, MenuItem, MenuSection } from "@/data/menuData";
 import { SimpleMenuHeader } from "@/components/menu/SimpleMenuHeader";
 import { CollapsibleCategory } from "@/components/menu/CollapsibleCategory";
 import { MenuCTASection } from "@/components/menu/MenuCTASection";
-import MenuContact from "@/components/menu/MenuContact";
 import { QuickActionButton } from "@/components/menu/QuickActionButton";
+import { cn } from "@/lib/utils";
 
 // Flatten nested sections into a single array of menu items
 const flattenCategoryItems = (sections: MenuSection[]): MenuItem[] => {
@@ -21,33 +22,68 @@ const flattenCategoryItems = (sections: MenuSection[]): MenuItem[] => {
 };
 
 const SimplifiedMenu = () => {
-  // Prepare categories with flattened items
-  const categories = [
-    {
-      id: "appetizers",
-      title: menuData.appetizers.title,
-      subtitle: menuData.appetizers.subtitle,
-      items: flattenCategoryItems(menuData.appetizers.sections),
-    },
-    {
-      id: "entrees",
-      title: menuData.entrees.title,
-      subtitle: menuData.entrees.subtitle,
-      items: flattenCategoryItems(menuData.entrees.sections),
-    },
-    {
-      id: "sides",
-      title: menuData.sides.title,
-      subtitle: menuData.sides.subtitle,
-      items: flattenCategoryItems(menuData.sides.sections),
-    },
-    {
-      id: "desserts",
-      title: menuData.desserts.title,
-      subtitle: menuData.desserts.subtitle,
-      items: flattenCategoryItems(menuData.desserts.sections),
-    },
-  ];
+  const [menuStyle, setMenuStyle] = useState<'regular' | 'wedding'>('regular');
+
+  // Get categories based on selected menu style
+  const getCategories = () => {
+    if (menuStyle === 'wedding') {
+      return [
+        {
+          id: "appetizers",
+          title: "Appetizers",
+          subtitle: "Elegant starters for your special day",
+          items: weddingMenuItems.appetizers,
+        },
+        {
+          id: "entrees",
+          title: "Entrées",
+          subtitle: "Signature main courses",
+          items: weddingMenuItems.entrees,
+        },
+        {
+          id: "sides",
+          title: "Sides",
+          subtitle: "Perfect accompaniments",
+          items: weddingMenuItems.sides,
+        },
+        {
+          id: "desserts",
+          title: "Desserts",
+          subtitle: "Sweet finales",
+          items: weddingMenuItems.desserts,
+        },
+      ];
+    }
+
+    return [
+      {
+        id: "appetizers",
+        title: menuData.appetizers.title,
+        subtitle: menuData.appetizers.subtitle,
+        items: flattenCategoryItems(menuData.appetizers.sections),
+      },
+      {
+        id: "entrees",
+        title: menuData.entrees.title,
+        subtitle: menuData.entrees.subtitle,
+        items: flattenCategoryItems(menuData.entrees.sections),
+      },
+      {
+        id: "sides",
+        title: menuData.sides.title,
+        subtitle: menuData.sides.subtitle,
+        items: flattenCategoryItems(menuData.sides.sections),
+      },
+      {
+        id: "desserts",
+        title: menuData.desserts.title,
+        subtitle: menuData.desserts.subtitle,
+        items: flattenCategoryItems(menuData.desserts.sections),
+      },
+    ];
+  };
+
+  const categories = getCategories();
 
   return (
     <div className="min-h-screen bg-gradient-hero relative overflow-hidden">
@@ -61,6 +97,34 @@ const SimplifiedMenu = () => {
 
       {/* Page Header */}
       <SimpleMenuHeader />
+
+      {/* Menu Style Toggle */}
+      <div className="flex justify-center mb-6 px-4">
+        <div className="inline-flex bg-muted rounded-full p-1 shadow-sm">
+          <button
+            onClick={() => setMenuStyle('regular')}
+            className={cn(
+              "px-5 sm:px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-200 min-h-[44px]",
+              menuStyle === 'regular'
+                ? "bg-primary text-primary-foreground shadow-md"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted-foreground/10"
+            )}
+          >
+            Catering Menu
+          </button>
+          <button
+            onClick={() => setMenuStyle('wedding')}
+            className={cn(
+              "px-5 sm:px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-200 min-h-[44px]",
+              menuStyle === 'wedding'
+                ? "bg-primary text-primary-foreground shadow-md"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted-foreground/10"
+            )}
+          >
+            Wedding Menu
+          </button>
+        </div>
+      </div>
 
       {/* Visual separator */}
       <div className="relative">
@@ -82,7 +146,7 @@ const SimplifiedMenu = () => {
           <div className="space-y-4 lg:space-y-6">
             {categories.map((category, index) => (
               <CollapsibleCategory
-                key={category.id}
+                key={`${menuStyle}-${category.id}`}
                 id={category.id}
                 title={category.title}
                 subtitle={category.subtitle}
@@ -96,9 +160,6 @@ const SimplifiedMenu = () => {
 
       {/* CTA Section */}
       <MenuCTASection />
-
-      {/* Contact Section */}
-      <MenuContact />
     </div>
   );
 };

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import MenuHeader from "@/components/menu/MenuHeader";
-import MenuContact from "@/components/menu/MenuContact";
+import { MenuCTASection } from "@/components/menu/MenuCTASection";
 import { MobileMenuNavigation } from "@/components/menu/MobileMenuNavigation";
 import { QuickActionButton } from "@/components/menu/QuickActionButton";
 import { CompactMenuLayout } from "@/components/menu/CompactMenuLayout";
@@ -8,7 +8,6 @@ import { HorizontalCategoryNav } from "@/components/menu/HorizontalCategoryNav";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 import { cn } from "@/lib/utils";
-import { PageSection } from "@/components/ui/page-section";
 import { menuData } from "@/data/menuData";
 
 const Menu = () => {
@@ -26,13 +25,6 @@ const Menu = () => {
     variant: 'fade-up',
     mobile: { variant: 'subtle', delay: 100 },
     desktop: { variant: 'ios-spring', delay: 200 }
-  });
-  
-  const { ref: contactRef, isVisible: contactVisible, variant: contactVariant } = useScrollAnimation({ 
-    delay: 400, 
-    variant: 'elastic',
-    mobile: { variant: 'medium', delay: 300 },
-    desktop: { variant: 'elastic', delay: 400 }
   });
 
   // Using shared menu data
@@ -150,12 +142,8 @@ const Menu = () => {
         </div>
       </section>
 
-      {/* Menu Planning Section */}
-      <PageSection pattern="a" withBorder>
-        <div ref={contactRef} className={useAnimationClass(contactVariant, contactVisible)}>
-          <MenuContact />
-        </div>
-      </PageSection>
+      {/* CTA Section */}
+      <MenuCTASection />
     </div>
   );
 };
