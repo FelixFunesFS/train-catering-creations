@@ -98,9 +98,6 @@ export const InteractiveImageGrid = ({
             </Button>
           </div>
           
-          <p className="text-white/80 text-xs sm:text-sm line-clamp-2">
-            {image.description}
-          </p>
         </div>
       </div>
     );

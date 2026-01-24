@@ -154,12 +154,9 @@ export const EnhancedImageModal = ({
         {/* Info below image */}
         {currentImage && (
           <div className="mt-4 text-center px-2 sm:px-8">
-            <h3 className="font-elegant font-semibold text-white text-base sm:text-lg mb-1">
+            <h3 className="font-elegant font-semibold text-white text-base sm:text-lg">
               {currentImage.title}
             </h3>
-            <p className="text-white/70 text-sm sm:text-base leading-relaxed line-clamp-2">
-              {currentImage.description}
-            </p>
           </div>
         )}
       </DialogContent>

@@ -128,13 +128,6 @@ export const buffetImages: GalleryImage[] = [
     quality: 7
   },
   {
-    src: "/lovable-uploads/ca7c68a6-6138-4fa3-85d3-6d9fb5bf2da2.png",
-    category: "buffet",
-    title: "Patriotic Southern Sides",
-    description: "Fresh green beans, hearty casseroles, and golden chicken with American flags",
-    quality: 8
-  },
-  {
     src: "/lovable-uploads/863dcfee-95d6-4e5b-a12d-6b1553bbcf58.png",
     category: "buffet",
     title: "Modern Kitchen Spread",
