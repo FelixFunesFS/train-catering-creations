@@ -58,13 +58,6 @@ export const formalImages: GalleryImage[] = [
     quality: 8
   },
   {
-    src: "/lovable-uploads/fef8f5c1-040b-4e11-9102-f04a790da932.png",
-    category: "formal",
-    title: "Regal Purple Celebration",
-    description: "Sophisticated affair with rich purple accents against rustic brick walls",
-    quality: 7
-  },
-  {
     src: "/lovable-uploads/f3216df6-f951-4c71-9494-a017a5b3dc49.png",
     category: "formal",
     title: "Classic Banquet Hall",
