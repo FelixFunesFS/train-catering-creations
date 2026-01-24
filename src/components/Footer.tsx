@@ -7,22 +7,22 @@ export const Footer = () => {
     href: "/"
   }, {
     name: "About Us",
-    href: "/about#page-header"
+    href: "/about"
   }, {
     name: "Menu",
-    href: "/menu#page-header"
+    href: "/menu"
   }, {
-    name: "Wedding & Events",
-    href: "/wedding-menu#page-header"
+    name: "Weddings",
+    href: "/menu?style=wedding"
   }, {
     name: "Gallery",
     href: "/gallery"
   }, {
     name: "Reviews",
-    href: "/reviews#page-header"
+    href: "/reviews"
   }, {
     name: "FAQ",
-    href: "/faq#faq-header"
+    href: "/faq"
   }, {
     name: "Request Quote",
     href: "/request-quote#page-header"

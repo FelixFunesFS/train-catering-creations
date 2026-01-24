@@ -22,8 +22,8 @@ export const Header = () => {
     name: "Menu",
     href: "/menu"
   }, {
-    name: "Wedding & Events",
-    href: "/wedding-menu"
+    name: "Weddings",
+    href: "/menu?style=wedding"
   }, {
     name: "Gallery",
     href: "/gallery"

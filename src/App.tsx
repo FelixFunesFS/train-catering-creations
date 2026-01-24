@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -17,8 +17,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { HeroVisibilityProvider } from "@/contexts/HeroVisibilityContext";
 import Index from "./pages/Index";
 import About from "./pages/About";
-import Menu from "./pages/Menu";
-import WeddingMenu from "./pages/WeddingMenu";
+import UnifiedMenu from "./pages/UnifiedMenu";
 import RequestQuote from "./pages/RequestQuote";
 import RegularEventQuote from "./pages/RegularEventQuote";
 import WeddingEventQuote from "./pages/WeddingEventQuote";
@@ -65,8 +64,8 @@ const AppContent = () => {
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/about" element={<About />} />
-          <Route path="/menu" element={<Menu />} />
-          <Route path="/wedding-menu" element={<WeddingMenu />} />
+          <Route path="/menu" element={<UnifiedMenu />} />
+          <Route path="/wedding-menu" element={<Navigate to="/menu?style=wedding" replace />} />
           <Route path="/request-quote" element={<RequestQuote />} />
           <Route path="/request-quote/regular" element={<RegularEventQuote />} />
           <Route path="/request-quote/wedding" element={<WeddingEventQuote />} />
