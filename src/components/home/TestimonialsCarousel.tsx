@@ -233,20 +233,20 @@ export const TestimonialsCarousel = () => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="absolute left-2 top-1/2 transform -translate-y-1/2 !bg-black/40 backdrop-blur-md hover:!bg-black/60 border border-white/20 text-white"
+                  className="absolute left-2 top-1/2 transform -translate-y-1/2 !bg-none !bg-black/50 !backdrop-blur-md hover:!bg-black/70 !border !border-white/30 !text-white shadow-lg"
                   onClick={goToPrevious}
                   aria-label="Previous testimonial"
                 >
-                  <ChevronLeft className="h-4 w-4" />
+                  <ChevronLeft className="h-4 w-4 text-white" />
                 </Button>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 !bg-black/40 backdrop-blur-md hover:!bg-black/60 border border-white/20 text-white"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 !bg-none !bg-black/50 !backdrop-blur-md hover:!bg-black/70 !border !border-white/30 !text-white shadow-lg"
                   onClick={goToNext}
                   aria-label="Next testimonial"
                 >
-                  <ChevronRight className="h-4 w-4" />
+                  <ChevronRight className="h-4 w-4 text-white" />
                 </Button>
               </>
             )}
