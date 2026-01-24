@@ -167,7 +167,7 @@ export const TestimonialsCarousel = () => {
         {/* Testimonial Carousel */}
         <div className={`max-w-4xl mx-auto ${animationClass}`}>
           <Card 
-            className="relative p-5 lg:p-6 !bg-white/15 !backdrop-blur-xl !border-white/30 !shadow-2xl ring-1 ring-white/20 overflow-hidden"
+            className="relative p-5 lg:p-6 !bg-none !bg-black/35 !backdrop-blur-md !border-white/20 !shadow-none ring-1 ring-white/10 overflow-hidden"
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
