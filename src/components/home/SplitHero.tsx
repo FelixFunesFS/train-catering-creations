@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { OptimizedImage } from "@/components/ui/optimized-image";
 import { Badge } from "@/components/ui/badge";
-import { Play, Pause, ChevronDown, Heart, Star, Phone, Calendar, ArrowLeft, ArrowRight, Sparkles } from "lucide-react";
+import { Play, Pause, ChevronDown, Heart, Star, Phone, Calendar, ArrowLeft, ArrowRight } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
@@ -220,7 +220,7 @@ export const SplitHero = () => {
 
           {/* Controls */}
           <div className="absolute top-4 right-4 z-20 flex space-x-2">
-            <Button variant="ghost" size="icon" onClick={togglePlayPause} className="bg-black/20 backdrop-blur-sm text-white hover:bg-black/30 min-w-[44px] min-h-[44px]" aria-label={isPlaying ? 'Pause slideshow' : 'Play slideshow'}>
+            <Button variant="ghost" size="icon" onClick={togglePlayPause} className="bg-black/40 backdrop-blur-sm text-white hover:bg-black/50 min-w-[44px] min-h-[44px] shadow-md" aria-label={isPlaying ? 'Pause slideshow' : 'Play slideshow'}>
               {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
             </Button>
           </div>
@@ -234,23 +234,13 @@ export const SplitHero = () => {
           </div>
 
           {/* Navigation Arrows */}
-          <button onClick={handlePrevious} className="absolute left-4 top-1/2 transform -translate-y-1/2 z-20 bg-black/20 backdrop-blur-sm text-white hover:bg-black/30 p-2 rounded-full min-w-[44px] min-h-[44px] flex items-center justify-center transition-all duration-200" aria-label="Previous image">
+          <button onClick={handlePrevious} className="absolute left-4 top-1/2 transform -translate-y-1/2 z-20 bg-black/40 backdrop-blur-sm text-white hover:bg-black/50 p-2 rounded-full min-w-[44px] min-h-[44px] flex items-center justify-center transition-all duration-200 shadow-md" aria-label="Previous image">
             <ArrowLeft className="h-4 w-4" />
           </button>
           
-          <button onClick={handleNext} className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20 bg-black/20 backdrop-blur-sm text-white hover:bg-black/30 p-2 rounded-full min-w-[44px] min-h-[44px] flex items-center justify-center transition-all duration-200" aria-label="Next image">
+          <button onClick={handleNext} className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20 bg-black/40 backdrop-blur-sm text-white hover:bg-black/50 p-2 rounded-full min-w-[44px] min-h-[44px] flex items-center justify-center transition-all duration-200 shadow-md" aria-label="Next image">
             <ArrowRight className="h-4 w-4" />
           </button>
-
-          {/* Floating CTA Badge - Always visible on mobile */}
-          <Link 
-            to="/request-quote"
-            className="absolute bottom-4 right-4 z-30 flex items-center gap-2 px-4 py-2.5 bg-ruby/90 backdrop-blur-sm text-white rounded-full shadow-lg hover:bg-ruby transition-all duration-200 min-h-[44px] animate-pulse hover:animate-none"
-            aria-label="Request a quote"
-          >
-            <Sparkles className="h-4 w-4" />
-            <span className="font-semibold text-sm">Get Quote</span>
-          </Link>
         </div>
 
         {/* Content Area - Responsive with proper spacing */}
@@ -405,12 +395,6 @@ export const SplitHero = () => {
           </div>
         </div>
 
-        {/* Scroll Indicator */}
-        <div className="absolute bottom-8 right-8 z-20">
-          <Button variant="ghost" size="icon" onClick={handleScrollToDiscover} className="bg-muted/50 backdrop-blur-sm text-foreground hover:bg-muted animate-bounce" aria-label="Scroll to next section">
-            <ChevronDown className="h-5 w-5" />
-          </Button>
-        </div>
       </div>
     </section>;
 };
