@@ -1,4 +1,3 @@
-
 import { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
@@ -19,102 +18,62 @@ interface CTASectionProps {
 }
 
 export const CTASection = ({ title, description, buttons, footer }: CTASectionProps) => {
-  const { ref: titleRef, isVisible: titleVisible, variant: titleVariant } = useScrollAnimation({ 
+  const { ref: contentRef, isVisible, variant } = useScrollAnimation({ 
     variant: 'ios-spring', 
     delay: 0,
     mobile: { delay: 0 },
     desktop: { delay: 100 }
   });
-  
-  const { ref: buttonsRef, isVisible: buttonsVisible, variant: buttonsVariant } = useScrollAnimation({ 
-    variant: 'elastic', 
-    delay: 200,
-    mobile: { delay: 150 },
-    desktop: { delay: 250 }
-  });
 
-  const titleAnimationClass = useAnimationClass(titleVariant, titleVisible);
-  const buttonsAnimationClass = useAnimationClass(buttonsVariant, buttonsVisible);
+  const animationClass = useAnimationClass(variant, isVisible);
 
   return (
-    <>
-      {/* Desktop Full-Width Card */}
-      <div className="hidden lg:block">
-        <section className="py-16 sm:py-20 lg:py-24">
-          <div className="mx-4 xl:mx-8 rounded-2xl overflow-hidden shadow-elevated">
-            <div className="bg-gradient-to-r from-primary to-primary-dark py-12 xl:py-16 transition-all duration-200 rounded-2xl">
-              <div className="max-w-7xl mx-auto px-6 xl:px-12 text-center">
-                <div ref={titleRef} className={titleAnimationClass}>
-                  <h2 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-elegant text-primary-foreground mb-4 sm:mb-6">
-                    {title}
-                  </h2>
-                  <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-primary-foreground mb-6 sm:mb-8 lg:mb-12 opacity-90 max-w-3xl mx-auto leading-relaxed">
-                    {description}
-                  </p>
-                </div>
-                <div ref={buttonsRef} className={`flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-6 max-w-sm sm:max-w-lg mx-auto px-4 sm:px-0 ${buttonsAnimationClass}`}>
-                  {buttons.map((button, index) => (
-                    <Button 
-                      key={index} 
-                      asChild 
-                      variant={button.variant || "cta"} 
-                      size="responsive-lg" 
-                      className="w-4/5 sm:w-auto sm:min-w-[14rem]"
-                    >
-                      <a href={button.href} className="flex items-center justify-center space-x-2">
-                        {button.icon}
-                        <span>{button.text}</span>
-                      </a>
-                    </Button>
-                  ))}
-                </div>
-                {footer && (
-                  <p className="text-primary-foreground mt-4 sm:mt-6 lg:mt-8 opacity-75 text-xs sm:text-sm">
-                    {footer}
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-        </section>
-      </div>
-
-      {/* Mobile/Tablet Layout */}
-      <div className="block lg:hidden">
-        <section className="py-16 sm:py-20 lg:py-24 bg-gradient-to-r from-primary to-primary-dark rounded-lg mx-4 sm:mx-6 lg:mx-8 my-2 sm:my-3 lg:my-4 shadow-elevated transition-all duration-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <div ref={titleRef} className={titleAnimationClass}>
-              <h2 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-elegant text-primary-foreground mb-4 sm:mb-6">
-                {title}
-              </h2>
-              <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-primary-foreground mb-6 sm:mb-8 lg:mb-12 opacity-90 max-w-3xl mx-auto leading-relaxed">
-                {description}
-              </p>
-            </div>
-            <div ref={buttonsRef} className={`flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-6 max-w-sm sm:max-w-lg mx-auto px-4 sm:px-0 ${buttonsAnimationClass}`}>
+    <section className="py-10 sm:py-12 lg:py-16">
+      {/* Card Container with consistent margins */}
+      <div className="mx-4 sm:mx-6 lg:mx-8 rounded-xl sm:rounded-2xl overflow-hidden shadow-elevated">
+        {/* Card Background */}
+        <div className="bg-gradient-to-r from-primary to-primary-dark py-8 sm:py-10 lg:py-12">
+          <div 
+            ref={contentRef} 
+            className={`max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center ${animationClass}`}
+          >
+            {/* Title */}
+            <h2 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-elegant text-primary-foreground mb-3 sm:mb-4 lg:mb-6">
+              {title}
+            </h2>
+            
+            {/* Description */}
+            <p className="text-sm sm:text-base lg:text-lg text-primary-foreground/90 mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed">
+              {description}
+            </p>
+            
+            {/* Buttons */}
+            <div className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4">
               {buttons.map((button, index) => (
                 <Button 
                   key={index} 
                   asChild 
                   variant={button.variant || "cta"} 
                   size="responsive-lg" 
-                  className="w-4/5 sm:w-auto sm:min-w-[14rem]"
+                  className="w-full sm:w-auto sm:min-w-[12rem]"
                 >
-                  <a href={button.href} className="flex items-center justify-center space-x-2">
+                  <a href={button.href} className="flex items-center justify-center gap-2">
                     {button.icon}
                     <span>{button.text}</span>
                   </a>
                 </Button>
               ))}
             </div>
+            
+            {/* Footer */}
             {footer && (
-              <p className="text-primary-foreground mt-4 sm:mt-6 lg:mt-8 opacity-75 text-xs sm:text-sm">
+              <p className="text-primary-foreground/75 mt-4 sm:mt-6 text-xs sm:text-sm">
                 {footer}
               </p>
             )}
           </div>
-        </section>
+        </div>
       </div>
-    </>
+    </section>
   );
 };
