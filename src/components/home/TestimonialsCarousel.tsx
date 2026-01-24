@@ -233,7 +233,7 @@ export const TestimonialsCarousel = () => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/20 backdrop-blur-sm hover:bg-white/30 border border-white/30 text-white"
+                  className="absolute left-2 top-1/2 transform -translate-y-1/2 !bg-black/40 backdrop-blur-md hover:!bg-black/60 border border-white/20 text-white"
                   onClick={goToPrevious}
                   aria-label="Previous testimonial"
                 >
@@ -242,7 +242,7 @@ export const TestimonialsCarousel = () => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/20 backdrop-blur-sm hover:bg-white/30 border border-white/30 text-white"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 !bg-black/40 backdrop-blur-md hover:!bg-black/60 border border-white/20 text-white"
                   onClick={goToNext}
                   aria-label="Next testimonial"
                 >
