@@ -92,17 +92,15 @@ const AlternativeGallery = () => {
 
   return (
     <div className="min-h-screen bg-gradient-hero">
-      {/* Mobile-First Hero Section */}
-      <PageSection pattern="a" skipToContentId="gallery-hero" className="py-0">
-        <div ref={heroRef} className={useAnimationClass(heroVariant, heroVisible)}>
-          <ImmersiveMobileHero 
-            onScrollToGallery={() => {
-              const gallerySection = document.querySelector('[data-section="discovery"]');
-              gallerySection?.scrollIntoView({ behavior: 'smooth' });
-            }}
-          />
-        </div>
-      </PageSection>
+      {/* Mobile-First Hero Section - Full bleed, no wrapper padding */}
+      <div id="gallery-hero" ref={heroRef} className={useAnimationClass(heroVariant, heroVisible)}>
+        <ImmersiveMobileHero 
+          onScrollToGallery={() => {
+            const gallerySection = document.querySelector('[data-section="discovery"]');
+            gallerySection?.scrollIntoView({ behavior: 'smooth' });
+          }}
+        />
+      </div>
       
       {/* Brand Intro - Family Story */}
       <PageSection pattern="b" className="py-8 sm:py-12">
