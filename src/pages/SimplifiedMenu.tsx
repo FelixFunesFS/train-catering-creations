@@ -4,7 +4,9 @@ import { SimpleMenuHeader } from "@/components/menu/SimpleMenuHeader";
 import { CollapsibleCategory } from "@/components/menu/CollapsibleCategory";
 import { MenuCTASection } from "@/components/menu/MenuCTASection";
 import { QuickActionButton } from "@/components/menu/QuickActionButton";
+import { useStaggeredAnimation } from "@/hooks/useStaggeredAnimation";
 import { cn } from "@/lib/utils";
+import { Utensils, Heart } from "lucide-react";
 
 // Flatten nested sections into a single array of menu items
 const flattenCategoryItems = (sections: MenuSection[]): MenuItem[] => {
@@ -85,6 +87,13 @@ const SimplifiedMenu = () => {
 
   const categories = getCategories();
 
+  const staggered = useStaggeredAnimation({
+    itemCount: categories.length,
+    staggerDelay: 150,
+    baseDelay: 100,
+    variant: 'fade-up'
+  });
+
   return (
     <div className="min-h-screen bg-gradient-hero relative overflow-hidden">
       {/* Mobile Quick Actions */}
@@ -102,24 +111,26 @@ const SimplifiedMenu = () => {
           <button
             onClick={() => setMenuStyle('regular')}
             className={cn(
-              "px-5 sm:px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-200 min-h-[44px]",
+              "px-5 sm:px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-200 min-h-[44px] flex items-center gap-2",
               menuStyle === 'regular'
                 ? "bg-primary text-primary-foreground shadow-md"
                 : "text-muted-foreground hover:text-foreground hover:bg-muted-foreground/10"
             )}
           >
-            Catering Menu
+            <Utensils className="h-4 w-4" />
+            <span>Catering Menu</span>
           </button>
           <button
             onClick={() => setMenuStyle('wedding')}
             className={cn(
-              "px-5 sm:px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-200 min-h-[44px]",
+              "px-5 sm:px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-200 min-h-[44px] flex items-center gap-2",
               menuStyle === 'wedding'
                 ? "bg-primary text-primary-foreground shadow-md"
                 : "text-muted-foreground hover:text-foreground hover:bg-muted-foreground/10"
             )}
           >
-            Wedding Menu
+            <Heart className="h-4 w-4" />
+            <span>Wedding Menu</span>
           </button>
         </div>
       </div>
@@ -128,17 +139,25 @@ const SimplifiedMenu = () => {
       {/* Menu Categories */}
       <section className="py-6 lg:py-12 relative">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="space-y-4 lg:space-y-6">
+          <div 
+            ref={staggered.ref}
+            className="space-y-4 lg:space-y-6"
+          >
             {categories.map((category, index) => (
-              <CollapsibleCategory
+              <div 
                 key={`${menuStyle}-${category.id}`}
-                id={category.id}
-                title={category.title}
-                subtitle={category.subtitle}
-                items={category.items}
-                defaultExpanded={index === 0}
-                isWeddingMode={menuStyle === 'wedding'}
-              />
+                className={staggered.getItemClassName(index)}
+                style={staggered.getItemStyle(index)}
+              >
+                <CollapsibleCategory
+                  id={category.id}
+                  title={category.title}
+                  subtitle={category.subtitle}
+                  items={category.items}
+                  defaultExpanded={index === 0}
+                  isWeddingMode={menuStyle === 'wedding'}
+                />
+              </div>
             ))}
           </div>
         </div>
