@@ -1,88 +1,36 @@
 
-# Fix Hero Section Spacing Gap
+# Remove Dessert Images from Hero Section
 
-## The Issue
-
-The extra space between the navbar and the hero story is caused by the `PageSection` wrapper around the hero in `AlternativeGallery.tsx`.
-
-The `PageSection` component has default padding: `py-6 sm:py-8 lg:py-12` which adds vertical padding even though `className="py-0"` is passed. Tailwind's class merging doesn't guarantee the override wins.
+## Overview
+Remove two dessert images from the curated hero rotation as requested.
 
 ---
 
-## Solution
+## Images to Remove
 
-Remove the `PageSection` wrapper from around the hero section. The hero is a full-bleed visual component that should not have any wrapper padding.
-
----
-
-## Changes
-
-**File: `src/pages/AlternativeGallery.tsx`**
-
-**Before (lines 95-105):**
-```tsx
-{/* Mobile-First Hero Section */}
-<PageSection pattern="a" skipToContentId="gallery-hero" className="py-0">
-  <div ref={heroRef} className={useAnimationClass(heroVariant, heroVisible)}>
-    <ImmersiveMobileHero 
-      onScrollToGallery={() => {
-        const gallerySection = document.querySelector('[data-section="discovery"]');
-        gallerySection?.scrollIntoView({ behavior: 'smooth' });
-      }}
-    />
-  </div>
-</PageSection>
-```
-
-**After:**
-```tsx
-{/* Mobile-First Hero Section - Full bleed, no wrapper padding */}
-<div id="gallery-hero" ref={heroRef} className={useAnimationClass(heroVariant, heroVisible)}>
-  <ImmersiveMobileHero 
-    onScrollToGallery={() => {
-      const gallerySection = document.querySelector('[data-section="discovery"]');
-      gallerySection?.scrollIntoView({ behavior: 'smooth' });
-    }}
-  />
-</div>
-```
+| Image | Lines | Reason |
+|-------|-------|--------|
+| Multi-Tier Dessert Display | 36-42 | User requested removal |
+| Layered Dessert Cups | 43-49 | User requested removal |
 
 ---
 
-## Why This Works
+## File Change
 
-| Before | After |
-|--------|-------|
-| `PageSection` adds `py-6 sm:py-8 lg:py-12` padding | No wrapper padding - hero is full-bleed |
-| Class override `py-0` may not win | No conflict - clean structure |
-| Extra visual gap between nav and hero image | Hero image starts immediately below nav |
+**File: `src/data/heroImages.ts`**
 
----
+Remove both image objects from the array, leaving 6 curated hero images:
 
-## Visual Result
-
-```
-Before:
-+----------------------------------+
-| Navigation Bar                   |
-+----------------------------------+
-|   (PageSection padding gap)      |  <-- REMOVED
-+----------------------------------+
-| Hero Story Image                 |
-+----------------------------------+
-
-After:
-+----------------------------------+
-| Navigation Bar                   |
-+----------------------------------+
-| Hero Story Image                 |  <-- Immediate transition
-+----------------------------------+
-```
+**Remaining Images After Change:**
+1. Rustic Wedding Venue (wedding)
+2. Elegant Outdoor Wedding Tent (wedding)
+3. Grand Banquet Hall (formal)
+4. Fresh Berry Tart Display (desserts)
+5. Military Formal Ceremony (formal)
+6. Wedding Venue Dining (wedding)
 
 ---
 
-## File Modified
+## Result
 
-| File | Change |
-|------|--------|
-| `src/pages/AlternativeGallery.tsx` | Remove `PageSection` wrapper from hero, use plain `div` with accessibility ID |
+The hero section will cycle through 6 images instead of 8, with only one dessert image remaining (Fresh Berry Tart Display) for category diversity.
