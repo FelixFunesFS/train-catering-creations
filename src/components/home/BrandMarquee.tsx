@@ -1,14 +1,11 @@
 
 import { useMarqueeAnimation } from '@/hooks/useMarqueeAnimation';
-import { useIsMobile } from '@/hooks/use-mobile';
 import { ResponsiveWrapper } from '@/components/ui/responsive-wrapper';
 
 export const BrandMarquee = () => {
-  const isMobile = useIsMobile();
-  const isTablet = typeof window !== 'undefined' && window.innerWidth >= 768 && window.innerWidth < 1024;
-  
+  // Speed is 'slow' - CSS handles responsive adjustments automatically
   const { ref, className, style } = useMarqueeAnimation({
-    speed: isMobile || isTablet ? 'slow' : 'normal',
+    speed: 'slow',
     direction: 'left',
     pauseOnHover: false
   });
