@@ -1,157 +1,172 @@
 
-# Remove All Scroll-Down Chevron Indicators
+# Add Full-Width Background Image to Testimonials Section
 
 ## Overview
 
-Remove all decorative chevron scroll-down buttons and scroll indicators from hero sections across the website. These are the bouncing/animated arrows that prompt users to scroll down.
+Transform the "What Our Clients Say" testimonials section from a plain white background to a cinematic full-bleed section with a background image, creating a more immersive and premium feel that enhances social proof.
 
 ---
 
-## Files to Modify
+## Current State
 
-### 1. Gallery Hero - `src/components/gallery/ImmersiveMobileHero.tsx`
-
-**Remove lines 172-182:**
-```tsx
-{/* Scroll Indicator */}
-<div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20">
-  <Button
-    variant="ghost"
-    size="sm"
-    onClick={onScrollToGallery}
-    className="text-white/60 hover:text-white"
-  >
-    <ChevronDown className="h-5 w-5" />
-  </Button>
-</div>
-```
-
-**Also remove** the `ChevronDown` import if no longer needed.
+The `TestimonialsCarousel` component currently has:
+- Plain `bg-background` (white) background
+- Standard container padding
+- No visual depth or imagery
 
 ---
 
-### 2. Story Hero (Mobile) - `src/components/home/StoryHero.tsx`
+## Proposed Design
 
-**Remove lines 315-326:**
-```tsx
-{/* Scroll Indicator */}
-<div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2">
-  <Button
-    variant="ghost"
-    size="sm"
-    onClick={handleScrollToDiscover}
-    className="text-muted-foreground hover:text-foreground animate-bounce"
-    aria-label="Scroll to next section"
-  >
-    <ChevronDown className="h-5 w-5" />
-  </Button>
-</div>
+```text
++------------------------------------------------------------------+
+|                                                                  |
+|   [FULL-WIDTH BACKGROUND IMAGE - Elegant venue/event photo]     |
+|   [Dark gradient overlay for text contrast]                      |
+|                                                                  |
+|                    ✦ Client Love ✦                               |
+|               What Our Clients Say                               |
+|             Real Stories, Real Satisfaction                      |
+|                                                                  |
+|           ┌────────────────────────────────────┐                |
+|           │  "Soul Train's Eatery made our     │                |
+|           │   wedding day absolutely perfect"   │                |
+|           │                                     │                |
+|           │      - Sarah & Michael Johnson     │                |
+|           └────────────────────────────────────┘                |
+|                                                                  |
+|              ● ● ● ○ ○ ○ ○  (dots navigation)                   |
+|                                                                  |
+|        [500+ Events]  [★ 4.9 Rating]  [98% Recommend]           |
+|                                                                  |
++------------------------------------------------------------------+
 ```
 
 ---
 
-### 3. Story Hero (Desktop) - `src/components/home/StoryHero.tsx`
+## Implementation Details
 
-**Remove lines 461-472:**
+### File: `src/components/home/TestimonialsCarousel.tsx`
+
+### Changes:
+
+1. **Add background image container** with full-width coverage
+2. **Add dark gradient overlay** for text legibility
+3. **Update text colors** for contrast on dark background
+4. **Update card styling** for glassmorphism effect
+5. **Update stats cards** to match dark theme
+
+### Background Image Options:
+
+Using the high-quality wedding venue image from heroImages:
+```
+/lovable-uploads/894051bf-31c6-4930-bb88-e3e1d74f7ee1.png
+```
+- Rustic wedding venue with chandeliers and string lights
+- Quality rating: 9
+- Perfect for testimonials context
+
+---
+
+## Key Code Changes
+
+### 1. Section Wrapper (Line 133-136)
+
+**Current:**
 ```tsx
-{/* Scroll Indicator */}
-<div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20">
-  <Button
-    variant="ghost"
-    size="sm"
-    onClick={handleScrollToDiscover}
-    className="text-white/60 hover:text-white animate-bounce"
-    aria-label="Scroll to next section"
-  >
-    <ChevronDown className="h-5 w-5" />
-  </Button>
-</div>
+<section 
+  ref={ref}
+  className="py-16 sm:py-20 lg:py-24 bg-background"
+>
 ```
 
-**Note:** Keep the `ChevronDown` import as it's used elsewhere in navigation components.
-
----
-
-### 4. Modern Hero (Mobile) - `src/components/home/ModernHero.tsx`
-
-**Remove lines 228-238:**
+**Updated:**
 ```tsx
-{/* Scroll Indicator */}
-<div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20">
-  <Button
-    variant="glass-white"
-    size="icon"
-    onClick={handleScrollToDiscover}
-    className="animate-bounce"
-  >
-    <ChevronDown className="h-4 w-4" />
-  </Button>
-</div>
+<section 
+  ref={ref}
+  className="relative py-16 sm:py-20 lg:py-24 overflow-hidden"
+>
+  {/* Full-width Background Image */}
+  <div 
+    className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
+    style={{ 
+      backgroundImage: `url('/lovable-uploads/894051bf-31c6-4930-bb88-e3e1d74f7ee1.png')` 
+    }}
+    aria-hidden="true"
+  />
+  
+  {/* Dark gradient overlay for text contrast */}
+  <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-black/70" />
+```
+
+### 2. Text Color Updates
+
+- Badge: `border-white/50 text-white` (was `border-ruby text-ruby`)
+- Heading: `text-white` (was `text-foreground`)
+- Subtitle: `text-ruby-light` or `text-white/90` (was `text-ruby`)
+
+### 3. Card Styling Update (Line 157-158)
+
+**Current:**
+```tsx
+<Card 
+  className="relative p-5 lg:p-6 bg-white/95 backdrop-blur-sm border-2 border-ruby/20 overflow-hidden"
+```
+
+**Updated:**
+```tsx
+<Card 
+  className="relative p-5 lg:p-6 bg-white/95 backdrop-blur-md border border-white/20 shadow-2xl overflow-hidden"
+```
+
+### 4. Stats Cards Update (Lines 272-283)
+
+**Current:**
+```tsx
+<Card className="p-3 text-center bg-white/60 border-ruby/20">
+```
+
+**Updated:**
+```tsx
+<Card className="p-3 text-center bg-white/10 backdrop-blur-sm border-white/20">
+  <div className="text-lg lg:text-xl font-bold text-white">500+</div>
+  <div className="text-sm text-white/70">Events Catered</div>
+</Card>
 ```
 
 ---
 
-### 5. Modern Hero (Desktop) - `src/components/home/ModernHero.tsx`
+## Accessibility Considerations
 
-**Remove lines 339-349:**
-```tsx
-{/* Scroll Indicator */}
-<div className="absolute bottom-8 right-8 z-20">
-  <Button
-    variant="glass-white"
-    size="icon"
-    onClick={handleScrollToDiscover}
-    className="animate-bounce"
-  >
-    <ChevronDown className="h-5 w-5" />
-  </Button>
-</div>
-```
+- Gradient overlay ensures WCAG AA contrast (4.5:1) for all text
+- `aria-hidden="true"` on decorative background image
+- Card maintains high contrast with white background
+- Quote text remains dark on white card for maximum readability
 
 ---
 
-### 6. Cinematic Ruby Hero - `src/components/home/alternative-third/CinematicRubyHero.tsx`
+## Visual Hierarchy
 
-**Remove lines 110-115:**
-```tsx
-{/* Scroll Indicator */}
-<div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
-  <div className="w-6 h-10 border-2 border-white/40 rounded-full flex justify-center">
-    <div className="w-1 h-3 bg-white/60 rounded-full mt-2 animate-pulse" />
-  </div>
-</div>
-```
+| Element | Before | After |
+|---------|--------|-------|
+| Section background | Plain white | Cinematic venue photo |
+| Header text | Dark text | White text with shadow |
+| Testimonial card | White with ruby border | White with blur effect |
+| Stats cards | White/transparent | Glass-morphism style |
+| Overall feel | Standard | Premium/immersive |
 
 ---
 
-## Summary
+## Files Modified
 
-| Component | Location | Type |
-|-----------|----------|------|
-| ImmersiveMobileHero | Gallery page | ChevronDown button |
-| StoryHero (mobile) | Home alternate | ChevronDown button with bounce |
-| StoryHero (desktop) | Home alternate | ChevronDown button with bounce |
-| ModernHero (mobile) | Home alternate | ChevronDown button with bounce |
-| ModernHero (desktop) | Home alternate | ChevronDown button with bounce |
-| CinematicRubyHero | Home alternate | Pill-style indicator with pulse |
+- `src/components/home/TestimonialsCarousel.tsx`
 
 ---
 
-## What's NOT Being Removed
+## Result
 
-These functional ChevronDown icons will remain:
-- **Navigation dropdown indicators** (`navigation-menu.tsx`)
-- **Select component scroll buttons** (`select.tsx`)
-- **Collapsible menu section toggles** (expand/collapse menus)
-- **Admin panel accordions** (event details, line items, etc.)
-
-These serve interactive purposes and are not decorative scroll prompts.
-
----
-
-## Files Changed
-
-1. `src/components/gallery/ImmersiveMobileHero.tsx`
-2. `src/components/home/StoryHero.tsx`
-3. `src/components/home/ModernHero.tsx`
-4. `src/components/home/alternative-third/CinematicRubyHero.tsx`
+The testimonials section will transform from a standard white section into a visually striking, full-bleed cinematic experience that:
+- Creates emotional connection through imagery
+- Elevates perceived brand quality
+- Increases trust through premium presentation
+- Maintains excellent readability and accessibility
