@@ -1,214 +1,167 @@
 
-# Refactor CTASection Component for Self-Contained Spacing
+
+# Remove/Restyle Hero Carousel Control Buttons
 
 ## Overview
 
-Simplify and standardize the `CTASection` component to handle its own consistent spacing and card treatment, eliminating the need for any wrapper and ensuring visual consistency across all pages.
+Address the visual competition between the carousel navigation controls (left/right arrows and play/pause button) and the primary CTAs in the hero section. The solution is to make these controls more subtle with glassmorphism styling so they don't compete with the main call-to-action buttons.
 
 ---
 
-## Current Issues Identified
+## Current State
 
-### 1. Inconsistent Structure Between Mobile/Desktop
-
-```text
-CURRENT IMPLEMENTATION:
-┌─────────────────────────────────────────────┐
-│  Desktop: hidden lg:block                    │
-│  ├─ section py-16 sm:py-20 lg:py-24         │ ← Outer padding
-│  │  └─ card mx-4 xl:mx-8 rounded-2xl        │ ← Card margins
-│  │     └─ content py-12 xl:py-16            │ ← Inner padding
-└─────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────┐
-│  Mobile: block lg:hidden                     │
-│  ├─ section py-16... mx-4 sm:mx-6 rounded-lg│ ← Combined
-└─────────────────────────────────────────────┘
+### Desktop Controls (lines 290-303)
+```tsx
+<Button variant="ghost" size="icon" 
+  className="bg-black/20 backdrop-blur-sm hover:bg-black/30 text-red-500">
 ```
 
-**Problems:**
-- Different horizontal margins: `mx-4 xl:mx-8` vs `mx-4 sm:mx-6 lg:mx-8`
-- Different border radius: `rounded-2xl` vs `rounded-lg`
-- Complex nested structure on desktop
-- Duplicate animation refs (both sections reference same refs)
-
-### 2. Spacing Tokens Not Aligned with Design System
-
-The current outer section uses `py-16 sm:py-20 lg:py-24` but the approved spacing system defines:
-- CTA Sections: `py-12 sm:py-16 lg:py-20` (internal content padding)
-
----
-
-## Proposed Solution
-
-### Unified Single Layout Structure
-
-Replace the dual mobile/desktop layouts with a single, responsive structure:
-
-```text
-PROPOSED IMPLEMENTATION:
-┌───────────────────────────────────────────────────┐
-│  section py-10 sm:py-12 lg:py-16                  │ ← Outer spacing (matches PageSection)
-│  └─ div mx-4 sm:mx-6 lg:mx-8                      │ ← Consistent card margins
-│     └─ card rounded-xl sm:rounded-2xl shadow      │ ← Responsive radius
-│        └─ content py-8 sm:py-10 lg:py-12          │ ← Internal padding
-└───────────────────────────────────────────────────┘
+### Mobile Controls (lines 218-225)
+```tsx
+<button className="bg-black/60 backdrop-blur-sm text-white hover:bg-black/70 
+  p-2 rounded-full min-w-[44px] min-h-[44px] ... shadow-lg border border-white/20">
 ```
 
-### Spacing Alignment
-
-| Element | Mobile | Tablet | Desktop | Purpose |
-|---------|--------|--------|---------|---------|
-| **Outer section** | `py-10` | `sm:py-12` | `lg:py-16` | Matches PageSection for rhythm |
-| **Card margins** | `mx-4` | `sm:mx-6` | `lg:mx-8` | Consistent with horizontal tokens |
-| **Card internal** | `py-8` | `sm:py-10` | `lg:py-12` | Comfortable CTA breathing room |
+**Issues:**
+- Desktop uses `text-red-500` which is jarring
+- Both layouts have visible arrow buttons that compete with CTAs
+- The play/pause button adds visual clutter
 
 ---
 
-## File to Modify
+## Recommended Solution
 
-`src/components/ui/cta-section.tsx`
+### Option A: Glassmorphism Controls (Recommended)
+
+Make the controls ultra-subtle with transparent, frosted glass styling that only becomes visible on hover or focus:
+
+**Desktop:**
+- Change `bg-black/20` to `bg-white/10` for a lighter, more subtle appearance
+- Change `text-red-500` to `text-white/70` for softer icons
+- Add `opacity-60 hover:opacity-100` for reveal-on-hover behavior
+
+**Mobile:**
+- Remove the left/right arrow buttons entirely (rely on swipe gestures + auto-play)
+- Keep swipe functionality which is already implemented
+- This follows the memory recommendation to minimize visual clutter
 
 ---
 
 ## Implementation Details
 
-### Simplified Single-Layout Structure
+### File: `src/components/home/SplitHero.tsx`
 
+### Change 1: Desktop Controls (lines 291-302)
+
+**Before:**
 ```tsx
-export const CTASection = ({ title, description, buttons, footer }: CTASectionProps) => {
-  const { ref: contentRef, isVisible, variant } = useScrollAnimation({ 
-    variant: 'ios-spring', 
-    delay: 0,
-    mobile: { delay: 0 },
-    desktop: { delay: 100 }
-  });
+<Button variant="ghost" size="icon" onClick={handlePrevious} 
+  aria-label="Previous image" 
+  className="bg-black/20 backdrop-blur-sm hover:bg-black/30 text-red-500">
+  <ArrowLeft className="h-5 w-5" />
+</Button>
 
-  const animationClass = useAnimationClass(variant, isVisible);
+<Button variant="ghost" size="icon" onClick={togglePlayPause} 
+  aria-label={isPlaying ? 'Pause slideshow' : 'Play slideshow'} 
+  className="bg-black/20 backdrop-blur-sm hover:bg-black/30 text-red-500">
+  {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+</Button>
 
-  return (
-    <section className="py-10 sm:py-12 lg:py-16">
-      {/* Card Container with consistent margins */}
-      <div className="mx-4 sm:mx-6 lg:mx-8 rounded-xl sm:rounded-2xl overflow-hidden shadow-elevated">
-        {/* Card Background */}
-        <div className="bg-gradient-to-r from-primary to-primary-dark py-8 sm:py-10 lg:py-12">
-          <div 
-            ref={contentRef} 
-            className={`max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center ${animationClass}`}
-          >
-            {/* Title */}
-            <h2 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-elegant text-primary-foreground mb-3 sm:mb-4 lg:mb-6">
-              {title}
-            </h2>
-            
-            {/* Description */}
-            <p className="text-sm sm:text-base lg:text-lg text-primary-foreground/90 mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed">
-              {description}
-            </p>
-            
-            {/* Buttons */}
-            <div className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4">
-              {buttons.map((button, index) => (
-                <Button 
-                  key={index} 
-                  asChild 
-                  variant={button.variant || "cta"} 
-                  size="responsive-lg" 
-                  className="w-full sm:w-auto sm:min-w-[12rem]"
-                >
-                  <a href={button.href} className="flex items-center justify-center gap-2">
-                    {button.icon}
-                    <span>{button.text}</span>
-                  </a>
-                </Button>
-              ))}
-            </div>
-            
-            {/* Footer */}
-            {footer && (
-              <p className="text-primary-foreground/75 mt-4 sm:mt-6 text-xs sm:text-sm">
-                {footer}
-              </p>
-            )}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-};
+<Button variant="ghost" size="icon" onClick={handleNext} 
+  aria-label="Next image" 
+  className="bg-black/20 backdrop-blur-sm hover:bg-black/30 text-red-500">
+  <ArrowRight className="h-5 w-5" />
+</Button>
 ```
 
+**After:**
+```tsx
+<Button variant="ghost" size="icon" onClick={handlePrevious} 
+  aria-label="Previous image" 
+  className="bg-white/10 backdrop-blur-md hover:bg-white/20 text-white/70 hover:text-white opacity-60 hover:opacity-100 transition-all duration-200 border border-white/10">
+  <ArrowLeft className="h-5 w-5" />
+</Button>
+
+<Button variant="ghost" size="icon" onClick={togglePlayPause} 
+  aria-label={isPlaying ? 'Pause slideshow' : 'Play slideshow'} 
+  className="bg-white/10 backdrop-blur-md hover:bg-white/20 text-white/70 hover:text-white opacity-60 hover:opacity-100 transition-all duration-200 border border-white/10">
+  {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+</Button>
+
+<Button variant="ghost" size="icon" onClick={handleNext} 
+  aria-label="Next image" 
+  className="bg-white/10 backdrop-blur-md hover:bg-white/20 text-white/70 hover:text-white opacity-60 hover:opacity-100 transition-all duration-200 border border-white/10">
+  <ArrowRight className="h-5 w-5" />
+</Button>
+```
+
+### Change 2: Remove Mobile Arrow Buttons (lines 218-225)
+
+**Before:**
+```tsx
+{/* Navigation Arrows */}
+<button onClick={handlePrevious} className="absolute left-4 top-1/2 ...">
+  <ArrowLeft className="h-4 w-4" />
+</button>
+
+<button onClick={handleNext} className="absolute right-4 top-1/2 ...">
+  <ArrowRight className="h-4 w-4" />
+</button>
+```
+
+**After:**
+Remove entirely - mobile users can swipe left/right (already implemented) or tap the progress indicators.
+
 ---
 
-## Key Improvements
-
-| Aspect | Before | After |
-|--------|--------|-------|
-| **Layout complexity** | Dual mobile/desktop with `hidden/block` | Single responsive layout |
-| **Animation refs** | Duplicate refs (titleRef, buttonsRef) | Single contentRef |
-| **Horizontal margins** | Inconsistent (`mx-4 xl:mx-8` vs `mx-4 sm:mx-6 lg:mx-8`) | Unified `mx-4 sm:mx-6 lg:mx-8` |
-| **Border radius** | Different (`rounded-2xl` vs `rounded-lg`) | Progressive `rounded-xl sm:rounded-2xl` |
-| **Outer spacing** | Excessive `py-16 sm:py-20 lg:py-24` | Aligned `py-10 sm:py-12 lg:py-16` |
-| **Button widths** | `w-4/5` on mobile | `w-full` for clean mobile |
-
----
-
-## Visual Result
+## Visual Comparison
 
 ```text
-┌─────────────────────────────────────────────────────────┐
-│  Previous Section (PageSection)                         │
-│  py-10 sm:py-12 lg:py-16                                │
-└─────────────────────────────────────────────────────────┘
-        ↓ 40px / 48px / 64px gap ↓
-┌─────────────────────────────────────────────────────────┐
-│  ┌───────────────────────────────────────────────────┐  │
-│  │                                                   │  │
-│  │     Ready to Create Something Amazing?            │  │
-│  │     Let Soul Train's Eatery handle the...        │  │
-│  │                                                   │  │
-│  │     [Primary CTA]    [Secondary CTA]             │  │
-│  │                                                   │  │
-│  │     Proudly serving Charleston, SC...            │  │
-│  │                                                   │  │
-│  └───────────────────────────────────────────────────┘  │
-│  mx-4 sm:mx-6 lg:mx-8 margins                           │
-└─────────────────────────────────────────────────────────┘
-        ↓ 40px / 48px / 64px gap ↓
-┌─────────────────────────────────────────────────────────┐
-│  Footer                                                 │
-│  py-10 lg:py-12                                         │
-└─────────────────────────────────────────────────────────┘
+BEFORE (Desktop):
+┌────────────────────────────────────────────┐
+│  [●●○]                      [◀][⏸][▶]     │  ← Dark buttons, red icons
+│                                            │
+│         [Image Area]                       │
+│                                            │
+│  ❤ Soul Train's Eatery                     │
+└────────────────────────────────────────────┘
+
+AFTER (Desktop):
+┌────────────────────────────────────────────┐
+│  [●●○]                      [◁][⏸][▷]     │  ← Frosted glass, subtle
+│                                            │     60% opacity until hover
+│         [Image Area]                       │
+│                                            │
+│  ❤ Soul Train's Eatery                     │
+└────────────────────────────────────────────┘
+
+BEFORE (Mobile):
+┌─────────────────────────┐
+│  [●●○]                  │
+│                         │
+│  [◀]    Image    [▶]   │  ← Arrow buttons visible
+│                         │
+└─────────────────────────┘
+
+AFTER (Mobile):
+┌─────────────────────────┐
+│  [●●○]                  │  ← Clean, swipe to navigate
+│                         │
+│         Image           │  ← No arrow buttons
+│                         │
+└─────────────────────────┘
 ```
-
----
-
-## Impact on Existing Pages
-
-All pages using `CTASection` will automatically benefit:
-
-| Page | Current Wrapper | Status |
-|------|-----------------|--------|
-| About.tsx | None (fixed) | Will use new spacing |
-| Reviews.tsx | None | Will use new spacing |
-| WeddingMenu.tsx | None | Will use new spacing |
-| RequestQuote.tsx | Animation div only | Will use new spacing |
-| HomePage | home/CTASection | Will use new spacing |
-| AlternativeGallery | GalleryCTA | Will use new spacing |
-
----
-
-## MenuCTASection Alignment (Optional Follow-up)
-
-The `MenuCTASection` component has similar structure but different implementation. For full consistency, it could be refactored to use the base `CTASection` component. However, this is a separate task and not required for the current refactor.
 
 ---
 
 ## Summary
 
-This refactor:
-1. Eliminates duplicate mobile/desktop layouts
-2. Standardizes horizontal margins (`mx-4 sm:mx-6 lg:mx-8`)
-3. Aligns outer spacing with `PageSection` tokens (`py-10 sm:py-12 lg:py-16`)
-4. Simplifies animation to single ref
-5. Ensures consistent card treatment across all breakpoints
+| Change | Rationale |
+|--------|-----------|
+| Desktop: Glassmorphism controls | Subtle, elegant, doesn't compete with CTAs |
+| Desktop: 60% opacity with hover reveal | Controls visible but not demanding attention |
+| Mobile: Remove arrow buttons | Rely on swipe gestures (already implemented) |
+| Fix `text-red-500` to `text-white/70` | Consistent color scheme |
+
+This approach maintains full functionality while creating clear visual hierarchy where the CTAs are the focal point.
+
