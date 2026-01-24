@@ -241,19 +241,21 @@ export const TestimonialsCarousel = () => {
           </Card>
 
           {/* Dots Navigation */}
-          <div className="flex items-center justify-center space-x-3 mt-6">
+          <div className="flex items-center justify-center mt-6">
             {testimonials.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setCurrentIndex(index)}
                 aria-label={`Go to testimonial ${index + 1} of ${testimonials.length}`}
                 aria-current={index === currentIndex ? 'true' : undefined}
-                className={`h-2 rounded-full transition-all duration-300 ${
+                className="min-w-[24px] min-h-[24px] flex items-center justify-center"
+              >
+                <span className={`h-2 rounded-full transition-all duration-300 ${
                   index === currentIndex 
                     ? 'w-8 bg-gradient-ruby-primary' 
                     : 'w-2 bg-ruby/30 hover:bg-ruby/50'
-                }`}
-              />
+                }`} />
+              </button>
             ))}
           </div>
 
