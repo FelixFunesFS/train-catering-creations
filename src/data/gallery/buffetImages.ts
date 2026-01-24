@@ -3,6 +3,11 @@ import buffetOrchidSetup from '@/assets/gallery/buffet-orchid-setup.jpg';
 import buffetGuestsServing from '@/assets/gallery/buffet-guests-serving.jpg';
 import buffetFallDecor from '@/assets/gallery/buffet-fall-decor.jpg';
 import buffetHolidayWings from '@/assets/gallery/buffet-holiday-wings.jpg';
+import foodJerkChicken from '@/assets/gallery/food-jerk-chicken.jpg';
+import foodGreenBeans from '@/assets/gallery/food-green-beans.jpg';
+import foodMacCheese from '@/assets/gallery/food-mac-cheese.jpg';
+import foodSalmon from '@/assets/gallery/food-salmon.jpg';
+import foodGreenBeansPeppers from '@/assets/gallery/food-green-beans-peppers.jpg';
 
 export const buffetImages: GalleryImage[] = [
   {
@@ -172,5 +177,40 @@ export const buffetImages: GalleryImage[] = [
     title: "Savory Meatball Station",
     description: "Seasoned chicken, homestyle meatballs, and Southern sides ready to serve",
     quality: 8
+  },
+  {
+    src: foodJerkChicken,
+    category: "buffet",
+    title: "Herb-Roasted Chicken Drumsticks",
+    description: "Perfectly seasoned and roasted chicken drumsticks with our signature herb blend",
+    quality: 8
+  },
+  {
+    src: foodGreenBeans,
+    category: "buffet",
+    title: "Southern-Style Green Beans",
+    description: "Slow-simmered green beans with potatoes, a true Southern comfort classic",
+    quality: 7
+  },
+  {
+    src: foodMacCheese,
+    category: "buffet",
+    title: "Golden Baked Mac & Cheese",
+    description: "Creamy, bubbly mac and cheese with a perfectly golden herbed crust",
+    quality: 9
+  },
+  {
+    src: foodSalmon,
+    category: "buffet",
+    title: "Cajun-Spiced Salmon Fillets",
+    description: "Beautifully seasoned salmon fillets with bold Cajun flavors",
+    quality: 9
+  },
+  {
+    src: foodGreenBeansPeppers,
+    category: "buffet",
+    title: "Green Beans with Peppers",
+    description: "Fresh green beans tossed with colorful bell peppers and water chestnuts",
+    quality: 7
   }
 ];
