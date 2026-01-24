@@ -146,7 +146,16 @@ const Reviews = () => {
       <PageSection pattern="c">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <NeumorphicCard level={3} className="bg-primary-light">
+            <NeumorphicCard level={3} className="bg-primary-light relative overflow-hidden">
+              {/* Watermark Logo */}
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                <img 
+                  src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
+                  alt="" 
+                  aria-hidden="true"
+                  className="w-24 h-24 object-contain opacity-[0.06]"
+                />
+              </div>
               <div className="p-4 sm:p-6">
                 <h4 className="text-base sm:text-lg font-elegant font-semibold text-primary mb-2">
                   Worked with us recently?

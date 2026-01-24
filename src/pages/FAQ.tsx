@@ -98,7 +98,16 @@ const FAQ = () => {
       {/* Contact CTA */}
       <PageSection pattern="d" withBorder>
         <div className="max-w-4xl mx-auto px-6 sm:px-8 lg:px-12 text-center">
-          <div className="neumorphic-card-3 rounded-2xl p-8 lg:p-12">
+          <div className="neumorphic-card-3 rounded-2xl p-8 lg:p-12 relative overflow-hidden">
+            {/* Watermark Logo */}
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+              <img 
+                src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
+                alt="" 
+                aria-hidden="true"
+                className="w-32 h-32 object-contain opacity-[0.05]"
+              />
+            </div>
             <h2 className="text-2xl lg:text-3xl font-elegant font-bold text-foreground mb-4">
               Still Have Questions?
             </h2>
