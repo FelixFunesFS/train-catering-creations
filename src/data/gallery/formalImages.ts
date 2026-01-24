@@ -1,6 +1,22 @@
 import { GalleryImage } from './types';
+import formalGoldReception from '@/assets/gallery/formal-gold-reception.jpg';
+import formalOrchidBuffet from '@/assets/gallery/formal-orchid-buffet.jpg';
 
 export const formalImages: GalleryImage[] = [
+  {
+    src: formalGoldReception,
+    category: "formal",
+    title: "Gold & White Reception Hall",
+    description: "Elegant gold-sashed chairs and sparkling fairy lights for a stunning formal event",
+    quality: 9
+  },
+  {
+    src: formalOrchidBuffet,
+    category: "formal",
+    title: "Orchid-Garnished Formal Service",
+    description: "Beautiful orchid flowers adorning golden fried chicken at a distinguished gathering",
+    quality: 9
+  },
   {
     src: "/lovable-uploads/3883ad1a-118b-4bd9-bc82-5dc40893df99.png",
     category: "formal",
