@@ -1,339 +1,181 @@
 
 
-# Global Alternating Backgrounds & Full Mobile Audit Plan
+# Fix Scroll-Past-Navbar Issue on Non-Quote Pages
 
-## Executive Summary
+## Problem Identified
 
-This plan establishes a **site-wide design system** for consistent visual rhythm through standardized section backgrounds, using the existing `PageSection` component and `section-pattern-a/b/c/d` classes. The goal is to create a cohesive experience across ALL pages, not just the home page, while addressing remaining mobile responsiveness issues.
+The site is incorrectly scrolling past the navigation bar directly to the main content on About, Menu, Reviews, Quote selector, and FAQ pages. This behavior should only occur on the quote wizard pages (`/request-quote/regular` and `/request-quote/wedding`).
 
----
+## Root Cause Analysis
 
-## Part 1: Global Design System
+### How the Current System Works:
 
-### Current Architecture
+1. **Navigation links include `#page-header` hash:**
+   - Header.tsx navigation uses links like `/about#page-header`, `/menu#page-header`
+   - CTA buttons across the site link to `/request-quote#page-header`
 
-The site already has a robust foundation:
+2. **`useScrollToAnchor` hook triggers on every page:**
+   - Located in `src/hooks/useScrollToAnchor.tsx`
+   - Detects the `#page-header` hash and scrolls to that element
+   - Runs on `location.pathname` and `location.hash` changes
 
-**Existing CSS Pattern Classes** (in `src/index.css` lines 474-491):
-```text
-section-pattern-a: Ruby-tinted subtle gradient
-section-pattern-b: Platinum/secondary gradient  
-section-pattern-c: Gold-accent gradient
-section-pattern-d: Navy-platinum gradient
-```
+3. **`PageHeader` component has `id="page-header"`:**
+   - Located in `src/components/ui/page-header.tsx` (line 28)
+   - Every page using this component gets scrolled to when `#page-header` is in the URL
 
-**PageSection Component** (in `src/components/ui/page-section.tsx`):
-- Accepts `pattern="a|b|c|d"` prop
-- Applies responsive padding `py-6 sm:py-8 lg:py-12`
-- Optional `withBorder` for section separation
-
-### Pages Audit - Current State
-
-| Page | Uses PageSection? | Current Pattern Flow | Status |
-|------|------------------|---------------------|--------|
-| About.tsx | Yes | A - B - C - B - A | Correct |
-| AlternativeGallery.tsx | Yes | Hero - B - A - C - CTA | Correct |
-| FAQ.tsx | Yes | A - B - C - D | Correct |
-| Reviews.tsx | No | Plain sections | Needs Update |
-| RequestQuote.tsx | No | Plain sections | Needs Update |
-| Menu.tsx | Partial | Only contact uses PageSection | Needs Update |
-| WeddingMenu.tsx | No | Inline styling | Needs Update |
-| HomePage.tsx | No | Components use inline bg classes | Needs Update |
-
-### Proposed Global Pattern Standard
-
-Establish a consistent **A-B alternating rhythm** with C/D for accent sections:
-
-```text
-Pattern A: Header/CTA sections (Ruby-tinted - warm, inviting)
-Pattern B: Content sections (Platinum/neutral - readable)
-Pattern C: Featured content (Gold accent - highlighting)
-Pattern D: Contact/Footer CTAs (Navy/ruby - action-oriented)
-```
-
-**Standard Flow for Multi-Section Pages:**
-```
-Header Section     → Pattern A (or no pattern if hero)
-Primary Content    → Pattern B
-Secondary Content  → Pattern C
-Tertiary Content   → Pattern B (alternating back)
-CTA/Contact        → Pattern D or A
-```
+### Result:
+When users navigate to any page with `#page-header` in the URL, they skip the top of the page (including any visual hero or spacing) and jump directly to the page header content.
 
 ---
 
-## Part 2: Implementation by Page
+## Solution
 
-### 2.1 Home Page Components
+Remove the `#page-header` hash from all navigation links EXCEPT for the quote pages. The hash-based scrolling should only be used intentionally for:
+- Deep linking within a page
+- Quote forms where focused entry is desired
 
-The home page uses individual components that apply their own backgrounds. Update for consistency:
+### Affected Files:
 
-| Component | Current Background | Proposed Background |
-|-----------|-------------------|---------------------|
-| SplitHero | `bg-background` | Keep (full-bleed hero) |
-| TrustMarquee | `bg-secondary/30` | `bg-secondary/50` (stronger band) |
-| ServiceCategoriesSection | `bg-gradient-pattern-c` | Keep (gold accent) |
-| InteractiveGalleryPreview | `bg-gradient-pattern-b` | `bg-background` (white for contrast) |
-| AboutPreviewSection | `bg-gradient-pattern-d` | Keep (navy accent) |
-| TestimonialsCarousel | `bg-gradient-pattern-a` | `bg-background` (white for readability) |
-| FeaturedVenueSection | `bg-gradient-pattern-a` | Keep (ruby accent, now single use) |
-| BrandMarquee | none | `bg-secondary/30` (matching TrustMarquee) |
-| CTASection | `bg-gradient-primary` | Keep (ruby CTA) |
+| File | Change |
+|------|--------|
+| `src/components/Header.tsx` | Remove `#page-header` from nav links |
+| `src/pages/About.tsx` | Remove `#page-header` from CTA links |
+| `src/pages/Reviews.tsx` | Remove `#page-header` from button links |
+| `src/pages/FAQ.tsx` | Remove `#page-header` from button links |
+| `src/components/home/SplitHero.tsx` | Remove `#page-header` from non-quote links |
+| `src/components/home/StoryHero.tsx` | Remove `#page-header` from non-quote links |
+| `src/components/home/ModernHero.tsx` | Remove `#page-header` from non-quote links |
+| `src/components/wedding/WeddingMenuSplitHero.tsx` | Remove `#page-header` from non-quote links |
+| `src/components/wedding/QuickActionButton.tsx` | Keep for quote link |
+| Various other components | Audit and update |
 
-**Visual Flow After Changes:**
-```text
-+---------------------------+
-|       SplitHero           |  bg-background (white)
-+---------------------------+
-|     TrustMarquee          |  bg-secondary/50 (light gray band)
-+---------------------------+
-| ServiceCategoriesSection  |  bg-gradient-pattern-c (gold)
-+---------------------------+
-| InteractiveGalleryPreview |  bg-background (white)
-+---------------------------+
-|   AboutPreviewSection     |  bg-gradient-pattern-d (navy)
-+---------------------------+
-|  TestimonialsCarousel     |  bg-background (white)
-+---------------------------+
-|  FeaturedVenueSection     |  bg-gradient-pattern-a (ruby)
-+---------------------------+
-|     BrandMarquee          |  bg-secondary/30 (light gray band)
-+---------------------------+
-|       CTASection          |  bg-gradient-primary (ruby)
-+---------------------------+
-```
+---
 
-### 2.2 Reviews.tsx
+## Detailed Changes
 
-Currently uses plain `<section>` tags. Update to use PageSection:
+### Change 1: Header.tsx - Navigation Links
 
-```text
-FROM: <section className="py-8 lg:py-12">
-TO:   <PageSection pattern="a|b|c">
-```
-
-**Pattern Assignment:**
-- Header section: Pattern A
-- Reviews grid: Pattern B  
-- Feedback section: Pattern C
-- CTA: Keep existing CTASection component
-
-### 2.3 RequestQuote.tsx
-
-Currently uses plain `<section>` tags. Minimal changes needed since it's intentionally clean:
-
-**Keep current structure** but ensure:
-- Responsive padding is applied via existing classes
-- No pattern needed (clean form-focused layout)
-
-### 2.4 Menu.tsx
-
-Currently uses inline section styling. Update contact section:
-
-**Current (line 154):**
+**Current (lines 18-35):**
 ```tsx
-<PageSection withBorder>
+href: "/about#page-header"
+href: "/menu#page-header"
+href: "/wedding-menu#page-header"
+href: "/reviews#page-header"
 ```
 
 **Proposed:**
 ```tsx
-<PageSection pattern="a" withBorder>
+href: "/about"
+href: "/menu"
+href: "/wedding-menu"
+href: "/reviews"
 ```
 
-### 2.5 WeddingMenu.tsx
-
-Currently uses inline styling (`bg-muted/10`). This page has a unique elegant aesthetic:
-
-**Keep current structure** - the wedding menu intentionally differs with its "paper texture" background for an elegant, formal feel that matches wedding events.
-
----
-
-## Part 3: CSS Enhancements
-
-### 3.1 Subtle Section Divider Utility
-
-Add a reusable decorative divider class for elegant section transitions:
-
-**File:** `src/index.css` (add around line 510)
-
-```css
-/* Subtle centered section divider */
-.section-divider-subtle {
-  position: relative;
-  padding-top: 1rem;
-}
-
-.section-divider-subtle::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80px;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, hsla(var(--primary), 0.25), transparent);
-  border-radius: 1px;
-}
+**Keep as-is:**
+```tsx
+href: "/request-quote#page-header"  // This one stays - intentional focus
 ```
 
-This can be optionally added to any section that needs extra visual separation.
+### Change 2: About.tsx - CTA Links
 
----
-
-## Part 4: Full Mobile Audit
-
-### Issues Identified & Fixes
-
-#### Issue 1: InteractiveGalleryPreview Mobile Story Height
-**Location:** `src/components/home/InteractiveGalleryPreview.tsx` (line 184)
-
-**Current:** `h-[70vh]` may be too tall on short mobile screens
-**Fix:** Change to `h-[65vh] min-h-[400px] max-h-[600px]`
-
-#### Issue 2: QuoteFormSelector Card Padding
-**Location:** `src/components/quote/QuoteFormSelector.tsx` (lines 28, 70)
-
-**Current:** Fixed `p-8` padding
-**Fix:** Responsive padding `p-5 sm:p-6 lg:p-8`
-
-#### Issue 3: CTA Section Button Width
-**Location:** `src/components/ui/cta-section.tsx` (lines 62, 101)
-
-**Current:** `w-3/5` may be too narrow on some mobiles
-**Fix:** Change to `w-4/5 sm:w-auto`
-
-#### Issue 4: TrustMarquee Contrast
-**Location:** `src/components/home/TrustMarquee.tsx` (line 43)
-
-**Current:** `bg-secondary/30` is subtle
-**Fix:** Increase to `bg-secondary/50`
-
-### Items Verified as Working
-
-The following were audited and confirmed responsive:
-
-- Header/Navigation: Mobile menu functions correctly
-- Footer: 4-col desktop, 2-col tablet, 1-col mobile grid works
-- SplitHero: Proper mobile/desktop layouts with swipe
-- MobileActionBar: Now uses responsive-compact buttons (previously fixed)
-- DiscoveryCategoryNav: Vertical stacking on mobile (previously fixed)
-- ServiceCategoriesSection: 3-col to 1-col grid stacking works
-- TestimonialsCarousel: Swipe navigation works
-- All touch targets meet 44px WCAG minimum
-
----
-
-## Part 5: Files to Modify
-
-| File | Change Type | Priority |
-|------|-------------|----------|
-| `src/index.css` | Add section-divider-subtle class | Medium |
-| `src/components/home/InteractiveGalleryPreview.tsx` | Background + mobile height | High |
-| `src/components/home/TestimonialsCarousel.tsx` | Background change | High |
-| `src/components/home/TrustMarquee.tsx` | Increase opacity | High |
-| `src/components/home/BrandMarquee.tsx` | Add background | High |
-| `src/pages/Reviews.tsx` | Add PageSection wrappers | Medium |
-| `src/pages/Menu.tsx` | Add pattern to contact PageSection | Low |
-| `src/components/quote/QuoteFormSelector.tsx` | Responsive padding | High |
-| `src/components/ui/cta-section.tsx` | Button width adjustment | High |
-
----
-
-## Part 6: Technical Implementation Details
-
-### Change 1: index.css - Section Divider
-
-Add after line 491:
-```css
-/* Subtle centered section divider */
-.section-divider-subtle {
-  position: relative;
-  padding-top: 1rem;
-}
-
-.section-divider-subtle::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80px;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, hsla(var(--primary), 0.25), transparent);
-  border-radius: 1px;
-}
+**Current (line 46):**
+```tsx
+<Link to="/gallery#page-header">
 ```
 
-### Change 2: InteractiveGalleryPreview.tsx
+**Current (lines 169-175):**
+```tsx
+href: "/request-quote#page-header"  // Keep - intentional
+href: "/menu#page-header"           // Remove hash
+```
 
-Line 138: `bg-gradient-pattern-b` → `bg-background`
-Line 184: `h-[70vh]` → `h-[65vh] min-h-[400px] max-h-[600px]`
+**Proposed:**
+```tsx
+<Link to="/gallery">
+href: "/menu"
+```
 
-### Change 3: TestimonialsCarousel.tsx
+### Change 3: Reviews.tsx - Button Links
 
-Line 135: `bg-gradient-pattern-a` → `bg-background`
+**Current (line 89):**
+```tsx
+href: "/about#page-header"
+```
 
-### Change 4: TrustMarquee.tsx
+**Proposed:**
+```tsx
+href: "/about"
+```
 
-Line 43: `bg-secondary/30` → `bg-secondary/50`
+### Change 4: FAQ.tsx - Links
 
-### Change 5: BrandMarquee.tsx
+**Current (lines 60, 120):**
+```tsx
+href: "/request-quote#page-header"  // Keep - intentional quote focus
+```
 
-Line 63 (inner div): Add `bg-secondary/30`
+These can stay as they link to the quote page.
 
-### Change 6: QuoteFormSelector.tsx
+### Change 5: Home Page Hero Components
 
-Lines 28, 70: `p-8` → `p-5 sm:p-6 lg:p-8`
+Update gallery, menu, and about links to remove hash. Keep `/request-quote#page-header`.
 
-### Change 7: cta-section.tsx
+**Files:**
+- `src/components/home/SplitHero.tsx`
+- `src/components/home/StoryHero.tsx`
+- `src/components/home/ModernHero.tsx`
 
-Lines 62, 101: `w-3/5` → `w-4/5 sm:w-auto`
+### Change 6: Wedding Components
 
-### Change 8: Reviews.tsx
+**File:** `src/components/wedding/WeddingMenuSplitHero.tsx`
 
-Wrap sections with PageSection component:
-- Header section: `<PageSection pattern="a">`
-- Reviews grid section: `<PageSection pattern="b">`
-- Feedback section: `<PageSection pattern="c">`
+**Current (line 101):**
+```tsx
+<Link to="/gallery#page-header">
+```
 
-### Change 9: Menu.tsx
-
-Line 154: `<PageSection withBorder>` → `<PageSection pattern="a" withBorder>`
-
----
-
-## Part 7: Testing Checklist
-
-### Visual Rhythm Verification
-1. Navigate through all pages and verify alternating backgrounds create clear separation
-2. Ensure no two adjacent sections use the same gradient pattern (except intentional white sections)
-3. Verify marquee bands (Trust/Brand) are visually distinct
-
-### Mobile Testing (Viewports)
-- iPhone SE: 320px width (smallest common)
-- iPhone 14: 390px width (standard)
-- Galaxy S21: 360px width (Android)
-- iPad Mini: 768px portrait
-
-### Functionality Checks
-- Hero carousel swipe works
-- Testimonial swipe works  
-- Gallery story view works
-- All CTAs are tappable
-- No horizontal overflow on any page
-- Touch targets meet 44px minimum
+**Proposed:**
+```tsx
+<Link to="/gallery">
+```
 
 ---
 
-## Summary
+## Links to Keep `#page-header`
 
-This plan creates a cohesive global design system by:
+The following links should RETAIN the `#page-header` hash for intentional focused navigation:
 
-1. **Standardizing backgrounds** using the existing PageSection pattern system across all pages
-2. **Creating visual rhythm** through A-B alternating patterns with C/D accents
-3. **Adding subtle enhancements** like the section-divider-subtle utility
-4. **Fixing mobile issues** including story height, padding, and button widths
-5. **Maintaining intentional exceptions** (WeddingMenu's elegant paper texture)
+| Link | Reason |
+|------|--------|
+| `/request-quote#page-header` | Quote form should start focused |
+| Any deep-link to a specific section | Intentional anchor navigation |
 
-The changes are non-breaking and focus on visual consistency while preserving all existing functionality.
+---
+
+## Summary of Pattern
+
+**Remove `#page-header` from:**
+- All main navigation links in Header
+- All gallery, about, menu, reviews, FAQ links across CTAs
+- Any link going to a page where users should see the full page from top
+
+**Keep `#page-header` on:**
+- Links to `/request-quote` (intentional focus on form)
+- Any link that should deep-link to a specific section within a page
+
+---
+
+## Testing Checklist
+
+After implementation, verify:
+
+1. **About page**: Loads at top, header visible, no scroll jump
+2. **Menu page**: Loads at top, header visible, no scroll jump
+3. **Reviews page**: Loads at top, header visible, no scroll jump
+4. **FAQ page**: Loads at top, header visible, no scroll jump
+5. **Gallery page**: Loads at top, header visible, no scroll jump
+6. **Request Quote page**: Still focuses on form header (intentional)
+7. **Wedding Menu page**: Loads at top, hero visible
+8. **All CTA buttons**: Navigate correctly without unwanted scrolling
+9. **Quote form entry**: From any CTA still focuses properly
 
