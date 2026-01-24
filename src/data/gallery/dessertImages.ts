@@ -1,6 +1,22 @@
 import { GalleryImage } from './types';
+import dessertParfaitDisplay from '@/assets/gallery/dessert-parfait-display.jpg';
+import dessertMiniCheesecakes from '@/assets/gallery/dessert-mini-cheesecakes.jpg';
 
 export const dessertImages: GalleryImage[] = [
+  {
+    src: dessertParfaitDisplay,
+    category: "desserts",
+    title: "Strawberry & Cookies 'n Cream Parfaits",
+    description: "Elegant tiered display of fresh strawberry shortcake and Oreo cream parfaits",
+    quality: 9
+  },
+  {
+    src: dessertMiniCheesecakes,
+    category: "desserts",
+    title: "Artisan Mini Cheesecake Collection",
+    description: "Beautifully drizzled individual cheesecakes arranged for an irresistible presentation",
+    quality: 8
+  },
   {
     src: "/lovable-uploads/798ca3d5-326a-4cdf-9e5b-1e4c87d2bc93.png",
     category: "desserts",

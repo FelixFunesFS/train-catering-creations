@@ -1,6 +1,38 @@
 import { GalleryImage } from './types';
+import buffetOrchidSetup from '@/assets/gallery/buffet-orchid-setup.jpg';
+import buffetGuestsServing from '@/assets/gallery/buffet-guests-serving.jpg';
+import buffetFallDecor from '@/assets/gallery/buffet-fall-decor.jpg';
+import buffetHolidayWings from '@/assets/gallery/buffet-holiday-wings.jpg';
 
 export const buffetImages: GalleryImage[] = [
+  {
+    src: buffetOrchidSetup,
+    category: "buffet",
+    title: "Orchid-Adorned Elegance",
+    description: "Sophisticated chafing dish setup with delicate orchid accents and cascading florals",
+    quality: 8
+  },
+  {
+    src: buffetGuestsServing,
+    category: "buffet",
+    title: "Warm Gathering Buffet",
+    description: "Guests enjoying our home-style Southern spread in an intimate setting",
+    quality: 7
+  },
+  {
+    src: buffetFallDecor,
+    category: "buffet",
+    title: "Autumn Harvest Display",
+    description: "Fall-themed buffet with warm seasonal décor and polished chafing service",
+    quality: 7
+  },
+  {
+    src: buffetHolidayWings,
+    category: "buffet",
+    title: "Holiday Wing Station",
+    description: "Crispy wings in two styles with festive white poinsettia decorations",
+    quality: 7
+  },
   {
     src: "/lovable-uploads/0d103574-55d4-4eca-8b24-99fb579cc931.png",
     category: "buffet",
