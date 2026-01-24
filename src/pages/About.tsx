@@ -184,26 +184,24 @@ const About = () => {
           </div>
         </section>
 
-        {/* CTA Section - Pattern A */}
-        <PageSection pattern="a" withBorder>
-          <CTASection
-            title="Ready to Experience Soul Train's Difference?"
-            description="Let our family serve yours with the authentic flavors and warm hospitality that have made us Charleston's trusted catering choice for over two decades."
-            buttons={[
-              {
-                text: "Request Quote",
-                href: "/request-quote#page-header",
-                variant: "cta"
-              },
-              {
-                text: "View Our Menu",
-                href: "/menu",
-                variant: "cta-white"
-              }
-            ]}
-            footer="ServSafe certified • Family owned • Community trusted"
-          />
-        </PageSection>
+        {/* CTA Section - Card Treatment (no wrapper) */}
+        <CTASection
+          title="Ready to Experience Soul Train's Difference?"
+          description="Let our family serve yours with the authentic flavors and warm hospitality that have made us Charleston's trusted catering choice for over two decades."
+          buttons={[
+            {
+              text: "Request Quote",
+              href: "/request-quote#page-header",
+              variant: "cta"
+            },
+            {
+              text: "View Our Menu",
+              href: "/menu",
+              variant: "cta-white"
+            }
+          ]}
+          footer="ServSafe certified • Family owned • Community trusted"
+        />
       </main>
     </div>
   );
