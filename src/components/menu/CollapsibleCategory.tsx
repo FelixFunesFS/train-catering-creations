@@ -90,7 +90,10 @@ export const CollapsibleCategory = ({
         <div className="overflow-hidden">
           <div className="p-4 sm:p-5 lg:p-6 pt-0 sm:pt-0 lg:pt-0">
             {/* Item Grid - 2 columns mobile, 3 columns desktop */}
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 lg:gap-4">
+            <div className={cn(
+              "grid grid-cols-2 md:grid-cols-3",
+              isWeddingMode ? "gap-3 lg:gap-4" : "gap-2 lg:gap-2.5"
+            )}>
               {visibleItems.map((item) => (
                 <CompactMenuItem
                   key={item.id}
