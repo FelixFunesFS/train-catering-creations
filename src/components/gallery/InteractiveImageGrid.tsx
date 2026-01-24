@@ -13,11 +13,9 @@ import {
   List, 
   LayoutGrid, 
   Filter, 
-  SortAsc, 
-  Star,
   Heart,
   Search,
-  ArrowLeft
+  Sparkles
 } from "lucide-react";
 
 interface InteractiveImageGridProps {
@@ -169,21 +167,12 @@ export const InteractiveImageGrid = ({
               {image.description}
             </p>
             
-            <div className="flex items-center gap-2">
-              <Badge variant="outline" className="text-xs">
-                Quality: {image.quality}/10
+            {image.quality >= 8 && (
+              <Badge variant="outline" className="text-xs gap-1">
+                <Sparkles className="h-3 w-3" />
+                Featured
               </Badge>
-              <div className="flex items-center gap-1">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Star 
-                    key={i} 
-                    className={`h-3 w-3 ${
-                      i < (image.quality / 2) ? 'text-gold fill-gold' : 'text-muted-foreground/30'
-                    }`}
-                  />
-                ))}
-              </div>
-            </div>
+            )}
           </div>
         </div>
       );
@@ -227,16 +216,12 @@ export const InteractiveImageGrid = ({
             {image.description}
           </p>
           
-          <div className="flex items-center justify-between">
-            <Badge className="bg-white/10 text-white border-white/20 text-xs">
-              {image.quality}/10
+          {image.quality >= 8 && (
+            <Badge className="bg-white/10 text-white border-white/20 text-xs gap-1">
+              <Sparkles className="h-3 w-3" />
+              Featured
             </Badge>
-            <div className="flex items-center gap-1">
-              {Array.from({ length: Math.round(image.quality / 2) }).map((_, i) => (
-                <Star key={i} className="h-3 w-3 text-gold fill-gold" />
-              ))}
-            </div>
-          </div>
+          )}
         </div>
       </div>
     );

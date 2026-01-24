@@ -181,14 +181,6 @@ export const DiscoveryCategoryNav = ({
                         </h3>
                       </div>
                       
-                      <div className="flex gap-2 mb-2">
-                        <Badge variant="secondary" className="text-xs bg-white/10 text-white border-white/20">
-                          {stats.total} images
-                        </Badge>
-                        <Badge variant="secondary" className="text-xs bg-primary/20 text-white border-primary/20">
-                          {stats.premium} premium
-                        </Badge>
-                      </div>
                       
                       <p className="text-white/80 text-sm line-clamp-2">
                         {category.description}
@@ -242,17 +234,6 @@ export const DiscoveryCategoryNav = ({
                       </h3>
                     </div>
                     
-                    <div className="flex gap-2 mb-3">
-                      <Badge variant="secondary" className="bg-white/10 text-white border-white/20">
-                        {stats.total} images
-                      </Badge>
-                      <Badge variant="secondary" className="bg-primary/20 text-white border-primary/20">
-                        {stats.premium} premium
-                      </Badge>
-                      <Badge variant="secondary" className="bg-gold/20 text-white border-gold/20">
-                        {stats.avgQuality}/10 ★
-                      </Badge>
-                    </div>
                     
                     <p className="text-white/90 text-sm group-hover:text-white transition-colors duration-300">
                       {category.description}

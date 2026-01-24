@@ -6,8 +6,9 @@ import { StoryGalleryViewer } from "@/components/gallery/StoryGalleryViewer";
 import { InteractiveImageGrid } from "@/components/gallery/InteractiveImageGrid";
 import { GallerySearchInterface } from "@/components/gallery/GallerySearchInterface";
 import { EnhancedImageModal } from "@/components/gallery/EnhancedImageModal";
-import { ServiceMarquee } from "@/components/home/ServiceMarquee";
+import { GalleryCTA } from "@/components/gallery/GalleryCTA";
 import { PageSection } from "@/components/ui/page-section";
+import { ServiceMarquee } from "@/components/home/ServiceMarquee";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -15,7 +16,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 const AlternativeGallery = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<'story' | 'grid' | 'search'>('story');
+  const [viewMode, setViewMode] = useState<'story' | 'grid' | 'search'>('grid');
   const [searchQuery, setSearchQuery] = useState("");
   const [qualityFilter, setQualityFilter] = useState(0);
   
@@ -106,8 +107,22 @@ const AlternativeGallery = () => {
         </div>
       </PageSection>
       
+      {/* Brand Intro - Family Story */}
+      <PageSection pattern="b" className="py-8 sm:py-12">
+        <div className="max-w-3xl mx-auto text-center px-4">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant font-bold mb-4">
+            From Our Family Kitchen to Your Special Event
+          </h2>
+          <p className="text-muted-foreground text-base sm:text-lg leading-relaxed">
+            As a family-run catering company rooted in authentic Southern cooking, we take pride in bringing 
+            people together around exceptional food. Every event we cater receives the same love and attention 
+            we put into feeding our own family.
+          </p>
+        </div>
+      </PageSection>
+      
       {/* Discovery Navigation */}
-      <PageSection pattern="b" withBorder>
+      <PageSection pattern="a" withBorder>
         <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8">
           <div ref={navRef} className={useAnimationClass(navVariant, navVisible)}>
             <DiscoveryCategoryNav 
@@ -156,6 +171,9 @@ const AlternativeGallery = () => {
           </div>
         </div>
       </PageSection>
+      
+      {/* CTA Section */}
+      <GalleryCTA />
       
       <EnhancedImageModal 
         images={galleryImages} 
