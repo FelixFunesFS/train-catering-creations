@@ -41,6 +41,16 @@ const About = () => {
           {/* Dark gradient overlay for text contrast */}
           <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/40" />
           
+          {/* Watermark Logo */}
+          <div className="absolute right-8 top-1/2 -translate-y-1/2 pointer-events-none z-[5]">
+            <img 
+              src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
+              alt="" 
+              aria-hidden="true"
+              className="w-64 h-64 object-contain opacity-[0.06]"
+            />
+          </div>
+          
           {/* Content */}
           <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">

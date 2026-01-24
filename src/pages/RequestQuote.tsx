@@ -48,7 +48,16 @@ const RequestQuote = () => {
         </div>
       </section>
       
-      <div ref={ctaRef} className={useAnimationClass(ctaVariant, ctaVisible)}>
+      <div ref={ctaRef} className={`relative ${useAnimationClass(ctaVariant, ctaVisible)}`}>
+        {/* Watermark Logo behind CTA */}
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-0">
+          <img 
+            src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
+            alt="" 
+            aria-hidden="true"
+            className="w-48 h-48 object-contain opacity-[0.04]"
+          />
+        </div>
         <CTASection
           title="Questions About Your Quote?"
           description="Our team is ready to help you plan the perfect event. Contact us directly for personalized assistance."

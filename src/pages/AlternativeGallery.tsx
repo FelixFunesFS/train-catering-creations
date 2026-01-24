@@ -85,8 +85,13 @@ const AlternativeGallery = () => {
       {/* Brand Intro - Family Story */}
       <PageSection pattern="b" className="py-8 sm:py-12">
         <div className="max-w-3xl mx-auto text-center px-4">
-          {/* Badge + Icon (matching home page pattern) */}
+          {/* Badge + Logo + Icon (matching home page pattern) */}
           <div className="flex items-center justify-center space-x-2 mb-3">
+            <img 
+              src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
+              alt="" 
+              className="h-6 w-6 object-contain"
+            />
             <Camera className="h-5 w-5 text-ruby" />
             <Badge variant="outline" className="border-ruby text-ruby font-script text-sm">
               Our Gallery

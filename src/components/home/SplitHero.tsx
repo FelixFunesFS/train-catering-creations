@@ -207,10 +207,14 @@ export const SplitHero = () => {
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
 
 
-          {/* Brand Badge */}
+          {/* Brand Badge with Logo */}
           <div className="absolute top-4 left-4 z-20">
             <div className="flex items-center space-x-2 bg-black/40 backdrop-blur-sm px-3 py-1.5 rounded-full">
-              <Heart className="h-5 w-5 text-white fill-ruby" />
+              <img 
+                src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
+                alt="Soul Train's Eatery Logo" 
+                className="h-8 w-8 object-contain"
+              />
               <span className="text-white font-script text-lg">Soul Train's</span>
             </div>
           </div>
@@ -280,10 +284,14 @@ export const SplitHero = () => {
         </div>
 
 
-        {/* Brand Badge */}
+        {/* Brand Badge with Logo */}
         <div className="absolute bottom-6 left-6 z-20">
-          <div className="flex items-center space-x-3">
-            <Heart className="h-6 w-6 text-white fill-ruby" />
+          <div className="flex items-center space-x-3 bg-black/30 backdrop-blur-sm px-4 py-2 rounded-xl">
+            <img 
+              src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
+              alt="Soul Train's Eatery Logo" 
+              className="h-12 w-12 object-contain"
+            />
             <span className="text-white font-script text-2xl">Soul Train's Eatery</span>
           </div>
         </div>
@@ -291,6 +299,15 @@ export const SplitHero = () => {
 
       {/* Content Area - 40% */}
       <div ref={contentRef} className={`relative w-2/5 h-full bg-background p-6 md:p-8 lg:p-12 flex flex-col justify-center ${contentAnimationClass}`} role="region" aria-label="Content section">
+        {/* Watermark Logo */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
+          <img 
+            src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
+            alt="" 
+            aria-hidden="true"
+            className="w-72 h-72 object-contain opacity-[0.04]"
+          />
+        </div>
         <div className="max-w-lg space-y-6">
           <div className="flex items-center justify-between">
             <Badge variant={badge.variant} className="text-sm">
