@@ -40,7 +40,7 @@ export const TrustMarquee = () => {
   return (
     <section 
       aria-label="Trust indicators" 
-      className="w-full relative overflow-hidden py-4 sm:py-5 lg:py-6 bg-secondary/30 border-y border-border/30"
+      className="w-full relative overflow-hidden py-4 sm:py-5 lg:py-6 bg-secondary/50 border-y border-border/30"
     >
       <div 
         ref={ref}

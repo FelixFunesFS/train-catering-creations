@@ -151,7 +151,7 @@ const Menu = () => {
       </section>
 
       {/* Menu Planning Section */}
-      <PageSection withBorder>
+      <PageSection pattern="a" withBorder>
         <div ref={contactRef} className={useAnimationClass(contactVariant, contactVisible)}>
           <MenuContact />
         </div>

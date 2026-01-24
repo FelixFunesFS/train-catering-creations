@@ -25,7 +25,7 @@ const QuoteFormSelector = ({ showHeader = true }: QuoteFormSelectorProps) => {
         {/* Regular Events Card */}
         <Card className="shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-[1.02] bg-gradient-to-br from-background via-primary/5 to-accent/10 border-2 border-primary/30 hover:border-primary/50 relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-primary/20 to-transparent rounded-bl-full" />
-          <CardContent className="p-8 relative z-10">
+          <CardContent className="p-5 sm:p-6 lg:p-8 relative z-10">
             <div className="text-center mb-6">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/15 mb-4 group-hover:bg-primary/20 transition-colors">
                 <Users className="h-8 w-8 text-primary" />
@@ -67,7 +67,7 @@ const QuoteFormSelector = ({ showHeader = true }: QuoteFormSelectorProps) => {
         <Card className="shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-[1.02] bg-gradient-to-br from-background via-accent/5 to-primary/10 border-2 border-accent/30 hover:border-accent/50 relative overflow-hidden group">
           <div className="absolute top-0 left-0 w-28 h-28 bg-gradient-to-br from-accent/20 to-transparent rounded-br-full" />
           <div className="absolute bottom-0 right-0 w-20 h-20 bg-gradient-to-tl from-primary/20 to-transparent rounded-tl-full" />
-          <CardContent className="p-8 relative z-10">
+          <CardContent className="p-5 sm:p-6 lg:p-8 relative z-10">
             <div className="text-center mb-6">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-accent/15 mb-4 group-hover:bg-accent/20 transition-colors">
                 <Heart className="h-8 w-8 text-accent" />

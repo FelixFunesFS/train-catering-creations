@@ -1,9 +1,9 @@
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Star, Heart, ThumbsUp } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { CTASection } from "@/components/ui/cta-section";
 import { NeumorphicCard } from "@/components/ui/neumorphic-card";
+import { PageSection } from "@/components/ui/page-section";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 
@@ -75,7 +75,7 @@ const Reviews = () => {
   return (
     <div className="min-h-screen bg-gradient-hero">
       {/* Header Section */}
-      <section className="py-8 lg:py-12">
+      <PageSection pattern="a">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div ref={headerRef} className={headerAnimationClass}>
             <PageHeader
@@ -104,10 +104,10 @@ const Reviews = () => {
             </div>
           </div>
         </div>
-      </section>
+      </PageSection>
 
       {/* Reviews Section */}
-      <section className="py-8 lg:py-12">
+      <PageSection pattern="b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
             {reviews.map((review, index) => {
@@ -141,10 +141,10 @@ const Reviews = () => {
             })}
           </div>
         </div>
-      </section>
+      </PageSection>
 
       {/* Feedback Section */}
-      <section className="py-8 lg:py-12">
+      <PageSection pattern="c">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <NeumorphicCard level={3} className="bg-primary-light">
@@ -159,7 +159,7 @@ const Reviews = () => {
             </NeumorphicCard>
           </div>
         </div>
-      </section>
+      </PageSection>
 
       <CTASection
         title="Ready to Create Your Own Success Story?"

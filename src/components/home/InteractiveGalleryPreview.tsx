@@ -135,7 +135,7 @@ export const InteractiveGalleryPreview = () => {
   return (
     <section 
       ref={ref}
-      className="py-12 sm:py-16 lg:py-20 bg-gradient-pattern-b"
+      className="py-12 sm:py-16 lg:py-20 bg-background"
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
@@ -181,7 +181,7 @@ export const InteractiveGalleryPreview = () => {
             <div className="relative">
               <Card className="relative overflow-hidden border-2 border-ruby/20">
                 <div 
-                  className="relative h-[70vh] overflow-hidden cursor-pointer"
+                  className="relative h-[65vh] min-h-[400px] max-h-[600px] overflow-hidden cursor-pointer"
                   onTouchStart={handleStoryTouch}
                   onClick={handleStoryTouch}
                 >

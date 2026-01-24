@@ -60,7 +60,7 @@ export const BrandMarquee = () => {
   return (
     <section>
       <ResponsiveWrapper>
-        <div className="w-full relative overflow-hidden py-6 lg:py-8">
+        <div className="w-full relative overflow-hidden py-6 lg:py-8 bg-secondary/30">
           <div 
             ref={ref}
             className={`flex items-center whitespace-nowrap ${className}`}
