@@ -23,8 +23,17 @@ interface EmailRequest {
   to: string;
   subject: string;
   html: string;
+  /** Optional plain-text alternative (recommended for Exchange deliverability). */
+  text?: string;
   from?: string;
   replyTo?: string;
+
+  /** Optional diagnostic metadata (safe + non-breaking). */
+  emailType?: string;
+  quoteId?: string;
+  invoiceId?: string;
+  correlationId?: string;
+  metadata?: Record<string, unknown>;
 }
 
 const DEFAULT_FROM_EMAIL = 'soultrainseatery@gmail.com';
@@ -41,8 +50,14 @@ async function logEmailEvent(params: {
   subject?: string;
   from?: string;
   replyTo?: string;
+  emailType?: string;
+  quoteId?: string;
+  invoiceId?: string;
+  correlationId?: string;
+  resolvedFrom?: string;
   messageId?: string;
   errorMessage?: string;
+  metadata?: Record<string, unknown>;
 }) {
   try {
     const { event_type, ...rest } = params;
@@ -58,6 +73,24 @@ async function logEmailEvent(params: {
     // Never block email sending if analytics logging fails
     console.warn('[send-smtp-email] Failed to write analytics_events', e);
   }
+}
+
+function stripHtmlToText(html: string): string {
+  // Very small, dependency-free text fallback.
+  // Goal: "real" readable text for Exchange, not perfect formatting.
+  return html
+    .replace(/<\s*br\s*\/?\s*>/gi, '\n')
+    .replace(/<\s*\/?p\s*>/gi, '\n')
+    .replace(/<\s*\/?div\s*>/gi, '\n')
+    .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -82,7 +115,19 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    const { to, subject, html, from = DEFAULT_FROM, replyTo }: EmailRequest = await req.json();
+    const {
+      to,
+      subject,
+      html,
+      text,
+      from = DEFAULT_FROM,
+      replyTo,
+      emailType,
+      quoteId,
+      invoiceId,
+      correlationId,
+      metadata,
+    }: EmailRequest = await req.json();
     auditTo = to;
     auditSubject = subject;
     auditFrom = from;
@@ -92,12 +137,29 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error('Missing required fields: to, subject, html');
     }
 
+    // Normalize From header to ensure consistent branded display name.
+    // If caller passes a bare email, upgrade it to "Soul Train’s Eatery <email>".
+    const normalizedFrom = (() => {
+      const trimmed = String(from || '').trim();
+      if (!trimmed) return DEFAULT_FROM;
+      const hasDisplayName = /<.+?>/.test(trimmed) && !/^<.+?>$/.test(trimmed);
+      if (hasDisplayName) return trimmed;
+      // Bare address or malformed display-name: enforce our standard.
+      return `${DEFAULT_FROM_DISPLAY} <${trimmed.replace(/[<>]/g, '')}>`;
+    })();
+
     await logEmailEvent({
       event_type: 'email_send_attempt',
       to,
       subject,
       from,
       replyTo,
+      emailType,
+      quoteId,
+      invoiceId,
+      correlationId,
+      resolvedFrom: normalizedFrom,
+      metadata,
     });
 
     // Get SMTP configuration from environment
@@ -127,17 +189,6 @@ const handler = async (req: Request): Promise<Response> => {
       return { email: emailString.trim() };
     };
 
-    // Normalize From header to ensure consistent branded display name.
-    // If caller passes a bare email, upgrade it to "Soul Train’s Eatery <email>".
-    const normalizedFrom = (() => {
-      const trimmed = String(from || '').trim();
-      if (!trimmed) return DEFAULT_FROM;
-      const hasDisplayName = /<.+?>/.test(trimmed) && !/^<.+?>$/.test(trimmed);
-      if (hasDisplayName) return trimmed;
-      // Bare address or malformed display-name: enforce our standard.
-      return `${DEFAULT_FROM_DISPLAY} <${trimmed.replace(/[<>]/g, '')}>`;
-    })();
-
     const fromParts = extractEmailParts(normalizedFrom);
 
     // Create SMTP client
@@ -162,7 +213,9 @@ const handler = async (req: Request): Promise<Response> => {
       from: fromParts.name ? `${fromParts.name} <${fromParts.email}>` : fromParts.email,
       to: to,
       subject: subject,
-      content: "Please view this email in an HTML-capable email client.",
+      content: (text && String(text).trim().length > 0)
+        ? String(text).trim()
+        : stripHtmlToText(minifiedHtml) || "Please view this email in an HTML-capable email client.",
       html: minifiedHtml,
     };
 
@@ -186,7 +239,13 @@ const handler = async (req: Request): Promise<Response> => {
       subject,
       from,
       replyTo,
+      emailType,
+      quoteId,
+      invoiceId,
+      correlationId,
+      resolvedFrom: normalizedFrom,
       messageId,
+      metadata,
     });
 
     return new Response(JSON.stringify({ 
