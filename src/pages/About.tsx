@@ -158,7 +158,7 @@ const About = () => {
             
             <div className="grid md:grid-cols-3 gap-8 lg:gap-12">
               <div className="bg-black/35 backdrop-blur-md rounded-xl p-6 text-center border border-white/20 ring-1 ring-white/10 hover:scale-105 transition-transform duration-300">
-                <Award className="h-12 w-12 text-white mx-auto mb-4 drop-shadow-sm" />
+                <Award className="h-12 w-12 text-gold mx-auto mb-4 drop-shadow-sm" />
                 <h3 className="text-xl font-elegant font-semibold text-white mb-4 drop-shadow-sm">Quality First</h3>
                 <p className="text-sm text-white/80 drop-shadow-sm">
                   We source the finest ingredients and maintain the highest standards in food preparation and presentation.
@@ -166,7 +166,7 @@ const About = () => {
               </div>
               
               <div className="bg-black/35 backdrop-blur-md rounded-xl p-6 text-center border border-white/20 ring-1 ring-white/10 hover:scale-105 transition-transform duration-300">
-                <Users className="h-12 w-12 text-white mx-auto mb-4 drop-shadow-sm" />
+                <Users className="h-12 w-12 text-ruby-light mx-auto mb-4 drop-shadow-sm" />
                 <h3 className="text-xl font-elegant font-semibold text-white mb-4 drop-shadow-sm">Family Spirit</h3>
                 <p className="text-sm text-white/80 drop-shadow-sm">
                   As a family-run business, we treat every client like family and every event like our own celebration.
@@ -174,7 +174,7 @@ const About = () => {
               </div>
               
               <div className="bg-black/35 backdrop-blur-md rounded-xl p-6 text-center border border-white/20 ring-1 ring-white/10 hover:scale-105 transition-transform duration-300">
-                <Clock className="h-12 w-12 text-white mx-auto mb-4 drop-shadow-sm" />
+                <Clock className="h-12 w-12 text-platinum-light mx-auto mb-4 drop-shadow-sm" />
                 <h3 className="text-xl font-elegant font-semibold text-white mb-4 drop-shadow-sm">Reliability</h3>
                 <p className="text-sm text-white/80 drop-shadow-sm">
                   Count on us to deliver exceptional service on time, every time, with the professionalism you deserve.
