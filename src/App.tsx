@@ -17,7 +17,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { HeroVisibilityProvider } from "@/contexts/HeroVisibilityContext";
 import Index from "./pages/Index";
 import About from "./pages/About";
-import UnifiedMenu from "./pages/UnifiedMenu";
+import SimplifiedMenu from "./pages/SimplifiedMenu";
 import RequestQuote from "./pages/RequestQuote";
 import RegularEventQuote from "./pages/RegularEventQuote";
 import WeddingEventQuote from "./pages/WeddingEventQuote";
@@ -64,8 +64,8 @@ const AppContent = () => {
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/about" element={<About />} />
-          <Route path="/menu" element={<UnifiedMenu />} />
-          <Route path="/wedding-menu" element={<Navigate to="/menu?style=wedding" replace />} />
+          <Route path="/menu" element={<SimplifiedMenu />} />
+          <Route path="/wedding-menu" element={<Navigate to="/menu" replace />} />
           <Route path="/request-quote" element={<RequestQuote />} />
           <Route path="/request-quote/regular" element={<RegularEventQuote />} />
           <Route path="/request-quote/wedding" element={<WeddingEventQuote />} />
