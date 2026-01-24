@@ -188,82 +188,121 @@ export const SplitHero = () => {
     return "object-center";
   };
 
-  // Mobile/Tablet Layout (Responsive stacked layout)
+  // Mobile/Tablet Layout (Overlay content on image)
   if (isMobile) {
-    return <section className="relative min-h-screen overflow-hidden bg-background" role="main" aria-label="Hero section with image carousel">
-        {/* Visual Area - Responsive height */}
-        <div ref={visualRef} className={`relative h-[55vh] sm:h-[60vh] md:h-[65vh] overflow-hidden ${visualAnimationClass}`} onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} role="region" aria-label="Image carousel">
-          {/* Progress Indicators */}
-          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-20 flex space-x-1">
-            {heroImages.map((_, index) => <button key={index} onClick={() => setCurrentIndex(index)} className="min-w-[24px] min-h-[24px] flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black/20" aria-label={`Go to slide ${index + 1} of ${heroImages.length}`} aria-current={index === currentIndex ? 'true' : 'false'}>
-                <span className={`h-1 rounded-full transition-all duration-500 ${index === currentIndex ? 'w-8 bg-gradient-ruby-primary' : 'w-3 bg-white/40'}`} />
-              </button>)}
+    return (
+      <section 
+        className="relative h-screen overflow-hidden bg-black" 
+        role="main" 
+        aria-label="Hero section with image carousel"
+      >
+        {/* Full Screen Visual Area */}
+        <div 
+          ref={visualRef} 
+          className={`relative h-full overflow-hidden ${visualAnimationClass}`}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          role="region" 
+          aria-label="Image carousel"
+        >
+          {/* Progress Indicators - Centered at top */}
+          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-30 flex space-x-1">
+            {heroImages.map((_, index) => (
+              <button 
+                key={index} 
+                onClick={() => setCurrentIndex(index)}
+                className="min-w-[24px] min-h-[24px] flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black/20"
+                aria-label={`Go to slide ${index + 1} of ${heroImages.length}`}
+                aria-current={index === currentIndex ? 'true' : 'false'}
+              >
+                <span className={`h-1 rounded-full transition-all duration-500 ${
+                  index === currentIndex 
+                    ? 'w-8 bg-white' 
+                    : 'w-3 bg-white/40'
+                }`} />
+              </button>
+            ))}
           </div>
 
-          {/* Main Image with responsive aspect ratios */}
-          <OptimizedImage src={currentImage.src} alt={currentImage.alt} aspectRatio="aspect-[5/4]" className={`w-full h-full object-cover ${getImageObjectPosition(currentIndex)} transition-transform duration-700`} containerClassName="h-full" priority />
+          {/* Full Screen Background Image */}
+          <OptimizedImage 
+            src={currentImage.src} 
+            alt={currentImage.alt}
+            className={`w-full h-full object-cover ${getImageObjectPosition(currentIndex)} transition-transform duration-700`}
+            containerClassName="h-full"
+            priority 
+          />
           
-          {/* Enhanced Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-
-
-          {/* Brand Badge with Logo */}
-          <div className="absolute top-4 left-4 z-20">
-            <div className="flex items-center space-x-2 bg-black/40 backdrop-blur-sm px-3 py-1.5 rounded-full">
-              <img 
-                src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
-                alt="Soul Train's Eatery Logo" 
-                className="h-8 w-8 object-contain"
-              />
-              <span className="text-white font-script text-lg">Soul Train's</span>
-            </div>
-          </div>
-
+          {/* Gradient Overlay for Content Readability */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
         </div>
 
-        {/* Content Area - Responsive with proper spacing */}
-        <div ref={contentRef} className={`relative min-h-[45vh] sm:min-h-[40vh] md:min-h-[35vh] bg-background p-6 pb-8 sm:pb-12 lg:pb-16 flex flex-col justify-center ${contentAnimationClass}`} role="region" aria-label="Content section">
-          <div className="max-w-md mx-auto w-full space-y-4">
-            <div className="flex items-center justify-between">
-              <Badge variant={badge.variant} className="text-sm">
-                {badge.label}
-              </Badge>
-              {currentImage.category === "featured" && <Star className="h-4 w-4 text-gold fill-gold" />}
-            </div>
+        {/* Content Overlay - Positioned at Bottom */}
+        <div 
+          ref={contentRef} 
+          className={`absolute inset-x-0 bottom-0 z-20 p-4 sm:p-6 pb-8 sm:pb-12 ${contentAnimationClass}`}
+          role="region" 
+          aria-label="Content section"
+        >
+          <div className="max-w-md mx-auto w-full space-y-3 sm:space-y-4">
+            {/* Category Badge */}
+            <Badge 
+              variant="outline" 
+              className="bg-white/10 backdrop-blur-sm text-white border-white/30 text-sm"
+            >
+              {badge.label}
+            </Badge>
             
-            <div className="space-y-3">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-elegant font-bold text-foreground leading-tight">
+            {/* Title & Description */}
+            <div className="space-y-2 sm:space-y-3">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-elegant font-bold text-white leading-tight">
                 {currentImage.title}
               </h1>
-              <p className="text-lg sm:text-xl md:text-2xl font-script text-ruby font-medium">
+              <p className="text-lg sm:text-xl font-script text-gold-light font-medium">
                 {currentImage.subtitle}
               </p>
-              <p className="text-base sm:text-lg md:text-xl text-muted-foreground leading-relaxed">
+              <p className="text-sm sm:text-base text-white/80 leading-relaxed line-clamp-3">
                 {currentImage.description}
               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 pt-2">
-              <Button size="lg" className="w-full sm:flex-1 bg-gradient-ruby-primary hover:bg-gradient-ruby-accent text-white font-semibold min-h-[48px]" asChild>
-                <a href="/request-quote#page-header" className="flex items-center justify-center space-x-2">
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3 pt-2">
+              <Button 
+                size="lg" 
+                className="w-full sm:flex-1 bg-white text-primary hover:bg-white/90 font-semibold min-h-[48px]" 
+                asChild
+              >
+                <Link to="/request-quote#page-header" className="flex items-center justify-center gap-2">
                   <Calendar className="h-4 w-4" />
                   <span>Request Quote</span>
-                </a>
+                </Link>
               </Button>
-              <Button variant="outline" size="lg" className="w-full sm:flex-1 border-ruby text-ruby hover:bg-ruby hover:text-white min-h-[48px]" asChild>
-                <a href="tel:+1234567890" className="flex items-center justify-center space-x-2">
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="w-full sm:flex-1 border-white/50 text-white hover:bg-white/10 min-h-[48px]" 
+                asChild
+              >
+                <a href="tel:8439700265" className="flex items-center justify-center gap-2">
                   <Phone className="h-4 w-4" />
                   <span>Call Now</span>
                 </a>
               </Button>
             </div>
-
           </div>
         </div>
         
         {/* Hero Sentinel - triggers MobileActionBar visibility */}
-        <div ref={heroSentinelRef} id="hero-sentinel" aria-hidden="true" className="absolute bottom-0 left-0 w-full h-1 pointer-events-none" />
-      </section>;
+        <div 
+          ref={heroSentinelRef} 
+          id="hero-sentinel" 
+          aria-hidden="true" 
+          className="absolute bottom-0 left-0 w-full h-1 pointer-events-none" 
+        />
+      </section>
+    );
   }
 
   // Desktop Layout (True 60/40 Split)
