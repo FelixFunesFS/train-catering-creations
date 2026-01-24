@@ -132,7 +132,7 @@ export const TestimonialsCarousel = () => {
   return (
     <section 
       ref={ref}
-      className="py-16 sm:py-20 lg:py-24 bg-gradient-pattern-a"
+      className="py-16 sm:py-20 lg:py-24 bg-background"
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}

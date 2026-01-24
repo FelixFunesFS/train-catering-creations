@@ -491,6 +491,24 @@
     position: relative;
   }
 
+  /* Subtle centered section divider */
+  .section-divider-subtle {
+    position: relative;
+    padding-top: 1rem;
+  }
+
+  .section-divider-subtle::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, hsla(var(--primary), 0.25), transparent);
+    border-radius: 1px;
+  }
+
   /* Standardized section transitions */
   .section-border {
     border-top: 1px solid hsla(var(--border), 0.05);
