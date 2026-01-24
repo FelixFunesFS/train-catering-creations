@@ -16,10 +16,10 @@ export const CompactMenuItem = ({
 }: CompactMenuItemProps) => {
   return (
     <div className={cn(
-      "group relative rounded-lg p-4 transition-all duration-200 touch-target-comfortable min-h-[48px] flex items-center",
+      "group relative rounded-lg transition-all duration-200 touch-target-comfortable flex items-center",
       isWeddingMode
-        ? "bg-accent/20 border border-primary/20 hover:border-primary/40 hover:bg-accent/30 shadow-sm"
-        : "bg-background/20 hover:bg-background/40 border border-border/10 hover:border-primary/30 hover:shadow-sm",
+        ? "p-4 min-h-[48px] bg-accent/20 border border-primary/20 hover:border-primary/40 hover:bg-accent/30 shadow-sm"
+        : "p-2.5 sm:p-3 min-h-[40px] bg-background/20 hover:bg-background/40 border border-border/10 hover:border-primary/30 hover:shadow-sm",
       className
     )}>
       {/* Wedding mode decorative corner */}
@@ -30,10 +30,10 @@ export const CompactMenuItem = ({
       {/* Item Content */}
       <div className="flex-1">
         <h4 className={cn(
-          "font-medium transition-colors text-base leading-relaxed",
+          "font-medium transition-colors",
           isWeddingMode 
-            ? "text-foreground font-elegant group-hover:text-primary" 
-            : "text-foreground group-hover:text-primary"
+            ? "text-base leading-relaxed text-foreground font-elegant group-hover:text-primary" 
+            : "text-sm leading-snug text-foreground group-hover:text-primary"
         )}>
           {name}
         </h4>
