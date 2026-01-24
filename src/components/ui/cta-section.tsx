@@ -41,8 +41,8 @@ export const CTASection = ({ title, description, buttons, footer }: CTASectionPr
       {/* Desktop Full-Width Card */}
       <div className="hidden lg:block">
         <section className="py-16 sm:py-20 lg:py-24">
-          <div className="neumorphic-card-3 mx-4 xl:mx-8 rounded-2xl overflow-hidden">
-            <div className="bg-gradient-primary py-12 xl:py-16 shadow-elevated hover:shadow-glow-strong transition-all duration-200 rounded-2xl">
+          <div className="mx-4 xl:mx-8 rounded-2xl overflow-hidden shadow-elevated">
+            <div className="bg-gradient-to-r from-primary to-primary-dark py-12 xl:py-16 transition-all duration-200 rounded-2xl">
               <div className="max-w-7xl mx-auto px-6 xl:px-12 text-center">
                 <div ref={titleRef} className={titleAnimationClass}>
                   <h2 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-elegant text-primary-foreground mb-4 sm:mb-6">
@@ -81,7 +81,7 @@ export const CTASection = ({ title, description, buttons, footer }: CTASectionPr
 
       {/* Mobile/Tablet Layout */}
       <div className="block lg:hidden">
-        <section className="py-16 sm:py-20 lg:py-24 bg-gradient-primary rounded-lg mx-4 sm:mx-6 lg:mx-8 my-2 sm:my-3 lg:my-4 shadow-elevated hover:shadow-glow-strong transition-all duration-200">
+        <section className="py-16 sm:py-20 lg:py-24 bg-gradient-to-r from-primary to-primary-dark rounded-lg mx-4 sm:mx-6 lg:mx-8 my-2 sm:my-3 lg:my-4 shadow-elevated transition-all duration-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <div ref={titleRef} className={titleAnimationClass}>
               <h2 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-elegant text-primary-foreground mb-4 sm:mb-6">

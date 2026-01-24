@@ -79,7 +79,6 @@ export const CollapsibleCategory = ({
                 <CompactMenuItem
                   key={item.id}
                   name={item.name}
-                  isPopular={item.isPopular}
                 />
               ))}
             </div>
