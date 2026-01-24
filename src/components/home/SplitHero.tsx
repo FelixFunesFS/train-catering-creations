@@ -190,7 +190,7 @@ export const SplitHero = () => {
 
   // Mobile/Tablet Layout (Overlay content on image)
   if (isMobile) {
-    return <section className="relative h-screen overflow-hidden bg-black" role="main" aria-label="Hero section with image carousel">
+    return <section className="relative h-[85vh] overflow-hidden bg-black" role="main" aria-label="Hero section with image carousel">
         {/* Full Screen Visual Area */}
         <div ref={visualRef} className={`relative h-full overflow-hidden ${visualAnimationClass}`} onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} role="region" aria-label="Image carousel">
           {/* Progress Indicators - Centered at top */}
@@ -227,9 +227,9 @@ export const SplitHero = () => {
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
         </div>
 
-        {/* Content Overlay - Positioned Up 20% */}
-        <div ref={contentRef} className={`absolute inset-x-0 bottom-[20%] z-20 p-4 sm:p-6 ${contentAnimationClass}`} role="region" aria-label="Content section">
-          <div className="max-w-md mx-auto w-full space-y-3 sm:space-y-4">
+        {/* Content Overlay - Positioned Up 15% for viewport fit */}
+        <div ref={contentRef} className={`absolute inset-x-0 bottom-[15%] z-20 p-4 sm:p-6 ${contentAnimationClass}`} role="region" aria-label="Content section">
+          <div className="max-w-md mx-auto w-full space-y-2 sm:space-y-3">
             {/* Category Badge */}
             <Badge variant="outline" className="bg-white/10 backdrop-blur-sm text-white border-white/30 text-sm">
               {badge.label}
@@ -243,13 +243,13 @@ export const SplitHero = () => {
               <p className="text-lg sm:text-xl font-script text-gold-light font-medium">
                 {currentImage.subtitle}
               </p>
-              <p className="text-sm sm:text-base text-white/80 leading-relaxed line-clamp-3">
+              <p className="text-sm sm:text-base text-white/80 leading-relaxed line-clamp-2 sm:line-clamp-3">
                 {currentImage.description}
               </p>
             </div>
 
             {/* CTA Buttons - High Contrast */}
-            <div className="flex flex-col sm:flex-row gap-3 pt-2">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-1 sm:pt-2">
               <Button size="lg" className="w-full sm:flex-1 bg-gradient-ruby-primary hover:opacity-90 text-white font-semibold min-h-[48px] shadow-lg" asChild>
                 <Link to="/request-quote#page-header" className="flex items-center justify-center gap-2">
                   <Calendar className="h-4 w-4" />
