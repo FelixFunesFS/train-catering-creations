@@ -6,11 +6,15 @@ import { CTASection } from "@/components/ui/cta-section";
 import { ChefHat, Heart, Award, Users, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
 import { OptimizedImage } from "@/components/ui/optimized-image";
+import { TrustMarquee } from "@/components/home/TrustMarquee";
 
 const About = () => {
   return (
     <div className="min-h-screen bg-gradient-hero">
       <main id="main-content">
+        {/* Trust Marquee - First element after nav */}
+        <TrustMarquee />
+        
         {/* Header Section - Pattern A */}
         <PageSection pattern="a" skipToContentId="about-header">
           <PageHeader
