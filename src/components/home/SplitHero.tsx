@@ -279,20 +279,6 @@ export const SplitHero = () => {
             </button>)}
         </div>
 
-        {/* Controls */}
-        <div className="absolute top-6 right-6 z-20 flex space-x-2">
-          <Button variant="ghost" size="icon" onClick={handlePrevious} aria-label="Previous image" className="bg-white/10 backdrop-blur-md hover:bg-white/20 text-white/70 hover:text-white opacity-60 hover:opacity-100 transition-all duration-200 border border-white/10">
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          
-          <Button variant="ghost" size="icon" onClick={togglePlayPause} aria-label={isPlaying ? 'Pause slideshow' : 'Play slideshow'} className="bg-white/10 backdrop-blur-md hover:bg-white/20 text-white/70 hover:text-white opacity-60 hover:opacity-100 transition-all duration-200 border border-white/10">
-            {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
-          </Button>
-          
-          <Button variant="ghost" size="icon" onClick={handleNext} aria-label="Next image" className="bg-white/10 backdrop-blur-md hover:bg-white/20 text-white/70 hover:text-white opacity-60 hover:opacity-100 transition-all duration-200 border border-white/10">
-            <ArrowRight className="h-5 w-5" />
-          </Button>
-        </div>
 
         {/* Brand Badge */}
         <div className="absolute bottom-6 left-6 z-20">

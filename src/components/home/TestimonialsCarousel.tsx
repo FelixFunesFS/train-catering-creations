@@ -167,14 +167,14 @@ export const TestimonialsCarousel = () => {
         {/* Testimonial Carousel */}
         <div className={`max-w-4xl mx-auto ${animationClass}`}>
           <Card 
-            className="relative p-5 lg:p-6 bg-white/95 backdrop-blur-md border border-white/20 shadow-2xl overflow-hidden"
+            className="relative p-5 lg:p-6 bg-white/15 backdrop-blur-xl border border-white/30 shadow-2xl ring-1 ring-white/20 overflow-hidden"
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
           >
             {/* Quote Icon */}
             <div className="absolute top-4 left-4 opacity-10">
-              <Quote className="h-12 w-12 lg:h-16 lg:w-16 text-ruby" />
+              <Quote className="h-12 w-12 lg:h-16 lg:w-16 text-white/30" />
             </div>
 
             <div className="relative z-10 space-y-5">
@@ -186,7 +186,7 @@ export const TestimonialsCarousel = () => {
               </div>
 
               {/* Quote */}
-              <blockquote className="text-center text-base lg:text-lg text-foreground leading-relaxed italic">
+              <blockquote className="text-center text-base lg:text-lg text-white leading-relaxed italic">
                 "{currentTestimonial.quote}"
               </blockquote>
 
@@ -201,7 +201,7 @@ export const TestimonialsCarousel = () => {
               {/* Author Info */}
               <div className="text-center space-y-2">
                 <div className="flex items-center justify-center gap-2">
-                  <h4 className="font-elegant font-bold text-foreground text-lg">
+                  <h4 className="font-elegant font-bold text-white text-lg">
                     {currentTestimonial.name}
                   </h4>
                   {currentTestimonial.source === 'facebook' && (
@@ -214,7 +214,7 @@ export const TestimonialsCarousel = () => {
                   </p>
                 )}
                 {currentTestimonial.event && (
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-white/80">
                     {currentTestimonial.event}
                   </p>
                 )}
@@ -233,20 +233,20 @@ export const TestimonialsCarousel = () => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white border border-ruby/20"
+                  className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/20 backdrop-blur-sm hover:bg-white/30 border border-white/30 text-white"
                   onClick={goToPrevious}
                   aria-label="Previous testimonial"
                 >
-                  <ChevronLeft className="h-4 w-4 text-ruby" />
+                  <ChevronLeft className="h-4 w-4" />
                 </Button>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white border border-ruby/20"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/20 backdrop-blur-sm hover:bg-white/30 border border-white/30 text-white"
                   onClick={goToNext}
                   aria-label="Next testimonial"
                 >
-                  <ChevronRight className="h-4 w-4 text-ruby" />
+                  <ChevronRight className="h-4 w-4" />
                 </Button>
               </>
             )}
