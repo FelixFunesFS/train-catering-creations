@@ -49,11 +49,11 @@ const AppContent = () => {
   const isMobile = useIsMobile();
   const isAdminRoute = location.pathname.startsWith('/admin');
   const isQuoteWizardRoute = /^\/request-quote\/(regular|wedding)$/.test(location.pathname);
-  // Hide header/footer for full-page event view
+  // Hide header/footer for full-page event view and quote wizard (all devices)
   const isEventFullView = /^\/admin\/event\/[^/]+$/.test(location.pathname);
   const isEventMenuEdit = /^\/admin\/event\/[^/]+\/menu$/.test(location.pathname);
   const isEstimatePrint = /^\/admin\/estimate-print\/[^/]+$/.test(location.pathname);
-  const hideChrome = isEventFullView || isEventMenuEdit || isEstimatePrint || (isQuoteWizardRoute && isMobile);
+  const hideChrome = isEventFullView || isEventMenuEdit || isEstimatePrint || isQuoteWizardRoute;
 
   const showMobileActionBar = isMobile && !isAdminRoute && !isQuoteWizardRoute;
   
