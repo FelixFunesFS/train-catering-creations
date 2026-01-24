@@ -220,25 +220,25 @@ export const SplitHero = () => {
 
           {/* Controls */}
           <div className="absolute top-4 right-4 z-20 flex space-x-2">
-            <Button variant="ghost" size="icon" onClick={togglePlayPause} className="bg-black/40 backdrop-blur-sm text-white hover:bg-black/50 min-w-[44px] min-h-[44px] shadow-md" aria-label={isPlaying ? 'Pause slideshow' : 'Play slideshow'}>
+            <Button variant="ghost" size="icon" onClick={togglePlayPause} className="bg-black/60 backdrop-blur-sm text-white hover:bg-black/70 min-w-[44px] min-h-[44px] shadow-lg border border-white/20" aria-label={isPlaying ? 'Pause slideshow' : 'Play slideshow'}>
               {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
             </Button>
           </div>
 
           {/* Brand Badge */}
           <div className="absolute top-4 left-4 z-20">
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 bg-black/40 backdrop-blur-sm px-3 py-1.5 rounded-full">
               <Heart className="h-5 w-5 text-white fill-ruby" />
               <span className="text-white font-script text-lg">Soul Train's</span>
             </div>
           </div>
 
           {/* Navigation Arrows */}
-          <button onClick={handlePrevious} className="absolute left-4 top-1/2 transform -translate-y-1/2 z-20 bg-black/40 backdrop-blur-sm text-white hover:bg-black/50 p-2 rounded-full min-w-[44px] min-h-[44px] flex items-center justify-center transition-all duration-200 shadow-md" aria-label="Previous image">
+          <button onClick={handlePrevious} className="absolute left-4 top-1/2 transform -translate-y-1/2 z-20 bg-black/60 backdrop-blur-sm text-white hover:bg-black/70 p-2 rounded-full min-w-[44px] min-h-[44px] flex items-center justify-center transition-all duration-200 shadow-lg border border-white/20" aria-label="Previous image">
             <ArrowLeft className="h-4 w-4" />
           </button>
           
-          <button onClick={handleNext} className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20 bg-black/40 backdrop-blur-sm text-white hover:bg-black/50 p-2 rounded-full min-w-[44px] min-h-[44px] flex items-center justify-center transition-all duration-200 shadow-md" aria-label="Next image">
+          <button onClick={handleNext} className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20 bg-black/60 backdrop-blur-sm text-white hover:bg-black/70 p-2 rounded-full min-w-[44px] min-h-[44px] flex items-center justify-center transition-all duration-200 shadow-lg border border-white/20" aria-label="Next image">
             <ArrowRight className="h-4 w-4" />
           </button>
         </div>
