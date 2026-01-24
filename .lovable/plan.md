@@ -1,194 +1,339 @@
 
-# Mobile Responsiveness Enhancement Plan
+
+# Global Alternating Backgrounds & Full Mobile Audit Plan
 
 ## Executive Summary
-This plan addresses three key mobile UX issues identified during the site-wide responsiveness review:
-1. **Discover Our Work section** uses horizontal scrolling on mobile instead of vertical stacking
-2. **MobileActionBar buttons** may overlap on very small screens due to current sizing
-3. **Potential horizontal overflow** from certain components that need verification
+
+This plan establishes a **site-wide design system** for consistent visual rhythm through standardized section backgrounds, using the existing `PageSection` component and `section-pattern-a/b/c/d` classes. The goal is to create a cohesive experience across ALL pages, not just the home page, while addressing remaining mobile responsiveness issues.
 
 ---
 
-## Issues Identified
+## Part 1: Global Design System
 
-### Issue 1: Discover Our Work - Horizontal Scroll on Mobile
-**Location:** `src/components/gallery/DiscoveryCategoryNav.tsx` (lines 84-132)
+### Current Architecture
 
-**Current Behavior:**
-- Mobile layout uses `overflow-x-auto` with `width: 'max-content'` creating a horizontal scroll experience
-- Cards are fixed at 272px width (`w-72`)
+The site already has a robust foundation:
 
-**Problem:** Horizontal scrolling on mobile is unintuitive for a small number of categories (only 3 categories). Users prefer natural vertical scrolling.
+**Existing CSS Pattern Classes** (in `src/index.css` lines 474-491):
+```text
+section-pattern-a: Ruby-tinted subtle gradient
+section-pattern-b: Platinum/secondary gradient  
+section-pattern-c: Gold-accent gradient
+section-pattern-d: Navy-platinum gradient
+```
 
-**Solution:** Convert mobile layout to vertical stack with full-width cards.
+**PageSection Component** (in `src/components/ui/page-section.tsx`):
+- Accepts `pattern="a|b|c|d"` prop
+- Applies responsive padding `py-6 sm:py-8 lg:py-12`
+- Optional `withBorder` for section separation
 
----
+### Pages Audit - Current State
 
-### Issue 2: MobileActionBar Button Overlap
-**Location:** `src/components/mobile/MobileActionBar.tsx` (lines 54-83)
+| Page | Uses PageSection? | Current Pattern Flow | Status |
+|------|------------------|---------------------|--------|
+| About.tsx | Yes | A - B - C - B - A | Correct |
+| AlternativeGallery.tsx | Yes | Hero - B - A - C - CTA | Correct |
+| FAQ.tsx | Yes | A - B - C - D | Correct |
+| Reviews.tsx | No | Plain sections | Needs Update |
+| RequestQuote.tsx | No | Plain sections | Needs Update |
+| Menu.tsx | Partial | Only contact uses PageSection | Needs Update |
+| WeddingMenu.tsx | No | Inline styling | Needs Update |
+| HomePage.tsx | No | Components use inline bg classes | Needs Update |
 
-**Current Behavior:**
-- Both buttons use `size="responsive-lg"` with `flex-1`
-- `responsive-lg` size includes `px-10` and `sm:px-12` padding
-- On very narrow screens (320px), this padding combined with icon and text may cause overlap
+### Proposed Global Pattern Standard
 
-**Problem:** The combined width of both buttons with generous padding may exceed the viewport on very small devices.
-
-**Solution:** Use more compact button sizing specifically for the mobile action bar, with reduced horizontal padding and smaller text.
-
----
-
-### Issue 3: Horizontal Overflow Prevention
-**Current CSS Foundation:**
-- Root-level `overflow-x: hidden` is properly set in `src/index.css` (lines 318-322)
-- Marquee components use `overflow-hidden` containers
-
-**Potential Risk Areas:**
-- `TrustMarquee` and `BrandMarquee` use `width: 'max-content'` which is intentional for animation but contained within `overflow-hidden`
-- These are correctly implemented and don't cause issues
-
----
-
-## Detailed Implementation
-
-### Change 1: DiscoveryCategoryNav - Vertical Mobile Layout
-
-**File:** `src/components/gallery/DiscoveryCategoryNav.tsx`
+Establish a consistent **A-B alternating rhythm** with C/D for accent sections:
 
 ```text
-Replace the mobile horizontal scroll layout (lines 84-132) with a vertical
-stacked layout:
-
-FROM:
-- Horizontal scrolling container with overflow-x-auto
-- Fixed-width cards (w-72)
-- Flex layout with gap-4
-
-TO:
-- Vertical flex column layout
-- Full-width cards using w-full
-- Space between cards using gap-4 in flex-col direction
-- Container with px-4 padding for edge spacing
-- Cards maintain the same visual design but span full width
-- Reduced card height (h-32 instead of h-40) for mobile efficiency
+Pattern A: Header/CTA sections (Ruby-tinted - warm, inviting)
+Pattern B: Content sections (Platinum/neutral - readable)
+Pattern C: Featured content (Gold accent - highlighting)
+Pattern D: Contact/Footer CTAs (Navy/ruby - action-oriented)
 ```
 
-**Benefits:**
-- Natural vertical scrolling that matches user expectations
-- Better use of screen real estate
-- All 3 categories visible without horizontal interaction
-- Consistent with mobile-first design principles
+**Standard Flow for Multi-Section Pages:**
+```
+Header Section     → Pattern A (or no pattern if hero)
+Primary Content    → Pattern B
+Secondary Content  → Pattern C
+Tertiary Content   → Pattern B (alternating back)
+CTA/Contact        → Pattern D or A
+```
 
 ---
 
-### Change 2: MobileActionBar - Compact Button Sizing
+## Part 2: Implementation by Page
 
-**File:** `src/components/mobile/MobileActionBar.tsx`
+### 2.1 Home Page Components
+
+The home page uses individual components that apply their own backgrounds. Update for consistency:
+
+| Component | Current Background | Proposed Background |
+|-----------|-------------------|---------------------|
+| SplitHero | `bg-background` | Keep (full-bleed hero) |
+| TrustMarquee | `bg-secondary/30` | `bg-secondary/50` (stronger band) |
+| ServiceCategoriesSection | `bg-gradient-pattern-c` | Keep (gold accent) |
+| InteractiveGalleryPreview | `bg-gradient-pattern-b` | `bg-background` (white for contrast) |
+| AboutPreviewSection | `bg-gradient-pattern-d` | Keep (navy accent) |
+| TestimonialsCarousel | `bg-gradient-pattern-a` | `bg-background` (white for readability) |
+| FeaturedVenueSection | `bg-gradient-pattern-a` | Keep (ruby accent, now single use) |
+| BrandMarquee | none | `bg-secondary/30` (matching TrustMarquee) |
+| CTASection | `bg-gradient-primary` | Keep (ruby CTA) |
+
+**Visual Flow After Changes:**
+```text
++---------------------------+
+|       SplitHero           |  bg-background (white)
++---------------------------+
+|     TrustMarquee          |  bg-secondary/50 (light gray band)
++---------------------------+
+| ServiceCategoriesSection  |  bg-gradient-pattern-c (gold)
++---------------------------+
+| InteractiveGalleryPreview |  bg-background (white)
++---------------------------+
+|   AboutPreviewSection     |  bg-gradient-pattern-d (navy)
++---------------------------+
+|  TestimonialsCarousel     |  bg-background (white)
++---------------------------+
+|  FeaturedVenueSection     |  bg-gradient-pattern-a (ruby)
++---------------------------+
+|     BrandMarquee          |  bg-secondary/30 (light gray band)
++---------------------------+
+|       CTASection          |  bg-gradient-primary (ruby)
++---------------------------+
+```
+
+### 2.2 Reviews.tsx
+
+Currently uses plain `<section>` tags. Update to use PageSection:
 
 ```text
-Replace responsive-lg with more compact mobile-specific sizing:
-
-FROM:
-- size="responsive-lg" (min-h-[48px] px-10 py-3)
-
-TO:
-- size="default" with custom compact classes
-- Use min-h-[44px] (WCAG touch target minimum)
-- Reduced horizontal padding (px-4)
-- Smaller text (text-sm)
-- Ensure icons remain visible with h-4 w-4
+FROM: <section className="py-8 lg:py-12">
+TO:   <PageSection pattern="a|b|c">
 ```
 
-**File:** `src/components/ui/button.tsx`
+**Pattern Assignment:**
+- Header section: Pattern A
+- Reviews grid: Pattern B  
+- Feedback section: Pattern C
+- CTA: Keep existing CTASection component
 
-```text
-Add a new "responsive-compact" size variant optimized for dual-button
-action bars on mobile:
+### 2.3 RequestQuote.tsx
 
-New variant:
-"responsive-compact": "min-h-[44px] px-4 py-2.5 text-sm font-semibold
-                       w-full justify-center"
+Currently uses plain `<section>` tags. Minimal changes needed since it's intentionally clean:
 
-Benefits:
-- Meets WCAG 2.2 AA touch target requirements (44px minimum)
-- Reduced padding prevents overflow on 320px screens
-- Smaller text maintains readability while conserving space
+**Keep current structure** but ensure:
+- Responsive padding is applied via existing classes
+- No pattern needed (clean form-focused layout)
+
+### 2.4 Menu.tsx
+
+Currently uses inline section styling. Update contact section:
+
+**Current (line 154):**
+```tsx
+<PageSection withBorder>
 ```
+
+**Proposed:**
+```tsx
+<PageSection pattern="a" withBorder>
+```
+
+### 2.5 WeddingMenu.tsx
+
+Currently uses inline styling (`bg-muted/10`). This page has a unique elegant aesthetic:
+
+**Keep current structure** - the wedding menu intentionally differs with its "paper texture" background for an elegant, formal feel that matches wedding events.
 
 ---
 
-### Change 3: Global Overflow Safeguards
+## Part 3: CSS Enhancements
 
-**Files to verify/update:** Various components
+### 3.1 Subtle Section Divider Utility
 
-```text
-Audit and ensure all potentially wide elements have:
-1. max-w-full or width constraints
-2. break-words or text truncation where needed
-3. No elements with fixed widths that exceed viewport
+Add a reusable decorative divider class for elegant section transitions:
 
-Components confirmed safe:
-- Marquees: Properly contained in overflow-hidden
-- Hero sections: Use percentage-based sizing
-- Cards: Use responsive grid layouts
+**File:** `src/index.css` (add around line 510)
 
-No additional changes needed for horizontal overflow.
+```css
+/* Subtle centered section divider */
+.section-divider-subtle {
+  position: relative;
+  padding-top: 1rem;
+}
+
+.section-divider-subtle::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, hsla(var(--primary), 0.25), transparent);
+  border-radius: 1px;
+}
 ```
+
+This can be optionally added to any section that needs extra visual separation.
 
 ---
 
-## Files to Modify
+## Part 4: Full Mobile Audit
 
-| File | Change | Priority |
-|------|--------|----------|
-| `src/components/gallery/DiscoveryCategoryNav.tsx` | Vertical mobile layout | High |
-| `src/components/mobile/MobileActionBar.tsx` | Compact button sizing | High |
-| `src/components/ui/button.tsx` | Add responsive-compact variant | High |
+### Issues Identified & Fixes
+
+#### Issue 1: InteractiveGalleryPreview Mobile Story Height
+**Location:** `src/components/home/InteractiveGalleryPreview.tsx` (line 184)
+
+**Current:** `h-[70vh]` may be too tall on short mobile screens
+**Fix:** Change to `h-[65vh] min-h-[400px] max-h-[600px]`
+
+#### Issue 2: QuoteFormSelector Card Padding
+**Location:** `src/components/quote/QuoteFormSelector.tsx` (lines 28, 70)
+
+**Current:** Fixed `p-8` padding
+**Fix:** Responsive padding `p-5 sm:p-6 lg:p-8`
+
+#### Issue 3: CTA Section Button Width
+**Location:** `src/components/ui/cta-section.tsx` (lines 62, 101)
+
+**Current:** `w-3/5` may be too narrow on some mobiles
+**Fix:** Change to `w-4/5 sm:w-auto`
+
+#### Issue 4: TrustMarquee Contrast
+**Location:** `src/components/home/TrustMarquee.tsx` (line 43)
+
+**Current:** `bg-secondary/30` is subtle
+**Fix:** Increase to `bg-secondary/50`
+
+### Items Verified as Working
+
+The following were audited and confirmed responsive:
+
+- Header/Navigation: Mobile menu functions correctly
+- Footer: 4-col desktop, 2-col tablet, 1-col mobile grid works
+- SplitHero: Proper mobile/desktop layouts with swipe
+- MobileActionBar: Now uses responsive-compact buttons (previously fixed)
+- DiscoveryCategoryNav: Vertical stacking on mobile (previously fixed)
+- ServiceCategoriesSection: 3-col to 1-col grid stacking works
+- TestimonialsCarousel: Swipe navigation works
+- All touch targets meet 44px WCAG minimum
 
 ---
 
-## Technical Details
+## Part 5: Files to Modify
 
-### DiscoveryCategoryNav Mobile Layout
-```
-Mobile (isMobile = true):
-- Container: flex flex-col gap-4 px-4
-- Cards: w-full h-32 rounded-xl
-- Remove overflow-x-auto and width: max-content
-- Keep existing card design (image, gradient, text overlay)
-```
-
-### MobileActionBar Button Changes
-```
-Button container:
-- Keep flex gap-2 layout
-- Buttons: flex-1 with compact sizing
-
-Button styling:
-- size="responsive-compact" (new variant)
-- min-h-[44px] for touch accessibility
-- px-4 py-2.5 text-sm
-- Icons: h-4 w-4 (unchanged)
-```
-
-### Button Variant Addition
-```typescript
-"responsive-compact": "min-h-[44px] px-4 py-2.5 text-sm font-semibold 
-                       w-full justify-center"
-```
+| File | Change Type | Priority |
+|------|-------------|----------|
+| `src/index.css` | Add section-divider-subtle class | Medium |
+| `src/components/home/InteractiveGalleryPreview.tsx` | Background + mobile height | High |
+| `src/components/home/TestimonialsCarousel.tsx` | Background change | High |
+| `src/components/home/TrustMarquee.tsx` | Increase opacity | High |
+| `src/components/home/BrandMarquee.tsx` | Add background | High |
+| `src/pages/Reviews.tsx` | Add PageSection wrappers | Medium |
+| `src/pages/Menu.tsx` | Add pattern to contact PageSection | Low |
+| `src/components/quote/QuoteFormSelector.tsx` | Responsive padding | High |
+| `src/components/ui/cta-section.tsx` | Button width adjustment | High |
 
 ---
 
-## Testing Checklist
+## Part 6: Technical Implementation Details
 
-After implementation, verify on:
-- iPhone SE (320px width) - smallest common viewport
-- iPhone 12/13 (390px width) - standard iPhone
-- Samsung Galaxy (360px width) - common Android
-- Tablets in portrait mode (768px width)
+### Change 1: index.css - Section Divider
 
-Test scenarios:
-1. Gallery page: Discover Our Work cards stack vertically
-2. All pages: MobileActionBar buttons don't overlap
-3. All pages: No horizontal scrollbar appears
-4. Touch targets: All buttons meet 44px minimum
+Add after line 491:
+```css
+/* Subtle centered section divider */
+.section-divider-subtle {
+  position: relative;
+  padding-top: 1rem;
+}
+
+.section-divider-subtle::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, hsla(var(--primary), 0.25), transparent);
+  border-radius: 1px;
+}
+```
+
+### Change 2: InteractiveGalleryPreview.tsx
+
+Line 138: `bg-gradient-pattern-b` → `bg-background`
+Line 184: `h-[70vh]` → `h-[65vh] min-h-[400px] max-h-[600px]`
+
+### Change 3: TestimonialsCarousel.tsx
+
+Line 135: `bg-gradient-pattern-a` → `bg-background`
+
+### Change 4: TrustMarquee.tsx
+
+Line 43: `bg-secondary/30` → `bg-secondary/50`
+
+### Change 5: BrandMarquee.tsx
+
+Line 63 (inner div): Add `bg-secondary/30`
+
+### Change 6: QuoteFormSelector.tsx
+
+Lines 28, 70: `p-8` → `p-5 sm:p-6 lg:p-8`
+
+### Change 7: cta-section.tsx
+
+Lines 62, 101: `w-3/5` → `w-4/5 sm:w-auto`
+
+### Change 8: Reviews.tsx
+
+Wrap sections with PageSection component:
+- Header section: `<PageSection pattern="a">`
+- Reviews grid section: `<PageSection pattern="b">`
+- Feedback section: `<PageSection pattern="c">`
+
+### Change 9: Menu.tsx
+
+Line 154: `<PageSection withBorder>` → `<PageSection pattern="a" withBorder>`
+
+---
+
+## Part 7: Testing Checklist
+
+### Visual Rhythm Verification
+1. Navigate through all pages and verify alternating backgrounds create clear separation
+2. Ensure no two adjacent sections use the same gradient pattern (except intentional white sections)
+3. Verify marquee bands (Trust/Brand) are visually distinct
+
+### Mobile Testing (Viewports)
+- iPhone SE: 320px width (smallest common)
+- iPhone 14: 390px width (standard)
+- Galaxy S21: 360px width (Android)
+- iPad Mini: 768px portrait
+
+### Functionality Checks
+- Hero carousel swipe works
+- Testimonial swipe works  
+- Gallery story view works
+- All CTAs are tappable
+- No horizontal overflow on any page
+- Touch targets meet 44px minimum
+
+---
+
+## Summary
+
+This plan creates a cohesive global design system by:
+
+1. **Standardizing backgrounds** using the existing PageSection pattern system across all pages
+2. **Creating visual rhythm** through A-B alternating patterns with C/D accents
+3. **Adding subtle enhancements** like the section-divider-subtle utility
+4. **Fixing mobile issues** including story height, padding, and button widths
+5. **Maintaining intentional exceptions** (WeddingMenu's elegant paper texture)
+
+The changes are non-breaking and focus on visual consistency while preserving all existing functionality.
+
