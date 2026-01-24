@@ -55,20 +55,20 @@ export function MobileActionBar({ className }: MobileActionBarProps) {
         <Button
           asChild
           variant="cta"
-          size="responsive-lg"
+          size="responsive-compact"
           className="flex-1"
           tabIndex={hidden ? -1 : 0}
         >
           <Link to="/request-quote" aria-label="Request a quote">
             <Sparkles className="h-4 w-4" />
-            Request Quote
+            Quote
           </Link>
         </Button>
 
         <Button
           asChild
           variant="outline"
-          size="responsive-lg"
+          size="responsive-compact"
           className="flex-1"
           tabIndex={hidden ? -1 : 0}
         >
@@ -77,7 +77,7 @@ export function MobileActionBar({ className }: MobileActionBarProps) {
             aria-label="Text Soul Train's Eatery"
           >
             <MessageSquareText className="h-4 w-4" />
-            Text Us
+            Text
           </a>
         </Button>
       </div>

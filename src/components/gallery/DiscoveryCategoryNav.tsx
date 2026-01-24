@@ -82,53 +82,52 @@ export const DiscoveryCategoryNav = ({
         className={`${useAnimationClass(categoriesVariant, categoriesVisible)}`}
       >
         {isMobile ? (
-          // Mobile: Horizontal scrolling cards
-          <div className="overflow-x-auto pb-4">
-            <div className="flex gap-4 px-4" style={{ width: 'max-content' }}>
-              {galleryCategories.map((category) => {
-                const previewImage = getCategoryPreviewImage(category.id);
-                const imageCount = getCategoryImageCount(category.id);
-                const isSelected = selectedCategory === category.id;
-                
-                return (
-                  <div
-                    key={category.id}
-                    className={`relative flex-shrink-0 w-72 h-40 rounded-xl overflow-hidden cursor-pointer transition-all duration-300 ${
-                      isSelected 
-                        ? 'ring-2 ring-primary ring-offset-2 shadow-glow' 
-                        : 'hover:shadow-elevated hover:scale-105'
-                    }`}
-                    onClick={() => onCategorySelect(category.id)}
-                  >
-                    <OptimizedImage
-                      src={previewImage}
-                      alt={category.name}
-                      className="w-full h-full object-cover"
-                      containerClassName="w-full h-full"
-                    />
-                    
-                    <div className="absolute inset-0 bg-gradient-to-t from-navy-dark/80 via-navy-dark/20 to-transparent" />
-                    
-                    <div className="absolute bottom-0 left-0 right-0 p-4">
-                      <div className="flex items-center gap-2 mb-2">
+          // Mobile: Vertical stacked cards
+          <div className="flex flex-col gap-4 px-4">
+            {galleryCategories.map((category) => {
+              const previewImage = getCategoryPreviewImage(category.id);
+              const imageCount = getCategoryImageCount(category.id);
+              const isSelected = selectedCategory === category.id;
+              
+              return (
+                <div
+                  key={category.id}
+                  className={`relative w-full h-32 rounded-xl overflow-hidden cursor-pointer transition-all duration-300 ${
+                    isSelected 
+                      ? 'ring-2 ring-primary ring-offset-2 shadow-glow' 
+                      : 'hover:shadow-elevated active:scale-[0.98]'
+                  }`}
+                  onClick={() => onCategorySelect(category.id)}
+                >
+                  <OptimizedImage
+                    src={previewImage}
+                    alt={category.name}
+                    className="w-full h-full object-cover"
+                    containerClassName="w-full h-full"
+                  />
+                  
+                  <div className="absolute inset-0 bg-gradient-to-t from-navy-dark/80 via-navy-dark/20 to-transparent" />
+                  
+                  <div className="absolute bottom-0 left-0 right-0 p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
                         {getCategoryIcon(category.id)}
                         <h3 className="font-elegant font-semibold text-white text-lg">
                           {category.name}
                         </h3>
                       </div>
-                      
-                      <p className="text-white/80 text-sm line-clamp-2">
-                        {category.description}
-                      </p>
-                      
-                      <p className="text-white/60 text-xs mt-1">
+                      <p className="text-white/60 text-xs">
                         {imageCount} images
                       </p>
                     </div>
+                    
+                    <p className="text-white/80 text-sm line-clamp-1 mt-1">
+                      {category.description}
+                    </p>
                   </div>
-                );
-              })}
-            </div>
+                </div>
+              );
+            })}
           </div>
         ) : (
           // Desktop: Grid layout
