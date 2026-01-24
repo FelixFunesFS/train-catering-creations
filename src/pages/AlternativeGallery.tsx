@@ -92,6 +92,9 @@ const AlternativeGallery = () => {
 
   return (
     <div className="min-h-screen bg-gradient-hero">
+      {/* Service Marquee - Above Hero */}
+      <ServiceMarquee />
+      
       {/* Mobile-First Hero Section */}
       <PageSection pattern="a" skipToContentId="gallery-hero" className="py-0">
         <div ref={heroRef} className={useAnimationClass(heroVariant, heroVisible)}>
@@ -118,9 +121,6 @@ const AlternativeGallery = () => {
           </div>
         </div>
       </PageSection>
-
-      {/* Service Marquee */}
-      <ServiceMarquee />
       
       {/* Dynamic Content Based on View Mode */}
       <PageSection pattern="c" withBorder>

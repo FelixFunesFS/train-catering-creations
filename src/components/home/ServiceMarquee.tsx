@@ -30,7 +30,7 @@ export const ServiceMarquee = () => {
   );
 
   return (
-    <div className="w-full relative overflow-hidden py-3 lg:py-4 border-b border-border/20">
+    <div className="w-full relative overflow-hidden py-4 sm:py-5 lg:py-6 border-b border-border/30 bg-background">
       <div 
         ref={ref}
         className={`flex items-center whitespace-nowrap ${className}`}
