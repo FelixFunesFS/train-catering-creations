@@ -1,117 +1,157 @@
 
-
-# Gallery Page Branded Header Update
+# Hero Section Mobile UX Fixes
 
 ## Overview
 
-Update the gallery page's "Family Story" section to use the branded badge + script subtitle pattern, matching all other pages. The immersive hero remains unchanged as the primary visual element.
+Fix four issues with the home page hero section:
+1. Remove duplicate "Get Quote" floating badge on mobile
+2. Fix hamburger menu contrast (white on white)
+3. Fix play/pause button contrast on mobile
+4. Remove desktop bouncing scroll arrow
 
 ---
 
-## Current State Analysis
+## Issue 1: Remove Extra "Get Quote" Button on Mobile
 
-The gallery page has a unique structure with an immersive photo hero. The **Family Story section** (lines 83-95 in `AlternativeGallery.tsx`) currently uses plain styling without the branded pattern:
+**File: `src/components/home/SplitHero.tsx`**
 
+The mobile view currently has TWO quote CTAs:
+- Floating "Get Quote" badge over the image (lines 245-254)
+- Main "Request Quote" button in content area (lines 278-284)
+
+**Solution**: Remove the floating badge since the main CTA buttons are already within viewport in the content section.
+
+### Lines to Remove (245-254):
 ```tsx
-<h2 className="font-elegant font-bold mb-4">
-  From Our Family Kitchen to Your Special Event
-</h2>
-<p className="text-muted-foreground">
-  As a family-run catering company...
-</p>
+// DELETE THIS ENTIRE BLOCK:
+{/* Floating CTA Badge - Always visible on mobile */}
+<Link 
+  to="/request-quote"
+  className="absolute bottom-4 right-4 z-30 flex items-center gap-2 px-4 py-2.5 bg-ruby/90 backdrop-blur-sm text-white rounded-full shadow-lg hover:bg-ruby transition-all duration-200 min-h-[44px] animate-pulse hover:animate-none"
+  aria-label="Request a quote"
+>
+  <Sparkles className="h-4 w-4" />
+  <span className="font-semibold text-sm">Get Quote</span>
+</Link>
 ```
+
+Also remove the `Sparkles` import since it's only used for that badge (line 6).
 
 ---
 
-## Proposed Change
+## Issue 2: Fix Hamburger Menu Contrast
 
-Add the branded badge + script subtitle pattern to the Family Story section:
+**File: `src/components/Header.tsx`**
 
-**File: `src/pages/AlternativeGallery.tsx`**
+The hamburger icon uses hardcoded `stroke="white"` which doesn't adapt to the light background.
 
-### Updated Family Story Section (lines 83-95):
-
+### Current (line 77):
 ```tsx
-import { Badge } from "@/components/ui/badge";
-import { Camera } from "lucide-react";
+<svg className="h-10 w-10 md:h-12 md:w-12" fill="none" stroke="white" strokeWidth={2.5} viewBox="0 0 24 24" aria-hidden="true">
+```
 
-// Inside the render (lines 83-95):
-<PageSection pattern="b" className="py-8 sm:py-12">
-  <div className="max-w-3xl mx-auto text-center px-4">
-    {/* NEW: Badge + Icon (matching home page pattern) */}
-    <div className="flex items-center justify-center space-x-2 mb-3">
-      <Camera className="h-5 w-5 text-ruby" />
-      <Badge variant="outline" className="border-ruby text-ruby font-script text-sm">
-        Our Gallery
-      </Badge>
-    </div>
-    
-    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant font-bold mb-3">
-      From Our Family Kitchen to Your Special Event
-    </h2>
-    
-    {/* NEW: Script subtitle */}
-    <p className="text-xl sm:text-2xl font-script text-ruby font-medium mb-3">
-      Memories in Every Bite
-    </p>
-    
-    <p className="text-muted-foreground text-base sm:text-lg leading-relaxed">
-      As a family-run catering company rooted in authentic Southern cooking, we take pride in bringing 
-      people together around exceptional food. Every event we cater receives the same love and attention 
-      we put into feeding our own family.
-    </p>
-  </div>
-</PageSection>
+### Updated:
+```tsx
+<svg className="h-10 w-10 md:h-12 md:w-12" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24" aria-hidden="true">
+```
+
+This uses `currentColor` which inherits from the parent's `text-foreground` class (already on the Button), ensuring proper contrast in both light and dark modes.
+
+---
+
+## Issue 3: Fix Play/Pause Button Contrast on Mobile
+
+**File: `src/components/home/SplitHero.tsx`**
+
+The play/pause button uses `text-white` but may lack contrast on lighter image areas.
+
+### Current (lines 222-226):
+```tsx
+<Button variant="ghost" size="icon" onClick={togglePlayPause} className="bg-black/20 backdrop-blur-sm text-white hover:bg-black/30 min-w-[44px] min-h-[44px]" aria-label={isPlaying ? 'Pause slideshow' : 'Play slideshow'}>
+```
+
+### Updated:
+```tsx
+<Button variant="ghost" size="icon" onClick={togglePlayPause} className="bg-black/40 backdrop-blur-sm text-white hover:bg-black/50 min-w-[44px] min-h-[44px] shadow-md" aria-label={isPlaying ? 'Pause slideshow' : 'Play slideshow'}>
+```
+
+**Changes:**
+- Increased background opacity: `bg-black/20` → `bg-black/40`
+- Increased hover opacity: `bg-black/30` → `bg-black/50`
+- Added `shadow-md` for additional separation
+
+### Also update navigation arrows (lines 237-243):
+```tsx
+// Left arrow
+<button onClick={handlePrevious} className="absolute left-4 top-1/2 transform -translate-y-1/2 z-20 bg-black/40 backdrop-blur-sm text-white hover:bg-black/50 p-2 rounded-full min-w-[44px] min-h-[44px] flex items-center justify-center transition-all duration-200 shadow-md" aria-label="Previous image">
+
+// Right arrow  
+<button onClick={handleNext} className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20 bg-black/40 backdrop-blur-sm text-white hover:bg-black/50 p-2 rounded-full min-w-[44px] min-h-[44px] flex items-center justify-center transition-all duration-200 shadow-md" aria-label="Next image">
 ```
 
 ---
 
-## Visual Comparison
+## Issue 4: Remove Desktop Bouncing Arrow
 
-### Before (Current)
-```text
-From Our Family Kitchen to Your Special Event
+**File: `src/components/home/SplitHero.tsx`**
 
-As a family-run catering company...
+### Lines to Remove (408-413):
+```tsx
+// DELETE THIS ENTIRE BLOCK:
+{/* Scroll Indicator */}
+<div className="absolute bottom-8 right-8 z-20">
+  <Button variant="ghost" size="icon" onClick={handleScrollToDiscover} className="bg-muted/50 backdrop-blur-sm text-foreground hover:bg-muted animate-bounce" aria-label="Scroll to next section">
+    <ChevronDown className="h-5 w-5" />
+  </Button>
+</div>
 ```
 
-### After (Branded)
-```text
-    [📷 Our Gallery]              ← NEW badge with icon
-    
-From Our Family Kitchen to        ← Same elegant title
-   Your Special Event
-   
-  Memories in Every Bite          ← NEW script subtitle
-
-As a family-run catering company...  ← Same description
-```
+This removes the distracting bouncing arrow on desktop while keeping the scroll indicator on mobile (inside the content area, lines 293-298) which is more contextually appropriate.
 
 ---
 
-## Files to Modify
+## Summary of Changes
 
-| File | Changes |
-|------|---------|
-| `src/pages/AlternativeGallery.tsx` | Add Badge import, Camera icon, badge markup, script subtitle |
-
----
-
-## Cleanup: Unused GalleryHeader Component
-
-The `src/components/gallery/GalleryHeader.tsx` file exists but is not used anywhere in the codebase. It can be safely deleted to reduce dead code.
-
-| File | Action |
+| File | Change |
 |------|--------|
-| `src/components/gallery/GalleryHeader.tsx` | Delete (unused) |
+| `src/components/home/SplitHero.tsx` | Remove floating "Get Quote" badge, remove Sparkles import, increase control button contrast, remove desktop scroll arrow |
+| `src/components/Header.tsx` | Change hamburger `stroke="white"` to `stroke="currentColor"` |
 
 ---
 
-## Technical Notes
+## Visual Before/After
 
-- The immersive hero remains unchanged (it's a unique gallery-specific feature)
-- Badge styling matches exactly: `border-ruby text-ruby font-script text-sm`
-- Script subtitle matches: `font-script text-ruby font-medium`
-- Camera icon chosen to match gallery theme (consistent with hero)
-- Subtitle "Memories in Every Bite" reinforces the emotional connection to food events
+### Mobile Hero Controls (Before):
+```text
+┌─────────────────────────────────────┐
+│ [Soul Train's]     [⏯ light btn]   │
+│                                     │
+│  [◀]              [▶]               │
+│                                     │
+│              [✨ Get Quote] (pulse) │ ← REMOVE
+└─────────────────────────────────────┘
+│ Content with [Request Quote] [Call] │ ← KEEP
+```
 
+### Mobile Hero Controls (After):
+```text
+┌─────────────────────────────────────┐
+│ [Soul Train's]     [⏯ dark btn]    │ ← Better contrast
+│                                     │
+│  [◀]              [▶]               │ ← Better contrast
+│                                     │
+└─────────────────────────────────────┘
+│ Content with [Request Quote] [Call] │ ← Single CTA area
+```
+
+### Header Hamburger (Before/After):
+```text
+Before: stroke="white" → invisible on white header
+After:  stroke="currentColor" → inherits text-foreground color
+```
+
+### Desktop Layout (Before/After):
+```text
+Before: [↓] bouncing arrow bottom-right
+After:  Clean layout, no distracting animation
+```
