@@ -1,234 +1,233 @@
 
-# Menu Page Improvements
+# Wedding Menu Descriptions, Elegant Typography, and Color Fixes
 
 ## Overview
 
-This plan addresses four key issues with the current menu page:
-1. Add a toggle to switch between Regular and Wedding menus
-2. Remove asterisks and red-highlighted "popular" item cards
-3. Remove the duplicate "Custom Menu Planning" CTA section
-4. Fix the crimson red background to match the footer's solid color
+This plan addresses four issues on the menu page:
+1. Display descriptions for wedding menu items
+2. Use elegant script font for wedding menu section titles
+3. Remove faded overlay affecting page visibility
+4. Fix the CTA "Call" button visibility to match other pages
 
 ---
 
-## Current Issues Identified
+## Issue Analysis
 
-### Issue 1: No Wedding Menu Toggle
-The simplified menu currently only displays regular menu items with no way to access the wedding menu data (`weddingMenuItems` from `menuData.ts`).
+### Issue 1: Wedding Descriptions Not Showing
+The `CompactMenuItem` component only displays `name`. Wedding menu items in `weddingMenuItems` have rich `description` fields that should be shown for the elegant wedding experience.
 
-### Issue 2: Asterisks and Red Card Styling
-`CompactMenuItem.tsx` shows popular items with:
-- A star icon in the top-right corner
-- Red-tinted card background (`ring-1 ring-primary/20 bg-primary/5`)
+### Issue 2: Wedding Section Titles Need Elegant Font
+When viewing the wedding menu, section headers like "Appetizers", "Entrées" should use `font-script` (Dancing Script) for an elegant, wedding-invitation feel.
 
-### Issue 3: Duplicate CTA Sections
-The page has two CTA sections:
-- `MenuCTASection`: "Ready to Plan Your Event?" with Request Quote + Call buttons
-- `MenuContact`: "Custom Menu Planning" with Call + Email buttons
+### Issue 3: Decorative Overlays Fading Content
+Lines 94-96 in `SimplifiedMenu.tsx` contain:
+```tsx
+<div className="absolute inset-0 bg-gradient-to-br from-background/50 to-accent/5 pointer-events-none" />
+<div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/2 rounded-full blur-3xl pointer-events-none" />
+<div className="absolute bottom-1/3 right-1/4 w-64 h-64 bg-accent/3 rounded-full blur-2xl pointer-events-none" />
+```
+These create a subtle wash over the entire page that makes the crimson CTA appear faded compared to the footer.
 
-### Issue 4: Faded Crimson Background
-The CTA sections use `bg-gradient-primary` which appears lighter/faded compared to the footer's solid `bg-gradient-to-r from-primary to-primary-dark`.
+### Issue 4: Call Button Nearly Invisible
+The menu CTA uses `border-primary-foreground/50` for the outline button, but the home page CTA uses `cta-white` variant which provides much better contrast.
 
 ---
 
 ## Solution Design
 
-### Change 1: Add Menu Style Toggle
+### Change 1: Add Description to CompactMenuItem
 
-Add a simple toggle above the menu categories to switch between "Catering Menu" and "Wedding Menu":
+**File: `src/components/menu/CompactMenuItem.tsx`**
 
-```text
-+------------------------------------------+
-|  [ Catering Menu ]  [ Wedding Menu ]     |
-+------------------------------------------+
-```
-
-**Implementation:**
-- Add state to `SimplifiedMenu.tsx` to track active menu style
-- Conditionally load either `menuData` (regular) or `weddingMenuItems` (wedding)
-- Create a simple pill-toggle component inline (no separate file needed)
-
-### Change 2: Remove Popular Item Highlighting
-
-**File:** `src/components/menu/CompactMenuItem.tsx`
-
-Remove:
-- The `isPopular` prop handling
-- Star icon display
-- Red ring/background styling for popular items
-
-**After:** All menu items will have the same clean, neutral appearance.
-
-### Change 3: Consolidate CTAs
-
-**Remove:** `MenuContact.tsx` import and usage from `SimplifiedMenu.tsx`
-
-**Keep:** `MenuCTASection` with "Ready to Plan Your Event?" content
-
-This eliminates the redundant second CTA at the bottom.
-
-### Change 4: Fix Crimson Background Color
-
-**File:** `src/components/menu/MenuCTASection.tsx`
-
-Update the background class from pattern/gradient to use the solid crimson gradient matching the footer:
+Add optional `description` prop and display it below the name when provided:
 
 ```tsx
-// FROM (faded):
-<PageSection pattern="a" withBorder>
+interface CompactMenuItemProps {
+  name: string;
+  description?: string;  // NEW
+  className?: string;
+}
 
-// TO (solid crimson):
-<section className="bg-gradient-to-r from-primary to-primary-dark ...">
-```
-
-Also update `src/components/ui/cta-section.tsx` to ensure consistent solid crimson backgrounds across all CTA sections.
-
----
-
-## Detailed File Changes
-
-### File 1: `src/pages/SimplifiedMenu.tsx`
-
-1. **Add state for menu style toggle:**
-```tsx
-const [menuStyle, setMenuStyle] = useState<'regular' | 'wedding'>('regular');
-```
-
-2. **Import wedding menu data:**
-```tsx
-import { menuData, weddingMenuItems, MenuItem, MenuSection } from "@/data/menuData";
-```
-
-3. **Add toggle UI below the header:**
-```tsx
-<div className="flex justify-center mb-6">
-  <div className="inline-flex bg-muted rounded-full p-1">
-    <button
-      onClick={() => setMenuStyle('regular')}
-      className={cn(
-        "px-6 py-2 rounded-full text-sm font-medium transition-all",
-        menuStyle === 'regular'
-          ? "bg-primary text-white shadow-sm"
-          : "text-muted-foreground hover:text-foreground"
-      )}
-    >
-      Catering Menu
-    </button>
-    <button
-      onClick={() => setMenuStyle('wedding')}
-      className={cn(
-        "px-6 py-2 rounded-full text-sm font-medium transition-all",
-        menuStyle === 'wedding'
-          ? "bg-primary text-white shadow-sm"
-          : "text-muted-foreground hover:text-foreground"
-      )}
-    >
-      Wedding Menu
-    </button>
-  </div>
-</div>
-```
-
-4. **Conditionally select menu data based on style:**
-```tsx
-const getCategories = () => {
-  if (menuStyle === 'wedding') {
-    return [
-      { id: "appetizers", title: "Appetizers", subtitle: "Elegant starters", items: weddingMenuItems.appetizers },
-      { id: "entrees", title: "Entrées", subtitle: "Signature main courses", items: weddingMenuItems.entrees },
-      { id: "sides", title: "Sides", subtitle: "Perfect accompaniments", items: weddingMenuItems.sides },
-      { id: "desserts", title: "Desserts", subtitle: "Sweet finales", items: weddingMenuItems.desserts },
-    ];
-  }
-  return [ /* existing regular menu categories */ ];
-};
-```
-
-5. **Remove `MenuContact` import and usage** (line 5 and line 101)
-
-### File 2: `src/components/menu/CompactMenuItem.tsx`
-
-**Remove:**
-- `isPopular` prop from interface
-- Star icon import and rendering
-- Conditional red styling (`ring-1 ring-primary/20 bg-primary/5`)
-
-**Result:** Clean, uniform item cards without highlighting.
-
-### File 3: `src/components/menu/MenuCTASection.tsx`
-
-**Replace the entire component** to use solid crimson background matching the footer:
-
-```tsx
-export const MenuCTASection = () => {
-  const { ref, isVisible, variant } = useScrollAnimation({...});
-
+export const CompactMenuItem = ({ 
+  name, 
+  description,  // NEW
+  className 
+}: CompactMenuItemProps) => {
   return (
-    <section className="py-12 lg:py-16">
-      <div className="mx-4 sm:mx-6 lg:mx-8 rounded-2xl overflow-hidden">
-        <div className="bg-gradient-to-r from-primary to-primary-dark py-10 lg:py-14">
-          <div ref={ref} className={useAnimationClass(variant, isVisible)}>
-            <div className="text-center space-y-6 max-w-3xl mx-auto px-6">
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant font-bold text-white">
-                Ready to Plan Your Event?
-              </h2>
-              <p className="text-white/90 max-w-xl mx-auto text-base sm:text-lg leading-relaxed">
-                Browse our menu and let us create a custom quote for your special
-                occasion. We'll work with you to craft the perfect menu.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-2">
-                <Button asChild variant="cta-white" size="responsive-lg">
-                  <Link to="/request-quote#page-header">Request a Free Quote</Link>
-                </Button>
-                <Button asChild variant="outline" size="responsive-lg" className="border-white text-white hover:bg-white hover:text-primary">
-                  <a href="tel:8439700265">Call (843) 970-0265</a>
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
+    <div className={cn(...)}>
+      <div className="flex-1">
+        <h4 className="font-medium text-foreground ...">
+          {name}
+        </h4>
+        {description && (
+          <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+            {description}
+          </p>
+        )}
       </div>
-    </section>
+    </div>
   );
 };
 ```
 
-### File 4: `src/components/ui/cta-section.tsx` (Optional - for consistency)
+### Change 2: Pass Description from CollapsibleCategory
 
-Update the background from `bg-gradient-primary` to `bg-gradient-to-r from-primary to-primary-dark` for consistent solid crimson across all CTA sections site-wide.
+**File: `src/components/menu/CollapsibleCategory.tsx`**
+
+Update the `CompactMenuItem` usage to pass the description:
+
+```tsx
+{visibleItems.map((item) => (
+  <CompactMenuItem
+    key={item.id}
+    name={item.name}
+    description={item.description}  // NEW
+  />
+))}
+```
+
+### Change 3: Add Elegant Font for Wedding Mode
+
+**File: `src/components/menu/CollapsibleCategory.tsx`**
+
+Add a prop to indicate wedding mode and apply `font-script` to titles:
+
+```tsx
+interface CollapsibleCategoryProps {
+  id: string;
+  title: string;
+  subtitle: string;
+  items: MenuItem[];
+  defaultExpanded?: boolean;
+  initialItemCount?: number;
+  isWeddingMode?: boolean;  // NEW
+}
+
+// In the component:
+<h2 className={cn(
+  "text-lg sm:text-xl font-semibold text-foreground",
+  isWeddingMode ? "font-script text-xl sm:text-2xl" : "font-elegant"
+)}>
+  {title}
+</h2>
+```
+
+**File: `src/pages/SimplifiedMenu.tsx`**
+
+Pass the wedding mode prop:
+
+```tsx
+<CollapsibleCategory
+  key={`${menuStyle}-${category.id}`}
+  id={category.id}
+  title={category.title}
+  subtitle={category.subtitle}
+  items={category.items}
+  defaultExpanded={index === 0}
+  isWeddingMode={menuStyle === 'wedding'}  // NEW
+/>
+```
+
+### Change 4: Remove Decorative Overlays
+
+**File: `src/pages/SimplifiedMenu.tsx`**
+
+Remove or significantly reduce the faded overlay elements (lines 94-96):
+
+**BEFORE:**
+```tsx
+{/* Decorative background elements */}
+<div className="absolute inset-0 bg-gradient-to-br from-background/50 to-accent/5 pointer-events-none" />
+<div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/2 rounded-full blur-3xl pointer-events-none" />
+<div className="absolute bottom-1/3 right-1/4 w-64 h-64 bg-accent/3 rounded-full blur-2xl pointer-events-none" />
+```
+
+**AFTER:**
+Remove these entirely, or make them extremely subtle so they don't affect the CTA:
+```tsx
+{/* Subtle background accent - does not affect content visibility */}
+<div className="absolute top-0 right-0 w-72 h-72 bg-primary/[0.02] rounded-full blur-3xl pointer-events-none" />
+```
+
+### Change 5: Fix Call Button Visibility
+
+**File: `src/components/menu/MenuCTASection.tsx`**
+
+Change the outline button to use full white border like the home page:
+
+**BEFORE:**
+```tsx
+<Button 
+  asChild 
+  variant="outline" 
+  size="responsive-lg" 
+  className="border-primary-foreground/50 text-primary-foreground hover:bg-primary-foreground hover:text-primary"
+>
+```
+
+**AFTER:**
+```tsx
+<Button 
+  asChild 
+  variant="outline" 
+  size="responsive-lg" 
+  className="border-white border-2 text-white bg-transparent hover:bg-white hover:text-primary"
+>
+```
 
 ---
 
-## Files Summary
+## Files to Modify
 
-| File | Action | Changes |
-|------|--------|---------|
-| `src/pages/SimplifiedMenu.tsx` | Modify | Add toggle state, wedding data, remove MenuContact |
-| `src/components/menu/CompactMenuItem.tsx` | Modify | Remove isPopular prop and styling |
-| `src/components/menu/MenuCTASection.tsx` | Modify | Use solid crimson gradient background |
-| `src/components/ui/cta-section.tsx` | Modify | Update to solid crimson gradient |
-| `src/components/menu/MenuContact.tsx` | Remove | No longer needed (consolidated into MenuCTASection) |
+| File | Changes |
+|------|---------|
+| `src/components/menu/CompactMenuItem.tsx` | Add description prop and render it |
+| `src/components/menu/CollapsibleCategory.tsx` | Pass description to items, add isWeddingMode prop for elegant font |
+| `src/pages/SimplifiedMenu.tsx` | Remove faded overlays, pass isWeddingMode prop |
+| `src/components/menu/MenuCTASection.tsx` | Fix Call button border visibility |
 
 ---
 
 ## Visual Result
 
-**Before:**
-- Single menu view (regular only)
-- Some items highlighted with red cards and stars
-- Two CTA sections at bottom
-- Faded/pinkish crimson backgrounds
+### Before
+- Wedding items show name only
+- Section titles use same font for both menus
+- Page has subtle faded overlay affecting colors
+- Call button outline is nearly invisible
 
-**After:**
-- Toggle between Catering and Wedding menus
-- Clean, uniform item cards
-- Single consolidated CTA section
-- Solid, vibrant crimson red matching the footer
+### After
+- Wedding items show name + description for premium feel
+- Wedding section titles use elegant script font (Dancing Script)
+- Clean background without color-washing overlays
+- Call button has visible white border matching home page
+
+---
+
+## Typography Preview
+
+**Catering Menu Mode:**
+```text
+Appetizers (font-elegant, sans-serif)
+├── Charcuterie Board
+├── Fruit Platter
+└── ...
+```
+
+**Wedding Menu Mode:**
+```text
+𝒜𝓅𝓅𝑒𝓉𝒾𝓏𝑒𝓇𝓈 (font-script, elegant cursive)
+├── Fresh Local Fruit Platter
+│   "Beautifully arranged seasonal fruits"
+├── Signature Charcuterie Board
+│   "Artisan meats, cheeses, and accompaniments"
+└── ...
+```
 
 ---
 
 ## Mobile Considerations
 
-- Toggle buttons will be touch-friendly (min 44px height)
-- Toggle uses pill design that works well on mobile
-- CTA section remains fully responsive
+- Descriptions on wedding items will be smaller text (text-xs) to maintain compact grid
+- Script font will be slightly larger on wedding mode (text-xl vs text-lg) for readability
+- All touch targets remain 44px minimum
