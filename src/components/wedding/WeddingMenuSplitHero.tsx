@@ -98,7 +98,7 @@ export const WeddingMenuSplitHero = () => {
                 </Button>
                 
                 <Button asChild variant="outline" size="lg" className="w-full sm:w-auto min-w-[160px]">
-                  <Link to="/gallery#page-header">
+                  <Link to="/gallery">
                     View Gallery
                   </Link>
                 </Button>

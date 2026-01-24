@@ -304,7 +304,7 @@ export const StoryHero = () => {
                 size="lg"
                 className="min-h-[48px] text-base font-semibold bg-card/50 backdrop-blur-sm"
               >
-                <Link to="/gallery#page-header" className="flex items-center justify-center gap-2">
+                <Link to="/gallery" className="flex items-center justify-center gap-2">
                   View Gallery
                   <ChevronRight className="h-4 w-4" />
                 </Link>
@@ -449,7 +449,7 @@ export const StoryHero = () => {
               size="lg"
               className="min-h-[48px] text-base font-semibold bg-card/50 backdrop-blur-sm"
             >
-              <Link to="/gallery#page-header" className="flex items-center gap-2">
+              <Link to="/gallery" className="flex items-center gap-2">
                 View Gallery
                 <ChevronRight className="h-4 w-4" />
               </Link>

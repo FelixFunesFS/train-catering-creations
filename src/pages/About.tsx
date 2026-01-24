@@ -43,7 +43,7 @@ const About = () => {
                   What started as a passion for creating memorable meals has grown into a trusted name in catering, known for our authentic flavors, professional service, and genuine Southern hospitality.
                 </p>
                 <Button asChild variant="cta" size="lg">
-                  <Link to="/gallery#page-header">
+                  <Link to="/gallery">
                     See Our Work
                   </Link>
                 </Button>
@@ -172,7 +172,7 @@ const About = () => {
               },
               {
                 text: "View Our Menu",
-                href: "/menu#page-header",
+                href: "/menu",
                 variant: "cta-white"
               }
             ]}
