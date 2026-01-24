@@ -1,10 +1,9 @@
-
 import { PageSection } from "@/components/ui/page-section";
 import { NeumorphicCard } from "@/components/ui/neumorphic-card";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
 import { CTASection } from "@/components/ui/cta-section";
-import { ChefHat, Heart, Award, Users, Clock, Star } from "lucide-react";
+import { ChefHat, Heart, Award, Users, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
 import { OptimizedImage } from "@/components/ui/optimized-image";
 
@@ -15,13 +14,13 @@ const About = () => {
         {/* Header Section - Pattern A */}
         <PageSection pattern="a" skipToContentId="about-header">
           <PageHeader
+            badge={{
+              icon: <Heart className="h-5 w-5" />,
+              text: "Our Story"
+            }}
             title="Meet the Heart Behind Soul Train's Eatery"
+            subtitle="A Family Legacy of Flavor"
             description="From family traditions to professional excellence, discover the passionate team that brings authentic Southern flavors and warm hospitality to every event across Charleston's beautiful Lowcountry."
-            icons={[
-              <ChefHat className="h-6 w-6 sm:h-8 sm:w-8" />,
-              <Heart className="h-6 w-6 sm:h-8 sm:w-8" />,
-              <Award className="h-6 w-6 sm:h-8 sm:w-8" />
-            ]}
             buttons={[
               { text: "Request Quote", href: "/request-quote#page-header", variant: "cta" }
             ]}

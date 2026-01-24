@@ -1,18 +1,23 @@
-import { Shield, Lock, Eye, Mail, Database, Globe, Clock, UserCheck } from "lucide-react";
+import { Shield, Mail, Database, Globe, Clock, UserCheck } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
+import { PageSection } from "@/components/ui/page-section";
 
 const PrivacyPolicy = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
-      <PageHeader
-        title="Privacy Policy"
-        description="Your privacy is important to us. This policy explains how we collect, use, and protect your personal information."
-        icons={[
-          <Shield className="h-6 w-6 sm:h-8 sm:w-8" />,
-          <Lock className="h-6 w-6 sm:h-8 sm:w-8" />,
-          <Eye className="h-6 w-6 sm:h-8 sm:w-8" />,
-        ]}
-      />
+    <div className="min-h-screen bg-gradient-hero">
+      <PageSection pattern="a">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <PageHeader
+            badge={{
+              icon: <Shield className="h-5 w-5" />,
+              text: "Legal"
+            }}
+            title="Privacy Policy"
+            subtitle="Protecting Your Information"
+            description="Your privacy is important to us. This policy explains how we collect, use, and protect your personal information."
+          />
+        </div>
+      </PageSection>
 
       <div className="w-full px-6 sm:px-8 lg:px-12 xl:px-16 py-12">
         <div className="prose prose-lg max-w-none">

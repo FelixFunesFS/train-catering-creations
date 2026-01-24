@@ -50,11 +50,13 @@ const FAQ = () => {
       <PageSection pattern="a" withBorder skipToContentId="faq-header">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
           <PageHeader
+            badge={{
+              icon: <HelpCircle className="h-5 w-5" />,
+              text: "Support"
+            }}
             title="Frequently Asked Questions"
+            subtitle="We're Here to Help"
             description="Find answers to common questions about our catering services, military base events, menu options, and more. Can't find what you're looking for? Contact us directly."
-            icons={[
-              <HelpCircle key="help" className="h-8 w-8" />
-            ]}
             buttons={[
               { text: "Contact Us", href: "tel:8439700265", variant: "default" },
               { text: "Request Quote", href: "/request-quote#page-header", variant: "outline" }
