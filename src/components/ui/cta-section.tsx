@@ -15,9 +15,10 @@ interface CTASectionProps {
   description: string;
   buttons: CTAButton[];
   footer?: string;
+  showWatermark?: boolean;
 }
 
-export const CTASection = ({ title, description, buttons, footer }: CTASectionProps) => {
+export const CTASection = ({ title, description, buttons, footer, showWatermark = false }: CTASectionProps) => {
   const { ref: contentRef, isVisible, variant } = useScrollAnimation({ 
     variant: 'ios-spring', 
     delay: 0,
@@ -32,7 +33,18 @@ export const CTASection = ({ title, description, buttons, footer }: CTASectionPr
       {/* Card Container with consistent margins */}
       <div className="mx-4 sm:mx-6 lg:mx-8 rounded-xl sm:rounded-2xl overflow-hidden shadow-elevated">
         {/* Card Background */}
-        <div className="bg-gradient-to-r from-primary to-primary-dark py-8 sm:py-10 lg:py-12">
+        <div className="relative bg-gradient-to-r from-primary to-primary-dark py-8 sm:py-10 lg:py-12 overflow-hidden">
+          {/* Watermark Logo - only shown when prop is true */}
+          {showWatermark && (
+            <div className="absolute right-4 sm:right-8 lg:right-12 top-1/2 -translate-y-1/2 pointer-events-none">
+              <img 
+                src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
+                alt="" 
+                aria-hidden="true"
+                className="w-28 sm:w-36 lg:w-44 h-28 sm:h-36 lg:h-44 object-contain opacity-[0.08]"
+              />
+            </div>
+          )}
           <div 
             ref={contentRef} 
             className={`max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center ${animationClass}`}
