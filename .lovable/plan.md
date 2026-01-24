@@ -1,69 +1,153 @@
 
-
-# Gallery Cleanup: Swap Cards, Remove Random Order, and Remove Featured Badges
+# Updated Gallery Cleanup Plan
 
 ## Overview
-This plan addresses three changes to the gallery:
-1. Swap the order of "Buffet Service" and "Artisan Desserts" category cards
-2. Remove the random image shuffling to maintain consistent ordering
-3. Remove the "Featured" badges from gallery images
+This expanded plan now includes:
+1. Consolidate to 3 categories only (Weddings & Black Tie, Buffet Service, Artisan Desserts)
+2. Remove random image shuffling
+3. Remove descriptions from gallery grid and modal (keep Discover Our Work card descriptions)
+4. Remove suspected duplicate images
+5. Clean up unused category files
+
+---
+
+## Best Way to Ensure No Actual Duplicate Images
+
+Since all 52 image URLs are unique strings, there are no byte-identical duplicates by URL. However, to catch **visually similar** images, the options are:
+
+| Method | Pros | Cons |
+|--------|------|------|
+| **Manual visual review** | Most accurate | Time-consuming |
+| **File hash comparison** | Catches identical files | Requires file access |
+| **AI image similarity** | Catches similar-looking images | Requires API integration |
+
+**Recommended approach**: Remove the 2 suspected duplicates identified by similar descriptions, then visually verify the final gallery looks correct.
+
+### Suspected Duplicates to Remove
+
+Based on title/description analysis suggesting same scene:
+
+1. **Buffet**: Remove `ca7c68a6-6138-4fa3-85d3-6d9fb5bf2da2.png` ("Patriotic Southern Sides")
+   - Keep `531de58a-4283-4d7c-882c-a78b6cdc97c0.png` ("Patriotic Celebration Feast" - quality 9)
+
+2. **Formal**: Remove `fef8f5c1-040b-4e11-9102-f04a790da932.png` ("Regal Purple Celebration")
+   - Keep `6aec2d18-641f-46aa-8c0e-e39f4e604fd6.png` ("Purple Linen Elegance" - quality 8)
 
 ---
 
 ## Changes
 
-### 1. Swap Category Card Order
+### 1. Remove Descriptions from InteractiveImageGrid.tsx
 
-**File:** `src/data/galleryCategories.ts`
-
-Reorder the array so Buffet Service appears before Artisan Desserts:
-
-| Current Order | New Order |
-|---------------|-----------|
-| 1. Weddings & Black Tie | 1. Weddings & Black Tie |
-| 2. Artisan Desserts | 2. **Buffet Service** |
-| 3. Buffet Service | 3. **Artisan Desserts** |
-
----
-
-### 2. Remove Random Image Shuffling
-
-**File:** `src/data/galleryImages.ts`
-
-**Current code (line 35):**
-```typescript
-export const galleryImages: GalleryImage[] = allImages.sort(() => 0.5 - Math.random());
-```
-
-**New code:**
-```typescript
-export const galleryImages: GalleryImage[] = allImages;
-```
-
-This will maintain a consistent order based on how images are imported (buffet first, then wedding, formal, team, etc.). Images within each category will display in their defined order.
-
----
-
-### 3. Remove Featured Badges
-
-**File:** `src/components/gallery/InteractiveImageGrid.tsx`
-
-Remove the Featured badge block (lines 82-90):
+**Remove lines 100-103** (description paragraph in hover overlay):
 ```tsx
-{/* Featured Badge - Always visible */}
-{image.quality >= 8 && (
-  <div className="absolute top-3 left-3">
-    <Badge className="bg-white/10 text-white border-white/20 text-xs gap-1 backdrop-blur-sm">
-      <Sparkles className="h-3 w-3" />
-      Featured
-    </Badge>
+// DELETE THIS:
+<p className="text-white/80 text-xs sm:text-sm line-clamp-2">
+  {image.description}
+</p>
+```
+
+The title will remain visible on hover for context.
+
+---
+
+### 2. Remove Descriptions from EnhancedImageModal.tsx
+
+**Simplify lines 154-164** (info section below image):
+```tsx
+// BEFORE:
+{currentImage && (
+  <div className="mt-4 text-center px-2 sm:px-8">
+    <h3 className="font-elegant font-semibold text-white text-base sm:text-lg mb-1">
+      {currentImage.title}
+    </h3>
+    <p className="text-white/70 text-sm sm:text-base leading-relaxed line-clamp-2">
+      {currentImage.description}
+    </p>
+  </div>
+)}
+
+// AFTER:
+{currentImage && (
+  <div className="mt-4 text-center px-2 sm:px-8">
+    <h3 className="font-elegant font-semibold text-white text-base sm:text-lg">
+      {currentImage.title}
+    </h3>
   </div>
 )}
 ```
 
-Also remove unused imports:
-- Remove `Badge` from `@/components/ui/badge`
-- Remove `Sparkles` from `lucide-react`
+---
+
+### 3. Update galleryImages.ts
+
+Remove unused category imports and consolidate:
+
+```typescript
+import { GalleryImage } from './gallery/types';
+import { buffetImages } from './gallery/buffetImages';
+import { weddingImages } from './gallery/weddingImages';
+import { formalImages } from './gallery/formalImages';
+import { dessertImages } from './gallery/dessertImages';
+
+export type { GalleryImage } from './gallery/types';
+
+const allImages: GalleryImage[] = [
+  ...buffetImages,
+  ...weddingImages,
+  ...formalImages,
+  ...dessertImages
+];
+
+export const galleryImages: GalleryImage[] = allImages;
+```
+
+---
+
+### 4. Remove Duplicate from buffetImages.ts
+
+Delete the "Patriotic Southern Sides" entry (lines 131-136):
+```typescript
+// DELETE THIS ENTRY:
+{
+  src: "/lovable-uploads/ca7c68a6-6138-4fa3-85d3-6d9fb5bf2da2.png",
+  category: "buffet",
+  title: "Patriotic Southern Sides",
+  description: "Fresh green beans, hearty casseroles, and golden chicken with American flags",
+  quality: 8
+},
+```
+
+---
+
+### 5. Remove Duplicate from formalImages.ts
+
+Delete the "Regal Purple Celebration" entry (lines 61-66):
+```typescript
+// DELETE THIS ENTRY:
+{
+  src: "/lovable-uploads/fef8f5c1-040b-4e11-9102-f04a790da932.png",
+  category: "formal",
+  title: "Regal Purple Celebration",
+  description: "Sophisticated affair with rich purple accents against rustic brick walls",
+  quality: 7
+},
+```
+
+---
+
+### 6. Empty Unused Category Files
+
+Set these arrays to empty (keeps imports valid but removes images):
+
+| File | Change |
+|------|--------|
+| `teamImages.ts` | `export const teamImages: GalleryImage[] = [];` |
+| `militaryImages.ts` | `export const militaryImages: GalleryImage[] = [];` |
+| `corporateImages.ts` | `export const corporateImages: GalleryImage[] = [];` |
+| `privateImages.ts` | `export const privateImages: GalleryImage[] = [];` |
+| `grazingImages.ts` | `export const grazingImages: GalleryImage[] = [];` |
+| `bbqImages.ts` | `export const bbqImages: GalleryImage[] = [];` |
 
 ---
 
@@ -71,16 +155,36 @@ Also remove unused imports:
 
 | File | Change |
 |------|--------|
-| `src/data/galleryCategories.ts` | Swap buffet and desserts order |
-| `src/data/galleryImages.ts` | Remove random sorting |
-| `src/components/gallery/InteractiveImageGrid.tsx` | Remove Featured badge and unused imports |
+| `src/components/gallery/InteractiveImageGrid.tsx` | Remove description display |
+| `src/components/gallery/EnhancedImageModal.tsx` | Remove description display |
+| `src/data/galleryImages.ts` | Remove unused imports, keep only 4 categories |
+| `src/data/gallery/buffetImages.ts` | Remove 1 duplicate entry |
+| `src/data/gallery/formalImages.ts` | Remove 1 duplicate entry |
+| `src/data/gallery/teamImages.ts` | Empty the array |
+| `src/data/gallery/militaryImages.ts` | Empty the array |
+| `src/data/gallery/corporateImages.ts` | Empty the array |
+| `src/data/gallery/privateImages.ts` | Empty the array |
+| `src/data/gallery/grazingImages.ts` | Empty the array |
+| `src/data/gallery/bbqImages.ts` | Empty the array |
+
+---
+
+## Final Image Counts
+
+| Category | Count |
+|----------|-------|
+| Weddings & Black Tie (wedding + formal) | 18 images |
+| Buffet Service | 20 images |
+| Artisan Desserts | 12 images |
+| **Total** | **50 unique images** |
 
 ---
 
 ## Result
 
-- Category cards will display in order: Weddings & Black Tie, Buffet Service, Artisan Desserts
-- Gallery images will maintain consistent, predictable order on every page load
-- No more "Featured" badges appearing on high-quality images
-- Cleaner, distraction-free gallery viewing experience
-
+- Gallery consolidated to 3 categories matching Discover Our Work cards
+- No descriptions shown in gallery grid hover or modal viewer
+- Discover Our Work card descriptions preserved
+- 2 suspected duplicate images removed
+- Consistent, non-random image ordering
+- Clean codebase with unused categories emptied
