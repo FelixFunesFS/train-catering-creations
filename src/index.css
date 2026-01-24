@@ -660,44 +660,44 @@
 /* Responsive marquee speeds - mobile-first approach */
 /* Mobile: Slowest speeds for comfortable reading on smaller viewports */
 .marquee {
-  animation: marquee 70s linear infinite;
+  animation: marquee 95s linear infinite;
 }
 
 .marquee-slow {
-  animation: marquee 100s linear infinite;
+  animation: marquee 130s linear infinite;
 }
 
 .marquee-fast {
-  animation: marquee 55s linear infinite;
+  animation: marquee 75s linear infinite;
 }
 
 /* Tablet: Medium speeds */
 @media (min-width: 768px) {
   .marquee {
-    animation: marquee 60s linear infinite;
-  }
-
-  .marquee-slow {
     animation: marquee 80s linear infinite;
   }
 
+  .marquee-slow {
+    animation: marquee 110s linear infinite;
+  }
+
   .marquee-fast {
-    animation: marquee 48s linear infinite;
+    animation: marquee 65s linear infinite;
   }
 }
 
 /* Desktop: Comfortable speeds for visual rhythm */
 @media (min-width: 1024px) {
   .marquee {
-    animation: marquee 50s linear infinite;
+    animation: marquee 65s linear infinite;
   }
 
   .marquee-slow {
-    animation: marquee 70s linear infinite;
+    animation: marquee 90s linear infinite;
   }
 
   .marquee-fast {
-    animation: marquee 38s linear infinite;
+    animation: marquee 50s linear infinite;
   }
 }
 
