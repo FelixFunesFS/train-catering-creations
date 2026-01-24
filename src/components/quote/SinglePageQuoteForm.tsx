@@ -70,7 +70,8 @@ export const SinglePageQuoteForm = ({
     formType: variant === 'wedding' ? 'wedding_event' : 'regular_event' 
   });
 
-  const showMobileChrome = layout === 'fullscreen' && isMobile;
+  // Show exit/progress header for all fullscreen layouts (both mobile and desktop)
+  const showFullscreenChrome = layout === 'fullscreen';
 
   const returnTo = useCallback(() => {
     const params = new URLSearchParams(location.search);
@@ -455,8 +456,8 @@ export const SinglePageQuoteForm = ({
 
   return (
     <div className={cn(layout === 'fullscreen' ? "min-h-screen flex flex-col" : "w-full")}>      
-      {/* Mobile sticky header (Exit + Progress) */}
-      {showMobileChrome ? (
+      {/* Fullscreen sticky header (Exit + Progress) - shown on all devices */}
+      {showFullscreenChrome ? (
         <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b">
           <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
             <Button
@@ -486,11 +487,7 @@ export const SinglePageQuoteForm = ({
           </div>
         </div>
       ) : (
-        <div className={cn(
-          layout === 'fullscreen'
-            ? "sticky top-0 z-10 bg-background/95 backdrop-blur-sm py-4 border-b"
-            : "bg-background/95 backdrop-blur-sm py-4 border-b rounded-lg"
-        )}>
+        <div className="bg-background/95 backdrop-blur-sm py-4 border-b rounded-lg">
           <div className="max-w-2xl mx-auto px-4">
             <StepProgress
               currentStep={currentStep}
