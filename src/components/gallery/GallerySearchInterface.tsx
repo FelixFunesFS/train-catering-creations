@@ -115,16 +115,14 @@ export const GallerySearchInterface = ({
   const searchStats = useMemo(() => {
     const totalImages = images.length;
     const foundImages = filteredImages.length;
-    const avgQuality = filteredImages.length > 0 
-      ? Math.round(filteredImages.reduce((sum, img) => sum + img.quality, 0) / filteredImages.length * 10) / 10
-      : 0;
-    const premiumCount = filteredImages.filter(img => img.quality >= 8).length;
+    const featuredCount = filteredImages.filter(img => img.quality >= 8).length;
+    const categoryCount = new Set(filteredImages.map(img => img.category)).size;
     
     return {
       total: totalImages,
       found: foundImages,
-      avgQuality,
-      premium: premiumCount,
+      featured: featuredCount,
+      categories: categoryCount,
       coverage: Math.round((foundImages / totalImages) * 100)
     };
   }, [images, filteredImages]);
@@ -221,18 +219,18 @@ export const GallerySearchInterface = ({
           
           <div className="text-center p-3 bg-card rounded-lg border border-border/10">
             <div className="flex items-center justify-center gap-2 mb-1">
-              <Star className="h-4 w-4 text-gold" />
-              <span className="font-bold text-lg">{searchStats.avgQuality}</span>
+              <Sparkles className="h-4 w-4 text-primary" />
+              <span className="font-bold text-lg">{searchStats.featured}</span>
             </div>
-            <span className="text-xs text-muted-foreground">Avg Quality</span>
+            <span className="text-xs text-muted-foreground">Featured</span>
           </div>
           
           <div className="text-center p-3 bg-card rounded-lg border border-border/10">
             <div className="flex items-center justify-center gap-2 mb-1">
-              <Sparkles className="h-4 w-4 text-primary" />
-              <span className="font-bold text-lg">{searchStats.premium}</span>
+              <Grid className="h-4 w-4 text-gold" />
+              <span className="font-bold text-lg">{searchStats.categories}</span>
             </div>
-            <span className="text-xs text-muted-foreground">Premium</span>
+            <span className="text-xs text-muted-foreground">Categories</span>
           </div>
           
           <div className="text-center p-3 bg-card rounded-lg border border-border/10">
@@ -372,22 +370,13 @@ export const GallerySearchInterface = ({
                       <Badge className="bg-white/10 text-white border-white/20">
                         {getCategoryDisplayName(image.category)}
                       </Badge>
-                      <div className="flex items-center gap-1">
-                        <Star className="h-3 w-3 text-gold fill-gold" />
-                        <span className="text-white text-xs">{image.quality}</span>
-                      </div>
+                      {image.quality >= 8 && (
+                        <Badge className="bg-primary/20 text-white border-primary/30 gap-1">
+                          <Sparkles className="h-3 w-3" />
+                          Featured
+                        </Badge>
+                      )}
                     </div>
-                  </div>
-                  
-                  {/* Quality indicator */}
-                  <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <Badge className={`text-xs ${
-                      image.quality >= 8 
-                        ? 'bg-primary/20 text-white border-primary/30' 
-                        : 'bg-white/10 text-white border-white/20'
-                    }`}>
-                      {image.quality >= 8 ? 'Premium' : `${image.quality}/10`}
-                    </Badge>
                   </div>
                 </div>
               );

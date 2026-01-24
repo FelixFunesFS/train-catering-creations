@@ -1,0 +1,64 @@
+import { GalleryImage } from './gallery/types';
+
+/**
+ * Curated hero images - hand-picked quality-9 images for maximum visual impact.
+ * These represent the best of Soul Train's Eatery catering work across all categories.
+ */
+export const heroImages: GalleryImage[] = [
+  {
+    src: "/lovable-uploads/894051bf-31c6-4930-bb88-e3e1d74f7ee1.png",
+    category: "wedding",
+    title: "Rustic Wedding Venue",
+    description: "Stunning rustic venue with chandeliers, string lights, and elegant dining setup",
+    quality: 9
+  },
+  {
+    src: "/lovable-uploads/26d2d500-6017-41a2-99b2-b7050cefedba.png",
+    category: "wedding",
+    title: "Elegant Outdoor Wedding Tent",
+    description: "Stunning wedding reception setup with chandeliers, string lights, and formal table service",
+    quality: 9
+  },
+  {
+    src: "/lovable-uploads/a68ac24e-cf0d-4941-9059-568c9b92bebf.png",
+    category: "formal",
+    title: "Grand Banquet Hall",
+    description: "Elegant banquet hall with gold linens and professional service",
+    quality: 9
+  },
+  {
+    src: "/lovable-uploads/9f908ab3-500f-481a-b35b-3fe663708efe.png",
+    category: "desserts",
+    title: "Fresh Berry Tart Display",
+    description: "Elegant tiered display of individual berry tarts with fresh berries",
+    quality: 9
+  },
+  {
+    src: "/lovable-uploads/61ae11ed-0e85-4a03-bf2a-c743182a3599.png",
+    category: "desserts",
+    title: "Multi-Tier Dessert Display",
+    description: "Premium dessert presentation featuring shooters and individual cakes",
+    quality: 9
+  },
+  {
+    src: "/lovable-uploads/eecf9726-8cce-48e5-8abb-f0dd78ebcb4e.png",
+    category: "desserts",
+    title: "Layered Dessert Cups",
+    description: "Professional layered dessert cups beautifully arranged",
+    quality: 9
+  },
+  {
+    src: "/lovable-uploads/9ea8f6b7-e1cd-4f55-a434-1ffedf0b96dc.png",
+    category: "formal",
+    title: "Military Formal Ceremony",
+    description: "Elegant ceremony with decorative lighting arch and professional presentation",
+    quality: 9
+  },
+  {
+    src: "/lovable-uploads/84f43173-e79d-4c53-b5d4-e8a596d1d614.png",
+    category: "wedding",
+    title: "Wedding Venue Dining",
+    description: "Elegant venue with floral arrangements and formal place settings",
+    quality: 9
+  }
+];

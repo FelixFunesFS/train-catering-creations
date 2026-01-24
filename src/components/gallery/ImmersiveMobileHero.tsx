@@ -1,31 +1,26 @@
 import { useState, useEffect } from "react";
-import { GalleryImage } from "@/data/gallery/types";
 import { OptimizedImage } from "@/components/ui/optimized-image";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
-import { ChevronDown, Play, Pause, Sparkles, Users, Calendar } from "lucide-react";
+import { ChevronDown, Play, Pause, Sparkles, Grid } from "lucide-react";
+import { heroImages } from "@/data/heroImages";
 
 interface ImmersiveMobileHeroProps {
-  images: GalleryImage[];
-  onImageClick: (imageSrc: string) => void;
-  onCategorySelect: (category: string) => void;
+  onScrollToGallery: () => void;
 }
 
 export const ImmersiveMobileHero = ({ 
-  images, 
-  onImageClick, 
-  onCategorySelect 
+  onScrollToGallery 
 }: ImmersiveMobileHeroProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
   const [showDetails, setShowDetails] = useState(false);
   
   const isMobile = useIsMobile();
-  const premiumImages = images.filter(img => img.quality >= 8).slice(0, 8);
-  const currentImage = premiumImages[currentIndex];
+  const currentImage = heroImages[currentIndex];
   
   const { ref: overlayRef, isVisible: overlayVisible, variant: overlayVariant } = useScrollAnimation({ 
     delay: 300, 
@@ -46,16 +41,16 @@ export const ImmersiveMobileHero = ({
     return categoryMap[category] || { label: category, variant: 'bg-muted/10 text-muted-foreground border-muted/20' };
   };
 
-  // Auto-advance story
+  // Auto-advance story with 5-second intervals for better absorption
   useEffect(() => {
     if (!isPlaying) return;
     
     const timer = setInterval(() => {
-      setCurrentIndex(prev => (prev + 1) % premiumImages.length);
-    }, 4000);
+      setCurrentIndex(prev => (prev + 1) % heroImages.length);
+    }, 5000);
     
     return () => clearInterval(timer);
-  }, [isPlaying, premiumImages.length]);
+  }, [isPlaying]);
 
   // Touch handlers for mobile story progression
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -65,10 +60,10 @@ export const ImmersiveMobileHero = ({
     
     if (tapX < screenWidth / 3) {
       // Left third - previous image
-      setCurrentIndex(prev => prev > 0 ? prev - 1 : premiumImages.length - 1);
+      setCurrentIndex(prev => prev > 0 ? prev - 1 : heroImages.length - 1);
     } else if (tapX > (screenWidth * 2) / 3) {
       // Right third - next image
-      setCurrentIndex(prev => (prev + 1) % premiumImages.length);
+      setCurrentIndex(prev => (prev + 1) % heroImages.length);
     } else {
       // Center third - toggle details
       setShowDetails(prev => !prev);
@@ -79,21 +74,10 @@ export const ImmersiveMobileHero = ({
     setIsPlaying(prev => !prev);
   };
 
-  const handleExploreCategory = () => {
-    onCategorySelect(currentImage.category);
-  };
-
-  const handleScrollToDiscover = () => {
-    const discoverSection = document.querySelector('[data-section="discovery"]');
-    if (discoverSection) {
-      discoverSection.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
   if (!currentImage) return null;
 
   return (
-    <div className="relative h-screen overflow-hidden bg-gradient-primary">
+    <div className="relative h-[85vh] lg:h-screen overflow-hidden bg-gradient-primary">
       {/* Background Image with Parallax Effect */}
       <div className="absolute inset-0">
         <OptimizedImage
@@ -112,7 +96,7 @@ export const ImmersiveMobileHero = ({
       {/* Story Progress Indicators */}
       <div className="absolute top-4 left-4 right-4 z-20">
         <div className="flex gap-1">
-          {premiumImages.map((_, index) => (
+          {heroImages.map((_, index) => (
             <div
               key={index}
               className="h-1 bg-white/30 rounded-full flex-1 overflow-hidden"
@@ -174,22 +158,14 @@ export const ImmersiveMobileHero = ({
           </p>
         </div>
 
-        {/* Action Buttons */}
+        {/* Action Button - Single CTA */}
         <div className="flex flex-col sm:flex-row gap-3">
           <Button
-            onClick={handleExploreCategory}
-            className="bg-primary text-white hover:bg-primary-dark shadow-lg"
+            onClick={onScrollToGallery}
+            className="bg-primary text-white hover:bg-primary-dark shadow-lg gap-2"
           >
-            <Users className="h-4 w-4 mr-2" />
-            Explore {getCategoryBadge(currentImage.category).label}
-          </Button>
-          
-          <Button
-            variant="glass-white"
-            onClick={() => onImageClick(currentImage.src)}
-          >
-            <Calendar className="h-4 w-4 mr-2" />
-            View Full Image
+            <Grid className="h-4 w-4" />
+            Browse Gallery
           </Button>
         </div>
 
@@ -198,7 +174,7 @@ export const ImmersiveMobileHero = ({
           <Button
             variant="ghost"
             size="sm"
-            onClick={handleScrollToDiscover}
+            onClick={onScrollToGallery}
             className="text-white/60 hover:text-white animate-bounce"
           >
             <ChevronDown className="h-5 w-5" />

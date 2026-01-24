@@ -100,9 +100,10 @@ const AlternativeGallery = () => {
       <PageSection pattern="a" skipToContentId="gallery-hero" className="py-0">
         <div ref={heroRef} className={useAnimationClass(heroVariant, heroVisible)}>
           <ImmersiveMobileHero 
-            images={galleryImages}
-            onImageClick={handleImageClick}
-            onCategorySelect={handleStoryModeSelect}
+            onScrollToGallery={() => {
+              const gallerySection = document.querySelector('[data-section="discovery"]');
+              gallerySection?.scrollIntoView({ behavior: 'smooth' });
+            }}
           />
         </div>
       </PageSection>
