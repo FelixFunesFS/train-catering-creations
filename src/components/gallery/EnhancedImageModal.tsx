@@ -103,7 +103,7 @@ export const EnhancedImageModal = ({
             variant="ghost" 
             size="sm" 
             onClick={onClose}
-            className="text-white hover:bg-white/10 h-10 w-10 p-0"
+            className="text-white bg-black/50 hover:bg-black/70 h-10 w-10 p-0 rounded-full backdrop-blur-sm"
             aria-label="Close modal"
           >
             <X className="h-5 w-5" />
@@ -122,7 +122,7 @@ export const EnhancedImageModal = ({
             <Button 
               variant="ghost" 
               size="sm" 
-              className="absolute left-0 sm:left-2 top-1/2 -translate-y-1/2 z-10 text-white hover:bg-white/10 h-10 w-10 sm:h-12 sm:w-12 p-0 rounded-full"
+              className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-10 text-white bg-black/50 hover:bg-black/70 h-10 w-10 sm:h-12 sm:w-12 p-0 rounded-full backdrop-blur-sm"
               onClick={handlePrevious}
               disabled={images.length <= 1}
               aria-label="Previous image"
@@ -141,7 +141,7 @@ export const EnhancedImageModal = ({
             <Button 
               variant="ghost" 
               size="sm" 
-              className="absolute right-0 sm:right-2 top-1/2 -translate-y-1/2 z-10 text-white hover:bg-white/10 h-10 w-10 sm:h-12 sm:w-12 p-0 rounded-full"
+              className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-10 text-white bg-black/50 hover:bg-black/70 h-10 w-10 sm:h-12 sm:w-12 p-0 rounded-full backdrop-blur-sm"
               onClick={handleNext}
               disabled={images.length <= 1}
               aria-label="Next image"

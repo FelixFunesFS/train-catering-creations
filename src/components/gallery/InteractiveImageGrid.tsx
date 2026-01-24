@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
-import { Heart } from "lucide-react";
+
 
 interface InteractiveImageGridProps {
   images: GalleryImage[];
@@ -20,7 +20,7 @@ export const InteractiveImageGrid = ({
   onImageClick,
   category
 }: InteractiveImageGridProps) => {
-  const [favorites, setFavorites] = useState<Set<string>>(new Set());
+  
   
   const isMobile = useIsMobile();
   
@@ -43,17 +43,6 @@ export const InteractiveImageGrid = ({
     return [...images].sort((a, b) => b.quality - a.quality);
   }, [images]);
 
-  const toggleFavorite = (imageSrc: string) => {
-    setFavorites(prev => {
-      const newFavorites = new Set(prev);
-      if (newFavorites.has(imageSrc)) {
-        newFavorites.delete(imageSrc);
-      } else {
-        newFavorites.add(imageSrc);
-      }
-      return newFavorites;
-    });
-  };
 
   const getCategoryDisplayName = (categoryId: string | null) => {
     if (!categoryId) return 'All Images';
@@ -62,8 +51,6 @@ export const InteractiveImageGrid = ({
   };
 
   const ImageCard = ({ image }: { image: GalleryImage }) => {
-    const isFavorite = favorites.has(image.src);
-    
     return (
       <div 
         className="group relative break-inside-avoid mb-3 sm:mb-4 rounded-xl overflow-hidden bg-card border border-border/10 hover:shadow-elevated transition-all duration-300 cursor-pointer"
@@ -81,23 +68,9 @@ export const InteractiveImageGrid = ({
         
         {/* Content - Visible on hover */}
         <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-          <div className="flex items-start justify-between mb-2">
-            <h3 className="font-elegant font-semibold text-white text-sm sm:text-base line-clamp-1">
-              {image.title}
-            </h3>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleFavorite(image.src);
-              }}
-              className={`${isFavorite ? 'text-primary' : 'text-white/60'} hover:text-white p-1`}
-            >
-              <Heart className="h-4 w-4" fill={isFavorite ? 'currentColor' : 'none'} />
-            </Button>
-          </div>
-          
+          <h3 className="font-elegant font-semibold text-white text-sm sm:text-base line-clamp-1">
+            {image.title}
+          </h3>
         </div>
       </div>
     );
