@@ -52,7 +52,17 @@ export const useFacebookReviews = (options: UseFacebookReviewsOptions = {}) => {
       }
     };
 
-    fetchReviews();
+    // Defer non-critical API call to avoid blocking initial render
+    // Uses requestIdleCallback with setTimeout fallback for Safari
+    const deferFetch = () => {
+      if ('requestIdleCallback' in window) {
+        (window as any).requestIdleCallback(() => fetchReviews(), { timeout: 3000 });
+      } else {
+        setTimeout(fetchReviews, 1500);
+      }
+    };
+
+    deferFetch();
   }, [options.pageId, options.accessToken, options.limit]);
 
   return { reviews, isLoading, error };
