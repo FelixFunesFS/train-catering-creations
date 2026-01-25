@@ -131,10 +131,10 @@ export const AboutPreviewSection = () => {
             </div>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col space-y-3">
+            <div className="flex flex-col sm:flex-row sm:space-y-0 sm:space-x-3 space-y-3">
               <Button 
                 size="lg"
-                className="w-full bg-gradient-ruby-primary hover:bg-gradient-ruby-accent text-white font-semibold group min-h-[44px]"
+                className="w-full sm:w-auto sm:flex-1 bg-gradient-ruby-primary hover:bg-gradient-ruby-accent text-white font-semibold group min-h-[44px]"
                 asChild
               >
                 <a href="/about" className="flex items-center justify-center space-x-2">
@@ -145,7 +145,7 @@ export const AboutPreviewSection = () => {
               <Button 
                 variant="outline" 
                 size="lg"
-                className="w-full border-ruby text-ruby hover:bg-ruby hover:text-white min-h-[44px]"
+                className="w-full sm:w-auto sm:flex-1 border-ruby text-ruby hover:bg-ruby hover:text-white min-h-[44px]"
                 asChild
               >
                 <a href="/request-quote#page-header">Work With Us</a>

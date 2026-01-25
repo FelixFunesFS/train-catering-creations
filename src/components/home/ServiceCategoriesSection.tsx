@@ -1,19 +1,22 @@
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { OptimizedImage } from "@/components/ui/optimized-image";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { 
   Heart, 
   Building2, 
   Users, 
-  GraduationCap,
   ArrowRight,
   Star,
-  Clock,
-  Award
+  CircleCheck,
+  Award,
+  ChevronDown
 } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
+import { useIsMobile } from "@/hooks/use-mobile";
 import rubyWaveBg from "@/assets/ruby-wave-bg.webp";
 
 // Import optimized WebP images
@@ -33,6 +36,9 @@ interface ServiceCategory {
 }
 
 export const ServiceCategoriesSection = () => {
+  const [expandedCards, setExpandedCards] = useState<number[]>([]);
+  const isMobile = useIsMobile();
+
   const { ref, isVisible } = useScrollAnimation({ 
     variant: 'fade-up', 
     delay: 0 
@@ -77,6 +83,150 @@ export const ServiceCategoriesSection = () => {
       href: "/request-quote/regular"
     }
   ];
+
+  const toggleCard = (index: number) => {
+    setExpandedCards(prev => 
+      prev.includes(index) 
+        ? prev.filter(i => i !== index)
+        : [...prev, index]
+    );
+  };
+
+  const isCardExpanded = (index: number) => expandedCards.includes(index);
+
+  const renderCardContent = (service: ServiceCategory, index: number) => {
+    const isThirdCard = index === 2;
+    const isExpanded = isCardExpanded(index);
+
+    return (
+      <Card
+        key={index}
+        className={`group relative overflow-hidden border-2 border-transparent hover:border-ruby/30 transition-all duration-500 cursor-pointer ${
+          isThirdCard ? 'md:col-span-2 lg:col-span-1' : ''
+        }`}
+      >
+        <div className={`${isThirdCard ? 'md:flex md:flex-row lg:block' : ''}`}>
+          {/* Image Section */}
+          <div className={`relative overflow-hidden ${isThirdCard ? 'md:w-[40%] lg:w-full' : ''}`}>
+            <div className="relative aspect-[4/3] overflow-hidden">
+              <OptimizedImage
+                src={service.image}
+                alt={service.title}
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              
+              {/* Ruby Gradient Overlay */}
+              <div className="absolute inset-0 bg-gradient-ruby-subtle opacity-60 group-hover:opacity-80 transition-opacity duration-300" />
+
+              {/* Popular Badge */}
+              {service.isPopular && (
+                <div className="absolute top-4 right-4">
+                  <Badge className="bg-gradient-ruby-primary text-white border-0">
+                    <Star className="h-3 w-3 mr-1 fill-white" />
+                    Most Popular
+                  </Badge>
+                </div>
+              )}
+
+              {/* Icon */}
+              <div className="absolute top-4 left-4">
+                <div className="bg-black/40 backdrop-blur-sm rounded-full p-3 text-white">
+                  {service.icon}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Content Section */}
+          <div className={`p-4 space-y-4 ${isThirdCard ? 'md:w-[60%] lg:w-full md:flex md:flex-col md:justify-center' : ''}`}>
+            <div className="space-y-2">
+              <h3 className="text-xl font-elegant font-bold text-foreground group-hover:text-ruby transition-colors">
+                {service.title}
+              </h3>
+              <p className="text-lg font-script text-ruby font-medium">
+                {service.subtitle}
+              </p>
+            </div>
+
+            {/* Mobile Collapsible */}
+            {isMobile ? (
+              <Collapsible open={isExpanded} onOpenChange={() => toggleCard(index)}>
+                <CollapsibleTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    className="w-full justify-between text-ruby hover:text-ruby hover:bg-ruby/10 min-h-[44px] p-0"
+                  >
+                    <span className="text-sm font-medium">
+                      {isExpanded ? 'Hide Details' : 'View Details'}
+                    </span>
+                    <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} />
+                  </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="space-y-4 pt-2">
+                  <p className="text-base text-muted-foreground leading-relaxed">
+                    {service.description}
+                  </p>
+
+                  {/* Features */}
+                  <div className="space-y-2">
+                    {service.features.map((feature, featureIndex) => (
+                      <div key={featureIndex} className="flex items-center space-x-2">
+                        <CircleCheck className="h-4 w-4 text-ruby" />
+                        <span className="text-sm text-muted-foreground">{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* CTA Button */}
+                  <Button 
+                    variant="outline" 
+                    size="lg"
+                    className="w-full border-ruby text-ruby hover:bg-ruby hover:text-white group min-h-[44px]"
+                    asChild
+                  >
+                    <a href={service.href} className="flex items-center justify-center space-x-2">
+                      <span>Get Quote</span>
+                      <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                    </a>
+                  </Button>
+                </CollapsibleContent>
+              </Collapsible>
+            ) : (
+              /* Desktop/Tablet - Always visible content */
+              <>
+                <p className="text-base text-muted-foreground leading-relaxed">
+                  {service.description}
+                </p>
+
+                {/* Features */}
+                <div className="space-y-2">
+                  {service.features.map((feature, featureIndex) => (
+                    <div key={featureIndex} className="flex items-center space-x-2">
+                      <CircleCheck className="h-4 w-4 text-ruby" />
+                      <span className="text-sm text-muted-foreground">{feature}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* CTA Button */}
+                <Button 
+                  variant="outline" 
+                  size="lg"
+                  className="w-full border-ruby text-ruby hover:bg-ruby hover:text-white group min-h-[44px]"
+                  asChild
+                >
+                  <a href={service.href} className="flex items-center justify-center space-x-2">
+                    <span>Get Quote</span>
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </a>
+                </Button>
+              </>
+            )}
+          </div>
+        </div>
+      </Card>
+    );
+  };
 
   return (
     <section 
@@ -132,77 +282,7 @@ export const ServiceCategoriesSection = () => {
           ref={cardsRef}
           className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mb-6 ${cardsAnimationClass}`}
         >
-          {serviceCategories.map((service, index) => (
-            <Card
-              key={index}
-              className="group relative overflow-hidden border-2 border-transparent hover:border-ruby/30 transition-all duration-500 cursor-pointer"
-            >
-              <div className="relative aspect-[4/3] overflow-hidden">
-                <OptimizedImage
-                  src={service.image}
-                  alt={service.title}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-                
-                {/* Ruby Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-ruby-subtle opacity-60 group-hover:opacity-80 transition-opacity duration-300" />
-
-                {/* Popular Badge */}
-                {service.isPopular && (
-                  <div className="absolute top-4 right-4">
-                    <Badge className="bg-gradient-ruby-primary text-white border-0">
-                      <Star className="h-3 w-3 mr-1 fill-white" />
-                      Most Popular
-                    </Badge>
-                  </div>
-                )}
-
-                {/* Icon */}
-                <div className="absolute top-4 left-4">
-                  <div className="bg-black/40 backdrop-blur-sm rounded-full p-3 text-white">
-                    {service.icon}
-                  </div>
-                </div>
-              </div>
-
-              <div className="p-4 space-y-4">
-                <div className="space-y-2">
-                  <h3 className="text-xl font-elegant font-bold text-foreground group-hover:text-ruby transition-colors">
-                    {service.title}
-                  </h3>
-                  <p className="text-lg font-script text-ruby font-medium">
-                    {service.subtitle}
-                  </p>
-                  <p className="text-base text-muted-foreground leading-relaxed">
-                    {service.description}
-                  </p>
-                </div>
-
-                {/* Features */}
-                <div className="space-y-2">
-                  {service.features.map((feature, featureIndex) => (
-                    <div key={featureIndex} className="flex items-center space-x-2">
-                      <Clock className="h-4 w-4 text-ruby" />
-                      <span className="text-sm text-muted-foreground">{feature}</span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* CTA Button */}
-                <Button 
-                  variant="outline" 
-                  size="lg"
-                  className="w-full border-ruby text-ruby hover:bg-ruby hover:text-white group min-h-[44px]"
-                  asChild
-                >
-                  <a href={service.href} className="flex items-center justify-center space-x-2">
-                    <span>Get Quote</span>
-                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                  </a>
-                </Button>
-              </div>
-            </Card>
-          ))}
+          {serviceCategories.map((service, index) => renderCardContent(service, index))}
         </div>
 
       </div>
