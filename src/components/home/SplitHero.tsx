@@ -186,6 +186,10 @@ export const SplitHero = () => {
 
   // Dynamic object positioning based on image index
   const getImageObjectPosition = (index: number) => {
+    // For the charcuterie board image (index 0), shift focal point 20% lower
+    if (index === 0) {
+      return "object-[center_70%]";
+    }
     // For the Award-Winning Catering image (index 1), show more of the center-left
     if (index === 1) {
       return "object-left-center";
