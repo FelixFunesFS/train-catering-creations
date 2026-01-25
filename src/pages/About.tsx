@@ -9,7 +9,7 @@ import { OptimizedImage } from "@/components/ui/optimized-image";
 import { TrustMarquee } from "@/components/home/TrustMarquee";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
-import { useParallaxEffect } from "@/hooks/useParallaxEffect";
+
 import { useIsMobile } from "@/hooks/use-mobile";
 import aboutHeroBg from "@/assets/about-hero-bg.jpg";
 
@@ -68,18 +68,6 @@ const About = () => {
     desktop: { variant: "fade-up", delay: 340 },
   });
 
-  // Parallax for background images (disabled on mobile/tablet)
-  const { ref: storyBgRef, style: storyBgStyle } = useParallaxEffect({
-    speed: 0.15,
-    direction: 'up',
-    disabled: isMobile,
-  });
-
-  const { ref: valuesBgRef, style: valuesBgStyle } = useParallaxEffect({
-    speed: 0.12,
-    direction: 'up',
-    disabled: isMobile,
-  });
 
   return (
     <div className="min-h-screen bg-gradient-hero">
@@ -124,13 +112,11 @@ const About = () => {
 
         {/* Our Story Section - Full-width Background Image */}
         <section className="relative py-16 sm:py-20 lg:py-24 overflow-hidden">
-          {/* Full-width Background Image with Parallax */}
+          {/* Full-width Background Image */}
           <div 
-            ref={storyBgRef}
-            className="absolute inset-0 w-full h-[120%] -top-[10%] bg-cover bg-center bg-no-repeat"
+            className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
             style={{ 
-              backgroundImage: `url('/lovable-uploads/9ea8f6b7-e1cd-4f55-a434-1ffedf0b96dc.png')`,
-              ...storyBgStyle
+              backgroundImage: `url('/lovable-uploads/9ea8f6b7-e1cd-4f55-a434-1ffedf0b96dc.png')`
             }}
             aria-hidden="true"
           />
@@ -240,13 +226,11 @@ const About = () => {
 
         {/* Values Section - Full-width Background Image */}
         <section className="relative py-16 sm:py-20 lg:py-24 overflow-hidden">
-          {/* Full-width Background Image with Parallax */}
+          {/* Full-width Background Image */}
           <div 
-            ref={valuesBgRef}
-            className="absolute inset-0 w-full h-[120%] -top-[10%] bg-cover bg-center bg-no-repeat"
+            className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
             style={{ 
-              backgroundImage: `url('/lovable-uploads/eb77404f-369f-484f-a9ce-786b7f1ddc94.png')`,
-              ...valuesBgStyle
+              backgroundImage: `url('/lovable-uploads/eb77404f-369f-484f-a9ce-786b7f1ddc94.png')`
             }}
             aria-hidden="true"
           />
