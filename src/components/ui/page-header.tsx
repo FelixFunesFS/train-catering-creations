@@ -22,6 +22,7 @@ interface PageHeaderProps {
   }>;
   className?: string;
   animated?: boolean;
+  darkMode?: boolean;
 }
 
 export const PageHeader = ({ 
@@ -32,7 +33,8 @@ export const PageHeader = ({
   icons = [], 
   buttons = [], 
   className,
-  animated = true
+  animated = true,
+  darkMode = false
 }: PageHeaderProps) => {
   const { ref: badgeRef, isVisible: badgeVisible, variant: badgeVariant } = useScrollAnimation({
     delay: 0,
@@ -80,9 +82,12 @@ export const PageHeader = ({
           )}
         >
           {badge.icon && (
-            <span className="text-ruby">{badge.icon}</span>
+            <span className={darkMode ? "text-white" : "text-ruby"}>{badge.icon}</span>
           )}
-          <Badge variant="outline" className="border-ruby text-ruby font-script text-sm">
+          <Badge variant="outline" className={cn(
+            "font-script text-sm",
+            darkMode ? "border-white/60 text-white" : "border-ruby text-ruby"
+          )}>
             {badge.text}
           </Badge>
         </div>
@@ -107,13 +112,19 @@ export const PageHeader = ({
         ref={animated ? titleRef : undefined}
         className={animated ? useAnimationClass(titleVariant, titleVisible) : undefined}
       >
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant font-bold text-foreground mb-3 sm:mb-4 leading-tight title-hover-motion">
+        <h1 className={cn(
+          "text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant font-bold mb-3 sm:mb-4 leading-tight title-hover-motion",
+          darkMode ? "text-white drop-shadow-lg" : "text-foreground"
+        )}>
           {title}
         </h1>
 
         {/* Script subtitle (home page pattern) */}
         {subtitle && (
-          <p className="text-xl sm:text-2xl font-script text-ruby font-medium mb-3 sm:mb-4">
+          <p className={cn(
+            "text-xl sm:text-2xl font-script font-medium mb-3 sm:mb-4",
+            darkMode ? "text-white/90" : "text-ruby"
+          )}>
             {subtitle}
           </p>
         )}
@@ -123,7 +134,8 @@ export const PageHeader = ({
       <p 
         ref={animated ? descRef : undefined}
         className={cn(
-          "text-sm sm:text-base lg:text-lg xl:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed mb-4 sm:mb-6 lg:mb-8 xl:mb-10 subtitle-hover-motion",
+          "text-sm sm:text-base lg:text-lg xl:text-xl max-w-3xl mx-auto leading-relaxed mb-4 sm:mb-6 lg:mb-8 xl:mb-10 subtitle-hover-motion",
+          darkMode ? "text-white/85" : "text-muted-foreground",
           animated && useAnimationClass(descVariant, descVisible)
         )}
       >
