@@ -1,80 +1,181 @@
 
-# Simplified Service Cards - Single Section CTA
+
+# Unified Service Cards with Description on Mobile
 
 ## Overview
-Remove individual CTAs from each service card on mobile and add a single, prominent "Get Your Quote" button after all three cards. This eliminates redundancy while maintaining a clear conversion path.
+Update the Service Categories Section to:
+1. Show descriptions on mobile (currently hidden)
+2. Remove per-card CTAs on desktop/tablet
+3. Add a single section-level "Get Your Quote" CTA for all viewports
+4. Link to `/request-quote` (selector page) so users can choose wedding or regular
 
-## Visual Layout (Mobile)
+## Visual Layout
 
+### Mobile View
 ```text
-┌─────────────────────────────┐
-│  [Image]                    │
-│  Wedding Catering           │
-│  Your Dream Day             │
-│  ⭐ Most Popular            │
-└─────────────────────────────┘
++-----------------------------+
+|  [Image]                    |
+|  Wedding Catering           |
+|  Your Dream Day             |
+|  Charleston's premier...    |  <-- Description now visible
++-----------------------------+
 
-┌─────────────────────────────┐
-│  [Image]                    │
-│  Corporate Events           │
-│  Professional Excellence    │
-└─────────────────────────────┘
++-----------------------------+
+|  [Image]                    |
+|  Corporate Events           |
+|  Professional Excellence    |
+|  Impress clients and...     |  <-- Description now visible
++-----------------------------+
 
-┌─────────────────────────────┐
-│  [Image]                    │
-│  Family Gatherings          │
-│  Comfort & Joy              │
-└─────────────────────────────┘
++-----------------------------+
+|  [Image]                    |
+|  Family Gatherings          |
+|  Comfort & Joy              |
+|  Bring families together... |  <-- Description now visible
++-----------------------------+
 
-     [ Get Your Quote → ]      ← Single CTA button
+      [ Get Your Quote -> ]     <-- Single CTA for all
+```
+
+### Desktop/Tablet View
+```text
++-------------+  +-------------+  +-------------+
+|  Wedding    |  |  Corporate  |  |  Family     |
+|  [desc]     |  |  [desc]     |  |  [desc]     |
+|  [features] |  |  [features] |  |  [features] |
+|  (no CTA)   |  |  (no CTA)   |  |  (no CTA)   |
++-------------+  +-------------+  +-------------+
+
+            [ Get Your Quote -> ]
+            (single section CTA)
 ```
 
 ## Changes
 
 ### File: `src/components/home/ServiceCategoriesSection.tsx`
 
-**1. Remove unused imports**
-- Remove `useState` hook
-- Remove `Collapsible`, `CollapsibleContent`, `CollapsibleTrigger` from Radix
-- Remove `ChevronDown` icon
+**Step 1: Update mobile conditional to show description**
 
-**2. Remove unused state and functions**
-- Delete `expandedCards` state
-- Delete `toggleCard` function  
-- Delete `isCardExpanded` function
+Replace the mobile conditional block (lines 137-167):
 
-**3. Simplify mobile card content**
+Before:
+```tsx
+{isMobileOnly ? null : (
+  /* Desktop/Tablet - Always visible content */
+  <>
+    <p className="text-base text-muted-foreground leading-relaxed">
+      {service.description}
+    </p>
+    {/* Features */}
+    ...
+    {/* CTA Button */}
+    <Button variant="cta-outline" ...>
+      ...
+    </Button>
+  </>
+)}
+```
 
-Replace the mobile collapsible block with minimal content:
-- Title
-- Subtitle
-- Popular badge (if applicable)
-- No individual CTA
+After:
+```tsx
+{/* Description - visible on all viewports */}
+<p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+  {service.description}
+</p>
 
-**4. Add section-level CTA button**
+{/* Features - Desktop/Tablet only (hidden on mobile) */}
+{!isMobileOnly && (
+  <div className="space-y-2">
+    {service.features.map((feature, featureIndex) => (
+      <div key={featureIndex} className="flex items-center space-x-2">
+        <CircleCheck className="h-4 w-4 text-ruby" />
+        <span className="text-sm text-muted-foreground">{feature}</span>
+      </div>
+    ))}
+  </div>
+)}
+```
 
-After the cards grid, add a centered CTA button visible only on mobile:
+**Step 2: Update section CTA to show on all viewports**
 
+Replace the mobile-only CTA (lines 231-241):
+
+Before:
 ```tsx
 {/* Mobile-only Section CTA */}
 {isMobileOnly && (
   <div className="flex justify-center mt-6">
     <Button variant="cta" size="responsive-md" asChild>
       <a href="/request-quote/regular" className="flex items-center gap-2">
-        <span>Get Your Quote</span>
-        <ArrowRight className="h-4 w-4" />
+        ...
       </a>
     </Button>
   </div>
 )}
 ```
 
-## Benefits
-- Eliminates 3 redundant CTAs
-- Reduces scroll depth significantly
-- Single clear call-to-action
-- Cards become scannable previews
-- Specialized wedding form still accessible via site navigation
+After:
+```tsx
+{/* Section CTA - all viewports */}
+<div className="flex justify-center mt-6 sm:mt-8">
+  <Button variant="cta" size="responsive-md" asChild>
+    <a href="/request-quote" className="flex items-center gap-2">
+      <span>Get Your Quote</span>
+      <ArrowRight className="h-4 w-4" />
+    </a>
+  </Button>
+</div>
+```
 
-## Desktop/Tablet Unchanged
-The full content with descriptions, features, and per-card CTAs remains for larger screens where the extra detail is valuable and not overwhelming.
+**Step 3: Clean up unused href property (optional)**
+
+The `href` property in the `serviceCategories` array is no longer used and can be removed for cleanliness:
+
+```tsx
+// Remove href from each service object
+{
+  icon: <Heart className="h-6 w-6" />,
+  title: "Wedding Catering",
+  subtitle: "Your Dream Day",
+  description: "...",
+  image: weddingCatering,
+  features: [...],
+  // href: "/request-quote/wedding",  <-- Remove
+  isPopular: true
+}
+```
+
+Also update the interface:
+```tsx
+interface ServiceCategory {
+  icon: React.ReactNode;
+  title: string;
+  subtitle: string;
+  description: string;
+  image: string;
+  features: string[];
+  // href: string;  <-- Remove
+  isPopular?: boolean;
+}
+```
+
+## Summary of Content by Viewport
+
+| Element | Mobile | Tablet/Desktop |
+|---------|--------|----------------|
+| Image | Yes | Yes |
+| Title | Yes | Yes |
+| Subtitle | Yes | Yes |
+| Description | Yes (new!) | Yes |
+| Features | No | Yes |
+| Per-card CTA | No | No (removed) |
+| Section CTA | Yes | Yes (new!) |
+
+## Benefits
+
+- Descriptions provide context on mobile without excessive length
+- Features hidden on mobile to manage scroll depth
+- Single CTA eliminates redundancy (3 buttons to 1)
+- Links to `/request-quote` selector page for user choice
+- Consistent conversion path across all devices
+
