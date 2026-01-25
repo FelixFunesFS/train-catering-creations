@@ -13,6 +13,7 @@ import { useAnimationClass } from "@/hooks/useAnimationClass";
 
 import tanyaWardImg from "@/assets/tanya-ward.jpg";
 import teamWesternGroup from "@/assets/gallery/team-western-group.jpg";
+import teamBuffetService from "@/assets/team-buffet-service.jpg";
 
 const About = () => {
   // Story section animations
@@ -168,10 +169,25 @@ const About = () => {
           </div>
         </section>
 
-        {/* Team Section - Pattern C */}
-        <PageSection pattern="c" withBorder className="relative">
+        {/* Team Section - With Background Image */}
+        <section className="relative py-16 sm:py-20 lg:py-24 overflow-hidden">
+          {/* Background Image */}
+          <div 
+            className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
+            style={{ backgroundImage: `url(${teamBuffetService})` }}
+            aria-hidden="true"
+          />
           
-          <div className="relative z-[1] max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Overlay for readability */}
+          <div className="absolute inset-0 bg-background/85" />
+          
+          {/* Top gradient fade */}
+          <div className="absolute top-0 left-0 right-0 h-16 sm:h-20 lg:h-24 bg-gradient-to-b from-background to-transparent z-10" />
+          
+          {/* Bottom gradient fade */}
+          <div className="absolute bottom-0 left-0 right-0 h-16 sm:h-20 lg:h-24 bg-gradient-to-t from-background to-transparent z-10" />
+          
+          <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant text-foreground mb-6">
                 Meet Our Team
@@ -227,7 +243,7 @@ const About = () => {
               </div>
             </div>
           </div>
-        </PageSection>
+        </section>
 
         {/* Values Section - Full-width Background Image */}
         <section className="relative py-16 sm:py-20 lg:py-24 overflow-hidden">
