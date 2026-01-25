@@ -12,7 +12,7 @@ import { useAnimationClass } from "@/hooks/useAnimationClass";
 
 import { useIsMobile } from "@/hooks/use-mobile";
 import aboutHeroBg from "@/assets/about-hero-bg.jpg";
-import tanyaWardImg from "@/assets/tanya-ward.png";
+import tanyaWardImg from "@/assets/tanya-ward.jpg";
 
 const About = () => {
   const isMobile = useIsMobile();
