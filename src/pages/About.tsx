@@ -13,6 +13,7 @@ import { useAnimationClass } from "@/hooks/useAnimationClass";
 import { useIsMobile } from "@/hooks/use-mobile";
 import aboutHeroBg from "@/assets/about-hero-bg.jpg";
 import tanyaWardImg from "@/assets/tanya-ward.jpg";
+import buffetOutdoorTent from "@/assets/gallery/buffet-outdoor-tent.jpg";
 
 const About = () => {
   const isMobile = useIsMobile();
@@ -287,24 +288,48 @@ const About = () => {
           </div>
         </section>
 
-        {/* CTA Section - Card Treatment (no wrapper) */}
-        <CTASection
-          title="Ready to Experience Soul Train's Difference?"
-          description="Let our family serve yours with the authentic flavors and warm hospitality that have made us Charleston's trusted catering choice for over two decades."
-          buttons={[
-            {
-              text: "Request Quote",
-              href: "/request-quote#page-header",
-              variant: "cta"
-            },
-            {
-              text: "View Our Menu",
-              href: "/menu",
-              variant: "cta-white"
-            }
-          ]}
-          footer="ServSafe certified • Family owned • Community trusted"
-        />
+        {/* CTA Section - Image Background */}
+        <section className="relative py-10 sm:py-12 lg:py-16 overflow-hidden">
+          {/* Background Image */}
+          <div 
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{ backgroundImage: `url(${buffetOutdoorTent})` }}
+            aria-hidden="true"
+          />
+          
+          {/* Crimson Overlay */}
+          <div className="absolute inset-0 bg-primary/85" />
+          
+          {/* Gradient Fades */}
+          <div className="absolute top-0 left-0 right-0 h-16 sm:h-20 bg-gradient-to-b from-background to-transparent z-10" />
+          <div className="absolute bottom-0 left-0 right-0 h-16 sm:h-20 bg-gradient-to-t from-background to-transparent z-10" />
+          
+          {/* Content */}
+          <div className="relative z-20 mx-4 sm:mx-6 lg:mx-8 rounded-xl sm:rounded-2xl overflow-hidden">
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center py-8 sm:py-10 lg:py-12">
+              <h2 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-elegant text-primary-foreground mb-3 sm:mb-4 lg:mb-6">
+                Ready to Experience Soul Train's Difference?
+              </h2>
+              
+              <p className="text-sm sm:text-base lg:text-lg text-primary-foreground/90 mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed">
+                Let our family serve yours with the authentic flavors and warm hospitality that have made us Charleston's trusted catering choice for over two decades.
+              </p>
+              
+              <div className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4">
+                <Button asChild variant="cta" size="responsive-lg" className="w-full sm:w-auto sm:min-w-[12rem]">
+                  <a href="/request-quote#page-header">Request Quote</a>
+                </Button>
+                <Button asChild variant="cta-white" size="responsive-lg" className="w-full sm:w-auto sm:min-w-[12rem]">
+                  <a href="/menu">View Our Menu</a>
+                </Button>
+              </div>
+              
+              <p className="text-primary-foreground/75 mt-4 sm:mt-6 text-xs sm:text-sm">
+                ServSafe certified • Family owned • Community trusted
+              </p>
+            </div>
+          </div>
+        </section>
       </main>
     </div>
   );
