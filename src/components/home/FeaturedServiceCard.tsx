@@ -18,7 +18,7 @@ export const FeaturedServiceCard = ({ delay = 0 }: FeaturedServiceCardProps) => 
   const animationClass = useAnimationClass(variant, isVisible);
 
   return (
-    <Link to="/wedding-menu#page-header" className="block">
+    <Link to="/request-quote/wedding" className="block">
       <div
         ref={ref}
         className={`neumorphic-card-2 hover:neumorphic-card-3 bg-card transition-all duration-300 overflow-hidden group cursor-pointer rounded-xl p-4 sm:p-6 relative ${animationClass}`}
@@ -77,14 +77,15 @@ export const FeaturedServiceCard = ({ delay = 0 }: FeaturedServiceCardProps) => 
             {/* CTA Section */}
             <div className="flex flex-col sm:flex-row gap-3">
               <span className="text-primary hover:text-primary/80 font-semibold group inline-flex items-center gap-2 text-base sm:text-lg">
-                View Wedding Menu
+                Start Your Wedding Quote
                 <span className="group-hover:translate-x-1 transition-transform duration-200">→</span>
               </span>
               <Link
-                to="/wedding-event-quote#page-header"
+                to="/menu#page-header"
                 className="text-muted-foreground hover:text-foreground text-sm underline"
+                onClick={(e) => e.stopPropagation()}
               >
-                Get Custom Quote
+                Browse Menu Options
               </Link>
             </div>
           </div>

@@ -11,6 +11,7 @@ interface SupportingServiceCardProps {
   image: string;
   imageAlt: string;
   link: string;
+  ctaText?: string;
   delay?: number;
   icon?: LucideIcon;
   feature?: string;
@@ -22,6 +23,7 @@ export const SupportingServiceCard = ({
   image,
   imageAlt,
   link,
+  ctaText = "Get Quote",
   delay = 0,
   icon: Icon,
   feature
@@ -69,7 +71,7 @@ export const SupportingServiceCard = ({
           
           <div className="mt-auto">
             <span className="text-primary hover:text-primary/80 font-medium group inline-flex items-center gap-1 text-sm">
-              Learn More 
+              {ctaText}
               <span className="group-hover:translate-x-1 transition-transform duration-200">→</span>
             </span>
           </div>

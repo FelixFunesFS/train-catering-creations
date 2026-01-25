@@ -50,7 +50,7 @@ export const ServiceCategoriesSection = () => {
       description: "Charleston's premier wedding caterer since 2017. We turn your dream day into a flawless celebration with authentic Southern elegance.",
       image: "/lovable-uploads/1cd54e2e-3991-4795-ad2a-6e8c18fb530f.png",
       features: ["Custom Menu Planning", "Professional Service", "Elegant Presentation"],
-      href: "/wedding-menu",
+      href: "/request-quote/wedding",
       isPopular: true
     },
     {
@@ -60,7 +60,7 @@ export const ServiceCategoriesSection = () => {
       description: "Impress clients and colleagues with sophisticated catering that reflects your company's commitment to quality.",
       image: "/lovable-uploads/e8d1f833-d15b-4779-8141-cb7641a62227.png",
       features: ["Flexible Scheduling", "Dietary Accommodations", "Professional Setup"],
-      href: "/request-quote#page-header"
+      href: "/request-quote/regular"
     },
     {
       icon: <Users className="h-6 w-6" />,
@@ -69,7 +69,7 @@ export const ServiceCategoriesSection = () => {
       description: "Bring families together with soul food that creates lasting memories and celebrates your heritage.",
       image: "/lovable-uploads/166f817d-592c-4935-b38f-52efd5322e59.png",
       features: ["Family-Style Service", "Traditional Recipes", "Generous Portions"],
-      href: "/menu"
+      href: "/request-quote/regular"
     }
   ];
 
@@ -170,7 +170,7 @@ export const ServiceCategoriesSection = () => {
                   asChild
                 >
                   <a href={service.href} className="flex items-center justify-center space-x-2">
-                    <span>Learn More</span>
+                    <span>Get Quote</span>
                     <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                   </a>
                 </Button>
