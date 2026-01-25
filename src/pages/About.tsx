@@ -13,7 +13,8 @@ import { useAnimationClass } from "@/hooks/useAnimationClass";
 
 import tanyaWardImg from "@/assets/tanya-ward.jpg";
 import venueEventSetup from "@/assets/venue-event-setup.jpg";
-import heroAppetizers from "@/assets/hero/hero-appetizers.webp";
+import aboutHeroBg from "@/assets/about-hero-bg.jpg";
+import aboutValuesBg from "@/assets/about-values-bg.jpg";
 
 const About = () => {
   // Story section animations
@@ -98,7 +99,7 @@ const About = () => {
           <div 
             className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
             style={{ 
-              backgroundImage: `url('/lovable-uploads/9ea8f6b7-e1cd-4f55-a434-1ffedf0b96dc.png')`
+              backgroundImage: `url(${aboutHeroBg})`
             }}
             aria-hidden="true"
           />
@@ -233,7 +234,7 @@ const About = () => {
           <div 
             className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
             style={{ 
-              backgroundImage: `url(${heroAppetizers})`
+              backgroundImage: `url(${aboutValuesBg})`
             }}
             aria-hidden="true"
           />
