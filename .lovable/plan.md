@@ -1,122 +1,150 @@
 
+# Wave Dividers for Gallery Section
 
-# Gallery Section Background Enhancement
+## Overview
 
-## Current State
+Add elegant SVG wave dividers to the top and bottom of the "Gallery of Flavor & Style" section to create smooth visual transitions between sections. The waves will complement the existing platinum gradient background and brand color palette.
 
-The home page **InteractiveGalleryPreview** section currently uses `bg-background` (plain white), which breaks the established A-B-C-D alternating gradient pattern used across the site.
+## Design Approach
 
-### Current Section Flow
-```text
-Hero           → Full-width image
-Services       → Pattern C (gold)
-Gallery        → Plain white ← BREAKS PATTERN
-About          → Pattern D (navy)
-Testimonials   → Full-width image
-Featured Venue → Pattern A (ruby)
-Marquee        → Gray band
-CTA            → Crimson gradient
-```
-
----
-
-## Recommended Solution: Pattern B Gradient
-
-Apply the existing `bg-gradient-pattern-b` (platinum accent) to maintain the alternating rhythm. This is the cleanest approach that:
-- Maintains visual consistency with the established design system
-- Provides subtle visual separation without overwhelming the gallery images
-- Requires minimal code changes
-
-### Updated Section Flow
-```text
-Hero           → Full-width image
-Services       → Pattern C (gold)
-Gallery        → Pattern B (platinum) ← FIXED
-About          → Pattern D (navy)
-Testimonials   → Full-width image
-Featured Venue → Pattern A (ruby)
-```
-
----
+The waves will use a subtle, organic curve that flows naturally between sections:
+- **Top wave**: Transitions from the previous section (Services with Pattern C gold) into the gallery
+- **Bottom wave**: Transitions from the gallery into the next section (About with Pattern D navy)
 
 ## Implementation
 
-### File Change: `src/components/home/InteractiveGalleryPreview.tsx`
+### Step 1: Create Reusable WaveDivider Component
 
-**Current (line 162-165):**
+Create a new component `src/components/ui/wave-divider.tsx` with configurable options:
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| position | 'top' \| 'bottom' | 'bottom' | Wave placement |
+| color | string | 'currentColor' | Fill color (supports CSS variables) |
+| height | number | 60 | Wave height in pixels |
+| flip | boolean | false | Flip wave horizontally |
+| className | string | '' | Additional styling |
+
+The component renders an inline SVG with a smooth bezier curve path, fully responsive via `preserveAspectRatio="none"`.
+
+### Step 2: Integrate Waves into Gallery Section
+
+Update `src/components/home/InteractiveGalleryPreview.tsx`:
+
+**Top Wave** (before section content):
+- Position: absolute, top-0
+- Color: matches previous section background (white/cream)
+- Creates illusion of previous section "flowing" into gallery
+
+**Bottom Wave** (after section content):
+- Position: absolute, bottom-0
+- Color: matches gallery background (platinum gradient)
+- Creates smooth transition to next section
+
+### Step 3: Color Integration
+
+The waves will use the brand palette:
+- Top wave fill: `hsl(var(--background))` (white) - blends with Services section
+- Bottom wave fill: `hsl(var(--platinum-light))` or semi-transparent platinum - transitions to About section
+
+## File Changes
+
+| File | Action |
+|------|--------|
+| `src/components/ui/wave-divider.tsx` | Create - new reusable component |
+| `src/components/home/InteractiveGalleryPreview.tsx` | Edit - add wave dividers |
+
+## Technical Details
+
+### WaveDivider Component Structure
+
 ```tsx
-<section 
-  ref={ref}
-  className="py-12 sm:py-16 lg:py-20 bg-background"
->
+interface WaveDividerProps {
+  position?: 'top' | 'bottom';
+  color?: string;
+  height?: number;
+  flip?: boolean;
+  className?: string;
+}
+
+export const WaveDivider = ({
+  position = 'bottom',
+  color = 'hsl(var(--background))',
+  height = 60,
+  flip = false,
+  className
+}: WaveDividerProps) => {
+  // Renders full-width SVG wave
+  // Uses smooth bezier curve for organic shape
+  // preserveAspectRatio="none" for responsive scaling
+};
 ```
 
-**Updated:**
-```tsx
-<section 
-  ref={ref}
-  className="py-12 sm:py-16 lg:py-20 bg-gradient-pattern-b"
->
+### SVG Wave Path
+
+The wave uses a cubic bezier curve for a natural, flowing shape:
+
+```svg
+<path d="M0,0 C320,80 480,0 640,40 C800,80 960,0 1280,60 L1280,100 L0,100 Z" />
 ```
 
----
+This creates gentle undulations rather than harsh geometric shapes.
 
-## Alternative: Full-Width Background Image
-
-If you prefer a more dramatic visual treatment similar to the Testimonials section, an alternative approach uses a curated culinary image with a light overlay:
+### Gallery Section Integration
 
 ```tsx
-<section ref={ref} className="relative py-12 sm:py-16 lg:py-20 overflow-hidden">
-  {/* Full-width Background Image */}
-  <div 
-    className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
-    style={{ 
-      backgroundImage: `url('/lovable-uploads/[selected-image].png')` 
-    }}
-    aria-hidden="true"
+<section className="relative py-12 sm:py-16 lg:py-20 bg-gradient-pattern-b">
+  {/* Top Wave - white flowing down from Services section */}
+  <WaveDivider 
+    position="top" 
+    color="hsl(var(--background))" 
+    height={50}
+    className="text-background"
   />
   
-  {/* Light overlay for readability on white theme */}
-  <div className="absolute inset-0 bg-white/85 backdrop-blur-sm" />
-
   <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-    {/* Content */}
+    {/* Existing gallery content */}
   </div>
+  
+  {/* Bottom Wave - platinum flowing into About section */}
+  <WaveDivider 
+    position="bottom" 
+    color="hsl(var(--platinum-light))" 
+    height={50}
+    flip
+  />
 </section>
 ```
 
-This approach requires:
-- Selecting an appropriate background image from the gallery
-- Tuning the overlay opacity for proper text contrast
-- More complex implementation
+## Visual Result
 
----
+```text
+┌─────────────────────────────────────────┐
+│         Services Section                │
+│         (Pattern C - Gold)              │
+└─────────────────────────────────────────┘
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ← Top wave (white)
+┌─────────────────────────────────────────┐
+│                                         │
+│      Gallery of Flavor & Style          │
+│         (Pattern B - Platinum)          │
+│                                         │
+└─────────────────────────────────────────┘
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ← Bottom wave (platinum)
+┌─────────────────────────────────────────┐
+│          About Section                  │
+│         (Pattern D - Navy)              │
+└─────────────────────────────────────────┘
+```
 
-## Technical Notes
+## Accessibility
 
-### Existing Gradient Patterns (from index.css)
-| Pattern | Color Accent | Usage |
-|---------|--------------|-------|
-| Pattern A | Ruby | Featured Venue |
-| Pattern B | Platinum | **Gallery (proposed)** |
-| Pattern C | Gold | Services |
-| Pattern D | Navy | About |
+- Waves are purely decorative and include `aria-hidden="true"`
+- No impact on screen readers or keyboard navigation
+- Maintains all existing accessibility features
 
-### Why Pattern B Works Best
-- **Platinum accent** complements the gallery images without competing with food colors
-- **Maintains the established rhythm** without introducing new design patterns
-- **Minimal implementation risk** - uses existing CSS variables
-- **Consistent with style guide** per the memory documentation
+## Mobile Responsiveness
 
----
-
-## Summary
-
-| Approach | Pros | Cons |
-|----------|------|------|
-| **Pattern B Gradient (Recommended)** | Simple, consistent, minimal code | Less dramatic |
-| **Full-Width Image** | Visual impact, immersive | More complex, needs image selection |
-| **Hybrid Texture** | Unique visual interest | Most complex, may distract from gallery |
-
-**Recommendation**: Use Pattern B gradient for consistency with the established design system. Reserve full-width background images for high-impact sections like Hero, Testimonials, and CTA.
-
+- Wave height scales proportionally on mobile (`h-[40px] sm:h-[50px] lg:h-[60px]`)
+- Full-width coverage at all breakpoints
+- Smooth transitions maintained on touch devices
