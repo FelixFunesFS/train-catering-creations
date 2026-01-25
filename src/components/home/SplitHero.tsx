@@ -259,7 +259,7 @@ export const SplitHero = () => {
 
             {/* CTA Buttons - High Contrast */}
             <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-1 sm:pt-2">
-              <Button size="lg" className="w-full sm:flex-1 bg-gradient-ruby-primary hover:opacity-90 text-white font-semibold min-h-[48px] shadow-lg" asChild>
+              <Button variant="cta" size="lg" className="w-full sm:flex-1 min-h-[48px] shadow-lg" asChild>
                 <Link to="/request-quote#page-header" className="flex items-center justify-center gap-2 text-inherit">
                   <Calendar className="h-4 w-4" />
                   <span>Request Quote</span>
@@ -335,7 +335,7 @@ export const SplitHero = () => {
 
           <div className="space-y-4">
             <div className="flex flex-col md:flex-row space-y-3 md:space-y-0 md:space-x-4">
-              <Button size="lg" className="flex-1 bg-gradient-ruby-primary hover:bg-gradient-ruby-accent text-white font-semibold min-h-[48px]" asChild>
+              <Button variant="cta" size="lg" className="flex-1 min-h-[48px]" asChild>
                 <a href="/request-quote#page-header" className="flex items-center justify-center space-x-2 text-inherit">
                   <Calendar className="h-5 w-5" />
                   <span>Request Quote</span>

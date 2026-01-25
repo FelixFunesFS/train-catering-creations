@@ -300,8 +300,8 @@ const About = () => {
           title="Ready to Experience Soul Train's Difference?"
           description="Let our family serve yours with the authentic flavors and warm hospitality that have made us Charleston's trusted catering choice."
           buttons={[
-            { text: "Request Quote", href: "/request-quote#page-header", variant: "cta" },
-            { text: "View Our Menu", href: "/menu", variant: "cta-white" }
+            { text: "Request Quote", href: "/request-quote#page-header", variant: "cta-white" },
+            { text: "View Our Menu", href: "/menu", variant: "cta" }
           ]}
           footer="ServSafe certified · Family owned · Community trusted"
           showWatermark={true}
