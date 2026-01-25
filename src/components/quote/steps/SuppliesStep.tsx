@@ -41,29 +41,6 @@ export const SuppliesStep = ({ form, variant = 'regular' }: SuppliesStepProps) =
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
           <FormField
             control={form.control}
-            name="ceremony_included"
-            render={({ field }) => (
-              <FormItem 
-                className="flex items-start space-x-3 space-y-0 rounded-md border border-muted bg-card p-4 cursor-pointer hover:border-primary/50 transition-colors"
-                onClick={() => field.onChange(!field.value)}
-              >
-                <FormControl>
-                  {field.value ? (
-                    <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />
-                  ) : (
-                    <Circle className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                  )}
-                </FormControl>
-                <div className="space-y-1 leading-none">
-                  <FormLabel className="text-sm font-medium cursor-pointer">Ceremony Included</FormLabel>
-                  <p className="text-xs text-muted-foreground">Catering during ceremony</p>
-                </div>
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
             name="cocktail_hour"
             render={({ field }) => (
               <FormItem 
