@@ -198,7 +198,8 @@ const About = () => {
                       src="/lovable-uploads/ca9f1bb5-3b58-46fc-a5e4-cf2359a610ed.png" 
                       alt="Chef Dominick 'Train' Ward"
                       aspectRatio="aspect-square"
-                      className="w-64 h-64 mx-auto mb-4 rounded-full object-cover"
+                      containerClassName="w-64 h-64 mx-auto mb-4 rounded-full"
+                      className="rounded-full object-cover"
                     />
                     <ChefHat className="h-12 w-12 text-primary mx-auto mb-4" />
                   </div>
@@ -219,7 +220,8 @@ const About = () => {
                       src="/lovable-uploads/1dcbc1ee-eb25-4d89-8722-cb4904d1ba69.png" 
                       alt="Pastry Chef Tanya Ward" 
                       aspectRatio="aspect-square"
-                      className="w-64 h-64 mx-auto mb-4 rounded-full object-cover"
+                      containerClassName="w-64 h-64 mx-auto mb-4 rounded-full"
+                      className="rounded-full object-cover"
                     />
                     <Heart className="h-12 w-12 text-primary mx-auto mb-4" />
                   </div>
