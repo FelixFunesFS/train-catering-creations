@@ -1,122 +1,176 @@
 
 
-# CTA Accessibility, Our Story Background Sizing, and Spacing Fixes
+# Service Cards & Our Story Buttons - Mobile/Tablet UX Improvements
 
 ## Overview
-This plan addresses three issues affecting mobile and tablet experience:
-1. Our Story section background image sizing (logo too large/cropped on mobile)
-2. CTA button text color inheritance for accessibility
-3. Excessive spacing between CTA sections and footers
+This plan addresses four improvements:
+1. Collapsible content on mobile for service cards (collapse after subtitle)
+2. Replace Clock icon with CircleCheck for feature bullets
+3. Third service card horizontal split layout on tablet view
+4. Our Story section buttons side-by-side on tablet view
 
 ---
 
-## Issue 1: Our Story Background Image Sizing
+## Issue 1: Collapsible Content on Mobile (Service Cards)
 
 ### Current State
-The `AboutPreviewSection` background uses:
-```tsx
-<div 
-  className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-  style={{ backgroundImage: `url(${homeStoryBg})` }}
-/>
-```
-
-`bg-cover` scales the image to fill the entire container, which can make the logo within the background image appear too large and cropped on smaller screens.
+Service cards display all content (image, title, subtitle, description, 3 features, CTA button) creating tall cards on mobile.
 
 ### Solution
-Use responsive background sizing - smaller on mobile/tablet, full cover on desktop:
+Use Radix Collapsible to hide description, features, and CTA behind a "View Details" toggle on mobile only.
 
-**File: `src/components/home/AboutPreviewSection.tsx`**
+### Behavior
+- **Mobile (under 768px)**: Cards show image, title, subtitle, and a "View Details" chevron button. Tapping expands to reveal description, features, and CTA.
+- **Tablet and Desktop (768px+)**: All content always visible (no collapsible behavior).
 
-Change line 49-53:
-```tsx
-// From:
-<div 
-  className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-  style={{ backgroundImage: `url(${homeStoryBg})` }}
-  aria-hidden="true"
-/>
-
-// To:
-<div 
-  className="absolute inset-0 bg-contain lg:bg-cover bg-center bg-no-repeat"
-  style={{ backgroundImage: `url(${homeStoryBg})` }}
-  aria-hidden="true"
-/>
-```
-
-This uses `bg-contain` on mobile/tablet (image fits within container, showing the full logo) and `bg-cover` on desktop (image fills container as currently designed).
-
----
-
-## Issue 2: CTA-to-Footer Spacing
-
-### Current State
-Both CTA sections use equal top/bottom padding:
-- `cta-section.tsx`: `py-10 sm:py-12 lg:py-16`
-- `MenuCTASection.tsx`: `py-12 lg:py-16`
-
-This creates excessive whitespace before the footer on mobile.
-
-### Solution
-Reduce bottom padding while maintaining top padding:
-
-**File: `src/components/ui/cta-section.tsx`**
-
-Change line 32:
-```tsx
-// From:
-<section className="py-10 sm:py-12 lg:py-16">
-
-// To:
-<section className="pt-10 pb-6 sm:pt-12 sm:pb-8 lg:py-16">
-```
-
-**File: `src/components/menu/MenuCTASection.tsx`**
-
-Change line 15:
-```tsx
-// From:
-<section className="py-12 lg:py-16">
-
-// To:
-<section className="pt-12 pb-6 sm:pb-8 lg:py-16">
-```
-
----
-
-## Issue 3: CTA Button Text Inheritance
-
-### Problem
-The `cta-white` button variant uses `text-navy`, but nested anchor tags may inherit conflicting link styles.
-
-### Solution
-Add `text-inherit` to anchor tags inside buttons:
-
-**File: `src/components/ui/cta-section.tsx`**
-
-Change line 72:
-```tsx
-// From:
-<a href={button.href} className="flex items-center justify-center gap-2">
-
-// To:
-<a href={button.href} className="flex items-center justify-center gap-2 text-inherit">
-```
-
----
-
-## Visual Impact
-
+### Visual Structure (Mobile - Collapsed)
 ```text
-Our Story Background (Mobile/Tablet):
-BEFORE: bg-cover - logo cropped/too large
-AFTER:  bg-contain - full logo visible, properly sized
-
-CTA to Footer (Mobile):
-BEFORE: 40px bottom padding
-AFTER:  24px bottom padding - tighter layout
++------------------------+
+|       [Image]          |
++------------------------+
+| Title                  |
+| Subtitle (script)      |
+| [▼ View Details]       |
++------------------------+
 ```
+
+### Visual Structure (Mobile - Expanded)
+```text
++------------------------+
+|       [Image]          |
++------------------------+
+| Title                  |
+| Subtitle (script)      |
+| [▲ Hide Details]       |
+|------------------------|
+| Description paragraph  |
+| ✓ Feature 1           |
+| ✓ Feature 2           |
+| ✓ Feature 3           |
+| [Get Quote Button]     |
++------------------------+
+```
+
+---
+
+## Issue 2: Icon Replacement (Service Cards)
+
+### Current State
+The `Clock` icon is used for all feature bullets, which semantically represents time rather than service features.
+
+### Solution
+Replace with `CircleCheck` - it has more visual presence at small sizes and clearly communicates "included feature."
+
+**Change:**
+```tsx
+// From:
+import { Clock } from "lucide-react";
+<Clock className="h-4 w-4 text-ruby" />
+
+// To:
+import { CircleCheck } from "lucide-react";
+<CircleCheck className="h-4 w-4 text-ruby" />
+```
+
+---
+
+## Issue 3: Tablet Split Card Layout (3rd Service Card)
+
+### Current Layout (Tablet)
+```text
++-------------+  +-------------+
+|   Card 1    |  |   Card 2    |
+| (vertical)  |  | (vertical)  |
++-------------+  +-------------+
++-------------+
+|   Card 3    |
+| (orphaned)  |
++-------------+
+```
+
+### Proposed Layout (Tablet)
+```text
++-------------+  +-------------+
+|   Card 1    |  |   Card 2    |
+| (vertical)  |  | (vertical)  |
++-------------+  +-------------+
++-----------------------------+
+|  Image  |     Content       |
+|  (40%)  |  Title, Subtitle  |
+|         |  Features, CTA    |
++-----------------------------+
+```
+
+### Implementation
+Apply conditional classes to the 3rd card only:
+- `md:col-span-2 lg:col-span-1` - span full width on tablet
+- `md:flex md:flex-row lg:block` - horizontal layout on tablet
+- Image: `md:w-[40%] lg:w-full`
+- Content: `md:w-[60%] lg:w-full`
+
+---
+
+## Issue 4: Our Story Buttons Side-by-Side on Tablet
+
+### Current State (Line 134)
+```tsx
+<div className="flex flex-col space-y-3">
+  <Button>Our Full Story</Button>
+  <Button>Work With Us</Button>
+</div>
+```
+
+Buttons stack vertically on all screen sizes.
+
+### Solution
+Add responsive flex classes to display buttons side-by-side on tablet:
+
+**Change:**
+```tsx
+// From:
+<div className="flex flex-col space-y-3">
+
+// To:
+<div className="flex flex-col sm:flex-row sm:space-y-0 sm:space-x-3 space-y-3">
+```
+
+Also adjust button width classes:
+```tsx
+// From:
+className="w-full ..."
+
+// To:
+className="w-full sm:w-auto sm:flex-1 ..."
+```
+
+### Visual Result
+
+**Mobile (stacked):**
+```text
++------------------------+
+| [Our Full Story    →]  |
++------------------------+
+| [Work With Us      ]   |
++------------------------+
+```
+
+**Tablet (side-by-side):**
+```text
++------------+  +------------+
+| Our Full   |  | Work With  |
+| Story    → |  | Us         |
++------------+  +------------+
+```
+
+---
+
+## Responsive Behavior Summary
+
+| Component | Mobile (<640px) | Tablet (640-1023px) | Desktop (1024px+) |
+|-----------|-----------------|---------------------|-------------------|
+| Service Cards 1 & 2 | Vertical, collapsible | Vertical, 50% width | Vertical, 33% width |
+| Service Card 3 | Vertical, collapsible | Horizontal split, full width | Vertical, 33% width |
+| Our Story Buttons | Stacked vertically | Side-by-side | Side-by-side |
 
 ---
 
@@ -124,15 +178,56 @@ AFTER:  24px bottom padding - tighter layout
 
 | File | Changes |
 |------|---------|
-| `src/components/home/AboutPreviewSection.tsx` | Change `bg-cover` to `bg-contain lg:bg-cover` |
-| `src/components/ui/cta-section.tsx` | Section padding, anchor text inheritance |
-| `src/components/menu/MenuCTASection.tsx` | Section padding adjustment |
+| `src/components/home/ServiceCategoriesSection.tsx` | Add collapsible behavior, replace Clock with CircleCheck, add split layout for 3rd card |
+| `src/components/home/AboutPreviewSection.tsx` | Update button container to flex-row on tablet |
 
 ---
 
-## What's NOT Changing
+## Technical Implementation Details
 
-- CTA section watermark logo (no changes per user clarification)
-- Our Story overlay opacity (remains at 85%)
-- Desktop background behavior (still uses `bg-cover`)
+### ServiceCategoriesSection.tsx Changes
+
+1. **Add imports:**
+   - `Collapsible, CollapsibleContent, CollapsibleTrigger` from `@/components/ui/collapsible`
+   - `CircleCheck, ChevronDown` from `lucide-react`
+   - `useIsMobile` from `@/hooks/use-mobile`
+
+2. **Add state for expanded cards:**
+   ```tsx
+   const [expandedCards, setExpandedCards] = useState<number[]>([]);
+   const isMobile = useIsMobile();
+   ```
+
+3. **Replace Clock with CircleCheck** in the features mapping
+
+4. **Wrap content in Collapsible** for mobile view
+
+5. **Add conditional 3rd card layout classes**
+
+### AboutPreviewSection.tsx Changes
+
+Line 134 - Update button container:
+```tsx
+<div className="flex flex-col sm:flex-row sm:space-y-0 sm:space-x-3 space-y-3">
+```
+
+Lines 135-144 - Update primary button:
+```tsx
+className="w-full sm:w-auto sm:flex-1 bg-gradient-ruby-primary ..."
+```
+
+Lines 145-152 - Update secondary button:
+```tsx
+className="w-full sm:w-auto sm:flex-1 border-ruby ..."
+```
+
+---
+
+## Accessibility Considerations
+
+- Collapsible toggle includes `aria-expanded` and `aria-controls` attributes
+- Touch targets maintain 44px minimum height
+- `CircleCheck` icon is decorative (feature text provides context)
+- Keyboard navigation preserved for all interactive elements
+- Button text remains readable at all breakpoints
 
