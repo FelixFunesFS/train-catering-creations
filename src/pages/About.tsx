@@ -75,14 +75,11 @@ const About = () => {
         <TrustMarquee />
         
         {/* Header Section - With Team Group Background Image */}
-        <section className="relative py-12 sm:py-16 lg:py-20 overflow-hidden">
+        <section className="relative py-8 sm:py-10 lg:py-12 overflow-hidden">
           {/* Background image - now using team western group */}
           <div 
-            className="absolute inset-0 bg-cover bg-no-repeat"
-            style={{ 
-              backgroundImage: `url(${teamWesternGroup})`,
-              backgroundPosition: 'center 20%'
-            }}
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{ backgroundImage: `url(${teamWesternGroup})` }}
             aria-hidden="true"
           />
           
