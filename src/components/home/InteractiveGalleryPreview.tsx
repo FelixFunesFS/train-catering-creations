@@ -8,6 +8,7 @@ import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 import { useStaggeredAnimation } from "@/hooks/useStaggeredAnimation";
 import { useIsMobile } from "@/hooks/use-mobile";
+import militaryCateringService from "@/assets/military-catering-service.jpg";
 
 interface GalleryItem {
   src: string;
@@ -71,10 +72,10 @@ export const InteractiveGalleryPreview = () => {
       title: "Formal Event Elegance"
     },
     {
-      src: "/lovable-uploads/eca9632d-b79e-4584-8287-00cc36515fc6.png",
-      alt: "Round table wedding reception setup",
-      category: "Wedding",
-      title: "Reception Perfection"
+      src: militaryCateringService,
+      alt: "Soul Train's Eatery serving Air Force personnel at military base",
+      category: "Military",
+      title: "Military Base Catering"
     }
   ];
 
@@ -97,7 +98,8 @@ export const InteractiveGalleryPreview = () => {
       Appetizers: "bg-gold/10 text-gold border-gold/30",
       Sides: "bg-navy/10 text-navy border-navy/30",
       Desserts: "bg-primary/10 text-primary border-primary/30",
-      Formal: "bg-platinum/10 text-platinum-foreground border-platinum/30"
+      Formal: "bg-platinum/10 text-platinum-foreground border-platinum/30",
+      Military: "bg-navy/10 text-navy border-navy/30"
     };
     return colors[category as keyof typeof colors] || "bg-muted text-muted-foreground border-border";
   };
