@@ -28,7 +28,7 @@ export const MenuCTASection = () => {
                 Proudly serving Charleston, SC and the surrounding Lowcountry
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-2">
-                <Button asChild variant="cta-white" size="responsive-lg">
+                <Button asChild variant="cta" size="responsive-lg">
                   <Link to="/request-quote#page-header">Request a Free Quote</Link>
                 </Button>
                 <Button 

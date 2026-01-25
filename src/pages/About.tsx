@@ -3,14 +3,14 @@ import { NeumorphicCard } from "@/components/ui/neumorphic-card";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
 import { CTASection } from "@/components/ui/cta-section";
-import { ChefHat, Heart, Award, Users, Clock, Camera } from "lucide-react";
+import { ChefHat, Heart, Award, Users, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
 import { OptimizedImage } from "@/components/ui/optimized-image";
 import { TrustMarquee } from "@/components/home/TrustMarquee";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 
-import aboutHeroBg from "@/assets/about-hero-bg.jpg";
+
 import tanyaWardImg from "@/assets/tanya-ward.jpg";
 import teamWesternGroup from "@/assets/gallery/team-western-group.jpg";
 
@@ -67,13 +67,6 @@ const About = () => {
     desktop: { variant: "fade-up", delay: 340 },
   });
 
-  // Family Bridge section animation
-  const { ref: familyBridgeRef, isVisible: familyBridgeVisible, variant: familyBridgeVariant } = useScrollAnimation({
-    delay: 0,
-    variant: "scale-fade",
-    mobile: { variant: "fade-up", delay: 0 },
-    desktop: { variant: "scale-fade", delay: 0 },
-  });
 
   return (
     <div className="min-h-screen bg-gradient-hero">
@@ -81,12 +74,12 @@ const About = () => {
         {/* Trust Marquee - First element after nav */}
         <TrustMarquee />
         
-        {/* Header Section - With Background Image */}
+        {/* Header Section - With Team Group Background Image */}
         <section className="relative py-12 sm:py-16 lg:py-20 overflow-hidden">
-          {/* Background image */}
+          {/* Background image - now using team western group */}
           <div 
             className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-            style={{ backgroundImage: `url(${aboutHeroBg})` }}
+            style={{ backgroundImage: `url(${teamWesternGroup})` }}
             aria-hidden="true"
           />
           
@@ -288,49 +281,6 @@ const About = () => {
                   Count on us to deliver exceptional service on time, every time, with the professionalism you deserve.
                 </p>
               </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Family Bridge Section - White overlay with team group photo */}
-        <section 
-          ref={familyBridgeRef}
-          className={`relative w-full overflow-hidden ${useAnimationClass(familyBridgeVariant, familyBridgeVisible)}`}
-        >
-          {/* Background Image */}
-          <div 
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-            style={{ backgroundImage: `url(${teamWesternGroup})` }}
-          />
-          
-          {/* White Overlay - 85% per design standards */}
-          <div className="absolute inset-0 bg-background/85" />
-          
-          {/* Top Gradient Fade */}
-          <div className="absolute top-0 left-0 right-0 h-16 sm:h-20 lg:h-24 bg-gradient-to-b from-background to-transparent z-10" />
-          
-          {/* Bottom Gradient Fade */}
-          <div className="absolute bottom-0 left-0 right-0 h-16 sm:h-20 lg:h-24 bg-gradient-to-t from-background to-transparent z-10" />
-          
-          {/* Content */}
-          <div className="relative z-20 py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-3xl mx-auto text-center">
-              <p className="text-ruby font-script text-lg sm:text-xl mb-2">
-                Our Family
-              </p>
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant font-bold text-foreground mb-4">
-                The Faces Behind Your Perfect Event
-              </h2>
-              <p className="text-muted-foreground text-base sm:text-lg mb-6 max-w-2xl mx-auto">
-                From planning to the final plate, our dedicated team brings Southern hospitality 
-                and professional care to every event we cater.
-              </p>
-              <Button asChild variant="outline" size="lg" className="group">
-                <Link to="/gallery" className="flex items-center gap-2">
-                  <Camera className="h-4 w-4 group-hover:scale-110 transition-transform" />
-                  View Our Gallery
-                </Link>
-              </Button>
             </div>
           </div>
         </section>

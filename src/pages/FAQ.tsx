@@ -8,7 +8,7 @@ import { FAQCategoryFilter } from "@/components/faq/FAQCategoryFilter";
 import { FAQAccordion } from "@/components/faq/FAQAccordion";
 import { FAQVisualBreak } from "@/components/faq/FAQVisualBreak";
 import { faqData, faqCategories } from "@/data/faqData";
-import { HelpCircle, Phone, Mail, MessageCircle } from "lucide-react";
+import { HelpCircle } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 
@@ -31,12 +31,6 @@ const FAQ = () => {
     desktop: { variant: "fade-up", delay: 100 },
   });
 
-  const { ref: ctaRef, isVisible: ctaVisible, variant: ctaVariant } = useScrollAnimation({
-    delay: 0,
-    variant: "scale-fade",
-    mobile: { variant: "fade-up", delay: 0 },
-    desktop: { variant: "scale-fade", delay: 0 },
-  });
 
   // Filter FAQs based on search term and category
   const filteredFAQs = useMemo(() => {
@@ -129,54 +123,8 @@ const FAQ = () => {
         </div>
       </PageSection>
 
-      {/* Visual Break Section */}
+      {/* Visual Break Section - Now serves as final CTA */}
       <FAQVisualBreak />
-
-      {/* Contact CTA */}
-      <PageSection pattern="d" withBorder>
-        <div className="max-w-4xl mx-auto px-6 sm:px-8 lg:px-12 text-center">
-          <div 
-            ref={ctaRef}
-            className={`neumorphic-card-3 rounded-2xl p-8 lg:p-12 relative overflow-hidden ${useAnimationClass(ctaVariant, ctaVisible)}`}
-          >
-            {/* Watermark Logo */}
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-              <img 
-                src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
-                alt="" 
-                aria-hidden="true"
-                className="w-32 h-32 object-contain opacity-[0.05]"
-              />
-            </div>
-            <h2 className="text-2xl lg:text-3xl font-elegant font-bold text-foreground mb-4">
-              Still Have Questions?
-            </h2>
-            <p className="text-muted-foreground text-lg mb-8 max-w-2xl mx-auto">
-              Our team is here to help! Contact us directly for personalized assistance with your catering needs.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button asChild variant="cta" size="responsive-lg">
-                <a href="tel:8439700265" className="flex items-center gap-2">
-                  <Phone className="h-5 w-5" />
-                  Call (843) 970-0265
-                </a>
-              </Button>
-              <Button asChild variant="cta-white" size="responsive-lg">
-                <a href="mailto:soultrainseatery@gmail.com" className="flex items-center gap-2">
-                  <Mail className="h-5 w-5" />
-                  Email Us
-                </a>
-              </Button>
-              <Button asChild variant="outline" size="responsive-lg">
-                <Link to="/request-quote#page-header" className="flex items-center gap-2">
-                  <MessageCircle className="h-5 w-5" />
-                  Request Quote
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </PageSection>
     </div>
   );
 };
