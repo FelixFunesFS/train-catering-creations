@@ -246,7 +246,7 @@ const handler = async (req: Request): Promise<Response> => {
     const { data: upcomingMilestones } = await supabase
       .from('payment_milestones')
       .select(`
-        id, due_date, amount_cents, milestone_type, invoice_id,
+        id, due_date, amount_cents, milestone_type, is_due_now, invoice_id,
         invoices (
           workflow_status,
           last_status_change,
@@ -288,7 +288,7 @@ const handler = async (req: Request): Promise<Response> => {
           .maybeSingle();
 
         if (!recentReminder) {
-          // Canonical customer-facing renderer + payment link
+          // Canonical customer-facing renderer + payment link with milestone context
           const { error: emailError } = await supabase.functions.invoke('send-payment-reminder', {
             body: {
               invoiceId: milestone.invoice_id,
@@ -297,7 +297,9 @@ const handler = async (req: Request): Promise<Response> => {
               eventName: milestone.invoices?.quote_requests?.event_name,
               balanceRemaining: milestone.amount_cents ?? 0,
               daysOverdue: 0,
-              urgency: 'medium'
+              urgency: 'medium',
+              milestoneType: milestone.milestone_type,
+              isDueNow: milestone.is_due_now
             }
           });
 
