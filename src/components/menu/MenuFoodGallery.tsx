@@ -1,7 +1,8 @@
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { OptimizedImage } from "@/components/ui/optimized-image";
-import { useStaggeredAnimation } from "@/hooks/useStaggeredAnimation";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { useAnimationClass } from "@/hooks/useAnimationClass";
 import { Camera } from "lucide-react";
 
 // Import high-quality images from gallery assets
@@ -58,12 +59,11 @@ const galleryImages = [
 ];
 
 export const MenuFoodGallery = () => {
-  const staggered = useStaggeredAnimation({
-    itemCount: galleryImages.length,
-    staggerDelay: 80,
-    baseDelay: 50,
-    variant: 'fade-up'
+  const { ref: galleryRef, isVisible: galleryVisible } = useScrollAnimation({ 
+    variant: 'fade-up', 
+    delay: 50 
   });
+  const galleryAnimationClass = useAnimationClass('fade-up', galleryVisible);
 
   return (
     <section className="py-10 sm:py-12 lg:py-16 relative overflow-hidden">
@@ -88,15 +88,11 @@ export const MenuFoodGallery = () => {
 
       {/* Full-Bleed Image Grid */}
       <div 
-        ref={staggered.ref}
-        className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-2 sm:gap-3 px-2 sm:px-3"
+        ref={galleryRef}
+        className={`grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-2 sm:gap-3 px-2 sm:px-3 ${galleryAnimationClass}`}
       >
         {galleryImages.map((image, index) => (
-          <div
-            key={index}
-            className={staggered.getItemClassName(index)}
-            style={staggered.getItemStyle(index)}
-          >
+          <div key={index}>
             <Card className="group overflow-hidden border border-ruby/10 hover:border-ruby/30 transition-all duration-300">
               <div className="relative aspect-square overflow-hidden">
                 <OptimizedImage

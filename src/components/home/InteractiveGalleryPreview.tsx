@@ -6,7 +6,6 @@ import { OptimizedImage } from "@/components/ui/optimized-image";
 import { ArrowRight, Play, Heart, ChevronLeft, ChevronRight } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
-import { useStaggeredAnimation } from "@/hooks/useStaggeredAnimation";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EnhancedImageModal } from "@/components/gallery/EnhancedImageModal";
 import { galleryImages } from "@/data/galleryImages";
@@ -34,12 +33,11 @@ export const InteractiveGalleryPreview = () => {
 
   const animationClass = useAnimationClass('ios-spring', isVisible);
 
-  const staggered = useStaggeredAnimation({
-    itemCount: 6,
-    staggerDelay: 150,
-    baseDelay: 300,
-    variant: 'bounce-in'
+  const { ref: gridRef, isVisible: gridVisible } = useScrollAnimation({ 
+    variant: 'fade-up', 
+    delay: 100 
   });
+  const gridAnimationClass = useAnimationClass('fade-up', gridVisible);
 
   const galleryItems: GalleryItem[] = [
     {
@@ -289,17 +287,16 @@ export const InteractiveGalleryPreview = () => {
           ) : (
             /* Desktop Grid Format */
             <div 
-              ref={staggered.ref}
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-4 mb-6"
+              ref={gridRef}
+              className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-4 mb-6 ${gridAnimationClass}`}
             >
               {galleryItems.map((item, index) => (
                 <Card
                   key={index}
-                  className={`group relative overflow-hidden cursor-pointer border-2 border-transparent hover:border-ruby/30 transition-all duration-500 ${staggered.getItemClassName(index)}`}
+                  className="group relative overflow-hidden cursor-pointer border-2 border-transparent hover:border-ruby/30 transition-all duration-500"
                   onMouseEnter={() => setHoveredIndex(index)}
                   onMouseLeave={() => setHoveredIndex(null)}
                   onClick={() => handleImageClick(item.src)}
-                  style={staggered.getItemStyle(index)}
                 >
                   <div className="relative aspect-[4/3] overflow-hidden">
                     <OptimizedImage

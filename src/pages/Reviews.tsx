@@ -6,6 +6,7 @@ import { PageSection } from "@/components/ui/page-section";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 import { ReviewsImageStrip } from "@/components/reviews/ReviewsImageStrip";
+import { ReviewsGrid } from "@/components/reviews/ReviewsGrid";
 import reviewsHeroBg from "@/assets/reviews-hero-bg.jpg";
 
 // Icon components for third-party verification
@@ -170,39 +171,7 @@ const Reviews = () => {
 
       {/* Reviews Section */}
       <PageSection pattern="b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
-            {reviews.map((review, index) => {
-              const { ref: cardRef, isVisible: cardVisible, variant: cardVariant } = useScrollAnimation({ 
-                variant: 'elastic', 
-                delay: index * 100,
-                mobile: { delay: index * 75 },
-                desktop: { delay: index * 100 }
-              });
-              const cardAnimationClass = useAnimationClass(cardVariant, cardVisible);
-              
-              return (
-                <NeumorphicCard key={index} ref={cardRef} level={2} className={`hover:scale-105 transition-transform duration-300 ${cardAnimationClass}`}>
-                  <div className="p-6">
-                    <div className="flex justify-between items-start mb-4">
-                      <div>
-                        <h3 className="text-base sm:text-lg font-elegant font-semibold text-foreground">{review.name}</h3>
-                        <p className="text-xs sm:text-sm text-muted-foreground">{review.event}</p>
-                      </div>
-                      <div className="flex space-x-1">
-                        {renderStars(review.rating)}
-                      </div>
-                    </div>
-                    <p className="text-sm sm:text-base text-foreground mb-2 sm:mb-3 leading-relaxed">
-                      "{review.text}"
-                    </p>
-                    <p className="text-xs text-muted-foreground">{review.date}</p>
-                  </div>
-                </NeumorphicCard>
-              );
-            })}
-          </div>
-        </div>
+        <ReviewsGrid reviews={reviews} renderStars={renderStars} />
       </PageSection>
 
       <CTASection
