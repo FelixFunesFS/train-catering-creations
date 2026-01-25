@@ -1,91 +1,90 @@
 
 
-# Dark Gradient Fade Transition Update
+# ReviewsImageStrip Enhancement Plan
 
-## Current vs Desired Behavior
+## Overview
 
-| Aspect | Current (White In) | Desired (Dark Out) |
-|--------|-------------------|-------------------|
-| Visual Effect | White fades INTO dark section | Dark fades OUT into white sections |
-| Top Gradient | `from-background to-transparent` | `from-black/70 to-transparent` |
-| Bottom Gradient | `from-background to-transparent` | `from-black/70 to-transparent` |
-| Result | White edges visible at boundaries | Dark edges dissolve smoothly |
+Enhance the Reviews page image strip to match the home page gallery's premium styling by adding:
+- Ruby-tinted ring borders on hover
+- Elevated shadows with glow effects
+- Subtle gradient overlays
+- Staggered entrance animations
 
-## Changes Required
+## Current State Analysis
 
-### File 1: `src/components/home/TestimonialsCarousel.tsx`
+**ReviewsImageStrip (Current):**
+- Basic `rounded-xl` containers
+- Simple `shadow-md hover:shadow-lg`
+- Basic `scale-105` zoom on hover
+- No border effects
+- No gradient overlays
 
-**Lines 149-152 - Update gradient colors:**
+**InteractiveGalleryPreview (Target Standard):**
+- `border-2 border-transparent hover:border-ruby/30` ring borders
+- `scale-110` zoom with smooth 700ms transition
+- `bg-gradient-ruby-subtle` overlay on hover
+- Staggered `bounce-in` animations
+- Card-based structure with refined shadows
+
+## Implementation Details
+
+### File: `src/components/reviews/ReviewsImageStrip.tsx`
+
+**Changes:**
+
+1. **Add staggered animation hook** for sequential reveal
+2. **Upgrade container styling** with ruby ring borders
+3. **Add hover glow shadows** using existing design system
+4. **Add ruby gradient overlay** on hover (subtle, matching home gallery)
+5. **Increase zoom effect** from `scale-105` to `scale-110`
+
+### Enhanced Component Structure
 
 ```tsx
-{/* Top gradient fade for smooth section transition */}
-<div className="absolute top-0 left-0 right-0 h-16 sm:h-20 lg:h-24 bg-gradient-to-b from-black/70 to-transparent z-10" />
-
-{/* Bottom gradient fade for smooth section transition */}
-<div className="absolute bottom-0 left-0 right-0 h-16 sm:h-20 lg:h-24 bg-gradient-to-t from-black/70 to-transparent z-10" />
+// Each image container will have:
+<div className="
+  relative overflow-hidden rounded-xl 
+  w-24 h-24 sm:w-32 sm:h-32 lg:w-36 lg:h-36
+  border-2 border-transparent hover:border-ruby/30
+  shadow-md hover:shadow-glow-strong
+  transition-all duration-500
+  group cursor-pointer
+">
+  {/* Image with enhanced zoom */}
+  <img className="... group-hover:scale-110 transition-transform duration-700" />
+  
+  {/* Ruby gradient overlay on hover */}
+  <div className="
+    absolute inset-0 
+    bg-gradient-ruby-subtle 
+    opacity-0 group-hover:opacity-100 
+    transition-opacity duration-300
+  " />
+</div>
 ```
 
-### File 2: `src/pages/About.tsx` - Our Story Section
+### Styling Comparison
 
-**Lines 126-129 - Update gradient colors:**
-
-```tsx
-{/* Top gradient fade for smooth section transition */}
-<div className="absolute top-0 left-0 right-0 h-16 sm:h-20 lg:h-24 bg-gradient-to-b from-black/80 to-transparent z-10" />
-
-{/* Bottom gradient fade for smooth section transition */}
-<div className="absolute bottom-0 left-0 right-0 h-16 sm:h-20 lg:h-24 bg-gradient-to-t from-black/80 to-transparent z-10" />
-```
-
-### File 3: `src/pages/About.tsx` - Values Section
-
-**Lines 246-249 - Update gradient colors:**
-
-```tsx
-{/* Top gradient fade for smooth section transition */}
-<div className="absolute top-0 left-0 right-0 h-16 sm:h-20 lg:h-24 bg-gradient-to-b from-black/60 to-transparent z-10" />
-
-{/* Bottom gradient fade for smooth section transition */}
-<div className="absolute bottom-0 left-0 right-0 h-16 sm:h-20 lg:h-24 bg-gradient-to-t from-black/60 to-transparent z-10" />
-```
-
-## Visual Comparison
-
-```text
-BEFORE (White fading in):
-┌──────────────────────────────────────┐
-│  White Section                       │
-│  ████████████████████████████████████│  ← White gradient entering dark
-│▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓│
-│▓▓▓ Dark Section Content ▓▓▓▓▓▓▓▓▓▓▓▓│
-│▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓│
-│  ████████████████████████████████████│  ← White gradient entering dark
-│  White Section                       │
-└──────────────────────────────────────┘
-
-AFTER (Dark fading out):
-┌──────────────────────────────────────┐
-│  White Section                       │
-│  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  │  ← Dark gradient bleeding out
-│  ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒  │
-│▓▓▓ Dark Section Content ▓▓▓▓▓▓▓▓▓▓▓▓│
-│  ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒  │
-│  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  │  ← Dark gradient bleeding out
-│  White Section                       │
-└──────────────────────────────────────┘
-```
+| Property | Before | After |
+|----------|--------|-------|
+| Border | None | `border-2 border-transparent hover:border-ruby/30` |
+| Shadow | `shadow-md hover:shadow-lg` | `shadow-md hover:shadow-glow-strong` |
+| Zoom | `scale-105` | `scale-110` |
+| Zoom Duration | `300ms` | `700ms` |
+| Overlay | None | `bg-gradient-ruby-subtle` on hover |
+| Animation | Basic fade-up | Staggered entrance with index delays |
 
 ## Technical Notes
 
-- Opacity values match existing dark overlays in each section for visual consistency
-- TestimonialsCarousel uses `black/70` (matching its overlay)
-- Our Story uses `black/80` (matching its overlay)
-- Values uses `black/60` (matching its overlay)
+- Uses existing design system variables (`shadow-glow-strong`, `bg-gradient-ruby-subtle`)
+- Maintains responsive sizing (w-24 to lg:w-36)
+- Preserves lazy loading for performance
+- Adds `group` class for coordinated hover effects
+- Transition timing matches home gallery (500ms container, 700ms zoom)
 
 ## Files to Modify
 
 | File | Changes |
 |------|---------|
-| `src/components/home/TestimonialsCarousel.tsx` | Change `from-background` to `from-black/70` |
-| `src/pages/About.tsx` | Change `from-background` to `from-black/80` (Our Story) and `from-black/60` (Values) |
+| `src/components/reviews/ReviewsImageStrip.tsx` | Add ring borders, glow shadows, gradient overlay, enhanced animations |
 
