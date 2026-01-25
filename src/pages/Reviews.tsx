@@ -90,7 +90,12 @@ const Reviews = () => {
               buttons={[{ text: "About Us", href: "/about", variant: "cta" }]}
             />
             
-            {/* Additional content that was previously children */}
+            {/* Image Strip - Moved inside hero, after CTA */}
+            <div className="mt-6 sm:mt-8">
+              <ReviewsImageStrip />
+            </div>
+            
+            {/* Star Rating - Now after images */}
             <div className="text-center mt-6 max-w-4xl mx-auto">
               <div className="flex justify-center items-center space-x-2 mb-3 sm:mb-4">
                 {renderStars(5)}
@@ -107,13 +112,8 @@ const Reviews = () => {
         </div>
       </PageSection>
 
-      {/* Food Image Strip */}
-      <PageSection pattern="b">
-        <ReviewsImageStrip />
-      </PageSection>
-
       {/* Reviews Section */}
-      <PageSection pattern="c">
+      <PageSection pattern="b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
             {reviews.map((review, index) => {
@@ -153,7 +153,7 @@ const Reviews = () => {
       <ReviewsTeamSection />
 
       {/* Feedback Section */}
-      <PageSection pattern="d">
+      <PageSection pattern="c">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <NeumorphicCard level={3} className="bg-primary-light relative overflow-hidden">
