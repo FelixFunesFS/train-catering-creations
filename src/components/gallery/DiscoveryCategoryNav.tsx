@@ -62,20 +62,7 @@ export const DiscoveryCategoryNav = ({
   };
 
   return (
-    <div data-section="discovery" className="py-8 sm:py-12 lg:py-16">
-      {/* Section Header */}
-      <div 
-        ref={headerRef} 
-        className={`text-center mb-8 sm:mb-10 lg:mb-12 ${useAnimationClass(headerVariant, headerVisible)}`}
-      >
-        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-elegant font-bold text-foreground mb-4">
-          Discover Our Work
-        </h2>
-        <p className="text-muted-foreground text-base sm:text-lg lg:text-xl max-w-2xl mx-auto">
-          Browse our portfolio of beautifully catered events
-        </p>
-      </div>
-
+    <div data-section="discovery" className="py-4 sm:py-6 lg:py-8">
       {/* Category Cards */}
       <div 
         ref={categoriesRef}
