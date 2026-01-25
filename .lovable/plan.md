@@ -1,181 +1,95 @@
 
-
-# Unified Service Cards with Description on Mobile
+# Remove Ceremony Option & Fix Email Logos
 
 ## Overview
-Update the Service Categories Section to:
-1. Show descriptions on mobile (currently hidden)
-2. Remove per-card CTAs on desktop/tablet
-3. Add a single section-level "Get Your Quote" CTA for all viewports
-4. Link to `/request-quote` (selector page) so users can choose wedding or regular
 
-## Visual Layout
+This plan addresses two issues:
+1. Remove the "Ceremony Included" checkbox from wedding quote forms while preserving backward compatibility for existing quotes
+2. Fix email logo display in Outlook and other clients by switching from SVG to PNG format
 
-### Mobile View
-```text
-+-----------------------------+
-|  [Image]                    |
-|  Wedding Catering           |
-|  Your Dream Day             |
-|  Charleston's premier...    |  <-- Description now visible
-+-----------------------------+
+---
 
-+-----------------------------+
-|  [Image]                    |
-|  Corporate Events           |
-|  Professional Excellence    |
-|  Impress clients and...     |  <-- Description now visible
-+-----------------------------+
+## Part 1: Remove Ceremony Option from Wedding Forms
 
-+-----------------------------+
-|  [Image]                    |
-|  Family Gatherings          |
-|  Comfort & Joy              |
-|  Bring families together... |  <-- Description now visible
-+-----------------------------+
+### Files to Modify
 
-      [ Get Your Quote -> ]     <-- Single CTA for all
+**1. src/components/quote/alternative-form/FinalStep.tsx**
+- Remove the `ceremony_included` FormField block (lines 37-60)
+- Keep only the `cocktail_hour` option in the wedding-specific grid
+
+**2. src/components/quote/steps/SuppliesStep.tsx**
+- Remove the `ceremony_included` FormField block (lines 42-63)
+- Keep only the `cocktail_hour` option
+
+**3. src/components/quote/SinglePageQuoteForm.tsx**
+- Remove `ceremony_included: data.ceremony_included` from the submitPayload object (line 327)
+- New submissions will no longer include this field
+
+### What Stays Unchanged (Backward Compatibility)
+
+The following will continue working for any existing quotes with `ceremony_included = true`:
+- Database column remains intact
+- Form schema keeps the optional field
+- Invoice generation logic (creates line item only if true)
+- Display components (show badge only if true)
+- Email templates (show addon only if true)
+- PDF generation (show only if true)
+
+---
+
+## Part 2: Fix Email Logo Display in Outlook
+
+### Problem
+Current email templates use SVG logos (`logo-red.svg`, `logo-white.svg`) which Outlook desktop fails to render properly.
+
+### Solution
+Switch to PNG format for universal email client compatibility.
+
+### Files to Add
+
+**1. public/images/logo-red.png**
+- Copy from uploaded file (user-uploads://2.png - red BBQ fork/spatula logo)
+
+**2. public/images/logo-white.png**
+- Copy from uploaded file (user-uploads://3.png - white version for dark backgrounds)
+
+### Files to Modify
+
+**supabase/functions/_shared/emailTemplates.ts**
+
+Update the LOGO_URLS constant (lines 23-26):
+
+```typescript
+// Before
+export const LOGO_URLS = {
+  red: `${SITE_URL}/images/logo-red.svg`,
+  white: `${SITE_URL}/images/logo-white.svg`,
+};
+
+// After
+export const LOGO_URLS = {
+  red: `${SITE_URL}/images/logo-red.png`,
+  white: `${SITE_URL}/images/logo-white.png`,
+};
 ```
 
-### Desktop/Tablet View
-```text
-+-------------+  +-------------+  +-------------+
-|  Wedding    |  |  Corporate  |  |  Family     |
-|  [desc]     |  |  [desc]     |  |  [desc]     |
-|  [features] |  |  [features] |  |  [features] |
-|  (no CTA)   |  |  (no CTA)   |  |  (no CTA)   |
-+-------------+  +-------------+  +-------------+
+This single change propagates to all email templates since they use the shared `LOGO_URLS` constant.
 
-            [ Get Your Quote -> ]
-            (single section CTA)
-```
+---
 
-## Changes
+## Summary of Changes
 
-### File: `src/components/home/ServiceCategoriesSection.tsx`
+| Area | Action | Impact |
+|------|--------|--------|
+| FinalStep.tsx | Remove ceremony field | Wedding form loses option |
+| SuppliesStep.tsx | Remove ceremony field | Backup form loses option |
+| SinglePageQuoteForm.tsx | Remove from payload | New quotes won't set ceremony |
+| emailTemplates.ts | Change .svg to .png | Logos work in all email clients |
+| public/images/ | Add PNG logo files | New assets from uploaded files |
 
-**Step 1: Update mobile conditional to show description**
+### Benefits
 
-Replace the mobile conditional block (lines 137-167):
-
-Before:
-```tsx
-{isMobileOnly ? null : (
-  /* Desktop/Tablet - Always visible content */
-  <>
-    <p className="text-base text-muted-foreground leading-relaxed">
-      {service.description}
-    </p>
-    {/* Features */}
-    ...
-    {/* CTA Button */}
-    <Button variant="cta-outline" ...>
-      ...
-    </Button>
-  </>
-)}
-```
-
-After:
-```tsx
-{/* Description - visible on all viewports */}
-<p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-  {service.description}
-</p>
-
-{/* Features - Desktop/Tablet only (hidden on mobile) */}
-{!isMobileOnly && (
-  <div className="space-y-2">
-    {service.features.map((feature, featureIndex) => (
-      <div key={featureIndex} className="flex items-center space-x-2">
-        <CircleCheck className="h-4 w-4 text-ruby" />
-        <span className="text-sm text-muted-foreground">{feature}</span>
-      </div>
-    ))}
-  </div>
-)}
-```
-
-**Step 2: Update section CTA to show on all viewports**
-
-Replace the mobile-only CTA (lines 231-241):
-
-Before:
-```tsx
-{/* Mobile-only Section CTA */}
-{isMobileOnly && (
-  <div className="flex justify-center mt-6">
-    <Button variant="cta" size="responsive-md" asChild>
-      <a href="/request-quote/regular" className="flex items-center gap-2">
-        ...
-      </a>
-    </Button>
-  </div>
-)}
-```
-
-After:
-```tsx
-{/* Section CTA - all viewports */}
-<div className="flex justify-center mt-6 sm:mt-8">
-  <Button variant="cta" size="responsive-md" asChild>
-    <a href="/request-quote" className="flex items-center gap-2">
-      <span>Get Your Quote</span>
-      <ArrowRight className="h-4 w-4" />
-    </a>
-  </Button>
-</div>
-```
-
-**Step 3: Clean up unused href property (optional)**
-
-The `href` property in the `serviceCategories` array is no longer used and can be removed for cleanliness:
-
-```tsx
-// Remove href from each service object
-{
-  icon: <Heart className="h-6 w-6" />,
-  title: "Wedding Catering",
-  subtitle: "Your Dream Day",
-  description: "...",
-  image: weddingCatering,
-  features: [...],
-  // href: "/request-quote/wedding",  <-- Remove
-  isPopular: true
-}
-```
-
-Also update the interface:
-```tsx
-interface ServiceCategory {
-  icon: React.ReactNode;
-  title: string;
-  subtitle: string;
-  description: string;
-  image: string;
-  features: string[];
-  // href: string;  <-- Remove
-  isPopular?: boolean;
-}
-```
-
-## Summary of Content by Viewport
-
-| Element | Mobile | Tablet/Desktop |
-|---------|--------|----------------|
-| Image | Yes | Yes |
-| Title | Yes | Yes |
-| Subtitle | Yes | Yes |
-| Description | Yes (new!) | Yes |
-| Features | No | Yes |
-| Per-card CTA | No | No (removed) |
-| Section CTA | Yes | Yes (new!) |
-
-## Benefits
-
-- Descriptions provide context on mobile without excessive length
-- Features hidden on mobile to manage scroll depth
-- Single CTA eliminates redundancy (3 buttons to 1)
-- Links to `/request-quote` selector page for user choice
-- Consistent conversion path across all devices
-
+- Ceremony option removed from customer-facing forms
+- Existing quotes with ceremony selections still display correctly
+- Email logos now render properly in Outlook, Gmail, Yahoo, and all major clients
+- PNG format is universally supported across all email platforms
