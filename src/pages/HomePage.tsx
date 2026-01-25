@@ -1,23 +1,58 @@
+import { lazy, Suspense } from "react";
 import { SplitHero } from "@/components/home/SplitHero";
-import { FeaturedVenueSection } from "@/components/home/FeaturedVenueSection";
-import { InteractiveGalleryPreview } from "@/components/home/InteractiveGalleryPreview";
 import { ServiceCategoriesSection } from "@/components/home/ServiceCategoriesSection";
-import { AboutPreviewSection } from "@/components/home/AboutPreviewSection";
-import { TestimonialsCarousel } from "@/components/home/TestimonialsCarousel";
-import { CTASection } from "@/components/home/CTASection";
-import { BrandMarquee } from "@/components/home/BrandMarquee";
+
+// Lazy load below-the-fold sections to reduce initial JS bundle
+const InteractiveGalleryPreview = lazy(() => 
+  import("@/components/home/InteractiveGalleryPreview").then(m => ({ default: m.InteractiveGalleryPreview }))
+);
+const AboutPreviewSection = lazy(() => 
+  import("@/components/home/AboutPreviewSection").then(m => ({ default: m.AboutPreviewSection }))
+);
+const TestimonialsCarousel = lazy(() => 
+  import("@/components/home/TestimonialsCarousel").then(m => ({ default: m.TestimonialsCarousel }))
+);
+const FeaturedVenueSection = lazy(() => 
+  import("@/components/home/FeaturedVenueSection").then(m => ({ default: m.FeaturedVenueSection }))
+);
+const BrandMarquee = lazy(() => 
+  import("@/components/home/BrandMarquee").then(m => ({ default: m.BrandMarquee }))
+);
+const CTASection = lazy(() => 
+  import("@/components/home/CTASection").then(m => ({ default: m.CTASection }))
+);
+
+// Minimal placeholder for lazy-loaded sections
+const SectionLoader = () => (
+  <div className="min-h-[200px]" />
+);
 
 const HomePage = () => {
   return (
     <div className="min-h-screen">
+      {/* Above-the-fold: eagerly loaded for LCP */}
       <SplitHero />
       <ServiceCategoriesSection />
-      <InteractiveGalleryPreview />
-      <AboutPreviewSection />
-      <TestimonialsCarousel />
-      <FeaturedVenueSection />
-      <BrandMarquee />
-      <CTASection />
+      
+      {/* Below-the-fold: lazy loaded to reduce initial bundle */}
+      <Suspense fallback={<SectionLoader />}>
+        <InteractiveGalleryPreview />
+      </Suspense>
+      <Suspense fallback={<SectionLoader />}>
+        <AboutPreviewSection />
+      </Suspense>
+      <Suspense fallback={<SectionLoader />}>
+        <TestimonialsCarousel />
+      </Suspense>
+      <Suspense fallback={<SectionLoader />}>
+        <FeaturedVenueSection />
+      </Suspense>
+      <Suspense fallback={<SectionLoader />}>
+        <BrandMarquee />
+      </Suspense>
+      <Suspense fallback={<SectionLoader />}>
+        <CTASection />
+      </Suspense>
     </div>
   );
 };
