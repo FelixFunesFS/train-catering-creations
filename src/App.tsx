@@ -10,38 +10,49 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useScrollToAnchor } from "@/hooks/useScrollToAnchor";
+import { lazy, Suspense } from "react";
 
 import { OfflineIndicator } from "@/components/pwa/OfflineIndicator";
 import { PwaUpdateBanner } from "@/components/pwa/PwaUpdateBanner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { HeroVisibilityProvider } from "@/contexts/HeroVisibilityContext";
-import Index from "./pages/Index";
-import About from "./pages/About";
-import SimplifiedMenu from "./pages/SimplifiedMenu";
-import RequestQuote from "./pages/RequestQuote";
-import RegularEventQuote from "./pages/RegularEventQuote";
-import WeddingEventQuote from "./pages/WeddingEventQuote";
-import Reviews from "./pages/Reviews";
-import AlternativeGallery from "./pages/AlternativeGallery";
-import FAQ from "./pages/FAQ";
-import TestEmail from "./pages/TestEmail";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import TermsConditions from "./pages/TermsConditions";
-import AdminAuth from "./pages/AdminAuth";
-import NotFound from "./pages/NotFound";
-import Install from "./pages/Install";
-import ApproveEstimate from "./pages/ApproveEstimate";
-
-import PaymentSuccess from "./pages/PaymentSuccess";
-import PaymentCanceled from "./pages/PaymentCanceled";
-import UnifiedAdminDashboard from "./pages/UnifiedAdminDashboard";
-import EstimatePrintView from "./pages/EstimatePrintView";
-import { EventEstimateFullViewPage } from "./pages/EventEstimateFullViewPage";
-import { CustomerEstimateView } from "./components/customer/CustomerEstimateView";
-import QuoteThankYou from "./pages/QuoteThankYou";
 import { MobileActionBar } from "@/components/mobile/MobileActionBar";
 import { ScrollToTop } from "@/components/ui/scroll-to-top";
-import AdminMenuEditPage from "./pages/AdminMenuEditPage";
+
+// Critical path - eagerly loaded for LCP
+import Index from "./pages/Index";
+
+// Lazy loaded pages - CSS code-split for reduced initial bundle
+const About = lazy(() => import("./pages/About"));
+const SimplifiedMenu = lazy(() => import("./pages/SimplifiedMenu"));
+const RequestQuote = lazy(() => import("./pages/RequestQuote"));
+const RegularEventQuote = lazy(() => import("./pages/RegularEventQuote"));
+const WeddingEventQuote = lazy(() => import("./pages/WeddingEventQuote"));
+const Reviews = lazy(() => import("./pages/Reviews"));
+const AlternativeGallery = lazy(() => import("./pages/AlternativeGallery"));
+const FAQ = lazy(() => import("./pages/FAQ"));
+const TestEmail = lazy(() => import("./pages/TestEmail"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const TermsConditions = lazy(() => import("./pages/TermsConditions"));
+const AdminAuth = lazy(() => import("./pages/AdminAuth"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const Install = lazy(() => import("./pages/Install"));
+const ApproveEstimate = lazy(() => import("./pages/ApproveEstimate"));
+const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
+const PaymentCanceled = lazy(() => import("./pages/PaymentCanceled"));
+const UnifiedAdminDashboard = lazy(() => import("./pages/UnifiedAdminDashboard"));
+const EstimatePrintView = lazy(() => import("./pages/EstimatePrintView"));
+const EventEstimateFullViewPage = lazy(() => import("./pages/EventEstimateFullViewPage").then(m => ({ default: m.EventEstimateFullViewPage })));
+const CustomerEstimateView = lazy(() => import("./components/customer/CustomerEstimateView").then(m => ({ default: m.CustomerEstimateView })));
+const QuoteThankYou = lazy(() => import("./pages/QuoteThankYou"));
+const AdminMenuEditPage = lazy(() => import("./pages/AdminMenuEditPage"));
+
+// Minimal loading fallback to avoid layout shift
+const PageLoader = () => (
+  <div className="min-h-[50vh] flex items-center justify-center">
+    <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+  </div>
+);
 
 const AppContent = () => {
   useScrollToAnchor();
@@ -62,52 +73,54 @@ const AppContent = () => {
       <PwaUpdateBanner />
       {!hideChrome && <Header />}
       <main className={`flex-1 ${isAdminRoute ? 'p-0' : 'py-0 my-0'} ${showMobileActionBar ? 'pb-[calc(5rem+env(safe-area-inset-bottom))]' : ''}`}>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/menu" element={<SimplifiedMenu />} />
-          <Route path="/wedding-menu" element={<Navigate to="/menu" replace />} />
-          <Route path="/request-quote" element={<RequestQuote />} />
-          <Route path="/request-quote/regular" element={<RegularEventQuote />} />
-          <Route path="/request-quote/wedding" element={<WeddingEventQuote />} />
-          <Route path="/request-quote/thank-you" element={<QuoteThankYou />} />
-          <Route path="/reviews" element={<Reviews />} />
-          <Route path="/gallery" element={<AlternativeGallery />} />
-          <Route path="/faq" element={<FAQ />} />
-          <Route path="/install" element={<Install />} />
-          {/* Customer approval deep links (email clients may append trailing slashes) */}
-          <Route path="/approve/*" element={<ApproveEstimate />} />
-          <Route path="/approve-estimate" element={<ApproveEstimate />} />
-          {/* Development routes - remove in production */}
-          {process.env.NODE_ENV === 'development' && <Route path="/test-email" element={<TestEmail />} />}
-          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-          <Route path="/terms-conditions" element={<TermsConditions />} />
-          <Route path="/admin/auth" element={<AdminAuth />} />
-          {/* Admin Dashboard and Management - Protected */}
-          <Route path="/admin" element={<ProtectedRoute><UnifiedAdminDashboard /></ProtectedRoute>} />
-          
-          {/* Admin full-viewport event/estimate view - Protected */}
-          <Route path="/admin/event/:quoteId" element={<ProtectedRoute><EventEstimateFullViewPage /></ProtectedRoute>} />
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/menu" element={<SimplifiedMenu />} />
+            <Route path="/wedding-menu" element={<Navigate to="/menu" replace />} />
+            <Route path="/request-quote" element={<RequestQuote />} />
+            <Route path="/request-quote/regular" element={<RegularEventQuote />} />
+            <Route path="/request-quote/wedding" element={<WeddingEventQuote />} />
+            <Route path="/request-quote/thank-you" element={<QuoteThankYou />} />
+            <Route path="/reviews" element={<Reviews />} />
+            <Route path="/gallery" element={<AlternativeGallery />} />
+            <Route path="/faq" element={<FAQ />} />
+            <Route path="/install" element={<Install />} />
+            {/* Customer approval deep links (email clients may append trailing slashes) */}
+            <Route path="/approve/*" element={<ApproveEstimate />} />
+            <Route path="/approve-estimate" element={<ApproveEstimate />} />
+            {/* Development routes - remove in production */}
+            {process.env.NODE_ENV === 'development' && <Route path="/test-email" element={<TestEmail />} />}
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/terms-conditions" element={<TermsConditions />} />
+            <Route path="/admin/auth" element={<AdminAuth />} />
+            {/* Admin Dashboard and Management - Protected */}
+            <Route path="/admin" element={<ProtectedRoute><UnifiedAdminDashboard /></ProtectedRoute>} />
+            
+            {/* Admin full-viewport event/estimate view - Protected */}
+            <Route path="/admin/event/:quoteId" element={<ProtectedRoute><EventEstimateFullViewPage /></ProtectedRoute>} />
 
-           {/* Admin full-viewport menu editor - Protected */}
-           <Route path="/admin/event/:quoteId/menu" element={<ProtectedRoute><AdminMenuEditPage /></ProtectedRoute>} />
-          
-          {/* Admin estimate print route - Protected */}
-          <Route path="/admin/estimate-print/:invoiceId" element={<ProtectedRoute><EstimatePrintView /></ProtectedRoute>} />
-          <Route path="/admin/*" element={<ProtectedRoute><UnifiedAdminDashboard /></ProtectedRoute>} />
-          
-          {/* Customer-facing routes */}
-          <Route path="/estimate" element={<CustomerEstimateView />} />
-          <Route path="/customer-portal" element={<CustomerEstimateView />} />
-          <Route path="/customer/estimate/:token" element={<CustomerEstimateView />} />
-          <Route path="/customer/estimate-preview/:invoiceId" element={<CustomerEstimateView />} />
-          <Route path="/estimate-preview/:token" element={<CustomerEstimateView />} />
-          <Route path="/invoice/public/:invoiceToken" element={<CustomerEstimateView />} />
-          <Route path="/payment-success" element={<PaymentSuccess />} />
-          <Route path="/payment-canceled" element={<PaymentCanceled />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+             {/* Admin full-viewport menu editor - Protected */}
+             <Route path="/admin/event/:quoteId/menu" element={<ProtectedRoute><AdminMenuEditPage /></ProtectedRoute>} />
+            
+            {/* Admin estimate print route - Protected */}
+            <Route path="/admin/estimate-print/:invoiceId" element={<ProtectedRoute><EstimatePrintView /></ProtectedRoute>} />
+            <Route path="/admin/*" element={<ProtectedRoute><UnifiedAdminDashboard /></ProtectedRoute>} />
+            
+            {/* Customer-facing routes */}
+            <Route path="/estimate" element={<CustomerEstimateView />} />
+            <Route path="/customer-portal" element={<CustomerEstimateView />} />
+            <Route path="/customer/estimate/:token" element={<CustomerEstimateView />} />
+            <Route path="/customer/estimate-preview/:invoiceId" element={<CustomerEstimateView />} />
+            <Route path="/estimate-preview/:token" element={<CustomerEstimateView />} />
+            <Route path="/invoice/public/:invoiceToken" element={<CustomerEstimateView />} />
+            <Route path="/payment-success" element={<PaymentSuccess />} />
+            <Route path="/payment-canceled" element={<PaymentCanceled />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
       </main>
       {!hideChrome && !isAdminRoute && <Footer />}
       
