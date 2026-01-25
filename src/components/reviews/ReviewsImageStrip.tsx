@@ -1,4 +1,5 @@
-import { useStaggeredAnimation } from "@/hooks/useStaggeredAnimation";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { useAnimationClass } from "@/hooks/useAnimationClass";
 import buffetOrchidSetup from "@/assets/gallery/buffet-orchid-setup.jpg";
 import dessertMiniCheesecakes from "@/assets/gallery/dessert-mini-cheesecakes.jpg";
 import formalGoldReception from "@/assets/gallery/formal-gold-reception.jpg";
@@ -14,28 +15,26 @@ const images = [
 ];
 
 export const ReviewsImageStrip = () => {
-  const { ref, getItemClassName } = useStaggeredAnimation({
-    itemCount: images.length,
-    staggerDelay: 75,
-    baseDelay: 100,
-    variant: "bounce-in",
+  const { ref, isVisible } = useScrollAnimation({ 
+    variant: 'bounce-in', 
+    delay: 100 
   });
+  const animationClass = useAnimationClass('bounce-in', isVisible);
 
   return (
-    <div ref={ref} className="w-full py-4">
+    <div ref={ref} className={`w-full py-4 ${animationClass}`}>
       <div className="flex flex-wrap justify-center gap-3 sm:gap-4 px-4 sm:px-6 lg:px-8">
         {images.map((image, index) => (
           <div
             key={index}
-            className={`
+            className="
               relative w-24 h-24 sm:w-32 sm:h-32 lg:w-36 lg:h-36 
               flex-shrink-0 rounded-xl overflow-hidden 
               border-2 border-transparent hover:border-ruby/30
               shadow-md hover:shadow-glow-strong
               transition-all duration-500
               group cursor-pointer
-              ${getItemClassName(index)}
-            `}
+            "
           >
             <img
               src={image.src}
