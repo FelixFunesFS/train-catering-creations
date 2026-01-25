@@ -17,6 +17,11 @@ import { useAnimationClass } from "@/hooks/useAnimationClass";
 import { useStaggeredAnimation } from "@/hooks/useStaggeredAnimation";
 import rubyWaveBg from "@/assets/ruby-wave-bg.png";
 
+// Import optimized WebP images
+import weddingCatering from "@/assets/hero/wedding-catering.webp";
+import corporateEvents from "@/assets/hero/corporate-events.webp";
+import familyGatherings from "@/assets/hero/family-gatherings.webp";
+
 interface ServiceCategory {
   icon: React.ReactNode;
   title: string;
@@ -49,7 +54,7 @@ export const ServiceCategoriesSection = () => {
       title: "Wedding Catering",
       subtitle: "Your Dream Day",
       description: "Charleston's premier wedding caterer since 2017. We turn your dream day into a flawless celebration with authentic Southern elegance.",
-      image: "/lovable-uploads/1cd54e2e-3991-4795-ad2a-6e8c18fb530f.png",
+      image: weddingCatering,
       features: ["Custom Menu Planning", "Professional Service", "Elegant Presentation"],
       href: "/request-quote/wedding",
       isPopular: true
@@ -59,7 +64,7 @@ export const ServiceCategoriesSection = () => {
       title: "Corporate Events",
       subtitle: "Professional Excellence",
       description: "Impress clients and colleagues with sophisticated catering that reflects your company's commitment to quality.",
-      image: "/lovable-uploads/e8d1f833-d15b-4779-8141-cb7641a62227.png",
+      image: corporateEvents,
       features: ["Flexible Scheduling", "Dietary Accommodations", "Professional Setup"],
       href: "/request-quote/regular"
     },
@@ -68,7 +73,7 @@ export const ServiceCategoriesSection = () => {
       title: "Family Gatherings",
       subtitle: "Comfort & Joy",
       description: "Bring families together with soul food that creates lasting memories and celebrates your heritage.",
-      image: "/lovable-uploads/166f817d-592c-4935-b38f-52efd5322e59.png",
+      image: familyGatherings,
       features: ["Family-Style Service", "Traditional Recipes", "Generous Portions"],
       href: "/request-quote/regular"
     }
