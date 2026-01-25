@@ -15,6 +15,7 @@ import {
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 import { useStaggeredAnimation } from "@/hooks/useStaggeredAnimation";
+import rubyWaveBg from "@/assets/ruby-wave-bg.png";
 
 interface ServiceCategory {
   icon: React.ReactNode;
@@ -76,9 +77,31 @@ export const ServiceCategoriesSection = () => {
   return (
     <section 
       ref={ref}
-      className="py-12 sm:py-16 lg:py-20 bg-gradient-pattern-c"
+      className="relative py-12 sm:py-16 lg:py-20 overflow-hidden"
     >
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Ruby Wave Background Image */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url(${rubyWaveBg})` }}
+        aria-hidden="true"
+      />
+      
+      {/* White overlay for text readability */}
+      <div className="absolute inset-0 bg-background/85" aria-hidden="true" />
+      
+      {/* Top edge gradient fade */}
+      <div 
+        className="absolute top-0 left-0 right-0 h-16 sm:h-20 lg:h-24 bg-gradient-to-b from-background to-transparent z-10"
+        aria-hidden="true"
+      />
+      
+      {/* Bottom edge gradient fade */}
+      <div 
+        className="absolute bottom-0 left-0 right-0 h-16 sm:h-20 lg:h-24 bg-gradient-to-t from-background to-transparent z-10"
+        aria-hidden="true"
+      />
+      
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-20">
         {/* Section Header */}
         <div className={`text-center mb-6 lg:mb-10 space-y-3 ${animationClass}`}>
           <div className="flex items-center justify-center space-x-2 mb-3">
