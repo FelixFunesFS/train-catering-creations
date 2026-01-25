@@ -78,8 +78,11 @@ const About = () => {
         <section className="relative py-12 sm:py-16 lg:py-20 overflow-hidden">
           {/* Background image - now using team western group */}
           <div 
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-            style={{ backgroundImage: `url(${teamWesternGroup})` }}
+            className="absolute inset-0 bg-cover bg-no-repeat"
+            style={{ 
+              backgroundImage: `url(${teamWesternGroup})`,
+              backgroundPosition: 'center 20%'
+            }}
             aria-hidden="true"
           />
           
