@@ -138,7 +138,7 @@ export const AboutPreviewSection = () => {
                 className="sm:flex-1 group"
                 asChild
               >
-                <a href="/about" className="flex items-center justify-center space-x-2 text-inherit">
+                <a href="/about" className="flex items-center justify-center space-x-2">
                   <span>Our Full Story</span>
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </a>
@@ -149,7 +149,7 @@ export const AboutPreviewSection = () => {
                 className="sm:flex-1"
                 asChild
               >
-                <a href="/request-quote#page-header" className="text-inherit">Work With Us</a>
+                <a href="/request-quote#page-header">Work With Us</a>
               </Button>
             </div>
           </div>

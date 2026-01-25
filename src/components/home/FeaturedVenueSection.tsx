@@ -127,7 +127,7 @@ export const FeaturedVenueSection = () => {
                 className="sm:flex-1"
                 asChild
               >
-                <a href="/request-quote#page-header" className="text-inherit">Book This Venue</a>
+                <a href="/request-quote#page-header">Book This Venue</a>
               </Button>
               <Button 
                 variant="cta-outline" 
@@ -135,7 +135,7 @@ export const FeaturedVenueSection = () => {
                 className="sm:flex-1"
                 asChild
               >
-                <a href="/gallery?category=wedding" className="text-inherit">View Wedding Gallery</a>
+                <a href="/gallery?category=wedding">View Wedding Gallery</a>
               </Button>
             </div>
 
