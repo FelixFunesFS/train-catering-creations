@@ -27,7 +27,8 @@ export const OptimizedImage = ({
   onImageError,
   ...props
 }: OptimizedImageProps) => {
-  const [isLoading, setIsLoading] = useState(true);
+  // Skip loading state for priority (LCP) images to reduce render delay
+  const [isLoading, setIsLoading] = useState(!priority);
   const [hasError, setHasError] = useState(false);
   const handleLoad = () => {
     setIsLoading(false);
@@ -65,7 +66,9 @@ export const OptimizedImage = ({
           src={src}
           alt={alt}
           className={cn(
-            "w-full h-full object-cover transition-opacity duration-300",
+            "w-full h-full object-cover",
+            // Only apply transition for non-priority images to reduce LCP render delay
+            !priority && "transition-opacity duration-300",
             isLoading ? "opacity-0" : "opacity-100",
             className
           )}
