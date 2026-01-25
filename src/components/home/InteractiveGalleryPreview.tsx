@@ -3,7 +3,6 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { OptimizedImage } from "@/components/ui/optimized-image";
-import { WaveDivider } from "@/components/ui/wave-divider";
 import { ArrowRight, Play, Heart, ChevronLeft, ChevronRight } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
@@ -162,14 +161,21 @@ export const InteractiveGalleryPreview = () => {
     <>
       <section 
         ref={ref}
-        className="relative py-12 sm:py-16 lg:py-20 bg-gradient-pattern-b"
+        className="relative py-12 sm:py-16 lg:py-20 bg-gradient-to-br from-background via-ruby/[0.02] to-background overflow-hidden"
       >
-        {/* Top Wave - transitions from Services section */}
-        <WaveDivider 
-          position="top" 
-          color="hsl(var(--background))" 
-          height={50}
-        />
+        {/* Crimson decorative elements */}
+        
+        {/* Top border line */}
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-ruby/30 to-transparent" />
+        
+        {/* Corner accents */}
+        <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-ruby/10 to-transparent rounded-br-full pointer-events-none" />
+        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-ruby/10 to-transparent rounded-bl-full pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-ruby/[0.08] to-transparent rounded-tr-full pointer-events-none" />
+        <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-tl from-ruby/[0.08] to-transparent rounded-tl-full pointer-events-none" />
+        
+        {/* Bottom border line */}
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-ruby/30 to-transparent" />
         
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           {/* Section Header */}
@@ -370,14 +376,6 @@ export const InteractiveGalleryPreview = () => {
             </Button>
           </div>
         </div>
-        
-        {/* Bottom Wave - transitions to About section */}
-        <WaveDivider 
-          position="bottom" 
-          color="hsl(var(--platinum-light))" 
-          height={50}
-          flip
-        />
       </section>
 
       {/* Full Gallery Modal */}
