@@ -1,131 +1,201 @@
 
 
-# Remove Grey Waves & Add Crimson Design Elements to Gallery Section
+# Fix Navigation Bar Disappearing + Add Scroll-to-Top
 
-## Overview
+## Root Cause Analysis
 
-Remove the grey SVG wave dividers from the "Gallery of Flavor & Style" section and replace them with elegant crimson/ruby design elements that match the styling used on the quote page selection cards.
+The navigation bar uses the class `neumorphic-card-3` which has the following CSS:
 
-## Current State
-
-The `InteractiveGalleryPreview.tsx` component currently has:
-- **Top WaveDivider** (line 168-172): White wave transitioning from services section
-- **Bottom WaveDivider** (line 375-380): Platinum-light wave transitioning to about section
-
-## Design Inspiration: Quote Page Cards
-
-The quote selection cards (`QuoteFormSelector.tsx`) feature:
-- Corner gradient accents (`bg-gradient-to-bl from-primary/20 to-transparent`)
-- Gradient backgrounds with subtle ruby hints (`via-primary/5`)
-- Border styling with ruby accents (`border-primary/30`)
-
-## Implementation
-
-### Step 1: Remove Wave Dividers
-
-Delete the two WaveDivider components and their import from `InteractiveGalleryPreview.tsx`.
-
-### Step 2: Add Crimson Corner Accents
-
-Add decorative corner gradient elements to the section, similar to the quote cards:
-
-| Element | Position | Styling |
-|---------|----------|---------|
-| Top-left accent | Absolute, top-0 left-0 | Ruby gradient fading to transparent |
-| Top-right accent | Absolute, top-0 right-0 | Ruby gradient fading to transparent |
-| Bottom-left accent | Absolute, bottom-0 left-0 | Ruby gradient fading to transparent |
-| Bottom-right accent | Absolute, bottom-0 right-0 | Ruby gradient fading to transparent |
-
-### Step 3: Add Subtle Crimson Border Lines
-
-Add thin horizontal decorative lines at the top and bottom edges:
-
-```tsx
-{/* Top decorative border */}
-<div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-ruby/30 to-transparent" />
-
-{/* Bottom decorative border */}
-<div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-ruby/30 to-transparent" />
+```css
+.neumorphic-card-3:hover {
+  box-shadow: var(--shadow-neumorphic-4), var(--shadow-glow);
+  transform: translateY(-3px);  /* THIS CAUSES THE ISSUE */
+}
 ```
 
-### Step 4: Enhance Section Background
+**Problem**: When a `position: sticky` element has a `transform` applied (even on hover), it can:
+1. Create a new stacking context that interferes with sticky behavior
+2. Cause the element to "jump" or disappear visually in some browsers
+3. Break the sticky positioning entirely in Safari/iOS
 
-Update the section to include subtle ruby tinting in the gradient, matching the quote card aesthetic:
+Additionally, the hero section has elements with high z-index values (z-30) that could interfere with the header's z-50.
+
+---
+
+## Solution
+
+### Part 1: Fix Header Sticky Positioning
+
+**File**: `src/components/Header.tsx`
+
+Remove the `neumorphic-card-3` class from the header and replace it with a custom set of styles that:
+- Keeps the visual appearance (background, border, shadow)
+- Removes the hover transform that breaks sticky positioning
+- Ensures the header remains visually stable
+
+**Changes**:
+1. Remove `neumorphic-card-3` from the header's className
+2. Add inline shadow styling without the hover transform
+3. Keep the scrolled state shadow enhancement (`shadow-elegant`)
+
+### Part 2: Add CSS Override for Header
+
+**File**: `src/index.css`
+
+Add a specific header override that prevents transform on the sticky header:
+
+```css
+/* Prevent neumorphic hover transform on sticky header */
+header.sticky .neumorphic-card-3,
+header[class*="sticky"] .neumorphic-card-3 {
+  transform: none !important;
+}
+```
+
+Alternatively, create a new `neumorphic-card-static` class specifically for sticky elements that has the visual styling without the transform.
+
+### Part 3: Create Scroll-to-Top Component
+
+**File**: `src/components/ui/scroll-to-top.tsx` (New)
+
+Create a floating button that:
+- Appears after scrolling 300px
+- Uses ruby brand styling
+- Positions above MobileActionBar on mobile
+- Hidden on admin and quote wizard routes
+- Smooth scroll animation to top
+- Accessible with proper ARIA labels
+
+### Part 4: Integrate Scroll-to-Top in App
+
+**File**: `src/App.tsx`
+
+Add the ScrollToTop component to the AppContent, positioned after MobileActionBar.
+
+---
+
+## Technical Details
+
+### Header Fix Strategy
+
+Replace in `Header.tsx` (line 51):
 
 ```tsx
-className="relative py-12 sm:py-16 lg:py-20 bg-gradient-to-br from-background via-ruby/[0.02] to-background"
+// FROM:
+className={cn(
+  "bg-gradient-to-br from-background via-muted/20 to-background backdrop-blur-md border-b border-border/20 sticky top-0 z-50 transition-all duration-300",
+  "neumorphic-card-3",  // REMOVE THIS
+  isScrolled && "shadow-elegant"
+)}
+
+// TO:
+className={cn(
+  "bg-gradient-to-br from-background via-muted/20 to-background backdrop-blur-md border-b border-border/20 sticky top-0 z-50 transition-all duration-300",
+  "shadow-[9px_9px_18px_hsla(210,10%,0%,0.08),-9px_-9px_18px_hsla(210,5%,85%,0.1)]",
+  isScrolled && "shadow-elegant"
+)}
+```
+
+This keeps the neumorphic shadow appearance but removes the problematic hover transform.
+
+### Scroll-to-Top Component Structure
+
+```tsx
+export function ScrollToTop() {
+  const [isVisible, setIsVisible] = useState(false);
+  const location = useLocation();
+  const isMobile = useIsMobile();
+  
+  // Route-based hiding
+  const isAdminRoute = location.pathname.startsWith('/admin');
+  const isQuoteWizard = /^\/request-quote\/(regular|wedding)$/.test(location.pathname);
+  const hidden = isAdminRoute || isQuoteWizard;
+
+  useEffect(() => {
+    const toggleVisibility = () => setIsVisible(window.scrollY > 300);
+    window.addEventListener('scroll', toggleVisibility, { passive: true });
+    return () => window.removeEventListener('scroll', toggleVisibility);
+  }, []);
+
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  if (hidden) return null;
+
+  return (
+    <Button
+      onClick={scrollToTop}
+      variant="default"
+      size="icon"
+      className={cn(
+        "fixed z-50 shadow-lg transition-all duration-300",
+        "right-4 lg:right-6",
+        isMobile 
+          ? "bottom-[calc(5rem+env(safe-area-inset-bottom)+0.5rem)]" 
+          : "bottom-6",
+        isVisible 
+          ? "opacity-100 translate-y-0" 
+          : "opacity-0 translate-y-4 pointer-events-none",
+        "h-12 w-12 rounded-full bg-ruby hover:bg-ruby-dark"
+      )}
+      aria-label="Scroll to top"
+    >
+      <ArrowUp className="h-5 w-5" />
+    </Button>
+  );
+}
 ```
 
 ---
 
-## Visual Comparison
+## Files to Modify
 
-**Before (Grey Waves)**
+| File | Action | Description |
+|------|--------|-------------|
+| `src/components/Header.tsx` | Edit | Remove neumorphic-card-3, add static shadow |
+| `src/components/ui/scroll-to-top.tsx` | Create | New scroll-to-top button component |
+| `src/App.tsx` | Edit | Import and add ScrollToTop component |
+
+---
+
+## Visual Result
+
 ```text
-~~~~~~~~~~~~~ grey wave ~~~~~~~~~~~~~
-│                                   │
-│   Gallery of Flavor & Style       │
-│                                   │
-~~~~~~~~~~~~~ grey wave ~~~~~~~~~~~~~
-```
+Before (Broken):
+┌─────────────────────────┐
+│ [Header - visible]       │
+├─────────────────────────┤
+│                         │
+│    [Hero Section]       │
+│                         │
+├─────────────────────────┤
+│                         │ ← Header disappears here
+│    [Services Section]   │
+│                         │
+└─────────────────────────┘
 
-**After (Crimson Accents)**
-```text
-┌─────── ruby gradient line ───────┐
-│ ◤                             ◥ │  ← corner accents
-│                                   │
-│   Gallery of Flavor & Style       │
-│                                   │
-│ ◣                             ◢ │  ← corner accents
-└─────── ruby gradient line ───────┘
-```
-
----
-
-## File Changes
-
-| File | Action | Details |
-|------|--------|---------|
-| `src/components/home/InteractiveGalleryPreview.tsx` | Edit | Remove WaveDivider import and usages, add crimson design elements |
-
----
-
-## Technical Implementation
-
-### Updated Section Structure
-
-```tsx
-<section 
-  ref={ref}
-  className="relative py-12 sm:py-16 lg:py-20 bg-gradient-to-br from-background via-ruby/[0.02] to-background overflow-hidden"
->
-  {/* Crimson decorative elements */}
-  
-  {/* Top border line */}
-  <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-ruby/30 to-transparent" />
-  
-  {/* Corner accents */}
-  <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-ruby/10 to-transparent rounded-br-full pointer-events-none" />
-  <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-ruby/10 to-transparent rounded-bl-full pointer-events-none" />
-  <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-ruby/8 to-transparent rounded-tr-full pointer-events-none" />
-  <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-tl from-ruby/8 to-transparent rounded-tl-full pointer-events-none" />
-  
-  {/* Bottom border line */}
-  <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-ruby/30 to-transparent" />
-  
-  <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-    {/* Existing content */}
-  </div>
-</section>
+After (Fixed):
+┌─────────────────────────┐
+│ [Header - STICKY]       │ ← Always visible at top
+├─────────────────────────┤
+│                         │
+│    [Hero Section]       │
+│                         │
+├─────────────────────────┤
+│                         │
+│    [Services Section]   │
+│                         │        ┌───┐
+│                         │        │ ↑ │ ← Scroll-to-top
+└─────────────────────────┴────────┴───┘
 ```
 
 ---
 
-## Design Benefits
+## Browser Compatibility Notes
 
-1. **Brand Cohesion**: Matches the crimson styling used on the quote selection page
-2. **Visual Elegance**: Corner accents add sophistication without heavy visual weight
-3. **No Grey Tones**: Eliminates the neutral grey waves that don't align with the ruby brand palette
-4. **Subtle Transitions**: Ruby gradient lines create clean section boundaries
-5. **Mobile Responsive**: Corner accents scale appropriately on smaller screens
+The transform issue with sticky positioning is a known quirk in:
+- Safari (all versions)
+- iOS Safari
+- Some Chromium-based browsers with GPU acceleration
+
+By removing the transform from the header's hover state, we ensure consistent sticky behavior across all browsers.
 
