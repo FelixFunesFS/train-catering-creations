@@ -28,7 +28,6 @@ interface ServiceCategory {
   description: string;
   image: string;
   features: string[];
-  href: string;
   isPopular?: boolean;
 }
 
@@ -58,7 +57,6 @@ export const ServiceCategoriesSection = () => {
       description: "Charleston's premier wedding caterer since 2017. We turn your dream day into a flawless celebration with authentic Southern elegance.",
       image: weddingCatering,
       features: ["Custom Menu Planning", "Professional Service", "Elegant Presentation"],
-      href: "/request-quote/wedding",
       isPopular: true
     },
     {
@@ -67,8 +65,7 @@ export const ServiceCategoriesSection = () => {
       subtitle: "Professional Excellence",
       description: "Impress clients and colleagues with sophisticated catering that reflects your company's commitment to quality.",
       image: corporateEvents,
-      features: ["Flexible Scheduling", "Dietary Accommodations", "Professional Setup"],
-      href: "/request-quote/regular"
+      features: ["Flexible Scheduling", "Dietary Accommodations", "Professional Setup"]
     },
     {
       icon: <Users className="h-6 w-6" />,
@@ -76,8 +73,7 @@ export const ServiceCategoriesSection = () => {
       subtitle: "Comfort & Joy",
       description: "Bring families together with soul food that creates lasting memories and celebrates your heritage.",
       image: familyGatherings,
-      features: ["Family-Style Service", "Traditional Recipes", "Generous Portions"],
-      href: "/request-quote/regular"
+      features: ["Family-Style Service", "Traditional Recipes", "Generous Portions"]
     }
   ];
 
@@ -134,36 +130,21 @@ export const ServiceCategoriesSection = () => {
               </p>
             </div>
 
-            {/* Mobile: Minimal content, no individual CTA */}
-            {isMobileOnly ? null : (
-              /* Desktop/Tablet - Always visible content */
-              <>
-                <p className="text-base text-muted-foreground leading-relaxed">
-                  {service.description}
-                </p>
+            {/* Description - visible on all viewports */}
+            <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+              {service.description}
+            </p>
 
-                {/* Features */}
-                <div className="space-y-2">
-                  {service.features.map((feature, featureIndex) => (
-                    <div key={featureIndex} className="flex items-center space-x-2">
-                      <CircleCheck className="h-4 w-4 text-ruby" />
-                      <span className="text-sm text-muted-foreground">{feature}</span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* CTA Button */}
-                <Button 
-                  variant="cta-outline" 
-                  size="responsive-compact"
-                  asChild
-                >
-                  <a href={service.href} className="flex items-center justify-center space-x-2">
-                    <span>Get Quote</span>
-                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                  </a>
-                </Button>
-              </>
+            {/* Features - Desktop/Tablet only */}
+            {!isMobileOnly && (
+              <div className="space-y-2">
+                {service.features.map((feature, featureIndex) => (
+                  <div key={featureIndex} className="flex items-center space-x-2">
+                    <CircleCheck className="h-4 w-4 text-ruby" />
+                    <span className="text-sm text-muted-foreground">{feature}</span>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
         </div>
@@ -228,17 +209,15 @@ export const ServiceCategoriesSection = () => {
           {serviceCategories.map((service, index) => renderCardContent(service, index))}
         </div>
 
-        {/* Mobile-only Section CTA */}
-        {isMobileOnly && (
-          <div className="flex justify-center mt-6">
-            <Button variant="cta" size="responsive-md" asChild>
-              <a href="/request-quote/regular" className="flex items-center gap-2">
-                <span>Get Your Quote</span>
-                <ArrowRight className="h-4 w-4" />
-              </a>
-            </Button>
-          </div>
-        )}
+        {/* Section CTA - all viewports */}
+        <div className="flex justify-center mt-6 sm:mt-8">
+          <Button variant="cta" size="responsive-md" asChild>
+            <a href="/request-quote" className="flex items-center gap-2">
+              <span>Get Your Quote</span>
+              <ArrowRight className="h-4 w-4" />
+            </a>
+          </Button>
+        </div>
       </div>
     </section>
   );
