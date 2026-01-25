@@ -1,17 +1,17 @@
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
-import charcuterieSpread from "@/assets/gallery/charcuterie-spread.jpg";
-import berryTartTower from "@/assets/gallery/berry-tart-tower.jpg";
-import chafingDishRoses from "@/assets/gallery/chafing-dish-roses.jpg";
-import foodMacCheese from "@/assets/gallery/food-mac-cheese.jpg";
-import foodSalmon from "@/assets/gallery/food-salmon.jpg";
+import buffetOrchidSetup from "@/assets/gallery/buffet-orchid-setup.jpg";
+import dessertMiniCheesecakes from "@/assets/gallery/dessert-mini-cheesecakes.jpg";
+import formalGoldReception from "@/assets/gallery/formal-gold-reception.jpg";
+import bbqOutdoorCarving from "@/assets/gallery/bbq-outdoor-carving.jpg";
+import buffetHolidayWings from "@/assets/gallery/buffet-holiday-wings.jpg";
 
 const images = [
-  { src: charcuterieSpread, alt: "Elegant charcuterie and cheese spread" },
-  { src: berryTartTower, alt: "Tiered fresh berry tart display" },
-  { src: chafingDishRoses, alt: "Professional buffet setup with roses" },
-  { src: foodMacCheese, alt: "Golden baked mac and cheese" },
-  { src: foodSalmon, alt: "Cajun-spiced salmon fillets" },
+  { src: buffetOrchidSetup, alt: "Elegant orchid buffet setup" },
+  { src: dessertMiniCheesecakes, alt: "Gourmet mini cheesecakes" },
+  { src: formalGoldReception, alt: "Formal gold reception setting" },
+  { src: bbqOutdoorCarving, alt: "BBQ outdoor carving station" },
+  { src: buffetHolidayWings, alt: "Holiday wings display" },
 ];
 
 export const ReviewsImageStrip = () => {
@@ -25,13 +25,13 @@ export const ReviewsImageStrip = () => {
   return (
     <div 
       ref={ref} 
-      className={`w-full overflow-x-auto scrollbar-hide py-4 ${useAnimationClass(variant, isVisible)}`}
+      className={`w-full py-4 ${useAnimationClass(variant, isVisible)}`}
     >
-      <div className="flex gap-3 sm:gap-4 px-4 sm:px-6 lg:px-8 min-w-max">
+      <div className="flex flex-wrap justify-center gap-3 sm:gap-4 px-4 sm:px-6 lg:px-8">
         {images.map((image, index) => (
           <div
             key={index}
-            className="relative w-28 h-28 sm:w-36 sm:h-36 lg:w-44 lg:h-44 flex-shrink-0 rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300"
+            className="relative w-24 h-24 sm:w-32 sm:h-32 lg:w-36 lg:h-36 flex-shrink-0 rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300"
             style={{
               animationDelay: `${index * 75}ms`,
             }}

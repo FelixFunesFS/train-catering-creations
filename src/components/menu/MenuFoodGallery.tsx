@@ -89,7 +89,7 @@ export const MenuFoodGallery = () => {
       {/* Full-Bleed Image Grid */}
       <div 
         ref={staggered.ref}
-        className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 sm:gap-3 px-2 sm:px-3"
+        className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-2 sm:gap-3 px-2 sm:px-3"
       >
         {galleryImages.map((image, index) => (
           <div
