@@ -1,97 +1,50 @@
 
-# Add Subtle Vignette Effect to Hero Image Edges
+# Position First Hero Image 20% Lower
 
 ## Overview
-Add a refined vignette effect specifically optimized for the hero section's large-scale images. The current site-wide vignette exists but is tuned for smaller gallery images. The hero needs a more pronounced but still subtle effect that adds cinematic depth while preserving the immersive feel.
+Adjust the vertical focal point of the first hero image (charcuterie board / "Artisan Creations") to show more of the lower portion of the image, without affecting the positioning of the other two carousel images.
 
-## Analysis
+## Current State
+The `getImageObjectPosition()` function returns:
+- Index 0 (charcuterie): `"object-center"` (centered at 50% 50%)
+- Index 1 (spread): `"object-left-center"` (left-aligned, vertically centered)
+- Index 2 (event space): `"object-center"` (centered at 50% 50%)
 
-### Current State
-- The `OptimizedImage` component has `enableVignette={true}` by default
-- Existing vignette CSS uses `inset box-shadow` with 60px/120px blur radii
-- Hero images already get this effect, but it's not visible enough at hero scale
-- The hero also uses gradient overlays for content readability (separate from vignette)
+## Solution
+Modify the `getImageObjectPosition()` function to return a custom position for index 0 that shifts the vertical focal point from 50% to 70% (20% lower).
 
-### Approach
-Create a dedicated hero vignette class that:
-- Uses larger blur radii appropriate for full-screen images
-- Adds subtle radial gradient for a true "camera lens" vignette feel
-- Remains subtle enough to not obscure the catering imagery
-- Works in both mobile (full-screen overlay) and desktop (60% split) layouts
+### Technical Details
 
-## Implementation Details
+**File:** `src/components/home/SplitHero.tsx`
 
-### 1. Add Hero-Specific Vignette CSS Class (src/index.css)
+**Change:** Update the `getImageObjectPosition` function (lines 187-194)
 
-Add a new `.hero-vignette` class with:
-- Larger inset box-shadow blur (100px, 200px) for edge darkening
-- Subtle radial gradient overlay for natural lens-like falloff
-- Slightly stronger effect on corners than current vignette
-- Dark mode variant with adjusted opacity
+```text
+Current:
+  if (index === 1) {
+    return "object-left-center";
+  }
+  return "object-center";
 
-```css
-/* Hero-specific vignette for large-scale images */
-.hero-vignette {
-  position: relative;
-}
-
-.hero-vignette::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(
-    ellipse 80% 80% at center,
-    transparent 40%,
-    rgba(0, 0, 0, 0.08) 70%,
-    rgba(0, 0, 0, 0.18) 100%
-  );
-  box-shadow: 
-    inset 0 0 100px rgba(0, 0, 0, 0.12),
-    inset 0 0 200px rgba(0, 0, 0, 0.08);
-  pointer-events: none;
-  z-index: 10;
-}
-
-.dark .hero-vignette::after {
-  background: radial-gradient(
-    ellipse 80% 80% at center,
-    transparent 40%,
-    rgba(0, 0, 0, 0.15) 70%,
-    rgba(0, 0, 0, 0.25) 100%
-  );
-}
+Updated:
+  if (index === 0) {
+    return "object-[center_70%]";  // 20% lower than center (50% + 20%)
+  }
+  if (index === 1) {
+    return "object-left-center";
+  }
+  return "object-center";
 ```
 
-### 2. Apply Vignette to Hero Image Container (src/components/home/SplitHero.tsx)
-
-**Desktop Layout (Line ~282):**
-Add `hero-vignette` class to the visual area container that wraps the `OptimizedImage`.
-
-**Mobile Layout (Line ~200):**
-Add `hero-vignette` class to the visual area container for consistency.
-
-### 3. Disable Default Vignette on Hero Images
-
-Since we're using a custom hero-specific vignette on the container, set `enableVignette={false}` on the hero `OptimizedImage` components to avoid double-layering effects.
+The Tailwind arbitrary value `object-[center_70%]` translates to `object-position: center 70%`, which keeps the horizontal position centered while moving the vertical focal point 20% lower (from the default 50% to 70%).
 
 ## Files to Modify
 
-| File | Changes |
-|------|---------|
-| `src/index.css` | Add `.hero-vignette` and dark mode variant classes |
-| `src/components/home/SplitHero.tsx` | Add `hero-vignette` class to image containers (2 locations), set `enableVignette={false}` on hero images |
+| File | Change |
+|------|--------|
+| `src/components/home/SplitHero.tsx` | Add index 0 case to `getImageObjectPosition()` function |
 
 ## Visual Result
-
-The hero images will have:
-- Subtle edge darkening that draws focus to the center content
-- Natural lens-like falloff typical of cinematic photography
-- Enhanced depth without losing the immersive full-bleed feel
-- Consistent effect across mobile and desktop layouts
-- Proper dark mode adaptation
-
-## Performance Considerations
-- Uses CSS only (no additional JavaScript)
-- `pointer-events: none` ensures no interaction interference
-- Hardware-accelerated via GPU compositing
-- No impact on LCP as it's a pseudo-element overlay
+- First image (charcuterie): Focal point shifted 20% lower, showing more of the bottom of the image
+- Second image (spread): Unchanged - remains left-center aligned
+- Third image (event space): Unchanged - remains centered
