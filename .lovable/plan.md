@@ -1,65 +1,97 @@
 
-# Remove About Hero Background Image
+# Add Subtle Vignette Effect to Hero Image Edges
 
 ## Overview
+Add a refined vignette effect specifically optimized for the hero section's large-scale images. The current site-wide vignette exists but is tuned for smaller gallery images. The hero needs a more pronounced but still subtle effect that adds cinematic depth while preserving the immersive feel.
 
-Remove the background image from the About page hero section, simplifying it to use just the standard gradient background (`bg-gradient-hero`) inherited from the page container.
+## Analysis
 
-## Current State (Lines 78-111)
+### Current State
+- The `OptimizedImage` component has `enableVignette={true}` by default
+- Existing vignette CSS uses `inset box-shadow` with 60px/120px blur radii
+- Hero images already get this effect, but it's not visible enough at hero scale
+- The hero also uses gradient overlays for content readability (separate from vignette)
 
-The hero section currently has:
-- Background image (`teamWesternGroup`)
-- 85% opacity overlay (`bg-background/85`)
-- Top gradient fade
-- Bottom gradient fade
-- PageHeader content with `z-20`
+### Approach
+Create a dedicated hero vignette class that:
+- Uses larger blur radii appropriate for full-screen images
+- Adds subtle radial gradient for a true "camera lens" vignette feel
+- Remains subtle enough to not obscure the catering imagery
+- Works in both mobile (full-screen overlay) and desktop (60% split) layouts
 
-## Changes
+## Implementation Details
 
-### File: `src/pages/About.tsx`
+### 1. Add Hero-Specific Vignette CSS Class (src/index.css)
 
-**Remove these elements from the hero section:**
-1. Background image div (lines 80-85)
-2. Overlay div (lines 87-88)
-3. Top gradient fade div (lines 90-91)
-4. Bottom gradient fade div (lines 93-94)
-5. Remove `relative` and `overflow-hidden` from section (no longer needed)
-6. Remove `z-20` from content wrapper (no longer needed)
+Add a new `.hero-vignette` class with:
+- Larger inset box-shadow blur (100px, 200px) for edge darkening
+- Subtle radial gradient overlay for natural lens-like falloff
+- Slightly stronger effect on corners than current vignette
+- Dark mode variant with adjusted opacity
 
-**Also:**
-- Remove unused `teamWesternGroup` import (line 15)
+```css
+/* Hero-specific vignette for large-scale images */
+.hero-vignette {
+  position: relative;
+}
 
-## Before vs After
+.hero-vignette::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 80% 80% at center,
+    transparent 40%,
+    rgba(0, 0, 0, 0.08) 70%,
+    rgba(0, 0, 0, 0.18) 100%
+  );
+  box-shadow: 
+    inset 0 0 100px rgba(0, 0, 0, 0.12),
+    inset 0 0 200px rgba(0, 0, 0, 0.08);
+  pointer-events: none;
+  z-index: 10;
+}
 
-**Before:**
-```tsx
-<section className="relative py-8 sm:py-10 lg:py-12 overflow-hidden">
-  {/* Background image */}
-  <div style={{ backgroundImage: `url(${teamWesternGroup})` }} />
-  {/* Overlay */}
-  <div className="bg-background/85" />
-  {/* Top/bottom gradient fades */}
-  <div className="relative z-20">
-    <PageHeader ... />
-  </div>
-</section>
+.dark .hero-vignette::after {
+  background: radial-gradient(
+    ellipse 80% 80% at center,
+    transparent 40%,
+    rgba(0, 0, 0, 0.15) 70%,
+    rgba(0, 0, 0, 0.25) 100%
+  );
+}
 ```
 
-**After:**
-```tsx
-<section className="py-8 sm:py-10 lg:py-12">
-  <PageHeader ... />
-</section>
-```
+### 2. Apply Vignette to Hero Image Container (src/components/home/SplitHero.tsx)
 
-## Technical Notes
+**Desktop Layout (Line ~282):**
+Add `hero-vignette` class to the visual area container that wraps the `OptimizedImage`.
 
-- The page already has `bg-gradient-hero` on the root container, so the hero will inherit that subtle gradient
-- This matches the simpler hero styling used on other pages like FAQ and Reviews
-- The `teamWesternGroup` import can be removed since it won't be used anywhere else on this page
+**Mobile Layout (Line ~200):**
+Add `hero-vignette` class to the visual area container for consistency.
 
-## File to Modify
+### 3. Disable Default Vignette on Hero Images
+
+Since we're using a custom hero-specific vignette on the container, set `enableVignette={false}` on the hero `OptimizedImage` components to avoid double-layering effects.
+
+## Files to Modify
 
 | File | Changes |
 |------|---------|
-| `src/pages/About.tsx` | Remove background image, overlay, gradients from hero; remove unused import |
+| `src/index.css` | Add `.hero-vignette` and dark mode variant classes |
+| `src/components/home/SplitHero.tsx` | Add `hero-vignette` class to image containers (2 locations), set `enableVignette={false}` on hero images |
+
+## Visual Result
+
+The hero images will have:
+- Subtle edge darkening that draws focus to the center content
+- Natural lens-like falloff typical of cinematic photography
+- Enhanced depth without losing the immersive full-bleed feel
+- Consistent effect across mobile and desktop layouts
+- Proper dark mode adaptation
+
+## Performance Considerations
+- Uses CSS only (no additional JavaScript)
+- `pointer-events: none` ensures no interaction interference
+- Hardware-accelerated via GPU compositing
+- No impact on LCP as it's a pseudo-element overlay
