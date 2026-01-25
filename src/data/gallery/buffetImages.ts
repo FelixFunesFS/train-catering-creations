@@ -12,8 +12,16 @@ import buffetLabeledPatriotic from '@/assets/gallery/buffet-labeled-patriotic.jp
 import buffetChefDuo from '@/assets/gallery/buffet-chef-duo.jpg';
 import buffetOutdoorTent from '@/assets/gallery/buffet-outdoor-tent.jpg';
 import buffetTeamService from '@/assets/gallery/buffet-team-service.jpg';
+import teamWesternBuffet from '@/assets/team-western-buffet.jpg';
 
 export const buffetImages: GalleryImage[] = [
+  {
+    src: teamWesternBuffet,
+    category: "team",
+    title: "Western-Themed Family Service",
+    description: "Our family team in matching western attire ready to serve authentic Southern comfort food",
+    quality: 10
+  },
   {
     src: buffetOrchidSetup,
     category: "buffet",
