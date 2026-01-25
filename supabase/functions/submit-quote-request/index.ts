@@ -6,6 +6,10 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Rate limiting: max submissions per email within time window
+const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
+const MAX_SUBMISSIONS_PER_WINDOW = 3; // Max 3 submissions per email per hour
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -20,7 +24,18 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     const payload = await req.json();
-    
+
+    // Honeypot check - if this field has any value, it's likely a bot
+    // The form should include a hidden field that humans won't fill out
+    if (payload._honeypot || payload.website_url || payload.company_website) {
+      console.log('Bot detected via honeypot field');
+      // Return success to not tip off bots, but don't actually process
+      return new Response(
+        JSON.stringify({ success: true, quote_id: 'processed' }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     // Validate required fields
     const requiredFields = ['contact_name', 'email', 'phone', 'event_name', 'event_type', 'event_date', 'start_time', 'guest_count', 'location', 'service_type'];
     for (const field of requiredFields) {
@@ -34,7 +49,8 @@ serve(async (req) => {
 
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(payload.email)) {
+    const sanitizedEmail = String(payload.email).trim().toLowerCase().slice(0, 255);
+    if (!emailRegex.test(sanitizedEmail)) {
       return new Response(
         JSON.stringify({ error: 'Invalid email format' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -49,10 +65,32 @@ serve(async (req) => {
       );
     }
 
+    // Rate limiting check - count recent submissions from this email
+    const windowStart = new Date(Date.now() - RATE_LIMIT_WINDOW_MS).toISOString();
+    const { count, error: countError } = await supabase
+      .from('quote_requests')
+      .select('*', { count: 'exact', head: true })
+      .eq('email', sanitizedEmail)
+      .gte('created_at', windowStart);
+
+    if (countError) {
+      console.error('Rate limit check error:', countError);
+      // Don't block on rate limit check failure, but log it
+    } else if (count !== null && count >= MAX_SUBMISSIONS_PER_WINDOW) {
+      console.log(`Rate limit exceeded for email: ${sanitizedEmail} (${count} submissions in window)`);
+      return new Response(
+        JSON.stringify({ 
+          error: 'Too many quote requests. Please wait before submitting another request.',
+          retry_after_minutes: 60
+        }),
+        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     // Sanitize and prepare the insert payload
     const insertPayload = {
       contact_name: String(payload.contact_name).trim().slice(0, 200),
-      email: String(payload.email).trim().toLowerCase().slice(0, 255),
+      email: sanitizedEmail,
       phone: String(payload.phone).trim().slice(0, 50),
       event_name: String(payload.event_name).trim().slice(0, 200),
       event_type: payload.event_type,
