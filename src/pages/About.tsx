@@ -14,6 +14,7 @@ import { useAnimationClass } from "@/hooks/useAnimationClass";
 import tanyaWardImg from "@/assets/tanya-ward.jpg";
 import venueEventSetup from "@/assets/venue-event-setup.jpg";
 import aboutStoryBg from "@/assets/about-story-bg.jpg";
+import aboutValuesBg from "@/assets/about-values-bg.jpg";
 
 const About = () => {
   // Story section animations
@@ -229,11 +230,11 @@ const About = () => {
 
         {/* Values Section - Full-width Background Image */}
         <section className="relative py-16 sm:py-20 lg:py-24 overflow-hidden">
-          {/* Full-width Background Image */}
+        {/* Full-width Background Image */}
           <div 
             className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
             style={{ 
-              backgroundImage: `url(${aboutStoryBg})`
+              backgroundImage: `url(${aboutValuesBg})`
             }}
             aria-hidden="true"
           />
