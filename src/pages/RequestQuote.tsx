@@ -65,12 +65,12 @@ const RequestQuote = () => {
             {
               text: "Call (843) 970-0265",
               href: "tel:8439700265",
-              variant: "cta"
+              variant: "cta-white"
             },
             {
               text: "Email Us",
               href: "mailto:soultrainseatery@gmail.com",
-              variant: "cta-white"
+              variant: "cta"
             }
           ]}
           footer="Response time: Usually within 24 hours"

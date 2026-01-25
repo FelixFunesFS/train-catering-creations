@@ -9,12 +9,12 @@ export const GalleryCTA = () => {
         {
           text: "Request Quote",
           href: "/request-quote#page-header",
-          variant: "cta"
+          variant: "cta-white"
         },
         {
           text: "Call Us Today",
           href: "tel:8439700265",
-          variant: "cta-white"
+          variant: "cta"
         }
       ]}
       footer="Proudly serving Charleston, SC and the surrounding Lowcountry"

@@ -10,13 +10,13 @@ export const CTASection = () => {
         {
           text: "Text (843) 970-0265",
           href: "sms:8439700265",
-          variant: "cta",
+          variant: "cta-white",
           icon: <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5" />
         },
         {
           text: "Request Quote",
           href: "/request-quote#page-header",
-          variant: "cta-white"
+          variant: "cta"
         }
       ]}
       footer="Proudly serving Charleston, SC and the surrounding Lowcountry"

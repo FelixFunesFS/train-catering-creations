@@ -28,15 +28,15 @@ export const MenuCTASection = () => {
                 Proudly serving Charleston, SC and the surrounding Lowcountry
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-2">
-                <Button asChild variant="cta" size="responsive-lg">
-                  <Link to="/request-quote#page-header">Request a Free Quote</Link>
+                <Button asChild variant="cta-white" size="responsive-lg">
+                  <Link to="/request-quote#page-header" className="text-inherit">Request a Free Quote</Link>
                 </Button>
                 <Button 
                   asChild 
-                  variant="cta-white" 
+                  variant="cta" 
                   size="responsive-lg"
                 >
-                  <a href="tel:8439700265">Call (843) 970-0265</a>
+                  <a href="tel:8439700265" className="text-inherit">Call (843) 970-0265</a>
                 </Button>
               </div>
             </div>
