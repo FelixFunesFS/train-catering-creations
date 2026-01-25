@@ -9,7 +9,7 @@ import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useState } from "react";
-import { galleryImages } from "@/data/galleryImages";
+import { galleryImages, showcaseImages } from "@/data/galleryImages";
 import { Camera, Heart, Star, Eye, Clock, Briefcase, Cake, Utensils, Users } from "lucide-react";
 import Autoplay from "embla-carousel-autoplay";
 
@@ -34,10 +34,7 @@ export const InteractiveGallerySection = () => {
     setSelectedImageIndex(null);
   };
 
-  // Get best quality images for showcase - limited to 6 for optimal performance and UX
-  const showcaseImages = galleryImages
-    .sort((a, b) => b.quality - a.quality)
-    .slice(0, 6);
+  // showcaseImages is now imported from galleryImages.ts with fixed curated order
 
   const getCategoryBadge = (category: string) => {
     const categoryMap = {
