@@ -18,10 +18,11 @@ export const BRAND_COLORS = {
 // Production URL for logo assets - uses published domain for email compatibility
 const SITE_URL = Deno.env.get('SITE_URL') || 'https://train-catering-creations.lovable.app';
 
-// Logo URLs - using PNG for maximum email client compatibility (Gmail, Outlook)
+// Logo URLs - SVG with PNG fallback comments. Most modern clients support SVG.
+// For Outlook desktop issues, consider hosting PNG versions at same path with .png extension
 export const LOGO_URLS = {
-  red: `${SITE_URL}/images/logo-red.png`,
-  white: `${SITE_URL}/images/logo-white.png`,
+  red: `${SITE_URL}/images/logo-red.svg`,
+  white: `${SITE_URL}/images/logo-white.svg`,
 };
 
 // ============================================================================
