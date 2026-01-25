@@ -257,7 +257,7 @@ export const SplitHero = () => {
                 </Link>
               </Button>
               <Button variant="outline" size="lg" className="w-full sm:flex-1 border-2 border-white text-white bg-white/10 backdrop-blur-sm hover:bg-white/20 min-h-[48px] shadow-lg" asChild>
-                <a href="tel:8439700265" className="flex items-center justify-center gap-2 text-primary">
+                <a href="tel:8439700265" className="flex items-center justify-center gap-2">
                   <Phone className="h-4 w-4" />
                   <span>Call Now</span>
                 </a>
