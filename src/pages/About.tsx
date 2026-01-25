@@ -75,28 +75,24 @@ const About = () => {
         <TrustMarquee />
         
         {/* Header Section - With Team Group Background Image */}
-        <section className="relative overflow-hidden">
-          {/* Image Display Area - Visible faces above content */}
-          <div className="relative h-48 sm:h-56 lg:h-64">
-            {/* Background image - positioned at top */}
-            <div 
-              className="absolute inset-0 bg-cover bg-top bg-no-repeat"
-              style={{ backgroundImage: `url(${teamWesternGroup})` }}
-              aria-hidden="true"
-            />
-            
-            {/* Lighter overlay on image area - 60% to show faces clearly */}
-            <div className="absolute inset-0 bg-background/60" />
-            
-            {/* Top gradient fade */}
-            <div className="absolute top-0 left-0 right-0 h-16 sm:h-20 lg:h-24 bg-gradient-to-b from-background to-transparent z-10" />
-            
-            {/* Bottom gradient fade into content */}
-            <div className="absolute bottom-0 left-0 right-0 h-20 sm:h-24 lg:h-32 bg-gradient-to-t from-background to-transparent z-10" />
-          </div>
+        <section className="relative py-12 sm:py-16 lg:py-20 overflow-hidden">
+          {/* Background image - now using team western group */}
+          <div 
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{ backgroundImage: `url(${teamWesternGroup})` }}
+            aria-hidden="true"
+          />
           
-          {/* Content Area - Below the visible image */}
-          <div className="relative z-20 bg-background py-8 sm:py-10 lg:py-12">
+          {/* Overlay for readability */}
+          <div className="absolute inset-0 bg-background/85" />
+          
+          {/* Top gradient fade */}
+          <div className="absolute top-0 left-0 right-0 h-16 sm:h-20 lg:h-24 bg-gradient-to-b from-background to-transparent z-10" />
+          
+          {/* Bottom gradient fade */}
+          <div className="absolute bottom-0 left-0 right-0 h-16 sm:h-20 lg:h-24 bg-gradient-to-t from-background to-transparent z-10" />
+          
+          <div className="relative z-20">
             <PageHeader
               badge={{
                 icon: <Heart className="h-5 w-5" />,
