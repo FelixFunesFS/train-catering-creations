@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
-import rubyWaveBg from "@/assets/ruby-wave-bg.png";
+import rubyWaveBg from "@/assets/ruby-wave-bg.webp";
 
 // Import optimized WebP images
 import weddingCatering from "@/assets/hero/wedding-catering.webp";

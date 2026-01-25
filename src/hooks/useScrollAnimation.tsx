@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useIsMobileQuery } from './useMediaQuery';
 
 export type AnimationVariant = 'subtle' | 'medium' | 'strong' | 'elastic' | 'ios-spring' | 'fade-up' | 'scale-fade' | 'slide-left' | 'slide-right' | 'slide-up' | 'slide-down' | 'zoom-fade' | 'bounce-in' | 'rotate-fade' | 'flip-in' | 'sticky-fade';
 
@@ -32,20 +33,9 @@ export const useScrollAnimation = (options: UseScrollAnimationOptions = {}) => {
   } = options;
 
   const [isVisible, setIsVisible] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  // Use centralized media query hook to avoid forced reflows
+  const isMobile = useIsMobileQuery();
   const ref = useRef<HTMLDivElement>(null);
-
-  // Detect mobile/desktop
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
 
   // Get responsive variant and delay
   const getResponsiveConfig = () => {
