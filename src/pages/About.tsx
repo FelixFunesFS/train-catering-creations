@@ -12,6 +12,7 @@ import { useAnimationClass } from "@/hooks/useAnimationClass";
 
 import { useIsMobile } from "@/hooks/use-mobile";
 import aboutHeroBg from "@/assets/about-hero-bg.jpg";
+import tanyaWardImg from "@/assets/tanya-ward.png";
 
 const About = () => {
   const isMobile = useIsMobile();
@@ -203,7 +204,7 @@ const About = () => {
                 <NeumorphicCard level={4} className="text-center hover:scale-105 transition-transform duration-300">
                   <div className="mb-6">
                     <OptimizedImage 
-                      src="/lovable-uploads/1dcbc1ee-eb25-4d89-8722-cb4904d1ba69.png" 
+                      src={tanyaWardImg} 
                       alt="Pastry Chef Tanya Ward" 
                       aspectRatio="aspect-square"
                       containerClassName="w-64 h-64 mx-auto mb-4 rounded-full"
