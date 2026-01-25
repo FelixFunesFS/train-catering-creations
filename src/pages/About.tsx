@@ -14,7 +14,6 @@ import { useAnimationClass } from "@/hooks/useAnimationClass";
 import tanyaWardImg from "@/assets/tanya-ward.jpg";
 import venueEventSetup from "@/assets/venue-event-setup.jpg";
 import aboutHeroBg from "@/assets/about-hero-bg.jpg";
-import aboutValuesBg from "@/assets/about-values-bg.jpg";
 
 const About = () => {
   // Story section animations
@@ -76,9 +75,23 @@ const About = () => {
         {/* Trust Marquee - First element after nav */}
         <TrustMarquee />
         
-        {/* Header Section */}
-        <section className="py-8 sm:py-10 lg:py-12">
-          <PageHeader
+        {/* Header Section with Background */}
+        <section className="relative py-16 sm:py-20 lg:py-24 overflow-hidden">
+          {/* Full-width Background Image */}
+          <div 
+            className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
+            style={{ backgroundImage: `url(${aboutHeroBg})` }}
+            aria-hidden="true"
+          />
+          
+          {/* Dark gradient overlay for text contrast */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70" />
+          
+          {/* Bottom gradient fade for smooth section transition */}
+          <div className="absolute bottom-0 left-0 right-0 h-16 sm:h-20 lg:h-24 bg-gradient-to-t from-background to-transparent z-10" />
+          
+          <div className="relative z-20">
+            <PageHeader
             badge={{
               icon: <Heart className="h-5 w-5" />,
               text: "Our Story"
@@ -89,8 +102,10 @@ const About = () => {
             buttons={[
               { text: "Request Quote", href: "/request-quote#page-header", variant: "cta" }
             ]}
-            animated={true}
-          />
+              animated={true}
+              darkMode={true}
+            />
+          </div>
         </section>
 
         {/* Our Story Section - Full-width Background Image */}
@@ -234,7 +249,7 @@ const About = () => {
           <div 
             className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
             style={{ 
-              backgroundImage: `url(${aboutValuesBg})`
+              backgroundImage: `url(${aboutHeroBg})`
             }}
             aria-hidden="true"
           />
