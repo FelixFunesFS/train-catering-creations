@@ -4,6 +4,7 @@ import { menuData, weddingMenuItems, MenuItem, MenuSection } from "@/data/menuDa
 import { SimpleMenuHeader } from "@/components/menu/SimpleMenuHeader";
 import { CollapsibleCategory } from "@/components/menu/CollapsibleCategory";
 import { MenuCTASection } from "@/components/menu/MenuCTASection";
+import { MenuFoodGallery } from "@/components/menu/MenuFoodGallery";
 import { QuickActionButton } from "@/components/menu/QuickActionButton";
 import { useStaggeredAnimation } from "@/hooks/useStaggeredAnimation";
 import { cn } from "@/lib/utils";
@@ -173,6 +174,9 @@ const SimplifiedMenu = () => {
           </div>
         </div>
       </section>
+
+      {/* Food Gallery Section */}
+      <MenuFoodGallery />
 
       {/* CTA Section */}
       <MenuCTASection />

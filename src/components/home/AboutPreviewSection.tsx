@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
+import homeStoryBg from "@/assets/home-story-bg.jpg";
 
 export const AboutPreviewSection = () => {
   const { ref, isVisible } = useScrollAnimation({ 
@@ -44,9 +45,25 @@ export const AboutPreviewSection = () => {
   return (
     <section 
       ref={ref}
-      className="py-12 sm:py-16 lg:py-20 bg-gradient-pattern-d"
+      className="py-12 sm:py-16 lg:py-20 relative overflow-hidden"
     >
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Background image */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url(${homeStoryBg})` }}
+        aria-hidden="true"
+      />
+      
+      {/* Overlay for readability */}
+      <div className="absolute inset-0 bg-background/85" />
+      
+      {/* Top gradient fade */}
+      <div className="absolute top-0 left-0 right-0 h-16 sm:h-20 lg:h-24 bg-gradient-to-b from-background to-transparent z-10" />
+      
+      {/* Bottom gradient fade */}
+      <div className="absolute bottom-0 left-0 right-0 h-16 sm:h-20 lg:h-24 bg-gradient-to-t from-background to-transparent z-10" />
+
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-20">
         {/* Section Header */}
         <div className={`text-center mb-6 lg:mb-10 space-y-3 ${animationClass}`}>
           <div className="flex items-center justify-center space-x-2 mb-3">

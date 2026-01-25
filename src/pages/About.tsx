@@ -11,6 +11,7 @@ import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 import { useParallaxEffect } from "@/hooks/useParallaxEffect";
 import { useIsMobile } from "@/hooks/use-mobile";
+import aboutHeroBg from "@/assets/about-hero-bg.jpg";
 
 const About = () => {
   const isMobile = useIsMobile();
@@ -86,22 +87,40 @@ const About = () => {
         {/* Trust Marquee - First element after nav */}
         <TrustMarquee />
         
-        {/* Header Section - Pattern A */}
-        <PageSection pattern="a" skipToContentId="about-header">
-          <PageHeader
-            badge={{
-              icon: <Heart className="h-5 w-5" />,
-              text: "Our Story"
-            }}
-            title="Meet the Heart Behind Soul Train's Eatery"
-            subtitle="A Family Legacy of Flavor"
-            description="From family traditions to professional excellence, discover the passionate team that brings authentic Southern flavors and warm hospitality to every event across Charleston's beautiful Lowcountry."
-            buttons={[
-              { text: "Request Quote", href: "/request-quote#page-header", variant: "cta" }
-            ]}
-            animated={true}
+        {/* Header Section - With Background Image */}
+        <section className="relative py-12 sm:py-16 lg:py-20 overflow-hidden">
+          {/* Background image */}
+          <div 
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{ backgroundImage: `url(${aboutHeroBg})` }}
+            aria-hidden="true"
           />
-        </PageSection>
+          
+          {/* Overlay for readability */}
+          <div className="absolute inset-0 bg-background/85" />
+          
+          {/* Top gradient fade */}
+          <div className="absolute top-0 left-0 right-0 h-16 sm:h-20 lg:h-24 bg-gradient-to-b from-background to-transparent z-10" />
+          
+          {/* Bottom gradient fade */}
+          <div className="absolute bottom-0 left-0 right-0 h-16 sm:h-20 lg:h-24 bg-gradient-to-t from-background to-transparent z-10" />
+          
+          <div className="relative z-20">
+            <PageHeader
+              badge={{
+                icon: <Heart className="h-5 w-5" />,
+                text: "Our Story"
+              }}
+              title="Meet the Heart Behind Soul Train's Eatery"
+              subtitle="A Family Legacy of Flavor"
+              description="From family traditions to professional excellence, discover the passionate team that brings authentic Southern flavors and warm hospitality to every event across Charleston's beautiful Lowcountry."
+              buttons={[
+                { text: "Request Quote", href: "/request-quote#page-header", variant: "cta" }
+              ]}
+              animated={true}
+            />
+          </div>
+        </section>
 
         {/* Our Story Section - Full-width Background Image */}
         <section className="relative py-16 sm:py-20 lg:py-24 overflow-hidden">
