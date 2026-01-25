@@ -1,184 +1,100 @@
 
-# Ruby CTA Text Color Fix - Remove text-inherit Override
 
-## Problem Identified
+# Hero Section Review and Enhancement Plan
 
-The `cta` variant buttons display **navy text instead of white** on ruby gradient backgrounds. This is a critical accessibility and contrast issue.
+## Current State Analysis
 
-**Root Cause:**
-When using `asChild` with Button components, adding `text-inherit` to the inner anchor tag overrides the variant's text color (`text-white`) and instead inherits from the parent container (`--foreground: 220 25% 20%` = navy).
+The home page hero (`SplitHero.tsx`) currently has two distinct layouts:
 
-The Radix Slot component already forwards ALL classes from the Button to the child element, including `text-white`. Adding `text-inherit` explicitly OVERRIDES this.
+**Mobile/Tablet (up to 1023px):**
+- Full-screen overlay design with image carousel
+- Content overlaid on images with gradient for readability
+- Height set to `85vh` which may cause content cutoff on some tablets
 
----
+**Desktop (1024px and above):**
+- 60/40 split layout (60% image, 40% content panel)
+- Clean separation between visual and text content
+- Full screen height (`h-screen`)
 
-## Solution
+## Issue Identified: Tablet Content Cutoff
 
-Remove `text-inherit` from all anchor/Link tags inside `cta` and `cta-outline` variant buttons. The button variant classes will be correctly applied without any override.
+The tablet view may experience content cutoff due to:
+1. Fixed `h-[85vh]` height not accounting for tablet viewport variations
+2. Content positioned at `bottom-[15%]` which can push elements off-screen
+3. `max-w-md` constraint limiting content width on larger tablets (768px-1023px)
 
----
+## Recommendation: Enhanced Tablet-Specific Optimizations
 
-## Files to Fix
+Rather than switching to a full-width desktop hero (which would sacrifice the clean content separation that improves readability), I recommend targeted tablet improvements:
 
-### 1. src/components/ui/cta-section.tsx (Line 72)
-**Base component - affects ALL pages using CTASection**
+### Option A: Tablet-Specific Refinements (Recommended)
 
-```tsx
-// FROM:
-<a href={button.href} className="flex items-center justify-center gap-2 text-inherit">
+Adjust the mobile/tablet layout to better accommodate tablet screens:
+- Increase height from `h-[85vh]` to `h-[90vh] sm:h-[92vh]` for tablets
+- Adjust content positioning from `bottom-[15%]` to `bottom-[12%] sm:bottom-[10%]`
+- Expand content width from `max-w-md` to `max-w-md sm:max-w-lg` for tablets
+- Add responsive padding adjustments
 
-// TO:
-<a href={button.href} className="flex items-center justify-center gap-2">
+### Option B: Full-Width Desktop Hero
+
+Convert the desktop layout to match the mobile/tablet full-width overlay approach:
+- Removes the 60/40 split entirely
+- Single unified layout across all devices
+- Content overlaid on full-screen imagery
+- More dramatic, cinematic presentation
+
+**Trade-offs:**
+- Gains more visual impact from catering photography
+- Loses dedicated content area which aids readability
+- Increases risk of text-over-image accessibility issues
+
+## Implementation Plan (Option A - Recommended)
+
+### Step 1: Adjust Tablet Height and Positioning
+
+Update the mobile/tablet section (lines 202-280) to use responsive values:
+
+```text
+Before:
+- section: h-[85vh]
+- content: bottom-[15%]
+- container: max-w-md
+
+After:
+- section: h-[85vh] sm:h-[90vh] md:h-[92vh]
+- content: bottom-[12%] sm:bottom-[10%]
+- container: max-w-md sm:max-w-lg md:max-w-xl
 ```
 
-### 2. src/components/home/SplitHero.tsx (Lines 263, 339)
-**Mobile and Desktop hero CTAs**
+### Step 2: Enhance Trust Marquee Spacing
 
-```tsx
-// Line 263 - FROM:
-<Link to="/request-quote#page-header" className="flex items-center justify-center gap-2 text-inherit">
+Adjust the top trust marquee for better tablet visibility:
 
-// TO:
-<Link to="/request-quote#page-header" className="flex items-center justify-center gap-2">
+```text
+Before: top-12
+After: top-14 sm:top-16
 ```
 
-```tsx
-// Line 339 - FROM:
-<a href="/request-quote#page-header" className="flex items-center justify-center space-x-2 text-inherit">
+### Step 3: Responsive CTA Button Sizing
 
-// TO:
-<a href="/request-quote#page-header" className="flex items-center justify-center space-x-2">
-```
+Ensure buttons don't overflow on tablet landscape:
 
-### 3. src/components/home/AboutPreviewSection.tsx (Lines 141, 152)
-
-```tsx
-// Line 141 - FROM:
-<a href="/about" className="flex items-center justify-center space-x-2 text-inherit">
-
-// TO:
-<a href="/about" className="flex items-center justify-center space-x-2">
-```
-
-```tsx
-// Line 152 - FROM:
-<a href="/request-quote#page-header" className="text-inherit">
-
-// TO:
-<a href="/request-quote#page-header">
-```
-
-### 4. src/components/home/FeaturedVenueSection.tsx (Lines 130, 138)
-
-```tsx
-// Line 130 - FROM:
-<a href="/request-quote#page-header" className="text-inherit">
-
-// TO:
-<a href="/request-quote#page-header">
-```
-
-```tsx
-// Line 138 - FROM:
-<a href="/gallery?category=wedding" className="text-inherit">
-
-// TO:
-<a href="/gallery?category=wedding">
-```
-
-### 5. src/components/home/ServiceCategoriesSection.tsx (Lines 187, 217)
-
-```tsx
-// Line 187 - FROM:
-<a href={service.href} className="flex items-center justify-center space-x-2 text-inherit">
-
-// TO:
-<a href={service.href} className="flex items-center justify-center space-x-2">
-```
-
-```tsx
-// Line 217 - FROM:
-<a href={service.href} className="flex items-center justify-center space-x-2 text-inherit">
-
-// TO:
-<a href={service.href} className="flex items-center justify-center space-x-2">
-```
-
-### 6. src/components/menu/MenuCTASection.tsx (Lines 32, 39)
-
-```tsx
-// Line 32 - FROM:
-<Link to="/request-quote#page-header" className="text-inherit">
-
-// TO:
-<Link to="/request-quote#page-header">
-```
-
-```tsx
-// Line 39 - FROM:
-<a href="tel:8439700265" className="text-inherit">
-
-// TO:
-<a href="tel:8439700265">
-```
-
-### 7. src/components/home/SplitHero.tsx (Additional - Lines 269, 345)
-**Secondary buttons also need cleanup for glass-white and cta-outline variants**
-
-```tsx
-// Line 269 - FROM:
-<a href="tel:8439700265" className="flex items-center justify-center gap-2 text-inherit">
-
-// TO:
-<a href="tel:8439700265" className="flex items-center justify-center gap-2">
-```
-
-```tsx
-// Line 345 - FROM:
-<a href="tel:8439700265" className="flex items-center justify-center space-x-2 text-inherit">
-
-// TO:
-<a href="tel:8439700265" className="flex items-center justify-center space-x-2">
+```text
+Before: flex-col sm:flex-row gap-2 sm:gap-3
+After: flex-col sm:flex-row gap-3 sm:gap-4
 ```
 
 ---
 
-## Files Summary
+## Technical Changes Summary
 
-| File | Lines to Fix |
-|------|--------------|
-| `src/components/ui/cta-section.tsx` | 72 |
-| `src/components/home/SplitHero.tsx` | 263, 269, 339, 345 |
-| `src/components/home/AboutPreviewSection.tsx` | 141, 152 |
-| `src/components/home/FeaturedVenueSection.tsx` | 130, 138 |
-| `src/components/home/ServiceCategoriesSection.tsx` | 187, 217 |
-| `src/components/menu/MenuCTASection.tsx` | 32, 39 |
+**File: `src/components/home/SplitHero.tsx`**
 
----
+1. Update section height classes (line 202)
+2. Adjust content overlay positioning (line 240)
+3. Expand content container width (line 241)
+4. Refine trust marquee top offset (line 213)
+5. Adjust CTA button gap spacing (line 261)
 
-## Technical Explanation
+All changes are contained within the mobile/tablet conditional block, preserving the desktop 60/40 split layout.
 
-The Radix UI Slot component (`asChild` pattern) works by:
-1. Merging the Button's className with the child's className
-2. The Button variant (`cta`) adds `text-white` to the class list
-3. When `text-inherit` is added to the child, it appears AFTER `text-white` in the merged className
-4. Tailwind's "last class wins" behavior means `text-inherit` overrides `text-white`
-5. `inherit` tells CSS to inherit from the parent LAYOUT container (which has navy foreground)
-
-By removing `text-inherit`, the `text-white` class from the variant takes effect correctly.
-
----
-
-## Visual Result
-
-| Before | After |
-|--------|-------|
-| Navy text on ruby gradient (low contrast) | White text on ruby gradient (WCAG AA compliant) |
-
----
-
-## Accessibility Impact
-
-- Fixes contrast ratio from approximately 1.5:1 (failing) to 8.5:1+ (passing WCAG AAA)
-- All ruby CTA buttons will have proper white text visibility
-- Touch targets remain unchanged (44-48px minimum)
