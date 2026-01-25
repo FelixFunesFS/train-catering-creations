@@ -1,73 +1,50 @@
 
 
-# Crop Top 20% of Hero Background Image
+# Revert Background Position & Reduce Hero Padding
 
-## Current State
+## Issue
 
-The hero section background image (lines 80-84) uses:
-- `bg-cover` - scales image to cover container
-- `bg-center` - positions image at center
-- `bg-no-repeat` - prevents tiling
+The last change (`backgroundPosition: 'center 20%'`) moved the image the wrong direction. Additionally, the About page hero has more vertical padding than other pages, causing the content to appear lower.
 
-## Solution
+## Changes
 
-Use CSS `background-position` to shift the image up by 20%, effectively "cropping" the top portion out of view.
+### File: `src/pages/About.tsx` (Lines 78-86)
 
----
-
-## Implementation
-
-### File to Modify
-`src/pages/About.tsx` (Lines 80-84)
-
-### Change
-
-Replace `bg-center` with a custom background position that starts 20% from the top:
+**1. Revert background position back to center:**
 
 ```tsx
-{/* Background image - cropped top 20% */}
+{/* Background image - now using team western group */}
 <div 
-  className="absolute inset-0 bg-cover bg-no-repeat"
-  style={{ 
-    backgroundImage: `url(${teamWesternGroup})`,
-    backgroundPosition: 'center 20%'
-  }}
+  className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+  style={{ backgroundImage: `url(${teamWesternGroup})` }}
   aria-hidden="true"
 />
 ```
 
-### How It Works
+**2. Reduce section padding to match other pages:**
 
-- `backgroundPosition: 'center 20%'` positions the image:
-  - **Horizontally**: centered
-  - **Vertically**: 20% from the top (effectively hiding the top 20%)
-
----
-
-## Visual Comparison
-
-```text
-ORIGINAL IMAGE:
-┌────────────────────────────────────────┐
-│  ░░░░░░░░░ TOP 20% ░░░░░░░░░░░░░░░░░░  │  ← Currently visible
-│  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓  │
-│  ▓▓▓▓▓▓▓▓ TEAM FACES ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓  │
-│  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓  │
-└────────────────────────────────────────┘
-
-AFTER CROP (backgroundPosition: 'center 20%'):
-┌────────────────────────────────────────┐
-│  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓  │  ← Top 20% hidden
-│  ▓▓▓▓▓▓▓▓ TEAM FACES ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓  │  ← Now more visible
-│  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓  │
-└────────────────────────────────────────┘
+Change line 78 from:
+```tsx
+<section className="relative py-12 sm:py-16 lg:py-20 overflow-hidden">
 ```
 
----
+To:
+```tsx
+<section className="relative py-8 sm:py-10 lg:py-12 overflow-hidden">
+```
 
-## Technical Notes
+## Comparison
 
-1. **No image file changes needed** - this is purely CSS positioning
-2. **Responsive** - works across all breakpoints
-3. **Adjustable** - can fine-tune the percentage (e.g., `25%` or `30%`) if 20% isn't quite right
+| Page | Current Padding | Standard |
+|------|-----------------|----------|
+| About Hero | `py-12 sm:py-16 lg:py-20` | Too much |
+| FAQ | Uses `PageSection pattern="a"` | Standard |
+| Reviews | Uses `PageSection pattern="a"` | Standard |
+
+The reduced padding (`py-8 sm:py-10 lg:py-12`) will move the content higher, closer to the navbar, matching the spacing on other pages.
+
+## Summary
+
+- Revert `backgroundPosition: 'center 20%'` back to `bg-center`
+- Reduce vertical padding from `py-12/16/20` to `py-8/10/12`
 
