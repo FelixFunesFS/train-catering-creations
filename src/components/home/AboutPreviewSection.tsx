@@ -14,6 +14,7 @@ import {
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 import homeStoryBg from "@/assets/home-story-bg.jpg";
+import meetSoulMobileBg from "@/assets/meet-soul-mobile-bg.jpg";
 
 export const AboutPreviewSection = () => {
   const { ref, isVisible } = useScrollAnimation({ 
@@ -47,9 +48,16 @@ export const AboutPreviewSection = () => {
       ref={ref}
       className="py-12 sm:py-16 lg:py-20 relative overflow-hidden"
     >
-      {/* Background image */}
+      {/* Background image - Mobile/Tablet */}
       <div 
-        className="absolute inset-0 bg-contain lg:bg-cover bg-center bg-no-repeat"
+        className="absolute inset-0 bg-contain bg-center bg-no-repeat lg:hidden"
+        style={{ backgroundImage: `url(${meetSoulMobileBg})` }}
+        aria-hidden="true"
+      />
+      
+      {/* Background image - Desktop */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat hidden lg:block"
         style={{ backgroundImage: `url(${homeStoryBg})` }}
         aria-hidden="true"
       />
