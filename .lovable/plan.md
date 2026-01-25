@@ -1,131 +1,178 @@
 
-# Fix Service Cards Slow/Individual Loading
+# Fix Individual Card Loading Across Site
 
-## The Problem
+## Overview
+Multiple components across the site use individual card animations that create a slow, fragmented loading experience. This plan consolidates the fix to use unified group animations where appropriate, improving perceived performance and visual cohesion.
 
-The three service cards on the homepage currently animate individually with noticeable delays:
-- 400ms before first card appears
-- 200ms gap between each subsequent card
-- Total perceived load time: ~800ms
+## Site-Wide Animation Audit Results
 
-This creates a "slow loading" appearance when the cards should feel like a unified group appearing together.
+### Components Needing Fix
 
-## Root Cause
+| Component | Page | Current Issue | Items | Total Delay |
+|-----------|------|---------------|-------|-------------|
+| InteractiveGalleryPreview | Home | Cards animate 1-by-1 | 6 | 1050ms |
+| MenuFoodGallery | Menu | Cards animate 1-by-1 | 8 | 610ms |
+| ReviewsImageStrip | Reviews | Images animate 1-by-1 | 5 | 400ms |
+| Reviews cards | Reviews | Each card has its own hook | 6 | 600ms |
 
-The `ServiceCategoriesSection.tsx` uses `useStaggeredAnimation` with aggressive timing:
+### Already Good (No Changes Needed)
 
+| Component | Page | Why It Works |
+|-----------|------|--------------|
+| ServiceCategoriesSection | Home | Just fixed - group animation |
+| InteractiveImageGrid | Gallery | Already uses group animation on container |
+| CategoryCards | Gallery | Already uses group animation on container |
+| SimplifiedMenu categories | Menu | Vertical list, stagger is acceptable |
+
+## Performance Philosophy
+
+**Use group animation (all items appear together) when:**
+- Small groups of 2-6 items that represent related choices
+- Cards at the same visual hierarchy level
+- Above-the-fold content needing fast perceived load
+
+**Keep staggered animation when:**
+- Large grids of 20+ items (masonry gallery)
+- Vertical lists where items expand/collapse
+- Content where cascade adds visual interest without blocking interaction
+
+## Implementation Details
+
+### 1. InteractiveGalleryPreview.tsx (Home Page Gallery)
+
+**Current (lines 37-42):**
 ```typescript
 const staggered = useStaggeredAnimation({
-  itemCount: 3,
-  staggerDelay: 200,  // 200ms between each card
-  baseDelay: 400,     // 400ms before first card
+  itemCount: 6,
+  staggerDelay: 150,
+  baseDelay: 300,
   variant: 'bounce-in'
 });
 ```
 
-This creates the cascade effect where cards 1, 2, and 3 appear at 400ms, 600ms, and 800ms respectively.
-
-## Solution: Simultaneous Group Animation
-
-Replace the staggered animation with a single group animation using `useScrollAnimation`. All three cards will animate together as one cohesive unit.
-
-## Technical Changes
-
-### File: src/components/home/ServiceCategoriesSection.tsx
-
-**1. Remove staggered animation hook import and usage**
-
-Remove:
+**Change to:**
 ```typescript
-import { useStaggeredAnimation } from "@/hooks/useStaggeredAnimation";
-
-const staggered = useStaggeredAnimation({
-  itemCount: 3,
-  staggerDelay: 200,
-  baseDelay: 400,
-  variant: 'bounce-in'
-});
-```
-
-**2. Add a dedicated scroll animation for the cards grid**
-
-Add:
-```typescript
-const { ref: cardsRef, isVisible: cardsVisible } = useScrollAnimation({ 
+const { ref: gridRef, isVisible: gridVisible } = useScrollAnimation({ 
   variant: 'fade-up', 
   delay: 100 
 });
-
-const cardsAnimationClass = useAnimationClass('fade-up', cardsVisible);
+const gridAnimationClass = useAnimationClass('fade-up', gridVisible);
 ```
 
-**3. Update the grid container**
+**Update grid container (line 291-294):**
+- Change `ref={staggered.ref}` to `ref={gridRef}`
+- Add `${gridAnimationClass}` to className
+- Remove `${staggered.getItemClassName(index)}` from Card
+- Remove `style={staggered.getItemStyle(index)}` from Card
+- Remove `useStaggeredAnimation` import
 
-Change:
-```tsx
+### 2. MenuFoodGallery.tsx (Menu Page Gallery)
+
+**Current (lines 54-59):**
+```typescript
+const staggered = useStaggeredAnimation({
+  itemCount: galleryImages.length,
+  staggerDelay: 80,
+  baseDelay: 50,
+  variant: 'fade-up'
+});
+```
+
+**Change to:**
+```typescript
+const { ref: galleryRef, isVisible: galleryVisible } = useScrollAnimation({ 
+  variant: 'fade-up', 
+  delay: 50 
+});
+const galleryAnimationClass = useAnimationClass('fade-up', galleryVisible);
+```
+
+**Update grid container:**
+- Apply ref and animation class to grid div
+- Remove staggered classes/styles from individual cards
+- Remove `useStaggeredAnimation` import
+
+### 3. ReviewsImageStrip.tsx (Reviews Page)
+
+**Current (lines 17-22):**
+```typescript
+const { ref, getItemClassName } = useStaggeredAnimation({
+  itemCount: images.length,
+  staggerDelay: 75,
+  baseDelay: 100,
+  variant: 'bounce-in'
+});
+```
+
+**Change to:**
+```typescript
+const { ref, isVisible } = useScrollAnimation({ 
+  variant: 'bounce-in', 
+  delay: 100 
+});
+const animationClass = useAnimationClass('bounce-in', isVisible);
+```
+
+**Update container:**
+- Apply `animationClass` to the flex container div
+- Remove `${getItemClassName(index)}` from individual image divs
+
+### 4. Reviews.tsx (Review Cards)
+
+**Current (lines 176-182) - Each card has its own hook:**
+```typescript
+reviews.map((review, index) => {
+  const { ref: cardRef, isVisible: cardVisible, variant: cardVariant } = useScrollAnimation({ 
+    variant: 'elastic', 
+    delay: index * 100,  // Creates cascade
+    ...
+  });
+```
+
+**Change to unified grid animation:**
+```typescript
+// Single animation for entire grid (before map)
+const { ref: reviewsGridRef, isVisible: reviewsGridVisible } = useScrollAnimation({ 
+  variant: 'fade-up', 
+  delay: 100 
+});
+const reviewsGridAnimationClass = useAnimationClass('fade-up', reviewsGridVisible);
+
+// In JSX:
 <div 
-  ref={staggered.ref}
-  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mb-6"
+  ref={reviewsGridRef}
+  className={`grid md:grid-cols-2 gap-4 ... ${reviewsGridAnimationClass}`}
 >
+  {reviews.map((review, index) => (
+    <NeumorphicCard key={index} level={2} className="hover:scale-105 ...">
 ```
 
-To:
-```tsx
-<div 
-  ref={cardsRef}
-  className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mb-6 ${cardsAnimationClass}`}
->
-```
+Remove the individual `useScrollAnimation` hook from inside the map function.
 
-**4. Remove staggered classes from individual cards**
+## Files to Modify
 
-Change:
-```tsx
-<Card
-  className={`... ${staggered.getItemClassName(index)}`}
-  style={staggered.getItemStyle(index)}
->
-```
-
-To:
-```tsx
-<Card className="...">  // No dynamic class or style
-```
-
-## Performance Comparison Across Pages
-
-| Page/Section | Current Stagger | Base Delay | Total Load Feel | Recommendation |
-|--------------|-----------------|------------|-----------------|----------------|
-| **Services Cards (Home)** | 200ms | 400ms | 800ms (slow) | Fix - simultaneous |
-| Gallery Preview (Home) | 150ms | 300ms | 1050ms | Acceptable for 6 items |
-| Menu Categories | 150ms | 100ms | 550ms | Acceptable for 4 items |
-| Masonry Gallery | 80ms | 150ms | Fast cascade | Acceptable for many items |
-
-## Screen Size Responsiveness
-
-The fix maintains full responsiveness:
-- Mobile (1 column): All 3 cards stacked, animate together
-- Tablet (2 columns): 2+1 layout, animate together
-- Desktop (3 columns): Side-by-side, animate together
-
-The existing CSS already handles responsive layouts via `grid-cols-1 md:grid-cols-2 lg:grid-cols-3`.
+| File | Changes |
+|------|---------|
+| src/components/home/InteractiveGalleryPreview.tsx | Replace staggered with group animation |
+| src/components/menu/MenuFoodGallery.tsx | Replace staggered with group animation |
+| src/components/reviews/ReviewsImageStrip.tsx | Replace staggered with group animation |
+| src/pages/Reviews.tsx | Replace per-card animations with single grid animation |
 
 ## Visual Result
 
-**Before:** Cards appear one-by-one with 200ms gaps, creating a slow/broken feel
+**Before:** Cards/images pop in one-by-one with visible delays, creating a "loading" feel
 
-**After:** All 3 cards fade up together as a cohesive group in ~300ms total, feeling instant and unified
+**After:** All items in a group appear simultaneously with a single smooth animation, feeling instant and cohesive
 
-## Files Modified
+## Performance Impact
 
-| File | Change |
-|------|--------|
-| `src/components/home/ServiceCategoriesSection.tsx` | Replace staggered animation with unified group animation |
+- Reduced JavaScript execution (fewer setTimeout calls)
+- Fewer DOM mutations during scroll
+- Faster Time to Interactive (TTI)
+- Consistent experience across mobile and desktop
 
-## Why This Is Better UX
+## What Stays Staggered (By Design)
 
-1. **Faster perceived load** - Users see all content at once instead of waiting
-2. **Group cohesion** - The three service options feel like related choices, not separate elements
-3. **Reduced motion fatigue** - Less animation noise for users
-4. **Mobile-first** - Especially important on mobile where stacking makes the cascade more jarring
-5. **Maintains polish** - Still has a subtle fade-up entrance, just applied to the group
+- **InteractiveImageGrid** (Gallery page): 80+ images in masonry layout - cascade is a feature
+- **SimplifiedMenu categories**: 4 vertical sections - stagger aids visual hierarchy
+- **About page sections**: Full sections, not cards - different context
