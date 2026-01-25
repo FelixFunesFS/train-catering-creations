@@ -6,6 +6,7 @@ import { PageSection } from "@/components/ui/page-section";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 import { ReviewsImageStrip } from "@/components/reviews/ReviewsImageStrip";
+import reviewsHeroBg from "@/assets/reviews-hero-bg.jpg";
 
 // Icon components for third-party verification
 const GoogleIcon = ({ className }: { className?: string }) => (
@@ -90,9 +91,25 @@ const Reviews = () => {
 
   return (
     <div className="min-h-screen bg-gradient-hero">
-      {/* Header Section */}
-      <PageSection pattern="a">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Header Section with Background Image */}
+      <section className="relative py-8 sm:py-10 lg:py-12 overflow-hidden">
+        {/* Background image */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: `url(${reviewsHeroBg})` }}
+          aria-hidden="true"
+        />
+        
+        {/* Overlay for readability */}
+        <div className="absolute inset-0 bg-background/85" />
+        
+        {/* Top gradient fade */}
+        <div className="absolute top-0 left-0 right-0 h-12 sm:h-16 lg:h-20 bg-gradient-to-b from-background to-transparent z-10" />
+        
+        {/* Bottom gradient fade */}
+        <div className="absolute bottom-0 left-0 right-0 h-12 sm:h-16 lg:h-20 bg-gradient-to-t from-background to-transparent z-10" />
+        
+        <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div ref={headerRef} className={headerAnimationClass}>
             <PageHeader
               badge={{
@@ -149,7 +166,7 @@ const Reviews = () => {
             </div>
           </div>
         </div>
-      </PageSection>
+      </section>
 
       {/* Reviews Section */}
       <PageSection pattern="b">
