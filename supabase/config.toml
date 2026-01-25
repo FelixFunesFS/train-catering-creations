@@ -121,9 +121,7 @@ verify_jwt = false
 [functions.generate-invoice-pdf]
 verify_jwt = false
 
-# External Integrations
-[functions.facebook-reviews]
-verify_jwt = false
+# Test & Development
 
 # Test & Development
 [functions.send-test-email]
