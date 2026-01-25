@@ -1,136 +1,174 @@
 
-# Menu Food Gallery Enhancement & CTA Background Strategy
+# Reviews Page Gallery Repositioning & Menu Gallery 2-Row Update
 
 ## Overview
 
-This plan addresses three items:
-1. Make the "A Taste of What We Serve" gallery in the menu section full-bleed
-2. Update gallery images (remove mac & cheese, add 4 new images)
-3. Review and optimize CTA backgrounds across all pages
+This plan addresses three changes:
+1. **Reviews Page**: Move the image gallery to inside the hero section (after CTA button, before 5-star rating)
+2. **Reviews Page**: Center the images and replace them with different images from the gallery assets
+3. **Menu Page**: Convert the 8-image gallery from 1 row to 2 rows
 
 ---
 
-## Part 1: MenuFoodGallery Changes
+## Part 1: Reviews Page Changes
 
-### Current State
-The gallery is constrained within a `max-w-6xl` container with `px-4 sm:px-6 lg:px-8` padding, limiting it to about 1152px max width.
-
-### Changes
-
-**A. Make Gallery Full-Bleed**
-- Remove the container constraint so images span edge-to-edge
-- Keep header centered with max-width
-- Expand image grid to use full viewport width
-- Maintain responsive columns: 2 cols (mobile) to 8 cols (desktop) for more images
-
-**B. Update Gallery Images**
-
-Remove:
-- `food-mac-cheese.jpg` - "Golden Mac & Cheese"
-
-Add 4 new images (to be saved to `src/assets/gallery/`):
-1. `holiday-meats.jpg` - Fried chicken varieties + glazed ham with pineapple
-2. `sides-holiday.jpg` - Mac & cheese with potato salad and holiday decorations
-3. `military-charcuterie.jpg` - Military ceremony with elaborate charcuterie spread
-4. `chicken-waffles.jpg` - Chicken and waffles with fresh berries
-
-**New Gallery Array (8 images total):**
+### Current Structure (Lines 79-108)
 ```
-1. Cajun-Spiced Salmon (existing)
-2. Herb-Roasted Chicken (existing)
-3. Full Service Setup (existing)
-4. Holiday Cupcakes (existing)
-5. Holiday Meats Platter (NEW)
-6. Sides & Potato Salad (NEW)
-7. Military Ceremony Spread (NEW)
-8. Chicken & Waffles (NEW)
+PageHeader
+  → Badge
+  → Title  
+  → Description
+  → CTA Button ("About Us")
+  
+Additional Content (Lines 94-105)
+  → 5 Stars + "5.0" rating
+  → Review count text
+  → Location text
+
+PageSection pattern="b" (Lines 110-113)
+  → ReviewsImageStrip (separate section)
 ```
+
+### New Structure
+```
+PageHeader
+  → Badge
+  → Title  
+  → Description
+  → CTA Button ("About Us")
+
+Image Gallery (MOVED HERE - centered)
+  → 5 new centered images
+
+5 Stars + Rating info
+```
+
+### Image Replacements
+
+**Current Images** (to be replaced):
+1. charcuterie-spread.jpg
+2. berry-tart-tower.jpg
+3. chafing-dish-roses.jpg
+4. food-mac-cheese.jpg
+5. food-salmon.jpg
+
+**New Images** (more variety, avoiding duplicates from other pages):
+1. `buffet-orchid-setup.jpg` - Elegant orchid buffet setup
+2. `dessert-mini-cheesecakes.jpg` - Gourmet mini cheesecakes
+3. `formal-gold-reception.jpg` - Formal gold reception setting
+4. `bbq-outdoor-carving.jpg` - BBQ carving station
+5. `buffet-holiday-wings.jpg` - Holiday wings display
+
+### Centering Changes
+
+Current layout uses `flex` with `min-w-max` which causes horizontal scroll. 
+
+New layout will use:
+- `flex flex-wrap justify-center` for centered wrapping
+- Remove `min-w-max` to allow natural centering
+- Adjust gap and sizing for responsiveness
 
 ---
 
-## Part 2: CTA Background Strategy
+## Part 2: Menu Page Gallery Changes
 
-### Analysis
+### Current Grid (Line 92)
+```
+grid-cols-2 sm:grid-cols-4 lg:grid-cols-8
+```
+This displays 8 images in a single row on desktop (8 cols = 1 row).
 
-| Page | Current CTA | Purpose | Recommendation |
-|------|-------------|---------|----------------|
-| **Home** | Crimson gradient + watermark | Primary conversion page | **Keep crimson** - Brand anchor, drives quotes |
-| **About** | Crimson gradient | Team/story context | **Add image background** - Team photo reinforces family narrative |
-| **Menu** | Crimson gradient | Menu completion | **Keep crimson** - Clean, food-focused content above |
-| **Gallery** | Crimson gradient | Visual completion | **Keep crimson** - Page is image-heavy, needs contrast |
-| **Reviews** | Crimson gradient | Social proof completion | **Keep crimson** - Already has team image section above it |
-| **FAQ** | Image break + neumorphic card | Informational | **Keep current** - Unique pattern works well for FAQ |
+### New Grid
+```
+grid-cols-2 sm:grid-cols-4 lg:grid-cols-4
+```
+This displays 8 images in 2 rows on desktop (4 cols = 2 rows of 4).
 
-### Rationale
-
-**Keep Crimson Gradient:**
-- Home, Menu, Gallery, Reviews
-
-These pages either:
-- Are the primary brand anchor (Home)
-- Already contain significant imagery above the CTA
-- Need visual contrast to "close" the page effectively
-
-**Convert to Image Background:**
-- About page only
-
-The About page is focused on storytelling and family. Adding a warm buffet/service image background to the CTA would reinforce the "family catering" message while creating visual interest. The current About CTA feels disconnected from the rich imagery in the sections above.
+### Responsive Breakdown
+| Breakpoint | Columns | Rows with 8 images |
+|------------|---------|-------------------|
+| Mobile (<640px) | 2 | 4 rows |
+| Tablet (640-1024px) | 4 | 2 rows |
+| Desktop (1024px+) | 4 | 2 rows |
 
 ---
 
-## Part 3: Implementation Details
+## Implementation Details
 
-### New Asset Files
+### File 1: `src/components/reviews/ReviewsImageStrip.tsx`
 
-Copy 4 images to `src/assets/gallery/`:
-```
-src/assets/gallery/holiday-meats.jpg
-src/assets/gallery/sides-holiday.jpg  
-src/assets/gallery/military-charcuterie.jpg
-src/assets/gallery/chicken-waffles.jpg
-```
+**Changes:**
+1. Replace 5 images with new selections
+2. Change layout from horizontal scroll to centered flex-wrap
+3. Remove `overflow-x-auto` and `min-w-max`
+4. Add `flex-wrap justify-center` for centering
+5. Adjust image sizes for better presentation
 
-### File Changes
-
-**1. `src/components/menu/MenuFoodGallery.tsx`**
-- Remove `food-mac-cheese.jpg` import
-- Add 4 new image imports
-- Update `galleryImages` array
-- Remove `max-w-6xl mx-auto px-4 sm:px-6 lg:px-8` from outer container
-- Keep header centered with `max-w-6xl mx-auto px-4 sm:px-6 lg:px-8`
-- Grid becomes full-width with edge padding only (`px-3 sm:px-4 lg:px-6`)
-- Update grid columns to accommodate 8 images: `grid-cols-2 sm:grid-cols-4 lg:grid-cols-8`
-
-**2. `src/pages/About.tsx`**
-- Replace bottom CTASection with new component that has image background
-- Use existing buffet image (e.g., `buffet-orchid-setup.jpg` or `buffet-outdoor-tent.jpg`)
-- Apply standard 85% overlay + gradient fades
-- Keep same CTA content and buttons
-
-### About Page CTA Enhancement
-
-Create a new pattern that wraps the CTASection concept with an image background:
-
+**Updated Code Pattern:**
 ```tsx
-<section className="relative py-10 sm:py-12 lg:py-16 overflow-hidden">
-  {/* Background Image */}
-  <div 
-    className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-    style={{ backgroundImage: `url(${buffetOrchidSetup})` }}
-  />
-  
-  {/* Overlay */}
-  <div className="absolute inset-0 bg-primary/85" />
-  
-  {/* Gradient Fades */}
-  <div className="absolute top-0 left-0 right-0 h-16 sm:h-20 bg-gradient-to-b from-background to-transparent z-10" />
-  <div className="absolute bottom-0 left-0 right-0 h-16 sm:h-20 bg-gradient-to-t from-background to-transparent z-10" />
-  
-  {/* Content - Same as CTASection */}
-  <div className="relative z-20 mx-4 sm:mx-6 lg:mx-8">
-    {/* ... CTA content ... */}
+const images = [
+  { src: buffetOrchidSetup, alt: "Elegant orchid buffet setup" },
+  { src: dessertMiniCheesecakes, alt: "Gourmet mini cheesecakes" },
+  { src: formalGoldReception, alt: "Formal gold reception setting" },
+  { src: bbqOutdoorCarving, alt: "BBQ outdoor carving station" },
+  { src: buffetHolidayWings, alt: "Holiday wings display" },
+];
+
+// Layout change
+<div className="flex flex-wrap justify-center gap-3 sm:gap-4 px-4 sm:px-6 lg:px-8">
+  {/* Images centered and wrapping on smaller screens */}
+</div>
+```
+
+### File 2: `src/pages/Reviews.tsx`
+
+**Changes:**
+1. Move `ReviewsImageStrip` component from its own `PageSection` (lines 110-113)
+2. Insert it inside the header section, after the CTA button and before the star rating
+3. Remove the now-empty `PageSection pattern="b"`
+4. Update `PageSection` pattern sequence (c→b, d→c)
+
+**New Structure:**
+```tsx
+<PageSection pattern="a">
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div ref={headerRef} className={headerAnimationClass}>
+      <PageHeader ... />
+      
+      {/* Image Strip - NOW INSIDE HERO */}
+      <div className="mt-6 sm:mt-8">
+        <ReviewsImageStrip />
+      </div>
+      
+      {/* Star Rating - After images */}
+      <div className="text-center mt-6 max-w-4xl mx-auto">
+        <div className="flex justify-center ...">
+          {renderStars(5)}
+          ...
+        </div>
+      </div>
+    </div>
   </div>
-</section>
+</PageSection>
+
+{/* Reviews Section - now pattern "b" */}
+<PageSection pattern="b">
+  ...reviews cards...
+</PageSection>
+```
+
+### File 3: `src/components/menu/MenuFoodGallery.tsx`
+
+**Changes:**
+1. Update grid from `lg:grid-cols-8` to `lg:grid-cols-4`
+
+**Line 92 Change:**
+```tsx
+// Before
+className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 sm:gap-3 px-2 sm:px-3"
+
+// After  
+className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-2 sm:gap-3 px-2 sm:px-3"
 ```
 
 ---
@@ -138,34 +176,45 @@ Create a new pattern that wraps the CTASection concept with an image background:
 ## Visual Summary
 
 ```text
-MENU PAGE (After Changes):
-┌──────────────────────────────────────────────────────────────┐
-│                    [Menu Categories]                          │
-├──────────────────────────────────────────────────────────────┤
-│                                                               │
-│            ★ A Taste of What We Serve ★                      │  ← Header centered
-│                                                               │
-│ ┌────┬────┬────┬────┬────┬────┬────┬────┐                    │
-│ │img1│img2│img3│img4│img5│img6│img7│img8│ ← Full-bleed grid   │
-│ └────┴────┴────┴────┴────┴────┴────┴────┘                    │
-│                                                               │
-├──────────────────────────────────────────────────────────────┤
-│              [Crimson CTA - Keep As-Is]                       │
-└──────────────────────────────────────────────────────────────┘
+REVIEWS PAGE (After Changes):
+┌──────────────────────────────────────┐
+│           [Badge: Testimonials]       │
+│           Client Reviews              │
+│    Real Stories, Real Satisfaction    │
+│         [About Us Button]             │
+│                                       │
+│     ┌───┐ ┌───┐ ┌───┐ ┌───┐ ┌───┐    │  ← Images CENTERED, inside hero
+│     │ 1 │ │ 2 │ │ 3 │ │ 4 │ │ 5 │    │
+│     └───┘ └───┘ └───┘ └───┘ └───┘    │
+│                                       │
+│      ★★★★★ 5.0                        │  ← Stars now AFTER images
+│   Based on 6+ reviews...              │
+├──────────────────────────────────────┤
+│        [Review Cards Grid]            │
+├──────────────────────────────────────┤
+│        [Team Photo Section]           │
+├──────────────────────────────────────┤
+│        [Feedback Card]                │
+├──────────────────────────────────────┤
+│        [CTA Section]                  │
+└──────────────────────────────────────┘
 
-ABOUT PAGE (CTA Enhancement):
-┌──────────────────────────────────────────────────────────────┐
-│                    [Values Section]                           │
-├──────────────────────────────────────────────────────────────┤
-│  ╔══════════════════════════════════════════════════════════╗│
-│  ║  BACKGROUND: Buffet setup image                          ║│
-│  ║  OVERLAY: 85% crimson (not white)                        ║│
-│  ║                                                          ║│
-│  ║     "Ready to Experience Soul Train's Difference?"       ║│
-│  ║           [Request Quote]  [View Our Menu]               ║│
-│  ║                                                          ║│
-│  ╚══════════════════════════════════════════════════════════╝│
-└──────────────────────────────────────────────────────────────┘
+MENU PAGE (After Changes):
+┌──────────────────────────────────────┐
+│         [Menu Categories]             │
+├──────────────────────────────────────┤
+│      A Taste of What We Serve         │
+│                                       │
+│    ┌───┐ ┌───┐ ┌───┐ ┌───┐           │  ← Row 1
+│    │ 1 │ │ 2 │ │ 3 │ │ 4 │           │
+│    └───┘ └───┘ └───┘ └───┘           │
+│    ┌───┐ ┌───┐ ┌───┐ ┌───┐           │  ← Row 2
+│    │ 5 │ │ 6 │ │ 7 │ │ 8 │           │
+│    └───┘ └───┘ └───┘ └───┘           │
+│                                       │
+├──────────────────────────────────────┤
+│          [Crimson CTA]                │
+└──────────────────────────────────────┘
 ```
 
 ---
@@ -174,18 +223,23 @@ ABOUT PAGE (CTA Enhancement):
 
 | File | Changes |
 |------|---------|
-| `src/components/menu/MenuFoodGallery.tsx` | Full-bleed layout, 8 images, remove mac cheese |
-| `src/pages/About.tsx` | Replace CTASection with image-backed CTA section |
-
-## Assets to Copy
-
-4 new images from user uploads to `src/assets/gallery/`
+| `src/components/reviews/ReviewsImageStrip.tsx` | Replace images, center layout |
+| `src/pages/Reviews.tsx` | Move image strip into hero, reorder sections |
+| `src/components/menu/MenuFoodGallery.tsx` | Change to 2-row grid (lg:grid-cols-4) |
 
 ---
 
-## Technical Notes
+## Responsive Considerations
 
-- The full-bleed gallery will use horizontal scrolling on mobile (2 cols visible) and show all 8 images on desktop
-- Responsive breakpoints: 2→4→8 columns ensures clean grid at all sizes
-- About CTA uses crimson overlay (not white) to maintain brand color while adding visual depth
-- All other pages keep their current crimson gradient CTAs for consistency
+1. **Reviews Image Strip**: 
+   - Mobile: Images wrap to multiple rows, centered
+   - Tablet: 3-5 images visible, centered
+   - Desktop: All 5 images in single centered row
+
+2. **Menu Gallery**:
+   - Mobile: 2 columns = 4 rows
+   - Tablet/Desktop: 4 columns = 2 rows
+
+3. **Hero Section Flow**:
+   - Content stacks naturally on all devices
+   - Proper spacing with `mt-6 sm:mt-8` for image strip
