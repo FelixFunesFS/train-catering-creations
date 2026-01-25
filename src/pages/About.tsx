@@ -179,15 +179,6 @@ const About = () => {
 
         {/* Team Section - Pattern C */}
         <PageSection pattern="c" withBorder className="relative">
-          {/* Watermark Logo - centered behind team cards */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <img 
-              src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
-              alt="" 
-              aria-hidden="true"
-              className="w-64 sm:w-80 lg:w-96 h-64 sm:h-80 lg:h-96 object-contain opacity-[0.10]"
-            />
-          </div>
           
           <div className="relative z-[1] max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
@@ -203,14 +194,12 @@ const About = () => {
               <div ref={teamCard1Ref} className={useAnimationClass(teamCard1Variant, teamCard1Visible)}>
                 <NeumorphicCard level={4} className="text-center hover:scale-105 transition-transform duration-300">
                   <div className="mb-6">
-                    <div className="relative w-32 h-32 mx-auto mb-4">
-                      <OptimizedImage 
-                        src="/lovable-uploads/ca9f1bb5-3b58-46fc-a5e4-cf2359a610ed.png" 
-                        alt="Chef Dominick 'Train' Ward"
-                        aspectRatio="aspect-square"
-                        className="rounded-full object-cover"
-                      />
-                    </div>
+                    <OptimizedImage 
+                      src="/lovable-uploads/ca9f1bb5-3b58-46fc-a5e4-cf2359a610ed.png" 
+                      alt="Chef Dominick 'Train' Ward"
+                      aspectRatio="aspect-square"
+                      className="w-64 h-64 mx-auto mb-4 rounded-full object-cover"
+                    />
                     <ChefHat className="h-12 w-12 text-primary mx-auto mb-4" />
                   </div>
                   <h3 className="text-xl font-elegant font-semibold text-foreground mb-2">
@@ -226,14 +215,12 @@ const About = () => {
               <div ref={teamCard2Ref} className={useAnimationClass(teamCard2Variant, teamCard2Visible)}>
                 <NeumorphicCard level={4} className="text-center hover:scale-105 transition-transform duration-300">
                   <div className="mb-6">
-                    <div className="relative w-32 h-32 mx-auto mb-4">
-                      <OptimizedImage 
-                        src="/lovable-uploads/1dcbc1ee-eb25-4d89-8722-cb4904d1ba69.png" 
-                        alt="Pastry Chef Tanya Ward" 
-                        aspectRatio="aspect-square"
-                        className="rounded-full object-cover"
-                      />
-                    </div>
+                    <OptimizedImage 
+                      src="/lovable-uploads/1dcbc1ee-eb25-4d89-8722-cb4904d1ba69.png" 
+                      alt="Pastry Chef Tanya Ward" 
+                      aspectRatio="aspect-square"
+                      className="w-64 h-64 mx-auto mb-4 rounded-full object-cover"
+                    />
                     <Heart className="h-12 w-12 text-primary mx-auto mb-4" />
                   </div>
                   <h3 className="text-xl font-elegant font-semibold text-foreground mb-2">
