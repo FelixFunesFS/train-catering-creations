@@ -161,7 +161,7 @@ export const InteractiveGalleryPreview = () => {
     <>
       <section 
         ref={ref}
-        className="py-12 sm:py-16 lg:py-20 bg-background"
+        className="py-12 sm:py-16 lg:py-20 bg-gradient-pattern-b"
       >
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           {/* Section Header */}
