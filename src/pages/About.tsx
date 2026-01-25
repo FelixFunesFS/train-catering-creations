@@ -13,7 +13,7 @@ import { useAnimationClass } from "@/hooks/useAnimationClass";
 
 import tanyaWardImg from "@/assets/tanya-ward.jpg";
 import teamWesternGroup from "@/assets/gallery/team-western-group.jpg";
-import teamBuffetService from "@/assets/team-buffet-service.jpg";
+import venueEventSetup from "@/assets/venue-event-setup.jpg";
 
 const About = () => {
   // Story section animations
@@ -174,7 +174,7 @@ const About = () => {
           {/* Background Image */}
           <div 
             className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
-            style={{ backgroundImage: `url(${teamBuffetService})` }}
+            style={{ backgroundImage: `url(${venueEventSetup})` }}
             aria-hidden="true"
           />
           
@@ -205,7 +205,7 @@ const About = () => {
                       src="/lovable-uploads/ca9f1bb5-3b58-46fc-a5e4-cf2359a610ed.png" 
                       alt="Chef Dominick 'Train' Ward"
                       aspectRatio="aspect-square"
-                      containerClassName="w-64 h-64 mx-auto mb-4 rounded-full"
+                      containerClassName="w-64 h-64 mx-auto mb-4 rounded-full ring-4 ring-white shadow-2xl"
                       className="rounded-full object-cover"
                     />
                     <ChefHat className="h-12 w-12 text-primary mx-auto mb-4" />
@@ -227,7 +227,7 @@ const About = () => {
                       src={tanyaWardImg} 
                       alt="Pastry Chef Tanya Ward" 
                       aspectRatio="aspect-square"
-                      containerClassName="w-64 h-64 mx-auto mb-4 rounded-full"
+                      containerClassName="w-64 h-64 mx-auto mb-4 rounded-full ring-4 ring-white shadow-2xl"
                       className="rounded-full object-cover"
                     />
                     <Heart className="h-12 w-12 text-primary mx-auto mb-4" />
