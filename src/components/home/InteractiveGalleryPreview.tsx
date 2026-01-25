@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { OptimizedImage } from "@/components/ui/optimized-image";
+import { WaveDivider } from "@/components/ui/wave-divider";
 import { ArrowRight, Play, Heart, ChevronLeft, ChevronRight } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
@@ -161,9 +162,16 @@ export const InteractiveGalleryPreview = () => {
     <>
       <section 
         ref={ref}
-        className="py-12 sm:py-16 lg:py-20 bg-gradient-pattern-b"
+        className="relative py-12 sm:py-16 lg:py-20 bg-gradient-pattern-b"
       >
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Top Wave - transitions from Services section */}
+        <WaveDivider 
+          position="top" 
+          color="hsl(var(--background))" 
+          height={50}
+        />
+        
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           {/* Section Header */}
           <div className={`text-center mb-6 lg:mb-10 space-y-3 ${animationClass}`}>
             <div className="flex items-center justify-center space-x-2 mb-3">
@@ -362,6 +370,14 @@ export const InteractiveGalleryPreview = () => {
             </Button>
           </div>
         </div>
+        
+        {/* Bottom Wave - transitions to About section */}
+        <WaveDivider 
+          position="bottom" 
+          color="hsl(var(--platinum-light))" 
+          height={50}
+          flip
+        />
       </section>
 
       {/* Full Gallery Modal */}
