@@ -1,201 +1,314 @@
 
-
-# Fix Navigation Bar Disappearing + Add Scroll-to-Top
-
-## Root Cause Analysis
-
-The navigation bar uses the class `neumorphic-card-3` which has the following CSS:
-
-```css
-.neumorphic-card-3:hover {
-  box-shadow: var(--shadow-neumorphic-4), var(--shadow-glow);
-  transform: translateY(-3px);  /* THIS CAUSES THE ISSUE */
-}
-```
-
-**Problem**: When a `position: sticky` element has a `transform` applied (even on hover), it can:
-1. Create a new stacking context that interferes with sticky behavior
-2. Cause the element to "jump" or disappear visually in some browsers
-3. Break the sticky positioning entirely in Safari/iOS
-
-Additionally, the hero section has elements with high z-index values (z-30) that could interfere with the header's z-50.
+# Comprehensive Animation & UX Enhancements Plan
+## With Full Mobile & Tablet Responsiveness
 
 ---
 
-## Solution
+## Critical Finding: Missing Animation CSS Classes
 
-### Part 1: Fix Header Sticky Positioning
+The animation hooks (`useScrollAnimation`, `useStaggeredAnimation`) are generating class names like `ios-spring-hidden`, `fade-up-visible`, etc., but **these CSS classes do not exist anywhere in the codebase**. This is why:
 
-**File**: `src/components/Header.tsx`
+1. The navigation bar stickiness appears broken (animations not rendering properly)
+2. Page elements using these hooks show no visual animation effect
+3. The Menu page's `useStaggeredAnimation` hook adds classes but nothing happens visually
 
-Remove the `neumorphic-card-3` class from the header and replace it with a custom set of styles that:
-- Keeps the visual appearance (background, border, shadow)
-- Removes the hover transform that breaks sticky positioning
-- Ensures the header remains visually stable
+---
 
-**Changes**:
-1. Remove `neumorphic-card-3` from the header's className
-2. Add inline shadow styling without the hover transform
-3. Keep the scrolled state shadow enhancement (`shadow-elegant`)
-
-### Part 2: Add CSS Override for Header
+## Part 1: Add Missing Animation CSS Classes
 
 **File**: `src/index.css`
 
-Add a specific header override that prevents transform on the sticky header:
+Add the complete animation class definitions. These include:
+
+| Animation Variant | Effect | Mobile Behavior |
+|-------------------|--------|-----------------|
+| `ios-spring` | Subtle upward reveal with spring easing | Same, reduced distance |
+| `fade-up` | Fade in + slide up | Same effect |
+| `scale-fade` | Fade in + scale from 95% | Same effect |
+| `slide-left/right` | Horizontal slide reveal | Same effect |
+| `bounce-in` | Playful bounce entrance | Same, slightly less bounce |
+| `elastic` | Elastic scale spring | Same effect |
+| `zoom-fade` | Zoom in from 85% | Same effect |
+
+**Reduced Motion Support**: All animations will include `@media (prefers-reduced-motion: reduce)` rules to disable transforms for users who prefer reduced motion.
+
+---
+
+## Part 2: Mobile & Tablet Responsiveness Details
+
+### Current Mobile Infrastructure
+
+The codebase already has solid mobile foundations:
+
+| Component | Mobile Handling |
+|-----------|-----------------|
+| `useIsMobile` hook | Breakpoint at 1024px (tablets included as mobile) |
+| `useScrollAnimation` | Has `mobile` and `desktop` config options (lines 12-19) |
+| `useParallaxEffect` | Has `disabled` prop for mobile (lines 7-8) |
+| Hero sections | Overlay layout for mobile/tablet |
+| Touch targets | 44px minimum enforced |
+
+### Animation CSS - Mobile Optimizations
+
+The new animation classes will include mobile-specific adjustments:
 
 ```css
-/* Prevent neumorphic hover transform on sticky header */
-header.sticky .neumorphic-card-3,
-header[class*="sticky"] .neumorphic-card-3 {
-  transform: none !important;
+/* Mobile: Slightly reduced animation distances for smaller viewports */
+@media (max-width: 768px) {
+  .fade-up-hidden { transform: translateY(20px); }  /* vs 30px on desktop */
+  .slide-left-hidden { transform: translateX(-20px); }  /* vs 30px */
+  .slide-right-hidden { transform: translateX(20px); }  /* vs 30px */
+  .bounce-in-hidden { transform: translateY(20px) scale(0.9); }  /* gentler */
 }
 ```
 
-Alternatively, create a new `neumorphic-card-static` class specifically for sticky elements that has the visual styling without the transform.
+### Parallax - Disabled on Mobile
 
-### Part 3: Create Scroll-to-Top Component
+The existing `useParallaxEffect` hook accepts a `disabled` prop. Implementation will use:
 
-**File**: `src/components/ui/scroll-to-top.tsx` (New)
+```tsx
+const isMobile = useIsMobile();
+const { ref, style } = useParallaxEffect({
+  speed: 0.3,
+  disabled: isMobile  // Parallax disabled under 1024px
+});
+```
 
-Create a floating button that:
-- Appears after scrolling 300px
-- Uses ruby brand styling
-- Positions above MobileActionBar on mobile
-- Hidden on admin and quote wizard routes
-- Smooth scroll animation to top
-- Accessible with proper ARIA labels
-
-### Part 4: Integrate Scroll-to-Top in App
-
-**File**: `src/App.tsx`
-
-Add the ScrollToTop component to the AppContent, positioned after MobileActionBar.
+This ensures:
+- No parallax on phones or portrait tablets
+- Better performance on mobile devices
+- No janky scroll experiences on touch devices
 
 ---
 
-## Technical Details
+## Part 3: About Page Enhancements
 
-### Header Fix Strategy
+### Current State
+- No scroll animations on any sections
+- Background images in "Our Story" and "Our Values" sections
+- Team cards have basic hover effects only
 
-Replace in `Header.tsx` (line 51):
+### Planned Enhancements
 
-```tsx
-// FROM:
-className={cn(
-  "bg-gradient-to-br from-background via-muted/20 to-background backdrop-blur-md border-b border-border/20 sticky top-0 z-50 transition-all duration-300",
-  "neumorphic-card-3",  // REMOVE THIS
-  isScrolled && "shadow-elegant"
-)}
+| Section | Animation | Mobile Behavior |
+|---------|-----------|-----------------|
+| Header (PageHeader) | `fade-up` on badge, title, description | Same animation, no delay differences |
+| Our Story - Content | `slide-right` staggered reveal | `fade-up` on mobile (no horizontal slide) |
+| Our Story - Image | `scale-fade` | Same |
+| Our Story - Background | Parallax (speed: 0.3) | **Disabled on mobile/tablet** |
+| Team Cards | `bounce-in` staggered (150ms) | Same, reduced bounce distance |
+| Values Cards | `fade-up` staggered (120ms) | Same |
+| Values - Background | Parallax (speed: 0.25) | **Disabled on mobile/tablet** |
 
-// TO:
-className={cn(
-  "bg-gradient-to-br from-background via-muted/20 to-background backdrop-blur-md border-b border-border/20 sticky top-0 z-50 transition-all duration-300",
-  "shadow-[9px_9px_18px_hsla(210,10%,0%,0.08),-9px_-9px_18px_hsla(210,5%,85%,0.1)]",
-  isScrolled && "shadow-elegant"
-)}
-```
-
-This keeps the neumorphic shadow appearance but removes the problematic hover transform.
-
-### Scroll-to-Top Component Structure
+### Mobile-Specific Configuration
 
 ```tsx
-export function ScrollToTop() {
-  const [isVisible, setIsVisible] = useState(false);
-  const location = useLocation();
-  const isMobile = useIsMobile();
-  
-  // Route-based hiding
-  const isAdminRoute = location.pathname.startsWith('/admin');
-  const isQuoteWizard = /^\/request-quote\/(regular|wedding)$/.test(location.pathname);
-  const hidden = isAdminRoute || isQuoteWizard;
-
-  useEffect(() => {
-    const toggleVisibility = () => setIsVisible(window.scrollY > 300);
-    window.addEventListener('scroll', toggleVisibility, { passive: true });
-    return () => window.removeEventListener('scroll', toggleVisibility);
-  }, []);
-
-  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
-
-  if (hidden) return null;
-
-  return (
-    <Button
-      onClick={scrollToTop}
-      variant="default"
-      size="icon"
-      className={cn(
-        "fixed z-50 shadow-lg transition-all duration-300",
-        "right-4 lg:right-6",
-        isMobile 
-          ? "bottom-[calc(5rem+env(safe-area-inset-bottom)+0.5rem)]" 
-          : "bottom-6",
-        isVisible 
-          ? "opacity-100 translate-y-0" 
-          : "opacity-0 translate-y-4 pointer-events-none",
-        "h-12 w-12 rounded-full bg-ruby hover:bg-ruby-dark"
-      )}
-      aria-label="Scroll to top"
-    >
-      <ArrowUp className="h-5 w-5" />
-    </Button>
-  );
-}
+const storyContent = useScrollAnimation({
+  variant: 'slide-right',
+  mobile: { variant: 'fade-up' },  // Simpler animation on mobile
+  delay: 100
+});
 ```
 
 ---
 
-## Files to Modify
+## Part 4: Menu Page Enhancements
+
+### Current State
+- Uses `useStaggeredAnimation` with `fade-up` variant (already implemented)
+- Animation classes are being added but have no CSS definitions
+
+### Planned Enhancements
+
+| Element | Enhancement | Mobile Behavior |
+|---------|-------------|-----------------|
+| Header Section | Add ruby corner accents | Same, smaller accents |
+| Category Toggle | Micro-interaction on selection | Same |
+| Collapsible Categories | Staggered `fade-up` (already coded) | Works once CSS added |
+
+**No additional code changes needed** - just adding the missing CSS classes will activate the existing animations.
+
+---
+
+## Part 5: FAQ Page Enhancements
+
+### Current State
+- No scroll animations on accordion items
+- CTA section uses `neumorphic-card-3` (has hover transform issue)
+
+### Planned Enhancements
+
+| Section | Animation | Mobile Behavior |
+|---------|-----------|-----------------|
+| Search/Filter Section | `fade-up` | Same |
+| Accordion Items | `fade-up` staggered (80ms per item) | Same |
+| Contact CTA Card | `scale-fade` | Same |
+
+---
+
+## Part 6: Site-Wide Parallax Strategy
+
+### Where Parallax Will Be Applied
+
+| Page | Section | Speed | Mobile |
+|------|---------|-------|--------|
+| About | "Our Story" background | 0.3 | Disabled |
+| About | "Our Values" background | 0.25 | Disabled |
+| Gallery | Category header images | 0.2 | Disabled |
+
+### Where Parallax Will NOT Be Used
+
+- Navigation bar (breaks sticky positioning)
+- Interactive elements (buttons, forms, inputs)
+- Text-heavy sections (readability concern)
+- Any viewport under 1024px (performance + usability)
+- Quote forms (conversion-focused, no distractions)
+
+---
+
+## Part 7: Performance Considerations
+
+### Animation Performance
+
+| Optimization | Implementation |
+|--------------|----------------|
+| GPU acceleration | Use `transform` and `opacity` only (composite properties) |
+| Passive listeners | `{ passive: true }` on scroll events (already implemented) |
+| `will-change` | Applied sparingly via CSS, auto-removed after animation |
+| Intersection Observer | Used for triggering (not scroll position) |
+
+### Mobile Performance
+
+| Optimization | Implementation |
+|--------------|----------------|
+| Parallax disabled | `disabled: isMobile` prop |
+| Reduced animation distances | Smaller `translateY/X` values under 768px |
+| Fewer simultaneous animations | Stagger delays naturally limit concurrent transforms |
+| `prefers-reduced-motion` | All animations respect this media query |
+
+---
+
+## Part 8: Implementation Files
+
+### Files to Create/Modify
 
 | File | Action | Description |
 |------|--------|-------------|
-| `src/components/Header.tsx` | Edit | Remove neumorphic-card-3, add static shadow |
-| `src/components/ui/scroll-to-top.tsx` | Create | New scroll-to-top button component |
-| `src/App.tsx` | Edit | Import and add ScrollToTop component |
+| `src/index.css` | Edit | Add all animation class definitions with mobile + reduced motion support |
+| `src/pages/About.tsx` | Edit | Add `useScrollAnimation` and `useParallaxEffect` hooks to sections |
+| `src/pages/FAQ.tsx` | Edit | Add scroll animations to accordion section |
+| `src/components/ui/page-header.tsx` | Edit | Add optional fade-in animation |
+| `src/components/menu/SimpleMenuHeader.tsx` | Edit | Add ruby corner accent elements |
+
+### Files Already Working (Need CSS Only)
+
+| File | Current State |
+|------|---------------|
+| `src/pages/SimplifiedMenu.tsx` | Has `useStaggeredAnimation`, waiting for CSS |
+| `src/components/home/*` | Various animation hooks, waiting for CSS |
 
 ---
 
-## Visual Result
+## Part 9: Animation CSS Implementation Details
 
-```text
-Before (Broken):
-┌─────────────────────────┐
-│ [Header - visible]       │
-├─────────────────────────┤
-│                         │
-│    [Hero Section]       │
-│                         │
-├─────────────────────────┤
-│                         │ ← Header disappears here
-│    [Services Section]   │
-│                         │
-└─────────────────────────┘
+### Hidden State Classes
 
-After (Fixed):
-┌─────────────────────────┐
-│ [Header - STICKY]       │ ← Always visible at top
-├─────────────────────────┤
-│                         │
-│    [Hero Section]       │
-│                         │
-├─────────────────────────┤
-│                         │
-│    [Services Section]   │
-│                         │        ┌───┐
-│                         │        │ ↑ │ ← Scroll-to-top
-└─────────────────────────┴────────┴───┘
+```css
+.ios-spring-hidden,
+.fade-up-hidden,
+.scale-fade-hidden,
+.slide-left-hidden,
+.slide-right-hidden,
+.bounce-in-hidden,
+.elastic-hidden,
+.zoom-fade-hidden {
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+/* Transform values for each variant */
+.ios-spring-hidden { transform: translateY(20px); }
+.fade-up-hidden { transform: translateY(30px); }
+.scale-fade-hidden { transform: scale(0.95); }
+.slide-left-hidden { transform: translateX(-30px); }
+.slide-right-hidden { transform: translateX(30px); }
+.bounce-in-hidden { transform: translateY(30px) scale(0.85); }
+.elastic-hidden { transform: scale(0.9); }
+.zoom-fade-hidden { transform: scale(0.85); }
+```
+
+### Visible State Classes
+
+```css
+.ios-spring-visible,
+.fade-up-visible,
+.scale-fade-visible,
+.slide-left-visible,
+.slide-right-visible,
+.bounce-in-visible,
+.elastic-visible,
+.zoom-fade-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Spring/elastic timing curves */
+.ios-spring-visible {
+  transition: opacity 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+              transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.bounce-in-visible {
+  transition: opacity 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55),
+              transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+```
+
+### Mobile Overrides
+
+```css
+@media (max-width: 768px) {
+  .fade-up-hidden { transform: translateY(20px); }
+  .slide-left-hidden { transform: translateX(-20px); }
+  .slide-right-hidden { transform: translateX(20px); }
+  .bounce-in-hidden { transform: translateY(20px) scale(0.9); }
+}
+```
+
+### Reduced Motion Support
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  .ios-spring-hidden,
+  .fade-up-hidden,
+  .scale-fade-hidden,
+  /* ... all variants ... */ {
+    opacity: 0;
+    transform: none !important;
+  }
+  
+  .ios-spring-visible,
+  .fade-up-visible,
+  .scale-fade-visible,
+  /* ... all variants ... */ {
+    opacity: 1;
+    transform: none !important;
+    transition: opacity 0.2s ease !important;
+  }
+}
 ```
 
 ---
 
-## Browser Compatibility Notes
+## Summary: Mobile & Tablet Coverage
 
-The transform issue with sticky positioning is a known quirk in:
-- Safari (all versions)
-- iOS Safari
-- Some Chromium-based browsers with GPU acceleration
+| Aspect | Desktop (1024px+) | Tablet (768-1023px) | Mobile (<768px) |
+|--------|-------------------|---------------------|-----------------|
+| Scroll animations | Full effects | Full effects | Full effects (reduced distances) |
+| Parallax | Enabled | **Disabled** | **Disabled** |
+| Animation distances | Standard | Standard | Reduced by ~33% |
+| Stagger delays | Standard | Standard | Standard |
+| Touch targets | N/A | 44px minimum | 44px minimum |
+| `prefers-reduced-motion` | Respected | Respected | Respected |
 
-By removing the transform from the header's hover state, we ensure consistent sticky behavior across all browsers.
-
+This plan ensures optimal experience across all device sizes while maintaining performance and accessibility.
