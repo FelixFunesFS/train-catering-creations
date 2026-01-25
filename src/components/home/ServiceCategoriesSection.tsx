@@ -1,9 +1,7 @@
-import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { OptimizedImage } from "@/components/ui/optimized-image";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { 
   Heart, 
   Building2, 
@@ -11,8 +9,7 @@ import {
   ArrowRight,
   Star,
   CircleCheck,
-  Award,
-  ChevronDown
+  Award
 } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
@@ -36,8 +33,7 @@ interface ServiceCategory {
 }
 
 export const ServiceCategoriesSection = () => {
-  const [expandedCards, setExpandedCards] = useState<number[]>([]);
-  // Mobile-only collapsible (under 768px) - tablets show full content
+  // Mobile-only simplified layout (under 768px) - tablets show full content
   const isMobileOnly = useMediaQuery("(max-width: 767px)");
 
   const { ref, isVisible } = useScrollAnimation({ 
@@ -85,19 +81,8 @@ export const ServiceCategoriesSection = () => {
     }
   ];
 
-  const toggleCard = (index: number) => {
-    setExpandedCards(prev => 
-      prev.includes(index) 
-        ? prev.filter(i => i !== index)
-        : [...prev, index]
-    );
-  };
-
-  const isCardExpanded = (index: number) => expandedCards.includes(index);
-
   const renderCardContent = (service: ServiceCategory, index: number) => {
     const isThirdCard = index === 2;
-    const isExpanded = isCardExpanded(index);
 
     return (
       <Card
@@ -149,49 +134,8 @@ export const ServiceCategoriesSection = () => {
               </p>
             </div>
 
-            {/* Mobile-Only Collapsible (phones only, not tablets) */}
-            {isMobileOnly ? (
-              <Collapsible open={isExpanded} onOpenChange={() => toggleCard(index)}>
-                <CollapsibleTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    className="w-full justify-between text-ruby hover:text-ruby hover:bg-ruby/10 min-h-[44px] p-0"
-                  >
-                    <span className="text-sm font-medium">
-                      {isExpanded ? 'Hide Details' : 'View Details'}
-                    </span>
-                    <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} />
-                  </Button>
-                </CollapsibleTrigger>
-                <CollapsibleContent className="space-y-4 pt-2">
-                  <p className="text-base text-muted-foreground leading-relaxed">
-                    {service.description}
-                  </p>
-
-                  {/* Features */}
-                  <div className="space-y-2">
-                    {service.features.map((feature, featureIndex) => (
-                      <div key={featureIndex} className="flex items-center space-x-2">
-                        <CircleCheck className="h-4 w-4 text-ruby" />
-                        <span className="text-sm text-muted-foreground">{feature}</span>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* CTA Button */}
-                  <Button 
-                    variant="cta-outline" 
-                    size="responsive-compact"
-                    asChild
-                  >
-                    <a href={service.href} className="flex items-center justify-center space-x-2">
-                      <span>Get Quote</span>
-                      <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                    </a>
-                  </Button>
-                </CollapsibleContent>
-              </Collapsible>
-            ) : (
+            {/* Mobile: Minimal content, no individual CTA */}
+            {isMobileOnly ? null : (
               /* Desktop/Tablet - Always visible content */
               <>
                 <p className="text-base text-muted-foreground leading-relaxed">
@@ -284,6 +228,17 @@ export const ServiceCategoriesSection = () => {
           {serviceCategories.map((service, index) => renderCardContent(service, index))}
         </div>
 
+        {/* Mobile-only Section CTA */}
+        {isMobileOnly && (
+          <div className="flex justify-center mt-6">
+            <Button variant="cta" size="responsive-md" asChild>
+              <a href="/request-quote/regular" className="flex items-center gap-2">
+                <span>Get Your Quote</span>
+                <ArrowRight className="h-4 w-4" />
+              </a>
+            </Button>
+          </div>
+        )}
       </div>
     </section>
   );
