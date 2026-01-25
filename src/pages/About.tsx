@@ -12,8 +12,8 @@ import { useAnimationClass } from "@/hooks/useAnimationClass";
 
 
 import tanyaWardImg from "@/assets/tanya-ward.jpg";
-
 import venueEventSetup from "@/assets/venue-event-setup.jpg";
+import heroAppetizers from "@/assets/hero/hero-appetizers.webp";
 
 const About = () => {
   // Story section animations
@@ -233,7 +233,7 @@ const About = () => {
           <div 
             className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
             style={{ 
-              backgroundImage: `url('/lovable-uploads/eb77404f-369f-484f-a9ce-786b7f1ddc94.png')`
+              backgroundImage: `url(${heroAppetizers})`
             }}
             aria-hidden="true"
           />

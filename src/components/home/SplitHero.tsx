@@ -9,6 +9,11 @@ import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 import { useHeroVisibility } from "@/contexts/HeroVisibilityContext";
 import { Link } from "react-router-dom";
+
+// Import optimized WebP hero images
+import heroAppetizers from "@/assets/hero/hero-appetizers.webp";
+import heroSpread from "@/assets/hero/hero-spread.webp";
+
 interface HeroImage {
   src: string;
   alt: string;
@@ -62,14 +67,14 @@ export const SplitHero = () => {
     };
   }, [setIsHeroVisible]);
   const heroImages: HeroImage[] = [{
-    src: "/lovable-uploads/eb77404f-369f-484f-a9ce-786b7f1ddc94.png",
+    src: heroAppetizers,
     alt: "Professional catering setup with chafing dishes and elegant floral arrangements",
     title: "Artisan Creations",
     subtitle: "Every Detail Matters",
     category: "culinary",
     description: "From our signature charcuterie boards to custom wedding cakes, each dish is crafted with precision and passion."
   }, {
-    src: "/lovable-uploads/c6c2df94-6625-460e-a5a1-b75dd8c362ab.png",
+    src: heroSpread,
     alt: "Elegant appetizer spread with tiered displays",
     title: "Award-Winning Catering",
     subtitle: "20+ Years of Culinary Excellence",
