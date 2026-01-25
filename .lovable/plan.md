@@ -1,174 +1,148 @@
 
-# Reviews Page Gallery Repositioning & Menu Gallery 2-Row Update
+
+# Revised Plan: Reviews Page Cleanup & About Page Enhancement
 
 ## Overview
 
-This plan addresses three changes:
-1. **Reviews Page**: Move the image gallery to inside the hero section (after CTA button, before 5-star rating)
-2. **Reviews Page**: Center the images and replace them with different images from the gallery assets
-3. **Menu Page**: Convert the 8-image gallery from 1 row to 2 rows
+This plan streamlines the Reviews page by removing redundant sections while enhancing the About page with the Family Bridge section and standardized CTA.
 
 ---
 
-## Part 1: Reviews Page Changes
+## Part 1: Reviews Page Cleanup
 
-### Current Structure (Lines 79-108)
+### Sections to REMOVE
+
+1. **Team Photo Section** (line 152-153)
+   - `<ReviewsTeamSection />` will be removed
+   - Reason: Family storytelling belongs on About page; Reviews should focus on third-party validation
+
+2. **Feedback Card** (lines 155-180)
+   - The entire `PageSection pattern="c"` with the NeumorphicCard
+   - Reason: Non-actionable, redundant once verification links are added
+
+### Sections to KEEP
+
+1. **Hero Section** with new verification links
+2. **Review Cards Grid**
+3. **CTA Section**
+
+### New Structure (Reviews.tsx)
+
 ```
-PageHeader
-  → Badge
-  → Title  
-  → Description
-  → CTA Button ("About Us")
-  
-Additional Content (Lines 94-105)
-  → 5 Stars + "5.0" rating
-  → Review count text
-  → Location text
+PageSection pattern="a"
+  └── PageHeader (badge, title, CTA)
+  └── ReviewsImageStrip
+  └── 5-Star Rating
+  └── Verification Links (Google | Facebook)  ← NEW
 
-PageSection pattern="b" (Lines 110-113)
-  → ReviewsImageStrip (separate section)
+PageSection pattern="b"
+  └── Review Cards Grid (6 cards)
+
+CTASection
+  └── "Ready to Create Your Own Success Story?"
+```
+
+### Verification Links Addition
+
+Add under the 5-star rating:
+
+```tsx
+{/* Verification Links */}
+<div className="flex justify-center items-center gap-4 mt-3">
+  <a 
+    href="https://g.page/r/YOUR_GOOGLE_ID/review"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground hover:text-primary transition-colors"
+  >
+    <GoogleIcon className="h-4 w-4" />
+    <span>Verified on Google</span>
+  </a>
+  <span className="text-muted-foreground/50">|</span>
+  <a 
+    href="https://facebook.com/soultrainseatery/reviews"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground hover:text-primary transition-colors"
+  >
+    <FacebookIcon className="h-4 w-4" />
+    <span>Verified on Facebook</span>
+  </a>
+</div>
+```
+
+---
+
+## Part 2: About Page Enhancement
+
+### Current Structure (About.tsx)
+```
+Hero → Our Story → Meet Our Team → Our Values → Custom Image CTA
 ```
 
 ### New Structure
 ```
-PageHeader
-  → Badge
-  → Title  
-  → Description
-  → CTA Button ("About Us")
-
-Image Gallery (MOVED HERE - centered)
-  → 5 new centered images
-
-5 Stars + Rating info
+Hero → Our Story → Meet Our Team → Our Values → Family Bridge (NEW) → Standard Crimson CTA
 ```
 
-### Image Replacements
+### A. New "Family Bridge" Section
 
-**Current Images** (to be replaced):
-1. charcuterie-spread.jpg
-2. berry-tart-tower.jpg
-3. chafing-dish-roses.jpg
-4. food-mac-cheese.jpg
-5. food-salmon.jpg
+Insert above the CTA, using the ReviewsTeamSection style:
 
-**New Images** (more variety, avoiding duplicates from other pages):
-1. `buffet-orchid-setup.jpg` - Elegant orchid buffet setup
-2. `dessert-mini-cheesecakes.jpg` - Gourmet mini cheesecakes
-3. `formal-gold-reception.jpg` - Formal gold reception setting
-4. `bbq-outdoor-carving.jpg` - BBQ carving station
-5. `buffet-holiday-wings.jpg` - Holiday wings display
-
-### Centering Changes
-
-Current layout uses `flex` with `min-w-max` which causes horizontal scroll. 
-
-New layout will use:
-- `flex flex-wrap justify-center` for centered wrapping
-- Remove `min-w-max` to allow natural centering
-- Adjust gap and sizing for responsiveness
-
----
-
-## Part 2: Menu Page Gallery Changes
-
-### Current Grid (Line 92)
-```
-grid-cols-2 sm:grid-cols-4 lg:grid-cols-8
-```
-This displays 8 images in a single row on desktop (8 cols = 1 row).
-
-### New Grid
-```
-grid-cols-2 sm:grid-cols-4 lg:grid-cols-4
-```
-This displays 8 images in 2 rows on desktop (4 cols = 2 rows of 4).
-
-### Responsive Breakdown
-| Breakpoint | Columns | Rows with 8 images |
-|------------|---------|-------------------|
-| Mobile (<640px) | 2 | 4 rows |
-| Tablet (640-1024px) | 4 | 2 rows |
-| Desktop (1024px+) | 4 | 2 rows |
-
----
-
-## Implementation Details
-
-### File 1: `src/components/reviews/ReviewsImageStrip.tsx`
-
-**Changes:**
-1. Replace 5 images with new selections
-2. Change layout from horizontal scroll to centered flex-wrap
-3. Remove `overflow-x-auto` and `min-w-max`
-4. Add `flex-wrap justify-center` for centering
-5. Adjust image sizes for better presentation
-
-**Updated Code Pattern:**
 ```tsx
-const images = [
-  { src: buffetOrchidSetup, alt: "Elegant orchid buffet setup" },
-  { src: dessertMiniCheesecakes, alt: "Gourmet mini cheesecakes" },
-  { src: formalGoldReception, alt: "Formal gold reception setting" },
-  { src: bbqOutdoorCarving, alt: "BBQ outdoor carving station" },
-  { src: buffetHolidayWings, alt: "Holiday wings display" },
-];
-
-// Layout change
-<div className="flex flex-wrap justify-center gap-3 sm:gap-4 px-4 sm:px-6 lg:px-8">
-  {/* Images centered and wrapping on smaller screens */}
-</div>
-```
-
-### File 2: `src/pages/Reviews.tsx`
-
-**Changes:**
-1. Move `ReviewsImageStrip` component from its own `PageSection` (lines 110-113)
-2. Insert it inside the header section, after the CTA button and before the star rating
-3. Remove the now-empty `PageSection pattern="b"`
-4. Update `PageSection` pattern sequence (c→b, d→c)
-
-**New Structure:**
-```tsx
-<PageSection pattern="a">
-  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div ref={headerRef} className={headerAnimationClass}>
-      <PageHeader ... />
-      
-      {/* Image Strip - NOW INSIDE HERO */}
-      <div className="mt-6 sm:mt-8">
-        <ReviewsImageStrip />
-      </div>
-      
-      {/* Star Rating - After images */}
-      <div className="text-center mt-6 max-w-4xl mx-auto">
-        <div className="flex justify-center ...">
-          {renderStars(5)}
-          ...
-        </div>
-      </div>
+<section className="relative w-full overflow-hidden">
+  {/* Background Image */}
+  <div 
+    className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+    style={{ backgroundImage: `url(${teamWesternGroup})` }}
+  />
+  
+  {/* White Overlay - 85% */}
+  <div className="absolute inset-0 bg-background/85" />
+  
+  {/* Top/Bottom Gradient Fades */}
+  <div className="absolute top-0 left-0 right-0 h-16 sm:h-20 lg:h-24 bg-gradient-to-b from-background to-transparent z-10" />
+  <div className="absolute bottom-0 left-0 right-0 h-16 sm:h-20 lg:h-24 bg-gradient-to-t from-background to-transparent z-10" />
+  
+  {/* Content */}
+  <div className="relative z-20 py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8">
+    <div className="max-w-3xl mx-auto text-center">
+      <p className="text-ruby font-script text-lg sm:text-xl mb-2">
+        Our Family
+      </p>
+      <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant font-bold text-foreground mb-4">
+        The Faces Behind Your Perfect Event
+      </h2>
+      <p className="text-muted-foreground text-base sm:text-lg mb-6 max-w-2xl mx-auto">
+        From planning to the final plate, our dedicated team brings Southern hospitality 
+        and professional care to every event we cater.
+      </p>
+      <Button asChild variant="outline" size="lg">
+        <Link to="/gallery">
+          <Camera className="h-4 w-4 mr-2" />
+          View Our Gallery
+        </Link>
+      </Button>
     </div>
   </div>
-</PageSection>
-
-{/* Reviews Section - now pattern "b" */}
-<PageSection pattern="b">
-  ...reviews cards...
-</PageSection>
+</section>
 ```
 
-### File 3: `src/components/menu/MenuFoodGallery.tsx`
+### B. Replace Custom CTA with Standard CTASection
 
-**Changes:**
-1. Update grid from `lg:grid-cols-8` to `lg:grid-cols-4`
+Remove the custom image-backed CTA (lines 291-332) and replace with:
 
-**Line 92 Change:**
 ```tsx
-// Before
-className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 sm:gap-3 px-2 sm:px-3"
-
-// After  
-className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-2 sm:gap-3 px-2 sm:px-3"
+<CTASection
+  title="Ready to Experience Soul Train's Difference?"
+  description="Let our family serve yours with the authentic flavors and warm hospitality that have made us Charleston's trusted catering choice."
+  buttons={[
+    { text: "Request Quote", href: "/request-quote#page-header", variant: "cta" },
+    { text: "View Our Menu", href: "/menu", variant: "cta-white" }
+  ]}
+  footer="ServSafe certified · Family owned · Community trusted"
+  showWatermark={true}
+/>
 ```
 
 ---
@@ -176,44 +150,49 @@ className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-2 sm:gap-3 px-2 sm
 ## Visual Summary
 
 ```text
-REVIEWS PAGE (After Changes):
+REVIEWS PAGE (Simplified):
 ┌──────────────────────────────────────┐
-│           [Badge: Testimonials]       │
+│        [Badge: Testimonials]          │
 │           Client Reviews              │
-│    Real Stories, Real Satisfaction    │
 │         [About Us Button]             │
 │                                       │
-│     ┌───┐ ┌───┐ ┌───┐ ┌───┐ ┌───┐    │  ← Images CENTERED, inside hero
-│     │ 1 │ │ 2 │ │ 3 │ │ 4 │ │ 5 │    │
-│     └───┘ └───┘ └───┘ └───┘ └───┘    │
+│     [Image Strip - 5 photos]          │
 │                                       │
-│      ★★★★★ 5.0                        │  ← Stars now AFTER images
+│        ★★★★★ 5.0                      │
+│  [G] Verified on Google | [f] Facebook│
+│                                       │
 │   Based on 6+ reviews...              │
 ├──────────────────────────────────────┤
 │        [Review Cards Grid]            │
+│         (6 testimonials)              │
 ├──────────────────────────────────────┤
-│        [Team Photo Section]           │
-├──────────────────────────────────────┤
-│        [Feedback Card]                │
-├──────────────────────────────────────┤
-│        [CTA Section]                  │
+│  ┌────────────────────────────────┐  │
+│  │    Standard Crimson CTA        │  │
+│  │  [Request Quote] [Call Now]    │  │
+│  └────────────────────────────────┘  │
 └──────────────────────────────────────┘
 
-MENU PAGE (After Changes):
+ABOUT PAGE (Enhanced):
 ┌──────────────────────────────────────┐
-│         [Menu Categories]             │
+│           [Hero Section]              │
 ├──────────────────────────────────────┤
-│      A Taste of What We Serve         │
-│                                       │
-│    ┌───┐ ┌───┐ ┌───┐ ┌───┐           │  ← Row 1
-│    │ 1 │ │ 2 │ │ 3 │ │ 4 │           │
-│    └───┘ └───┘ └───┘ └───┘           │
-│    ┌───┐ ┌───┐ ┌───┐ ┌───┐           │  ← Row 2
-│    │ 5 │ │ 6 │ │ 7 │ │ 8 │           │
-│    └───┘ └───┘ └───┘ └───┘           │
-│                                       │
+│           [Our Story]                 │
 ├──────────────────────────────────────┤
-│          [Crimson CTA]                │
+│           [Meet Our Team]             │
+├──────────────────────────────────────┤
+│           [Our Values]                │
+├──────────────────────────────────────┤
+│  ╔════════════════════════════════╗  │
+│  ║  Family Bridge Section (NEW)   ║  │
+│  ║  White 85% overlay + team photo║  │
+│  ║  "Our Family"                  ║  │
+│  ║  [View Our Gallery]            ║  │
+│  ╚════════════════════════════════╝  │
+├──────────────────────────────────────┤
+│  ┌────────────────────────────────┐  │
+│  │   Standard Crimson CTA Card    │  │
+│  │  [Request Quote] [View Menu]   │  │
+│  └────────────────────────────────┘  │
 └──────────────────────────────────────┘
 ```
 
@@ -223,23 +202,41 @@ MENU PAGE (After Changes):
 
 | File | Changes |
 |------|---------|
-| `src/components/reviews/ReviewsImageStrip.tsx` | Replace images, center layout |
-| `src/pages/Reviews.tsx` | Move image strip into hero, reorder sections |
-| `src/components/menu/MenuFoodGallery.tsx` | Change to 2-row grid (lg:grid-cols-4) |
+| `src/pages/Reviews.tsx` | Remove TeamSection + Feedback Card, add verification links |
+| `src/pages/About.tsx` | Add Family Bridge section, replace custom CTA with CTASection |
 
 ---
 
-## Responsive Considerations
+## Technical Details
 
-1. **Reviews Image Strip**: 
-   - Mobile: Images wrap to multiple rows, centered
-   - Tablet: 3-5 images visible, centered
-   - Desktop: All 5 images in single centered row
+### Icon Components (Reviews.tsx)
 
-2. **Menu Gallery**:
-   - Mobile: 2 columns = 4 rows
-   - Tablet/Desktop: 4 columns = 2 rows
+```tsx
+const GoogleIcon = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+  </svg>
+);
 
-3. **Hero Section Flow**:
-   - Content stacks naturally on all devices
-   - Proper spacing with `mt-6 sm:mt-8` for image strip
+const FacebookIcon = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+  </svg>
+);
+```
+
+### Imports Cleanup (Reviews.tsx)
+
+Remove unused imports:
+- `Heart` and `ThumbsUp` from lucide-react
+- `ReviewsTeamSection` component
+
+### Placeholder URLs
+
+The Google and Facebook links use placeholder URLs that should be replaced with actual business review page URLs:
+- Google: `https://g.page/r/YOUR_GOOGLE_PLACE_ID/review`
+- Facebook: `https://facebook.com/soultrainseatery/reviews`
+
