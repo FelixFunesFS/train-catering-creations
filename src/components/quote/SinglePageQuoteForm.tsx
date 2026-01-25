@@ -324,7 +324,6 @@ export const SinglePageQuoteForm = ({
         special_requests: data.special_requests,
         referral_source: data.referral_source,
         theme_colors: data.theme_colors,
-        ceremony_included: data.ceremony_included,
         cocktail_hour: data.cocktail_hour,
       };
       
