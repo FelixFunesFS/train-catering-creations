@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { FAQSearch } from "@/components/faq/FAQSearch";
 import { FAQCategoryFilter } from "@/components/faq/FAQCategoryFilter";
 import { FAQAccordion } from "@/components/faq/FAQAccordion";
+import { FAQVisualBreak } from "@/components/faq/FAQVisualBreak";
 import { faqData, faqCategories } from "@/data/faqData";
 import { HelpCircle, Phone, Mail, MessageCircle } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
@@ -127,6 +128,9 @@ const FAQ = () => {
           </div>
         </div>
       </PageSection>
+
+      {/* Visual Break Section */}
+      <FAQVisualBreak />
 
       {/* Contact CTA */}
       <PageSection pattern="d" withBorder>

@@ -13,6 +13,10 @@ import buffetChefDuo from '@/assets/gallery/buffet-chef-duo.jpg';
 import buffetOutdoorTent from '@/assets/gallery/buffet-outdoor-tent.jpg';
 import buffetTeamService from '@/assets/gallery/buffet-team-service.jpg';
 import teamWesternBuffet from '@/assets/team-western-buffet.jpg';
+import breakfastSpread from '@/assets/gallery/breakfast-spread.jpg';
+import holidaySides from '@/assets/gallery/holiday-sides.jpg';
+import teamServiceAction from '@/assets/gallery/team-service-action.jpg';
+import teamBuffetLine from '@/assets/gallery/team-buffet-line.jpg';
 
 export const buffetImages: GalleryImage[] = [
   {
@@ -252,5 +256,33 @@ export const buffetImages: GalleryImage[] = [
     title: "Full Service Team",
     description: "Our complete service team ready to make your event unforgettable",
     quality: 8
+  },
+  {
+    src: breakfastSpread,
+    category: "buffet",
+    title: "Sunrise Breakfast Buffet",
+    description: "Fluffy scrambled eggs, crispy bacon, sausage links and patties ready to start your day",
+    quality: 8
+  },
+  {
+    src: holidaySides,
+    category: "buffet",
+    title: "Holiday Comfort Sides",
+    description: "Southern green beans, golden mac & cheese, and savory rice with festive white poinsettias",
+    quality: 8
+  },
+  {
+    src: teamServiceAction,
+    category: "team",
+    title: "Professional Service in Action",
+    description: "Our team serving guests with attention to detail and Southern hospitality",
+    quality: 9
+  },
+  {
+    src: teamBuffetLine,
+    category: "team",
+    title: "Full Service Buffet Line",
+    description: "Complete chafing dish setup with our coordinated team ready to serve",
+    quality: 9
   }
 ];
