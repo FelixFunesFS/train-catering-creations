@@ -1,133 +1,135 @@
 
-# Fix Duplicate Images in Home Page Gallery
+# Home Page Gallery Enhancements
 
-## Problem Identified
+## Overview
+This plan addresses three improvements to the "A Gallery of Flavor & Style" section on the home page:
 
-The home page gallery shows images 5 and 6 as the same picture because:
+1. **Improve badge accessibility** with high-contrast styling
+2. **Remove extra text** after the gallery button
+3. **Open full gallery modal** when clicking any of the 6 images
 
-1. **Sorting instability**: The code sorts all images by quality descending (`.sort((a, b) => b.quality - a.quality)`) and takes the top 6
-2. **Many tied scores**: There are ~20+ images with quality 9, and JavaScript's sort is unstable for equal values
-3. **Random selection**: Which 5 quality-9 images appear alongside the quality-10 image varies unpredictably
-4. **Potential visual duplicates**: Some images may look very similar (e.g., outdoor tent photos from different angles)
+---
 
-## Current Flow
+## Current Architecture
 
-```text
-galleryImages (80+ images)
-    ↓
-.sort by quality descending
-    ↓
-.slice(0, 6) - takes first 6
-    ↓
-But images 2-6 are all quality 9 (tied)
-    ↓
-Unstable sort = unpredictable order
-```
+The home page uses `InteractiveGalleryPreview.tsx` which displays 6 curated images with category badges. Currently, clicking an image only shows a hover overlay - there's no modal functionality.
 
-## Solution: Curated Showcase Array
-
-Instead of relying on quality-based sorting, explicitly define which 6 images appear on the home page. This gives full control over the gallery showcase.
+A sister component `InteractiveGallerySection.tsx` already implements the full gallery modal pattern using `EnhancedImageModal` - we'll adopt this approach.
 
 ---
 
 ## Technical Changes
 
-### File: `src/data/galleryImages.ts`
+### File: `src/components/home/InteractiveGalleryPreview.tsx`
 
-Add a new export for curated showcase images with specific order:
+#### 1. Add Modal State and Imports
 
 ```typescript
-import teamWesternBuffet from '@/assets/team-western-buffet.jpg';
+// Add imports
+import { EnhancedImageModal } from "@/components/gallery/EnhancedImageModal";
+import { galleryImages } from "@/data/galleryImages";
 
-// Curated images for home page showcase - order is fixed
-export const showcaseImages: GalleryImage[] = [
-  {
-    src: "/lovable-uploads/84f43173-e79d-4c53-b5d4-e8a596d1d614.png",
-    category: "wedding",
-    title: "Garden Wedding Dining",
-    description: "Breathtaking venue with cascading florals and crystal-clear place settings",
-    quality: 9
-  },
-  {
-    src: "/lovable-uploads/894051bf-31c6-4930-bb88-e3e1d74f7ee1.png",
-    category: "wedding",
-    title: "Enchanted Barn Reception",
-    description: "A dreamy rustic venue glowing with chandeliers and twinkling string lights",
-    quality: 9
-  },
-  // dessert-parfait-display.jpg
-  {
-    src: dessertParfaitDisplay,
-    category: "desserts",
-    title: "Strawberry & Cookies 'n Cream Parfaits",
-    description: "Elegant tiered display of fresh strawberry shortcake and Oreo cream parfaits",
-    quality: 9
-  },
-  // formal-gold-reception.jpg
-  {
-    src: formalGoldReception,
-    category: "formal",
-    title: "Gold & White Reception Hall",
-    description: "Elegant gold-sashed chairs and sparkling fairy lights for a stunning formal event",
-    quality: 9
-  },
-  // Mac & Cheese (food-mac-cheese.jpg)
-  {
-    src: foodMacCheese,
-    category: "buffet",
-    title: "Golden Baked Mac & Cheese",
-    description: "Creamy, bubbly mac and cheese with a perfectly golden herbed crust",
-    quality: 9
-  },
-  // NEW: Western Team photo (position 6)
-  {
-    src: teamWesternBuffet,
-    category: "team",
-    title: "Western-Themed Family Service",
-    description: "Our family team in matching western attire ready to serve authentic Southern comfort food",
-    quality: 10
-  }
-];
+// Add state for modal
+const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+
+// Add handlers
+const handleImageClick = (imageSrc: string) => {
+  const index = galleryImages.findIndex(img => img.src === imageSrc);
+  setSelectedImageIndex(index);
+};
+
+const handleCloseModal = () => {
+  setSelectedImageIndex(null);
+};
 ```
 
-### File: `src/components/home/InteractiveGallerySection.tsx`
+#### 2. Improve Badge Accessibility (High Contrast)
 
-Update import and remove sorting logic:
+Current badges use semi-transparent backgrounds (e.g., `bg-ruby/10`). Update to solid, high-contrast backgrounds:
 
 ```typescript
-// Change import
-import { galleryImages, showcaseImages } from "@/data/galleryImages";
+const getCategoryColor = (category: string) => {
+  const colors = {
+    Wedding: "bg-ruby text-white border-ruby",
+    Appetizers: "bg-gold text-navy border-gold",
+    Sides: "bg-navy text-white border-navy",
+    Desserts: "bg-primary text-white border-primary",
+    Formal: "bg-platinum text-navy border-platinum",
+    Military: "bg-navy text-white border-navy"
+  };
+  return colors[category] || "bg-muted text-foreground border-border";
+};
+```
 
-// Remove this code (lines 37-40):
-const showcaseImages = galleryImages
-  .sort((a, b) => b.quality - a.quality)
-  .slice(0, 6);
+This ensures:
+- **WCAG AA compliance**: White text on solid colored backgrounds
+- **Clear visual hierarchy**: Badges pop against image backgrounds
+- **Consistent branding**: Uses brand colors (ruby, gold, navy, platinum)
 
-// Now showcaseImages is imported directly with fixed order
+#### 3. Remove Extra Text After Button
+
+Delete lines 339-341:
+```typescript
+// REMOVE THIS:
+<p className="text-xs text-muted-foreground mt-3">
+  Over 200+ photos showcasing our culinary artistry and event expertise
+</p>
+```
+
+#### 4. Make Images Clickable (Open Modal)
+
+**Mobile Story View** - Update the card touch handler to open modal:
+```typescript
+// Add onClick to open modal instead of toggling autoplay
+onClick={() => handleImageClick(galleryItems[currentStoryIndex].src)}
+```
+
+**Desktop Grid View** - Update card click behavior:
+```typescript
+<Card
+  onClick={() => handleImageClick(item.src)}
+  // ...existing props
+>
+```
+
+#### 5. Add Modal Component
+
+At the end of the component, before the closing fragment:
+```typescript
+<EnhancedImageModal 
+  images={galleryImages} 
+  selectedIndex={selectedImageIndex} 
+  onClose={handleCloseModal} 
+/>
 ```
 
 ---
 
-## Showcase Image Selection (6 images, diverse categories)
+## Accessibility Improvements Summary
 
-| Position | Image | Category | Why Selected |
-|----------|-------|----------|--------------|
-| 1 | Garden Wedding Dining | Wedding | Beautiful venue shot |
-| 2 | Enchanted Barn Reception | Wedding | Romantic atmosphere |
-| 3 | Parfait Display | Desserts | Colorful, appetizing |
-| 4 | Gold Reception Hall | Formal | Elegant setting |
-| 5 | Mac & Cheese | Buffet | Signature dish, comfort food |
-| 6 | Western Team Photo | Team | **NEW: Family-owned emphasis** |
+| Element | Before | After |
+|---------|--------|-------|
+| Wedding Badge | `bg-ruby/10 text-ruby` (low contrast) | `bg-ruby text-white` (WCAG AA) |
+| Appetizers Badge | `bg-gold/10 text-gold` (low contrast) | `bg-gold text-navy` (WCAG AA) |
+| Sides Badge | `bg-navy/10 text-navy` (low contrast) | `bg-navy text-white` (WCAG AA) |
+| Desserts Badge | `bg-primary/10 text-primary` (low contrast) | `bg-primary text-white` (WCAG AA) |
+| Formal Badge | `bg-platinum/10 text-platinum-foreground` | `bg-platinum text-navy` (WCAG AA) |
+| Military Badge | `bg-navy/10 text-navy` (low contrast) | `bg-navy text-white` (WCAG AA) |
 
 ---
 
-## Benefits
+## User Experience Flow
 
-- **Fixed order**: No sorting means predictable, controlled display
-- **Category diversity**: Curated mix ensures variety (wedding, desserts, formal, buffet, team)
-- **No duplicates**: Hand-picked images guarantee uniqueness
-- **Easy updates**: Change showcase by editing one array
-- **Maintains full gallery**: Original `galleryImages` array remains unchanged for the full gallery page
+```text
+User clicks gallery image
+        ↓
+Modal opens showing ALL gallery images (80+)
+        ↓
+User can navigate with arrows/swipe
+        ↓
+Starting position = first image in full gallery
+(matches behavior of gallery page)
+```
 
 ---
 
@@ -135,5 +137,18 @@ const showcaseImages = galleryImages
 
 | File | Changes |
 |------|---------|
-| `src/data/galleryImages.ts` | Add `showcaseImages` export with 6 curated images in fixed order |
-| `src/components/home/InteractiveGallerySection.tsx` | Import `showcaseImages` directly, remove sorting logic |
+| `src/components/home/InteractiveGalleryPreview.tsx` | Add modal state, update badge colors, remove text, wire up click handlers, add EnhancedImageModal |
+
+---
+
+## Best Way to Think About This
+
+**Conceptual Framework:**
+
+1. **Separation of Concerns**: The 6 showcase images are a "preview" - a curated selection. When clicked, they should open the FULL gallery experience (all 80+ images), not just those 6.
+
+2. **Reuse Existing Patterns**: `InteractiveGallerySection` already implements this exact pattern with `EnhancedImageModal`. We're adopting the same approach for consistency.
+
+3. **Accessibility First**: Semi-transparent badges over photos are hard to read. Solid, brand-colored backgrounds with contrasting text ensure readability regardless of the image behind them.
+
+4. **Progressive Enhancement**: Users get a visual preview → click for full experience → can navigate the entire gallery from there.
