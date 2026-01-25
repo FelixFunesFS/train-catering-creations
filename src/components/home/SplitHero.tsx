@@ -197,7 +197,7 @@ export const SplitHero = () => {
   if (isMobile) {
     return <section className="relative h-[85vh] overflow-hidden bg-black" role="main" aria-label="Hero section with image carousel">
         {/* Full Screen Visual Area */}
-        <div ref={visualRef} className={`relative h-full overflow-hidden ${visualAnimationClass}`} onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} role="region" aria-label="Image carousel">
+        <div ref={visualRef} className={`relative h-full overflow-hidden hero-vignette ${visualAnimationClass}`} onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} role="region" aria-label="Image carousel">
           {/* Progress Indicators - Centered at top */}
           <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-30 flex space-x-1">
             {heroImages.map((_, index) => <button key={index} onClick={() => setCurrentIndex(index)} className="min-w-[24px] min-h-[24px] flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black/20" aria-label={`Go to slide ${index + 1} of ${heroImages.length}`} aria-current={index === currentIndex ? 'true' : 'false'}>
@@ -226,7 +226,7 @@ export const SplitHero = () => {
           </div>
 
           {/* Full Screen Background Image */}
-          <OptimizedImage src={currentImage.src} alt={currentImage.alt} className={`w-full h-full object-cover ${getImageObjectPosition(currentIndex)} transition-transform duration-700`} containerClassName="h-full" priority />
+          <OptimizedImage src={currentImage.src} alt={currentImage.alt} className={`w-full h-full object-cover ${getImageObjectPosition(currentIndex)} transition-transform duration-700`} containerClassName="h-full" priority enableVignette={false} />
           
           {/* Gradient Overlay for Content Readability */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
@@ -279,9 +279,9 @@ export const SplitHero = () => {
   // Desktop Layout (True 60/40 Split)
   return <section className="relative h-screen overflow-hidden bg-background flex pb-8 lg:pb-16" role="main" aria-label="Hero section with image carousel">
       {/* Visual Area - 60% */}
-      <div ref={visualRef} className={`relative w-3/5 h-full overflow-hidden ${visualAnimationClass}`} role="region" aria-label="Image carousel">
+      <div ref={visualRef} className={`relative w-3/5 h-full overflow-hidden hero-vignette ${visualAnimationClass}`} role="region" aria-label="Image carousel">
         {/* Main Image with cinematic aspect ratio */}
-        <OptimizedImage src={currentImage.src} alt={currentImage.alt} aspectRatio="aspect-video" className={`w-full h-full object-cover ${getImageObjectPosition(currentIndex)} transition-all duration-1000`} containerClassName="h-full" priority />
+        <OptimizedImage src={currentImage.src} alt={currentImage.alt} aspectRatio="aspect-video" className={`w-full h-full object-cover ${getImageObjectPosition(currentIndex)} transition-all duration-1000`} containerClassName="h-full" priority enableVignette={false} />
         
         {/* Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/20" />
