@@ -5,7 +5,7 @@ import { formalImages } from './gallery/formalImages';
 import { dessertImages } from './gallery/dessertImages';
 
 // Import specific images for curated showcase
-import teamWesternBuffet from '@/assets/team-western-buffet.jpg';
+import militaryCateringService from '@/assets/military-catering-service.jpg';
 import dessertParfaitDisplay from '@/assets/gallery/dessert-parfait-display.jpg';
 import formalGoldReception from '@/assets/gallery/formal-gold-reception.jpg';
 import foodMacCheese from '@/assets/gallery/food-mac-cheese.jpg';
@@ -61,10 +61,10 @@ export const showcaseImages: GalleryImage[] = [
     quality: 9
   },
   {
-    src: teamWesternBuffet,
-    category: "team",
-    title: "Western-Themed Family Service",
-    description: "Our family team in matching western attire ready to serve authentic Southern comfort food",
+    src: militaryCateringService,
+    category: "buffet",
+    title: "Military Base Catering",
+    description: "Proud to serve our armed forces with authentic Southern comfort food",
     quality: 10
   }
 ];
