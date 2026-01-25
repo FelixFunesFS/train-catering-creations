@@ -3,7 +3,7 @@ import { Camera } from "lucide-react";
 import { galleryImages } from "@/data/galleryImages";
 import { galleryCategories } from "@/data/galleryCategories";
 import { ImmersiveMobileHero } from "@/components/gallery/ImmersiveMobileHero";
-import { DiscoveryCategoryNav } from "@/components/gallery/DiscoveryCategoryNav";
+import { CategoryCards } from "@/components/gallery/CategoryCards";
 import { InteractiveImageGrid } from "@/components/gallery/InteractiveImageGrid";
 import { EnhancedImageModal } from "@/components/gallery/EnhancedImageModal";
 import { GalleryCTA } from "@/components/gallery/GalleryCTA";
@@ -23,7 +23,7 @@ const AlternativeGallery = () => {
     desktop: { variant: 'elastic', delay: 0 }
   });
   
-  const { ref: navRef, isVisible: navVisible, variant: navVariant } = useScrollAnimation({ 
+  const { ref: introRef, isVisible: introVisible, variant: introVariant } = useScrollAnimation({ 
     delay: 100, 
     variant: 'slide-up',
     mobile: { variant: 'medium', delay: 50 },
@@ -76,60 +76,61 @@ const AlternativeGallery = () => {
       <div id="gallery-hero" ref={heroRef} className={useAnimationClass(heroVariant, heroVisible)}>
         <ImmersiveMobileHero 
           onScrollToGallery={() => {
-            const gallerySection = document.querySelector('[data-section="discovery"]');
+            const gallerySection = document.querySelector('[data-section="gallery-grid"]');
             gallerySection?.scrollIntoView({ behavior: 'smooth' });
           }}
         />
       </div>
       
-      {/* Brand Intro - Family Story */}
+      {/* COMBINED: Brand Intro + Category Cards */}
       <PageSection pattern="b" className="py-8 sm:py-12">
-        <div className="max-w-3xl mx-auto text-center px-4">
-          {/* Badge + Icon */}
-          <div className="flex items-center justify-center space-x-2 mb-3">
-            <Camera className="h-5 w-5 text-ruby" />
-            <Badge variant="outline" className="border-ruby text-ruby font-script text-sm">
-              Our Gallery
-            </Badge>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Intro text - centered */}
+          <div 
+            ref={introRef}
+            className={`max-w-3xl mx-auto text-center mb-8 sm:mb-10 lg:mb-12 ${useAnimationClass(introVariant, introVisible)}`}
+          >
+            {/* Badge + Icon */}
+            <div className="flex items-center justify-center space-x-2 mb-3">
+              <Camera className="h-5 w-5 text-ruby" />
+              <Badge variant="outline" className="border-ruby text-ruby font-script text-sm">
+                Our Gallery
+              </Badge>
+            </div>
+            
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant font-bold mb-3">
+              From Our Family Kitchen to Your Special Event
+            </h2>
+            
+            {/* Script subtitle */}
+            <p className="text-xl sm:text-2xl font-script text-ruby font-medium mb-3">
+              Memories in Every Bite
+            </p>
+            
+            <p className="text-muted-foreground text-base sm:text-lg leading-relaxed">
+              As a family-run catering company rooted in authentic Southern cooking, we take pride in bringing 
+              people together around exceptional food. Every event we cater receives the same love and attention 
+              we put into feeding our own family.
+            </p>
           </div>
           
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant font-bold mb-3">
-            From Our Family Kitchen to Your Special Event
-          </h2>
-          
-          {/* Script subtitle */}
-          <p className="text-xl sm:text-2xl font-script text-ruby font-medium mb-3">
-            Memories in Every Bite
-          </p>
-          
-          <p className="text-muted-foreground text-base sm:text-lg leading-relaxed">
-            As a family-run catering company rooted in authentic Southern cooking, we take pride in bringing 
-            people together around exceptional food. Every event we cater receives the same love and attention 
-            we put into feeding our own family.
-          </p>
+          {/* Category Cards - embedded here */}
+          <CategoryCards 
+            selectedCategory={selectedCategory}
+            onCategorySelect={handleCategorySelect}
+          />
         </div>
       </PageSection>
       
-      {/* Discovery Navigation */}
-      <PageSection pattern="a" withBorder>
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8">
-          <div ref={navRef} className={useAnimationClass(navVariant, navVisible)}>
-            <DiscoveryCategoryNav 
-              selectedCategory={selectedCategory}
-              onCategorySelect={handleCategorySelect}
-            />
-          </div>
-        </div>
-      </PageSection>
-      
-      {/* Image Grid */}
-      <PageSection pattern="c" withBorder>
+      {/* COMBINED: Discover Our Work + Image Grid */}
+      <PageSection pattern="c" withBorder data-section="gallery-grid">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8">
           <div ref={contentRef} className={useAnimationClass(contentVariant, contentVisible)}>
             <InteractiveImageGrid 
               images={filteredImages}
               onImageClick={handleImageClick}
               category={selectedCategory}
+              showDiscoverHeader={true}
             />
           </div>
         </div>
