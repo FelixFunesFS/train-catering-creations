@@ -1,7 +1,6 @@
 
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { EnhancedImageModal } from "@/components/gallery/EnhancedImageModal";
 import { OptimizedImage } from "@/components/ui/optimized-image";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
@@ -10,7 +9,7 @@ import { useAnimationClass } from "@/hooks/useAnimationClass";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useState } from "react";
 import { galleryImages, showcaseImages } from "@/data/galleryImages";
-import { Camera, Heart, Star, Eye, Clock, Briefcase, Cake, Utensils, Users } from "lucide-react";
+import { Camera, Heart, Star, Eye } from "lucide-react";
 import Autoplay from "embla-carousel-autoplay";
 
 export const InteractiveGallerySection = () => {
@@ -36,23 +35,7 @@ export const InteractiveGallerySection = () => {
 
   // showcaseImages is now imported from galleryImages.ts with fixed curated order
 
-  const getCategoryBadge = (category: string) => {
-    const categoryMap = {
-      wedding: { label: "Wedding", color: "bg-pink-500/90", icon: Heart },
-      formal: { label: "Formal", color: "bg-purple-500/90", icon: Star },
-      corporate: { label: "Corporate", color: "bg-blue-500/90", icon: Briefcase },
-      desserts: { label: "Desserts", color: "bg-orange-500/90", icon: Cake },
-      grazing: { label: "Appetizers", color: "bg-green-500/90", icon: Utensils },
-      team: { label: "Our Team", color: "bg-indigo-500/90", icon: Users },
-      buffet: { label: "Buffet", color: "bg-red-500/90", icon: Clock },
-    };
-    return categoryMap[category as keyof typeof categoryMap] || { label: category, color: "bg-gray-500/90", icon: Camera };
-  };
-
   const renderImageCard = (image: any, index: number) => {
-    const categoryBadge = getCategoryBadge(image.category);
-    const IconComponent = categoryBadge.icon;
-    
     return (
       <div
         key={index}
@@ -67,23 +50,6 @@ export const InteractiveGallerySection = () => {
             className="group-hover:scale-105 transition-transform duration-300 w-full h-full object-cover"
             priority={index < 3}
           />
-          
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <div className="absolute top-3 left-3">
-              <Badge className={`${categoryBadge.color} text-white text-xs flex items-center gap-1`}>
-                <IconComponent className="w-3 h-3" />
-                {categoryBadge.label}
-              </Badge>
-            </div>
-            <div className="absolute bottom-3 left-3 right-3">
-              <h3 className="text-white font-elegant font-semibold text-sm sm:text-base lg:text-lg mb-1 leading-tight">
-                {image.title}
-              </h3>
-              <p className="text-white/90 text-xs sm:text-sm leading-tight line-clamp-2">
-                {image.description}
-              </p>
-            </div>
-          </div>
         </div>
       </div>
     );
