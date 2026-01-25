@@ -35,14 +35,17 @@ export const useParallaxEffect = (options: UseParallaxEffectOptions = {}) => {
 
     observer.observe(element);
 
+    let rafId: number | null = null;
     const handleScroll = () => {
       if (!isInView) return;
       
-      const rect = element.getBoundingClientRect();
-      const scrolled = window.pageYOffset;
-      const parallaxOffset = scrolled * speed;
-      
-      setOffset(direction === 'up' ? -parallaxOffset : parallaxOffset);
+      if (rafId) return; // Skip if already scheduled
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        const scrolled = window.pageYOffset;
+        const parallaxOffset = scrolled * speed;
+        setOffset(direction === 'up' ? -parallaxOffset : parallaxOffset);
+      });
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
