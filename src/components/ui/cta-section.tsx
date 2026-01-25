@@ -29,7 +29,7 @@ export const CTASection = ({ title, description, buttons, footer, showWatermark 
   const animationClass = useAnimationClass(variant, isVisible);
 
   return (
-    <section className="py-10 sm:py-12 lg:py-16">
+    <section className="pt-10 pb-6 sm:pt-12 sm:pb-8 lg:py-16">
       {/* Card Container with consistent margins */}
       <div className="mx-4 sm:mx-6 lg:mx-8 rounded-xl sm:rounded-2xl overflow-hidden shadow-elevated">
         {/* Card Background */}
@@ -69,7 +69,7 @@ export const CTASection = ({ title, description, buttons, footer, showWatermark 
                   size="responsive-lg" 
                   className="w-full sm:w-auto sm:min-w-[12rem]"
                 >
-                  <a href={button.href} className="flex items-center justify-center gap-2">
+                  <a href={button.href} className="flex items-center justify-center gap-2 text-inherit">
                     {button.icon}
                     <span>{button.text}</span>
                   </a>

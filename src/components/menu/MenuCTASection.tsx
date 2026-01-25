@@ -12,7 +12,7 @@ export const MenuCTASection = () => {
   });
 
   return (
-    <section className="py-12 lg:py-16">
+    <section className="pt-12 pb-6 sm:pb-8 lg:py-16">
       <div className="mx-4 sm:mx-6 lg:mx-8 rounded-2xl overflow-hidden shadow-elevated">
         <div className="bg-gradient-to-r from-primary to-primary-dark py-10 lg:py-14">
           <div ref={ref} className={useAnimationClass(variant, isVisible)}>
