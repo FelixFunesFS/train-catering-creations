@@ -1,5 +1,4 @@
-import { useScrollAnimation } from "@/hooks/useScrollAnimation";
-import { useAnimationClass } from "@/hooks/useAnimationClass";
+import { useStaggeredAnimation } from "@/hooks/useStaggeredAnimation";
 import buffetOrchidSetup from "@/assets/gallery/buffet-orchid-setup.jpg";
 import dessertMiniCheesecakes from "@/assets/gallery/dessert-mini-cheesecakes.jpg";
 import formalGoldReception from "@/assets/gallery/formal-gold-reception.jpg";
@@ -15,33 +14,37 @@ const images = [
 ];
 
 export const ReviewsImageStrip = () => {
-  const { ref, isVisible, variant } = useScrollAnimation({
-    delay: 0,
-    variant: "fade-up",
-    mobile: { variant: "fade-up", delay: 0 },
-    desktop: { variant: "ios-spring", delay: 0 },
+  const { ref, getItemClassName } = useStaggeredAnimation({
+    itemCount: images.length,
+    staggerDelay: 75,
+    baseDelay: 100,
+    variant: "bounce-in",
   });
 
   return (
-    <div 
-      ref={ref} 
-      className={`w-full py-4 ${useAnimationClass(variant, isVisible)}`}
-    >
+    <div ref={ref} className="w-full py-4">
       <div className="flex flex-wrap justify-center gap-3 sm:gap-4 px-4 sm:px-6 lg:px-8">
         {images.map((image, index) => (
           <div
             key={index}
-            className="relative w-24 h-24 sm:w-32 sm:h-32 lg:w-36 lg:h-36 flex-shrink-0 rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300"
-            style={{
-              animationDelay: `${index * 75}ms`,
-            }}
+            className={`
+              relative w-24 h-24 sm:w-32 sm:h-32 lg:w-36 lg:h-36 
+              flex-shrink-0 rounded-xl overflow-hidden 
+              border-2 border-transparent hover:border-ruby/30
+              shadow-md hover:shadow-glow-strong
+              transition-all duration-500
+              group cursor-pointer
+              ${getItemClassName(index)}
+            `}
           >
             <img
               src={image.src}
               alt={image.alt}
-              className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
               loading="lazy"
             />
+            {/* Ruby gradient overlay on hover */}
+            <div className="absolute inset-0 bg-gradient-ruby-subtle opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
           </div>
         ))}
       </div>
