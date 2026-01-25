@@ -120,21 +120,22 @@ export const FeaturedVenueSection = () => {
             </div>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col space-y-3">
+            <div className="flex flex-col sm:flex-row sm:space-y-0 sm:space-x-3 space-y-3">
               <Button 
-                size="lg"
-                className="w-full bg-gradient-ruby-primary hover:bg-gradient-ruby-accent text-white font-semibold min-h-[44px]"
+                variant="cta"
+                size="responsive-compact"
+                className="sm:flex-1"
                 asChild
               >
-                <a href="/request-quote#page-header">Book This Venue</a>
+                <a href="/request-quote#page-header" className="text-inherit">Book This Venue</a>
               </Button>
               <Button 
-                variant="outline" 
-                size="lg"
-                className="w-full border-ruby text-ruby hover:bg-ruby hover:text-white min-h-[44px]"
+                variant="cta-outline" 
+                size="responsive-compact"
+                className="sm:flex-1"
                 asChild
               >
-                <a href="/gallery?category=wedding">View Wedding Gallery</a>
+                <a href="/gallery?category=wedding" className="text-inherit">View Wedding Gallery</a>
               </Button>
             </div>
 

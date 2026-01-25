@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import rubyWaveBg from "@/assets/ruby-wave-bg.webp";
 
 // Import optimized WebP images
@@ -37,7 +37,8 @@ interface ServiceCategory {
 
 export const ServiceCategoriesSection = () => {
   const [expandedCards, setExpandedCards] = useState<number[]>([]);
-  const isMobile = useIsMobile();
+  // Mobile-only collapsible (under 768px) - tablets show full content
+  const isMobileOnly = useMediaQuery("(max-width: 767px)");
 
   const { ref, isVisible } = useScrollAnimation({ 
     variant: 'fade-up', 
@@ -148,8 +149,8 @@ export const ServiceCategoriesSection = () => {
               </p>
             </div>
 
-            {/* Mobile Collapsible */}
-            {isMobile ? (
+            {/* Mobile-Only Collapsible (phones only, not tablets) */}
+            {isMobileOnly ? (
               <Collapsible open={isExpanded} onOpenChange={() => toggleCard(index)}>
                 <CollapsibleTrigger asChild>
                   <Button 
@@ -179,12 +180,11 @@ export const ServiceCategoriesSection = () => {
 
                   {/* CTA Button */}
                   <Button 
-                    variant="outline" 
-                    size="lg"
-                    className="w-full border-ruby text-ruby hover:bg-ruby hover:text-white group min-h-[44px]"
+                    variant="cta-outline" 
+                    size="responsive-compact"
                     asChild
                   >
-                    <a href={service.href} className="flex items-center justify-center space-x-2">
+                    <a href={service.href} className="flex items-center justify-center space-x-2 text-inherit">
                       <span>Get Quote</span>
                       <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                     </a>
@@ -210,12 +210,11 @@ export const ServiceCategoriesSection = () => {
 
                 {/* CTA Button */}
                 <Button 
-                  variant="outline" 
-                  size="lg"
-                  className="w-full border-ruby text-ruby hover:bg-ruby hover:text-white group min-h-[44px]"
+                  variant="cta-outline" 
+                  size="responsive-compact"
                   asChild
                 >
-                  <a href={service.href} className="flex items-center justify-center space-x-2">
+                  <a href={service.href} className="flex items-center justify-center space-x-2 text-inherit">
                     <span>Get Quote</span>
                     <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                   </a>

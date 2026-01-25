@@ -260,13 +260,13 @@ export const SplitHero = () => {
             {/* CTA Buttons - High Contrast */}
             <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-1 sm:pt-2">
               <Button size="lg" className="w-full sm:flex-1 bg-gradient-ruby-primary hover:opacity-90 text-white font-semibold min-h-[48px] shadow-lg" asChild>
-                <Link to="/request-quote#page-header" className="flex items-center justify-center gap-2">
+                <Link to="/request-quote#page-header" className="flex items-center justify-center gap-2 text-inherit">
                   <Calendar className="h-4 w-4" />
                   <span>Request Quote</span>
                 </Link>
               </Button>
-              <Button variant="outline" size="lg" className="w-full sm:flex-1 border-2 border-white text-white bg-white/10 backdrop-blur-sm hover:bg-white/20 min-h-[48px] shadow-lg" asChild>
-                <a href="tel:8439700265" className="flex items-center justify-center gap-2">
+              <Button variant="glass-white" size="lg" className="w-full sm:flex-1 min-h-[48px] shadow-lg" asChild>
+                <a href="tel:8439700265" className="flex items-center justify-center gap-2 text-inherit">
                   <Phone className="h-4 w-4" />
                   <span>Call Now</span>
                 </a>
@@ -336,13 +336,13 @@ export const SplitHero = () => {
           <div className="space-y-4">
             <div className="flex flex-col md:flex-row space-y-3 md:space-y-0 md:space-x-4">
               <Button size="lg" className="flex-1 bg-gradient-ruby-primary hover:bg-gradient-ruby-accent text-white font-semibold min-h-[48px]" asChild>
-                <a href="/request-quote#page-header" className="flex items-center justify-center space-x-2">
+                <a href="/request-quote#page-header" className="flex items-center justify-center space-x-2 text-inherit">
                   <Calendar className="h-5 w-5" />
                   <span>Request Quote</span>
                 </a>
               </Button>
-              <Button variant="outline" size="lg" className="flex-1 border-ruby text-ruby hover:bg-ruby hover:text-white min-h-[48px]" asChild>
-                <a href="tel:+1234567890" className="flex items-center justify-center space-x-2">
+              <Button variant="cta-outline" size="lg" className="flex-1 min-h-[48px]" asChild>
+                <a href="tel:8439700265" className="flex items-center justify-center space-x-2 text-inherit">
                   <Phone className="h-5 w-5" />
                   <span>Call Now</span>
                 </a>

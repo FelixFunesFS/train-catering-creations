@@ -133,22 +133,23 @@ export const AboutPreviewSection = () => {
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row sm:space-y-0 sm:space-x-3 space-y-3">
               <Button 
-                size="lg"
-                className="w-full sm:w-auto sm:flex-1 bg-gradient-ruby-primary hover:bg-gradient-ruby-accent text-white font-semibold group min-h-[44px]"
+                variant="cta"
+                size="responsive-compact"
+                className="sm:flex-1 group"
                 asChild
               >
-                <a href="/about" className="flex items-center justify-center space-x-2">
+                <a href="/about" className="flex items-center justify-center space-x-2 text-inherit">
                   <span>Our Full Story</span>
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </a>
               </Button>
               <Button 
-                variant="outline" 
-                size="lg"
-                className="w-full sm:w-auto sm:flex-1 border-ruby text-ruby hover:bg-ruby hover:text-white min-h-[44px]"
+                variant="cta-outline" 
+                size="responsive-compact"
+                className="sm:flex-1"
                 asChild
               >
-                <a href="/request-quote#page-header">Work With Us</a>
+                <a href="/request-quote#page-header" className="text-inherit">Work With Us</a>
               </Button>
             </div>
           </div>
