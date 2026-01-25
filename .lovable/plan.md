@@ -1,201 +1,117 @@
 
 
-# Shorten Mobile Hero & Move Trust Marquee to About Page
+# Fix Mobile Hero Text Contrast & Tablet Responsiveness
 
-## Overview
+## Problem Summary
 
-This plan addresses two changes:
-1. **Shorten Mobile Hero**: Reduce the mobile hero height from `h-screen` (100vh) to `h-[85vh]` so all content and CTAs fit within the mobile viewport without scrolling
-2. **Move TrustMarquee**: Relocate the scrolling marquee from the Home page (after hero) to the About page (after the nav bar, before the main content)
-
----
-
-## Current State Analysis
-
-### Mobile Hero Issues
-| Issue | Current | Impact |
-|-------|---------|--------|
-| Hero height | `h-screen` (100vh) | CTAs may be cut off or require scrolling on smaller devices |
-| Content position | `bottom-[20%]` | Content may overflow viewport on shorter screens |
-| Safe area | No bottom safe-area consideration | May clip on devices with home indicators |
-
-### TrustMarquee Location
-| Current (HomePage.tsx) | Target (About.tsx) |
-|------------------------|-------------------|
-| Line 15: `<TrustMarquee />` after `<SplitHero />` | Insert after nav bar, before first `<PageSection>` |
+1. **White-on-white text**: The secondary "Call Now" button has `text-primary` class on the inner `<a>` tag that overrides the intended `text-white` styling
+2. **Tablet layout**: Tablets (768px+) currently receive the desktop split layout, which may not be optimal for smaller tablets
 
 ---
 
-## Solution Architecture
+## Root Cause Analysis
 
-### Shortened Mobile Hero Layout
-```text
-┌─────────────────────────────────────┐
-│ [Progress Dots]                     │
-│ [Compact Trust Bar]                 │  <- top-12
-│                                     │
-│       [Hero Image]                  │  85vh total
-│                                     │
-│   [Badge]                           │
-│   Title                             │  <- bottom-[15%]
-│   Subtitle                          │
-│   [Request Quote] [Call Now]        │
-└─────────────────────────────────────┘
-  ↑ All visible without scrolling
+### Button Contrast Issue
+
+**Location**: `src/components/home/SplitHero.tsx`, lines 259-264
+
+```tsx
+// Current code - PROBLEM
+<Button variant="outline" size="lg" 
+  className="w-full sm:flex-1 border-2 border-white text-white bg-white/10 backdrop-blur-sm hover:bg-white/20 min-h-[48px] shadow-lg" 
+  asChild>
+  <a href="tel:8439700265" className="flex items-center justify-center gap-2 text-primary">
+    <Phone className="h-4 w-4" />
+    <span>Call Now</span>
+  </a>
+</Button>
 ```
 
-### About Page with Marquee
-```text
-┌─────────────────────────────────────┐
-│ [Navigation Bar]                    │
-├─────────────────────────────────────┤
-│ ← 500+ Events • 5-Star • 20+ Yrs →  │  <- TrustMarquee (scrolling)
-├─────────────────────────────────────┤
-│ [PageHeader - Our Story]            │
-│ ...rest of About page...            │
-└─────────────────────────────────────┘
-```
+**Issue**: The `text-primary` class on the `<a>` element overrides the `text-white` class on the parent Button, causing red/ruby text on a semi-transparent white background instead of white text.
+
+### Tablet Breakpoint
+
+**Current behavior**:
+- `useIsMobile()` returns `true` only for screens < 768px
+- Tablets (768px-1024px) get the desktop 60/40 split layout
 
 ---
 
-## Technical Changes
+## Technical Solution
 
-### File 1: `src/components/home/SplitHero.tsx`
+### File: `src/components/home/SplitHero.tsx`
 
-**Change 1: Reduce Hero Height (line 193)**
+#### Fix 1: Remove Conflicting `text-primary` Class (line 260)
+
+```tsx
+// Before
+<a href="tel:8439700265" className="flex items-center justify-center gap-2 text-primary">
+
+// After - Remove text-primary, let parent text-white apply
+<a href="tel:8439700265" className="flex items-center justify-center gap-2">
+```
+
+This allows the Button's `text-white` class to properly cascade to the child elements.
+
+#### Fix 2: Improve Tablet Detection (optional enhancement)
+
+Extend mobile layout to include tablets (up to 1024px) for better portrait tablet experience:
+
+**Option A**: Update `useIsMobile` hook breakpoint from 768 to 1024
+**Option B**: Keep current breakpoint but ensure the 60/40 split works well on tablets
+
+For this fix, we'll use **Option A** as the mobile overlay layout is better suited for portrait tablets.
+
+### File: `src/hooks/use-mobile.tsx`
 
 ```tsx
 // Current
-<section className="relative h-screen overflow-hidden bg-black" ...>
+const MOBILE_BREAKPOINT = 768
 
-// Updated - 85vh ensures viewport fit
-<section className="relative h-[85vh] overflow-hidden bg-black" ...>
-```
-
-**Change 2: Adjust Content Position (line 231)**
-
-Move content up slightly to ensure CTAs are fully visible:
-
-```tsx
-// Current
-className={`absolute inset-x-0 bottom-[20%] z-20 p-4 sm:p-6 ${contentAnimationClass}`}
-
-// Updated - 15% from bottom for better viewport fit
-className={`absolute inset-x-0 bottom-[15%] z-20 p-4 sm:p-6 ${contentAnimationClass}`}
-```
-
-**Change 3: Reduce Description Line Clamp (line 246)**
-
-Tighten description to ensure buttons aren't pushed out of view:
-
-```tsx
-// Current
-<p className="text-sm sm:text-base text-white/80 leading-relaxed line-clamp-3">
-
-// Updated - 2 lines on mobile for tighter layout
-<p className="text-sm sm:text-base text-white/80 leading-relaxed line-clamp-2 sm:line-clamp-3">
-```
-
-**Change 4: Reduce Spacing in Content Area (line 232)**
-
-Tighten the spacing between elements:
-
-```tsx
-// Current
-<div className="max-w-md mx-auto w-full space-y-3 sm:space-y-4">
-
-// Updated
-<div className="max-w-md mx-auto w-full space-y-2 sm:space-y-3">
-```
-
-**Change 5: Reduce Button Gap (line 252)**
-
-```tsx
-// Current
-<div className="flex flex-col sm:flex-row gap-3 pt-2">
-
-// Updated - tighter button stack
-<div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-1 sm:pt-2">
+// Updated - Include tablets in mobile layout
+const MOBILE_BREAKPOINT = 1024
 ```
 
 ---
 
-### File 2: `src/pages/HomePage.tsx`
+## Implementation Steps
 
-**Remove TrustMarquee Import and Usage**
-
-```tsx
-// Remove from imports (line 8)
-import { TrustMarquee } from "@/components/home/TrustMarquee";
-
-// Remove from JSX (line 15)
-<TrustMarquee />
-```
-
-Updated HomePage:
-```tsx
-const HomePage = () => {
-  return (
-    <div className="min-h-screen">
-      <SplitHero />
-      <ServiceCategoriesSection />
-      <InteractiveGalleryPreview />
-      <AboutPreviewSection />
-      <TestimonialsCarousel />
-      <FeaturedVenueSection />
-      <BrandMarquee />
-      <CTASection />
-    </div>
-  );
-};
-```
+| Step | File | Change |
+|------|------|--------|
+| 1 | `src/components/home/SplitHero.tsx` | Remove `text-primary` from secondary button's `<a>` tag |
+| 2 | `src/hooks/use-mobile.tsx` | Update breakpoint from 768 to 1024 |
 
 ---
 
-### File 3: `src/pages/About.tsx`
+## Visual Result
 
-**Add TrustMarquee Import and Usage**
+### Button Contrast Fix
 
-```tsx
-// Add import at top
-import { TrustMarquee } from "@/components/home/TrustMarquee";
+| Element | Before | After |
+|---------|--------|-------|
+| Secondary button text | Ruby/red (`text-primary`) | White (`text-white` inherited) |
+| Secondary button icon | Ruby/red | White |
+| Contrast ratio | Low (red on semi-transparent) | High (white on semi-transparent dark) |
 
-// Insert TrustMarquee after main opening tag, before first PageSection (line 13)
-<main id="main-content">
-  {/* Trust Marquee - First element after nav */}
-  <TrustMarquee />
-  
-  {/* Header Section - Pattern A */}
-  <PageSection pattern="a" skipToContentId="about-header">
-    ...
-```
+### Tablet Layout
 
----
-
-## Visual Comparison
-
-### Mobile Hero
-| Aspect | Before | After |
-|--------|--------|-------|
-| **Height** | 100vh (full screen) | 85vh (fits viewport) |
-| **Content position** | 20% from bottom | 15% from bottom |
-| **Description** | 3 lines | 2 lines on mobile |
-| **Button gap** | 12px | 8px on mobile |
-| **Scrolling needed** | Possibly | No |
-
-### TrustMarquee Location
-| Before | After |
-|--------|-------|
-| Home page (after hero) | About page (after nav, before content) |
+| Screen Width | Before | After |
+|--------------|--------|-------|
+| < 768px | Mobile overlay | Mobile overlay |
+| 768px - 1023px | Desktop split | Mobile overlay |
+| ≥ 1024px | Desktop split | Desktop split |
 
 ---
 
-## Responsive Considerations
+## Alternative Consideration
 
-- **85vh height**: Ensures hero fits on most mobile viewports (including iPhone SE, Android devices with nav bars)
-- **Safe area**: The reduced height naturally accommodates device safe areas
-- **Touch targets**: 48px button heights maintained for accessibility
-- **Breakpoint behavior**: Changes apply primarily to mobile; desktop hero remains unchanged
+If changing the global mobile breakpoint affects other components negatively, we could instead:
+
+1. Create a dedicated `useIsTablet` hook
+2. Update SplitHero to use `isMobile || isTablet` for the overlay layout
+3. Keep other components using the original 768px breakpoint
+
+However, the 1024px breakpoint is generally a better standard for distinguishing between tablet/mobile and desktop experiences.
 
 ---
 
@@ -203,7 +119,6 @@ import { TrustMarquee } from "@/components/home/TrustMarquee";
 
 | File | Changes |
 |------|---------|
-| `src/components/home/SplitHero.tsx` | Reduce height to 85vh, adjust content position, tighten spacing |
-| `src/pages/HomePage.tsx` | Remove TrustMarquee import and component |
-| `src/pages/About.tsx` | Add TrustMarquee import and place after nav bar |
+| `src/components/home/SplitHero.tsx` | Remove `text-primary` class from line 260 |
+| `src/hooks/use-mobile.tsx` | Update `MOBILE_BREAKPOINT` from 768 to 1024 |
 
