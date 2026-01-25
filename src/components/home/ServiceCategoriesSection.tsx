@@ -179,25 +179,6 @@ export const ServiceCategoriesSection = () => {
           ))}
         </div>
 
-        {/* Bottom CTA */}
-        <div className={`text-center space-y-4 ${animationClass}`}>
-          <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-5 max-w-2xl mx-auto border border-ruby/20">
-            <h3 className="text-xl font-elegant font-bold text-foreground mb-3">
-              Need Something Custom?
-            </h3>
-            <p className="text-base text-muted-foreground mb-4">
-              Every event is unique. Let us create a customized catering solution that perfectly 
-              matches your vision, dietary needs, and budget.
-            </p>
-            <Button 
-              size="lg"
-              className="bg-gradient-ruby-primary hover:bg-gradient-ruby-accent text-white font-semibold min-h-[44px]"
-              asChild
-            >
-              <a href="/request-quote#page-header">Request Custom Quote</a>
-            </Button>
-          </div>
-        </div>
       </div>
     </section>
   );

@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { menuData, weddingMenuItems, MenuItem, MenuSection } from "@/data/menuData";
 import { SimpleMenuHeader } from "@/components/menu/SimpleMenuHeader";
 import { CollapsibleCategory } from "@/components/menu/CollapsibleCategory";
@@ -24,7 +25,17 @@ const flattenCategoryItems = (sections: MenuSection[]): MenuItem[] => {
 };
 
 const SimplifiedMenu = () => {
-  const [menuStyle, setMenuStyle] = useState<'regular' | 'wedding'>('regular');
+  const [searchParams] = useSearchParams();
+  const initialStyle = searchParams.get('style') === 'wedding' ? 'wedding' : 'regular';
+  const [menuStyle, setMenuStyle] = useState<'regular' | 'wedding'>(initialStyle);
+
+  // Update menu style when URL param changes
+  useEffect(() => {
+    const styleParam = searchParams.get('style');
+    if (styleParam === 'wedding') {
+      setMenuStyle('wedding');
+    }
+  }, [searchParams]);
 
   // Get categories based on selected menu style
   const getCategories = () => {

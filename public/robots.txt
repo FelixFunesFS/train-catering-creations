@@ -1,3 +1,6 @@
+# Soul Train's Eatery - Robots.txt
+# https://www.soultrainseatery.com
+
 User-agent: Googlebot
 Allow: /
 
@@ -12,3 +15,20 @@ Allow: /
 
 User-agent: *
 Allow: /
+
+# Disallow admin and customer portal routes
+Disallow: /admin
+Disallow: /admin/*
+Disallow: /customer-portal
+Disallow: /customer/*
+Disallow: /estimate
+Disallow: /estimate-preview
+Disallow: /invoice/*
+Disallow: /approve
+Disallow: /approve-estimate
+Disallow: /payment-success
+Disallow: /payment-canceled
+Disallow: /install
+
+# Sitemap
+Sitemap: https://www.soultrainseatery.com/sitemap.xml
