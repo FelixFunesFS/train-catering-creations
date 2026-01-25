@@ -1,154 +1,146 @@
 
-# Home Page Gallery Enhancements
+# Context-Aware Payment Email Messaging
 
-## Overview
-This plan addresses three improvements to the "A Gallery of Flavor & Style" section on the home page:
+## Problem Statement
+Currently, all payment reminder emails use the same generic "Payment Due" title regardless of whether the customer is being asked for:
+- An initial deposit to secure their event date
+- A scheduled milestone payment
+- The final payment before the event
 
-1. **Improve badge accessibility** with high-contrast styling
-2. **Remove extra text** after the gallery button
-3. **Open full gallery modal** when clicking any of the 6 images
+This creates a missed opportunity to use compelling, action-oriented messaging that emphasizes the value of each payment stage.
 
----
-
-## Current Architecture
-
-The home page uses `InteractiveGalleryPreview.tsx` which displays 6 curated images with category badges. Currently, clicking an image only shows a hover overlay - there's no modal functionality.
-
-A sister component `InteractiveGallerySection.tsx` already implements the full gallery modal pattern using `EnhancedImageModal` - we'll adopt this approach.
+## Solution Overview
+Implement context-aware payment email messaging that differentiates between deposit payments, milestone payments, and final payments. The system will pass milestone context to the reminder function and dynamically adjust the email subject, hero badge, and title accordingly.
 
 ---
 
-## Technical Changes
+## Implementation Approach
 
-### File: `src/components/home/InteractiveGalleryPreview.tsx`
+### 1. Update Payment Reminder Function
 
-#### 1. Add Modal State and Imports
+Modify `supabase/functions/send-payment-reminder/index.ts` to accept milestone context and dynamically adjust messaging.
 
+**New Request Interface:**
 ```typescript
-// Add imports
-import { EnhancedImageModal } from "@/components/gallery/EnhancedImageModal";
-import { galleryImages } from "@/data/galleryImages";
-
-// Add state for modal
-const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
-
-// Add handlers
-const handleImageClick = (imageSrc: string) => {
-  const index = galleryImages.findIndex(img => img.src === imageSrc);
-  setSelectedImageIndex(index);
-};
-
-const handleCloseModal = () => {
-  setSelectedImageIndex(null);
-};
+interface ReminderRequest {
+  invoiceId: string;
+  customerEmail: string;
+  customerName?: string;
+  eventName?: string;
+  balanceRemaining: number;
+  daysOverdue: number;
+  urgency: 'low' | 'medium' | 'high';
+  milestoneType?: string;  // NEW: DEPOSIT, MILESTONE, FINAL, FULL
+  isDueNow?: boolean;      // NEW: Is this the first payment due now?
+}
 ```
 
-#### 2. Improve Badge Accessibility (High Contrast)
-
-Current badges use semi-transparent backgrounds (e.g., `bg-ruby/10`). Update to solid, high-contrast backgrounds:
-
+**Dynamic Messaging Logic:**
 ```typescript
-const getCategoryColor = (category: string) => {
-  const colors = {
-    Wedding: "bg-ruby text-white border-ruby",
-    Appetizers: "bg-gold text-navy border-gold",
-    Sides: "bg-navy text-white border-navy",
-    Desserts: "bg-primary text-white border-primary",
-    Formal: "bg-platinum text-navy border-platinum",
-    Military: "bg-navy text-white border-navy"
-  };
-  return colors[category] || "bg-muted text-foreground border-border";
-};
-```
+// Determine context-aware messaging
+let subject = '';
+let urgencyBadge = '';
+let urgencyMessage = '';
+let heroVariant: 'orange' | 'crimson' | 'gold' = 'orange';
+let heroTitle = 'Payment Reminder';
 
-This ensures:
-- **WCAG AA compliance**: White text on solid colored backgrounds
-- **Clear visual hierarchy**: Badges pop against image backgrounds
-- **Consistent branding**: Uses brand colors (ruby, gold, navy, platinum)
-
-#### 3. Remove Extra Text After Button
-
-Delete lines 339-341:
-```typescript
-// REMOVE THIS:
-<p className="text-xs text-muted-foreground mt-3">
-  Over 200+ photos showcasing our culinary artistry and event expertise
-</p>
-```
-
-#### 4. Make Images Clickable (Open Modal)
-
-**Mobile Story View** - Update the card touch handler to open modal:
-```typescript
-// Add onClick to open modal instead of toggling autoplay
-onClick={() => handleImageClick(galleryItems[currentStoryIndex].src)}
-```
-
-**Desktop Grid View** - Update card click behavior:
-```typescript
-<Card
-  onClick={() => handleImageClick(item.src)}
-  // ...existing props
->
-```
-
-#### 5. Add Modal Component
-
-At the end of the component, before the closing fragment:
-```typescript
-<EnhancedImageModal 
-  images={galleryImages} 
-  selectedIndex={selectedImageIndex} 
-  onClose={handleCloseModal} 
-/>
+if (urgency === 'high') {
+  // Overdue - keep urgent messaging
+  subject = `URGENT: Payment Overdue - ${eventName}`;
+  urgencyBadge = `OVERDUE ${daysOverdue} DAYS`;
+  heroTitle = 'Payment Overdue';
+  heroVariant = 'crimson';
+} else if (milestoneType === 'DEPOSIT' || isDueNow) {
+  // Initial deposit - emphasize date security
+  subject = `Secure Your Date - Deposit Due for ${eventName}`;
+  urgencyBadge = '🔒 DEPOSIT DUE';
+  heroTitle = 'Secure Your Event Date';
+  heroVariant = 'gold';
+  urgencyMessage = `Complete your deposit of <strong>${formatCurrency(balanceRemaining)}</strong> to lock in your event date. Our calendar fills up fast!`;
+} else if (milestoneType === 'FINAL') {
+  // Final payment - emphasize completion
+  subject = `Final Payment Due - ${eventName}`;
+  urgencyBadge = '✅ FINAL PAYMENT';
+  heroTitle = 'Final Payment Due';
+  urgencyMessage = `Your final payment of <strong>${formatCurrency(balanceRemaining)}</strong> is due to complete your booking.`;
+} else if (milestoneType === 'MILESTONE') {
+  // Mid-schedule milestone
+  subject = `Milestone Payment Due - ${eventName}`;
+  urgencyBadge = '💳 PAYMENT DUE';
+  heroTitle = 'Scheduled Payment Due';
+  urgencyMessage = `Your scheduled payment of <strong>${formatCurrency(balanceRemaining)}</strong> is due.`;
+} else {
+  // Default/fallback
+  subject = `Payment Reminder - ${eventName}`;
+  urgencyBadge = 'REMINDER';
+  heroTitle = 'Payment Due';
+}
 ```
 
 ---
 
-## Accessibility Improvements Summary
+### 2. Update Unified Reminder System
 
-| Element | Before | After |
-|---------|--------|-------|
-| Wedding Badge | `bg-ruby/10 text-ruby` (low contrast) | `bg-ruby text-white` (WCAG AA) |
-| Appetizers Badge | `bg-gold/10 text-gold` (low contrast) | `bg-gold text-navy` (WCAG AA) |
-| Sides Badge | `bg-navy/10 text-navy` (low contrast) | `bg-navy text-white` (WCAG AA) |
-| Desserts Badge | `bg-primary/10 text-primary` (low contrast) | `bg-primary text-white` (WCAG AA) |
-| Formal Badge | `bg-platinum/10 text-platinum-foreground` | `bg-platinum text-navy` (WCAG AA) |
-| Military Badge | `bg-navy/10 text-navy` (low contrast) | `bg-navy text-white` (WCAG AA) |
+Modify `supabase/functions/unified-reminder-system/index.ts` to pass milestone context when invoking payment reminders.
 
----
-
-## User Experience Flow
-
-```text
-User clicks gallery image
-        ↓
-Modal opens showing ALL gallery images (80+)
-        ↓
-User can navigate with arrows/swipe
-        ↓
-Starting position = first image in full gallery
-(matches behavior of gallery page)
+**For milestone reminders (lines ~290-305):**
+```typescript
+const { error: emailError } = await supabase.functions.invoke('send-payment-reminder', {
+  body: {
+    invoiceId: milestone.invoice_id,
+    customerEmail: email,
+    customerName: milestone.invoices?.quote_requests?.contact_name,
+    eventName: milestone.invoices?.quote_requests?.event_name,
+    balanceRemaining: milestone.amount_cents ?? 0,
+    daysOverdue: 0,
+    urgency: 'medium',
+    milestoneType: milestone.milestone_type,  // NEW
+    isDueNow: milestone.is_due_now            // NEW
+  }
+});
 ```
 
 ---
 
-## Files to Modify
+### 3. Email Subject Line Strategy
+
+| Scenario | Subject Line |
+|----------|--------------|
+| Initial Deposit | "🔒 Secure Your Date - Deposit Due for [Event Name]" |
+| Milestone Payment | "💳 Milestone Payment Due - [Event Name]" |
+| Final Payment | "✅ Final Payment Due - [Event Name]" |
+| Overdue (any) | "⚠️ URGENT: Payment Overdue - [Event Name]" |
+
+---
+
+## File Changes Required
 
 | File | Changes |
 |------|---------|
-| `src/components/home/InteractiveGalleryPreview.tsx` | Add modal state, update badge colors, remove text, wire up click handlers, add EnhancedImageModal |
+| `supabase/functions/send-payment-reminder/index.ts` | Add `milestoneType` and `isDueNow` to request interface; implement context-aware subject/badge/title logic |
+| `supabase/functions/unified-reminder-system/index.ts` | Pass `milestoneType` and `isDueNow` when invoking payment reminders |
 
 ---
 
-## Best Way to Think About This
+## User Experience Impact
 
-**Conceptual Framework:**
+**Before:**
+> Subject: "Payment Reminder - Johnson Wedding"
+> Badge: "⏰ PAYMENT DUE"
+> Title: "Payment Reminder"
 
-1. **Separation of Concerns**: The 6 showcase images are a "preview" - a curated selection. When clicked, they should open the FULL gallery experience (all 80+ images), not just those 6.
+**After (Deposit):**
+> Subject: "🔒 Secure Your Date - Deposit Due for Johnson Wedding"
+> Badge: "🔒 DEPOSIT DUE"
+> Title: "Secure Your Event Date"
 
-2. **Reuse Existing Patterns**: `InteractiveGallerySection` already implements this exact pattern with `EnhancedImageModal`. We're adopting the same approach for consistency.
+This creates a sense of urgency and value - customers understand they're locking in their date, not just paying a bill.
 
-3. **Accessibility First**: Semi-transparent badges over photos are hard to read. Solid, brand-colored backgrounds with contrasting text ensure readability regardless of the image behind them.
+---
 
-4. **Progressive Enhancement**: Users get a visual preview → click for full experience → can navigate the entire gallery from there.
+## Technical Notes
+
+1. **Backward Compatibility**: If `milestoneType` is not provided, the system falls back to current generic messaging
+2. **Existing Overdue Logic**: High-urgency overdue emails retain their current urgent styling
+3. **No Database Changes**: All changes are in edge function logic only
+4. **Milestone Types Used**: DEPOSIT, MILESTONE, FINAL, FULL (from generate-payment-milestones)
