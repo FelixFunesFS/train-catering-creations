@@ -1,142 +1,292 @@
 
-# About Page Team Section Updates
+
+# Adding Imagery to Gallery, Reviews, and FAQ Pages
 
 ## Overview
 
-Three visual updates to the "Meet Our Team" section on the About page:
-1. Remove the watermark logo behind the team cards
-2. Remove the square container background from profile images
-3. Double the size of profile images (100% increase)
+This plan adds visually engaging imagery to three key pages using the 9 uploaded photos plus existing assets. Each page will receive a unique treatment appropriate to its purpose and content flow.
 
 ---
 
-## Changes Summary
+## Image Assets to Add
 
-### 1. Remove Watermark Logo
+The 9 uploaded images will be saved to `src/assets/gallery/`:
 
-**Current**: A faded logo sits behind the team cards as a decorative watermark (10% opacity)
+| Filename | Description | Best Use |
+|----------|-------------|----------|
+| `buffet-wings-outdoor.jpg` | Wings, chicken & mac cheese trays outdoors | FAQ background |
+| `charcuterie-spread.jpg` | Elaborate cheese & meat board | Reviews visual |
+| `breakfast-spread.jpg` | Eggs, bacon, sausages | Gallery addition |
+| `berry-tart-tower.jpg` | Tiered fresh berry tarts | Reviews accent |
+| `chafing-dish-roses.jpg` | Elegant setup with roses & American flag | FAQ visual |
+| `holiday-sides.jpg` | Green beans, mac cheese, rice with poinsettias | Gallery addition |
+| `team-western-group.jpg` | Full team in matching western attire | Reviews hero |
+| `team-service-action.jpg` | Team actively serving guests | Gallery addition |
+| `team-buffet-line.jpg` | Full buffet line with team working | Gallery addition |
 
-**Action**: Remove the entire watermark container (lines 182-190)
+---
+
+## Page-by-Page Implementation
+
+### 1. Gallery Page (`AlternativeGallery.tsx`)
+
+**Current State**: Has hero, category navigation, and image grid with 80+ images.
+
+**Enhancement**: Add 4 new images to the gallery collection for more variety.
+
+**Implementation**:
+- Add 4 uploaded images to `src/data/gallery/buffetImages.ts`:
+  - Breakfast spread
+  - Holiday sides with poinsettias
+  - Team service action shot
+  - Full buffet line with team
+
+---
+
+### 2. Reviews Page (`Reviews.tsx`)
+
+**Current State**: Text-only testimonial cards with no imagery.
+
+**Enhancement**: Add a cinematic background section with team imagery and a mini food gallery strip.
+
+**Design Approach**:
 
 ```text
-Before:                          After:
-┌────────────────────┐           ┌────────────────────┐
-│    [Team Cards]    │           │    [Team Cards]    │
-│   ░░░ LOGO ░░░     │    →      │                    │
-│    [Team Cards]    │           │    [Team Cards]    │
-└────────────────────┘           └────────────────────┘
++---------------------------------------+
+|  [Existing Header with PageHeader]    |
++---------------------------------------+
+|                                       |
+|  NEW: Visual Showcase Strip           |
+|  ┌─────┬─────┬─────┬─────┬─────┐      |
+|  │ img │ img │ img │ img │ img │      |  (horizontal scroll on mobile)
+|  └─────┴─────┴─────┴─────┴─────┘      |
+|                                       |
++---------------------------------------+
+|  [Existing Review Cards Grid]         |
++---------------------------------------+
+|                                       |
+|  NEW: Team Photo Section              |
+|  ┌─────────────────────────────┐      |
+|  │  Background: Team group     │      |  (85% overlay, gradient fades)
+|  │  "The Faces Behind Your     │      |
+|  │   Perfect Event"            │      |
+|  └─────────────────────────────┘      |
+|                                       |
++---------------------------------------+
+|  [Existing Feedback Card + CTA]       |
++---------------------------------------+
 ```
+
+**Components to Create**:
+- `ReviewsImageStrip.tsx` - Horizontal scrolling food gallery (5 images)
+- `ReviewsTeamSection.tsx` - Full-width background with team photo
+
+**Images Used**:
+- Image strip: charcuterie, berry tarts, chafing dish with roses, mac cheese, salmon
+- Team background: Team western group photo
 
 ---
 
-### 2. Remove Square Background from Profile Images
+### 3. FAQ Page (`FAQ.tsx`)
 
-**Current**: Profile images have a container with `relative w-32 h-32` wrapper creating a visible boundary
+**Current State**: Text-heavy with search, filters, accordion, and CTA.
 
-**Action**: Remove the wrapper div and apply sizing directly to the OptimizedImage component. The images already have `rounded-full` applied, so they display as circles
+**Enhancement**: Add a background image section between FAQ content and CTA to break up text.
 
----
-
-### 3. Increase Profile Image Size by 100%
-
-**Current size**: `w-32 h-32` (128px x 128px)
-
-**New size**: `w-64 h-64` (256px x 256px) - doubled
-
-| Dimension | Before | After |
-|-----------|--------|-------|
-| Width | 128px (w-32) | 256px (w-64) |
-| Height | 128px (h-32) | 256px (h-64) |
-
----
-
-## Technical Changes
-
-### File: `src/pages/About.tsx`
-
-**Change 1 - Remove logo watermark (lines 182-190)**
-
-Delete this block:
-```tsx
-{/* Watermark Logo - centered behind team cards */}
-<div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-  <img 
-    src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png" 
-    alt="" 
-    aria-hidden="true"
-    className="w-64 sm:w-80 lg:w-96 h-64 sm:h-80 lg:h-96 object-contain opacity-[0.10]"
-  />
-</div>
-```
-
-**Change 2 & 3 - Update Chef Train's profile image (lines 206-213)**
-
-Before:
-```tsx
-<div className="relative w-32 h-32 mx-auto mb-4">
-  <OptimizedImage 
-    src="/lovable-uploads/ca9f1bb5-3b58-46fc-a5e4-cf2359a610ed.png" 
-    alt="Chef Dominick 'Train' Ward"
-    aspectRatio="aspect-square"
-    className="rounded-full object-cover"
-  />
-</div>
-```
-
-After:
-```tsx
-<OptimizedImage 
-  src="/lovable-uploads/ca9f1bb5-3b58-46fc-a5e4-cf2359a610ed.png" 
-  alt="Chef Dominick 'Train' Ward"
-  aspectRatio="aspect-square"
-  className="w-64 h-64 mx-auto mb-4 rounded-full object-cover"
-/>
-```
-
-**Change 2 & 3 - Update Tanya's profile image (lines 229-236)**
-
-Before:
-```tsx
-<div className="relative w-32 h-32 mx-auto mb-4">
-  <OptimizedImage 
-    src="/lovable-uploads/1dcbc1ee-eb25-4d89-8722-cb4904d1ba69.png" 
-    alt="Pastry Chef Tanya Ward" 
-    aspectRatio="aspect-square"
-    className="rounded-full object-cover"
-  />
-</div>
-```
-
-After:
-```tsx
-<OptimizedImage 
-  src="/lovable-uploads/1dcbc1ee-eb25-4d89-8722-cb4904d1ba69.png" 
-  alt="Pastry Chef Tanya Ward" 
-  aspectRatio="aspect-square"
-  className="w-64 h-64 mx-auto mb-4 rounded-full object-cover"
-/>
-```
-
----
-
-## Visual Result
+**Design Approach**:
 
 ```text
-Before:                              After:
-┌─────────────────────┐              ┌─────────────────────┐
-│   ┌───┐   ┌───┐     │              │  ┌─────┐  ┌─────┐   │
-│   │ ○ │   │ ○ │     │  (small)     │  │     │  │     │   │  (large)
-│   └───┘   └───┘     │              │  │  ○  │  │  ○  │   │
-│      [LOGO]         │              │  │     │  │     │   │
-│     (faded)         │              │  └─────┘  └─────┘   │
-│                     │              │                     │
-└─────────────────────┘              └─────────────────────┘
++---------------------------------------+
+|  [Existing Header]                    |
++---------------------------------------+
+|  [Search + Category Filters]          |
++---------------------------------------+
+|  [FAQ Accordion]                      |
++---------------------------------------+
+|                                       |
+|  NEW: Visual Break Section            |
+|  ┌─────────────────────────────┐      |
+|  │  Background: Buffet setup   │      |  (85% overlay)
+|  │  "Still hungry for answers? │      |
+|  │   See our food in action."  │      |
+|  │  [View Gallery] button      │      |
+|  └─────────────────────────────┘      |
+|                                       |
++---------------------------------------+
+|  [Existing Contact CTA]               |
++---------------------------------------+
 ```
 
+**Component to Create**:
+- `FAQVisualBreak.tsx` - Background section with outdoor buffet image
+
+**Images Used**:
+- Background: Outdoor wings buffet OR chafing dish with roses (professional setup)
+
 ---
+
+## Technical Implementation Details
+
+### New Asset Files
+
+Copy 9 images to `src/assets/gallery/`:
+```
+src/assets/gallery/buffet-wings-outdoor.jpg
+src/assets/gallery/charcuterie-spread.jpg
+src/assets/gallery/breakfast-spread.jpg
+src/assets/gallery/berry-tart-tower.jpg
+src/assets/gallery/chafing-dish-roses.jpg
+src/assets/gallery/holiday-sides.jpg
+src/assets/gallery/team-western-group.jpg
+src/assets/gallery/team-service-action.jpg
+src/assets/gallery/team-buffet-line.jpg
+```
+
+### Gallery Data Updates
+
+**File**: `src/data/gallery/buffetImages.ts`
+
+Add 4 new entries:
+```typescript
+{
+  src: breakfastSpread,
+  category: "buffet",
+  title: "Sunrise Breakfast Buffet",
+  description: "Fluffy scrambled eggs, crispy bacon, sausage links and patties ready to start your day",
+  quality: 8
+},
+{
+  src: holidaySides,
+  category: "buffet", 
+  title: "Holiday Comfort Sides",
+  description: "Southern green beans, golden mac & cheese, and savory rice with festive white poinsettias",
+  quality: 8
+},
+{
+  src: teamServiceAction,
+  category: "team",
+  title: "Professional Service in Action",
+  description: "Our team serving guests with attention to detail and Southern hospitality",
+  quality: 9
+},
+{
+  src: teamBuffetLine,
+  category: "team",
+  title: "Full Service Buffet Line",
+  description: "Complete chafing dish setup with our coordinated team ready to serve",
+  quality: 9
+}
+```
+
+### Reviews Page Components
+
+**File**: `src/components/reviews/ReviewsImageStrip.tsx`
+- Horizontal scrollable container with `overflow-x-auto`
+- 5 food images using `OptimizedFloatingImage`
+- Responsive: gap-3 on mobile, gap-4 on desktop
+- Images have aspect-square, rounded corners
+- Staggered scroll animations
+
+**File**: `src/components/reviews/ReviewsTeamSection.tsx`
+- Full-width section with team photo background
+- 85% white overlay matching site standards
+- Top/bottom gradient fades (h-16 sm:h-20)
+- Centered text content with elegant typography
+- Optional "View Gallery" link
+
+**File Updates**: `src/pages/Reviews.tsx`
+- Import new components
+- Add `ReviewsImageStrip` after header section
+- Add `ReviewsTeamSection` before CTA section
+
+### FAQ Page Component
+
+**File**: `src/components/faq/FAQVisualBreak.tsx`
+- Background image section (outdoor buffet or elegant chafing dish)
+- 85% white overlay
+- Gradient fades top/bottom
+- Short engaging text + "View Gallery" button
+- Scroll animation on entry
+
+**File Updates**: `src/pages/FAQ.tsx`
+- Import new component
+- Add between FAQ accordion and Contact CTA sections
+
+---
+
+## Design Standards Applied
+
+| Standard | Implementation |
+|----------|----------------|
+| Background overlay | 85% white (`bg-background/85`) |
+| Gradient fades | h-16 sm:h-20 lg:h-24 top/bottom |
+| Scroll animations | `useScrollAnimation` hook |
+| Mobile-first | Horizontal scroll, stacked layouts |
+| Accessibility | Proper alt text, contrast ratios |
+| No parallax | Per memory, removed for stability |
+
+---
+
+## Files to Create
+
+| File | Purpose |
+|------|---------|
+| `src/components/reviews/ReviewsImageStrip.tsx` | Horizontal food gallery strip |
+| `src/components/reviews/ReviewsTeamSection.tsx` | Team photo background section |
+| `src/components/faq/FAQVisualBreak.tsx` | Visual break with buffet background |
 
 ## Files to Modify
 
 | File | Changes |
 |------|---------|
-| `src/pages/About.tsx` | Remove watermark logo, update both profile image components |
+| `src/data/gallery/buffetImages.ts` | Add 4 new image entries |
+| `src/pages/Reviews.tsx` | Integrate image strip + team section |
+| `src/pages/FAQ.tsx` | Add visual break section |
+
+## Assets to Copy
+
+9 images from user uploads to `src/assets/gallery/`
+
+---
+
+## Visual Summary
+
+```text
+REVIEWS PAGE:
+┌──────────────────────────────────┐
+│         [Header]                 │
+├──────────────────────────────────┤
+│  ◀ [img] [img] [img] [img] ▶     │  ← NEW: Scrolling food strip
+├──────────────────────────────────┤
+│     [Review Cards Grid]          │
+├──────────────────────────────────┤
+│  ╔════════════════════════════╗  │
+│  ║  TEAM PHOTO BACKGROUND     ║  │  ← NEW: Full-width team hero
+│  ║  "The Faces Behind..."     ║  │
+│  ╚════════════════════════════╝  │
+├──────────────────────────────────┤
+│     [Feedback + CTA]             │
+└──────────────────────────────────┘
+
+FAQ PAGE:
+┌──────────────────────────────────┐
+│         [Header]                 │
+├──────────────────────────────────┤
+│     [Search + Filters]           │
+├──────────────────────────────────┤
+│     [FAQ Accordion]              │
+├──────────────────────────────────┤
+│  ╔════════════════════════════╗  │
+│  ║  BUFFET BACKGROUND         ║  │  ← NEW: Visual break
+│  ║  "See our food in action"  ║  │
+│  ║      [View Gallery]        ║  │
+│  ╚════════════════════════════╝  │
+├──────────────────────────────────┤
+│     [Contact CTA]                │
+└──────────────────────────────────┘
+
+GALLERY PAGE:
+- 4 new images added to existing grid
+- No structural changes needed
+```
+
