@@ -40,6 +40,7 @@ import { EventEstimateFullViewPage } from "./pages/EventEstimateFullViewPage";
 import { CustomerEstimateView } from "./components/customer/CustomerEstimateView";
 import QuoteThankYou from "./pages/QuoteThankYou";
 import { MobileActionBar } from "@/components/mobile/MobileActionBar";
+import { ScrollToTop } from "@/components/ui/scroll-to-top";
 import AdminMenuEditPage from "./pages/AdminMenuEditPage";
 
 const AppContent = () => {
@@ -111,6 +112,7 @@ const AppContent = () => {
       {!hideChrome && !isAdminRoute && <Footer />}
       
       {showMobileActionBar && <MobileActionBar />}
+      <ScrollToTop />
     </div>;
 };
 const queryClient = new QueryClient();
