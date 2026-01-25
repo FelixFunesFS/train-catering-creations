@@ -29,7 +29,8 @@ export const ServicesSection = () => {
               description="Sophisticated catering for galas, fundraisers, and formal celebrations with impeccable presentation."
               image="/lovable-uploads/63832488-46ff-4d71-ade5-f871173c28ab.png"
               imageAlt="Black Tie Event Catering"
-              link="/wedding-menu#page-header"
+              link="/request-quote/wedding"
+              ctaText="Get Quote"
               delay={150}
               icon={Briefcase}
               feature="Premium Service"
@@ -40,7 +41,8 @@ export const ServicesSection = () => {
               description="Professional catering for conferences, meetings, and business celebrations with seamless service."
               image="/lovable-uploads/6cd766e3-21ce-4e88-a3a4-6c8835dc9654.png"
               imageAlt="Corporate Event Catering"
-              link="/menu#page-header"
+              link="/request-quote/regular"
+              ctaText="Get Quote"
               delay={300}
               icon={Users}
               feature="Business Focused"
@@ -52,7 +54,8 @@ export const ServicesSection = () => {
                 description="Honoring service with specialized catering for promotions, ceremonies, and military celebrations."
                 image="/lovable-uploads/3226c955-a9b7-4c8d-a4c2-e5e7fc206f6f.png"
                 imageAlt="Military Function Catering"
-                link="/wedding-menu#page-header"
+                link="/request-quote/wedding"
+                ctaText="Get Quote"
                 delay={450}
                 icon={Utensils}
                 feature="Honor & Respect"
@@ -64,13 +67,13 @@ export const ServicesSection = () => {
         {/* Additional CTA section */}
         <div className="mt-12 lg:mt-16 text-center">
           <p className="text-muted-foreground mb-4">
-            Don't see your event type? We cater all occasions.
+            Planning a different type of event? We cater all occasions.
           </p>
           <a
             href="/request-quote#page-header"
             className="inline-flex items-center gap-2 bg-gradient-primary text-primary-foreground px-6 py-3 rounded-lg font-medium hover:shadow-lg transition-all duration-200"
           >
-            Get Custom Quote
+            View All Event Options
             <span>→</span>
           </a>
         </div>
