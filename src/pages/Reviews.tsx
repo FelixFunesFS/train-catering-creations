@@ -5,6 +5,8 @@ import { NeumorphicCard } from "@/components/ui/neumorphic-card";
 import { PageSection } from "@/components/ui/page-section";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
+import { ReviewsImageStrip } from "@/components/reviews/ReviewsImageStrip";
+import { ReviewsTeamSection } from "@/components/reviews/ReviewsTeamSection";
 
 const Reviews = () => {
   const { ref: headerRef, isVisible: headerVisible, variant: headerVariant } = useScrollAnimation({ 
@@ -105,8 +107,13 @@ const Reviews = () => {
         </div>
       </PageSection>
 
-      {/* Reviews Section */}
+      {/* Food Image Strip */}
       <PageSection pattern="b">
+        <ReviewsImageStrip />
+      </PageSection>
+
+      {/* Reviews Section */}
+      <PageSection pattern="c">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
             {reviews.map((review, index) => {
@@ -142,8 +149,11 @@ const Reviews = () => {
         </div>
       </PageSection>
 
+      {/* Team Photo Section */}
+      <ReviewsTeamSection />
+
       {/* Feedback Section */}
-      <PageSection pattern="c">
+      <PageSection pattern="d">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <NeumorphicCard level={3} className="bg-primary-light relative overflow-hidden">
