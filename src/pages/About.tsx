@@ -7,8 +7,79 @@ import { ChefHat, Heart, Award, Users, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
 import { OptimizedImage } from "@/components/ui/optimized-image";
 import { TrustMarquee } from "@/components/home/TrustMarquee";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { useAnimationClass } from "@/hooks/useAnimationClass";
+import { useParallaxEffect } from "@/hooks/useParallaxEffect";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const About = () => {
+  const isMobile = useIsMobile();
+
+  // Story section animations
+  const { ref: storyContentRef, isVisible: storyContentVisible, variant: storyContentVariant } = useScrollAnimation({
+    delay: 0,
+    variant: "slide-right",
+    mobile: { variant: "fade-up", delay: 0 },
+    desktop: { variant: "slide-right", delay: 0 },
+  });
+
+  const { ref: storyImageRef, isVisible: storyImageVisible, variant: storyImageVariant } = useScrollAnimation({
+    delay: 200,
+    variant: "scale-fade",
+    mobile: { variant: "fade-up", delay: 100 },
+    desktop: { variant: "scale-fade", delay: 200 },
+  });
+
+  // Team cards animations
+  const { ref: teamCard1Ref, isVisible: teamCard1Visible, variant: teamCard1Variant } = useScrollAnimation({
+    delay: 100,
+    variant: "bounce-in",
+    mobile: { variant: "fade-up", delay: 0 },
+    desktop: { variant: "bounce-in", delay: 100 },
+  });
+
+  const { ref: teamCard2Ref, isVisible: teamCard2Visible, variant: teamCard2Variant } = useScrollAnimation({
+    delay: 250,
+    variant: "bounce-in",
+    mobile: { variant: "fade-up", delay: 100 },
+    desktop: { variant: "bounce-in", delay: 250 },
+  });
+
+  // Values cards animations
+  const { ref: value1Ref, isVisible: value1Visible, variant: value1Variant } = useScrollAnimation({
+    delay: 100,
+    variant: "fade-up",
+    mobile: { variant: "fade-up", delay: 0 },
+    desktop: { variant: "fade-up", delay: 100 },
+  });
+
+  const { ref: value2Ref, isVisible: value2Visible, variant: value2Variant } = useScrollAnimation({
+    delay: 220,
+    variant: "fade-up",
+    mobile: { variant: "fade-up", delay: 80 },
+    desktop: { variant: "fade-up", delay: 220 },
+  });
+
+  const { ref: value3Ref, isVisible: value3Visible, variant: value3Variant } = useScrollAnimation({
+    delay: 340,
+    variant: "fade-up",
+    mobile: { variant: "fade-up", delay: 160 },
+    desktop: { variant: "fade-up", delay: 340 },
+  });
+
+  // Parallax for background images (disabled on mobile/tablet)
+  const { ref: storyBgRef, style: storyBgStyle } = useParallaxEffect({
+    speed: 0.15,
+    direction: 'up',
+    disabled: isMobile,
+  });
+
+  const { ref: valuesBgRef, style: valuesBgStyle } = useParallaxEffect({
+    speed: 0.12,
+    direction: 'up',
+    disabled: isMobile,
+  });
+
   return (
     <div className="min-h-screen bg-gradient-hero">
       <main id="main-content">
@@ -28,16 +99,19 @@ const About = () => {
             buttons={[
               { text: "Request Quote", href: "/request-quote#page-header", variant: "cta" }
             ]}
+            animated={true}
           />
         </PageSection>
 
         {/* Our Story Section - Full-width Background Image */}
         <section className="relative py-16 sm:py-20 lg:py-24 overflow-hidden">
-          {/* Full-width Background Image */}
+          {/* Full-width Background Image with Parallax */}
           <div 
-            className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
+            ref={storyBgRef}
+            className="absolute inset-0 w-full h-[120%] -top-[10%] bg-cover bg-center bg-no-repeat"
             style={{ 
-              backgroundImage: `url('/lovable-uploads/9ea8f6b7-e1cd-4f55-a434-1ffedf0b96dc.png')` 
+              backgroundImage: `url('/lovable-uploads/9ea8f6b7-e1cd-4f55-a434-1ffedf0b96dc.png')`,
+              ...storyBgStyle
             }}
             aria-hidden="true"
           />
@@ -49,7 +123,10 @@ const About = () => {
           {/* Content */}
           <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-              <div>
+              <div 
+                ref={storyContentRef}
+                className={useAnimationClass(storyContentVariant, storyContentVisible)}
+              >
                 <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant text-white mb-6">
                   Our Story
                 </h2>
@@ -66,7 +143,10 @@ const About = () => {
                 </Button>
               </div>
               
-              <div className="overflow-hidden p-3 bg-white/95 backdrop-blur-md rounded-xl shadow-2xl border border-white/20">
+              <div 
+                ref={storyImageRef}
+                className={`overflow-hidden p-3 bg-white/95 backdrop-blur-md rounded-xl shadow-2xl border border-white/20 ${useAnimationClass(storyImageVariant, storyImageVisible)}`}
+              >
                 <OptimizedImage 
                   src="/lovable-uploads/2bb3a6cf-e13c-4405-9b69-2cf610ae8411.png" 
                   alt="Chef Train and team at a formal military catering event" 
@@ -101,59 +181,65 @@ const About = () => {
             </div>
             
             <div className="grid md:grid-cols-2 gap-12 lg:gap-16 max-w-5xl mx-auto">
-              <NeumorphicCard level={4} className="text-center hover:scale-105 transition-transform duration-300">
-                <div className="mb-6">
-                  <div className="relative w-32 h-32 mx-auto mb-4">
-                    <OptimizedImage 
-                      src="/lovable-uploads/ca9f1bb5-3b58-46fc-a5e4-cf2359a610ed.png" 
-                      alt="Chef Dominick 'Train' Ward"
-                      aspectRatio="aspect-square"
-                      className="rounded-full object-cover"
-                    />
+              <div ref={teamCard1Ref} className={useAnimationClass(teamCard1Variant, teamCard1Visible)}>
+                <NeumorphicCard level={4} className="text-center hover:scale-105 transition-transform duration-300">
+                  <div className="mb-6">
+                    <div className="relative w-32 h-32 mx-auto mb-4">
+                      <OptimizedImage 
+                        src="/lovable-uploads/ca9f1bb5-3b58-46fc-a5e4-cf2359a610ed.png" 
+                        alt="Chef Dominick 'Train' Ward"
+                        aspectRatio="aspect-square"
+                        className="rounded-full object-cover"
+                      />
+                    </div>
+                    <ChefHat className="h-12 w-12 text-primary mx-auto mb-4" />
                   </div>
-                  <ChefHat className="h-12 w-12 text-primary mx-auto mb-4" />
-                </div>
-                <h3 className="text-xl font-elegant font-semibold text-foreground mb-2">
-                  Chef Dominick "Train" Ward
-                </h3>
-                <p className="text-primary font-medium mb-4">Head Chef & Co-Founder</p>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  With over 20 years of culinary experience, Chef Train brings authentic Southern flavors and professional excellence to every event. His passion for food and commitment to quality has made Soul Train's Eatery a trusted name in Charleston catering.
-                </p>
-              </NeumorphicCard>
+                  <h3 className="text-xl font-elegant font-semibold text-foreground mb-2">
+                    Chef Dominick "Train" Ward
+                  </h3>
+                  <p className="text-primary font-medium mb-4">Head Chef & Co-Founder</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    With over 20 years of culinary experience, Chef Train brings authentic Southern flavors and professional excellence to every event. His passion for food and commitment to quality has made Soul Train's Eatery a trusted name in Charleston catering.
+                  </p>
+                </NeumorphicCard>
+              </div>
               
-              <NeumorphicCard level={4} className="text-center hover:scale-105 transition-transform duration-300">
-                <div className="mb-6">
-                  <div className="relative w-32 h-32 mx-auto mb-4">
-                    <OptimizedImage 
-                      src="/lovable-uploads/1dcbc1ee-eb25-4d89-8722-cb4904d1ba69.png" 
-                      alt="Pastry Chef Tanya Ward" 
-                      aspectRatio="aspect-square"
-                      className="rounded-full object-cover"
-                    />
+              <div ref={teamCard2Ref} className={useAnimationClass(teamCard2Variant, teamCard2Visible)}>
+                <NeumorphicCard level={4} className="text-center hover:scale-105 transition-transform duration-300">
+                  <div className="mb-6">
+                    <div className="relative w-32 h-32 mx-auto mb-4">
+                      <OptimizedImage 
+                        src="/lovable-uploads/1dcbc1ee-eb25-4d89-8722-cb4904d1ba69.png" 
+                        alt="Pastry Chef Tanya Ward" 
+                        aspectRatio="aspect-square"
+                        className="rounded-full object-cover"
+                      />
+                    </div>
+                    <Heart className="h-12 w-12 text-primary mx-auto mb-4" />
                   </div>
-                  <Heart className="h-12 w-12 text-primary mx-auto mb-4" />
-                </div>
-                <h3 className="text-xl font-elegant font-semibold text-foreground mb-2">
-                  Tanya Ward
-                </h3>
-                <p className="text-primary font-medium mb-4">Pastry Chef & Co-Founder</p>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  Tanya's expertise in pastry arts and dessert creation adds the perfect sweet touch to every celebration. Her attention to detail and creative flair ensure that every dessert is both beautiful and delicious.
-                </p>
-              </NeumorphicCard>
+                  <h3 className="text-xl font-elegant font-semibold text-foreground mb-2">
+                    Tanya Ward
+                  </h3>
+                  <p className="text-primary font-medium mb-4">Pastry Chef & Co-Founder</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    Tanya's expertise in pastry arts and dessert creation adds the perfect sweet touch to every celebration. Her attention to detail and creative flair ensure that every dessert is both beautiful and delicious.
+                  </p>
+                </NeumorphicCard>
+              </div>
             </div>
           </div>
         </PageSection>
 
         {/* Values Section - Full-width Background Image */}
         <section className="relative py-16 sm:py-20 lg:py-24 overflow-hidden">
-          {/* Full-width Background Image */}
+          {/* Full-width Background Image with Parallax */}
           <div 
-            className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
-          style={{ 
-            backgroundImage: `url('/lovable-uploads/eb77404f-369f-484f-a9ce-786b7f1ddc94.png')` 
-          }}
+            ref={valuesBgRef}
+            className="absolute inset-0 w-full h-[120%] -top-[10%] bg-cover bg-center bg-no-repeat"
+            style={{ 
+              backgroundImage: `url('/lovable-uploads/eb77404f-369f-484f-a9ce-786b7f1ddc94.png')`,
+              ...valuesBgStyle
+            }}
             aria-hidden="true"
           />
           
@@ -172,7 +258,10 @@ const About = () => {
             </div>
             
             <div className="grid md:grid-cols-3 gap-8 lg:gap-12">
-              <div className="bg-black/35 backdrop-blur-md rounded-xl p-6 text-center border border-white/20 ring-1 ring-white/10 hover:scale-105 transition-transform duration-300">
+              <div 
+                ref={value1Ref}
+                className={`bg-black/35 backdrop-blur-md rounded-xl p-6 text-center border border-white/20 ring-1 ring-white/10 hover:scale-105 transition-transform duration-300 ${useAnimationClass(value1Variant, value1Visible)}`}
+              >
                 <Award className="h-12 w-12 text-gold mx-auto mb-4 drop-shadow-sm" />
                 <h3 className="text-xl font-elegant font-semibold text-white mb-4 drop-shadow-sm">Quality First</h3>
                 <p className="text-sm text-white/80 drop-shadow-sm">
@@ -180,7 +269,10 @@ const About = () => {
                 </p>
               </div>
               
-              <div className="bg-black/35 backdrop-blur-md rounded-xl p-6 text-center border border-white/20 ring-1 ring-white/10 hover:scale-105 transition-transform duration-300">
+              <div 
+                ref={value2Ref}
+                className={`bg-black/35 backdrop-blur-md rounded-xl p-6 text-center border border-white/20 ring-1 ring-white/10 hover:scale-105 transition-transform duration-300 ${useAnimationClass(value2Variant, value2Visible)}`}
+              >
                 <Users className="h-12 w-12 text-ruby-light mx-auto mb-4 drop-shadow-sm" />
                 <h3 className="text-xl font-elegant font-semibold text-white mb-4 drop-shadow-sm">Family Spirit</h3>
                 <p className="text-sm text-white/80 drop-shadow-sm">
@@ -188,7 +280,10 @@ const About = () => {
                 </p>
               </div>
               
-              <div className="bg-black/35 backdrop-blur-md rounded-xl p-6 text-center border border-white/20 ring-1 ring-white/10 hover:scale-105 transition-transform duration-300">
+              <div 
+                ref={value3Ref}
+                className={`bg-black/35 backdrop-blur-md rounded-xl p-6 text-center border border-white/20 ring-1 ring-white/10 hover:scale-105 transition-transform duration-300 ${useAnimationClass(value3Variant, value3Visible)}`}
+              >
                 <Clock className="h-12 w-12 text-platinum-light mx-auto mb-4 drop-shadow-sm" />
                 <h3 className="text-xl font-elegant font-semibold text-white mb-4 drop-shadow-sm">Reliability</h3>
                 <p className="text-sm text-white/80 drop-shadow-sm">

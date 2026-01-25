@@ -774,7 +774,120 @@ html {
   filter: contrast(1.08) saturate(1.12) hue-rotate(-6deg) brightness(1.01);
 }
 
-/* Reduced motion support */
+/* ================================================================
+   SCROLL ANIMATION SYSTEM
+   Used by useScrollAnimation and useStaggeredAnimation hooks
+   ================================================================ */
+
+/* Hidden state base styles */
+.ios-spring-hidden,
+.fade-up-hidden,
+.scale-fade-hidden,
+.slide-left-hidden,
+.slide-right-hidden,
+.slide-up-hidden,
+.slide-down-hidden,
+.bounce-in-hidden,
+.elastic-hidden,
+.zoom-fade-hidden,
+.rotate-fade-hidden,
+.flip-in-hidden,
+.sticky-fade-hidden,
+.subtle-hidden,
+.medium-hidden,
+.strong-hidden {
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+/* Specific hidden transforms for each variant */
+.ios-spring-hidden { transform: translateY(20px); }
+.fade-up-hidden { transform: translateY(30px); }
+.scale-fade-hidden { transform: scale(0.95); }
+.slide-left-hidden { transform: translateX(-30px); }
+.slide-right-hidden { transform: translateX(30px); }
+.slide-up-hidden { transform: translateY(40px); }
+.slide-down-hidden { transform: translateY(-40px); }
+.bounce-in-hidden { transform: translateY(30px) scale(0.85); }
+.elastic-hidden { transform: scale(0.9); }
+.zoom-fade-hidden { transform: scale(0.85); }
+.rotate-fade-hidden { transform: rotate(-5deg) scale(0.95); }
+.flip-in-hidden { transform: perspective(600px) rotateY(20deg); }
+.sticky-fade-hidden { transform: translateY(10px); }
+.subtle-hidden { transform: translateY(8px); }
+.medium-hidden { transform: translateY(16px); }
+.strong-hidden { transform: translateY(24px); }
+
+/* Visible state - shared base */
+.ios-spring-visible,
+.fade-up-visible,
+.scale-fade-visible,
+.slide-left-visible,
+.slide-right-visible,
+.slide-up-visible,
+.slide-down-visible,
+.bounce-in-visible,
+.elastic-visible,
+.zoom-fade-visible,
+.rotate-fade-visible,
+.flip-in-visible,
+.sticky-fade-visible,
+.subtle-visible,
+.medium-visible,
+.strong-visible {
+  opacity: 1;
+  transform: translateY(0) translateX(0) scale(1) rotate(0);
+}
+
+/* Standard easing transitions */
+.fade-up-visible,
+.scale-fade-visible,
+.slide-left-visible,
+.slide-right-visible,
+.slide-up-visible,
+.slide-down-visible,
+.zoom-fade-visible,
+.rotate-fade-visible,
+.flip-in-visible,
+.sticky-fade-visible,
+.subtle-visible,
+.medium-visible,
+.strong-visible {
+  transition: opacity 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Spring easing for ios-spring variant */
+.ios-spring-visible {
+  transition: opacity 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+              transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Elastic bounce easing */
+.bounce-in-visible {
+  transition: opacity 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55),
+              transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.elastic-visible {
+  transition: opacity 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55),
+              transform 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Mobile-optimized animation distances (reduced for smaller viewports) */
+@media (max-width: 768px) {
+  .fade-up-hidden { transform: translateY(20px); }
+  .slide-left-hidden { transform: translateX(-20px); }
+  .slide-right-hidden { transform: translateX(20px); }
+  .slide-up-hidden { transform: translateY(25px); }
+  .slide-down-hidden { transform: translateY(-25px); }
+  .bounce-in-hidden { transform: translateY(20px) scale(0.9); }
+  .strong-hidden { transform: translateY(16px); }
+}
+
+/* ================================================================
+   REDUCED MOTION SUPPORT
+   ================================================================ */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -804,5 +917,47 @@ html {
   .image-vivid-cool,
   .image-enhanced {
     transition: none !important;
+  }
+
+  /* Scroll animations - disable transforms but keep visibility */
+  .ios-spring-hidden,
+  .fade-up-hidden,
+  .scale-fade-hidden,
+  .slide-left-hidden,
+  .slide-right-hidden,
+  .slide-up-hidden,
+  .slide-down-hidden,
+  .bounce-in-hidden,
+  .elastic-hidden,
+  .zoom-fade-hidden,
+  .rotate-fade-hidden,
+  .flip-in-hidden,
+  .sticky-fade-hidden,
+  .subtle-hidden,
+  .medium-hidden,
+  .strong-hidden {
+    opacity: 0;
+    transform: none !important;
+  }
+
+  .ios-spring-visible,
+  .fade-up-visible,
+  .scale-fade-visible,
+  .slide-left-visible,
+  .slide-right-visible,
+  .slide-up-visible,
+  .slide-down-visible,
+  .bounce-in-visible,
+  .elastic-visible,
+  .zoom-fade-visible,
+  .rotate-fade-visible,
+  .flip-in-visible,
+  .sticky-fade-visible,
+  .subtle-visible,
+  .medium-visible,
+  .strong-visible {
+    opacity: 1;
+    transform: none !important;
+    transition: opacity 0.2s ease !important;
   }
 }

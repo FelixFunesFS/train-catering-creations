@@ -1,8 +1,9 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { useAnimationClass } from "@/hooks/useAnimationClass";
 
 interface PageHeaderProps {
   title: string;
@@ -20,6 +21,7 @@ interface PageHeaderProps {
     icon?: React.ReactNode;
   }>;
   className?: string;
+  animated?: boolean;
 }
 
 export const PageHeader = ({ 
@@ -29,8 +31,37 @@ export const PageHeader = ({
   subtitle,
   icons = [], 
   buttons = [], 
-  className 
+  className,
+  animated = true
 }: PageHeaderProps) => {
+  const { ref: badgeRef, isVisible: badgeVisible, variant: badgeVariant } = useScrollAnimation({
+    delay: 0,
+    variant: "fade-up",
+    mobile: { variant: "fade-up", delay: 0 },
+    desktop: { variant: "ios-spring", delay: 0 },
+  });
+
+  const { ref: titleRef, isVisible: titleVisible, variant: titleVariant } = useScrollAnimation({
+    delay: 100,
+    variant: "fade-up",
+    mobile: { variant: "fade-up", delay: 50 },
+    desktop: { variant: "ios-spring", delay: 100 },
+  });
+
+  const { ref: descRef, isVisible: descVisible, variant: descVariant } = useScrollAnimation({
+    delay: 200,
+    variant: "fade-up",
+    mobile: { variant: "fade-up", delay: 100 },
+    desktop: { variant: "ios-spring", delay: 200 },
+  });
+
+  const { ref: buttonsRef, isVisible: buttonsVisible, variant: buttonsVariant } = useScrollAnimation({
+    delay: 300,
+    variant: "fade-up",
+    mobile: { variant: "fade-up", delay: 150 },
+    desktop: { variant: "scale-fade", delay: 300 },
+  });
+
   return (
     <header 
       id="page-header" 
@@ -41,7 +72,13 @@ export const PageHeader = ({
     >
       {/* Badge + Icon (home page pattern) */}
       {badge && (
-        <div className="flex items-center justify-center space-x-2 mb-3">
+        <div 
+          ref={animated ? badgeRef : undefined}
+          className={cn(
+            "flex items-center justify-center space-x-2 mb-3",
+            animated && useAnimationClass(badgeVariant, badgeVisible)
+          )}
+        >
           {badge.icon && (
             <span className="text-ruby">{badge.icon}</span>
           )}
@@ -66,25 +103,42 @@ export const PageHeader = ({
       )}
 
       {/* Title */}
-      <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant font-bold text-foreground mb-3 sm:mb-4 leading-tight title-hover-motion">
-        {title}
-      </h1>
+      <div
+        ref={animated ? titleRef : undefined}
+        className={animated ? useAnimationClass(titleVariant, titleVisible) : undefined}
+      >
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-elegant font-bold text-foreground mb-3 sm:mb-4 leading-tight title-hover-motion">
+          {title}
+        </h1>
 
-      {/* Script subtitle (home page pattern) */}
-      {subtitle && (
-        <p className="text-xl sm:text-2xl font-script text-ruby font-medium mb-3 sm:mb-4">
-          {subtitle}
-        </p>
-      )}
+        {/* Script subtitle (home page pattern) */}
+        {subtitle && (
+          <p className="text-xl sm:text-2xl font-script text-ruby font-medium mb-3 sm:mb-4">
+            {subtitle}
+          </p>
+        )}
+      </div>
 
       {/* Description */}
-      <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed mb-4 sm:mb-6 lg:mb-8 xl:mb-10 subtitle-hover-motion">
+      <p 
+        ref={animated ? descRef : undefined}
+        className={cn(
+          "text-sm sm:text-base lg:text-lg xl:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed mb-4 sm:mb-6 lg:mb-8 xl:mb-10 subtitle-hover-motion",
+          animated && useAnimationClass(descVariant, descVisible)
+        )}
+      >
         {description}
       </p>
 
       {/* Action buttons */}
       {buttons.length > 0 && (
-        <div className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 lg:gap-6">
+        <div 
+          ref={animated ? buttonsRef : undefined}
+          className={cn(
+            "flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 lg:gap-6",
+            animated && useAnimationClass(buttonsVariant, buttonsVisible)
+          )}
+        >
           {buttons.map((button, index) => (
             <Button
               key={index}

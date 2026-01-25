@@ -8,10 +8,34 @@ import { FAQCategoryFilter } from "@/components/faq/FAQCategoryFilter";
 import { FAQAccordion } from "@/components/faq/FAQAccordion";
 import { faqData, faqCategories } from "@/data/faqData";
 import { HelpCircle, Phone, Mail, MessageCircle } from "lucide-react";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { useAnimationClass } from "@/hooks/useAnimationClass";
 
 const FAQ = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  // Scroll animations
+  const { ref: searchRef, isVisible: searchVisible, variant: searchVariant } = useScrollAnimation({
+    delay: 0,
+    variant: "fade-up",
+    mobile: { variant: "fade-up", delay: 0 },
+    desktop: { variant: "ios-spring", delay: 0 },
+  });
+
+  const { ref: accordionRef, isVisible: accordionVisible, variant: accordionVariant } = useScrollAnimation({
+    delay: 100,
+    variant: "fade-up",
+    mobile: { variant: "fade-up", delay: 50 },
+    desktop: { variant: "fade-up", delay: 100 },
+  });
+
+  const { ref: ctaRef, isVisible: ctaVisible, variant: ctaVariant } = useScrollAnimation({
+    delay: 0,
+    variant: "scale-fade",
+    mobile: { variant: "fade-up", delay: 0 },
+    desktop: { variant: "scale-fade", delay: 0 },
+  });
 
   // Filter FAQs based on search term and category
   const filteredFAQs = useMemo(() => {
@@ -61,6 +85,7 @@ const FAQ = () => {
               { text: "Contact Us", href: "tel:8439700265", variant: "default" },
               { text: "Request Quote", href: "/request-quote#page-header", variant: "outline" }
             ]}
+            animated={true}
           />
         </div>
       </PageSection>
@@ -68,7 +93,10 @@ const FAQ = () => {
       {/* Search and Filters */}
       <PageSection pattern="b">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-          <div className="space-y-8">
+          <div 
+            ref={searchRef}
+            className={`space-y-8 ${useAnimationClass(searchVariant, searchVisible)}`}
+          >
             {/* Search Bar */}
             <FAQSearch 
               searchTerm={searchTerm}
@@ -88,17 +116,25 @@ const FAQ = () => {
       {/* FAQ Content */}
       <PageSection pattern="c">
         <div className="max-w-4xl mx-auto px-6 sm:px-8 lg:px-12">
-          <FAQAccordion 
-            faqs={filteredFAQs}
-            searchTerm={searchTerm}
-          />
+          <div 
+            ref={accordionRef}
+            className={useAnimationClass(accordionVariant, accordionVisible)}
+          >
+            <FAQAccordion 
+              faqs={filteredFAQs}
+              searchTerm={searchTerm}
+            />
+          </div>
         </div>
       </PageSection>
 
       {/* Contact CTA */}
       <PageSection pattern="d" withBorder>
         <div className="max-w-4xl mx-auto px-6 sm:px-8 lg:px-12 text-center">
-          <div className="neumorphic-card-3 rounded-2xl p-8 lg:p-12 relative overflow-hidden">
+          <div 
+            ref={ctaRef}
+            className={`neumorphic-card-3 rounded-2xl p-8 lg:p-12 relative overflow-hidden ${useAnimationClass(ctaVariant, ctaVisible)}`}
+          >
             {/* Watermark Logo */}
             <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
               <img 

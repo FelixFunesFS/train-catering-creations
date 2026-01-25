@@ -12,7 +12,15 @@ export const SimpleMenuHeader = () => {
   });
 
   return (
-    <section className="py-8 lg:py-12">
+    <section className="py-8 lg:py-12 relative overflow-hidden">
+      {/* Ruby corner accents - matching gallery pattern */}
+      <div className="absolute top-0 left-0 w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 opacity-[0.03] pointer-events-none">
+        <div className="absolute inset-0 bg-gradient-to-br from-ruby via-ruby/50 to-transparent rounded-br-full" />
+      </div>
+      <div className="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 opacity-[0.03] pointer-events-none">
+        <div className="absolute inset-0 bg-gradient-to-bl from-ruby via-ruby/50 to-transparent rounded-bl-full" />
+      </div>
+
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div ref={ref} className={useAnimationClass(variant, isVisible)}>
           <div className="text-center space-y-3">
