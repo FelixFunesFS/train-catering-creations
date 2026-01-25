@@ -14,7 +14,6 @@ import {
 } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
-import { useStaggeredAnimation } from "@/hooks/useStaggeredAnimation";
 import rubyWaveBg from "@/assets/ruby-wave-bg.png";
 
 // Import optimized WebP images
@@ -41,12 +40,12 @@ export const ServiceCategoriesSection = () => {
 
   const animationClass = useAnimationClass('ios-spring', isVisible);
 
-  const staggered = useStaggeredAnimation({
-    itemCount: 3,
-    staggerDelay: 200,
-    baseDelay: 400,
-    variant: 'bounce-in'
+  // Cards animate together as a unified group
+  const { ref: cardsRef, isVisible: cardsVisible } = useScrollAnimation({ 
+    variant: 'fade-up', 
+    delay: 100 
   });
+  const cardsAnimationClass = useAnimationClass('fade-up', cardsVisible);
 
   const serviceCategories: ServiceCategory[] = [
     {
@@ -130,14 +129,13 @@ export const ServiceCategoriesSection = () => {
 
         {/* Service Cards Grid */}
         <div 
-          ref={staggered.ref}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mb-6"
+          ref={cardsRef}
+          className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mb-6 ${cardsAnimationClass}`}
         >
           {serviceCategories.map((service, index) => (
             <Card
               key={index}
-              className={`group relative overflow-hidden border-2 border-transparent hover:border-ruby/30 transition-all duration-500 cursor-pointer ${staggered.getItemClassName(index)}`}
-              style={staggered.getItemStyle(index)}
+              className="group relative overflow-hidden border-2 border-transparent hover:border-ruby/30 transition-all duration-500 cursor-pointer"
             >
               <div className="relative aspect-[4/3] overflow-hidden">
                 <OptimizedImage
