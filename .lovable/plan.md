@@ -1,146 +1,98 @@
 
-# Context-Aware Payment Email Messaging
+# Email Logo Display & Delivery Fixes
 
-## Problem Statement
-Currently, all payment reminder emails use the same generic "Payment Due" title regardless of whether the customer is being asked for:
-- An initial deposit to secure their event date
-- A scheduled milestone payment
-- The final payment before the event
+## Problem Summary
 
-This creates a missed opportunity to use compelling, action-oriented messaging that emphasizes the value of each payment stage.
+### 1. Logo Display Issue
+The email templates reference logos from `SITE_URL` which either:
+- Falls back to `soultrainseatery.lovable.app` (incorrect - shows placeholder page)
+- May be set to a domain that doesn't serve the images
 
-## Solution Overview
-Implement context-aware payment email messaging that differentiates between deposit payments, milestone payments, and final payments. The system will pass milestone context to the reminder function and dynamically adjust the email subject, hero badge, and title accordingly.
+**Current code:**
+```typescript
+const SITE_URL = Deno.env.get('SITE_URL') || 'https://soultrainseatery.lovable.app';
+export const LOGO_URLS = {
+  red: `${SITE_URL}/images/logo-red.svg`,
+  white: `${SITE_URL}/images/logo-white.svg`,
+};
+```
+
+**Issues:**
+- Default URL `soultrainseatery.lovable.app` returns a placeholder page
+- SVG format has limited support in some email clients (especially Gmail desktop)
+- Images must be publicly accessible via HTTPS
+
+### 2. Email Delivery Issue
+The analytics show the email to `envision@mkqconsulting.com` was successfully sent via SMTP at `01:15:19`. This is a delivery/filtering issue, not a sending failure.
 
 ---
 
-## Implementation Approach
+## Solution
 
-### 1. Update Payment Reminder Function
+### Step 1: Update SITE_URL Secret
+Update the Supabase secret `SITE_URL` to use the correct published domain:
+- **Current published URL**: `https://train-catering-creations.lovable.app`
+- This domain correctly serves the logo files at `/images/logo-white.svg`
 
-Modify `supabase/functions/send-payment-reminder/index.ts` to accept milestone context and dynamically adjust messaging.
+### Step 2: Convert Logos to PNG (Email Client Compatibility)
+Gmail desktop and some other email clients have issues with SVG images. Convert to PNG:
 
-**New Request Interface:**
+1. Add PNG versions of logos to `public/images/`:
+   - `logo-white.png`
+   - `logo-red.png`
+
+2. Update `emailTemplates.ts` to use PNG:
 ```typescript
-interface ReminderRequest {
-  invoiceId: string;
-  customerEmail: string;
-  customerName?: string;
-  eventName?: string;
-  balanceRemaining: number;
-  daysOverdue: number;
-  urgency: 'low' | 'medium' | 'high';
-  milestoneType?: string;  // NEW: DEPOSIT, MILESTONE, FINAL, FULL
-  isDueNow?: boolean;      // NEW: Is this the first payment due now?
-}
+export const LOGO_URLS = {
+  red: `${SITE_URL}/images/logo-red.png`,
+  white: `${SITE_URL}/images/logo-white.png`,
+};
 ```
 
-**Dynamic Messaging Logic:**
-```typescript
-// Determine context-aware messaging
-let subject = '';
-let urgencyBadge = '';
-let urgencyMessage = '';
-let heroVariant: 'orange' | 'crimson' | 'gold' = 'orange';
-let heroTitle = 'Payment Reminder';
+### Step 3: Update Default Fallback URL
+Change the hardcoded fallback to the correct published URL:
 
-if (urgency === 'high') {
-  // Overdue - keep urgent messaging
-  subject = `URGENT: Payment Overdue - ${eventName}`;
-  urgencyBadge = `OVERDUE ${daysOverdue} DAYS`;
-  heroTitle = 'Payment Overdue';
-  heroVariant = 'crimson';
-} else if (milestoneType === 'DEPOSIT' || isDueNow) {
-  // Initial deposit - emphasize date security
-  subject = `Secure Your Date - Deposit Due for ${eventName}`;
-  urgencyBadge = '🔒 DEPOSIT DUE';
-  heroTitle = 'Secure Your Event Date';
-  heroVariant = 'gold';
-  urgencyMessage = `Complete your deposit of <strong>${formatCurrency(balanceRemaining)}</strong> to lock in your event date. Our calendar fills up fast!`;
-} else if (milestoneType === 'FINAL') {
-  // Final payment - emphasize completion
-  subject = `Final Payment Due - ${eventName}`;
-  urgencyBadge = '✅ FINAL PAYMENT';
-  heroTitle = 'Final Payment Due';
-  urgencyMessage = `Your final payment of <strong>${formatCurrency(balanceRemaining)}</strong> is due to complete your booking.`;
-} else if (milestoneType === 'MILESTONE') {
-  // Mid-schedule milestone
-  subject = `Milestone Payment Due - ${eventName}`;
-  urgencyBadge = '💳 PAYMENT DUE';
-  heroTitle = 'Scheduled Payment Due';
-  urgencyMessage = `Your scheduled payment of <strong>${formatCurrency(balanceRemaining)}</strong> is due.`;
-} else {
-  // Default/fallback
-  subject = `Payment Reminder - ${eventName}`;
-  urgencyBadge = 'REMINDER';
-  heroTitle = 'Payment Due';
-}
+```typescript
+const SITE_URL = Deno.env.get('SITE_URL') || 'https://train-catering-creations.lovable.app';
 ```
 
 ---
 
-### 2. Update Unified Reminder System
+## Email Delivery Troubleshooting
 
-Modify `supabase/functions/unified-reminder-system/index.ts` to pass milestone context when invoking payment reminders.
+For the envision@mkqconsulting.com delivery issue:
 
-**For milestone reminders (lines ~290-305):**
-```typescript
-const { error: emailError } = await supabase.functions.invoke('send-payment-reminder', {
-  body: {
-    invoiceId: milestone.invoice_id,
-    customerEmail: email,
-    customerName: milestone.invoices?.quote_requests?.contact_name,
-    eventName: milestone.invoices?.quote_requests?.event_name,
-    balanceRemaining: milestone.amount_cents ?? 0,
-    daysOverdue: 0,
-    urgency: 'medium',
-    milestoneType: milestone.milestone_type,  // NEW
-    isDueNow: milestone.is_due_now            // NEW
-  }
-});
-```
+1. **Check Spam/Junk folder** - Corporate email servers often quarantine new senders
+2. **Check Quarantine** (if using Microsoft 365) - Admin may need to release the message
+3. **Add sender to contacts** - Adding `soultrainseatery@gmail.com` to contacts helps future deliverability
+4. **SPF/DKIM records** - For long-term deliverability, ensure your Gmail SMTP has proper authentication records
+
+The email was definitely sent successfully by the system - the analytics confirm `email_send_success` with a message ID.
 
 ---
 
-### 3. Email Subject Line Strategy
+## File Changes
 
-| Scenario | Subject Line |
-|----------|--------------|
-| Initial Deposit | "🔒 Secure Your Date - Deposit Due for [Event Name]" |
-| Milestone Payment | "💳 Milestone Payment Due - [Event Name]" |
-| Final Payment | "✅ Final Payment Due - [Event Name]" |
-| Overdue (any) | "⚠️ URGENT: Payment Overdue - [Event Name]" |
-
----
-
-## File Changes Required
-
-| File | Changes |
-|------|---------|
-| `supabase/functions/send-payment-reminder/index.ts` | Add `milestoneType` and `isDueNow` to request interface; implement context-aware subject/badge/title logic |
-| `supabase/functions/unified-reminder-system/index.ts` | Pass `milestoneType` and `isDueNow` when invoking payment reminders |
+| File | Change |
+|------|--------|
+| `public/images/logo-white.png` | New file - PNG version of white logo |
+| `public/images/logo-red.png` | New file - PNG version of red logo |
+| `supabase/functions/_shared/emailTemplates.ts` | Update fallback URL and logo file extensions to `.png` |
 
 ---
 
-## User Experience Impact
+## Supabase Secret Update
 
-**Before:**
-> Subject: "Payment Reminder - Johnson Wedding"
-> Badge: "⏰ PAYMENT DUE"
-> Title: "Payment Reminder"
+**Secret to update:** `SITE_URL`  
+**New value:** `https://train-catering-creations.lovable.app`
 
-**After (Deposit):**
-> Subject: "🔒 Secure Your Date - Deposit Due for Johnson Wedding"
-> Badge: "🔒 DEPOSIT DUE"
-> Title: "Secure Your Event Date"
-
-This creates a sense of urgency and value - customers understand they're locking in their date, not just paying a bill.
+This ensures all email portal links and images point to the live published site.
 
 ---
 
-## Technical Notes
+## Why This Approach
 
-1. **Backward Compatibility**: If `milestoneType` is not provided, the system falls back to current generic messaging
-2. **Existing Overdue Logic**: High-urgency overdue emails retain their current urgent styling
-3. **No Database Changes**: All changes are in edge function logic only
-4. **Milestone Types Used**: DEPOSIT, MILESTONE, FINAL, FULL (from generate-payment-milestones)
+1. **PNG over SVG**: PNG images have near-universal email client support, while SVG can be blocked by Gmail, Outlook, and others
+2. **Correct URL**: The published URL (`train-catering-creations.lovable.app`) is verified to serve images correctly
+3. **Fallback safety**: Updating the hardcoded fallback ensures emails still work if the secret is ever cleared
+4. **No database changes**: All fixes are in edge function code and static assets
