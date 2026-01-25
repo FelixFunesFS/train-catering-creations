@@ -15,13 +15,13 @@ export const BRAND_COLORS = {
   white: '#FFFFFF',
 };
 
-// Production URL for logo assets
-const SITE_URL = Deno.env.get('SITE_URL') || 'https://soultrainseatery.lovable.app';
+// Production URL for logo assets - uses published domain for email compatibility
+const SITE_URL = Deno.env.get('SITE_URL') || 'https://train-catering-creations.lovable.app';
 
-// Logo URLs - using hosted SVGs for email compatibility
+// Logo URLs - using PNG for maximum email client compatibility (Gmail, Outlook)
 export const LOGO_URLS = {
-  red: `${SITE_URL}/images/logo-red.svg`,
-  white: `${SITE_URL}/images/logo-white.svg`,
+  red: `${SITE_URL}/images/logo-red.png`,
+  white: `${SITE_URL}/images/logo-white.png`,
 };
 
 // ============================================================================
