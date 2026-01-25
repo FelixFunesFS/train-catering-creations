@@ -36,25 +36,36 @@ export const useStickyElement = (options: UseStickyElementOptions = {}) => {
 
     observer.observe(element);
 
+    let rafId: number | null = null;
+    let cachedElementTop: number | null = null;
+    
     const handleScroll = () => {
       if (!element || !isInView) return;
       
-      const rect = element.getBoundingClientRect();
-      const scrolled = window.pageYOffset;
-      const elementTop = rect.top + scrolled;
-      
-      // Check if element should be sticky
-      const shouldBeSticky = scrolled > elementTop - offsetTop;
-      setIsSticky(shouldBeSticky);
-      
-      // Calculate fade opacity based on scroll distance
-      if (shouldBeSticky) {
-        const scrollDistance = scrolled - (elementTop - offsetTop);
-        const fadeOpacity = Math.max(0, 1 - (scrollDistance / fadeDistance));
-        setOpacity(fadeOpacity);
-      } else {
-        setOpacity(1);
-      }
+      if (rafId) return; // Skip if already scheduled
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        const scrolled = window.pageYOffset;
+        
+        // Cache element position to avoid repeated getBoundingClientRect calls
+        if (cachedElementTop === null) {
+          const rect = element.getBoundingClientRect();
+          cachedElementTop = rect.top + scrolled;
+        }
+        
+        // Check if element should be sticky
+        const shouldBeSticky = scrolled > cachedElementTop - offsetTop;
+        setIsSticky(shouldBeSticky);
+        
+        // Calculate fade opacity based on scroll distance
+        if (shouldBeSticky) {
+          const scrollDistance = scrolled - (cachedElementTop - offsetTop);
+          const fadeOpacity = Math.max(0, 1 - (scrollDistance / fadeDistance));
+          setOpacity(fadeOpacity);
+        } else {
+          setOpacity(1);
+        }
+      });
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
