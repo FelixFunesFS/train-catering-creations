@@ -163,19 +163,6 @@ export const InteractiveGalleryPreview = () => {
         ref={ref}
         className="relative py-12 sm:py-16 lg:py-20 bg-gradient-to-br from-background via-ruby/[0.02] to-background overflow-hidden"
       >
-        {/* Crimson decorative elements */}
-        
-        {/* Top border line */}
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-ruby/30 to-transparent" />
-        
-        {/* Corner accents */}
-        <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-ruby/10 to-transparent rounded-br-full pointer-events-none" />
-        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-ruby/10 to-transparent rounded-bl-full pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-ruby/[0.08] to-transparent rounded-tr-full pointer-events-none" />
-        <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-tl from-ruby/[0.08] to-transparent rounded-tl-full pointer-events-none" />
-        
-        {/* Bottom border line */}
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-ruby/30 to-transparent" />
         
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           {/* Section Header */}
