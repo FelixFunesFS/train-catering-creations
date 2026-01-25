@@ -260,13 +260,13 @@ export const SplitHero = () => {
             {/* CTA Buttons - High Contrast */}
             <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-1 sm:pt-2">
               <Button variant="cta" size="lg" className="w-full sm:flex-1 min-h-[48px] shadow-lg" asChild>
-                <Link to="/request-quote#page-header" className="flex items-center justify-center gap-2 text-inherit">
+                <Link to="/request-quote#page-header" className="flex items-center justify-center gap-2">
                   <Calendar className="h-4 w-4" />
                   <span>Request Quote</span>
                 </Link>
               </Button>
               <Button variant="glass-white" size="lg" className="w-full sm:flex-1 min-h-[48px] shadow-lg" asChild>
-                <a href="tel:8439700265" className="flex items-center justify-center gap-2 text-inherit">
+                <a href="tel:8439700265" className="flex items-center justify-center gap-2">
                   <Phone className="h-4 w-4" />
                   <span>Call Now</span>
                 </a>
@@ -336,13 +336,13 @@ export const SplitHero = () => {
           <div className="space-y-4">
             <div className="flex flex-col md:flex-row space-y-3 md:space-y-0 md:space-x-4">
               <Button variant="cta" size="lg" className="flex-1 min-h-[48px]" asChild>
-                <a href="/request-quote#page-header" className="flex items-center justify-center space-x-2 text-inherit">
+                <a href="/request-quote#page-header" className="flex items-center justify-center space-x-2">
                   <Calendar className="h-5 w-5" />
                   <span>Request Quote</span>
                 </a>
               </Button>
               <Button variant="cta-outline" size="lg" className="flex-1 min-h-[48px]" asChild>
-                <a href="tel:8439700265" className="flex items-center justify-center space-x-2 text-inherit">
+                <a href="tel:8439700265" className="flex items-center justify-center space-x-2">
                   <Phone className="h-5 w-5" />
                   <span>Call Now</span>
                 </a>

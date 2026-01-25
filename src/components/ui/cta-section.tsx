@@ -69,7 +69,7 @@ export const CTASection = ({ title, description, buttons, footer, showWatermark 
                   size="responsive-lg" 
                   className="w-full sm:w-auto sm:min-w-[12rem]"
                 >
-                  <a href={button.href} className="flex items-center justify-center gap-2 text-inherit">
+                  <a href={button.href} className="flex items-center justify-center gap-2">
                     {button.icon}
                     <span>{button.text}</span>
                   </a>

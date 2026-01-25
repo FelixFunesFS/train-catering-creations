@@ -184,7 +184,7 @@ export const ServiceCategoriesSection = () => {
                     size="responsive-compact"
                     asChild
                   >
-                    <a href={service.href} className="flex items-center justify-center space-x-2 text-inherit">
+                    <a href={service.href} className="flex items-center justify-center space-x-2">
                       <span>Get Quote</span>
                       <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                     </a>
@@ -214,7 +214,7 @@ export const ServiceCategoriesSection = () => {
                   size="responsive-compact"
                   asChild
                 >
-                  <a href={service.href} className="flex items-center justify-center space-x-2 text-inherit">
+                  <a href={service.href} className="flex items-center justify-center space-x-2">
                     <span>Get Quote</span>
                     <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                   </a>
