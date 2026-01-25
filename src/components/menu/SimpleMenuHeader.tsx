@@ -2,7 +2,7 @@ import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 import { Badge } from "@/components/ui/badge";
 import { Utensils } from "lucide-react";
-import menuHeroBg from "@/assets/menu-hero-bg.png";
+import menuHeroBg from "@/assets/menu-hero-buffet.png";
 
 export const SimpleMenuHeader = () => {
   const { ref, isVisible, variant } = useScrollAnimation({
