@@ -49,7 +49,7 @@ export const AboutPreviewSection = () => {
     >
       {/* Background image */}
       <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        className="absolute inset-0 bg-contain lg:bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: `url(${homeStoryBg})` }}
         aria-hidden="true"
       />
