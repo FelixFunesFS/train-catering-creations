@@ -52,7 +52,7 @@ export interface HeroConfig {
 }
 
 export interface ContentBlock {
-  type: 'event_details' | 'menu' | 'pricing' | 'menu_with_pricing' | 'customer_contact' | 'payment_schedule' | 'cta' | 'custom_html' | 'status_badge' | 'terms' | 'service_addons' | 'text' | 'menu_summary' | 'supplies_summary';
+  type: 'event_details' | 'menu' | 'pricing' | 'menu_with_pricing' | 'customer_contact' | 'payment_schedule' | 'cta' | 'custom_html' | 'status_badge' | 'terms' | 'service_addons' | 'text' | 'menu_summary' | 'supplies_summary' | 'event_section' | 'full_selection';
   data?: any;
 }
 
@@ -596,6 +596,48 @@ ${supplies.length > 0 ? `<div style="margin-bottom:10px;">${suppliesBadges}</div
 ${quote.theme_colors ? `<p style="margin:0;font-size:14px;color:${BRAND_COLORS.darkGray};"><strong>🎨 Theme/Colors:</strong> ${quote.theme_colors}</p>` : ''}
 </td>
 </tr>
+</table>
+`;
+}
+
+/**
+ * Generate Combined Event Section
+ * Displays customer contact info and event details in one unified block
+ */
+export function generateEventSection(quote: any): string {
+  const contactHtml = generateCustomerContactCard(quote);
+  const eventHtml = generateEventDetailsCard(quote);
+  
+  return `
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:16px 0;border-collapse:collapse;">
+<tr><td>
+<h3 style="margin:0 0 12px 0;color:${BRAND_COLORS.crimson};font-size:18px;">📅 Your Event</h3>
+${contactHtml}
+${eventHtml}
+</td></tr>
+</table>
+`;
+}
+
+/**
+ * Generate Combined Menu, Services & Supplies Section
+ * All customer selections displayed in one unified block
+ */
+export function generateFullSelectionSection(quote: any): string {
+  const menuHtml = generateMenuSummarySection(quote);
+  const servicesHtml = generateServiceAddonsSection(quote);
+  const suppliesHtml = generateSuppliesSummarySection(quote);
+  
+  if (!menuHtml && !servicesHtml && !suppliesHtml) return '';
+  
+  return `
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:16px 0;border-collapse:collapse;">
+<tr><td>
+<h3 style="margin:0 0 12px 0;color:${BRAND_COLORS.crimson};font-size:18px;">🍽️ Your Menu, Services & Supplies</h3>
+${menuHtml}
+${servicesHtml}
+${suppliesHtml}
+</td></tr>
 </table>
 `;
 }
@@ -1378,6 +1420,12 @@ function renderContentBlock(block: ContentBlock, config: StandardEmailConfig): s
     case 'supplies_summary':
       return config.quote ? generateSuppliesSummarySection(config.quote) : '';
     
+    case 'event_section':
+      return config.quote ? generateEventSection(config.quote) : '';
+    
+    case 'full_selection':
+      return config.quote ? generateFullSelectionSection(config.quote) : '';
+    
     default:
       return '';
   }
@@ -1673,11 +1721,17 @@ export function getEmailContentBlocks(
         ` : '';
 
         contentBlocks = [
+          // 1. Greeting
           { type: 'text', data: { html: `<p style="font-size:16px;margin:0 0 16px 0;">Great news, ${quote.contact_name}!</p><p style="font-size:15px;margin:0 0 16px 0;line-height:1.6;">You've approved your catering estimate for <strong>${quote.event_name}</strong>. We're excited to be part of your special event!</p>` }},
-          { type: 'event_details' },
-          { type: 'service_addons' },
+          
+          // 2. Your Event (Customer Contact + Event Details COMBINED)
+          { type: 'event_section' },
+          
+          // 3. Payment Box + CTA (MOVED UP - right after event details)
           { type: 'custom_html', data: { html: paymentBoxHtml }},
-          { type: 'custom_html', data: { html: paymentScheduleHtml }},
+          { type: 'cta', data: { text: 'Make Payment Now', href: effectivePortalUrl, variant: 'primary' }},
+          
+          // 4. What Happens Next
           { type: 'custom_html', data: { html: `
             <h3 style="color:${BRAND_COLORS.crimson};margin:24px 0 12px 0;">📋 What Happens Next:</h3>
             <ol style="line-height:1.8;margin:0;padding-left:20px;">
@@ -1687,15 +1741,22 @@ export function getEmailContentBlocks(
               <li><strong>Event Day:</strong> We'll arrive early to set up and serve amazing food!</li>
             </ol>
           ` }},
+          
+          // 5. Menu, Services & Supplies (ALL COMBINED)
+          { type: 'full_selection' },
+          
+          // 6. Payment Schedule + Terms + Tips
+          { type: 'custom_html', data: { html: paymentScheduleHtml }},
           { type: 'terms' },
           { type: 'text', data: { html: `
             <div style="background:${BRAND_COLORS.lightGray};padding:15px;border-radius:8px;border-left:4px solid ${BRAND_COLORS.gold};margin:20px 0;">
-              <strong>💡 Tip:</strong> You can always access your event portal to view your estimate, make payments, or contact us using the link in this email.
+              <strong>💡 Tip:</strong> Access your event portal anytime to view your estimate or make payments.
             </div>
-            <p style="font-size:15px;margin:20px 0 0 0;">Questions? Call us at <strong>(843) 970-0265</strong> or reply to this email!</p>
+            <p style="font-size:15px;margin:20px 0 0 0;">Questions? Call us at <strong>(843) 970-0265</strong></p>
           ` }}
         ];
-        ctaButton = { text: 'Make Payment Now', href: effectivePortalUrl, variant: 'primary' };
+        // CTA is now inline above
+        ctaButton = null;
       } else {
         // Admin variant
         contentBlocks = [
