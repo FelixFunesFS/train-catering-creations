@@ -105,8 +105,72 @@ export const formatEventType = (eventType: string | null): string => {
   return eventTypeMap[eventType.toLowerCase()] || 
          eventType.replace(/_/g, ' ').split(' ')
            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-           .join(' ');
+          .join(' ');
 };
+
+// ============================================================================
+// ESTIMATE VALIDITY - Context-aware validity based on event proximity
+// ============================================================================
+
+interface EmailEstimateValidity {
+  daysValid: number;
+  displayText: string;
+  urgencyLevel: 'critical' | 'high' | 'medium' | 'standard';
+}
+
+/**
+ * Calculate estimate validity for email templates
+ * Aligns with payment schedule tiers to create appropriate urgency
+ */
+function calculateEstimateValidity(eventDate: string, isGovernment: boolean): EmailEstimateValidity {
+  const today = new Date();
+  const event = new Date(eventDate);
+  const daysUntilEvent = Math.ceil((event.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  
+  // Government contracts always get standard validity
+  if (isGovernment) {
+    return { daysValid: 7, displayText: '7 days', urgencyLevel: 'standard' };
+  }
+  
+  // Tiered validity based on event proximity
+  if (daysUntilEvent <= 14) {
+    return { daysValid: 2, displayText: '24-48 hours', urgencyLevel: 'critical' };
+  } else if (daysUntilEvent <= 30) {
+    return { daysValid: 3, displayText: '3 days', urgencyLevel: 'high' };
+  } else if (daysUntilEvent <= 44) {
+    return { daysValid: 5, displayText: '5 days', urgencyLevel: 'medium' };
+  } else {
+    return { daysValid: 7, displayText: '7 days', urgencyLevel: 'standard' };
+  }
+}
+
+/**
+ * Get urgency-appropriate color for validity border
+ */
+function getValidityUrgencyColor(urgencyLevel: EmailEstimateValidity['urgencyLevel']): string {
+  switch (urgencyLevel) {
+    case 'critical': return BRAND_COLORS.crimson;
+    case 'high': return '#d97706'; // amber
+    case 'medium': return BRAND_COLORS.gold;
+    case 'standard': return BRAND_COLORS.gold;
+  }
+}
+
+/**
+ * Get urgency-appropriate messaging for estimate validity
+ */
+function getValidityUrgencyMessage(urgencyLevel: EmailEstimateValidity['urgencyLevel']): string {
+  switch (urgencyLevel) {
+    case 'critical':
+      return 'Your event is coming up quickly! Please approve immediately to secure your date.';
+    case 'high':
+      return 'Your event is approaching soon. We recommend approving quickly to ensure availability.';
+    case 'medium':
+      return 'Dates fill up fast! We recommend approving soon to lock in your date.';
+    case 'standard':
+      return 'We recommend approving your estimate as soon as you\'re ready.';
+  }
+}
 
 export const formatCurrency = (cents: number): string => {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100);
@@ -1582,13 +1646,18 @@ export function getEmailContentBlocks(
             ? `To secure your date, your first payment is <strong>${formatCurrency(firstMilestone.amount_cents)}</strong>${firstMilestone.percentage != null ? ` (${firstMilestone.percentage}%)` : ''}.`
             : `To secure your date, a deposit is required after you approve your estimate.`);
 
+      // Calculate context-aware validity based on event proximity
+      const validity = calculateEstimateValidity(quote.event_date, isGovernment);
+      const validityColor = getValidityUrgencyColor(validity.urgencyLevel);
+      const validityMessage = getValidityUrgencyMessage(validity.urgencyLevel);
+
       const estimateValidityHtml = `
-        <div style="background:${BRAND_COLORS.lightGray};padding:16px 16px;border-radius:10px;border-left:4px solid ${BRAND_COLORS.gold};margin:18px 0;">
+        <div style="background:${BRAND_COLORS.lightGray};padding:16px 16px;border-radius:10px;border-left:4px solid ${validityColor};margin:18px 0;">
           <p style="margin:0 0 10px 0;font-size:14px;line-height:1.6;">
-            <strong>⏳ Estimate Validity:</strong> This estimate is valid for <strong>7 days</strong> from the date this email was sent.
+            <strong style="color:${validity.urgencyLevel === 'critical' ? BRAND_COLORS.crimson : 'inherit'};">⏳ Estimate Validity:</strong> This estimate is valid for <strong>${validity.displayText}</strong> from the date this email was sent.
           </p>
           <p style="margin:0 0 10px 0;font-size:14px;line-height:1.6;">
-            <strong>📅 Dates Fill Up Quickly:</strong> We recommend approving your estimate as soon as you’re ready.
+            <strong>📅 ${validityMessage}</strong>
           </p>
           <p style="margin:0;font-size:14px;line-height:1.6;">${depositText}</p>
         </div>
