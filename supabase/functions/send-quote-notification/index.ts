@@ -94,7 +94,7 @@ const handler = async (req: Request): Promise<Response> => {
       return supplies.length > 0 ? supplies.join(', ') : 'None requested';
     };
 
-    const siteUrl = Deno.env.get('SITE_URL') || 'https://soultrainseatery.lovable.app';
+    const siteUrl = Deno.env.get('SITE_URL') || 'https://train-catering-creations.lovable.app';
 
     // Build menu section HTML for admin notification
     const menuSectionHtml = `
