@@ -27,7 +27,7 @@ interface SubmissionsCardProps {
 
 export function SubmissionsCard({ onEventClick }: SubmissionsCardProps) {
   const navigate = useNavigate();
-  const isDesktop = useMediaQuery('(min-width: 1024px)');
+  
   const isMobile = useMediaQuery('(max-width: 640px)');
   
   const { data: quotes, isLoading } = useQuotes();
@@ -43,7 +43,7 @@ export function SubmissionsCard({ onEventClick }: SubmissionsCardProps) {
   const handleClick = (event: QuoteRequest) => {
     if (onEventClick) {
       onEventClick(event);
-    } else if (isDesktop) {
+    } else {
       navigate(`/admin/event/${event.id}`);
     }
   };
