@@ -77,9 +77,10 @@ export const CategoryCards = ({
                 }`}
                 onClick={() => onCategorySelect(category.id)}
               >
-                <OptimizedImage
+              <OptimizedImage
                   src={previewImage}
                   alt={category.name}
+                  priority={true}
                   className="w-full h-full object-cover"
                   containerClassName="w-full h-full"
                 />
@@ -125,9 +126,10 @@ export const CategoryCards = ({
                 }`}
                 onClick={() => onCategorySelect(category.id)}
               >
-                <OptimizedImage
+              <OptimizedImage
                   src={previewImage}
                   alt={category.name}
+                  priority={true}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   containerClassName="w-full h-full"
                 />

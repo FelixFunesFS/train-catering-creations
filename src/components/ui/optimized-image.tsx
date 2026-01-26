@@ -76,7 +76,8 @@ export const OptimizedImage = ({
           onError={handleError}
           loading={priority ? "eager" : "lazy"}
           decoding="async"
-          fetchPriority={priority ? "high" : "auto"}
+          // Use spread for fetchpriority to avoid TS errors with lowercase HTML5 attribute
+          {...{ fetchpriority: priority ? "high" : "auto" }}
           style={{
             imageRendering: 'crisp-edges',
             WebkitBackfaceVisibility: 'hidden',
