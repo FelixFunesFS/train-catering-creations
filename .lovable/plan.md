@@ -1,196 +1,84 @@
 
-# Add Event Type Display to Customer Emails and PDFs
+# Fix Customer Email Logos Not Displaying
 
-## Overview
+## Problem Diagnosis
 
-This plan adds the event type (Birthday, Corporate, Wedding, Graduation, etc.) to customer-facing emails and PDF documents so customers can clearly see their event category.
+The email templates ARE correctly using the PNG logos (`logo-white.png` and `logo-red.png`) from `public/images/`. However, the logos may not be displaying due to:
 
----
+1. **SITE_URL Secret Misconfiguration** - The secret may be set to an incorrect domain (e.g., `mkqdevtesting.com`) that doesn't serve the images
+2. **Inconsistent Fallback URLs** - Different edge functions have different fallback URLs:
+   - `emailTemplates.ts`: `train-catering-creations.lovable.app` 
+   - `send-quote-notification`: `soultrainseatery.lovable.app`
 
 ## Current State
 
-| Information | Customer Emails | PDF |
-|-------------|:---------------:|:---:|
-| Event Name | ✓ | ✓ |
-| **Event Type** | ❌ | ❌ |
-| Military Badge | ✓ | ✓ |
-| Service Type | ✓ | ✓ |
+| File | Logo Source | Status |
+|------|-------------|--------|
+| `_shared/emailTemplates.ts` | `${SITE_URL}/images/logo-white.png` | Uses PNG |
+| `_shared/emailTemplates.ts` | `${SITE_URL}/images/logo-red.png` | Uses PNG (footer) |
+| `generate-invoice-pdf/index.ts` | Hardcoded lovable-uploads URL | Separate issue |
 
----
+The PNG files exist at:
+- `public/images/logo-white.png` (white logo on transparent)
+- `public/images/logo-red.png` (red logo on transparent)
 
-## Part 1: Add formatEventType to Email Templates
+## Solution
 
-### supabase/functions/_shared/emailTemplates.ts
+### Step 1: Standardize Fallback URLs
 
-**Add formatEventType function (after formatServiceType, around line 83):**
+Update all edge functions to use the correct published URL as fallback:
 
+**File: `supabase/functions/_shared/emailTemplates.ts` (line 19)**
 ```typescript
-export const formatEventType = (eventType: string | null): string => {
-  if (!eventType) return 'Event';
-  
-  const eventTypeMap: Record<string, string> = {
-    'wedding': 'Wedding',
-    'birthday': 'Birthday',
-    'corporate': 'Corporate Event',
-    'graduation': 'Graduation',
-    'anniversary': 'Anniversary',
-    'baby_shower': 'Baby Shower',
-    'bridal_shower': 'Bridal Shower',
-    'retirement': 'Retirement',
-    'holiday_party': 'Holiday Party',
-    'bereavement': 'Bereavement',
-    'private_party': 'Private Party',
-    'black_tie': 'Black Tie',
-    'military_function': 'Military Function',
-    'other': 'Other Event'
-  };
-  
-  return eventTypeMap[eventType.toLowerCase()] || 
-         eventType.replace(/_/g, ' ').split(' ')
-           .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-           .join(' ');
-};
+// Before
+const SITE_URL = Deno.env.get('SITE_URL') || 'https://train-catering-creations.lovable.app';
+
+// After (no change needed - this is correct)
 ```
 
----
-
-## Part 2: Update generateEventDetailsCard in Emails
-
-### supabase/functions/_shared/emailTemplates.ts
-
-**In the generateEventDetailsCard function (lines 191-236):**
-
-Add event type display below the event name/military badge, before the date/time table:
-
+**File: `supabase/functions/send-quote-notification/index.ts` (line 97)**
 ```typescript
-// After the event name h3 (around line 198), add:
-<p style="margin:4px 0 12px 0;font-size:13px;color:#666;">
-  <span style="display:inline-block;background:#f3f4f6;color:#374151;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:500;">
-    ${formatEventType(quote.event_type)}
-  </span>
-</p>
+// Before
+const siteUrl = Deno.env.get('SITE_URL') || 'https://soultrainseatery.lovable.app';
+
+// After
+const siteUrl = Deno.env.get('SITE_URL') || 'https://train-catering-creations.lovable.app';
 ```
 
-**Updated Event Details Card Structure:**
+### Step 2: Verify SITE_URL Secret
+
+The SITE_URL secret should be set to the published URL:
 ```
-Event Name [Military Badge if applicable]
-[Event Type Badge] ← NEW
-📅 Date    ⏰ Time
-📍 Location    👥 Guests
-🍽️ Service Type
+https://train-catering-creations.lovable.app
 ```
 
----
+If it's currently set to a different domain (like `mkqdevtesting.com`), the images won't load because that domain doesn't have the `/images/logo-*.png` files.
 
-## Part 3: Add formatEventType to PDF Generation
+**Action Required:** Check and update the SITE_URL secret in Supabase Edge Functions settings if needed.
 
-### supabase/functions/generate-invoice-pdf/index.ts
+### Step 3: Redeploy Edge Functions
 
-**Add formatEventType function (after formatMilestoneType, around line 171):**
+After updating the code, redeploy these edge functions:
+- `send-quote-notification`
+- `send-quote-confirmation` (uses shared emailTemplates.ts)
+- `send-customer-portal-email` (uses shared emailTemplates.ts)
 
-```typescript
-// Format event type
-const formatEventType = (type: string | null): string => {
-  if (!type) return 'Event';
-  const types: Record<string, string> = {
-    'wedding': 'Wedding',
-    'birthday': 'Birthday',
-    'corporate': 'Corporate Event',
-    'graduation': 'Graduation',
-    'anniversary': 'Anniversary',
-    'baby_shower': 'Baby Shower',
-    'bridal_shower': 'Bridal Shower',
-    'retirement': 'Retirement',
-    'holiday_party': 'Holiday Party',
-    'bereavement': 'Bereavement',
-    'private_party': 'Private Party',
-    'black_tie': 'Black Tie',
-    'military_function': 'Military Function',
-    'other': 'Other Event'
-  };
-  return types[type] || type.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-};
-```
-
----
-
-## Part 4: Update PDF Event Details Section
-
-### supabase/functions/generate-invoice-pdf/index.ts
-
-**In the Event column section (lines 338-364):**
-
-Add event type display after the event name, before date/time:
-
-```typescript
-// After drawing event name (line 342), add:
-drawText(formatEventType(quote?.event_type), col2X, eventY, { size: 9, color: MEDIUM_GRAY });
-eventY -= 10;
-```
-
-**Updated PDF Event Details Layout:**
-```
-EVENT DETAILS
-Event Name (bold)
-Corporate Event ← NEW (gray text)
-Mon, Jan 27, 2026 at 2:00 PM ET
-Location
-50 Guests | Full Service
-Military Org: [if applicable]
-```
-
----
-
-## Visual Examples
-
-### Email Event Details Card:
-```
-┌─────────────────────────────────────────────────────────┐
-│  Johnson Retirement Party  [🎖️ Military]               │
-│  ┌──────────────────┐                                   │
-│  │ Retirement Party │  ← Event Type Badge (gray bg)     │
-│  └──────────────────┘                                   │
-│                                                         │
-│  📅 Jan 27, 2026        ⏰ 2:00 PM                      │
-│  📍 Charleston, SC      👥 75 guests                   │
-│  🍽️ Full-Service Catering                              │
-└─────────────────────────────────────────────────────────┘
-```
-
-### PDF Event Details Column:
-```
-EVENT DETAILS
-Johnson Retirement Party
-Retirement Party            ← Event Type (gray)
-Mon, Jan 27, 2026 at 2:00 PM ET
-Charleston, SC
-75 Guests | Full Service
-```
-
----
-
-## Summary of Changes
+## Files to Modify
 
 | File | Change |
 |------|--------|
-| `_shared/emailTemplates.ts` | Add `formatEventType()` function |
-| `_shared/emailTemplates.ts` | Add event type badge in `generateEventDetailsCard()` |
-| `generate-invoice-pdf/index.ts` | Add `formatEventType()` function |
-| `generate-invoice-pdf/index.ts` | Add event type line in PDF event column |
+| `supabase/functions/send-quote-notification/index.ts` | Fix fallback URL from `soultrainseatery.lovable.app` to `train-catering-creations.lovable.app` |
 
----
+## Verification Steps
 
-## Edge Functions to Deploy
-
-1. `send-customer-portal-email` (uses shared emailTemplates.ts)
-2. `send-quote-confirmation` (uses shared emailTemplates.ts)
-3. `generate-invoice-pdf`
-
----
+After implementation:
+1. Send a test email using the Email Preview in admin
+2. Check the email source to verify the logo URL is correct
+3. Confirm the logo displays in the email client
 
 ## Technical Notes
 
-- Event type is displayed in a subtle gray style to not compete with the event name
-- Military events will show both the event type badge AND the military badge
-- The formatEventType function handles all event types from the form schema
-- Fallback formatting converts snake_case to Title Case for unknown types
+- The PNG logos in `public/images/` are correctly accessible at `https://train-catering-creations.lovable.app/images/logo-white.png` and `logo-red.png`
+- The `logo-white.png` is white on transparent background (designed for crimson header)
+- The `logo-red.png` is red on transparent background (designed for white footer)
+- If SITE_URL secret is misconfigured, you'll need to update it in Supabase Dashboard > Settings > Edge Functions > Secrets
