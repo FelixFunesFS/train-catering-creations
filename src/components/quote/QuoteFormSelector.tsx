@@ -63,7 +63,7 @@ const QuoteFormSelector = ({ showHeader = true }: QuoteFormSelectorProps) => {
           </CardContent>
         </Card>
 
-        {/* Wedding & Black Tie Events Card */}
+        {/* Formal & Military Events Card */}
         <Card className="shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-[1.02] bg-gradient-to-br from-background via-accent/5 to-primary/10 border-2 border-accent/30 hover:border-accent/50 relative overflow-hidden group">
           <div className="absolute top-0 left-0 w-28 h-28 bg-gradient-to-br from-accent/20 to-transparent rounded-br-full" />
           <div className="absolute bottom-0 right-0 w-20 h-20 bg-gradient-to-tl from-primary/20 to-transparent rounded-tl-full" />
@@ -72,7 +72,7 @@ const QuoteFormSelector = ({ showHeader = true }: QuoteFormSelectorProps) => {
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-accent/15 mb-4 group-hover:bg-accent/20 transition-colors">
                 <Heart className="h-8 w-8 text-accent" />
               </div>
-              <h3 className="text-2xl font-elegant text-foreground mb-3">Wedding & Black Tie Events</h3>
+              <h3 className="text-2xl font-elegant text-foreground mb-3">Formal & Military Events</h3>
               <p className="text-muted-foreground">
                 Elegant catering for weddings, galas, military functions, and formal celebrations
               </p>
@@ -99,7 +99,7 @@ const QuoteFormSelector = ({ showHeader = true }: QuoteFormSelectorProps) => {
 
             <Button asChild variant="cta" size="responsive-lg" className="w-full">
               <Link to="/request-quote/wedding">
-                Get Wedding Quote
+                Get Formal Event Quote
               </Link>
             </Button>
           </CardContent>

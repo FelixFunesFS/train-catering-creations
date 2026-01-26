@@ -7,13 +7,14 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { 
   Mail, Phone, MapPin, Calendar, Clock, Users, 
   Utensils, Leaf, MessageSquare, ExternalLink, X,
-  Package, Flame, IceCream, GlassWater, DollarSign
+  Package, Flame, IceCream, GlassWater, DollarSign, Shield
 } from 'lucide-react';
 import { Database } from '@/integrations/supabase/types';
 import { formatLocationLink, formatPhoneLink, formatEmailLink } from '@/utils/linkFormatters';
 import { EventChecklistPanel } from './EventChecklistPanel';
 import { StaffAssignmentPanel } from './StaffAssignmentPanel';
 import { useCustomLineItems } from '@/hooks/useCustomLineItems';
+import { isMilitaryEvent } from '@/utils/eventTypeUtils';
 
 type QuoteRequest = Database['public']['Tables']['quote_requests']['Row'];
 
@@ -118,6 +119,19 @@ export function EventSummaryPanel({ event, onClose, onViewFull }: EventSummaryPa
 
           {/* Event Name */}
           <p className="text-sm text-muted-foreground">{event.event_name}</p>
+          
+          {/* Military Organization Badge */}
+          {isMilitaryEvent(event.event_type) && (
+            <div className="flex items-center gap-2 flex-wrap mt-1">
+              <Badge variant="outline" className="bg-blue-500/10 text-blue-700 border-blue-500/20 text-xs">
+                <Shield className="h-3 w-3 mr-1" />
+                Military
+              </Badge>
+              {event.military_organization && (
+                <span className="text-xs text-blue-700">{event.military_organization}</span>
+              )}
+            </div>
+          )}
 
           <Separator />
 

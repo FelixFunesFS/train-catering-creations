@@ -96,6 +96,9 @@ export const formSchema = z.object({
   serving_setup_area: z.string().optional(),
   bussing_tables_needed: z.boolean().default(false),
   
+  // Military-specific field (optional)
+  military_organization: z.string().optional(),
+  
   // Additional Information
   special_requests: z.string().optional(),
   referral_source: z.enum([

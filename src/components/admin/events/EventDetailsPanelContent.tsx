@@ -5,12 +5,13 @@ import { Badge } from '@/components/ui/badge';
 import { 
   Calendar, MapPin, Users, MessageSquare, 
   PartyPopper, Heart, Pencil, Utensils, Phone, ExternalLink,
-  Clock, Truck, Palette, Info
+  Clock, Truck, Palette, Info, Shield
 } from 'lucide-react';
 import { formatDate, formatTime, formatServiceType, formatEventType, formatReferralSource, getStatusColor } from '@/utils/formatters';
 import { formatLocationLink, formatPhoneLink } from '@/utils/linkFormatters';
 import { ChangeHistory } from './ChangeHistory';
 import { PaymentScheduleSection } from './PaymentScheduleSection';
+import { isMilitaryEvent } from '@/utils/eventTypeUtils';
 
 interface EventDetailsPanelContentProps {
   quote: any;
@@ -95,6 +96,19 @@ export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <PartyPopper className="h-3 w-3" />
             <span>{formatEventType(quote.event_type)}</span>
+          </div>
+        )}
+        
+        {/* Military Organization Badge */}
+        {isMilitaryEvent(quote?.event_type) && (
+          <div className="flex items-center gap-2 flex-wrap">
+            <Badge className="bg-blue-500/10 text-blue-700 border-blue-500/20">
+              <Shield className="h-3 w-3 mr-1" />
+              Military Function
+            </Badge>
+            {quote?.military_organization && (
+              <span className="text-sm text-blue-700">{quote.military_organization}</span>
+            )}
           </div>
         )}
         

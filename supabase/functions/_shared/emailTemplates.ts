@@ -192,7 +192,15 @@ export function generateEventDetailsCard(quote: any): string {
 <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${BRAND_COLORS.lightGray}" style="background:${BRAND_COLORS.lightGray};border-radius:8px;border-left:4px solid ${BRAND_COLORS.gold};margin:16px 0;border-collapse:collapse;">
 <tr>
 <td style="padding:16px;">
-<h3 style="margin:0 0 12px 0;color:${BRAND_COLORS.crimson};font-size:18px;">${quote.event_name || 'Your Event'}</h3>
+<h3 style="margin:0 0 12px 0;color:${BRAND_COLORS.crimson};font-size:18px;">
+  ${quote.event_name || 'Your Event'}
+  ${quote.event_type === 'military_function' ? `<span style="display:inline-block;background:#dbeafe;color:#1d4ed8;font-size:12px;padding:2px 8px;border-radius:4px;margin-left:8px;vertical-align:middle;">🎖️ Military</span>` : ''}
+</h3>
+${quote.military_organization ? `
+<p style="margin:0 0 10px 0;font-size:14px;color:#1d4ed8;">
+  <strong>Organization:</strong> ${quote.military_organization}
+</p>
+` : ''}
 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
 <tr>
 <td width="50%" style="padding:4px 8px 4px 0;font-size:14px;vertical-align:top;">

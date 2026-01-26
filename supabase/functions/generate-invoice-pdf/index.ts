@@ -63,7 +63,7 @@ serve(async (req) => {
           id, event_name, event_date, location, service_type, guest_count, 
           special_requests, contact_name, email, start_time, proteins, sides,
           appetizers, desserts, drinks, vegetarian_entrees, guest_count_with_restrictions,
-          compliance_level, requires_po_number,
+          compliance_level, requires_po_number, event_type, military_organization,
           wait_staff_requested, wait_staff_requirements, bussing_tables_needed,
           ceremony_included, cocktail_hour, theme_colors
         )
@@ -356,6 +356,12 @@ serve(async (req) => {
       drawText(`${quote.guest_count} Guests | ${formatServiceType(quote.service_type)}`, col2X, eventY, { size: 9 });
       eventY -= 10;
     }
+    
+    // Military Organization (if applicable)
+    if (quote?.event_type === 'military_function' && quote?.military_organization) {
+      drawText(`Military Org: ${sanitizeText(quote.military_organization)}`, col2X, eventY, { size: 9, color: BLUE });
+      eventY -= 10;
+    }
 
     y = Math.min(y, eventY) - 10;
 
@@ -363,6 +369,15 @@ serve(async (req) => {
     if (isGovernment) {
       page.drawRectangle({ x: margin, y: y - 14, width: contentWidth, height: 18, color: rgb(0.93, 0.95, 1) });
       drawText("Government Contract - Tax Exempt | Net 30 Payment Terms", margin + 8, y - 9, { 
+        font: helveticaBold, size: 9, color: BLUE 
+      });
+      y -= 22;
+    }
+    
+    // Military Function badge (if not government but is military)
+    if (quote?.event_type === 'military_function' && !isGovernment) {
+      page.drawRectangle({ x: margin, y: y - 14, width: contentWidth, height: 18, color: rgb(0.86, 0.92, 0.98) });
+      drawText(`Military Function${quote.military_organization ? ` - ${sanitizeText(quote.military_organization)}` : ''}`, margin + 8, y - 9, { 
         font: helveticaBold, size: 9, color: BLUE 
       });
       y -= 22;

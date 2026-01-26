@@ -1490,6 +1490,7 @@ export type Database = {
           id: string
           last_status_change: string | null
           location: string
+          military_organization: string | null
           napkins_requested: boolean | null
           phone: string
           plates_requested: boolean | null
@@ -1544,6 +1545,7 @@ export type Database = {
           id?: string
           last_status_change?: string | null
           location: string
+          military_organization?: string | null
           napkins_requested?: boolean | null
           phone: string
           plates_requested?: boolean | null
@@ -1598,6 +1600,7 @@ export type Database = {
           id?: string
           last_status_change?: string | null
           location?: string
+          military_organization?: string | null
           napkins_requested?: boolean | null
           phone?: string
           plates_requested?: boolean | null

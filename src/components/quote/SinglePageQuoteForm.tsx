@@ -131,6 +131,7 @@ export const SinglePageQuoteForm = ({
       special_requests: "",
       referral_source: undefined,
       theme_colors: "",
+      military_organization: "",
     },
   });
 
@@ -325,6 +326,7 @@ export const SinglePageQuoteForm = ({
         referral_source: data.referral_source,
         theme_colors: data.theme_colors,
         cocktail_hour: data.cocktail_hour,
+        military_organization: data.military_organization || null,
       };
       
       // Use edge function to bypass RLS for public form submissions
@@ -470,7 +472,7 @@ export const SinglePageQuoteForm = ({
               Exit
             </Button>
             <div className="text-sm font-medium text-foreground">
-              {variant === 'wedding' ? 'Wedding Quote' : 'Event Quote'}
+              {variant === 'wedding' ? 'Formal Event Quote' : 'Event Quote'}
             </div>
             <div className="w-[64px]" />
           </div>
