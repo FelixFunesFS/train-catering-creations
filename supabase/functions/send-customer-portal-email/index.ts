@@ -119,7 +119,7 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error('Invoice or access token not found for this quote request');
     }
 
-    const siteUrl = Deno.env.get('SITE_URL') || 'https://soultrainseatery.lovable.app';
+    const siteUrl = Deno.env.get('SITE_URL') || 'https://train-catering-creations.lovable.app';
     const portalUrl = `${siteUrl}/estimate?token=${invoice.customer_access_token}`;
     const lineItems = invoice.invoice_line_items || [];
     

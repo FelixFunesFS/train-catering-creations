@@ -32,7 +32,7 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const supabase = createClient(supabaseUrl, serviceRoleKey);
-    const siteUrl = Deno.env.get("SITE_URL") || "https://soultrainseatery.lovable.app";
+    const siteUrl = Deno.env.get("SITE_URL") || "https://train-catering-creations.lovable.app";
 
     console.log("[approve-estimate] approving token:", token.slice(0, 6) + "...");
 
