@@ -590,7 +590,17 @@ serve(async (req) => {
     y -= 12;
     drawText("Thank you for choosing Soul Train's Eatery!", margin, y, { font: helveticaBold, size: 9, color: CRIMSON });
     y -= 10;
-    drawText("This estimate is valid for 30 days. See page 2 for complete terms and conditions.", margin, y, { size: 8, color: MEDIUM_GRAY });
+    
+    // Calculate context-aware validity based on event proximity
+    const eventDate = quote?.event_date;
+    let validityText = '7 days';
+    if (eventDate) {
+      const daysUntilEvent = Math.ceil((new Date(eventDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+      if (daysUntilEvent <= 14) validityText = '24-48 hours';
+      else if (daysUntilEvent <= 30) validityText = '3 days';
+      else if (daysUntilEvent <= 44) validityText = '5 days';
+    }
+    drawText(`This estimate is valid for ${validityText}. See page 2 for complete terms and conditions.`, margin, y, { size: 8, color: MEDIUM_GRAY });
 
     // === PAGE 2: FULL TERMS & CONDITIONS ===
     page = pdfDoc.addPage([pageWidth, pageHeight]);

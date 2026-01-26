@@ -236,3 +236,104 @@ export const getScheduleDescription = (tier: PaymentSchedule['schedule_tier']): 
       return 'Custom payment schedule';
   }
 };
+
+// ============================================================================
+// ESTIMATE VALIDITY - Context-aware validity based on event proximity
+// ============================================================================
+
+export interface EstimateValidity {
+  daysValid: number;
+  displayText: string;
+  urgencyLevel: 'critical' | 'high' | 'medium' | 'standard';
+  expirationDate: Date;
+}
+
+/**
+ * Get estimate validity period based on event proximity
+ * Aligns with payment schedule tiers to create appropriate urgency
+ * 
+ * Tiers:
+ * - RUSH (≤14 days): 24-48 hours validity
+ * - SHORT_NOTICE (15-30 days): 3 days validity
+ * - MID_RANGE (31-44 days): 5 days validity
+ * - STANDARD (45+ days): 7 days validity
+ * - GOVERNMENT (any): 7 days validity (standard terms)
+ */
+export const getEstimateValidity = (
+  eventDate: Date,
+  estimateSentDate: Date = new Date(),
+  customerType: 'PERSON' | 'ORG' | 'GOV' = 'PERSON'
+): EstimateValidity => {
+  const daysUntilEvent = daysBetween(estimateSentDate, eventDate);
+  
+  // Government contracts always get standard validity
+  if (customerType === 'GOV') {
+    const expDate = new Date(estimateSentDate);
+    expDate.setDate(expDate.getDate() + 7);
+    return {
+      daysValid: 7,
+      displayText: '7 days',
+      urgencyLevel: 'standard',
+      expirationDate: expDate
+    };
+  }
+  
+  // Tiered validity based on event proximity
+  if (daysUntilEvent <= 14) {
+    // RUSH: Very short validity
+    const expDate = new Date(estimateSentDate);
+    expDate.setDate(expDate.getDate() + 2);
+    return {
+      daysValid: 2,
+      displayText: '24-48 hours',
+      urgencyLevel: 'critical',
+      expirationDate: expDate
+    };
+  } else if (daysUntilEvent <= 30) {
+    // SHORT_NOTICE: 3-day validity
+    const expDate = new Date(estimateSentDate);
+    expDate.setDate(expDate.getDate() + 3);
+    return {
+      daysValid: 3,
+      displayText: '3 days',
+      urgencyLevel: 'high',
+      expirationDate: expDate
+    };
+  } else if (daysUntilEvent <= 44) {
+    // MID_RANGE: 5-day validity
+    const expDate = new Date(estimateSentDate);
+    expDate.setDate(expDate.getDate() + 5);
+    return {
+      daysValid: 5,
+      displayText: '5 days',
+      urgencyLevel: 'medium',
+      expirationDate: expDate
+    };
+  } else {
+    // STANDARD: 7-day validity
+    const expDate = new Date(estimateSentDate);
+    expDate.setDate(expDate.getDate() + 7);
+    return {
+      daysValid: 7,
+      displayText: '7 days',
+      urgencyLevel: 'standard',
+      expirationDate: expDate
+    };
+  }
+};
+
+/**
+ * Get urgency-appropriate messaging for estimate validity
+ */
+export const getValidityUrgencyMessage = (urgencyLevel: EstimateValidity['urgencyLevel']): string => {
+  switch (urgencyLevel) {
+    case 'critical':
+      return 'Your event is coming up quickly! Please approve immediately to secure your date.';
+    case 'high':
+      return 'Your event is approaching soon. We recommend approving quickly to ensure availability.';
+    case 'medium':
+      return 'Dates fill up fast! We recommend approving soon to lock in your date.';
+    case 'standard':
+      return 'We recommend approving your estimate as soon as you\'re ready.';
+  }
+};
