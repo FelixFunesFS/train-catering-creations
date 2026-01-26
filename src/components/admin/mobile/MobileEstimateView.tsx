@@ -229,10 +229,10 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-background overflow-x-hidden">
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-card border-b px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-3">
+      <header className="sticky top-0 z-40 bg-card border-b px-4 py-3 flex items-center justify-between w-full">
+        <div className="flex items-center gap-3 min-w-0 flex-1">
           <Button variant="ghost" size="icon" onClick={onClose}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
@@ -254,7 +254,7 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
 
       {/* Content */}
       <ScrollArea className="flex-1">
-        <div className="p-4 space-y-4 pb-32">
+        <div className="p-4 space-y-4 pb-32 w-full">
           
           {/* Event Summary Section */}
           <Collapsible open={eventOpen} onOpenChange={setEventOpen}>
@@ -748,7 +748,7 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
       </ScrollArea>
 
       {/* Fixed Bottom Actions */}
-      <div className="fixed bottom-0 left-0 right-0 bg-card border-t p-4 space-y-2 safe-area-inset-bottom">
+      <div className="fixed bottom-0 left-0 right-0 bg-card border-t p-4 space-y-2 pb-[calc(1rem+env(safe-area-inset-bottom))]">
         {hasUnsavedChanges && (
           <div className="flex items-center gap-2 mb-2 p-2 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
             <AlertCircle className="h-4 w-4 text-amber-600" />
@@ -793,7 +793,7 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
 
       {/* Customer Edit Dialog */}
       <Dialog open={showCustomerEdit} onOpenChange={setShowCustomerEdit}>
-        <DialogContent className="w-[calc(100vw-2rem)] max-w-md max-h-[90vh] overflow-y-auto">
+        <DialogContent className="w-full max-w-[calc(100vw-2rem)] sm:max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Customer & Event</DialogTitle>
           </DialogHeader>
