@@ -170,6 +170,28 @@ serve(async (req) => {
       return types[type] || type.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
     };
 
+    // Format event type
+    const formatEventType = (type: string | null): string => {
+      if (!type) return 'Event';
+      const types: Record<string, string> = {
+        'wedding': 'Wedding',
+        'birthday': 'Birthday',
+        'corporate': 'Corporate Event',
+        'graduation': 'Graduation',
+        'anniversary': 'Anniversary',
+        'baby_shower': 'Baby Shower',
+        'bridal_shower': 'Bridal Shower',
+        'retirement': 'Retirement',
+        'holiday_party': 'Holiday Party',
+        'bereavement': 'Bereavement',
+        'private_party': 'Private Party',
+        'black_tie': 'Black Tie',
+        'military_function': 'Military Function',
+        'other': 'Other Event'
+      };
+      return types[type] || type.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    };
+
     // Sanitize text for PDF (remove newlines, emojis, and control characters that WinAnsi can't encode)
     const sanitizeText = (text: string | null | undefined): string => {
       if (!text) return '';
@@ -340,6 +362,8 @@ serve(async (req) => {
     drawText("EVENT DETAILS", col2X, eventY, { font: helveticaBold, size: 8, color: MEDIUM_GRAY });
     eventY -= 11;
     drawText(quote?.event_name || 'Event', col2X, eventY, { font: helveticaBold, size: 10 });
+    eventY -= 10;
+    drawText(formatEventType(quote?.event_type), col2X, eventY, { size: 9, color: MEDIUM_GRAY });
     eventY -= 11;
     if (quote?.event_date) {
       const dateTimeStr = quote?.start_time 
