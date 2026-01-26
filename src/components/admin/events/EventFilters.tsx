@@ -3,7 +3,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 export type StatusFilter = 'all' | 'pending' | 'confirmed' | 'completed' | 'cancelled';
 export type ServiceTypeFilter = 'all' | 'delivery-only' | 'delivery-setup' | 'full-service';
-export type SortBy = 'submitted' | 'date' | 'name' | 'event' | 'guests' | 'status' | 'invoice' | 'total' | 'edited';
+export type SortBy = 'submitted' | 'date' | 'name' | 'event' | 'guests' | 'status' | 'payment_status' | 'invoice' | 'total' | 'edited';
 export type SortOrder = 'asc' | 'desc';
 
 interface EventFiltersProps {
