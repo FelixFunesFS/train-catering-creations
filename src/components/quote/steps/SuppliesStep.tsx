@@ -18,6 +18,13 @@ export const SuppliesStep = ({ form, variant = 'regular' }: SuppliesStepProps) =
     : 'Food warmers with fuel to keep food warm';
 
   const supplies = [
+    // Cocktail Hour - only shown for wedding variant
+    ...(variant === 'wedding' ? [{
+      name: "cocktail_hour",
+      label: "Cocktail Hour",
+      description: "Light appetizers & beverages"
+    }] : []),
+    // Standard supplies
     { name: "plates_requested", label: "Disposable Plates", description: "Heavy-duty disposable plates" },
     { name: "cups_requested", label: "Disposable Cups", description: "Cups for beverages" },
     { name: "napkins_requested", label: "Napkins", description: "Disposable napkins" },
@@ -35,34 +42,6 @@ export const SuppliesStep = ({ form, variant = 'regular' }: SuppliesStepProps) =
         <h2 className="text-2xl font-elegant font-semibold">Supplies & Final Details</h2>
         <p className="text-muted-foreground mt-2">Select any supplies you need and add special requests</p>
       </div>
-
-      {/* Wedding-specific options */}
-      {variant === 'wedding' && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-          <FormField
-            control={form.control}
-            name="cocktail_hour"
-            render={({ field }) => (
-              <FormItem 
-                className="flex items-start space-x-3 space-y-0 rounded-md border border-muted bg-card p-4 cursor-pointer hover:border-primary/50 transition-colors"
-                onClick={() => field.onChange(!field.value)}
-              >
-                <FormControl>
-                  {field.value ? (
-                    <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />
-                  ) : (
-                    <Circle className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                  )}
-                </FormControl>
-                <div className="space-y-1 leading-none">
-                  <FormLabel className="text-sm font-medium cursor-pointer">Cocktail Hour</FormLabel>
-                  <p className="text-xs text-muted-foreground">Light appetizers</p>
-                </div>
-              </FormItem>
-            )}
-          />
-        </div>
-      )}
 
       {/* Supply & Equipment Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

@@ -238,7 +238,7 @@ export const ReviewSummaryCard = ({ form, variant }: ReviewSummaryCardProps) => 
         </div>
 
         {/* Supply Items */}
-        {(watchedValues.plates_requested || watchedValues.cups_requested || watchedValues.napkins_requested || 
+        {(watchedValues.cocktail_hour || watchedValues.plates_requested || watchedValues.cups_requested || watchedValues.napkins_requested || 
           watchedValues.serving_utensils_requested || watchedValues.chafers_requested || watchedValues.ice_requested) && (
           <div className="md:col-span-2 border-l-4 border-primary/20 bg-muted/30 p-4 rounded-lg">
             <div className="flex items-center gap-2 text-primary mb-3">
@@ -246,6 +246,7 @@ export const ReviewSummaryCard = ({ form, variant }: ReviewSummaryCardProps) => 
               <span className="text-sm font-medium">Supply Items Requested</span>
             </div>
             <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
+              {watchedValues.cocktail_hour && <span>✓ Cocktail Hour</span>}
               {watchedValues.plates_requested && <span>✓ Disposable Plates</span>}
               {watchedValues.cups_requested && <span>✓ Disposable Cups</span>}
               {watchedValues.napkins_requested && <span>✓ Napkins</span>}
