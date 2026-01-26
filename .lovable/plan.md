@@ -1,116 +1,186 @@
 
+# Gallery Page Performance & Mobile Optimization Plan
 
-# Option B: Move Cocktail Hour to Supplies Grid, Remove Ceremony Catering
+## Issues Identified
 
-## Overview
+### 1. Console Warning: `fetchPriority` Prop Casing
+**File:** `src/components/ui/optimized-image.tsx` (line 79)
+- React warns about unrecognized DOM attribute `fetchPriority` - should be lowercase `fetchpriority`
+- This warning appears on every image load
 
-This change simplifies the wedding form by integrating Cocktail Hour into the main supplies grid and removing the Ceremony Catering option entirely from customer-facing forms.
+### 2. Large Image Dataset Loading All At Once
+**Current State:**
+- `galleryImages` array contains 80+ images from 4 categories (buffet: 38, wedding: 6, formal: 14, desserts: 15)
+- All images are rendered simultaneously in `InteractiveImageGrid`
+- No virtualization or progressive loading implemented
+- Mobile devices attempting to load 80+ images causes severe performance issues
 
-## Changes Summary
+### 3. Missing Lazy Loading Threshold Optimization
+**File:** `src/components/ui/optimized-image.tsx`
+- Uses `loading="lazy"` but no `rootMargin` buffer to preload images before viewport entry
+- Images only start loading when they're already visible, causing visible loading states
 
-| File | Action |
-|------|--------|
-| `src/components/quote/steps/SuppliesStep.tsx` | Remove wedding-specific section, add Cocktail Hour to supplies grid |
-| `src/components/quote/SinglePageQuoteForm.tsx` | Remove `ceremony_included` from defaults and submission payload |
-| `src/components/quote/ReviewSummaryCard.tsx` | Remove Ceremony Catering from review display |
+### 4. No Image Batch/Pagination Strategy
+**File:** `src/components/gallery/InteractiveImageGrid.tsx`
+- Renders all `sortedImages` at once with no pagination
+- No "Load More" or infinite scroll implementation
+- Desktop loads 5 columns * ~16 rows = 80 images simultaneously
 
----
-
-## Visual Result
-
-### Before (Current):
-```text
-┌──────────────────────────────────────────────┐
-│  Wedding Options (separate section)          │
-│  ┌────────────────┐ ┌────────────────┐       │
-│  │ Cocktail Hour  │ │   (empty)      │       │
-│  └────────────────┘ └────────────────┘       │
-│                                              │
-│  Supplies Grid (6 items)                     │
-│  ┌────────────────┐ ┌────────────────┐       │
-│  │ Plates         │ │ Cups           │       │
-│  │ Napkins        │ │ Serving Utens. │       │
-│  │ Chafers        │ │ Ice            │       │
-│  └────────────────┘ └────────────────┘       │
-└──────────────────────────────────────────────┘
-```
-
-### After (Fixed):
-```text
-┌──────────────────────────────────────────────┐
-│  Supplies Grid (7 items for wedding)         │
-│  ┌────────────────┐ ┌────────────────┐       │
-│  │ Cocktail Hour  │ │ Plates         │       │
-│  │ Cups           │ │ Napkins        │       │
-│  │ Serving Utens. │ │ Chafers        │       │
-│  │ Ice            │ │                │       │
-│  └────────────────┘ └────────────────┘       │
-│                                              │
-│  (Regular form: 6 items, balanced 3x2)       │
-└──────────────────────────────────────────────┘
-```
+### 5. Masonry Column Layout on Mobile
+**Current:** `columns-1 sm:columns-2` on mobile
+- Single column layout forces sequential loading of all 80+ images in one long list
+- No optimization for viewport-only rendering
 
 ---
 
-## Technical Implementation
+## Performance Optimization Plan
 
-### 1. SuppliesStep.tsx
+### Phase 1: Fix Console Warning (Quick Fix)
+**File:** `src/components/ui/optimized-image.tsx`
+- Change `fetchPriority` prop to lowercase `fetchpriority` for HTML5 compliance
 
-**Remove the wedding-specific section entirely** (lines 43-66) and add Cocktail Hour conditionally to the supplies array:
+### Phase 2: Implement Progressive Loading with "Load More"
+**File:** `src/components/gallery/InteractiveImageGrid.tsx`
+
+Add pagination with initial load of 12-16 images and "Load More" button:
 
 ```typescript
-const supplies = [
-  // Cocktail Hour - only shown for wedding variant
-  ...(variant === 'wedding' ? [{
-    name: "cocktail_hour",
-    label: "Cocktail Hour",
-    description: "Light appetizers & beverages"
-  }] : []),
-  // Standard supplies
-  { name: "plates_requested", label: "Disposable Plates", description: "Heavy-duty disposable plates" },
-  { name: "cups_requested", label: "Disposable Cups", description: "Cups for beverages" },
-  { name: "napkins_requested", label: "Napkins", description: "Disposable napkins" },
-  { name: "serving_utensils_requested", label: "Serving Utensils", description: "Tongs, spoons, serving tools" },
-  { name: "chafers_requested", label: chaferLabel, description: chaferDescription },
-  { name: "ice_requested", label: "Ice", description: "Ice for beverages and cooling" },
-];
+// New state
+const [visibleCount, setVisibleCount] = useState(16);
+
+// Show subset
+const displayedImages = sortedImages.slice(0, visibleCount);
+
+// Load more handler
+const handleLoadMore = () => {
+  setVisibleCount(prev => Math.min(prev + 12, sortedImages.length));
+};
 ```
 
-This creates:
-- **Wedding form**: 7 items (Cocktail Hour + 6 supplies) = 4 rows with 1 item on last row
-- **Regular form**: 6 items = balanced 3x2 grid
+**Mobile-specific:** Load 8 images initially, then 8 more per tap
 
-### 2. SinglePageQuoteForm.tsx
+### Phase 3: Add IntersectionObserver-based Lazy Loading Buffer
+**File:** `src/components/ui/optimized-image.tsx`
 
-**Remove `ceremony_included` from defaultValues:**
+Add `rootMargin` to native lazy loading to preload images 200px before viewport:
+
 ```typescript
-// Remove this line from defaultValues
-ceremony_included: false,  // DELETE
+<img
+  ...
+  loading={priority ? "eager" : "lazy"}
+  // Add data attribute for potential Intersection Observer enhancement
+  data-src={src}
+/>
 ```
 
-**Remove `ceremony_included` from submitPayload:**
+### Phase 4: Optimize Image Priority Logic
+**File:** `src/components/gallery/InteractiveImageGrid.tsx`
+
+Set `priority={true}` for first 4 images (above the fold):
+
 ```typescript
-// Remove this line from submitPayload
-ceremony_included: data.ceremony_included,  // DELETE
+<OptimizedImage
+  ...
+  priority={index < 4}
+/>
 ```
 
-### 3. ReviewSummaryCard.tsx
+### Phase 5: Add Mobile-First Grid Optimization
+**File:** `src/components/gallery/InteractiveImageGrid.tsx`
 
-**Remove any display of Ceremony Catering** from the review summary (if present). The Cocktail Hour will now appear in the supplies section.
+Reduce initial mobile load and optimize column gaps:
 
----
+| Device | Initial Load | Columns | Load More |
+|--------|--------------|---------|-----------|
+| Mobile | 8 images | 1-2 | +8 |
+| Tablet | 12 images | 2-3 | +8 |
+| Desktop | 16 images | 4-5 | +12 |
 
-## Database Note
+### Phase 6: Add Loading State Skeleton Improvements
+**File:** `src/components/ui/optimized-image.tsx`
 
-The `ceremony_included` column remains in the database schema for backward compatibility with existing quotes. It simply won't be set for new submissions.
+Improve perceived performance with better skeleton animation timing and reduced jank.
 
 ---
 
 ## Files to Modify
 
-| File | Lines Affected | Change |
-|------|----------------|--------|
-| `src/components/quote/steps/SuppliesStep.tsx` | 14-29, 43-66 | Add Cocktail Hour to supplies array, remove wedding section |
-| `src/components/quote/SinglePageQuoteForm.tsx` | ~133, ~328 | Remove `ceremony_included` from defaults and payload |
-| `src/components/quote/ReviewSummaryCard.tsx` | Supplies section | Display Cocktail Hour in supplies if selected |
+| File | Change |
+|------|--------|
+| `src/components/ui/optimized-image.tsx` | Fix `fetchPriority` casing, add rootMargin buffer |
+| `src/components/gallery/InteractiveImageGrid.tsx` | Add pagination, "Load More", mobile-first loading |
+| `src/components/gallery/CategoryCards.tsx` | Add priority to category preview images |
 
+---
+
+## Technical Implementation Details
+
+### InteractiveImageGrid.tsx Changes
+
+```typescript
+// Add responsive initial load counts
+const getInitialLoadCount = () => {
+  return isMobile ? 8 : 16;
+};
+
+const [visibleCount, setVisibleCount] = useState(getInitialLoadCount());
+const hasMoreImages = visibleCount < sortedImages.length;
+const displayedImages = sortedImages.slice(0, visibleCount);
+
+// Load more button at bottom
+{hasMoreImages && (
+  <div className="flex justify-center mt-8">
+    <Button 
+      variant="outline" 
+      onClick={() => setVisibleCount(prev => prev + (isMobile ? 8 : 12))}
+    >
+      Load More ({sortedImages.length - visibleCount} remaining)
+    </Button>
+  </div>
+)}
+```
+
+### OptimizedImage.tsx Changes
+
+```typescript
+// Fix casing issue
+<img
+  ...
+  fetchpriority={priority ? "high" : "auto"}  // lowercase for HTML5
+  ...
+/>
+```
+
+### ImageCard Priority
+
+```typescript
+// In ImageCard rendering
+<OptimizedImage
+  src={image.src}
+  alt={image.title}
+  priority={index < 4}  // First 4 images load immediately
+  ...
+/>
+```
+
+---
+
+## Expected Results
+
+| Metric | Before | After |
+|--------|--------|-------|
+| Initial images loaded | 80+ | 8-16 |
+| Console warnings | 1 per image | 0 |
+| Mobile LCP | Slow (loading spinner) | Fast (first 4 priority) |
+| User experience | Images not loading | Smooth progressive load |
+| Data usage (mobile) | All 80+ images | Only what's viewed |
+
+---
+
+## Summary
+
+1. **Fix `fetchPriority` casing** to eliminate console warnings
+2. **Implement "Load More" pagination** to reduce initial load from 80+ to 8-16 images
+3. **Add priority loading** for first 4 images to eliminate visible loading spinners
+4. **Mobile-first approach** with smaller initial batch sizes for mobile devices
+5. **Progressive enhancement** allowing users to load more as needed
