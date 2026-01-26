@@ -22,10 +22,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Loader2, Calendar, MapPin, Users, AlertCircle, FileText, ChevronDown, PenLine, MessageSquare, Info, Shield } from 'lucide-react';
-import { formatDate, formatTime, formatServiceType, getStatusColor } from '@/utils/formatters';
+import { Loader2, Calendar, MapPin, Users, AlertCircle, FileText, ChevronDown, PenLine, MessageSquare, Info, Shield, CreditCard } from 'lucide-react';
+import { formatDate, formatTime, formatServiceType } from '@/utils/formatters';
 import { calculatePaymentProgress, type Milestone } from '@/utils/paymentFormatters';
 import { isMilitaryEvent } from '@/utils/eventTypeUtils';
+import { getEstimateStatus, getPaymentStatus, getNextUnpaidMilestone } from '@/utils/statusHelpers';
 
 export function CustomerEstimateView() {
   const [searchParams] = useSearchParams();
@@ -144,13 +145,36 @@ export function CustomerEstimateView() {
           <p className="text-muted-foreground">Your Custom Catering Estimate</p>
         </div>
 
-        {/* Status Badge */}
-        <div className="flex justify-center">
-          <Badge className={getStatusColor(invoice.workflow_status)} variant="secondary">
-            <FileText className="h-3 w-3 mr-1" />
-            {invoice.workflow_status.replace('_', ' ').toUpperCase()}
-          </Badge>
-        </div>
+        {/* Status Badges - Estimate & Payment */}
+        {(() => {
+          const estimateStatus = getEstimateStatus(invoice.workflow_status);
+          const nextMilestone = getNextUnpaidMilestone(
+            (milestones || []).map(m => ({
+              milestone_type: (m as Milestone).milestone_type,
+              status: (m as Milestone).status,
+              due_date: (m as Milestone).due_date,
+            }))
+          );
+          const paymentStatus = getPaymentStatus(invoice.workflow_status, nextMilestone?.milestone_type);
+          
+          return (
+            <div className="flex flex-wrap justify-center gap-2">
+              {/* Estimate Status Badge */}
+              <Badge variant="outline" className={`${estimateStatus.color} border`}>
+                <FileText className="h-3 w-3 mr-1" />
+                {estimateStatus.label}
+              </Badge>
+              
+              {/* Payment Status Badge - only shown after approval */}
+              {paymentStatus && paymentStatus.showBadge && (
+                <Badge variant="outline" className={`${paymentStatus.color} border`}>
+                  <CreditCard className="h-3 w-3 mr-1" />
+                  {paymentStatus.label}
+                </Badge>
+              )}
+            </div>
+          );
+        })()}
 
         {/* Event Details Card */}
         <Card>

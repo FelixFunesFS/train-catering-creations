@@ -12,8 +12,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Eye, Loader2, FileText, Receipt, Mail, MailOpen, Globe, List, CalendarDays, CalendarRange, Phone, Shield } from 'lucide-react';
+import { Search, Eye, Loader2, FileText, Receipt, Mail, MailOpen, Globe, List, CalendarDays, CalendarRange, Phone, Shield, CreditCard } from 'lucide-react';
 import { isMilitaryEvent, getMilitaryBadgeStyles } from '@/utils/eventTypeUtils';
+import { getPaymentStatus, getNextUnpaidMilestone } from '@/utils/statusHelpers';
 import { EventDetail } from './EventDetail';
 import { EventWeekView } from './EventWeekView';
 import { EventMonthView } from './EventMonthView';
@@ -32,7 +33,22 @@ function useRawInvoices() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('invoices')
-        .select('id, quote_request_id, workflow_status, total_amount, sent_at, viewed_at, email_opened_at, invoice_number')
+        .select(`
+          id, 
+          quote_request_id, 
+          workflow_status, 
+          total_amount, 
+          sent_at, 
+          viewed_at, 
+          email_opened_at, 
+          invoice_number,
+          payment_milestones (
+            id,
+            milestone_type,
+            status,
+            due_date
+          )
+        `)
         .order('created_at', { ascending: false });
       
       if (error) throw error;
@@ -99,6 +115,12 @@ type InvoiceForEvent = {
   viewed_at: string | null;
   email_opened_at: string | null;
   invoice_number: string | null;
+  payment_milestones: Array<{
+    id: string;
+    milestone_type: string;
+    status: string | null;
+    due_date: string | null;
+  }> | null;
 };
 
 interface EventWithInvoice extends QuoteRequest {
@@ -367,16 +389,34 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                       </div>
                       
                       <div className="flex items-center justify-between">
-                        {invoice ? (
-                          <Badge 
-                            variant="outline" 
-                            className={`text-xs ${estimateStatusColors[invoice.workflow_status] || ''}`}
-                          >
-                            Est: {formatStatus(invoice.workflow_status)}
-                          </Badge>
-                        ) : (
-                          <span className="text-xs text-muted-foreground">No estimate</span>
-                        )}
+                        <div className="flex flex-wrap gap-1.5">
+                          {invoice ? (
+                            <>
+                              <Badge 
+                                variant="outline" 
+                                className={`text-xs ${estimateStatusColors[invoice.workflow_status] || ''}`}
+                              >
+                                Est: {formatStatus(invoice.workflow_status)}
+                              </Badge>
+                              {/* Payment Status Badge */}
+                              {(() => {
+                                const nextMilestone = invoice.payment_milestones 
+                                  ? getNextUnpaidMilestone(invoice.payment_milestones)
+                                  : null;
+                                const paymentStatus = getPaymentStatus(invoice.workflow_status, nextMilestone?.milestone_type);
+                                if (!paymentStatus) return null;
+                                return (
+                                  <Badge variant="outline" className={`text-xs ${paymentStatus.color} border`}>
+                                    <CreditCard className="h-3 w-3 mr-0.5" />
+                                    {paymentStatus.label}
+                                  </Badge>
+                                );
+                              })()}
+                            </>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">No estimate</span>
+                          )}
+                        </div>
                         
                         {/* Quick action buttons */}
                         <div className="flex items-center gap-1">
@@ -508,6 +548,14 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                       onSort={handleSort}
                     />
                     <SortableTableHead 
+                      label="Payment" 
+                      sortKey="payment_status" 
+                      currentSortBy={sortBy} 
+                      currentSortOrder={sortOrder}
+                      onSort={handleSort}
+                      className="hidden lg:table-cell"
+                    />
+                    <SortableTableHead 
                       label="Invoice #" 
                       sortKey="invoice" 
                       currentSortBy={sortBy} 
@@ -581,6 +629,21 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                         >
                           {formatStatus(event.workflow_status)}
                         </Badge>
+                      </TableCell>
+                      <TableCell className="hidden lg:table-cell">
+                        {(() => {
+                          if (!invoice) return <span className="text-muted-foreground">—</span>;
+                          const nextMilestone = invoice.payment_milestones 
+                            ? getNextUnpaidMilestone(invoice.payment_milestones)
+                            : null;
+                          const paymentStatus = getPaymentStatus(invoice.workflow_status, nextMilestone?.milestone_type);
+                          if (!paymentStatus) return <span className="text-muted-foreground">—</span>;
+                          return (
+                            <Badge variant="outline" className={`text-xs ${paymentStatus.color} border`}>
+                              {paymentStatus.label}
+                            </Badge>
+                          );
+                        })()}
                       </TableCell>
                       <TableCell className="hidden lg:table-cell">
                         {invoice?.invoice_number ? (
