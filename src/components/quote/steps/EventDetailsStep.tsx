@@ -17,7 +17,7 @@ import {
 import { DatePicker } from "@/components/ui/date-picker";
 import { TimeSelect } from "@/components/ui/time-select";
 import { formatEventName } from "@/utils/textFormatters";
-import { Calendar, MapPin, Users, Utensils, PartyPopper, Cake, Heart, GraduationCap, Briefcase, Gift, Check } from "lucide-react";
+import { Calendar, MapPin, Users, Utensils, PartyPopper, Cake, Heart, GraduationCap, Briefcase, Gift, Check, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface EventDetailsStepProps {
@@ -170,6 +170,35 @@ export const EventDetailsStep = ({ form, trackFieldInteraction, variant = 'regul
             );
           }}
         />
+
+        {/* Military Organization - appears when military_function is selected */}
+        {form.watch('event_type') === 'military_function' && (
+          <FormField
+            control={form.control}
+            name="military_organization"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="flex items-center">
+                  <Shield className="h-4 w-4 mr-1 text-blue-600" />
+                  Military Organization
+                  <span className="text-xs text-muted-foreground ml-2">(Recommended)</span>
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="e.g., 437th Airlift Wing, Marine Corps Logistics Base"
+                    className="h-12 text-base input-clean"
+                    {...field}
+                    onFocus={() => trackFieldInteraction('military_organization')}
+                  />
+                </FormControl>
+                <p className="text-xs text-muted-foreground">
+                  Squadron, wing, battalion, or unit name
+                </p>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <FormField

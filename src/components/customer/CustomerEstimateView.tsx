@@ -22,9 +22,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Loader2, Calendar, MapPin, Users, AlertCircle, FileText, ChevronDown, PenLine, MessageSquare, Info } from 'lucide-react';
+import { Loader2, Calendar, MapPin, Users, AlertCircle, FileText, ChevronDown, PenLine, MessageSquare, Info, Shield } from 'lucide-react';
 import { formatDate, formatTime, formatServiceType, getStatusColor } from '@/utils/formatters';
 import { calculatePaymentProgress, type Milestone } from '@/utils/paymentFormatters';
+import { isMilitaryEvent } from '@/utils/eventTypeUtils';
 
 export function CustomerEstimateView() {
   const [searchParams] = useSearchParams();
@@ -179,6 +180,17 @@ export function CustomerEstimateView() {
                 </div>
               </div>
             </div>
+
+            {/* Military Organization */}
+            {isMilitaryEvent(quote.event_type) && quote.military_organization && (
+              <div className="flex items-center gap-2 pt-2 border-t border-border">
+                <Shield className="h-4 w-4 text-blue-600" />
+                <div>
+                  <p className="text-xs text-muted-foreground">Military Organization</p>
+                  <p className="text-sm font-medium text-blue-700">{quote.military_organization}</p>
+                </div>
+              </div>
+            )}
 
             {quote.location && (
               <div className="flex items-start gap-2 pt-2 border-t border-border">

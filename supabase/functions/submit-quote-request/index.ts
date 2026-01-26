@@ -125,6 +125,7 @@ serve(async (req) => {
       theme_colors: payload.theme_colors ? String(payload.theme_colors).slice(0, 200) : null,
       ceremony_included: payload.ceremony_included != null ? Boolean(payload.ceremony_included) : null,
       cocktail_hour: payload.cocktail_hour != null ? Boolean(payload.cocktail_hour) : null,
+      military_organization: payload.military_organization ? String(payload.military_organization).trim().slice(0, 200) : null,
       workflow_status: 'pending'
     };
 

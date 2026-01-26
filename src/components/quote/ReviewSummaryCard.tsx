@@ -1,7 +1,7 @@
 import { UseFormReturn } from "react-hook-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { User, Calendar, MapPin, Users, ChefHat, UtensilsCrossed, MessageSquare } from "lucide-react";
+import { User, Calendar, MapPin, Users, ChefHat, UtensilsCrossed, MessageSquare, Shield } from "lucide-react";
 import { getVegetarianEntreeLabel } from "@/data/vegetarianOptions";
 
 interface ReviewSummaryCardProps {
@@ -87,6 +87,12 @@ export const ReviewSummaryCard = ({ form, variant }: ReviewSummaryCardProps) => 
               <p className="text-foreground font-medium">{watchedValues.event_name || 'Not provided'}</p>
               <p className="text-muted-foreground">{formatDate(watchedValues.event_date)}</p>
               <p className="text-muted-foreground">{formatTime(watchedValues.start_time)}</p>
+              {watchedValues.event_type === 'military_function' && watchedValues.military_organization && (
+                <div className="flex items-center gap-2 mt-2">
+                  <Shield className="h-4 w-4 text-blue-600" />
+                  <span className="text-blue-700">{watchedValues.military_organization}</span>
+                </div>
+              )}
             </div>
           </div>
 
