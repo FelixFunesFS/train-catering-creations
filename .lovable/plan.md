@@ -1,144 +1,196 @@
 
-
-# Add Military Badge to Admin EventList Table & Calendar Views
+# Add Event Type Display to Customer Emails and PDFs
 
 ## Overview
 
-This plan adds visual military function indicators to the admin EventList table view and both calendar views (Week and Month), allowing admins to quickly identify military events at a glance.
+This plan adds the event type (Birthday, Corporate, Wedding, Graduation, etc.) to customer-facing emails and PDF documents so customers can clearly see their event category.
 
 ---
 
-## Files to Modify
+## Current State
 
-### 1. EventList.tsx (Table + Mobile Card Views)
-
-**Import Changes (Line 15):**
-- Add `Shield` to lucide-react imports
-- Import `isMilitaryEvent`, `getMilitaryBadgeStyles` from `@/utils/eventTypeUtils`
-
-**Mobile Card Layout (Lines 330-341):**
-After the contact name/event name display, add a military badge:
-```tsx
-{isMilitaryEvent(event.event_type) && (
-  <Badge className={getMilitaryBadgeStyles().className + " text-[10px] px-1.5 py-0"}>
-    <Shield className="h-2.5 w-2.5 mr-0.5" />
-    Military
-  </Badge>
-)}
-```
-
-**Desktop Table Layout (Lines 552-560):**
-In the Customer cell, add military indicator below the email:
-```tsx
-<TableCell>
-  <div>
-    <p className="font-medium">{event.contact_name}</p>
-    <p className="text-xs text-muted-foreground hidden sm:block">{event.email}</p>
-    {isMilitaryEvent(event.event_type) && (
-      <Badge className={getMilitaryBadgeStyles().className + " text-[10px] px-1 py-0 mt-0.5"}>
-        <Shield className="h-2.5 w-2.5 mr-0.5" />
-        Military
-      </Badge>
-    )}
-  </div>
-</TableCell>
-```
+| Information | Customer Emails | PDF |
+|-------------|:---------------:|:---:|
+| Event Name | ✓ | ✓ |
+| **Event Type** | ❌ | ❌ |
+| Military Badge | ✓ | ✓ |
+| Service Type | ✓ | ✓ |
 
 ---
 
-### 2. EventWeekView.tsx (Week Calendar)
+## Part 1: Add formatEventType to Email Templates
 
-**Import Changes (Line 7):**
-- Add `Shield` to lucide-react imports
-- Import `isMilitaryEvent`, `getMilitaryBadgeStyles` from `@/utils/eventTypeUtils`
+### supabase/functions/_shared/emailTemplates.ts
 
-**EventCard Component (Lines 43-91):**
-After the guest count display (line 66), add military indicator:
-```tsx
-{isMilitaryEvent(event.event_type) && (
-  <div className="flex items-center gap-1 mt-0.5 text-xs text-blue-600">
-    <Shield className="h-3 w-3" />
-    <span className="truncate">{event.military_organization || 'Military'}</span>
-  </div>
-)}
+**Add formatEventType function (after formatServiceType, around line 83):**
+
+```typescript
+export const formatEventType = (eventType: string | null): string => {
+  if (!eventType) return 'Event';
+  
+  const eventTypeMap: Record<string, string> = {
+    'wedding': 'Wedding',
+    'birthday': 'Birthday',
+    'corporate': 'Corporate Event',
+    'graduation': 'Graduation',
+    'anniversary': 'Anniversary',
+    'baby_shower': 'Baby Shower',
+    'bridal_shower': 'Bridal Shower',
+    'retirement': 'Retirement',
+    'holiday_party': 'Holiday Party',
+    'bereavement': 'Bereavement',
+    'private_party': 'Private Party',
+    'black_tie': 'Black Tie',
+    'military_function': 'Military Function',
+    'other': 'Other Event'
+  };
+  
+  return eventTypeMap[eventType.toLowerCase()] || 
+         eventType.replace(/_/g, ' ').split(' ')
+           .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+           .join(' ');
+};
 ```
 
 ---
 
-### 3. EventMonthView.tsx (Month Calendar)
+## Part 2: Update generateEventDetailsCard in Emails
 
-**Import Changes (Line 19):**
-- Add `Shield` to lucide-react imports  
-- Import `isMilitaryEvent` from `@/utils/eventTypeUtils`
+### supabase/functions/_shared/emailTemplates.ts
 
-**Calendar Day Cell Event Dots (Lines 157-172):**
-Add military shield icon next to the status dot for military events:
-```tsx
-<div 
-  key={event.id}
-  className="flex items-center gap-1 group"
-  onClick={(e) => {
-    e.stopPropagation();
-    onEventClick(event);
-  }}
->
-  <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${
-    statusDotColors[event.workflow_status] || 'bg-gray-400'
-  }`} />
-  {isMilitaryEvent(event.event_type) && (
-    <Shield className="h-2.5 w-2.5 text-blue-600 shrink-0" />
-  )}
-  <span className="text-[10px] truncate text-muted-foreground group-hover:text-foreground">
-    {event.contact_name}
+**In the generateEventDetailsCard function (lines 191-236):**
+
+Add event type display below the event name/military badge, before the date/time table:
+
+```typescript
+// After the event name h3 (around line 198), add:
+<p style="margin:4px 0 12px 0;font-size:13px;color:#666;">
+  <span style="display:inline-block;background:#f3f4f6;color:#374151;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:500;">
+    ${formatEventType(quote.event_type)}
   </span>
-</div>
+</p>
 ```
 
-**Selected Day Event Card (Lines 221-243):**
-Add military badge in the event card header:
-```tsx
-<div className="flex items-start justify-between gap-2 mb-1">
-  <div className="flex items-center gap-1.5">
-    <p className="font-medium text-sm">{event.contact_name}</p>
-    {isMilitaryEvent(event.event_type) && (
-      <Shield className="h-3.5 w-3.5 text-blue-600" />
-    )}
-  </div>
-  <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${
-    statusDotColors[event.workflow_status] || 'bg-gray-400'
-  }`} />
-</div>
+**Updated Event Details Card Structure:**
+```
+Event Name [Military Badge if applicable]
+[Event Type Badge] ← NEW
+📅 Date    ⏰ Time
+📍 Location    👥 Guests
+🍽️ Service Type
 ```
 
 ---
 
-## Visual Design
+## Part 3: Add formatEventType to PDF Generation
 
-| View | Military Indicator |
-|------|-------------------|
-| EventList (Mobile Card) | Blue badge with shield icon + "Military" text |
-| EventList (Desktop Table) | Small blue badge below email in Customer column |
-| EventWeekView (Event Cards) | Blue shield icon + organization name (or "Military") |
-| EventMonthView (Calendar Dots) | Small blue shield icon next to status dot |
-| EventMonthView (Selected Day) | Blue shield icon next to contact name |
+### supabase/functions/generate-invoice-pdf/index.ts
+
+**Add formatEventType function (after formatMilestoneType, around line 171):**
+
+```typescript
+// Format event type
+const formatEventType = (type: string | null): string => {
+  if (!type) return 'Event';
+  const types: Record<string, string> = {
+    'wedding': 'Wedding',
+    'birthday': 'Birthday',
+    'corporate': 'Corporate Event',
+    'graduation': 'Graduation',
+    'anniversary': 'Anniversary',
+    'baby_shower': 'Baby Shower',
+    'bridal_shower': 'Bridal Shower',
+    'retirement': 'Retirement',
+    'holiday_party': 'Holiday Party',
+    'bereavement': 'Bereavement',
+    'private_party': 'Private Party',
+    'black_tie': 'Black Tie',
+    'military_function': 'Military Function',
+    'other': 'Other Event'
+  };
+  return types[type] || type.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+};
+```
+
+---
+
+## Part 4: Update PDF Event Details Section
+
+### supabase/functions/generate-invoice-pdf/index.ts
+
+**In the Event column section (lines 338-364):**
+
+Add event type display after the event name, before date/time:
+
+```typescript
+// After drawing event name (line 342), add:
+drawText(formatEventType(quote?.event_type), col2X, eventY, { size: 9, color: MEDIUM_GRAY });
+eventY -= 10;
+```
+
+**Updated PDF Event Details Layout:**
+```
+EVENT DETAILS
+Event Name (bold)
+Corporate Event ← NEW (gray text)
+Mon, Jan 27, 2026 at 2:00 PM ET
+Location
+50 Guests | Full Service
+Military Org: [if applicable]
+```
+
+---
+
+## Visual Examples
+
+### Email Event Details Card:
+```
+┌─────────────────────────────────────────────────────────┐
+│  Johnson Retirement Party  [🎖️ Military]               │
+│  ┌──────────────────┐                                   │
+│  │ Retirement Party │  ← Event Type Badge (gray bg)     │
+│  └──────────────────┘                                   │
+│                                                         │
+│  📅 Jan 27, 2026        ⏰ 2:00 PM                      │
+│  📍 Charleston, SC      👥 75 guests                   │
+│  🍽️ Full-Service Catering                              │
+└─────────────────────────────────────────────────────────┘
+```
+
+### PDF Event Details Column:
+```
+EVENT DETAILS
+Johnson Retirement Party
+Retirement Party            ← Event Type (gray)
+Mon, Jan 27, 2026 at 2:00 PM ET
+Charleston, SC
+75 Guests | Full Service
+```
+
+---
+
+## Summary of Changes
+
+| File | Change |
+|------|--------|
+| `_shared/emailTemplates.ts` | Add `formatEventType()` function |
+| `_shared/emailTemplates.ts` | Add event type badge in `generateEventDetailsCard()` |
+| `generate-invoice-pdf/index.ts` | Add `formatEventType()` function |
+| `generate-invoice-pdf/index.ts` | Add event type line in PDF event column |
+
+---
+
+## Edge Functions to Deploy
+
+1. `send-customer-portal-email` (uses shared emailTemplates.ts)
+2. `send-quote-confirmation` (uses shared emailTemplates.ts)
+3. `generate-invoice-pdf`
 
 ---
 
 ## Technical Notes
 
-- Uses existing `isMilitaryEvent()` utility from `eventTypeUtils.ts`
-- Uses existing `getMilitaryBadgeStyles()` for consistent blue color scheme
-- Shield icon from lucide-react (already used elsewhere in the codebase)
-- Compact display: `text-[10px]` size to fit in constrained spaces
-- Shows `military_organization` when available (Week View), falls back to "Military"
-
----
-
-## Summary
-
-| File | Changes |
-|------|---------|
-| `EventList.tsx` | Add military badge to mobile cards and desktop table rows |
-| `EventWeekView.tsx` | Add military indicator to EventCard component |
-| `EventMonthView.tsx` | Add shield icon to calendar dots and selected day cards |
-
+- Event type is displayed in a subtle gray style to not compete with the event name
+- Military events will show both the event type badge AND the military badge
+- The formatEventType function handles all event types from the form schema
+- Fallback formatting converts snake_case to Title Case for unknown types
