@@ -4,7 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
-import { Clock, Users, MapPin } from 'lucide-react';
+import { Clock, Users, MapPin, Shield } from 'lucide-react';
+import { isMilitaryEvent } from '@/utils/eventTypeUtils';
 import { Database } from '@/integrations/supabase/types';
 import { formatLocationLink } from '@/utils/linkFormatters';
 import { EventSummaryPanel } from './EventSummaryPanel';
@@ -64,6 +65,13 @@ function EventCard({ event, onClick }: { event: EventWithInvoice; onClick: () =>
         <Users className="h-3 w-3" />
         <span>{event.guest_count}</span>
       </div>
+      
+      {isMilitaryEvent(event.event_type) && (
+        <div className="flex items-center gap-1 mt-0.5 text-xs text-blue-600">
+          <Shield className="h-3 w-3" />
+          <span className="truncate">{event.military_organization || 'Military'}</span>
+        </div>
+      )}
       
       {event.location && (
         <a 

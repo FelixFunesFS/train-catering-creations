@@ -12,7 +12,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Eye, Loader2, FileText, Receipt, Mail, MailOpen, Globe, List, CalendarDays, CalendarRange, Phone } from 'lucide-react';
+import { Search, Eye, Loader2, FileText, Receipt, Mail, MailOpen, Globe, List, CalendarDays, CalendarRange, Phone, Shield } from 'lucide-react';
+import { isMilitaryEvent, getMilitaryBadgeStyles } from '@/utils/eventTypeUtils';
 import { EventDetail } from './EventDetail';
 import { EventWeekView } from './EventWeekView';
 import { EventMonthView } from './EventMonthView';
@@ -331,6 +332,12 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                         <div className="min-w-0 flex-1">
                           <p className="font-medium truncate">{event.contact_name}</p>
                           <p className="text-sm text-muted-foreground truncate">{event.event_name}</p>
+                          {isMilitaryEvent(event.event_type) && (
+                            <Badge className={getMilitaryBadgeStyles().className + " text-[10px] px-1.5 py-0 mt-1"}>
+                              <Shield className="h-2.5 w-2.5 mr-0.5" />
+                              Military
+                            </Badge>
+                          )}
                         </div>
                         <Badge 
                           variant="outline" 
@@ -553,6 +560,12 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                         <div>
                           <p className="font-medium">{event.contact_name}</p>
                           <p className="text-xs text-muted-foreground hidden sm:block">{event.email}</p>
+                          {isMilitaryEvent(event.event_type) && (
+                            <Badge className={getMilitaryBadgeStyles().className + " text-[10px] px-1 py-0 mt-0.5"}>
+                              <Shield className="h-2.5 w-2.5 mr-0.5" />
+                              Military
+                            </Badge>
+                          )}
                         </div>
                       </TableCell>
                       <TableCell className="hidden sm:table-cell">
