@@ -1,8 +1,9 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { GalleryImage } from "@/data/gallery/types";
 import { galleryCategories } from "@/data/galleryCategories";
 import { OptimizedImage } from "@/components/ui/optimized-image";
 import { Button } from "@/components/ui/button";
+import { ChevronDown } from "lucide-react";
 
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
@@ -23,8 +24,18 @@ export const InteractiveImageGrid = ({
   showDiscoverHeader = false
 }: InteractiveImageGridProps) => {
   
-  
   const isMobile = useIsMobile();
+  
+  // Responsive initial load counts for performance
+  const getInitialLoadCount = () => isMobile ? 8 : 16;
+  const getLoadMoreCount = () => isMobile ? 8 : 12;
+  
+  const [visibleCount, setVisibleCount] = useState(getInitialLoadCount());
+  
+  // Reset visible count when category changes
+  useEffect(() => {
+    setVisibleCount(getInitialLoadCount());
+  }, [category, isMobile]);
   
   const { ref: headerRef, isVisible: headerVisible, variant: headerVariant } = useScrollAnimation({ 
     delay: 0, 
@@ -44,6 +55,18 @@ export const InteractiveImageGrid = ({
   const sortedImages = useMemo(() => {
     return [...images].sort((a, b) => b.quality - a.quality);
   }, [images]);
+  
+  // Paginate images for progressive loading
+  const displayedImages = useMemo(() => {
+    return sortedImages.slice(0, visibleCount);
+  }, [sortedImages, visibleCount]);
+  
+  const hasMoreImages = visibleCount < sortedImages.length;
+  const remainingCount = sortedImages.length - visibleCount;
+  
+  const handleLoadMore = () => {
+    setVisibleCount(prev => Math.min(prev + getLoadMoreCount(), sortedImages.length));
+  };
 
 
   const getCategoryDisplayName = (categoryId: string | null) => {
@@ -52,7 +75,10 @@ export const InteractiveImageGrid = ({
     return categoryConfig?.name || categoryId;
   };
 
-  const ImageCard = ({ image }: { image: GalleryImage }) => {
+  const ImageCard = ({ image, index }: { image: GalleryImage; index: number }) => {
+    // Priority load first 4 images for faster LCP
+    const isPriority = index < 4;
+    
     return (
       <div 
         className="group relative break-inside-avoid mb-3 sm:mb-4 rounded-xl overflow-hidden bg-card border border-border/10 hover:shadow-elevated transition-all duration-300 cursor-pointer"
@@ -61,6 +87,7 @@ export const InteractiveImageGrid = ({
         <OptimizedImage
           src={image.src}
           alt={image.title}
+          priority={isPriority}
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
           containerClassName="w-full h-full"
         />
@@ -121,15 +148,33 @@ export const InteractiveImageGrid = ({
         ref={gridRef}
         className={`${useAnimationClass(gridVariant, gridVisible)}`}
       >
-        {sortedImages.length > 0 ? (
-          <div className={isMobile 
-            ? "columns-1 sm:columns-2 gap-3 sm:gap-4" 
-            : "columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-4 lg:gap-5"
-          }>
-            {sortedImages.map((image) => (
-              <ImageCard key={image.src} image={image} />
-            ))}
-          </div>
+        {displayedImages.length > 0 ? (
+          <>
+            <div className={isMobile 
+              ? "columns-1 sm:columns-2 gap-3 sm:gap-4" 
+              : "columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-4 lg:gap-5"
+            }>
+              {displayedImages.map((image, index) => (
+                <ImageCard key={image.src} image={image} index={index} />
+              ))}
+            </div>
+            
+            {/* Load More Button */}
+            {hasMoreImages && (
+              <div className="flex justify-center mt-8 sm:mt-10">
+                <Button 
+                  variant="outline" 
+                  size="lg"
+                  onClick={handleLoadMore}
+                  className="group gap-2 px-6 py-3 border-primary/30 hover:border-primary hover:bg-primary/5 transition-all duration-300"
+                >
+                  <span>Load More</span>
+                  <span className="text-muted-foreground text-sm">({remainingCount} remaining)</span>
+                  <ChevronDown className="h-4 w-4 group-hover:translate-y-0.5 transition-transform" />
+                </Button>
+              </div>
+            )}
+          </>
         ) : (
           <div className="text-center py-12">
             <p className="text-muted-foreground">No images found in this category.</p>
