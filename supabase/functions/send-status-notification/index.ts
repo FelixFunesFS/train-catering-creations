@@ -69,7 +69,7 @@ const handler = async (req: Request): Promise<Response> => {
       }
     }
 
-    const siteUrl = Deno.env.get('SITE_URL') || 'https://soultrainseatery.lovable.app';
+    const siteUrl = Deno.env.get('SITE_URL') || 'https://train-catering-creations.lovable.app';
     const estimateLink = invoice?.customer_access_token 
       ? `${siteUrl}/estimate?token=${invoice.customer_access_token}`
       : `${siteUrl}/estimate`;

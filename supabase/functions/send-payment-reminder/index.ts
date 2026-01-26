@@ -57,7 +57,7 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     // Build payment link
-    const frontendUrl = Deno.env.get('FRONTEND_URL') || 'https://soultrainseatery.lovable.app';
+    const frontendUrl = Deno.env.get('FRONTEND_URL') || 'https://train-catering-creations.lovable.app';
     const paymentLink = `${frontendUrl}/estimate?token=${invoice.customer_access_token}`;
 
     // Determine subject and content based on urgency and milestone type

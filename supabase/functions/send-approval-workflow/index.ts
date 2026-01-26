@@ -123,7 +123,7 @@ serve(async (req) => {
     );
 
     // Build portal URL
-    const siteUrl = Deno.env.get('SITE_URL') || 'https://soultrainseatery.lovable.app';
+    const siteUrl = Deno.env.get('SITE_URL') || 'https://train-catering-creations.lovable.app';
     const portalUrl = `${siteUrl}/estimate?token=${invoiceData.customer_access_token}`;
 
     // Sort line items

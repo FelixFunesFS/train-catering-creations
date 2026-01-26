@@ -170,7 +170,7 @@ serve(async (req) => {
     }
 
     // Use SITE_URL for consistent redirect URLs across all payment functions
-    const siteUrl = Deno.env.get("SITE_URL") || Deno.env.get("FRONTEND_URL") || "https://mkqdevtesting.com";
+    const siteUrl = Deno.env.get("SITE_URL") || Deno.env.get("FRONTEND_URL") || "https://train-catering-creations.lovable.app";
 
     const session = await stripe.checkout.sessions.create({
       customer: customerId,

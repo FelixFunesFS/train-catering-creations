@@ -46,7 +46,7 @@ serve(async (req) => {
     if (quotesError) throw quotesError;
 
     let emailsSent = 0;
-    const FRONTEND_URL = Deno.env.get('FRONTEND_URL') || 'https://soultrainseatery.lovable.app';
+    const FRONTEND_URL = Deno.env.get('FRONTEND_URL') || 'https://train-catering-creations.lovable.app';
 
     for (const quote of quotes || []) {
       const invoice = quote.invoices?.[0];

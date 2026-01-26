@@ -53,7 +53,7 @@ const handler = async (req: Request): Promise<Response> => {
       includeHtml = Boolean(body?.include_html);
     }
 
-    const siteUrl = Deno.env.get("SITE_URL") || "https://soultrainseatery.lovable.app";
+    const siteUrl = Deno.env.get("SITE_URL") || "https://train-catering-creations.lovable.app";
 
     // Minimal sample data; the goal is consistency across templates, not perfect realism.
     const SAMPLE_QUOTE = {
