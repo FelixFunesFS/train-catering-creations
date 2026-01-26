@@ -1,84 +1,153 @@
 
-# Fix Customer Email Logos Not Displaying
 
-## Problem Diagnosis
+# Domain Configuration: Standardize for mkqdevtesting.com Testing
 
-The email templates ARE correctly using the PNG logos (`logo-white.png` and `logo-red.png`) from `public/images/`. However, the logos may not be displaying due to:
+## Current Situation
 
-1. **SITE_URL Secret Misconfiguration** - The secret may be set to an incorrect domain (e.g., `mkqdevtesting.com`) that doesn't serve the images
-2. **Inconsistent Fallback URLs** - Different edge functions have different fallback URLs:
-   - `emailTemplates.ts`: `train-catering-creations.lovable.app` 
-   - `send-quote-notification`: `soultrainseatery.lovable.app`
+You're actively testing on `mkqdevtesting.com`. Your `SITE_URL` secret should already be set to this domain. The problem is **13 Edge Function files have inconsistent hardcoded fallback URLs** that don't match.
 
-## Current State
+---
 
-| File | Logo Source | Status |
-|------|-------------|--------|
-| `_shared/emailTemplates.ts` | `${SITE_URL}/images/logo-white.png` | Uses PNG |
-| `_shared/emailTemplates.ts` | `${SITE_URL}/images/logo-red.png` | Uses PNG (footer) |
-| `generate-invoice-pdf/index.ts` | Hardcoded lovable-uploads URL | Separate issue |
+## The Problem
 
-The PNG files exist at:
-- `public/images/logo-white.png` (white logo on transparent)
-- `public/images/logo-red.png` (red logo on transparent)
+| Current Fallback | Files Using It | Issue |
+|------------------|----------------|-------|
+| `soultrainseatery.lovable.app` | 10 files | Outdated, doesn't exist |
+| `train-catering-creations.lovable.app` | 4 files | Lovable staging URL |
+| `mkqdevtesting.com` | 1 file | Your testing domain (correct) |
 
-## Solution
+If your `SITE_URL` secret is set correctly, these fallbacks don't matter. But if the secret is ever missing, functions will break with mixed domains.
 
-### Step 1: Standardize Fallback URLs
+---
 
-Update all edge functions to use the correct published URL as fallback:
+## Recommended Strategy
 
-**File: `supabase/functions/_shared/emailTemplates.ts` (line 19)**
-```typescript
-// Before
-const SITE_URL = Deno.env.get('SITE_URL') || 'https://train-catering-creations.lovable.app';
+### Use `SITE_URL` Secret as the Single Source of Truth
 
-// After (no change needed - this is correct)
+**Current (Testing):**
+```
+SITE_URL = https://mkqdevtesting.com
 ```
 
-**File: `supabase/functions/send-quote-notification/index.ts` (line 97)**
-```typescript
-// Before
-const siteUrl = Deno.env.get('SITE_URL') || 'https://soultrainseatery.lovable.app';
-
-// After
-const siteUrl = Deno.env.get('SITE_URL') || 'https://train-catering-creations.lovable.app';
+**Production (Later):**
+```
+SITE_URL = https://soultrainseatery.com
 ```
 
-### Step 2: Verify SITE_URL Secret
+### Standardize Fallbacks to Lovable Published URL
 
-The SITE_URL secret should be set to the published URL:
+Even though you're testing on `mkqdevtesting.com`, the **fallback** should be the Lovable published URL (`train-catering-creations.lovable.app`) because:
+
+1. It's guaranteed to always work (Lovable hosts it)
+2. It has the PNG logos at `/images/logo-*.png`
+3. If secrets fail, emails still function on a working domain
+4. Your `SITE_URL` secret overrides the fallback anyway
+
+---
+
+## Files to Update
+
+| File | Current Fallback | Change To |
+|------|------------------|-----------|
+| `_shared/emailTemplates.ts` (line 1176) | `soultrainseatery.lovable.app` | `train-catering-creations.lovable.app` |
+| `_shared/emailTemplates.ts` (line 1477) | `soultrainseatery.lovable.app` | `train-catering-creations.lovable.app` |
+| `send-customer-portal-email/index.ts` | `soultrainseatery.lovable.app` | `train-catering-creations.lovable.app` |
+| `send-status-notification/index.ts` | `soultrainseatery.lovable.app` | `train-catering-creations.lovable.app` |
+| `send-approval-workflow/index.ts` | `soultrainseatery.lovable.app` | `train-catering-creations.lovable.app` |
+| `send-admin-notification/index.ts` | `soultrainseatery.lovable.app` | `train-catering-creations.lovable.app` |
+| `preview-email/index.ts` | `soultrainseatery.lovable.app` | `train-catering-creations.lovable.app` |
+| `email-qa-report/index.ts` | `soultrainseatery.lovable.app` | `train-catering-creations.lovable.app` |
+| `approve-estimate/index.ts` | `soultrainseatery.lovable.app` | `train-catering-creations.lovable.app` |
+| `send-payment-reminder/index.ts` | `soultrainseatery.lovable.app` | `train-catering-creations.lovable.app` |
+| `send-event-followup/index.ts` | `soultrainseatery.lovable.app` | `train-catering-creations.lovable.app` |
+| `create-payment-link/index.ts` | `mkqdevtesting.com` | `train-catering-creations.lovable.app` |
+
+**Already Correct (no changes needed):**
+- `send-quote-notification/index.ts` - Updated in last edit
+- `workflow-orchestrator/index.ts`
+- `token-renewal-manager/index.ts`
+- `_shared/emailTemplates.ts` (line 19)
+
+---
+
+## How It Works
+
+```text
+┌────────────────────────────────────────────────────────────┐
+│              Edge Function Execution                       │
+└────────────────────────────────────────────────────────────┘
+                         │
+                         ▼
+          ┌──────────────────────────────┐
+          │  Deno.env.get('SITE_URL')    │
+          │  (Supabase Secret)           │
+          └──────────────────────────────┘
+                         │
+         ┌───────────────┴───────────────┐
+         │                               │
+    Secret EXISTS                  Secret MISSING
+         │                               │
+         ▼                               ▼
+┌─────────────────────┐     ┌─────────────────────────────┐
+│ mkqdevtesting.com   │     │ train-catering-creations.   │
+│ (your test domain)  │     │ lovable.app (safe fallback) │
+└─────────────────────┘     └─────────────────────────────┘
+         │                               │
+         └───────────────┬───────────────┘
+                         │
+                         ▼
+          ┌──────────────────────────────┐
+          │  Logos: {domain}/images/...  │
+          │  Portal: {domain}/estimate   │
+          │  Payment: {domain}/checkout  │
+          └──────────────────────────────┘
 ```
-https://train-catering-creations.lovable.app
+
+---
+
+## Production Transition (When Ready)
+
+When you're ready to go live with `soultrainseatery.com`:
+
+### Step 1: Connect Custom Domain
+1. Lovable Project Settings → Domains
+2. Add `soultrainseatery.com` and `www.soultrainseatery.com`
+3. Add DNS A records pointing to `185.158.133.1`
+4. Wait for SSL provisioning
+
+### Step 2: Update Supabase Secrets
+```
+SITE_URL = https://soultrainseatery.com
+FRONTEND_URL = https://soultrainseatery.com
 ```
 
-If it's currently set to a different domain (like `mkqdevtesting.com`), the images won't load because that domain doesn't have the `/images/logo-*.png` files.
+### Step 3: Verify
+- Test that `https://soultrainseatery.com/images/logo-white.png` loads
+- Send a test email and confirm logos display
+- Verify all portal links point to the correct domain
 
-**Action Required:** Check and update the SITE_URL secret in Supabase Edge Functions settings if needed.
+---
 
-### Step 3: Redeploy Edge Functions
+## Technical Summary
 
-After updating the code, redeploy these edge functions:
-- `send-quote-notification`
-- `send-quote-confirmation` (uses shared emailTemplates.ts)
-- `send-customer-portal-email` (uses shared emailTemplates.ts)
+| Phase | SITE_URL Secret | Fallback (Safety Net) |
+|-------|-----------------|----------------------|
+| **Now (Testing)** | `https://mkqdevtesting.com` | `train-catering-creations.lovable.app` |
+| **Production** | `https://soultrainseatery.com` | `train-catering-creations.lovable.app` |
 
-## Files to Modify
+---
 
-| File | Change |
-|------|--------|
-| `supabase/functions/send-quote-notification/index.ts` | Fix fallback URL from `soultrainseatery.lovable.app` to `train-catering-creations.lovable.app` |
+## Edge Functions to Redeploy
 
-## Verification Steps
+After updating, redeploy these 10 functions:
+1. `send-customer-portal-email`
+2. `send-status-notification`
+3. `send-approval-workflow`
+4. `send-admin-notification`
+5. `preview-email`
+6. `email-qa-report`
+7. `approve-estimate`
+8. `send-payment-reminder`
+9. `send-event-followup`
+10. `create-payment-link`
 
-After implementation:
-1. Send a test email using the Email Preview in admin
-2. Check the email source to verify the logo URL is correct
-3. Confirm the logo displays in the email client
-
-## Technical Notes
-
-- The PNG logos in `public/images/` are correctly accessible at `https://train-catering-creations.lovable.app/images/logo-white.png` and `logo-red.png`
-- The `logo-white.png` is white on transparent background (designed for crimson header)
-- The `logo-red.png` is red on transparent background (designed for white footer)
-- If SITE_URL secret is misconfigured, you'll need to update it in Supabase Dashboard > Settings > Edge Functions > Secrets
