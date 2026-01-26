@@ -1944,6 +1944,53 @@ export type Database = {
           quote: Json
         }[]
       }
+      get_event_summary_for_user: {
+        Args: never
+        Returns: {
+          balance_due: number | null
+          compliance_level: string | null
+          contact_name: string | null
+          days_until_event: number | null
+          document_type: string | null
+          due_date: string | null
+          email: string | null
+          event_date: string | null
+          event_name: string | null
+          event_type: Database["public"]["Enums"]["event_type"] | null
+          guest_count: number | null
+          invoice_id: string | null
+          invoice_number: string | null
+          invoice_status:
+            | Database["public"]["Enums"]["invoice_workflow_status"]
+            | null
+          location: string | null
+          paid_at: string | null
+          payment_status: string | null
+          phone: string | null
+          po_number: string | null
+          quote_created_at: string | null
+          quote_id: string | null
+          quote_status:
+            | Database["public"]["Enums"]["quote_workflow_status"]
+            | null
+          requires_po_number: boolean | null
+          risk_level: string | null
+          sent_at: string | null
+          service_type: Database["public"]["Enums"]["service_type"] | null
+          start_time: string | null
+          subtotal: number | null
+          tax_amount: number | null
+          total_amount: number | null
+          total_paid: number | null
+          viewed_at: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "event_summary"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       get_next_statuses: {
         Args: { current_status: string; entity_type: string }
         Returns: string[]
