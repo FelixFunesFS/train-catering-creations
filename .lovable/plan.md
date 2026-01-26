@@ -1,153 +1,116 @@
 
 
-# Domain Configuration: Standardize for mkqdevtesting.com Testing
+# Option B: Move Cocktail Hour to Supplies Grid, Remove Ceremony Catering
 
-## Current Situation
+## Overview
 
-You're actively testing on `mkqdevtesting.com`. Your `SITE_URL` secret should already be set to this domain. The problem is **13 Edge Function files have inconsistent hardcoded fallback URLs** that don't match.
+This change simplifies the wedding form by integrating Cocktail Hour into the main supplies grid and removing the Ceremony Catering option entirely from customer-facing forms.
 
----
+## Changes Summary
 
-## The Problem
-
-| Current Fallback | Files Using It | Issue |
-|------------------|----------------|-------|
-| `soultrainseatery.lovable.app` | 10 files | Outdated, doesn't exist |
-| `train-catering-creations.lovable.app` | 4 files | Lovable staging URL |
-| `mkqdevtesting.com` | 1 file | Your testing domain (correct) |
-
-If your `SITE_URL` secret is set correctly, these fallbacks don't matter. But if the secret is ever missing, functions will break with mixed domains.
+| File | Action |
+|------|--------|
+| `src/components/quote/steps/SuppliesStep.tsx` | Remove wedding-specific section, add Cocktail Hour to supplies grid |
+| `src/components/quote/SinglePageQuoteForm.tsx` | Remove `ceremony_included` from defaults and submission payload |
+| `src/components/quote/ReviewSummaryCard.tsx` | Remove Ceremony Catering from review display |
 
 ---
 
-## Recommended Strategy
+## Visual Result
 
-### Use `SITE_URL` Secret as the Single Source of Truth
-
-**Current (Testing):**
-```
-SITE_URL = https://mkqdevtesting.com
-```
-
-**Production (Later):**
-```
-SITE_URL = https://soultrainseatery.com
-```
-
-### Standardize Fallbacks to Lovable Published URL
-
-Even though you're testing on `mkqdevtesting.com`, the **fallback** should be the Lovable published URL (`train-catering-creations.lovable.app`) because:
-
-1. It's guaranteed to always work (Lovable hosts it)
-2. It has the PNG logos at `/images/logo-*.png`
-3. If secrets fail, emails still function on a working domain
-4. Your `SITE_URL` secret overrides the fallback anyway
-
----
-
-## Files to Update
-
-| File | Current Fallback | Change To |
-|------|------------------|-----------|
-| `_shared/emailTemplates.ts` (line 1176) | `soultrainseatery.lovable.app` | `train-catering-creations.lovable.app` |
-| `_shared/emailTemplates.ts` (line 1477) | `soultrainseatery.lovable.app` | `train-catering-creations.lovable.app` |
-| `send-customer-portal-email/index.ts` | `soultrainseatery.lovable.app` | `train-catering-creations.lovable.app` |
-| `send-status-notification/index.ts` | `soultrainseatery.lovable.app` | `train-catering-creations.lovable.app` |
-| `send-approval-workflow/index.ts` | `soultrainseatery.lovable.app` | `train-catering-creations.lovable.app` |
-| `send-admin-notification/index.ts` | `soultrainseatery.lovable.app` | `train-catering-creations.lovable.app` |
-| `preview-email/index.ts` | `soultrainseatery.lovable.app` | `train-catering-creations.lovable.app` |
-| `email-qa-report/index.ts` | `soultrainseatery.lovable.app` | `train-catering-creations.lovable.app` |
-| `approve-estimate/index.ts` | `soultrainseatery.lovable.app` | `train-catering-creations.lovable.app` |
-| `send-payment-reminder/index.ts` | `soultrainseatery.lovable.app` | `train-catering-creations.lovable.app` |
-| `send-event-followup/index.ts` | `soultrainseatery.lovable.app` | `train-catering-creations.lovable.app` |
-| `create-payment-link/index.ts` | `mkqdevtesting.com` | `train-catering-creations.lovable.app` |
-
-**Already Correct (no changes needed):**
-- `send-quote-notification/index.ts` - Updated in last edit
-- `workflow-orchestrator/index.ts`
-- `token-renewal-manager/index.ts`
-- `_shared/emailTemplates.ts` (line 19)
-
----
-
-## How It Works
-
+### Before (Current):
 ```text
-┌────────────────────────────────────────────────────────────┐
-│              Edge Function Execution                       │
-└────────────────────────────────────────────────────────────┘
-                         │
-                         ▼
-          ┌──────────────────────────────┐
-          │  Deno.env.get('SITE_URL')    │
-          │  (Supabase Secret)           │
-          └──────────────────────────────┘
-                         │
-         ┌───────────────┴───────────────┐
-         │                               │
-    Secret EXISTS                  Secret MISSING
-         │                               │
-         ▼                               ▼
-┌─────────────────────┐     ┌─────────────────────────────┐
-│ mkqdevtesting.com   │     │ train-catering-creations.   │
-│ (your test domain)  │     │ lovable.app (safe fallback) │
-└─────────────────────┘     └─────────────────────────────┘
-         │                               │
-         └───────────────┬───────────────┘
-                         │
-                         ▼
-          ┌──────────────────────────────┐
-          │  Logos: {domain}/images/...  │
-          │  Portal: {domain}/estimate   │
-          │  Payment: {domain}/checkout  │
-          └──────────────────────────────┘
+┌──────────────────────────────────────────────┐
+│  Wedding Options (separate section)          │
+│  ┌────────────────┐ ┌────────────────┐       │
+│  │ Cocktail Hour  │ │   (empty)      │       │
+│  └────────────────┘ └────────────────┘       │
+│                                              │
+│  Supplies Grid (6 items)                     │
+│  ┌────────────────┐ ┌────────────────┐       │
+│  │ Plates         │ │ Cups           │       │
+│  │ Napkins        │ │ Serving Utens. │       │
+│  │ Chafers        │ │ Ice            │       │
+│  └────────────────┘ └────────────────┘       │
+└──────────────────────────────────────────────┘
+```
+
+### After (Fixed):
+```text
+┌──────────────────────────────────────────────┐
+│  Supplies Grid (7 items for wedding)         │
+│  ┌────────────────┐ ┌────────────────┐       │
+│  │ Cocktail Hour  │ │ Plates         │       │
+│  │ Cups           │ │ Napkins        │       │
+│  │ Serving Utens. │ │ Chafers        │       │
+│  │ Ice            │ │                │       │
+│  └────────────────┘ └────────────────┘       │
+│                                              │
+│  (Regular form: 6 items, balanced 3x2)       │
+└──────────────────────────────────────────────┘
 ```
 
 ---
 
-## Production Transition (When Ready)
+## Technical Implementation
 
-When you're ready to go live with `soultrainseatery.com`:
+### 1. SuppliesStep.tsx
 
-### Step 1: Connect Custom Domain
-1. Lovable Project Settings → Domains
-2. Add `soultrainseatery.com` and `www.soultrainseatery.com`
-3. Add DNS A records pointing to `185.158.133.1`
-4. Wait for SSL provisioning
+**Remove the wedding-specific section entirely** (lines 43-66) and add Cocktail Hour conditionally to the supplies array:
 
-### Step 2: Update Supabase Secrets
+```typescript
+const supplies = [
+  // Cocktail Hour - only shown for wedding variant
+  ...(variant === 'wedding' ? [{
+    name: "cocktail_hour",
+    label: "Cocktail Hour",
+    description: "Light appetizers & beverages"
+  }] : []),
+  // Standard supplies
+  { name: "plates_requested", label: "Disposable Plates", description: "Heavy-duty disposable plates" },
+  { name: "cups_requested", label: "Disposable Cups", description: "Cups for beverages" },
+  { name: "napkins_requested", label: "Napkins", description: "Disposable napkins" },
+  { name: "serving_utensils_requested", label: "Serving Utensils", description: "Tongs, spoons, serving tools" },
+  { name: "chafers_requested", label: chaferLabel, description: chaferDescription },
+  { name: "ice_requested", label: "Ice", description: "Ice for beverages and cooling" },
+];
 ```
-SITE_URL = https://soultrainseatery.com
-FRONTEND_URL = https://soultrainseatery.com
+
+This creates:
+- **Wedding form**: 7 items (Cocktail Hour + 6 supplies) = 4 rows with 1 item on last row
+- **Regular form**: 6 items = balanced 3x2 grid
+
+### 2. SinglePageQuoteForm.tsx
+
+**Remove `ceremony_included` from defaultValues:**
+```typescript
+// Remove this line from defaultValues
+ceremony_included: false,  // DELETE
 ```
 
-### Step 3: Verify
-- Test that `https://soultrainseatery.com/images/logo-white.png` loads
-- Send a test email and confirm logos display
-- Verify all portal links point to the correct domain
+**Remove `ceremony_included` from submitPayload:**
+```typescript
+// Remove this line from submitPayload
+ceremony_included: data.ceremony_included,  // DELETE
+```
+
+### 3. ReviewSummaryCard.tsx
+
+**Remove any display of Ceremony Catering** from the review summary (if present). The Cocktail Hour will now appear in the supplies section.
 
 ---
 
-## Technical Summary
+## Database Note
 
-| Phase | SITE_URL Secret | Fallback (Safety Net) |
-|-------|-----------------|----------------------|
-| **Now (Testing)** | `https://mkqdevtesting.com` | `train-catering-creations.lovable.app` |
-| **Production** | `https://soultrainseatery.com` | `train-catering-creations.lovable.app` |
+The `ceremony_included` column remains in the database schema for backward compatibility with existing quotes. It simply won't be set for new submissions.
 
 ---
 
-## Edge Functions to Redeploy
+## Files to Modify
 
-After updating, redeploy these 10 functions:
-1. `send-customer-portal-email`
-2. `send-status-notification`
-3. `send-approval-workflow`
-4. `send-admin-notification`
-5. `preview-email`
-6. `email-qa-report`
-7. `approve-estimate`
-8. `send-payment-reminder`
-9. `send-event-followup`
-10. `create-payment-link`
+| File | Lines Affected | Change |
+|------|----------------|--------|
+| `src/components/quote/steps/SuppliesStep.tsx` | 14-29, 43-66 | Add Cocktail Hour to supplies array, remove wedding section |
+| `src/components/quote/SinglePageQuoteForm.tsx` | ~133, ~328 | Remove `ceremony_included` from defaults and payload |
+| `src/components/quote/ReviewSummaryCard.tsx` | Supplies section | Display Cocktail Hour in supplies if selected |
 
