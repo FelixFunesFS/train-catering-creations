@@ -16,7 +16,8 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { Database } from '@/integrations/supabase/types';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Shield } from 'lucide-react';
+import { isMilitaryEvent } from '@/utils/eventTypeUtils';
 import { EventSummaryPanel } from './EventSummaryPanel';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 
@@ -166,6 +167,9 @@ export function EventMonthView({ events, currentDate, onEventClick }: EventMonth
                       <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${
                         statusDotColors[event.workflow_status] || 'bg-gray-400'
                       }`} />
+                      {isMilitaryEvent(event.event_type) && (
+                        <Shield className="h-2.5 w-2.5 text-blue-600 shrink-0" />
+                      )}
                       <span className="text-[10px] truncate text-muted-foreground group-hover:text-foreground">
                         {event.contact_name}
                       </span>
@@ -225,7 +229,12 @@ export function EventMonthView({ events, currentDate, onEventClick }: EventMonth
                         className="p-3 rounded-lg border bg-muted/20 cursor-pointer hover:bg-muted/40 transition-colors"
                       >
                         <div className="flex items-start justify-between gap-2 mb-1">
-                          <p className="font-medium text-sm">{event.contact_name}</p>
+                          <div className="flex items-center gap-1.5">
+                            <p className="font-medium text-sm">{event.contact_name}</p>
+                            {isMilitaryEvent(event.event_type) && (
+                              <Shield className="h-3.5 w-3.5 text-blue-600" />
+                            )}
+                          </div>
                           <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${
                             statusDotColors[event.workflow_status] || 'bg-gray-400'
                           }`} />
