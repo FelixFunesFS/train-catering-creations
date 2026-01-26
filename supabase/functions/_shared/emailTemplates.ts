@@ -82,6 +82,32 @@ export const formatServiceType = (serviceType: string): string => {
     .join(' ');
 };
 
+export const formatEventType = (eventType: string | null): string => {
+  if (!eventType) return 'Event';
+  
+  const eventTypeMap: Record<string, string> = {
+    'wedding': 'Wedding',
+    'birthday': 'Birthday',
+    'corporate': 'Corporate Event',
+    'graduation': 'Graduation',
+    'anniversary': 'Anniversary',
+    'baby_shower': 'Baby Shower',
+    'bridal_shower': 'Bridal Shower',
+    'retirement': 'Retirement',
+    'holiday_party': 'Holiday Party',
+    'bereavement': 'Bereavement',
+    'private_party': 'Private Party',
+    'black_tie': 'Black Tie',
+    'military_function': 'Military Function',
+    'other': 'Other Event'
+  };
+  
+  return eventTypeMap[eventType.toLowerCase()] || 
+         eventType.replace(/_/g, ' ').split(' ')
+           .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+           .join(' ');
+};
+
 export const formatCurrency = (cents: number): string => {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100);
 };
@@ -192,10 +218,15 @@ export function generateEventDetailsCard(quote: any): string {
 <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${BRAND_COLORS.lightGray}" style="background:${BRAND_COLORS.lightGray};border-radius:8px;border-left:4px solid ${BRAND_COLORS.gold};margin:16px 0;border-collapse:collapse;">
 <tr>
 <td style="padding:16px;">
-<h3 style="margin:0 0 12px 0;color:${BRAND_COLORS.crimson};font-size:18px;">
+<h3 style="margin:0 0 4px 0;color:${BRAND_COLORS.crimson};font-size:18px;">
   ${quote.event_name || 'Your Event'}
   ${quote.event_type === 'military_function' ? `<span style="display:inline-block;background:#dbeafe;color:#1d4ed8;font-size:12px;padding:2px 8px;border-radius:4px;margin-left:8px;vertical-align:middle;">🎖️ Military</span>` : ''}
 </h3>
+<p style="margin:0 0 12px 0;font-size:13px;color:#666;">
+  <span style="display:inline-block;background:#f3f4f6;color:#374151;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:500;">
+    ${formatEventType(quote.event_type)}
+  </span>
+</p>
 ${quote.military_organization ? `
 <p style="margin:0 0 10px 0;font-size:14px;color:#1d4ed8;">
   <strong>Organization:</strong> ${quote.military_organization}
