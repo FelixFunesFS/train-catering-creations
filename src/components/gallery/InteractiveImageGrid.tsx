@@ -107,41 +107,43 @@ export const InteractiveImageGrid = ({
 
   return (
     <div className="py-8 sm:py-12">
-      {/* Header */}
-      <div 
-        ref={headerRef}
-        className={`mb-6 sm:mb-8 lg:mb-10 ${showDiscoverHeader ? 'text-center' : ''} ${useAnimationClass(headerVariant, headerVisible)}`}
-      >
-        {showDiscoverHeader ? (
-          <>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant font-bold text-foreground mb-2 sm:mb-3">
-              Discover Our Work
-            </h2>
-            <p className="text-muted-foreground text-base sm:text-lg max-w-2xl mx-auto mb-1">
-              Browse our portfolio of beautifully catered events
-            </p>
-            {category && (
-              <p className="text-ruby font-medium text-sm sm:text-base">
-                Showing: {getCategoryDisplayName(category)} ({sortedImages.length} images)
+      {/* Header - Only show when category is selected or showDiscoverHeader is true */}
+      {(showDiscoverHeader || category) && (
+        <div 
+          ref={headerRef}
+          className={`mb-6 sm:mb-8 lg:mb-10 ${showDiscoverHeader ? 'text-center' : ''} ${useAnimationClass(headerVariant, headerVisible)}`}
+        >
+          {showDiscoverHeader ? (
+            <>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-elegant font-bold text-foreground mb-2 sm:mb-3">
+                Discover Our Work
+              </h2>
+              <p className="text-muted-foreground text-base sm:text-lg max-w-2xl mx-auto mb-1">
+                Browse our portfolio of beautifully catered events
               </p>
-            )}
-            {!category && (
-              <p className="text-muted-foreground/70 text-sm">
+              {category && (
+                <p className="text-ruby font-medium text-sm sm:text-base">
+                  Showing: {getCategoryDisplayName(category)} ({sortedImages.length} images)
+                </p>
+              )}
+              {!category && (
+                <p className="text-muted-foreground/70 text-sm">
+                  {sortedImages.length} images
+                </p>
+              )}
+            </>
+          ) : (
+            <>
+              <h2 className="text-2xl sm:text-3xl font-elegant font-bold">
+                {getCategoryDisplayName(category)}
+              </h2>
+              <p className="text-muted-foreground text-sm sm:text-base">
                 {sortedImages.length} images
               </p>
-            )}
-          </>
-        ) : (
-          <>
-            <h2 className="text-2xl sm:text-3xl font-elegant font-bold">
-              {getCategoryDisplayName(category)}
-            </h2>
-            <p className="text-muted-foreground text-sm sm:text-base">
-              {sortedImages.length} images
-            </p>
-          </>
-        )}
-      </div>
+            </>
+          )}
+        </div>
+      )}
       
       {/* Masonry Grid */}
       <div 
