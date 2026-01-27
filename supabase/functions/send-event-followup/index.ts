@@ -85,15 +85,11 @@ serve(async (req) => {
       const invoice = quote.invoices?.[0];
       if (!invoice) continue;
 
-      // Create feedback link
-      const feedbackLink = `${FRONTEND_URL}/feedback?token=${invoice.customer_access_token}`;
-
-      // Generate email using standard template
+      // Generate email using standard template - simplified feedback section (no broken /feedback link)
       const feedbackBoxHtml = `
         <div style="background:${BRAND_COLORS.lightGray};border:2px solid ${BRAND_COLORS.gold};padding:25px;border-radius:12px;margin:20px 0;text-align:center;">
-          <h3 style="margin:0 0 12px 0;color:${BRAND_COLORS.crimson};">We'd Love Your Feedback</h3>
-          <p style="margin:0 0 16px 0;font-size:15px;line-height:1.6;">Your feedback helps us continue serving Charleston families with the best Southern catering experience.</p>
-          <a href="${feedbackLink}" style="display:inline-block;background:linear-gradient(135deg,${BRAND_COLORS.crimson},${BRAND_COLORS.crimsonDark});color:white;text-decoration:none;padding:14px 28px;border-radius:8px;font-weight:bold;">Share Your Feedback</a>
+          <h3 style="margin:0 0 12px 0;color:${BRAND_COLORS.crimson};">We'd Love to Hear From You!</h3>
+          <p style="margin:0;font-size:15px;line-height:1.6;">Your feedback helps us continue serving Charleston families with the best Southern catering experience. Feel free to reply to this email or call us at <a href="tel:+18439700265" style="color:${BRAND_COLORS.crimson};text-decoration:none;font-weight:600;">(843) 970-0265</a>.</p>
         </div>
       `;
 
@@ -101,7 +97,7 @@ serve(async (req) => {
         <div style="margin:25px 0;">
           <p style="font-size:15px;margin:0 0 12px 0;"><strong>Loved our service?</strong> We'd be honored if you could leave us a review:</p>
           <div style="text-align:center;">
-            <a href="https://www.google.com/search?q=soul+train%27s+eatery+charleston" style="display:inline-block;background:${BRAND_COLORS.gold};color:${BRAND_COLORS.darkGray};text-decoration:none;padding:12px 24px;border-radius:6px;font-weight:bold;margin:4px;">⭐ Google Review</a>
+            <a href="https://g.page/r/CWyYHq7bIsWlEBM/review" style="display:inline-block;background:${BRAND_COLORS.gold};color:${BRAND_COLORS.darkGray};text-decoration:none;padding:12px 24px;border-radius:6px;font-weight:bold;margin:4px;">⭐ Google Review</a>
             <a href="https://www.facebook.com/soultrainseatery/reviews" style="display:inline-block;background:#1877f2;color:white;text-decoration:none;padding:12px 24px;border-radius:6px;font-weight:bold;margin:4px;">📘 Facebook Review</a>
           </div>
         </div>

@@ -161,34 +161,8 @@ serve(async (req) => {
         
         emailsSent.twoDayDay.push(event.email);
       }
-      // Thank you email (day after event)
-      else if (daysUntil === -1) {
-        emailType = 'thank-you';
-        subject = `Thank You from Soul Train's Eatery!`;
-
-        const feedbackHtml = `
-          <div style="background:${BRAND_COLORS.lightGray};border:2px solid ${BRAND_COLORS.gold};padding:20px;border-radius:10px;margin:20px 0;text-align:center;">
-            <h3 style="margin:0 0 12px 0;color:${BRAND_COLORS.crimson};">⭐ We'd Love Your Feedback!</h3>
-            <p style="margin:0 0 16px 0;font-size:15px;line-height:1.6;">Your feedback helps us continue serving Charleston families with the best Southern catering experience.</p>
-            <div style="margin-top:16px;">
-              <a href="https://www.google.com/search?q=soul+train%27s+eatery+charleston" style="display:inline-block;background:${BRAND_COLORS.crimson};color:white;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:bold;margin:4px;">Leave a Google Review</a>
-            </div>
-          </div>
-        `;
-        
-        emailHtml = generateStandardEmail({
-          preheaderText: EMAIL_CONFIGS.event_followup.customer!.preheaderText,
-          heroSection: EMAIL_CONFIGS.event_followup.customer!.heroSection,
-          contentBlocks: [
-            { type: 'text', data: { html: `<p style="font-size:16px;margin:0 0 16px 0;">Thank You, ${event.contact_name}!</p><p style="font-size:15px;margin:0 0 16px 0;line-height:1.6;">We hope you and your guests enjoyed the food and service at your "<strong>${event.event_name}</strong>" event!</p><p style="font-size:15px;margin:0;line-height:1.6;">It was our pleasure to serve you and be part of your special occasion.</p>` }},
-            { type: 'custom_html', data: { html: feedbackHtml }},
-            { type: 'text', data: { html: `<p style="font-size:15px;margin:20px 0 0 0;">We hope to serve you again soon!</p><p style="margin-top:20px;"><strong>Soul Train's Eatery Team</strong><br/>(843) 970-0265 | soultrainseatery@gmail.com</p>` }}
-          ],
-          quote: event
-        });
-        
-        emailsSent.thankYou.push(event.email);
-      }
+      // NOTE: Thank-you emails (day after event) are now handled exclusively by
+      // send-event-followup function to prevent duplicate communications
 
       // Send email if type is set
       if (emailType && emailHtml) {

@@ -138,7 +138,7 @@ const Reviews = () => {
               {/* Verification Links */}
               <div className="flex justify-center items-center gap-4 mt-3 mb-3">
                 <a 
-                  href="https://g.page/r/YOUR_GOOGLE_PLACE_ID/review"
+                  href="https://g.page/r/CWyYHq7bIsWlEBM/review"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground hover:text-primary transition-colors"
@@ -148,7 +148,7 @@ const Reviews = () => {
                 </a>
                 <span className="text-muted-foreground/50">|</span>
                 <a 
-                  href="https://facebook.com/soultrainseatery/reviews"
+                  href="https://www.facebook.com/soultrainseatery/reviews"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground hover:text-primary transition-colors"
