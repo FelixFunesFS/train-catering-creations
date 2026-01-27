@@ -18,7 +18,7 @@ const corsHeaders = {
 const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
 const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
-const siteUrl = Deno.env.get('SITE_URL') || 'https://train-catering-creations.lovable.app';
+const siteUrl = Deno.env.get('SITE_URL') || 'https://www.soultrainseatery.com';
 
 interface StatusNotificationRequest {
   entityType: 'quote' | 'invoice';

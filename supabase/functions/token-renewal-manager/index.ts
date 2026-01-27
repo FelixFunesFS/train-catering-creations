@@ -89,7 +89,7 @@ const handler = async (req: Request): Promise<Response> => {
             .gte('sent_at', new Date().toISOString().split('T')[0]);
 
           if (!existingWarning || existingWarning.length === 0) {
-            const siteUrl = Deno.env.get('SITE_URL') || 'https://train-catering-creations.lovable.app';
+            const siteUrl = Deno.env.get('SITE_URL') || 'https://www.soultrainseatery.com';
             const estimateLink = `${siteUrl}/estimate?token=${invoice.customer_access_token}`;
 
             const { error: emailError } = await supabase.functions.invoke('send-smtp-email', {

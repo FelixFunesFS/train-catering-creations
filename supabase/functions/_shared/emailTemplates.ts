@@ -16,7 +16,7 @@ export const BRAND_COLORS = {
 };
 
 // Production URL for logo assets - uses published domain for email compatibility
-const SITE_URL = Deno.env.get('SITE_URL') || 'https://train-catering-creations.lovable.app';
+const SITE_URL = Deno.env.get('SITE_URL') || 'https://www.soultrainseatery.com';
 
 // Logo URLs - PNG format for universal email client compatibility (including Outlook desktop)
 export const LOGO_URLS = {
