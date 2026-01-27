@@ -1,182 +1,276 @@
 
-# Final Publishing Readiness Review
+
+# Decouple Invoice Status from Event Completion + Send Test Thank You Email
 
 ## Summary
 
-After thorough end-to-end review, the system is **production-ready** with a few actionable items to complete before going live. The core workflows (quote submission, payment processing, customer portal, admin management) are all functional.
+This plan addresses three key requirements:
+1. **Decouple invoice status from event completion** - Mark Complete should ONLY update the quote status, not the invoice
+2. **Show "Mark Complete" button only on/after event date** - Add date validation
+3. **Visual differentiation when completed** - Grey out or change button state
+4. **Send test thank you email for INV-2026-0196**
 
 ---
 
-## CRITICAL: Must Complete Before Publishing
+## Current Problem
 
-### 1. Update Supabase Secrets (SITE_URL and FRONTEND_URL)
+### Current Behavior (useEstimateActions.tsx lines 232-280)
+When "Mark Complete" is clicked:
+1. Updates quote `workflow_status` to `completed`
+2. **Also updates invoice `workflow_status` to `paid` and sets `paid_at`** ← This is wrong for Net30/late payment scenarios
 
-**Current State:** Both secrets exist but may still point to the staging domain
-**Required Values:**
-- `SITE_URL` = `https://www.soultrainseatery.com`
-- `FRONTEND_URL` = `https://www.soultrainseatery.com`
-
-**Impact:** 13 edge functions use these URLs for:
-- Email logo URLs
-- Customer portal links
-- Payment success/cancel redirects
-- PDF logo (if we update it)
-
-**Action:** Go to Supabase Dashboard > Settings > Edge Functions > Secrets and update both values
-
----
-
-### 2. Remove Broken Cron Job (SQL Required)
-
-**Issue:** The `send-automated-reminders-daily` cron job (ID: 2) calls a function that no longer exists (`send-automated-reminders`). The `unified-reminder-system` now handles all reminder functionality.
-
-**Current Active Cron Jobs:**
-| ID | Job Name | Schedule | Status |
-|----|----------|----------|--------|
-| 1 | auto-workflow-manager-every-15-min | Every 15 min | Working |
-| 2 | send-automated-reminders-daily | 9 AM daily | BROKEN - Function deleted |
-| 3 | send-event-followup-daily | 10 AM daily | Working |
-| 8 | token-renewal-manager-daily | 2 AM daily | Working |
-
-**SQL to run in Supabase SQL Editor:**
-```sql
-SELECT cron.unschedule('send-automated-reminders-daily');
-```
-
-**Note:** The `unified-reminder-system` is not currently scheduled as a cron job. It's invoked by `auto-workflow-manager` as part of its workflow. If you want independent daily reminders, schedule it separately.
-
----
-
-### 3. Remove Instagram Placeholder Link
-
-**File:** `src/components/Footer.tsx` (lines 120-122)
-**Issue:** Instagram link points to `#` - non-functional placeholder
-**Action:** Remove the link and unused import
-
----
-
-### 4. Fix PDF Logo URL
-
-**File:** `supabase/functions/generate-invoice-pdf/index.ts` (line 236)
-**Issue:** Logo URL uses `.lovableproject.com` subdomain which may not resolve properly in production
-**Current:** `https://qptprrqjlcvfkhfdnnoa.lovableproject.com/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png`
-**Action:** Update to use SITE_URL secret for consistent branding:
+### Current Button Logic (EventDetailsPanelContent.tsx lines 52-55)
 ```typescript
-const siteUrl = Deno.env.get('SITE_URL') || 'https://www.soultrainseatery.com';
-const logoUrl = `${siteUrl}/images/logo-red.png`;
+const canMarkComplete = quote?.workflow_status && 
+  ['confirmed', 'paid', 'approved', 'awaiting_payment'].includes(quote.workflow_status) &&
+  quote.workflow_status !== 'completed';
+```
+- Missing: Date check (should only show on/after event date)
+- Missing: Visual differentiation for completed state
+
+---
+
+## Implementation Plan
+
+### Step 1: Fix useEstimateActions.tsx - Decouple Invoice Status
+
+**File:** `src/hooks/useEstimateActions.tsx`
+**Lines:** 231-280
+
+**Change:** Remove the invoice status update from `handleMarkEventCompleted`
+
+**Before:**
+```typescript
+const handleMarkEventCompleted = useCallback(async () => {
+  if (!quoteId || !invoiceId) return;
+  // ... updates BOTH quote AND invoice
+```
+
+**After:**
+```typescript
+const handleMarkEventCompleted = useCallback(async () => {
+  if (!quoteId) return;  // Remove invoiceId requirement
+  setIsMarkingComplete(true);
+  try {
+    // ONLY update quote status to completed
+    const { error: quoteError } = await supabase
+      .from('quote_requests')
+      .update({ 
+        workflow_status: 'completed',
+        last_status_change: new Date().toISOString(),
+        status_changed_by: 'admin',
+      })
+      .eq('id', quoteId);
+    
+    if (quoteError) throw quoteError;
+    
+    // DO NOT update invoice status - payment is separate from event completion
+    // Invoice status will be updated when actual payment is received
+    
+    // Invalidate queries
+    queryClient.invalidateQueries({ queryKey: ['quotes'] });
+    queryClient.invalidateQueries({ queryKey: ['quote', quoteId] });
+    queryClient.invalidateQueries({ queryKey: ['events'] });
+    
+    toast({ 
+      title: 'Event Marked Complete', 
+      description: 'The event has been marked as completed. Invoice payment status remains unchanged.' 
+    });
+    
+  } catch (err: any) {
+    toast({ title: 'Error', description: err.message, variant: 'destructive' });
+  } finally {
+    setIsMarkingComplete(false);
+  }
+}, [quoteId, queryClient, toast]);  // Remove invoiceId, onClose from dependencies
 ```
 
 ---
 
-## SSL/HTTPS Configuration
+### Step 2: Update EventDetailsPanelContent.tsx - Add Date Check & Completed State
 
-SSL is automatically provisioned by Lovable when DNS is properly configured. Verification:
+**File:** `src/components/admin/events/EventDetailsPanelContent.tsx`
+**Lines:** 52-84
 
-**Required DNS Records:**
-| Type | Name | Value |
-|------|------|-------|
-| A | @ | 185.158.133.1 |
-| A | www | 185.158.133.1 |
-| TXT | _lovable | (from Lovable dashboard) |
+**Changes:**
+1. Add date validation (only show on/after event date)
+2. Show greyed-out "Completed" state when already completed
+3. Pass `eventDate` to hook props
 
-**Status:** Once both domains are added in Lovable Project Settings > Domains:
-- SSL certificates are auto-provisioned (usually within minutes)
-- Set `www.soultrainseatery.com` as Primary (recommended)
-- Root domain will redirect to www
+**New Logic:**
+```typescript
+// Date check - only allow marking complete on or after event day
+const isEventDayOrLater = useMemo(() => {
+  if (!quote?.event_date) return false;
+  const eventDate = new Date(quote.event_date);
+  eventDate.setHours(0, 0, 0, 0);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return today >= eventDate;
+}, [quote?.event_date]);
 
-**Already Configured Correctly:**
-- `robots.txt` references `https://www.soultrainseatery.com`
-- `sitemap.xml` uses `https://www.soultrainseatery.com` as canonical
+// Check if already completed
+const isCompleted = quote?.workflow_status === 'completed';
 
----
-
-## Optional Cleanup: Orphaned Edge Function Folders
-
-These folders exist but are NOT in `config.toml`, meaning they're not deployed:
-
-| Folder | Status | Recommendation |
-|--------|--------|----------------|
-| `confirm-event/` | Not deployed | Safe to delete |
-| `create-payment-intent/` | Not deployed | Safe to delete |
-| `event-timeline-generator/` | Not deployed | Safe to delete |
-| `send-manual-email/` | Not deployed | Safe to delete |
-| `send-status-notification/` | Not deployed | Safe to delete |
-| `sync-invoice-with-quote/` | Not deployed | Safe to delete |
-| `validate-invoice-totals/` | Not deployed | Safe to delete |
-| `workflow-orchestrator/` | Not deployed | Safe to delete |
-
-**Note:** These won't cause issues - they're just dead code. Cleanup is optional but recommended for maintainability.
-
----
-
-## Verified Working Systems
-
-| Component | Status | Notes |
-|-----------|--------|-------|
-| Quote Form Submission | Working | `submit-quote-request` with rate limiting (3/hr), honeypot spam protection, validation |
-| Email System | Working | SMTP configured, all secrets present |
-| Payment Flow | Working | `create-checkout-session` with access token security, proper SITE_URL usage |
-| Stripe Webhook | Working | Signature verification enforced, `STRIPE_WEBHOOK_SECRET` configured |
-| Customer Portal | Working | Token-based access, idempotent approval handling |
-| PDF Generation | Working | Needs logo URL fix for production domain |
-| Auto-Workflow Manager | Working | Runs every 15 minutes |
-| Event Followup | Working | Runs daily at 10 AM |
-| Token Renewal | Working | Runs daily at 2 AM |
-| robots.txt | Correct | Production domain, sensitive routes blocked |
-| sitemap.xml | Correct | All public pages included |
-
----
-
-## Implementation Checklist
-
-### Code Changes (2 files)
-
-**1. src/components/Footer.tsx**
-- Remove Instagram link (lines 120-122)
-- Remove unused `Instagram` import
-
-**2. supabase/functions/generate-invoice-pdf/index.ts**
-- Update logo URL to use SITE_URL (line 236)
-
-### Manual Actions (Supabase Dashboard)
-
-**1. Secrets (Settings > Edge Functions > Secrets)**
-- Verify `SITE_URL` = `https://www.soultrainseatery.com`
-- Verify `FRONTEND_URL` = `https://www.soultrainseatery.com`
-
-**2. SQL Editor (Run SQL)**
-```sql
-SELECT cron.unschedule('send-automated-reminders-daily');
+// Determine if "Mark Complete" button should show
+const canMarkComplete = quote?.workflow_status && 
+  ['confirmed', 'paid', 'approved', 'awaiting_payment'].includes(quote.workflow_status) &&
+  isEventDayOrLater;
 ```
 
-**3. Domains (Project Settings > Domains)**
-- Add `soultrainseatery.com`
-- Add `www.soultrainseatery.com`
-- Set `www` as Primary
-
-**4. Stripe Dashboard**
-- Verify webhook endpoint: `https://qptprrqjlcvfkhfdnnoa.supabase.co/functions/v1/stripe-webhook`
-- Events enabled: `checkout.session.completed`, `checkout.session.async_payment_failed`
+**Button UI Changes:**
+```tsx
+{/* Show completed state or mark complete button */}
+{isCompleted ? (
+  <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200">
+    <CheckCircle2 className="h-3 w-3 mr-1" />
+    Completed
+  </Badge>
+) : canMarkComplete && onMarkCompleted ? (
+  <Button 
+    size="sm" 
+    variant="default" 
+    onClick={onMarkCompleted}
+    disabled={isMarkingComplete}
+    className="gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white"
+  >
+    {isMarkingComplete ? (
+      <Loader2 className="h-4 w-4 animate-spin" />
+    ) : (
+      <CheckCircle2 className="h-4 w-4" />
+    )}
+    Mark Complete
+  </Button>
+) : null}
+```
 
 ---
 
-## End-to-End Payment Test (Post-Publishing)
+### Step 3: Update MobileEstimateView.tsx - Same Logic
 
-1. Submit a quote via the form
-2. Verify confirmation email arrives with correct logos
-3. Admin: Generate estimate and send
-4. Customer: Click portal link in email
-5. Customer: Approve estimate (verify terms checkbox)
-6. Customer: Complete Stripe payment
-7. Verify webhook fires (check Edge Function logs for `stripe-webhook`)
-8. Verify payment confirmation email sent
-9. Return to portal - verify payment shows complete
+**File:** `src/components/admin/mobile/MobileEstimateView.tsx`
+**Lines:** 252-269
+
+Apply the same changes:
+1. Add `isEventDayOrLater` check
+2. Show "Completed" badge when already marked complete
+3. Only show button on/after event date
 
 ---
 
-## Files to Modify Summary
+### Step 4: Update auto-workflow-manager - Consistent Logic
+
+**File:** `supabase/functions/auto-workflow-manager/index.ts`
+**Lines:** 112-149 (Section 3: Auto-complete events)
+
+The auto-complete logic is already correct - it only updates the quote status, not the invoice.
+
+Current behavior:
+- Updates `quote_requests.workflow_status` to `completed`
+- Does NOT touch invoice status
+
+This is already aligned with the desired behavior. No changes needed here.
+
+---
+
+## Test Thank You Email for INV-2026-0196
+
+**Quote Details Found:**
+- Quote ID: `06e32371-dffb-49e8-a508-96fa0ff0d9ef`
+- Invoice ID: `b9e5f0b4-9f01-4eb3-970e-64aa58d10520`
+- Event Name: Super Bowl
+- Contact: Felix Margery Funes
+- Email: envision@mkqconsulting.com
+- Event Date: 2026-04-29 (future)
+- Access Token: `0bf72903-9f44-440b-9e24-3aa365a1d9e1`
+- Quote Status: `confirmed`
+- Invoice Status: `paid`
+
+**To send a test thank you email**, I will invoke the `send-event-followup` function manually for this specific quote. This requires either:
+
+**Option A: Manual SQL update + cron trigger**
+- Temporarily set the event_date to yesterday
+- Trigger the send-event-followup function
+- Reset the date back
+
+**Option B: Create a test endpoint in send-event-followup**
+- Add a `test_quote_id` parameter that bypasses the date filter
+
+**Recommended: Option B** - Add test mode to the function for admin testing.
+
+After implementation, I can call the edge function with a test parameter to trigger the thank you email.
+
+---
+
+## Files to Modify
 
 | File | Change |
 |------|--------|
-| `src/components/Footer.tsx` | Remove Instagram link and import |
-| `supabase/functions/generate-invoice-pdf/index.ts` | Update logo URL to use SITE_URL |
+| `src/hooks/useEstimateActions.tsx` | Remove invoice status update from handleMarkEventCompleted |
+| `src/components/admin/events/EventDetailsPanelContent.tsx` | Add date validation, show completed state |
+| `src/components/admin/mobile/MobileEstimateView.tsx` | Same date validation and completed state |
+| `supabase/functions/send-event-followup/index.ts` | Add test mode for manual email trigger |
+
+---
+
+## How to Think About This
+
+### Separation of Concerns
+
+```text
+┌─────────────────────────────────────────────────────────────────┐
+│                    EVENT LIFECYCLE                               │
+│  pending → under_review → estimated → approved → confirmed →     │
+│                                                     ↓            │
+│                                                 COMPLETED        │
+│  (triggered by: event date passed OR admin clicks Mark Complete) │
+└─────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│                   INVOICE/PAYMENT LIFECYCLE                      │
+│  draft → sent → approved → payment_pending → partially_paid →   │
+│                                                     ↓            │
+│                                                   PAID           │
+│  (triggered by: actual payment via Stripe webhook OR admin)      │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Key Insight:** These are INDEPENDENT lifecycles. An event can be:
+- **Completed + Paid** (standard case)
+- **Completed + Pending Payment** (Net30 government contracts)
+- **Completed + Partially Paid** (customer paying in installments after event)
+- **Completed + Overdue** (late payment)
+
+### Button State Logic
+
+```text
+Is event completed?
+├── YES → Show "Completed" badge (greyed out, non-clickable)
+└── NO → Is today >= event date?
+    ├── YES → Is status confirmable? (confirmed/paid/approved/awaiting_payment)
+    │   ├── YES → Show "Mark Complete" button (clickable)
+    │   └── NO → Hide button
+    └── NO → Hide button (too early to mark complete)
+```
+
+---
+
+## Workflow After Completion
+
+1. **Admin marks event complete** → Quote status = `completed`
+2. **Invoice status unchanged** → Could be `paid`, `pending`, `overdue`, etc.
+3. **Next day at 10 AM**: `send-event-followup` cron sends thank you email
+4. **Invoice payment** → Handled separately via:
+   - Stripe webhook (automatic)
+   - Admin manual update
+   - Auto-workflow-manager marking overdue if past due
+
+---
+
+## Implementation Summary
+
+1. **useEstimateActions.tsx**: Remove invoice update from Mark Complete
+2. **EventDetailsPanelContent.tsx**: Add date check + completed state badge
+3. **MobileEstimateView.tsx**: Mirror desktop logic
+4. **send-event-followup**: Add test mode, then send test email
+
