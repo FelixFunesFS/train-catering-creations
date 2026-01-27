@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ArrowUp } from "lucide-react";
+import { ArrowUp, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useLocation } from "react-router-dom";
@@ -33,27 +33,43 @@ export function ScrollToTop() {
   if (hidden) return null;
 
   return (
-    <Button
-      onClick={scrollToTop}
-      variant="default"
-      size="icon"
+    <div
       className={cn(
-        "fixed z-50 shadow-glow transition-all duration-300",
-        "right-4 lg:right-6",
-        // Mobile: above MobileActionBar, Desktop: bottom corner
+        "fixed right-4 lg:right-6 z-50 flex flex-col gap-2",
         isMobile 
           ? "bottom-[calc(5rem+env(safe-area-inset-bottom)+0.5rem)]" 
           : "bottom-6",
-        // Visibility animation
         isVisible 
-          ? "opacity-100 translate-y-0 scale-100" 
-          : "opacity-0 translate-y-4 scale-90 pointer-events-none",
-        // Touch target and styling
-        "h-12 w-12 rounded-full bg-ruby hover:bg-ruby-dark"
+          ? "opacity-100 translate-y-0" 
+          : "opacity-0 translate-y-4 pointer-events-none",
+        "transition-all duration-300"
       )}
-      aria-label="Scroll to top"
     >
-      <ArrowUp className="h-5 w-5" />
-    </Button>
+      {/* Phone Call Button - Mobile Only */}
+      {isMobile && (
+        <Button
+          asChild
+          variant="default"
+          size="icon"
+          className="h-12 w-12 rounded-full bg-[hsl(160,84%,39%)] hover:bg-[hsl(160,84%,35%)] shadow-glow text-white"
+          aria-label="Call Soul Train's Eatery"
+        >
+          <a href="tel:8439700265">
+            <Phone className="h-5 w-5" />
+          </a>
+        </Button>
+      )}
+      
+      {/* Scroll to Top Button */}
+      <Button
+        onClick={scrollToTop}
+        variant="default"
+        size="icon"
+        className="h-12 w-12 rounded-full bg-ruby hover:bg-ruby-dark shadow-glow"
+        aria-label="Scroll to top"
+      >
+        <ArrowUp className="h-5 w-5" />
+      </Button>
+    </div>
   );
 }

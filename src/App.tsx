@@ -72,7 +72,7 @@ const AppContent = () => {
       <OfflineIndicator />
       <PwaUpdateBanner />
       {!hideChrome && <Header />}
-      <main className={`flex-1 ${isAdminRoute ? 'p-0' : 'py-0 my-0'} ${showMobileActionBar ? 'pb-[calc(5rem+env(safe-area-inset-bottom))]' : ''}`}>
+      <main className={`flex-1 ${!hideChrome ? 'pt-16 lg:pt-[72px]' : ''} ${isAdminRoute ? 'p-0' : 'py-0 my-0'} ${showMobileActionBar ? 'pb-[calc(5rem+env(safe-area-inset-bottom))]' : ''}`}>
         <Suspense fallback={<PageLoader />}>
           <Routes>
             <Route path="/" element={<Index />} />
