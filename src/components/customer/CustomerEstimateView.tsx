@@ -15,6 +15,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useEstimateAccess } from '@/hooks/useEstimateAccess';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { EstimateLineItems } from './EstimateLineItems';
+import { MenuActionsPanel } from './MenuActionsPanel';
 import { CustomerActions } from './CustomerActions';
 import { ChangeRequestModal } from './ChangeRequestModal';
 import { PaymentCard } from './PaymentCard';
@@ -420,7 +421,7 @@ export function CustomerEstimateView() {
     );
   }
 
-  // DESKTOP SPLIT-VIEW LAYOUT
+  // DESKTOP 3-COLUMN LAYOUT
   return (
     <div className="min-h-screen bg-muted/30 flex flex-col">
       {/* Header - Full Width */}
@@ -428,16 +429,16 @@ export function CustomerEstimateView() {
         <HeaderSection />
       </div>
 
-      {/* Split Panel Content */}
+      {/* 3-Column Split Panel Content */}
       <ResizablePanelGroup
         direction="horizontal"
         className="flex-1 h-[calc(100vh-10rem)]"
       >
-        {/* Left Panel - Customer Details Sidebar */}
+        {/* Left Panel - Customer Details Sidebar (25%) */}
         <ResizablePanel 
-          defaultSize={35} 
-          minSize={28} 
-          maxSize={45}
+          defaultSize={25} 
+          minSize={20} 
+          maxSize={30}
           className="bg-background"
         >
           <CustomerDetailsSidebar quote={quote} />
@@ -445,11 +446,44 @@ export function CustomerEstimateView() {
 
         <ResizableHandle withHandle />
 
-        {/* Right Panel - Main Content */}
-        <ResizablePanel defaultSize={65} minSize={55}>
+        {/* Center Panel - Payment (35%) */}
+        <ResizablePanel defaultSize={35} minSize={30} maxSize={40}>
           <ScrollArea className="h-full">
-            <div className="p-6 lg:p-8">
-              <MainContent />
+            <div className="p-6">
+              <div id="payment">
+                <PaymentCard
+                  invoiceId={invoice.id}
+                  totalAmount={invoice.total_amount}
+                  milestones={(milestones || []) as Milestone[]}
+                  workflowStatus={invoice.workflow_status}
+                  customerEmail={quote.email}
+                  accessToken={token}
+                />
+              </div>
+            </div>
+          </ScrollArea>
+        </ResizablePanel>
+
+        <ResizableHandle withHandle />
+
+        {/* Right Panel - Menu & Actions (40%) */}
+        <ResizablePanel defaultSize={40} minSize={35}>
+          <ScrollArea className="h-full">
+            <div className="p-6">
+              <MenuActionsPanel
+                lineItems={lineItems}
+                subtotal={invoice.subtotal}
+                taxAmount={invoice.tax_amount || 0}
+                total={invoice.total_amount}
+                notes={invoice.notes}
+                invoiceId={invoice.id}
+                customerEmail={quote.email}
+                workflowStatus={invoice.workflow_status}
+                quoteRequestId={invoice.quote_request_id}
+                amountPaid={amountPaid}
+                onStatusChange={refetch}
+                autoApprove={shouldAutoApprove}
+              />
             </div>
           </ScrollArea>
         </ResizablePanel>

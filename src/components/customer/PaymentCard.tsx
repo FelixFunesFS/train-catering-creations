@@ -159,6 +159,71 @@ export function PaymentCard({
       </CardHeader>
 
       <CardContent className="space-y-6">
+        {/* Desktop Quick Pay CTA - Above everything */}
+        {showPaymentActions && (nextDueMilestone || nextUpcomingMilestone) && (
+          <div className="hidden lg:block">
+            {nextDueMilestone && getMilestoneStatus(nextDueMilestone).isDue ? (
+              <div className="p-4 bg-gradient-to-r from-amber-50 to-amber-100/50 dark:from-amber-950/40 dark:to-amber-900/20 rounded-lg border-2 border-amber-300 dark:border-amber-700">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-amber-800 dark:text-amber-300 flex items-center gap-2">
+                      <span className="inline-block w-2 h-2 bg-amber-500 rounded-full animate-pulse" />
+                      {getMilestoneLabel(nextDueMilestone.milestone_type)} Due Now
+                    </p>
+                    <p className="text-2xl font-bold text-amber-900 dark:text-amber-200 mt-1">
+                      {formatPaymentCurrency(nextDueMilestone.amount_cents)}
+                    </p>
+                  </div>
+                  <Button
+                    onClick={() => handlePayMilestone(nextDueMilestone)}
+                    disabled={isProcessing}
+                    size="lg"
+                    className="shadow-lg"
+                  >
+                    {isProcessing ? (
+                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    ) : (
+                      <Wallet className="mr-2 h-5 w-5" />
+                    )}
+                    Pay Now
+                  </Button>
+                </div>
+              </div>
+            ) : nextUpcomingMilestone ? (
+              <div className="p-4 bg-primary/5 rounded-lg border border-primary/20">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Next Payment: {getMilestoneLabel(nextUpcomingMilestone.milestone_type)}
+                    </p>
+                    <p className="text-xl font-bold text-foreground mt-1">
+                      {formatPaymentCurrency(nextUpcomingMilestone.amount_cents)}
+                    </p>
+                    {nextUpcomingMilestone.due_date && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Due: {formatDate(nextUpcomingMilestone.due_date)}
+                      </p>
+                    )}
+                  </div>
+                  <Button
+                    onClick={() => handlePayMilestone(nextUpcomingMilestone)}
+                    disabled={isProcessing}
+                    variant="outline"
+                    size="lg"
+                  >
+                    {isProcessing ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <Wallet className="mr-2 h-4 w-4" />
+                    )}
+                    Pay Early
+                  </Button>
+                </div>
+              </div>
+            ) : null}
+          </div>
+        )}
+
         {/* Progress Section */}
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
@@ -217,149 +282,208 @@ export function PaymentCard({
 
         {/* Payment Actions - Only after approval */}
         {showPaymentActions && (
-          <Tabs defaultValue={nextDueMilestone ? 'scheduled' : 'full'} className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="scheduled" disabled={!nextUpcomingMilestone}>
-                Scheduled
-              </TabsTrigger>
-              <TabsTrigger value="custom">
-                Custom
-              </TabsTrigger>
-              <TabsTrigger value="full">
-                Full Balance
-              </TabsTrigger>
-            </TabsList>
+          <>
+            {/* Mobile: Full Tabs Interface */}
+            <div className="lg:hidden">
+              <Tabs defaultValue={nextDueMilestone ? 'scheduled' : 'full'} className="w-full">
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="scheduled" disabled={!nextUpcomingMilestone}>
+                    Scheduled
+                  </TabsTrigger>
+                  <TabsTrigger value="custom">
+                    Custom
+                  </TabsTrigger>
+                  <TabsTrigger value="full">
+                    Full Balance
+                  </TabsTrigger>
+                </TabsList>
 
-            {/* Scheduled Payment Tab */}
-            <TabsContent value="scheduled" className="space-y-4 mt-4">
-              {nextDueMilestone && getMilestoneStatus(nextDueMilestone).isDue ? (
-                <div className="p-4 bg-amber-50 dark:bg-amber-950/20 rounded-lg border border-amber-200 dark:border-amber-800">
-                  <p className="text-sm font-medium text-amber-800 dark:text-amber-300 mb-2">
-                    Payment Due Now
-                  </p>
-                  <div className="flex justify-between items-center">
-                    <span className="text-foreground">
-                      {getMilestoneLabel(nextDueMilestone.milestone_type)} ({nextDueMilestone.percentage}%)
-                    </span>
-                    <span className="font-bold text-lg">
-                      {formatPaymentCurrency(nextDueMilestone.amount_cents)}
-                    </span>
-                  </div>
-                  <Button
-                    onClick={() => handlePayMilestone(nextDueMilestone)}
-                    disabled={isProcessing}
-                    className="w-full mt-3"
-                  >
-                    {isProcessing ? (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    ) : (
-                      <Wallet className="mr-2 h-4 w-4" />
-                    )}
-                    Pay {formatPaymentCurrency(nextDueMilestone.amount_cents)}
-                  </Button>
-                </div>
-              ) : nextUpcomingMilestone ? (
-                <div className="p-4 bg-muted/50 rounded-lg">
-                  <p className="text-sm font-medium text-muted-foreground mb-2">
-                    Next Scheduled Payment
-                  </p>
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <span className="text-foreground block">
-                        {getMilestoneLabel(nextUpcomingMilestone.milestone_type)}
-                      </span>
-                      {nextUpcomingMilestone.due_date && (
-                        <span className="text-xs text-muted-foreground">
-                          Due: {formatDate(nextUpcomingMilestone.due_date)}
+                {/* Scheduled Payment Tab */}
+                <TabsContent value="scheduled" className="space-y-4 mt-4">
+                  {nextDueMilestone && getMilestoneStatus(nextDueMilestone).isDue ? (
+                    <div className="p-4 bg-amber-50 dark:bg-amber-950/20 rounded-lg border border-amber-200 dark:border-amber-800">
+                      <p className="text-sm font-medium text-amber-800 dark:text-amber-300 mb-2">
+                        Payment Due Now
+                      </p>
+                      <div className="flex justify-between items-center">
+                        <span className="text-foreground">
+                          {getMilestoneLabel(nextDueMilestone.milestone_type)} ({nextDueMilestone.percentage}%)
                         </span>
-                      )}
+                        <span className="font-bold text-lg">
+                          {formatPaymentCurrency(nextDueMilestone.amount_cents)}
+                        </span>
+                      </div>
+                      <Button
+                        onClick={() => handlePayMilestone(nextDueMilestone)}
+                        disabled={isProcessing}
+                        className="w-full mt-3"
+                      >
+                        {isProcessing ? (
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                          <Wallet className="mr-2 h-4 w-4" />
+                        )}
+                        Pay {formatPaymentCurrency(nextDueMilestone.amount_cents)}
+                      </Button>
                     </div>
-                    <span className="font-bold text-lg">
-                      {formatPaymentCurrency(nextUpcomingMilestone.amount_cents)}
-                    </span>
+                  ) : nextUpcomingMilestone ? (
+                    <div className="p-4 bg-muted/50 rounded-lg">
+                      <p className="text-sm font-medium text-muted-foreground mb-2">
+                        Next Scheduled Payment
+                      </p>
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <span className="text-foreground block">
+                            {getMilestoneLabel(nextUpcomingMilestone.milestone_type)}
+                          </span>
+                          {nextUpcomingMilestone.due_date && (
+                            <span className="text-xs text-muted-foreground">
+                              Due: {formatDate(nextUpcomingMilestone.due_date)}
+                            </span>
+                          )}
+                        </div>
+                        <span className="font-bold text-lg">
+                          {formatPaymentCurrency(nextUpcomingMilestone.amount_cents)}
+                        </span>
+                      </div>
+                      <Button
+                        onClick={() => handlePayMilestone(nextUpcomingMilestone)}
+                        disabled={isProcessing}
+                        variant="outline"
+                        className="w-full mt-3"
+                      >
+                        {isProcessing ? (
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                          <Wallet className="mr-2 h-4 w-4" />
+                        )}
+                        Pay Early
+                      </Button>
+                    </div>
+                  ) : (
+                    <p className="text-center text-muted-foreground py-4">
+                      No scheduled payments remaining.
+                    </p>
+                  )}
+                </TabsContent>
+
+                {/* Custom Amount Tab */}
+                <TabsContent value="custom" className="space-y-4 mt-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="custom-amount-mobile">Enter Amount</Label>
+                    <div className="relative">
+                      <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="custom-amount-mobile"
+                        type="number"
+                        min="1"
+                        max={remaining / 100}
+                        step="0.01"
+                        placeholder="0.00"
+                        value={customAmount}
+                        onChange={(e) => setCustomAmount(e.target.value)}
+                        className="pl-9"
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Maximum: {formatPaymentCurrency(remaining)}
+                    </p>
                   </div>
                   <Button
-                    onClick={() => handlePayMilestone(nextUpcomingMilestone)}
-                    disabled={isProcessing}
-                    variant="outline"
-                    className="w-full mt-3"
+                    onClick={handlePayCustom}
+                    disabled={isProcessing || !customAmount || parseFloat(customAmount) <= 0}
+                    className="w-full"
                   >
                     {isProcessing ? (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     ) : (
-                      <Wallet className="mr-2 h-4 w-4" />
+                      <CreditCard className="mr-2 h-4 w-4" />
                     )}
-                    Pay Early
+                    Pay ${customAmount || '0.00'}
+                  </Button>
+                </TabsContent>
+
+                {/* Full Balance Tab */}
+                <TabsContent value="full" className="space-y-4 mt-4">
+                  <div className="p-4 bg-primary/5 rounded-lg border border-primary/20">
+                    <div className="flex justify-between items-center">
+                      <span className="text-foreground">Full Remaining Balance</span>
+                      <span className="font-bold text-xl text-primary">
+                        {formatPaymentCurrency(remaining)}
+                      </span>
+                    </div>
+                  </div>
+                  <Button
+                    onClick={handlePayFull}
+                    disabled={isProcessing}
+                    className="w-full"
+                    size="lg"
+                  >
+                    {isProcessing ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <CreditCard className="mr-2 h-4 w-4" />
+                    )}
+                    Pay Full Balance
+                  </Button>
+                </TabsContent>
+              </Tabs>
+            </div>
+
+            {/* Desktop: Compact Other Options */}
+            <div className="hidden lg:block space-y-3">
+              <p className="text-sm font-medium text-muted-foreground">Other Payment Options</p>
+              <div className="flex gap-3">
+                <div className="flex-1 space-y-2">
+                  <Label htmlFor="custom-amount-desktop" className="text-xs">Custom Amount</Label>
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
+                      <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="custom-amount-desktop"
+                        type="number"
+                        min="1"
+                        max={remaining / 100}
+                        step="0.01"
+                        placeholder="0.00"
+                        value={customAmount}
+                        onChange={(e) => setCustomAmount(e.target.value)}
+                        className="pl-9 h-9"
+                      />
+                    </div>
+                    <Button
+                      onClick={handlePayCustom}
+                      disabled={isProcessing || !customAmount || parseFloat(customAmount) <= 0}
+                      variant="outline"
+                      size="sm"
+                    >
+                      {isProcessing ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <>Pay</>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+                <div className="flex items-end">
+                  <Button
+                    onClick={handlePayFull}
+                    disabled={isProcessing}
+                    variant="secondary"
+                    size="sm"
+                    className="whitespace-nowrap"
+                  >
+                    {isProcessing ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <CreditCard className="mr-2 h-4 w-4" />
+                    )}
+                    Pay Full ({formatPaymentCurrency(remaining)})
                   </Button>
                 </div>
-              ) : (
-                <p className="text-center text-muted-foreground py-4">
-                  No scheduled payments remaining.
-                </p>
-              )}
-            </TabsContent>
-
-            {/* Custom Amount Tab */}
-            <TabsContent value="custom" className="space-y-4 mt-4">
-              <div className="space-y-2">
-                <Label htmlFor="custom-amount">Enter Amount</Label>
-                <div className="relative">
-                  <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="custom-amount"
-                    type="number"
-                    min="1"
-                    max={remaining / 100}
-                    step="0.01"
-                    placeholder="0.00"
-                    value={customAmount}
-                    onChange={(e) => setCustomAmount(e.target.value)}
-                    className="pl-9"
-                  />
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Maximum: {formatPaymentCurrency(remaining)}
-                </p>
               </div>
-              <Button
-                onClick={handlePayCustom}
-                disabled={isProcessing || !customAmount || parseFloat(customAmount) <= 0}
-                className="w-full"
-              >
-                {isProcessing ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <CreditCard className="mr-2 h-4 w-4" />
-                )}
-                Pay ${customAmount || '0.00'}
-              </Button>
-            </TabsContent>
-
-            {/* Full Balance Tab */}
-            <TabsContent value="full" className="space-y-4 mt-4">
-              <div className="p-4 bg-primary/5 rounded-lg border border-primary/20">
-                <div className="flex justify-between items-center">
-                  <span className="text-foreground">Full Remaining Balance</span>
-                  <span className="font-bold text-xl text-primary">
-                    {formatPaymentCurrency(remaining)}
-                  </span>
-                </div>
-              </div>
-              <Button
-                onClick={handlePayFull}
-                disabled={isProcessing}
-                className="w-full"
-                size="lg"
-              >
-                {isProcessing ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <CreditCard className="mr-2 h-4 w-4" />
-                )}
-                Pay Full Balance
-              </Button>
-            </TabsContent>
-          </Tabs>
+            </div>
+          </>
         )}
       </CardContent>
     </Card>
