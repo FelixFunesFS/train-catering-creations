@@ -1,167 +1,187 @@
 
 
-# Service Cards Section Update
+# Gallery Page Layout Consolidation
 
 ## Overview
 
-This plan modifies the ServiceCategoriesSection to remove individual card buttons, add a "See Menu" CTA alongside the existing "Get Your Quote" button, and reduce the service card image heights by 20%.
+This plan removes the "Discover Our Work" header and subtitle from the gallery grid section and combines the masonry image grid with the category cards section into a single unified section.
 
 ---
 
-## Changes Summary
+## Current Structure
 
-| Change | Description |
-|--------|-------------|
-| Remove card CTAs | Delete the individual CTA buttons from each service card |
-| Add "See Menu" button | Place next to "Get Your Quote" after the cards grid |
-| Reduce image height | Change aspect ratio from 4:3 to approximately 5:3 (20% reduction) |
+```text
+┌─────────────────────────────────────────┐
+│ Hero Section                            │
+├─────────────────────────────────────────┤
+│ PageSection (pattern="b")               │
+│  - Brand Intro (Badge, Title, Subtitle) │
+│  - Category Cards                       │
+├─────────────────────────────────────────┤
+│ PageSection (pattern="c") ← SEPARATE    │
+│  - "Discover Our Work" Header           │ ← REMOVE
+│  - "Browse our portfolio..." subtitle   │ ← REMOVE
+│  - Masonry Image Grid                   │
+├─────────────────────────────────────────┤
+│ CTA Section                             │
+└─────────────────────────────────────────┘
+```
+
+## Target Structure
+
+```text
+┌─────────────────────────────────────────┐
+│ Hero Section                            │
+├─────────────────────────────────────────┤
+│ PageSection (pattern="b") ← COMBINED    │
+│  - Brand Intro (Badge, Title, Subtitle) │
+│  - Category Cards                       │
+│  - Image Grid (no header)               │ ← MOVED HERE
+├─────────────────────────────────────────┤
+│ CTA Section                             │
+└─────────────────────────────────────────┘
+```
+
+---
+
+## Changes
+
+### 1. Remove "Discover Our Work" Header
+
+**File:** `src/components/gallery/InteractiveImageGrid.tsx`
+
+Set `showDiscoverHeader={false}` when calling the component, which will:
+- Hide the "Discover Our Work" title
+- Hide the "Browse our portfolio of beautifully catered events" subtitle
+- Still show the category name and image count when a filter is active
+
+**Alternative approach (cleaner):** Modify the header section to show a minimal indicator when a category is selected, without the large title/subtitle.
+
+---
+
+### 2. Combine Sections in AlternativeGallery.tsx
+
+**File:** `src/pages/AlternativeGallery.tsx`
+
+Move the `InteractiveImageGrid` component inside the same `PageSection` as the Category Cards, eliminating the separate section.
+
+**Before (lines 125-137):**
+```tsx
+{/* COMBINED: Discover Our Work + Image Grid */}
+<PageSection pattern="c" withBorder data-section="gallery-grid">
+  <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8">
+    <div ref={contentRef} className={useAnimationClass(contentVariant, contentVisible)}>
+      <InteractiveImageGrid 
+        images={filteredImages}
+        onImageClick={handleImageClick}
+        category={selectedCategory}
+        showDiscoverHeader={true}
+      />
+    </div>
+  </div>
+</PageSection>
+```
+
+**After:** Move the `InteractiveImageGrid` inside the first `PageSection` (after CategoryCards) and remove the second `PageSection` entirely.
 
 ---
 
 ## Implementation Details
 
-### 1. Remove Individual Card CTA Buttons
+### File: `src/pages/AlternativeGallery.tsx`
 
-**File:** `src/components/home/ServiceCategoriesSection.tsx`
+**Changes:**
+1. Move `InteractiveImageGrid` inside the Brand Intro + Category Cards section
+2. Remove the separate `PageSection pattern="c"`
+3. Set `showDiscoverHeader={false}` to hide the redundant header
+4. Keep the `data-section="gallery-grid"` attribute for scroll targeting
 
-Remove lines 159-167 (the Individual CTA Button section) from the `renderCardContent` function.
-
-**Before:**
+**Updated structure:**
 ```tsx
-{/* Individual CTA Button */}
-<div className="pt-3">
-  <Button asChild variant="outline" size="sm" className="w-full group-hover:bg-ruby group-hover:text-white transition-all duration-300">
-    <Link to={service.ctaHref} className="flex items-center justify-center gap-2">
-      <span>{service.ctaText}</span>
-      <ArrowRight className="h-4 w-4" />
-    </Link>
-  </Button>
-</div>
-```
-
-**After:** (removed entirely)
-
----
-
-### 2. Add "See Menu" Button Next to "Get Your Quote"
-
-**File:** `src/components/home/ServiceCategoriesSection.tsx`
-
-Update the Section CTA area (lines 231-239) to include two buttons side by side with responsive layout.
-
-**Before:**
-```tsx
-<div className="flex justify-center mt-6 sm:mt-8">
-  <Button variant="cta" size="responsive-md" asChild>
-    <a href="/request-quote" className="flex items-center gap-2">
-      <span>Get Your Quote</span>
-      <ArrowRight className="h-4 w-4" />
-    </a>
-  </Button>
-</div>
-```
-
-**After:**
-```tsx
-<div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mt-6 sm:mt-8">
-  <Button variant="cta" size="responsive-md" asChild>
-    <Link to="/request-quote" className="flex items-center gap-2">
-      <span>Get Your Quote</span>
-      <ArrowRight className="h-4 w-4" />
-    </Link>
-  </Button>
-  <Button variant="outline" size="responsive-md" asChild className="border-ruby text-ruby hover:bg-ruby hover:text-white">
-    <Link to="/menu" className="flex items-center gap-2">
-      <Utensils className="h-4 w-4" />
-      <span>See Menu</span>
-    </Link>
-  </Button>
-</div>
-```
-
-**Import:** Add `Utensils` to the lucide-react imports.
-
----
-
-### 3. Reduce Image Height by 20%
-
-**File:** `src/components/home/ServiceCategoriesSection.tsx`
-
-The current aspect ratio is `aspect-[4/3]` which equals 1.33:1.
-
-To reduce height by 20%:
-- Original height factor: 3 (from 4:3)
-- 20% reduction: 3 * 0.8 = 2.4
-- New ratio: 4:2.4 = 5:3 = `aspect-[5/3]`
-
-**Before (line 102):**
-```tsx
-<div className="relative aspect-[4/3] overflow-hidden">
-```
-
-**After:**
-```tsx
-<div className="relative aspect-[5/3] overflow-hidden">
+{/* COMBINED: Brand Intro + Category Cards + Image Grid */}
+<PageSection pattern="b" className="py-8 sm:py-12" data-section="gallery-grid">
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    {/* Intro text - centered */}
+    <div ref={introRef} className={...}>
+      {/* Badge, Title, Subtitle, Description */}
+    </div>
+    
+    {/* Category Cards */}
+    <CategoryCards 
+      selectedCategory={selectedCategory}
+      onCategorySelect={handleCategorySelect}
+    />
+    
+    {/* Image Grid - Now embedded directly below cards */}
+    <div ref={contentRef} className={`mt-8 sm:mt-10 lg:mt-12 ${useAnimationClass(contentVariant, contentVisible)}`}>
+      <InteractiveImageGrid 
+        images={filteredImages}
+        onImageClick={handleImageClick}
+        category={selectedCategory}
+        showDiscoverHeader={false}  {/* Hide the header */}
+      />
+    </div>
+  </div>
+</PageSection>
 ```
 
 ---
 
-## Visual Summary
+### File: `src/components/gallery/InteractiveImageGrid.tsx`
 
-### Button Layout (After)
+**Optional refinement:** When `showDiscoverHeader={false}`, the component currently shows a simpler header with just the category name. We can optionally hide this entirely or show only a minimal category indicator when a filter is active.
 
-**Mobile (stacked):**
+**Current behavior (lines 134-143):**
+```tsx
+} : (
+  <>
+    <h2 className="text-2xl sm:text-3xl font-elegant font-bold">
+      {getCategoryDisplayName(category)}
+    </h2>
+    <p className="text-muted-foreground text-sm sm:text-base">
+      {sortedImages.length} images
+    </p>
+  </>
+)}
+```
+
+**Keep this behavior** - it provides useful context when filtering by category, showing "Weddings & Black Tie (24 images)" etc.
+
+---
+
+## Visual Result
+
+### Before
 ```text
-┌─────────────────────────────────┐
-│     [ Get Your Quote → ]        │
-├─────────────────────────────────┤
-│     [ 🍴 See Menu ]             │
-└─────────────────────────────────┘
+[ Category Cards ]
+─────────────────────────────────
+   Discover Our Work              ← REMOVED
+   Browse our portfolio...        ← REMOVED
+[ Masonry Gallery ]
 ```
 
-**Desktop (side by side):**
+### After
 ```text
-[ Get Your Quote → ]  [ 🍴 See Menu ]
-```
-
-### Service Card (After - No Individual CTA)
-```text
-┌─────────────────────────────────┐
-│  [Image - 20% shorter height]   │
-├─────────────────────────────────┤
-│  Wedding Catering               │
-│  Your Dream Day                 │
-│                                 │
-│  Description text...            │
-│                                 │
-│  ✓ Custom Menu Planning         │
-│  ✓ Professional Service         │
-│  ✓ Elegant Presentation         │
-└─────────────────────────────────┘
-       (no button here)
+[ Category Cards ]
+   
+   Weddings & Black Tie (24 images)  ← Only shows when filtered
+[ Masonry Gallery ]                   ← Directly below cards
 ```
 
 ---
 
-## Technical Details
-
-### Responsive Behavior
-
-| Breakpoint | Button Layout | Image Aspect Ratio |
-|------------|---------------|-------------------|
-| Mobile (<640px) | Stacked vertically | 5:3 (wider/shorter) |
-| Tablet (640px+) | Side by side | 5:3 (wider/shorter) |
-| Desktop (1024px+) | Side by side | 5:3 (wider/shorter) |
-
-### Files Modified
+## Files to Modify
 
 | File | Changes |
 |------|---------|
-| `src/components/home/ServiceCategoriesSection.tsx` | Remove card CTAs, add dual buttons, update aspect ratio, add Utensils import |
+| `src/pages/AlternativeGallery.tsx` | Move grid into first section, remove second PageSection, set `showDiscoverHeader={false}` |
 
 ---
 
-## Cleanup
+## Technical Notes
 
-The `ctaText` and `ctaHref` properties in the `ServiceCategory` interface and data objects can optionally be removed since they are no longer used. This keeps the code clean and removes unused properties.
+- The `data-section="gallery-grid"` attribute needs to move to the combined section for the hero's scroll-to-gallery functionality to work correctly
+- Animation refs remain in place for smooth scroll animations
+- The responsive padding is already handled by the existing `PageSection` and container classes
+- No changes needed to `InteractiveImageGrid.tsx` as it already supports `showDiscoverHeader={false}`
 
