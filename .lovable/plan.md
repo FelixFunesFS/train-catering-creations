@@ -1,200 +1,339 @@
 
+# Comprehensive UI/UX Updates Plan
 
-# Desktop Quote Form - Viewport Optimization
+## Overview
 
-## Problem Summary
-
-On desktop (1920x1080), the quote form steps appear to have the Continue button "below the fold" with excessive margin between the last form field and the button. This is caused by:
-
-1. **Large bottom padding** in the scroll container (`pb-[7rem]` = 112px) meant for mobile safe-area insets
-2. **Top-aligned content** (`items-start`) creates visual disconnect between fields and the sticky footer
-3. **Fixed max-width constraints** (`max-w-md`, `max-w-lg`) leave horizontal space unused on wide screens
+This plan addresses 7 interconnected improvements across the home page, menu page, navigation, and mobile experience, with a critical fix for the sticky header bug.
 
 ---
 
-## Current Layout Heights
+## 1. Navigation Bar Fix (Critical Bug)
 
-```text
-Desktop Viewport: 1080px
-┌─────────────────────────────────────────┐
-│ Exit Bar (py-3)                   ~48px │  STICKY
-│ Progress Bar (py-4)               ~64px │  HEADER
-├─────────────────────────────────────────┤
-│ Content pt-8                      ~32px │
-│                                         │
-│ Step Header (icon + title + desc) ~140px│
-│                                         │
-│ Form Fields (3 fields x ~100px)   ~300px│
-│                                         │  SCROLLABLE
-│ ▼ EXCESSIVE GAP HERE ▼                  │  CONTENT
-│                                         │
-│ Content pb-7rem                   ~112px│  ← This is the issue
-├─────────────────────────────────────────┤
-│ Navigation (pt-4 + buttons)       ~100px│  STICKY
-└─────────────────────────────────────────┘  FOOTER
-```
+### Problem Identified
 
----
+After thorough investigation using browser testing, the navigation header disappears when scrolling past the hero section on both desktop and mobile. The header uses `sticky top-0 z-50` but it's not functioning correctly.
 
-## Proposed Solution
+**Root Cause Analysis:**
+- The parent container uses `flex flex-col min-h-screen`
+- The header has `sticky top-0 z-50`
+- However, within this flexbox layout, the sticky positioning loses its scrolling context
 
-### Strategy 1: Reduce Desktop Bottom Padding
+### Solution
 
-The `pb-[calc(7rem+env(safe-area-inset-bottom))]` is designed for mobile devices with home indicators. On desktop, this can be significantly reduced.
+Change the header from `position: sticky` to `position: fixed`, and add corresponding top padding to the main content area to prevent content from being hidden behind the fixed header.
 
-**Change in SinglePageQuoteForm.tsx (content container):**
+**File: `src/components/Header.tsx`**
 ```tsx
-// Before:
-"flex-1 min-h-0 overflow-y-auto pt-8 pb-[calc(7rem+env(safe-area-inset-bottom))] px-4"
+// Change from:
+className={cn("... sticky top-0 z-50 ...")}
 
-// After (responsive):
-"flex-1 min-h-0 overflow-y-auto pt-8 pb-[calc(7rem+env(safe-area-inset-bottom))] lg:pb-4 px-4"
+// To:
+className={cn("... fixed top-0 left-0 right-0 z-50 ...")}
 ```
 
-This reduces desktop bottom padding from 112px to 16px.
-
----
-
-### Strategy 2: Center Short Steps Vertically on Desktop
-
-For steps with minimal content (Contact Info, Service Type), center the content vertically to reduce the visual gap between the form and footer.
-
-**Change the content alignment:**
+**File: `src/App.tsx`**
 ```tsx
-// Before:
-"flex-1 flex items-start justify-center"
-
-// After (responsive):
-"flex-1 flex items-start lg:items-center justify-center"
+// Add top padding to main to account for fixed header height (~60px)
+<main className={`flex-1 pt-16 lg:pt-[72px] ${isAdminRoute ? 'p-0' : 'py-0 my-0'} ...`}>
 ```
 
-This centers shorter steps vertically on desktop, making the sticky footer appear more connected to the content.
+**Note:** The `pt-16` (64px) accounts for the header height. Admin routes already skip the header, so no conflict exists.
 
 ---
 
-### Strategy 3: Compact Sticky Footer on Desktop
+## 2. Service Cards - Individual CTAs
 
-The StepNavigation component has internal spacing (`space-y-4`) that can be reduced on desktop.
+### Current State
+- Three service cards (Wedding, Corporate, Family) share a single "Get Your Quote" button at the bottom
+- No differentiation in destination based on service type
 
-**Changes in StepNavigation.tsx:**
+### Proposed Changes
+
+Add a dedicated CTA button to each card with appropriate routing:
+
+| Card | CTA Text | Destination |
+|------|----------|-------------|
+| Wedding Catering | Get Wedding Quote | `/request-quote/wedding` |
+| Corporate Events | Request Quote | `/request-quote/regular` |
+| Family Gatherings | Get a Quote | `/request-quote/regular` |
+
+**File: `src/components/home/ServiceCategoriesSection.tsx`**
+
+Add `ctaText` and `ctaHref` properties to each service category, then add a Button component in `renderCardContent`:
+
 ```tsx
-// Before:
-<div className="w-full max-w-lg mx-auto space-y-4">
+// Add to each serviceCategory object:
+{
+  icon: <Heart className="h-6 w-6" />,
+  title: "Wedding Catering",
+  // ... existing properties
+  ctaText: "Get Wedding Quote",
+  ctaHref: "/request-quote/wedding",
+}
 
-// After:
-<div className="w-full max-w-lg mx-auto space-y-4 lg:space-y-2">
+// Add at the end of the content section in renderCardContent:
+<div className="pt-3">
+  <Button asChild variant="outline" size="sm" className="w-full">
+    <Link to={service.ctaHref}>
+      <span>{service.ctaText}</span>
+      <ArrowRight className="h-4 w-4 ml-2" />
+    </Link>
+  </Button>
+</div>
 ```
 
-**Footer wrapper padding:**
+---
+
+## 3. Hero Section - Replace "Call Now" with "See Menu"
+
+### Current State
+- Mobile hero: "Request Quote" + "Call Now"
+- Desktop hero: "Request Quote" + "Call Now"
+
+### Proposed Changes
+
+Replace the "Call Now" button with "See Menu" linking to `/menu`.
+
+**File: `src/components/home/SplitHero.tsx`**
+
+**Mobile (lines 268-273):**
 ```tsx
-// Before:
-"sticky bottom-0 z-10 ... pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))] px-4 ..."
+// Replace:
+<a href="tel:8439700265" className="flex items-center justify-center gap-2">
+  <Phone className="h-4 w-4" />
+  <span>Call Now</span>
+</a>
 
-// After:
-"sticky bottom-0 z-10 ... pt-4 lg:pt-3 pb-[calc(1rem+env(safe-area-inset-bottom))] lg:pb-3 px-4 ..."
+// With:
+<Link to="/menu" className="flex items-center justify-center gap-2">
+  <Utensils className="h-4 w-4" />
+  <span>See Menu</span>
+</Link>
 ```
 
----
-
-### Strategy 4: Increase Form Width on Desktop
-
-Wider forms feel more substantial and reduce the perception of empty space on large screens.
-
-**Changes in step components:**
+**Desktop (lines 344-349):**
 ```tsx
-// ContactInfoStep: max-w-md → max-w-md lg:max-w-lg
-// ServiceSelectionStep: max-w-lg → max-w-lg lg:max-w-xl
-// etc.
+// Replace:
+<a href="tel:8439700265" className="flex items-center justify-center space-x-2">
+  <Phone className="h-5 w-5" />
+  <span>Call Now</span>
+</a>
+
+// With:
+<Link to="/menu" className="flex items-center justify-center space-x-2">
+  <Utensils className="h-5 w-5" />
+  <span>See Menu</span>
+</Link>
+```
+
+**Import:** Add `Utensils` to lucide-react imports.
+
+---
+
+## 4. Menu Page - Add Request Quote Button After Menu Selections
+
+### Clarification
+The user does NOT want to move the existing `MenuCTASection`. Instead, a new compact "Request Quote" button should appear immediately after the menu categories section (before the gallery).
+
+### Proposed Changes
+
+Add a centered CTA button between the menu categories and the food gallery.
+
+**File: `src/pages/SimplifiedMenu.tsx`**
+
+Add after the Menu Categories section (after line 176) and before `MenuFoodGallery`:
+
+```tsx
+{/* Quick Request Quote CTA - After Menu Items */}
+<div className="flex justify-center py-8 lg:py-12">
+  <Button asChild variant="cta" size="responsive-lg">
+    <Link 
+      to={menuStyle === 'wedding' ? "/request-quote/wedding" : "/request-quote/regular"} 
+      className="flex items-center gap-2"
+    >
+      <Calendar className="h-5 w-5" />
+      <span>Request a Quote</span>
+    </Link>
+  </Button>
+</div>
+
+{/* Food Gallery Section */}
+<MenuFoodGallery />
+
+{/* CTA Section - UNCHANGED */}
+<MenuCTASection />
+```
+
+**Import:** Add `Calendar` from lucide-react and `Link` from react-router-dom.
+
+---
+
+## 5. Mobile Floating Phone Button
+
+### Current State
+- Only a scroll-to-top button exists on mobile (ruby colored)
+- No quick phone access after leaving the hero
+
+### Proposed Changes
+
+Add a phone call button (emerald/green) stacked above the scroll-to-top button on mobile.
+
+**File: `src/components/ui/scroll-to-top.tsx`**
+
+Restructure to render a button group with Phone above ArrowUp:
+
+```tsx
+import { ArrowUp, Phone } from "lucide-react";
+
+// Replace the return statement with:
+return (
+  <div className={cn(
+    "fixed right-4 lg:right-6 z-50 flex flex-col gap-2",
+    isMobile 
+      ? "bottom-[calc(5rem+env(safe-area-inset-bottom)+0.5rem)]" 
+      : "bottom-6",
+    isVisible 
+      ? "opacity-100 translate-y-0" 
+      : "opacity-0 translate-y-4 pointer-events-none",
+    "transition-all duration-300"
+  )}>
+    {/* Phone Call Button - Mobile Only */}
+    {isMobile && (
+      <Button
+        asChild
+        variant="default"
+        size="icon"
+        className="h-12 w-12 rounded-full bg-emerald-600 hover:bg-emerald-700 shadow-glow"
+        aria-label="Call Soul Train's Eatery"
+      >
+        <a href="tel:8439700265">
+          <Phone className="h-5 w-5" />
+        </a>
+      </Button>
+    )}
+    
+    {/* Scroll to Top Button */}
+    <Button
+      onClick={scrollToTop}
+      variant="default"
+      size="icon"
+      className="h-12 w-12 rounded-full bg-ruby hover:bg-ruby-dark shadow-glow"
+      aria-label="Scroll to top"
+    >
+      <ArrowUp className="h-5 w-5" />
+    </Button>
+  </div>
+);
 ```
 
 ---
 
-## Visual Comparison
+## 6. Footer Visibility Above MobileActionBar
 
-### Before (1080px viewport)
+### Current State
+- App.tsx applies `pb-[calc(5rem+env(safe-area-inset-bottom))]` when MobileActionBar is visible
+- This should ensure footer content is visible above the action bar
 
-```text
-┌─────────────────────────────────────────┐
-│ [Exit]     Event Quote       Step 1/6   │ 112px
-├─────────────────────────────────────────┤
-│                                         │
-│           👤 Your Info                  │
-│           Let's start...                │
-│                                         │
-│           ┌──────────────┐              │
-│           │ Full Name    │              │
-│           └──────────────┘              │
-│           ┌──────────────┐              │
-│           │ Email        │              │
-│           └──────────────┘              │
-│           ┌──────────────┐              │
-│           │ Phone        │              │
-│           └──────────────┘              │
-│                                         │
-│         ▼ ~200px gap here ▼             │ ← Perception issue
-│                                         │
-├─────────────────────────────────────────┤
-│        [      Continue      ]           │ 100px
-│      Press Enter ↵ to continue          │
-└─────────────────────────────────────────┘
+### Verification
+The current implementation already handles this correctly. The main content container has bottom padding that accounts for the MobileActionBar height.
+
+### Additional Safety (Optional)
+If testing reveals the copyright bar is still cut off, add extra bottom margin to the footer:
+
+**File: `src/components/Footer.tsx`**
+```tsx
+// Wrap the Enhanced Copyright Bar div with additional responsive bottom margin:
+<div className="bg-gradient-to-r from-primary to-primary-dark border-t border-primary/20 py-4 mb-safe">
 ```
 
-### After (1080px viewport)
-
-```text
-┌─────────────────────────────────────────┐
-│ [Exit]     Event Quote       Step 1/6   │ 112px
-├─────────────────────────────────────────┤
-│                                         │
-│           👤 Your Info                  │
-│           Let's start...                │
-│                                         │
-│           ┌──────────────────────┐      │ ← Wider fields
-│           │ Full Name            │      │
-│           └──────────────────────┘      │
-│           ┌──────────────────────┐      │
-│           │ Email                │      │
-│           └──────────────────────┘      │
-│           ┌──────────────────────┐      │
-│           │ Phone                │      │
-│           └──────────────────────┘      │
-│                                         │
-├─────────────────────────────────────────┤ ← Content ends closer to footer
-│        [      Continue      ]           │ ~80px (more compact)
-│      Press Enter ↵ to continue          │
-└─────────────────────────────────────────┘
-```
+Or use Tailwind's safe area utilities if needed.
 
 ---
 
-## Files to Modify
+## Files Summary
 
 | File | Changes |
 |------|---------|
-| `src/components/quote/SinglePageQuoteForm.tsx` | Reduce desktop bottom padding, center content vertically on desktop, compact footer padding |
-| `src/components/quote/StepNavigation.tsx` | Reduce `space-y-4` to `lg:space-y-2` on desktop |
-| `src/components/quote/steps/ContactInfoStep.tsx` | Increase max-width on desktop (`max-w-md lg:max-w-lg`) |
-| `src/components/quote/alternative-form/ServiceSelectionStep.tsx` | Optional: increase max-width |
+| `src/components/Header.tsx` | Change `sticky` to `fixed` positioning |
+| `src/App.tsx` | Add top padding to main content for fixed header |
+| `src/components/home/ServiceCategoriesSection.tsx` | Add individual CTA buttons to service cards |
+| `src/components/home/SplitHero.tsx` | Replace "Call Now" with "See Menu" |
+| `src/pages/SimplifiedMenu.tsx` | Add Request Quote button after menu categories |
+| `src/components/ui/scroll-to-top.tsx` | Add phone call button above scroll-to-top (mobile) |
 
 ---
 
-## Summary of Space Savings
+## Visual Summary
 
-| Component | Current | Proposed | Savings |
-|-----------|---------|----------|---------|
-| Content bottom padding | 112px | 16px | **~96px** |
-| Footer internal spacing | 16px | 8px | **~8px** |
-| Footer wrapper padding | 80px | 48px | **~32px** |
-| **Total** | | | **~136px** |
+### Service Cards (After)
+```
+┌─────────────────────────────────┐
+│ [Wedding Image with badge]      │
+├─────────────────────────────────┤
+│ Wedding Catering                │
+│ Your Dream Day                  │
+│ Description text...             │
+│ ✓ Custom Menu Planning          │
+│ ✓ Professional Service          │
+│ [ Get Wedding Quote → ]         │ ← NEW
+└─────────────────────────────────┘
+```
 
-Combined with vertical centering for short steps, this ensures the Continue button is always visually connected to the form content on desktop while preserving the mobile-safe layout.
+### Mobile Floating Buttons (After)
+```
+Right side of screen:
+       ┌────┐
+       │ 📞 │  ← Phone (emerald, NEW)
+       └────┘
+       ┌────┐
+       │ ↑  │  ← Scroll to top (ruby)
+       └────┘
+```
+
+### Menu Page Flow (After)
+```
+┌─────────────────────────────────┐
+│ Menu Header                     │
+├─────────────────────────────────┤
+│ [Catering] [Wedding] Toggle     │
+├─────────────────────────────────┤
+│ Appetizers (collapsible)        │
+│ Entrées (collapsible)           │
+│ Sides (collapsible)             │
+│ Desserts (collapsible)          │
+├─────────────────────────────────┤
+│   [ Request a Quote ]           │ ← NEW
+├─────────────────────────────────┤
+│ Food Gallery                    │
+├─────────────────────────────────┤
+│ CTA Section (unchanged)         │
+└─────────────────────────────────┘
+```
 
 ---
 
-## Mobile Preservation
+## Risk Assessment
 
-All changes use responsive Tailwind classes (`lg:` prefix), ensuring:
-- Mobile bottom padding remains `7rem + safe-area` for proper spacing above the home indicator
-- Mobile footer spacing remains generous for touch targets
-- Only desktop layouts are compacted
+| Change | Risk | Mitigation |
+|--------|------|------------|
+| Fixed header | May affect scroll-to-anchor behavior | Test all internal links |
+| Main padding | Could affect fullscreen pages | Admin/Quote routes already skip header |
+| Service CTAs | None | Simple addition |
+| Hero CTA change | Removes quick phone access | Compensated by new floating phone button |
+| Menu CTA | None | Additive change only |
+| Floating phone | Button stacking on small screens | Already accounts for MobileActionBar |
 
+---
+
+## Testing Checklist
+
+After implementation, verify:
+
+1. Header remains visible when scrolling on desktop (1920x1080)
+2. Header remains visible when scrolling on mobile (390x844)
+3. Service card CTAs link to correct quote pages
+4. "See Menu" button in hero navigates to /menu
+5. Menu page shows Request Quote button after menu items
+6. Phone button appears on mobile above scroll-to-top
+7. Footer copyright bar is fully visible above MobileActionBar
+8. All existing functionality (admin routes, quote wizard, etc.) works correctly
