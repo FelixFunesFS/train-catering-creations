@@ -202,7 +202,7 @@
 | `send-customer-portal-email` | `supabase/functions/send-customer-portal-email/` | **Primary customer emails** - estimates, approvals, payments |
 | `send-quote-notification` | `supabase/functions/send-quote-notification/` | Admin notification of new quotes |
 | `send-payment-reminder` | `supabase/functions/send-payment-reminder/` | Payment reminders |
-| `send-approval-workflow` | `supabase/functions/send-approval-workflow/` | Workflow notifications |
+
 | `preview-email` | `supabase/functions/preview-email/` | Sample data email previews for Settings |
 
 ### Shared Templates

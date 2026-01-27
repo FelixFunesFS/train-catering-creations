@@ -1629,7 +1629,7 @@ export function getEmailContentBlocks(
             <li><strong>Event Day:</strong> We'll arrive early to set up and serve amazing food!</li>
           </ol>
         ` }},
-        { type: 'text', data: { html: `<p style="font-size:15px;margin:20px 0 0 0;">Questions? Just reply to this email — our family is happy to help.</p>` }}
+        
       ];
       ctaButton = { text: 'Access Your Event Portal', href: effectivePortalUrl, variant: 'primary' };
       break;
@@ -1707,7 +1707,7 @@ export function getEmailContentBlocks(
         { type: 'custom_html', data: { html: estimateValidityHtml } },
         ...(estimatePaymentScheduleHtml ? [{ type: 'custom_html', data: { html: estimatePaymentScheduleHtml } }] : []),
         { type: 'custom_html', data: { html: estimateActionButtonsHtml }},
-        { type: 'text', data: { html: `<p style="font-size:15px;margin:20px 0 0 0;">If you have any questions, just reply to this email — our family is happy to help.</p>` }}
+        
       ];
       ctaButton = undefined; // Multi-button layout replaces single CTA
       break;
