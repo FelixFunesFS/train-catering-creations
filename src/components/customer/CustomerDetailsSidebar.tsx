@@ -1,6 +1,6 @@
 /**
  * Desktop sidebar for Customer Portal split-view layout.
- * Contains: Customer contact info, Event details, Terms & Conditions, Help contact.
+ * Contains: Action CTAs at top, Customer contact info, Event details, Terms & Conditions, Help contact.
  */
 
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -10,12 +10,13 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Separator } from "@/components/ui/separator";
 import { 
   User, Mail, Phone, Leaf, Calendar, MapPin, Users, 
-  ChevronDown, PenLine, Shield, HelpCircle 
+  ChevronDown, PenLine, Shield, HelpCircle, Info 
 } from "lucide-react";
 import { formatDate, formatTime, formatServiceType } from "@/utils/formatters";
 import { formatPhoneLink, formatEmailLink, formatLocationLink } from "@/utils/linkFormatters";
 import { isMilitaryEvent } from "@/utils/eventTypeUtils";
 import { StandardTermsAndConditions } from "@/components/shared/StandardTermsAndConditions";
+import { CustomerActions } from "./CustomerActions";
 
 interface CustomerDetailsSidebarProps {
   quote: {
@@ -38,16 +39,57 @@ interface CustomerDetailsSidebarProps {
     special_requests?: string | null;
     compliance_level?: string | null;
   };
+  // Action props for desktop CTA placement
+  invoiceId?: string;
+  customerEmail?: string;
+  workflowStatus?: string;
+  quoteRequestId?: string | null;
+  amountPaid?: number;
+  onStatusChange?: () => void;
+  autoApprove?: boolean;
 }
 
-export function CustomerDetailsSidebar({ quote }: CustomerDetailsSidebarProps) {
+export function CustomerDetailsSidebar({ 
+  quote,
+  invoiceId,
+  customerEmail,
+  workflowStatus,
+  quoteRequestId,
+  amountPaid = 0,
+  onStatusChange,
+  autoApprove 
+}: CustomerDetailsSidebarProps) {
   const phoneLink = formatPhoneLink(quote.phone);
   const emailLink = formatEmailLink(quote.email);
   const locationLink = formatLocationLink(quote.location);
+  
+  const showActions = invoiceId && workflowStatus && ['sent', 'viewed'].includes(workflowStatus);
 
   return (
     <ScrollArea className="h-full">
       <div className="p-6 space-y-4">
+        {/* Customer Actions - TOP of sidebar on desktop */}
+        {showActions && (
+          <Card className="border-primary/30 bg-gradient-to-br from-primary/5 via-card to-card/90 shadow-md">
+            <CardContent className="pt-4 space-y-3">
+              <div className="flex items-start gap-2 p-3 bg-muted/50 rounded-lg border border-border/50">
+                <Info className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+                <p className="text-sm text-muted-foreground">
+                  By approving this estimate, you agree to our <strong>Terms & Conditions</strong>.
+                </p>
+              </div>
+              <CustomerActions
+                invoiceId={invoiceId}
+                customerEmail={customerEmail || quote.email}
+                status={workflowStatus}
+                quoteRequestId={quoteRequestId}
+                amountPaid={amountPaid}
+                onStatusChange={onStatusChange}
+                autoApprove={autoApprove}
+              />
+            </CardContent>
+          </Card>
+        )}
         {/* Customer Contact Card */}
         <Card className="border-primary/20 bg-gradient-to-br from-primary/5 via-card to-card/90">
           <CardHeader className="pb-3">

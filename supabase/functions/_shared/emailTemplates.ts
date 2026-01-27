@@ -332,20 +332,34 @@ ${quote.special_requests ? `
 
 /**
  * Generate Service Add-ons section - TABLE-BASED for email compatibility
+ * Now accepts lineItems to skip duplicates (services already shown in menu)
  */
-export function generateServiceAddonsSection(quote: any): string {
+export function generateServiceAddonsSection(quote: any, lineItems?: any[]): string {
   const services: { label: string; emoji: string; bgColor: string; textColor: string }[] = [];
+  
+  // Helper to check if a service is already in line items (priced menu item)
+  const hasInLineItems = (searchTerms: string[]): boolean => {
+    if (!lineItems || lineItems.length === 0) return false;
+    return lineItems.some(item => 
+      searchTerms.some(term => 
+        (item.title || '').toLowerCase().includes(term) ||
+        (item.description || '').toLowerCase().includes(term) ||
+        (item.category || '').toLowerCase().includes(term)
+      )
+    );
+  };
 
-  if (quote.wait_staff_requested) {
+  // Only add services if NOT already priced in line items
+  if (quote.wait_staff_requested && !hasInLineItems(['wait staff', 'waitstaff', 'server'])) {
     services.push({ label: 'Wait Staff', emoji: '👨‍🍳', bgColor: '#dbeafe', textColor: '#1d4ed8' });
   }
-  if (quote.bussing_tables_needed) {
+  if (quote.bussing_tables_needed && !hasInLineItems(['bussing', 'table bussing', 'bus'])) {
     services.push({ label: 'Table Bussing', emoji: '🧹', bgColor: '#f3e8ff', textColor: '#7c3aed' });
   }
-  if (quote.ceremony_included) {
+  if (quote.ceremony_included && !hasInLineItems(['ceremony', 'ceremony catering'])) {
     services.push({ label: 'Ceremony Catering', emoji: '💒', bgColor: '#fce7f3', textColor: '#be185d' });
   }
-  if (quote.cocktail_hour) {
+  if (quote.cocktail_hour && !hasInLineItems(['cocktail', 'cocktail hour'])) {
     services.push({ label: 'Cocktail Hour', emoji: '🍸', bgColor: '#fef3c7', textColor: '#d97706' });
   }
 
@@ -686,10 +700,11 @@ ${eventHtml}
 /**
  * Generate Combined Menu, Services & Supplies Section
  * All customer selections displayed in one unified block
+ * Now passes lineItems to skip duplicate services
  */
-export function generateFullSelectionSection(quote: any): string {
+export function generateFullSelectionSection(quote: any, lineItems?: any[]): string {
   const menuHtml = generateMenuSummarySection(quote);
-  const servicesHtml = generateServiceAddonsSection(quote);
+  const servicesHtml = generateServiceAddonsSection(quote, lineItems);
   const suppliesHtml = generateSuppliesSummarySection(quote);
   
   if (!menuHtml && !servicesHtml && !suppliesHtml) return '';
@@ -1459,7 +1474,7 @@ function renderContentBlock(block: ContentBlock, config: StandardEmailConfig): s
       return config.quote ? generateCustomerContactCard(config.quote) : '';
     
     case 'service_addons':
-      return config.quote ? generateServiceAddonsSection(config.quote) : '';
+      return config.quote ? generateServiceAddonsSection(config.quote, config.lineItems) : '';
     
     case 'status_badge':
       if (!block.data) return '';
@@ -1489,7 +1504,7 @@ function renderContentBlock(block: ContentBlock, config: StandardEmailConfig): s
       return config.quote ? generateEventSection(config.quote) : '';
     
     case 'full_selection':
-      return config.quote ? generateFullSelectionSection(config.quote) : '';
+      return config.quote ? generateFullSelectionSection(config.quote, config.lineItems) : '';
     
     default:
       return '';
