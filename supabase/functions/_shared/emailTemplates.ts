@@ -1847,28 +1847,71 @@ export function getEmailContentBlocks(
         const amount = paymentAmount || 0;
         const fullPay = isFullPayment || false;
 
+        // Calculate remaining balance from unpaid milestones (accurate, not total - amount)
+        const remainingMilestones = milestones?.filter(m => m.status !== 'paid') || [];
+        const remainingBalance = remainingMilestones.reduce((sum, m) => sum + m.amount_cents, 0);
+        
+        // Find the next unpaid milestone for dynamic due date
+        const nextMilestone = remainingMilestones[0];
+        const nextDueText = nextMilestone 
+          ? (nextMilestone.is_net30 
+              ? 'Net 30 after event' 
+              : nextMilestone.due_date 
+                ? formatDate(nextMilestone.due_date)
+                : 'upon confirmation')
+          : '';
+
+        // Determine payment type label from milestone data
+        const getPaidMilestoneLabel = (): string => {
+          const paidMilestones = milestones?.filter(m => m.status === 'paid') || [];
+          const closestMatch = paidMilestones.find(m => Math.abs(m.amount_cents - amount) < 100);
+          
+          if (!closestMatch) return 'Payment';
+          
+          const labels: Record<string, string> = {
+            'deposit': 'Booking Deposit',
+            'booking_deposit': 'Booking Deposit',
+            'combined': 'Combined Deposit',
+            'milestone': 'Milestone Payment',
+            'mid_payment': 'Milestone Payment',
+            'balance': 'Final Payment',
+            'final_payment': 'Final Payment',
+            'full': 'Full Payment',
+            'full_payment': 'Full Payment',
+          };
+          
+          return labels[closestMatch.milestone_type?.toLowerCase()] || 'Payment';
+        };
+
+        const paidMilestoneLabel = getPaidMilestoneLabel();
+
         const paymentStatusHtml = fullPay ? `
-          <div style="background:linear-gradient(135deg,${BRAND_COLORS.gold}30,${BRAND_COLORS.gold}50);padding:25px;border-radius:12px;margin:20px 0;text-align:center;border:2px solid ${BRAND_COLORS.gold};">
+          <div style="background-color:${BRAND_COLORS.gold};background:linear-gradient(135deg,${BRAND_COLORS.gold}30,${BRAND_COLORS.gold}50);padding:25px;border-radius:12px;margin:20px 0;text-align:center;border:2px solid ${BRAND_COLORS.gold};">
             <h3 style="color:${BRAND_COLORS.crimson};margin:0 0 10px 0;font-size:24px;">✅ Your Event is Fully Confirmed!</h3>
             <p style="margin:0;font-size:18px;font-weight:bold;">We've received your full payment of ${formatCurrency(amount)}</p>
           </div>
         ` : `
           <div style="background:${BRAND_COLORS.lightGray};padding:20px;border-radius:8px;margin:20px 0;border-left:4px solid ${BRAND_COLORS.gold};">
-            <h3 style="color:${BRAND_COLORS.crimson};margin:0 0 10px 0;">💰 Deposit Received</h3>
-            <p style="margin:0;font-size:16px;">We've received your deposit of ${formatCurrency(amount)}</p>
-            <p style="margin:10px 0 0 0;color:#666;">Remaining balance: ${formatCurrency((invoice?.total_amount || 0) - amount)}</p>
+            <h3 style="color:${BRAND_COLORS.crimson};margin:0 0 10px 0;">💰 ${paidMilestoneLabel} Received</h3>
+            <p style="margin:0;font-size:16px;">We've received your payment of ${formatCurrency(amount)}</p>
+            ${remainingBalance > 0 ? `
+              <p style="margin:10px 0 0 0;color:#666;">
+                Remaining balance: <strong>${formatCurrency(remainingBalance)}</strong>
+                ${remainingMilestones.length === 1 ? ' (Final payment)' : ` (${remainingMilestones.length} payments remaining)`}
+              </p>
+            ` : ''}
           </div>
         `;
 
         const nextStepsHtml = `
           <h3 style="color:${BRAND_COLORS.crimson};margin:24px 0 12px 0;">📅 What Happens Next?</h3>
           <div style="background:${BRAND_COLORS.lightGray};padding:20px;border-radius:8px;margin:20px 0;">
-            ${!fullPay ? `
+            ${!fullPay && remainingBalance > 0 ? `
               <div style="border-bottom:1px solid #dee2e6;padding:12px 0;display:flex;align-items:flex-start;">
                 <span style="font-size:24px;margin-right:12px;">💳</span>
                 <div>
-                  <strong style="color:${BRAND_COLORS.crimson};">Final Payment Due</strong>
-                  <p style="margin:5px 0 0 0;color:#666;">Remaining balance due 7 days before your event</p>
+                  <strong style="color:${BRAND_COLORS.crimson};">${nextMilestone?.description || 'Next Payment'}</strong>
+                  <p style="margin:5px 0 0 0;color:#666;">${formatCurrency(remainingBalance)} remaining${nextDueText ? ` • Due ${nextDueText}` : ''}</p>
                 </div>
               </div>
             ` : ''}
@@ -1949,12 +1992,14 @@ export function getEmailContentBlocks(
           { type: 'text', data: { html: `<p style="margin:16px 0;font-size:15px;color:#333;">If you have any last-minute questions or changes, please don't hesitate to contact us at <a href="tel:+18439700265">(843) 970-0265</a>.</p>` }},
         ];
       } else {
+        // Admin variant - include supplies for prep checklist
         contentBlocks = [
           { type: 'text', data: { html: `<p style="margin:0 0 16px 0;font-size:15px;color:#333;"><strong>${quote.event_name}</strong> is coming up soon! Here are the event details:</p>` }},
           { type: 'customer_contact' },
           { type: 'event_details' },
           { type: 'menu_summary' },
           { type: 'service_addons' },
+          { type: 'supplies_summary' },
         ];
         ctaButton = { text: 'View Event Details', href: `${siteUrl}/admin?view=events`, variant: 'primary' };
       }

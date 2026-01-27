@@ -102,6 +102,7 @@ serve(async (req) => {
             { type: 'text', data: { html: `<p style="font-size:16px;margin:0 0 16px 0;">Hello ${event.contact_name},</p><p style="font-size:15px;margin:0 0 16px 0;line-height:1.6;">Your event is coming up in one week! We're getting everything ready to make it delicious and memorable.</p>` }},
             { type: 'custom_html', data: { html: eventDetailsHtml }},
             { type: 'menu_summary' },
+            { type: 'service_addons' },
             { type: 'text', data: { html: `
               <p style="font-size:15px;margin:20px 0;line-height:1.6;">If you need to make any changes, please contact us as soon as possible at <strong>(843) 970-0265</strong> or <a href="mailto:soultrainseatery@gmail.com" style="color:${BRAND_COLORS.crimson};">soultrainseatery@gmail.com</a>.</p>
               <p style="font-size:15px;margin:0;">We're looking forward to serving you!</p>
@@ -151,6 +152,7 @@ serve(async (req) => {
             { type: 'text', data: { html: `<p style="font-size:16px;margin:0 0 16px 0;">Hello ${event.contact_name},</p><p style="font-size:15px;margin:0 0 16px 0;line-height:1.6;">Your event with Soul Train's Eatery is just <strong>2 days away</strong>! We're excited and ready to serve you.</p>` }},
             { type: 'event_details' },
             { type: 'menu_summary' },
+            { type: 'service_addons' },
             { type: 'custom_html', data: { html: expectHtml }},
             { type: 'custom_html', data: { html: checklistHtml }},
             { type: 'text', data: { html: `<p style="font-size:15px;margin:20px 0 0 0;">We're excited to make your event exceptional!</p>` }}
