@@ -1,291 +1,256 @@
 
-# Email Consistency & Data Completeness Audit - Fix Plan
+
+# Customer Portal & Email Consistency Audit - Comprehensive Fix Plan
 
 ## Executive Summary
 
-After comprehensive review, I've identified **three categories of issues**:
-
-1. **Payment Timeline Inconsistency**: "Thank You for Payment" email says "7 days before event" but the actual schedule is "14 days (2 weeks) before event"
-2. **Admin Event Reminder Missing Supplies Section**: The admin variant of `event_reminder` doesn't include supplies/equipment information
-3. **Milestone-Aware Messaging**: Payment confirmation doesn't dynamically reflect remaining milestones (e.g., "50% remaining" vs "40% remaining")
+After thorough analysis, I've identified **5 distinct issues** spanning the customer portal UI and email templates:
 
 ---
 
-## Issue 1: Payment Timeline Mismatch
+## Issue 1: Customer Portal Badge Not Showing "Approved"
 
-### Current State (Lines 1870-1871 in emailTemplates.ts)
+### Root Cause Analysis
+The `getEstimateStatus()` function in `src/utils/statusHelpers.ts` (lines 23-37) correctly maps `approved`, `payment_pending`, `partially_paid`, and `paid` to show "Approved" label.
+
+**However**, looking at the HeaderSection in `CustomerEstimateView.tsx` (lines 156-168):
 ```typescript
-<p style="margin:5px 0 0 0;color:#666;">Remaining balance due 7 days before your event</p>
+<Badge variant="outline" className={`${estimateStatus.color} border`}>
+  <FileText className="h-3 w-3 mr-1" />
+  {estimateStatus.label}
+</Badge>
 ```
 
-### Correct State (from paymentScheduling.ts)
-The actual payment schedule has **three scenarios** for final payment:
-- **SHORT_NOTICE (15-30 days out)**: Final 40% due **7 days before event**
-- **MID_RANGE (31-44 days out)**: Final 40% due **14 days (2 weeks) before event**
-- **STANDARD (45+ days out)**: Final 40% due **14 days (2 weeks) before event**
+The status **is** being computed correctly. The issue is likely that:
+1. The invoice has `workflow_status = 'sent'` or `'viewed'` instead of `'approved'`
+2. OR the approval action didn't update the status correctly
 
-### Fix Required
-The "Thank You for Payment" email should dynamically determine the correct due date based on the milestone data, not hardcode "7 days."
+**Verification needed**: Check the actual `workflow_status` value in the database for the invoices being tested.
 
-### Technical Change
+### Data Check (from query results)
+Looking at the invoices:
+- `INV-2026-0193` (Margery Funes Wedding): `workflow_status: 'sent'` - **NOT approved**
+- `INV-2026-0196`: `workflow_status: 'paid'` - Should show "Approved" badge
 
-```typescript
-// In payment_received case (line 1863-1874)
-// Replace static "7 days" text with dynamic milestone-based messaging
+**Conclusion**: The badge logic is correct. The issue is that the specific invoice being tested hasn't been approved yet (`workflow_status = 'sent'`).
 
-// Calculate next milestone due date from actual milestones array
-const nextMilestone = milestones?.find(m => m.status !== 'paid');
-const nextDueText = nextMilestone 
-  ? (nextMilestone.is_net30 
-      ? 'Net 30 after event' 
-      : nextMilestone.due_date 
-        ? formatDate(nextMilestone.due_date)
-        : 'Upon completion')
-  : 'Fully paid';
-
-const remainingAmount = milestones
-  ?.filter(m => m.status !== 'paid')
-  .reduce((sum, m) => sum + m.amount_cents, 0) || 0;
-
-const nextStepsHtml = `
-  ${!fullPay && remainingAmount > 0 ? `
-    <div style="border-bottom:1px solid #dee2e6;padding:12px 0;display:flex;align-items:flex-start;">
-      <span style="font-size:24px;margin-right:12px;">💳</span>
-      <div>
-        <strong style="color:${BRAND_COLORS.crimson};">${nextMilestone?.description || 'Next Payment'}</strong>
-        <p style="margin:5px 0 0 0;color:#666;">
-          ${formatCurrency(remainingAmount)} remaining • Due ${nextDueText}
-        </p>
-      </div>
-    </div>
-  ` : ''}
-  ...
-`;
-```
+### No Code Change Required
+The status badge logic is functioning correctly. The invoice needs to go through the approval flow.
 
 ---
 
-## Issue 2: Admin Event Reminder Missing Supplies Section
+## Issue 2: Move CTAs to Top Left on Desktop
 
-### Current State (Lines 1951-1959)
-```typescript
-// Admin event_reminder variant
-contentBlocks = [
-  { type: 'text', data: { html: `...` }},
-  { type: 'customer_contact' },
-  { type: 'event_details' },
-  { type: 'menu_summary' },
-  { type: 'service_addons' },
-  // MISSING: supplies_summary
-];
-```
-
-### Fix Required
-Add `{ type: 'supplies_summary' }` to the admin event_reminder content blocks so admins see the full equipment/supplies list for prep.
-
-### Technical Change
-```typescript
-// In event_reminder admin variant (line 1951-1959)
-contentBlocks = [
-  { type: 'text', data: { html: `<p style="margin:0 0 16px 0;font-size:15px;color:#333;"><strong>${quote.event_name}</strong> is coming up soon! Here are the event details:</p>` }},
-  { type: 'customer_contact' },
-  { type: 'event_details' },
-  { type: 'menu_summary' },
-  { type: 'service_addons' },
-  { type: 'supplies_summary' }, // ADD THIS
-];
-```
-
----
-
-## Issue 3: Milestone-Aware Payment Confirmation
-
-### Current State (Lines 1855-1860)
-```typescript
-const paymentStatusHtml = fullPay ? `...` : `
-  <div style="...">
-    <h3>💰 Deposit Received</h3>
-    <p>We've received your deposit of ${formatCurrency(amount)}</p>
-    <p>Remaining balance: ${formatCurrency((invoice?.total_amount || 0) - amount)}</p>
-  </div>
-`;
-```
+### Current State
+In `CustomerEstimateView.tsx` (lines 424-490), the desktop 3-column layout places:
+- Left Panel (25%): `CustomerDetailsSidebar` - customer details + event info
+- Center Panel (35%): `PaymentCard` - payment schedule/actions
+- Right Panel (40%): `MenuActionsPanel` - menu items + customer actions (approve/request changes)
 
 ### Problem
-- Always says "Deposit" even if it's a milestone payment (50%) or final payment (40%)
-- Remaining balance doesn't account for previously paid milestones
+The "Approve Estimate" and "Request Changes" CTAs are buried in the **right panel** inside `MenuActionsPanel`, requiring horizontal scrolling/navigation to find them.
 
-### Fix Required
-Use the milestones array to:
-1. Determine what TYPE of payment was just made (Deposit, Milestone, Final)
-2. Calculate ACTUAL remaining balance from unpaid milestones
-3. Show which milestone(s) remain
+### Proposed Fix
+Move `CustomerActions` component from `MenuActionsPanel` to the **Left Panel** (CustomerDetailsSidebar) on desktop, positioning it prominently at the TOP of that sidebar.
 
-### Technical Change
+**Changes Required:**
+
+1. **`CustomerDetailsSidebar.tsx`** - Add CustomerActions prop and render at top
+2. **`CustomerEstimateView.tsx`** - Pass action props to sidebar instead of MenuActionsPanel
+3. **`MenuActionsPanel.tsx`** - Remove CustomerActions from desktop view (keep for mobile)
+
+### Technical Implementation
+
 ```typescript
-// Determine payment type from just-paid milestone
-const getPaidMilestoneType = (milestones: any[], paymentAmount: number): string => {
-  // Find the milestone that most closely matches the payment amount
-  const closestMatch = milestones?.find(m => 
-    m.status === 'paid' && 
-    Math.abs(m.amount_cents - paymentAmount) < 100 // Within $1 tolerance
-  );
-  
-  if (!closestMatch) return 'Payment';
-  
-  const labels: Record<string, string> = {
-    'DEPOSIT': 'Booking Deposit',
-    'deposit': 'Booking Deposit',
-    'booking_deposit': 'Booking Deposit',
-    'COMBINED': 'Combined Deposit',
-    'combined': 'Combined Deposit',
-    'MILESTONE': 'Milestone Payment',
-    'milestone': 'Milestone Payment',
-    'mid_payment': 'Milestone Payment',
-    'BALANCE': 'Final Payment',
-    'balance': 'Final Payment',
-    'final_payment': 'Final Payment',
-    'FULL': 'Full Payment',
-    'full_payment': 'Full Payment',
-  };
-  
-  return labels[closestMatch.milestone_type] || 'Payment';
-};
+// CustomerDetailsSidebar.tsx - Add props for actions
+interface CustomerDetailsSidebarProps {
+  quote: { ... };
+  // NEW: Action props for desktop CTA placement
+  invoiceId?: string;
+  customerEmail?: string;
+  workflowStatus?: string;
+  quoteRequestId?: string | null;
+  amountPaid?: number;
+  onStatusChange?: () => void;
+  autoApprove?: boolean;
+}
 
-// Calculate remaining from unpaid milestones (not from total - payment)
-const remainingMilestones = milestones?.filter(m => m.status !== 'paid') || [];
-const remainingBalance = remainingMilestones.reduce((sum, m) => sum + m.amount_cents, 0);
-const paidMilestoneLabel = getPaidMilestoneType(milestones, amount);
-
-const paymentStatusHtml = fullPay ? `
-  <div style="background:linear-gradient(135deg,${BRAND_COLORS.gold}30,${BRAND_COLORS.gold}50);padding:25px;border-radius:12px;margin:20px 0;text-align:center;border:2px solid ${BRAND_COLORS.gold};">
-    <h3 style="color:${BRAND_COLORS.crimson};margin:0 0 10px 0;font-size:24px;">✅ Your Event is Fully Confirmed!</h3>
-    <p style="margin:0;font-size:18px;font-weight:bold;">We've received your full payment of ${formatCurrency(amount)}</p>
-  </div>
-` : `
-  <div style="background:${BRAND_COLORS.lightGray};padding:20px;border-radius:8px;margin:20px 0;border-left:4px solid ${BRAND_COLORS.gold};">
-    <h3 style="color:${BRAND_COLORS.crimson};margin:0 0 10px 0;">💰 ${paidMilestoneLabel} Received</h3>
-    <p style="margin:0;font-size:16px;">We've received your payment of ${formatCurrency(amount)}</p>
-    ${remainingBalance > 0 ? `
-      <p style="margin:10px 0 0 0;color:#666;">
-        Remaining balance: <strong>${formatCurrency(remainingBalance)}</strong>
-        ${remainingMilestones.length === 1 ? ` (Final payment)` : ` (${remainingMilestones.length} payments remaining)`}
-      </p>
-    ` : ''}
-  </div>
-`;
+// Render CustomerActions at TOP of sidebar (before "Your Details" card)
+{invoiceId && (
+  <Card className="mb-4">
+    <CardContent className="pt-4">
+      <CustomerActions
+        invoiceId={invoiceId}
+        customerEmail={customerEmail}
+        status={workflowStatus}
+        quoteRequestId={quoteRequestId}
+        amountPaid={amountPaid}
+        onStatusChange={onStatusChange}
+        autoApprove={autoApprove}
+      />
+    </CardContent>
+  </Card>
+)}
 ```
 
 ---
 
-## Issue 4: send-event-reminders Also Missing Supplies
+## Issue 3: "Make a Payment" CTA Not Displaying
 
-### Current State (send-event-reminders/index.ts)
-The 7-day and 48-hour reminder emails use `{ type: 'menu_summary' }` but don't include supplies or service addons for the customer view either.
+### Root Cause Analysis
+In `PaymentCard.tsx` (line 55):
+```typescript
+const showPaymentActions = ['approved', 'partially_paid', 'payment_pending'].includes(workflowStatus);
+```
 
-### Fix Required
-Add `{ type: 'service_addons' }` and optionally `{ type: 'supplies_summary' }` to customer reminders so they know what to expect on event day.
+The payment actions (Pay Now button) **only appear** when:
+1. `workflowStatus` is `'approved'`, `'partially_paid'`, or `'payment_pending'`
 
----
+### Problem
+If the invoice is still in `'sent'` or `'viewed'` status, the PaymentCard shows only the **read-only schedule** without any payment buttons.
 
-## Complete Change Summary
+### This is Correct Behavior
+The customer must first **approve the estimate** before payment options become available. This is by design to ensure the customer agrees to the terms before paying.
 
-| File | Location | Change |
-|------|----------|--------|
-| `_shared/emailTemplates.ts` | Lines 1855-1874 | Make payment confirmation milestone-aware with dynamic labels and remaining balance |
-| `_shared/emailTemplates.ts` | Lines 1863-1874 | Replace hardcoded "7 days" with dynamic due date from milestones |
-| `_shared/emailTemplates.ts` | Lines 1951-1959 | Add `supplies_summary` block to admin event_reminder |
-| `send-event-reminders/index.ts` | Lines 101-112 | Add `service_addons` to 7-day customer reminder |
-| `send-event-reminders/index.ts` | Lines 150-160 | Add `service_addons` to 48-hour customer reminder |
-
----
-
-## Data Flow Analysis
-
-To ensure customer details are not missing, here's the complete data that SHOULD be included in each email type:
-
-### Customer Payment Confirmation (`payment_received`)
-Current blocks:
-- `text` (greeting)
-- `custom_html` (payment status)
-- `event_details`
-- `menu_summary`
-- `custom_html` (next steps)
-- `text` (contact info)
-
-**Missing**: `service_addons`, `supplies_summary`
-
-**Recommended**: Add these blocks to remind customer what services/supplies are included with their confirmed booking.
-
-### Admin Event Reminder (`event_reminder` admin)
-Current blocks:
-- `text` (event coming up)
-- `customer_contact`
-- `event_details`
-- `menu_summary`
-- `service_addons`
-
-**Missing**: `supplies_summary`
-
-**Required**: Admins need to see equipment checklist before event day.
-
-### Customer Event Reminder (`event_reminder` customer)
-Current blocks:
-- `text` (greeting)
-- `event_details`
-- `menu_summary`
-- `service_addons`
-- `text` (contact prompt)
-
-**Status**: Complete for customer view.
+### No Code Change Required
+The payment CTA visibility is working as designed. The customer needs to click "Approve Estimate" first.
 
 ---
 
-## Best Way to Think About This
+## Issue 4: Email Service Addons Duplication (Table Bussing & Cocktail Hour)
 
-1. **Payment amounts must come from milestones, not calculations**
-   - Never calculate remaining as `total - paid`
-   - Always use `SUM(unpaid_milestones.amount_cents)`
-   
-2. **Due dates are tier-specific**
-   - SHORT_NOTICE: 7 days before
-   - MID_RANGE/STANDARD: 14 days before
-   - GOVERNMENT: Net 30 after event
-   
-3. **Every email should pass the "prep checklist" test**
-   - Customer emails: Can they understand what they're getting?
-   - Admin emails: Can they prepare everything for the event?
-   
-4. **Content blocks should be comprehensive by default**
-   - When in doubt, include `menu_summary`, `service_addons`, and `supplies_summary`
-   - Only omit when space is truly constrained (e.g., quick status notifications)
+### Root Cause Analysis
+In the confirmation email, "Services Included" shows:
+- 🧹 Table Bussing
+- 🍸 Cocktail Hour
 
----
+These are **also** conceptually part of the menu/service package, causing perceived duplication.
 
-## Implementation Order
+### Current Logic (emailTemplates.ts lines 336-380)
+The `generateServiceAddonsSection()` function always renders these boolean flags as separate badges whenever:
+- `quote.bussing_tables_needed = true`
+- `quote.cocktail_hour = true`
 
-1. Fix `payment_received` to be milestone-aware (highest impact - fixes the "7 days" error)
-2. Add `supplies_summary` to admin `event_reminder`
-3. Add `service_addons` to `send-event-reminders` customer emails
-4. Add `supplies_summary` to customer `payment_received` (nice-to-have)
+### The Issue
+When using `full_selection` block (which combines menu + services + supplies), services are rendered twice:
+1. Once in the menu items (if priced as line items)
+2. Again in the dedicated "Services Included" section
 
----
+### Proposed Fix
+Modify `generateServiceAddonsSection()` to **skip rendering** services that are already visible as priced line items in the menu:
 
-## Testing After Implementation
+```typescript
+export function generateServiceAddonsSection(quote: any, lineItems?: any[]): string {
+  const services: { label: string; ... }[] = [];
+  
+  // Check if service is already in line items (by category or title)
+  const hasInLineItems = (searchTerms: string[]) => {
+    if (!lineItems) return false;
+    return lineItems.some(item => 
+      searchTerms.some(term => 
+        (item.title || '').toLowerCase().includes(term) ||
+        (item.category || '').toLowerCase().includes(term)
+      )
+    );
+  };
 
-Re-run batch test with invoice INV-2026-0196 for these email types:
-```json
-{
-  "invoiceId": "b9e5f0b4-9f01-4eb3-970e-64aa58d10520",
-  "targetEmail": "envision@mkqconsulting.com",
-  "typesToSend": ["payment_received", "event_reminder"],
-  "delayMs": 2000
+  // Only add if NOT already a priced line item
+  if (quote.bussing_tables_needed && !hasInLineItems(['bussing', 'table bussing'])) {
+    services.push({ ... });
+  }
+  if (quote.cocktail_hour && !hasInLineItems(['cocktail', 'cocktail hour'])) {
+    services.push({ ... });
+  }
+  // ... etc
 }
 ```
 
-Verify:
-1. Payment confirmation shows correct milestone label (Deposit/Milestone/Final)
-2. Remaining balance matches sum of unpaid milestones
-3. Due date is accurate (not hardcoded "7 days")
-4. Admin event reminder includes supplies section
-5. Customer event reminder includes service add-ons
+**Alternative Approach** (simpler):
+For emails using `full_selection`, skip the `service_addons` block entirely since all services are implied by the menu section. Only show `service_addons` in emails that don't include the full menu.
+
+---
+
+## Issue 5: Payment Email "10% Deposit Due Now" Showing Wrong Date
+
+### Root Cause Analysis
+The email shows:
+```
+💳 10% booking deposit due now
+$4,305.50 remaining • Due Sunday, January 25, 2026
+```
+
+**The Logic Issue:**
+Looking at `emailTemplates.ts` lines 1850-1914:
+
+```typescript
+const nextMilestone = remainingMilestones[0]; // First unpaid milestone
+const nextDueText = nextMilestone.due_date ? formatDate(nextMilestone.due_date) : 'upon confirmation';
+```
+
+When a payment is received, the email shows the **next milestone's** description and due date. But the way it's worded implies the deposit itself is due on that date.
+
+### Data from Database
+For INV-2026-0193 (June 20, 2026 event):
+- DEPOSIT (10%): $43,055 - Due Jan 26, 2026 (is_due_now: true)
+- MILESTONE (50%): $215,275 - Due May 21, 2026
+- FINAL (40%): $172,220 - Due June 6, 2026
+
+### The Bug
+When a customer receives a "Payment Received" email after paying the deposit, the code shows:
+- Payment received: `$430.55` (10% of $4,305.50 total... wait, that's wrong math)
+
+**Wait - let me re-check the math:**
+- Total: $430,550 cents = $4,305.50
+- 10% deposit: $43,055 cents = $430.55
+
+So the payment received ($430.55) matches the 10% deposit. But then:
+- Remaining: $4,305.50 - $430.55 = $3,874.95 (90% remaining)
+
+But the email shows "Remaining: $4,305.50 (3 payments remaining)" - that's the **total**, not the remaining balance!
+
+### Real Bug Found
+The `payment_received` email is showing the TOTAL amount as the remaining balance instead of calculating it correctly from milestones.
+
+Looking at line 1851-1852:
+```typescript
+const remainingMilestones = milestones?.filter(m => m.status !== 'paid') || [];
+const remainingBalance = remainingMilestones.reduce((sum, m) => sum + m.amount_cents, 0);
+```
+
+This code is **correct** IF the milestones are updated with `status: 'paid'` after payment. But if the payment was just received and milestones haven't been updated yet, ALL milestones still have `status: 'pending'`, causing the sum to equal the total.
+
+### Fix Required
+The milestone status update must happen **before** the payment confirmation email is sent. Check `stripe-webhook/index.ts` to ensure milestones are marked as paid before triggering the email.
+
+---
+
+## Summary of Changes Required
+
+| Issue | File | Change |
+|-------|------|--------|
+| #1 Badge | No change | Badge logic correct; invoice needs approval |
+| #2 CTA Placement | `CustomerDetailsSidebar.tsx`, `CustomerEstimateView.tsx` | Move CustomerActions to left sidebar on desktop |
+| #3 Make Payment | No change | Payment CTA correctly hidden until approved |
+| #4 Service Duplication | `emailTemplates.ts` | Pass lineItems to `generateServiceAddonsSection()` and skip duplicates |
+| #5 Payment Balance | `stripe-webhook/index.ts` or `emailTemplates.ts` | Ensure milestone status updates before email OR calculate remaining differently |
+
+---
+
+## Implementation Priority
+
+1. **Issue #2 (CTA Placement)** - High impact UX fix
+2. **Issue #5 (Payment Balance)** - Critical data accuracy issue
+3. **Issue #4 (Service Duplication)** - Email clarity improvement
+
+---
+
+## Testing Verification Plan
+
+After implementation:
+
+1. **Approve an estimate** from `sent` status → verify badge changes to "Approved"
+2. **Check desktop layout** → verify CTAs appear in left sidebar
+3. **Make a payment** → verify remaining balance is correct (total - paid)
+4. **Review payment email** → verify services aren't duplicated from menu
+5. **Check due dates** → verify milestone descriptions match the correct dates
+
