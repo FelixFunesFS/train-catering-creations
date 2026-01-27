@@ -1,236 +1,198 @@
 
-# Customer Portal Enhancement & Desktop Layout Plan
 
-## Overview
+# Request a Quote Page - Desktop Viewport Optimization
 
-This plan addresses three interconnected requirements:
-1. **Customer Contact Info Display** - Show the customer's own contact details (name, email, phone) in the portal so they can verify their information when making payments
-2. **Desktop Quote Form Enhancement** - Create a full-viewport, split-view layout for the quote form on desktop while preserving mobile
-3. **Desktop Portal Enhancement** - Create a full-viewport, split-view layout for the customer portal on desktop while preserving mobile
+## Problem Summary
 
----
-
-## Part 1: Customer Contact Information Card
-
-### Current State
-The `CustomerEstimateView.tsx` already receives the full `quote` object from the `useEstimateAccess` hook, which includes:
-- `quote.contact_name`
-- `quote.email`
-- `quote.phone`
-- `quote.guest_count_with_restrictions` (vegetarian guest count)
-
-However, this contact information is **not displayed** to the customer - it's only used internally for email addresses and API calls.
-
-### Implementation
-
-**New Component: `CustomerContactCard.tsx`**
-
-Create a compact, visually distinct card that displays:
-- Customer name (with a friendly "Your Details" header)
-- Email address (with mailto link)
-- Phone number (with tel link)
-- Optional: Vegetarian guest count if provided
-
-**Design Considerations:**
-- Position prominently near the top of the portal (after header, before Event Details)
-- Use a subtle highlight/accent background to differentiate from other cards
-- Keep it compact - customers don't need to edit, just verify
-
-**Integration:**
-- Add to `CustomerEstimateView.tsx` immediately after the status badges
-- Pass `quote.contact_name`, `quote.email`, `quote.phone`, and optionally `quote.guest_count_with_restrictions`
+On desktop (1920x1080), the "Request a Catering Quote" page has layout issues:
+1. **CTAs cut off**: The contact CTA section is barely visible without scrolling
+2. **Excessive vertical spacing**: Too much padding between sections
+3. **Card height**: Cards are taller than needed, pushing content below the fold
+4. **Decorative gradients**: Corner overlays reduce text readability
 
 ---
 
-## Part 2: Desktop Quote Form Split-View Layout
+## Proposed Solution
 
-### Current State
-- Quote form pages (`RegularEventQuote.tsx`, `WeddingEventQuote.tsx`) use `SinglePageQuoteForm` with `layout="fullscreen"`
-- The form is constrained to `max-w-5xl` centered in the viewport
-- Same layout applies to both mobile and desktop
-- Desktop has unused horizontal space on both sides
+Reduce vertical spacing throughout the page to ensure all key content (header, both cards, and CTA contact section) fits within a single desktop viewport without scrolling.
 
-### Proposed Desktop Layout
+---
 
-**Split-View Concept (Desktop Only - 1024px+):**
+## Visual Comparison
 
-```
-┌────────────────────────────────────────────────────────────────────────┐
-│ [Exit] ─────────────── Event Quote ─────────────── Step X of 6        │
-├────────────────────────────┬───────────────────────────────────────────┤
-│                            │                                           │
-│   ┌────────────────────┐   │   ┌─────────────────────────────────┐     │
-│   │                    │   │   │                                 │     │
-│   │   STICKY PREVIEW   │   │   │      FORM STEP CONTENT          │     │
-│   │   CARD             │   │   │                                 │     │
-│   │                    │   │   │   (Contact Info, Event,         │     │
-│   │   - Event name     │   │   │    Menu, Supplies, etc.)        │     │
-│   │   - Date/Time      │   │   │                                 │     │
-│   │   - Guest count    │   │   │                                 │     │
-│   │   - Location       │   │   │                                 │     │
-│   │                    │   │   │                                 │     │
-│   │                    │   │   │                                 │     │
-│   │   Trust badges     │   │   │                                 │     │
-│   │   & contact info   │   │   │                                 │     │
-│   │                    │   │   │                                 │     │
-│   └────────────────────┘   │   └─────────────────────────────────┘     │
-│        35% width           │              65% width                    │
-└────────────────────────────┴───────────────────────────────────────────┘
-│ [Back]                                                     [Continue] │
-└────────────────────────────────────────────────────────────────────────┘
+### Current Layout (Approximate Heights)
+
+```text
++--------------------------------------------------+
+|  Header (nav bar)                        ~60px   |
++--------------------------------------------------+
+|                                                  |
+|  py-14 section padding (top)             ~56px   |
+|                                                  |
+|  ┌──────────────────────────────────────────┐    |
+|  │  Badge + Title + Subtitle + Description  │    |
+|  │  py-16 header padding                    │    |
+|  │  (roughly 200-250px total)               │    |
+|  └──────────────────────────────────────────┘    |
+|                                                  |
+|  mt-8 gap                                ~32px   |
+|                                                  |
+|  ┌───────────────────┐  ┌───────────────────┐    |
+|  │  Regular Events   │  │  Formal Events    │    |
+|  │  p-8 padding      │  │  p-8 padding      │    |
+|  │  Icon + Title     │  │  Icon + Title     │    |
+|  │  4 bullet points  │  │  4 bullet points  │    |
+|  │  mb-8 + CTA btn   │  │  mb-8 + CTA btn   │    |
+|  │  (~380px height)  │  │  (~380px height)  │    |
+|  └───────────────────┘  └───────────────────┘    |
+|                                                  |
+|  py-14 section padding (bottom)          ~56px   |
+|                                                  |
++--------------------------------------------------+ <-- ~800px mark
+|                                                  |
+|  ┌──────────────────────────────────────────┐    |
+|  │  Questions About Your Quote? (CTA)       │    | <-- CUT OFF
+|  │  py-16 padding + card                    │    |
+|  └──────────────────────────────────────────┘    |
+|                                                  |
++--------------------------------------------------+
 ```
 
-**Key Features:**
-- **Left Panel (35%)**: Sticky preview card showing entered data + trust indicators
-- **Right Panel (65%)**: Current step content (scrollable if needed)
-- Full viewport height usage with proper overflow handling
-- Progress bar spans full width in header
-- Navigation buttons span full width in footer
+### Optimized Layout (Target: Fit in 1080px viewport)
 
-**Implementation Approach:**
-1. Create `DesktopQuoteLayout.tsx` wrapper component
-2. Create `QuotePreviewSidebar.tsx` for the left panel
-3. Modify `SinglePageQuoteForm.tsx` to accept a new `desktopLayout` prop
-4. Update page components to conditionally render split layout on desktop
-
----
-
-## Part 3: Desktop Customer Portal Split-View Layout
-
-### Current State
-- `CustomerEstimateView.tsx` renders all content in a single column
-- Maximum width constrained to `max-w-3xl`
-- Same layout on mobile and desktop
-- Desktop has significant unused horizontal space
-
-### Proposed Desktop Layout
-
-**Split-View Concept (Desktop Only - 1024px+):**
-
-```
-┌────────────────────────────────────────────────────────────────────────┐
-│                     Soul Train's Eatery                                │
-│                   Your Custom Catering Estimate                        │
-│              [Estimate: Ready for Review] [Payment: Due Now]           │
-├────────────────────────────┬───────────────────────────────────────────┤
-│                            │                                           │
-│   ┌────────────────────┐   │   ┌─────────────────────────────────┐     │
-│   │   YOUR DETAILS     │   │   │                                 │     │
-│   │   Name, Email, Ph  │   │   │   PAYMENT SECTION               │     │
-│   └────────────────────┘   │   │   (When approved - primary)     │     │
-│                            │   │                                 │     │
-│   ┌────────────────────┐   │   │   OR                            │     │
-│   │   EVENT DETAILS    │   │   │                                 │     │
-│   │   - Event name     │   │   │   MENU & PRICING                │     │
-│   │   - Date/Time      │   │   │   (Before approval - primary)   │     │
-│   │   - Guests         │   │   │                                 │     │
-│   │   - Location       │   │   │                                 │     │
-│   │   - Services       │   │   │                                 │     │
-│   └────────────────────┘   │   │                                 │     │
-│                            │   │                                 │     │
-│   ┌────────────────────┐   │   └─────────────────────────────────┘     │
-│   │   TERMS (collapse) │   │                                           │
-│   └────────────────────┘   │   ┌─────────────────────────────────┐     │
-│                            │   │   ACTIONS (Approve/Changes)     │     │
-│   ┌────────────────────┐   │   └─────────────────────────────────┘     │
-│   │   NEED HELP?       │   │                                           │
-│   │   Phone & Email    │   │   ┌─────────────────────────────────┐     │
-│   └────────────────────┘   │   │   NOTES FROM CATERER (if any)   │     │
-│        35% width           │   └─────────────────────────────────┘     │
-│                            │              65% width                    │
-└────────────────────────────┴───────────────────────────────────────────┘
+```text
++--------------------------------------------------+
+|  Header (nav bar)                        ~60px   |
++--------------------------------------------------+
+|                                                  |
+|  py-8 section padding (top)              ~32px   |
+|                                                  |
+|  ┌──────────────────────────────────────────┐    |
+|  │  Badge + Title + Subtitle + Description  │    |
+|  │  Reduced py-8 header padding             │    |
+|  │  (roughly 150-180px total)               │    |
+|  └──────────────────────────────────────────┘    |
+|                                                  |
+|  mt-4 gap                                ~16px   |
+|                                                  |
+|  ┌───────────────────┐  ┌───────────────────┐    |
+|  │  Regular Events   │  │  Formal Events    │    |
+|  │  p-5 padding      │  │  p-5 padding      │    |
+|  │  Icon + Title     │  │  Icon + Title     │    |
+|  │  4 bullet points  │  │  4 bullet points  │    |
+|  │  mb-6 + CTA btn   │  │  mb-6 + CTA btn   │    |
+|  │  (~300px height)  │  │  (~300px height)  │    |
+|  └───────────────────┘  └───────────────────┘    |
+|                                                  |
+|  py-6 section padding (bottom)           ~24px   |
+|                                                  |
++--------------------------------------------------+ <-- ~600px mark
+|                                                  |
+|  ┌──────────────────────────────────────────┐    |
+|  │  Questions About Your Quote? (CTA)       │    | <-- VISIBLE!
+|  │  Compact py-8 padding                    │    |
+|  └──────────────────────────────────────────┘    |
+|                                                  |
++--------------------------------------------------+ <-- ~850px total
 ```
 
-**Key Features:**
-- **Left Panel (35%)**: Customer details, event summary, terms, contact info (scrollable, sticky top)
-- **Right Panel (65%)**: Payment card (primary after approval), Menu & Pricing, Actions, Notes
-- Full viewport width utilization
-- Both panels independently scrollable on tall content
+---
 
-**Implementation Approach:**
-1. Create `CustomerPortalDesktopLayout.tsx` wrapper
-2. Create `CustomerDetailsSidebar.tsx` for left panel (customer contact + event details + terms)
-3. Refactor `CustomerEstimateView.tsx` to conditionally render:
-   - Desktop: Split layout with ResizablePanelGroup
-   - Mobile: Current single-column layout (unchanged)
-4. Use `useIsMobile()` hook for conditional rendering
+## Changes by File
+
+### 1. RequestQuote.tsx
+
+**Section padding reduction:**
+- Change `py-10 lg:py-14` to `py-6 lg:py-8` on main section
+- This saves ~40-60px of vertical space
+
+**Gap between header and cards:**
+- Change `mt-6 sm:mt-8` to `mt-4 lg:mt-6`
+- This saves ~10-15px of vertical space
+
+### 2. QuoteFormSelector.tsx
+
+**Card internal padding:**
+- Change `p-5 sm:p-6 lg:p-8` to `p-5 lg:p-6`
+- Saves ~8px per card on desktop
+
+**Feature list spacing:**
+- Change `space-y-4` to `space-y-3`
+- Saves ~12px per card (3 gaps x 4px)
+
+**Button margin:**
+- Change `mb-8` to `mb-6`
+- Saves ~8px per card
+
+**Center text section margin:**
+- Change `mb-6` to `mb-4`
+- Saves ~8px per card
+
+**Reduce decorative gradient opacity:**
+- Change `from-primary/20` to `from-primary/10`
+- Improves text readability without removing visual interest
+
+### 3. QuoteHeader.tsx / PageHeader
+
+**Header padding:**
+- Change `py-6 sm:py-8 lg:py-12 xl:py-16` to `py-4 sm:py-6 lg:py-8`
+- Saves ~30-50px on desktop
+
+**Bottom margin on description:**
+- Keep existing or tighten slightly
+
+### 4. CTASection.tsx
+
+**Section padding:**
+- Change `pt-10 pb-6 sm:pt-12 sm:pb-8 lg:py-16` to `pt-6 pb-4 sm:pt-8 sm:pb-6 lg:py-10`
+- Saves ~40px on desktop
+
+**Internal card padding:**
+- Change `py-8 sm:py-10 lg:py-12` to `py-6 sm:py-8 lg:py-10`
+- Saves ~16px
 
 ---
 
-## Technical Implementation Details
+## Summary of Space Savings
 
-### Files to Create
+| Component | Current | Proposed | Savings |
+|-----------|---------|----------|---------|
+| Section top padding | 56px | 32px | ~24px |
+| Header internal padding | 64px | 32px | ~32px |
+| Header-to-cards gap | 32px | 16px | ~16px |
+| Card padding (per card) | 32px | 24px | ~8px |
+| Card feature list spacing | 48px | 36px | ~12px |
+| Card button margin | 32px | 24px | ~8px |
+| Section bottom padding | 56px | 24px | ~32px |
+| CTA section padding | 64px | 40px | ~24px |
 
-| File | Purpose |
-|------|---------|
-| `src/components/customer/CustomerContactCard.tsx` | Display customer's own contact info |
-| `src/components/customer/CustomerDetailsSidebar.tsx` | Left panel for desktop portal layout |
-| `src/components/quote/QuotePreviewSidebar.tsx` | Left panel for desktop form layout |
-| `src/components/quote/DesktopQuoteLayout.tsx` | Wrapper for desktop split-view form |
+**Total estimated savings: ~150-180px**
 
-### Files to Modify
-
-| File | Changes |
-|------|---------|
-| `src/components/customer/CustomerEstimateView.tsx` | Add contact card, add desktop split layout conditional rendering |
-| `src/components/quote/SinglePageQuoteForm.tsx` | Add desktop layout variant support |
-| `src/pages/RegularEventQuote.tsx` | Conditional desktop layout rendering |
-| `src/pages/WeddingEventQuote.tsx` | Conditional desktop layout rendering |
-
-### Key Patterns to Follow
-
-1. **Desktop Detection**: Use `useIsMobile()` hook (already exists, uses 1024px breakpoint)
-2. **Responsive Container**: Use `ResizablePanelGroup` for split panels (already used in admin)
-3. **Preserve Mobile**: All mobile layouts remain completely unchanged
-4. **Scroll Management**: Each panel uses `ScrollArea` for independent scrolling
+This brings the total page height from ~950-1000px down to ~800-850px, fitting comfortably within a 1080px viewport height.
 
 ---
 
-## Implementation Order
+## Mobile Preservation
 
-1. **Phase 1: Customer Contact Card** (Simplest, immediate value)
-   - Create `CustomerContactCard.tsx`
-   - Add to `CustomerEstimateView.tsx` for all screen sizes
-   - Shows customer their own name, email, phone
-
-2. **Phase 2: Desktop Portal Split Layout**
-   - Create sidebar component for left panel
-   - Modify `CustomerEstimateView.tsx` with conditional rendering
-   - Test desktop layout, verify mobile unchanged
-
-3. **Phase 3: Desktop Quote Form Split Layout**
-   - Create preview sidebar component
-   - Create desktop layout wrapper
-   - Modify form pages with conditional rendering
-   - Test desktop layout, verify mobile unchanged
+All changes use responsive breakpoint classes:
+- Mobile values remain the same (e.g., `py-6` on mobile)
+- Only `lg:` desktop values are reduced
+- No changes to grid behavior or card layout structure
 
 ---
 
-## Mobile Layout Preservation
+## Files to Modify
 
-**Critical**: No changes to mobile layouts. The implementation uses the `useIsMobile()` hook to conditionally render:
-
-```tsx
-// Pattern used throughout
-const isMobile = useIsMobile();
-
-if (isMobile) {
-  return <MobileLayout>...</MobileLayout>;
-}
-
-return <DesktopSplitLayout>...</DesktopSplitLayout>;
-```
-
-This pattern is already proven in:
-- `SplitHero.tsx` (hero section uses overlay on mobile, 60/40 split on desktop)
-- `EventEstimateFullView.tsx` (admin uses split panels on desktop)
+1. **src/pages/RequestQuote.tsx** - Section padding and gaps
+2. **src/components/quote/QuoteFormSelector.tsx** - Card padding and spacing
+3. **src/components/ui/page-header.tsx** - Header vertical padding (affects all pages using PageHeader, so changes must be conservative or use a prop)
+4. **src/components/ui/cta-section.tsx** - CTA section padding
 
 ---
 
-## Benefits
+## Implementation Notes
 
-1. **Customer Confidence**: Seeing their own contact info helps customers verify they're viewing the correct estimate before payment
-2. **Desktop Utilization**: Full viewport width on large screens creates a more immersive, professional experience
-3. **Information Hierarchy**: Split layout on desktop allows simultaneous viewing of summary and details
-4. **Consistency**: Follows existing admin panel patterns for familiar UX
-5. **Mobile Preservation**: Zero impact on mobile experience where vertical layouts work best
+- The PageHeader component is shared across multiple pages. Rather than changing its defaults, we can pass a `compact` prop or use a custom className override specifically for the quote page
+- All spacing changes use Tailwind's responsive prefixes to ensure mobile layouts are unaffected
+- Card gradient overlays will be softened from `/20` to `/10` opacity for better text contrast
+
