@@ -2,6 +2,7 @@ import { SinglePageQuoteForm } from "@/components/quote/SinglePageQuoteForm";
 import { useFormAnalytics } from "@/hooks/useFormAnalytics";
 import { ResponsiveWrapper } from "@/components/ui/responsive-wrapper";
 import { RequestThrottling } from "@/components/security/RequestThrottling";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useRef } from "react";
 
 const WeddingEventQuote = () => {
@@ -9,7 +10,25 @@ const WeddingEventQuote = () => {
   useFormAnalytics({ formType: 'wedding_event' });
 
   const formTopRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
 
+  // Desktop: Use split-view layout with preview sidebar
+  // Mobile: Use fullscreen wizard layout
+  if (!isMobile) {
+    return (
+      <div className="min-h-screen bg-gradient-hero">
+        <RequestThrottling maxRequests={3} timeWindowMinutes={60} storageKey="wedding_quote_requests">
+          <SinglePageQuoteForm
+            variant="wedding"
+            layout="desktop-split"
+            scrollMode="window"
+          />
+        </RequestThrottling>
+      </div>
+    );
+  }
+
+  // Mobile layout (unchanged)
   return (
     <div className="min-h-screen bg-gradient-hero">
       <ResponsiveWrapper>

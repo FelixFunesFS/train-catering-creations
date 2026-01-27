@@ -11,6 +11,7 @@ import { SuppliesStep } from "./steps/SuppliesStep";
 import { StepProgress } from "./StepProgress";
 import { StepNavigation } from "./StepNavigation";
 import { ReviewSummaryCard } from "./ReviewSummaryCard";
+import { DesktopQuoteLayout } from "./DesktopQuoteLayout";
 import { User, Calendar, ChefHat, UtensilsCrossed, Package, ClipboardCheck } from "lucide-react";
 import { formSchema } from "./alternative-form/formSchema";
 import { supabase } from "@/integrations/supabase/client";
@@ -31,8 +32,9 @@ interface SinglePageQuoteFormProps {
   /**
    * fullscreen: mobile wizard with internal scroll + sticky progress/nav
    * embedded: desktop-in-page (no internal scroll, no sticky bars)
+   * desktop-split: desktop split-view with preview sidebar (desktop only)
    */
-  layout?: 'fullscreen' | 'embedded';
+  layout?: 'fullscreen' | 'embedded' | 'desktop-split';
   /**
    * container: scroll the form's internal containerRef
    * window: scroll the page to scrollToRef
@@ -70,8 +72,11 @@ export const SinglePageQuoteForm = ({
     formType: variant === 'wedding' ? 'wedding_event' : 'regular_event' 
   });
 
-  // Show exit/progress header for all fullscreen layouts (both mobile and desktop)
-  const showFullscreenChrome = layout === 'fullscreen';
+  // Use desktop split layout on desktop when requested
+  const useDesktopSplit = layout === 'desktop-split' && !isMobile;
+  
+  // Show exit/progress header for fullscreen layouts (mobile and desktop without split)
+  const showFullscreenChrome = layout === 'fullscreen' && !useDesktopSplit;
 
   const returnTo = useCallback(() => {
     const params = new URLSearchParams(location.search);
@@ -455,6 +460,74 @@ export const SinglePageQuoteForm = ({
     );
   };
 
+  // Header component for desktop split layout
+  const DesktopHeader = () => (
+    <div className="max-w-4xl mx-auto px-4 py-3">
+      <div className="flex items-center justify-between mb-4">
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate(returnTo())}
+          className="gap-2"
+        >
+          <X className="h-4 w-4" />
+          Exit
+        </Button>
+        <div className="text-sm font-medium text-foreground">
+          {variant === 'wedding' ? 'Formal Event Quote' : 'Event Quote'}
+        </div>
+        <div className="w-[64px]" />
+      </div>
+      <StepProgress
+        currentStep={currentStep}
+        totalSteps={STEPS.length}
+        stepTitles={STEPS.map(s => s.title)}
+      />
+    </div>
+  );
+
+  // Form content for desktop split layout
+  const FormContent = () => (
+    <FormProvider {...form}>
+      <Form {...form}>
+        <form onSubmit={(e) => e.preventDefault()} className="min-h-full">
+          {renderStep()}
+        </form>
+      </Form>
+    </FormProvider>
+  );
+
+  // Footer component for desktop split layout
+  const DesktopFooter = () => (
+    <div className="max-w-4xl mx-auto px-4 py-4">
+      <StepNavigation
+        currentStep={currentStep}
+        totalSteps={STEPS.length}
+        onNext={handleNext}
+        onBack={handleBack}
+        onSubmit={onSubmit}
+        isSubmitting={isSubmitting}
+        canProceed={canProceed()}
+        isOptionalStep={!STEPS[currentStep].required}
+      />
+    </div>
+  );
+
+  // DESKTOP SPLIT LAYOUT
+  if (useDesktopSplit) {
+    return (
+      <DesktopQuoteLayout
+        form={form}
+        variant={variant}
+        header={<DesktopHeader />}
+        content={<FormContent />}
+        footer={<DesktopFooter />}
+      />
+    );
+  }
+
+  // STANDARD LAYOUT (mobile fullscreen or embedded)
   return (
     <div className={cn(layout === 'fullscreen' ? "min-h-screen flex flex-col" : "w-full")}>      
       {/* Fullscreen sticky header (Exit + Progress) - shown on all devices */}
