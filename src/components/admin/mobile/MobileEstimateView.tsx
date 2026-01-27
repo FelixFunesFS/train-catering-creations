@@ -249,24 +249,49 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {/* Mark Complete button for confirmed events */}
-          {quote?.workflow_status && ['confirmed', 'paid', 'approved', 'awaiting_payment'].includes(quote.workflow_status) && 
-           quote.workflow_status !== 'completed' && (
-            <Button 
-              size="sm" 
-              variant="default"
-              onClick={handleMarkEventCompleted}
-              disabled={isMarkingComplete}
-              className="gap-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs"
-            >
-              {isMarkingComplete ? (
-                <Loader2 className="h-3 w-3 animate-spin" />
-              ) : (
-                <CheckCircle2 className="h-3 w-3" />
-              )}
-              Complete
-            </Button>
-          )}
+          {/* Show completed badge or mark complete button */}
+          {(() => {
+            const isCompleted = quote?.workflow_status === 'completed';
+            const isEventDayOrLater = (() => {
+              if (!quote?.event_date) return false;
+              const eventDate = new Date(quote.event_date);
+              eventDate.setHours(0, 0, 0, 0);
+              const today = new Date();
+              today.setHours(0, 0, 0, 0);
+              return today >= eventDate;
+            })();
+            const canMarkComplete = quote?.workflow_status && 
+              ['confirmed', 'paid', 'approved', 'awaiting_payment'].includes(quote.workflow_status) &&
+              isEventDayOrLater && !isCompleted;
+            
+            if (isCompleted) {
+              return (
+                <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200 text-xs">
+                  <CheckCircle2 className="h-3 w-3 mr-1" />
+                  Completed
+                </Badge>
+              );
+            }
+            if (canMarkComplete) {
+              return (
+                <Button 
+                  size="sm" 
+                  variant="default"
+                  onClick={handleMarkEventCompleted}
+                  disabled={isMarkingComplete}
+                  className="gap-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs"
+                >
+                  {isMarkingComplete ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : (
+                    <CheckCircle2 className="h-3 w-3" />
+                  )}
+                  Complete
+                </Button>
+              );
+            }
+            return null;
+          })()}
           {invoice?.invoice_number && (
             <Badge variant="outline" className="text-xs">
               {invoice.invoice_number}
