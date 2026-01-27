@@ -110,7 +110,7 @@ export const CategoryCards = ({
         </div>
       ) : (
         // Desktop: Grid layout
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           {galleryCategories.map((category) => {
             const previewImage = getCategoryPreviewImage(category.id);
             const imageCount = getCategoryImageCount(category.id);
