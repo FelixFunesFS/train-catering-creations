@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.52.1';
+import { generateStandardEmail, BRAND_COLORS } from '../_shared/emailTemplates.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -48,7 +49,11 @@ const handler = async (req: Request): Promise<Response> => {
         quote_requests (
           email,
           contact_name,
-          event_name
+          event_name,
+          event_date,
+          location,
+          guest_count,
+          service_type
         )
       `)
       .not('token_expires_at', 'is', null)
@@ -67,16 +72,20 @@ const handler = async (req: Request): Promise<Response> => {
         
         let shouldSendWarning = false;
         let urgency = 'medium';
+        let heroVariant: 'crimson' | 'orange' | 'gold' = 'gold';
 
         if (expiryDate <= oneDayFromNow) {
           shouldSendWarning = true;
           urgency = 'high';
+          heroVariant = 'crimson';
         } else if (expiryDate <= threeDaysFromNow) {
           shouldSendWarning = true;
           urgency = 'medium';
+          heroVariant = 'orange';
         } else if (expiryDate <= sevenDaysFromNow) {
           shouldSendWarning = true;
           urgency = 'low';
+          heroVariant = 'gold';
         }
 
         if (shouldSendWarning) {
@@ -91,27 +100,40 @@ const handler = async (req: Request): Promise<Response> => {
           if (!existingWarning || existingWarning.length === 0) {
             const siteUrl = Deno.env.get('SITE_URL') || 'https://www.soultrainseatery.com';
             const estimateLink = `${siteUrl}/estimate?token=${invoice.customer_access_token}`;
+            const quote = invoice.quote_requests;
+
+            // Use shared template system for consistent branding
+            const emailHtml = generateStandardEmail({
+              preheaderText: `Your quote link expires in ${daysUntilExpiry} day${daysUntilExpiry !== 1 ? 's' : ''} - take action now`,
+              heroSection: {
+                badge: urgency === 'high' ? '⚠️ EXPIRES SOON' : '⏰ ACTION REQUIRED',
+                title: 'Access Link Expiring Soon',
+                subtitle: quote?.event_name || 'Your Catering Quote',
+                variant: heroVariant
+              },
+              contentBlocks: [
+                { type: 'text', data: { html: `
+                  <p style="font-size:16px;margin:0 0 16px 0;">Dear ${quote?.contact_name || 'Valued Customer'},</p>
+                  <p style="font-size:15px;margin:0 0 16px 0;line-height:1.6;">Your quote access link for <strong>${quote?.event_name || 'your event'}</strong> will expire in <strong style="color:${urgency === 'high' ? BRAND_COLORS.crimson : BRAND_COLORS.gold};">${daysUntilExpiry} day${daysUntilExpiry !== 1 ? 's' : ''}</strong>.</p>
+                  <p style="font-size:15px;margin:0 0 16px 0;line-height:1.6;">Please review and approve your quote before it expires to secure your event date.</p>
+                ` }},
+                { type: 'cta', data: { text: 'View Your Quote', href: estimateLink, variant: 'primary' }},
+                { type: 'text', data: { html: `
+                  <p style="font-size:15px;margin:24px 0 0 0;line-height:1.6;">If you need more time or have any questions, please contact us:</p>
+                  <p style="font-size:15px;margin:8px 0 0 0;line-height:1.6;">
+                    📞 <a href="tel:+18439700265" style="color:${BRAND_COLORS.crimson};text-decoration:none;">(843) 970-0265</a><br/>
+                    📧 <a href="mailto:soultrainseatery@gmail.com" style="color:${BRAND_COLORS.crimson};text-decoration:none;">soultrainseatery@gmail.com</a>
+                  </p>
+                ` }}
+              ],
+              quote: quote || {},
+            });
 
             const { error: emailError } = await supabase.functions.invoke('send-smtp-email', {
               body: {
-                to: invoice.quote_requests.email,
-                subject: `Action Required: Your Quote Link is Expiring Soon - ${invoice.quote_requests.event_name}`,
-                html: `
-                  <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                    <h2 style="color: ${urgency === 'high' ? '#dc2626' : '#ea580c'};">Access Link Expiring Soon</h2>
-                    <p>Dear ${invoice.quote_requests.contact_name},</p>
-                    <p>Your quote access link for <strong>${invoice.quote_requests.event_name}</strong> will expire in <strong>${daysUntilExpiry} day${daysUntilExpiry !== 1 ? 's' : ''}</strong>.</p>
-                    <p>Please review and approve your quote before it expires:</p>
-                    <p style="text-align: center; margin: 30px 0;">
-                      <a href="${estimateLink}" style="background-color: #8B5CF6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
-                        View Your Quote
-                      </a>
-                    </p>
-                    <p>If you need more time or have any questions, please contact us at:</p>
-                    <p>📞 (843) 970-0265<br>📧 soultrainseatery@gmail.com</p>
-                    <p>Best regards,<br>Soul Train's Eatery</p>
-                  </div>
-                `
+                to: quote?.email,
+                subject: `Action Required: Your Quote Link is Expiring Soon - ${quote?.event_name || 'Your Event'}`,
+                html: emailHtml
               }
             });
 
@@ -121,7 +143,7 @@ const handler = async (req: Request): Promise<Response> => {
               await supabase.from('reminder_logs').insert({
                 invoice_id: invoice.id,
                 reminder_type: 'token_expiring',
-                recipient_email: invoice.quote_requests.email,
+                recipient_email: quote?.email,
                 urgency: urgency
               });
             } else {

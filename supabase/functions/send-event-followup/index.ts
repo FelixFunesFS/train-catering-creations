@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { generateStandardEmail, EMAIL_CONFIGS, BRAND_COLORS } from '../_shared/emailTemplates.ts';
+import { generateStandardEmail, EMAIL_CONFIGS, getEmailContentBlocks } from '../_shared/emailTemplates.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -85,23 +85,14 @@ serve(async (req) => {
       const invoice = quote.invoices?.[0];
       if (!invoice) continue;
 
-      // Generate email using standard template - simplified feedback section (no broken /feedback link)
-      const feedbackBoxHtml = `
-        <div style="background:${BRAND_COLORS.lightGray};border:2px solid ${BRAND_COLORS.gold};padding:25px;border-radius:12px;margin:20px 0;text-align:center;">
-          <h3 style="margin:0 0 12px 0;color:${BRAND_COLORS.crimson};">We'd Love to Hear From You!</h3>
-          <p style="margin:0;font-size:15px;line-height:1.6;">Your feedback helps us continue serving Charleston families with the best Southern catering experience. Feel free to reply to this email or call us at <a href="tel:+18439700265" style="color:${BRAND_COLORS.crimson};text-decoration:none;font-weight:600;">(843) 970-0265</a>.</p>
-        </div>
-      `;
-
-      const reviewLinksHtml = `
-        <div style="margin:25px 0;">
-          <p style="font-size:15px;margin:0 0 12px 0;"><strong>Loved our service?</strong> We'd be honored if you could leave us a review:</p>
-          <div style="text-align:center;">
-            <a href="https://g.page/r/CWyYHq7bIsWlEBM/review" style="display:inline-block;background:${BRAND_COLORS.gold};color:${BRAND_COLORS.darkGray};text-decoration:none;padding:12px 24px;border-radius:6px;font-weight:bold;margin:4px;">⭐ Google Review</a>
-            <a href="https://www.facebook.com/soultrainseatery/reviews" style="display:inline-block;background:#1877f2;color:white;text-decoration:none;padding:12px 24px;border-radius:6px;font-weight:bold;margin:4px;">📘 Facebook Review</a>
-          </div>
-        </div>
-      `;
+      // Use shared helper - Single Source of Truth
+      const { contentBlocks } = getEmailContentBlocks('event_followup', 'customer', {
+        quote,
+        invoice: {},
+        lineItems: [],
+        milestones: [],
+        portalUrl: '',
+      });
 
       const emailHtml = generateStandardEmail({
         preheaderText: EMAIL_CONFIGS.event_followup.customer!.preheaderText,
@@ -109,12 +100,8 @@ serve(async (req) => {
           ...EMAIL_CONFIGS.event_followup.customer!.heroSection,
           subtitle: quote.event_name
         },
-        contentBlocks: [
-          { type: 'text', data: { html: `<p style="font-size:16px;margin:0 0 16px 0;">Thank You, ${quote.contact_name}!</p><p style="font-size:15px;margin:0 0 16px 0;line-height:1.6;">We hope <strong>${quote.event_name}</strong> was a wonderful success and that you and your guests enjoyed the authentic Southern flavors we prepared with love.</p><p style="font-size:15px;margin:0;line-height:1.6;">It was an honor to be part of your special day, and we're grateful you chose Soul Train's Eatery to serve your guests.</p>` }},
-          { type: 'custom_html', data: { html: feedbackBoxHtml }},
-          { type: 'custom_html', data: { html: reviewLinksHtml }},
-          { type: 'text', data: { html: `<p style="font-size:15px;margin:20px 0 0 0;">We look forward to serving you again soon!</p><p style="margin-top:20px;"><strong>Warm regards,</strong><br/>Soul Train's Eatery<br/>Charleston's Lowcountry Catering<br/>(843) 970-0265 | soultrainseatery@gmail.com</p>` }}
-        ]
+        contentBlocks,
+        quote,
       });
 
       const { error: emailError } = await supabaseClient.functions.invoke('send-smtp-email', {

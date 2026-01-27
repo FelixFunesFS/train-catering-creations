@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { verifyAdminAuth, createUnauthorizedResponse, escapeHtml } from "../_shared/security.ts";
+import { generateStandardEmail, BRAND_COLORS } from "../_shared/emailTemplates.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -51,7 +52,11 @@ serve(async (req) => {
           event_name,
           event_date,
           location,
-          guest_count
+          guest_count,
+          service_type,
+          contact_name,
+          phone,
+          email
         )
       `)
       .eq('id', invoice_id)
@@ -76,12 +81,7 @@ serve(async (req) => {
     // Sanitize user-provided content
     const safeCustomerName = escapeHtml(customer.name);
     const safeEventName = escapeHtml(quote?.event_name);
-    const safeLocation = escapeHtml(quote?.location);
     const safeCustomMessage = escapeHtml(custom_message);
-
-    // Generate email content based on type
-    let subject = '';
-    let emailContent = '';
 
     const formatCurrency = (amount: number) => {
       return new Intl.NumberFormat('en-US', {
@@ -90,80 +90,125 @@ serve(async (req) => {
       }).format(amount / 100);
     };
 
+    const formatDate = (dateStr: string | null) => {
+      if (!dateStr) return 'TBD';
+      return new Date(dateStr).toLocaleDateString('en-US', {
+        weekday: 'long',
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
+        timeZone: 'America/New_York',
+      });
+    };
+
+    // Generate email content based on type using shared template system
+    let subject = '';
+    let heroSection: any;
+    let contentBlocks: any[] = [];
+
     switch (email_type) {
       case 'estimate_sent':
         subject = `Your Catering Estimate - ${safeEventName || 'Event'}`;
-        emailContent = `
-          <h2>Your Catering Estimate from Soul Train's Eatery</h2>
-          <p>Dear ${safeCustomerName},</p>
-          <p>Thank you for choosing Soul Train's Eatery for your upcoming event. Please find your catering estimate attached.</p>
-          
-          <div style="background-color: #f9f9f9; padding: 20px; margin: 20px 0; border-radius: 8px;">
-            <h3>Event Details:</h3>
-            <p><strong>Event:</strong> ${safeEventName}</p>
-            <p><strong>Date:</strong> ${quote?.event_date ? new Date(quote.event_date).toLocaleDateString() : 'TBD'}</p>
-            <p><strong>Location:</strong> ${safeLocation}</p>
-            <p><strong>Guest Count:</strong> ${quote?.guest_count || 'TBD'}</p>
-            <p><strong>Total Estimate:</strong> ${formatCurrency(invoiceData.total_amount)}</p>
-          </div>
-          
-          <p>Please review the estimate and let us know if you have any questions or would like to make any changes.</p>
-          
-          ${safeCustomMessage ? `<div style="border-left: 4px solid #2563eb; padding-left: 16px; margin: 20px 0;"><p><strong>Additional Message:</strong></p><p>${safeCustomMessage}</p></div>` : ''}
-          
-          <p>We look forward to making your event memorable!</p>
-          <p>Best regards,<br>Soul Train's Eatery Team<br>(843) 970-0265</p>
-        `;
+        heroSection = {
+          badge: '📋 ESTIMATE READY',
+          title: 'Your Catering Estimate',
+          subtitle: safeEventName,
+          variant: 'gold'
+        };
+        contentBlocks = [
+          { type: 'text', data: { html: `
+            <p style="font-size:16px;margin:0 0 16px 0;">Dear ${safeCustomerName},</p>
+            <p style="font-size:15px;margin:0 0 16px 0;line-height:1.6;">Thank you for choosing Soul Train's Eatery for your upcoming event. Please find your catering estimate details below.</p>
+          ` }},
+          { type: 'custom_html', data: { html: `
+            <div style="background:${BRAND_COLORS.lightGray};padding:20px;margin:20px 0;border-radius:8px;border-left:4px solid ${BRAND_COLORS.gold};">
+              <h3 style="margin:0 0 12px 0;color:${BRAND_COLORS.crimson};">Event Details</h3>
+              <table width="100%" cellpadding="4" cellspacing="0" border="0" style="font-size:14px;">
+                <tr><td style="color:#666;width:120px;">Event:</td><td><strong>${safeEventName}</strong></td></tr>
+                <tr><td style="color:#666;">Date:</td><td>${quote?.event_date ? formatDate(quote.event_date) : 'TBD'}</td></tr>
+                <tr><td style="color:#666;">Location:</td><td>${escapeHtml(quote?.location) || 'TBD'}</td></tr>
+                <tr><td style="color:#666;">Guest Count:</td><td>${quote?.guest_count || 'TBD'}</td></tr>
+                <tr><td style="color:#666;">Total Estimate:</td><td><strong style="color:${BRAND_COLORS.crimson};">${formatCurrency(invoiceData.total_amount)}</strong></td></tr>
+              </table>
+            </div>
+          ` }},
+          { type: 'text', data: { html: `
+            <p style="font-size:15px;margin:0 0 16px 0;line-height:1.6;">Please review the estimate and let us know if you have any questions or would like to make any changes.</p>
+            ${safeCustomMessage ? `<div style="border-left:4px solid ${BRAND_COLORS.gold};padding-left:16px;margin:20px 0;"><p style="margin:0;font-size:15px;"><strong>Additional Message:</strong></p><p style="margin:8px 0 0 0;font-size:15px;">${safeCustomMessage}</p></div>` : ''}
+            <p style="font-size:15px;margin:16px 0 0 0;line-height:1.6;">We look forward to making your event memorable!</p>
+          ` }}
+        ];
         break;
 
       case 'payment_reminder':
         subject = `Payment Reminder - ${safeEventName || 'Event'}`;
-        emailContent = `
-          <h2>Payment Reminder - Soul Train's Eatery</h2>
-          <p>Dear ${safeCustomerName},</p>
-          <p>This is a friendly reminder that payment is due for your upcoming catering event.</p>
-          
-          <div style="background-color: #f9f9f9; padding: 20px; margin: 20px 0; border-radius: 8px;">
-            <h3>Event Details:</h3>
-            <p><strong>Event:</strong> ${safeEventName}</p>
-            <p><strong>Date:</strong> ${quote?.event_date ? new Date(quote.event_date).toLocaleDateString() : 'TBD'}</p>
-            <p><strong>Amount Due:</strong> ${formatCurrency(invoiceData.total_amount)}</p>
-            <p><strong>Invoice #:</strong> ${escapeHtml(invoiceData.invoice_number)}</p>
-          </div>
-          
-          ${safeCustomMessage ? `<div style="border-left: 4px solid #2563eb; padding-left: 16px; margin: 20px 0;"><p><strong>Additional Message:</strong></p><p>${safeCustomMessage}</p></div>` : ''}
-          
-          <p>Please contact us at (843) 970-0265 if you have any questions about your payment.</p>
-          <p>Thank you for choosing Soul Train's Eatery!</p>
-          <p>Best regards,<br>Soul Train's Eatery Team</p>
-        `;
+        heroSection = {
+          badge: '⏰ PAYMENT DUE',
+          title: 'Payment Reminder',
+          subtitle: safeEventName,
+          variant: 'orange'
+        };
+        contentBlocks = [
+          { type: 'text', data: { html: `
+            <p style="font-size:16px;margin:0 0 16px 0;">Dear ${safeCustomerName},</p>
+            <p style="font-size:15px;margin:0 0 16px 0;line-height:1.6;">This is a friendly reminder that payment is due for your upcoming catering event.</p>
+          ` }},
+          { type: 'custom_html', data: { html: `
+            <div style="background:${BRAND_COLORS.lightGray};padding:20px;margin:20px 0;border-radius:8px;border-left:4px solid ${BRAND_COLORS.crimson};">
+              <h3 style="margin:0 0 12px 0;color:${BRAND_COLORS.crimson};">Payment Details</h3>
+              <table width="100%" cellpadding="4" cellspacing="0" border="0" style="font-size:14px;">
+                <tr><td style="color:#666;width:120px;">Event:</td><td><strong>${safeEventName}</strong></td></tr>
+                <tr><td style="color:#666;">Date:</td><td>${quote?.event_date ? formatDate(quote.event_date) : 'TBD'}</td></tr>
+                <tr><td style="color:#666;">Amount Due:</td><td><strong style="color:${BRAND_COLORS.crimson};">${formatCurrency(invoiceData.total_amount)}</strong></td></tr>
+                <tr><td style="color:#666;">Invoice #:</td><td>${escapeHtml(invoiceData.invoice_number)}</td></tr>
+              </table>
+            </div>
+          ` }},
+          { type: 'text', data: { html: `
+            ${safeCustomMessage ? `<div style="border-left:4px solid ${BRAND_COLORS.gold};padding-left:16px;margin:20px 0;"><p style="margin:0;font-size:15px;"><strong>Additional Message:</strong></p><p style="margin:8px 0 0 0;font-size:15px;">${safeCustomMessage}</p></div>` : ''}
+            <p style="font-size:15px;margin:0 0 16px 0;line-height:1.6;">Please contact us at <a href="tel:+18439700265" style="color:${BRAND_COLORS.crimson};text-decoration:none;">(843) 970-0265</a> if you have any questions about your payment.</p>
+            <p style="font-size:15px;margin:0;line-height:1.6;">Thank you for choosing Soul Train's Eatery!</p>
+          ` }}
+        ];
         break;
 
       case 'follow_up':
         subject = `Following Up - ${safeEventName || 'Event'}`;
-        emailContent = `
-          <h2>Following Up on Your Catering Request</h2>
-          <p>Dear ${safeCustomerName},</p>
-          <p>We wanted to follow up on your catering estimate for ${safeEventName}.</p>
-          
-          ${safeCustomMessage ? `<div style="border-left: 4px solid #2563eb; padding-left: 16px; margin: 20px 0;"><p>${safeCustomMessage}</p></div>` : ''}
-          
-          <p>If you have any questions or would like to make changes to your estimate, please don't hesitate to reach out.</p>
-          <p>We're here to help make your event perfect!</p>
-          <p>Best regards,<br>Soul Train's Eatery Team<br>(843) 970-0265</p>
-        `;
+        heroSection = {
+          badge: '📧 FOLLOW UP',
+          title: 'Following Up',
+          subtitle: safeEventName,
+          variant: 'blue'
+        };
+        contentBlocks = [
+          { type: 'text', data: { html: `
+            <p style="font-size:16px;margin:0 0 16px 0;">Dear ${safeCustomerName},</p>
+            <p style="font-size:15px;margin:0 0 16px 0;line-height:1.6;">We wanted to follow up on your catering estimate for <strong>${safeEventName}</strong>.</p>
+            ${safeCustomMessage ? `<div style="border-left:4px solid ${BRAND_COLORS.gold};padding-left:16px;margin:20px 0;"><p style="margin:0;font-size:15px;">${safeCustomMessage}</p></div>` : ''}
+            <p style="font-size:15px;margin:0 0 16px 0;line-height:1.6;">If you have any questions or would like to make changes to your estimate, please don't hesitate to reach out.</p>
+            <p style="font-size:15px;margin:0;line-height:1.6;">We're here to help make your event perfect!</p>
+          ` }}
+        ];
         break;
 
       default:
         throw new Error('Invalid email type');
     }
 
+    // Generate email using shared template system
+    const emailHtml = generateStandardEmail({
+      preheaderText: subject,
+      heroSection,
+      contentBlocks,
+      quote: quote || {},
+    });
+
     // Send email using the existing SMTP function
     const emailResponse = await supabaseClient.functions.invoke('send-smtp-email', {
       body: {
         to: customer.email,
         subject: subject,
-        html: emailContent
+        html: emailHtml
       }
     });
 
