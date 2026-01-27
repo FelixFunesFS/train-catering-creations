@@ -1,198 +1,240 @@
 
 
-# Request a Quote Page - Desktop Viewport Optimization
+# Request Quote & Customer Portal Desktop UX Improvements
 
-## Problem Summary
+## Overview
 
-On desktop (1920x1080), the "Request a Catering Quote" page has layout issues:
-1. **CTAs cut off**: The contact CTA section is barely visible without scrolling
-2. **Excessive vertical spacing**: Too much padding between sections
-3. **Card height**: Cards are taller than needed, pushing content below the fold
-4. **Decorative gradients**: Corner overlays reduce text readability
+This plan addresses two pages with desktop-only layout optimizations:
 
----
-
-## Proposed Solution
-
-Reduce vertical spacing throughout the page to ensure all key content (header, both cards, and CTA contact section) fits within a single desktop viewport without scrolling.
+1. **Request Quote Page**: Extract CTAs from inside the cards and position them above each card
+2. **Customer Portal**: Restructure the PaymentCard to show the payment CTA at the top (before the schedule), and evaluate a 3-column layout
 
 ---
 
-## Visual Comparison
+## Part 1: Request Quote Page - CTAs Above Cards
 
-### Current Layout (Approximate Heights)
+### Current State
+- Two event type cards ("Regular Events" and "Formal & Military Events")
+- Each card contains: Icon, Title, Description, Feature List, and CTA Button at the bottom
+- CTA buttons are embedded inside the card, requiring users to scan the entire card before seeing the action
+
+### Proposed Change (Desktop Only)
+
+Position the CTA buttons **above** each card as standalone, prominent call-to-action elements:
 
 ```text
-+--------------------------------------------------+
-|  Header (nav bar)                        ~60px   |
-+--------------------------------------------------+
-|                                                  |
-|  py-14 section padding (top)             ~56px   |
-|                                                  |
-|  ┌──────────────────────────────────────────┐    |
-|  │  Badge + Title + Subtitle + Description  │    |
-|  │  py-16 header padding                    │    |
-|  │  (roughly 200-250px total)               │    |
-|  └──────────────────────────────────────────┘    |
-|                                                  |
-|  mt-8 gap                                ~32px   |
-|                                                  |
-|  ┌───────────────────┐  ┌───────────────────┐    |
-|  │  Regular Events   │  │  Formal Events    │    |
-|  │  p-8 padding      │  │  p-8 padding      │    |
-|  │  Icon + Title     │  │  Icon + Title     │    |
-|  │  4 bullet points  │  │  4 bullet points  │    |
-|  │  mb-8 + CTA btn   │  │  mb-8 + CTA btn   │    |
-|  │  (~380px height)  │  │  (~380px height)  │    |
-|  └───────────────────┘  └───────────────────┘    |
-|                                                  |
-|  py-14 section padding (bottom)          ~56px   |
-|                                                  |
-+--------------------------------------------------+ <-- ~800px mark
-|                                                  |
-|  ┌──────────────────────────────────────────┐    |
-|  │  Questions About Your Quote? (CTA)       │    | <-- CUT OFF
-|  │  py-16 padding + card                    │    |
-|  └──────────────────────────────────────────┘    |
-|                                                  |
-+--------------------------------------------------+
+CURRENT (Desktop):                          PROPOSED (Desktop):
+┌──────────────────┐ ┌──────────────────┐    [Get Regular Quote] [Get Formal Quote]
+│  Icon + Title    │ │  Icon + Title    │    ┌──────────────────┐ ┌──────────────────┐
+│  Description     │ │  Description     │    │  Icon + Title    │ │  Icon + Title    │
+│  • Feature 1     │ │  • Feature 1     │    │  Description     │ │  Description     │
+│  • Feature 2     │ │  • Feature 2     │    │  • Feature 1     │ │  • Feature 1     │
+│  • Feature 3     │ │  • Feature 3     │    │  • Feature 2     │ │  • Feature 2     │
+│  • Feature 4     │ │  • Feature 4     │    │  • Feature 3     │ │  • Feature 3     │
+│ [GET QUOTE BTN]  │ │ [GET QUOTE BTN]  │    │  • Feature 4     │ │  • Feature 4     │
+└──────────────────┘ └──────────────────┘    └──────────────────┘ └──────────────────┘
 ```
 
-### Optimized Layout (Target: Fit in 1080px viewport)
+### Implementation Approach
+
+**File: `src/components/quote/QuoteFormSelector.tsx`**
+
+1. Add a new section **above** the cards grid for desktop only:
+   - Two side-by-side CTA buttons matching the card grid alignment
+   - Use `hidden lg:flex` to show only on desktop
+   - Style with prominent colors and hover effects matching existing CTAs
+
+2. Hide the in-card CTAs on desktop:
+   - Add `lg:hidden` class to the existing CTA buttons inside each card
+   - Mobile continues to see CTAs inside the cards (unchanged behavior)
+
+### Benefits
+- CTAs are immediately visible without scrolling
+- Cards become informational only, reducing cognitive load
+- Clear visual hierarchy: Action first, details second
+- Maintains mobile behavior where in-card CTAs work well
+
+---
+
+## Part 2: Customer Portal - Payment CTA at Top
+
+### Current State
+
+The PaymentCard component structure:
+1. Card Header ("Make a Payment" / "Payment Schedule")
+2. Progress bar section
+3. Milestone schedule (3 rows for Deposit, Milestone, Final)
+4. Tabs (Scheduled, Custom, Full Balance)
+5. **CTA button at bottom** (inside tab content)
+
+This means the actual "Pay $X" button is ~500px below the card header, often below the fold.
+
+### Proposed Change (Desktop Only)
+
+Restructure PaymentCard to show a **Quick Pay** section at the TOP, before the schedule:
 
 ```text
-+--------------------------------------------------+
-|  Header (nav bar)                        ~60px   |
-+--------------------------------------------------+
-|                                                  |
-|  py-8 section padding (top)              ~32px   |
-|                                                  |
-|  ┌──────────────────────────────────────────┐    |
-|  │  Badge + Title + Subtitle + Description  │    |
-|  │  Reduced py-8 header padding             │    |
-|  │  (roughly 150-180px total)               │    |
-|  └──────────────────────────────────────────┘    |
-|                                                  |
-|  mt-4 gap                                ~16px   |
-|                                                  |
-|  ┌───────────────────┐  ┌───────────────────┐    |
-|  │  Regular Events   │  │  Formal Events    │    |
-|  │  p-5 padding      │  │  p-5 padding      │    |
-|  │  Icon + Title     │  │  Icon + Title     │    |
-|  │  4 bullet points  │  │  4 bullet points  │    |
-|  │  mb-6 + CTA btn   │  │  mb-6 + CTA btn   │    |
-|  │  (~300px height)  │  │  (~300px height)  │    |
-|  └───────────────────┘  └───────────────────┘    |
-|                                                  |
-|  py-6 section padding (bottom)           ~24px   |
-|                                                  |
-+--------------------------------------------------+ <-- ~600px mark
-|                                                  |
-|  ┌──────────────────────────────────────────┐    |
-|  │  Questions About Your Quote? (CTA)       │    | <-- VISIBLE!
-|  │  Compact py-8 padding                    │    |
-|  └──────────────────────────────────────────┘    |
-|                                                  |
-+--------------------------------------------------+ <-- ~850px total
+CURRENT:                                    PROPOSED:
+┌─────────────────────────────┐            ┌─────────────────────────────┐
+│ 💳 Make a Payment           │            │ 💳 Make a Payment           │
+│ Balance remaining: $457.80  │            │ Balance remaining: $457.80  │
+├─────────────────────────────┤            ├─────────────────────────────┤
+│ Progress: 0% [━━━━━━━━━━━━] │            │ ┌─────────────────────────┐ │
+├─────────────────────────────┤            │ │ 🔥 DEPOSIT Due Now      │ │
+│ DEPOSIT    Due Now   $45.78 │            │ │ $45.78   [PAY NOW]      │ │
+│ MILESTONE  Mar 29   $228.90 │            │ └─────────────────────────┘ │
+│ FINAL      Apr 14   $183.12 │            ├─────────────────────────────┤
+├─────────────────────────────┤            │ Progress: 0% [━━━━━━━━━━━━] │
+│ [Scheduled][Custom][Full]   │            ├─────────────────────────────┤
+│ ┌─────────────────────────┐ │            │ Upcoming Payments           │
+│ │ Payment Due Now         │ │            │ DEPOSIT    Due Now   $45.78 │
+│ │ DEPOSIT (10%)   $45.78  │ │            │ MILESTONE  Mar 29   $228.90 │
+│ │ [    PAY $45.78     ]   │ │            │ FINAL      Apr 14   $183.12 │
+│ └─────────────────────────┘ │            ├─────────────────────────────┤
+└─────────────────────────────┘            │ Other Payment Options       │
+                                           │ [Custom Amount][Pay in Full]│
+                                           └─────────────────────────────┘
 ```
 
----
+### Implementation Approach
 
-## Changes by File
+**File: `src/components/customer/PaymentCard.tsx`**
 
-### 1. RequestQuote.tsx
+1. Add a new **Quick Pay CTA** section immediately after the header (desktop only):
+   - If there's a milestone due now, show a highlighted box with the amount and a prominent "Pay Now" button
+   - If no milestone is due but there are unpaid milestones, show "Pay Next Milestone" option
+   - This section uses `hidden lg:block` to only appear on desktop
 
-**Section padding reduction:**
-- Change `py-10 lg:py-14` to `py-6 lg:py-8` on main section
-- This saves ~40-60px of vertical space
+2. Simplify the tabs section on desktop:
+   - Instead of 3 tabs, show a compact "Other Payment Options" row with "Custom Amount" and "Pay Full Balance" buttons
+   - Keep the full tabs interface on mobile where vertical space is expected
 
-**Gap between header and cards:**
-- Change `mt-6 sm:mt-8` to `mt-4 lg:mt-6`
-- This saves ~10-15px of vertical space
+3. Reorder the card content for desktop:
+   - Quick Pay CTA (new, top position)
+   - Progress bar
+   - Milestone schedule (read-only list, no inline actions)
+   - Other payment options (Custom/Full buttons)
 
-### 2. QuoteFormSelector.tsx
-
-**Card internal padding:**
-- Change `p-5 sm:p-6 lg:p-8` to `p-5 lg:p-6`
-- Saves ~8px per card on desktop
-
-**Feature list spacing:**
-- Change `space-y-4` to `space-y-3`
-- Saves ~12px per card (3 gaps x 4px)
-
-**Button margin:**
-- Change `mb-8` to `mb-6`
-- Saves ~8px per card
-
-**Center text section margin:**
-- Change `mb-6` to `mb-4`
-- Saves ~8px per card
-
-**Reduce decorative gradient opacity:**
-- Change `from-primary/20` to `from-primary/10`
-- Improves text readability without removing visual interest
-
-### 3. QuoteHeader.tsx / PageHeader
-
-**Header padding:**
-- Change `py-6 sm:py-8 lg:py-12 xl:py-16` to `py-4 sm:py-6 lg:py-8`
-- Saves ~30-50px on desktop
-
-**Bottom margin on description:**
-- Keep existing or tighten slightly
-
-### 4. CTASection.tsx
-
-**Section padding:**
-- Change `pt-10 pb-6 sm:pt-12 sm:pb-8 lg:py-16` to `pt-6 pb-4 sm:pt-8 sm:pb-6 lg:py-10`
-- Saves ~40px on desktop
-
-**Internal card padding:**
-- Change `py-8 sm:py-10 lg:py-12` to `py-6 sm:py-8 lg:py-10`
-- Saves ~16px
+### Benefits
+- Payment CTA is visible immediately in the viewport (within first 200px of card)
+- Progress bar provides context without requiring scroll
+- Schedule becomes informational, not the primary interaction point
+- Reduces vertical height of the card significantly
 
 ---
 
-## Summary of Space Savings
+## Part 3: Customer Portal - 3-Column Layout Evaluation
 
-| Component | Current | Proposed | Savings |
-|-----------|---------|----------|---------|
-| Section top padding | 56px | 32px | ~24px |
-| Header internal padding | 64px | 32px | ~32px |
-| Header-to-cards gap | 32px | 16px | ~16px |
-| Card padding (per card) | 32px | 24px | ~8px |
-| Card feature list spacing | 48px | 36px | ~12px |
-| Card button margin | 32px | 24px | ~8px |
-| Section bottom padding | 56px | 24px | ~32px |
-| CTA section padding | 64px | 40px | ~24px |
+### Analysis
 
-**Total estimated savings: ~150-180px**
+Currently: 35% (sidebar) / 65% (main content) = 2 columns
 
-This brings the total page height from ~950-1000px down to ~800-850px, fitting comfortably within a 1080px viewport height.
+The screenshot shows:
+- Left panel has significant whitespace below "Need Help?" section
+- Right panel content (PaymentCard) extends beyond the fold
+
+### 3-Column Layout Concept
+
+```text
+┌─────────────────────────────────────────────────────────────────────────┐
+│                        Soul Train's Eatery                              │
+│                   Your Custom Catering Estimate                         │
+│                 [Approved] [Deposit Due]                                │
+├───────────────────┬──────────────────────────┬──────────────────────────┤
+│                   │                          │                          │
+│  YOUR DETAILS     │  PAYMENT                 │  MENU & PRICING          │
+│  ├── Name         │  ├── Quick Pay CTA       │  ├── Line items table    │
+│  ├── Email        │  ├── Progress            │  ├── Subtotal            │
+│  ├── Phone        │  └── Schedule            │  ├── Tax                 │
+│                   │                          │  └── Total               │
+│  EVENT DETAILS    │  OTHER OPTIONS           │                          │
+│  ├── Event name   │  ├── Custom Amount       │  CATERER NOTES           │
+│  ├── Date/Time    │  └── Pay in Full         │  └── Notes content       │
+│  ├── Guests       │                          │                          │
+│  └── Location     │                          │  ACTIONS                 │
+│                   │                          │  ├── Request Changes     │
+│  TERMS (collapse) │                          │  └── Status info         │
+│                   │                          │                          │
+│  NEED HELP?       │                          │                          │
+│  ├── Phone        │                          │                          │
+│  └── Email        │                          │                          │
+│                   │                          │                          │
+│     25% width     │       35% width          │       40% width          │
+└───────────────────┴──────────────────────────┴──────────────────────────┘
+```
+
+### Recommendation: Proceed with 3-Column Layout
+
+**Benefits:**
+- Payment gets its own dedicated column (center focus)
+- Menu/Pricing and Actions get their own column (right)
+- Customer/Event details stay in left column (reference information)
+- Reduces vertical scrolling significantly
+- Better use of horizontal space on wide screens
+
+**Implementation Approach:**
+
+**File: `src/components/customer/CustomerEstimateView.tsx`**
+
+1. Change from 2-panel to 3-panel layout on desktop:
+   - Left panel (25%): CustomerDetailsSidebar (unchanged)
+   - Center panel (35%): PaymentCard (with Quick Pay CTA at top)
+   - Right panel (40%): Menu & Pricing, Caterer Notes, Actions
+
+2. Use `ResizablePanelGroup` with 3 panels:
+   ```tsx
+   <ResizablePanelGroup direction="horizontal">
+     <ResizablePanel defaultSize={25} minSize={20} maxSize={30}>
+       <CustomerDetailsSidebar />
+     </ResizablePanel>
+     <ResizableHandle withHandle />
+     <ResizablePanel defaultSize={35} minSize={30} maxSize={40}>
+       <PaymentCard {...} />
+     </ResizablePanel>
+     <ResizableHandle withHandle />
+     <ResizablePanel defaultSize={40} minSize={35}>
+       <MenuAndActionsPanel />
+     </ResizablePanel>
+   </ResizablePanelGroup>
+   ```
+
+3. Create a new `PaymentPanel` component that wraps PaymentCard for the center column
+
+4. Create a new `MenuActionsPanel` component for the right column containing:
+   - Menu & Pricing card
+   - Caterer Notes (if any)
+   - Customer Actions
+
+---
+
+## Summary of Changes
+
+| File | Changes |
+|------|---------|
+| `src/components/quote/QuoteFormSelector.tsx` | Add CTAs above cards (desktop), hide in-card CTAs on desktop |
+| `src/components/customer/PaymentCard.tsx` | Add Quick Pay CTA section at top, simplify tabs on desktop |
+| `src/components/customer/CustomerEstimateView.tsx` | Change to 3-column layout on desktop |
+| `src/components/customer/MenuActionsPanel.tsx` (new) | Right column with menu, notes, actions |
 
 ---
 
 ## Mobile Preservation
 
-All changes use responsive breakpoint classes:
-- Mobile values remain the same (e.g., `py-6` on mobile)
-- Only `lg:` desktop values are reduced
-- No changes to grid behavior or card layout structure
+All changes use responsive classes (`lg:hidden`, `hidden lg:block`, `lg:grid-cols-3`) to ensure:
+- Mobile quote page: CTAs remain inside cards
+- Mobile portal: Single-column layout unchanged
+- Tablet (<1024px): Falls back to current 2-column or mobile layout
 
 ---
 
-## Files to Modify
+## Visual Impact Summary
 
-1. **src/pages/RequestQuote.tsx** - Section padding and gaps
-2. **src/components/quote/QuoteFormSelector.tsx** - Card padding and spacing
-3. **src/components/ui/page-header.tsx** - Header vertical padding (affects all pages using PageHeader, so changes must be conservative or use a prop)
-4. **src/components/ui/cta-section.tsx** - CTA section padding
+**Request Quote Page:**
+- CTAs move from bottom of cards to above cards on desktop
+- ~100px vertical savings, better conversion focus
 
----
-
-## Implementation Notes
-
-- The PageHeader component is shared across multiple pages. Rather than changing its defaults, we can pass a `compact` prop or use a custom className override specifically for the quote page
-- All spacing changes use Tailwind's responsive prefixes to ensure mobile layouts are unaffected
-- Card gradient overlays will be softened from `/20` to `/10` opacity for better text contrast
+**Customer Portal:**
+- Payment CTA moves from ~500px down to ~100px down (within viewport)
+- 3-column layout eliminates most vertical scrolling
+- All key information visible at once on wide screens
 
