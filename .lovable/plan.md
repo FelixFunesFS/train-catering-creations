@@ -1,263 +1,236 @@
 
-# End-to-End Workflow Review & MVP Readiness Assessment
+# Customer Portal Enhancement & Desktop Layout Plan
 
-## Executive Summary
+## Overview
 
-After comprehensive review of the codebase, the Soul Train's Eatery catering platform is **functionally complete for MVP launch**. The workflow from customer form submission to payment fulfillment is fully implemented with proper email tracking, status management, and payment processing. This assessment identifies minor gaps and provides a pre-launch checklist.
-
----
-
-## Complete Workflow Mapping
-
-### Phase 1: Customer Submission
-```
-Customer → SinglePageQuoteForm.tsx → submit-quote-request (edge function)
-                                           ↓
-                              ┌────────────┴────────────┐
-                              ↓                         ↓
-                   send-quote-confirmation    send-quote-notification
-                   (Customer Email)           (Admin Alert)
-```
-
-**Status**: ✅ Complete
-- 6-step wizard with validation
-- Honeypot spam protection
-- Rate limiting (3/email/hour)
-- Server-side email triggers (non-blocking)
-- Thank you page with calendar integration
-
-### Phase 2: Admin Review & Pricing
-```
-Admin Dashboard → EventEstimateFullView → generate-invoice-from-quote
-                                                    ↓
-                                         Line Items + Milestones Created
-                                                    ↓
-                                    send-customer-portal-email (type: 'estimate_ready')
-```
-
-**Status**: ✅ Complete
-- Invoice auto-generation from quote
-- Line item editor with live total calculation
-- Payment milestone auto-generation (tiered: 10/50/40, rush: 100%, government: Net 30)
-- PDF generation
-- Email preview in Settings
-
-### Phase 3: Customer Decision
-```
-Customer Portal (CustomerEstimateView.tsx) → Approve or Request Changes
-                    ↓                                    ↓
-         approve-estimate (edge function)    ChangeRequestModal → process-change-request
-                    ↓
-         send-customer-portal-email (type: 'approval_confirmation')
-```
-
-**Status**: ✅ Complete
-- Token-based portal access
-- Terms acceptance before approval
-- Idempotent approval handling
-- Change request workflow
-- Auto-scroll to payment after approval
-
-### Phase 4: Payment Collection
-```
-PaymentCard.tsx → create-payment-link → Stripe Checkout
-                                              ↓
-                                       stripe-webhook
-                                              ↓
-                              ┌───────────────┴───────────────┐
-                              ↓                               ↓
-                   Partial Payment                    Full Payment
-                   → 'partially_paid'                 → 'paid' + 'confirmed'
-                              ↓                               ↓
-                   send-customer-portal-email    send-customer-portal-email
-                   (type: 'payment_confirmation') (type: 'payment_confirmation')
-```
-
-**Status**: ✅ Complete
-- Stripe Checkout integration
-- Webhook signature verification (production-ready)
-- Milestone-based payments
-- Custom amount payments
-- Full balance payments
-
-### Phase 5: Event Execution & Close-out
-```
-unified-reminder-system (cron daily 9 AM)
-              ↓
-    ┌─────────┴─────────┬───────────────┬────────────────┐
-    ↓                   ↓               ↓                ↓
-7-day reminder    2-day reminder    Auto-complete    Thank you email
-(confirmed)       (confirmed)       (day after)      (send-event-followup)
-```
-
-**Status**: ✅ Complete
+This plan addresses three interconnected requirements:
+1. **Customer Contact Info Display** - Show the customer's own contact details (name, email, phone) in the portal so they can verify their information when making payments
+2. **Desktop Quote Form Enhancement** - Create a full-viewport, split-view layout for the quote form on desktop while preserving mobile
+3. **Desktop Portal Enhancement** - Create a full-viewport, split-view layout for the customer portal on desktop while preserving mobile
 
 ---
 
-## Cron Jobs Status (Verified in Database)
+## Part 1: Customer Contact Information Card
 
-| Job Name | Schedule | Function | Status |
-|----------|----------|----------|--------|
-| `auto-workflow-manager-every-15-min` | `*/15 * * * *` | Overdue marking, auto-confirm | ✅ Active |
-| `send-automated-reminders-daily` | `0 9 * * *` | Payment reminders | ✅ Active |
-| `send-event-followup-daily` | `0 10 * * *` | Post-event thank you | ✅ Active |
-| `token-renewal-manager-daily` | `0 2 * * *` | Token expiration warnings | ✅ Active |
+### Current State
+The `CustomerEstimateView.tsx` already receives the full `quote` object from the `useEstimateAccess` hook, which includes:
+- `quote.contact_name`
+- `quote.email`
+- `quote.phone`
+- `quote.guest_count_with_restrictions` (vegetarian guest count)
 
----
+However, this contact information is **not displayed** to the customer - it's only used internally for email addresses and API calls.
 
-## Email System Review
+### Implementation
 
-### Single Source of Truth
-All customer emails now flow through `getEmailContentBlocks()` in `_shared/emailTemplates.ts`:
+**New Component: `CustomerContactCard.tsx`**
 
-| Email Type | Trigger | Status |
-|------------|---------|--------|
-| `quote_confirmation` | Form submission | ✅ |
-| `estimate_ready` | Admin sends estimate | ✅ |
-| `approval_confirmation` | Customer approves | ✅ |
-| `payment_received` | Stripe webhook | ✅ |
-| `payment_reminder` | Cron job | ✅ |
-| `event_reminder` (7-day, 2-day) | Cron job | ✅ |
-| `event_followup` | Day after event | ✅ |
+Create a compact, visually distinct card that displays:
+- Customer name (with a friendly "Your Details" header)
+- Email address (with mailto link)
+- Phone number (with tel link)
+- Optional: Vegetarian guest count if provided
 
-### Email Tracking
-- Tracking pixel in estimate emails (`track-email-open` function)
-- `email_opened_at` field in invoices table
-- Reminder logs prevent duplicate sends
+**Design Considerations:**
+- Position prominently near the top of the portal (after header, before Event Details)
+- Use a subtle highlight/accent background to differentiate from other cards
+- Keep it compact - customers don't need to edit, just verify
 
----
-
-## Responsiveness Audit
-
-### Verified Mobile-First Components
-
-| Component | Mobile | Tablet | Desktop | Notes |
-|-----------|--------|--------|---------|-------|
-| `SplitHero` | ✅ | ✅ | ✅ | Overlay mode on mobile, 60/40 split desktop |
-| `Header` | ✅ | ✅ | ✅ | Hamburger menu, sticky positioning |
-| `SinglePageQuoteForm` | ✅ | ✅ | ✅ | Full-screen wizard on mobile, safe-area padding |
-| `CustomerEstimateView` | ✅ | ✅ | ✅ | Responsive grid, collapsible sections |
-| `PaymentCard` | ✅ | ✅ | ✅ | Tab-based payment options |
-| `EventList` (Admin) | ✅ | ✅ | ✅ | Card view mobile, table view desktop |
-| `MobileActionBar` | ✅ | N/A | N/A | Sticky bottom CTA bar |
-
-### Responsive Patterns Used
-- `useIsMobile()` hook with 1024px breakpoint
-- `grid-cols-1 sm:grid-cols-2` for form fields
-- `pb-28 + safe-area-inset-bottom` for sticky footers
-- Lazy loading for below-the-fold sections
+**Integration:**
+- Add to `CustomerEstimateView.tsx` immediately after the status badges
+- Pass `quote.contact_name`, `quote.email`, `quote.phone`, and optionally `quote.guest_count_with_restrictions`
 
 ---
 
-## MVP Gaps & Risks
+## Part 2: Desktop Quote Form Split-View Layout
 
-### Critical (Must Fix Before Launch)
+### Current State
+- Quote form pages (`RegularEventQuote.tsx`, `WeddingEventQuote.tsx`) use `SinglePageQuoteForm` with `layout="fullscreen"`
+- The form is constrained to `max-w-5xl` centered in the viewport
+- Same layout applies to both mobile and desktop
+- Desktop has unused horizontal space on both sides
 
-1. **~~Missing "Event Completed" Admin Button~~** ✅ IMPLEMENTED
-   - *Status*: **COMPLETE** - Added "Mark Complete" button to both desktop and mobile admin views
-   - Button visible for events in `confirmed`, `paid`, `approved`, `awaiting_payment` status
-   - Updates quote to `completed` and invoice to `paid`
+### Proposed Desktop Layout
 
-2. **Unified Reminder System Not in Cron**
-   - *Risk*: The newer `unified-reminder-system` consolidates all reminder logic but is NOT scheduled
-   - *Current*: Old `send-automated-reminders` cron still active
-   - *Recommendation*: Either update cron to use `unified-reminder-system` OR verify the old function is adequate
+**Split-View Concept (Desktop Only - 1024px+):**
 
-### Low Priority (Post-MVP)
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│ [Exit] ─────────────── Event Quote ─────────────── Step X of 6        │
+├────────────────────────────┬───────────────────────────────────────────┤
+│                            │                                           │
+│   ┌────────────────────┐   │   ┌─────────────────────────────────┐     │
+│   │                    │   │   │                                 │     │
+│   │   STICKY PREVIEW   │   │   │      FORM STEP CONTENT          │     │
+│   │   CARD             │   │   │                                 │     │
+│   │                    │   │   │   (Contact Info, Event,         │     │
+│   │   - Event name     │   │   │    Menu, Supplies, etc.)        │     │
+│   │   - Date/Time      │   │   │                                 │     │
+│   │   - Guest count    │   │   │                                 │     │
+│   │   - Location       │   │   │                                 │     │
+│   │                    │   │   │                                 │     │
+│   │                    │   │   │                                 │     │
+│   │   Trust badges     │   │   │                                 │     │
+│   │   & contact info   │   │   │                                 │     │
+│   │                    │   │   │                                 │     │
+│   └────────────────────┘   │   └─────────────────────────────────┘     │
+│        35% width           │              65% width                    │
+└────────────────────────────┴───────────────────────────────────────────┘
+│ [Back]                                                     [Continue] │
+└────────────────────────────────────────────────────────────────────────┘
+```
 
-3. **Email Deliverability Monitoring**
-   - Analytics events table exists but no admin dashboard panel shows delivery stats
-   - Consider adding "Email Delivery" section to Settings
+**Key Features:**
+- **Left Panel (35%)**: Sticky preview card showing entered data + trust indicators
+- **Right Panel (65%)**: Current step content (scrollable if needed)
+- Full viewport height usage with proper overflow handling
+- Progress bar spans full width in header
+- Navigation buttons span full width in footer
 
-4. **Change Request Versioning**
-   - Change requests exist but estimate versioning is archived/inactive
-   - Customers see current version only (acceptable for MVP)
-
----
-
-## Pre-Launch Checklist
-
-### Configuration Verification
-- [ ] `SITE_URL` secret set to production domain (soultrainseatery.com)
-- [ ] `FRONTEND_URL` secret matches `SITE_URL`
-- [ ] `STRIPE_WEBHOOK_SECRET` configured for production endpoint
-- [ ] Stripe webhook URL updated to production domain
-- [ ] SMTP credentials verified for production email domain
-
-### Functional Testing
-- [ ] Submit test quote → verify customer confirmation email
-- [ ] Create estimate → verify estimate email with portal link
-- [ ] Approve estimate → verify approval email with payment CTA
-- [ ] Complete Stripe payment → verify webhook updates milestone
-- [ ] Trigger reminder manually → verify payment reminder email
-
-### Cron Job Verification
-- [ ] Query `cron.job_run_details` to confirm jobs are executing
-- [ ] Monitor edge function logs for scheduled runs
-
-### Responsiveness Spot-Checks
-- [ ] Quote form on iPhone SE (smallest viewport)
-- [ ] Customer portal on iPad
-- [ ] Admin dashboard on mobile
-- [ ] Payment flow on mobile (Stripe Checkout is responsive by default)
-
----
-
-## MVP Decision Framework
-
-### Ship Now (Ready)
-- ✅ Core catering workflow complete
-- ✅ Stripe payments functional
-- ✅ Email system consolidated
-- ✅ Responsive design implemented
-- ✅ PWA installable
-- ✅ Admin dashboard functional
-- ✅ Manual "Mark Event Completed" button
-
-### Ship After (Nice-to-Have)
-- Email delivery dashboard
-- Analytics/reporting enhancements
-- Calendar sync feature
-
-### Not Needed for MVP
-- Contract/terms signing (merged into approval)
-- Estimate versioning UI
-- Messaging system
-- Auto-approval engine
+**Implementation Approach:**
+1. Create `DesktopQuoteLayout.tsx` wrapper component
+2. Create `QuotePreviewSidebar.tsx` for the left panel
+3. Modify `SinglePageQuoteForm.tsx` to accept a new `desktopLayout` prop
+4. Update page components to conditionally render split layout on desktop
 
 ---
 
-## Recommended Next Steps
+## Part 3: Desktop Customer Portal Split-View Layout
 
-1. **Verify Cron Health** (10 min)
-   - Query `SELECT * FROM cron.job_run_details ORDER BY start_time DESC LIMIT 20` to confirm jobs are running
+### Current State
+- `CustomerEstimateView.tsx` renders all content in a single column
+- Maximum width constrained to `max-w-3xl`
+- Same layout on mobile and desktop
+- Desktop has significant unused horizontal space
 
-2. **Update Domain Secrets** (5 min)
-   - Set `SITE_URL` = `https://soultrainseatery.com` in Supabase secrets
+### Proposed Desktop Layout
 
-3. **Configure Stripe Production Webhook** (15 min)
-   - Create production webhook endpoint in Stripe Dashboard
-   - Update `STRIPE_WEBHOOK_SECRET` secret
+**Split-View Concept (Desktop Only - 1024px+):**
 
-4. **~~Add Manual Complete Button~~** ✅ COMPLETE
-   - "Mark Completed" action added to EventEstimateFullView and MobileEstimateView
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                     Soul Train's Eatery                                │
+│                   Your Custom Catering Estimate                        │
+│              [Estimate: Ready for Review] [Payment: Due Now]           │
+├────────────────────────────┬───────────────────────────────────────────┤
+│                            │                                           │
+│   ┌────────────────────┐   │   ┌─────────────────────────────────┐     │
+│   │   YOUR DETAILS     │   │   │                                 │     │
+│   │   Name, Email, Ph  │   │   │   PAYMENT SECTION               │     │
+│   └────────────────────┘   │   │   (When approved - primary)     │     │
+│                            │   │                                 │     │
+│   ┌────────────────────┐   │   │   OR                            │     │
+│   │   EVENT DETAILS    │   │   │                                 │     │
+│   │   - Event name     │   │   │   MENU & PRICING                │     │
+│   │   - Date/Time      │   │   │   (Before approval - primary)   │     │
+│   │   - Guests         │   │   │                                 │     │
+│   │   - Location       │   │   │                                 │     │
+│   │   - Services       │   │   │                                 │     │
+│   └────────────────────┘   │   │                                 │     │
+│                            │   │                                 │     │
+│   ┌────────────────────┐   │   └─────────────────────────────────┘     │
+│   │   TERMS (collapse) │   │                                           │
+│   └────────────────────┘   │   ┌─────────────────────────────────┐     │
+│                            │   │   ACTIONS (Approve/Changes)     │     │
+│   ┌────────────────────┐   │   └─────────────────────────────────┘     │
+│   │   NEED HELP?       │   │                                           │
+│   │   Phone & Email    │   │   ┌─────────────────────────────────┐     │
+│   └────────────────────┘   │   │   NOTES FROM CATERER (if any)   │     │
+│        35% width           │   └─────────────────────────────────┘     │
+│                            │              65% width                    │
+└────────────────────────────┴───────────────────────────────────────────┘
+```
 
-5. **End-to-End Smoke Test** (30 min)
-   - Complete full workflow on production domain before public launch
+**Key Features:**
+- **Left Panel (35%)**: Customer details, event summary, terms, contact info (scrollable, sticky top)
+- **Right Panel (65%)**: Payment card (primary after approval), Menu & Pricing, Actions, Notes
+- Full viewport width utilization
+- Both panels independently scrollable on tall content
+
+**Implementation Approach:**
+1. Create `CustomerPortalDesktopLayout.tsx` wrapper
+2. Create `CustomerDetailsSidebar.tsx` for left panel (customer contact + event details + terms)
+3. Refactor `CustomerEstimateView.tsx` to conditionally render:
+   - Desktop: Split layout with ResizablePanelGroup
+   - Mobile: Current single-column layout (unchanged)
+4. Use `useIsMobile()` hook for conditional rendering
 
 ---
 
-## Technical Debt Summary
+## Technical Implementation Details
 
-| Item | Priority | Effort | Status |
-|------|----------|--------|--------|
-| Consolidate reminder cron jobs | Medium | 1 hour | Pending |
-| Add email delivery panel | Low | 2 hours | Pending |
-| ~~Manual event completion~~ | ~~High~~ | ~~30 min~~ | ✅ Done |
-| Remove deprecated `payment_history` references | Low | 30 min | Pending |
+### Files to Create
+
+| File | Purpose |
+|------|---------|
+| `src/components/customer/CustomerContactCard.tsx` | Display customer's own contact info |
+| `src/components/customer/CustomerDetailsSidebar.tsx` | Left panel for desktop portal layout |
+| `src/components/quote/QuotePreviewSidebar.tsx` | Left panel for desktop form layout |
+| `src/components/quote/DesktopQuoteLayout.tsx` | Wrapper for desktop split-view form |
+
+### Files to Modify
+
+| File | Changes |
+|------|---------|
+| `src/components/customer/CustomerEstimateView.tsx` | Add contact card, add desktop split layout conditional rendering |
+| `src/components/quote/SinglePageQuoteForm.tsx` | Add desktop layout variant support |
+| `src/pages/RegularEventQuote.tsx` | Conditional desktop layout rendering |
+| `src/pages/WeddingEventQuote.tsx` | Conditional desktop layout rendering |
+
+### Key Patterns to Follow
+
+1. **Desktop Detection**: Use `useIsMobile()` hook (already exists, uses 1024px breakpoint)
+2. **Responsive Container**: Use `ResizablePanelGroup` for split panels (already used in admin)
+3. **Preserve Mobile**: All mobile layouts remain completely unchanged
+4. **Scroll Management**: Each panel uses `ScrollArea` for independent scrolling
 
 ---
 
-## Conclusion
+## Implementation Order
 
-The platform is **production-ready for MVP**. The core workflow is complete, emails are consolidated, payments work, and the UI is responsive. The main action items are configuration (domain secrets, Stripe webhook) and one minor feature (manual completion button). Recommend proceeding with launch after completing the pre-launch checklist.
+1. **Phase 1: Customer Contact Card** (Simplest, immediate value)
+   - Create `CustomerContactCard.tsx`
+   - Add to `CustomerEstimateView.tsx` for all screen sizes
+   - Shows customer their own name, email, phone
+
+2. **Phase 2: Desktop Portal Split Layout**
+   - Create sidebar component for left panel
+   - Modify `CustomerEstimateView.tsx` with conditional rendering
+   - Test desktop layout, verify mobile unchanged
+
+3. **Phase 3: Desktop Quote Form Split Layout**
+   - Create preview sidebar component
+   - Create desktop layout wrapper
+   - Modify form pages with conditional rendering
+   - Test desktop layout, verify mobile unchanged
+
+---
+
+## Mobile Layout Preservation
+
+**Critical**: No changes to mobile layouts. The implementation uses the `useIsMobile()` hook to conditionally render:
+
+```tsx
+// Pattern used throughout
+const isMobile = useIsMobile();
+
+if (isMobile) {
+  return <MobileLayout>...</MobileLayout>;
+}
+
+return <DesktopSplitLayout>...</DesktopSplitLayout>;
+```
+
+This pattern is already proven in:
+- `SplitHero.tsx` (hero section uses overlay on mobile, 60/40 split on desktop)
+- `EventEstimateFullView.tsx` (admin uses split panels on desktop)
+
+---
+
+## Benefits
+
+1. **Customer Confidence**: Seeing their own contact info helps customers verify they're viewing the correct estimate before payment
+2. **Desktop Utilization**: Full viewport width on large screens creates a more immersive, professional experience
+3. **Information Hierarchy**: Split layout on desktop allows simultaneous viewing of summary and details
+4. **Consistency**: Follows existing admin panel patterns for familiar UX
+5. **Mobile Preservation**: Zero impact on mobile experience where vertical layouts work best
