@@ -13,11 +13,16 @@
 import { useSearchParams } from 'react-router-dom';
 import { useEffect, useMemo, useState } from 'react';
 import { useEstimateAccess } from '@/hooks/useEstimateAccess';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { EstimateLineItems } from './EstimateLineItems';
 import { CustomerActions } from './CustomerActions';
 import { ChangeRequestModal } from './ChangeRequestModal';
 import { PaymentCard } from './PaymentCard';
+import { CustomerContactCard } from './CustomerContactCard';
+import { CustomerDetailsSidebar } from './CustomerDetailsSidebar';
 import { StandardTermsAndConditions } from '@/components/shared/StandardTermsAndConditions';
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -31,11 +36,12 @@ import { getEstimateStatus, getPaymentStatus, getNextUnpaidMilestone } from '@/u
 export function CustomerEstimateView() {
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token') || '';
-  const action = searchParams.get('action'); // 'approve' or 'changes'
+  const action = searchParams.get('action');
   const { loading, estimateData, error, refetch } = useEstimateAccess(token);
   const [showChangeModal, setShowChangeModal] = useState(false);
   const [autoActionTriggered, setAutoActionTriggered] = useState(false);
   const [shouldAutoApprove, setShouldAutoApprove] = useState(false);
+  const isMobile = useIsMobile();
 
   // Prevent mobile "action=approve" links from re-triggering in reload/remount scenarios
   const autoApproveLockKey = useMemo(() => {
@@ -62,18 +68,13 @@ export function CustomerEstimateView() {
         const alreadyRan = autoApproveLockKey ? sessionStorage.getItem(autoApproveLockKey) === '1' : false;
         if (!alreadyRan) {
           if (autoApproveLockKey) sessionStorage.setItem(autoApproveLockKey, '1');
-
-          // Strip the action param immediately so refresh/remount doesn't keep re-triggering
           try {
             window.history.replaceState({}, '', `/estimate?token=${encodeURIComponent(token)}`);
           } catch {
             // no-op
           }
-
           setShouldAutoApprove(true);
         }
-
-        // Mark as handled so we don't keep toggling state while data refetches
         setAutoActionTriggered(true);
       }
     }
@@ -133,270 +134,332 @@ export function CustomerEstimateView() {
   }
 
   const { invoice, quote, lineItems, milestones } = estimateData;
-
   const showPaymentFirst = ['approved', 'paid', 'partially_paid', 'payment_pending'].includes(invoice.workflow_status);
 
-  return (
-    <div className="min-h-screen bg-muted/30 py-8 px-4">
-      <div className="max-w-3xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold text-foreground">Soul Train's Eatery</h1>
-          <p className="text-muted-foreground">Your Custom Catering Estimate</p>
+  // Calculate status badges
+  const estimateStatus = getEstimateStatus(invoice.workflow_status);
+  const nextMilestone = getNextUnpaidMilestone(
+    (milestones || []).map(m => ({
+      milestone_type: (m as Milestone).milestone_type,
+      status: (m as Milestone).status,
+      due_date: (m as Milestone).due_date,
+    }))
+  );
+  const paymentStatus = getPaymentStatus(invoice.workflow_status, nextMilestone?.milestone_type);
+
+  // Shared header component
+  const HeaderSection = () => (
+    <div className="text-center space-y-2">
+      <h1 className="text-3xl font-bold text-foreground">Soul Train's Eatery</h1>
+      <p className="text-muted-foreground">Your Custom Catering Estimate</p>
+      {/* Status Badges */}
+      <div className="flex flex-wrap justify-center gap-2 pt-2">
+        <Badge variant="outline" className={`${estimateStatus.color} border`}>
+          <FileText className="h-3 w-3 mr-1" />
+          {estimateStatus.label}
+        </Badge>
+        {paymentStatus && paymentStatus.showBadge && (
+          <Badge variant="outline" className={`${paymentStatus.color} border`}>
+            <CreditCard className="h-3 w-3 mr-1" />
+            {paymentStatus.label}
+          </Badge>
+        )}
+      </div>
+    </div>
+  );
+
+  // Main content panel (right side on desktop, full on mobile)
+  const MainContent = () => (
+    <div className="space-y-6">
+      {/* Payment-first after approval */}
+      {showPaymentFirst && (
+        <div id="payment">
+          <PaymentCard
+            invoiceId={invoice.id}
+            totalAmount={invoice.total_amount}
+            milestones={(milestones || []) as Milestone[]}
+            workflowStatus={invoice.workflow_status}
+            customerEmail={quote.email}
+            accessToken={token}
+          />
         </div>
+      )}
 
-        {/* Status Badges - Estimate & Payment */}
-        {(() => {
-          const estimateStatus = getEstimateStatus(invoice.workflow_status);
-          const nextMilestone = getNextUnpaidMilestone(
-            (milestones || []).map(m => ({
-              milestone_type: (m as Milestone).milestone_type,
-              status: (m as Milestone).status,
-              due_date: (m as Milestone).due_date,
-            }))
-          );
-          const paymentStatus = getPaymentStatus(invoice.workflow_status, nextMilestone?.milestone_type);
-          
-          return (
-            <div className="flex flex-wrap justify-center gap-2">
-              {/* Estimate Status Badge */}
-              <Badge variant="outline" className={`${estimateStatus.color} border`}>
-                <FileText className="h-3 w-3 mr-1" />
-                {estimateStatus.label}
-              </Badge>
-              
-              {/* Payment Status Badge - only shown after approval */}
-              {paymentStatus && paymentStatus.showBadge && (
-                <Badge variant="outline" className={`${paymentStatus.color} border`}>
-                  <CreditCard className="h-3 w-3 mr-1" />
-                  {paymentStatus.label}
-                </Badge>
-              )}
-            </div>
-          );
-        })()}
+      {/* Line Items Card */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg">Your Menu & Pricing</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <EstimateLineItems
+            lineItems={lineItems}
+            subtotal={invoice.subtotal}
+            taxAmount={invoice.tax_amount || 0}
+            total={invoice.total_amount}
+          />
+        </CardContent>
+      </Card>
 
-        {/* Event Details Card */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Calendar className="h-5 w-5 text-primary" />
-              Event Details
+      {/* Schedule-first before approval */}
+      {!showPaymentFirst && (
+        <div id="payment">
+          <PaymentCard
+            invoiceId={invoice.id}
+            totalAmount={invoice.total_amount}
+            milestones={(milestones || []) as Milestone[]}
+            workflowStatus={invoice.workflow_status}
+            customerEmail={quote.email}
+            accessToken={token}
+          />
+        </div>
+      )}
+
+      {/* Customer Notes from Caterer */}
+      {invoice.notes && (
+        <Card className="border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center gap-2 text-amber-700 dark:text-amber-400">
+              <MessageSquare className="h-4 w-4" />
+              Notes from Soul Train's
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <h3 className="font-semibold text-foreground">{quote.event_name}</h3>
-                <p className="text-sm text-muted-foreground">
-                  {formatDate(quote.event_date)}
-                  {quote.start_time && ` at ${formatTime(quote.start_time)}`}
-                </p>
-              </div>
-              
-              <div className="flex items-start gap-2">
-                <Users className="h-4 w-4 text-muted-foreground mt-0.5" />
-                <div>
-                  <p className="font-medium">{quote.guest_count} Guests</p>
-                  <p className="text-sm text-muted-foreground">
-                    {formatServiceType(quote.service_type)}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Military Organization */}
-            {isMilitaryEvent(quote.event_type) && quote.military_organization && (
-              <div className="flex items-center gap-2 pt-2 border-t border-border">
-                <Shield className="h-4 w-4 text-blue-600" />
-                <div>
-                  <p className="text-xs text-muted-foreground">Military Organization</p>
-                  <p className="text-sm font-medium text-blue-700">{quote.military_organization}</p>
-                </div>
-              </div>
-            )}
-
-            {quote.location && (
-              <div className="flex items-start gap-2 pt-2 border-t border-border">
-                <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
-                <p className="text-sm text-foreground">{quote.location}</p>
-              </div>
-            )}
-
-
-            {/* Service Add-ons */}
-            {(quote.wait_staff_requested || quote.bussing_tables_needed || quote.ceremony_included || quote.cocktail_hour) && (
-              <div className="pt-3 border-t border-border">
-                <span className="text-sm text-muted-foreground block mb-2">🍽️ Services Included:</span>
-                <div className="flex flex-wrap gap-2">
-                  {quote.wait_staff_requested && (
-                    <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                      👨‍🍳 Wait Staff
-                    </Badge>
-                  )}
-                  {quote.bussing_tables_needed && (
-                    <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
-                      🧹 Table Bussing
-                    </Badge>
-                  )}
-                  {quote.ceremony_included && (
-                    <Badge variant="outline" className="bg-pink-50 text-pink-700 border-pink-200">
-                      💒 Ceremony Catering
-                    </Badge>
-                  )}
-                  {quote.cocktail_hour && (
-                    <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
-                      🍸 Cocktail Hour
-                    </Badge>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {quote.special_requests && (
-              <div className="pt-2 border-t border-border">
-                <span className="text-sm text-muted-foreground">📝 Special Requests:</span>
-                <p className="text-sm font-medium mt-1">{quote.special_requests}</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Payment-first after approval */}
-        {showPaymentFirst && (
-          <div id="payment">
-            <PaymentCard
-              invoiceId={invoice.id}
-              totalAmount={invoice.total_amount}
-              milestones={(milestones || []) as Milestone[]}
-              workflowStatus={invoice.workflow_status}
-              customerEmail={quote.email}
-              accessToken={token}
-            />
-          </div>
-        )}
-
-        {/* Line Items Card */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg">Your Menu & Pricing</CardTitle>
-          </CardHeader>
           <CardContent>
-            <EstimateLineItems
-              lineItems={lineItems}
-              subtotal={invoice.subtotal}
-              taxAmount={invoice.tax_amount || 0}
-              total={invoice.total_amount}
-            />
+            <p className="text-sm text-amber-800 dark:text-amber-300">{invoice.notes}</p>
           </CardContent>
         </Card>
+      )}
 
-        {/* Schedule-first before approval */}
-        {!showPaymentFirst && (
-          <div id="payment">
-            <PaymentCard
-              invoiceId={invoice.id}
-              totalAmount={invoice.total_amount}
-              milestones={(milestones || []) as Milestone[]}
-              workflowStatus={invoice.workflow_status}
-              customerEmail={quote.email}
-              accessToken={token}
-            />
-          </div>
-        )}
+      {/* Actions Card */}
+      <Card>
+        <CardContent className="pt-6 space-y-4">
+          {['sent', 'viewed'].includes(invoice.workflow_status) && (
+            <div className="flex items-start gap-2 p-3 bg-muted/50 rounded-lg border border-border/50">
+              <Info className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+              <p className="text-sm text-muted-foreground">
+                By approving this estimate, you agree to our <strong>Terms & Conditions</strong>.
+              </p>
+            </div>
+          )}
+          
+          <CustomerActions
+            invoiceId={invoice.id}
+            customerEmail={quote.email}
+            status={invoice.workflow_status}
+            quoteRequestId={invoice.quote_request_id}
+            amountPaid={amountPaid}
+            onStatusChange={refetch}
+            autoApprove={shouldAutoApprove}
+          />
+        </CardContent>
+      </Card>
+    </div>
+  );
 
-        {/* Change Request Modal (triggered by action=changes) */}
-        <ChangeRequestModal
-          open={showChangeModal}
-          onOpenChange={setShowChangeModal}
-          invoiceId={invoice.id}
-          customerEmail={quote.email}
-          onSuccess={() => {
-            refetch();
-            setShowChangeModal(false);
-          }}
-        />
+  // Change Request Modal
+  const ChangeModal = () => (
+    <ChangeRequestModal
+      open={showChangeModal}
+      onOpenChange={setShowChangeModal}
+      invoiceId={invoice.id}
+      customerEmail={quote.email}
+      onSuccess={() => {
+        refetch();
+        setShowChangeModal(false);
+      }}
+    />
+  );
 
-        {/* Customer Notes from Caterer */}
-        {invoice.notes && (
-          <Card className="border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base flex items-center gap-2 text-amber-700 dark:text-amber-400">
-                <MessageSquare className="h-4 w-4" />
-                Notes from Soul Train's
+  // Footer Section
+  const FooterSection = () => (
+    <div className="text-center space-y-2 pt-4">
+      <Separator />
+      <p className="text-sm text-muted-foreground pt-4">
+        Questions? Contact us at{' '}
+        <a href="tel:+18439700265" className="text-primary hover:underline">
+          (843) 970-0265
+        </a>
+        {' '}or{' '}
+        <a href="mailto:soultrainseatery@gmail.com" className="text-primary hover:underline">
+          soultrainseatery@gmail.com
+        </a>
+      </p>
+      <p className="text-xs text-muted-foreground">
+        Build: {new Date(__APP_BUILD_TIME__).toLocaleString()}
+      </p>
+    </div>
+  );
+
+  // MOBILE LAYOUT (unchanged)
+  if (isMobile) {
+    return (
+      <div className="min-h-screen bg-muted/30 py-8 px-4">
+        <div className="max-w-3xl mx-auto space-y-6">
+          <HeaderSection />
+
+          {/* Customer Contact Card */}
+          <CustomerContactCard
+            contactName={quote.contact_name}
+            email={quote.email}
+            phone={quote.phone}
+            guestCountWithRestrictions={quote.guest_count_with_restrictions}
+          />
+
+          {/* Event Details Card */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Calendar className="h-5 w-5 text-primary" />
+                Event Details
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <p className="text-sm text-amber-800 dark:text-amber-300">{invoice.notes}</p>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <h3 className="font-semibold text-foreground">{quote.event_name}</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {formatDate(quote.event_date)}
+                    {quote.start_time && ` at ${formatTime(quote.start_time)}`}
+                  </p>
+                </div>
+                
+                <div className="flex items-start gap-2">
+                  <Users className="h-4 w-4 text-muted-foreground mt-0.5" />
+                  <div>
+                    <p className="font-medium">{quote.guest_count} Guests</p>
+                    <p className="text-sm text-muted-foreground">
+                      {formatServiceType(quote.service_type)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {isMilitaryEvent(quote.event_type) && quote.military_organization && (
+                <div className="flex items-center gap-2 pt-2 border-t border-border">
+                  <Shield className="h-4 w-4 text-blue-600" />
+                  <div>
+                    <p className="text-xs text-muted-foreground">Military Organization</p>
+                    <p className="text-sm font-medium text-blue-700">{quote.military_organization}</p>
+                  </div>
+                </div>
+              )}
+
+              {quote.location && (
+                <div className="flex items-start gap-2 pt-2 border-t border-border">
+                  <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
+                  <p className="text-sm text-foreground">{quote.location}</p>
+                </div>
+              )}
+
+              {(quote.wait_staff_requested || quote.bussing_tables_needed || quote.ceremony_included || quote.cocktail_hour) && (
+                <div className="pt-3 border-t border-border">
+                  <span className="text-sm text-muted-foreground block mb-2">🍽️ Services Included:</span>
+                  <div className="flex flex-wrap gap-2">
+                    {quote.wait_staff_requested && (
+                      <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                        👨‍🍳 Wait Staff
+                      </Badge>
+                    )}
+                    {quote.bussing_tables_needed && (
+                      <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
+                        🧹 Table Bussing
+                      </Badge>
+                    )}
+                    {quote.ceremony_included && (
+                      <Badge variant="outline" className="bg-pink-50 text-pink-700 border-pink-200">
+                        💒 Ceremony Catering
+                      </Badge>
+                    )}
+                    {quote.cocktail_hour && (
+                      <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
+                        🍸 Cocktail Hour
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {quote.special_requests && (
+                <div className="pt-2 border-t border-border">
+                  <span className="text-sm text-muted-foreground">📝 Special Requests:</span>
+                  <p className="text-sm font-medium mt-1">{quote.special_requests}</p>
+                </div>
+              )}
             </CardContent>
           </Card>
-        )}
 
-        {/* Terms & Conditions */}
-        <Collapsible>
-          <Card>
-            <CollapsibleTrigger className="w-full">
-              <CardHeader className="flex flex-row items-center justify-between py-4">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <PenLine className="h-4 w-4 text-primary" />
-                  Terms & Conditions
-                </CardTitle>
-                <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200" />
-              </CardHeader>
-            </CollapsibleTrigger>
-            <CollapsibleContent>
-              <CardContent className="pt-0">
-                <StandardTermsAndConditions 
-                  eventType={quote.compliance_level === 'government' ? 'government' : 'standard'} 
-                  variant="compact" 
-                />
-              </CardContent>
-            </CollapsibleContent>
-          </Card>
-        </Collapsible>
+          <MainContent />
 
-        {/* Actions - After Terms */}
-        <Card>
-          <CardContent className="pt-6 space-y-4">
-            {/* Acceptance Note - approval implies agreement */}
-            {['sent', 'viewed'].includes(invoice.workflow_status) && (
-              <div className="flex items-start gap-2 p-3 bg-muted/50 rounded-lg border border-border/50">
-                <Info className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-                <p className="text-sm text-muted-foreground">
-                  By approving this estimate, you agree to our <strong>Terms & Conditions</strong> outlined above.
-                </p>
-              </div>
-            )}
-            
-            <CustomerActions
-              invoiceId={invoice.id}
-              customerEmail={quote.email}
-              status={invoice.workflow_status}
-              quoteRequestId={invoice.quote_request_id}
-              amountPaid={amountPaid}
-              onStatusChange={refetch}
-              autoApprove={shouldAutoApprove}
-            />
-          </CardContent>
-        </Card>
+          <ChangeModal />
 
-        {/* Contact Footer */}
-        <div className="text-center space-y-2 pt-4">
-          <Separator />
-          <p className="text-sm text-muted-foreground pt-4">
-            Questions? Contact us at{' '}
-            <a href="tel:+18439700265" className="text-primary hover:underline">
-              (843) 970-0265
-            </a>
-            {' '}or{' '}
-            <a href="mailto:soultrainseatery@gmail.com" className="text-primary hover:underline">
-              soultrainseatery@gmail.com
-            </a>
-          </p>
-           <p className="text-xs text-muted-foreground">
-             Build: {new Date(__APP_BUILD_TIME__).toLocaleString()}
-           </p>
+          {/* Terms & Conditions */}
+          <Collapsible>
+            <Card>
+              <CollapsibleTrigger className="w-full">
+                <CardHeader className="flex flex-row items-center justify-between py-4">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <PenLine className="h-4 w-4 text-primary" />
+                    Terms & Conditions
+                  </CardTitle>
+                  <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200" />
+                </CardHeader>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <CardContent className="pt-0">
+                  <StandardTermsAndConditions 
+                    eventType={quote.compliance_level === 'government' ? 'government' : 'standard'} 
+                    variant="compact" 
+                  />
+                </CardContent>
+              </CollapsibleContent>
+            </Card>
+          </Collapsible>
+
+          <FooterSection />
         </div>
+      </div>
+    );
+  }
+
+  // DESKTOP SPLIT-VIEW LAYOUT
+  return (
+    <div className="min-h-screen bg-muted/30 flex flex-col">
+      {/* Header - Full Width */}
+      <div className="py-6 px-4 border-b bg-background">
+        <HeaderSection />
+      </div>
+
+      {/* Split Panel Content */}
+      <ResizablePanelGroup
+        direction="horizontal"
+        className="flex-1 h-[calc(100vh-10rem)]"
+      >
+        {/* Left Panel - Customer Details Sidebar */}
+        <ResizablePanel 
+          defaultSize={35} 
+          minSize={28} 
+          maxSize={45}
+          className="bg-background"
+        >
+          <CustomerDetailsSidebar quote={quote} />
+        </ResizablePanel>
+
+        <ResizableHandle withHandle />
+
+        {/* Right Panel - Main Content */}
+        <ResizablePanel defaultSize={65} minSize={55}>
+          <ScrollArea className="h-full">
+            <div className="p-6 lg:p-8">
+              <MainContent />
+            </div>
+          </ScrollArea>
+        </ResizablePanel>
+      </ResizablePanelGroup>
+
+      <ChangeModal />
+
+      {/* Footer - Full Width */}
+      <div className="py-4 px-4 border-t bg-background">
+        <FooterSection />
       </div>
     </div>
   );
