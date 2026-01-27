@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Phone, Mail, MapPin, Clock, Facebook, Instagram, Star } from "lucide-react";
+import { Phone, Mail, MapPin, Clock, Facebook, Star } from "lucide-react";
 export const Footer = () => {
   const currentYear = new Date().getFullYear();
   const navigationLinks = [{
@@ -116,9 +116,6 @@ export const Footer = () => {
               <div className="flex space-x-3">
                 <a href="https://www.facebook.com/soultrainseatery" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-muted hover:bg-primary text-muted-foreground hover:text-primary-foreground flex items-center justify-center transition-all duration-200 hover:scale-110" aria-label="Facebook">
                   <Facebook className="h-4 w-4" />
-                </a>
-                <a href="#" className="w-10 h-10 rounded-full bg-muted hover:bg-primary text-muted-foreground hover:text-primary-foreground flex items-center justify-center transition-all duration-200 hover:scale-110" aria-label="Instagram">
-                  <Instagram className="h-4 w-4" />
                 </a>
               </div>
             </div>

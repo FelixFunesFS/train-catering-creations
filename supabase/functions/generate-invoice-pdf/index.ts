@@ -233,7 +233,8 @@ serve(async (req) => {
     let logoImage: any = null;
     let logoDims = { width: 0, height: 0 };
     try {
-      const logoUrl = 'https://qptprrqjlcvfkhfdnnoa.lovableproject.com/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png';
+      const siteUrl = Deno.env.get('SITE_URL') || 'https://www.soultrainseatery.com';
+      const logoUrl = `${siteUrl}/images/logo-red.png`;
       const logoResponse = await fetch(logoUrl);
       if (logoResponse.ok) {
         const logoBytes = new Uint8Array(await logoResponse.arrayBuffer());
