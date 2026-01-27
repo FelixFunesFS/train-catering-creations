@@ -1,38 +1,23 @@
 
 
-# Category Cards Tablet Layout Update
+# Fix Category Cards Tablet Layout
 
 ## Problem
 
-Currently, the category cards in the gallery use this grid layout for non-mobile devices:
-```tsx
-grid-cols-1 sm:grid-cols-2 lg:grid-cols-3
-```
+The `CategoryCards` component uses the `useIsMobile()` hook which has a **1024px breakpoint**. This means:
+- Screens below 1024px → Mobile stacked layout (what you're seeing)
+- Screens 1024px and above → Desktop 3-column grid
 
-This means:
-- **Mobile (<640px)**: 1 column (but uses separate mobile layout)
-- **Small tablets (640px-1023px)**: 2 columns
-- **Desktop (1024px+)**: 3 columns
-
-Since there are exactly 3 category cards, showing 2 columns on tablets creates an unbalanced layout with 2 cards on one row and 1 orphan card below.
+Tablets (640px-1023px) are being treated as "mobile" and showing the vertically stacked cards instead of the 3-column row layout.
 
 ---
 
 ## Solution
 
-Change the grid breakpoint so tablets show all 3 cards in a single row:
+Replace the JavaScript-based `isMobile` conditional with **CSS-only responsive classes**. This allows the layout to respond at the correct Tailwind breakpoints:
 
-```tsx
-// Before
-grid-cols-1 sm:grid-cols-2 lg:grid-cols-3
-
-// After  
-grid-cols-1 sm:grid-cols-3
-```
-
-This simplifies the layout:
-- **Mobile (<640px)**: Uses the dedicated mobile stacked layout
-- **Tablet & Desktop (640px+)**: 3 columns
+- **Mobile (<640px)**: Stacked vertical cards
+- **Tablet/Desktop (640px+)**: 3-column grid
 
 ---
 
@@ -40,19 +25,29 @@ This simplifies the layout:
 
 ### File: `src/components/gallery/CategoryCards.tsx`
 
-**Line 113 - Update grid classes:**
+**Approach**: Remove the `isMobile` conditional and use CSS `hidden`/`block` classes with responsive breakpoints.
 
-| Before | After |
-|--------|-------|
-| `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3` | `grid-cols-1 sm:grid-cols-3` |
+**Changes:**
 
-**Code change:**
+1. Remove the `useIsMobile` import and usage
+2. Render BOTH layouts, using CSS to show/hide:
+   - Mobile layout: `block sm:hidden`
+   - Desktop/Tablet layout: `hidden sm:grid`
+
 ```tsx
-// Before (line 113)
-<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-
-// After
-<div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+return (
+  <div ref={categoriesRef} className={...}>
+    {/* Mobile: Vertical stacked cards (shown <640px) */}
+    <div className="block sm:hidden flex flex-col gap-4">
+      {/* Mobile card markup... */}
+    </div>
+    
+    {/* Tablet & Desktop: 3-column grid (shown 640px+) */}
+    <div className="hidden sm:grid grid-cols-3 gap-6">
+      {/* Desktop card markup... */}
+    </div>
+  </div>
+);
 ```
 
 ---
@@ -61,19 +56,22 @@ This simplifies the layout:
 
 ### Before (Tablet ~768px)
 ```text
-┌─────────────┐  ┌─────────────┐
-│  Weddings   │  │   Buffet    │
-└─────────────┘  └─────────────┘
-┌─────────────┐
-│  Desserts   │  (orphan card)
-└─────────────┘
+┌─────────────────────────────────┐
+│  Weddings & Black Tie           │
+└─────────────────────────────────┘
+┌─────────────────────────────────┐
+│  Buffet Service                 │
+└─────────────────────────────────┘
+┌─────────────────────────────────┐
+│  Artisan Desserts               │
+└─────────────────────────────────┘
 ```
 
 ### After (Tablet ~768px)
 ```text
-┌─────────────┐ ┌─────────────┐ ┌─────────────┐
-│  Weddings   │ │   Buffet    │ │  Desserts   │
-└─────────────┘ └─────────────┘ └─────────────┘
+┌──────────┐ ┌──────────┐ ┌──────────┐
+│ Weddings │ │  Buffet  │ │ Desserts │
+└──────────┘ └──────────┘ └──────────┘
 ```
 
 ---
@@ -82,14 +80,15 @@ This simplifies the layout:
 
 | File | Change |
 |------|--------|
-| `src/components/gallery/CategoryCards.tsx` | Update grid classes on line 113 |
+| `src/components/gallery/CategoryCards.tsx` | Replace JS conditional with CSS responsive classes |
 
 ---
 
 ## Technical Notes
 
-- The `sm:` breakpoint is 640px in Tailwind, which covers most tablets
-- This change is minimal and maintains existing mobile/desktop distinction
-- Card heights and styling remain unchanged
-- The gap between cards (`gap-6`) stays the same for consistent spacing
+- Uses Tailwind's `sm:` breakpoint (640px) which is standard for tablet detection
+- Both layouts are rendered in the DOM but only one is visible via CSS `hidden`/`block`
+- This is a common pattern when JavaScript breakpoints don't match CSS breakpoints
+- No changes to the card styling or functionality - only visibility control
+- The `useIsMobile` hook can be removed from this component entirely
 
