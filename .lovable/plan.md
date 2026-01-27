@@ -1,242 +1,291 @@
 
-
-# Email Accessibility & Contrast Audit - Fix Plan
+# Email Consistency & Data Completeness Audit - Fix Plan
 
 ## Executive Summary
 
-After auditing the email template system in `supabase/functions/_shared/emailTemplates.ts`, I've identified several potential contrast issues and will also address the customer contact block redundancy.
+After comprehensive review, I've identified **three categories of issues**:
+
+1. **Payment Timeline Inconsistency**: "Thank You for Payment" email says "7 days before event" but the actual schedule is "14 days (2 weeks) before event"
+2. **Admin Event Reminder Missing Supplies Section**: The admin variant of `event_reminder` doesn't include supplies/equipment information
+3. **Milestone-Aware Messaging**: Payment confirmation doesn't dynamically reflect remaining milestones (e.g., "50% remaining" vs "40% remaining")
 
 ---
 
-## Issue 1: Potential White-on-White Button Issues
+## Issue 1: Payment Timeline Mismatch
 
-### Current State Analysis
-
-The CTA button system uses two key functions:
-
-**`generateCTAButton()` (lines 1238-1266)**
+### Current State (Lines 1870-1871 in emailTemplates.ts)
 ```typescript
-const textColor = variant === 'primary' ? BRAND_COLORS.white : BRAND_COLORS.darkGray;
-<a href="${href}" style="...;color:${textColor};...">
+<p style="margin:5px 0 0 0;color:#666;">Remaining balance due 7 days before your event</p>
 ```
 
-**`generateEstimateActionButtons()` (lines 1272-1358)**
-- Primary "Approve Estimate" button: Uses `color:${BRAND_COLORS.white}` on crimson background - **GOOD**
-- Secondary "Request Changes" button: Uses `color:${BRAND_COLORS.darkGray}` on gold background - **GOOD**
-- Tertiary "View Full Details" button: Uses `color:${BRAND_COLORS.darkGray}` on #f5f5f5 background - **GOOD**
+### Correct State (from paymentScheduling.ts)
+The actual payment schedule has **three scenarios** for final payment:
+- **SHORT_NOTICE (15-30 days out)**: Final 40% due **7 days before event**
+- **MID_RANGE (31-44 days out)**: Final 40% due **14 days (2 weeks) before event**
+- **STANDARD (45+ days out)**: Final 40% due **14 days (2 weeks) before event**
 
-### Potential White-on-White Risk Areas
+### Fix Required
+The "Thank You for Payment" email should dynamically determine the correct due date based on the milestone data, not hardcode "7 days."
 
-1. **VML Center Tag for Outlook (line 1305)**:
-   ```html
-   <center style="color:#ffffff;font-weight:bold;">✅ Approve Estimate</center>
-   ```
-   The `<center>` tag styling may not be applied correctly in some Outlook versions where the VML background fails to render, potentially showing white text on white background.
-
-2. **Payment Box Content (lines 1745-1752)**:
-   ```html
-   <div style="...;color:white;">
-     <p style="margin:0 0 10px 0;">To confirm your booking...</p>
-   ```
-   The paragraph inherits `color:white` from parent, but if gradient background fails, text becomes invisible.
-
-3. **Status Badge Content (lines 1104-1105)**:
-   ```html
-   <h3 style="...;color:white;...">
-   <p style="...;color:rgba(255,255,255,0.95);...">
-   ```
-   Same issue - relies on colored background.
-
----
-
-## Fix 1: Harden Button Text Contrast
-
-### Changes to `generateCTAButton()` (lines 1238-1266)
-
-Add `!important` and inline span wrapper for bulletproof text visibility:
+### Technical Change
 
 ```typescript
-export function generateCTAButton(text: string, href: string, variant: 'primary' | 'secondary' = 'primary'): string {
-  const bgColor = variant === 'primary' 
-    ? `linear-gradient(135deg,${BRAND_COLORS.crimson},${BRAND_COLORS.crimsonDark})`
-    : BRAND_COLORS.gold;
-  const textColor = variant === 'primary' ? BRAND_COLORS.white : BRAND_COLORS.darkGray;
-  const bgFallback = variant === 'primary' ? BRAND_COLORS.crimson : BRAND_COLORS.gold;
+// In payment_received case (line 1863-1874)
+// Replace static "7 days" text with dynamic milestone-based messaging
 
-  return `
-<table cellpadding="0" cellspacing="0" border="0" style="margin:20px auto;border-collapse:collapse;">
-<tr>
-<td align="center" bgcolor="${bgFallback}" style="background-color:${bgFallback};background:${bgColor};border-radius:8px;">
-<!--[if mso]>
-<v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="${href}" style="height:50px;v-text-anchor:middle;width:200px;" arcsize="16%" stroke="f" fillcolor="${bgFallback}">
-<w:anchorlock/>
-<center style="color:${textColor} !important;font-weight:bold;font-size:16px;">
-<![endif]-->
-<a href="${href}" style="display:inline-block;padding:16px 32px;color:${textColor} !important;font-weight:bold;font-size:16px;text-decoration:none;border-radius:8px;text-align:center;min-width:150px;mso-line-height-rule:exactly;"><span style="color:${textColor};">${text}</span></a>
-<!--[if mso]>
-</center>
-</v:roundrect>
-<![endif]-->
-</td>
-</tr>
-</table>
-<p style="margin:8px 0 0 0;text-align:center;font-size:12px;color:#666;line-height:1.4;">
-  If the button doesn't work, copy and paste this link:<br>
-  <a href="${href}" style="color:${BRAND_COLORS.crimson};text-decoration:underline;">${href}</a>
-</p>
-`;
-}
-```
+// Calculate next milestone due date from actual milestones array
+const nextMilestone = milestones?.find(m => m.status !== 'paid');
+const nextDueText = nextMilestone 
+  ? (nextMilestone.is_net30 
+      ? 'Net 30 after event' 
+      : nextMilestone.due_date 
+        ? formatDate(nextMilestone.due_date)
+        : 'Upon completion')
+  : 'Fully paid';
 
-**Key Changes:**
-- Added `!important` to color declarations for higher specificity
-- Wrapped button text in `<span>` with explicit color for email clients that strip link colors
-- Added `mso-line-height-rule:exactly` for Outlook rendering
+const remainingAmount = milestones
+  ?.filter(m => m.status !== 'paid')
+  .reduce((sum, m) => sum + m.amount_cents, 0) || 0;
 
----
-
-## Fix 2: Harden Approve Button in Estimate Actions
-
-### Changes to `generateEstimateActionButtons()` (lines 1294-1313)
-
-Apply the same pattern to the multi-button CTA:
-
-```typescript
-<!-- Primary: Approve Button -->
-<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto 15px auto;border-collapse:collapse;">
-  <tr>
-    <td align="center" bgcolor="${BRAND_COLORS.crimson}" style="background-color:${BRAND_COLORS.crimson};background:linear-gradient(135deg,${BRAND_COLORS.crimson},${BRAND_COLORS.crimsonDark});border-radius:8px;">
-      <!--[if mso]>
-      <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="${approveUrl}" style="height:50px;v-text-anchor:middle;width:250px;" arcsize="16%" stroke="f" fillcolor="${BRAND_COLORS.crimson}">
-      <w:anchorlock/>
-      <center style="color:#ffffff !important;font-weight:bold;font-size:16px;"><span style="color:#ffffff;">✅ Approve Estimate</span></center>
-      </v:roundrect>
-      <![endif]-->
-      <!--[if !mso]><!-->
-       <a href="${approveUrl}" target="_blank" rel="noopener" style="display:inline-block;padding:16px 40px;color:#ffffff !important;font-weight:bold;font-size:16px;text-decoration:none;border-radius:8px;text-align:center;mso-line-height-rule:exactly;"><span style="color:#ffffff;">✅ Approve Estimate</span></a>
-      <!--<![endif]-->
-    </td>
-  </tr>
-</table>
-```
-
----
-
-## Fix 3: Harden Payment Box Text
-
-### Changes to payment box HTML (lines 1744-1752)
-
-Add explicit color to child elements instead of relying on inheritance:
-
-```typescript
-const paymentBoxHtml = `
-  <div style="background-color:${BRAND_COLORS.crimson};background:linear-gradient(135deg,${BRAND_COLORS.crimson},${BRAND_COLORS.crimsonDark});padding:20px;border-radius:8px;margin:20px 0;">
-    <h3 style="margin:0 0 10px 0;color:${BRAND_COLORS.gold};">💳 Next Step: Secure Your Date</h3>
-    <p style="margin:0 0 10px 0;color:#ffffff;">To confirm your booking, complete your first payment:</p>
-    <div style="background:rgba(255,255,255,0.1);padding:15px;border-radius:8px;margin-top:10px;">
-      <div style="font-size:24px;font-weight:bold;color:${BRAND_COLORS.gold};">${firstPaymentDisplay}</div>
-      <div style="font-size:14px;color:rgba(255,255,255,0.9);">${firstMilestone?.is_due_now ? 'Due Now' : 'Due upon approval'}</div>
+const nextStepsHtml = `
+  ${!fullPay && remainingAmount > 0 ? `
+    <div style="border-bottom:1px solid #dee2e6;padding:12px 0;display:flex;align-items:flex-start;">
+      <span style="font-size:24px;margin-right:12px;">💳</span>
+      <div>
+        <strong style="color:${BRAND_COLORS.crimson};">${nextMilestone?.description || 'Next Payment'}</strong>
+        <p style="margin:5px 0 0 0;color:#666;">
+          ${formatCurrency(remainingAmount)} remaining • Due ${nextDueText}
+        </p>
+      </div>
     </div>
+  ` : ''}
+  ...
+`;
+```
+
+---
+
+## Issue 2: Admin Event Reminder Missing Supplies Section
+
+### Current State (Lines 1951-1959)
+```typescript
+// Admin event_reminder variant
+contentBlocks = [
+  { type: 'text', data: { html: `...` }},
+  { type: 'customer_contact' },
+  { type: 'event_details' },
+  { type: 'menu_summary' },
+  { type: 'service_addons' },
+  // MISSING: supplies_summary
+];
+```
+
+### Fix Required
+Add `{ type: 'supplies_summary' }` to the admin event_reminder content blocks so admins see the full equipment/supplies list for prep.
+
+### Technical Change
+```typescript
+// In event_reminder admin variant (line 1951-1959)
+contentBlocks = [
+  { type: 'text', data: { html: `<p style="margin:0 0 16px 0;font-size:15px;color:#333;"><strong>${quote.event_name}</strong> is coming up soon! Here are the event details:</p>` }},
+  { type: 'customer_contact' },
+  { type: 'event_details' },
+  { type: 'menu_summary' },
+  { type: 'service_addons' },
+  { type: 'supplies_summary' }, // ADD THIS
+];
+```
+
+---
+
+## Issue 3: Milestone-Aware Payment Confirmation
+
+### Current State (Lines 1855-1860)
+```typescript
+const paymentStatusHtml = fullPay ? `...` : `
+  <div style="...">
+    <h3>💰 Deposit Received</h3>
+    <p>We've received your deposit of ${formatCurrency(amount)}</p>
+    <p>Remaining balance: ${formatCurrency((invoice?.total_amount || 0) - amount)}</p>
   </div>
 `;
 ```
 
-**Key Changes:**
-- Added `background-color` fallback before gradient
-- Added explicit `color:#ffffff` to paragraph element instead of relying on parent inheritance
+### Problem
+- Always says "Deposit" even if it's a milestone payment (50%) or final payment (40%)
+- Remaining balance doesn't account for previously paid milestones
 
----
+### Fix Required
+Use the milestones array to:
+1. Determine what TYPE of payment was just made (Deposit, Milestone, Final)
+2. Calculate ACTUAL remaining balance from unpaid milestones
+3. Show which milestone(s) remain
 
-## Fix 4: Review Link Buttons Contrast
+### Technical Change
+```typescript
+// Determine payment type from just-paid milestone
+const getPaidMilestoneType = (milestones: any[], paymentAmount: number): string => {
+  // Find the milestone that most closely matches the payment amount
+  const closestMatch = milestones?.find(m => 
+    m.status === 'paid' && 
+    Math.abs(m.amount_cents - paymentAmount) < 100 // Within $1 tolerance
+  );
+  
+  if (!closestMatch) return 'Payment';
+  
+  const labels: Record<string, string> = {
+    'DEPOSIT': 'Booking Deposit',
+    'deposit': 'Booking Deposit',
+    'booking_deposit': 'Booking Deposit',
+    'COMBINED': 'Combined Deposit',
+    'combined': 'Combined Deposit',
+    'MILESTONE': 'Milestone Payment',
+    'milestone': 'Milestone Payment',
+    'mid_payment': 'Milestone Payment',
+    'BALANCE': 'Final Payment',
+    'balance': 'Final Payment',
+    'final_payment': 'Final Payment',
+    'FULL': 'Full Payment',
+    'full_payment': 'Full Payment',
+  };
+  
+  return labels[closestMatch.milestone_type] || 'Payment';
+};
 
-### Current State (lines 2012-2015)
+// Calculate remaining from unpaid milestones (not from total - payment)
+const remainingMilestones = milestones?.filter(m => m.status !== 'paid') || [];
+const remainingBalance = remainingMilestones.reduce((sum, m) => sum + m.amount_cents, 0);
+const paidMilestoneLabel = getPaidMilestoneType(milestones, amount);
 
-```html
-<a href="...google..." style="...background:${BRAND_COLORS.gold};color:${BRAND_COLORS.darkGray};...">⭐ Google Review</a>
-<a href="...facebook..." style="...background:#1877f2;color:white;...">📘 Facebook Review</a>
+const paymentStatusHtml = fullPay ? `
+  <div style="background:linear-gradient(135deg,${BRAND_COLORS.gold}30,${BRAND_COLORS.gold}50);padding:25px;border-radius:12px;margin:20px 0;text-align:center;border:2px solid ${BRAND_COLORS.gold};">
+    <h3 style="color:${BRAND_COLORS.crimson};margin:0 0 10px 0;font-size:24px;">✅ Your Event is Fully Confirmed!</h3>
+    <p style="margin:0;font-size:18px;font-weight:bold;">We've received your full payment of ${formatCurrency(amount)}</p>
+  </div>
+` : `
+  <div style="background:${BRAND_COLORS.lightGray};padding:20px;border-radius:8px;margin:20px 0;border-left:4px solid ${BRAND_COLORS.gold};">
+    <h3 style="color:${BRAND_COLORS.crimson};margin:0 0 10px 0;">💰 ${paidMilestoneLabel} Received</h3>
+    <p style="margin:0;font-size:16px;">We've received your payment of ${formatCurrency(amount)}</p>
+    ${remainingBalance > 0 ? `
+      <p style="margin:10px 0 0 0;color:#666;">
+        Remaining balance: <strong>${formatCurrency(remainingBalance)}</strong>
+        ${remainingMilestones.length === 1 ? ` (Final payment)` : ` (${remainingMilestones.length} payments remaining)`}
+      </p>
+    ` : ''}
+  </div>
+`;
 ```
 
-**Analysis:**
-- Google Review: Gold (#FFD700) background with dark gray (#333333) text = **Good contrast (7.5:1)**
-- Facebook Review: Blue (#1877f2) background with white text = **Good contrast (4.6:1)**
+---
 
-These buttons are correctly styled.
+## Issue 4: send-event-reminders Also Missing Supplies
+
+### Current State (send-event-reminders/index.ts)
+The 7-day and 48-hour reminder emails use `{ type: 'menu_summary' }` but don't include supplies or service addons for the customer view either.
+
+### Fix Required
+Add `{ type: 'service_addons' }` and optionally `{ type: 'supplies_summary' }` to customer reminders so they know what to expect on event day.
 
 ---
 
-## Issue 2: Customer Contact Block Redundancy
-
-### Current Behavior
-
-The `customer_contact` content block is included in:
-
-| Email Type | Variant | Includes customer_contact |
-|------------|---------|---------------------------|
-| quote_received | admin | YES |
-| quote_confirmation | customer | NO |
-| estimate_ready | customer | NO |
-| approval_confirmation | customer | NO (uses event_section) |
-| approval_confirmation | admin | YES |
-| payment_received | admin | YES |
-| event_reminder | customer | NO |
-| event_reminder | admin | YES |
-| change_request_submitted | admin | YES |
-| admin_notification | admin | YES |
-| event_followup | customer | NO |
-
-**Finding:** Customer emails already DO NOT include the customer_contact block. Only admin emails show customer contact info (which makes sense - admins need to contact the customer).
-
-The footer already provides Soul Train's contact info:
-- Phone: (843) 970-0265
-- Email: soultrainseatery@gmail.com
-
-**No changes needed** - the current architecture is correct. Customer emails show business contact info in footer, while admin emails show the customer's contact info for outreach.
-
----
-
-## Summary of Changes
+## Complete Change Summary
 
 | File | Location | Change |
 |------|----------|--------|
-| `_shared/emailTemplates.ts` | Lines 1238-1266 | Harden `generateCTAButton()` with `!important`, span wrapper, and mso-line-height-rule |
-| `_shared/emailTemplates.ts` | Lines 1294-1313 | Harden Approve button in `generateEstimateActionButtons()` with same pattern |
-| `_shared/emailTemplates.ts` | Lines 1744-1752 | Add explicit `color:#ffffff` to payment box paragraph elements |
-| `_shared/emailTemplates.ts` | Lines 1094-1112 | Add `bgcolor` fallback to `generateStatusBadge()` for Outlook |
+| `_shared/emailTemplates.ts` | Lines 1855-1874 | Make payment confirmation milestone-aware with dynamic labels and remaining balance |
+| `_shared/emailTemplates.ts` | Lines 1863-1874 | Replace hardcoded "7 days" with dynamic due date from milestones |
+| `_shared/emailTemplates.ts` | Lines 1951-1959 | Add `supplies_summary` block to admin event_reminder |
+| `send-event-reminders/index.ts` | Lines 101-112 | Add `service_addons` to 7-day customer reminder |
+| `send-event-reminders/index.ts` | Lines 150-160 | Add `service_addons` to 48-hour customer reminder |
 
 ---
 
-## Accessibility Checklist Applied
+## Data Flow Analysis
 
-| Element | Current | After Fix |
-|---------|---------|-----------|
-| Primary CTA button (crimson bg) | color:white | color:#ffffff !important + span |
-| Secondary CTA button (gold bg) | color:#333333 | color:#333333 (unchanged - good contrast) |
-| Payment box text on gradient | color:white (inherited) | color:#ffffff (explicit) |
-| Status badge text | color:white | color:#ffffff + bgcolor fallback |
-| Google Review button | gold bg + dark text | Unchanged (good contrast) |
-| Facebook Review button | blue bg + white text | Unchanged (good contrast) |
-| Footer phone/email links | color:crimson on light gray | Unchanged (good contrast) |
+To ensure customer details are not missing, here's the complete data that SHOULD be included in each email type:
+
+### Customer Payment Confirmation (`payment_received`)
+Current blocks:
+- `text` (greeting)
+- `custom_html` (payment status)
+- `event_details`
+- `menu_summary`
+- `custom_html` (next steps)
+- `text` (contact info)
+
+**Missing**: `service_addons`, `supplies_summary`
+
+**Recommended**: Add these blocks to remind customer what services/supplies are included with their confirmed booking.
+
+### Admin Event Reminder (`event_reminder` admin)
+Current blocks:
+- `text` (event coming up)
+- `customer_contact`
+- `event_details`
+- `menu_summary`
+- `service_addons`
+
+**Missing**: `supplies_summary`
+
+**Required**: Admins need to see equipment checklist before event day.
+
+### Customer Event Reminder (`event_reminder` customer)
+Current blocks:
+- `text` (greeting)
+- `event_details`
+- `menu_summary`
+- `service_addons`
+- `text` (contact prompt)
+
+**Status**: Complete for customer view.
 
 ---
 
-## Verification Plan
+## Best Way to Think About This
 
-After implementation, re-run the batch test to verify:
+1. **Payment amounts must come from milestones, not calculations**
+   - Never calculate remaining as `total - paid`
+   - Always use `SUM(unpaid_milestones.amount_cents)`
+   
+2. **Due dates are tier-specific**
+   - SHORT_NOTICE: 7 days before
+   - MID_RANGE/STANDARD: 14 days before
+   - GOVERNMENT: Net 30 after event
+   
+3. **Every email should pass the "prep checklist" test**
+   - Customer emails: Can they understand what they're getting?
+   - Admin emails: Can they prepare everything for the event?
+   
+4. **Content blocks should be comprehensive by default**
+   - When in doubt, include `menu_summary`, `service_addons`, and `supplies_summary`
+   - Only omit when space is truly constrained (e.g., quick status notifications)
 
+---
+
+## Implementation Order
+
+1. Fix `payment_received` to be milestone-aware (highest impact - fixes the "7 days" error)
+2. Add `supplies_summary` to admin `event_reminder`
+3. Add `service_addons` to `send-event-reminders` customer emails
+4. Add `supplies_summary` to customer `payment_received` (nice-to-have)
+
+---
+
+## Testing After Implementation
+
+Re-run batch test with invoice INV-2026-0196 for these email types:
 ```json
 {
   "invoiceId": "b9e5f0b4-9f01-4eb3-970e-64aa58d10520",
   "targetEmail": "envision@mkqconsulting.com",
-  "typesToSend": ["estimate_ready", "approval_confirmation", "event_followup"],
+  "typesToSend": ["payment_received", "event_reminder"],
   "delayMs": 2000
 }
 ```
 
-Check each email in:
-1. Gmail (web)
-2. Gmail (mobile app)
-3. Outlook (desktop if available)
-4. Apple Mail
-
-Confirm all buttons and text are visible with proper contrast.
-
+Verify:
+1. Payment confirmation shows correct milestone label (Deposit/Milestone/Final)
+2. Remaining balance matches sum of unpaid milestones
+3. Due date is accurate (not hardcoded "7 days")
+4. Admin event reminder includes supplies section
+5. Customer event reminder includes service add-ons
