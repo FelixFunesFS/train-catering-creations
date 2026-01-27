@@ -9,7 +9,8 @@ import {
   ArrowRight,
   Star,
   CircleCheck,
-  Award
+  Award,
+  Utensils
 } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
@@ -30,8 +31,6 @@ interface ServiceCategory {
   image: string;
   features: string[];
   isPopular?: boolean;
-  ctaText: string;
-  ctaHref: string;
 }
 
 export const ServiceCategoriesSection = () => {
@@ -60,9 +59,7 @@ export const ServiceCategoriesSection = () => {
       description: "Charleston's premier wedding caterer since 2017. We turn your dream day into a flawless celebration with authentic Southern elegance.",
       image: weddingCatering,
       features: ["Custom Menu Planning", "Professional Service", "Elegant Presentation"],
-      isPopular: true,
-      ctaText: "Get Wedding Quote",
-      ctaHref: "/request-quote/wedding"
+      isPopular: true
     },
     {
       icon: <Building2 className="h-6 w-6" />,
@@ -70,9 +67,7 @@ export const ServiceCategoriesSection = () => {
       subtitle: "Professional Excellence",
       description: "Impress clients and colleagues with sophisticated catering that reflects your company's commitment to quality.",
       image: corporateEvents,
-      features: ["Flexible Scheduling", "Dietary Accommodations", "Professional Setup"],
-      ctaText: "Request Quote",
-      ctaHref: "/request-quote/regular"
+      features: ["Flexible Scheduling", "Dietary Accommodations", "Professional Setup"]
     },
     {
       icon: <Users className="h-6 w-6" />,
@@ -80,9 +75,7 @@ export const ServiceCategoriesSection = () => {
       subtitle: "Comfort & Joy",
       description: "Bring families together with soul food that creates lasting memories and celebrates your heritage.",
       image: familyGatherings,
-      features: ["Family-Style Service", "Traditional Recipes", "Generous Portions"],
-      ctaText: "Get a Quote",
-      ctaHref: "/request-quote/regular"
+      features: ["Family-Style Service", "Traditional Recipes", "Generous Portions"]
     }
   ];
 
@@ -99,7 +92,7 @@ export const ServiceCategoriesSection = () => {
         <div className={`${isThirdCard ? 'md:flex md:flex-row lg:block' : ''}`}>
           {/* Image Section */}
           <div className={`relative overflow-hidden ${isThirdCard ? 'md:w-[40%] lg:w-full' : ''}`}>
-            <div className="relative aspect-[4/3] overflow-hidden">
+            <div className="relative aspect-[5/3] overflow-hidden">
               <OptimizedImage
                 src={service.image}
                 alt={service.title}
@@ -155,16 +148,6 @@ export const ServiceCategoriesSection = () => {
                 ))}
               </div>
             )}
-
-            {/* Individual CTA Button */}
-            <div className="pt-3">
-              <Button asChild variant="outline" size="sm" className="w-full group-hover:bg-ruby group-hover:text-white transition-all duration-300">
-                <Link to={service.ctaHref} className="flex items-center justify-center gap-2">
-                  <span>{service.ctaText}</span>
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
-            </div>
           </div>
         </div>
       </Card>
@@ -229,12 +212,18 @@ export const ServiceCategoriesSection = () => {
         </div>
 
         {/* Section CTA - all viewports */}
-        <div className="flex justify-center mt-6 sm:mt-8">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mt-6 sm:mt-8">
           <Button variant="cta" size="responsive-md" asChild>
-            <a href="/request-quote" className="flex items-center gap-2">
+            <Link to="/request-quote" className="flex items-center gap-2">
               <span>Get Your Quote</span>
               <ArrowRight className="h-4 w-4" />
-            </a>
+            </Link>
+          </Button>
+          <Button variant="outline" size="responsive-md" asChild className="border-ruby text-ruby hover:bg-ruby hover:text-white">
+            <Link to="/menu" className="flex items-center gap-2">
+              <Utensils className="h-4 w-4" />
+              <span>See Menu</span>
+            </Link>
           </Button>
         </div>
       </div>
