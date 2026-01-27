@@ -2003,9 +2003,37 @@ export function getEmailContentBlocks(
       break;
 
     case 'event_followup':
+      // Combined feedback box WITH review buttons inside - Single Source of Truth
+      const followupFeedbackBoxHtml = `
+        <div style="background:${BRAND_COLORS.lightGray};border:2px solid ${BRAND_COLORS.gold};padding:25px;border-radius:12px;margin:20px 0;text-align:center;">
+          <h3 style="margin:0 0 12px 0;color:${BRAND_COLORS.crimson};">We'd Love to Hear From You!</h3>
+          <p style="margin:0 0 20px 0;font-size:15px;line-height:1.6;">Your feedback helps us continue serving Charleston families with the best Southern catering experience. Feel free to reply to this email or call us at <a href="tel:+18439700265" style="color:${BRAND_COLORS.crimson};text-decoration:none;font-weight:600;">(843) 970-0265</a>.</p>
+          <p style="font-size:15px;margin:0 0 12px 0;"><strong>Loved our service?</strong> We'd be honored if you could leave us a review:</p>
+          <div style="margin-top:12px;">
+            <a href="https://g.page/r/CWyYHq7bIsWlEBM/review" style="display:inline-block;background:${BRAND_COLORS.gold};color:${BRAND_COLORS.darkGray};text-decoration:none;padding:12px 24px;border-radius:6px;font-weight:bold;margin:4px;">⭐ Google Review</a>
+            <a href="https://www.facebook.com/soultrainseatery/reviews" style="display:inline-block;background:#1877f2;color:white;text-decoration:none;padding:12px 24px;border-radius:6px;font-weight:bold;margin:4px;">📘 Facebook Review</a>
+          </div>
+        </div>
+      `;
+
       contentBlocks = [
-        { type: 'text', data: { html: `<p style="margin:0 0 16px 0;font-size:15px;color:#333;">Dear ${quote.contact_name},</p><p style="margin:0 0 16px 0;font-size:15px;color:#333;">Thank you so much for choosing Soul Train's Eatery for your ${quote.event_name}! We hope everyone enjoyed the food and that your event was everything you dreamed of.</p><p style="margin:0 0 16px 0;font-size:15px;color:#333;">We'd love to hear how we did! Your feedback helps us continue to provide the best Southern catering experience in the Lowcountry.</p><p style="margin:0 0 16px 0;font-size:15px;color:#333;"><em>— The Soul Train's Eatery Family</em></p>` }},
+        { type: 'text', data: { html: `
+          <p style="font-size:16px;margin:0 0 12px 0;">Thank You, ${quote.contact_name}!</p>
+          <p style="font-size:15px;margin:0 0 16px 0;line-height:1.6;">We hope <strong>${quote.event_name}</strong> was a wonderful success and that you and your guests enjoyed the authentic Southern flavors we prepared with love.</p>
+          <p style="font-size:15px;margin:0;line-height:1.6;">It was an honor to be part of your special day, and we're grateful you chose Soul Train's Eatery to serve your guests.</p>
+        ` }},
+        { type: 'custom_html', data: { html: followupFeedbackBoxHtml }},
         { type: 'menu_summary' },
+        { type: 'text', data: { html: `
+          <p style="font-size:15px;margin:20px 0 0 0;">We look forward to serving you again soon!</p>
+          <p style="margin-top:20px;">
+            <strong>Warm regards,</strong><br/>
+            Soul Train's Eatery<br/>
+            Charleston's Lowcountry Catering<br/>
+            <a href="tel:+18439700265" style="color:${BRAND_COLORS.crimson};text-decoration:none;">(843) 970-0265</a> | 
+            <a href="mailto:soultrainseatery@gmail.com" style="color:${BRAND_COLORS.crimson};text-decoration:none;">soultrainseatery@gmail.com</a>
+          </p>
+        ` }}
       ];
       break;
 

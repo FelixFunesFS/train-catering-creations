@@ -2,7 +2,8 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.52.1';
 import { 
   EMAIL_CONFIGS,
-  generateStandardEmail
+  generateStandardEmail,
+  getEmailContentBlocks
 } from '../_shared/emailTemplates.ts';
 
 const corsHeaders = {
@@ -456,16 +457,23 @@ const handler = async (req: Request): Promise<Response> => {
           .maybeSingle();
 
         if (!recentReminder) {
+          // Use shared helper - Single Source of Truth for event_followup
+          const { contentBlocks } = getEmailContentBlocks('event_followup', 'customer', {
+            quote: event,
+            invoice: {},
+            lineItems: [],
+            milestones: [],
+            portalUrl: '',
+          });
+
           const emailHtml = generateStandardEmail({
             preheaderText: EMAIL_CONFIGS.event_followup.customer!.preheaderText,
-            heroSection: EMAIL_CONFIGS.event_followup.customer!.heroSection,
+            heroSection: {
+              ...EMAIL_CONFIGS.event_followup.customer!.heroSection,
+              subtitle: event.event_name
+            },
+            contentBlocks,
             quote: event,
-            contentBlocks: [
-              { type: 'text', data: { html: `<p style="font-size:16px;margin:0 0 16px 0;">Thank you, ${event.contact_name || 'Valued Customer'}!</p><p style="font-size:15px;margin:0 0 16px 0;line-height:1.6;">It was our pleasure to cater <strong>${event.event_name}</strong>. We hope you and your guests loved everything.</p>` } },
-              { type: 'event_details' },
-              { type: 'menu_summary' },
-              { type: 'text', data: { html: `<p style="font-size:15px;margin:16px 0 0 0;line-height:1.6;">If you have a moment, we’d truly appreciate a review—your feedback helps our family-run team keep serving Charleston’s Lowcountry with excellence.</p><p style="margin:16px 0 0 0;"><strong>Soul Train’s Eatery</strong><br/>(843) 970-0265 | <a href="mailto:soultrainseatery@gmail.com" style="color:#DC143C;">soultrainseatery@gmail.com</a></p>` } },
-            ],
           });
 
           const { error: emailError } = await supabase.functions.invoke('send-smtp-email', {
