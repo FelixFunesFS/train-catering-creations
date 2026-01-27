@@ -52,7 +52,7 @@ export const ContactInfoStep = ({ form, trackFieldInteraction }: ContactInfoStep
   };
 
   return (
-    <div className="space-y-6 w-full max-w-md mx-auto">
+    <div className="space-y-6 w-full max-w-md lg:max-w-lg mx-auto">
       <div className="text-center mb-8">
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
           <User className="h-8 w-8 text-primary" />

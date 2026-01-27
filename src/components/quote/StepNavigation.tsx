@@ -27,7 +27,7 @@ export const StepNavigation = ({
   const isFirstStep = currentStep === 0;
 
   return (
-    <div className="w-full max-w-lg mx-auto space-y-4">
+    <div className="w-full max-w-lg mx-auto space-y-4 lg:space-y-2">
       {/* Main Action Buttons */}
       <div className="flex gap-3">
         {!isFirstStep && (
