@@ -434,14 +434,23 @@ export function CustomerEstimateView() {
         direction="horizontal"
         className="flex-1 h-[calc(100vh-10rem)]"
       >
-        {/* Left Panel - Customer Details Sidebar (25%) */}
+        {/* Left Panel - Customer Details Sidebar (25%) - NOW WITH CTAs AT TOP */}
         <ResizablePanel 
           defaultSize={25} 
           minSize={20} 
           maxSize={30}
           className="bg-background"
         >
-          <CustomerDetailsSidebar quote={quote} />
+          <CustomerDetailsSidebar 
+            quote={quote}
+            invoiceId={invoice.id}
+            customerEmail={quote.email}
+            workflowStatus={invoice.workflow_status}
+            quoteRequestId={invoice.quote_request_id}
+            amountPaid={amountPaid}
+            onStatusChange={refetch}
+            autoApprove={shouldAutoApprove}
+          />
         </ResizablePanel>
 
         <ResizableHandle withHandle />

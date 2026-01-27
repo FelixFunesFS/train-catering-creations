@@ -98,17 +98,50 @@ serve(async (req) => {
           logStep("Transaction updated to completed");
         }
 
-        // Update milestone if provided
-        if (milestone_id) {
+        // Update milestone - either by explicit ID or auto-match by amount
+        let actualMilestoneId = milestone_id;
+        
+        if (!actualMilestoneId && invoice_id && session.amount_total) {
+          // Auto-match: find the first pending milestone with matching amount
+          const { data: milestones } = await supabaseClient
+            .from('payment_milestones')
+            .select('id, amount_cents, milestone_type')
+            .eq('invoice_id', invoice_id)
+            .eq('status', 'pending')
+            .order('due_date', { ascending: true, nullsFirst: false });
+          
+          if (milestones && milestones.length > 0) {
+            // Try exact match first
+            const exactMatch = milestones.find(m => m.amount_cents === session.amount_total);
+            if (exactMatch) {
+              actualMilestoneId = exactMatch.id;
+              logStep("Auto-matched milestone by exact amount", { 
+                milestoneId: actualMilestoneId, 
+                amount: session.amount_total,
+                type: exactMatch.milestone_type 
+              });
+            } else {
+              // Fall back to first pending milestone if no exact match
+              actualMilestoneId = milestones[0].id;
+              logStep("No exact match, marking first pending milestone", { 
+                milestoneId: actualMilestoneId,
+                milestoneAmount: milestones[0].amount_cents,
+                paymentAmount: session.amount_total 
+              });
+            }
+          }
+        }
+        
+        if (actualMilestoneId) {
           const { error: milestoneError } = await supabaseClient
             .from('payment_milestones')
             .update({ status: 'paid' })
-            .eq('id', milestone_id);
+            .eq('id', actualMilestoneId);
 
           if (milestoneError) {
             logStep("Error updating milestone", { error: milestoneError.message });
           } else {
-            logStep("Milestone marked as paid");
+            logStep("Milestone marked as paid", { milestoneId: actualMilestoneId });
           }
         }
 
