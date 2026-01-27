@@ -20,6 +20,8 @@ export const ImmersiveMobileHero = ({
   const [showDetails, setShowDetails] = useState(false);
   
   const isMobile = useIsMobile();
+  // Touch navigation for all touch devices (phones + tablets under 1024px)
+  const isTouchDevice = isMobile;
   const currentImage = heroImages[currentIndex];
   
   const { ref: overlayRef, isVisible: overlayVisible, variant: overlayVariant } = useScrollAnimation({ 
@@ -115,8 +117,8 @@ export const ImmersiveMobileHero = ({
         </div>
       </div>
 
-      {/* Touch Areas for Mobile Navigation */}
-      {isMobile && (
+      {/* Touch Areas for Touch Device Navigation (phones + tablets) */}
+      {isTouchDevice && (
         <div className="absolute inset-0 z-10 flex">
           <div className="flex-1" onTouchStart={handleTouchStart} />
           <div className="flex-1" onTouchStart={handleTouchStart} />
@@ -171,8 +173,8 @@ export const ImmersiveMobileHero = ({
 
       </div>
 
-      {/* Touch Instruction Overlay (shown briefly on mobile) */}
-      {isMobile && showDetails && (
+      {/* Touch Instruction Overlay (shown on touch devices) */}
+      {isTouchDevice && showDetails && (
         <div className="absolute inset-0 z-30 bg-navy-dark/50 backdrop-blur-sm flex items-center justify-center p-6">
           <div className="bg-white/10 backdrop-blur-md rounded-lg p-6 text-center text-white">
             <h3 className="font-elegant text-lg mb-2">Story Navigation</h3>

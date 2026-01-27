@@ -201,7 +201,7 @@ export const SplitHero = () => {
   if (isMobile) {
     return <section className="relative h-[85vh] sm:h-[90vh] md:h-[92vh] overflow-hidden bg-black" role="main" aria-label="Hero section with image carousel">
         {/* Full Screen Visual Area */}
-        <div ref={visualRef} className={`relative h-full overflow-hidden hero-vignette ${visualAnimationClass}`} onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} role="region" aria-label="Image carousel">
+        <div ref={visualRef} className={`relative h-full w-full overflow-hidden hero-vignette ${visualAnimationClass}`} onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} role="region" aria-label="Image carousel">
           {/* Progress Indicators - Centered at top */}
           <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-30 flex space-x-1">
             {heroImages.map((_, index) => <button key={index} onClick={() => setCurrentIndex(index)} className="min-w-[24px] min-h-[24px] flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black/20" aria-label={`Go to slide ${index + 1} of ${heroImages.length}`} aria-current={index === currentIndex ? 'true' : 'false'}>
@@ -230,7 +230,7 @@ export const SplitHero = () => {
           </div>
 
           {/* Full Screen Background Image */}
-          <OptimizedImage src={currentImage.src} alt={currentImage.alt} className={`w-full h-full object-cover ${getImageObjectPosition(currentIndex)} transition-transform duration-700`} containerClassName="h-full" priority enableVignette={false} />
+          <OptimizedImage src={currentImage.src} alt={currentImage.alt} aspectRatio={undefined} className={`w-full h-full object-cover ${getImageObjectPosition(currentIndex)} transition-transform duration-700`} containerClassName="h-full w-full" priority enableVignette={false} />
           
           {/* Gradient Overlay for Content Readability */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />

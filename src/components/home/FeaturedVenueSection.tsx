@@ -5,10 +5,8 @@ import { OptimizedImage } from "@/components/ui/optimized-image";
 import { MapPin, Star, Users, Heart } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 export const FeaturedVenueSection = () => {
-  const isMobile = useIsMobile();
   
   const { ref, isVisible } = useScrollAnimation({ 
     variant: 'fade-up', 
