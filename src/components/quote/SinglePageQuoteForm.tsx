@@ -11,7 +11,7 @@ import { SuppliesStep } from "./steps/SuppliesStep";
 import { StepProgress } from "./StepProgress";
 import { StepNavigation } from "./StepNavigation";
 import { ReviewSummaryCard } from "./ReviewSummaryCard";
-import { DesktopQuoteLayout } from "./DesktopQuoteLayout";
+import { ReviewSplitLayout } from "./ReviewSplitLayout";
 import { User, Calendar, ChefHat, UtensilsCrossed, Package, ClipboardCheck } from "lucide-react";
 import { formSchema } from "./alternative-form/formSchema";
 import { supabase } from "@/integrations/supabase/client";
@@ -30,11 +30,10 @@ interface SinglePageQuoteFormProps {
   variant?: 'regular' | 'wedding';
   onSuccess?: (quoteId: string) => void;
   /**
-   * fullscreen: mobile wizard with internal scroll + sticky progress/nav
+   * fullscreen: wizard with internal scroll + sticky progress/nav
    * embedded: desktop-in-page (no internal scroll, no sticky bars)
-   * desktop-split: desktop split-view with preview sidebar (desktop only)
    */
-  layout?: 'fullscreen' | 'embedded' | 'desktop-split';
+  layout?: 'fullscreen' | 'embedded';
   /**
    * container: scroll the form's internal containerRef
    * window: scroll the page to scrollToRef
@@ -72,11 +71,12 @@ export const SinglePageQuoteForm = ({
     formType: variant === 'wedding' ? 'wedding_event' : 'regular_event' 
   });
 
-  // Use desktop split layout on desktop when requested
-  const useDesktopSplit = layout === 'desktop-split' && !isMobile;
+  // On desktop, show split layout for the Review step (step 6 = index 5)
+  const isReviewStep = currentStep === 5;
+  const showReviewSplitLayout = isReviewStep && !isMobile;
   
-  // Show exit/progress header for fullscreen layouts (mobile and desktop without split)
-  const showFullscreenChrome = layout === 'fullscreen' && !useDesktopSplit;
+  // Show exit/progress header for fullscreen layouts
+  const showFullscreenChrome = layout === 'fullscreen';
 
   const returnTo = useCallback(() => {
     const params = new URLSearchParams(location.search);
@@ -433,6 +433,20 @@ export const SinglePageQuoteForm = ({
         case 4:
           return <SuppliesStep form={form} variant={variant} />;
         case 5:
+          // On desktop, render split layout with review + submit CTA side-by-side
+          if (showReviewSplitLayout) {
+            return (
+              <div className="w-full max-w-5xl mx-auto">
+                <ReviewSplitLayout
+                  reviewContent={<ReviewSummaryCard form={form} variant={variant} />}
+                  onSubmit={onSubmit}
+                  onBack={handleBack}
+                  isSubmitting={isSubmitting}
+                />
+              </div>
+            );
+          }
+          // Mobile: single column review
           return (
             <div className="w-full max-w-lg mx-auto">
               <div className="text-center mb-8">
@@ -460,74 +474,7 @@ export const SinglePageQuoteForm = ({
     );
   };
 
-  // Header component for desktop split layout
-  const DesktopHeader = () => (
-    <div className="max-w-4xl mx-auto px-4 py-3">
-      <div className="flex items-center justify-between mb-4">
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={() => navigate(returnTo())}
-          className="gap-2"
-        >
-          <X className="h-4 w-4" />
-          Exit
-        </Button>
-        <div className="text-sm font-medium text-foreground">
-          {variant === 'wedding' ? 'Formal Event Quote' : 'Event Quote'}
-        </div>
-        <div className="w-[64px]" />
-      </div>
-      <StepProgress
-        currentStep={currentStep}
-        totalSteps={STEPS.length}
-        stepTitles={STEPS.map(s => s.title)}
-      />
-    </div>
-  );
-
-  // Form content for desktop split layout
-  const FormContent = () => (
-    <FormProvider {...form}>
-      <Form {...form}>
-        <form onSubmit={(e) => e.preventDefault()} className="min-h-full">
-          {renderStep()}
-        </form>
-      </Form>
-    </FormProvider>
-  );
-
-  // Footer component for desktop split layout
-  const DesktopFooter = () => (
-    <div className="max-w-4xl mx-auto px-4 py-4">
-      <StepNavigation
-        currentStep={currentStep}
-        totalSteps={STEPS.length}
-        onNext={handleNext}
-        onBack={handleBack}
-        onSubmit={onSubmit}
-        isSubmitting={isSubmitting}
-        canProceed={canProceed()}
-        isOptionalStep={!STEPS[currentStep].required}
-      />
-    </div>
-  );
-
-  // DESKTOP SPLIT LAYOUT
-  if (useDesktopSplit) {
-    return (
-      <DesktopQuoteLayout
-        form={form}
-        variant={variant}
-        header={<DesktopHeader />}
-        content={<FormContent />}
-        footer={<DesktopFooter />}
-      />
-    );
-  }
-
-  // STANDARD LAYOUT (mobile fullscreen or embedded)
+  // STANDARD LAYOUT (fullscreen or embedded)
   return (
     <div className={cn(layout === 'fullscreen' ? "min-h-screen flex flex-col" : "w-full")}>      
       {/* Fullscreen sticky header (Exit + Progress) - shown on all devices */}
@@ -577,14 +524,19 @@ export const SinglePageQuoteForm = ({
         ref={containerRef}
         className={cn(
           layout === 'fullscreen'
-            ? "flex-1 min-h-0 overflow-y-auto pt-8 pb-[calc(7rem+env(safe-area-inset-bottom))] px-4"
+            ? showReviewSplitLayout 
+              ? "flex-1 min-h-0 overflow-y-auto pt-8 pb-8 px-4 lg:px-8"
+              : "flex-1 min-h-0 overflow-y-auto pt-8 pb-[calc(7rem+env(safe-area-inset-bottom))] px-4"
             : "py-8 px-4"
         )}
       >
         <FormProvider {...form}>
           <Form {...form}>
             <form onSubmit={(e) => e.preventDefault()} className={cn(layout === 'fullscreen' ? "min-h-full flex flex-col" : "")}>              
-              <div className={cn(layout === 'fullscreen' ? "flex-1 flex items-start justify-center" : "flex items-start justify-center")}>                
+              <div className={cn(
+                layout === 'fullscreen' ? "flex-1 flex items-start justify-center" : "flex items-start justify-center",
+                showReviewSplitLayout && "max-w-6xl mx-auto w-full"
+              )}>                
                 {renderStep()}
               </div>
             </form>
@@ -592,23 +544,25 @@ export const SinglePageQuoteForm = ({
         </FormProvider>
       </div>
 
-      {/* Navigation */}
-      <div className={cn(
-        layout === 'fullscreen'
-          ? "sticky bottom-0 z-10 bg-background/95 backdrop-blur-sm pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))] px-4 border-t"
-          : "bg-background/95 backdrop-blur-sm py-4 px-4 border-t rounded-lg"
-      )}>
-        <StepNavigation
-          currentStep={currentStep}
-          totalSteps={STEPS.length}
-          onNext={handleNext}
-          onBack={handleBack}
-          onSubmit={onSubmit}
-          isSubmitting={isSubmitting}
-          canProceed={canProceed()}
-          isOptionalStep={!STEPS[currentStep].required}
-        />
-      </div>
+      {/* Navigation - hidden on desktop Review step (it has its own submit CTA) */}
+      {!showReviewSplitLayout && (
+        <div className={cn(
+          layout === 'fullscreen'
+            ? "sticky bottom-0 z-10 bg-background/95 backdrop-blur-sm pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))] px-4 border-t"
+            : "bg-background/95 backdrop-blur-sm py-4 px-4 border-t rounded-lg"
+        )}>
+          <StepNavigation
+            currentStep={currentStep}
+            totalSteps={STEPS.length}
+            onNext={handleNext}
+            onBack={handleBack}
+            onSubmit={onSubmit}
+            isSubmitting={isSubmitting}
+            canProceed={canProceed()}
+            isOptionalStep={!STEPS[currentStep].required}
+          />
+        </div>
+      )}
     </div>
   );
 };
