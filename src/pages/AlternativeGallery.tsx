@@ -82,8 +82,8 @@ const AlternativeGallery = () => {
         />
       </div>
       
-      {/* COMBINED: Brand Intro + Category Cards */}
-      <PageSection pattern="b" className="py-8 sm:py-12">
+      {/* COMBINED: Brand Intro + Category Cards + Image Grid */}
+      <PageSection pattern="b" className="py-8 sm:py-12" data-section="gallery-grid">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Intro text - centered */}
           <div 
@@ -114,23 +114,19 @@ const AlternativeGallery = () => {
             </p>
           </div>
           
-          {/* Category Cards - embedded here */}
+          {/* Category Cards */}
           <CategoryCards 
             selectedCategory={selectedCategory}
             onCategorySelect={handleCategorySelect}
           />
-        </div>
-      </PageSection>
-      
-      {/* COMBINED: Discover Our Work + Image Grid */}
-      <PageSection pattern="c" withBorder data-section="gallery-grid">
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8">
-          <div ref={contentRef} className={useAnimationClass(contentVariant, contentVisible)}>
+          
+          {/* Image Grid - embedded directly below cards */}
+          <div ref={contentRef} className={`mt-8 sm:mt-10 lg:mt-12 ${useAnimationClass(contentVariant, contentVisible)}`}>
             <InteractiveImageGrid 
               images={filteredImages}
               onImageClick={handleImageClick}
               category={selectedCategory}
-              showDiscoverHeader={true}
+              showDiscoverHeader={false}
             />
           </div>
         </div>
