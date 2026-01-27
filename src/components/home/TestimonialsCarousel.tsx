@@ -5,7 +5,6 @@ import { Badge } from "@/components/ui/badge";
 import { Star, Quote, ChevronLeft, ChevronRight, Heart } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Testimonial {
   name: string;
@@ -20,7 +19,6 @@ export const TestimonialsCarousel = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
-  const isMobile = useIsMobile();
 
   const { ref, isVisible } = useScrollAnimation({ 
     variant: 'fade-up', 
@@ -201,29 +199,27 @@ export const TestimonialsCarousel = () => {
               </div>
             </div>
 
-            {/* Navigation Buttons - Desktop */}
-            {!isMobile && (
-              <>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute left-2 top-1/2 transform -translate-y-1/2 !bg-none !bg-black/50 !backdrop-blur-md hover:!bg-black/70 !border !border-white/30 !text-white shadow-lg"
-                  onClick={goToPrevious}
-                  aria-label="Previous testimonial"
-                >
-                  <ChevronLeft className="h-4 w-4 text-white" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 !bg-none !bg-black/50 !backdrop-blur-md hover:!bg-black/70 !border !border-white/30 !text-white shadow-lg"
-                  onClick={goToNext}
-                  aria-label="Next testimonial"
-                >
-                  <ChevronRight className="h-4 w-4 text-white" />
-                </Button>
-              </>
-            )}
+            {/* Navigation Buttons - Hidden on mobile (<768px), shown on tablets and desktop */}
+            <div className="hidden md:block">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute left-2 top-1/2 transform -translate-y-1/2 !bg-none !bg-black/50 !backdrop-blur-md hover:!bg-black/70 !border !border-white/30 !text-white shadow-lg"
+                onClick={goToPrevious}
+                aria-label="Previous testimonial"
+              >
+                <ChevronLeft className="h-4 w-4 text-white" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 !bg-none !bg-black/50 !backdrop-blur-md hover:!bg-black/70 !border !border-white/30 !text-white shadow-lg"
+                onClick={goToNext}
+                aria-label="Next testimonial"
+              >
+                <ChevronRight className="h-4 w-4 text-white" />
+              </Button>
+            </div>
           </Card>
 
           {/* Dots Navigation */}
@@ -245,12 +241,10 @@ export const TestimonialsCarousel = () => {
             ))}
           </div>
 
-          {/* Swipe Instruction for Mobile */}
-          {isMobile && (
-            <p className="text-center text-xs text-white/60 mt-4">
-              Swipe left or right to see more testimonials
-            </p>
-          )}
+          {/* Swipe Instruction - Mobile only (<768px) */}
+          <p className="text-center text-xs text-white/60 mt-4 md:hidden">
+            Swipe left or right to see more testimonials
+          </p>
         </div>
 
         {/* Stats */}
