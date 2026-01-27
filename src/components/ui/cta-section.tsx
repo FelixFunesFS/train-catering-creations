@@ -29,11 +29,11 @@ export const CTASection = ({ title, description, buttons, footer, showWatermark 
   const animationClass = useAnimationClass(variant, isVisible);
 
   return (
-    <section className="pt-10 pb-6 sm:pt-12 sm:pb-8 lg:py-16">
+    <section className="pt-6 pb-4 sm:pt-8 sm:pb-6 lg:py-10">
       {/* Card Container with consistent margins */}
       <div className="mx-4 sm:mx-6 lg:mx-8 rounded-xl sm:rounded-2xl overflow-hidden shadow-elevated">
         {/* Card Background */}
-        <div className="relative bg-gradient-to-r from-primary to-primary-dark py-8 sm:py-10 lg:py-12 overflow-hidden">
+        <div className="relative bg-gradient-to-r from-primary to-primary-dark py-6 sm:py-8 lg:py-10 overflow-hidden">
           {/* Watermark Logo - only shown when prop is true */}
           {showWatermark && (
             <div className="absolute right-4 sm:right-8 lg:right-12 top-1/2 -translate-y-1/2 pointer-events-none">

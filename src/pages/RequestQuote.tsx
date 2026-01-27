@@ -30,7 +30,7 @@ const RequestQuote = () => {
   return (
     <div className="min-h-screen bg-gradient-hero">
       {/* Consolidated Hero + Selector */}
-      <section className="py-10 lg:py-14">
+      <section className="py-6 lg:py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div ref={headerRef} className={useAnimationClass(headerVariant, headerVisible)}>
             <QuoteHeader />
@@ -39,7 +39,7 @@ const RequestQuote = () => {
           <div
             ref={selectorRef}
             className={
-              "mt-6 sm:mt-8 " +
+              "mt-4 lg:mt-6 " +
               useAnimationClass(selectorVariant, selectorVisible)
             }
           >
