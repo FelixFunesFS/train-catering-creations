@@ -92,7 +92,7 @@ const SAMPLE_MILESTONES = [
  * This ensures preview matches exactly what customers receive
  */
 function generateEmailPreview(emailType: EmailType, variant: 'customer' | 'admin'): { html: string; subject: string } {
-  const siteUrl = Deno.env.get('SITE_URL') || 'https://train-catering-creations.lovable.app';
+  const siteUrl = Deno.env.get('SITE_URL') || 'https://www.soultrainseatery.com';
   const config = EMAIL_CONFIGS[emailType];
   const variantConfig = config?.[variant];
 

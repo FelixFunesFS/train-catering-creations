@@ -56,7 +56,7 @@ const handler = async (req: Request): Promise<Response> => {
       .eq('invoice_id', invoiceId)
       .order('sort_order', { ascending: true });
 
-    const siteUrl = Deno.env.get('SITE_URL') || 'https://train-catering-creations.lovable.app';
+    const siteUrl = Deno.env.get('SITE_URL') || 'https://www.soultrainseatery.com';
 
     // Build email based on notification type
     const emailContent = buildAdminNotificationEmail(

@@ -32,7 +32,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const siteUrl = Deno.env.get('SITE_URL') || 'https://train-catering-creations.lovable.app';
+    const siteUrl = Deno.env.get('SITE_URL') || 'https://www.soultrainseatery.com';
     
     const supabase = createClient(supabaseUrl, serviceRoleKey);
 
