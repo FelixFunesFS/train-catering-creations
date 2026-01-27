@@ -1,152 +1,159 @@
 
-
-# Link Fixes & Thank-You Email Consolidation
+# Batch Email Testing for Estimate #INV-2026-0196
 
 ## Summary
 
-This plan updates all Google review links to the official URL, removes broken/placeholder links, and consolidates thank-you email logic to prevent duplicate customer communications.
+Create a new edge function that sends ALL email types in the system using the **real data** from invoice INV-2026-0196, allowing you to review every email template in your actual inbox.
 
 ---
 
-## Changes Overview
+## Invoice Data Available
 
-| File | Change |
-|------|--------|
-| `src/pages/Reviews.tsx` | Update Google placeholder to official URL, fix Facebook link |
-| `supabase/functions/send-event-followup/index.ts` | Update Google link, remove broken feedback CTA |
-| `supabase/functions/send-event-reminders/index.ts` | Remove duplicate thank-you email section (lines 164-193) |
-
----
-
-## Detailed Changes
-
-### 1. Reviews.tsx - Fix Placeholder Links
-
-**Lines 141 & 151**
-
-Update the Google review link from placeholder to official:
-```tsx
-// Before
-href="https://g.page/r/YOUR_GOOGLE_PLACE_ID/review"
-
-// After
-href="https://g.page/r/CWyYHq7bIsWlEBM/review"
-```
-
-Fix Facebook link consistency:
-```tsx
-// Before
-href="https://facebook.com/soultrainseatery/reviews"
-
-// After
-href="https://www.facebook.com/soultrainseatery/reviews"
-```
+| Field | Value |
+|-------|-------|
+| Invoice ID | `b9e5f0b4-9f01-4eb3-970e-64aa58d10520` |
+| Invoice Number | INV-2026-0196 |
+| Quote ID | `06e32371-dffb-49e8-a508-96fa0ff0d9ef` |
+| Contact | Felix Margery Funes |
+| Email | envision@mkqconsulting.com |
+| Event | Super Bowl |
+| Event Date | 2026-04-29 |
+| Total | $457.80 |
+| Status | Paid/Confirmed |
 
 ---
 
-### 2. send-event-followup/index.ts - Update & Simplify
+## Email Types to Send (17 Total)
 
-**Remove broken feedback link (lines 85-98)**
+### Customer Emails (10)
+1. quote_confirmation - "Thank You for Your Request!"
+2. estimate_ready - "Your Estimate is Ready"
+3. estimate_reminder - "Your Estimate Awaits"
+4. approval_confirmation - "You're All Set!"
+5. payment_received - "Payment Confirmed"
+6. payment_reminder - "Payment Reminder"
+7. event_reminder - "Your Event is Approaching!"
+8. change_request_submitted - "Change Request Received"
+9. change_request_response - "Your Request Has Been Reviewed"
+10. event_followup - "We Hope You Enjoyed!"
 
-The `/feedback` route does not exist, causing 404 errors. Replace the feedback CTA button with a simpler text-based message:
+### Admin Emails (7)
+1. quote_received - "New Quote Submission"
+2. approval_confirmation - "Customer Approved Estimate"
+3. payment_received - "Payment Received"
+4. event_reminder - "Event Reminder"
+5. change_request_submitted - "Customer Requested Changes"
+6. admin_notification - "Admin Notification"
+7. (no admin variant for several types)
+
+---
+
+## Implementation Plan
+
+### Step 1: Create `send-batch-test-emails` Edge Function
+
+A new function that:
+1. Accepts an invoice ID and target email address
+2. Fetches the REAL quote, invoice, line items, and milestones from the database
+3. Loops through all EMAIL_CONFIGS types and variants
+4. Generates each email using `generateStandardEmail()` with real data
+5. Sends each email with a clear subject prefix (e.g., `[TEST 1/17] Quote Confirmation`)
+6. Returns a summary of all emails sent
+
+### Step 2: Function Parameters
 
 ```typescript
-// Before - links to non-existent /feedback page
-const feedbackLink = `${FRONTEND_URL}/feedback?token=${invoice.customer_access_token}`;
-const feedbackBoxHtml = `
-  ...
-  <a href="${feedbackLink}" ...>Share Your Feedback</a>
-  ...
-`;
-
-// After - simple text with phone link
-const feedbackBoxHtml = `
-  <div style="background:${BRAND_COLORS.lightGray};border:2px solid ${BRAND_COLORS.gold};padding:25px;border-radius:12px;margin:20px 0;text-align:center;">
-    <h3 style="margin:0 0 12px 0;color:${BRAND_COLORS.crimson};">We'd Love to Hear From You!</h3>
-    <p style="margin:0;font-size:15px;line-height:1.6;">Your feedback helps us continue serving Charleston families with the best Southern catering experience. Feel free to reply to this email or call us at <a href="tel:+18439700265" style="color:${BRAND_COLORS.crimson};text-decoration:none;font-weight:600;">(843) 970-0265</a>.</p>
-  </div>
-`;
-```
-
-**Update Google review link (line 104)**
-
-```typescript
-// Before
-href="https://www.google.com/search?q=soul+train%27s+eatery+charleston"
-
-// After
-href="https://g.page/r/CWyYHq7bIsWlEBM/review"
-```
-
----
-
-### 3. send-event-reminders/index.ts - Remove Duplicate Logic
-
-**Remove lines 164-193 (Post-Event Thank You section)**
-
-This section duplicates the functionality of `send-event-followup/index.ts`. Both currently send thank-you emails the day after an event, which could result in customers receiving two identical emails.
-
-```typescript
-// REMOVE THIS ENTIRE SECTION (lines 164-193):
-// Post-Event Thank You (1 day after)
-if (daysUntil === -1) {
-  const thankYouHtml = `
-    <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-      ...
-    </div>
-  `;
-  
-  await supabaseClient.functions.invoke('send-smtp-email', {
-    body: {
-      to: quote.email,
-      subject: `Thank You for Choosing Soul Train's Eatery! - ${quote.event_name}`,
-      html: thankYouHtml
-    }
-  });
-  
-  results.push({
-    quote_id: quote.id,
-    event_name: quote.event_name,
-    reminder_type: 'thank_you',
-    status: 'sent'
-  });
-  continue;
+interface BatchTestEmailRequest {
+  invoiceId: string;        // The invoice to use for data
+  targetEmail: string;      // Where to send all test emails
+  delayMs?: number;         // Optional delay between emails (default: 1000ms)
+  typesToSend?: EmailType[]; // Optional: specific types to test
 }
 ```
 
-**Result:** `send-event-followup/index.ts` becomes the single source of truth for post-event thank-you emails, eliminating the risk of duplicate communications.
+### Step 3: Example Request
 
----
+```json
+{
+  "invoiceId": "b9e5f0b4-9f01-4eb3-970e-64aa58d10520",
+  "targetEmail": "your-test-email@example.com",
+  "delayMs": 2000
+}
+```
 
-## Architecture After Changes
+### Step 4: Response Format
 
-```text
-Event Day Timeline:
-                                                                  
- ┌──────────────────┐   ┌──────────────────┐   ┌──────────────────┐
- │  7 Days Before   │   │  2 Days Before   │   │  Event Day       │
- │  send-event-     │   │  send-event-     │   │  (No automated   │
- │  reminders       │──▶│  reminders       │──▶│  emails)         │
- │  "Prep Reminder" │   │  "Final Details" │   │                  │
- └──────────────────┘   └──────────────────┘   └────────┬─────────┘
-                                                        │
-                                                        ▼
-                                               ┌──────────────────┐
-                                               │  1 Day After     │
-                                               │  send-event-     │
-                                               │  followup        │
-                                               │  "Thank You"     │
-                                               │  (SINGLE SOURCE) │
-                                               └──────────────────┘
+```json
+{
+  "success": true,
+  "invoice_number": "INV-2026-0196",
+  "event_name": "Super Bowl",
+  "emails_sent": 17,
+  "results": [
+    { "type": "quote_confirmation", "variant": "customer", "status": "sent" },
+    { "type": "quote_received", "variant": "admin", "status": "sent" },
+    // ... all 17 emails
+  ]
+}
 ```
 
 ---
 
-## Verification Checklist
+## Technical Details
 
-After implementation:
-- All Google review buttons link to `https://g.page/r/CWyYHq7bIsWlEBM/review`
-- All Facebook review buttons link to `https://www.facebook.com/soultrainseatery/reviews`
-- Thank-you emails are only sent from `send-event-followup` (no duplicates)
-- No broken `/feedback` links in any emails
+### Files to Create
 
+| File | Purpose |
+|------|---------|
+| `supabase/functions/send-batch-test-emails/index.ts` | Main function |
+
+### Function Logic
+
+```typescript
+// Pseudocode
+1. Validate invoiceId and targetEmail
+2. Fetch invoice with quote_request_id
+3. Fetch quote_requests by id
+4. Fetch invoice_line_items for invoice
+5. Fetch payment_milestones for invoice
+6. Build portalUrl using customer_access_token
+
+7. For each emailType in EMAIL_CONFIGS:
+   a. For each variant (customer/admin) if defined:
+      - Get contentBlocks via getEmailContentBlocks()
+      - Generate HTML via generateStandardEmail()
+      - Send via send-smtp-email with subject prefix
+      - Wait delayMs between sends
+      - Log result
+
+8. Return summary
+```
+
+### Update supabase/config.toml
+
+Add the new function to the config file.
+
+---
+
+## Alternative: Quick Manual Testing
+
+If you prefer not to create a new function, you can test using the **existing infrastructure**:
+
+1. Navigate to `/admin/settings` in the app
+2. Click the **"Email Templates"** tab
+3. Use the **Email Preview Studio** to:
+   - Preview each email type visually
+   - Click "Send Test Email" for each one
+
+However, this uses **sample data** instead of the real invoice data. The batch function approach gives you emails with your **actual event details**.
+
+---
+
+## Benefits of Batch Approach
+
+1. Uses REAL invoice data (Super Bowl event, actual totals, real milestones)
+2. Sends all 17 emails in one call
+3. Numbered subjects make it easy to track (`[TEST 1/17]`, `[TEST 2/17]`, etc.)
+4. Can filter to specific email types if needed
+5. Delay between sends prevents rate limiting
+6. Returns comprehensive results for verification
