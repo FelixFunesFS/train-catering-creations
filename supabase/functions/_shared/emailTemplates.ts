@@ -1094,15 +1094,15 @@ export function generateStatusBadge(
   return `
 <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${config.bgColor}" style="background-color:${config.bgColor};background:linear-gradient(135deg,${config.bgColor},${config.bgColorDark});border-radius:12px;margin:25px 0;border-collapse:collapse;">
 <tr>
-<td style="padding:20px;">
+<td bgcolor="${config.bgColor}" style="padding:20px;background-color:${config.bgColor};">
 <table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
 <tr>
 <td style="vertical-align:top;padding-right:15px;">
 <span style="font-size:40px;line-height:1;">${config.icon}</span>
 </td>
 <td style="vertical-align:top;">
-<h3 style="margin:0 0 8px 0;color:white;font-size:20px;font-weight:bold;">${title}</h3>
-<p style="margin:0;color:rgba(255,255,255,0.95);font-size:15px;line-height:1.5;">${description}</p>
+<h3 style="margin:0 0 8px 0;color:#ffffff !important;font-size:20px;font-weight:bold;"><span style="color:#ffffff;">${title}</span></h3>
+<p style="margin:0;color:#ffffff !important;font-size:15px;line-height:1.5;"><span style="color:#ffffff;">${description}</span></p>
 </td>
 </tr>
 </table>
@@ -1241,18 +1241,19 @@ export function generateCTAButton(text: string, href: string, variant: 'primary'
     : BRAND_COLORS.gold;
   const textColor = variant === 'primary' ? BRAND_COLORS.white : BRAND_COLORS.darkGray;
 
+  const bgFallback = variant === 'primary' ? BRAND_COLORS.crimson : BRAND_COLORS.gold;
+
   return `
 <table cellpadding="0" cellspacing="0" border="0" style="margin:20px auto;border-collapse:collapse;">
 <tr>
-<td align="center" bgcolor="${variant === 'primary' ? BRAND_COLORS.crimson : BRAND_COLORS.gold}" style="background-color:${variant === 'primary' ? BRAND_COLORS.crimson : BRAND_COLORS.gold};background:${bgColor};border-radius:8px;">
+<td align="center" bgcolor="${bgFallback}" style="background-color:${bgFallback};background:${bgColor};border-radius:8px;">
 <!--[if mso]>
-<v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="${href}" style="height:50px;v-text-anchor:middle;width:200px;" arcsize="16%" stroke="f" fillcolor="${variant === 'primary' ? BRAND_COLORS.crimson : BRAND_COLORS.gold}">
+<v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="${href}" style="height:50px;v-text-anchor:middle;width:200px;" arcsize="16%" stroke="f" fillcolor="${bgFallback}">
 <w:anchorlock/>
-<center>
+<center style="color:${textColor} !important;font-weight:bold;font-size:16px;"><span style="color:${textColor};">${text}</span></center>
 <![endif]-->
-<a href="${href}" style="display:inline-block;padding:16px 32px;color:${textColor};font-weight:bold;font-size:16px;text-decoration:none;border-radius:8px;text-align:center;min-width:150px;">${text}</a>
+<a href="${href}" style="display:inline-block;padding:16px 32px;color:${textColor} !important;font-weight:bold;font-size:16px;text-decoration:none;border-radius:8px;text-align:center;min-width:150px;mso-line-height-rule:exactly;"><span style="color:${textColor};">${text}</span></a>
 <!--[if mso]>
-</center>
 </v:roundrect>
 <![endif]-->
 </td>
@@ -1298,15 +1299,15 @@ export function generateEstimateActionButtons(portalUrl: string): string {
   <!-- Primary: Approve Button -->
   <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto 15px auto;border-collapse:collapse;">
     <tr>
-      <td align="center" style="background:linear-gradient(135deg,${BRAND_COLORS.crimson},${BRAND_COLORS.crimsonDark});border-radius:8px;">
+      <td align="center" bgcolor="${BRAND_COLORS.crimson}" style="background-color:${BRAND_COLORS.crimson};background:linear-gradient(135deg,${BRAND_COLORS.crimson},${BRAND_COLORS.crimsonDark});border-radius:8px;">
         <!--[if mso]>
         <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="${approveUrl}" style="height:50px;v-text-anchor:middle;width:250px;" arcsize="16%" stroke="f" fillcolor="${BRAND_COLORS.crimson}">
         <w:anchorlock/>
-        <center style="color:#ffffff;font-weight:bold;font-size:16px;">✅ Approve Estimate</center>
+        <center style="color:#ffffff !important;font-weight:bold;font-size:16px;"><span style="color:#ffffff;">✅ Approve Estimate</span></center>
         </v:roundrect>
         <![endif]-->
         <!--[if !mso]><!-->
-         <a href="${approveUrl}" target="_blank" rel="noopener" style="display:inline-block;padding:16px 40px;color:${BRAND_COLORS.white};font-weight:bold;font-size:16px;text-decoration:none;border-radius:8px;text-align:center;">✅ Approve Estimate</a>
+         <a href="${approveUrl}" target="_blank" rel="noopener" style="display:inline-block;padding:16px 40px;color:#ffffff !important;font-weight:bold;font-size:16px;text-decoration:none;border-radius:8px;text-align:center;mso-line-height-rule:exactly;"><span style="color:#ffffff;">✅ Approve Estimate</span></a>
         <!--<![endif]-->
       </td>
     </tr>
@@ -1742,12 +1743,12 @@ export function getEmailContentBlocks(
         };
 
         const paymentBoxHtml = `
-          <div style="background:linear-gradient(135deg,${BRAND_COLORS.crimson},${BRAND_COLORS.crimsonDark});padding:20px;border-radius:8px;margin:20px 0;color:white;">
+          <div style="background-color:${BRAND_COLORS.crimson};background:linear-gradient(135deg,${BRAND_COLORS.crimson},${BRAND_COLORS.crimsonDark});padding:20px;border-radius:8px;margin:20px 0;">
             <h3 style="margin:0 0 10px 0;color:${BRAND_COLORS.gold};">💳 Next Step: Secure Your Date</h3>
-            <p style="margin:0 0 10px 0;">To confirm your booking, complete your first payment:</p>
+            <p style="margin:0 0 10px 0;color:#ffffff;">To confirm your booking, complete your first payment:</p>
             <div style="background:rgba(255,255,255,0.1);padding:15px;border-radius:8px;margin-top:10px;">
               <div style="font-size:24px;font-weight:bold;color:${BRAND_COLORS.gold};">${firstPaymentDisplay}</div>
-              <div style="font-size:14px;opacity:0.9;">${firstMilestone?.is_due_now ? 'Due Now' : 'Due upon approval'}</div>
+              <div style="font-size:14px;color:rgba(255,255,255,0.9);">${firstMilestone?.is_due_now ? 'Due Now' : 'Due upon approval'}</div>
             </div>
           </div>
         `;
