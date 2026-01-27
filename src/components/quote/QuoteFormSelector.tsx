@@ -21,6 +21,22 @@ const QuoteFormSelector = ({ showHeader = true }: QuoteFormSelectorProps) => {
         </div>
       )}
 
+      {/* Desktop-only CTAs above cards */}
+      <div className="hidden lg:flex justify-center gap-6 mb-8">
+        <Button asChild variant="cta" size="lg" className="min-w-[240px] shadow-lg hover:shadow-xl transition-shadow">
+          <Link to="/request-quote/regular">
+            <Users className="mr-2 h-5 w-5" />
+            Get Regular Event Quote
+          </Link>
+        </Button>
+        <Button asChild variant="cta" size="lg" className="min-w-[240px] shadow-lg hover:shadow-xl transition-shadow">
+          <Link to="/request-quote/wedding">
+            <Heart className="mr-2 h-5 w-5" />
+            Get Formal Event Quote
+          </Link>
+        </Button>
+      </div>
+
       <div className={showHeader ? "grid grid-cols-1 lg:grid-cols-2 gap-8" : "mt-6 sm:mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8"}>
         {/* Regular Events Card */}
         <Card className="shadow-elegant hover:shadow-glow transition-all duration-300 hover:scale-[1.02] bg-gradient-to-br from-background via-primary/5 to-accent/10 border-2 border-primary/30 hover:border-primary/50 relative overflow-hidden group">
@@ -55,7 +71,7 @@ const QuoteFormSelector = ({ showHeader = true }: QuoteFormSelectorProps) => {
               </div>
             </div>
 
-            <Button asChild variant="cta" size="responsive-lg" className="w-full">
+            <Button asChild variant="cta" size="responsive-lg" className="w-full lg:hidden">
               <Link to="/request-quote/regular">
                 Get Regular Event Quote
               </Link>
@@ -97,7 +113,7 @@ const QuoteFormSelector = ({ showHeader = true }: QuoteFormSelectorProps) => {
               </div>
             </div>
 
-            <Button asChild variant="cta" size="responsive-lg" className="w-full">
+            <Button asChild variant="cta" size="responsive-lg" className="w-full lg:hidden">
               <Link to="/request-quote/wedding">
                 Get Formal Event Quote
               </Link>
