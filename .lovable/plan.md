@@ -1,159 +1,295 @@
 
-# Batch Email Testing for Estimate #INV-2026-0196
 
-## Summary
+# Complete Email Architecture Audit & Single Source of Truth Plan
 
-Create a new edge function that sends ALL email types in the system using the **real data** from invoice INV-2026-0196, allowing you to review every email template in your actual inbox.
+## Executive Summary
 
----
-
-## Invoice Data Available
-
-| Field | Value |
-|-------|-------|
-| Invoice ID | `b9e5f0b4-9f01-4eb3-970e-64aa58d10520` |
-| Invoice Number | INV-2026-0196 |
-| Quote ID | `06e32371-dffb-49e8-a508-96fa0ff0d9ef` |
-| Contact | Felix Margery Funes |
-| Email | envision@mkqconsulting.com |
-| Event | Super Bowl |
-| Event Date | 2026-04-29 |
-| Total | $457.80 |
-| Status | Paid/Confirmed |
+After auditing **15 email-sending edge functions**, I've identified a clear path to achieving a single source of truth. Most functions already use `generateStandardEmail()`, but several build custom content blocks inline instead of using `getEmailContentBlocks()`, and **three functions need to be either refactored or deprecated**.
 
 ---
 
-## Email Types to Send (17 Total)
+## Current State: Complete Function Audit
 
-### Customer Emails (10)
-1. quote_confirmation - "Thank You for Your Request!"
-2. estimate_ready - "Your Estimate is Ready"
-3. estimate_reminder - "Your Estimate Awaits"
-4. approval_confirmation - "You're All Set!"
-5. payment_received - "Payment Confirmed"
-6. payment_reminder - "Payment Reminder"
-7. event_reminder - "Your Event is Approaching!"
-8. change_request_submitted - "Change Request Received"
-9. change_request_response - "Your Request Has Been Reviewed"
-10. event_followup - "We Hope You Enjoyed!"
+### Functions Using the Correct Pattern (NO CHANGES NEEDED)
 
-### Admin Emails (7)
-1. quote_received - "New Quote Submission"
-2. approval_confirmation - "Customer Approved Estimate"
-3. payment_received - "Payment Received"
-4. event_reminder - "Event Reminder"
-5. change_request_submitted - "Customer Requested Changes"
-6. admin_notification - "Admin Notification"
-7. (no admin variant for several types)
+| Function | Uses generateStandardEmail | Uses getEmailContentBlocks | Status |
+|----------|---------------------------|---------------------------|--------|
+| `send-customer-portal-email` | Yes | Yes | **GOLD STANDARD** |
+| `send-status-notification` | Yes | Yes | Good |
+| `send-batch-test-emails` | Yes | Yes | Good |
+| `preview-email` | Yes | Yes | Good |
+| `email-qa-report` | Yes | Yes | Good |
+| `send-admin-notification` | Yes | Custom (appropriate) | Good - admin emails have unique switch logic |
+| `send-change-request-notification` | Yes | Custom (appropriate) | Good - status-specific content |
+
+### Functions Needing Consolidation (REFACTOR)
+
+| Function | Current Issue | Lines to Refactor |
+|----------|--------------|-------------------|
+| `send-event-followup` | Builds custom feedbackBoxHtml + reviewLinksHtml inline | Lines 89-117 |
+| `send-event-reminders` | Builds custom eventDetailsHtml + checklistHtml inline | Lines 81-160 |
+| `unified-reminder-system` | Builds custom content for 7-day, 2-day, and thank-you emails | Lines 348-473 |
+| `send-quote-confirmation` | Builds custom nextStepsHtml + referenceHtml inline | Lines 55-98 |
+| `send-quote-notification` | Builds custom menuSectionHtml + suppliesHtml + notesHtml inline | Lines 100-208 |
+| `send-payment-reminder` | Builds custom urgencyBoxHtml + invoiceDetailsHtml inline | Lines 105-152 |
+
+### Functions That Must Be Deprecated/Removed
+
+| Function | Issue | Resolution |
+|----------|-------|------------|
+| `send-manual-email` | Does NOT use generateStandardEmail at all - plain HTML with no branding | DEPRECATE or REFACTOR to use shared template |
+| `token-renewal-manager` | Uses inline HTML (lines 99-115) with no shared template | REFACTOR to use generateStandardEmail |
 
 ---
 
-## Implementation Plan
+## Complete Change List for True Single Source of Truth
 
-### Step 1: Create `send-batch-test-emails` Edge Function
+### TIER 1: Priority Fixes (Resolve Template Inconsistencies)
 
-A new function that:
-1. Accepts an invoice ID and target email address
-2. Fetches the REAL quote, invoice, line items, and milestones from the database
-3. Loops through all EMAIL_CONFIGS types and variants
-4. Generates each email using `generateStandardEmail()` with real data
-5. Sends each email with a clear subject prefix (e.g., `[TEST 1/17] Quote Confirmation`)
-6. Returns a summary of all emails sent
+#### 1. `supabase/functions/_shared/emailTemplates.ts` - Lines 2005-2010
 
-### Step 2: Function Parameters
-
+**Current (minimal):**
 ```typescript
-interface BatchTestEmailRequest {
-  invoiceId: string;        // The invoice to use for data
-  targetEmail: string;      // Where to send all test emails
-  delayMs?: number;         // Optional delay between emails (default: 1000ms)
-  typesToSend?: EmailType[]; // Optional: specific types to test
-}
+case 'event_followup':
+  contentBlocks = [
+    { type: 'text', data: { html: `...basic text...` }},
+    { type: 'menu_summary' },
+  ];
+  break;
 ```
 
-### Step 3: Example Request
+**Updated (complete with reviews inside feedback box):**
+```typescript
+case 'event_followup':
+  const followupFeedbackBoxHtml = `
+    <div style="background:${BRAND_COLORS.lightGray};border:2px solid ${BRAND_COLORS.gold};padding:25px;border-radius:12px;margin:20px 0;text-align:center;">
+      <h3 style="margin:0 0 12px 0;color:${BRAND_COLORS.crimson};">We'd Love to Hear From You!</h3>
+      <p style="margin:0 0 20px 0;font-size:15px;line-height:1.6;">Your feedback helps us continue serving Charleston families with the best Southern catering experience. Feel free to reply to this email or call us at <a href="tel:+18439700265" style="color:${BRAND_COLORS.crimson};text-decoration:none;font-weight:600;">(843) 970-0265</a>.</p>
+      <p style="font-size:15px;margin:0 0 12px 0;"><strong>Loved our service?</strong> We'd be honored if you could leave us a review:</p>
+      <div style="margin-top:12px;">
+        <a href="https://g.page/r/CWyYHq7bIsWlEBM/review" style="display:inline-block;background:${BRAND_COLORS.gold};color:${BRAND_COLORS.darkGray};text-decoration:none;padding:12px 24px;border-radius:6px;font-weight:bold;margin:4px;">⭐ Google Review</a>
+        <a href="https://www.facebook.com/soultrainseatery/reviews" style="display:inline-block;background:#1877f2;color:white;text-decoration:none;padding:12px 24px;border-radius:6px;font-weight:bold;margin:4px;">📘 Facebook Review</a>
+      </div>
+    </div>
+  `;
 
+  contentBlocks = [
+    { type: 'text', data: { html: `
+      <p style="font-size:16px;margin:0 0 12px 0;">Thank You, ${quote.contact_name}!</p>
+      <p style="font-size:15px;margin:0 0 16px 0;line-height:1.6;">We hope <strong>${quote.event_name}</strong> was a wonderful success and that you and your guests enjoyed the authentic Southern flavors we prepared with love.</p>
+      <p style="font-size:15px;margin:0;line-height:1.6;">It was an honor to be part of your special day, and we're grateful you chose Soul Train's Eatery to serve your guests.</p>
+    ` }},
+    { type: 'custom_html', data: { html: followupFeedbackBoxHtml }},
+    { type: 'menu_summary' },
+    { type: 'text', data: { html: `
+      <p style="font-size:15px;margin:20px 0 0 0;">We look forward to serving you again soon!</p>
+      <p style="margin-top:20px;">
+        <strong>Warm regards,</strong><br/>
+        Soul Train's Eatery<br/>
+        Charleston's Lowcountry Catering<br/>
+        <a href="tel:+18439700265" style="color:${BRAND_COLORS.crimson};text-decoration:none;">(843) 970-0265</a> | 
+        <a href="mailto:soultrainseatery@gmail.com" style="color:${BRAND_COLORS.crimson};text-decoration:none;">soultrainseatery@gmail.com</a>
+      </p>
+    ` }}
+  ];
+  break;
+```
+
+#### 2. `supabase/functions/send-event-followup/index.ts` - Lines 88-117
+
+**Refactor to use shared helper:**
+```typescript
+import { generateStandardEmail, EMAIL_CONFIGS, getEmailContentBlocks } from '../_shared/emailTemplates.ts';
+
+// Replace lines 88-117 with:
+const { contentBlocks } = getEmailContentBlocks('event_followup', 'customer', {
+  quote,
+  invoice: {},
+  lineItems: [],
+  milestones: [],
+  portalUrl: '',
+});
+
+const emailHtml = generateStandardEmail({
+  preheaderText: EMAIL_CONFIGS.event_followup.customer!.preheaderText,
+  heroSection: {
+    ...EMAIL_CONFIGS.event_followup.customer!.heroSection,
+    subtitle: quote.event_name
+  },
+  contentBlocks,
+  quote,
+});
+```
+
+#### 3. `supabase/functions/unified-reminder-system/index.ts` - Lines 458-469
+
+**Refactor thank-you section to use shared helper:**
+```typescript
+const { contentBlocks } = getEmailContentBlocks('event_followup', 'customer', {
+  quote: event,
+  invoice: {},
+  lineItems: [],
+  milestones: [],
+  portalUrl: '',
+});
+
+const emailHtml = generateStandardEmail({
+  preheaderText: EMAIL_CONFIGS.event_followup.customer!.preheaderText,
+  heroSection: {
+    ...EMAIL_CONFIGS.event_followup.customer!.heroSection,
+    subtitle: event.event_name
+  },
+  contentBlocks,
+  quote: event,
+});
+```
+
+---
+
+### TIER 2: Deprecate/Refactor Legacy Functions
+
+#### 4. `supabase/functions/send-manual-email/index.ts` - ENTIRE FILE
+
+**Options:**
+- **Option A (Recommended)**: Refactor to use `generateStandardEmail()` for consistent branding
+- **Option B**: Mark as deprecated and route all manual emails through `send-customer-portal-email`
+
+This function currently builds plain HTML (lines 96-160) with no brand consistency:
+```html
+<h2>Your Catering Estimate from Soul Train's Eatery</h2>
+<p>Dear ${safeCustomerName},</p>
+...
+```
+
+Should be refactored to use the shared template system.
+
+#### 5. `supabase/functions/token-renewal-manager/index.ts` - Lines 99-115
+
+**Current (inline HTML):**
+```typescript
+html: `
+  <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+    <h2 style="color: ${urgency === 'high' ? '#dc2626' : '#ea580c'};">Access Link Expiring Soon</h2>
+    ...
+  </div>
+`
+```
+
+**Should be refactored to use generateStandardEmail with a new email type 'token_expiring'**
+
+---
+
+### TIER 3: Future Consolidation (Lower Priority)
+
+These functions build custom inline HTML but it's acceptable because the content is highly dynamic:
+
+| Function | Custom Content | Why It's Acceptable |
+|----------|----------------|---------------------|
+| `send-quote-confirmation` | nextStepsHtml, referenceHtml | Quote-specific flow content |
+| `send-quote-notification` | menuSectionHtml, suppliesHtml | Admin notification with raw quote data |
+| `send-payment-reminder` | urgencyBoxHtml, invoiceDetailsHtml | Urgency-based dynamic content |
+| `send-event-reminders` | eventDetailsHtml, checklistHtml | Day-specific reminder content |
+
+These could eventually be consolidated but are lower priority since they use `generateStandardEmail()` for the wrapper.
+
+---
+
+## Files to Change (Ordered by Priority)
+
+| Priority | File | Change Type | Lines Affected |
+|----------|------|-------------|----------------|
+| 1 | `_shared/emailTemplates.ts` | Update `event_followup` case | 2005-2010 |
+| 2 | `send-event-followup/index.ts` | Refactor to use `getEmailContentBlocks()` | 88-117 (remove ~30 lines) |
+| 3 | `unified-reminder-system/index.ts` | Refactor thank-you section | 458-469 |
+| 4 | `send-manual-email/index.ts` | Refactor or deprecate | 93-160 |
+| 5 | `token-renewal-manager/index.ts` | Refactor to use shared template | 99-115 |
+
+---
+
+## Architecture After All Changes
+
+```
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                     emailTemplates.ts - SINGLE SOURCE OF TRUTH               │
+├──────────────────────────────────────────────────────────────────────────────┤
+│  ┌────────────────────────────────────────────────────────────────────────┐  │
+│  │  getEmailContentBlocks(emailType, variant, context)                    │  │
+│  │                                                                        │  │
+│  │  Returns: { contentBlocks, ctaButton }                                 │  │
+│  │                                                                        │  │
+│  │  12 Email Types:                                                       │  │
+│  │  • quote_received (admin) • quote_confirmation (customer)              │  │
+│  │  • estimate_ready (customer) • estimate_reminder (customer)            │  │
+│  │  • approval_confirmation (customer, admin) • payment_received (both)   │  │
+│  │  • payment_reminder (customer) • event_reminder (customer, admin)      │  │
+│  │  • change_request_submitted (both) • change_request_response (customer)│  │
+│  │  • admin_notification (admin)                                          │  │
+│  │  • event_followup (customer) ← NOW WITH FEEDBACK+REVIEWS BOX           │  │
+│  └────────────────────────────────────────────────────────────────────────┘  │
+│                                         │                                    │
+│  ┌────────────────────────────────────────────────────────────────────────┐  │
+│  │  generateStandardEmail(config)                                         │  │
+│  │                                                                        │  │
+│  │  Combines: header + hero + contentBlocks + footer → branded HTML       │  │
+│  └────────────────────────────────────────────────────────────────────────┘  │
+└──────────────────────────────────────────────────────────────────────────────┘
+                                         │
+            ┌────────────────────────────┼────────────────────────────┐
+            │                            │                            │
+    ┌───────▼───────┐           ┌────────▼────────┐          ┌────────▼────────┐
+    │ PRODUCTION    │           │ TESTING         │          │ PREVIEW         │
+    │               │           │                 │          │                 │
+    │ • send-event- │           │ • send-batch-   │          │ • preview-email │
+    │   followup    │ ◄─ SAME ─►│   test-emails   │◄─ SAME ─►│                 │
+    │               │  CONTENT  │                 │  CONTENT │ • email-qa-     │
+    │ • unified-    │           │                 │          │   report        │
+    │   reminder-   │           │                 │          │                 │
+    │   system      │           │                 │          │                 │
+    │               │           │                 │          │                 │
+    │ • send-       │           │                 │          │ (Admin Settings │
+    │   customer-   │           │                 │          │  Email Preview) │
+    │   portal-email│           │                 │          │                 │
+    └───────────────┘           └─────────────────┘          └─────────────────┘
+```
+
+---
+
+## Verification After Implementation
+
+1. **Re-run batch test for `event_followup`:**
 ```json
 {
   "invoiceId": "b9e5f0b4-9f01-4eb3-970e-64aa58d10520",
-  "targetEmail": "your-test-email@example.com",
-  "delayMs": 2000
+  "targetEmail": "envision@mkqconsulting.com",
+  "typesToSend": ["event_followup"]
 }
 ```
 
-### Step 4: Response Format
+2. **Expected Result:**
+   - Thank you message with personalization
+   - Combined feedback box containing:
+     - Feedback invitation text with phone link
+     - Google Review button (gold)
+     - Facebook Review button (blue)
+   - Menu summary
+   - Closing with contact links
 
-```json
-{
-  "success": true,
-  "invoice_number": "INV-2026-0196",
-  "event_name": "Super Bowl",
-  "emails_sent": 17,
-  "results": [
-    { "type": "quote_confirmation", "variant": "customer", "status": "sent" },
-    { "type": "quote_received", "variant": "admin", "status": "sent" },
-    // ... all 17 emails
-  ]
-}
-```
+3. **Compare with Settings Preview:**
+   - Navigate to `/admin/settings` → Email Templates
+   - Select "Event Follow-up" template
+   - Visual should match the test email exactly
 
 ---
 
-## Technical Details
+## Summary of What Gets Removed/Changed
 
-### Files to Create
+| What | Action | Reason |
+|------|--------|--------|
+| Custom feedbackBoxHtml in `send-event-followup` | REMOVE (use shared) | Consolidation |
+| Custom reviewLinksHtml in `send-event-followup` | REMOVE (use shared) | Consolidation |
+| Custom thank-you content in `unified-reminder-system` | REMOVE (use shared) | Consolidation |
+| Plain HTML in `send-manual-email` | REFACTOR | No branding consistency |
+| Inline HTML in `token-renewal-manager` | REFACTOR | No branding consistency |
 
-| File | Purpose |
-|------|---------|
-| `supabase/functions/send-batch-test-emails/index.ts` | Main function |
+After these changes, **all customer-facing emails will use the same content blocks** defined in `emailTemplates.ts`, ensuring perfect consistency between production, batch testing, and admin preview.
 
-### Function Logic
-
-```typescript
-// Pseudocode
-1. Validate invoiceId and targetEmail
-2. Fetch invoice with quote_request_id
-3. Fetch quote_requests by id
-4. Fetch invoice_line_items for invoice
-5. Fetch payment_milestones for invoice
-6. Build portalUrl using customer_access_token
-
-7. For each emailType in EMAIL_CONFIGS:
-   a. For each variant (customer/admin) if defined:
-      - Get contentBlocks via getEmailContentBlocks()
-      - Generate HTML via generateStandardEmail()
-      - Send via send-smtp-email with subject prefix
-      - Wait delayMs between sends
-      - Log result
-
-8. Return summary
-```
-
-### Update supabase/config.toml
-
-Add the new function to the config file.
-
----
-
-## Alternative: Quick Manual Testing
-
-If you prefer not to create a new function, you can test using the **existing infrastructure**:
-
-1. Navigate to `/admin/settings` in the app
-2. Click the **"Email Templates"** tab
-3. Use the **Email Preview Studio** to:
-   - Preview each email type visually
-   - Click "Send Test Email" for each one
-
-However, this uses **sample data** instead of the real invoice data. The batch function approach gives you emails with your **actual event details**.
-
----
-
-## Benefits of Batch Approach
-
-1. Uses REAL invoice data (Super Bowl event, actual totals, real milestones)
-2. Sends all 17 emails in one call
-3. Numbered subjects make it easy to track (`[TEST 1/17]`, `[TEST 2/17]`, etc.)
-4. Can filter to specific email types if needed
-5. Delay between sends prevents rate limiting
-6. Returns comprehensive results for verification
