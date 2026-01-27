@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 import { menuData, weddingMenuItems, MenuItem, MenuSection } from "@/data/menuData";
 import { SimpleMenuHeader } from "@/components/menu/SimpleMenuHeader";
 import { CollapsibleCategory } from "@/components/menu/CollapsibleCategory";
@@ -8,7 +8,8 @@ import { MenuFoodGallery } from "@/components/menu/MenuFoodGallery";
 import { QuickActionButton } from "@/components/menu/QuickActionButton";
 import { useStaggeredAnimation } from "@/hooks/useStaggeredAnimation";
 import { cn } from "@/lib/utils";
-import { Utensils, Heart } from "lucide-react";
+import { Utensils, Heart, Calendar } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 // Flatten nested sections into a single array of menu items
 const flattenCategoryItems = (sections: MenuSection[]): MenuItem[] => {
@@ -174,6 +175,19 @@ const SimplifiedMenu = () => {
           </div>
         </div>
       </section>
+
+      {/* Quick Request Quote CTA - After Menu Items */}
+      <div className="flex justify-center py-8 lg:py-12">
+        <Button asChild variant="cta" size="responsive-lg">
+          <Link 
+            to={menuStyle === 'wedding' ? "/request-quote/wedding" : "/request-quote/regular"} 
+            className="flex items-center gap-2"
+          >
+            <Calendar className="h-5 w-5" />
+            <span>Request a Quote</span>
+          </Link>
+        </Button>
+      </div>
 
       {/* Food Gallery Section */}
       <MenuFoodGallery />

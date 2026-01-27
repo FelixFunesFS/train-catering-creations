@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { OptimizedImage } from "@/components/ui/optimized-image";
 import { Badge } from "@/components/ui/badge";
-import { Play, Pause, ChevronDown, Heart, Star, Phone, Calendar, ArrowLeft, ArrowRight, Award } from "lucide-react";
+import { Play, Pause, ChevronDown, Heart, Star, Phone, Calendar, ArrowLeft, ArrowRight, Award, Utensils } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
@@ -266,10 +266,10 @@ export const SplitHero = () => {
                 </Link>
               </Button>
               <Button variant="glass-white" size="lg" className="w-full sm:flex-1 min-h-[48px] shadow-lg" asChild>
-                <a href="tel:8439700265" className="flex items-center justify-center gap-2">
-                  <Phone className="h-4 w-4" />
-                  <span>Call Now</span>
-                </a>
+                <Link to="/menu" className="flex items-center justify-center gap-2">
+                  <Utensils className="h-4 w-4" />
+                  <span>See Menu</span>
+                </Link>
               </Button>
             </div>
           </div>
@@ -342,10 +342,10 @@ export const SplitHero = () => {
                 </a>
               </Button>
               <Button variant="cta-outline" size="lg" className="flex-1 min-h-[48px]" asChild>
-                <a href="tel:8439700265" className="flex items-center justify-center space-x-2">
-                  <Phone className="h-5 w-5" />
-                  <span>Call Now</span>
-                </a>
+                <Link to="/menu" className="flex items-center justify-center space-x-2">
+                  <Utensils className="h-5 w-5" />
+                  <span>See Menu</span>
+                </Link>
               </Button>
             </div>
             

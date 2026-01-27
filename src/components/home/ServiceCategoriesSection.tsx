@@ -14,6 +14,7 @@ import {
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { Link } from "react-router-dom";
 import rubyWaveBg from "@/assets/ruby-wave-bg.webp";
 
 // Import optimized WebP images
@@ -29,6 +30,8 @@ interface ServiceCategory {
   image: string;
   features: string[];
   isPopular?: boolean;
+  ctaText: string;
+  ctaHref: string;
 }
 
 export const ServiceCategoriesSection = () => {
@@ -57,7 +60,9 @@ export const ServiceCategoriesSection = () => {
       description: "Charleston's premier wedding caterer since 2017. We turn your dream day into a flawless celebration with authentic Southern elegance.",
       image: weddingCatering,
       features: ["Custom Menu Planning", "Professional Service", "Elegant Presentation"],
-      isPopular: true
+      isPopular: true,
+      ctaText: "Get Wedding Quote",
+      ctaHref: "/request-quote/wedding"
     },
     {
       icon: <Building2 className="h-6 w-6" />,
@@ -65,7 +70,9 @@ export const ServiceCategoriesSection = () => {
       subtitle: "Professional Excellence",
       description: "Impress clients and colleagues with sophisticated catering that reflects your company's commitment to quality.",
       image: corporateEvents,
-      features: ["Flexible Scheduling", "Dietary Accommodations", "Professional Setup"]
+      features: ["Flexible Scheduling", "Dietary Accommodations", "Professional Setup"],
+      ctaText: "Request Quote",
+      ctaHref: "/request-quote/regular"
     },
     {
       icon: <Users className="h-6 w-6" />,
@@ -73,7 +80,9 @@ export const ServiceCategoriesSection = () => {
       subtitle: "Comfort & Joy",
       description: "Bring families together with soul food that creates lasting memories and celebrates your heritage.",
       image: familyGatherings,
-      features: ["Family-Style Service", "Traditional Recipes", "Generous Portions"]
+      features: ["Family-Style Service", "Traditional Recipes", "Generous Portions"],
+      ctaText: "Get a Quote",
+      ctaHref: "/request-quote/regular"
     }
   ];
 
@@ -146,6 +155,16 @@ export const ServiceCategoriesSection = () => {
                 ))}
               </div>
             )}
+
+            {/* Individual CTA Button */}
+            <div className="pt-3">
+              <Button asChild variant="outline" size="sm" className="w-full group-hover:bg-ruby group-hover:text-white transition-all duration-300">
+                <Link to={service.ctaHref} className="flex items-center justify-center gap-2">
+                  <span>{service.ctaText}</span>
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
           </div>
         </div>
       </Card>
