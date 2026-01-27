@@ -44,7 +44,8 @@ import {
   Utensils,
   Package,
   RefreshCw,
-  Info
+  Info,
+  CheckCircle2
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { formatTime, formatServiceType, formatEventType, formatReferralSource } from '@/utils/formatters';
@@ -113,6 +114,8 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
     handleToggleGovernment,
     handleRegenerateMilestones,
     isRegenerating,
+    handleMarkEventCompleted,
+    isMarkingComplete,
   } = useEstimateActions({
     quoteId: quote?.id,
     invoiceId: invoice?.id,
@@ -245,11 +248,31 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
             </p>
           </div>
         </div>
-        {invoice?.invoice_number && (
-          <Badge variant="outline" className="text-xs">
-            {invoice.invoice_number}
-          </Badge>
-        )}
+        <div className="flex items-center gap-2">
+          {/* Mark Complete button for confirmed events */}
+          {quote?.workflow_status && ['confirmed', 'paid', 'approved', 'awaiting_payment'].includes(quote.workflow_status) && 
+           quote.workflow_status !== 'completed' && (
+            <Button 
+              size="sm" 
+              variant="default"
+              onClick={handleMarkEventCompleted}
+              disabled={isMarkingComplete}
+              className="gap-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs"
+            >
+              {isMarkingComplete ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              ) : (
+                <CheckCircle2 className="h-3 w-3" />
+              )}
+              Complete
+            </Button>
+          )}
+          {invoice?.invoice_number && (
+            <Badge variant="outline" className="text-xs">
+              {invoice.invoice_number}
+            </Badge>
+          )}
+        </div>
       </header>
 
       {/* Content */}

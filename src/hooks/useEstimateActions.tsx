@@ -34,6 +34,10 @@ interface UseEstimateActionsReturn {
   // Milestones
   handleRegenerateMilestones: () => Promise<void>;
   isRegenerating: boolean;
+  
+  // Event completion
+  handleMarkEventCompleted: () => Promise<void>;
+  isMarkingComplete: boolean;
 }
 
 export function useEstimateActions({
@@ -50,6 +54,7 @@ export function useEstimateActions({
   const [isSending, setIsSending] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [isRegenerating, setIsRegenerating] = useState(false);
+  const [isMarkingComplete, setIsMarkingComplete] = useState(false);
 
   // Generate estimate from quote
   const handleGenerateEstimate = useCallback(async () => {
@@ -223,6 +228,57 @@ export function useEstimateActions({
     });
   }, [updateInvoice, invoiceId]);
 
+  // Mark event as completed
+  const handleMarkEventCompleted = useCallback(async () => {
+    if (!quoteId || !invoiceId) return;
+    setIsMarkingComplete(true);
+    try {
+      // Update quote status to completed
+      const { error: quoteError } = await supabase
+        .from('quote_requests')
+        .update({ 
+          workflow_status: 'completed',
+          last_status_change: new Date().toISOString(),
+          status_changed_by: 'admin',
+        })
+        .eq('id', quoteId);
+      
+      if (quoteError) throw quoteError;
+      
+      // Update invoice to paid/completed if not already
+      const { error: invoiceError } = await supabase
+        .from('invoices')
+        .update({ 
+          workflow_status: 'paid',
+          paid_at: new Date().toISOString(),
+          last_status_change: new Date().toISOString(),
+          status_changed_by: 'admin',
+        })
+        .eq('id', invoiceId);
+      
+      if (invoiceError) throw invoiceError;
+      
+      // Invalidate all relevant queries
+      queryClient.invalidateQueries({ queryKey: ['quotes'] });
+      queryClient.invalidateQueries({ queryKey: ['quote', quoteId] });
+      queryClient.invalidateQueries({ queryKey: ['invoices'] });
+      queryClient.invalidateQueries({ queryKey: ['invoice', invoiceId] });
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+      
+      toast({ 
+        title: 'Event Marked Complete', 
+        description: 'The event has been successfully marked as completed.' 
+      });
+      
+      // Optionally close the panel
+      onClose?.();
+    } catch (err: any) {
+      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+    } finally {
+      setIsMarkingComplete(false);
+    }
+  }, [quoteId, invoiceId, queryClient, toast, onClose]);
+
   return {
     handleGenerateEstimate,
     isGenerating,
@@ -235,5 +291,7 @@ export function useEstimateActions({
     handleToggleGovernment,
     handleRegenerateMilestones,
     isRegenerating,
+    handleMarkEventCompleted,
+    isMarkingComplete,
   };
 }

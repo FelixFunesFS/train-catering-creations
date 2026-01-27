@@ -81,6 +81,8 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
     handleToggleGovernment,
     handleRegenerateMilestones,
     isRegenerating,
+    handleMarkEventCompleted,
+    isMarkingComplete,
   } = useEstimateActions({
     quoteId: quote?.id,
     invoiceId: invoice?.id,
@@ -289,6 +291,8 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
               onToggleGovernment={handleToggleGovernment}
               onEditCustomer={handleEditCustomer}
               onEditMenu={handleEditMenu}
+              onMarkCompleted={handleMarkEventCompleted}
+              isMarkingComplete={isMarkingComplete}
             />
           </ScrollArea>
         </ResizablePanel>

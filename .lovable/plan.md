@@ -153,10 +153,10 @@ All customer emails now flow through `getEmailContentBlocks()` in `_shared/email
 
 ### Critical (Must Fix Before Launch)
 
-1. **Missing "Event Completed" Admin Button**
-   - *Risk*: Admin cannot manually mark events complete if auto-complete fails
-   - *Status*: Identified in memories but not implemented
-   - *Fix*: Add button to EventEstimateFullView workflow actions
+1. **~~Missing "Event Completed" Admin Button~~** ✅ IMPLEMENTED
+   - *Status*: **COMPLETE** - Added "Mark Complete" button to both desktop and mobile admin views
+   - Button visible for events in `confirmed`, `paid`, `approved`, `awaiting_payment` status
+   - Updates quote to `completed` and invoice to `paid`
 
 2. **Unified Reminder System Not in Cron**
    - *Risk*: The newer `unified-reminder-system` consolidates all reminder logic but is NOT scheduled
@@ -212,9 +212,9 @@ All customer emails now flow through `getEmailContentBlocks()` in `_shared/email
 - ✅ Responsive design implemented
 - ✅ PWA installable
 - ✅ Admin dashboard functional
+- ✅ Manual "Mark Event Completed" button
 
 ### Ship After (Nice-to-Have)
-- Manual "Mark Event Completed" button
 - Email delivery dashboard
 - Analytics/reporting enhancements
 - Calendar sync feature
@@ -239,8 +239,8 @@ All customer emails now flow through `getEmailContentBlocks()` in `_shared/email
    - Create production webhook endpoint in Stripe Dashboard
    - Update `STRIPE_WEBHOOK_SECRET` secret
 
-4. **Add Manual Complete Button** (30 min)
-   - Add "Mark Completed" action to EventEstimateFullView for confirmed events
+4. **~~Add Manual Complete Button~~** ✅ COMPLETE
+   - "Mark Completed" action added to EventEstimateFullView and MobileEstimateView
 
 5. **End-to-End Smoke Test** (30 min)
    - Complete full workflow on production domain before public launch
@@ -249,12 +249,12 @@ All customer emails now flow through `getEmailContentBlocks()` in `_shared/email
 
 ## Technical Debt Summary
 
-| Item | Priority | Effort |
-|------|----------|--------|
-| Consolidate reminder cron jobs | Medium | 1 hour |
-| Add email delivery panel | Low | 2 hours |
-| Manual event completion | High | 30 min |
-| Remove deprecated `payment_history` references | Low | 30 min |
+| Item | Priority | Effort | Status |
+|------|----------|--------|--------|
+| Consolidate reminder cron jobs | Medium | 1 hour | Pending |
+| Add email delivery panel | Low | 2 hours | Pending |
+| ~~Manual event completion~~ | ~~High~~ | ~~30 min~~ | ✅ Done |
+| Remove deprecated `payment_history` references | Low | 30 min | Pending |
 
 ---
 

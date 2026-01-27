@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { 
   Calendar, MapPin, Users, MessageSquare, 
   PartyPopper, Heart, Pencil, Utensils, Phone, ExternalLink,
-  Clock, Truck, Palette, Info, Shield
+  Clock, Truck, Palette, Info, Shield, CheckCircle2, Loader2
 } from 'lucide-react';
 import { formatDate, formatTime, formatServiceType, formatEventType, formatReferralSource, getStatusColor } from '@/utils/formatters';
 import { formatLocationLink, formatPhoneLink } from '@/utils/linkFormatters';
@@ -24,6 +24,8 @@ interface EventDetailsPanelContentProps {
   onToggleGovernment: (checked: boolean) => void;
   onEditCustomer: () => void;
   onEditMenu: () => void;
+  onMarkCompleted?: () => void;
+  isMarkingComplete?: boolean;
 }
 
 export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
@@ -37,6 +39,8 @@ export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
   onToggleGovernment,
   onEditCustomer,
   onEditMenu,
+  onMarkCompleted,
+  isMarkingComplete,
 }: EventDetailsPanelContentProps) {
   const formatMenuItems = (items: unknown): string => {
     if (!items || !Array.isArray(items) || items.length === 0) return '';
@@ -45,17 +49,40 @@ export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
     ).join(', ');
   };
 
+  // Determine if "Mark Completed" button should show
+  const canMarkComplete = quote?.workflow_status && 
+    ['confirmed', 'paid', 'approved', 'awaiting_payment'].includes(quote.workflow_status) &&
+    quote.workflow_status !== 'completed';
+
   return (
     <div className="space-y-6 p-4 lg:p-6">
       {/* Header with Status */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-2">
         <h2 className="text-xl font-semibold flex items-center gap-2">
           <Calendar className="h-5 w-5 text-primary" />
           Event Details
         </h2>
-        <Badge className={getStatusColor(quote?.workflow_status || 'pending')} variant="secondary">
-          {quote?.workflow_status?.replace('_', ' ').toUpperCase()}
-        </Badge>
+        <div className="flex items-center gap-2">
+          <Badge className={getStatusColor(quote?.workflow_status || 'pending')} variant="secondary">
+            {quote?.workflow_status?.replace('_', ' ').toUpperCase()}
+          </Badge>
+          {canMarkComplete && onMarkCompleted && (
+            <Button 
+              size="sm" 
+              variant="default" 
+              onClick={onMarkCompleted}
+              disabled={isMarkingComplete}
+              className="gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white"
+            >
+              {isMarkingComplete ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <CheckCircle2 className="h-4 w-4" />
+              )}
+              Mark Complete
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Customer Section */}
