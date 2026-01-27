@@ -228,12 +228,13 @@ export function useEstimateActions({
     });
   }, [updateInvoice, invoiceId]);
 
-  // Mark event as completed
+  // Mark event as completed (does NOT change invoice payment status)
   const handleMarkEventCompleted = useCallback(async () => {
-    if (!quoteId || !invoiceId) return;
+    if (!quoteId) return;
     setIsMarkingComplete(true);
     try {
-      // Update quote status to completed
+      // ONLY update quote status to completed
+      // Invoice payment status is independent - handled by Stripe webhook or admin
       const { error: quoteError } = await supabase
         .from('quote_requests')
         .update({ 
@@ -245,39 +246,22 @@ export function useEstimateActions({
       
       if (quoteError) throw quoteError;
       
-      // Update invoice to paid/completed if not already
-      const { error: invoiceError } = await supabase
-        .from('invoices')
-        .update({ 
-          workflow_status: 'paid',
-          paid_at: new Date().toISOString(),
-          last_status_change: new Date().toISOString(),
-          status_changed_by: 'admin',
-        })
-        .eq('id', invoiceId);
-      
-      if (invoiceError) throw invoiceError;
-      
       // Invalidate all relevant queries
       queryClient.invalidateQueries({ queryKey: ['quotes'] });
       queryClient.invalidateQueries({ queryKey: ['quote', quoteId] });
-      queryClient.invalidateQueries({ queryKey: ['invoices'] });
-      queryClient.invalidateQueries({ queryKey: ['invoice', invoiceId] });
       queryClient.invalidateQueries({ queryKey: ['events'] });
       
       toast({ 
         title: 'Event Marked Complete', 
-        description: 'The event has been successfully marked as completed.' 
+        description: 'Invoice payment status remains unchanged.' 
       });
       
-      // Optionally close the panel
-      onClose?.();
     } catch (err: any) {
       toast({ title: 'Error', description: err.message, variant: 'destructive' });
     } finally {
       setIsMarkingComplete(false);
     }
-  }, [quoteId, invoiceId, queryClient, toast, onClose]);
+  }, [quoteId, queryClient, toast]);
 
   return {
     handleGenerateEstimate,

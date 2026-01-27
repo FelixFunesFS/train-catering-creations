@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
@@ -49,10 +49,24 @@ export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
     ).join(', ');
   };
 
+  // Check if already completed
+  const isCompleted = quote?.workflow_status === 'completed';
+
+  // Date check - only allow marking complete on or after event day
+  const isEventDayOrLater = useMemo(() => {
+    if (!quote?.event_date) return false;
+    const eventDate = new Date(quote.event_date);
+    eventDate.setHours(0, 0, 0, 0);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return today >= eventDate;
+  }, [quote?.event_date]);
+
   // Determine if "Mark Completed" button should show
   const canMarkComplete = quote?.workflow_status && 
     ['confirmed', 'paid', 'approved', 'awaiting_payment'].includes(quote.workflow_status) &&
-    quote.workflow_status !== 'completed';
+    isEventDayOrLater &&
+    !isCompleted;
 
   return (
     <div className="space-y-6 p-4 lg:p-6">
@@ -66,7 +80,12 @@ export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
           <Badge className={getStatusColor(quote?.workflow_status || 'pending')} variant="secondary">
             {quote?.workflow_status?.replace('_', ' ').toUpperCase()}
           </Badge>
-          {canMarkComplete && onMarkCompleted && (
+          {isCompleted ? (
+            <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200">
+              <CheckCircle2 className="h-3 w-3 mr-1" />
+              Completed
+            </Badge>
+          ) : canMarkComplete && onMarkCompleted ? (
             <Button 
               size="sm" 
               variant="default" 
@@ -81,7 +100,7 @@ export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
               )}
               Mark Complete
             </Button>
-          )}
+          ) : null}
         </div>
       </div>
 

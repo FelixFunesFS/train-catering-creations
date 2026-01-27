@@ -18,35 +18,68 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Get current date
-    const today = new Date();
-    const yesterdayStart = new Date(today);
-    yesterdayStart.setDate(yesterdayStart.getDate() - 1);
-    yesterdayStart.setHours(0, 0, 0, 0);
+    // Check for test mode (manual trigger for specific quote)
+    let testQuoteId: string | null = null;
+    if (req.method === 'POST') {
+      try {
+        const body = await req.json();
+        testQuoteId = body.test_quote_id || null;
+      } catch {
+        // No body or invalid JSON - continue with normal cron behavior
+      }
+    }
 
-    const yesterdayEnd = new Date(today);
-    yesterdayEnd.setDate(yesterdayEnd.getDate() - 1);
-    yesterdayEnd.setHours(23, 59, 59, 999);
+    let quotes: any[] = [];
+    
+    if (testQuoteId) {
+      // TEST MODE: Fetch specific quote regardless of date
+      console.log(`Test mode: Fetching quote ${testQuoteId}`);
+      const { data, error } = await supabaseClient
+        .from('quote_requests')
+        .select(`
+          id,
+          event_name,
+          contact_name,
+          email,
+          event_date,
+          invoices(id, customer_access_token, workflow_status)
+        `)
+        .eq('id', testQuoteId)
+        .single();
+      
+      if (error) throw error;
+      quotes = data ? [data] : [];
+    } else {
+      // NORMAL MODE: Find events from yesterday
+      const today = new Date();
+      const yesterdayStart = new Date(today);
+      yesterdayStart.setDate(yesterdayStart.getDate() - 1);
+      yesterdayStart.setHours(0, 0, 0, 0);
 
-    // Find events from yesterday
-    const { data: quotes, error: quotesError } = await supabaseClient
-      .from('quote_requests')
-      .select(`
-        id,
-        event_name,
-        contact_name,
-        email,
-        event_date,
-        invoices(id, customer_access_token, status)
-      `)
-      .gte('event_date', yesterdayStart.toISOString().split('T')[0])
-      .lte('event_date', yesterdayEnd.toISOString().split('T')[0])
-      .eq('workflow_status', 'completed');
+      const yesterdayEnd = new Date(today);
+      yesterdayEnd.setDate(yesterdayEnd.getDate() - 1);
+      yesterdayEnd.setHours(23, 59, 59, 999);
 
-    if (quotesError) throw quotesError;
+      const { data, error: quotesError } = await supabaseClient
+        .from('quote_requests')
+        .select(`
+          id,
+          event_name,
+          contact_name,
+          email,
+          event_date,
+          invoices(id, customer_access_token, workflow_status)
+        `)
+        .gte('event_date', yesterdayStart.toISOString().split('T')[0])
+        .lte('event_date', yesterdayEnd.toISOString().split('T')[0])
+        .eq('workflow_status', 'completed');
+
+      if (quotesError) throw quotesError;
+      quotes = data || [];
+    }
 
     let emailsSent = 0;
-    const FRONTEND_URL = Deno.env.get('FRONTEND_URL') || 'https://train-catering-creations.lovable.app';
+    const FRONTEND_URL = Deno.env.get('FRONTEND_URL') || 'https://www.soultrainseatery.com';
 
     for (const quote of quotes || []) {
       const invoice = quote.invoices?.[0];
