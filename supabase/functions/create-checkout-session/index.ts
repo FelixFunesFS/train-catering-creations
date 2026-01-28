@@ -146,7 +146,7 @@ const handler = async (req: Request): Promise<Response> => {
       });
     }
 
-    const defaultSuccessUrl = `${siteUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}`;
+    const defaultSuccessUrl = `${siteUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}&token=${invoice.customer_access_token}&type=${payment_type}`;
     const defaultCancelUrl = `${siteUrl}/estimate?token=${invoice.customer_access_token}`;
 
     const session = await stripe.checkout.sessions.create({

@@ -164,7 +164,7 @@ export default function PaymentSuccess() {
                     </div>
                     <div className="flex items-center gap-2">
                       <CreditCard className="h-4 w-4" />
-                      <span>Remaining balance due 10 days prior to event</span>
+                      <span>Remaining balance due 2 weeks prior to event</span>
                     </div>
                   </>
                 ) : (
