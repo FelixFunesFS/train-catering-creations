@@ -313,6 +313,33 @@ const handler = async (req: Request): Promise<Response> => {
       });
     }
 
+    // Before inserting, check for completed transactions to mark milestones as paid
+    logStep("Checking for completed transactions to preserve paid status");
+    const { data: completedTransactions } = await supabase
+      .from("payment_transactions")
+      .select("amount, milestone_id")
+      .eq("invoice_id", invoice_id)
+      .eq("status", "completed");
+
+    const totalPaidFromTransactions = completedTransactions?.reduce((sum, t) => sum + (t.amount || 0), 0) || 0;
+    logStep("Total paid from transactions", { totalPaidFromTransactions, transactionCount: completedTransactions?.length });
+
+    // Apply waterfall payment logic: mark milestones as paid based on actual transaction amounts
+    let remainingPaidAmount = totalPaidFromTransactions;
+    for (const milestone of milestones) {
+      if (remainingPaidAmount >= milestone.amount_cents) {
+        milestone.status = "paid";
+        remainingPaidAmount -= milestone.amount_cents;
+        logStep("Marking milestone as paid from transactions", { 
+          type: milestone.milestone_type, 
+          amount: milestone.amount_cents,
+          remainingPaidAmount 
+        });
+      } else {
+        break; // Waterfall stops when we can't fully pay a milestone
+      }
+    }
+
     logStep("Inserting milestones", { count: milestones.length });
 
     const { data: insertedMilestones, error: insertError } = await supabase
