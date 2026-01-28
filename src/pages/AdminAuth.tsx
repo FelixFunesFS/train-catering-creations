@@ -1,31 +1,36 @@
 import { useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/hooks/useAuth';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Shield } from 'lucide-react';
 
 export default function AdminAuth() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [resetEmail, setResetEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { user, loading, signIn, resetPassword, signInWithGoogle } = useAuth();
+  const { user, loading, isVerifyingAccess, signIn, resetPassword, signInWithGoogle } = useAuth();
 
 
-  // Redirect if already authenticated
-  if (!loading && user) {
+  // Redirect if already authenticated (and verified as admin)
+  if (!loading && !isVerifyingAccess && user) {
     return <Navigate to="/admin" replace />;
   }
 
-  // Show loading spinner while checking auth state
-  if (loading) {
+  // Show loading spinner while checking auth state or verifying access
+  if (loading || isVerifyingAccess) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-muted/40">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          {isVerifyingAccess && (
+            <p className="text-sm text-muted-foreground animate-pulse">Verifying access...</p>
+          )}
+        </div>
       </div>
     );
   }
@@ -46,7 +51,7 @@ export default function AdminAuth() {
 
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-muted/40 p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-background to-muted/40 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold text-primary">
@@ -192,6 +197,36 @@ export default function AdminAuth() {
           </Tabs>
         </CardContent>
       </Card>
+
+      {/* Trust Footer */}
+      <div className="mt-6 text-center space-y-3 max-w-md w-full">
+        {/* Security badge */}
+        <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+          <Shield className="h-3 w-3" />
+          <span>256-bit SSL encrypted</span>
+          <span>•</span>
+          <span>Your data is secure</span>
+        </div>
+        
+        {/* Help section */}
+        <div className="text-xs text-muted-foreground">
+          <p>Need help? Contact Support</p>
+          <p className="mt-1">
+            <a href="tel:+18439700265" className="hover:text-primary transition-colors">(843) 970-0265</a>
+            <span className="mx-2">•</span>
+            <a href="mailto:soultrainseatery@gmail.com" className="hover:text-primary transition-colors">
+              soultrainseatery@gmail.com
+            </a>
+          </p>
+        </div>
+        
+        {/* Legal links */}
+        <div className="text-xs text-muted-foreground">
+          <Link to="/privacy-policy" className="hover:text-primary transition-colors">Privacy Policy</Link>
+          <span className="mx-2">|</span>
+          <Link to="/terms-conditions" className="hover:text-primary transition-colors">Terms of Service</Link>
+        </div>
+      </div>
     </div>
   );
 }

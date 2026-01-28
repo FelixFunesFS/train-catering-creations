@@ -7,6 +7,7 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
+  isVerifyingAccess: boolean;
   signIn: (email: string, password: string) => Promise<{ error?: any }>;
   signUp: (email: string, password: string) => Promise<{ error?: any }>;
   signOut: () => Promise<void>;
@@ -16,15 +17,64 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Check if user has admin or owner role
+const checkAdminAccess = async (userId: string): Promise<boolean> => {
+  try {
+    const { data, error } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', userId)
+      .eq('role', 'admin')
+      .limit(1);
+    
+    if (error) {
+      console.error('Error checking admin access:', error);
+      return false;
+    }
+    
+    return data && data.length > 0;
+  } catch (err) {
+    console.error('Error checking admin access:', err);
+    return false;
+  }
+};
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isVerifyingAccess, setIsVerifyingAccess] = useState(false);
 
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        // Handle OAuth sign-in (Google) - verify admin access
+        if (event === 'SIGNED_IN' && session?.user) {
+          setIsVerifyingAccess(true);
+          
+          // Use setTimeout to avoid Supabase listener deadlock
+          setTimeout(async () => {
+            const hasAccess = await checkAdminAccess(session.user.id);
+            
+            if (!hasAccess) {
+              await supabase.auth.signOut();
+              toast.error('Access denied. Administrator privileges required.');
+              setUser(null);
+              setSession(null);
+              setIsVerifyingAccess(false);
+              setLoading(false);
+              return;
+            }
+            
+            setSession(session);
+            setUser(session.user);
+            setIsVerifyingAccess(false);
+            setLoading(false);
+          }, 0);
+          return;
+        }
+        
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
@@ -32,9 +82,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     );
 
     // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (session?.user) {
+        setIsVerifyingAccess(true);
+        const hasAccess = await checkAdminAccess(session.user.id);
+        
+        if (!hasAccess) {
+          await supabase.auth.signOut();
+          setUser(null);
+          setSession(null);
+          setIsVerifyingAccess(false);
+          setLoading(false);
+          return;
+        }
+        
+        setSession(session);
+        setUser(session.user);
+        setIsVerifyingAccess(false);
+      }
       setLoading(false);
     });
 
@@ -42,18 +107,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
+    setIsVerifyingAccess(true);
+    
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
     
     if (error) {
       toast.error(error.message);
-    } else {
-      toast.success('Signed in successfully');
+      setIsVerifyingAccess(false);
+      return { error };
     }
     
-    return { error };
+    // Check if user has admin access
+    const hasAccess = await checkAdminAccess(data.user.id);
+    
+    if (!hasAccess) {
+      // Immediately sign them out
+      await supabase.auth.signOut();
+      toast.error('Access denied. Administrator privileges required.');
+      setIsVerifyingAccess(false);
+      return { error: { message: 'No admin access' } };
+    }
+    
+    toast.success('Signed in successfully');
+    setIsVerifyingAccess(false);
+    return { error: null };
   };
 
   const signUp = async (email: string, password: string) => {
@@ -121,6 +201,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user,
       session,
       loading,
+      isVerifyingAccess,
       signIn,
       signUp,
       signOut,
