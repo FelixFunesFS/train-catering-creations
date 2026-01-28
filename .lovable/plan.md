@@ -1,328 +1,201 @@
 
-# Payment Confirmation Flow - End-to-End Audit & Fix Plan
 
-## Executive Summary
+# Test Data Cleanup & Payment Display Fix Plan
 
-The customer made a $40.33 deposit payment that was successfully processed, but **three critical issues** prevented the full flow from completing:
+## Summary
 
-1. **CRITICAL: Stripe Webhook Signature Verification Failing** - The `stripe-webhook` function is failing with "SubtleCryptoProvider cannot be used in a synchronous context"
-2. **Invoice Link Not Working** - The `customerAccessToken` is never saved to sessionStorage, so the "View Invoice" button has no token to use
-3. **Milestones Not Updated** - Because the webhook failed, the milestone status wasn't updated from `pending` to `paid`
+You have two distinct issues to address:
 
----
+**Issue A**: Need to delete all test events/invoices EXCEPT the one with the real payment (token `988d681d-b12f-4908-9616-d50903b16dcc`)
 
-## Current Data State (Evidence from Database)
-
-| Field | Value |
-|-------|-------|
-| Transaction ID | `70a1a1db-54ef-450d-a0f5-e57e045943f0` |
-| Amount | $40.33 (4033 cents) |
-| Transaction Status | `completed` (updated by verify-payment) |
-| Invoice Status | `approved` (should be `partially_paid`) |
-| DEPOSIT Milestone | `pending` (should be `paid`) |
-| Payment History | 1 record (created by verify-payment fallback) |
+**Issue B**: The customer portal at `https://www.soultrainseatery.com/estimate?token=988d681d-b12f-4908-9616-d50903b16dcc` doesn't show the $40.33 payment as received because the DEPOSIT milestone is still marked `pending` instead of `paid`
 
 ---
 
-## Issue 1: Stripe Webhook Signature Verification Failing (CRITICAL)
+## Part A: Test Data Cleanup
 
-### Root Cause
-The logs show repeated failures:
+### What Will Be Deleted
+
+Currently you have:
+- 25 quote requests
+- 25 invoices  
+- 7 invoices with payment transactions
+
+After cleanup, you will keep ONLY:
+- Quote Request: `4598ed12-a1f1-410b-b607-14fecd6137c2` (Super Bowl Test)
+- Invoice: `1e502e5b-e500-4ca0-803d-d02f587ab691` (INV-2026-0197)
+- Associated line items, milestones, transactions, and history
+
+### Safe Deletion Script
+
+The script must delete in dependency order to avoid foreign key issues:
+
+```text
+STEP 1: Delete child records for invoices being removed
+- quote_line_items (except for kept quote)
+- admin_notes (except for kept quote)
+- invoice_line_items (except for kept invoice)
+- payment_milestones (except for kept invoice)
+- payment_transactions (except for kept invoice)
+- payment_history (except for kept invoice)
+- invoice_audit_log (except for kept invoice)
+- reminder_logs (except for kept invoice)
+- estimate_versions (except for kept invoice)
+- change_requests (except for kept invoice)
+
+STEP 2: Delete invoices (except kept one)
+- invoices where id != '1e502e5b-e500-4ca0-803d-d02f587ab691'
+
+STEP 3: Delete quote-related records
+- quote_request_history (except for kept quote)
+- calendar_events (except for kept quote)
+- event_documents (except for kept quote)
+- event_timeline_tasks (except for kept quote)
+- event_shopping_items (except for kept quote)
+- staff_assignments (except for kept quote)
+- workflow_step_completion (except for kept quote)
+- message_threads (except for kept quote)
+
+STEP 4: Delete quote_requests (except kept one)
+- quote_requests where id != '4598ed12-a1f1-410b-b607-14fecd6137c2'
+
+STEP 5: Clean up orphaned records
+- customers without any linked quote/invoice
+- workflow_state_log for deleted entities
 ```
-[STRIPE-WEBHOOK] Webhook signature verification failed - 
-{"error":"SubtleCryptoProvider cannot be used in a synchronous context.
-Use `await constructEventAsync(...)` instead of `constructEvent(...)`"}
-```
 
-The Stripe SDK for Deno requires **async** signature verification using `constructEventAsync()` instead of the synchronous `constructEvent()`.
+### How to Execute
 
-### Current Code (Line 54 in stripe-webhook/index.ts)
-```typescript
-event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
-```
-
-### Required Fix
-```typescript
-event = await stripe.webhooks.constructEventAsync(body, signature, webhookSecret);
-```
-
-### Impact
-Because the webhook fails, none of the following happens:
-- Transaction status not updated to `completed`
-- Milestone not marked as `paid`
-- Invoice workflow_status not updated to `partially_paid`
-- Customer confirmation email not sent
-- Admin notification not sent
-
-The only reason the transaction shows `completed` is because `verify-payment` runs as a fallback when the PaymentSuccess page loads.
+Since this is a data modification (not schema change), you will need to run this directly in the Supabase SQL Editor:
+- Go to: https://supabase.com/dashboard/project/qptprrqjlcvfkhfdnnoa/sql/new
+- Paste the SQL script (I'll provide the exact SQL when implementing)
+- Execute with the **Test** environment selected
 
 ---
 
-## Issue 2: Invoice Link Not Working
+## Part B: Fix Payment Not Showing
 
-### Root Cause
-The PaymentSuccess page tries to get the token from sessionStorage:
-```typescript
-const token = sessionStorage.getItem('customerAccessToken') || 
-              new URLSearchParams(window.location.search).get('token');
-```
+### Root Cause Analysis
 
-But **nothing ever sets** `sessionStorage.setItem('customerAccessToken', ...)` anywhere in the codebase.
+The payment was made successfully ($40.33), and both `payment_transactions` and `payment_history` show `completed`. However:
 
-### Flow Analysis
-1. Customer is on `/estimate?token=abc123`
-2. Customer clicks "Pay Now" → redirected to Stripe
-3. After payment, Stripe redirects to `/payment-success?session_id=xxx`
-4. The token is **lost** because:
-   - It's not in the URL params
-   - It's not in sessionStorage
-   - The checkout session metadata has `invoice_id` but not `customer_access_token`
+| Table | Current State | Expected State |
+|-------|---------------|----------------|
+| payment_transactions.status | `completed` ✅ | `completed` |
+| payment_history.status | `completed` ✅ | `completed` |
+| payment_milestones (DEPOSIT) | `pending` ❌ | `paid` |
+| invoices.workflow_status | `approved` ❌ | `partially_paid` |
 
-### Required Fix (Two Options)
+**Why did this happen?**
 
-**Option A: Pass token in success URL** (simpler)
-In `create-checkout-session/index.ts`, update the success URL:
-```typescript
-const defaultSuccessUrl = `${siteUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}&token=${invoice.customer_access_token}&type=deposit`;
-```
+Looking at timestamps:
+- Payment made: `2026-01-28 00:21:04`
+- Payment history created: `2026-01-28 00:22:07`
+- Milestones regenerated: `2026-01-28 00:40:32`
 
-**Option B: Save token to sessionStorage before redirect**
-In `usePaymentCheckout.ts` or the PaymentCard component, save the token before redirecting:
-```typescript
-// Before redirecting to Stripe
-sessionStorage.setItem('customerAccessToken', accessToken);
-window.location.href = data.url;
-```
-
-**Recommendation**: Use Option A (pass in URL) because:
-- It survives browser session loss
-- Works if customer opens payment link in a new tab
-- More reliable than sessionStorage
-
----
-
-## Issue 3: Milestones Not Updated to "Paid"
-
-### Root Cause
-This is a consequence of Issue #1 (webhook failing). The webhook is responsible for:
-1. Matching the payment to the correct milestone
-2. Updating milestone status to `paid`
-3. Checking if invoice is fully paid
-
-### Current State
-The deposit milestone for INV-2026-0197:
-```
-id: 1825a8dd-b29d-4f8f-924b-de192a5ef6e8
-amount_cents: 4033
-status: pending  ← Should be "paid"
-milestone_type: DEPOSIT
-```
-
-The payment transaction:
-```
-id: 70a1a1db-54ef-450d-a0f5-e57e045943f0
-amount: 4033
-status: completed  ← Correctly marked by verify-payment
-milestone_id: null  ← Never linked to milestone
-```
-
-### Fix
-Once the webhook is fixed with `constructEventAsync`, it will correctly:
-1. Find the milestone with matching `amount_cents`
-2. Update its status to `paid`
-3. Update invoice to `partially_paid`
-
----
-
-## Issue 4: verify-payment Also Has Problems
-
-### Current Behavior
-The `verify-payment` function tries to update the invoice with:
-```typescript
-.update({ status: 'paid', paid_at: ... })
-```
-
-But the invoices table uses `workflow_status`, not `status`. This is why logs show:
-```
-Error updating invoice status
-```
+The milestones were regenerated AFTER the payment was processed, which reset them all to `pending` and wiped out the `paid` status.
 
 ### Fix Required
-```typescript
-// verify-payment/index.ts - Line 66-70
-.update({
-  workflow_status: 'paid',  // Not 'status'
-  paid_at: new Date().toISOString(),
-})
+
+Two options:
+
+**Option 1: Manual Data Fix (Quick)**
+Run SQL to update the specific milestone and invoice:
+
+```sql
+-- Mark the DEPOSIT milestone as paid
+UPDATE payment_milestones 
+SET status = 'paid', updated_at = now()
+WHERE invoice_id = '1e502e5b-e500-4ca0-803d-d02f587ab691'
+  AND milestone_type = 'DEPOSIT';
+
+-- Update invoice to partially_paid
+UPDATE invoices
+SET workflow_status = 'partially_paid', last_status_change = now()
+WHERE id = '1e502e5b-e500-4ca0-803d-d02f587ab691';
 ```
 
-Also, verify-payment should:
-1. Check if it's a partial payment before marking as fully paid
-2. Update the milestone status to `paid`
-3. Update workflow_status to `partially_paid` for deposits
+**Option 2: Prevent Future Occurrence (Code Fix)**
+The `generate-payment-milestones` function already preserves paid milestone AMOUNTS when regenerating, but it doesn't match them by amount. It should also check existing `payment_transactions` and mark milestones accordingly.
+
+### Recommended Approach
+
+1. Execute the manual SQL fix now to make the portal display correctly
+2. Update `generate-payment-milestones` to check for completed transactions when regenerating, so this edge case is handled automatically in the future
 
 ---
 
-## Issue 5: PaymentSuccess Page Hardcodes "10 days prior" (Minor)
+## Part C: Verify Stripe Webhook is Working
 
-### Current Text (Line 167)
+Since you're testing on the custom domain (www.soultrainseatery.com), you need to ensure your Stripe webhook is configured to POST to your Supabase Edge Function URL, not a Lovable preview URL.
+
+### Current Expected Webhook URL
 ```
-Remaining balance due 10 days prior to event
-```
-
-### Actual Schedule
-Based on the payment tier system:
-- SHORT_NOTICE: 7 days before
-- MID_RANGE/STANDARD: 14 days before
-- GOVERNMENT: Net 30 after event
-
-### Fix
-This should dynamically pull from milestone data, not be hardcoded. But since the webhook isn't passing milestone data to the success page, we should at least correct it to "14 days" for consistency with the most common case.
-
----
-
-## Complete Fix Summary
-
-| Issue | File | Line | Change |
-|-------|------|------|--------|
-| #1 Webhook Async | `stripe-webhook/index.ts` | 54 | Change `constructEvent` to `await constructEventAsync` |
-| #2 Token in URL | `create-checkout-session/index.ts` | 149 | Add `&token=${invoice.customer_access_token}&type=${payment_type}` |
-| #3 Milestone Update | (Fixed by #1) | - | Webhook will work after async fix |
-| #4 verify-payment status | `verify-payment/index.ts` | 67 | Change `status` to `workflow_status` |
-| #4 verify-payment partial | `verify-payment/index.ts` | 63-76 | Add logic to detect partial vs full payment |
-| #5 Due date text | `PaymentSuccess.tsx` | 167 | Change "10 days" to "2 weeks" or make dynamic |
-
----
-
-## Implementation Priority
-
-1. **CRITICAL: Fix stripe-webhook async** - This is blocking ALL payment processing
-2. **HIGH: Fix token passing in success URL** - Customers can't navigate back to invoice
-3. **HIGH: Fix verify-payment status field** - Fallback processor is failing silently
-4. **MEDIUM: Enhance verify-payment for partial payments** - Proper milestone tracking
-5. **LOW: Fix hardcoded due date text** - UX consistency
-
----
-
-## Testing Plan After Implementation
-
-1. **Deploy updated edge functions**
-2. **Make a test payment** on invoice INV-2026-0197
-3. **Verify webhook logs** show "Webhook signature verified" (not failed)
-4. **Check database**:
-   - Milestone status = `paid`
-   - Invoice workflow_status = `partially_paid`
-   - Payment transaction = `completed` with `milestone_id` populated
-5. **Verify PaymentSuccess page**:
-   - "View Invoice" button works
-   - Redirects to `/estimate?token=...` correctly
-6. **Check customer email**:
-   - Received payment confirmation
-   - Correct remaining balance shown
-
----
-
-## Technical Details for Implementation
-
-### Fix 1: stripe-webhook async signature verification
-```typescript
-// Line 52-62 in stripe-webhook/index.ts
-let event: Stripe.Event;
-try {
-  event = await stripe.webhooks.constructEventAsync(body, signature, webhookSecret);
-  logStep("Webhook signature verified");
-} catch (err) {
-  logStep("Webhook signature verification failed", { error: err.message });
-  return new Response(JSON.stringify({ error: "Invalid signature" }), {
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
-    status: 400,
-  });
-}
+https://qptprrqjlcvfkhfdnnoa.supabase.co/functions/v1/stripe-webhook
 ```
 
-### Fix 2: Pass token in success URL
-```typescript
-// Line 149 in create-checkout-session/index.ts
-const defaultSuccessUrl = `${siteUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}&token=${invoice.customer_access_token}&type=${payment_type}`;
-```
+### Verify in Stripe Dashboard
+1. Go to Stripe Dashboard > Developers > Webhooks
+2. Check that the endpoint URL matches the Supabase function URL above
+3. Verify the endpoint is listening for:
+   - `checkout.session.completed`
+   - `checkout.session.async_payment_failed`
 
-### Fix 3: verify-payment workflow_status and partial payment logic
-```typescript
-// Lines 62-76 in verify-payment/index.ts
-if (session.payment_status === 'paid' && transaction) {
-  // Calculate total paid for this invoice
-  const { data: allTxs } = await supabase
-    .from('payment_transactions')
-    .select('amount')
-    .eq('invoice_id', transaction.invoice_id)
-    .eq('status', 'completed');
-  
-  const { data: invoice } = await supabase
-    .from('invoices')
-    .select('total_amount')
-    .eq('id', transaction.invoice_id)
-    .single();
-  
-  const totalPaid = (allTxs || []).reduce((sum, t) => sum + t.amount, 0);
-  const isFullyPaid = invoice && totalPaid >= invoice.total_amount;
-  
-  const { error: invoiceUpdateError } = await supabase
-    .from('invoices')
-    .update({
-      workflow_status: isFullyPaid ? 'paid' : 'partially_paid',
-      ...(isFullyPaid && { paid_at: new Date().toISOString() }),
-    })
-    .eq('id', transaction.invoice_id);
-  
-  // Also update the matching milestone
-  const { data: milestones } = await supabase
-    .from('payment_milestones')
-    .select('id, amount_cents')
-    .eq('invoice_id', transaction.invoice_id)
-    .eq('status', 'pending')
-    .order('due_date', { ascending: true });
-  
-  if (milestones?.length) {
-    const match = milestones.find(m => m.amount_cents === transaction.amount) || milestones[0];
-    await supabase
-      .from('payment_milestones')
-      .update({ status: 'paid' })
-      .eq('id', match.id);
-  }
-}
-```
+### Test Webhook is Receiving Events
+After the next payment, check the edge function logs:
+https://supabase.com/dashboard/project/qptprrqjlcvfkhfdnnoa/functions/stripe-webhook/logs
+
+You should see:
+- "Webhook received"
+- "Webhook signature verified"
+- "Checkout session completed"
+- "Transaction updated to completed"
+- "Milestone marked as paid"
+
+If you don't see these logs after a payment, the webhook URL configuration is incorrect.
 
 ---
 
-## Admin Process Review
+## Implementation Steps
 
-The admin should be able to see:
-1. **Event list**: Payment status indicator updated
-2. **Event detail**: Payment card showing partial payment received
-3. **Notification**: Admin notification email when payment received
+### Step 1: Fix Current Payment Display (SQL)
+Run in Supabase SQL Editor to immediately fix the portal:
 
-All of these depend on the webhook working correctly. Once `constructEventAsync` is fixed, the entire flow will work.
+```sql
+-- Fix DEPOSIT milestone
+UPDATE payment_milestones 
+SET status = 'paid', updated_at = now()
+WHERE invoice_id = '1e502e5b-e500-4ca0-803d-d02f587ab691'
+  AND milestone_type = 'DEPOSIT';
+
+-- Update invoice status
+UPDATE invoices
+SET workflow_status = 'partially_paid', 
+    last_status_change = now()
+WHERE id = '1e502e5b-e500-4ca0-803d-d02f587ab691';
+```
+
+### Step 2: Delete Test Data (SQL)
+Full cleanup script (will be provided during implementation)
+
+### Step 3: Code Enhancement (Optional)
+Update `generate-payment-milestones` to check for existing completed transactions and preserve milestone `paid` status accordingly
 
 ---
 
-## Best Way to Think About This
+## Verification After Fixes
 
-The payment flow has **three layers of processing**:
+1. **Portal Payment Display**: Visit `https://www.soultrainseatery.com/estimate?token=988d681d-b12f-4908-9616-d50903b16dcc`
+   - DEPOSIT milestone should show "Paid" badge
+   - Progress bar should show 10% complete
+   - Remaining balance should be ~$363
 
-1. **Stripe Webhook** (primary) - Should handle all payment processing
-   - Update transaction
-   - Update milestone
-   - Update invoice status
-   - Send emails
-   
-2. **verify-payment** (fallback) - Runs when PaymentSuccess page loads
-   - Provides immediate feedback to customer
-   - Should NOT duplicate webhook work, but handle edge cases
-   
-3. **PaymentSuccess UI** (display) - Shows confirmation to customer
-   - Needs token to link back to invoice
-   - Needs payment details from verify-payment
+2. **Admin View**: Check admin panel event list
+   - Only one event remaining (Super Bowl Test)
+   - Payment status shows "Deposit Paid" or similar
 
-Currently, Layer 1 is broken (async issue), so Layer 2 is doing partial work but with bugs (wrong field name). Layer 3 is missing the token.
+3. **Next Payment Test**: Make the 50% milestone payment
+   - Verify webhook logs show successful processing
+   - Verify milestone updates to `paid`
+   - Verify invoice stays `partially_paid`
 
-The fix is to repair all three layers to work correctly independently and together.
