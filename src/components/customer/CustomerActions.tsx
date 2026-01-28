@@ -4,6 +4,7 @@ import { ChangeRequestModal } from './ChangeRequestModal';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { CheckCircle, MessageSquare, Loader2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface CustomerActionsProps {
   invoiceId: string;
@@ -13,6 +14,8 @@ interface CustomerActionsProps {
   amountPaid?: number;
   onStatusChange?: () => void;
   autoApprove?: boolean;
+  /** 'stacked' forces vertical layout for narrow containers like sidebars */
+  layout?: 'auto' | 'stacked';
 }
 
 export function CustomerActions({
@@ -23,6 +26,7 @@ export function CustomerActions({
   amountPaid = 0,
   onStatusChange,
   autoApprove = false,
+  layout = 'auto',
 }: CustomerActionsProps) {
   const [isApproving, setIsApproving] = useState(false);
   const [showChangeModal, setShowChangeModal] = useState(false);
@@ -163,13 +167,18 @@ export function CustomerActions({
     return null;
   }
 
+  const buttonSize = layout === 'stacked' ? 'default' : 'lg';
+
   return (
     <>
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className={cn(
+        "flex gap-3",
+        layout === 'stacked' ? "flex-col" : "flex-col sm:flex-row"
+      )}>
         <Button
           onClick={handleApprove}
           disabled={isApproving}
-          size="lg"
+          size={buttonSize}
           className="flex-1 bg-primary hover:bg-primary/90"
         >
           {isApproving ? (
@@ -183,7 +192,7 @@ export function CustomerActions({
         <Button
           variant="outline"
           onClick={() => setShowChangeModal(true)}
-          size="lg"
+          size={buttonSize}
           className="flex-1"
         >
           <MessageSquare className="mr-2 h-4 w-4" />

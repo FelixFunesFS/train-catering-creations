@@ -437,7 +437,7 @@ export function CustomerEstimateView() {
         {/* Left Panel - Customer Details Sidebar (25%) - NOW WITH CTAs AT TOP */}
         <ResizablePanel 
           defaultSize={25} 
-          minSize={20} 
+          minSize={22} 
           maxSize={30}
           className="bg-background"
         >
