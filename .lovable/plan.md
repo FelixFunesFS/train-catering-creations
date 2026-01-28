@@ -1,201 +1,148 @@
 
 
-# Test Data Cleanup & Payment Display Fix Plan
+# Customer Portal Left Sidebar CTA Responsiveness Fix
 
-## Summary
+## Problem Identified
 
-You have two distinct issues to address:
-
-**Issue A**: Need to delete all test events/invoices EXCEPT the one with the real payment (token `988d681d-b12f-4908-9616-d50903b16dcc`)
-
-**Issue B**: The customer portal at `https://www.soultrainseatery.com/estimate?token=988d681d-b12f-4908-9616-d50903b16dcc` doesn't show the $40.33 payment as received because the DEPOSIT milestone is still marked `pending` instead of `paid`
-
----
-
-## Part A: Test Data Cleanup
-
-### What Will Be Deleted
-
-Currently you have:
-- 25 quote requests
-- 25 invoices  
-- 7 invoices with payment transactions
-
-After cleanup, you will keep ONLY:
-- Quote Request: `4598ed12-a1f1-410b-b607-14fecd6137c2` (Super Bowl Test)
-- Invoice: `1e502e5b-e500-4ca0-803d-d02f587ab691` (INV-2026-0197)
-- Associated line items, milestones, transactions, and history
-
-### Safe Deletion Script
-
-The script must delete in dependency order to avoid foreign key issues:
-
-```text
-STEP 1: Delete child records for invoices being removed
-- quote_line_items (except for kept quote)
-- admin_notes (except for kept quote)
-- invoice_line_items (except for kept invoice)
-- payment_milestones (except for kept invoice)
-- payment_transactions (except for kept invoice)
-- payment_history (except for kept invoice)
-- invoice_audit_log (except for kept invoice)
-- reminder_logs (except for kept invoice)
-- estimate_versions (except for kept invoice)
-- change_requests (except for kept invoice)
-
-STEP 2: Delete invoices (except kept one)
-- invoices where id != '1e502e5b-e500-4ca0-803d-d02f587ab691'
-
-STEP 3: Delete quote-related records
-- quote_request_history (except for kept quote)
-- calendar_events (except for kept quote)
-- event_documents (except for kept quote)
-- event_timeline_tasks (except for kept quote)
-- event_shopping_items (except for kept quote)
-- staff_assignments (except for kept quote)
-- workflow_step_completion (except for kept quote)
-- message_threads (except for kept quote)
-
-STEP 4: Delete quote_requests (except kept one)
-- quote_requests where id != '4598ed12-a1f1-410b-b607-14fecd6137c2'
-
-STEP 5: Clean up orphaned records
-- customers without any linked quote/invoice
-- workflow_state_log for deleted entities
-```
-
-### How to Execute
-
-Since this is a data modification (not schema change), you will need to run this directly in the Supabase SQL Editor:
-- Go to: https://supabase.com/dashboard/project/qptprrqjlcvfkhfdnnoa/sql/new
-- Paste the SQL script (I'll provide the exact SQL when implementing)
-- Execute with the **Test** environment selected
-
----
-
-## Part B: Fix Payment Not Showing
+The "Approve Estimate" and "Request Changes" buttons in the left sidebar of the desktop 3-column customer portal layout can overlap or overflow when the left panel is at narrower widths.
 
 ### Root Cause Analysis
 
-The payment was made successfully ($40.33), and both `payment_transactions` and `payment_history` show `completed`. However:
+1. **Panel Width Constraint**: The left `ResizablePanel` has `defaultSize={25}` with `minSize={20}` and `maxSize={30}` - meaning it can be as narrow as 20% of the viewport width.
 
-| Table | Current State | Expected State |
-|-------|---------------|----------------|
-| payment_transactions.status | `completed` ✅ | `completed` |
-| payment_history.status | `completed` ✅ | `completed` |
-| payment_milestones (DEPOSIT) | `pending` ❌ | `paid` |
-| invoices.workflow_status | `approved` ❌ | `partially_paid` |
+2. **Button Layout Issue**: The `CustomerActions` component uses `flex-col sm:flex-row` for button layout. Since the sidebar is within a desktop viewport (>640px), the `sm:` breakpoint always applies, forcing buttons side-by-side even when the panel itself is too narrow.
 
-**Why did this happen?**
+3. **Flex-1 on Buttons**: Both buttons have `flex-1` class, attempting to share equal width. In a constrained 20% panel, this causes text truncation or overflow.
 
-Looking at timestamps:
-- Payment made: `2026-01-28 00:21:04`
-- Payment history created: `2026-01-28 00:22:07`
-- Milestones regenerated: `2026-01-28 00:40:32`
-
-The milestones were regenerated AFTER the payment was processed, which reset them all to `pending` and wiped out the `paid` status.
-
-### Fix Required
-
-Two options:
-
-**Option 1: Manual Data Fix (Quick)**
-Run SQL to update the specific milestone and invoice:
-
-```sql
--- Mark the DEPOSIT milestone as paid
-UPDATE payment_milestones 
-SET status = 'paid', updated_at = now()
-WHERE invoice_id = '1e502e5b-e500-4ca0-803d-d02f587ab691'
-  AND milestone_type = 'DEPOSIT';
-
--- Update invoice to partially_paid
-UPDATE invoices
-SET workflow_status = 'partially_paid', last_status_change = now()
-WHERE id = '1e502e5b-e500-4ca0-803d-d02f587ab691';
-```
-
-**Option 2: Prevent Future Occurrence (Code Fix)**
-The `generate-payment-milestones` function already preserves paid milestone AMOUNTS when regenerating, but it doesn't match them by amount. It should also check existing `payment_transactions` and mark milestones accordingly.
-
-### Recommended Approach
-
-1. Execute the manual SQL fix now to make the portal display correctly
-2. Update `generate-payment-milestones` to check for completed transactions when regenerating, so this edge case is handled automatically in the future
+4. **No Container Query**: CSS relies on viewport width (`sm:` breakpoint = 640px), not the actual container width, causing the row layout to apply when the panel is still too narrow.
 
 ---
 
-## Part C: Verify Stripe Webhook is Working
+## Solution Approach
 
-Since you're testing on the custom domain (www.soultrainseatery.com), you need to ensure your Stripe webhook is configured to POST to your Supabase Edge Function URL, not a Lovable preview URL.
+Since CSS Container Queries have limited browser support, use a responsive strategy that forces vertical stacking in the sidebar context:
 
-### Current Expected Webhook URL
-```
-https://qptprrqjlcvfkhfdnnoa.supabase.co/functions/v1/stripe-webhook
-```
+### Option A: Force Column Layout in Sidebar (Recommended)
 
-### Verify in Stripe Dashboard
-1. Go to Stripe Dashboard > Developers > Webhooks
-2. Check that the endpoint URL matches the Supabase function URL above
-3. Verify the endpoint is listening for:
-   - `checkout.session.completed`
-   - `checkout.session.async_payment_failed`
+Override the `CustomerActions` button layout specifically when used inside `CustomerDetailsSidebar` by passing a prop or using a wrapper class.
 
-### Test Webhook is Receiving Events
-After the next payment, check the edge function logs:
-https://supabase.com/dashboard/project/qptprrqjlcvfkhfdnnoa/functions/stripe-webhook/logs
+### Option B: Increase Left Panel Minimum Width
 
-You should see:
-- "Webhook received"
-- "Webhook signature verified"
-- "Checkout session completed"
-- "Transaction updated to completed"
-- "Milestone marked as paid"
+Change `minSize={20}` to `minSize={25}` to ensure buttons always have enough room.
 
-If you don't see these logs after a payment, the webhook URL configuration is incorrect.
+### Option C: Use Smaller Button Size in Sidebar
+
+Apply `size="default"` or `size="sm"` instead of `size="lg"` for the sidebar context to reduce button text length.
+
+**Recommended**: Combine Options A and C - force vertical stacking with slightly smaller buttons in the constrained sidebar.
 
 ---
 
-## Implementation Steps
+## Implementation Plan
 
-### Step 1: Fix Current Payment Display (SQL)
-Run in Supabase SQL Editor to immediately fix the portal:
+### Step 1: Add Variant Prop to CustomerActions
 
-```sql
--- Fix DEPOSIT milestone
-UPDATE payment_milestones 
-SET status = 'paid', updated_at = now()
-WHERE invoice_id = '1e502e5b-e500-4ca0-803d-d02f587ab691'
-  AND milestone_type = 'DEPOSIT';
+Modify `CustomerActions.tsx` to accept a `compact` or `layout` prop that forces column layout regardless of viewport:
 
--- Update invoice status
-UPDATE invoices
-SET workflow_status = 'partially_paid', 
-    last_status_change = now()
-WHERE id = '1e502e5b-e500-4ca0-803d-d02f587ab691';
+```typescript
+interface CustomerActionsProps {
+  // ... existing props
+  layout?: 'auto' | 'stacked'; // 'stacked' forces vertical layout
+}
+
+// In the button container:
+<div className={cn(
+  "flex gap-3",
+  layout === 'stacked' ? "flex-col" : "flex-col sm:flex-row"
+)}>
 ```
 
-### Step 2: Delete Test Data (SQL)
-Full cleanup script (will be provided during implementation)
+### Step 2: Update CustomerDetailsSidebar to Use Stacked Layout
 
-### Step 3: Code Enhancement (Optional)
-Update `generate-payment-milestones` to check for existing completed transactions and preserve milestone `paid` status accordingly
+Pass `layout="stacked"` when rendering CustomerActions in the sidebar:
+
+```tsx
+<CustomerActions
+  invoiceId={invoiceId}
+  customerEmail={customerEmail || quote.email}
+  status={workflowStatus}
+  quoteRequestId={quoteRequestId}
+  amountPaid={amountPaid}
+  onStatusChange={onStatusChange}
+  autoApprove={autoApprove}
+  layout="stacked" // Force vertical stacking
+/>
+```
+
+### Step 3: Use Default Button Size in Sidebar
+
+Change buttons from `size="lg"` to `size="default"` in the stacked layout context to fit better in narrow panels:
+
+```tsx
+<Button
+  onClick={handleApprove}
+  disabled={isApproving}
+  size={layout === 'stacked' ? 'default' : 'lg'}
+  className="flex-1 bg-primary hover:bg-primary/90"
+>
+```
+
+### Step 4: Add Minimum Width Safety to Left Panel
+
+As a safety net, increase the left panel minimum size from 20% to 22%:
+
+```tsx
+<ResizablePanel 
+  defaultSize={25} 
+  minSize={22}  // Increased from 20
+  maxSize={30}
+  className="bg-background"
+>
+```
 
 ---
 
-## Verification After Fixes
+## Files to Modify
 
-1. **Portal Payment Display**: Visit `https://www.soultrainseatery.com/estimate?token=988d681d-b12f-4908-9616-d50903b16dcc`
-   - DEPOSIT milestone should show "Paid" badge
-   - Progress bar should show 10% complete
-   - Remaining balance should be ~$363
+| File | Change |
+|------|--------|
+| `src/components/customer/CustomerActions.tsx` | Add `layout` prop, conditionally apply column layout and button size |
+| `src/components/customer/CustomerDetailsSidebar.tsx` | Pass `layout="stacked"` to CustomerActions |
+| `src/components/customer/CustomerEstimateView.tsx` | Increase left panel `minSize` from 20 to 22 |
 
-2. **Admin View**: Check admin panel event list
-   - Only one event remaining (Super Bowl Test)
-   - Payment status shows "Deposit Paid" or similar
+---
 
-3. **Next Payment Test**: Make the 50% milestone payment
-   - Verify webhook logs show successful processing
-   - Verify milestone updates to `paid`
-   - Verify invoice stays `partially_paid`
+## Testing Verification
+
+Since all test data with "sent"/"viewed" status was deleted, verification will require:
+
+1. Creating a new test quote request and invoice via the admin panel
+2. Setting the invoice to "sent" status
+3. Viewing the customer portal at various screen widths
+4. Confirming buttons stack vertically in the left sidebar
+5. Confirming buttons don't overflow or overlap at minimum panel width
+
+---
+
+## Visual Outcome
+
+**Before Fix:**
+- Buttons forced side-by-side in narrow 20% panel
+- Text truncates or overflows at narrow widths
+- Potential for visual overlap with adjacent content
+
+**After Fix:**
+- Buttons always stack vertically in sidebar
+- Each button has full width within the panel
+- Clean, consistent appearance at all panel widths
+- Improved touch targets on each button
+
+---
+
+## Technical Notes
+
+- The `MenuActionsPanel` (right column) retains the original `sm:flex-row` behavior since it has a larger panel allocation (40%)
+- Mobile layout is unchanged (already uses `MainContent` component with different structure)
+- No breaking changes to existing functionality
+- The layout prop is optional with a default value, maintaining backward compatibility
 
