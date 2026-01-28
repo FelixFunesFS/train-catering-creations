@@ -86,6 +86,7 @@ export function CustomerDetailsSidebar({
                 amountPaid={amountPaid}
                 onStatusChange={onStatusChange}
                 autoApprove={autoApprove}
+                layout="stacked"
               />
             </CardContent>
           </Card>
