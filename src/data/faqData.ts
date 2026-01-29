@@ -99,13 +99,6 @@ export const faqData: FAQItem[] = [
     keywords: ["documentation", "security", "clearance", "military", "base access", "requirements"]
   },
   {
-    id: "military-discounts",
-    question: "Do you offer military discounts?",
-    answer: "Yes, we proudly offer a 10% discount to active duty military personnel, veterans, and their families. We also provide special pricing for military unit events and base functions. Please mention your military status when requesting a quote.",
-    category: "military",
-    keywords: ["military discount", "veteran", "active duty", "special pricing", "military families"]
-  },
-  {
     id: "base-restrictions",
     question: "Are there any restrictions for military base catering?",
     answer: "Each military base has specific guidelines regarding outside vendors. We're familiar with these requirements and ensure all our staff and equipment meet base standards. We coordinate directly with base personnel to handle any special protocols or security measures.",
@@ -135,13 +128,6 @@ export const faqData: FAQItem[] = [
     category: "menu",
     keywords: ["tasting", "food samples", "wedding", "large events", "menu preview"]
   },
-  {
-    id: "alcohol-service",
-    question: "Do you provide alcohol service?",
-    answer: "We can coordinate beverage service including beer, wine, and signature cocktails through our licensed partners. We handle all permits and ensure responsible service. Please discuss your beverage needs when requesting your quote.",
-    category: "menu",
-    keywords: ["alcohol", "beverages", "beer", "wine", "cocktails", "bar service", "permits"]
-  },
 
   // Pricing & Payment
   {
@@ -154,7 +140,7 @@ export const faqData: FAQItem[] = [
   {
     id: "payment-terms",
     question: "What are your payment terms?",
-    answer: "We require a 25% deposit to secure your date, with the balance due 48 hours before your event. We accept cash, check, and all major credit cards. For large events, we can discuss payment plan options.",
+    answer: "We follow a tiered payment schedule: A 10% non-refundable deposit secures your date and is credited toward your final payment. 50% is due 30 days before your event, and the final 40% is due 14 days before. We accept cash, check, credit/debit cards, ACH bank transfer, Venmo, and Zelle. A 3% processing fee applies to credit card payments over $1,000.",
     category: "pricing",
     keywords: ["payment", "deposit", "balance", "credit cards", "payment plan", "terms"]
   },
@@ -168,7 +154,7 @@ export const faqData: FAQItem[] = [
   {
     id: "quote-validity",
     question: "How long is my quote valid?",
-    answer: "Quotes are valid for 30 days from the date issued. Food costs can fluctuate with market prices, so we recommend securing your booking within this timeframe. We'll honor quoted prices once your deposit is received.",
+    answer: "Quotes are valid for 7 days from the date issued. For events approaching quickly, validity may be shorter due to ingredient pricing and availability. We recommend securing your booking promptly to lock in your quoted price. Once your deposit is received, the quoted price is honored.",
     category: "pricing",
     keywords: ["quote validity", "price guarantee", "market prices", "booking deadline"]
   },
@@ -207,9 +193,9 @@ export const faqData: FAQItem[] = [
   {
     id: "cancellation-policy",
     question: "What is your cancellation policy?",
-    answer: "Cancellations made 14+ days before your event receive a full refund minus a $50 processing fee. Cancellations 7-13 days prior forfeit 50% of the deposit. Cancellations less than 7 days before the event forfeit the full deposit. We understand emergencies happen and will work with you when possible.",
+    answer: "Cancellations more than 14 days before your event forfeit the deposit only. Cancellations 8-14 days prior forfeit 50% of the total amount. Cancellations within 7 days of the event forfeit 100% of the total amount. Rescheduling requests must be made at least 14 days in advance, and one complimentary reschedule is allowed per booking, subject to availability.",
     category: "policies",
-    keywords: ["cancellation", "refund", "deposit", "emergency", "processing fee"]
+    keywords: ["cancellation", "refund", "deposit", "rescheduling", "forfeiture"]
   },
   {
     id: "weather-policy",
