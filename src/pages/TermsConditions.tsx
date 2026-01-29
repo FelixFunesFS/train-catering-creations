@@ -107,9 +107,10 @@ const TermsConditions = () => {
               <div className="space-y-4 text-muted-foreground">
                 <p><strong>Client Cancellations:</strong></p>
                 <ul className="list-disc pl-6 space-y-2">
-                  <li>30+ days before event: Full refund minus processing fees</li>
-                  <li>14-29 days before event: 50% refund of total contract</li>
-                  <li>Less than 14 days: No refund, full payment due</li>
+                  <li>14+ days before event: Deposit forfeited only</li>
+                  <li>8-14 days before event: 50% of total amount forfeited</li>
+                  <li>Within 7 days of event: 100% of total amount forfeited</li>
+                  <li>Rescheduling: One complimentary reschedule allowed per booking (14+ days notice required)</li>
                 </ul>
                 <p>
                   <strong>Force Majeure:</strong> We are not liable for delays or inability to perform
