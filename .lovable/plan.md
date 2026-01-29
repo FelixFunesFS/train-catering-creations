@@ -1,147 +1,178 @@
 
-# Date Off-By-One Bug Fix
 
-## Root Cause Analysis
+# Complete Date Bug Fix - Formal Quote Form + Remaining Edge Functions
 
-The date picker in `EventDetailsStep.tsx` (line 251) uses `toISOString().split('T')[0]` to convert the selected date to a string:
+## Summary of Analysis
 
+The date helpers (`src/utils/dateHelpers.ts` and `supabase/functions/_shared/dateHelpers.ts`) were already created in the previous fix. Now we need to apply them to the remaining files that still use the problematic `toISOString().split('T')[0]` pattern.
+
+---
+
+## Files Requiring Updates
+
+### 1. Frontend - Formal/Wedding Quote Form
+
+**File:** `src/components/quote/alternative-form/ContactAndEventStep.tsx`
+
+**Current (Line 360):**
 ```typescript
 onChange={(date) => field.onChange(date?.toISOString().split('T')[0])}
 ```
 
-**Why This Causes the Bug:**
-
-When a user in Charleston (Eastern Time, UTC-5) selects "March 15, 2026" at any time before 7:00 PM local time:
-1. The Calendar component returns a `Date` object representing March 15, 2026 at 00:00:00 LOCAL time
-2. `toISOString()` converts this to UTC, shifting it BACK by 5 hours
-3. Result: `2026-03-14T19:00:00.000Z` (March 14th in UTC)
-4. After `.split('T')[0]`: `"2026-03-14"` - **THE WRONG DATE**
-
----
-
-## Impact Assessment
-
-### Frontend (Form Input)
-| Location | File | Issue |
-|----------|------|-------|
-| Event Date Picker | `EventDetailsStep.tsx:251` | Date stored as previous day |
-
-### Frontend (Date Display)
-| Location | File | Status |
-|----------|------|--------|
-| Admin event lists | Uses `format(new Date(event_date), ...)` | **OK** - displays stored date correctly |
-| Email template preview | Uses `toLocaleDateString()` | **OK** - displays correctly |
-
-### Backend (Edge Functions)
-| Function | Usage | Impact |
-|----------|-------|--------|
-| `generate-payment-milestones` | `new Date(quote.event_date)` for milestone calculations | **AFFECTED** - milestone due dates could shift |
-| `unified-reminder-system` | Compares dates using `toISOString().split('T')[0]` | **AFFECTED** - reminders could fire on wrong day |
-| `send-event-reminders` | Date comparisons | **AFFECTED** - 7-day/2-day reminders off by 1 day |
-| `event-timeline-generator` | Task due date calculations | **AFFECTED** - timeline tasks off by 1 day |
-| `_shared/emailTemplates.ts` | `formatDate()` with `timeZone: 'America/New_York'` | **OK** - displays correctly |
-
-### Database Storage
-The `quote_requests.event_date` column stores a `DATE` type (no time component), so once the wrong date string is inserted, it's persisted incorrectly.
-
----
-
-## Solution Strategy
-
-Create a **locale-aware date formatting utility** that extracts the local date components instead of using UTC conversion.
-
-### The Fix
-
-Replace `toISOString().split('T')[0]` with a utility function:
-
+**Fixed:**
 ```typescript
-// src/utils/dateHelpers.ts
-/**
- * Format a Date object to YYYY-MM-DD string using LOCAL timezone
- * Prevents the off-by-one day bug caused by UTC conversion
- */
-export function formatDateToLocalString(date: Date): string {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
-
-/**
- * Parse a YYYY-MM-DD string to a Date object in LOCAL timezone
- * Use this instead of new Date(dateString) to avoid timezone shifts
- */
-export function parseDateFromLocalString(dateStr: string): Date {
-  const [year, month, day] = dateStr.split('-').map(Number);
-  return new Date(year, month - 1, day);
-}
-```
-
----
-
-## Files to Modify
-
-### 1. Create Date Helpers Utility
-**File:** `src/utils/dateHelpers.ts` (NEW)
-
-Create centralized date utilities:
-- `formatDateToLocalString(date: Date): string` - Local date to YYYY-MM-DD
-- `parseDateFromLocalString(dateStr: string): Date` - YYYY-MM-DD to local Date
-- Document the timezone handling approach
-
-### 2. Fix Form Date Picker
-**File:** `src/components/quote/steps/EventDetailsStep.tsx`
-
-Change line 251 from:
-```typescript
-onChange={(date) => field.onChange(date?.toISOString().split('T')[0])}
-```
-To:
-```typescript
+import { formatDateToLocalString } from "@/utils/dateHelpers";
+// ...
 onChange={(date) => field.onChange(date ? formatDateToLocalString(date) : undefined)}
 ```
 
-### 3. Update Form Schema Validation
-**File:** `src/components/quote/alternative-form/formSchema.ts`
-
-Update the `event_date` validation refinement (lines 28-39) to use the local date parsing utility for accurate date comparison.
-
-### 4. Update Payment Scheduling Utilities
-**File:** `src/utils/paymentScheduling.ts`
-
-Replace `toISOString().split('T')[0]` calls (lines 210, 212) with `formatDateToLocalString()`.
-
-### 5. Update Payment Milestone Service
-**File:** `src/services/PaymentMilestoneService.ts`
-
-Replace line 63:
+**Also fix Line 359 (value parsing):**
 ```typescript
-due_date: typeof payment.due_date === 'string' ? null : payment.due_date.toISOString().split('T')[0],
+// Current: value={field.value ? new Date(field.value) : undefined}
+// Fixed: value={field.value ? new Date(field.value + 'T00:00:00') : undefined}
 ```
-With the local date formatter.
 
-### 6. Update Edge Functions (Deno)
-Create a shared date helper in `supabase/functions/_shared/dateHelpers.ts` with the same logic, then update:
-
-| Edge Function | Lines to Update |
-|---------------|-----------------|
-| `generate-payment-milestones/index.ts` | Lines 144, 157, 189, 201, 232, 244, 284, 296, 308 |
-| `unified-reminder-system/index.ts` | Lines 45, 145, 259, 336, 393, 448 |
-| `send-event-reminders/index.ts` | Lines 44, 45 |
-| `update-quote-workflow/index.ts` | Line 266 |
-| `token-renewal-manager/index.ts` | Line 98 |
+This matches the fix already applied to `EventDetailsStep.tsx`.
 
 ---
 
-## Backward Compatibility
+### 2. Edge Functions - generate-invoice-from-quote
 
-**Existing Data:**
-- Dates already stored in the database may be off by one day
-- The fix only prevents NEW submissions from having the issue
-- A data migration script could be provided separately if needed
+**File:** `supabase/functions/generate-invoice-from-quote/index.ts`
 
-**Display Functions:**
-- Functions like `formatDate()` in `src/utils/formatters.ts` already use `timeZone: 'America/New_York'` for display, so they'll continue to show dates correctly after the fix
+**Import at top:**
+```typescript
+import { formatDateToString, subtractDaysFromDate } from '../_shared/dateHelpers.ts';
+```
+
+**Affected lines and fixes:**
+
+| Line | Current | Fixed |
+|------|---------|-------|
+| 374 | `new Date(Date.now() + 30 * 24...).toISOString().split('T')[0]` | `formatDateToString(new Date(Date.now() + 30 * 24...))` |
+| 442 | `dueDate.toISOString().split('T')[0]` | `formatDateToString(dueDate)` |
+| 455 | `new Date().toISOString().split('T')[0]` | `formatDateToString(new Date())` |
+| 470 | `new Date().toISOString().split('T')[0]` | `formatDateToString(new Date())` |
+| 480 | `finalDue.toISOString().split('T')[0]` | `formatDateToString(finalDue)` |
+| 498 | `new Date().toISOString().split('T')[0]` | `formatDateToString(new Date())` |
+| 506 | `finalDue.toISOString().split('T')[0]` | `formatDateToString(finalDue)` |
+| 524 | `new Date().toISOString().split('T')[0]` | `formatDateToString(new Date())` |
+| 534 | `midDue.toISOString().split('T')[0]` | `formatDateToString(midDue)` |
+| 544 | `finalDue.toISOString().split('T')[0]` | `formatDateToString(finalDue)` |
+
+---
+
+### 3. Edge Functions - event-timeline-generator
+
+**File:** `supabase/functions/event-timeline-generator/index.ts`
+
+**Import at top:**
+```typescript
+import { formatDateToString, parseDateString, getTodayString } from '../_shared/dateHelpers.ts';
+```
+
+**Affected lines and fixes:**
+
+| Line | Current | Fixed |
+|------|---------|-------|
+| 143 | `.gte('event_date', new Date().toISOString().split('T')[0])` | `.gte('event_date', getTodayString())` |
+| 178 | `const eventDate = new Date(quote.event_date)` | `const eventDate = parseDateString(quote.event_date)` |
+| 187 | `new Date(new Date().toISOString().split('T')[0])` | `parseDateString(getTodayString())` |
+| 193 | `dueDate.toISOString()` | `formatDateToString(dueDate) + 'T00:00:00.000Z'` (or just `formatDateToString(dueDate)` if column is DATE type) |
+| 206 | `new Date(new Date().toISOString().split('T')[0])` | `parseDateString(getTodayString())` |
+| 212 | `setupDate.toISOString()` | `formatDateToString(setupDate)` |
+| 225 | `new Date(new Date().toISOString().split('T')[0])` | `parseDateString(getTodayString())` |
+| 231 | `largeEventDate.toISOString()` | `formatDateToString(largeEventDate)` |
+
+---
+
+### 4. Edge Functions - auto-workflow-manager
+
+**File:** `supabase/functions/auto-workflow-manager/index.ts`
+
+**Import at top:**
+```typescript
+import { getTodayString, formatDateToString } from '../_shared/dateHelpers.ts';
+```
+
+**Affected lines and fixes:**
+
+| Line | Current | Fixed |
+|------|---------|-------|
+| 121 | `yesterday.toISOString().split('T')[0]` | `formatDateToString(yesterday)` |
+| 177-178 | `...toISOString().split('T')[0]` (2 occurrences) | Use `getTodayString()` and `formatDateToString()` |
+
+---
+
+### 5. Edge Functions - send-event-followup
+
+**File:** `supabase/functions/send-event-followup/index.ts`
+
+**Import at top:**
+```typescript
+import { getTodayString, formatDateToString, subtractDays } from '../_shared/dateHelpers.ts';
+```
+
+**Affected lines and fixes:**
+
+| Line | Current | Fixed |
+|------|---------|-------|
+| 73 | `yesterdayStart.toISOString().split('T')[0]` | Use `subtractDays(getTodayString(), 1)` |
+| 74 | `yesterdayEnd.toISOString().split('T')[0]` | Use same date string (both are the same date) |
+
+Simplified approach - replace the complex yesterday calculation (lines 53-61) with:
+```typescript
+const yesterdayStr = subtractDays(getTodayString(), 1);
+```
+
+Then use `yesterdayStr` for both `.gte()` and `.lte()` filters.
+
+---
+
+### 6. Frontend Service - EventDataService.ts
+
+**File:** `src/services/EventDataService.ts`
+
+**Import at top:**
+```typescript
+import { formatDateToLocalString, parseDateFromLocalString } from '@/utils/dateHelpers';
+```
+
+**Affected lines and fixes:**
+
+| Line | Current | Fixed |
+|------|---------|-------|
+| 98 | `filters.dateRange.start.toISOString().split('T')[0]` | `formatDateToLocalString(filters.dateRange.start)` |
+| 99 | `filters.dateRange.end.toISOString().split('T')[0]` | `formatDateToLocalString(filters.dateRange.end)` |
+| 120 | `const eventDate = new Date(qr.event_date)` | `const eventDate = parseDateFromLocalString(qr.event_date)` |
+| 255 | `const eventDate = new Date(data.event_date)` | `const eventDate = parseDateFromLocalString(data.event_date)` |
+
+---
+
+## Impact Analysis
+
+### What This Fixes
+
+| Component | Current Bug | After Fix |
+|-----------|-------------|-----------|
+| Formal/Wedding quote form | Date picker saves previous day | Correct date saved |
+| Invoice generation milestones | Due dates may shift by 1 day | Accurate due dates |
+| Timeline tasks | Task due dates off by 1 day | Correct scheduling |
+| Auto-complete workflow | Events marked complete on wrong day | Triggers on correct day |
+| Post-event follow-ups | Emails sent 1 day early/late | Sent on correct day |
+| Admin date range filters | May miss events at range boundaries | Accurate filtering |
+
+### Backward Compatibility
+
+The date helpers already exist and are tested in other functions. These changes:
+- Use the same proven patterns
+- Don't modify database schema
+- Don't change API contracts
+- Only affect how dates are formatted/parsed in JavaScript
+
+### Risk Assessment
+
+**Low Risk**: All changes follow the same pattern already implemented and tested in `EventDetailsStep.tsx`, `unified-reminder-system`, and other updated functions.
 
 ---
 
@@ -149,22 +180,23 @@ Create a shared date helper in `supabase/functions/_shared/dateHelpers.ts` with 
 
 After implementation, verify:
 
-1. **Form Submission:** Select a date (e.g., March 15), submit form, check database stores "2026-03-15"
-2. **Edge Cases:** Test dates at midnight, early morning, late evening
-3. **Admin Display:** Confirm admin dashboard shows correct date
-4. **Customer Emails:** Verify emails display correct event date
-5. **Payment Milestones:** Check milestone due dates are calculated correctly
-6. **Reminders:** Verify 7-day and 2-day reminders fire on correct dates
+1. **Formal Quote Form**: Submit a wedding quote, confirm date stored correctly
+2. **Regular Quote Form**: Verify still works (already fixed)
+3. **Invoice Generation**: Generate invoice, check milestone due dates
+4. **Admin Calendar**: Confirm date range filtering works correctly
+5. **Auto-Workflow**: Monitor that events complete on the correct day
+6. **Timeline Tasks**: Verify task due dates are accurate
 
 ---
 
-## Summary
+## Files Summary
 
-| Category | Fix |
-|----------|-----|
-| **Root Cause** | `toISOString()` converts to UTC, shifting dates |
-| **Solution** | Use local timezone components (getFullYear, getMonth, getDate) |
-| **Frontend Changes** | 3 files (helpers, form step, schema) |
-| **Backend Changes** | 2 files (services) |
-| **Edge Functions** | 5 functions + 1 shared helper |
-| **Risk Level** | Low - isolated change to date formatting only |
+| File | Change Type | Lines Affected |
+|------|-------------|----------------|
+| `src/components/quote/alternative-form/ContactAndEventStep.tsx` | Add import + fix date picker | 2 lines |
+| `src/services/EventDataService.ts` | Add import + fix date conversions | 5 lines |
+| `supabase/functions/generate-invoice-from-quote/index.ts` | Add import + fix 10 date conversions | ~12 lines |
+| `supabase/functions/event-timeline-generator/index.ts` | Add import + fix 8 date conversions | ~10 lines |
+| `supabase/functions/auto-workflow-manager/index.ts` | Add import + fix 3 date conversions | ~5 lines |
+| `supabase/functions/send-event-followup/index.ts` | Add import + simplify yesterday logic | ~5 lines |
+
