@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { generateStandardEmail, EMAIL_CONFIGS, getEmailContentBlocks } from '../_shared/emailTemplates.ts';
+import { getTodayString, subtractDays } from '../_shared/dateHelpers.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -51,14 +52,7 @@ serve(async (req) => {
       quotes = data ? [data] : [];
     } else {
       // NORMAL MODE: Find events from yesterday
-      const today = new Date();
-      const yesterdayStart = new Date(today);
-      yesterdayStart.setDate(yesterdayStart.getDate() - 1);
-      yesterdayStart.setHours(0, 0, 0, 0);
-
-      const yesterdayEnd = new Date(today);
-      yesterdayEnd.setDate(yesterdayEnd.getDate() - 1);
-      yesterdayEnd.setHours(23, 59, 59, 999);
+      const yesterdayStr = subtractDays(getTodayString(), 1);
 
       const { data, error: quotesError } = await supabaseClient
         .from('quote_requests')
@@ -70,8 +64,8 @@ serve(async (req) => {
           event_date,
           invoices(id, customer_access_token, workflow_status)
         `)
-        .gte('event_date', yesterdayStart.toISOString().split('T')[0])
-        .lte('event_date', yesterdayEnd.toISOString().split('T')[0])
+        .gte('event_date', yesterdayStr)
+        .lte('event_date', yesterdayStr)
         .eq('workflow_status', 'completed');
 
       if (quotesError) throw quotesError;

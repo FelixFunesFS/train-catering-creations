@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.52.1';
+import { formatDateToString, parseDateString, getTodayString } from '../_shared/dateHelpers.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -140,7 +141,7 @@ const handler = async (req: Request): Promise<Response> => {
         service_type
       `)
       .in('workflow_status', ['confirmed', 'estimated'])
-      .gte('event_date', new Date().toISOString().split('T')[0]);
+      .gte('event_date', getTodayString());
 
     if (quotesError) {
       throw new Error(`Failed to fetch quotes: ${quotesError.message}`);
@@ -175,8 +176,9 @@ const handler = async (req: Request): Promise<Response> => {
           continue;
         }
 
-        const eventDate = new Date(quote.event_date);
+        const eventDate = parseDateString(quote.event_date);
         const tasksToInsert = [];
+        const todayDate = parseDateString(getTodayString());
 
         // Generate tasks based on event date
         for (const taskTemplate of DEFAULT_TASKS) {
@@ -184,13 +186,13 @@ const handler = async (req: Request): Promise<Response> => {
           dueDate.setDate(dueDate.getDate() - taskTemplate.days_before_event);
 
           // Only create tasks with due dates in the future or today
-          if (dueDate >= new Date(new Date().toISOString().split('T')[0])) {
+          if (dueDate >= todayDate) {
             tasksToInsert.push({
               quote_request_id: quote.id,
               task_name: taskTemplate.task_name,
               task_type: taskTemplate.task_type,
               days_before_event: taskTemplate.days_before_event,
-              due_date: dueDate.toISOString(),
+              due_date: formatDateToString(dueDate),
               is_date_dependent: true,
               completed: false,
               notes: taskTemplate.notes
@@ -203,13 +205,13 @@ const handler = async (req: Request): Promise<Response> => {
           const setupDate = new Date(eventDate);
           setupDate.setDate(setupDate.getDate() - 1);
           
-          if (setupDate >= new Date(new Date().toISOString().split('T')[0])) {
+          if (setupDate >= todayDate) {
             tasksToInsert.push({
               quote_request_id: quote.id,
               task_name: 'Staff Briefing',
               task_type: 'preparation',
               days_before_event: 1,
-              due_date: setupDate.toISOString(),
+              due_date: formatDateToString(setupDate),
               is_date_dependent: true,
               completed: false,
               notes: 'Brief service staff on event details and customer preferences'
@@ -222,13 +224,13 @@ const handler = async (req: Request): Promise<Response> => {
           const largeEventDate = new Date(eventDate);
           largeEventDate.setDate(largeEventDate.getDate() - 14);
           
-          if (largeEventDate >= new Date(new Date().toISOString().split('T')[0])) {
+          if (largeEventDate >= todayDate) {
             tasksToInsert.push({
               quote_request_id: quote.id,
               task_name: 'Large Event Coordination',
               task_type: 'logistics',
               days_before_event: 14,
-              due_date: largeEventDate.toISOString(),
+              due_date: formatDateToString(largeEventDate),
               is_date_dependent: true,
               completed: false,
               notes: `Coordinate additional resources for ${quote.guest_count} guests`

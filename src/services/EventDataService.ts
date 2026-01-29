@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import { formatDateToLocalString, parseDateFromLocalString } from '@/utils/dateHelpers';
 
 export interface EventSummary {
   quote_id: string;
@@ -95,8 +96,8 @@ export class EventDataService {
 
     if (filters?.dateRange) {
       query = query
-        .gte('event_date', filters.dateRange.start.toISOString().split('T')[0])
-        .lte('event_date', filters.dateRange.end.toISOString().split('T')[0]);
+        .gte('event_date', formatDateToLocalString(filters.dateRange.start))
+        .lte('event_date', formatDateToLocalString(filters.dateRange.end));
     }
 
     if (filters?.searchTerm) {
@@ -117,7 +118,7 @@ export class EventDataService {
         : null;
       
       const today = new Date();
-      const eventDate = new Date(qr.event_date);
+      const eventDate = parseDateFromLocalString(qr.event_date);
       const daysUntil = Math.ceil((eventDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
       
       // Calculate risk level
@@ -252,7 +253,7 @@ export class EventDataService {
       : null;
 
     const today = new Date();
-    const eventDate = new Date(data.event_date);
+    const eventDate = parseDateFromLocalString(data.event_date);
     const daysUntil = Math.ceil((eventDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
     return {

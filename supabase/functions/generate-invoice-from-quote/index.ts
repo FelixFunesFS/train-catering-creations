@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.52.1';
 import { TaxCalculationService } from '../_shared/TaxCalculationService.ts';
+import { formatDateToString, parseDateString } from '../_shared/dateHelpers.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -371,7 +372,7 @@ const handler = async (req: Request): Promise<Response> => {
         subtotal: taxCalculation.subtotal,
         tax_amount: taxCalculation.taxAmount,
         total_amount: taxCalculation.totalAmount,
-        due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        due_date: formatDateToString(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)),
         is_draft: true,
         workflow_status: 'draft',
         currency: 'usd',
@@ -418,7 +419,7 @@ const handler = async (req: Request): Promise<Response> => {
       .eq('id', quote_request_id);
 
     // Generate payment milestones based on days until event
-    const eventDate = new Date(quote.event_date);
+    const eventDate = parseDateString(quote.event_date);
     const today = new Date();
     const daysUntilEvent = Math.ceil((eventDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
     
@@ -439,7 +440,7 @@ const handler = async (req: Request): Promise<Response> => {
         milestone_type: 'FULL',
         percentage: 100,
         amount_cents: 0,
-        due_date: dueDate.toISOString().split('T')[0],
+        due_date: formatDateToString(dueDate),
         status: 'pending',
         is_net30: true,
         is_due_now: false,
@@ -452,7 +453,7 @@ const handler = async (req: Request): Promise<Response> => {
         milestone_type: 'FULL',
         percentage: 100,
         amount_cents: 0,
-        due_date: new Date().toISOString().split('T')[0],
+        due_date: formatDateToString(new Date()),
         status: 'pending',
         is_due_now: true,
         description: 'Full payment due immediately (rush booking)'
@@ -467,7 +468,7 @@ const handler = async (req: Request): Promise<Response> => {
           milestone_type: 'DEPOSIT',
           percentage: 60,
           amount_cents: 0,
-          due_date: new Date().toISOString().split('T')[0],
+          due_date: formatDateToString(new Date()),
           status: 'pending',
           is_due_now: true,
           description: 'Deposit (60%)'
@@ -477,7 +478,7 @@ const handler = async (req: Request): Promise<Response> => {
           milestone_type: 'BALANCE',
           percentage: 40,
           amount_cents: 0,
-          due_date: finalDue.toISOString().split('T')[0],
+          due_date: formatDateToString(finalDue),
           status: 'pending',
           is_due_now: false,
           description: 'Final balance (40%)'
@@ -493,7 +494,7 @@ const handler = async (req: Request): Promise<Response> => {
           milestone_type: 'DEPOSIT',
           percentage: 60,
           amount_cents: 0,
-          due_date: new Date().toISOString().split('T')[0],
+          due_date: formatDateToString(new Date()),
           status: 'pending',
           is_due_now: true,
           description: 'Deposit (60%)'
@@ -503,7 +504,7 @@ const handler = async (req: Request): Promise<Response> => {
           milestone_type: 'BALANCE',
           percentage: 40,
           amount_cents: 0,
-          due_date: finalDue.toISOString().split('T')[0],
+          due_date: formatDateToString(finalDue),
           status: 'pending',
           is_due_now: false,
           description: 'Final balance (40%)'
@@ -521,7 +522,7 @@ const handler = async (req: Request): Promise<Response> => {
           milestone_type: 'DEPOSIT',
           percentage: 10,
           amount_cents: 0,
-          due_date: new Date().toISOString().split('T')[0],
+          due_date: formatDateToString(new Date()),
           status: 'pending',
           is_due_now: true,
           description: 'Booking deposit (10%)'
@@ -531,7 +532,7 @@ const handler = async (req: Request): Promise<Response> => {
           milestone_type: 'MILESTONE',
           percentage: 50,
           amount_cents: 0,
-          due_date: midDue.toISOString().split('T')[0],
+          due_date: formatDateToString(midDue),
           status: 'pending',
           is_due_now: false,
           description: 'Milestone payment (50%)'
@@ -541,7 +542,7 @@ const handler = async (req: Request): Promise<Response> => {
           milestone_type: 'BALANCE',
           percentage: 40,
           amount_cents: 0,
-          due_date: finalDue.toISOString().split('T')[0],
+          due_date: formatDateToString(finalDue),
           status: 'pending',
           is_due_now: false,
           description: 'Final balance (40%)'

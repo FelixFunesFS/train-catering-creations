@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.52.1';
+import { formatDateToString, getTodayString, subtractDays } from '../_shared/dateHelpers.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -111,14 +112,13 @@ const handler = async (req: Request): Promise<Response> => {
 
     // 3. Auto-complete events (day after event date)
     logStep("Checking for events to auto-complete");
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = subtractDays(getTodayString(), 1);
     
     const { data: completableQuotes, error: completeError } = await supabase
       .from('quote_requests')
       .select('id, event_date, workflow_status')
       .eq('workflow_status', 'confirmed')
-      .lt('event_date', yesterday.toISOString().split('T')[0]);
+      .lt('event_date', yesterdayStr);
 
     if (!completeError && completableQuotes) {
       for (const quote of completableQuotes) {
@@ -174,8 +174,8 @@ const handler = async (req: Request): Promise<Response> => {
         )
       `)
       .eq('status', 'pending')
-      .lte('due_date', threeDaysFromNow.toISOString().split('T')[0])
-      .gte('due_date', new Date().toISOString().split('T')[0]);
+      .lte('due_date', formatDateToString(threeDaysFromNow))
+      .gte('due_date', getTodayString());
 
     if (!milestoneError && upcomingMilestones) {
       for (const milestone of upcomingMilestones as any) {
