@@ -20,6 +20,7 @@ import { formatPhoneNumber } from "@/utils/phoneFormatter";
 import { formatCustomerName, formatEventName } from "@/utils/textFormatters";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
+import { formatDateToLocalString } from "@/utils/dateHelpers";
 import { Calendar, Utensils, PartyPopper, Cake, Heart, GraduationCap, Briefcase, Users, Gift, Check, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -356,8 +357,8 @@ export const ContactAndEventStep = ({ form, trackFieldInteraction, variant = 're
                     </FormLabel>
                     <FormControl>
                       <DatePicker
-                        value={field.value ? new Date(field.value) : undefined}
-                        onChange={(date) => field.onChange(date?.toISOString().split('T')[0])}
+                        value={field.value ? new Date(field.value + 'T00:00:00') : undefined}
+                        onChange={(date) => field.onChange(date ? formatDateToLocalString(date) : undefined)}
                         placeholder="Pick an event date"
                         disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
                         onFocus={() => trackFieldInteraction('event_date')}
