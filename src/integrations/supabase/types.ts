@@ -72,6 +72,42 @@ export type Database = {
           },
         ]
       }
+      admin_notification_preferences: {
+        Row: {
+          created_at: string
+          id: string
+          payment_alerts: boolean
+          quiet_hours_end: string | null
+          quiet_hours_start: string | null
+          quote_alerts: boolean
+          updated_at: string
+          user_id: string
+          visitor_alerts: boolean
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          payment_alerts?: boolean
+          quiet_hours_end?: string | null
+          quiet_hours_start?: string | null
+          quote_alerts?: boolean
+          updated_at?: string
+          user_id: string
+          visitor_alerts?: boolean
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          payment_alerts?: boolean
+          quiet_hours_end?: string | null
+          quiet_hours_start?: string | null
+          quote_alerts?: boolean
+          updated_at?: string
+          user_id?: string
+          visitor_alerts?: boolean
+        }
+        Relationships: []
+      }
       analytics_events: {
         Row: {
           created_at: string
@@ -1352,6 +1388,39 @@ export type Database = {
           price_per_person?: number | null
           service_type?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          device_name: string | null
+          endpoint: string
+          id: string
+          last_used_at: string | null
+          p256dh: string
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          device_name?: string | null
+          endpoint: string
+          id?: string
+          last_used_at?: string | null
+          p256dh: string
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          device_name?: string | null
+          endpoint?: string
+          id?: string
+          last_used_at?: string | null
+          p256dh?: string
+          user_id?: string
         }
         Relationships: []
       }
