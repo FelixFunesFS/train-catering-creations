@@ -39,6 +39,11 @@ export const VEGETARIAN_ENTREE_OPTIONS: VegetarianEntreeOption[] = [
     regularLabel: 'Meat Loaf (V)',
     weddingLabel: 'Vegetarian Meat Loaf',
   },
+  {
+    id: 'vegetarian-meatballs',
+    regularLabel: 'Meatballs (V)',
+    weddingLabel: 'Vegetarian Italian Meatballs',
+  },
 ];
 
 export function getVegetarianEntreeLabel(id: string, variant: VegetarianVariant = 'regular') {
