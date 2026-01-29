@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1";
 import { generateStandardEmail, EMAIL_CONFIGS, formatDate, formatTime, formatServiceType, BRAND_COLORS } from '../_shared/emailTemplates.ts';
+import { getTodayString, addDays, subtractDays } from '../_shared/dateHelpers.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -19,9 +20,10 @@ serve(async (req) => {
     );
 
     const now = new Date();
-    const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-    const twoDaysFromNow = new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000);
-    const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    const todayStr = getTodayString();
+    const sevenDaysFromNowStr = addDays(todayStr, 7);
+    const twoDaysFromNowStr = addDays(todayStr, 2);
+    const yesterdayStr = subtractDays(todayStr, 1);
 
     // Fetch confirmed events
     const { data: confirmedEvents, error: fetchError } = await supabaseClient
@@ -41,8 +43,8 @@ serve(async (req) => {
         compliance_level
       `)
       .eq('workflow_status', 'confirmed')
-      .gte('event_date', yesterday.toISOString().split('T')[0])
-      .lte('event_date', sevenDaysFromNow.toISOString().split('T')[0]);
+      .gte('event_date', yesterdayStr)
+      .lte('event_date', sevenDaysFromNowStr);
 
     if (fetchError) throw fetchError;
 

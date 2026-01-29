@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.52.1';
 import { generateStandardEmail, BRAND_COLORS } from '../_shared/emailTemplates.ts';
+import { getTodayString } from '../_shared/dateHelpers.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -95,7 +96,7 @@ const handler = async (req: Request): Promise<Response> => {
             .select('id')
             .eq('invoice_id', invoice.id)
             .eq('reminder_type', 'token_expiring')
-            .gte('sent_at', new Date().toISOString().split('T')[0]);
+            .gte('sent_at', getTodayString());
 
           if (!existingWarning || existingWarning.length === 0) {
             const siteUrl = Deno.env.get('SITE_URL') || 'https://www.soultrainseatery.com';

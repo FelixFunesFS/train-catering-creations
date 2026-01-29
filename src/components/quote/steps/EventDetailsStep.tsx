@@ -17,6 +17,7 @@ import {
 import { DatePicker } from "@/components/ui/date-picker";
 import { TimeSelect } from "@/components/ui/time-select";
 import { formatEventName } from "@/utils/textFormatters";
+import { formatDateToLocalString } from "@/utils/dateHelpers";
 import { Calendar, MapPin, Users, Utensils, PartyPopper, Cake, Heart, GraduationCap, Briefcase, Gift, Check, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -247,8 +248,8 @@ export const EventDetailsStep = ({ form, trackFieldInteraction, variant = 'regul
                   </FormLabel>
                   <FormControl>
                     <DatePicker
-                      value={field.value ? new Date(field.value) : undefined}
-                      onChange={(date) => field.onChange(date?.toISOString().split('T')[0])}
+                      value={field.value ? new Date(field.value + 'T00:00:00') : undefined}
+                      onChange={(date) => field.onChange(date ? formatDateToLocalString(date) : undefined)}
                       placeholder="Pick date"
                       disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
                       onFocus={() => trackFieldInteraction('event_date')}

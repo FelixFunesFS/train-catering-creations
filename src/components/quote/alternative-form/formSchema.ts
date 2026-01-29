@@ -26,15 +26,22 @@ export const formSchema = z.object({
   event_date: z.string()
     .min(1, "Event date is required")
     .refine((dateStr) => {
-      const date = new Date(dateStr);
+      // Parse as local date to avoid timezone shifts
+      const [year, month, day] = dateStr.split('-').map(Number);
+      const date = new Date(year, month - 1, day);
       const now = new Date();
+      now.setHours(0, 0, 0, 0);
       const minDate = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 24 hours from now
       const maxDate = new Date(now.getTime() + 18 * 30 * 24 * 60 * 60 * 1000); // 18 months
       return date >= minDate && date <= maxDate;
     }, {
       message: "Event date must be at least 24 hours in the future and within 18 months"
     })
-    .refine((dateStr) => !isNaN(new Date(dateStr).getTime()), {
+    .refine((dateStr) => {
+      const [year, month, day] = dateStr.split('-').map(Number);
+      const date = new Date(year, month - 1, day);
+      return !isNaN(date.getTime());
+    }, {
       message: "Please enter a valid date"
     }),
   start_time: z.string()

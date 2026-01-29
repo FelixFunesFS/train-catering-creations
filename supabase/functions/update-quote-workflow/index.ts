@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { formatDateToString } from '../_shared/dateHelpers.ts';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -256,6 +257,9 @@ async function createDraftInvoice(quote: any, estimatedTotal: number, supabaseCl
         .eq('id', existingInvoice.id);
     } else {
       // Create new draft invoice
+      const dueDate = new Date();
+      dueDate.setDate(dueDate.getDate() + 30);
+      
       const invoiceData = {
         quote_request_id: quote.id,
         subtotal: estimatedTotal,
@@ -263,7 +267,7 @@ async function createDraftInvoice(quote: any, estimatedTotal: number, supabaseCl
         is_draft: true,
         workflow_status: 'draft',
         invoice_number: `DRAFT-${quote.id.slice(0, 8)}`,
-        due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+        due_date: formatDateToString(dueDate)
       };
 
       await supabaseClient
@@ -317,6 +321,9 @@ async function createInvoiceFromQuote(quote: any, supabaseClient: any): Promise<
         .eq('id', existingInvoice.id);
     } else {
       // Create new invoice
+      const dueDate = new Date();
+      dueDate.setDate(dueDate.getDate() + 30);
+      
       const invoiceData = {
         quote_request_id: quote.id,
         subtotal: quote.estimated_total || 0,
@@ -325,7 +332,7 @@ async function createInvoiceFromQuote(quote: any, supabaseClient: any): Promise<
         workflow_status: 'draft',
         document_type: 'invoice',
         invoice_number: `INV-${Date.now().toString().slice(-8)}`,
-        due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+        due_date: formatDateToString(dueDate)
       };
 
       await supabaseClient

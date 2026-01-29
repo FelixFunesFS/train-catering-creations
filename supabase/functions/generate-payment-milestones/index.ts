@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { formatDateToString, subtractDaysFromDate } from '../_shared/dateHelpers.ts';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -141,7 +142,7 @@ const handler = async (req: Request): Promise<Response> => {
         milestone_type: "FULL",
         percentage: 100,
         amount_cents: totalAmountCents,
-        due_date: dueDate.toISOString().split('T')[0],
+        due_date: formatDateToString(dueDate),
         is_due_now: false,
         is_net30: true,
         status: totalPaidCents >= totalAmountCents ? "paid" : "pending",
@@ -154,7 +155,7 @@ const handler = async (req: Request): Promise<Response> => {
         milestone_type: "FULL",
         percentage: 100,
         amount_cents: totalAmountCents,
-        due_date: now.toISOString().split('T')[0],
+        due_date: formatDateToString(now),
         is_due_now: true,
         is_net30: false,
         status: totalPaidCents >= totalAmountCents ? "paid" : "pending",
@@ -162,8 +163,7 @@ const handler = async (req: Request): Promise<Response> => {
       });
     } else if (daysUntilEvent <= 30) {
       // Short notice: 60% now, 40% 7 days before
-      const finalDue = new Date(eventDate);
-      finalDue.setDate(finalDue.getDate() - 7);
+      const finalDue = subtractDaysFromDate(eventDate, 7);
 
       const depositAmount = Math.round(totalAmountCents * 0.6);
       const finalAmount = totalAmountCents - depositAmount;
@@ -186,7 +186,7 @@ const handler = async (req: Request): Promise<Response> => {
         milestone_type: "DEPOSIT",
         percentage: 60,
         amount_cents: depositAmount,
-        due_date: now.toISOString().split('T')[0],
+        due_date: formatDateToString(now),
         is_due_now: true,
         is_net30: false,
         status: depositStatus,
@@ -198,7 +198,7 @@ const handler = async (req: Request): Promise<Response> => {
         milestone_type: "FINAL",
         percentage: 40,
         amount_cents: finalAmount,
-        due_date: finalDue.toISOString().split('T')[0],
+        due_date: formatDateToString(finalDue),
         is_due_now: false,
         is_net30: false,
         status: finalStatus,
@@ -206,8 +206,7 @@ const handler = async (req: Request): Promise<Response> => {
       });
     } else if (daysUntilEvent <= 44) {
       // Mid-range: 60% now, 40% 14 days before
-      const finalDue = new Date(eventDate);
-      finalDue.setDate(finalDue.getDate() - 14);
+      const finalDue = subtractDaysFromDate(eventDate, 14);
 
       const depositAmount = Math.round(totalAmountCents * 0.6);
       const finalAmount = totalAmountCents - depositAmount;
@@ -229,7 +228,7 @@ const handler = async (req: Request): Promise<Response> => {
         milestone_type: "DEPOSIT",
         percentage: 60,
         amount_cents: depositAmount,
-        due_date: now.toISOString().split('T')[0],
+        due_date: formatDateToString(now),
         is_due_now: true,
         is_net30: false,
         status: depositStatus,
@@ -241,7 +240,7 @@ const handler = async (req: Request): Promise<Response> => {
         milestone_type: "FINAL",
         percentage: 40,
         amount_cents: finalAmount,
-        due_date: finalDue.toISOString().split('T')[0],
+        due_date: formatDateToString(finalDue),
         is_due_now: false,
         is_net30: false,
         status: finalStatus,
@@ -249,10 +248,8 @@ const handler = async (req: Request): Promise<Response> => {
       });
     } else {
       // Standard: 10% now, 50% at 30 days before, 40% at 14 days before
-      const midDue = new Date(eventDate);
-      midDue.setDate(midDue.getDate() - 30);
-      const finalDue = new Date(eventDate);
-      finalDue.setDate(finalDue.getDate() - 14);
+      const midDue = subtractDaysFromDate(eventDate, 30);
+      const finalDue = subtractDaysFromDate(eventDate, 14);
 
       const bookingAmount = Math.round(totalAmountCents * 0.1);
       const midAmount = Math.round(totalAmountCents * 0.5);
@@ -281,7 +278,7 @@ const handler = async (req: Request): Promise<Response> => {
         milestone_type: "DEPOSIT",
         percentage: 10,
         amount_cents: bookingAmount,
-        due_date: now.toISOString().split('T')[0],
+        due_date: formatDateToString(now),
         is_due_now: true,
         is_net30: false,
         status: bookingStatus,
@@ -293,7 +290,7 @@ const handler = async (req: Request): Promise<Response> => {
         milestone_type: "MILESTONE",
         percentage: 50,
         amount_cents: midAmount,
-        due_date: midDue.toISOString().split('T')[0],
+        due_date: formatDateToString(midDue),
         is_due_now: false,
         is_net30: false,
         status: midStatus,
@@ -305,7 +302,7 @@ const handler = async (req: Request): Promise<Response> => {
         milestone_type: "FINAL",
         percentage: 40,
         amount_cents: finalAmount,
-        due_date: finalDue.toISOString().split('T')[0],
+        due_date: formatDateToString(finalDue),
         is_due_now: false,
         is_net30: false,
         status: finalStatus,
