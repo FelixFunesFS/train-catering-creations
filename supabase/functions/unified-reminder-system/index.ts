@@ -5,6 +5,7 @@ import {
   generateStandardEmail,
   getEmailContentBlocks
 } from '../_shared/emailTemplates.ts';
+import { formatDateToString, addDays, subtractDays, getTodayString } from '../_shared/dateHelpers.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -42,7 +43,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const todayStr = today.toISOString().split('T')[0];
+    const todayStr = getTodayString();
     const todayStartIso = today.toISOString();
 
     const reminderResults: ReminderResult[] = [];
@@ -135,14 +136,13 @@ const handler = async (req: Request): Promise<Response> => {
 
     // 1c. Auto-complete events (day after event date)
     logStep("Checking for events to auto-complete");
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = subtractDays(todayStr, 1);
 
     const { data: completableQuotes, error: completeError } = await supabase
       .from('quote_requests')
       .select('id, event_date, workflow_status')
       .eq('workflow_status', 'confirmed')
-      .lt('event_date', yesterday.toISOString().split('T')[0]);
+      .lt('event_date', yesterdayStr);
 
     if (!completeError && completableQuotes) {
       for (const quote of completableQuotes) {
@@ -241,8 +241,7 @@ const handler = async (req: Request): Promise<Response> => {
     // 2b. Upcoming milestone payment reminders (3 days out)
     logStep("Processing milestone payment reminders");
     let milestoneReminders = 0;
-    const threeDaysFromNow = new Date(today);
-    threeDaysFromNow.setDate(threeDaysFromNow.getDate() + 3);
+    const threeDaysFromNowStr = addDays(todayStr, 3);
 
     const { data: upcomingMilestones } = await supabase
       .from('payment_milestones')
@@ -256,7 +255,7 @@ const handler = async (req: Request): Promise<Response> => {
         )
       `)
       .eq('status', 'pending')
-      .lte('due_date', threeDaysFromNow.toISOString().split('T')[0])
+      .lte('due_date', threeDaysFromNowStr)
       .gte('due_date', todayStr);
 
     if (upcomingMilestones) {
@@ -325,15 +324,14 @@ const handler = async (req: Request): Promise<Response> => {
     // 3a. 7-day event reminder (final details confirmation)
     logStep("Processing 7-day event reminders");
     let sevenDayReminders = 0;
-    const sevenDaysFromNow = new Date(today);
-    sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7);
+    const sevenDaysFromNowStr = addDays(todayStr, 7);
 
     const { data: sevenDayEvents } = await supabase
       .from('quote_requests')
       // Select full quote payload so canonical blocks (event_details + menu_summary) have required context
       .select('*')
       .eq('workflow_status', 'confirmed')
-      .eq('event_date', sevenDaysFromNow.toISOString().split('T')[0]);
+      .eq('event_date', sevenDaysFromNowStr);
 
     if (sevenDayEvents) {
       for (const event of sevenDayEvents) {
@@ -383,14 +381,13 @@ const handler = async (req: Request): Promise<Response> => {
     // 3b. 2-day event reminder
     logStep("Processing 2-day event reminders");
     let twoDayReminders = 0;
-    const twoDaysFromNow = new Date(today);
-    twoDaysFromNow.setDate(twoDaysFromNow.getDate() + 2);
+    const twoDaysFromNowStr = addDays(todayStr, 2);
 
     const { data: twoDayEvents } = await supabase
       .from('quote_requests')
       .select('*')
       .eq('workflow_status', 'confirmed')
-      .eq('event_date', twoDaysFromNow.toISOString().split('T')[0]);
+      .eq('event_date', twoDaysFromNowStr);
 
     if (twoDayEvents) {
       for (const event of twoDayEvents) {
@@ -445,7 +442,7 @@ const handler = async (req: Request): Promise<Response> => {
       .from('quote_requests')
       .select('*')
       .eq('workflow_status', 'completed')
-      .eq('event_date', yesterday.toISOString().split('T')[0]);
+      .eq('event_date', yesterdayStr);
 
     if (pastEvents) {
       for (const event of pastEvents) {

@@ -192,6 +192,14 @@ export const calculatePaymentAmounts = (schedule: PaymentSchedule): Array<{
   }));
 };
 
+// Helper to format date to YYYY-MM-DD using local timezone
+const formatDateLocal = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 // Generate invoice creation data for each payment rule
 export const generateInvoiceSchedule = (
   schedule: PaymentSchedule,
@@ -207,9 +215,9 @@ export const generateInvoiceSchedule = (
       ...invoiceBaseData,
       type: payment.rule.type.toLowerCase(),
       total_amount: payment.amount_cents,
-      due_date: isDueNow ? new Date().toISOString().split('T')[0] : 
+      due_date: isDueNow ? formatDateLocal(new Date()) : 
                 payment.due_date === 'NET_30_AFTER_EVENT' ? null :
-                (payment.due_date as Date).toISOString().split('T')[0],
+                formatDateLocal(payment.due_date as Date),
       status: isDueNow ? 'sent' : 'draft',
       workflow_status: isDueNow ? 'sent' : 'draft',
       is_draft: !isDueNow,
