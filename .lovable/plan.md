@@ -1,178 +1,170 @@
 
+# Date Off-By-One Bug Fix
 
-# Block Non-Admin Sign-In + Trust Footer Implementation
+## Root Cause Analysis
 
-## Overview
+The date picker in `EventDetailsStep.tsx` (line 251) uses `toISOString().split('T')[0]` to convert the selected date to a string:
 
-Implement strict admin access control that prevents non-admin users from signing in, plus add professional trust indicators and legal links to the authentication page footer.
+```typescript
+onChange={(date) => field.onChange(date?.toISOString().split('T')[0])}
+```
+
+**Why This Causes the Bug:**
+
+When a user in Charleston (Eastern Time, UTC-5) selects "March 15, 2026" at any time before 7:00 PM local time:
+1. The Calendar component returns a `Date` object representing March 15, 2026 at 00:00:00 LOCAL time
+2. `toISOString()` converts this to UTC, shifting it BACK by 5 hours
+3. Result: `2026-03-14T19:00:00.000Z` (March 14th in UTC)
+4. After `.split('T')[0]`: `"2026-03-14"` - **THE WRONG DATE**
 
 ---
 
-## Part A: Block Non-Admin Sign-In
+## Impact Assessment
 
-### Authentication Flow Changes
+### Frontend (Form Input)
+| Location | File | Issue |
+|----------|------|-------|
+| Event Date Picker | `EventDetailsStep.tsx:251` | Date stored as previous day |
 
-**Current Behavior:**
-1. Any user can sign in via Google or email/password
-2. Session is created for all authenticated users
-3. Non-admins see empty dashboard (RLS blocks data, but session exists)
+### Frontend (Date Display)
+| Location | File | Status |
+|----------|------|--------|
+| Admin event lists | Uses `format(new Date(event_date), ...)` | **OK** - displays stored date correctly |
+| Email template preview | Uses `toLocaleDateString()` | **OK** - displays correctly |
 
-**New Behavior:**
-1. User attempts to sign in
-2. After Supabase authenticates, immediately check `user_roles` table
-3. If NOT admin/owner: Sign out immediately + show error toast
-4. If admin/owner: Proceed to dashboard normally
+### Backend (Edge Functions)
+| Function | Usage | Impact |
+|----------|-------|--------|
+| `generate-payment-milestones` | `new Date(quote.event_date)` for milestone calculations | **AFFECTED** - milestone due dates could shift |
+| `unified-reminder-system` | Compares dates using `toISOString().split('T')[0]` | **AFFECTED** - reminders could fire on wrong day |
+| `send-event-reminders` | Date comparisons | **AFFECTED** - 7-day/2-day reminders off by 1 day |
+| `event-timeline-generator` | Task due date calculations | **AFFECTED** - timeline tasks off by 1 day |
+| `_shared/emailTemplates.ts` | `formatDate()` with `timeZone: 'America/New_York'` | **OK** - displays correctly |
 
-### Technical Implementation
-
-#### File: `src/hooks/useAuth.tsx`
-
-Add admin access verification function:
-
-```typescript
-const checkAdminAccess = async (userId: string): Promise<boolean> => {
-  const { data } = await supabase
-    .from('user_roles')
-    .select('role')
-    .eq('user_id', userId)
-    .in('role', ['admin', 'owner'])
-    .limit(1);
-  
-  return data && data.length > 0;
-};
-```
-
-Update `signIn` function to verify admin access post-authentication:
-- On successful auth, call `checkAdminAccess(user.id)`
-- If false: call `signOut()` and show error toast
-- If true: show success toast and allow redirect
-
-Update `onAuthStateChange` listener for Google OAuth:
-- On `SIGNED_IN` event, verify admin access
-- Use `setTimeout` to avoid Supabase listener deadlock
-- Sign out immediately if not admin
-
-Add new state `isVerifyingAccess` to track verification status
-
-#### File: `src/pages/AdminAuth.tsx`
-
-- Import verification state from `useAuth`
-- Only redirect to `/admin` after verification confirms admin access
-- Show loading spinner during verification
-
-#### File: `src/components/ProtectedRoute.tsx`
-
-Add backup check using `usePermissions` hook:
-- If user is authenticated but `!isAdmin()`, trigger sign out
-- Redirect to `/admin/auth`
+### Database Storage
+The `quote_requests.event_date` column stores a `DATE` type (no time component), so once the wrong date string is inserted, it's persisted incorrectly.
 
 ---
 
-## Part B: Trust Footer on Auth Page
+## Solution Strategy
 
-Add a professional footer to `AdminAuth.tsx` with security assurance and legal links.
+Create a **locale-aware date formatting utility** that extracts the local date components instead of using UTC conversion.
 
-### Footer Content
+### The Fix
 
-```text
-┌─────────────────────────────────────────────────────────┐
-│  🔒 256-bit SSL encrypted  •  Your data is secure       │
-│                                                         │
-│  Need help? Contact Support                             │
-│  (843) 970-0265  •  soultrainseatery@gmail.com         │
-│                                                         │
-│  Privacy Policy  |  Terms of Service                    │
-└─────────────────────────────────────────────────────────┘
-```
-
-### Implementation Details
-
-Position below the Card component with:
-- Lock icon (Shield or Lock from lucide-react)
-- SSL security message with muted text styling
-- Contact information with clickable tel: and mailto: links
-- Legal links to existing `/privacy-policy` and `/terms-conditions` routes
-- Subtle separator using dots or pipes
-- Responsive text sizing (smaller on mobile)
-
-### Styling
+Replace `toISOString().split('T')[0]` with a utility function:
 
 ```typescript
-<div className="mt-6 text-center space-y-3">
-  {/* Security badge */}
-  <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-    <Shield className="h-3 w-3" />
-    <span>256-bit SSL encrypted</span>
-    <span>•</span>
-    <span>Your data is secure</span>
-  </div>
-  
-  {/* Help section */}
-  <div className="text-xs text-muted-foreground">
-    <p>Need help? Contact Support</p>
-    <p className="mt-1">
-      <a href="tel:8439700265" className="hover:text-primary">(843) 970-0265</a>
-      <span className="mx-2">•</span>
-      <a href="mailto:soultrainseatery@gmail.com" className="hover:text-primary">
-        soultrainseatery@gmail.com
-      </a>
-    </p>
-  </div>
-  
-  {/* Legal links */}
-  <div className="text-xs text-muted-foreground">
-    <Link to="/privacy-policy" className="hover:text-primary">Privacy Policy</Link>
-    <span className="mx-2">|</span>
-    <Link to="/terms-conditions" className="hover:text-primary">Terms of Service</Link>
-  </div>
-</div>
+// src/utils/dateHelpers.ts
+/**
+ * Format a Date object to YYYY-MM-DD string using LOCAL timezone
+ * Prevents the off-by-one day bug caused by UTC conversion
+ */
+export function formatDateToLocalString(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+/**
+ * Parse a YYYY-MM-DD string to a Date object in LOCAL timezone
+ * Use this instead of new Date(dateString) to avoid timezone shifts
+ */
+export function parseDateFromLocalString(dateStr: string): Date {
+  const [year, month, day] = dateStr.split('-').map(Number);
+  return new Date(year, month - 1, day);
+}
 ```
 
 ---
 
 ## Files to Modify
 
-| File | Changes |
-|------|---------|
-| `src/hooks/useAuth.tsx` | Add `checkAdminAccess` function, modify `signIn`, update `onAuthStateChange`, add `isVerifyingAccess` state |
-| `src/pages/AdminAuth.tsx` | Add verification loading state, add trust footer with security badge, contact info, and legal links |
-| `src/components/ProtectedRoute.tsx` | Add backup role check with auto sign-out |
+### 1. Create Date Helpers Utility
+**File:** `src/utils/dateHelpers.ts` (NEW)
+
+Create centralized date utilities:
+- `formatDateToLocalString(date: Date): string` - Local date to YYYY-MM-DD
+- `parseDateFromLocalString(dateStr: string): Date` - YYYY-MM-DD to local Date
+- Document the timezone handling approach
+
+### 2. Fix Form Date Picker
+**File:** `src/components/quote/steps/EventDetailsStep.tsx`
+
+Change line 251 from:
+```typescript
+onChange={(date) => field.onChange(date?.toISOString().split('T')[0])}
+```
+To:
+```typescript
+onChange={(date) => field.onChange(date ? formatDateToLocalString(date) : undefined)}
+```
+
+### 3. Update Form Schema Validation
+**File:** `src/components/quote/alternative-form/formSchema.ts`
+
+Update the `event_date` validation refinement (lines 28-39) to use the local date parsing utility for accurate date comparison.
+
+### 4. Update Payment Scheduling Utilities
+**File:** `src/utils/paymentScheduling.ts`
+
+Replace `toISOString().split('T')[0]` calls (lines 210, 212) with `formatDateToLocalString()`.
+
+### 5. Update Payment Milestone Service
+**File:** `src/services/PaymentMilestoneService.ts`
+
+Replace line 63:
+```typescript
+due_date: typeof payment.due_date === 'string' ? null : payment.due_date.toISOString().split('T')[0],
+```
+With the local date formatter.
+
+### 6. Update Edge Functions (Deno)
+Create a shared date helper in `supabase/functions/_shared/dateHelpers.ts` with the same logic, then update:
+
+| Edge Function | Lines to Update |
+|---------------|-----------------|
+| `generate-payment-milestones/index.ts` | Lines 144, 157, 189, 201, 232, 244, 284, 296, 308 |
+| `unified-reminder-system/index.ts` | Lines 45, 145, 259, 336, 393, 448 |
+| `send-event-reminders/index.ts` | Lines 44, 45 |
+| `update-quote-workflow/index.ts` | Line 266 |
+| `token-renewal-manager/index.ts` | Line 98 |
 
 ---
 
-## User Experience
+## Backward Compatibility
 
-### Non-Admin Attempting Sign-In
+**Existing Data:**
+- Dates already stored in the database may be off by one day
+- The fix only prevents NEW submissions from having the issue
+- A data migration script could be provided separately if needed
 
-1. Enters credentials or clicks "Sign in with Google"
-2. Brief loading spinner (1-2 seconds)
-3. Error toast: "Access denied. Administrator privileges required."
-4. Remains on sign-in page (no session retained)
-5. Can see contact info in footer if they need to request access
-
-### Admin Sign-In
-
-1. Enters credentials or clicks "Sign in with Google"
-2. Brief loading spinner
-3. Success toast: "Signed in successfully"
-4. Redirected to admin dashboard
+**Display Functions:**
+- Functions like `formatDate()` in `src/utils/formatters.ts` already use `timeZone: 'America/New_York'` for display, so they'll continue to show dates correctly after the fix
 
 ---
 
-## Security Layers
+## Testing Verification
 
-1. **Pre-Dashboard Check**: Non-admins never see the dashboard
-2. **Session Termination**: Non-admin sessions are immediately destroyed
-3. **Backup Route Protection**: `ProtectedRoute` enforces admin check
-4. **Database RLS**: Even if bypassed, RLS blocks all data access
+After implementation, verify:
+
+1. **Form Submission:** Select a date (e.g., March 15), submit form, check database stores "2026-03-15"
+2. **Edge Cases:** Test dates at midnight, early morning, late evening
+3. **Admin Display:** Confirm admin dashboard shows correct date
+4. **Customer Emails:** Verify emails display correct event date
+5. **Payment Milestones:** Check milestone due dates are calculated correctly
+6. **Reminders:** Verify 7-day and 2-day reminders fire on correct dates
 
 ---
 
-## Error Messages
+## Summary
 
-| Scenario | Toast Message |
-|----------|---------------|
-| Invalid credentials | "Invalid login credentials" (from Supabase) |
-| Not an admin | "Access denied. Administrator privileges required." |
-| Network error | "Unable to verify access. Please try again." |
-
+| Category | Fix |
+|----------|-----|
+| **Root Cause** | `toISOString()` converts to UTC, shifting dates |
+| **Solution** | Use local timezone components (getFullYear, getMonth, getDate) |
+| **Frontend Changes** | 3 files (helpers, form step, schema) |
+| **Backend Changes** | 2 files (services) |
+| **Edge Functions** | 5 functions + 1 shared helper |
+| **Risk Level** | Low - isolated change to date formatting only |
