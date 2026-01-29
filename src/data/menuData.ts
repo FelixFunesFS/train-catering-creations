@@ -165,6 +165,11 @@ export const menuData = {
             id: "tuna-salad",
             name: "Tuna Salad",
             description: "Fresh tuna salad"
+          },
+          {
+            id: "salmon-balls",
+            name: "Salmon Balls",
+            description: "Crispy salmon croquettes with herbs"
           }
         ]
       }
@@ -597,6 +602,19 @@ export const menuData = {
             name: "Dessert Shooters",
             description: "Mini desserts in shot glasses",
             isVegetarian: true
+          },
+          {
+            id: "pound-cake",
+            name: "Pound Cake",
+            description: "Dense and buttery Southern pound cake",
+            isPopular: true,
+            isVegetarian: true
+          },
+          {
+            id: "lemon-cake",
+            name: "Lemon Cake",
+            description: "Light lemon cake with citrus glaze",
+            isVegetarian: true
           }
         ]
       }
@@ -620,7 +638,8 @@ export const weddingMenuItems = {
     { id: "tomato-caprese", name: "Tomato Caprese Skewers", description: "Fresh mozzarella, tomatoes, and basil", isPremium: true },
     { id: "loaded-potato-bites", name: "Petite Loaded Potato Bites", description: "Topped with cheese, bacon, and sour cream", isPremium: true },
     { id: "tomato-bruschetta", name: "Heirloom Tomato Bruschetta", description: "Toasted bread with fresh tomatoes", isPremium: true },
-    { id: "smoked-salmon-cucumber", name: "Smoked Salmon Cucumber Rounds", description: "Refreshing and elegant bites", isPremium: true }
+    { id: "smoked-salmon-cucumber", name: "Smoked Salmon Cucumber Rounds", description: "Refreshing and elegant bites", isPremium: true },
+    { id: "salmon-croquettes", name: "Salmon Croquettes", description: "Delicate salmon cakes with herb aioli", isPremium: true }
   ],
   entrees: [
     { id: "applewood-herb-chicken", name: "Applewood-Smoked Herb Chicken", description: "Slow-smoked with aromatic herbs", isPopular: true, isPremium: true },
@@ -654,7 +673,9 @@ export const weddingMenuItems = {
     { id: "chocolate-fountain", name: "Chocolate Fountain", description: "Interactive dessert experience", isPremium: true, isPopular: true },
     { id: "wedding-cake-tasting", name: "Wedding Cake Tasting Box", description: "Sample multiple cake flavors", isPremium: true },
     { id: "cheesecake", name: "Cheesecake", description: "Creamy New York style cheesecake", isPremium: true },
-    { id: "dessert-shooters", name: "Dessert Shooters", description: "Mini desserts in shot glasses", isPremium: true }
+    { id: "dessert-shooters", name: "Dessert Shooters", description: "Mini desserts in shot glasses", isPremium: true },
+    { id: "southern-pound-cake", name: "Southern Pound Cake", description: "Dense buttery pound cake with vanilla glaze", isPremium: true },
+    { id: "lemon-layer-cake", name: "Lemon Layer Cake", description: "Light lemon cake with cream cheese frosting", isPremium: true }
   ]
 };
 

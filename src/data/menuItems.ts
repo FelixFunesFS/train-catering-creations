@@ -372,6 +372,18 @@ export const regularMenuItems: MenuItemDetails[] = [
     servingStyle: ['buffet'],
     popularity: 'high'
   },
+  {
+    id: 'salmon-balls',
+    name: 'Salmon Balls',
+    description: 'Crispy salmon croquettes with herbs and seasonings',
+    category: 'appetizers',
+    dietaryInfo: ['Contains Fish', 'Contains Gluten'],
+    minimumGuests: 15,
+    leadTimeHours: 24,
+    equipmentRequired: ['warming-trays'],
+    servingStyle: ['buffet'],
+    popularity: 'medium'
+  },
 
   // Sides
   {
@@ -786,6 +798,30 @@ export const regularMenuItems: MenuItemDetails[] = [
     equipmentRequired: ['serving-trays'],
     servingStyle: ['buffet'],
     popularity: 'medium'
+  },
+  {
+    id: 'pound-cake',
+    name: 'Pound Cake',
+    description: 'Dense and buttery Southern-style pound cake',
+    category: 'desserts',
+    dietaryInfo: ['Contains Gluten', 'Contains Dairy', 'Contains Eggs'],
+    minimumGuests: 15,
+    leadTimeHours: 24,
+    equipmentRequired: ['cake-stands'],
+    servingStyle: ['plated', 'buffet'],
+    popularity: 'high'
+  },
+  {
+    id: 'lemon-cake',
+    name: 'Lemon Cake',
+    description: 'Light and refreshing lemon cake with citrus glaze',
+    category: 'desserts',
+    dietaryInfo: ['Contains Gluten', 'Contains Dairy', 'Contains Eggs'],
+    minimumGuests: 15,
+    leadTimeHours: 24,
+    equipmentRequired: ['cake-stands'],
+    servingStyle: ['plated', 'buffet'],
+    popularity: 'medium'
   }
 ];
 
@@ -943,6 +979,18 @@ export const weddingMenuItems: MenuItemDetails[] = [
     servingStyle: ['buffet'],
     popularity: 'high'
   },
+  {
+    id: 'salmon-croquettes',
+    name: 'Salmon Croquettes',
+    description: 'Delicate salmon cakes finished with herb aioli and microgreens',
+    category: 'appetizers',
+    dietaryInfo: ['Contains Fish', 'Contains Gluten'],
+    minimumGuests: 25,
+    leadTimeHours: 48,
+    equipmentRequired: ['warming-trays'],
+    servingStyle: ['buffet'],
+    popularity: 'medium'
+  },
 
   // Premium Sides
   {
@@ -1077,6 +1125,30 @@ export const weddingMenuItems: MenuItemDetails[] = [
     minimumGuests: 30,
     leadTimeHours: 24,
     equipmentRequired: ['serving-stands'],
+    servingStyle: ['plated', 'buffet'],
+    popularity: 'medium'
+  },
+  {
+    id: 'southern-pound-cake',
+    name: 'Southern Pound Cake',
+    description: 'Dense buttery pound cake finished with a delicate vanilla glaze',
+    category: 'desserts',
+    dietaryInfo: ['Contains Gluten', 'Contains Dairy', 'Contains Eggs'],
+    minimumGuests: 30,
+    leadTimeHours: 48,
+    equipmentRequired: ['cake-stands'],
+    servingStyle: ['plated', 'buffet'],
+    popularity: 'high'
+  },
+  {
+    id: 'lemon-layer-cake',
+    name: 'Lemon Layer Cake',
+    description: 'Light lemon cake layers with cream cheese frosting and candied lemon',
+    category: 'desserts',
+    dietaryInfo: ['Contains Gluten', 'Contains Dairy', 'Contains Eggs'],
+    minimumGuests: 30,
+    leadTimeHours: 48,
+    equipmentRequired: ['cake-stands'],
     servingStyle: ['plated', 'buffet'],
     popularity: 'medium'
   }
