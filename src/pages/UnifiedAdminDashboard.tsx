@@ -5,7 +5,8 @@ import { EventsView } from '@/components/admin/events';
 import { PaymentList } from '@/components/admin/billing';
 import { EmailTemplatePreview } from '@/components/admin/settings/EmailTemplatePreview';
 import { EmailDeliveryPanel } from '@/components/admin/settings/EmailDeliveryPanel';
-import { Mail, Cog } from 'lucide-react';
+import { NotificationPreferencesPanel } from '@/components/admin/settings/NotificationPreferencesPanel';
+import { Mail, Cog, Bell } from 'lucide-react';
 
 export type AdminView = 'events' | 'billing' | 'settings';
 
@@ -32,8 +33,12 @@ export function UnifiedAdminDashboard() {
         {currentView === 'billing' && <PaymentList />}
         
         {currentView === 'settings' && (
-          <Tabs defaultValue="emails" className="space-y-4">
+          <Tabs defaultValue="notifications" className="space-y-4">
             <TabsList>
+              <TabsTrigger value="notifications" className="gap-2">
+                <Bell className="h-4 w-4" />
+                Notifications
+              </TabsTrigger>
               <TabsTrigger value="emails" className="gap-2">
                 <Mail className="h-4 w-4" />
                 Email Templates
@@ -47,6 +52,9 @@ export function UnifiedAdminDashboard() {
                 General
               </TabsTrigger>
             </TabsList>
+            <TabsContent value="notifications" className="mt-4">
+              <NotificationPreferencesPanel />
+            </TabsContent>
             <TabsContent value="emails" className="mt-4">
               <EmailTemplatePreview />
             </TabsContent>
