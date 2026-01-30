@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Bell, BellOff, Smartphone, AlertCircle, Moon, Check, Loader2 } from 'lucide-react';
 import { usePushSubscription } from '@/hooks/usePushSubscription';
+import { usePWAInstall } from '@/hooks/usePWAInstall';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
@@ -27,9 +28,11 @@ export function NotificationPreferencesPanel() {
     isSubscribed, 
     isLoading: pushLoading, 
     permissionState,
+    isVapidConfigured,
     subscribe, 
     unsubscribe 
   } = usePushSubscription();
+  const { isIOS, isInstalled } = usePWAInstall();
 
   const [preferences, setPreferences] = useState<NotificationPreferences>({
     visitor_alerts: false,
@@ -163,13 +166,32 @@ export function NotificationPreferencesPanel() {
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
+        {/* VAPID Configuration Missing */}
+        {!isVapidConfigured && (
+          <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              Push notifications are not fully configured. The VAPID public key needs to be added to the environment.
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* iOS PWA Requirement */}
+        {isIOS && !isInstalled && isVapidConfigured && (
+          <Alert>
+            <Smartphone className="h-4 w-4" />
+            <AlertDescription>
+              To enable notifications on iPhone, install this app first. Tap the <strong>Share</strong> icon in Safari and select <strong>"Add to Home Screen"</strong>.
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* Support Check */}
-        {!isSupported && (
+        {!isSupported && isVapidConfigured && !(isIOS && !isInstalled) && (
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
-              Push notifications are not supported on this browser/device. 
-              For best results, install this app to your home screen on iOS 16.4+ or use Chrome on Android.
+              Push notifications are not supported on this browser. Try Chrome, Firefox, Edge, or install as a PWA on iOS 16.4+.
             </AlertDescription>
           </Alert>
         )}
@@ -201,7 +223,7 @@ export function NotificationPreferencesPanel() {
           </div>
           <Button 
             onClick={handlePushToggle} 
-            disabled={!isSupported || pushLoading || permissionState === 'denied'}
+            disabled={!isSupported || pushLoading || permissionState === 'denied' || !isVapidConfigured}
             variant={isSubscribed ? 'outline' : 'default'}
           >
             {pushLoading ? (

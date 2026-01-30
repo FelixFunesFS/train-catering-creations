@@ -34,24 +34,29 @@ export function UnifiedAdminDashboard() {
         
         {currentView === 'settings' && (
           <Tabs defaultValue="notifications" className="space-y-4">
-            <TabsList>
-              <TabsTrigger value="notifications" className="gap-2">
-                <Bell className="h-4 w-4" />
-                Notifications
-              </TabsTrigger>
-              <TabsTrigger value="emails" className="gap-2">
-                <Mail className="h-4 w-4" />
-                Email Templates
-              </TabsTrigger>
-              <TabsTrigger value="delivery" className="gap-2">
-                <Mail className="h-4 w-4" />
-                Email Delivery
-              </TabsTrigger>
-              <TabsTrigger value="general" className="gap-2">
-                <Cog className="h-4 w-4" />
-                General
-              </TabsTrigger>
-            </TabsList>
+            <div className="overflow-x-auto -mx-4 px-4 pb-2 scrollbar-hide">
+              <TabsList className="inline-flex w-max min-w-full sm:w-auto">
+                <TabsTrigger value="notifications" className="gap-2 px-3 sm:px-4">
+                  <Bell className="h-4 w-4" />
+                  <span className="hidden sm:inline">Notifications</span>
+                  <span className="sm:hidden">Alerts</span>
+                </TabsTrigger>
+                <TabsTrigger value="emails" className="gap-2 px-3 sm:px-4">
+                  <Mail className="h-4 w-4" />
+                  <span className="hidden sm:inline">Email Templates</span>
+                  <span className="sm:hidden">Templates</span>
+                </TabsTrigger>
+                <TabsTrigger value="delivery" className="gap-2 px-3 sm:px-4">
+                  <Mail className="h-4 w-4" />
+                  <span className="hidden sm:inline">Email Delivery</span>
+                  <span className="sm:hidden">Delivery</span>
+                </TabsTrigger>
+                <TabsTrigger value="general" className="gap-2 px-3 sm:px-4">
+                  <Cog className="h-4 w-4" />
+                  <span>General</span>
+                </TabsTrigger>
+              </TabsList>
+            </div>
             <TabsContent value="notifications" className="mt-4">
               <NotificationPreferencesPanel />
             </TabsContent>
