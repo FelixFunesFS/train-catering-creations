@@ -7,21 +7,23 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useScrollToAnchor } from "@/hooks/useScrollToAnchor";
 import { lazy, Suspense } from "react";
 
-import { OfflineIndicator } from "@/components/pwa/OfflineIndicator";
-import { PwaUpdateBanner } from "@/components/pwa/PwaUpdateBanner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { HeroVisibilityProvider } from "@/contexts/HeroVisibilityContext";
-import { MobileActionBar } from "@/components/mobile/MobileActionBar";
-import { ScrollToTop } from "@/components/ui/scroll-to-top";
 import { useVisitorTracking } from "@/hooks/useVisitorTracking";
 
 // Critical path - eagerly loaded for LCP
 import Index from "./pages/Index";
+
+// Lazy loaded utility components - not critical for initial render
+const Footer = lazy(() => import("./components/Footer").then(m => ({ default: m.Footer })));
+const OfflineIndicator = lazy(() => import("./components/pwa/OfflineIndicator").then(m => ({ default: m.OfflineIndicator })));
+const PwaUpdateBanner = lazy(() => import("./components/pwa/PwaUpdateBanner").then(m => ({ default: m.PwaUpdateBanner })));
+const MobileActionBar = lazy(() => import("./components/mobile/MobileActionBar").then(m => ({ default: m.MobileActionBar })));
+const ScrollToTop = lazy(() => import("./components/ui/scroll-to-top").then(m => ({ default: m.ScrollToTop })));
 
 // Lazy loaded pages - CSS code-split for reduced initial bundle
 const About = lazy(() => import("./pages/About"));
@@ -71,8 +73,10 @@ const AppContent = () => {
   const showMobileActionBar = isMobile && !isAdminRoute && !isQuoteWizardRoute;
   
   return <div className="min-h-screen bg-background font-clean flex flex-col transition-colors duration-300 py-0 my-0">
-      <OfflineIndicator />
-      <PwaUpdateBanner />
+      <Suspense fallback={null}>
+        <OfflineIndicator />
+        <PwaUpdateBanner />
+      </Suspense>
       {!hideChrome && <Header />}
       <main className={`flex-1 ${!hideChrome ? 'pt-16 lg:pt-[72px]' : ''} ${isAdminRoute ? 'p-0' : 'py-0 my-0'} ${showMobileActionBar ? 'pb-[calc(5rem+env(safe-area-inset-bottom))]' : ''}`}>
         <Suspense fallback={<PageLoader />}>
@@ -124,10 +128,11 @@ const AppContent = () => {
           </Routes>
         </Suspense>
       </main>
-      {!hideChrome && !isAdminRoute && <Footer />}
-      
-      {showMobileActionBar && <MobileActionBar />}
-      <ScrollToTop />
+      <Suspense fallback={null}>
+        {!hideChrome && !isAdminRoute && <Footer />}
+        {showMobileActionBar && <MobileActionBar />}
+        <ScrollToTop />
+      </Suspense>
     </div>;
 };
 const queryClient = new QueryClient();
