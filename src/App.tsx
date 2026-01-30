@@ -14,6 +14,7 @@ import { lazy, Suspense } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { HeroVisibilityProvider } from "@/contexts/HeroVisibilityContext";
 import { useVisitorTracking } from "@/hooks/useVisitorTracking";
+import { useAdminPWA } from "@/hooks/useAdminPWA";
 
 // Critical path - eagerly loaded for LCP
 import Index from "./pages/Index";
@@ -60,6 +61,7 @@ const PageLoader = () => (
 const AppContent = () => {
   useScrollToAnchor();
   useVisitorTracking(); // Track visitor page views for admin notifications
+  useAdminPWA(); // Dynamic PWA manifest/meta for admin routes
   const location = useLocation();
   const isMobile = useIsMobile();
   const isAdminRoute = location.pathname.startsWith('/admin');

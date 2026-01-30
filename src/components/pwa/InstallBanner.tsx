@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { X, Download, Share } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
@@ -7,10 +8,22 @@ export function InstallBanner() {
   const { isInstallable, isInstalled, isIOS, promptInstall } = usePWAInstall();
   const [isDismissed, setIsDismissed] = useState(false);
   const [showBanner, setShowBanner] = useState(false);
+  const location = useLocation();
+  
+  // Only show on admin routes (but not on auth page)
+  const isAdminRoute = location.pathname.startsWith('/admin');
+  const isAuthPage = location.pathname === '/admin/auth';
+  const shouldShowOnRoute = isAdminRoute && !isAuthPage;
 
   useEffect(() => {
+    // Don't show on non-admin routes
+    if (!shouldShowOnRoute) {
+      setShowBanner(false);
+      return;
+    }
+
     // Check if user has dismissed before
-    const dismissed = localStorage.getItem('pwa-install-dismissed');
+    const dismissed = localStorage.getItem('pwa-admin-install-dismissed');
     if (dismissed) {
       const dismissedTime = parseInt(dismissed, 10);
       // Show again after 7 days
@@ -20,21 +33,21 @@ export function InstallBanner() {
       }
     }
 
-    // Show banner after 2nd page view
-    const pageViews = parseInt(localStorage.getItem('pwa-page-views') || '0', 10) + 1;
-    localStorage.setItem('pwa-page-views', pageViews.toString());
+    // Show banner after 2nd admin page view
+    const pageViews = parseInt(localStorage.getItem('pwa-admin-page-views') || '0', 10) + 1;
+    localStorage.setItem('pwa-admin-page-views', pageViews.toString());
 
     if (pageViews >= 2 && (isInstallable || isIOS) && !isInstalled) {
       // Delay showing banner for better UX
       const timer = setTimeout(() => setShowBanner(true), 3000);
       return () => clearTimeout(timer);
     }
-  }, [isInstallable, isIOS, isInstalled]);
+  }, [isInstallable, isIOS, isInstalled, shouldShowOnRoute]);
 
   const handleDismiss = () => {
     setShowBanner(false);
     setIsDismissed(true);
-    localStorage.setItem('pwa-install-dismissed', Date.now().toString());
+    localStorage.setItem('pwa-admin-install-dismissed', Date.now().toString());
   };
 
   const handleInstall = async () => {
@@ -49,7 +62,7 @@ export function InstallBanner() {
     }
   };
 
-  if (!showBanner || isDismissed || isInstalled) return null;
+  if (!showBanner || isDismissed || isInstalled || !shouldShowOnRoute) return null;
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 p-4 bg-card border-t border-border shadow-lg animate-in slide-in-from-bottom-5 duration-300">
@@ -63,9 +76,9 @@ export function InstallBanner() {
             />
           </div>
           <div className="min-w-0">
-            <p className="font-medium text-sm truncate">Install Soul Train's</p>
+            <p className="font-medium text-sm truncate">Install Admin Portal</p>
             <p className="text-xs text-muted-foreground truncate">
-              {isIOS ? 'Add to Home Screen for quick access' : 'Install for faster access'}
+              {isIOS ? 'Add to Home Screen for quick access' : 'Install for faster dashboard access'}
             </p>
           </div>
         </div>
