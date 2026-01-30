@@ -1,9 +1,9 @@
 {
-  "name": "Soul Train's Eatery - Catering",
-  "short_name": "Soul Train's",
-  "description": "Premier catering for weddings, events, and gatherings in Charleston, SC. Family-owned with authentic Southern hospitality.",
-  "start_url": "/",
-  "display": "browser",
+  "name": "Soul Train's Admin Portal",
+  "short_name": "ST Admin",
+  "description": "Admin dashboard for Soul Train's Eatery catering management - manage events, quotes, and billing.",
+  "start_url": "/admin",
+  "display": "standalone",
   "background_color": "#1a1a1a",
   "theme_color": "#dc2626",
   "orientation": "portrait-primary",
@@ -38,18 +38,18 @@
       "type": "image/png"
     }
   ],
-  "categories": ["food", "business"],
+  "categories": ["business", "productivity"],
   "screenshots": [],
   "shortcuts": [
     {
-      "name": "Request a Quote",
-      "url": "/request-quote",
-      "description": "Get a catering quote for your event"
+      "name": "View Events",
+      "url": "/admin",
+      "description": "View and manage all catering events"
     },
     {
-      "name": "View Menu",
-      "url": "/menu",
-      "description": "Browse our catering menu"
+      "name": "Billing",
+      "url": "/admin?view=billing",
+      "description": "Manage invoices and payments"
     }
   ]
 }

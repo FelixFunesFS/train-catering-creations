@@ -1,4 +1,4 @@
-import { Download, Share, Plus, MoreVertical, CheckCircle } from 'lucide-react';
+import { Download, Share, Plus, MoreVertical, CheckCircle, LayoutDashboard, CalendarDays, Bell, Maximize2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
@@ -29,12 +29,12 @@ export default function Install() {
             </div>
             <CardTitle>Already Installed!</CardTitle>
             <CardDescription>
-              Soul Train's Eatery is already installed on your device. You can access it from your home screen.
+              The Admin Portal is already installed on your device. You can access it from your home screen.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button variant="outline" onClick={() => window.location.href = '/'}>
-              Go to Home
+            <Button variant="outline" onClick={() => window.location.href = '/admin'}>
+              Go to Admin Portal
             </Button>
           </CardContent>
         </Card>
@@ -54,33 +54,33 @@ export default function Install() {
               className="w-12 h-12"
             />
           </div>
-          <h1 className="text-3xl font-elegant font-bold mb-3">Install Soul Train's Eatery</h1>
+          <h1 className="text-3xl font-elegant font-bold mb-3">Install Admin Portal</h1>
           <p className="text-muted-foreground max-w-md mx-auto">
-            Add our app to your home screen for quick access to menus, quote requests, and your event portal.
+            Add the admin dashboard to your home screen for quick access to event management, quotes, and billing.
           </p>
         </div>
 
         {/* Benefits */}
         <Card className="mb-8">
           <CardHeader>
-            <CardTitle className="text-lg">Why Install?</CardTitle>
+            <CardTitle className="text-lg">Why Install the Admin Portal?</CardTitle>
           </CardHeader>
           <CardContent>
             <ul className="space-y-3">
               <li className="flex items-start gap-3">
-                <CheckCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                <span>Quick access from your home screen</span>
+                <LayoutDashboard className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                <span>Quick access to your dashboard from home screen</span>
               </li>
               <li className="flex items-start gap-3">
-                <CheckCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                <span>Works offline - view menus without internet</span>
+                <CalendarDays className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                <span>View and manage events on the go</span>
               </li>
               <li className="flex items-start gap-3">
-                <CheckCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                <span>Faster loading and better performance</span>
+                <Bell className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                <span>Stay on top of quotes and payments</span>
               </li>
               <li className="flex items-start gap-3">
-                <CheckCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                <Maximize2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
                 <span>Full-screen experience without browser UI</span>
               </li>
             </ul>
@@ -97,7 +97,7 @@ export default function Install() {
                 size="lg"
               >
                 <Download className="h-5 w-5" />
-                Install Now
+                Install Admin Portal
               </Button>
             </CardContent>
           </Card>
@@ -135,7 +135,7 @@ export default function Install() {
                   <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm flex items-center justify-center">3</span>
                   <div>
                     <p className="font-medium">Tap "Add" in the top right</p>
-                    <p className="text-sm text-muted-foreground">The app will appear on your home screen</p>
+                    <p className="text-sm text-muted-foreground">The Admin Portal will appear on your home screen</p>
                   </div>
                 </li>
               </ol>
@@ -175,7 +175,7 @@ export default function Install() {
                   <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm flex items-center justify-center">3</span>
                   <div>
                     <p className="font-medium">Tap "Add" or "Install"</p>
-                    <p className="text-sm text-muted-foreground">The app icon will appear on your home screen</p>
+                    <p className="text-sm text-muted-foreground">The Admin Portal will appear on your home screen</p>
                   </div>
                 </li>
               </ol>
@@ -206,7 +206,7 @@ export default function Install() {
                   <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm flex items-center justify-center">2</span>
                   <div>
                     <p className="font-medium">Click the icon and confirm</p>
-                    <p className="text-sm text-muted-foreground">The app will open in its own window</p>
+                    <p className="text-sm text-muted-foreground">The Admin Portal will open in its own window</p>
                   </div>
                 </li>
               </ol>
@@ -214,10 +214,10 @@ export default function Install() {
           </Card>
         )}
 
-        {/* Back to Home */}
+        {/* Back to Admin */}
         <div className="text-center">
-          <Button variant="outline" onClick={() => window.location.href = '/'}>
-            Back to Home
+          <Button variant="outline" onClick={() => window.location.href = '/admin'}>
+            Back to Admin Portal
           </Button>
         </div>
       </div>

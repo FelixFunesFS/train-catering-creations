@@ -16,8 +16,8 @@ export function AdminLayout({ children, currentView, onViewChange }: AdminLayout
   const { signOut } = useAuth();
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <div className="min-h-screen bg-background pt-[env(safe-area-inset-top)]">
+      <header className="sticky top-[env(safe-area-inset-top)] z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <div>
@@ -44,7 +44,7 @@ export function AdminLayout({ children, currentView, onViewChange }: AdminLayout
         </div>
       </header>
 
-      <main className="flex-1">
+      <main className="flex-1 pb-[env(safe-area-inset-bottom)]">
         {children}
       </main>
     </div>
