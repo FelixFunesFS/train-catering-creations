@@ -39,6 +39,19 @@ export const useStickyElement = (options: UseStickyElementOptions = {}) => {
     let rafId: number | null = null;
     let cachedElementTop: number | null = null;
     
+    // Pre-cache element position after layout is stable to avoid forced reflows
+    const cacheElementPosition = () => {
+      if (cachedElementTop === null && element) {
+        const rect = element.getBoundingClientRect();
+        cachedElementTop = rect.top + window.pageYOffset;
+      }
+    };
+    
+    // Defer initial position caching to avoid forced reflow during render
+    requestAnimationFrame(() => {
+      requestAnimationFrame(cacheElementPosition);
+    });
+    
     const handleScroll = () => {
       if (!element || !isInView) return;
       
@@ -47,11 +60,9 @@ export const useStickyElement = (options: UseStickyElementOptions = {}) => {
         rafId = null;
         const scrolled = window.pageYOffset;
         
-        // Cache element position to avoid repeated getBoundingClientRect calls
-        if (cachedElementTop === null) {
-          const rect = element.getBoundingClientRect();
-          cachedElementTop = rect.top + scrolled;
-        }
+        // Use cached position (already computed)
+        cacheElementPosition();
+        if (cachedElementTop === null) return;
         
         // Check if element should be sticky
         const shouldBeSticky = scrolled > cachedElementTop - offsetTop;
