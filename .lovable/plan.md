@@ -1,145 +1,120 @@
 
 
-# Targeted Email Subject Encoding Fix - Safety Review
+# Complete Email Emoji Removal Plan
 
-## What's Being Changed
+## Root Cause Confirmed
 
-**Single file modification**: `supabase/functions/send-smtp-email/index.ts`
+The `denomailer` library **double-encodes** subjects:
+1. We pre-encode: `=?utf-8?B?...?=`
+2. Library sees special characters (`=`, `?`) and encodes again
+3. Result: `=?utf-8?Q?=3d?utf-8?B?...` (completely broken)
 
-**Only change**: Add a `encodeSubjectRFC2047()` function that pre-encodes subjects before passing to the email library.
-
----
-
-## What Will NOT Change
-
-| Component | Status |
-|-----------|--------|
-| HTML body generation | Unchanged |
-| Plain text fallback | Unchanged |
-| From/To/Reply-To headers | Unchanged |
-| Email logging/analytics | Unchanged |
-| Error handling | Unchanged |
-| All other edge functions | Unchanged |
-| Customer-facing templates | Unchanged |
-| Admin notification templates | Unchanged |
+**Solution**: Remove emojis from ALL subject lines and revert the encoding function.
 
 ---
 
-## All Email Subjects - Impact Analysis
+## Files to Modify
 
-### Admin Emails (Your Problem Area)
+### 1. `supabase/functions/send-smtp-email/index.ts`
 
-| Email | Current Subject | Contains Emoji | Fix Impact |
-|-------|----------------|----------------|------------|
-| New Quote Notification | `🚂 NEW QUOTE from {name} - {event}` | Yes + Long | **FIXED** - Will encode properly |
-| Customer Approved | `✅ Customer Approved: {event}` | Yes | **FIXED** - Will encode properly |
-| Change Request | `📝 Change Request: {event}` | Yes | **FIXED** - Will encode properly |
-| Payment Received | `💰 Payment Received: {event}` | Yes | **FIXED** - Will encode properly |
-
-### Customer Emails
-
-| Email | Current Subject | Contains Emoji | Fix Impact |
-|-------|----------------|----------------|------------|
-| Quote Confirmation | `Welcome to Soul Train's Eatery - Access Your Event Details` | No | **No change** - Passes through as-is |
-| Estimate Ready | `Your Catering Estimate is Ready - {event}` | No | **No change** - Passes through as-is |
-| Payment Reminder | `Payment Reminder - {event}` | No | **No change** - Passes through as-is |
-| Payment Confirmed (Full) | `🎉 Payment Confirmed - Your Event is Secured!` | Yes | **FIXED** - Will encode properly |
-| Deposit Received | `💰 Deposit Received - {event}` | Yes | **FIXED** - Will encode properly |
-| Approval Confirmation | `✅ Estimate Approved - Next Steps for {event}` | Yes | **FIXED** - Will encode properly |
-| 7-Day Reminder | `Final Details Confirmation - {event} in 1 Week` | No | **No change** - Passes through as-is |
-| 2-Day Reminder | `Your Event is in 2 Days! - {event}` | No | **No change** - Passes through as-is |
-| Thank You | `Thank You for Choosing Soul Train's Eatery!` | No | **No change** - Passes through as-is |
-
----
-
-## How the Fix Works
-
-```typescript
-function encodeSubjectRFC2047(subject: string): string {
-  // Check if subject contains non-ASCII (emojis, accents, etc.)
-  const hasNonASCII = /[^\x00-\x7F]/.test(subject);
-  
-  // If pure ASCII and short - return unchanged
-  if (!hasNonASCII && subject.length <= 75) {
-    return subject;  // <-- Most customer emails go here
-  }
-  
-  // Encode as Base64 (RFC 2047 "B" encoding)
-  const encoder = new TextEncoder();
-  const bytes = encoder.encode(subject);
-  const base64 = btoa(String.fromCharCode(...bytes));
-  
-  return `=?utf-8?B?${base64}?=`;
-}
-```
-
-**Key safety points:**
-
-1. ASCII-only subjects under 75 chars return **completely unchanged**
-2. Only subjects with emojis or long subjects get encoded
-3. Base64 encoding is a standard email format - all email clients decode it automatically
-4. The decoded result is identical to the original text
-
----
-
-## Code Changes
-
-### File: `supabase/functions/send-smtp-email/index.ts`
-
-**Add function after `stripHtmlToText` (around line 94):**
-
-```typescript
-/**
- * Encode email subject per RFC 2047 for proper UTF-8 handling.
- * Uses Base64 encoding (B) which avoids line-break issues with long subjects.
- */
-function encodeSubjectRFC2047(subject: string): string {
-  const hasNonASCII = /[^\x00-\x7F]/.test(subject);
-  
-  if (!hasNonASCII && subject.length <= 75) {
-    return subject;
-  }
-  
-  const maxLength = 120;
-  const truncatedSubject = subject.length > maxLength 
-    ? subject.substring(0, maxLength - 3) + '...'
-    : subject;
-  
-  const encoder = new TextEncoder();
-  const bytes = encoder.encode(truncatedSubject);
-  const base64 = btoa(String.fromCharCode(...bytes));
-  
-  return `=?utf-8?B?${base64}?=`;
-}
-```
-
-**Modify line 215:**
+**Remove the `encodeSubjectRFC2047()` function** (lines 96-118) and revert to plain subject pass-through (line 239).
 
 ```typescript
 // Before:
-subject: subject,
+subject: encodeSubjectRFC2047(subject),
 
 // After:
-subject: encodeSubjectRFC2047(subject),
+subject: subject,
 ```
+
+---
+
+### 2. `supabase/functions/send-quote-notification/index.ts` (Line 231)
+
+**Admin notification for new quotes**
+
+| Before | After |
+|--------|-------|
+| `🚂 NEW QUOTE from ${name} - ${event}` | `[NEW QUOTE] ${name} - ${event}` |
+
+---
+
+### 3. `supabase/functions/send-admin-notification/index.ts`
+
+**All admin notification types** (Lines 119, 156, 192, 226, 257)
+
+| Type | Before | After |
+|------|--------|-------|
+| customer_approval | `✅ Customer Approved: ${event}` | `[APPROVED] ${event}` |
+| change_request | `📝 Change Request: ${event}` | `[CHANGE REQUEST] ${event}` |
+| payment_received | `💰 Payment Received: ${event}` | `[PAYMENT] ${event}` |
+| payment_failed | `❌ Payment Failed: ${event}` | `[PAYMENT FAILED] ${event}` |
+| default | `🔔 Notification: ${event}` | `[NOTIFICATION] ${event}` |
+
+---
+
+### 4. `supabase/functions/send-payment-reminder/index.ts`
+
+**Customer payment reminders** (Lines 72, 79, 86, 92)
+
+| Type | Before | After |
+|------|--------|-------|
+| Overdue | `⚠️ URGENT: Payment Overdue - ${event}` | `URGENT: Payment Overdue - ${event}` |
+| Deposit | `🔒 Secure Your Date - Deposit Due for ${event}` | `Secure Your Date - Deposit Due for ${event}` |
+| Final | `✅ Final Payment Due - ${event}` | `Final Payment Due - ${event}` |
+| Milestone | `💳 Milestone Payment Due - ${event}` | `Payment Due - ${event}` |
+
+---
+
+## What Stays Unchanged
+
+### Hero Badges (HTML Body)
+These emojis are **safe** - they're in HTML which handles UTF-8 correctly:
+- `🚂 NEW QUOTE` badge in hero section
+- `✅ APPROVED` badge in hero section
+- `💰 PAYMENT RECEIVED` badge in hero section
+- All other badge text in email bodies
+
+The HTML body is already minified and encoded correctly. Only subject lines need changes.
+
+### Other Email Functions (No Emoji Subjects)
+These already use ASCII-only subjects and need no changes:
+- `send-quote-confirmation/index.ts` - Customer confirmation
+- `unified-reminder-system/index.ts` - Event reminders (7-day, 2-day, thank you)
+- `send-event-followup/index.ts` - Post-event follow-up
+- `send-manual-email/index.ts` - Admin manual emails
+- `send-status-notification/index.ts` - Status updates
+
+---
+
+## Why This Will Work
+
+| Before (Broken) | After (Fixed) |
+|-----------------|---------------|
+| `🚂 NEW QUOTE from John - Wedding` | `[NEW QUOTE] John - Wedding` |
+| Contains emoji → Library encodes → Double-encoding | Pure ASCII → No encoding needed → Clean delivery |
+
+The brackets `[NEW QUOTE]` provide similar visual distinction to emojis while being 100% ASCII-safe.
+
+---
+
+## Summary of Changes
+
+| File | Lines Changed | Change Type |
+|------|---------------|-------------|
+| `send-smtp-email/index.ts` | 96-118, 239 | Remove encoding function, revert to plain subject |
+| `send-quote-notification/index.ts` | 231 | Remove 🚂 emoji from subject |
+| `send-admin-notification/index.ts` | 119, 156, 192, 226, 257 | Remove ✅📝💰❌🔔 emojis from subjects |
+| `send-payment-reminder/index.ts` | 72, 79, 86, 92 | Remove ⚠️🔒✅💳 emojis from subjects |
+
+**Total: 4 files, ~13 line changes**
 
 ---
 
 ## Testing After Deployment
 
-1. Submit a test quote with a long event name - verify admin gets clean subject
-2. Check that existing customer estimate emails still arrive correctly
-3. Test a payment confirmation (has emoji) - verify both admin and customer emails display properly
-
----
-
-## Risk Assessment
-
-| Risk | Likelihood | Mitigation |
-|------|------------|------------|
-| Other emails break | Very Low | ASCII-only subjects unchanged |
-| Encoding not recognized | Very Low | RFC 2047 is 30-year-old standard |
-| Subject looks garbled | None | All email clients decode automatically |
-
-**This is a minimal, surgical fix that only affects the exact problem you saw.**
+1. Resend the Angela Powell admin notification
+2. Verify subject displays as: `[NEW QUOTE] Msgt Angela Powell - Arhs Afjrotc Military Ball`
+3. Verify email body still shows emoji badges correctly
+4. Test a customer payment reminder to ensure no issues
 
