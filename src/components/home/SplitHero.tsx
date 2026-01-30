@@ -8,6 +8,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
 import { useHeroVisibility } from "@/contexts/HeroVisibilityContext";
+import { usePreloadImage } from "@/hooks/usePreloadImage";
 import { Link } from "react-router-dom";
 
 // Import optimized WebP hero images
@@ -32,6 +33,10 @@ export const SplitHero = () => {
     setIsHeroVisible
   } = useHeroVisibility();
   const heroSentinelRef = useRef<HTMLDivElement>(null);
+
+  // Preload LCP image with correct hashed URL for faster paint
+  usePreloadImage(heroAppetizers);
+
   const {
     ref: visualRef,
     isVisible: visualVisible
