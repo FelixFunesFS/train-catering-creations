@@ -132,10 +132,16 @@ export const InteractiveGalleryPreview = () => {
     if (!isMobile) return;
     
     const target = e.currentTarget as HTMLElement;
-    const rect = target.getBoundingClientRect();
     const x = 'touches' in e ? e.touches[0].clientX : (e as React.MouseEvent).clientX;
-    const relativeX = x - rect.left;
-    const centerX = rect.width / 2;
+    
+    // Use offsetWidth instead of getBoundingClientRect to avoid forced reflow
+    // when only width is needed (offsetWidth is cached by browser)
+    const containerWidth = target.offsetWidth;
+    const centerX = containerWidth / 2;
+    
+    // Calculate relative X from the target's left edge using offsetLeft
+    const targetRect = target.getBoundingClientRect();
+    const relativeX = x - targetRect.left;
     
     if (relativeX < centerX / 2) {
       handlePreviousStory();
