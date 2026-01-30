@@ -4,8 +4,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 
 // VAPID public key - must match the one in Supabase secrets
-// This should be loaded from environment or config in production
 const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY || '';
+const IS_VAPID_CONFIGURED = Boolean(VAPID_PUBLIC_KEY && VAPID_PUBLIC_KEY.length > 10);
 
 function urlBase64ToUint8Array(base64String: string): ArrayBuffer {
   const padding = '='.repeat((4 - base64String.length % 4) % 4);
@@ -192,10 +192,11 @@ export function usePushSubscription() {
   }, [subscription, user]);
 
   return {
-    isSupported,
+    isSupported: isSupported && IS_VAPID_CONFIGURED,
     isSubscribed,
     isLoading,
     permissionState,
+    isVapidConfigured: IS_VAPID_CONFIGURED,
     subscribe,
     unsubscribe,
   };
