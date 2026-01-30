@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.png" type="image/png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover" />
+    
+    <!-- PWA Meta Tags - Admin-specific for standalone PWA -->
+    <meta name="theme-color" content="#1a1a1a" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="ST Admin" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="application-name" content="Soul Train's Admin" />
+    <meta name="msapplication-TileColor" content="#dc2626" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    
+    <!-- PWA Icons -->
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/admin-manifest.json" />
+    
+    <title>Soul Train's Admin Portal</title>
+    <meta name="description" content="Admin dashboard for Soul Train's Eatery catering management - manage events, quotes, and billing.">
+    <meta name="author" content="Soul Train's Eatery" />
+    <meta name="robots" content="noindex, nofollow" />
+
+    <!-- Preconnect to critical origins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+    <link rel="preconnect" href="https://qptprrqjlcvfkhfdnnoa.supabase.co" crossorigin>
+    <link rel="dns-prefetch" href="https://qptprrqjlcvfkhfdnnoa.supabase.co">
+    
+    <!-- Google Fonts - async loaded -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400&family=Inter:wght@300;400;500;600&family=Dancing+Script:wght@400;500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400&family=Inter:wght@300;400;500;600&family=Dancing+Script:wght@400;500;600;700&display=swap"></noscript>
+    
+    <!-- Critical CSS for admin -->
+    <style>
+      :root{--background:0 0% 7%;--foreground:0 0% 98%;--ruby:0 72% 51%;--primary:0 72% 51%;--muted-foreground:0 0% 64%}
+      *,::before,::after{box-sizing:border-box;border:0 solid;border-color:#374151}
+      html{line-height:1.5;-webkit-text-size-adjust:100%;font-family:Inter,system-ui,sans-serif;scroll-behavior:smooth}
+      body{margin:0;background-color:hsl(var(--background));color:hsl(var(--foreground));-webkit-font-smoothing:antialiased}
+      #root{min-height:100vh;display:flex;flex-direction:column}
+      main{flex:1}
+      img{max-width:100%;height:auto;display:block}
+      h1,h2,h3{margin:0;font-weight:700;line-height:1.2}
+      p{margin:0}
+      a{color:inherit;text-decoration:none}
+      button{cursor:pointer;font:inherit}
+      .min-h-screen{min-height:100vh}
+    </style>
+  </head>
+
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

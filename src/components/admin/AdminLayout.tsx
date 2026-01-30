@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { LogOut } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { AdminNav, type AdminView } from './AdminNav';
+import { MobileAdminNav } from './mobile/MobileAdminNav';
 
 export type { AdminView } from './AdminNav';
 
@@ -44,9 +45,11 @@ export function AdminLayout({ children, currentView, onViewChange }: AdminLayout
         </div>
       </header>
 
-      <main className="flex-1 pb-[env(safe-area-inset-bottom)]">
+      <main className="flex-1 pb-20 lg:pb-[env(safe-area-inset-bottom)]">
         {children}
       </main>
+
+      <MobileAdminNav />
     </div>
   );
 }

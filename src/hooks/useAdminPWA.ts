@@ -39,7 +39,7 @@ export function useAdminPWA() {
 
       const iosStatusBar = document.createElement('meta');
       iosStatusBar.name = 'apple-mobile-web-app-status-bar-style';
-      iosStatusBar.content = 'black-translucent';
+      iosStatusBar.content = 'default';
       document.head.appendChild(iosStatusBar);
       injectedMetaTags.push(iosStatusBar);
 
