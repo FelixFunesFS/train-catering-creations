@@ -38,13 +38,35 @@
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400&family=Inter:wght@300;400;500;600&family=Dancing+Script:wght@400;500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400&family=Inter:wght@300;400;500;600&family=Dancing+Script:wght@400;500;600;700&display=swap"></noscript>
     
-    <!-- Critical CSS for FCP - inline essential above-the-fold styles -->
+    <!-- Critical CSS for FCP/Speed Index - inline essential above-the-fold styles -->
     <style>
-      :root{--background:0 0% 100%;--foreground:0 0% 10%;--ruby:0 72% 51%}
-      *,::before,::after{box-sizing:border-box;border:0 solid}
-      html{line-height:1.5;-webkit-text-size-adjust:100%;font-family:Inter,system-ui,sans-serif}
-      body{margin:0;background-color:hsl(var(--background));color:hsl(var(--foreground))}
+      :root{--background:0 0% 100%;--foreground:0 0% 10%;--ruby:0 72% 51%;--primary:0 72% 51%;--muted-foreground:0 0% 45%}
+      *,::before,::after{box-sizing:border-box;border:0 solid;border-color:#e5e7eb}
+      html{line-height:1.5;-webkit-text-size-adjust:100%;font-family:Inter,system-ui,sans-serif;scroll-behavior:smooth}
+      body{margin:0;background-color:hsl(var(--background));color:hsl(var(--foreground));-webkit-font-smoothing:antialiased}
       #root{min-height:100vh;display:flex;flex-direction:column}
+      header{position:sticky;top:0;z-index:50;background:hsl(var(--background))}
+      main{flex:1}
+      section{position:relative}
+      img,video{max-width:100%;height:auto;display:block}
+      h1,h2,h3{margin:0;font-weight:700;line-height:1.2}
+      h1{font-size:clamp(2rem,5vw,3.5rem)}
+      p{margin:0}
+      a{color:inherit;text-decoration:none}
+      button{cursor:pointer;font:inherit}
+      .min-h-screen{min-height:100vh}
+      .relative{position:relative}
+      .absolute{position:absolute}
+      .inset-0{inset:0}
+      .flex{display:flex}
+      .flex-col{flex-direction:column}
+      .items-center{align-items:center}
+      .justify-center{justify-content:center}
+      .text-center{text-align:center}
+      .w-full{width:100%}
+      .h-full{height:100%}
+      .object-cover{object-fit:cover}
+      .overflow-hidden{overflow:hidden}
     </style>
 
     <!-- Open Graph / Social -->
