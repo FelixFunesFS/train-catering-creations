@@ -153,6 +153,13 @@ verify_jwt = false
 [functions.preview-email]
 verify_jwt = false
 
+# Push Notifications & Visitor Tracking
+[functions.send-push-notification]
+verify_jwt = false
+
+[functions.track-visitor]
+verify_jwt = false
+
 [edge-runtime]
 enabled = true
 ip_version = "dual"

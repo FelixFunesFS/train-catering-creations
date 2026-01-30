@@ -18,6 +18,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { HeroVisibilityProvider } from "@/contexts/HeroVisibilityContext";
 import { MobileActionBar } from "@/components/mobile/MobileActionBar";
 import { ScrollToTop } from "@/components/ui/scroll-to-top";
+import { useVisitorTracking } from "@/hooks/useVisitorTracking";
 
 // Critical path - eagerly loaded for LCP
 import Index from "./pages/Index";
@@ -56,6 +57,7 @@ const PageLoader = () => (
 
 const AppContent = () => {
   useScrollToAnchor();
+  useVisitorTracking(); // Track visitor page views for admin notifications
   const location = useLocation();
   const isMobile = useIsMobile();
   const isAdminRoute = location.pathname.startsWith('/admin');
