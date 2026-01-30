@@ -31,7 +31,7 @@ export function MobileAdminNav() {
   const currentView = new URLSearchParams(location.search).get('view') || 'events';
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t safe-area-inset-bottom lg:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t lg:hidden pb-[env(safe-area-inset-bottom)]">
       <div className="grid grid-cols-4 h-16">
         {navItems.map((item) => {
           const isActive = currentView === item.query.replace('?view=', '');
