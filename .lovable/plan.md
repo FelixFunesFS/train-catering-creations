@@ -1,120 +1,125 @@
 
 
-# Complete Email Emoji Removal Plan
+# Option C Implementation Plan: Admin-Only PWA
 
-## Root Cause Confirmed
-
-The `denomailer` library **double-encodes** subjects:
-1. We pre-encode: `=?utf-8?B?...?=`
-2. Library sees special characters (`=`, `?`) and encodes again
-3. Result: `=?utf-8?Q?=3d?utf-8?B?...` (completely broken)
-
-**Solution**: Remove emojis from ALL subject lines and revert the encoding function.
+## Overview
+This plan removes the PWA functionality from the public website while creating an admin-only PWA experience. Public visitors will get a standard mobile browser experience even when saving to their home screen, while admins will have a dedicated installable app.
 
 ---
 
-## Files to Modify
+## Strategy
 
-### 1. `supabase/functions/send-smtp-email/index.ts`
+The key insight is that the PWA behavior is controlled by:
+1. **manifest.json** - Defines the app metadata and `start_url`
+2. **index.html** - Contains PWA meta tags like `apple-mobile-web-app-capable`
+3. **Service Worker** (via Vite PWA plugin) - Handles caching/offline
+4. **React components** - Install banners and prompts
 
-**Remove the `encodeSubjectRFC2047()` function** (lines 96-118) and revert to plain subject pass-through (line 239).
-
-```typescript
-// Before:
-subject: encodeSubjectRFC2047(subject),
-
-// After:
-subject: subject,
-```
-
----
-
-### 2. `supabase/functions/send-quote-notification/index.ts` (Line 231)
-
-**Admin notification for new quotes**
-
-| Before | After |
-|--------|-------|
-| `🚂 NEW QUOTE from ${name} - ${event}` | `[NEW QUOTE] ${name} - ${event}` |
+To make the public site behave as a normal website while keeping PWA for admin:
+- Create a separate admin manifest (`/admin-manifest.json`)
+- Dynamically swap the manifest link based on the current route
+- Remove `apple-mobile-web-app-capable` from the base HTML and inject it only on admin routes
+- Update install banner to only show on admin routes
+- Add safe area padding to AdminLayout for proper PWA display
 
 ---
 
-### 3. `supabase/functions/send-admin-notification/index.ts`
+## File Changes
 
-**All admin notification types** (Lines 119, 156, 192, 226, 257)
+### 1. Create `/public/admin-manifest.json` (New File)
+Admin-specific PWA manifest with:
+- `name`: "Soul Train's Admin Portal"
+- `short_name`: "ST Admin"
+- `description`: "Admin dashboard for Soul Train's Eatery catering management"
+- `start_url`: "/admin"
+- `display`: "standalone"
+- Updated shortcuts for admin actions (Events, Billing)
 
-| Type | Before | After |
-|------|--------|-------|
-| customer_approval | `✅ Customer Approved: ${event}` | `[APPROVED] ${event}` |
-| change_request | `📝 Change Request: ${event}` | `[CHANGE REQUEST] ${event}` |
-| payment_received | `💰 Payment Received: ${event}` | `[PAYMENT] ${event}` |
-| payment_failed | `❌ Payment Failed: ${event}` | `[PAYMENT FAILED] ${event}` |
-| default | `🔔 Notification: ${event}` | `[NOTIFICATION] ${event}` |
+### 2. Modify `/public/manifest.json`
+Change to a "non-PWA" manifest for public site:
+- Change `display` from `"standalone"` to `"browser"` - this makes the public site open in normal browser mode even when saved to home screen
+- Keep other metadata for SEO/social purposes
 
----
+### 3. Modify `/index.html`
+Remove PWA-specific meta tags that apply site-wide:
+- Remove `apple-mobile-web-app-capable` (will be injected by React for admin)
+- Remove `apple-mobile-web-app-status-bar-style`
+- Remove `mobile-web-app-capable`
+- Keep the manifest link but it will be swapped dynamically
 
-### 4. `supabase/functions/send-payment-reminder/index.ts`
+### 4. Create `/src/hooks/useAdminPWA.ts` (New File)
+A custom hook that:
+- Detects if the current route is an admin route
+- Dynamically swaps the manifest link to `/admin-manifest.json`
+- Injects `apple-mobile-web-app-capable` meta tag for admin routes only
+- Cleans up when navigating away from admin
 
-**Customer payment reminders** (Lines 72, 79, 86, 92)
+### 5. Modify `/src/components/pwa/InstallBanner.tsx`
+- Add route check to only show on admin routes (`location.pathname.startsWith('/admin')`)
+- Update messaging to say "Install Admin Portal" instead of "Install Soul Train's"
+- Add logic to not show on `/admin/auth` (login page)
 
-| Type | Before | After |
-|------|--------|-------|
-| Overdue | `⚠️ URGENT: Payment Overdue - ${event}` | `URGENT: Payment Overdue - ${event}` |
-| Deposit | `🔒 Secure Your Date - Deposit Due for ${event}` | `Secure Your Date - Deposit Due for ${event}` |
-| Final | `✅ Final Payment Due - ${event}` | `Final Payment Due - ${event}` |
-| Milestone | `💳 Milestone Payment Due - ${event}` | `Payment Due - ${event}` |
+### 6. Modify `/src/pages/Install.tsx`
+- Update all copy to focus on admin portal installation
+- Update benefits list to admin-specific features:
+  - Quick access to event management
+  - View and manage quotes on the go
+  - Receive notifications (future)
+  - Full-screen admin dashboard experience
+- Update button text and icons for admin context
 
----
+### 7. Modify `/src/components/admin/AdminLayout.tsx`
+Add safe area padding for proper PWA display:
+- Add `pt-[env(safe-area-inset-top)]` to the root container
+- Add safe area consideration to the sticky header
+- Ensure bottom content respects `pb-[env(safe-area-inset-bottom)]`
 
-## What Stays Unchanged
-
-### Hero Badges (HTML Body)
-These emojis are **safe** - they're in HTML which handles UTF-8 correctly:
-- `🚂 NEW QUOTE` badge in hero section
-- `✅ APPROVED` badge in hero section
-- `💰 PAYMENT RECEIVED` badge in hero section
-- All other badge text in email bodies
-
-The HTML body is already minified and encoded correctly. Only subject lines need changes.
-
-### Other Email Functions (No Emoji Subjects)
-These already use ASCII-only subjects and need no changes:
-- `send-quote-confirmation/index.ts` - Customer confirmation
-- `unified-reminder-system/index.ts` - Event reminders (7-day, 2-day, thank you)
-- `send-event-followup/index.ts` - Post-event follow-up
-- `send-manual-email/index.ts` - Admin manual emails
-- `send-status-notification/index.ts` - Status updates
-
----
-
-## Why This Will Work
-
-| Before (Broken) | After (Fixed) |
-|-----------------|---------------|
-| `🚂 NEW QUOTE from John - Wedding` | `[NEW QUOTE] John - Wedding` |
-| Contains emoji → Library encodes → Double-encoding | Pure ASCII → No encoding needed → Clean delivery |
-
-The brackets `[NEW QUOTE]` provide similar visual distinction to emojis while being 100% ASCII-safe.
+### 8. Modify `/src/App.tsx`
+- Import and use the new `useAdminPWA` hook in `AppContent`
+- This will handle the dynamic manifest/meta swapping
 
 ---
 
-## Summary of Changes
+## Technical Details
 
-| File | Lines Changed | Change Type |
-|------|---------------|-------------|
-| `send-smtp-email/index.ts` | 96-118, 239 | Remove encoding function, revert to plain subject |
-| `send-quote-notification/index.ts` | 231 | Remove 🚂 emoji from subject |
-| `send-admin-notification/index.ts` | 119, 156, 192, 226, 257 | Remove ✅📝💰❌🔔 emojis from subjects |
-| `send-payment-reminder/index.ts` | 72, 79, 86, 92 | Remove ⚠️🔒✅💳 emojis from subjects |
+### Public Site Behavior After Changes
+- `manifest.json` with `display: "browser"` means iOS "Add to Home Screen" creates a bookmark that opens Safari
+- Android Chrome "Add to Home Screen" will create a shortcut that opens in browser (not standalone mode)
+- Service worker still works for caching/offline but won't trigger standalone mode
+- No install prompts shown to public visitors
 
-**Total: 4 files, ~13 line changes**
+### Admin Site Behavior After Changes
+- When on `/admin/*` routes, manifest switches to `/admin-manifest.json`
+- `apple-mobile-web-app-capable` meta tag is injected for iOS
+- Install banner appears after 2 page views (existing logic)
+- Installing creates a standalone app that opens to `/admin`
+- Proper safe area padding ensures no overlap with notch/home indicator
+
+### Service Worker Considerations
+- The service worker from vite-plugin-pwa will continue to work for all routes
+- Caching and offline support remain intact
+- `OfflineIndicator` and `PwaUpdateBanner` will still function on admin routes
 
 ---
 
-## Testing After Deployment
+## Rollback Safety
+All changes are additive or modifiable. If issues arise:
+- Revert `manifest.json` `display` back to `"standalone"`
+- Remove the dynamic manifest swapping hook
+- Restore the removed meta tags in `index.html`
 
-1. Resend the Angela Powell admin notification
-2. Verify subject displays as: `[NEW QUOTE] Msgt Angela Powell - Arhs Afjrotc Military Ball`
-3. Verify email body still shows emoji badges correctly
-4. Test a customer payment reminder to ensure no issues
+---
+
+## Summary of Files
+
+| File | Action | Purpose |
+|------|--------|---------|
+| `public/admin-manifest.json` | Create | Admin-specific PWA manifest |
+| `public/manifest.json` | Modify | Change display to "browser" for public |
+| `index.html` | Modify | Remove PWA meta tags (injected dynamically for admin) |
+| `src/hooks/useAdminPWA.ts` | Create | Dynamic manifest/meta swapping for admin routes |
+| `src/components/pwa/InstallBanner.tsx` | Modify | Only show on admin routes, update messaging |
+| `src/pages/Install.tsx` | Modify | Admin-focused installation instructions |
+| `src/components/admin/AdminLayout.tsx` | Modify | Add safe area padding for PWA display |
+| `src/App.tsx` | Modify | Use useAdminPWA hook |
 
