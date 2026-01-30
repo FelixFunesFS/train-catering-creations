@@ -73,9 +73,28 @@ export function useVisitorTracking() {
       }
     };
 
-    // Slight delay to avoid tracking during rapid navigation
-    const timeoutId = setTimeout(trackVisit, 500);
-    
-    return () => clearTimeout(timeoutId);
+    // Defer tracking until after page is interactive to avoid extending critical chain
+    // Use requestIdleCallback for non-critical analytics, with setTimeout fallback
+    let cancelled = false;
+    const scheduleTrack = () => {
+      if (cancelled) return;
+      trackVisit();
+    };
+
+    // Wait for page to be fully loaded before tracking
+    if (typeof requestIdleCallback !== 'undefined') {
+      const idleId = requestIdleCallback(scheduleTrack, { timeout: 3000 });
+      return () => {
+        cancelled = true;
+        cancelIdleCallback(idleId);
+      };
+    } else {
+      // Fallback: longer delay to avoid blocking critical path
+      const timeoutId = setTimeout(scheduleTrack, 2000);
+      return () => {
+        cancelled = true;
+        clearTimeout(timeoutId);
+      };
+    }
   }, [location.pathname, user?.email]);
 }
