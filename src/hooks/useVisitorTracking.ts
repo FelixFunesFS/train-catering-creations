@@ -73,27 +73,45 @@ export function useVisitorTracking() {
       }
     };
 
-    // Defer tracking until after page is interactive to avoid extending critical chain
-    // Use requestIdleCallback for non-critical analytics, with setTimeout fallback
+    // Defer tracking until well after page is interactive to avoid extending TTI
+    // Wait for load event + idle time to ensure we don't block critical path
     let cancelled = false;
-    const scheduleTrack = () => {
+    
+    const executeTracking = () => {
       if (cancelled) return;
-      trackVisit();
+      
+      // Use requestIdleCallback if available for lowest priority
+      if (typeof requestIdleCallback !== 'undefined') {
+        requestIdleCallback(() => {
+          if (!cancelled) trackVisit();
+        }, { timeout: 10000 });
+      } else {
+        // Fallback with generous delay
+        setTimeout(() => {
+          if (!cancelled) trackVisit();
+        }, 5000);
+      }
     };
 
-    // Wait for page to be fully loaded before tracking
-    if (typeof requestIdleCallback !== 'undefined') {
-      const idleId = requestIdleCallback(scheduleTrack, { timeout: 3000 });
-      return () => {
-        cancelled = true;
-        cancelIdleCallback(idleId);
-      };
-    } else {
-      // Fallback: longer delay to avoid blocking critical path
-      const timeoutId = setTimeout(scheduleTrack, 2000);
+    // Only start tracking after page load is complete
+    if (document.readyState === 'complete') {
+      // Page already loaded - still defer to avoid blocking any ongoing work
+      const timeoutId = setTimeout(executeTracking, 3000);
       return () => {
         cancelled = true;
         clearTimeout(timeoutId);
+      };
+    } else {
+      // Wait for load event before scheduling tracking
+      const onLoad = () => {
+        if (!cancelled) {
+          setTimeout(executeTracking, 3000);
+        }
+      };
+      window.addEventListener('load', onLoad);
+      return () => {
+        cancelled = true;
+        window.removeEventListener('load', onLoad);
       };
     }
   }, [location.pathname, user?.email]);
