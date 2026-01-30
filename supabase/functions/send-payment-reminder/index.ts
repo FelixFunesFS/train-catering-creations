@@ -69,28 +69,28 @@ const handler = async (req: Request): Promise<Response> => {
     
     if (urgency === 'high') {
       // Overdue - keep urgent messaging
-      subject = `⚠️ URGENT: Payment Overdue - ${eventName || 'Your Event'}`;
+      subject = `URGENT: Payment Overdue - ${eventName || 'Your Event'}`;
       urgencyBadge = `OVERDUE ${daysOverdue} DAYS`;
       urgencyMessage = `Your payment of <strong>${formatCurrency(balanceRemaining)}</strong> is now <strong>${daysOverdue} days overdue</strong>. Please complete your payment immediately to avoid service disruption.`;
       heroVariant = 'crimson';
       heroTitle = 'Payment Overdue';
     } else if (milestoneType === 'DEPOSIT' || isDueNow) {
       // Initial deposit - emphasize date security
-      subject = `🔒 Secure Your Date - Deposit Due for ${eventName || 'Your Event'}`;
-      urgencyBadge = '🔒 DEPOSIT DUE';
+      subject = `Secure Your Date - Deposit Due for ${eventName || 'Your Event'}`;
+      urgencyBadge = 'DEPOSIT DUE';
       urgencyMessage = `Complete your deposit of <strong>${formatCurrency(balanceRemaining)}</strong> to lock in your event date. Our calendar fills up fast!`;
       heroVariant = 'gold';
       heroTitle = 'Secure Your Event Date';
     } else if (milestoneType === 'FINAL') {
       // Final payment - emphasize completion
-      subject = `✅ Final Payment Due - ${eventName || 'Your Event'}`;
-      urgencyBadge = '✅ FINAL PAYMENT';
+      subject = `Final Payment Due - ${eventName || 'Your Event'}`;
+      urgencyBadge = 'FINAL PAYMENT';
       urgencyMessage = `Your final payment of <strong>${formatCurrency(balanceRemaining)}</strong> is due to complete your booking.`;
       heroTitle = 'Final Payment Due';
     } else if (milestoneType === 'MILESTONE') {
       // Mid-schedule milestone
-      subject = `💳 Milestone Payment Due - ${eventName || 'Your Event'}`;
-      urgencyBadge = '💳 PAYMENT DUE';
+      subject = `Payment Due - ${eventName || 'Your Event'}`;
+      urgencyBadge = 'PAYMENT DUE';
       urgencyMessage = `Your scheduled payment of <strong>${formatCurrency(balanceRemaining)}</strong> is due.`;
       heroTitle = 'Scheduled Payment Due';
     } else {

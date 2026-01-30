@@ -116,7 +116,7 @@ function buildAdminNotificationEmail(
 
   switch (notificationType) {
     case 'customer_approval':
-      subject = `✅ Customer Approved: ${eventName}`;
+      subject = `[APPROVED] ${eventName}`;
       preheaderText = `${contactName} has approved their estimate`;
       heroConfig = {
         badge: '✅ CUSTOMER APPROVED',
@@ -153,7 +153,7 @@ function buildAdminNotificationEmail(
       break;
 
     case 'change_request':
-      subject = `📝 Change Request: ${eventName}`;
+      subject = `[CHANGE REQUEST] ${eventName}`;
       preheaderText = `${contactName} has requested changes to their order`;
       heroConfig = {
         badge: '📝 CHANGE REQUEST',
@@ -189,7 +189,7 @@ function buildAdminNotificationEmail(
       const isFullPayment = metadata.full_payment || false;
       const paymentType = metadata.payment_type === 'full' ? 'Full Payment' : '50% Deposit';
 
-      subject = `💰 Payment Received: ${eventName}`;
+      subject = `[PAYMENT] ${eventName}`;
       preheaderText = `${formatCurrency(paymentAmount)} received from ${contactName}`;
       heroConfig = {
         badge: '💰 PAYMENT RECEIVED',
@@ -223,7 +223,7 @@ function buildAdminNotificationEmail(
       break;
 
     case 'payment_failed':
-      subject = `❌ Payment Failed: ${eventName}`;
+      subject = `[PAYMENT FAILED] ${eventName}`;
       preheaderText = `Payment attempt failed for ${contactName}`;
       heroConfig = {
         badge: '❌ PAYMENT FAILED',
@@ -254,7 +254,7 @@ function buildAdminNotificationEmail(
       break;
 
     default:
-      subject = `🔔 Notification: ${eventName}`;
+      subject = `[NOTIFICATION] ${eventName}`;
       preheaderText = `Admin notification for ${eventName}`;
       heroConfig = EMAIL_CONFIGS.admin_notification.admin!.heroSection;
 

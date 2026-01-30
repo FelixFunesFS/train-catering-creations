@@ -93,29 +93,8 @@ function stripHtmlToText(html: string): string {
     .trim();
 }
 
-/**
- * Encode email subject per RFC 2047 for proper UTF-8 handling.
- * Uses Base64 encoding (B) which avoids line-break issues with long subjects.
- * ASCII-only subjects under 75 chars pass through unchanged.
- */
-function encodeSubjectRFC2047(subject: string): string {
-  const hasNonASCII = /[^\x00-\x7F]/.test(subject);
-  
-  if (!hasNonASCII && subject.length <= 75) {
-    return subject;
-  }
-  
-  const maxLength = 120;
-  const truncatedSubject = subject.length > maxLength 
-    ? subject.substring(0, maxLength - 3) + '...'
-    : subject;
-  
-  const encoder = new TextEncoder();
-  const bytes = encoder.encode(truncatedSubject);
-  const base64 = btoa(String.fromCharCode(...bytes));
-  
-  return `=?utf-8?B?${base64}?=`;
-}
+// Subject passed through as-is - library handles encoding for ASCII subjects
+// Emojis removed from all subjects to prevent double-encoding issues
 
 const handler = async (req: Request): Promise<Response> => {
   // Handle CORS preflight requests
@@ -236,7 +215,7 @@ const handler = async (req: Request): Promise<Response> => {
     const emailMessage: any = {
       from: fromParts.name ? `${fromParts.name} <${fromParts.email}>` : fromParts.email,
       to: to,
-      subject: encodeSubjectRFC2047(subject),
+      subject: subject,
       content: (text && String(text).trim().length > 0)
         ? String(text).trim()
         : stripHtmlToText(minifiedHtml) || "Please view this email in an HTML-capable email client.",
