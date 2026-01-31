@@ -227,24 +227,24 @@ Deno.serve(async (req) => {
 
     // Build notification message
     let title = "👀 New Visitor";
-    let body = `Someone from ${locationStr} is viewing ${formatPageName(path)}`;
+    let messageBody = `Someone from ${locationStr} is viewing ${formatPageName(path)}`;
     
     if (isReturning) {
       title = "🔄 Returning Visitor";
-      body = `A visitor is back on ${formatPageName(path)}`;
+      messageBody = `A visitor is back on ${formatPageName(path)}`;
     }
     
     if (userEmail) {
       title = "👋 Customer Online";
-      body = `${userEmail} is viewing ${formatPageName(path)}`;
+      messageBody = `${userEmail} is viewing ${formatPageName(path)}`;
     }
 
     // Add device info
-    body += ` (${deviceType} • ${browser})`;
+    messageBody += ` (${deviceType} • ${browser})`;
 
     // Add referrer if notable
     if (referrerSource !== "Direct" && !isReturning) {
-      body += ` via ${referrerSource}`;
+      messageBody += ` via ${referrerSource}`;
     }
 
     // Send push notification to all subscribed admins
@@ -254,7 +254,7 @@ Deno.serve(async (req) => {
           alertType: "visitor",
           payload: {
             title,
-            body,
+            body: messageBody,
             icon: "/icon-192.png",
             badge: "/icon-192.png",
             tag: "visitor-alert",
