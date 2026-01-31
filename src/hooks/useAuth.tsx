@@ -17,25 +17,41 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Production domain for all auth redirects
+const PRODUCTION_URL = 'https://www.soultrainseatery.com';
+
 // Check if user has admin role using security definer function (bypasses RLS)
-const checkAdminAccess = async (userId: string): Promise<boolean> => {
-  try {
-    const { data, error } = await supabase
-      .rpc('has_role', { 
-        _user_id: userId, 
-        _role: 'admin' 
-      });
-    
-    if (error) {
-      console.error('Error checking admin access:', error);
+// Includes retry logic for transient network failures
+const checkAdminAccess = async (userId: string, retries = 2): Promise<boolean> => {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const { data, error } = await supabase
+        .rpc('has_role', { 
+          _user_id: userId, 
+          _role: 'admin' 
+        });
+      
+      if (error) {
+        console.error(`Admin access check attempt ${attempt + 1} failed:`, error);
+        if (attempt < retries) {
+          // Wait before retry (exponential backoff)
+          await new Promise(resolve => setTimeout(resolve, 500 * (attempt + 1)));
+          continue;
+        }
+        return false;
+      }
+      
+      return data === true;
+    } catch (err) {
+      console.error(`Admin access check attempt ${attempt + 1} error:`, err);
+      if (attempt < retries) {
+        await new Promise(resolve => setTimeout(resolve, 500 * (attempt + 1)));
+        continue;
+      }
       return false;
     }
-    
-    return data === true;
-  } catch (err) {
-    console.error('Error checking admin access:', err);
-    return false;
   }
+  return false;
 };
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -136,13 +152,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signUp = async (email: string, password: string) => {
-    const redirectUrl = `${window.location.origin}/admin`;
-    
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: redirectUrl
+        emailRedirectTo: `${PRODUCTION_URL}/admin`
       }
     });
     
@@ -165,10 +179,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const resetPassword = async (email: string) => {
-    const redirectUrl = `${window.location.origin}/admin/auth?mode=reset`;
-    
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: redirectUrl
+      redirectTo: `${PRODUCTION_URL}/admin/auth?mode=reset`
     });
     
     if (error) {
@@ -184,7 +196,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/admin`
+        redirectTo: `${PRODUCTION_URL}/admin`
       }
     });
     
