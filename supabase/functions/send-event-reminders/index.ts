@@ -54,7 +54,7 @@ serve(async (req) => {
       thankYou: [] as string[]
     };
 
-    const siteUrl = Deno.env.get('SITE_URL') || 'https://soultrainseatery.lovable.app';
+    const siteUrl = Deno.env.get('SITE_URL') || 'https://www.soultrainseatery.com';
 
     for (const event of confirmedEvents || []) {
       const eventDate = new Date(event.event_date);
