@@ -24,18 +24,24 @@ const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
 };
 
 export function usePermissions() {
-  const { user } = useAuth();
+  const { user, loading: authLoading, isVerifyingAccess } = useAuth();
   const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Stay in loading state while auth is resolving
+    if (authLoading || isVerifyingAccess) {
+      setLoading(true);
+      return;
+    }
+    
     if (user?.id) {
       loadUserRoles();
     } else {
       setRoles([]);
       setLoading(false);
     }
-  }, [user?.id]);
+  }, [user?.id, authLoading, isVerifyingAccess]);
 
   const loadUserRoles = async () => {
     try {

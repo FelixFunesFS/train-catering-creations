@@ -1,4 +1,4 @@
-import { ReactNode, useEffect } from 'react';
+import { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { usePermissions } from '@/hooks/usePermissions';
@@ -9,15 +9,8 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { user, loading: authLoading, isVerifyingAccess, signOut } = useAuth();
+  const { user, loading: authLoading, isVerifyingAccess } = useAuth();
   const { loading: rolesLoading, isAdmin } = usePermissions();
-
-  // Backup check: if user is authenticated but not admin, sign them out
-  useEffect(() => {
-    if (!authLoading && !isVerifyingAccess && !rolesLoading && user && !isAdmin()) {
-      signOut();
-    }
-  }, [authLoading, isVerifyingAccess, rolesLoading, user, isAdmin, signOut]);
 
   // Show loading while auth or roles are loading
   if (authLoading || isVerifyingAccess || rolesLoading) {
