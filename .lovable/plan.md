@@ -1,115 +1,124 @@
 
 
-# Fix Plan: Inconsistent URL Redirects Causing Admin Black Page
+# Fix Plan: Admin Black Page After OAuth Sign-In
 
-## Root Cause Identified
+## Root Cause Analysis
 
-There are **TWO separate issues** causing the admin redirect to `localhost`:
+After thorough investigation, there are **two interacting issues**:
 
-### Issue 1: Supabase Dashboard Configuration (CRITICAL)
-The Supabase Dashboard's **Authentication URL Configuration** has:
-- **Site URL**: `http://localhost:3000` (this is the problem!)
-- This setting controls where OAuth callbacks redirect
+### Issue 1: OAuth Callback Redirecting to Wrong Domain (Immediate Cause)
 
-When you sign in with Google on `https://www.soultrainseatery.com/admin`, Supabase's server sends the OAuth callback to `localhost:3000` instead of your production domain.
-
-### Issue 2: supabase/config.toml (Local Dev Only)
-```toml
-# Line 32-33:
-site_url = "http://localhost:3000"
-additional_redirect_urls = ["https://localhost:3000"]
+When you signed in with Google, the callback redirected to:
 ```
-This file only affects local development, but should be updated for consistency.
+https://preview--train-catering-creations.lovable.app/admin#access_token=...
+```
 
-### Issue 3: Inconsistent Fallback URLs in Edge Functions
-Several edge functions have inconsistent fallback URLs:
+Instead of:
+```
+https://www.soultrainseatery.com/admin#access_token=...
+```
 
-| File | Line | Current Fallback | Should Be |
-|------|------|------------------|-----------|
-| `_shared/emailTemplates.ts` | 1298 | `train-catering-creations.lovable.app` | `www.soultrainseatery.com` |
-| `_shared/emailTemplates.ts` | 1605 | `train-catering-creations.lovable.app` | `www.soultrainseatery.com` |
-| `send-event-reminders/index.ts` | 57 | `soultrainseatery.lovable.app` | `www.soultrainseatery.com` |
+**Why this happens:**
+- The `signInWithGoogle` function in `useAuth.tsx` (line 187) uses `window.location.origin`
+- If you're on a preview/staging URL when you click "Sign in with Google", that's where the callback returns
+- However, the Supabase **Site URL** setting determines the *default* callback when OAuth flows don't specify one
+
+**Your Supabase Dashboard shows correct settings**, but you may have initiated the sign-in from a preview URL rather than www.soultrainseatery.com.
+
+### Issue 2: Admin Role Verification Blocking Access (Secondary Cause)
+
+The `useAuth` hook (lines 51-75) performs an admin role check on every `SIGNED_IN` event. If this check fails or times out, it:
+1. Sets `isVerifyingAccess = true`
+2. Calls `checkAdminAccess()`
+3. If it fails, signs the user out
+
+**The `has_role` RPC function is correctly set up as SECURITY DEFINER**, so it should bypass RLS. The database confirms your user has the admin role:
+
+| user_id | role | created_at |
+|---------|------|------------|
+| 625eab9e-6da2-4d25-b491-0549cc80a3cc | admin | 2025-09-07 |
 
 ---
 
-## Required Fixes
+## Proposed Solution
 
-### Fix 1: Supabase Dashboard Configuration (MANUAL - Cannot be done by code)
+### Fix 1: Hardcode Production Domain for OAuth Redirects
 
-You must update these settings in the **Supabase Dashboard**:
+Instead of using `window.location.origin` (which varies based on where you're browsing from), force OAuth redirects to always go to the production domain.
 
-**Location**: [Authentication URL Configuration](https://supabase.com/dashboard/project/qptprrqjlcvfkhfdnnoa/auth/url-configuration)
+**File: `src/hooks/useAuth.tsx`**
 
-| Setting | Current Value | Change To |
-|---------|--------------|-----------|
-| Site URL | `http://localhost:3000` | `https://www.soultrainseatery.com` |
-
-**Redirect URLs to Add**:
-- `https://www.soultrainseatery.com/**`
-- `https://www.soultrainseatery.com/admin`
-- `https://train-catering-creations.lovable.app/**` (keep for staging)
-- `https://id-preview--c4c8d2d1-63da-4772-a95b-bf211f87a132.lovable.app/**` (keep for preview)
-
-### Fix 2: Update config.toml (Code Change)
-
-Update the local config to reflect production URLs for documentation clarity:
-
-**File**: `supabase/config.toml`
-```toml
-[auth]
-site_url = "https://www.soultrainseatery.com"
-additional_redirect_urls = [
-  "https://www.soultrainseatery.com/**",
-  "https://train-catering-creations.lovable.app/**",
-  "http://localhost:3000"
-]
+Change line 187 from:
+```typescript
+redirectTo: `${window.location.origin}/admin`
 ```
 
-### Fix 3: Fix Inconsistent Edge Function Fallbacks (Code Changes)
-
-**File**: `supabase/functions/_shared/emailTemplates.ts`
-- Line 1298: Change fallback from `train-catering-creations.lovable.app` to `www.soultrainseatery.com`
-- Line 1605: Change fallback from `train-catering-creations.lovable.app` to `www.soultrainseatery.com`
-
-**File**: `supabase/functions/send-event-reminders/index.ts`
-- Line 57: Change fallback from `soultrainseatery.lovable.app` to `www.soultrainseatery.com`
-
----
-
-## Why This Happens
-
-The OAuth flow works like this:
-
-```text
-1. User clicks "Sign in with Google" on www.soultrainseatery.com
-2. App calls supabase.auth.signInWithOAuth({ redirectTo: window.location.origin + '/admin' })
-3. Supabase receives the request
-4. Supabase's SERVER checks its Site URL setting (localhost:3000)
-5. After Google auth, Supabase redirects to localhost:3000 (ignoring the client-side redirectTo)
-6. User sees "localhost refused to connect"
+To:
+```typescript
+redirectTo: 'https://www.soultrainseatery.com/admin'
 ```
 
-The `redirectTo` parameter in the code is **overridden** by Supabase's server-side Site URL configuration.
+Also update lines 139, 145, and 171 for email signup and password reset flows.
+
+### Fix 2: Add Error Handling for Admin Role Check
+
+The `checkAdminAccess` function silently fails if the RPC call errors. Add better error handling and retry logic.
+
+**File: `src/hooks/useAuth.tsx`**
+
+Update `checkAdminAccess` function to:
+1. Add a retry mechanism for transient network failures
+2. Log errors more clearly for debugging
+3. Add a timeout fallback
+
+### Fix 3: Relax Admin-Only Enforcement (Optional - Per Your Preference)
+
+You chose "Keep strict admin-only sessions", so the current behavior of signing out non-admins is correct. However, the aggressive check in `onAuthStateChange` can cause race conditions.
+
+**Recommendation**: Move the admin check to happen *after* session is fully established, not during the auth state change callback.
 
 ---
 
 ## Files to Modify
 
-| File | Change |
-|------|--------|
-| `supabase/config.toml` | Update `site_url` and `additional_redirect_urls` |
-| `supabase/functions/_shared/emailTemplates.ts` | Fix 2 fallback URLs |
-| `supabase/functions/send-event-reminders/index.ts` | Fix 1 fallback URL |
+| File | Changes |
+|------|---------|
+| `src/hooks/useAuth.tsx` | Hardcode production domain for all OAuth/email redirects; improve error handling in checkAdminAccess |
+
+---
+
+## Technical Details
+
+### Current Flow (Problematic)
+```
+1. User on preview URL clicks "Sign in with Google"
+2. redirectTo = preview URL (from window.location.origin)
+3. Google OAuth completes
+4. Supabase redirects to preview URL with access_token
+5. App loads on preview URL
+6. checkAdminAccess() runs → works
+7. But user is on wrong domain → confusion/issues
+```
+
+### Fixed Flow
+```
+1. User on ANY URL clicks "Sign in with Google"  
+2. redirectTo = www.soultrainseatery.com (hardcoded)
+3. Google OAuth completes
+4. Supabase redirects to production URL with access_token
+5. App loads on production URL
+6. checkAdminAccess() runs → works
+7. User is on correct domain → success
+```
 
 ---
 
 ## Summary
 
-| Issue | Type | Fix |
-|-------|------|-----|
-| OAuth redirects to localhost | **Dashboard Config** | Update Site URL in Supabase Dashboard |
-| Inconsistent fallback URLs | Code | Update 3 edge function files |
-| Local dev config outdated | Code | Update config.toml |
+| Issue | Root Cause | Fix |
+|-------|-----------|-----|
+| Wrong redirect domain | `window.location.origin` varies by URL | Hardcode production domain |
+| Admin check timing | Race condition during auth state change | Improve error handling |
 
-**Most Critical**: The Supabase Dashboard Site URL setting MUST be changed to `https://www.soultrainseatery.com` for the admin login to work on your custom domain.
+The primary fix is **hardcoding the production redirect URL** so that no matter where you initiate sign-in from (preview, lovable.app, or production), you always end up on www.soultrainseatery.com/admin after authentication.
 
