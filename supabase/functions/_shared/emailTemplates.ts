@@ -1295,7 +1295,7 @@ export function generateEstimateActionButtons(portalUrl: string): string {
   // Preferred flow: one-click approve page (keeps approval out of the portal UI)
   // /approve?token=...
   try {
-    const siteUrl = Deno.env.get('SITE_URL') || 'https://train-catering-creations.lovable.app';
+    const siteUrl = Deno.env.get('SITE_URL') || 'https://www.soultrainseatery.com';
     const u = new URL(portalUrl);
     const token = u.searchParams.get('token');
     if (token) {
@@ -1602,7 +1602,7 @@ export function getEmailContentBlocks(
   context: EmailContentContext
 ): { contentBlocks: ContentBlock[]; ctaButton?: { text: string; href: string; variant: 'primary' | 'secondary' } } {
   const { quote, invoice, lineItems, milestones, portalUrl, isUpdated, paymentAmount, isFullPayment } = context;
-  const siteUrl = Deno.env.get('SITE_URL') || 'https://train-catering-creations.lovable.app';
+  const siteUrl = Deno.env.get('SITE_URL') || 'https://www.soultrainseatery.com';
   const effectivePortalUrl = portalUrl || `${siteUrl}/estimate?token=${invoice?.customer_access_token || 'sample-token'}`;
 
   let contentBlocks: ContentBlock[] = [];
