@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 
-type Role = 'owner' | 'admin' | 'coordinator' | 'accounting' | 'ops' | 'user';
+type Role = 'admin' | 'user';
 
 type Permission = 
   | '*'
@@ -17,26 +17,7 @@ type Permission =
   | 'users.read' | 'users.write' | 'users.*';
 
 const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
-  owner: ['*'],
   admin: ['*'],
-  coordinator: [
-    'quotes.read', 'quotes.write',
-    'invoices.read', 'invoices.write',
-    'events.read', 'events.write',
-    'messages.*',
-    'reports.read',
-  ],
-  accounting: [
-    'invoices.*',
-    'payments.*',
-    'reports.*',
-    'quotes.read',
-  ],
-  ops: [
-    'events.read',
-    'timeline.read',
-    'quotes.read',
-  ],
   user: [
     'quotes.read',
   ],
@@ -58,10 +39,23 @@ export function usePermissions() {
 
   const loadUserRoles = async () => {
     try {
+      // Use security definer RPC to bypass RLS timing issues during OAuth
+      const { data: isAdmin, error: adminError } = await supabase.rpc('has_role', { 
+        _user_id: user!.id, 
+        _role: 'admin' 
+      });
+
+      if (!adminError && isAdmin === true) {
+        setRoles(['admin']);
+        setLoading(false);
+        return;
+      }
+
+      // Fallback to direct query for other roles (works once session is stable)
       const { data, error } = await supabase
         .from('user_roles')
         .select('role')
-        .eq('user_id', user?.id);
+        .eq('user_id', user!.id);
 
       if (error) throw error;
 
@@ -99,7 +93,7 @@ export function usePermissions() {
   };
 
   const isAdmin = (): boolean => {
-    return roles.includes('admin') || roles.includes('owner');
+    return roles.includes('admin');
   };
 
   const canAccess = (section: 'dashboard' | 'events' | 'billing' | 'settings'): boolean => {
