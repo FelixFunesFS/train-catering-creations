@@ -1,154 +1,102 @@
 
-# Fix Plan: Restore Admin Google OAuth Login
+# Fix Plan: Admin Black Page Issue
 
 ## Root Cause
 
-The admin user (`soultrainseatery@gmail.com`) is being immediately signed out after a successful Google OAuth login due to a timing/RLS issue:
+The admin page shows a black screen because there's a **race condition** between two permission-checking mechanisms:
 
-1. Google OAuth completes successfully (confirmed in Supabase logs)
-2. The `onAuthStateChange` callback fires with `SIGNED_IN` event
-3. `checkAdminAccess()` queries the `user_roles` table
-4. The RLS policy `user_id = auth.uid()` may block the query if the session isn't fully established yet
-5. When `checkAdminAccess` returns `false` (due to empty result or error), the user is immediately signed out
+1. **`useAuth.checkAdminAccess`** (just fixed) - Uses `has_role` RPC which bypasses RLS
+2. **`usePermissions.loadUserRoles`** (still broken) - Queries `user_roles` table directly with RLS
 
-The user **does have an admin role** in the database (confirmed), so this is a timing/query issue, not a permissions issue.
-
----
-
-## Quick Fix (Recommended)
-
-Modify the `checkAdminAccess` function to use a more reliable approach that works even during the OAuth callback timing window.
-
-### Option A: Use the has_role Database Function (Best)
-
-The project already has a `has_role(_user_id uuid, _role user_role)` function defined as `SECURITY DEFINER`. This function bypasses RLS and can check roles reliably.
-
-**Change in `src/hooks/useAuth.tsx`:**
-
-Replace the current `checkAdminAccess` function to call the database function via RPC instead of querying the table directly.
-
-### Option B: Add Retry Logic with Delay
-
-Add a small delay and retry mechanism to handle the timing issue.
+When a user logs in via Google OAuth:
+- The `useAuth` hook correctly identifies them as admin (via RPC)
+- The `usePermissions` hook tries to query the `user_roles` table
+- RLS policy `user_id = auth.uid()` may fail if the session isn't fully established
+- `usePermissions` defaults to `['user']` role on error
+- `ProtectedRoute` backup check sees `isAdmin() = false` and signs the user out
 
 ---
 
-## Implementation Details
+## Additional Issue: `track-visitor` Function Crash
 
-### Primary Fix: Use RPC Call to has_role Function
+The `track-visitor` edge function has a variable naming conflict causing 503 errors:
+- Line 137: `const body: VisitorData = await req.json();`
+- Line 230: `let body = ...` (notification message)
 
-The existing `has_role` database function is defined as `SECURITY DEFINER` which means it runs with elevated privileges and bypasses RLS. We should use this instead of querying the table directly.
-
-**File: `src/hooks/useAuth.tsx`**
-
-```typescript
-// Replace the checkAdminAccess function with this:
-const checkAdminAccess = async (userId: string): Promise<boolean> => {
-  try {
-    // Use the security definer function that bypasses RLS
-    const { data, error } = await supabase
-      .rpc('has_role', { 
-        _user_id: userId, 
-        _role: 'admin' 
-      });
-    
-    if (error) {
-      console.error('Error checking admin access:', error);
-      return false;
-    }
-    
-    return data === true;
-  } catch (err) {
-    console.error('Error checking admin access:', err);
-    return false;
-  }
-};
-```
-
-This approach:
-- Uses the existing `has_role` database function
-- Bypasses RLS via `SECURITY DEFINER`
-- Works reliably regardless of session timing
-- Is already designed for this exact purpose
+This causes the function to fail on boot, but doesn't directly cause the black page.
 
 ---
 
-## Why This Fixes the Problem
+## Solution
 
-| Current Approach | Problem |
-|------------------|---------|
-| Direct query: `supabase.from('user_roles').select(...)` | Subject to RLS policy `user_id = auth.uid()` which may fail if session isn't ready |
+### Fix 1: Update `usePermissions` to Use RPC (Critical)
 
-| New Approach | Solution |
-|--------------|----------|
-| RPC call: `supabase.rpc('has_role', {...})` | Uses `SECURITY DEFINER` function that bypasses RLS |
-
-The `has_role` function already exists and is specifically designed for this use case:
-
-```sql
-create or replace function public.has_role(_user_id uuid, _role user_role)
-returns boolean
-language sql
-stable
-security definer  -- <-- This is key - bypasses RLS
-set search_path = public
-as $$
-  select exists (
-    select 1 from public.user_roles
-    where user_id = _user_id and role = _role
-  )
-$$;
-```
-
----
-
-## File Changes Summary
+Change `usePermissions` to use the `has_role` RPC function instead of querying the table directly. This ensures consistent behavior with `useAuth`.
 
 | File | Change |
 |------|--------|
-| `src/hooks/useAuth.tsx` | Replace `checkAdminAccess` to use `supabase.rpc('has_role', ...)` instead of direct table query |
+| `src/hooks/usePermissions.ts` | Replace direct table query with `has_role` RPC calls |
 
----
-
-## Alternative: Add Fallback Retry
-
-If for any reason the RPC approach doesn't work, we can add a retry mechanism:
-
+**Before:**
 ```typescript
-const checkAdminAccess = async (userId: string, retries = 3): Promise<boolean> => {
-  for (let i = 0; i < retries; i++) {
-    try {
-      const { data, error } = await supabase
-        .rpc('has_role', { _user_id: userId, _role: 'admin' });
-      
-      if (!error && data === true) {
-        return true;
-      }
-      
-      // Wait before retry
-      if (i < retries - 1) {
-        await new Promise(r => setTimeout(r, 500));
-      }
-    } catch (err) {
-      console.error(`Admin check attempt ${i + 1} failed:`, err);
-    }
-  }
-  return false;
-};
+const { data, error } = await supabase
+  .from('user_roles')
+  .select('role')
+  .eq('user_id', user?.id);
 ```
 
+**After:**
+```typescript
+// Check each role using the security definer RPC
+const adminCheck = await supabase.rpc('has_role', { 
+  _user_id: user.id, 
+  _role: 'admin' 
+});
+
+if (adminCheck.data === true) {
+  setRoles(['admin']);
+  return;
+}
+
+// Fallback: try direct query (will work once session is stable)
+const { data } = await supabase
+  .from('user_roles')
+  .select('role')
+  .eq('user_id', user.id);
+```
+
+### Fix 2: Fix `track-visitor` Variable Collision
+
+Rename the notification body variable to avoid collision with the request body.
+
+| File | Change |
+|------|--------|
+| `supabase/functions/track-visitor/index.ts` | Rename `body` to `messageBody` for notification content |
+
 ---
 
-## Testing
+## Technical Details
 
-After implementation:
-1. Navigate to `/admin/auth`
-2. Click "Sign in with Google"
-3. Complete Google OAuth flow
-4. Verify redirect to `/admin` dashboard (not kicked back to login)
+### `usePermissions` Changes
+
+The hook will:
+1. First check for admin role using the RPC (most important for access control)
+2. Then optionally fetch full role list for granular permissions
+3. Handle errors gracefully without defaulting to restricted access during OAuth
+
+### `track-visitor` Changes
+
+Simple variable rename:
+- `let body = ...` becomes `let messageBody = ...`
+- All references to the notification message body are updated
 
 ---
 
 ## Summary
 
-The fix is simple: change one function to use the existing `has_role` RPC call instead of a direct table query. This uses `SECURITY DEFINER` to bypass RLS and eliminates the timing issue.
+| Issue | Severity | Fix |
+|-------|----------|-----|
+| `usePermissions` uses RLS-blocked query | **CRITICAL** | Use `has_role` RPC for admin check |
+| `track-visitor` variable collision | Medium | Rename variable |
+
+Once these changes are deployed, the admin login flow will work reliably because both permission checks use the same RLS-bypassing mechanism.
