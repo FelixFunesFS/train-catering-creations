@@ -74,16 +74,19 @@ export function EmailPreview({
 
   return (
     <Dialog open onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-4xl p-0">
-        <DialogHeader className="p-6 pb-0 flex-shrink-0">
-          <DialogTitle className="flex items-center gap-2">
-            <Eye className="h-5 w-5" />
-            {isResend ? 'Resend Estimate' : 'Email Preview'} - Exact Customer View
+      <DialogContent className="w-[calc(100vw-1rem)] sm:max-w-4xl max-h-[90vh] overflow-y-auto p-0">
+        <DialogHeader className="p-4 sm:p-6 pb-0 flex-shrink-0">
+          <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
+            <Eye className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+            <span className="truncate">
+              {isResend ? 'Resend Estimate' : 'Email Preview'}
+              <span className="hidden sm:inline"> - Exact Customer View</span>
+            </span>
           </DialogTitle>
         </DialogHeader>
 
         {/* Email Preview Container */}
-        <div className="flex-1 overflow-hidden mx-6 mb-4">
+        <div className="flex-1 overflow-hidden mx-4 sm:mx-6 mb-4">
           {isLoading ? (
             <div className="flex items-center justify-center h-64 border rounded-lg bg-muted/30">
               <div className="text-center">
@@ -106,7 +109,7 @@ export function EmailPreview({
             <div className="border rounded-lg overflow-hidden h-full">
               <iframe
                 srcDoc={previewHtml || ''}
-                className="w-full h-full min-h-[500px] bg-white"
+                className="w-full h-full min-h-[300px] sm:min-h-[500px] bg-white"
                 title="Email Preview"
                 sandbox="allow-same-origin"
               />
@@ -115,15 +118,16 @@ export function EmailPreview({
         </div>
 
         {/* Recipient Selection */}
-        <div className="mx-6 mb-4 p-4 bg-muted/30 rounded-lg border">
-          <div className="flex items-center justify-between mb-3">
+        <div className="mx-4 sm:mx-6 mb-4 p-3 sm:p-4 bg-muted/30 rounded-lg border">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-3">
             <div className="flex items-center gap-2">
               <Mail className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm font-medium">Recipient</span>
             </div>
             <div className="flex items-center gap-2">
-              <Label htmlFor="alternate-email" className="text-sm text-muted-foreground">
-                Send to different email
+              <Label htmlFor="alternate-email" className="text-xs sm:text-sm text-muted-foreground">
+                <span className="sm:hidden">Different email</span>
+                <span className="hidden sm:inline">Send to different email</span>
               </Label>
               <Switch
                 id="alternate-email"
@@ -151,29 +155,35 @@ export function EmailPreview({
             </div>
           ) : (
             <p className="text-sm">
-              This email will be sent to: <strong>{invoice.email}</strong>
+              This email will be sent to: <strong className="break-all">{invoice.email}</strong>
             </p>
           )}
         </div>
 
         {/* Actions */}
-        <div className="flex justify-between items-center p-6 pt-0 flex-shrink-0 border-t bg-muted/30">
-          <p className="text-sm text-muted-foreground">
-            {isResend && <span className="text-amber-600 font-medium mr-2">↻ Resending</span>}
-            Sending to: <strong>{recipientEmail}</strong>
+        <div className="flex flex-col gap-3 p-4 sm:p-6 pt-3 sm:pt-0 flex-shrink-0 border-t bg-muted/30">
+          {/* Recipient info - full width on mobile */}
+          <p className="text-xs sm:text-sm text-muted-foreground text-center sm:text-left">
+            {isResend && <span className="text-amber-600 font-medium mr-1 sm:mr-2">↻</span>}
+            <span className="hidden sm:inline">Sending to: </span>
+            <strong className="break-all">{recipientEmail}</strong>
           </p>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={onClose}>
+          
+          {/* Buttons - stack on mobile, row on desktop */}
+          <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
+            <Button variant="outline" onClick={onClose} className="w-full sm:w-auto min-h-[44px]">
               <X className="h-4 w-4 mr-2" />
               Cancel
             </Button>
             <Button 
               onClick={handleConfirmSend} 
               disabled={isSending || isLoading || !!error || !canSend}
+              className="w-full sm:w-auto min-h-[44px]"
             >
               {isSending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               <Send className="h-4 w-4 mr-2" />
-              {isResend ? 'Resend Estimate' : 'Confirm & Send'}
+              <span className="sm:hidden">{isResend ? 'Resend' : 'Send'}</span>
+              <span className="hidden sm:inline">{isResend ? 'Resend Estimate' : 'Confirm & Send'}</span>
             </Button>
           </div>
         </div>
