@@ -17,22 +17,21 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Check if user has admin or owner role
+// Check if user has admin role using security definer function (bypasses RLS)
 const checkAdminAccess = async (userId: string): Promise<boolean> => {
   try {
     const { data, error } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', userId)
-      .eq('role', 'admin')
-      .limit(1);
+      .rpc('has_role', { 
+        _user_id: userId, 
+        _role: 'admin' 
+      });
     
     if (error) {
       console.error('Error checking admin access:', error);
       return false;
     }
     
-    return data && data.length > 0;
+    return data === true;
   } catch (err) {
     console.error('Error checking admin access:', err);
     return false;
