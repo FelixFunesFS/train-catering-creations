@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { AddToCalendarButton } from './AddToCalendarButton';
 import type { StaffEvent } from '@/hooks/useStaffEvents';
 import { cn } from '@/lib/utils';
+import { formatEventType, formatServiceType } from '@/utils/eventTypeLabels';
 
 interface StaffEventCardProps {
   event: StaffEvent;
@@ -35,14 +36,6 @@ function formatTime(time: string | null): string {
   }
 }
 
-// Service type display names
-const serviceTypeLabels: Record<string, string> = {
-  'full-service': 'Full Service',
-  'drop-off': 'Drop-Off',
-  'buffet': 'Buffet',
-  'plated': 'Plated',
-  'family-style': 'Family Style',
-};
 
 export function StaffEventCard({ event, isSelected, onClick }: StaffEventCardProps) {
   const countdown = getCountdownBadge(event.days_until, event.event_date);
@@ -104,7 +97,10 @@ export function StaffEventCard({ event, isSelected, onClick }: StaffEventCardPro
             {event.guest_count} guests
           </Badge>
           <Badge variant="outline">
-            {serviceTypeLabels[event.service_type] || event.service_type}
+            {formatServiceType(event.service_type)}
+          </Badge>
+          <Badge variant="outline">
+            {formatEventType(event.event_type)}
           </Badge>
         </div>
 
