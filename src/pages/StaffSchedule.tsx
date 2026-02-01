@@ -7,6 +7,7 @@ import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/componen
 import { useStaffEvents, useStaffEvent, type StaffEventFilter } from '@/hooks/useStaffEvents';
 import { StaffEventCard } from '@/components/staff/StaffEventCard';
 import { StaffEventDetails } from '@/components/staff/StaffEventDetails';
+import { SubscribeCalendarButton } from '@/components/staff/SubscribeCalendarButton';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { MobileAdminNav } from '@/components/admin/mobile/MobileAdminNav';
 import { cn } from '@/lib/utils';
@@ -89,6 +90,7 @@ export default function StaffSchedule() {
               <Calendar className="h-5 w-5 text-primary" />
               <h1 className="font-semibold text-lg">Staff Schedule</h1>
             </div>
+            <SubscribeCalendarButton variant="icon" />
           </div>
           
           {/* Filter tabs */}
@@ -141,13 +143,16 @@ export default function StaffSchedule() {
           <h1 className="font-semibold text-lg">Staff Schedule</h1>
         </div>
         
-        <Tabs value={filter} onValueChange={(v) => setFilter(v as StaffEventFilter)}>
-          <TabsList>
-            <TabsTrigger value="today">Today</TabsTrigger>
-            <TabsTrigger value="week">This Week</TabsTrigger>
-            <TabsTrigger value="all">All Events</TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <div className="flex items-center gap-4">
+          <SubscribeCalendarButton />
+          <Tabs value={filter} onValueChange={(v) => setFilter(v as StaffEventFilter)}>
+            <TabsList>
+              <TabsTrigger value="today">Today</TabsTrigger>
+              <TabsTrigger value="week">This Week</TabsTrigger>
+              <TabsTrigger value="all">All Events</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
       </div>
 
       <ResizablePanelGroup direction="horizontal" className="h-[calc(100vh-3.5rem)]">

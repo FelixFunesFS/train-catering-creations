@@ -63,11 +63,10 @@ verify_jwt = false
 [functions.send-custom-invoice-email]
 verify_jwt = false
 
-
 [functions.send-event-reminders]
 verify_jwt = false
 
-# Unified Reminder System (replaces send-automated-reminders, send-reminders, auto-workflow-manager reminders)
+# Unified Reminder System
 [functions.unified-reminder-system]
 verify_jwt = false
 
@@ -120,14 +119,11 @@ verify_jwt = false
 verify_jwt = false
 
 # Test & Development
-
-# Test & Development
 [functions.send-test-email]
 verify_jwt = false
 
 [functions.send-batch-test-emails]
 verify_jwt = false
-
 
 [functions.generate-test-data]
 verify_jwt = false
@@ -158,6 +154,10 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.track-visitor]
+verify_jwt = false
+
+# Staff Calendar Feed (live sync)
+[functions.staff-calendar-feed]
 verify_jwt = false
 
 [edge-runtime]
