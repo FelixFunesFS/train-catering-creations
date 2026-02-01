@@ -1,60 +1,23 @@
 
 
-# Staff View Type Case & Service Details Fix
+# Enhance Staff Calendar Export with Complete Event Details
 
 ## Overview
 
-Fix the Staff View to properly format database type values (`snake_case`, `kebab-case`) and show only the service details that were selected by the user, not all available options.
+Update the calendar export to replace "Role" with "Staff Assigned" and include all event details (equipment, services, full menu, staff list) in the downloaded iCal file.
 
 ---
 
-## Issue 1: Type Case Display
+## Current vs Proposed
 
-### Current Problem
-
-Database stores values like:
-- `event_type`: `private_party`, `birthday`, `military_function`
-- `service_type`: `delivery-only`, `full-service`
-
-These appear raw in badges without proper formatting.
-
-### Solution
-
-Create a shared utility file with label maps and a fallback formatter for both types.
-
----
-
-## Issue 2: Service Details Display
-
-### Current Problem
-
-The Equipment and Service Details sections show ALL options with visual indicators:
-
-```text
-Equipment Needed:
-  ✓ Chafers
-  ○ Plates        <- shown even if not requested
-  ○ Cups          <- shown even if not requested
-  ✓ Napkins
-```
-
-### Solution
-
-Only display items that are `true` (selected). Hide items not requested.
-
-```text
-Equipment Needed:
-  • Chafers
-  • Napkins
-```
-
----
-
-## Files to Create
-
-| File | Purpose |
-|------|---------|
-| `src/utils/eventTypeLabels.ts` | Shared label maps and formatting functions |
+| Field | Current | Proposed |
+|-------|---------|----------|
+| Role | `Role: Server` | **Remove** |
+| Staff | Not included | `Staff Assigned: John (Server), Jane (Chef)` |
+| Menu | Only proteins + 3 sides | All categories formatted |
+| Equipment | Not included | List of requested items |
+| Services | Not included | Wait staff, bussing, cocktail hour |
+| Dietary | Not included | Restrictions highlighted |
 
 ---
 
@@ -62,184 +25,224 @@ Equipment Needed:
 
 | File | Changes |
 |------|---------|
-| `src/components/staff/StaffEventCard.tsx` | Use shared labels, add event type badge formatting |
-| `src/components/staff/StaffEventDetails.tsx` | Use shared labels, show only selected equipment/service items |
+| `src/utils/calendarExport.ts` | Expand interface, update description builder |
+| `src/components/staff/AddToCalendarButton.tsx` | Pass full event data including all details |
 
 ---
 
 ## Implementation Details
 
-### 1. Create `src/utils/eventTypeLabels.ts`
+### 1. Update `StaffCalendarEventData` Interface
+
+Expand to accept all event details:
 
 ```typescript
-export const eventTypeLabels: Record<string, string> = {
-  'private_party': 'Private Party',
-  'birthday': 'Birthday',
-  'military_function': 'Military Function',
-  'wedding': 'Wedding',
-  'corporate': 'Corporate',
-  'graduation': 'Graduation',
-  'anniversary': 'Anniversary',
-  'baby_shower': 'Baby Shower',
-  'retirement': 'Retirement',
-  'holiday': 'Holiday',
-  'other': 'Other',
+interface StaffCalendarEventData {
+  eventName: string;
+  eventDate: string;
+  eventStartTime?: string;
+  staffArrivalTime?: string;
+  location?: string;
+  guestCount?: number;
+  serviceType?: string;
+  eventType?: string;
+  notes?: string;
+  
+  // Menu (all categories)
+  proteins?: string[];
+  sides?: string[];
+  appetizers?: string[];
+  desserts?: string[];
+  drinks?: string[];
+  vegetarianOptions?: string[];
+  dietaryRestrictions?: string[];
+  specialRequests?: string | null;
+  
+  // Equipment (boolean flags)
+  chafersRequested?: boolean;
+  platesRequested?: boolean;
+  cupsRequested?: boolean;
+  napkinsRequested?: boolean;
+  servingUtensilsRequested?: boolean;
+  iceRequested?: boolean;
+  
+  // Services
+  waitStaffRequested?: boolean;
+  bussingTablesNeeded?: boolean;
+  cocktailHour?: boolean;
+  
+  // Staff assignments (replaces staffRole)
+  staffAssignments?: Array<{
+    name: string;
+    role: string;
+  }>;
+}
+```
+
+### 2. Update Description Builder in `generateStaffICSFile`
+
+Replace role with staff list and add all details:
+
+```typescript
+const descriptionParts = [
+  // Staff Assigned (replaces Role)
+  staffAssignments && staffAssignments.length > 0 
+    ? `Staff Assigned: ${staffAssignments.map(s => `${s.name} (${s.role})`).join(', ')}`
+    : '',
+  
+  eventStartTime ? `Event starts: ${formatTime(eventStartTime)}` : '',
+  guestCount ? `Guests: ${guestCount}` : '',
+  serviceType ? `Service: ${serviceType}` : '',
+  eventType ? `Type: ${eventType}` : '',
+  '',
+  
+  // Equipment section
+  hasEquipment ? `Equipment: ${equipmentList.join(', ')}` : '',
+  
+  // Services section  
+  hasServices ? `Services: ${servicesList.join(', ')}` : '',
+  '',
+  
+  // Full menu by category
+  proteins?.length ? `Proteins: ${proteins.map(formatMenuId).join(', ')}` : '',
+  sides?.length ? `Sides: ${sides.map(formatMenuId).join(', ')}` : '',
+  appetizers?.length ? `Appetizers: ${appetizers.map(formatMenuId).join(', ')}` : '',
+  desserts?.length ? `Desserts: ${desserts.map(formatMenuId).join(', ')}` : '',
+  drinks?.length ? `Drinks: ${drinks.map(formatMenuId).join(', ')}` : '',
+  vegetarianOptions?.length ? `Vegetarian: ${vegetarianOptions.map(formatMenuId).join(', ')}` : '',
+  '',
+  
+  // Dietary restrictions (important callout)
+  dietaryRestrictions?.length 
+    ? `⚠️ DIETARY: ${dietaryRestrictions.map(formatMenuId).join(', ')}`
+    : '',
+  
+  specialRequests ? `Notes: ${specialRequests}` : '',
+  '',
+  
+  `Contact: Soul Train's Eatery`,
+  `(843) 970-0265 | soultrainseatery@gmail.com`
+];
+```
+
+### 3. Update `AddToCalendarButton` to Pass Full Event Data
+
+```typescript
+const calendarData: StaffCalendarEventData = {
+  eventName: event.event_name,
+  eventDate: event.event_date,
+  eventStartTime: event.start_time,
+  staffArrivalTime: staffAssignment?.arrival_time || event.start_time,
+  location: event.location,
+  guestCount: event.guest_count,
+  serviceType: event.service_type,
+  eventType: event.event_type,
+  
+  // Full menu
+  proteins: event.proteins,
+  sides: event.sides,
+  appetizers: event.appetizers,
+  desserts: event.desserts,
+  drinks: event.drinks,
+  vegetarianOptions: event.vegetarian_entrees,
+  dietaryRestrictions: event.dietary_restrictions,
+  specialRequests: event.special_requests,
+  
+  // Equipment
+  chafersRequested: event.chafers_requested,
+  platesRequested: event.plates_requested,
+  cupsRequested: event.cups_requested,
+  napkinsRequested: event.napkins_requested,
+  servingUtensilsRequested: event.serving_utensils_requested,
+  iceRequested: event.ice_requested,
+  
+  // Services
+  waitStaffRequested: event.wait_staff_requested,
+  bussingTablesNeeded: event.bussing_tables_needed,
+  cocktailHour: event.cocktail_hour,
+  
+  // Staff list (replaces single role)
+  staffAssignments: event.staff_assignments?.map(s => ({
+    name: s.staff_name,
+    role: s.role
+  })),
+  
+  notes: staffAssignment?.notes || undefined
 };
-
-export const serviceTypeLabels: Record<string, string> = {
-  'full-service': 'Full Service',
-  'delivery-only': 'Delivery Only',
-  'drop-off': 'Drop-Off',
-  'buffet': 'Buffet',
-  'plated': 'Plated',
-  'family-style': 'Family Style',
-};
-
-// Format unknown types by converting snake_case/kebab-case to Title Case
-function formatUnknownType(value: string): string {
-  return value
-    .replace(/[-_]/g, ' ')
-    .replace(/\b\w/g, c => c.toUpperCase());
-}
-
-export function formatEventType(value: string): string {
-  return eventTypeLabels[value] || formatUnknownType(value);
-}
-
-export function formatServiceType(value: string): string {
-  return serviceTypeLabels[value] || formatUnknownType(value);
-}
 ```
 
-### 2. Update `StaffEventCard.tsx`
+### 4. Update `StaffEvent` Interface in AddToCalendarButton
 
-- Import shared labels from utility file
-- Remove local `serviceTypeLabels` definition
-- Add event type badge with proper formatting
-
-```typescript
-// Line 106-109: Update badge to use formatted types
-<Badge variant="outline">
-  {formatServiceType(event.service_type)}
-</Badge>
-<Badge variant="outline">
-  {formatEventType(event.event_type)}
-</Badge>
-```
-
-### 3. Update `StaffEventDetails.tsx`
-
-**A) Import shared labels:**
-```typescript
-import { formatEventType, formatServiceType } from '@/utils/eventTypeLabels';
-```
-
-**B) Update header badges (lines 225-226):**
-```typescript
-<Badge variant="outline">{formatServiceType(event.service_type)}</Badge>
-<Badge variant="outline">{formatEventType(event.event_type)}</Badge>
-```
-
-**C) Refactor Equipment section to show only selected items (lines 273-282):**
-
-Replace the grid showing all items with checkmarks:
-```typescript
-// Before: Shows all 6 items with ✓ or ○
-<div className="grid grid-cols-2 gap-2">
-  <EquipmentItem label="Chafers" checked={event.chafers_requested} />
-  <EquipmentItem label="Plates" checked={event.plates_requested} />
-  ...
-</div>
-```
-
-With a filtered list showing only selected items:
-```typescript
-// After: Shows only requested items
-const selectedEquipment = [
-  event.chafers_requested && 'Chafers',
-  event.plates_requested && 'Plates',
-  event.cups_requested && 'Cups',
-  event.napkins_requested && 'Napkins',
-  event.serving_utensils_requested && 'Serving Utensils',
-  event.ice_requested && 'Ice',
-].filter(Boolean) as string[];
-
-// Render as simple list
-<ul className="space-y-2">
-  {selectedEquipment.map((item) => (
-    <li key={item} className="text-sm flex items-center gap-2">
-      <CheckCircle2 className="h-4 w-4 text-green-500" />
-      {item}
-    </li>
-  ))}
-</ul>
-```
-
-**D) Refactor Service Details section (lines 291-296):**
-
-Same approach - show only selected service options:
-```typescript
-const selectedServices = [
-  event.wait_staff_requested && 'Wait Staff',
-  event.bussing_tables_needed && 'Bussing Tables',
-  event.cocktail_hour && 'Cocktail Hour',
-].filter(Boolean) as string[];
-
-// Render only selected items
-{selectedServices.length > 0 && (
-  <ul className="space-y-2">
-    {selectedServices.map((item) => (
-      <li key={item} className="text-sm flex items-center gap-2">
-        <CheckCircle2 className="h-4 w-4 text-green-500" />
-        {item}
-      </li>
-    ))}
-  </ul>
-)}
-```
+Expand the local interface to accept all event fields (or import from useStaffEvents).
 
 ---
 
 ## Visual Comparison
 
-### Before (Equipment)
+### Before (Current iCal Description)
 ```text
-┌─────────────────────────────────┐
-│ Equipment Needed                │
-│ ✓ Chafers       ○ Plates        │
-│ ○ Cups          ✓ Napkins       │
-│ ○ Utensils      ○ Ice           │
-└─────────────────────────────────┘
+Role: Server
+Event starts: 14:00
+Guests: 150 (Full Service)
+
+Menu Highlights:
+- fried-chicken
+- mac-cheese
+- green-beans
+
+Contact: Soul Train's Eatery
+(843) 970-0265 | soultrainseatery@gmail.com
 ```
 
-### After (Equipment)
+### After (Enhanced iCal Description)
 ```text
-┌─────────────────────────────────┐
-│ Equipment Needed                │
-│ ✓ Chafers                       │
-│ ✓ Napkins                       │
-└─────────────────────────────────┘
-```
+Staff Assigned: John Smith (Lead Chef), Jane Doe (Server), Mike Johnson (Setup)
 
-### Before (Badges)
-```text
-[delivery-only] [private_party]
-```
+Event starts: 2:00 PM
+Guests: 150
+Service: Full Service
+Type: Wedding
 
-### After (Badges)
-```text
-[Delivery Only] [Private Party]
+Equipment: Chafers, Plates, Serving Utensils
+
+Services: Wait Staff, Bussing Tables, Cocktail Hour
+
+Proteins: Fried Chicken, Turkey Wings
+Sides: Mac & Cheese, Green Beans & Potatoes, Collard Greens
+Appetizers: Tomato Caprese, Bruschetta
+Desserts: Peach Cobbler
+Drinks: Fresh Lemonade, Sweet Tea
+
+⚠️ DIETARY: Gluten-Free, Dairy-Free
+
+Notes: Bride is vegetarian, separate table needed
+
+Contact: Soul Train's Eatery
+(843) 970-0265 | soultrainseatery@gmail.com
 ```
 
 ---
 
-## Summary
+## Summary of Changes
 
 | Change | File | Description |
 |--------|------|-------------|
-| Create shared utility | `eventTypeLabels.ts` | Label maps + fallback formatter |
-| Fix type display | `StaffEventCard.tsx` | Use shared formatters |
-| Fix type display | `StaffEventDetails.tsx` | Use shared formatters |
-| Filter equipment | `StaffEventDetails.tsx` | Show only selected items |
-| Filter services | `StaffEventDetails.tsx` | Show only selected items |
+| Expand interface | `calendarExport.ts` | Add all menu, equipment, service, and staff fields |
+| Remove `staffRole` | `calendarExport.ts` | Replace with `staffAssignments` array |
+| Add menu formatter | `calendarExport.ts` | Convert IDs to readable text |
+| Build equipment list | `calendarExport.ts` | Collect true flags into comma-separated list |
+| Build services list | `calendarExport.ts` | Collect true service flags |
+| Format staff list | `calendarExport.ts` | Show all assigned staff with roles |
+| Expand interface | `AddToCalendarButton.tsx` | Accept full StaffEvent fields |
+| Pass all data | `AddToCalendarButton.tsx` | Map event properties to calendar data |
+
+---
+
+## Notes
+
+- **Staff Assigned** replaces single "Role" - shows all team members
+- **Equipment/Services** only shown if at least one item is requested
+- **Menu items** use `convertMenuIdToReadableText` pattern for consistent formatting
+- **Dietary restrictions** get a warning emoji for visibility
+- **Special requests** included at the end as notes
 
