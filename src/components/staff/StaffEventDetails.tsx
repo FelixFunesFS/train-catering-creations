@@ -1,7 +1,7 @@
 import { format, parseISO } from 'date-fns';
 import { 
   MapPin, Users, Clock, ChefHat, Utensils, CheckCircle2, 
-  Circle, AlertTriangle, ChevronDown, User
+  AlertTriangle, ChevronDown, User
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,7 @@ import { AddToCalendarButton } from './AddToCalendarButton';
 import type { StaffEvent, StaffAssignment } from '@/hooks/useStaffEvents';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
+import { formatEventType, formatServiceType } from '@/utils/eventTypeLabels';
 
 interface StaffEventDetailsProps {
   event: StaffEvent;
@@ -107,17 +108,19 @@ function MenuList({ title, items }: { title: string; items: string[] }) {
   );
 }
 
-// Equipment checklist
-function EquipmentItem({ label, checked }: { label: string; checked: boolean }) {
+// Selected item display (only shows items that are true)
+function SelectedItemsList({ items }: { items: string[] }) {
+  if (items.length === 0) return null;
+  
   return (
-    <div className="flex items-center gap-2 text-sm">
-      {checked ? (
-        <CheckCircle2 className="h-4 w-4 text-green-500" />
-      ) : (
-        <Circle className="h-4 w-4 text-muted-foreground/50" />
-      )}
-      <span className={cn(!checked && "text-muted-foreground/50")}>{label}</span>
-    </div>
+    <ul className="space-y-2">
+      {items.map((item) => (
+        <li key={item} className="text-sm flex items-center gap-2">
+          <CheckCircle2 className="h-4 w-4 text-green-500" />
+          {item}
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -154,7 +157,7 @@ function StaffAssignmentCard({
               </span>
             ) : (
               <span className="text-amber-600 flex items-center gap-1">
-                <Circle className="h-3 w-3" /> Pending
+                <span className="h-3 w-3 rounded-full border border-current" /> Pending
               </span>
             )}
           </div>
@@ -222,8 +225,8 @@ export function StaffEventDetails({ event, onBack }: StaffEventDetailsProps) {
               <Users className="h-3 w-3" />
               {event.guest_count} guests
             </Badge>
-            <Badge variant="outline">{event.service_type}</Badge>
-            <Badge variant="outline">{event.event_type}</Badge>
+            <Badge variant="outline">{formatServiceType(event.service_type)}</Badge>
+            <Badge variant="outline">{formatEventType(event.event_type)}</Badge>
           </div>
         </CardHeader>
         
@@ -267,33 +270,37 @@ export function StaffEventDetails({ event, onBack }: StaffEventDetailsProps) {
           </>
         )}
 
-        {/* Equipment */}
+        {/* Equipment - only show selected items */}
         {hasEquipment && (
           <>
             <CollapsibleSection title="Equipment Needed" icon={Utensils}>
-              <div className="grid grid-cols-2 gap-2">
-                <EquipmentItem label="Chafers" checked={event.chafers_requested} />
-                <EquipmentItem label="Plates" checked={event.plates_requested} />
-                <EquipmentItem label="Cups" checked={event.cups_requested} />
-                <EquipmentItem label="Napkins" checked={event.napkins_requested} />
-                <EquipmentItem label="Serving Utensils" checked={event.serving_utensils_requested} />
-                <EquipmentItem label="Ice" checked={event.ice_requested} />
-              </div>
+              <SelectedItemsList 
+                items={[
+                  event.chafers_requested && 'Chafers',
+                  event.plates_requested && 'Plates',
+                  event.cups_requested && 'Cups',
+                  event.napkins_requested && 'Napkins',
+                  event.serving_utensils_requested && 'Serving Utensils',
+                  event.ice_requested && 'Ice',
+                ].filter(Boolean) as string[]}
+              />
             </CollapsibleSection>
             <Separator />
           </>
         )}
 
-        {/* Service Details */}
+        {/* Service Details - only show selected items */}
         {hasServiceDetails && (
           <>
             <CollapsibleSection title="Service Details" icon={Users}>
               <div className="space-y-3">
-                <div className="grid grid-cols-2 gap-2">
-                  <EquipmentItem label="Wait Staff" checked={event.wait_staff_requested} />
-                  <EquipmentItem label="Bussing Tables" checked={event.bussing_tables_needed} />
-                  <EquipmentItem label="Cocktail Hour" checked={event.cocktail_hour} />
-                </div>
+                <SelectedItemsList 
+                  items={[
+                    event.wait_staff_requested && 'Wait Staff',
+                    event.bussing_tables_needed && 'Bussing Tables',
+                    event.cocktail_hour && 'Cocktail Hour',
+                  ].filter(Boolean) as string[]}
+                />
                 
                 {event.special_requests && (
                   <div className="p-3 bg-muted rounded-lg">
