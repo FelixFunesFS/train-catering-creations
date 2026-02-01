@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { format, parseISO, isAfter, startOfDay, addDays, isEqual } from 'date-fns';
 import { useInvoices } from '@/hooks/useInvoices';
+import { parseDateFromLocalString } from '@/utils/dateHelpers';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -198,7 +199,7 @@ export function PaymentList() {
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-muted-foreground" />
-                    <span>{invoice.event_date ? format(new Date(invoice.event_date), 'MMM d, yyyy') : 'TBD'}</span>
+                    <span>{invoice.event_date ? format(parseDateFromLocalString(invoice.event_date), 'MMM d, yyyy') : 'TBD'}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Users className="h-4 w-4 text-muted-foreground" />

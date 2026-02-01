@@ -73,3 +73,18 @@ export function subtractDaysFromDate(date: Date, days: number): Date {
   result.setDate(result.getDate() - days);
   return result;
 }
+
+/**
+ * Format a YYYY-MM-DD date string for display with weekday
+ * Uses local parsing to prevent timezone shifts
+ */
+export function formatDateWithWeekday(dateStr: string | null | undefined): string {
+  if (!dateStr) return 'TBD';
+  const date = parseDateFromLocalString(dateStr);
+  return date.toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+}

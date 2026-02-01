@@ -12,6 +12,7 @@ import { useInvoiceByQuote, useInvoicePaymentSummary } from '@/hooks/useInvoices
 import { supabase } from '@/integrations/supabase/client';
 import { formatMenuDescription } from '@/utils/invoiceFormatters';
 import { formatLocationLink, formatPhoneLink } from '@/utils/linkFormatters';
+import { parseDateFromLocalString } from '@/utils/dateHelpers';
 import { User, Calendar, MapPin, Users, Utensils, FileText, Loader2, Package, Eye, Pencil, Receipt, Play, CheckCircle, XCircle, MessageSquare, PartyPopper, Leaf, Phone, ExternalLink } from 'lucide-react';
 import { useUpdateQuoteStatus } from '@/hooks/useQuotes';
 import { EstimateEditor } from '@/components/admin/billing/EstimateEditor';
@@ -216,7 +217,7 @@ export function EventDetail({ quote, onClose }: EventDetailProps) {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
               <div>
                 <span className="text-muted-foreground">Date:</span>
-                <p className="font-medium">{format(new Date(quote.event_date), 'EEEE, MMMM d, yyyy')}</p>
+                <p className="font-medium">{format(parseDateFromLocalString(quote.event_date), 'EEEE, MMMM d, yyyy')}</p>
               </div>
               <div>
                 <span className="text-muted-foreground">Time:</span>

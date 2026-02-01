@@ -3,6 +3,7 @@ import { format, formatDistanceToNow } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { useQuotes } from '@/hooks/useQuotes';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { parseDateFromLocalString } from '@/utils/dateHelpers';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -130,7 +131,7 @@ export function SubmissionsCard({ onEventClick }: SubmissionsCardProps) {
                 </div>
                 
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
-                  <span>{format(new Date(event.event_date), 'MMM d, yyyy')}</span>
+                  <span>{format(parseDateFromLocalString(event.event_date), 'MMM d, yyyy')}</span>
                   <span className="flex items-center gap-1">
                     <Users className="h-3.5 w-3.5" />
                     {event.guest_count}
@@ -180,12 +181,12 @@ export function SubmissionsCard({ onEventClick }: SubmissionsCardProps) {
                     <div>
                       <p className="font-medium">{event.event_name}</p>
                       <p className="text-xs text-muted-foreground flex items-center gap-1 md:hidden">
-                        {format(new Date(event.event_date), 'MMM d, yyyy')}
+                        {format(parseDateFromLocalString(event.event_date), 'MMM d, yyyy')}
                       </p>
                     </div>
                   </TableCell>
                   <TableCell className="hidden md:table-cell whitespace-nowrap">
-                    {format(new Date(event.event_date), 'MMM d, yyyy')}
+                    {format(parseDateFromLocalString(event.event_date), 'MMM d, yyyy')}
                   </TableCell>
                   <TableCell className="hidden sm:table-cell text-center">
                     {event.guest_count}

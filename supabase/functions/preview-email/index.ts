@@ -13,10 +13,17 @@ import {
   type EmailType,
   type StandardEmailConfig,
 } from "../_shared/emailTemplates.ts";
+import { formatDateToString, addDays } from "../_shared/dateHelpers.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+// Helper to get a future date as YYYY-MM-DD string
+const getFutureDateString = (daysFromNow: number): string => {
+  const today = formatDateToString(new Date());
+  return addDays(today, daysFromNow);
 };
 
 // Sample data for email previews - includes FULL menu selections
@@ -26,7 +33,7 @@ const SAMPLE_QUOTE = {
   email: "sarah.johnson@example.com",
   phone: "(843) 555-0123",
   event_name: "Johnson Family Reunion",
-  event_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+  event_date: getFutureDateString(30), // 30 days from now
   start_time: "14:00",
   location: "Magnolia Gardens, 1500 Ashley River Rd, Charleston, SC 29407",
   guest_count: 75,
@@ -75,7 +82,7 @@ const SAMPLE_INVOICE = {
   subtotal: 363500, // Sum of all line items
   tax_amount: 32715, // 9% tax
   total_amount: 396215,
-  due_date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+  due_date: getFutureDateString(14), // 14 days from now
   workflow_status: "sent",
   customer_access_token: "sample-token",
   version: 1,
@@ -83,8 +90,8 @@ const SAMPLE_INVOICE = {
 
 const SAMPLE_MILESTONES = [
   { id: "m1", milestone_type: "deposit", percentage: 10, amount_cents: 38014, status: "paid", due_date: null, is_due_now: true },
-  { id: "m2", milestone_type: "mid_payment", percentage: 50, amount_cents: 190069, status: "pending", due_date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], is_due_now: false },
-  { id: "m3", milestone_type: "final_payment", percentage: 40, amount_cents: 152055, status: "pending", due_date: new Date(Date.now() + 28 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], is_due_now: false },
+  { id: "m2", milestone_type: "mid_payment", percentage: 50, amount_cents: 190069, status: "pending", due_date: getFutureDateString(14), is_due_now: false },
+  { id: "m3", milestone_type: "final_payment", percentage: 40, amount_cents: 152055, status: "pending", due_date: getFutureDateString(28), is_due_now: false },
 ];
 
 /**

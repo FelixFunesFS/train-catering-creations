@@ -13,29 +13,33 @@ export function formatCurrency(cents: number): string {
   }).format(cents / 100);
 }
 
+import { parseDateFromLocalString } from './dateHelpers';
+
 /**
  * Format date string to readable format (e.g., "December 25, 2024")
+ * Uses local parsing to prevent off-by-one day bugs from UTC conversion
  */
 export function formatDate(dateString: string): string {
-  const date = new Date(dateString);
+  if (!dateString) return 'TBD';
+  const date = parseDateFromLocalString(dateString);
   return date.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
-    timeZone: 'America/New_York',
   });
 }
 
 /**
  * Format date to short format (e.g., "Dec 25, 2024")
+ * Uses local parsing to prevent off-by-one day bugs from UTC conversion
  */
 export function formatDateShort(dateString: string): string {
-  const date = new Date(dateString);
+  if (!dateString) return 'TBD';
+  const date = parseDateFromLocalString(dateString);
   return date.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
-    timeZone: 'America/New_York',
   });
 }
 

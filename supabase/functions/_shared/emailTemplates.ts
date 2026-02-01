@@ -172,18 +172,24 @@ function getValidityUrgencyMessage(urgencyLevel: EmailEstimateValidity['urgencyL
   }
 }
 
+import { parseDateString } from './dateHelpers.ts';
+
 export const formatCurrency = (cents: number): string => {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100);
 };
 
+/**
+ * Format date for display in emails
+ * Uses local parsing to prevent off-by-one day bugs from UTC conversion
+ */
 export const formatDate = (dateStr: string | null): string => {
   if (!dateStr) return 'TBD';
-  return new Date(dateStr).toLocaleDateString('en-US', {
+  const date = parseDateString(dateStr);
+  return date.toLocaleDateString('en-US', {
     weekday: 'long',
     month: 'long',
     day: 'numeric',
     year: 'numeric',
-    timeZone: 'America/New_York',
   });
 };
 
@@ -260,8 +266,13 @@ export function generateEmailHeader(title: string = "Soul Train's Eatery"): stri
 }
 
 export function generateEventDetailsCard(quote: any): string {
+  /**
+   * Format date for event card (short format)
+   * Uses local parsing to prevent off-by-one day bugs
+   */
   const fmtDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    const date = parseDateString(dateString);
+    return date.toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
       year: 'numeric'

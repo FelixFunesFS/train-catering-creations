@@ -14,6 +14,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { PDFDocument, rgb, StandardFonts } from "https://esm.sh/pdf-lib@1.17.1";
 import fontkit from "https://esm.sh/@pdf-lib/fontkit@1.1.1";
 import { getTermsForPDF } from "../_shared/termsAndConditions.ts";
+import { parseDateString } from "../_shared/dateHelpers.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -113,26 +114,26 @@ serve(async (req) => {
       }).format(amount / 100);
     };
 
-    // Format date (Eastern Time)
+    // Format date (local parsing to prevent off-by-one bug)
     const formatDate = (dateStr: string) => {
       if (!dateStr) return '';
-      return new Date(dateStr).toLocaleDateString('en-US', {
+      const date = parseDateString(dateStr);
+      return date.toLocaleDateString('en-US', {
         weekday: 'short',
         year: 'numeric',
         month: 'short',
         day: 'numeric',
-        timeZone: 'America/New_York',
       });
     };
 
-    // Format short date (Eastern Time)
+    // Format short date (local parsing to prevent off-by-one bug)
     const formatShortDate = (dateStr: string) => {
       if (!dateStr) return 'TBD';
-      return new Date(dateStr).toLocaleDateString('en-US', {
+      const date = parseDateString(dateStr);
+      return date.toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric',
         year: 'numeric',
-        timeZone: 'America/New_York',
       });
     };
 
