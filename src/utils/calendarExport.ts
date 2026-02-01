@@ -264,45 +264,65 @@ export const generateStaffICSFile = (data: StaffCalendarEventData): string => {
     return `${displayHour}:${String(m).padStart(2, '0')} ${period}`;
   };
 
-  // Build staff-focused description
+  // Check if menu items exist
+  const hasMenuItems = proteins.length > 0 || sides.length > 0 || appetizers.length > 0 || 
+                       desserts.length > 0 || drinks.length > 0 || vegetarianOptions.length > 0;
+
+  // Build staff-focused description with visual sections
   const descriptionParts: string[] = [
-    // Maps and Staff View links
+    // Links at top for easy access
     mapsUrl ? `Maps: ${mapsUrl}` : '',
     `Staff View: ${SITE_URL}/staff`,
     '',
-    // Staff Assigned (replaces Role)
+    // Staff Assigned section
     staffAssignments.length > 0 
       ? `Staff Assigned: ${staffAssignments.map(s => `${s.name} (${s.role})`).join(', ')}`
       : '',
     '',
-    // Event details
+    // Event Details section with separator
+    '--------',
+    'EVENT DETAILS',
+    '--------',
     eventStartTime ? `Event starts: ${formatTimeDisplay(eventStartTime)}` : '',
     guestCount ? `Guests: ${guestCount}` : '',
     serviceType ? `Service: ${formatServiceType(serviceType)}` : '',
     eventType ? `Type: ${formatEventType(eventType)}` : '',
     '',
-    // Equipment section
-    equipmentList.length > 0 ? `Equipment: ${equipmentList.join(', ')}` : '',
-    // Services section
-    servicesList.length > 0 ? `Services: ${servicesList.join(', ')}` : '',
-    '',
-    // Full menu by category
-    proteins.length > 0 ? `Proteins: ${proteins.map(formatMenuId).join(', ')}` : '',
-    sides.length > 0 ? `Sides: ${sides.map(formatMenuId).join(', ')}` : '',
-    appetizers.length > 0 ? `Appetizers: ${appetizers.map(formatMenuId).join(', ')}` : '',
-    desserts.length > 0 ? `Desserts: ${desserts.map(formatMenuId).join(', ')}` : '',
-    drinks.length > 0 ? `Drinks: ${drinks.map(formatMenuId).join(', ')}` : '',
-    vegetarianOptions.length > 0 ? `Vegetarian: ${vegetarianOptions.map(formatMenuId).join(', ')}` : '',
-    '',
-    // Dietary restrictions (important callout)
-    dietaryRestrictions.length > 0 
-      ? `DIETARY: ${dietaryRestrictions.map(formatMenuId).join(', ')}`
-      : '',
-    '',
-    // Notes
-    specialRequests ? `Special Requests: ${specialRequests}` : '',
-    notes ? `Notes: ${notes}` : '',
-    '',
+    // Equipment & Services section (conditional)
+    ...(equipmentList.length > 0 || servicesList.length > 0 ? [
+      '--------',
+      'EQUIPMENT & SERVICES',
+      '--------',
+      equipmentList.length > 0 ? `Equipment: ${equipmentList.join(', ')}` : '',
+      servicesList.length > 0 ? `Services: ${servicesList.join(', ')}` : '',
+      ''
+    ] : []),
+    // Menu section (conditional)
+    ...(hasMenuItems ? [
+      '--------',
+      'MENU',
+      '--------',
+      proteins.length > 0 ? `Proteins: ${proteins.map(formatMenuId).join(', ')}` : '',
+      sides.length > 0 ? `Sides: ${sides.map(formatMenuId).join(', ')}` : '',
+      appetizers.length > 0 ? `Appetizers: ${appetizers.map(formatMenuId).join(', ')}` : '',
+      desserts.length > 0 ? `Desserts: ${desserts.map(formatMenuId).join(', ')}` : '',
+      drinks.length > 0 ? `Drinks: ${drinks.map(formatMenuId).join(', ')}` : '',
+      vegetarianOptions.length > 0 ? `Vegetarian: ${vegetarianOptions.map(formatMenuId).join(', ')}` : '',
+      ''
+    ] : []),
+    // Special Notes section (conditional)
+    ...(dietaryRestrictions.length > 0 || specialRequests || notes ? [
+      '--------',
+      'SPECIAL NOTES',
+      '--------',
+      dietaryRestrictions.length > 0 
+        ? `DIETARY: ${dietaryRestrictions.map(formatMenuId).join(', ')}`
+        : '',
+      specialRequests ? `Special Requests: ${specialRequests}` : '',
+      notes ? `Notes: ${notes}` : '',
+      ''
+    ] : []),
+    // Contact footer
     `Contact: Soul Train's Eatery`,
     `(843) 970-0265 | soultrainseatery@gmail.com`
   ].filter(Boolean);
@@ -328,7 +348,7 @@ export const generateStaffICSFile = (data: StaffCalendarEventData): string => {
     `DTSTAMP:${formatICSDateLocal(new Date())}`,
     `UID:${crypto.randomUUID()}@soultrainseatery.com`,
     `SUMMARY:${escapeICS(eventName)}`,
-    `DESCRIPTION:${escapeICS(descriptionParts.join('\\n'))}`,
+    `DESCRIPTION:${escapeICS(descriptionParts.join('\n'))}`,
     `LOCATION:${escapeICS(location)}`,
     'STATUS:CONFIRMED',
     'SEQUENCE:0',

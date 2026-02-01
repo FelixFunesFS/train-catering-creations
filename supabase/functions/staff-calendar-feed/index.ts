@@ -148,49 +148,74 @@ function generateVEvent(event: QuoteRequest, staffAssignments: StaffAssignment[]
   if (event.bussing_tables_needed) servicesList.push('Bussing Tables');
   if (event.cocktail_hour) servicesList.push('Cocktail Hour');
 
-  // Build description with all details
+  // Check if menu items exist
+  const hasMenuItems = (event.proteins && event.proteins.length > 0) || 
+                       (event.sides && event.sides.length > 0) || 
+                       (event.appetizers && event.appetizers.length > 0) || 
+                       (event.desserts && event.desserts.length > 0) || 
+                       (event.drinks && event.drinks.length > 0) || 
+                       (event.vegetarian_entrees && event.vegetarian_entrees.length > 0);
+
+  // Build description with visual sections
   const descParts: string[] = [
-    // Maps and Staff View links
+    // Links at top for easy access
     mapsUrl ? `Maps: ${mapsUrl}` : '',
     `Staff View: ${siteUrl}/staff`,
     '',
-    // Staff Assigned
+    // Staff Assigned section
     staffAssignments.length > 0 
       ? `Staff Assigned: ${staffAssignments.map(s => `${s.staff_name} (${s.role})`).join(', ')}`
       : '',
     '',
-    // Event details
+    // Event Details section with separator
+    '--------',
+    'EVENT DETAILS',
+    '--------',
     event.start_time ? `Event starts: ${formatTimeDisplay(event.start_time)}` : '',
     `Guests: ${event.guest_count}`,
     `Service: ${formatServiceType(event.service_type)}`,
     `Type: ${formatEventType(event.event_type)}`,
     '',
-    // Equipment section
-    equipmentList.length > 0 ? `Equipment: ${equipmentList.join(', ')}` : '',
-    // Services section
-    servicesList.length > 0 ? `Services: ${servicesList.join(', ')}` : '',
-    '',
-    // Full menu by category
-    event.proteins && event.proteins.length > 0 ? `Proteins: ${event.proteins.map(formatMenuId).join(', ')}` : '',
-    event.sides && event.sides.length > 0 ? `Sides: ${event.sides.map(formatMenuId).join(', ')}` : '',
-    event.appetizers && event.appetizers.length > 0 ? `Appetizers: ${event.appetizers.map(formatMenuId).join(', ')}` : '',
-    event.desserts && event.desserts.length > 0 ? `Desserts: ${event.desserts.map(formatMenuId).join(', ')}` : '',
-    event.drinks && event.drinks.length > 0 ? `Drinks: ${event.drinks.map(formatMenuId).join(', ')}` : '',
-    event.vegetarian_entrees && event.vegetarian_entrees.length > 0 ? `Vegetarian: ${event.vegetarian_entrees.map(formatMenuId).join(', ')}` : '',
-    '',
-    // Dietary restrictions (important callout)
-    event.dietary_restrictions && event.dietary_restrictions.length > 0 
-      ? `DIETARY: ${event.dietary_restrictions.map(formatMenuId).join(', ')}`
-      : '',
-    '',
-    // Special requests
-    event.special_requests ? `Special Requests: ${event.special_requests}` : '',
-    '',
+    // Equipment & Services section (conditional)
+    ...(equipmentList.length > 0 || servicesList.length > 0 ? [
+      '--------',
+      'EQUIPMENT & SERVICES',
+      '--------',
+      equipmentList.length > 0 ? `Equipment: ${equipmentList.join(', ')}` : '',
+      servicesList.length > 0 ? `Services: ${servicesList.join(', ')}` : '',
+      ''
+    ] : []),
+    // Menu section (conditional)
+    ...(hasMenuItems ? [
+      '--------',
+      'MENU',
+      '--------',
+      event.proteins && event.proteins.length > 0 ? `Proteins: ${event.proteins.map(formatMenuId).join(', ')}` : '',
+      event.sides && event.sides.length > 0 ? `Sides: ${event.sides.map(formatMenuId).join(', ')}` : '',
+      event.appetizers && event.appetizers.length > 0 ? `Appetizers: ${event.appetizers.map(formatMenuId).join(', ')}` : '',
+      event.desserts && event.desserts.length > 0 ? `Desserts: ${event.desserts.map(formatMenuId).join(', ')}` : '',
+      event.drinks && event.drinks.length > 0 ? `Drinks: ${event.drinks.map(formatMenuId).join(', ')}` : '',
+      event.vegetarian_entrees && event.vegetarian_entrees.length > 0 ? `Vegetarian: ${event.vegetarian_entrees.map(formatMenuId).join(', ')}` : '',
+      ''
+    ] : []),
+    // Special Notes section (conditional)
+    ...(event.dietary_restrictions && event.dietary_restrictions.length > 0 || event.special_requests ? [
+      '--------',
+      'SPECIAL NOTES',
+      '--------',
+      event.dietary_restrictions && event.dietary_restrictions.length > 0 
+        ? `DIETARY: ${event.dietary_restrictions.map(formatMenuId).join(', ')}`
+        : '',
+      event.special_requests ? `Special Requests: ${event.special_requests}` : '',
+      ''
+    ] : []),
+    // Contact footer
     `Contact: Soul Train's Eatery`,
     `(843) 970-0265 | soultrainseatery@gmail.com`
   ].filter(Boolean);
   
-  const description = escapeICSText(descParts.join('\\n'));
+  // Use REAL newlines - escapeICSText will convert to \\n for ICS format
+  const description = escapeICSText(descParts.join('\n'));
   const location = escapeICSText(event.location);
   const summary = escapeICSText(event.event_name);
   
