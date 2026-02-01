@@ -1,274 +1,189 @@
 
 
-# Staff View Implementation Plan (Updated)
+# Live Calendar Integration Options
 
-## Overview
+## The Problem with Static Downloads
 
-Create a mobile-first Staff Schedule page that allows team members to view upcoming events with full operational details (excluding pricing) and staff assignments. This integrates with the existing admin authentication and navigation systems.
-
-Ceremony references have been removed from this implementation as they will not be used.
+The current `.ics` download approach creates a **snapshot** that:
+- Does NOT update when events change
+- Does NOT reflect cancellations
+- Does NOT include newly approved events
+- Requires manual re-download to stay current
 
 ---
 
-## Architecture Summary
+## Live Calendar Integration Approaches
+
+| Approach | Auto-Updates | Complexity | User Action |
+|----------|--------------|------------|-------------|
+| **Static .ics download** | No | Low | Re-download manually |
+| **Subscribable Calendar Feed (webcal://)** | Yes | Medium | Subscribe once |
+| **Google Calendar API** | Yes | High | OAuth + permissions |
+| **CalDAV Server** | Yes (two-way) | Very High | Full server setup |
+
+---
+
+## Recommended: Subscribable Calendar Feed
+
+### How It Works
+
+1. Create an Edge Function that generates `.ics` content dynamically
+2. User subscribes to a URL like: `webcal://your-domain/functions/v1/staff-calendar-feed`
+3. Calendar apps (Google, Apple, Outlook) automatically refresh the feed periodically (typically every 1-12 hours)
+4. Changes, cancellations, and new events appear on next refresh
+
+### Key Benefits
+
+- Works with ALL major calendar apps
+- No OAuth or API integration needed
+- Staff subscribes once, stays synced forever
+- Events auto-update (name changes, time changes, cancellations)
+- New approved events appear automatically
+
+### Technical Implementation
+
+**New Edge Function: `staff-calendar-feed`**
 
 ```text
-┌─────────────────────────────────────────────────────────────────┐
-│                        STAFF VIEW                               │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  ┌─────────────────┐    ┌─────────────────────────────────────┐ │
-│  │ useStaffEvents  │ -> │ StaffSchedule (Page)                │ │
-│  │ (Data Hook)     │    │ - Filter tabs: Today | Week | All   │ │
-│  └─────────────────┘    │ - Mobile: Full-screen cards         │ │
-│          │              │ - Desktop: Split-panel layout       │ │
-│          ▼              └─────────────────────────────────────┘ │
-│  ┌─────────────────┐                    │                       │
-│  │ StaffEventCard  │ <──────────────────┤                       │
-│  │ - Countdown     │                    │                       │
-│  │ - Location link │                    ▼                       │
-│  │ - Staff summary │    ┌─────────────────────────────────────┐ │
-│  └─────────────────┘    │ StaffEventDetails                   │ │
-│                         │ - Collapsible sections              │ │
-│                         │ - Menu, Equipment, Staff            │ │
-│                         │ - Add to Calendar button            │ │
-│                         └─────────────────────────────────────┘ │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
+GET /functions/v1/staff-calendar-feed?token=<staff_token>
+
+Returns:
+Content-Type: text/calendar
+Content-Disposition: inline; filename="soul_trains_schedule.ics"
+X-WR-CALNAME: Soul Train's Eatery - Staff Schedule
+
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Soul Train's Eatery//Staff Schedule//EN
+REFRESH-INTERVAL;VALUE=DURATION:PT4H  (tells apps to refresh every 4 hours)
+X-PUBLISHED-TTL:PT4H
+BEGIN:VEVENT
+... (all approved/confirmed events)
+END:VEVENT
+BEGIN:VEVENT
+... (next event)
+END:VEVENT
+END:VCALENDAR
 ```
+
+### Security Options
+
+| Option | How It Works |
+|--------|--------------|
+| **Shared staff token** | Single URL for all staff (simple) |
+| **Per-user tokens** | Each staff member gets unique URL |
+| **JWT-based** | Authenticated feed requiring login |
+
+For a catering team, a shared staff token is often sufficient.
 
 ---
 
-## Data Layer: useStaffEvents Hook
+## User Experience
 
-### Fields Included (Operational Only)
+### Subscription Flow
+
+1. Staff taps "Subscribe to Calendar" button
+2. Opens calendar app with subscription URL
+3. Calendar app asks to confirm subscription
+4. Done - events sync automatically
+
+### Platform-Specific URLs
+
+| Platform | URL Format |
+|----------|------------|
+| **iOS/macOS** | `webcal://...` (native support) |
+| **Google Calendar** | `https://...` (add via "From URL") |
+| **Outlook** | `webcal://...` (native support) |
+
+---
+
+## Implementation Plan
+
+### Files to Create
+
+| File | Purpose |
+|------|---------|
+| `supabase/functions/staff-calendar-feed/index.ts` | Edge function that queries approved events and returns live `.ics` |
+
+### Files to Modify
+
+| File | Purpose |
+|------|---------|
+| `supabase/config.toml` | Register the new edge function |
+| `src/pages/StaffSchedule.tsx` | Add "Subscribe to Calendar" button with `webcal://` link |
+| `src/utils/calendarExport.ts` | Keep for single-event downloads (backup option) |
+
+### Edge Function Logic
+
+```text
+1. Verify token (or skip for authenticated users)
+2. Query quote_requests WHERE workflow_status IN ('confirmed', 'approved', 'quoted', 'estimated')
+   AND event_date >= today
+3. For each event:
+   - Use event.id as UID (stable, survives updates)
+   - Include SEQUENCE number (version field) so updates are recognized
+   - Set STATUS:CANCELLED for cancelled events (removes from calendar)
+4. Return .ics with proper headers
+```
+
+### Key ICS Fields for Live Sync
 
 | Field | Purpose |
 |-------|---------|
-| `id` | Event identifier |
-| `event_name` | Display name |
-| `event_date` | Date of event |
-| `start_time` | Event start time |
-| `serving_start_time` | When service begins |
-| `location` | Venue address (tappable for Maps) |
-| `guest_count` | Number of guests |
-| `event_type` | Type (wedding, corporate, etc.) |
-| `service_type` | Service style (buffet, plated, etc.) |
-| `proteins` | Menu proteins array |
-| `sides` | Menu sides array |
-| `appetizers` | Menu appetizers array |
-| `desserts` | Menu desserts array |
-| `drinks` | Menu drinks array |
-| `vegetarian_entrees` | Vegetarian options |
-| `dietary_restrictions` | Guest restrictions |
-| `special_requests` | Customer notes |
-| `chafers_requested` | Equipment flag |
-| `plates_requested` | Equipment flag |
-| `cups_requested` | Equipment flag |
-| `napkins_requested` | Equipment flag |
-| `serving_utensils_requested` | Equipment flag |
-| `ice_requested` | Equipment flag |
-| `wait_staff_requested` | Service add-on |
-| `bussing_tables_needed` | Service add-on |
-| `cocktail_hour` | Service add-on |
-| `staff_assignments` | Joined from staff_assignments table |
-
-### Fields Excluded (Financial/Sensitive)
-
-- `email`, `phone` - Customer contact info
-- `estimated_total`, `final_total` - Pricing
-- `po_number`, `requires_po_number` - Billing
-- `compliance_level` - Admin internal
-- `ceremony_included` - NOT USED
-- All invoice-related data
-
-### Computed Fields
-
-| Field | Calculation |
-|-------|-------------|
-| `days_until` | Days from today to event_date |
-| `is_today` | event_date === today |
-| `is_this_week` | event_date within 7 days |
-
-### Query Filter
-
-Only fetch events with `workflow_status` in: `confirmed`, `approved`, `quoted`, `estimated` (active events)
+| `UID` | Stable identifier (use event.id) - MUST stay same for updates |
+| `SEQUENCE` | Version number - increment on each change |
+| `DTSTAMP` | When feed was generated |
+| `REFRESH-INTERVAL` | How often to check for updates (e.g., PT4H = 4 hours) |
+| `STATUS:CANCELLED` | Marks event as cancelled (appears struck-through) |
 
 ---
 
-## Files to Create
+## UI in Staff Schedule
 
-### 1. `src/hooks/useStaffEvents.ts`
-
-Data hook for staff-safe event queries with types for `StaffEvent` interface and hooks:
-- `useStaffEvents(filter)` - List of upcoming events
-- `useStaffEvent(eventId)` - Single event details
-
-### 2. `src/components/staff/StaffEventCard.tsx`
-
-Mobile-optimized event card showing:
-- Countdown badge (color-coded: TODAY=red, TOMORROW=amber, IN X DAYS=blue)
-- Event name and date/time
-- Tappable location (opens Google Maps)
-- Guest count and service type badges
-- Staff assignment summary (X staff, Y/Z confirmed)
-- Quick calendar icon button (uses existing AddToCalendarButton)
-
-Touch targets: minimum 44x44px
-Active state: `active:bg-muted/50` for tap feedback
-
-### 3. `src/components/staff/StaffEventDetails.tsx`
-
-Expanded event view with collapsible sections:
-
-**Header Section**
-- Event name with countdown badge
-- Date, time, location (tappable)
-- Guest count and service type
-- Add to Calendar button (full variant)
-
-**Collapsible Sections**
-
-1. **Menu Items**
-   - Proteins list
-   - Sides list
-   - Appetizers (if any)
-   - Desserts (if any)
-   - Drinks (if any)
-   - Vegetarian options
-   - Dietary restrictions (highlighted)
-   
-2. **Equipment Needed**
-   - Chafers, plates, cups, napkins, utensils, ice
-   - Visual checkmarks for requested items
-   
-3. **Service Details**
-   - Wait staff requirements
-   - Bussing needs
-   - Cocktail hour
-   - Special requests
-   
-4. **Staff Assignments**
-   - List of assigned staff with:
-     - Name and role (color-coded badge)
-     - Arrival time
-     - Confirmation status
-     - Individual "Add to Calendar" button per assignment
-
-### 4. `src/pages/StaffSchedule.tsx`
-
-Main page component:
-
-**Mobile Layout (< 1024px)**
-- Full-screen card list
-- Filter tabs: Today | This Week | All
-- Tap card to expand details inline or navigate
-
-**Desktop Layout (>= 1024px)**
-- ResizablePanelGroup with two panels
-- Left panel: Event list
-- Right panel: Selected event details
-
-**Safe Area Support**
-- `pt-[env(safe-area-inset-top)]` for iOS notch
-- `pb-20` to account for mobile nav bar
-
----
-
-## Files to Modify
-
-### 5. `src/App.tsx`
-
-Add new route:
-
-```typescript
-// Import (lazy loaded)
-const StaffSchedule = lazy(() => import("./pages/StaffSchedule"));
-
-// Route (protected, inside Routes after line 117)
-<Route 
-  path="/staff" 
-  element={
-    <ProtectedRoute>
-      <StaffSchedule />
-    </ProtectedRoute>
-  } 
-/>
+**Mobile Header:**
+```text
+┌─────────────────────────────────────────┐
+│ Calendar Staff Schedule          [+ Subscribe] │
+└─────────────────────────────────────────┘
 ```
 
-### 6. `src/components/admin/mobile/MobileAdminNav.tsx`
-
-Add Staff nav item:
-- Update `grid-cols-4` to `grid-cols-5`
-- Add new nav item with Users icon before Settings
-- Uses direct path `/staff` (not query param)
+**Subscribe Button Behavior:**
+- iOS/macOS: Opens `webcal://` URL directly
+- Android: Shows instructions for Google Calendar
+- Desktop: Copies URL or shows QR code
 
 ---
 
-## Mobile UX Patterns
+## Handling Cancellations
 
-| Pattern | Implementation |
-|---------|----------------|
-| Touch targets | All buttons min 44x44px |
-| Tap feedback | `active:bg-muted/50` or `active:scale-95` |
-| Safe areas | iOS notch/home indicator support |
-| Bottom nav | 5-column grid for mobile admin nav |
-| Collapsibles | Animated expand/collapse using Radix Collapsible |
-| Maps link | `href="https://maps.google.com/?q={location}"` |
+When an event is cancelled:
+- **Option A**: Remove from feed entirely (event disappears)
+- **Option B**: Keep in feed with `STATUS:CANCELLED` (shows struck-through)
+
+Option B is better for staff awareness - they see the cancellation rather than wondering why an event disappeared.
 
 ---
 
-## Countdown Badge Logic
+## Summary
 
-```typescript
-function getCountdownBadge(daysUntil: number): { text: string; color: string } {
-  if (daysUntil < 0) return { text: 'PAST', color: 'bg-gray-500' };
-  if (daysUntil === 0) return { text: 'TODAY', color: 'bg-red-500' };
-  if (daysUntil === 1) return { text: 'TOMORROW', color: 'bg-amber-500' };
-  if (daysUntil <= 7) return { text: `IN ${daysUntil} DAYS`, color: 'bg-blue-500' };
-  return { text: format(eventDate, 'MMM d'), color: 'bg-slate-500' };
-}
-```
+| Feature | Static Download | Subscribable Feed |
+|---------|-----------------|-------------------|
+| Auto-updates | No | Yes |
+| New events appear | No | Yes |
+| Cancellations sync | No | Yes |
+| Time changes sync | No | Yes |
+| Works offline | Yes | Yes (cached) |
+| User action needed | Every time | Subscribe once |
 
----
-
-## Integration with Existing Calendar Button
-
-The `AddToCalendarButton` component (already created) will be used in:
-1. StaffEventCard (icon variant) - Quick add from list
-2. StaffEventDetails header (full variant) - Primary action
-3. Per-staff assignment in details (icon variant) - Individual schedules
-
----
-
-## Security Considerations
-
-- Reuses existing admin authentication via `ProtectedRoute`
-- No new database permissions required (RLS already in place for `is_admin()`)
-- Financial data excluded at query level (not just hidden in UI)
-- Customer contact info (email, phone) excluded for staff privacy
+The subscribable calendar feed is the best balance of simplicity and live functionality for a staff scheduling system.
 
 ---
 
 ## Implementation Order
 
-1. Create `useStaffEvents` hook (data layer)
-2. Create `StaffEventCard` component
-3. Create `StaffEventDetails` component  
-4. Create `StaffSchedule` page
-5. Add `/staff` route to App.tsx
-6. Update MobileAdminNav with Staff tab
-
----
-
-## Summary of Changes
-
-| File | Action |
-|------|--------|
-| `src/hooks/useStaffEvents.ts` | **Create** - Data hook excluding pricing |
-| `src/components/staff/StaffEventCard.tsx` | **Create** - Mobile card with countdown |
-| `src/components/staff/StaffEventDetails.tsx` | **Create** - Expanded view with collapsibles |
-| `src/pages/StaffSchedule.tsx` | **Create** - Responsive page container |
-| `src/App.tsx` | **Modify** - Add `/staff` protected route |
-| `src/components/admin/mobile/MobileAdminNav.tsx` | **Modify** - Add Staff tab |
+1. Create `staff-calendar-feed` edge function
+2. Add to `supabase/config.toml`
+3. Update `StaffSchedule.tsx` with "Subscribe" button
+4. Test with Google Calendar, Apple Calendar, Outlook
+5. Keep single-event download as backup option
 
