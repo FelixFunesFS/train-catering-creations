@@ -158,9 +158,10 @@ function generateVEvent(event: QuoteRequest, staffAssignments: StaffAssignment[]
 
   // Build description with visual sections
   const descParts: string[] = [
-    // Links at top for easy access
-    mapsUrl ? `Maps: ${mapsUrl}` : '',
-    `Staff View: ${siteUrl}/staff`,
+    // Address shown as readable text, with shorter maps link
+    event.location ? `Address: ${event.location}` : '',
+    event.location ? `Get Directions: maps.google.com/?q=${encodeURIComponent(event.location)}` : '',
+    `Staff View: soultrainseatery.com/staff`,
     '',
     // Staff Assigned section
     staffAssignments.length > 0 

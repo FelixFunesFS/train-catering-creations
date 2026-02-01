@@ -270,9 +270,10 @@ export const generateStaffICSFile = (data: StaffCalendarEventData): string => {
 
   // Build staff-focused description with visual sections
   const descriptionParts: string[] = [
-    // Links at top for easy access
-    mapsUrl ? `Maps: ${mapsUrl}` : '',
-    `Staff View: ${SITE_URL}/staff`,
+    // Address shown as readable text, with shorter maps link
+    location ? `Address: ${location}` : '',
+    location ? `Get Directions: maps.google.com/?q=${encodeURIComponent(location)}` : '',
+    `Staff View: soultrainseatery.com/staff`,
     '',
     // Staff Assigned section
     staffAssignments.length > 0 
