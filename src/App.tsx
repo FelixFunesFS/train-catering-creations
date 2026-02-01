@@ -50,6 +50,7 @@ const EventEstimateFullViewPage = lazy(() => import("./pages/EventEstimateFullVi
 const CustomerEstimateView = lazy(() => import("./components/customer/CustomerEstimateView").then(m => ({ default: m.CustomerEstimateView })));
 const QuoteThankYou = lazy(() => import("./pages/QuoteThankYou"));
 const AdminMenuEditPage = lazy(() => import("./pages/AdminMenuEditPage"));
+const StaffSchedule = lazy(() => import("./pages/StaffSchedule"));
 
 // Minimal loading fallback to avoid layout shift
 const PageLoader = () => (
@@ -115,6 +116,9 @@ const AppContent = () => {
             {/* Admin estimate print route - Protected */}
             <Route path="/admin/estimate-print/:invoiceId" element={<ProtectedRoute><EstimatePrintView /></ProtectedRoute>} />
             <Route path="/admin/*" element={<ProtectedRoute><UnifiedAdminDashboard /></ProtectedRoute>} />
+            
+            {/* Staff Schedule - Protected */}
+            <Route path="/staff" element={<ProtectedRoute><StaffSchedule /></ProtectedRoute>} />
             
             {/* Customer-facing routes */}
             <Route path="/estimate" element={<CustomerEstimateView />} />

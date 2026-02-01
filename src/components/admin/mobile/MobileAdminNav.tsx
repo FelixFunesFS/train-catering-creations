@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { Calendar, CreditCard, Settings, LogOut } from 'lucide-react';
+import { Calendar, CreditCard, Settings, LogOut, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -8,19 +8,29 @@ const navItems = [
     icon: Calendar, 
     label: 'Events', 
     path: '/admin',
-    query: '?view=events'
+    query: '?view=events',
+    isQueryBased: true
   },
   { 
     icon: CreditCard, 
     label: 'Billing', 
     path: '/admin',
-    query: '?view=billing'
+    query: '?view=billing',
+    isQueryBased: true
+  },
+  { 
+    icon: Users, 
+    label: 'Staff', 
+    path: '/staff',
+    query: '',
+    isQueryBased: false
   },
   { 
     icon: Settings, 
     label: 'Settings', 
     path: '/admin',
-    query: '?view=settings'
+    query: '?view=settings',
+    isQueryBased: true
   },
 ];
 
@@ -30,11 +40,17 @@ export function MobileAdminNav() {
   
   const currentView = new URLSearchParams(location.search).get('view') || 'events';
 
+  // Check if we're on the staff page
+  const isStaffPage = location.pathname === '/staff';
+
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t lg:hidden pb-[env(safe-area-inset-bottom)]">
-      <div className="grid grid-cols-4 h-16">
+      <div className="grid grid-cols-5 h-16">
         {navItems.map((item) => {
-          const isActive = currentView === item.query.replace('?view=', '');
+          // For staff route, check pathname; for others, check query param
+          const isActive = item.isQueryBased 
+            ? (!isStaffPage && currentView === item.query.replace('?view=', ''))
+            : location.pathname === item.path;
           
           return (
             <NavLink
