@@ -13,6 +13,7 @@ import type { StaffEvent, StaffAssignment } from '@/hooks/useStaffEvents';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { formatEventType, formatServiceType } from '@/utils/eventTypeLabels';
+import { convertMenuIdToReadableText } from '@/utils/menuNLP';
 
 interface StaffEventDetailsProps {
   event: StaffEvent;
@@ -100,7 +101,7 @@ function MenuList({ title, items }: { title: string; items: string[] }) {
         {items.map((item, i) => (
           <li key={i} className="text-sm flex items-center gap-2">
             <span className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
-            {item}
+            {convertMenuIdToReadableText(item)}
           </li>
         ))}
       </ul>
@@ -258,7 +259,7 @@ export function StaffEventDetails({ event, onBack }: StaffEventDetailsProps) {
                     <ul className="space-y-1">
                       {event.dietary_restrictions.map((restriction, i) => (
                         <li key={i} className="text-sm text-amber-800 dark:text-amber-300">
-                          • {restriction}
+                          • {convertMenuIdToReadableText(restriction)}
                         </li>
                       ))}
                     </ul>
