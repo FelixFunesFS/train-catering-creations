@@ -22,6 +22,7 @@ import { DateNavigation } from './DateNavigation';
 import { EventFilters, StatusFilter, ServiceTypeFilter, SortBy, SortOrder } from './EventFilters';
 import { SortableTableHead } from './SortableTableHead';
 import { formatDateTimeShortET } from '@/utils/formatters';
+import { parseDateFromLocalString } from '@/utils/dateHelpers';
 import { Database } from '@/integrations/supabase/types';
 
 type QuoteRequest = Database['public']['Tables']['quote_requests']['Row'];
@@ -370,7 +371,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                       </div>
                       
                       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground mb-3">
-                        <span>{format(new Date(event.event_date), 'MMM d, yyyy')}</span>
+                        <span>{format(parseDateFromLocalString(event.event_date), 'MMM d, yyyy')}</span>
                         <span>{event.guest_count} guests</span>
                         {invoice?.invoice_number && (
                           <span className="font-mono text-xs">{invoice.invoice_number}</span>
@@ -602,7 +603,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                         {formatDateTimeShortET(event.created_at!)}
                       </TableCell>
                       <TableCell className="font-medium whitespace-nowrap">
-                        {format(new Date(event.event_date), 'MMM d, yyyy')}
+                        {format(parseDateFromLocalString(event.event_date), 'MMM d, yyyy')}
                       </TableCell>
                       <TableCell>
                         <div>

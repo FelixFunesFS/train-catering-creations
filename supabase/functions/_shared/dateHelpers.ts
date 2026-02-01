@@ -84,3 +84,37 @@ export function subtractDaysFromDate(date: Date, days: number): Date {
 export function formatForDatabase(date: Date): string {
   return formatDateToString(date);
 }
+
+/**
+ * Format a YYYY-MM-DD date string for display (long format)
+ * Uses local parsing to prevent timezone shifts
+ */
+export function formatDateForDisplay(dateStr: string | null, options?: { format?: 'long' | 'short' | 'weekday' }): string {
+  if (!dateStr) return 'TBD';
+  const date = parseDateString(dateStr);
+  
+  const format = options?.format || 'weekday';
+  
+  switch (format) {
+    case 'long':
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
+    case 'short':
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      });
+    case 'weekday':
+    default:
+      return date.toLocaleDateString('en-US', {
+        weekday: 'long',
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
+      });
+  }
+}

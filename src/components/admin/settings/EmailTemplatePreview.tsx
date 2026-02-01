@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { formatDateShort } from "@/utils/formatters";
 import { 
   Monitor, 
   Smartphone, 
@@ -297,7 +298,7 @@ export function EmailTemplatePreview() {
                   </Select>
                   {selectedQuote && (
                     <span className="text-xs text-muted-foreground">
-                      {new Date(selectedQuote.event_date).toLocaleDateString()}
+                      {formatDateShort(selectedQuote.event_date)}
                     </span>
                   )}
                 </div>

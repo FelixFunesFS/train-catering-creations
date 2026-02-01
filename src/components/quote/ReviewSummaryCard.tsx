@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { User, Calendar, MapPin, Users, ChefHat, UtensilsCrossed, MessageSquare, Shield } from "lucide-react";
 import { getVegetarianEntreeLabel } from "@/data/vegetarianOptions";
+import { formatDate } from "@/utils/formatters";
 
 interface ReviewSummaryCardProps {
   form: UseFormReturn<any>;
@@ -12,17 +13,10 @@ interface ReviewSummaryCardProps {
 export const ReviewSummaryCard = ({ form, variant }: ReviewSummaryCardProps) => {
   const watchedValues = form.watch();
 
-  const formatDate = (dateStr: string) => {
-    if (!dateStr) return 'Not set';
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', { 
-      weekday: 'long', 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric',
-      timeZone: 'America/New_York',
-    });
-  };
+  // Format date using centralized formatter (prevents off-by-one bug)
+  const displayEventDate = watchedValues.event_date 
+    ? formatDate(watchedValues.event_date) 
+    : 'Not set';
 
   const formatTime = (timeStr: string) => {
     if (!timeStr) return 'Not set';
@@ -85,7 +79,7 @@ export const ReviewSummaryCard = ({ form, variant }: ReviewSummaryCardProps) => 
             </div>
             <div className="space-y-1 text-sm">
               <p className="text-foreground font-medium">{watchedValues.event_name || 'Not provided'}</p>
-              <p className="text-muted-foreground">{formatDate(watchedValues.event_date)}</p>
+              <p className="text-muted-foreground">{displayEventDate}</p>
               <p className="text-muted-foreground">{formatTime(watchedValues.start_time)}</p>
               {watchedValues.event_type === 'military_function' && watchedValues.military_organization && (
                 <div className="flex items-center gap-2 mt-2">

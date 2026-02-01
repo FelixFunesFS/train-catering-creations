@@ -12,6 +12,7 @@ import { formatLocationLink, formatPhoneLink } from '@/utils/linkFormatters';
 import { ChangeHistory } from './ChangeHistory';
 import { PaymentScheduleSection } from './PaymentScheduleSection';
 import { isMilitaryEvent } from '@/utils/eventTypeUtils';
+import { parseDateFromLocalString } from '@/utils/dateHelpers';
 
 interface EventDetailsPanelContentProps {
   quote: any;
@@ -53,9 +54,10 @@ export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
   const isCompleted = quote?.workflow_status === 'completed';
 
   // Date check - only allow marking complete on or after event day
+  // Use parseDateFromLocalString to avoid off-by-one day bug
   const isEventDayOrLater = useMemo(() => {
     if (!quote?.event_date) return false;
-    const eventDate = new Date(quote.event_date);
+    const eventDate = parseDateFromLocalString(quote.event_date);
     eventDate.setHours(0, 0, 0, 0);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
