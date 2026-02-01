@@ -7,6 +7,67 @@ interface CalendarEventData {
   contactName?: string;
 }
 
+// Format date as local floating time (no timezone suffix)
+const formatICSDateLocal = (date: Date): string => {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}T${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}`;
+};
+
+// Format menu IDs to readable text
+const formatMenuId = (id: string): string => {
+  const specialCases: Record<string, string> = {
+    'mac-cheese': 'Mac & Cheese',
+    'green-beans-potatoes': 'Green Beans & Potatoes',
+    'collard-greens': 'Collard Greens',
+    'fried-chicken': 'Fried Chicken',
+    'turkey-wings': 'Turkey Wings',
+    'pulled-pork': 'Pulled Pork',
+    'smoked-brisket': 'Smoked Brisket',
+    'fried-fish': 'Fried Fish',
+    'candied-yams': 'Candied Yams',
+    'potato-salad': 'Potato Salad',
+    'coleslaw': 'Coleslaw',
+    'baked-beans': 'Baked Beans',
+    'corn-on-cob': 'Corn on the Cob',
+    'sweet-tea': 'Sweet Tea',
+    'fresh-lemonade': 'Fresh Lemonade',
+    'peach-cobbler': 'Peach Cobbler',
+    'banana-pudding': 'Banana Pudding',
+    'gluten-free': 'Gluten-Free',
+    'dairy-free': 'Dairy-Free',
+    'nut-free': 'Nut-Free',
+    'vegan': 'Vegan',
+    'vegetarian': 'Vegetarian',
+  };
+  return specialCases[id] || id.replace(/[-_]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+};
+
+// Format service type to readable text
+const formatServiceType = (type: string): string => {
+  const labels: Record<string, string> = {
+    'full-service': 'Full Service',
+    'delivery-only': 'Delivery Only',
+    'drop-off': 'Drop-Off',
+    'buffet': 'Buffet',
+    'plated': 'Plated',
+    'family-style': 'Family Style',
+  };
+  return labels[type] || type.replace(/[-_]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+};
+
+// Format event type to readable text
+const formatEventType = (type: string): string => {
+  const labels: Record<string, string> = {
+    'private_party': 'Private Party',
+    'birthday': 'Birthday',
+    'military_function': 'Military Function',
+    'wedding': 'Wedding',
+    'corporate': 'Corporate',
+    'graduation': 'Graduation',
+  };
+  return labels[type] || type.replace(/[-_]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+};
+
 export const generateICSFile = (data: CalendarEventData): string => {
   const {
     eventName,
@@ -17,14 +78,12 @@ export const generateICSFile = (data: CalendarEventData): string => {
     contactName = ''
   } = data;
 
-  // Parse date and time
-  const eventDateTime = new Date(`${eventDate}T${startTime}`);
+  // Parse date and time using local components
+  const [year, month, day] = eventDate.split('-').map(Number);
+  const [hours, minutes] = startTime.split(':').map(Number);
+  
+  const eventDateTime = new Date(year, month - 1, day, hours, minutes, 0);
   const endDateTime = new Date(eventDateTime.getTime() + 4 * 60 * 60 * 1000); // +4 hours default
-
-  // Format dates for ICS (YYYYMMDDTHHmmss)
-  const formatICSDate = (date: Date): string => {
-    return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-  };
 
   const icsContent = [
     'BEGIN:VCALENDAR',
@@ -33,9 +92,9 @@ export const generateICSFile = (data: CalendarEventData): string => {
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
     'BEGIN:VEVENT',
-    `DTSTART:${formatICSDate(eventDateTime)}`,
-    `DTEND:${formatICSDate(endDateTime)}`,
-    `DTSTAMP:${formatICSDate(new Date())}`,
+    `DTSTART:${formatICSDateLocal(eventDateTime)}`,
+    `DTEND:${formatICSDateLocal(endDateTime)}`,
+    `DTSTAMP:${formatICSDateLocal(new Date())}`,
     `UID:${crypto.randomUUID()}@soultrainseatery.com`,
     `SUMMARY:${eventName} - Soul Train's Eatery Catering`,
     `DESCRIPTION:Catering event for ${contactName || 'your event'}. ${description}\\n\\nContact: Soul Train's Eatery\\nPhone: (843) 970-0265\\nEmail: soultrainseatery@gmail.com`,
@@ -76,17 +135,17 @@ export const getGoogleCalendarUrl = (data: CalendarEventData): string => {
     contactName = ''
   } = data;
 
-  const eventDateTime = new Date(`${eventDate}T${startTime}`);
+  // Parse date and time using local components
+  const [year, month, day] = eventDate.split('-').map(Number);
+  const [hours, minutes] = startTime.split(':').map(Number);
+  
+  const eventDateTime = new Date(year, month - 1, day, hours, minutes, 0);
   const endDateTime = new Date(eventDateTime.getTime() + 4 * 60 * 60 * 1000);
-
-  const formatGoogleDate = (date: Date): string => {
-    return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-  };
 
   const params = new URLSearchParams({
     action: 'TEMPLATE',
     text: `${eventName} - Soul Train's Eatery Catering`,
-    dates: `${formatGoogleDate(eventDateTime)}/${formatGoogleDate(endDateTime)}`,
+    dates: `${formatICSDateLocal(eventDateTime)}/${formatICSDateLocal(endDateTime)}`,
     details: `Catering event for ${contactName || 'your event'}. ${description}\n\nContact: Soul Train's Eatery\nPhone: (843) 970-0265\nEmail: soultrainseatery@gmail.com`,
     location: location
   });
@@ -101,12 +160,42 @@ interface StaffCalendarEventData {
   eventStartTime?: string;
   staffArrivalTime?: string;
   location?: string;
-  staffRole?: string;
   guestCount?: number;
   serviceType?: string;
-  menuHighlights?: string[];
+  eventType?: string;
   notes?: string;
+  
+  // Menu (all categories)
+  proteins?: string[];
+  sides?: string[];
+  appetizers?: string[];
+  desserts?: string[];
+  drinks?: string[];
+  vegetarianOptions?: string[];
+  dietaryRestrictions?: string[];
+  specialRequests?: string | null;
+  
+  // Equipment (boolean flags)
+  chafersRequested?: boolean;
+  platesRequested?: boolean;
+  cupsRequested?: boolean;
+  napkinsRequested?: boolean;
+  servingUtensilsRequested?: boolean;
+  iceRequested?: boolean;
+  
+  // Services
+  waitStaffRequested?: boolean;
+  bussingTablesNeeded?: boolean;
+  cocktailHour?: boolean;
+  
+  // Staff assignments (replaces staffRole)
+  staffAssignments?: Array<{
+    name: string;
+    role: string;
+  }>;
 }
+
+const SITE_URL = 'https://www.soultrainseatery.com';
 
 export const generateStaffICSFile = (data: StaffCalendarEventData): string => {
   const {
@@ -115,34 +204,117 @@ export const generateStaffICSFile = (data: StaffCalendarEventData): string => {
     eventStartTime,
     staffArrivalTime,
     location = '',
-    staffRole = 'Staff',
     guestCount,
     serviceType,
-    menuHighlights = [],
+    eventType,
+    proteins = [],
+    sides = [],
+    appetizers = [],
+    desserts = [],
+    drinks = [],
+    vegetarianOptions = [],
+    dietaryRestrictions = [],
+    specialRequests,
+    chafersRequested,
+    platesRequested,
+    cupsRequested,
+    napkinsRequested,
+    servingUtensilsRequested,
+    iceRequested,
+    waitStaffRequested,
+    bussingTablesNeeded,
+    cocktailHour,
+    staffAssignments = [],
     notes = ''
   } = data;
 
   // Use arrival time as the calendar event start (staff perspective)
   const startTime = staffArrivalTime || eventStartTime || '12:00';
-  const eventDateTime = new Date(`${eventDate}T${startTime}`);
+  
+  // Parse date and time using local components
+  const [year, month, day] = eventDate.split('-').map(Number);
+  const [hours, minutes] = startTime.split(':').map(Number);
+  
+  const eventDateTime = new Date(year, month - 1, day, hours, minutes, 0);
   const endDateTime = new Date(eventDateTime.getTime() + 6 * 60 * 60 * 1000); // +6 hours for staff
 
-  const formatICSDate = (date: Date): string => {
-    return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+  // Build maps URL
+  const mapsUrl = location ? `https://maps.google.com/?q=${encodeURIComponent(location)}` : '';
+
+  // Build equipment list
+  const equipmentList: string[] = [];
+  if (chafersRequested) equipmentList.push('Chafers');
+  if (platesRequested) equipmentList.push('Plates');
+  if (cupsRequested) equipmentList.push('Cups');
+  if (napkinsRequested) equipmentList.push('Napkins');
+  if (servingUtensilsRequested) equipmentList.push('Serving Utensils');
+  if (iceRequested) equipmentList.push('Ice');
+
+  // Build services list
+  const servicesList: string[] = [];
+  if (waitStaffRequested) servicesList.push('Wait Staff');
+  if (bussingTablesNeeded) servicesList.push('Bussing Tables');
+  if (cocktailHour) servicesList.push('Cocktail Hour');
+
+  // Format time for display
+  const formatTimeDisplay = (time: string): string => {
+    const [h, m] = time.split(':').map(Number);
+    const period = h >= 12 ? 'PM' : 'AM';
+    const displayHour = h % 12 || 12;
+    return `${displayHour}:${String(m).padStart(2, '0')} ${period}`;
   };
 
   // Build staff-focused description
-  const descriptionParts = [
-    `Role: ${staffRole}`,
-    eventStartTime ? `Event starts: ${eventStartTime}` : '',
-    guestCount ? `Guests: ${guestCount}${serviceType ? ` (${serviceType})` : ''}` : '',
+  const descriptionParts: string[] = [
+    // Maps and Staff View links
+    mapsUrl ? `Maps: ${mapsUrl}` : '',
+    `Staff View: ${SITE_URL}/staff`,
     '',
-    menuHighlights.length > 0 ? `Menu Highlights:\\n${menuHighlights.map(m => `- ${m}`).join('\\n')}` : '',
-    notes ? `\\nNotes: ${notes}` : '',
+    // Staff Assigned (replaces Role)
+    staffAssignments.length > 0 
+      ? `Staff Assigned: ${staffAssignments.map(s => `${s.name} (${s.role})`).join(', ')}`
+      : '',
+    '',
+    // Event details
+    eventStartTime ? `Event starts: ${formatTimeDisplay(eventStartTime)}` : '',
+    guestCount ? `Guests: ${guestCount}` : '',
+    serviceType ? `Service: ${formatServiceType(serviceType)}` : '',
+    eventType ? `Type: ${formatEventType(eventType)}` : '',
+    '',
+    // Equipment section
+    equipmentList.length > 0 ? `Equipment: ${equipmentList.join(', ')}` : '',
+    // Services section
+    servicesList.length > 0 ? `Services: ${servicesList.join(', ')}` : '',
+    '',
+    // Full menu by category
+    proteins.length > 0 ? `Proteins: ${proteins.map(formatMenuId).join(', ')}` : '',
+    sides.length > 0 ? `Sides: ${sides.map(formatMenuId).join(', ')}` : '',
+    appetizers.length > 0 ? `Appetizers: ${appetizers.map(formatMenuId).join(', ')}` : '',
+    desserts.length > 0 ? `Desserts: ${desserts.map(formatMenuId).join(', ')}` : '',
+    drinks.length > 0 ? `Drinks: ${drinks.map(formatMenuId).join(', ')}` : '',
+    vegetarianOptions.length > 0 ? `Vegetarian: ${vegetarianOptions.map(formatMenuId).join(', ')}` : '',
+    '',
+    // Dietary restrictions (important callout)
+    dietaryRestrictions.length > 0 
+      ? `DIETARY: ${dietaryRestrictions.map(formatMenuId).join(', ')}`
+      : '',
+    '',
+    // Notes
+    specialRequests ? `Special Requests: ${specialRequests}` : '',
+    notes ? `Notes: ${notes}` : '',
     '',
     `Contact: Soul Train's Eatery`,
     `(843) 970-0265 | soultrainseatery@gmail.com`
-  ].filter(Boolean).join('\\n');
+  ].filter(Boolean);
+
+  // Escape special characters for ICS format
+  const escapeICS = (text: string): string => {
+    return text
+      .replace(/\\/g, '\\\\')
+      .replace(/;/g, '\\;')
+      .replace(/,/g, '\\,')
+      .replace(/\n/g, '\\n');
+  };
 
   const icsContent = [
     'BEGIN:VCALENDAR',
@@ -151,13 +323,13 @@ export const generateStaffICSFile = (data: StaffCalendarEventData): string => {
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
     'BEGIN:VEVENT',
-    `DTSTART:${formatICSDate(eventDateTime)}`,
-    `DTEND:${formatICSDate(endDateTime)}`,
-    `DTSTAMP:${formatICSDate(new Date())}`,
+    `DTSTART:${formatICSDateLocal(eventDateTime)}`,
+    `DTEND:${formatICSDateLocal(endDateTime)}`,
+    `DTSTAMP:${formatICSDateLocal(new Date())}`,
     `UID:${crypto.randomUUID()}@soultrainseatery.com`,
-    `SUMMARY:${eventName} - ${staffRole}`,
-    `DESCRIPTION:${descriptionParts}`,
-    `LOCATION:${location}`,
+    `SUMMARY:${escapeICS(eventName)}`,
+    `DESCRIPTION:${escapeICS(descriptionParts.join('\\n'))}`,
+    `LOCATION:${escapeICS(location)}`,
     'STATUS:CONFIRMED',
     'SEQUENCE:0',
     'BEGIN:VALARM',
@@ -184,8 +356,7 @@ export const downloadStaffICSFile = (data: StaffCalendarEventData): void => {
   link.href = URL.createObjectURL(blob);
   
   const safeName = data.eventName.replace(/[^a-z0-9]/gi, '_');
-  const safeRole = data.staffRole?.replace(/[^a-z0-9]/gi, '_') || 'staff';
-  link.download = `${safeName}_${safeRole}.ics`;
+  link.download = `${safeName}_staff_event.ics`;
   
   document.body.appendChild(link);
   link.click();
