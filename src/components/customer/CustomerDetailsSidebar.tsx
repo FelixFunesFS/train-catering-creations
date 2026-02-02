@@ -47,6 +47,7 @@ interface CustomerDetailsSidebarProps {
   amountPaid?: number;
   onStatusChange?: () => void;
   autoApprove?: boolean;
+  accessToken?: string;
 }
 
 export function CustomerDetailsSidebar({ 
@@ -57,7 +58,8 @@ export function CustomerDetailsSidebar({
   quoteRequestId,
   amountPaid = 0,
   onStatusChange,
-  autoApprove 
+  autoApprove,
+  accessToken
 }: CustomerDetailsSidebarProps) {
   const phoneLink = formatPhoneLink(quote.phone);
   const emailLink = formatEmailLink(quote.email);
@@ -87,6 +89,7 @@ export function CustomerDetailsSidebar({
                 onStatusChange={onStatusChange}
                 autoApprove={autoApprove}
                 layout="stacked"
+                accessToken={accessToken}
               />
             </CardContent>
           </Card>

@@ -16,6 +16,8 @@ interface CustomerActionsProps {
   autoApprove?: boolean;
   /** 'stacked' forces vertical layout for narrow containers like sidebars */
   layout?: 'auto' | 'stacked';
+  /** Customer access token for secure edge function calls */
+  accessToken?: string;
 }
 
 export function CustomerActions({
@@ -27,6 +29,7 @@ export function CustomerActions({
   onStatusChange,
   autoApprove = false,
   layout = 'auto',
+  accessToken,
 }: CustomerActionsProps) {
   const [isApproving, setIsApproving] = useState(false);
   const [showChangeModal, setShowChangeModal] = useState(false);
@@ -40,70 +43,28 @@ export function CustomerActions({
   const canRequestChanges = ['sent', 'viewed', 'approved', 'payment_pending'].includes(status) && amountPaid === 0;
 
   const handleApprove = async () => {
+    if (!accessToken) {
+      toast({
+        title: 'Approval Error',
+        description: 'Missing access credentials. Please use the link from your email.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setIsApproving(true);
     try {
-      // Update invoice status to approved and transition to invoice
-      const { error } = await supabase
-        .from('invoices')
-        .update({
-          workflow_status: 'approved',
-          document_type: 'invoice', // Estimate becomes an invoice upon approval
-          last_status_change: new Date().toISOString(),
-          last_customer_interaction: new Date().toISOString(),
-        })
-        .eq('id', invoiceId);
+      // Use the edge function which has proper permissions (bypasses RLS)
+      const { data, error } = await supabase.functions.invoke('approve-estimate', {
+        body: { token: accessToken }
+      });
 
       if (error) throw error;
-
-      // Generate payment milestones (BLOCKING - must succeed for payment options)
-      const { data: milestoneData, error: milestoneError } = await supabase.functions.invoke('generate-payment-milestones', {
-        body: { invoice_id: invoiceId }
-      });
-
-      if (milestoneError) {
-        console.error('Failed to generate payment milestones:', milestoneError);
-        toast({
-          title: 'Payment Schedule Error',
-          description: 'Unable to generate payment schedule. Please try again or contact us.',
-          variant: 'destructive',
-        });
-        throw new Error('Milestone generation failed');
-      }
-
-      console.log('Payment milestones generated:', milestoneData);
-
-      // Send approval confirmation email with payment link
-      if (quoteRequestId) {
-        const firstMilestone = milestoneData?.milestones?.[0];
-        const { error: emailError } = await supabase.functions.invoke('send-customer-portal-email', {
-          body: {
-            quote_request_id: quoteRequestId,
-            type: 'approval_confirmation',
-            metadata: {
-              first_milestone_amount: firstMilestone?.amount_cents,
-              first_milestone_due: firstMilestone?.due_date
-            }
-          }
-        });
-
-        if (emailError) {
-          console.error('Failed to send approval confirmation email:', emailError);
-          // Non-blocking - don't fail approval if email fails
-        }
-      }
-
-      // Send admin notification about customer approval
-      await supabase.functions.invoke('send-admin-notification', {
-        body: {
-          invoiceId,
-          notificationType: 'customer_approval',
-          metadata: { customerEmail }
-        }
-      });
+      if (!data?.success) throw new Error(data?.error || 'Approval failed');
 
       toast({
         title: 'Estimate Approved!',
-        description: 'Your payment options are now available below. Check your email for payment details.',
+        description: 'Your payment options are now available below.',
       });
 
       onStatusChange?.();
@@ -111,7 +72,7 @@ export function CustomerActions({
       console.error('Failed to approve estimate:', error);
       toast({
         title: 'Approval Failed',
-        description: 'Unable to approve. Please try again or contact us.',
+        description: 'Unable to approve. Please try again or contact us at (843) 970-0265.',
         variant: 'destructive',
       });
     } finally {

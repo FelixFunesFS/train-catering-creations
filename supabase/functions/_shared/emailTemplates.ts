@@ -2017,6 +2017,7 @@ export function getEmailContentBlocks(
           { type: 'service_addons' },
           { type: 'text', data: { html: `<p style="margin:16px 0;font-size:15px;color:#333;">If you have any last-minute questions or changes, please don't hesitate to contact us at <a href="tel:+18439700265">(843) 970-0265</a>.</p>` }},
         ];
+        ctaButton = { text: 'View Event Details', href: effectivePortalUrl, variant: 'primary' };
       } else {
         // Admin variant - include supplies for prep checklist
         contentBlocks = [
@@ -2039,6 +2040,7 @@ export function getEmailContentBlocks(
           { type: 'event_details' },
           { type: 'menu_summary' },
         ];
+        ctaButton = { text: 'View Your Event', href: effectivePortalUrl, variant: 'primary' };
       } else {
         contentBlocks = [
           { type: 'status_badge', data: { status: 'pending', title: 'New Change Request', description: `${quote.contact_name} has requested changes to their order.` }},
