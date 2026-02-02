@@ -250,6 +250,7 @@ export function CustomerEstimateView() {
             amountPaid={amountPaid}
             onStatusChange={refetch}
             autoApprove={shouldAutoApprove}
+            accessToken={token}
           />
         </CardContent>
       </Card>
@@ -450,6 +451,7 @@ export function CustomerEstimateView() {
             amountPaid={amountPaid}
             onStatusChange={refetch}
             autoApprove={shouldAutoApprove}
+            accessToken={token}
           />
         </ResizablePanel>
 

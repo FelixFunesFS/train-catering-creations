@@ -1,5 +1,13 @@
 
-# Fix Customer Invoice Approval Flow
+# Fix Customer Invoice Approval Flow ✅ COMPLETED
+
+## Status: Implemented
+
+All changes have been applied:
+- ✅ CustomerActions.tsx now uses edge function for approval (bypasses RLS)
+- ✅ CustomerEstimateView.tsx passes accessToken to CustomerActions
+- ✅ CustomerDetailsSidebar.tsx passes accessToken for desktop layout
+- ✅ Email templates updated with CTAs for event_reminder and change_request_submitted
 
 ## Problem Diagnosis
 
