@@ -24,8 +24,16 @@ export function MobileActionBar({ className }: MobileActionBarProps) {
   const isMobileQuoteWizard = /^\/request-quote\/(regular|wedding)$/.test(pathname);
   const isHomePage = pathname === "/" || pathname === "";
   
-  // Hide on admin, quote wizard, or when hero is visible on home page
-  const hidden = isAdmin || isMobileQuoteWizard || (isHomePage && isHeroVisible);
+  // Customer portal routes where action bar should be hidden
+  const isCustomerPortal = 
+    pathname === "/estimate" ||
+    pathname === "/customer-portal" ||
+    pathname.startsWith("/customer/") ||
+    pathname.startsWith("/estimate-preview/") ||
+    pathname.startsWith("/invoice/public/");
+  
+  // Hide on admin, quote wizard, customer portal, or when hero is visible on home page
+  const hidden = isAdmin || isMobileQuoteWizard || isCustomerPortal || (isHomePage && isHeroVisible);
 
   return (
     <div
