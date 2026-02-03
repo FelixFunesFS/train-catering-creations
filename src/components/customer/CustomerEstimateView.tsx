@@ -494,6 +494,7 @@ export function CustomerEstimateView() {
                 amountPaid={amountPaid}
                 onStatusChange={refetch}
                 autoApprove={shouldAutoApprove}
+                accessToken={token}
               />
             </div>
           </ScrollArea>

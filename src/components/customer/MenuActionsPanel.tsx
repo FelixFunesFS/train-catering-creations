@@ -29,6 +29,7 @@ interface MenuActionsPanelProps {
   amountPaid: number;
   onStatusChange: () => void;
   autoApprove?: boolean;
+  accessToken?: string;
 }
 
 export function MenuActionsPanel({
@@ -44,6 +45,7 @@ export function MenuActionsPanel({
   amountPaid,
   onStatusChange,
   autoApprove,
+  accessToken,
 }: MenuActionsPanelProps) {
   return (
     <div className="space-y-6">
@@ -97,6 +99,7 @@ export function MenuActionsPanel({
             amountPaid={amountPaid}
             onStatusChange={onStatusChange}
             autoApprove={autoApprove}
+            accessToken={accessToken}
           />
         </CardContent>
       </Card>
