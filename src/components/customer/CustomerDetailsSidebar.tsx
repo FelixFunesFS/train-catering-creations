@@ -48,6 +48,9 @@ interface CustomerDetailsSidebarProps {
   onStatusChange?: () => void;
   autoApprove?: boolean;
   accessToken?: string;
+  invoiceNumber?: string;
+  /** Hide Terms & Help sections (used for desktop to show them in center panel) */
+  hideTermsAndHelp?: boolean;
 }
 
 export function CustomerDetailsSidebar({ 
@@ -59,7 +62,9 @@ export function CustomerDetailsSidebar({
   amountPaid = 0,
   onStatusChange,
   autoApprove,
-  accessToken
+  accessToken,
+  invoiceNumber,
+  hideTermsAndHelp = false,
 }: CustomerDetailsSidebarProps) {
   const phoneLink = formatPhoneLink(quote.phone);
   const emailLink = formatEmailLink(quote.email);
@@ -90,6 +95,7 @@ export function CustomerDetailsSidebar({
                 autoApprove={autoApprove}
                 layout="stacked"
                 accessToken={accessToken}
+                invoiceNumber={invoiceNumber}
               />
             </CardContent>
           </Card>
@@ -231,52 +237,56 @@ export function CustomerDetailsSidebar({
           </CardContent>
         </Card>
 
-        {/* Terms & Conditions Collapsible */}
-        <Collapsible defaultOpen={false}>
-          <Card>
-            <CollapsibleTrigger className="w-full">
-              <CardHeader className="flex flex-row items-center justify-between py-3">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <PenLine className="h-4 w-4 text-primary" />
-                  Terms & Conditions
-                </CardTitle>
-                <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200" />
-              </CardHeader>
-            </CollapsibleTrigger>
-            <CollapsibleContent>
-              <CardContent className="pt-0">
-                <StandardTermsAndConditions 
-                  eventType={quote.compliance_level === 'government' ? 'government' : 'standard'} 
-                  variant="compact" 
-                />
-              </CardContent>
-            </CollapsibleContent>
-          </Card>
-        </Collapsible>
+        {/* Terms & Conditions Collapsible - hidden on desktop (shown in center panel) */}
+        {!hideTermsAndHelp && (
+          <Collapsible defaultOpen={false}>
+            <Card>
+              <CollapsibleTrigger className="w-full">
+                <CardHeader className="flex flex-row items-center justify-between py-3">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <PenLine className="h-4 w-4 text-primary" />
+                    Terms & Conditions
+                  </CardTitle>
+                  <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200" />
+                </CardHeader>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <CardContent className="pt-0">
+                  <StandardTermsAndConditions 
+                    eventType={quote.compliance_level === 'government' ? 'government' : 'standard'} 
+                    variant="compact" 
+                  />
+                </CardContent>
+              </CollapsibleContent>
+            </Card>
+          </Collapsible>
+        )}
 
-        {/* Help Section */}
-        <Card className="bg-muted/30">
-          <CardContent className="pt-4">
-            <div className="flex items-center gap-2 mb-2">
-              <HelpCircle className="h-4 w-4 text-primary" />
-              <span className="text-sm font-medium">Need Help?</span>
-            </div>
-            <div className="space-y-1 text-sm text-muted-foreground">
-              <p>
-                Call:{' '}
-                <a href="tel:+18439700265" className="text-primary hover:underline">
-                  (843) 970-0265
-                </a>
-              </p>
-              <p>
-                Email:{' '}
-                <a href="mailto:soultrainseatery@gmail.com" className="text-primary hover:underline">
-                  soultrainseatery@gmail.com
-                </a>
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Help Section - hidden on desktop (shown in center panel) */}
+        {!hideTermsAndHelp && (
+          <Card className="bg-muted/30">
+            <CardContent className="pt-4">
+              <div className="flex items-center gap-2 mb-2">
+                <HelpCircle className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium">Need Help?</span>
+              </div>
+              <div className="space-y-1 text-sm text-muted-foreground">
+                <p>
+                  Call:{' '}
+                  <a href="tel:+18439700265" className="text-primary hover:underline">
+                    (843) 970-0265
+                  </a>
+                </p>
+                <p>
+                  Email:{' '}
+                  <a href="mailto:soultrainseatery@gmail.com" className="text-primary hover:underline">
+                    soultrainseatery@gmail.com
+                  </a>
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </ScrollArea>
   );

@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { ChangeRequestModal } from './ChangeRequestModal';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { CheckCircle, MessageSquare, Loader2 } from 'lucide-react';
+import { CheckCircle, MessageSquare, Loader2, Download } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface CustomerActionsProps {
@@ -18,6 +18,87 @@ interface CustomerActionsProps {
   layout?: 'auto' | 'stacked';
   /** Customer access token for secure edge function calls */
   accessToken?: string;
+  /** Invoice number for PDF filename */
+  invoiceNumber?: string;
+}
+
+/** Standalone PDF Download Button for center panel use */
+export function DownloadPdfButton({ 
+  invoiceId, 
+  invoiceNumber, 
+  accessToken 
+}: {
+  invoiceId: string;
+  invoiceNumber?: string;
+  accessToken?: string;
+}) {
+  const [isDownloading, setIsDownloading] = useState(false);
+  const { toast } = useToast();
+
+  const handleDownloadPdf = async () => {
+    if (!accessToken) {
+      toast({
+        title: 'Download Error',
+        description: 'Missing access credentials. Please use the link from your email.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsDownloading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-invoice-pdf', {
+        body: { invoice_id: invoiceId, token: accessToken }
+      });
+
+      if (error) throw error;
+      if (!data?.pdf_base64) throw new Error('No PDF generated');
+
+      // Convert base64 to blob and trigger download
+      const binaryString = atob(data.pdf_base64);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      const blob = new Blob([bytes], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `estimate-${invoiceNumber || 'document'}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      toast({ title: 'PDF Downloaded', description: 'Your estimate has been saved.' });
+    } catch (err: any) {
+      console.error('PDF download error:', err);
+      toast({
+        title: 'Download Failed',
+        description: 'Unable to download PDF. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  return (
+    <Button 
+      variant="outline" 
+      onClick={handleDownloadPdf} 
+      disabled={isDownloading} 
+      className="w-full"
+    >
+      {isDownloading ? (
+        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+      ) : (
+        <Download className="mr-2 h-4 w-4" />
+      )}
+      {isDownloading ? 'Generating...' : 'Download Estimate PDF'}
+    </Button>
+  );
 }
 
 export function CustomerActions({
@@ -30,6 +111,7 @@ export function CustomerActions({
   autoApprove = false,
   layout = 'auto',
   accessToken,
+  invoiceNumber,
 }: CustomerActionsProps) {
   const [isApproving, setIsApproving] = useState(false);
   const [showChangeModal, setShowChangeModal] = useState(false);
