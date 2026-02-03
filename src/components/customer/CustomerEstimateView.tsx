@@ -16,7 +16,7 @@ import { useEstimateAccess } from '@/hooks/useEstimateAccess';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { EstimateLineItems } from './EstimateLineItems';
 import { MenuActionsPanel } from './MenuActionsPanel';
-import { CustomerActions } from './CustomerActions';
+import { CustomerActions, DownloadPdfButton } from './CustomerActions';
 import { ChangeRequestModal } from './ChangeRequestModal';
 import { PaymentCard } from './PaymentCard';
 import { CustomerContactCard } from './CustomerContactCard';
@@ -28,7 +28,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Loader2, Calendar, MapPin, Users, AlertCircle, FileText, ChevronDown, PenLine, MessageSquare, Info, Shield, CreditCard } from 'lucide-react';
+import { Loader2, Calendar, MapPin, Users, AlertCircle, FileText, ChevronDown, PenLine, MessageSquare, Info, Shield, CreditCard, HelpCircle } from 'lucide-react';
 import { formatDate, formatTime, formatServiceType } from '@/utils/formatters';
 import { calculatePaymentProgress, type Milestone } from '@/utils/paymentFormatters';
 import { isMilitaryEvent } from '@/utils/eventTypeUtils';
@@ -251,6 +251,7 @@ export function CustomerEstimateView() {
             onStatusChange={refetch}
             autoApprove={shouldAutoApprove}
             accessToken={token}
+            invoiceNumber={invoice.invoice_number}
           />
         </CardContent>
       </Card>
@@ -452,15 +453,18 @@ export function CustomerEstimateView() {
             onStatusChange={refetch}
             autoApprove={shouldAutoApprove}
             accessToken={token}
+            invoiceNumber={invoice.invoice_number}
+            hideTermsAndHelp={true}
           />
         </ResizablePanel>
 
         <ResizableHandle withHandle />
 
-        {/* Center Panel - Payment (35%) */}
+        {/* Center Panel - Payment + Terms + Download + Help (35%) */}
         <ResizablePanel defaultSize={35} minSize={30} maxSize={40}>
           <ScrollArea className="h-full">
-            <div className="p-6">
+            <div className="p-6 space-y-6">
+              {/* PaymentCard */}
               <div id="payment">
                 <PaymentCard
                   invoiceId={invoice.id}
@@ -471,6 +475,60 @@ export function CustomerEstimateView() {
                   accessToken={token}
                 />
               </div>
+
+              {/* Terms & Conditions */}
+              <Collapsible defaultOpen={false}>
+                <Card>
+                  <CollapsibleTrigger className="w-full">
+                    <CardHeader className="flex flex-row items-center justify-between py-3">
+                      <CardTitle className="text-base flex items-center gap-2">
+                        <PenLine className="h-4 w-4 text-primary" />
+                        Terms & Conditions
+                      </CardTitle>
+                      <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200" />
+                    </CardHeader>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <CardContent className="pt-0">
+                      <StandardTermsAndConditions 
+                        eventType={quote.compliance_level === 'government' ? 'government' : 'standard'} 
+                        variant="compact" 
+                      />
+                    </CardContent>
+                  </CollapsibleContent>
+                </Card>
+              </Collapsible>
+
+              {/* Download PDF Button */}
+              <DownloadPdfButton 
+                invoiceId={invoice.id}
+                invoiceNumber={invoice.invoice_number}
+                accessToken={token}
+              />
+
+              {/* Help Section */}
+              <Card className="bg-muted/30">
+                <CardContent className="pt-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <HelpCircle className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-medium">Need Help?</span>
+                  </div>
+                  <div className="space-y-1 text-sm text-muted-foreground">
+                    <p>
+                      Call:{' '}
+                      <a href="tel:+18439700265" className="text-primary hover:underline">
+                        (843) 970-0265
+                      </a>
+                    </p>
+                    <p>
+                      Email:{' '}
+                      <a href="mailto:soultrainseatery@gmail.com" className="text-primary hover:underline">
+                        soultrainseatery@gmail.com
+                      </a>
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </ScrollArea>
         </ResizablePanel>
@@ -495,6 +553,7 @@ export function CustomerEstimateView() {
                 onStatusChange={refetch}
                 autoApprove={shouldAutoApprove}
                 accessToken={token}
+                invoiceNumber={invoice.invoice_number}
               />
             </div>
           </ScrollArea>
