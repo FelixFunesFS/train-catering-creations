@@ -202,12 +202,14 @@ const handler = async (req: Request): Promise<Response> => {
           }
         }
 
+        // 3-DAY COOLDOWN: Check if ANY payment reminder was sent in the last 3 days
+        const threeDaysAgoIso = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString();
         const { data: recentReminder } = await supabase
           .from('reminder_logs')
           .select('id')
           .eq('invoice_id', invoice.id)
-          .eq('reminder_type', 'overdue_payment')
-          .gte('sent_at', todayStartIso)
+          .in('reminder_type', ['payment_due', 'payment_due_soon', 'overdue_payment'])
+          .gte('sent_at', threeDaysAgoIso)
           .maybeSingle();
 
         if (!recentReminder) {
@@ -263,10 +265,21 @@ const handler = async (req: Request): Promise<Response> => {
         const email = milestone.invoices?.quote_requests?.email;
         if (!email) continue;
 
-        // 24-hour post-approval cooldown (prevents nagging immediately after approval)
         const invoiceStatus: string | undefined = milestone.invoices?.workflow_status;
+        
+        // APPROVAL GUARD: Only send reminders for approved invoices
+        const approvedStatuses = ['approved', 'payment_pending', 'partially_paid', 'overdue'];
+        if (!invoiceStatus || !approvedStatuses.includes(invoiceStatus)) {
+          logStep('Skipping milestone reminder - invoice not approved', {
+            invoice_id: milestone.invoice_id,
+            invoice_status: invoiceStatus
+          });
+          continue;
+        }
+
+        // 24-hour post-approval cooldown (prevents nagging immediately after approval)
         const lastStatusChange: string | undefined = milestone.invoices?.last_status_change;
-        if (invoiceStatus && ['approved', 'payment_pending'].includes(invoiceStatus) && lastStatusChange) {
+        if (lastStatusChange) {
           const hoursSinceStatusChange = (Date.now() - new Date(lastStatusChange).getTime()) / (1000 * 60 * 60);
           if (Number.isFinite(hoursSinceStatusChange) && hoursSinceStatusChange < 24) {
             logStep('Skipping milestone reminder due to 24h post-approval cooldown', {
@@ -279,12 +292,14 @@ const handler = async (req: Request): Promise<Response> => {
           }
         }
 
+        // 3-DAY COOLDOWN: Check if ANY payment reminder was sent in the last 3 days
+        const threeDaysAgoIso = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString();
         const { data: recentReminder } = await supabase
           .from('reminder_logs')
           .select('id')
           .eq('invoice_id', milestone.invoice_id)
-          .eq('reminder_type', 'payment_due_soon')
-          .gte('sent_at', todayStartIso)
+          .in('reminder_type', ['payment_due', 'payment_due_soon', 'overdue_payment'])
+          .gte('sent_at', threeDaysAgoIso)
           .maybeSingle();
 
         if (!recentReminder) {
