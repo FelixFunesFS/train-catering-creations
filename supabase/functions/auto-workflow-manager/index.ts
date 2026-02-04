@@ -33,7 +33,6 @@ const handler = async (req: Request): Promise<Response> => {
       markedOverdue: 0,
       autoConfirmed: 0,
       autoCompleted: 0,
-      remindersSent: 0,
       errors: [] as string[]
     };
 
@@ -148,102 +147,8 @@ const handler = async (req: Request): Promise<Response> => {
       }
     }
 
-    // 4. Send payment reminders for upcoming milestones
-    // NOTE: This is scheduled every 15 minutes via cron, so we must be careful to:
-    // - Deduplicate reminders (once per day per invoice)
-    // - Avoid immediately nagging customers right after approval (24h cooldown)
-    logStep("Checking for payment reminders");
-    const threeDaysFromNow = new Date();
-    threeDaysFromNow.setDate(threeDaysFromNow.getDate() + 3);
-
-    const { data: upcomingMilestones, error: milestoneError } = await supabase
-      .from('payment_milestones')
-      .select(`
-        id,
-        due_date,
-        amount_cents,
-        invoice_id,
-        invoices (
-          workflow_status,
-          last_status_change,
-          quote_requests (
-            email,
-            contact_name,
-            event_name
-          )
-        )
-      `)
-      .eq('status', 'pending')
-      .lte('due_date', formatDateToString(threeDaysFromNow))
-      .gte('due_date', getTodayString());
-
-    if (!milestoneError && upcomingMilestones) {
-      for (const milestone of upcomingMilestones as any) {
-        const invoiceStatus: string | undefined = milestone.invoices?.workflow_status;
-        const lastStatusChange: string | undefined = milestone.invoices?.last_status_change;
-
-        // 24-hour post-approval cooldown (prevents immediate follow-up after approval)
-        if (invoiceStatus && ['approved', 'payment_pending'].includes(invoiceStatus) && lastStatusChange) {
-          const hoursSinceStatusChange = (Date.now() - new Date(lastStatusChange).getTime()) / (1000 * 60 * 60);
-          if (Number.isFinite(hoursSinceStatusChange) && hoursSinceStatusChange < 24) {
-            logStep('Skipping reminder due to 24h post-approval cooldown', {
-              invoice_id: milestone.invoice_id,
-              invoice_status: invoiceStatus,
-              hours_since_status_change: Math.round(hoursSinceStatusChange * 10) / 10,
-              milestone_due_date: milestone.due_date,
-            });
-            continue;
-          }
-        }
-
-        // Check if reminder already sent today
-        const { data: existingReminder, error: existingReminderError } = await supabase
-          .from('reminder_logs')
-          .select('id')
-          .eq('invoice_id', milestone.invoice_id)
-          .eq('reminder_type', 'payment_due_soon')
-          .gte('sent_at', todayStartIso);
-
-        if (existingReminderError) {
-          results.errors.push(`Failed to check reminder_logs for invoice ${milestone.invoice_id}: ${existingReminderError.message}`);
-          continue;
-        }
-
-        if (!existingReminder || existingReminder.length === 0) {
-          // Send reminder email (canonical template + payment link)
-          const customerEmail = milestone.invoices?.quote_requests?.email;
-          const customerName = milestone.invoices?.quote_requests?.contact_name;
-          const eventName = milestone.invoices?.quote_requests?.event_name;
-
-          if (!customerEmail) continue;
-
-          const { error: emailError } = await supabase.functions.invoke('send-payment-reminder', {
-            body: {
-              invoiceId: milestone.invoice_id,
-              customerEmail,
-              customerName,
-              eventName,
-              balanceRemaining: milestone.amount_cents || 0,
-              daysOverdue: 0,
-              urgency: 'medium'
-            }
-          });
-
-          if (!emailError) {
-            results.remindersSent++;
-            
-            await supabase.from('reminder_logs').insert({
-              invoice_id: milestone.invoice_id,
-              reminder_type: 'payment_due_soon',
-              recipient_email: milestone.invoices.quote_requests.email,
-              urgency: 'medium'
-            });
-          } else {
-            results.errors.push(`Failed to send reminder for milestone ${milestone.id}: ${emailError.message}`);
-          }
-        }
-      }
-    }
+    // NOTE: Payment reminders are now handled exclusively by unified-reminder-system
+    // This function only handles workflow transitions (overdue marking, auto-confirm, auto-complete)
 
     logStep("Automated workflow transitions completed", results);
 
