@@ -4,7 +4,7 @@ import { LogOut } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { AdminNav, type AdminView } from './AdminNav';
 import { MobileAdminNav } from './mobile/MobileAdminNav';
-import { InstallBanner } from '@/components/pwa/InstallBanner';
+
 
 export type { AdminView } from './AdminNav';
 
@@ -51,7 +51,6 @@ export function AdminLayout({ children, currentView, onViewChange }: AdminLayout
       </main>
 
       <MobileAdminNav />
-      <InstallBanner />
     </div>
   );
 }
