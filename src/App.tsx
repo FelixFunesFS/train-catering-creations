@@ -67,7 +67,7 @@ const AppContent = () => {
   const isEventFullView = /^\/admin\/event\/[^/]+$/.test(location.pathname);
   const isEventMenuEdit = /^\/admin\/event\/[^/]+\/menu$/.test(location.pathname);
   const isEstimatePrint = /^\/admin\/estimate-print\/[^/]+$/.test(location.pathname);
-  const hideChrome = isEventFullView || isEventMenuEdit || isEstimatePrint || isQuoteWizardRoute;
+  const hideChrome = isAdminRoute || isEventFullView || isEventMenuEdit || isEstimatePrint || isQuoteWizardRoute;
 
   const showMobileActionBar = isMobile && !isAdminRoute && !isQuoteWizardRoute;
   
