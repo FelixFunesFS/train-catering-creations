@@ -1,34 +1,32 @@
 
 
-## Remove First Hero Image from Desktop View Only
+## Fix: Invisible Loading Spinner and Redundant Role Checks
 
-### What Changes
-The first slide (chef serving image) will be skipped on desktop. The carousel will start at what is currently the second slide (appetizers) and only cycle through slides 2-4. Mobile/tablet remains unchanged and continues to show all 4 slides.
+### Problem
+Two issues are combining to create the "blank black page":
 
-### Technical Changes -- 1 file
+1. **Invisible spinner**: The `ProtectedRoute` loading spinner uses `text-primary` on `bg-background`. In dark mode, the background is near-black (`220 25% 7%`), and if primary is also dark-toned, the spinner is practically invisible -- the user sees what appears to be a blank page when it's actually loading.
 
-**`src/components/home/SplitHero.tsx`**
+2. **Redundant role checks cause delays**: After `useAuth` already resolves the user's role via `has_any_role` RPC, the `usePermissions` hook fires 2 MORE `has_role` RPC calls (one for admin, one for staff). This triples the network time and increases the chance of a hang. On slow connections or if the RPC is unresponsive, the page stays on the invisible spinner indefinitely.
 
-1. **Create a desktop-specific image array**: Filter out the first image (index 0) for desktop, keeping all images for mobile.
+### Solution
 
-2. **Use the filtered array in the desktop return block**: Replace references to `heroImages` with the filtered array (3 items instead of 4) for the desktop section only. This affects:
-   - The carousel auto-advance (`heroImages.length`)
-   - The progress indicator dots
-   - The `currentImage` lookup
-   - Navigation handlers (prev/next bounds)
+**File 1: `src/hooks/usePermissions.ts`**
+- When `useAuth` has already resolved `userRole` (admin or staff), use it directly instead of making additional RPC calls
+- Only fall back to RPC if `userRole` is null and the user is authenticated (edge case)
+- This eliminates 2 out of 3 RPC calls in the normal login flow
 
-3. **Remove the blurred background layer** from the desktop section (lines 307-309) since the chef image will no longer appear there.
+**File 2: `src/components/ProtectedRoute.tsx`**
+- Change the spinner color from `text-primary` to a guaranteed-visible color like `text-white` or a dual-tone approach
+- Add a "Verifying access..." text label so even if the spinner were hard to see, there's readable text
+- Add a timeout safety net: if loading exceeds 10 seconds, show a "retry" button or force redirect to login
 
-4. **Keep mobile section unchanged**: It continues using the full `heroImages` array with all 4 slides, including the blurred background layer for the chef image.
+**File 3: `src/pages/AdminAuth.tsx`**
+- Same spinner visibility fix for the "Verifying access..." state on the auth page
 
-### Implementation Detail
-
-```text
-// Desktop: slides 1-3 (appetizers, spread, event space)
-const desktopImages = heroImages.slice(1);
-
-// Mobile: all 4 slides unchanged
-```
-
-The `currentIndex` state and all carousel logic (auto-advance, swipe, keyboard nav) will reference `desktopImages` in the desktop block and `heroImages` in the mobile block. Since these are two separate return paths (early return for mobile), each can use its own array independently.
+### Expected Result
+- The loading state is always visible regardless of light/dark mode
+- Login resolves in ~1 RPC call instead of ~3-5
+- If something hangs, the user sees a message and can retry rather than staring at a black screen
+- Cached session auto-login works fast because only one role check is needed
 
