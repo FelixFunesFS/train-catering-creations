@@ -2,19 +2,13 @@ import { ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { LogOut } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { AdminNav, type AdminView } from './AdminNav';
 import { MobileAdminNav } from './mobile/MobileAdminNav';
-
-
-export type { AdminView } from './AdminNav';
 
 interface AdminLayoutProps {
   children: ReactNode;
-  currentView: AdminView;
-  onViewChange: (view: AdminView) => void;
 }
 
-export function AdminLayout({ children, currentView, onViewChange }: AdminLayoutProps) {
+export function AdminLayout({ children }: AdminLayoutProps) {
   const { signOut } = useAuth();
 
   return (
@@ -27,21 +21,15 @@ export function AdminLayout({ children, currentView, onViewChange }: AdminLayout
               <p className="text-xs text-muted-foreground sm:text-sm">Admin Dashboard</p>
             </div>
             
-            <div className="flex items-center gap-2 sm:gap-4">
-              <AdminNav currentView={currentView} onViewChange={onViewChange} />
-              
-              <div className="h-6 w-px bg-border" />
-              
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={signOut}
-                className="gap-2"
-              >
-                <LogOut className="h-4 w-4" />
-                <span className="hidden sm:inline">Sign Out</span>
-              </Button>
-            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={signOut}
+              className="gap-2"
+            >
+              <LogOut className="h-4 w-4" />
+              <span className="hidden sm:inline">Sign Out</span>
+            </Button>
           </div>
         </div>
       </header>

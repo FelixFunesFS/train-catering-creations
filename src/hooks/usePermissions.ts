@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 
-type Role = 'admin' | 'user';
+type Role = 'admin' | 'staff' | 'user';
 
 type Permission = 
   | '*'
@@ -18,18 +18,16 @@ type Permission =
 
 const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
   admin: ['*'],
-  user: [
-    'quotes.read',
-  ],
+  staff: ['events.read'],
+  user: ['quotes.read'],
 };
 
 export function usePermissions() {
-  const { user, loading: authLoading, isVerifyingAccess } = useAuth();
+  const { user, loading: authLoading, isVerifyingAccess, userRole } = useAuth();
   const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Stay in loading state while auth is resolving
     if (authLoading || isVerifyingAccess) {
       setLoading(true);
       return;
@@ -41,7 +39,7 @@ export function usePermissions() {
       setRoles([]);
       setLoading(false);
     }
-  }, [user?.id, authLoading, isVerifyingAccess]);
+  }, [user?.id, authLoading, isVerifyingAccess, userRole]);
 
   const loadUserRoles = async () => {
     try {
@@ -57,16 +55,19 @@ export function usePermissions() {
         return;
       }
 
-      // Fallback to direct query for other roles (works once session is stable)
-      const { data, error } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', user!.id);
+      // Check for staff role
+      const { data: isStaff, error: staffError } = await supabase.rpc('has_role', {
+        _user_id: user!.id,
+        _role: 'staff'
+      });
 
-      if (error) throw error;
+      if (!staffError && isStaff === true) {
+        setRoles(['staff']);
+        setLoading(false);
+        return;
+      }
 
-      const userRoles = (data || []).map(r => r.role as Role);
-      setRoles(userRoles.length > 0 ? userRoles : ['user']);
+      setRoles(['user']);
     } catch (error) {
       console.error('Error loading user roles:', error);
       setRoles(['user']);
@@ -76,21 +77,13 @@ export function usePermissions() {
   };
 
   const hasPermission = (permission: Permission): boolean => {
-    // Check all user roles for the permission
     for (const role of roles) {
       const rolePermissions = ROLE_PERMISSIONS[role] || [];
-      
-      // Full access
       if (rolePermissions.includes('*')) return true;
-      
-      // Exact match
       if (rolePermissions.includes(permission)) return true;
-      
-      // Wildcard match (e.g., 'invoices.*' matches 'invoices.read')
       const [resource] = permission.split('.');
       if (rolePermissions.includes(`${resource}.*` as Permission)) return true;
     }
-    
     return false;
   };
 
@@ -102,16 +95,20 @@ export function usePermissions() {
     return roles.includes('admin');
   };
 
-  const canAccess = (section: 'dashboard' | 'events' | 'billing' | 'settings'): boolean => {
+  const isStaff = (): boolean => {
+    return roles.includes('staff');
+  };
+
+  const canAccess = (section: 'dashboard' | 'events' | 'billing' | 'settings' | 'staff'): boolean => {
+    if (isAdmin()) return true;
     switch (section) {
+      case 'staff':
+        return isStaff() || isAdmin();
       case 'dashboard':
-        return true; // Everyone can see dashboard
       case 'events':
-        return hasPermission('events.read') || hasPermission('quotes.read');
       case 'billing':
-        return hasPermission('invoices.read') || hasPermission('payments.read');
       case 'settings':
-        return hasPermission('settings.read') || isAdmin();
+        return isAdmin();
       default:
         return false;
     }
@@ -123,6 +120,7 @@ export function usePermissions() {
     hasPermission,
     hasRole,
     isAdmin,
+    isStaff,
     canAccess,
   };
 }

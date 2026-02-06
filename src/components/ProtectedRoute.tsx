@@ -8,11 +8,11 @@ interface ProtectedRouteProps {
   children: ReactNode;
 }
 
+/** Requires admin role. Staff users are redirected to /staff. */
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { user, loading: authLoading, isVerifyingAccess } = useAuth();
+  const { user, loading: authLoading, isVerifyingAccess, userRole } = useAuth();
   const { loading: rolesLoading, isAdmin } = usePermissions();
 
-  // Show loading while auth or roles are loading
   if (authLoading || isVerifyingAccess || rolesLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -21,13 +21,40 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     );
   }
 
-  // Redirect to auth if not logged in
   if (!user) {
     return <Navigate to="/admin/auth" replace />;
   }
 
-  // Redirect if not admin (backup check)
+  // Staff users get redirected to their own area
+  if (userRole === 'staff' && !isAdmin()) {
+    return <Navigate to="/staff" replace />;
+  }
+
   if (!isAdmin()) {
+    return <Navigate to="/admin/auth" replace />;
+  }
+
+  return <>{children}</>;
+}
+
+/** Requires admin OR staff role. */
+export function StaffRoute({ children }: ProtectedRouteProps) {
+  const { user, loading: authLoading, isVerifyingAccess } = useAuth();
+  const { loading: rolesLoading, isAdmin, isStaff } = usePermissions();
+
+  if (authLoading || isVerifyingAccess || rolesLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/admin/auth" replace />;
+  }
+
+  if (!isAdmin() && !isStaff()) {
     return <Navigate to="/admin/auth" replace />;
   }
 

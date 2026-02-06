@@ -11,22 +11,11 @@ import { Mail, Cog, Bell } from 'lucide-react';
 export type AdminView = 'events' | 'billing' | 'settings';
 
 export function UnifiedAdminDashboard() {
-  const [searchParams, setSearchParams] = useSearchParams();
-  
-  // Single source of truth - derive state directly from URL
+  const [searchParams] = useSearchParams();
   const currentView = (searchParams.get('view') as AdminView) || 'events';
 
-  // Preserve other search params when switching views
-  const handleViewChange = (view: AdminView) => {
-    setSearchParams(prev => {
-      const newParams = new URLSearchParams(prev);
-      newParams.set('view', view);
-      return newParams;
-    }, { replace: true });
-  };
-
   return (
-    <AdminLayout currentView={currentView} onViewChange={handleViewChange}>
+    <AdminLayout>
       <div className="container mx-auto px-4 py-6">
         {currentView === 'events' && <EventsView />}
         
