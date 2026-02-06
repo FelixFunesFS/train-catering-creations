@@ -29,6 +29,7 @@ export function getEstimateStatus(workflowStatus: string): EstimateStatusInfo {
     approved: { label: 'Approved', color: 'bg-green-100 text-green-700 border-green-200', icon: 'CheckCircle' },
     payment_pending: { label: 'Approved', color: 'bg-green-100 text-green-700 border-green-200', icon: 'CheckCircle' },
     partially_paid: { label: 'Approved', color: 'bg-green-100 text-green-700 border-green-200', icon: 'CheckCircle' },
+    awaiting_payment: { label: 'Approved', color: 'bg-green-100 text-green-700 border-green-200', icon: 'CheckCircle' },
     paid: { label: 'Approved', color: 'bg-green-100 text-green-700 border-green-200', icon: 'CheckCircle' },
     overdue: { label: 'Approved', color: 'bg-green-100 text-green-700 border-green-200', icon: 'CheckCircle' },
     cancelled: { label: 'Cancelled', color: 'bg-red-100 text-red-700 border-red-200', icon: 'XCircle' },
@@ -50,10 +51,11 @@ export function getEstimateStatus(workflowStatus: string): EstimateStatusInfo {
  */
 export function getPaymentStatus(
   workflowStatus: string, 
-  nextMilestoneType?: string | null
+  nextMilestoneType?: string | null,
+  nextMilestoneDueDate?: string | null
 ): PaymentStatusInfo | null {
   // Only show payment status for approved+ states
-  const paymentStates = ['approved', 'payment_pending', 'partially_paid', 'paid', 'overdue'];
+  const paymentStates = ['approved', 'payment_pending', 'partially_paid', 'awaiting_payment', 'paid', 'overdue'];
   if (!paymentStates.includes(workflowStatus)) return null;
 
   // Paid in full - no milestone needed
@@ -74,6 +76,38 @@ export function getPaymentStatus(
       icon: 'AlertTriangle',
       showBadge: true 
     };
+  }
+
+  // Due-date awareness for partially paid / awaiting payment
+  // If deposit is paid and next milestone isn't due soon, show "Deposit Paid"
+  const isPartiallyPaid = workflowStatus === 'partially_paid' || workflowStatus === 'awaiting_payment';
+  if (isPartiallyPaid && nextMilestoneDueDate) {
+    const dueDate = new Date(nextMilestoneDueDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    dueDate.setHours(0, 0, 0, 0);
+    const daysUntilDue = Math.floor((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+    if (daysUntilDue < 0) {
+      // Past due - show overdue
+      return { 
+        label: 'Overdue', 
+        color: 'bg-red-100 text-red-700 border-red-200', 
+        icon: 'AlertTriangle',
+        showBadge: true 
+      };
+    }
+
+    if (daysUntilDue > 7) {
+      // Not due yet - show deposit paid (calm state)
+      return { 
+        label: 'Deposit Paid', 
+        color: 'bg-emerald-100 text-emerald-700 border-emerald-200', 
+        icon: 'CheckCircle',
+        showBadge: true 
+      };
+    }
+    // Due within 7 days - fall through to milestone-type labels below
   }
 
   // Context-aware labels based on milestone type
@@ -122,7 +156,7 @@ export function getPaymentStatus(
   }
 
   // Fallback for partially_paid without specific milestone info
-  if (workflowStatus === 'partially_paid') {
+  if (isPartiallyPaid) {
     return { 
       label: 'Partial', 
       color: 'bg-teal-100 text-teal-700 border-teal-200', 
