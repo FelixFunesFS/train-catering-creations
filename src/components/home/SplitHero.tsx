@@ -101,14 +101,15 @@ export const SplitHero = () => {
     description: "Since 2017, Charleston's Lowcountry families have trusted Soul Train's Eatery to bring authentic Southern flavors to their most cherished moments."
   }];
 
-  // Auto-advance carousel
+  // Auto-advance carousel (use correct array length based on device)
+  const activeImages = isMobile ? heroImages : heroImages.slice(1);
   useEffect(() => {
     if (!isPlaying) return;
     const interval = setInterval(() => {
-      setCurrentIndex(prev => (prev + 1) % heroImages.length);
+      setCurrentIndex(prev => (prev + 1) % activeImages.length);
     }, 5000);
     return () => clearInterval(interval);
-  }, [isPlaying, heroImages.length]);
+  }, [isPlaying, activeImages.length]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -156,10 +157,10 @@ export const SplitHero = () => {
     }
   };
   const handleNext = () => {
-    setCurrentIndex(prev => (prev + 1) % heroImages.length);
+    setCurrentIndex(prev => (prev + 1) % activeImages.length);
   };
   const handlePrevious = () => {
-    setCurrentIndex(prev => (prev - 1 + heroImages.length) % heroImages.length);
+    setCurrentIndex(prev => (prev - 1 + activeImages.length) % activeImages.length);
   };
   const togglePlayPause = () => {
     setIsPlaying(!isPlaying);
@@ -193,22 +194,22 @@ export const SplitHero = () => {
     };
     return badges[category as keyof typeof badges] || badges.featured;
   };
+  // Desktop uses slides 1-3 only (no chef portrait)
+  const desktopImages = heroImages.slice(1);
+
   const currentImage = heroImages[currentIndex];
   const badge = getCategoryBadge(currentImage.category);
 
-  // Dynamic object positioning based on image index
-  const getImageClasses = (index: number) => {
-    // Chef image (index 0) — object-contain to show full portrait without crop
-    if (index === 0) {
-      return "object-contain object-center relative z-10";
-    }
-    // For the charcuterie board image (index 1), shift focal point 20% lower
-    if (index === 1) {
+  // Dynamic object positioning based on image content
+  const getImageClasses = (img: HeroImage) => {
+    if (img.src === heroAppetizers) {
       return "object-cover object-[center_70%]";
     }
-    // For the Award-Winning Catering image (index 2), show more of the center-left
-    if (index === 2) {
+    if (img.src === heroSpread) {
       return "object-cover object-left-center";
+    }
+    if (img.src === "/lovable-uploads/hero-chef-serving.png") {
+      return "object-contain object-center relative z-10";
     }
     return "object-cover object-center";
   };
@@ -249,7 +250,7 @@ export const SplitHero = () => {
           {currentIndex === 0 && (
             <img src={currentImage.src} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover scale-110 blur-xl brightness-[0.4] z-0" />
           )}
-          <OptimizedImage src={currentImage.src} alt={currentImage.alt} aspectRatio={undefined} className={`w-full h-full ${getImageClasses(currentIndex)} transition-transform duration-700`} containerClassName="h-full w-full" priority enableVignette={false} />
+          <OptimizedImage src={currentImage.src} alt={currentImage.alt} aspectRatio={undefined} className={`w-full h-full ${getImageClasses(currentImage)} transition-transform duration-700`} containerClassName="h-full w-full" priority enableVignette={false} />
           
           {/* Gradient Overlay for Content Readability */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
@@ -299,26 +300,27 @@ export const SplitHero = () => {
       </section>;
   }
 
+  // Desktop: use desktopImages (excludes chef portrait)
+  const desktopIndex = currentIndex % desktopImages.length;
+  const desktopCurrentImage = desktopImages[desktopIndex];
+  const desktopBadge = getCategoryBadge(desktopCurrentImage.category);
+
   // Desktop Layout (True 60/40 Split)
   return <section className="relative h-screen overflow-hidden bg-background flex pb-8 lg:pb-16" role="main" aria-label="Hero section with image carousel">
       {/* Visual Area - 60% */}
       <div ref={visualRef} className={`relative w-3/5 h-full overflow-hidden hero-vignette ${visualAnimationClass}`} role="region" aria-label="Image carousel">
         {/* Main Image with cinematic aspect ratio */}
-        {currentIndex === 0 && (
-          <img src={currentImage.src} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover scale-110 blur-xl brightness-[0.4] z-0" />
-        )}
-        <OptimizedImage src={currentImage.src} alt={currentImage.alt} aspectRatio="aspect-video" className={`w-full h-full ${getImageClasses(currentIndex)} transition-all duration-1000`} containerClassName="h-full" priority enableVignette={false} />
+        <OptimizedImage src={desktopCurrentImage.src} alt={desktopCurrentImage.alt} aspectRatio="aspect-video" className={`w-full h-full ${getImageClasses(desktopCurrentImage)} transition-all duration-1000`} containerClassName="h-full" priority enableVignette={false} />
         
         {/* Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/20" />
 
         {/* Progress Indicators */}
         <div className="absolute top-6 left-6 z-20 flex space-x-1">
-          {heroImages.map((_, index) => <button key={index} onClick={() => setCurrentIndex(index)} className="min-w-[24px] min-h-[24px] flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black/20 hover:scale-110 transition-transform" aria-label={`Go to slide ${index + 1} of ${heroImages.length}`} aria-current={index === currentIndex ? 'true' : 'false'}>
-              <span className={`h-2 rounded-full transition-all duration-500 ${index === currentIndex ? 'w-12 bg-gradient-ruby-primary' : 'w-4 bg-white/50 hover:bg-white/70'}`} />
+          {desktopImages.map((_, index) => <button key={index} onClick={() => setCurrentIndex(index)} className="min-w-[24px] min-h-[24px] flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black/20 hover:scale-110 transition-transform" aria-label={`Go to slide ${index + 1} of ${desktopImages.length}`} aria-current={index === desktopIndex ? 'true' : 'false'}>
+              <span className={`h-2 rounded-full transition-all duration-500 ${index === desktopIndex ? 'w-12 bg-gradient-ruby-primary' : 'w-4 bg-white/50 hover:bg-white/70'}`} />
             </button>)}
         </div>
-
 
         {/* Brand Badge with Logo */}
         <div className="absolute bottom-6 left-6 z-20">
@@ -337,21 +339,21 @@ export const SplitHero = () => {
         </div>
         <div className="max-w-lg space-y-6">
           <div className="flex items-center justify-between">
-            <Badge variant={badge.variant} className="text-sm">
-              {badge.label}
+            <Badge variant={desktopBadge.variant} className="text-sm">
+              {desktopBadge.label}
             </Badge>
-            {currentImage.category === "featured" && <Star className="h-5 w-5 text-gold fill-gold" />}
+            {desktopCurrentImage.category === "featured" && <Star className="h-5 w-5 text-gold fill-gold" />}
           </div>
           
           <div className="space-y-4">
             <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-elegant font-bold text-foreground leading-tight">
-              {currentImage.title}
+              {desktopCurrentImage.title}
             </h1>
             <p className="text-xl lg:text-2xl font-script text-ruby font-medium">
-              {currentImage.subtitle}
+              {desktopCurrentImage.subtitle}
             </p>
             <p className="text-lg text-muted-foreground leading-relaxed">
-              {currentImage.description}
+              {desktopCurrentImage.description}
             </p>
           </div>
 
