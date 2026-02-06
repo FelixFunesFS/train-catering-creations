@@ -66,6 +66,10 @@ const eventStatusColors: Record<string, string> = {
   quoted: 'bg-indigo-500/10 text-indigo-700 border-indigo-500/20',
   approved: 'bg-green-500/10 text-green-700 border-green-500/20',
   confirmed: 'bg-emerald-500/10 text-emerald-700 border-emerald-500/20',
+  awaiting_payment: 'bg-emerald-500/10 text-emerald-700 border-emerald-500/20',
+  paid: 'bg-emerald-500/10 text-emerald-700 border-emerald-500/20',
+  partially_paid: 'bg-emerald-500/10 text-emerald-700 border-emerald-500/20',
+  payment_pending: 'bg-emerald-500/10 text-emerald-700 border-emerald-500/20',
   completed: 'bg-gray-500/10 text-gray-700 border-gray-500/20',
   cancelled: 'bg-red-500/10 text-red-700 border-red-500/20',
 };
@@ -82,7 +86,16 @@ const estimateStatusColors: Record<string, string> = {
   cancelled: 'bg-red-500/10 text-red-700 border-red-500/20',
 };
 
+// Map granular DB statuses to admin-friendly business labels
+const eventStatusLabels: Record<string, string> = {
+  awaiting_payment: 'Confirmed',
+  paid: 'Confirmed',
+  partially_paid: 'Confirmed',
+  payment_pending: 'Confirmed',
+};
+
 function formatStatus(status: string): string {
+  if (eventStatusLabels[status]) return eventStatusLabels[status];
   return status.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 }
 
@@ -183,7 +196,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
       const statusMap: Record<StatusFilter, string[]> = {
         all: [],
         pending: ['pending', 'under_review'],
-        confirmed: ['confirmed', 'approved', 'quoted', 'estimated'],
+        confirmed: ['confirmed', 'approved', 'quoted', 'estimated', 'awaiting_payment', 'paid', 'partially_paid', 'payment_pending'],
         completed: ['completed'],
         cancelled: ['cancelled'],
       };

@@ -84,7 +84,7 @@ export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
         </h2>
         <div className="flex items-center gap-2">
           <Badge className={getStatusColor(quote?.workflow_status || 'pending')} variant="secondary">
-            {quote?.workflow_status?.replace('_', ' ').toUpperCase()}
+            {(['awaiting_payment', 'paid', 'partially_paid', 'payment_pending'].includes(quote?.workflow_status) ? 'CONFIRMED' : quote?.workflow_status?.replace('_', ' ').toUpperCase())}
           </Badge>
           {isCompleted ? (
             <div className="flex items-center gap-2">
