@@ -333,7 +333,7 @@ export function EventSummaryPanel({ event, onClose, onViewFull }: EventSummaryPa
           )}
 
           {/* Service Add-ons - Consolidated section for all services */}
-          {(hasWaitStaff || event.bussing_tables_needed || event.ceremony_included || event.cocktail_hour) && (
+          {(hasWaitStaff || event.bussing_tables_needed || event.cocktail_hour) && (
             <>
               <Separator />
               <div className="space-y-2">
@@ -351,11 +351,6 @@ export function EventSummaryPanel({ event, onClose, onViewFull }: EventSummaryPa
                       🧹 Table Bussing
                     </Badge>
                   )}
-                  {event.ceremony_included && (
-                    <Badge variant="outline" className="text-xs bg-pink-50 text-pink-700 border-pink-200 dark:bg-pink-950/30 dark:text-pink-300 dark:border-pink-700">
-                      💒 Ceremony Catering
-                    </Badge>
-                  )}
                   {event.cocktail_hour && (
                     <Badge variant="outline" className="text-xs bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-300 dark:border-amber-700">
                       🍸 Cocktail Hour
@@ -364,6 +359,17 @@ export function EventSummaryPanel({ event, onClose, onViewFull }: EventSummaryPa
                 </div>
                 {hasWaitStaff && event.wait_staff_requirements && (
                   <p className="text-xs text-muted-foreground">{event.wait_staff_requirements}</p>
+                )}
+                {event.serving_setup_area && (
+                  <p className="text-xs text-muted-foreground flex items-center gap-1">
+                    <MapPin className="h-3 w-3" /> Setup: {event.serving_setup_area}
+                  </p>
+                )}
+                {event.separate_serving_area && (
+                  <p className="text-xs text-muted-foreground">• Separate Serving Area</p>
+                )}
+                {event.wait_staff_setup_areas && (
+                  <p className="text-xs text-muted-foreground">Wait Staff Setup: {event.wait_staff_setup_areas}</p>
                 )}
               </div>
             </>

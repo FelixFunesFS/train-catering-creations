@@ -353,7 +353,7 @@ export function CustomerEstimateView() {
                 </div>
               )}
 
-              {(quote.wait_staff_requested || quote.bussing_tables_needed || quote.ceremony_included || quote.cocktail_hour) && (
+              {(quote.wait_staff_requested || quote.bussing_tables_needed || quote.cocktail_hour) && (
                 <div className="pt-3 border-t border-border">
                   <span className="text-sm text-muted-foreground block mb-2">🍽️ Services Included:</span>
                   <div className="flex flex-wrap gap-2">
@@ -365,11 +365,6 @@ export function CustomerEstimateView() {
                     {quote.bussing_tables_needed && (
                       <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
                         🧹 Table Bussing
-                      </Badge>
-                    )}
-                    {quote.ceremony_included && (
-                      <Badge variant="outline" className="bg-pink-50 text-pink-700 border-pink-200">
-                        💒 Ceremony Catering
                       </Badge>
                     )}
                     {quote.cocktail_hour && (

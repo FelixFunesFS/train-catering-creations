@@ -42,7 +42,7 @@ const SAMPLE_QUOTE = {
   // Service add-ons
   wait_staff_requested: true,
   bussing_tables_needed: true,
-  ceremony_included: false,
+  // ceremony_included removed (deprecated)
   cocktail_hour: true,
   wait_staff_requirements: "3 servers for 4-hour event",
   // Menu selections (used by menu_summary)

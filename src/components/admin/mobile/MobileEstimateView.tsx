@@ -526,13 +526,12 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
 
                   {/* Service Add-ons */}
                   {(quote?.wait_staff_requested || quote?.bussing_tables_needed || 
-                    quote?.ceremony_included || quote?.cocktail_hour) && (
+                    quote?.cocktail_hour) && (
                     <div className="space-y-1">
                       <p className="text-xs text-muted-foreground font-medium">Services</p>
                       <div className="flex flex-wrap gap-1">
                         {quote.wait_staff_requested && <Badge variant="outline" className="text-xs">Wait Staff</Badge>}
                         {quote.bussing_tables_needed && <Badge variant="outline" className="text-xs">Table Bussing</Badge>}
-                        {quote.ceremony_included && <Badge variant="outline" className="text-xs">Ceremony</Badge>}
                         {quote.cocktail_hour && <Badge variant="outline" className="text-xs">Cocktail Hour</Badge>}
                       </div>
                     </div>

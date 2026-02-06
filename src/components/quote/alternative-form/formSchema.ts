@@ -120,7 +120,6 @@ export const formSchema = z.object({
   theme_colors: z.string().optional(),
   
   // Wedding-specific fields (optional)
-  ceremony_included: z.boolean().optional(),
   cocktail_hour: z.boolean().optional(),
 }).refine((data) => {
   // Cross-field validation: serving time must be after or equal to start time
