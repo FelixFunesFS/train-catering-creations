@@ -775,6 +775,7 @@ export function generateMenuWithPricingSection(
     'Service Items': '🍴',
     'service': '🍴',
     'package': '📦',
+    'food': '🍳',
     'supplies': '🧊',
     'Other Items': '📦'
   };
@@ -782,13 +783,14 @@ export function generateMenuWithPricingSection(
   const categoryLabels: Record<string, string> = {
     'dietary': 'Dietary Accommodations',
     'package': 'Main Entrées',
+    'food': 'Menu Selections',
     'appetizers': 'Starters',
     'desserts': 'Sweets',
     'service': 'Service & Staffing',
     'supplies': 'Equipment',
   };
 
-  const categoryOrder = ['package', 'Proteins', 'Sides', 'dietary', 'Appetizers', 'appetizers', 'Desserts', 'desserts', 'Beverages', 'Service Items', 'service', 'supplies', 'Other Items'];
+  const categoryOrder = ['package', 'food', 'Proteins', 'Sides', 'dietary', 'Appetizers', 'appetizers', 'Desserts', 'desserts', 'Beverages', 'Service Items', 'service', 'supplies', 'Other Items'];
 
   // Format service type
   const serviceLabel = serviceType ? formatServiceType(serviceType) : 'Catering';
@@ -916,7 +918,41 @@ ${qtyStr ? `<span style="color:#888;font-size:11px;margin-left:8px;">(${qtyStr})
     }
   });
 
-  // Add subtotal, tax, and total at bottom
+  // Catch-all: render any categories not in categoryOrder (future-proofing)
+  Object.keys(itemsByCategory).forEach(category => {
+    if (!categoryOrder.includes(category)) {
+      const items = itemsByCategory[category];
+      const icon = categoryIcons[category] || '📦';
+      const displayLabel = categoryLabels[category] || category.charAt(0).toUpperCase() + category.slice(1);
+      
+      html += `
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#ffffff;border:1px solid ${BRAND_COLORS.lightGray};border-radius:8px;margin:8px 0;border-collapse:collapse;">
+<tr>
+<td style="padding:14px;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+<tr>
+<td style="padding-bottom:8px;">
+<span style="font-size:18px;vertical-align:middle;">${icon}</span>
+<span style="font-size:15px;font-weight:bold;color:${BRAND_COLORS.crimson};vertical-align:middle;margin-left:6px;">${displayLabel}</span>
+</td>
+</tr>
+</table>
+`;
+      items.forEach((item: any) => {
+        html += `
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+<tr>
+<td style="padding:4px 0;font-size:14px;color:#333;">${item.title || item.description || 'Item'}</td>
+<td style="padding:4px 0;text-align:right;font-size:14px;font-weight:bold;color:${BRAND_COLORS.crimson};white-space:nowrap;">${fmtCurrency(item.total_price || 0)}</td>
+</tr>
+</table>
+`;
+      });
+      html += `</td></tr></table>`;
+    }
+  });
+
+
   html += `
 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:20px;border-top:2px solid ${BRAND_COLORS.lightGray};border-collapse:collapse;">
 <tr>
