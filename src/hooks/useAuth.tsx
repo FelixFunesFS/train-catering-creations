@@ -3,11 +3,14 @@ import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
+export type UserRole = 'admin' | 'staff' | null;
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
   isVerifyingAccess: boolean;
+  userRole: UserRole;
   signIn: (email: string, password: string) => Promise<{ error?: any }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error?: any }>;
@@ -19,38 +22,35 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 // Production domain for all auth redirects
 const PRODUCTION_URL = 'https://www.soultrainseatery.com';
 
-// Check if user has admin role using security definer function (bypasses RLS)
-// Includes retry logic for transient network failures
-const checkAdminAccess = async (userId: string, retries = 2): Promise<boolean> => {
+// Check if user has any authorized role (admin or staff)
+// Returns the role name or null
+const checkAccess = async (userId: string, retries = 2): Promise<UserRole> => {
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
       const { data, error } = await supabase
-        .rpc('has_role', { 
-          _user_id: userId, 
-          _role: 'admin' 
-        });
+        .rpc('has_any_role', { _user_id: userId });
       
       if (error) {
-        console.error(`Admin access check attempt ${attempt + 1} failed:`, error);
+        console.error(`Access check attempt ${attempt + 1} failed:`, error);
         if (attempt < retries) {
-          // Wait before retry (exponential backoff)
           await new Promise(resolve => setTimeout(resolve, 500 * (attempt + 1)));
           continue;
         }
-        return false;
+        return null;
       }
       
-      return data === true;
+      if (data === 'admin' || data === 'staff') return data;
+      return null;
     } catch (err) {
-      console.error(`Admin access check attempt ${attempt + 1} error:`, err);
+      console.error(`Access check attempt ${attempt + 1} error:`, err);
       if (attempt < retries) {
         await new Promise(resolve => setTimeout(resolve, 500 * (attempt + 1)));
         continue;
       }
-      return false;
+      return null;
     }
   }
-  return false;
+  return null;
 };
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -58,24 +58,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [isVerifyingAccess, setIsVerifyingAccess] = useState(false);
+  const [userRole, setUserRole] = useState<UserRole>(null);
 
   useEffect(() => {
-    // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        // Handle OAuth sign-in (Google) - verify admin access
         if (event === 'SIGNED_IN' && session?.user) {
           setIsVerifyingAccess(true);
           
-          // Use setTimeout to avoid Supabase listener deadlock
           setTimeout(async () => {
-            const hasAccess = await checkAdminAccess(session.user.id);
+            const role = await checkAccess(session.user.id);
             
-            if (!hasAccess) {
+            if (!role) {
               await supabase.auth.signOut();
-              toast.error('Access denied. Administrator privileges required.');
+              toast.error('Access denied. Authorized personnel only.');
               setUser(null);
               setSession(null);
+              setUserRole(null);
               setIsVerifyingAccess(false);
               setLoading(false);
               return;
@@ -83,10 +82,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             
             setSession(session);
             setUser(session.user);
+            setUserRole(role);
             setIsVerifyingAccess(false);
             setLoading(false);
           }, 0);
           return;
+        }
+        
+        if (event === 'SIGNED_OUT') {
+          setUserRole(null);
         }
         
         setSession(session);
@@ -95,16 +99,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     );
 
-    // THEN check for existing session
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (session?.user) {
         setIsVerifyingAccess(true);
-        const hasAccess = await checkAdminAccess(session.user.id);
+        const role = await checkAccess(session.user.id);
         
-        if (!hasAccess) {
+        if (!role) {
           await supabase.auth.signOut();
           setUser(null);
           setSession(null);
+          setUserRole(null);
           setIsVerifyingAccess(false);
           setLoading(false);
           return;
@@ -112,6 +116,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         setSession(session);
         setUser(session.user);
+        setUserRole(role);
         setIsVerifyingAccess(false);
       }
       setLoading(false);
@@ -134,17 +139,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { error };
     }
     
-    // Check if user has admin access
-    const hasAccess = await checkAdminAccess(data.user.id);
+    const role = await checkAccess(data.user.id);
     
-    if (!hasAccess) {
-      // Immediately sign them out
+    if (!role) {
       await supabase.auth.signOut();
-      toast.error('Access denied. Administrator privileges required.');
+      toast.error('Access denied. Authorized personnel only.');
       setIsVerifyingAccess(false);
-      return { error: { message: 'No admin access' } };
+      return { error: { message: 'No access' } };
     }
     
+    setUserRole(role);
     toast.success('Signed in successfully');
     setIsVerifyingAccess(false);
     return { error: null };
@@ -155,6 +159,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (error) {
       toast.error(error.message);
     } else {
+      setUserRole(null);
       toast.success('Signed out successfully');
     }
   };
@@ -194,6 +199,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       session,
       loading,
       isVerifyingAccess,
+      userRole,
       signIn,
       signOut,
       resetPassword,

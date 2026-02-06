@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/hooks/useAuth";
-import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { ProtectedRoute, StaffRoute } from "@/components/ProtectedRoute";
 import { Header } from "@/components/Header";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useScrollToAnchor } from "@/hooks/useScrollToAnchor";
@@ -61,7 +61,7 @@ const AppContent = () => {
   useVisitorTracking(); // Track visitor page views for admin notifications
   const location = useLocation();
   const isMobile = useIsMobile();
-  const isAdminRoute = location.pathname.startsWith('/admin');
+  const isAdminRoute = location.pathname.startsWith('/admin') || location.pathname === '/staff';
   const isQuoteWizardRoute = /^\/request-quote\/(regular|wedding)$/.test(location.pathname);
   // Hide header/footer for full-page event view and quote wizard (all devices)
   const isEventFullView = /^\/admin\/event\/[^/]+$/.test(location.pathname);
@@ -110,7 +110,7 @@ const AppContent = () => {
             <Route path="/admin/*" element={<ProtectedRoute><UnifiedAdminDashboard /></ProtectedRoute>} />
             
             {/* Staff Schedule - Protected */}
-            <Route path="/staff" element={<ProtectedRoute><StaffSchedule /></ProtectedRoute>} />
+            <Route path="/staff" element={<StaffRoute><StaffSchedule /></StaffRoute>} />
             
             {/* Customer-facing routes */}
             <Route path="/estimate" element={<CustomerEstimateView />} />

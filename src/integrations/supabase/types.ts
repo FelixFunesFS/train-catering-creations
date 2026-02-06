@@ -2066,6 +2066,7 @@ export type Database = {
       }
       get_status_label: { Args: { status: string }; Returns: string }
       grant_first_admin: { Args: never; Returns: undefined }
+      has_any_role: { Args: { _user_id: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["user_role"]
@@ -2140,7 +2141,7 @@ export type Database = {
         | "delivery-only"
         | "delivery-setup"
         | "drop-off"
-      user_role: "admin" | "user"
+      user_role: "admin" | "user" | "staff"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2322,7 +2323,7 @@ export const Constants = {
         "delivery-setup",
         "drop-off",
       ],
-      user_role: ["admin", "user"],
+      user_role: ["admin", "user", "staff"],
     },
   },
 } as const

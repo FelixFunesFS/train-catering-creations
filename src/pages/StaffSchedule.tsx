@@ -8,9 +8,8 @@ import { useStaffEvents, useStaffEvent, type StaffEventFilter } from '@/hooks/us
 import { StaffEventCard } from '@/components/staff/StaffEventCard';
 import { StaffEventDetails } from '@/components/staff/StaffEventDetails';
 import { SubscribeCalendarButton } from '@/components/staff/SubscribeCalendarButton';
+import { AdminLayout } from '@/components/admin/AdminLayout';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { MobileAdminNav } from '@/components/admin/mobile/MobileAdminNav';
-import { cn } from '@/lib/utils';
 
 export default function StaffSchedule() {
   const isMobile = useIsMobile();
@@ -20,7 +19,6 @@ export default function StaffSchedule() {
   const { data: events, isLoading, error } = useStaffEvents(filter);
   const { data: selectedEvent } = useStaffEvent(selectedEventId);
 
-  // Mobile: Show details view when event selected
   const showMobileDetails = isMobile && selectedEventId && selectedEvent;
 
   const handleCardClick = (eventId: string) => {
@@ -34,29 +32,32 @@ export default function StaffSchedule() {
   // Loading state
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
+      <AdminLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      </AdminLayout>
     );
   }
 
   // Error state
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] p-4 text-center">
-        <p className="text-destructive mb-2">Failed to load events</p>
-        <p className="text-sm text-muted-foreground">{error.message}</p>
-      </div>
+      <AdminLayout>
+        <div className="flex flex-col items-center justify-center min-h-[60vh] p-4 text-center">
+          <p className="text-destructive mb-2">Failed to load events</p>
+          <p className="text-sm text-muted-foreground">{error.message}</p>
+        </div>
+      </AdminLayout>
     );
   }
 
   // Mobile Details View
   if (showMobileDetails) {
     return (
-      <div className="min-h-screen bg-background">
-        {/* Mobile header */}
-        <div className="sticky top-0 z-40 bg-background border-b">
-          <div className="flex items-center h-14 px-4">
+      <AdminLayout>
+        <div className="sticky top-14 z-40 bg-background border-b">
+          <div className="flex items-center h-12 px-4">
             <Button 
               variant="ghost" 
               size="icon" 
@@ -69,31 +70,26 @@ export default function StaffSchedule() {
           </div>
         </div>
         
-        {/* Details content */}
-        <div className="p-4 pb-24">
+        <div className="p-4">
           <StaffEventDetails event={selectedEvent} onBack={handleBack} />
         </div>
-        
-        <MobileAdminNav />
-      </div>
+      </AdminLayout>
     );
   }
 
   // Mobile List View
   if (isMobile) {
     return (
-      <div className="min-h-screen bg-background">
-        {/* Mobile header */}
-        <div className="sticky top-0 z-40 bg-background border-b">
-          <div className="flex items-center justify-between h-14 px-4">
+      <AdminLayout>
+        <div className="sticky top-14 z-40 bg-background border-b">
+          <div className="flex items-center justify-between h-12 px-4">
             <div className="flex items-center gap-2">
               <Calendar className="h-5 w-5 text-primary" />
-              <h1 className="font-semibold text-lg">Staff Schedule</h1>
+              <h2 className="font-semibold text-lg">Staff Schedule</h2>
             </div>
             <SubscribeCalendarButton variant="icon" />
           </div>
           
-          {/* Filter tabs */}
           <div className="px-4 pb-3">
             <Tabs value={filter} onValueChange={(v) => setFilter(v as StaffEventFilter)}>
               <TabsList className="w-full grid grid-cols-3">
@@ -105,8 +101,7 @@ export default function StaffSchedule() {
           </div>
         </div>
         
-        {/* Event cards */}
-        <div className="p-4 pb-24 space-y-3">
+        <div className="p-4 space-y-3">
           {events && events.length > 0 ? (
             events.map((event) => (
               <StaffEventCard 
@@ -127,20 +122,17 @@ export default function StaffSchedule() {
             </div>
           )}
         </div>
-        
-        <MobileAdminNav />
-      </div>
+      </AdminLayout>
     );
   }
 
   // Desktop Split View
   return (
-    <div className="h-screen bg-background">
-      {/* Desktop header */}
+    <AdminLayout>
       <div className="h-14 border-b flex items-center justify-between px-6">
         <div className="flex items-center gap-3">
           <Calendar className="h-5 w-5 text-primary" />
-          <h1 className="font-semibold text-lg">Staff Schedule</h1>
+          <h2 className="font-semibold text-lg">Staff Schedule</h2>
         </div>
         
         <div className="flex items-center gap-4">
@@ -155,8 +147,7 @@ export default function StaffSchedule() {
         </div>
       </div>
 
-      <ResizablePanelGroup direction="horizontal" className="h-[calc(100vh-3.5rem)]">
-        {/* Left panel: Event list */}
+      <ResizablePanelGroup direction="horizontal" className="h-[calc(100vh-7.5rem)]">
         <ResizablePanel defaultSize={35} minSize={25} maxSize={50}>
           <ScrollArea className="h-full">
             <div className="p-4 space-y-3">
@@ -181,7 +172,6 @@ export default function StaffSchedule() {
 
         <ResizableHandle withHandle />
 
-        {/* Right panel: Event details */}
         <ResizablePanel defaultSize={65}>
           <ScrollArea className="h-full">
             <div className="p-6">
@@ -197,6 +187,6 @@ export default function StaffSchedule() {
           </ScrollArea>
         </ResizablePanel>
       </ResizablePanelGroup>
-    </div>
+    </AdminLayout>
   );
 }
