@@ -1,26 +1,20 @@
 
 
-## Zoom Out First Hero Image with No Empty Space
+## Replace First Hero Image and Display with Minimal Cropping
 
 ### Problem
-The first hero image is too zoomed in, but using `object-contain` would leave empty black bars.
+The current first hero image is being cropped too aggressively due to the `scale-[0.7]` transform combined with `object-cover`. You want this new chef image to fill the hero section with no more than ~5% cropping on any side.
 
-### Solution
-Use `object-cover` (already the default) combined with `scale-[0.7]` to visually zoom out the image while keeping the container fully filled -- no letterboxing, no empty space.
+### Changes (2 steps)
 
-### Changes (1 file)
+**Step 1: Replace the image file**
+- Copy the uploaded image (`user-uploads://image000000_PhotoGrid-2.png`) to `public/lovable-uploads/hero-chef-serving.png`, replacing the existing file.
 
-**`src/components/home/SplitHero.tsx`** (line 201)
+**Step 2: Update `src/components/home/SplitHero.tsx`**
+- Change `getImageClasses` for index 0 from `"object-cover object-center scale-[0.7]"` back to `"object-cover object-center"` (remove the scale transform).
+- This new image is portrait-oriented, which naturally fits the tall mobile hero container (85vh) with minimal cropping. On desktop (60% width split), the image will center on the chef with slight left/right cropping -- well within the 5% threshold since the subject is centered.
 
-Update `getImageClasses` for index 0:
-
-```tsx
-// Before
-return "object-[center_30%]";
-
-// After
-return "object-cover object-center scale-[0.7]";
-```
-
-This scales the image down to 70% within its container while `object-cover` ensures it still fills the entire area. The result: more of the image is visible without any empty space.
+### Why This Works
+- The previous image was landscape (wide), so it got heavily cropped in the tall container. This new image is portrait (tall), matching the container shape much better.
+- No scale transform needed -- `object-cover object-center` will fill the space while keeping the chef and food centered with minimal cropping.
 
