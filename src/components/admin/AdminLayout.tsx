@@ -21,20 +21,25 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               <p className="text-xs text-muted-foreground sm:text-sm">Admin Dashboard</p>
             </div>
             
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={signOut}
-              className="gap-2 hidden lg:flex"
-            >
-              <LogOut className="h-4 w-4" />
-              <span className="hidden sm:inline">Sign Out</span>
-            </Button>
+            <div className="hidden lg:flex items-center gap-1">
+              <MobileAdminNav />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={signOut}
+                className="gap-2"
+              >
+                <LogOut className="h-4 w-4" />
+                <span>Sign Out</span>
+              </Button>
+            </div>
           </div>
         </div>
       </header>
 
-      <MobileAdminNav />
+      <div className="lg:hidden">
+        <MobileAdminNav />
+      </div>
 
       <main className="flex-1 pb-20 lg:pb-[env(safe-area-inset-bottom)]">
         {children}
