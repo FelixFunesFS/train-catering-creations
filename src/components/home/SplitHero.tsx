@@ -35,7 +35,7 @@ export const SplitHero = () => {
   const heroSentinelRef = useRef<HTMLDivElement>(null);
 
   // Preload LCP image with correct hashed URL for faster paint
-  usePreloadImage(heroAppetizers);
+  usePreloadImage("/lovable-uploads/hero-chef-serving.png");
 
   const {
     ref: visualRef,
@@ -72,6 +72,13 @@ export const SplitHero = () => {
     };
   }, [setIsHeroVisible]);
   const heroImages: HeroImage[] = [{
+    src: "/lovable-uploads/hero-chef-serving.png",
+    alt: "Chef Train serving a beautiful spread of Southern cuisine at a catering event",
+    title: "Soul Food, Served with Pride",
+    subtitle: "Charleston's Premier Caterer",
+    category: "culinary",
+    description: "Chef Train brings authentic Southern flavors and heartfelt hospitality to every event he touches."
+  }, {
     src: heroAppetizers,
     alt: "Professional catering setup with chafing dishes and elegant floral arrangements",
     title: "Artisan Creations",
@@ -191,12 +198,16 @@ export const SplitHero = () => {
 
   // Dynamic object positioning based on image index
   const getImageObjectPosition = (index: number) => {
-    // For the charcuterie board image (index 0), shift focal point 20% lower
+    // For the new chef serving image (index 0), center on the chef
     if (index === 0) {
+      return "object-[center_40%]";
+    }
+    // For the charcuterie board image (index 1), shift focal point 20% lower
+    if (index === 1) {
       return "object-[center_70%]";
     }
-    // For the Award-Winning Catering image (index 1), show more of the center-left
-    if (index === 1) {
+    // For the Award-Winning Catering image (index 2), show more of the center-left
+    if (index === 2) {
       return "object-left-center";
     }
     return "object-center";
