@@ -1,30 +1,26 @@
 
 
-## Fix First Hero Image Zoom Level
+## Zoom Out First Hero Image with No Empty Space
 
 ### Problem
-The first hero image (photo grid) appears overly zoomed in because it's a collage-style image being displayed with `object-cover` in a tall container. The `object-[center_40%]` positioning crops most of the image content.
+The first hero image is too zoomed in, but using `object-contain` would leave empty black bars.
 
 ### Solution
-Adjust the object-fit and positioning for the first image (index 0) so more of the photo grid is visible, and compress/optimize the image for web delivery.
+Use `object-cover` (already the default) combined with `scale-[0.7]` to visually zoom out the image while keeping the container fully filled -- no letterboxing, no empty space.
 
 ### Changes (1 file)
 
-**`src/components/home/SplitHero.tsx`**
+**`src/components/home/SplitHero.tsx`** (line 201)
 
-1. **Change object positioning for index 0** -- Switch from `object-[center_40%]` to `object-[center_center]` with a scale-down approach using a custom CSS class that combines `object-contain` behavior on mobile (where the tall viewport causes extreme cropping) and a gentler `object-cover object-center` on desktop.
+Update `getImageClasses` for index 0:
 
-2. **Practical approach** -- Since the image is a photo grid (not a single focal point), the best fix is:
-   - Mobile: Change to `object-[center_50%]` so the image is centered rather than cropped to the top 40%
-   - Add a `scale-[0.85]` transform so the image renders slightly smaller within its container, revealing more of the collage
-   - This keeps the same layout system but "zooms out" visually
+```tsx
+// Before
+return "object-[center_30%]";
 
-3. **Update `getImageObjectPosition`** to return both positioning and scale classes for index 0:
-   ```
-   if (index === 0) {
-     return "object-center scale-[1.0]";  // no extra zoom, centered
-   }
-   ```
-   Combined with changing the function name to `getImageClasses` to reflect it now returns multiple classes.
+// After
+return "object-cover object-center scale-[0.7]";
+```
 
-The net effect: the photo grid image will show more of its content instead of being heavily cropped, while all other slides remain unchanged.
+This scales the image down to 70% within its container while `object-cover` ensures it still fills the entire area. The result: more of the image is visible without any empty space.
+
