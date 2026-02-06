@@ -1,101 +1,60 @@
 
 
-# Fix: Status Display for Partially Paid Events
+# Fix: "Awaiting Payment" Showing in Status Column
 
-## Problem
+## The Two Status Systems
 
-Felix and Pryce both show "Awaiting Payment" instead of "Approved" with a "Deposit Paid" payment badge. Two issues:
+Your app tracks two independent lifecycles that map to two columns in the events table:
 
-1. `awaiting_payment` status is missing from both helper functions in `statusHelpers.ts`
-2. The payment badge immediately shows "Milestone Due" after a deposit is paid, even when the next milestone is weeks away -- creating false urgency
+```text
+EVENT LIFECYCLE (quote_requests.workflow_status)    PAYMENT LIFECYCLE (invoice + milestones)
+----------------------------------------------------  -----------------------------------------
+pending          -> New submission                    (no invoice yet)
+under_review     -> Admin reviewing                   (no invoice yet)
+estimated        -> Estimate sent                     draft / sent / viewed
+confirmed        -> Customer approved                 approved
+awaiting_payment -> Deposit paid, more due            partially_paid  +  Deposit Paid badge
+paid             -> Fully paid                        paid            +  Paid in Full badge
+completed        -> Event finished                    (independent)
+cancelled        -> Cancelled                         cancelled
+```
 
-## Desired Behavior
+The problem: `awaiting_payment` and `paid` are valid quote statuses (set by a database trigger that syncs from invoices), but the EventList UI doesn't know how to display them. It just capitalizes the raw value.
 
-The payment badge should reflect **what needs attention now**:
+## What the Admin Should See
 
-| Situation | Estimate Badge | Payment Badge |
-|-----------|---------------|---------------|
-| Approved, no payment yet | Approved | Deposit Due |
-| Deposit paid, next milestone is weeks away | Approved | Deposit Paid |
-| Next milestone due within 7 days | Approved | Milestone Due (Apr 23) |
-| Milestone is past due | Approved | Overdue |
-| All milestones paid | Approved | Paid in Full |
+For Pryce and Felix:
 
----
+| Column | Current | Should Be |
+|--------|---------|-----------|
+| Status | "Awaiting Payment" (unstyled) | "Confirmed" (green badge) |
+| Payment | Deposit Paid (green) | Deposit Paid (green) -- already correct |
+
+The **Status column** should show the business-level state: once a customer approves and pays anything, the event is "Confirmed." The **Payment column** (already working correctly) shows the financial detail.
 
 ## Changes
 
-### 1. `src/utils/statusHelpers.ts`
+### 1. `src/components/admin/events/EventList.tsx`
 
-**Add `awaiting_payment` to both functions:**
-- Add to `getEstimateStatus` status map as "Approved" (same as `partially_paid`)
-- Add to `getPaymentStatus`'s `paymentStates` array
+**Add to `eventStatusColors` map (line 62-71):**
+- `awaiting_payment` and `paid` -- same green as `confirmed`
 
-**Add due-date awareness to `getPaymentStatus`:**
-- Accept optional `nextMilestoneDueDate` parameter
-- If `partially_paid` or `awaiting_payment` and the next milestone is NOT due within 7 days, show "Deposit Paid" (green badge) instead of the milestone-type label
-- If due within 7 days, show the contextual label ("Milestone Due", "Final Due", etc.)
-- If past due, show "Overdue"
+**Update `formatStatus` (line 85):**
+- Map `awaiting_payment`, `paid`, `partially_paid`, `payment_pending` to return `"Confirmed"` instead of raw text
 
-**Add new "Deposit Paid" status entry:**
+**Update filter `statusMap` (line 183-189):**
+- Add `awaiting_payment` and `paid` to the `confirmed` filter group so they appear when filtering by "Confirmed"
 
-```typescript
-// New status for when deposit is paid and nothing else is due yet
-{ label: 'Deposit Paid', color: 'bg-emerald-100 text-emerald-700 border-emerald-200', icon: 'CheckCircle', showBadge: true }
-```
+### 2. `src/utils/formatters.ts`
 
-**Update `getNextUnpaidMilestone` return type** to include `due_date` (already does).
+**Update `getStatusColor` (line 83):**
+- Add entries for `awaiting_payment`, `partially_paid`, `payment_pending`, and `confirmed` so badges render correct colors everywhere (used by EventDetailsPanelContent header badge)
 
-### 2. `src/components/admin/events/EventList.tsx`
+### 3. `src/components/admin/events/EventDetailsPanelContent.tsx`
 
-Update both mobile and desktop views to pass `due_date` from the next unpaid milestone into `getPaymentStatus`:
+**Update status badge display (line 87):**
+- Use the same display mapping so the detail view header shows "CONFIRMED" instead of "AWAITING PAYMENT"
 
-```typescript
-const nextMilestone = getNextUnpaidMilestone(invoice.payment_milestones);
-const paymentStatus = getPaymentStatus(
-  invoice.workflow_status, 
-  nextMilestone?.milestone_type,
-  nextMilestone?.due_date  // new parameter
-);
-```
+## No edge function or database changes needed
 
-No other UI changes needed -- the badge rendering already uses `paymentStatus.label` and `paymentStatus.color`.
-
-### 3. `src/components/customer/CustomerDetailsSidebar.tsx` (if applicable)
-
-Same pattern: pass `due_date` to `getPaymentStatus` wherever it is called.
-
----
-
-## Technical Detail: Updated `getPaymentStatus` Signature
-
-```typescript
-export function getPaymentStatus(
-  workflowStatus: string, 
-  nextMilestoneType?: string | null,
-  nextMilestoneDueDate?: string | null  // NEW
-): PaymentStatusInfo | null
-```
-
-Logic addition before the milestone-type lookup:
-
-```text
-1. Check if workflowStatus is 'paid' -> "Paid in Full"
-2. Check if workflowStatus is 'overdue' -> "Overdue"  
-3. If partially_paid/awaiting_payment AND nextMilestoneDueDate exists:
-   a. If due date is in the past -> show milestone label (urgent)
-   b. If due date is within 7 days -> show milestone label (upcoming)
-   c. If due date is more than 7 days away -> show "Deposit Paid"
-4. Otherwise fall through to existing milestone-type labels
-```
-
----
-
-## Files Changed
-
-| File | Change |
-|------|--------|
-| `src/utils/statusHelpers.ts` | Add `awaiting_payment`, add due-date logic, add "Deposit Paid" status |
-| `src/components/admin/events/EventList.tsx` | Pass `due_date` to `getPaymentStatus` calls |
-
-No edge functions or database changes needed. This is a display-only fix.
+The database trigger that sets `awaiting_payment` is correct -- it accurately reflects the financial state. This is purely a display-layer fix to map granular DB statuses to admin-friendly labels.
