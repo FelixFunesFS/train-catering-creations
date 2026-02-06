@@ -1,114 +1,101 @@
 
 
-# Payment Milestone Bug: Root Cause Analysis and Fix
+# Fix: Status Display for Partially Paid Events
 
-## The Bug: Pryce Porter's Milestones
+## Problem
 
-Pryce Porter paid **$62.13** (10% deposit) but all 3 milestones show as **paid**:
+Felix and Pryce both show "Awaiting Payment" instead of "Approved" with a "Deposit Paid" payment badge. Two issues:
 
-| Milestone | Amount | Status | Should Be |
-|-----------|--------|--------|-----------|
-| 10% Deposit | $62.13 | paid | paid |
-| 50% Milestone | $310.65 | paid | **pending** |
-| 40% Final | $248.52 | paid | **pending** |
+1. `awaiting_payment` status is missing from both helper functions in `statusHelpers.ts`
+2. The payment badge immediately shows "Milestone Due" after a deposit is paid, even when the next milestone is weeks away -- creating false urgency
 
-**Actual payment transactions**: 1 completed transaction for $62.13.
+## Desired Behavior
+
+The payment badge should reflect **what needs attention now**:
+
+| Situation | Estimate Badge | Payment Badge |
+|-----------|---------------|---------------|
+| Approved, no payment yet | Approved | Deposit Due |
+| Deposit paid, next milestone is weeks away | Approved | Deposit Paid |
+| Next milestone due within 7 days | Approved | Milestone Due (Apr 23) |
+| Milestone is past due | Approved | Overdue |
+| All milestones paid | Approved | Paid in Full |
 
 ---
 
-## Root Cause: Self-Perpetuating Paid Status
+## Changes
 
-The `generate-payment-milestones` edge function has a **dual-waterfall bug** that causes incorrect paid statuses to copy forward on every regeneration.
+### 1. `src/utils/statusHelpers.ts`
 
-### How It Works (Broken)
+**Add `awaiting_payment` to both functions:**
+- Add to `getEstimateStatus` status map as "Approved" (same as `partially_paid`)
+- Add to `getPaymentStatus`'s `paymentStates` array
 
-The function runs TWO independent paid-status calculations:
+**Add due-date awareness to `getPaymentStatus`:**
+- Accept optional `nextMilestoneDueDate` parameter
+- If `partially_paid` or `awaiting_payment` and the next milestone is NOT due within 7 days, show "Deposit Paid" (green badge) instead of the milestone-type label
+- If due within 7 days, show the contextual label ("Milestone Due", "Final Due", etc.)
+- If past due, show "Overdue"
 
-```text
-Pass 1 (lines 49-65): Sum paid amounts from OLD milestones being deleted
-   totalPaidCents = sum of old milestones where status='paid'
-   
-Pass 2 (lines 313-338): Query actual payment_transactions
-   totalPaidFromTransactions = sum of completed transactions
+**Add new "Deposit Paid" status entry:**
+
+```typescript
+// New status for when deposit is paid and nothing else is due yet
+{ label: 'Deposit Paid', color: 'bg-emerald-100 text-emerald-700 border-emerald-200', icon: 'CheckCircle', showBadge: true }
 ```
 
-**Both passes independently mark milestones as paid.** Pass 1 runs first during milestone generation (lines 258-274), then Pass 2 runs after and overwrites.
+**Update `getNextUnpaidMilestone` return type** to include `due_date` (already does).
 
-### What Happened to Pryce Porter
+### 2. `src/components/admin/events/EventList.tsx`
 
-1. Deposit of $62.13 was paid -- stripe-webhook correctly marked DEPOSIT milestone as paid
-2. Something triggered a milestone regeneration (likely admin editing the estimate or the `usePaymentScheduleSync` hook firing)
-3. At that point, old milestones may have already had a corruption, OR the first regeneration incorrectly used `totalPaidCents` from old milestones
-4. Once all 3 milestones were incorrectly marked `paid`, every subsequent regeneration reads those old statuses and perpetuates the error:
-   - `totalPaidCents` = 62130 (sum of all old "paid" milestones)
-   - First waterfall marks all new milestones as "paid" using this inflated number
-   - Second waterfall (from transactions) only has 6213, which correctly marks only the deposit -- but the first pass already set them all to "paid"
+Update both mobile and desktop views to pass `due_date` from the next unpaid milestone into `getPaymentStatus`:
 
-**The critical issue**: Pass 1 uses milestone `status` as the source of truth instead of actual transactions. If milestones ever get incorrectly marked (even once), the error is permanent and self-replicating.
-
----
-
-## The Fix
-
-### Remove Pass 1 entirely. Only use actual payment transactions.
-
-**File:** `supabase/functions/generate-payment-milestones/index.ts`
-
-**Change 1:** Remove lines 49-65 (the `totalPaidCents` calculation from old milestones). The variable `totalPaidCents` is used in milestone status calculations at lines 148, 161, 172-182, 214-224, 258-274. All of these need to be changed to use `"pending"` as the default status, since Pass 2 (lines 313-338) will correctly set paid status from actual transactions afterward.
-
-**Change 2:** Set all milestone statuses to `"pending"` during creation (lines 132-311). Remove the inline waterfall logic that uses `totalPaidCents`. The transaction-based waterfall at lines 313-338 will handle it.
-
-**Change 3:** Keep Pass 2 (lines 313-338) exactly as-is. This is the correct logic -- it queries `payment_transactions` and applies waterfall.
-
-### Simplified flow after fix:
-
-```text
-1. Delete old milestones (if force_regenerate)
-2. Create new milestones with status = "pending"
-3. Query payment_transactions for completed payments
-4. Apply waterfall: mark milestones as "paid" based on actual money received
-5. Insert milestones
+```typescript
+const nextMilestone = getNextUnpaidMilestone(invoice.payment_milestones);
+const paymentStatus = getPaymentStatus(
+  invoice.workflow_status, 
+  nextMilestone?.milestone_type,
+  nextMilestone?.due_date  // new parameter
+);
 ```
 
-### Data Fix: Correct Pryce Porter's milestones
+No other UI changes needed -- the badge rendering already uses `paymentStatus.label` and `paymentStatus.color`.
 
-After deploying the fix, trigger a regeneration for Pryce Porter's invoice to correct the data. This can be done via the admin "Regenerate" button or by calling the edge function directly. With the fix in place, only the $62.13 deposit milestone will be marked as paid.
+### 3. `src/components/customer/CustomerDetailsSidebar.tsx` (if applicable)
 
----
-
-## Other Risk Areas Identified
-
-### 1. usePaymentScheduleSync hook triggers regeneration too aggressively
-
-**File:** `src/hooks/usePaymentScheduleSync.ts`
-
-This hook watches `totalAmount` and `isGovernment` and regenerates milestones whenever they change. It fires when the admin opens the event detail view if the cached total differs from the database total by even 1 cent. This is likely what triggered the regeneration for Pryce Porter.
-
-**Risk:** Any time an admin opens an event page with stale cache data, milestones could be regenerated unnecessarily, and with the current bug, would propagate incorrect paid statuses.
-
-**No code change needed** once the root cause (dual waterfall) is fixed -- regeneration will be safe because it will always use transaction data.
-
-### 2. stripe-webhook only marks a single milestone as paid
-
-**File:** `supabase/functions/stripe-webhook/index.ts` (lines 126-147)
-
-The webhook uses `milestone_id` from Stripe metadata to mark ONE specific milestone. This is correct for the immediate payment, but if a customer overpays or pays out of order, it won't waterfall to the next milestone.
-
-**Risk:** Low -- Stripe checkout sessions are generated for specific milestone amounts, so overpayment is unlikely. But worth noting.
-
-### 3. No periodic milestone-transaction reconciliation
-
-There is no scheduled job that verifies milestone statuses match actual transactions. If a webhook fails or a milestone status gets corrupted (as happened here), the error persists until manual intervention.
-
-**Recommendation (future):** Add a reconciliation check in the `unified-reminder-system` that compares milestone paid totals against transaction totals and auto-corrects mismatches. This is not urgent but would prevent future drift.
+Same pattern: pass `due_date` to `getPaymentStatus` wherever it is called.
 
 ---
 
-## Summary of Changes
+## Technical Detail: Updated `getPaymentStatus` Signature
 
-| File | Change | Lines |
-|------|--------|-------|
-| `generate-payment-milestones/index.ts` | Remove `totalPaidCents` from old milestones; set all initial statuses to "pending"; keep transaction-based waterfall as sole source of truth | ~30 lines removed/simplified |
+```typescript
+export function getPaymentStatus(
+  workflowStatus: string, 
+  nextMilestoneType?: string | null,
+  nextMilestoneDueDate?: string | null  // NEW
+): PaymentStatusInfo | null
+```
 
-**No other files need changes.** The stripe-webhook, usePaymentScheduleSync, and admin UI are all correct -- the bug is isolated to the milestone generation function using stale milestone data instead of transaction data.
+Logic addition before the milestone-type lookup:
 
+```text
+1. Check if workflowStatus is 'paid' -> "Paid in Full"
+2. Check if workflowStatus is 'overdue' -> "Overdue"  
+3. If partially_paid/awaiting_payment AND nextMilestoneDueDate exists:
+   a. If due date is in the past -> show milestone label (urgent)
+   b. If due date is within 7 days -> show milestone label (upcoming)
+   c. If due date is more than 7 days away -> show "Deposit Paid"
+4. Otherwise fall through to existing milestone-type labels
+```
+
+---
+
+## Files Changed
+
+| File | Change |
+|------|--------|
+| `src/utils/statusHelpers.ts` | Add `awaiting_payment`, add due-date logic, add "Deposit Paid" status |
+| `src/components/admin/events/EventList.tsx` | Pass `due_date` to `getPaymentStatus` calls |
+
+No edge functions or database changes needed. This is a display-only fix.
