@@ -197,10 +197,10 @@ export const SplitHero = () => {
   const badge = getCategoryBadge(currentImage.category);
 
   // Dynamic object positioning based on image index
-  const getImageObjectPosition = (index: number) => {
-    // For the new chef serving image (index 0), center on the chef
+  const getImageClasses = (index: number) => {
+    // Photo grid collage (index 0) — zoom out to show more content
     if (index === 0) {
-      return "object-[center_40%]";
+      return "object-center scale-[0.85]";
     }
     // For the charcuterie board image (index 1), shift focal point 20% lower
     if (index === 1) {
@@ -208,7 +208,7 @@ export const SplitHero = () => {
     }
     // For the Award-Winning Catering image (index 2), show more of the center-left
     if (index === 2) {
-      return "object-left-center";
+    return "object-left-center";
     }
     return "object-center";
   };
@@ -246,7 +246,7 @@ export const SplitHero = () => {
           </div>
 
           {/* Full Screen Background Image */}
-          <OptimizedImage src={currentImage.src} alt={currentImage.alt} aspectRatio={undefined} className={`w-full h-full object-cover ${getImageObjectPosition(currentIndex)} transition-transform duration-700`} containerClassName="h-full w-full" priority enableVignette={false} />
+          <OptimizedImage src={currentImage.src} alt={currentImage.alt} aspectRatio={undefined} className={`w-full h-full object-cover ${getImageClasses(currentIndex)} transition-transform duration-700`} containerClassName="h-full w-full" priority enableVignette={false} />
           
           {/* Gradient Overlay for Content Readability */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
@@ -301,7 +301,7 @@ export const SplitHero = () => {
       {/* Visual Area - 60% */}
       <div ref={visualRef} className={`relative w-3/5 h-full overflow-hidden hero-vignette ${visualAnimationClass}`} role="region" aria-label="Image carousel">
         {/* Main Image with cinematic aspect ratio */}
-        <OptimizedImage src={currentImage.src} alt={currentImage.alt} aspectRatio="aspect-video" className={`w-full h-full object-cover ${getImageObjectPosition(currentIndex)} transition-all duration-1000`} containerClassName="h-full" priority enableVignette={false} />
+        <OptimizedImage src={currentImage.src} alt={currentImage.alt} aspectRatio="aspect-video" className={`w-full h-full object-cover ${getImageClasses(currentIndex)} transition-all duration-1000`} containerClassName="h-full" priority enableVignette={false} />
         
         {/* Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/20" />
