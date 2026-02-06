@@ -1,25 +1,24 @@
 
 
-## Remove Gap Between Title and Nav Bar on Desktop
+## Remove Public Navbar Spacing from Admin/Staff Portal
 
 ### Problem
-The admin header (title) and the navigation bar (`MobileAdminNav`) are rendered as separate elements with visual separation between them, creating unnecessary vertical space on desktop.
+The public website has a fixed navigation bar, so `App.tsx` adds top padding (`pt-16 lg:pt-[72px]`) to the main content area. This padding is applied to admin and staff routes too, even though the public header already returns `null` on those routes. This creates the extra space you're seeing above the admin title.
 
-### Solution
-Merge the navigation into the header on desktop by moving `MobileAdminNav` inside the header element. On desktop, the title and nav links will share the same row -- title on the left, nav items on the right (alongside the Sign Out button). On mobile, the nav remains as a fixed bottom bar (unchanged).
+### Fix (1 file)
 
-### Changes (2 files)
+**`src/App.tsx`** (line 70)
+- Add `isAdminRoute` to the `hideChrome` condition so that admin and staff pages skip the top padding entirely
 
-**`src/components/admin/AdminLayout.tsx`**
-- Move `<MobileAdminNav />` inside the `<header>` element, within the flex row alongside the title
-- On desktop (lg:), the nav items will appear inline next to the Sign Out button
-- Remove the standalone `<MobileAdminNav />` below the header
+```
+// Before
+const hideChrome = isEventFullView || isEventMenuEdit || isEstimatePrint || isQuoteWizardRoute;
 
-**`src/components/admin/mobile/MobileAdminNav.tsx`**
-- No logic changes needed -- the existing `lg:static lg:border-b` classes will be adjusted to `lg:border-0` since it's now inside the header
-- Remove redundant desktop border styling since the header already provides the border
+// After
+const hideChrome = isAdminRoute || isEventFullView || isEventMenuEdit || isEstimatePrint || isQuoteWizardRoute;
+```
 
-### Result
-- Desktop: Single header bar with title on left, nav links + Sign Out on right -- no gap
-- Mobile: Unchanged -- bottom fixed nav bar
+This single change removes the extra top padding for all `/admin` and `/staff` routes. The Header and Footer already handle their own hiding for admin routes, so adding `isAdminRoute` here just aligns the padding logic with what's already happening.
+
+No other files need changes. Mobile bottom nav and all other functionality remain unaffected.
 
