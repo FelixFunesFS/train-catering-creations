@@ -26,9 +26,9 @@ export function MobileAdminNav() {
   const gridCols = navItems.length + 1;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t pb-[env(safe-area-inset-bottom)] lg:static lg:border-t-0 lg:border-b lg:pb-0">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t pb-[env(safe-area-inset-bottom)] lg:static lg:border-t-0 lg:border-b-0 lg:pb-0">
       <div 
-        className="grid h-16 lg:flex lg:h-12 lg:items-center lg:gap-1 lg:px-4"
+        className="grid h-16 lg:flex lg:h-auto lg:items-center lg:gap-1 lg:px-0"
         style={{ gridTemplateColumns: `repeat(${gridCols}, minmax(0, 1fr))` }}
       >
         {navItems.map((item) => {
