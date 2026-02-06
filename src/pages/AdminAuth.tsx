@@ -101,11 +101,11 @@ export default function AdminAuth() {
   if (loading || isVerifyingAccess) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-muted/40">
-        <div className="flex flex-col items-center gap-3">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          {isVerifyingAccess && (
-            <p className="text-sm text-muted-foreground animate-pulse">Verifying access...</p>
-          )}
+      <div className="flex flex-col items-center gap-3">
+          <Loader2 className="h-8 w-8 animate-spin text-primary dark:text-primary-foreground" />
+          <p className="text-sm text-muted-foreground animate-pulse">
+            {isVerifyingAccess ? 'Verifying access…' : 'Loading…'}
+          </p>
         </div>
       </div>
     );
