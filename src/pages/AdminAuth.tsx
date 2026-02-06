@@ -84,6 +84,7 @@ export default function AdminAuth() {
   const [password, setPassword] = useState('');
   const [resetEmail, setResetEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [activeTab, setActiveTab] = useState('signin');
   const [searchParams] = useSearchParams();
   const { user, loading, isVerifyingAccess, userRole, isPasswordRecovery, signIn, resetPassword, signInWithGoogle } = useAuth();
 
@@ -139,7 +140,7 @@ export default function AdminAuth() {
           {isRecoveryMode ? (
             <SetNewPasswordForm />
           ) : (
-            <Tabs defaultValue="signin" className="w-full">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="signin">Sign In</TabsTrigger>
                 <TabsTrigger value="reset">Reset Password</TabsTrigger>
@@ -204,7 +205,7 @@ export default function AdminAuth() {
                   <p className="text-sm text-muted-foreground">
                     Forgot your password?{' '}
                     <button 
-                      onClick={() => (document.querySelector('[value="reset"]') as HTMLElement)?.click()}
+                      onClick={() => setActiveTab('reset')}
                       className="text-primary hover:underline"
                       type="button"
                     >
@@ -237,7 +238,7 @@ export default function AdminAuth() {
                   <p className="text-sm text-muted-foreground">
                     Remember your password?{' '}
                     <button 
-                      onClick={() => (document.querySelector('[value="signin"]') as HTMLElement)?.click()}
+                      onClick={() => setActiveTab('signin')}
                       className="text-primary hover:underline"
                       type="button"
                     >
