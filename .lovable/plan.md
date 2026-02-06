@@ -1,199 +1,114 @@
 
 
-# Combined Fix: Admin Notifications + Manual-Only Thank You Emails
+# Payment Milestone Bug: Root Cause Analysis and Fix
 
-## Summary
+## The Bug: Pryce Porter's Milestones
 
-This plan combines two fixes into one implementation pass:
-1. Restore missing admin notifications for estimate approvals and deposit/partial payments
-2. Make post-event thank-you emails manual-only (admin-triggered, not automated)
+Pryce Porter paid **$62.13** (10% deposit) but all 3 milestones show as **paid**:
 
-No other functionality is changed. Government Net 30, payment reminders (already fixed), event reminders, and all workflow automations remain untouched.
+| Milestone | Amount | Status | Should Be |
+|-----------|--------|--------|-----------|
+| 10% Deposit | $62.13 | paid | paid |
+| 50% Milestone | $310.65 | paid | **pending** |
+| 40% Final | $248.52 | paid | **pending** |
 
-## Duplicate Notification Analysis
-
-The stripe-webhook has mutually exclusive branches for full vs. partial payments:
-- Line 171: `if (totalPaid >= invoice.total_amount)` -- full payment branch (already has admin notification)
-- Line 234: `else` -- partial payment branch (where new notification goes)
-
-A final partial payment that completes the balance enters the FULL payment branch (line 171), so the existing notification fires. The new partial notification in the else block does NOT fire. No duplicates possible.
+**Actual payment transactions**: 1 completed transaction for $62.13.
 
 ---
 
-## Changes Overview
+## Root Cause: Self-Perpetuating Paid Status
 
-| File | Change | Risk |
-|------|--------|------|
-| `approve-estimate/index.ts` | Add admin notification after customer email | Zero (non-blocking try/catch) |
-| `stripe-webhook/index.ts` | Add admin notification inside the partial payment else block (after line 263) | Zero (mutually exclusive with full payment notification) |
-| `unified-reminder-system/index.ts` | Remove automated post-event thank-you block (lines 452-506) | Zero (manual trigger replaces it) |
-| `send-event-followup/index.ts` | Remove auto-query mode; require quote_id parameter | Low (makes function manual-only) |
-| `src/hooks/useEstimateActions.tsx` | Add handleSendThankYou + isSendingThankYou | Low (new handler, no existing logic touched) |
-| `src/components/admin/events/EventDetailsPanelContent.tsx` | Add "Send Thank You" button for completed events | Low (UI addition only) |
-| `src/components/admin/events/EventEstimateFullView.tsx` | Wire new props from hook to component | Low (prop pass-through) |
+The `generate-payment-milestones` edge function has a **dual-waterfall bug** that causes incorrect paid statuses to copy forward on every regeneration.
+
+### How It Works (Broken)
+
+The function runs TWO independent paid-status calculations:
+
+```text
+Pass 1 (lines 49-65): Sum paid amounts from OLD milestones being deleted
+   totalPaidCents = sum of old milestones where status='paid'
+   
+Pass 2 (lines 313-338): Query actual payment_transactions
+   totalPaidFromTransactions = sum of completed transactions
+```
+
+**Both passes independently mark milestones as paid.** Pass 1 runs first during milestone generation (lines 258-274), then Pass 2 runs after and overwrites.
+
+### What Happened to Pryce Porter
+
+1. Deposit of $62.13 was paid -- stripe-webhook correctly marked DEPOSIT milestone as paid
+2. Something triggered a milestone regeneration (likely admin editing the estimate or the `usePaymentScheduleSync` hook firing)
+3. At that point, old milestones may have already had a corruption, OR the first regeneration incorrectly used `totalPaidCents` from old milestones
+4. Once all 3 milestones were incorrectly marked `paid`, every subsequent regeneration reads those old statuses and perpetuates the error:
+   - `totalPaidCents` = 62130 (sum of all old "paid" milestones)
+   - First waterfall marks all new milestones as "paid" using this inflated number
+   - Second waterfall (from transactions) only has 6213, which correctly marks only the deposit -- but the first pass already set them all to "paid"
+
+**The critical issue**: Pass 1 uses milestone `status` as the source of truth instead of actual transactions. If milestones ever get incorrectly marked (even once), the error is permanent and self-replicating.
 
 ---
 
-## Part 1: Admin Notifications
+## The Fix
 
-### 1a. approve-estimate/index.ts
+### Remove Pass 1 entirely. Only use actual payment transactions.
 
-Insert after the customer email send block, before the portal URL return:
+**File:** `supabase/functions/generate-payment-milestones/index.ts`
 
-```typescript
-// Send admin notification for approval (non-blocking)
-try {
-  await supabase.functions.invoke('send-admin-notification', {
-    body: {
-      invoiceId: invoice.id,
-      notificationType: 'customer_approval',
-      metadata: { source: 'customer_portal' }
-    }
-  });
-  console.log("[approve-estimate] Admin notification sent");
-} catch (err) {
-  console.error("[approve-estimate] Admin notification failed (non-critical):", err);
-}
+**Change 1:** Remove lines 49-65 (the `totalPaidCents` calculation from old milestones). The variable `totalPaidCents` is used in milestone status calculations at lines 148, 161, 172-182, 214-224, 258-274. All of these need to be changed to use `"pending"` as the default status, since Pass 2 (lines 313-338) will correctly set paid status from actual transactions afterward.
+
+**Change 2:** Set all milestone statuses to `"pending"` during creation (lines 132-311). Remove the inline waterfall logic that uses `totalPaidCents`. The transaction-based waterfall at lines 313-338 will handle it.
+
+**Change 3:** Keep Pass 2 (lines 313-338) exactly as-is. This is the correct logic -- it queries `payment_transactions` and applies waterfall.
+
+### Simplified flow after fix:
+
+```text
+1. Delete old milestones (if force_regenerate)
+2. Create new milestones with status = "pending"
+3. Query payment_transactions for completed payments
+4. Apply waterfall: mark milestones as "paid" based on actual money received
+5. Insert milestones
 ```
 
-### 1b. stripe-webhook/index.ts
+### Data Fix: Correct Pryce Porter's milestones
 
-Insert after line 263 (after customer deposit confirmation email), inside the partial payment else block only:
-
-```typescript
-// Send admin notification for deposit/partial payment (non-blocking)
-try {
-  await supabaseClient.functions.invoke('send-admin-notification', {
-    body: {
-      invoiceId: invoice_id,
-      notificationType: 'payment_received',
-      metadata: {
-        amount: session.amount_total,
-        payment_type: 'deposit',
-        full_payment: false
-      }
-    }
-  });
-  logStep("Admin notification sent for partial payment");
-} catch (err) {
-  logStep("Admin notification failed (non-critical)", { error: err });
-}
-```
-
-This is placed inside the else block (partial payment only). The full payment branch at line 200-215 already has its own admin notification. These are mutually exclusive -- no duplicates.
+After deploying the fix, trigger a regeneration for Pryce Porter's invoice to correct the data. This can be done via the admin "Regenerate" button or by calling the edge function directly. With the fix in place, only the $62.13 deposit milestone will be marked as paid.
 
 ---
 
-## Part 2: Manual-Only Thank You Emails
+## Other Risk Areas Identified
 
-### 2a. unified-reminder-system/index.ts
+### 1. usePaymentScheduleSync hook triggers regeneration too aggressively
 
-Delete lines 452-506 (the entire automated post-event thank-you block). Replace with:
+**File:** `src/hooks/usePaymentScheduleSync.ts`
 
-```typescript
-// Post-event thank you: now manual-only (triggered from admin dashboard)
-logStep("Post-event thank you emails are manual-only - skipping");
-reminderResults.push({ type: 'post_event_thankyou', count: 0, sent: 0 });
-```
+This hook watches `totalAmount` and `isGovernment` and regenerates milestones whenever they change. It fires when the admin opens the event detail view if the cached total differs from the database total by even 1 cent. This is likely what triggered the regeneration for Pryce Porter.
 
-### 2b. send-event-followup/index.ts
+**Risk:** Any time an admin opens an event page with stale cache data, milestones could be regenerated unnecessarily, and with the current bug, would propagate incorrect paid statuses.
 
-- Remove the "NORMAL MODE" auto-query block (lines 53-73) that finds yesterday's events
-- Rename `test_quote_id` to `quote_id`
-- Return 400 error if no `quote_id` is provided (prevents automated execution)
+**No code change needed** once the root cause (dual waterfall) is fixed -- regeneration will be safe because it will always use transaction data.
 
-### 2c. src/hooks/useEstimateActions.tsx
+### 2. stripe-webhook only marks a single milestone as paid
 
-Add new handler and state:
+**File:** `supabase/functions/stripe-webhook/index.ts` (lines 126-147)
 
-```typescript
-const [isSendingThankYou, setIsSendingThankYou] = useState(false);
+The webhook uses `milestone_id` from Stripe metadata to mark ONE specific milestone. This is correct for the immediate payment, but if a customer overpays or pays out of order, it won't waterfall to the next milestone.
 
-const handleSendThankYou = useCallback(async () => {
-  if (!quoteId) return;
-  setIsSendingThankYou(true);
-  try {
-    const { error } = await supabase.functions.invoke('send-event-followup', {
-      body: { quote_id: quoteId }
-    });
-    if (error) throw error;
-    toast({ title: 'Thank You Email Sent', description: 'Follow-up email sent to customer.' });
-  } catch (err: any) {
-    toast({ title: 'Error', description: err.message, variant: 'destructive' });
-  } finally {
-    setIsSendingThankYou(false);
-  }
-}, [quoteId, toast]);
-```
+**Risk:** Low -- Stripe checkout sessions are generated for specific milestone amounts, so overpayment is unlikely. But worth noting.
 
-Return `handleSendThankYou` and `isSendingThankYou` from the hook.
+### 3. No periodic milestone-transaction reconciliation
 
-### 2d. src/components/admin/events/EventDetailsPanelContent.tsx
+There is no scheduled job that verifies milestone statuses match actual transactions. If a webhook fails or a milestone status gets corrupted (as happened here), the error persists until manual intervention.
 
-Add props: `onSendThankYou?: () => void` and `isSendingThankYou?: boolean`.
-
-Add a "Send Thank You" button next to the "Completed" badge:
-
-```typescript
-{isCompleted && onSendThankYou && (
-  <Button
-    size="sm"
-    variant="outline"
-    onClick={onSendThankYou}
-    disabled={isSendingThankYou}
-    className="gap-1.5"
-  >
-    {isSendingThankYou ? (
-      <Loader2 className="h-4 w-4 animate-spin" />
-    ) : (
-      <Mail className="h-4 w-4" />
-    )}
-    Send Thank You
-  </Button>
-)}
-```
-
-### 2e. src/components/admin/events/EventEstimateFullView.tsx
-
-Destructure the new values from useEstimateActions and pass as props:
-
-```typescript
-const {
-  // ...existing values...
-  handleSendThankYou,
-  isSendingThankYou,
-} = useEstimateActions({ ... });
-
-<EventDetailsPanelContent
-  // ...existing props...
-  onSendThankYou={handleSendThankYou}
-  isSendingThankYou={isSendingThankYou}
-/>
-```
+**Recommendation (future):** Add a reconciliation check in the `unified-reminder-system` that compares milestone paid totals against transaction totals and auto-corrects mismatches. This is not urgent but would prevent future drift.
 
 ---
 
-## Complete Email Matrix After All Fixes
+## Summary of Changes
 
-| Trigger | Customer Email | Admin Email | Mode |
-|---------|---------------|-------------|------|
-| Estimate sent | Estimate ready email | -- | Automated (on send) |
-| Estimate approved | Approval confirmation | Approval alert (NEW) | Automated (on action) |
-| Deposit/partial payment | Deposit confirmation | Payment alert (NEW) | Automated (on action) |
-| Final payment completing balance | Payment confirmation | Payment alert (existing, full branch) | Automated (on action) |
-| Single full payment | Payment confirmation | Payment alert (existing, full branch) | Automated (on action) |
-| Change request | Acknowledgment | Change request alert (existing) | Automated (on action) |
-| Payment reminder | Payment due reminder | -- | Automated (3-day cycle) |
-| 7-day event reminder | Final details email | -- | Automated (cron) |
-| 2-day event reminder | "See you soon" email | -- | Automated (cron) |
-| Post-event thank you | Thank you email | -- | Manual (admin button) |
+| File | Change | Lines |
+|------|--------|-------|
+| `generate-payment-milestones/index.ts` | Remove `totalPaidCents` from old milestones; set all initial statuses to "pending"; keep transaction-based waterfall as sole source of truth | ~30 lines removed/simplified |
 
-## What This Does NOT Change
-
-- Payment reminder approval guard and 3-day cooldown (already fixed)
-- Government Net 30 milestone generation and due dates
-- Tax exemption logic
-- Auto-mark overdue / auto-confirm / auto-complete workflows
-- 7-day and 2-day event reminders (still automated)
-- Existing full-payment admin notification in stripe-webhook
+**No other files need changes.** The stripe-webhook, usePaymentScheduleSync, and admin UI are all correct -- the bug is isolated to the milestone generation function using stale milestone data instead of transaction data.
 
