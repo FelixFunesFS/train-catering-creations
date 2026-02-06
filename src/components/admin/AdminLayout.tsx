@@ -25,7 +25,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               variant="ghost"
               size="sm"
               onClick={signOut}
-              className="gap-2"
+              className="gap-2 hidden lg:flex"
             >
               <LogOut className="h-4 w-4" />
               <span className="hidden sm:inline">Sign Out</span>

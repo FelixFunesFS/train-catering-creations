@@ -127,16 +127,14 @@ function SelectedItemsList({ items }: { items: string[] }) {
 
 // Staff assignment card
 function StaffAssignmentCard({ 
-  assignment, 
-  event 
+  assignment 
 }: { 
   assignment: StaffAssignment; 
-  event: StaffEvent;
 }) {
   const roleColor = roleBadgeColors[assignment.role] || 'bg-muted text-muted-foreground';
   
   return (
-    <div className="flex items-center justify-between gap-3 py-3 border-b last:border-0">
+    <div className="flex items-center gap-3 py-3 border-b last:border-0">
       <div className="flex items-center gap-3 min-w-0">
         <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center shrink-0">
           <User className="h-5 w-5 text-muted-foreground" />
@@ -164,12 +162,6 @@ function StaffAssignmentCard({
           </div>
         </div>
       </div>
-      <AddToCalendarButton 
-        event={event}
-        staffAssignment={assignment}
-        variant="icon"
-        className="shrink-0"
-      />
     </div>
   );
 }
@@ -325,7 +317,6 @@ export function StaffEventDetails({ event, onBack }: StaffEventDetailsProps) {
                 <StaffAssignmentCard 
                   key={assignment.id} 
                   assignment={assignment}
-                  event={event}
                 />
               ))}
             </div>

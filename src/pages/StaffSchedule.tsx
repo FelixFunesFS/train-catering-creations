@@ -13,7 +13,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 
 export default function StaffSchedule() {
   const isMobile = useIsMobile();
-  const [filter, setFilter] = useState<StaffEventFilter>('week');
+  const [filter, setFilter] = useState<StaffEventFilter>('all');
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   
   const { data: events, isLoading, error } = useStaffEvents(filter);
