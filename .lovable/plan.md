@@ -1,153 +1,88 @@
 
-# Staff View Overhaul + ceremony_included Removal + Admin Field Alignment
 
-## Summary
+# Fix Admin Forgot Password Flow
 
-This plan combines four objectives into one cohesive update:
+## The Core Problem
 
-1. Remove `ceremony_included` from all views (it is deprecated)
-2. Add missing operational fields to admin event details (serving setup area, wait staff setup areas, etc.)
-3. Overhaul the staff view into a Digital BEO with consolidated sections, admin notes, and conditional rendering
-4. Remove the "Add to Calendar" button from staff event cards and details, default all sections to expanded
+The "Forgot Password" flow fails at two points:
+1. **Email never sends** -- Supabase Auth SMTP rejects with `534 5.7.9` (needs Gmail App Password)
+2. **No UI to set new password** -- even if the email sent, clicking the reset link would auto-redirect to the dashboard without a password form
 
-## Part 1: Remove ceremony_included Everywhere
+## Will This Impact Customer/Admin Emails?
 
-The `ceremony_included` field is deprecated. Remove all references from UI rendering. The database column stays (to avoid breaking existing data), but it is no longer displayed or submitted.
+**No.** There are two completely independent SMTP configurations:
 
-| File | Change |
-|------|--------|
-| `EventDetailsPanelContent.tsx` | Remove from Service Add-ons condition (line 317) and list item (line 328) |
-| `EventSummaryPanel.tsx` | Remove from Service Add-ons condition (line 336) and badge (lines 354-358) |
-| `EventDetail.tsx` | Remove ceremony_included rendering (line 335) |
-| `CustomerEstimateView.tsx` | Remove ceremony_included conditional display |
-| `MobileEstimateView.tsx` | Remove ceremony_included rendering |
-| `CustomerDetailsSidebar.tsx` | Remove ceremony_included from type and rendering |
-| `invoiceFormatters.ts` | Remove ceremony_included from type and logic |
-| `formSchema.ts` | Remove ceremony_included from Zod schema |
-| Edge functions (`emailTemplates.ts`, `generate-invoice-from-quote`, `generate-invoice-pdf`, `preview-email`, `submit-quote-request`) | Remove ceremony_included references |
+| System | Configuration Location | Emails It Sends | Impact of This Fix |
+|--------|----------------------|------------------|-------------------|
+| Supabase Auth (GoTrue) | Supabase Dashboard > Settings > Auth > SMTP | Password reset, email verification | Updated here -- fixes forgot password |
+| App Edge Function (`send-smtp-email`) | Edge Function secrets (`SMTP_HOST`, `SMTP_PASS`, etc.) | Estimates, invoices, reminders, notifications | Not touched -- no impact |
 
-## Part 2: Add Missing Operational Fields to Admin Views
+Updating the SMTP password in the Supabase Dashboard only affects authentication emails. Your customer estimates, invoices, payment reminders, and admin notifications flow through a completely separate path (`send-smtp-email` edge function) using its own set of secrets.
 
-Currently, `serving_setup_area`, `separate_serving_area`, `wait_staff_setup_areas` are NOT shown in admin event details. These are important for operational planning.
+**However:** Both configurations use the same Gmail account (`soultrainseatery@gmail.com`). If 2FA is enabled on that Gmail account, **both** may need App Passwords. If your customer emails are currently sending successfully, the edge function secret is already correct and does not need changing.
 
-**`EventDetailsPanelContent.tsx`** -- Add to the "Service Add-ons" section (conditionally rendered):
-- `serving_setup_area`: text display with MapPin icon
-- `separate_serving_area`: "Separate Serving Area" indicator (only if true)
-- `wait_staff_setup_areas`: text display (only if truthy)
+## What Needs to Change
 
-**`EventSummaryPanel.tsx`** -- Add the same 3 fields to its Service Add-ons section (conditionally rendered).
+### Step 1: Fix SMTP Credential (Manual -- Supabase Dashboard)
 
-## Part 3: Database -- RLS for Staff Access to Line Items and Admin Notes
+You need to update the SMTP password in the **Supabase Dashboard** (not in code):
 
-New migration adds SELECT-only policies:
-- `invoice_line_items`: staff can read rows (query explicitly excludes `unit_price` and `total_price` columns)
-- `admin_notes`: staff can read internal operational notes
+1. Go to your Gmail account > Security > 2-Step Verification > App Passwords
+2. Generate a new App Password (select "Mail" as the app)
+3. Copy the 16-character password
+4. Go to Supabase Dashboard > Settings > Authentication > SMTP Settings
+5. Paste the App Password into the SMTP password field
+6. Save
 
-## Part 4: Data Layer -- useStaffEvents.ts
+This fixes the `534 5.7.9` error so reset emails actually send.
 
-### New types
+### Step 2: Add PASSWORD_RECOVERY Event Handler (Code Change)
 
+**File:** `src/hooks/useAuth.tsx`
+
+Currently, when a user clicks the password reset link in their email, Supabase fires a `PASSWORD_RECOVERY` auth event. The current code does not handle this event, so the user gets auto-redirected to `/admin` as a logged-in user -- with no opportunity to set a new password.
+
+Add a handler that:
+- Detects the `PASSWORD_RECOVERY` event
+- Sets a flag (e.g., `isPasswordRecovery`) in auth state
+- Prevents the normal redirect to `/admin`
+
+### Step 3: Add "Set New Password" Form (Code Change)
+
+**File:** `src/pages/AdminAuth.tsx`
+
+Add a password reset form that appears when the `PASSWORD_RECOVERY` flag is active:
+- Two fields: "New Password" and "Confirm Password"
+- Validation: minimum 8 characters, passwords must match
+- On submit: calls `supabase.auth.updateUser({ password })`
+- On success: clears the recovery flag, shows success toast, redirects to `/admin`
+
+The form replaces the normal login form when `mode=reset` is in the URL or the `PASSWORD_RECOVERY` event fires.
+
+### Step 4: Wire Up the Recovery Request
+
+**File:** `src/pages/AdminAuth.tsx`
+
+The existing "Forgot Password?" link already navigates to `?mode=reset` and calls `supabase.auth.resetPasswordForEmail()`. This part works -- it just needs the SMTP fix (Step 1) to actually deliver the email.
+
+Verify the `redirectTo` in the reset call points to the production domain with a recovery path:
 ```text
-StaffLineItem { id, title, description, category, quantity, sort_order }
-StaffAdminNote { id, note_content, category, priority_level, created_at }
-```
-
-### Updated StaffEvent interface
-
-Add these fields to the `.select()` calls (NO `ceremony_included`):
-- `contact_name`, `phone` (on-site contact -- email is NOT included)
-- `serving_setup_area`, `separate_serving_area`
-- `wait_staff_requirements`, `wait_staff_setup_areas`
-- `theme_colors`, `military_organization`
-- `both_proteins_available`, `guest_count_with_restrictions`
-- `line_items: StaffLineItem[]` (fetched via invoices join)
-- `admin_notes: StaffAdminNote[]` (fetched from admin_notes table)
-
-### Fetch logic
-
-After fetching events from `quote_requests`:
-1. Query `invoices` by `quote_request_id` to get invoice IDs
-2. Query `invoice_line_items` by those invoice IDs, selecting only `id, title, description, category, quantity, sort_order` (no pricing columns)
-3. Query `admin_notes` by `quote_request_id`
-4. Merge into StaffEvent objects
-
-## Part 5: UI -- StaffEventCard.tsx
-
-- Remove `AddToCalendarButton` (lines 61-65) and its import
-- Conditionally add `contact_name` on the card (only if present)
-
-## Part 6: UI -- StaffEventDetails.tsx
-
-### Remove "Add to Calendar" button
-Delete the `AddToCalendarButton` at line 227 and its import (line 11).
-
-### Add Contact Info block in header card
-After the info badges, conditionally show:
-- Contact name (only if set)
-- Tappable phone link (only if set)
-- Military organization badge (only if set)
-- Theme/colors (only if set)
-
-### Replace Menu + Equipment with "Event Requirements"
-Remove the separate "Menu Items" and "Equipment Needed" sections. Replace with a single "Event Requirements" section:
-- Primary: renders `line_items` grouped by `category`, sorted by `sort_order` -- no pricing
-- Fallback: if no line items exist (estimate not yet created), renders the current raw menu arrays and equipment booleans
-- Dietary restrictions alert stays (conditionally shown)
-- `guest_count_with_restrictions` shown if greater than 0
-- `both_proteins_available` shown if true
-
-### Enhance "Service Details" section
-Add to existing section (all conditionally rendered -- blank values hidden):
-- `serving_setup_area` with icon
-- `separate_serving_area` indicator (only if true)
-- `wait_staff_requirements` text
-- `wait_staff_setup_areas` text
-- Admin Notes block: each note with category badge and priority indicator (entire block hidden if no notes)
-
-### Expand all sections by default
-Change all `CollapsibleSection` components to `defaultOpen={true}`.
-
-### Blank Field Rules (applies to every new field)
-
-```text
-Field                          Render condition
------------------------------  ----------------
-contact_name                   only if truthy string
-phone                          only if truthy string
-serving_setup_area             only if truthy string
-separate_serving_area          only if true (boolean)
-wait_staff_requirements        only if truthy string
-wait_staff_setup_areas         only if truthy string
-theme_colors                   only if truthy string
-military_organization          only if truthy string
-both_proteins_available        only if true (boolean)
-guest_count_with_restrictions  only if truthy and > 0
-line_items section             falls back to raw menu if empty array
-admin_notes block              hidden entirely if empty array
+https://www.soultrainseatery.com/admin/auth?mode=recovery
 ```
 
 ## Files Summary
 
 | File | Change |
 |------|--------|
-| New migration | Staff SELECT policies for `invoice_line_items` and `admin_notes` |
-| `src/hooks/useStaffEvents.ts` | Add 11 fields, line items, admin notes to interface and fetch |
-| `src/components/staff/StaffEventDetails.tsx` | Remove calendar button; add contact info; replace menu/equipment with line items; add admin notes; enhance service details; expand all; remove ceremony_included |
-| `src/components/staff/StaffEventCard.tsx` | Remove calendar button; add contact name |
-| `src/components/admin/events/EventDetailsPanelContent.tsx` | Remove ceremony_included; add serving_setup_area, separate_serving_area, wait_staff_setup_areas |
-| `src/components/admin/events/EventSummaryPanel.tsx` | Remove ceremony_included; add serving_setup_area, separate_serving_area, wait_staff_setup_areas |
-| `src/components/admin/events/EventDetail.tsx` | Remove ceremony_included |
-| `src/components/customer/CustomerEstimateView.tsx` | Remove ceremony_included |
-| `src/components/customer/CustomerDetailsSidebar.tsx` | Remove ceremony_included |
-| `src/components/admin/mobile/MobileEstimateView.tsx` | Remove ceremony_included |
-| `src/utils/invoiceFormatters.ts` | Remove ceremony_included |
-| `src/components/quote/alternative-form/formSchema.ts` | Remove ceremony_included |
-| Edge functions (emailTemplates, generate-invoice-from-quote, generate-invoice-pdf, preview-email, submit-quote-request) | Remove ceremony_included references |
+| Supabase Dashboard | Update Auth SMTP password with Gmail App Password (manual) |
+| `src/hooks/useAuth.tsx` | Add PASSWORD_RECOVERY event handler, expose recovery flag |
+| `src/pages/AdminAuth.tsx` | Add "Set New Password" form for recovery mode |
 
 ## What Does NOT Change
 
-- Customer email is NOT exposed to staff (only name and phone for on-site coordination)
-- Pricing data never reaches the staff view (excluded at query level)
-- Staff schedule page layout, filter tabs, AdminLayout chrome
-- All route protection and permissions
-- Database column `ceremony_included` stays in the table (avoids destructive migration) but is never rendered or submitted
+- `send-smtp-email` edge function and its secrets (customer/admin emails unaffected)
+- All other email templates and sending logic
+- Login flow, Google OAuth, session management
+- Admin dashboard, staff routes, customer portal
+- No database changes required
+
