@@ -26,9 +26,9 @@ export function MobileAdminNav() {
   const gridCols = navItems.length + 1;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t pb-[env(safe-area-inset-bottom)]">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t pb-[env(safe-area-inset-bottom)] lg:static lg:border-t-0 lg:border-b lg:pb-0">
       <div 
-        className="grid h-16"
+        className="grid h-16 lg:flex lg:h-12 lg:items-center lg:gap-1 lg:px-4"
         style={{ gridTemplateColumns: `repeat(${gridCols}, minmax(0, 1fr))` }}
       >
         {navItems.map((item) => {
@@ -42,12 +42,13 @@ export function MobileAdminNav() {
               to={`${item.path}${item.query}`}
               className={cn(
                 "flex flex-col items-center justify-center gap-1 text-xs transition-colors",
+                "lg:flex-row lg:gap-2 lg:px-3 lg:py-1.5 lg:rounded-md lg:text-sm",
                 isActive 
-                  ? "text-primary font-medium" 
+                  ? "text-primary font-medium lg:bg-muted" 
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
-              <item.icon className={cn("h-5 w-5", isActive && "text-primary")} />
+              <item.icon className={cn("h-5 w-5 lg:h-4 lg:w-4", isActive && "text-primary")} />
               <span>{item.label}</span>
             </NavLink>
           );
@@ -55,7 +56,7 @@ export function MobileAdminNav() {
         
         <button
           onClick={() => signOut()}
-          className="flex flex-col items-center justify-center gap-1 text-xs text-muted-foreground hover:text-destructive transition-colors"
+          className="flex flex-col items-center justify-center gap-1 text-xs text-muted-foreground hover:text-destructive transition-colors lg:hidden"
         >
           <LogOut className="h-5 w-5" />
           <span>Logout</span>
