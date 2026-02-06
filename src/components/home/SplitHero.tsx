@@ -198,9 +198,9 @@ export const SplitHero = () => {
 
   // Dynamic object positioning based on image index
   const getImageClasses = (index: number) => {
-    // Photo grid collage (index 0) — zoom out to show more content
+    // Chef at the grill (index 0) — center on the chef
     if (index === 0) {
-      return "object-center scale-[0.85]";
+      return "object-[center_30%]";
     }
     // For the charcuterie board image (index 1), shift focal point 20% lower
     if (index === 1) {
