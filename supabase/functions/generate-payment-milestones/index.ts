@@ -46,8 +46,6 @@ const handler = async (req: Request): Promise<Response> => {
       .select("id, status, amount_cents")
       .eq("invoice_id", invoice_id);
 
-    // Calculate total already paid from existing milestones
-    let totalPaidCents = 0;
     if (existingMilestones && existingMilestones.length > 0) {
       if (!force_regenerate) {
         logStep("Milestones already exist, use force_regenerate to recreate", { count: existingMilestones.length });
@@ -57,16 +55,8 @@ const handler = async (req: Request): Promise<Response> => {
         );
       }
 
-      // Sum paid milestone amounts before deleting
-      for (const m of existingMilestones) {
-        if (m.status === 'paid') {
-          totalPaidCents += m.amount_cents || 0;
-        }
-      }
-
       logStep("Deleting existing milestones for regeneration", { 
-        count: existingMilestones.length, 
-        totalPaidCents 
+        count: existingMilestones.length
       });
 
       // Delete existing milestones
@@ -114,7 +104,7 @@ const handler = async (req: Request): Promise<Response> => {
     // Determine customer type
     const isGovernment = quote?.compliance_level === 'government' || quote?.requires_po_number;
 
-    logStep("Calculating schedule", { daysUntilEvent, isGovernment, totalAmountCents, totalPaidCents });
+    logStep("Calculating schedule", { daysUntilEvent, isGovernment, totalAmountCents });
 
     // Guard: Cannot create milestones for zero or negative totals
     if (!totalAmountCents || totalAmountCents <= 0) {
@@ -145,7 +135,7 @@ const handler = async (req: Request): Promise<Response> => {
         due_date: formatDateToString(dueDate),
         is_due_now: false,
         is_net30: true,
-        status: totalPaidCents >= totalAmountCents ? "paid" : "pending",
+        status: "pending",
         description: "Full payment due 30 days after event (Net 30)",
       });
     } else if (daysUntilEvent <= 14) {
@@ -158,7 +148,7 @@ const handler = async (req: Request): Promise<Response> => {
         due_date: formatDateToString(now),
         is_due_now: true,
         is_net30: false,
-        status: totalPaidCents >= totalAmountCents ? "paid" : "pending",
+        status: "pending",
         description: "Full payment due immediately (rush event)",
       });
     } else if (daysUntilEvent <= 30) {
@@ -168,18 +158,8 @@ const handler = async (req: Request): Promise<Response> => {
       const depositAmount = Math.round(totalAmountCents * 0.6);
       const finalAmount = totalAmountCents - depositAmount;
 
-      // Determine status based on what's been paid
-      let depositStatus = "pending";
-      let finalStatus = "pending";
-      let remainingPaid = totalPaidCents;
-
-      if (remainingPaid >= depositAmount) {
-        depositStatus = "paid";
-        remainingPaid -= depositAmount;
-        if (remainingPaid >= finalAmount) {
-          finalStatus = "paid";
-        }
-      }
+      const depositStatus = "pending";
+      const finalStatus = "pending";
 
       milestones.push({
         invoice_id,
@@ -211,17 +191,8 @@ const handler = async (req: Request): Promise<Response> => {
       const depositAmount = Math.round(totalAmountCents * 0.6);
       const finalAmount = totalAmountCents - depositAmount;
 
-      let depositStatus = "pending";
-      let finalStatus = "pending";
-      let remainingPaid = totalPaidCents;
-
-      if (remainingPaid >= depositAmount) {
-        depositStatus = "paid";
-        remainingPaid -= depositAmount;
-        if (remainingPaid >= finalAmount) {
-          finalStatus = "paid";
-        }
-      }
+      const depositStatus = "pending";
+      const finalStatus = "pending";
 
       milestones.push({
         invoice_id,
@@ -255,23 +226,9 @@ const handler = async (req: Request): Promise<Response> => {
       const midAmount = Math.round(totalAmountCents * 0.5);
       const finalAmount = totalAmountCents - bookingAmount - midAmount;
 
-      // Waterfall payment status based on total paid
-      let bookingStatus = "pending";
-      let midStatus = "pending";
-      let finalStatus = "pending";
-      let remainingPaid = totalPaidCents;
-
-      if (remainingPaid >= bookingAmount) {
-        bookingStatus = "paid";
-        remainingPaid -= bookingAmount;
-        if (remainingPaid >= midAmount) {
-          midStatus = "paid";
-          remainingPaid -= midAmount;
-          if (remainingPaid >= finalAmount) {
-            finalStatus = "paid";
-          }
-        }
-      }
+      const bookingStatus = "pending";
+      const midStatus = "pending";
+      const finalStatus = "pending";
 
       milestones.push({
         invoice_id,
