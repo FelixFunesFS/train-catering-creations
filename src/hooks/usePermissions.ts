@@ -33,48 +33,23 @@ export function usePermissions() {
       return;
     }
     
-    if (user?.id) {
-      loadUserRoles();
-    } else {
+    if (!user?.id) {
       setRoles([]);
       setLoading(false);
+      return;
     }
-  }, [user?.id, authLoading, isVerifyingAccess, userRole]);
 
-  const loadUserRoles = async () => {
-    try {
-      // Use security definer RPC to bypass RLS timing issues during OAuth
-      const { data: isAdmin, error: adminError } = await supabase.rpc('has_role', { 
-        _user_id: user!.id, 
-        _role: 'admin' 
-      });
-
-      if (!adminError && isAdmin === true) {
-        setRoles(['admin']);
-        setLoading(false);
-        return;
-      }
-
-      // Check for staff role
-      const { data: isStaff, error: staffError } = await supabase.rpc('has_role', {
-        _user_id: user!.id,
-        _role: 'staff'
-      });
-
-      if (!staffError && isStaff === true) {
-        setRoles(['staff']);
-        setLoading(false);
-        return;
-      }
-
-      setRoles(['user']);
-    } catch (error) {
-      console.error('Error loading user roles:', error);
-      setRoles(['user']);
-    } finally {
+    // Reuse the role already resolved by useAuth — no extra RPC calls
+    if (userRole === 'admin' || userRole === 'staff') {
+      setRoles([userRole]);
       setLoading(false);
+      return;
     }
-  };
+
+    // Fallback: user is authenticated but useAuth didn't resolve a role
+    setRoles(['user']);
+    setLoading(false);
+  }, [user?.id, authLoading, isVerifyingAccess, userRole]);
 
   const hasPermission = (permission: Permission): boolean => {
     for (const role of roles) {
@@ -87,40 +62,19 @@ export function usePermissions() {
     return false;
   };
 
-  const hasRole = (role: Role): boolean => {
-    return roles.includes(role);
-  };
-
-  const isAdmin = (): boolean => {
-    return roles.includes('admin');
-  };
-
-  const isStaff = (): boolean => {
-    return roles.includes('staff');
-  };
+  const hasRole = (role: Role): boolean => roles.includes(role);
+  const isAdmin = (): boolean => roles.includes('admin');
+  const isStaff = (): boolean => roles.includes('staff');
 
   const canAccess = (section: 'dashboard' | 'events' | 'billing' | 'settings' | 'staff'): boolean => {
     if (isAdmin()) return true;
     switch (section) {
       case 'staff':
         return isStaff() || isAdmin();
-      case 'dashboard':
-      case 'events':
-      case 'billing':
-      case 'settings':
-        return isAdmin();
       default:
         return false;
     }
   };
 
-  return {
-    roles,
-    loading,
-    hasPermission,
-    hasRole,
-    isAdmin,
-    isStaff,
-    canAccess,
-  };
+  return { roles, loading, hasPermission, hasRole, isAdmin, isStaff, canAccess };
 }
