@@ -146,7 +146,7 @@ export function CustomerEstimateView() {
       due_date: (m as Milestone).due_date,
     }))
   );
-  const paymentStatus = getPaymentStatus(invoice.workflow_status, nextMilestone?.milestone_type);
+  const paymentStatus = getPaymentStatus(invoice.workflow_status, nextMilestone?.milestone_type, nextMilestone?.due_date);
 
   // Shared header component
   const HeaderSection = () => (

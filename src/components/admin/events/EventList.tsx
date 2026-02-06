@@ -404,14 +404,14 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                                 const nextMilestone = invoice.payment_milestones 
                                   ? getNextUnpaidMilestone(invoice.payment_milestones)
                                   : null;
-                                const paymentStatus = getPaymentStatus(invoice.workflow_status, nextMilestone?.milestone_type);
+                                const paymentStatus = getPaymentStatus(invoice.workflow_status, nextMilestone?.milestone_type, nextMilestone?.due_date);
                                 if (!paymentStatus) return null;
                                 return (
-                                  <Badge variant="outline" className={`text-xs ${paymentStatus.color} border`}>
-                                    <CreditCard className="h-3 w-3 mr-0.5" />
-                                    {paymentStatus.label}
-                                  </Badge>
-                                );
+                                   <Badge variant="outline" className={`text-xs ${paymentStatus.color} border`}>
+                                     <CreditCard className="h-3 w-3 mr-0.5" />
+                                     {paymentStatus.label}
+                                   </Badge>
+                                 );
                               })()}
                             </>
                           ) : (
@@ -637,7 +637,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                           const nextMilestone = invoice.payment_milestones 
                             ? getNextUnpaidMilestone(invoice.payment_milestones)
                             : null;
-                          const paymentStatus = getPaymentStatus(invoice.workflow_status, nextMilestone?.milestone_type);
+                          const paymentStatus = getPaymentStatus(invoice.workflow_status, nextMilestone?.milestone_type, nextMilestone?.due_date);
                           if (!paymentStatus) return <span className="text-muted-foreground">—</span>;
                           return (
                             <Badge variant="outline" className={`text-xs ${paymentStatus.color} border`}>
