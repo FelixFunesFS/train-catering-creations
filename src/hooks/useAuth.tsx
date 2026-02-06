@@ -11,10 +11,13 @@ interface AuthContextType {
   loading: boolean;
   isVerifyingAccess: boolean;
   userRole: UserRole;
+  isPasswordRecovery: boolean;
+  clearPasswordRecovery: () => void;
   signIn: (email: string, password: string) => Promise<{ error?: any }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error?: any }>;
   signInWithGoogle: () => Promise<{ error?: any }>;
+  updatePassword: (newPassword: string) => Promise<{ error?: any }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -59,10 +62,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [isVerifyingAccess, setIsVerifyingAccess] = useState(false);
   const [userRole, setUserRole] = useState<UserRole>(null);
+  const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        // Handle password recovery - user clicked reset link in email
+        if (event === 'PASSWORD_RECOVERY') {
+          setIsPasswordRecovery(true);
+          setSession(session);
+          setUser(session?.user ?? null);
+          setLoading(false);
+          return;
+        }
+
+        // Don't run access check during password recovery flow
+        if (isPasswordRecovery) {
+          setSession(session);
+          setUser(session?.user ?? null);
+          setLoading(false);
+          return;
+        }
+
         if (event === 'SIGNED_IN' && session?.user) {
           setIsVerifyingAccess(true);
           
@@ -166,7 +187,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const resetPassword = async (email: string) => {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${PRODUCTION_URL}/admin/auth?mode=reset`
+      redirectTo: `${PRODUCTION_URL}/admin/auth?mode=recovery`
     });
     
     if (error) {
@@ -193,6 +214,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error };
   };
 
+  const updatePassword = async (newPassword: string) => {
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) {
+      toast.error(error.message);
+    } else {
+      toast.success('Password updated successfully!');
+      setIsPasswordRecovery(false);
+    }
+    return { error };
+  };
+
+  const clearPasswordRecovery = () => {
+    setIsPasswordRecovery(false);
+  };
+
   return (
     <AuthContext.Provider value={{
       user,
@@ -200,10 +236,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       loading,
       isVerifyingAccess,
       userRole,
+      isPasswordRecovery,
+      clearPasswordRecovery,
       signIn,
       signOut,
       resetPassword,
       signInWithGoogle,
+      updatePassword,
     }}>
       {children}
     </AuthContext.Provider>
