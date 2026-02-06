@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, useRef, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -63,6 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isVerifyingAccess, setIsVerifyingAccess] = useState(false);
   const [userRole, setUserRole] = useState<UserRole>(null);
   const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
+  const initializedRef = useRef(false);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -81,6 +82,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setSession(session);
           setUser(session?.user ?? null);
           setLoading(false);
+          return;
+        }
+
+        // Skip SIGNED_IN during initial load — getSession handles it
+        if (event === 'SIGNED_IN' && !initializedRef.current) {
           return;
         }
 
@@ -112,36 +118,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         if (event === 'SIGNED_OUT') {
           setUserRole(null);
+          setUser(null);
+          setSession(null);
+          setLoading(false);
         }
         
         setSession(session);
         setUser(session?.user ?? null);
-        setLoading(false);
       }
     );
 
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (session?.user) {
-        setIsVerifyingAccess(true);
-        const role = await checkAccess(session.user.id);
-        
-        if (!role) {
-          await supabase.auth.signOut();
-          setUser(null);
-          setSession(null);
-          setUserRole(null);
+    // Single authority for initial session check
+    const initializeAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          setIsVerifyingAccess(true);
+          const role = await checkAccess(session.user.id);
+          
+          if (!role) {
+            await supabase.auth.signOut();
+            setUser(null);
+            setSession(null);
+            setUserRole(null);
+          } else {
+            setSession(session);
+            setUser(session.user);
+            setUserRole(role);
+          }
           setIsVerifyingAccess(false);
-          setLoading(false);
-          return;
         }
-        
-        setSession(session);
-        setUser(session.user);
-        setUserRole(role);
-        setIsVerifyingAccess(false);
+      } catch (err) {
+        console.error('Auth initialization error:', err);
+      } finally {
+        setLoading(false);
+        initializedRef.current = true;
       }
-      setLoading(false);
-    });
+    };
+
+    initializeAuth();
 
     return () => subscription.unsubscribe();
   }, []);
