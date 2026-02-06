@@ -14,15 +14,12 @@ import { lazy, Suspense } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { HeroVisibilityProvider } from "@/contexts/HeroVisibilityContext";
 import { useVisitorTracking } from "@/hooks/useVisitorTracking";
-import { useAdminPWA } from "@/hooks/useAdminPWA";
 
 // Critical path - eagerly loaded for LCP
 import Index from "./pages/Index";
 
 // Lazy loaded utility components - not critical for initial render
 const Footer = lazy(() => import("./components/Footer").then(m => ({ default: m.Footer })));
-const OfflineIndicator = lazy(() => import("./components/pwa/OfflineIndicator").then(m => ({ default: m.OfflineIndicator })));
-const PwaUpdateBanner = lazy(() => import("./components/pwa/PwaUpdateBanner").then(m => ({ default: m.PwaUpdateBanner })));
 const MobileActionBar = lazy(() => import("./components/mobile/MobileActionBar").then(m => ({ default: m.MobileActionBar })));
 const ScrollToTop = lazy(() => import("./components/ui/scroll-to-top").then(m => ({ default: m.ScrollToTop })));
 
@@ -40,7 +37,7 @@ const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsConditions = lazy(() => import("./pages/TermsConditions"));
 const AdminAuth = lazy(() => import("./pages/AdminAuth"));
 const NotFound = lazy(() => import("./pages/NotFound"));
-const Install = lazy(() => import("./pages/Install"));
+
 const ApproveEstimate = lazy(() => import("./pages/ApproveEstimate"));
 const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
 const PaymentCanceled = lazy(() => import("./pages/PaymentCanceled"));
@@ -62,7 +59,6 @@ const PageLoader = () => (
 const AppContent = () => {
   useScrollToAnchor();
   useVisitorTracking(); // Track visitor page views for admin notifications
-  useAdminPWA(); // Dynamic PWA manifest/meta for admin routes
   const location = useLocation();
   const isMobile = useIsMobile();
   const isAdminRoute = location.pathname.startsWith('/admin');
@@ -76,10 +72,6 @@ const AppContent = () => {
   const showMobileActionBar = isMobile && !isAdminRoute && !isQuoteWizardRoute;
   
   return <div className="min-h-screen bg-background font-clean flex flex-col transition-colors duration-300 py-0 my-0">
-      <Suspense fallback={null}>
-        <OfflineIndicator />
-        <PwaUpdateBanner />
-      </Suspense>
       {!hideChrome && <Header />}
       <main className={`flex-1 ${!hideChrome ? 'pt-16 lg:pt-[72px]' : ''} ${isAdminRoute ? 'p-0' : 'py-0 my-0'} ${showMobileActionBar ? 'pb-[calc(5rem+env(safe-area-inset-bottom))]' : ''}`}>
         <Suspense fallback={<PageLoader />}>
@@ -95,7 +87,7 @@ const AppContent = () => {
             <Route path="/reviews" element={<Reviews />} />
             <Route path="/gallery" element={<AlternativeGallery />} />
             <Route path="/faq" element={<FAQ />} />
-            <Route path="/install" element={<Install />} />
+            
             {/* Customer approval deep links (email clients may append trailing slashes) */}
             <Route path="/approve/*" element={<ApproveEstimate />} />
             <Route path="/approve-estimate" element={<ApproveEstimate />} />

@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Bell, BellOff, Smartphone, AlertCircle, Moon, Check, Loader2 } from 'lucide-react';
 import { usePushSubscription } from '@/hooks/usePushSubscription';
-import { usePWAInstall } from '@/hooks/usePWAInstall';
+
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
@@ -32,7 +32,8 @@ export function NotificationPreferencesPanel() {
     subscribe, 
     unsubscribe 
   } = usePushSubscription();
-  const { isIOS, isInstalled } = usePWAInstall();
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const isInstalled = window.matchMedia('(display-mode: standalone)').matches;
 
   const [preferences, setPreferences] = useState<NotificationPreferences>({
     visitor_alerts: false,

@@ -9,7 +9,6 @@ interface AuthContextType {
   loading: boolean;
   isVerifyingAccess: boolean;
   signIn: (email: string, password: string) => Promise<{ error?: any }>;
-  signUp: (email: string, password: string) => Promise<{ error?: any }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error?: any }>;
   signInWithGoogle: () => Promise<{ error?: any }>;
@@ -151,24 +150,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: null };
   };
 
-  const signUp = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `${PRODUCTION_URL}/admin`
-      }
-    });
-    
-    if (error) {
-      toast.error(error.message);
-    } else {
-      toast.success('Check your email for the confirmation link');
-    }
-    
-    return { error };
-  };
-
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) {
@@ -214,7 +195,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       loading,
       isVerifyingAccess,
       signIn,
-      signUp,
       signOut,
       resetPassword,
       signInWithGoogle,
