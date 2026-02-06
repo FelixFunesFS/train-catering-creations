@@ -1,24 +1,28 @@
 
 
-## Zoom Out First Hero Image by 50%
+## Fix Grey Space Around First Hero Image
 
-### Problem
-The first hero image needs to be zoomed out to show more of the image content while still filling the container.
+### Root Cause
+CSS `scale-[0.5]` shrinks the entire `<img>` element to 50% of its rendered size. While `object-cover` fills the image element itself, the element is now only half the size of its parent container -- leaving grey/background gaps on all sides. `scale` does not "zoom out" the image content within its frame; it shrinks the whole frame.
 
 ### Solution
-Add `scale-[0.5]` to the first image's classes. This scales the image to 50% of its rendered size, effectively "zooming out" by 50%. Combined with `object-cover`, the container remains fully filled with no empty space.
+Remove `scale-[0.5]` entirely. The uploaded image is portrait-oriented, which naturally fits the tall hero containers (85vh on mobile, full-height on desktop) with minimal cropping when using `object-cover object-center`.
 
 ### Changes (1 file)
 
-**`src/components/home/SplitHero.tsx`** (line 202)
+**`src/components/home/SplitHero.tsx`** -- line 203
 
+Change:
 ```tsx
-// Before
-return "object-cover object-center";
-
-// After
 return "object-cover object-center scale-[0.5]";
 ```
+To:
+```tsx
+return "object-cover object-center";
+```
 
-This only affects the first hero slide; all other images remain unchanged.
+### Why This Is Correct
+- The image is portrait (tall) and the hero container is also tall -- `object-cover` will fill it with only slight left/right cropping on desktop (where the container is wider than tall).
+- On mobile, the container is also portrait, so cropping will be minimal on all sides.
+- There is no CSS-only way to "zoom out" an `object-cover` image without leaving empty space -- `object-cover` by definition crops to fill. The only way to show more of the image is to better match the container's aspect ratio to the image's aspect ratio, which is already the case here.
 
