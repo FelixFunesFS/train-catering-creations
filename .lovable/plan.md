@@ -1,44 +1,34 @@
 
 
-## Fix First Hero Image — No Crop, No Gaps
+## Remove First Hero Image from Desktop View Only
 
-### The Core Problem
-The chef photo is portrait (~3:4). The desktop hero container is nearly square/landscape (~1.07:1). CSS can either crop the image to fill (`object-cover`) or show the full image with side gaps (`object-contain`). There is no CSS setting that does both simultaneously.
+### What Changes
+The first slide (chef serving image) will be skipped on desktop. The carousel will start at what is currently the second slide (appetizers) and only cycle through slides 2-4. Mobile/tablet remains unchanged and continues to show all 4 slides.
 
-### Recommended Solution: Blurred Background Fill
-Show the full image at its natural size with a blurred, darkened copy of itself behind it filling the container edges. This is the same technique used by YouTube, Instagram, and TikTok for vertical content in horizontal frames.
-
-- Full chef + hog scene is visible, no cropping
-- No black bars or background color showing
-- Looks intentional and polished
-- Only applies to the first slide; other slides keep `object-cover`
-
-### Technical Changes
+### Technical Changes -- 1 file
 
 **`src/components/home/SplitHero.tsx`**
 
-1. Update `getImageClasses` for index 0 to return `"object-contain object-center relative z-10"` (layered above the blurred background).
+1. **Create a desktop-specific image array**: Filter out the first image (index 0) for desktop, keeping all images for mobile.
 
-2. For both mobile and desktop `OptimizedImage` blocks, wrap the first slide in a container that includes a second `<img>` behind it acting as the blurred fill:
+2. **Use the filtered array in the desktop return block**: Replace references to `heroImages` with the filtered array (3 items instead of 4) for the desktop section only. This affects:
+   - The carousel auto-advance (`heroImages.length`)
+   - The progress indicator dots
+   - The `currentImage` lookup
+   - Navigation handlers (prev/next bounds)
+
+3. **Remove the blurred background layer** from the desktop section (lines 307-309) since the chef image will no longer appear there.
+
+4. **Keep mobile section unchanged**: It continues using the full `heroImages` array with all 4 slides, including the blurred background layer for the chef image.
+
+### Implementation Detail
 
 ```text
-+------------------------------------------+
-|  [Blurred + darkened copy of image]      |  <-- fills entire container
-|     +----------------------------+       |
-|     | [Sharp, full image]        |       |  <-- object-contain, centered
-|     |  Chef face visible         |       |
-|     |  Hog visible               |       |
-|     +----------------------------+       |
-+------------------------------------------+
+// Desktop: slides 1-3 (appetizers, spread, event space)
+const desktopImages = heroImages.slice(1);
+
+// Mobile: all 4 slides unchanged
 ```
 
-3. The blurred background layer uses: `object-cover`, `filter: blur(20px)`, `scale(1.1)` (to avoid blur edge artifacts), and `brightness(0.4)` to darken.
-
-4. This only activates for `currentIndex === 0`. All other slides remain unchanged.
-
-### Alternative: Container Resize (simpler but changes layout)
-If the blurred-fill approach feels too complex, we can instead make the first slide's image area taller (full viewport height with a narrower width constraint) so the container aspect ratio matches the portrait image. This avoids both cropping and gaps but slightly alters the desktop hero layout for the first slide only.
-
-### Mobile Impact
-On mobile, the container is already portrait-shaped (85vh tall, full width), so the image naturally fills with minimal or no visible background. The blurred fill layer would still be present but essentially invisible since there are no gaps to fill.
+The `currentIndex` state and all carousel logic (auto-advance, swipe, keyboard nav) will reference `desktopImages` in the desktop block and `heroImages` in the mobile block. Since these are two separate return paths (early return for mobile), each can use its own array independently.
 
