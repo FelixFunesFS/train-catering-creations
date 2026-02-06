@@ -1,62 +1,57 @@
 
 
-# Fix: Billing View Shows Unapproved Estimates as "Awaiting Payment"
+# Fix: Emails Dropping Line Items with Unknown Categories
 
-## The Issue
+## Problem
 
-Brian Wilson never approved his estimate. His database state is correct:
-- Quote status: `estimated`
-- Invoice status: `sent`
-- Payments: $0 (no transactions)
+Pryce Porter's email showed only "Delivery with Setup" ($50) but was missing the brunch menu item ($520) worth of food. The brunch line item has category `food`, which is not in the hardcoded `categoryOrder` array in `emailTemplates.ts`. Any line item with an unlisted category is silently dropped from all customer emails.
 
-But he appears in the **Billing / Payment Tracking** view under the **"Awaiting"** tab because the billing view includes `sent` and `viewed` invoices alongside `approved` and `payment_pending` ones.
+**Database categories in use:** `appetizers`, `desserts`, `dietary`, `food`, `package`, `service`, `supplies`
 
-## The Mental Model
+**Template's hardcoded list:** `package`, `Proteins`, `Sides`, `dietary`, `Appetizers`, `appetizers`, `Desserts`, `desserts`, `Beverages`, `Service Items`, `service`, `supplies`, `Other Items`
 
-The billing view should only track invoices where **payment is expected** -- meaning the customer has approved the estimate. Unapproved estimates (`sent`, `viewed`) belong in the Events view, not the payment tracker.
+Missing from template: **`food`** (and any future categories admins might create)
 
-```text
-Events View (Status Column)     Billing View (Payment Tracking)
-----------------------------    --------------------------------
-pending                         (not shown)
-estimated / sent / viewed       (not shown) <-- Brian belongs here only
-confirmed / approved            approved, payment_pending
-confirmed / deposit paid        partially_paid
-confirmed / paid in full        paid
-overdue                         overdue
-```
+## Fix
 
-## Changes
+### `supabase/functions/_shared/emailTemplates.ts` (~line 791-827)
 
-### `src/components/admin/billing/PaymentList.tsx`
+**Replace the fixed-list iteration with a catch-all approach:**
 
-**1. Remove `sent` and `viewed` from the main filter (line 48):**
-
-```typescript
-// From:
-['sent', 'viewed', 'approved', 'payment_pending', 'partially_paid', 'paid', 'overdue']
-// To:
-['approved', 'payment_pending', 'partially_paid', 'paid', 'overdue']
-```
-
-**2. Update the "Awaiting" tab filter (line 55):**
-
-```typescript
-// From:
-['sent', 'viewed', 'approved', 'payment_pending']
-// To:
-['approved', 'payment_pending']
-```
-
-**3. Update the tab count (line 144):**
-
-Same filter change so the count matches.
-
-**4. Update the empty state message (line 113):**
+1. Keep `categoryOrder` for **sorting priority** (known categories render first, in a logical order)
+2. After rendering known categories, iterate over **remaining categories** found in the data that weren't in the list
+3. Add `food` to the known category list with an appropriate label and icon
 
 ```text
-"Approved estimates will appear here once customers confirm them."
+Before:
+  categoryOrder.forEach(category => {
+    if (itemsByCategory[category]) { ... }
+  });
+
+After:
+  // 1. Render known categories in preferred order
+  categoryOrder.forEach(category => {
+    if (itemsByCategory[category]) { renderCategory(category); }
+  });
+  // 2. Render any remaining categories not in the list
+  Object.keys(itemsByCategory).forEach(category => {
+    if (!categoryOrder.includes(category)) { renderCategory(category); }
+  });
 ```
 
-This is a 4-line change. No edge functions or database changes needed. Brian Wilson will no longer appear in the billing view, and will only show in the Events view as "Estimated" (correct).
+Also add to the mappings:
+- `categoryIcons`: `'food': '🍳'`
+- `categoryLabels`: `'food': 'Menu Selections'`
+- `categoryOrder`: Add `'food'` after `'package'`
 
+## Status Question
+
+Pryce and Felix already map to "Confirmed" from the previous code change (`awaiting_payment` mapped to "Confirmed" in `EventList.tsx`). If still showing otherwise in the browser, a hard refresh will pick up the new code.
+
+## Files Changed
+
+| File | Change |
+|------|--------|
+| `supabase/functions/_shared/emailTemplates.ts` | Add `food` to category maps; add catch-all loop for unknown categories |
+
+No frontend or database changes needed. After deploying the updated edge function, all future emails will include every line item regardless of category.
