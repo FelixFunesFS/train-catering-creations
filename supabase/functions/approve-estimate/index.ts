@@ -143,6 +143,20 @@ const handler = async (req: Request): Promise<Response> => {
       }
     }
 
+    // Send admin notification for approval (non-blocking)
+    try {
+      await supabase.functions.invoke('send-admin-notification', {
+        body: {
+          invoiceId: invoice.id,
+          notificationType: 'customer_approval',
+          metadata: { source: 'customer_portal' }
+        }
+      });
+      console.log("[approve-estimate] Admin notification sent");
+    } catch (err) {
+      console.error("[approve-estimate] Admin notification failed (non-critical):", err);
+    }
+
 	// Same-site only: return a relative URL so the SPA router can handle navigation reliably.
 	// (Emails can still construct absolute URLs elsewhere using SITE_URL.)
 	const portalUrl = `/estimate?token=${encodeURIComponent(token)}#payment`;

@@ -38,6 +38,10 @@ interface UseEstimateActionsReturn {
   // Event completion
   handleMarkEventCompleted: () => Promise<void>;
   isMarkingComplete: boolean;
+  
+  // Thank you email
+  handleSendThankYou: () => Promise<void>;
+  isSendingThankYou: boolean;
 }
 
 export function useEstimateActions({
@@ -55,6 +59,7 @@ export function useEstimateActions({
   const [isDownloading, setIsDownloading] = useState(false);
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [isMarkingComplete, setIsMarkingComplete] = useState(false);
+  const [isSendingThankYou, setIsSendingThankYou] = useState(false);
 
   // Generate estimate from quote
   const handleGenerateEstimate = useCallback(async () => {
@@ -263,6 +268,23 @@ export function useEstimateActions({
     }
   }, [quoteId, queryClient, toast]);
 
+  // Send thank you email (manual trigger)
+  const handleSendThankYou = useCallback(async () => {
+    if (!quoteId) return;
+    setIsSendingThankYou(true);
+    try {
+      const { error } = await supabase.functions.invoke('send-event-followup', {
+        body: { quote_id: quoteId }
+      });
+      if (error) throw error;
+      toast({ title: 'Thank You Email Sent', description: 'Follow-up email sent to customer.' });
+    } catch (err: any) {
+      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+    } finally {
+      setIsSendingThankYou(false);
+    }
+  }, [quoteId, toast]);
+
   return {
     handleGenerateEstimate,
     isGenerating,
@@ -277,5 +299,7 @@ export function useEstimateActions({
     isRegenerating,
     handleMarkEventCompleted,
     isMarkingComplete,
+    handleSendThankYou,
+    isSendingThankYou,
   };
 }

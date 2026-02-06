@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { 
   Calendar, MapPin, Users, MessageSquare, 
   PartyPopper, Heart, Pencil, Utensils, Phone, ExternalLink,
-  Clock, Truck, Palette, Info, Shield, CheckCircle2, Loader2
+  Clock, Truck, Palette, Info, Shield, CheckCircle2, Loader2, Mail
 } from 'lucide-react';
 import { formatDate, formatTime, formatServiceType, formatEventType, formatReferralSource, getStatusColor } from '@/utils/formatters';
 import { formatLocationLink, formatPhoneLink } from '@/utils/linkFormatters';
@@ -27,6 +27,8 @@ interface EventDetailsPanelContentProps {
   onEditMenu: () => void;
   onMarkCompleted?: () => void;
   isMarkingComplete?: boolean;
+  onSendThankYou?: () => void;
+  isSendingThankYou?: boolean;
 }
 
 export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
@@ -42,6 +44,8 @@ export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
   onEditMenu,
   onMarkCompleted,
   isMarkingComplete,
+  onSendThankYou,
+  isSendingThankYou,
 }: EventDetailsPanelContentProps) {
   const formatMenuItems = (items: unknown): string => {
     if (!items || !Array.isArray(items) || items.length === 0) return '';
@@ -83,10 +87,28 @@ export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
             {quote?.workflow_status?.replace('_', ' ').toUpperCase()}
           </Badge>
           {isCompleted ? (
-            <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200">
-              <CheckCircle2 className="h-3 w-3 mr-1" />
-              Completed
-            </Badge>
+            <div className="flex items-center gap-2">
+              <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200">
+                <CheckCircle2 className="h-3 w-3 mr-1" />
+                Completed
+              </Badge>
+              {onSendThankYou && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={onSendThankYou}
+                  disabled={isSendingThankYou}
+                  className="gap-1.5"
+                >
+                  {isSendingThankYou ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Mail className="h-4 w-4" />
+                  )}
+                  Send Thank You
+                </Button>
+              )}
+            </div>
           ) : canMarkComplete && onMarkCompleted ? (
             <Button 
               size="sm" 
