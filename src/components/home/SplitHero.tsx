@@ -198,19 +198,19 @@ export const SplitHero = () => {
 
   // Dynamic object positioning based on image index
   const getImageClasses = (index: number) => {
-    // Chef at the grill (index 0) — center on the chef
+    // Chef image (index 0) — object-contain to show full portrait without crop
     if (index === 0) {
-      return "object-cover object-center";
+      return "object-contain object-center relative z-10";
     }
     // For the charcuterie board image (index 1), shift focal point 20% lower
     if (index === 1) {
-      return "object-[center_70%]";
+      return "object-cover object-[center_70%]";
     }
     // For the Award-Winning Catering image (index 2), show more of the center-left
     if (index === 2) {
-    return "object-left-center";
+      return "object-cover object-left-center";
     }
-    return "object-center";
+    return "object-cover object-center";
   };
 
   // Mobile/Tablet Layout (Overlay content on image)
@@ -246,7 +246,10 @@ export const SplitHero = () => {
           </div>
 
           {/* Full Screen Background Image */}
-          <OptimizedImage src={currentImage.src} alt={currentImage.alt} aspectRatio={undefined} className={`w-full h-full object-cover ${getImageClasses(currentIndex)} transition-transform duration-700`} containerClassName="h-full w-full" priority enableVignette={false} />
+          {currentIndex === 0 && (
+            <img src={currentImage.src} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover scale-110 blur-xl brightness-[0.4] z-0" />
+          )}
+          <OptimizedImage src={currentImage.src} alt={currentImage.alt} aspectRatio={undefined} className={`w-full h-full ${getImageClasses(currentIndex)} transition-transform duration-700`} containerClassName="h-full w-full" priority enableVignette={false} />
           
           {/* Gradient Overlay for Content Readability */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
@@ -301,7 +304,10 @@ export const SplitHero = () => {
       {/* Visual Area - 60% */}
       <div ref={visualRef} className={`relative w-3/5 h-full overflow-hidden hero-vignette ${visualAnimationClass}`} role="region" aria-label="Image carousel">
         {/* Main Image with cinematic aspect ratio */}
-        <OptimizedImage src={currentImage.src} alt={currentImage.alt} aspectRatio="aspect-video" className={`w-full h-full object-cover ${getImageClasses(currentIndex)} transition-all duration-1000`} containerClassName="h-full" priority enableVignette={false} />
+        {currentIndex === 0 && (
+          <img src={currentImage.src} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover scale-110 blur-xl brightness-[0.4] z-0" />
+        )}
+        <OptimizedImage src={currentImage.src} alt={currentImage.alt} aspectRatio="aspect-video" className={`w-full h-full ${getImageClasses(currentIndex)} transition-all duration-1000`} containerClassName="h-full" priority enableVignette={false} />
         
         {/* Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/20" />
