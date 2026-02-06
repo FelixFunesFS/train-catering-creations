@@ -10,7 +10,7 @@ export const Header = () => {
   const location = useLocation();
 
   // Hide header on admin routes - must be after hooks
-  const isAdminRoute = location.pathname.startsWith('/admin');
+  const isAdminRoute = location.pathname.startsWith('/admin') || location.pathname === '/staff';
   const navigation = [{
     name: "Home",
     href: "/"
