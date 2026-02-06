@@ -449,61 +449,9 @@ const handler = async (req: Request): Promise<Response> => {
     }
     reminderResults.push({ type: 'event_2_day', count: twoDayEvents?.length || 0, sent: twoDayReminders });
 
-    // 3c. Post-event thank you (1 day after)
-    logStep("Processing post-event thank you emails");
-    let thankYouReminders = 0;
-
-    const { data: pastEvents } = await supabase
-      .from('quote_requests')
-      .select('*')
-      .eq('workflow_status', 'completed')
-      .eq('event_date', yesterdayStr);
-
-    if (pastEvents) {
-      for (const event of pastEvents) {
-        const { data: recentReminder } = await supabase
-          .from('reminder_logs')
-          .select('id')
-          .eq('reminder_type', 'post_event_thankyou')
-          .eq('recipient_email', event.email)
-          .maybeSingle();
-
-        if (!recentReminder) {
-          // Use shared helper - Single Source of Truth for event_followup
-          const { contentBlocks } = getEmailContentBlocks('event_followup', 'customer', {
-            quote: event,
-            invoice: {},
-            lineItems: [],
-            milestones: [],
-            portalUrl: '',
-          });
-
-          const emailHtml = generateStandardEmail({
-            preheaderText: EMAIL_CONFIGS.event_followup.customer!.preheaderText,
-            heroSection: {
-              ...EMAIL_CONFIGS.event_followup.customer!.heroSection,
-              subtitle: event.event_name
-            },
-            contentBlocks,
-            quote: event,
-          });
-
-          const { error: emailError } = await supabase.functions.invoke('send-smtp-email', {
-            body: { to: event.email, subject: `Thank You for Choosing Soul Train's Eatery!`, html: emailHtml }
-          });
-
-          if (!emailError) {
-            await supabase.from('reminder_logs').insert({
-              reminder_type: 'post_event_thankyou',
-              recipient_email: event.email,
-              urgency: 'low'
-            });
-            thankYouReminders++;
-          }
-        }
-      }
-    }
-    reminderResults.push({ type: 'post_event_thankyou', count: pastEvents?.length || 0, sent: thankYouReminders });
+    // 3c. Post-event thank you: now manual-only (triggered from admin dashboard)
+    logStep("Post-event thank you emails are manual-only - skipping");
+    reminderResults.push({ type: 'post_event_thankyou', count: 0, sent: 0 });
 
     // ============================================
     // SUMMARY

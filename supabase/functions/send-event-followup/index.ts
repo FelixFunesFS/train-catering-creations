@@ -19,58 +19,41 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Check for test mode (manual trigger for specific quote)
-    let testQuoteId: string | null = null;
+    // Manual-only: require a specific quote_id
+    let quoteId: string | null = null;
     if (req.method === 'POST') {
       try {
         const body = await req.json();
-        testQuoteId = body.test_quote_id || null;
+        quoteId = body.quote_id || body.test_quote_id || null;
       } catch {
-        // No body or invalid JSON - continue with normal cron behavior
+        // No body or invalid JSON
       }
     }
 
-    let quotes: any[] = [];
-    
-    if (testQuoteId) {
-      // TEST MODE: Fetch specific quote regardless of date
-      console.log(`Test mode: Fetching quote ${testQuoteId}`);
-      const { data, error } = await supabaseClient
-        .from('quote_requests')
-        .select(`
-          id,
-          event_name,
-          contact_name,
-          email,
-          event_date,
-          invoices(id, customer_access_token, workflow_status)
-        `)
-        .eq('id', testQuoteId)
-        .single();
-      
-      if (error) throw error;
-      quotes = data ? [data] : [];
-    } else {
-      // NORMAL MODE: Find events from yesterday
-      const yesterdayStr = subtractDays(getTodayString(), 1);
-
-      const { data, error: quotesError } = await supabaseClient
-        .from('quote_requests')
-        .select(`
-          id,
-          event_name,
-          contact_name,
-          email,
-          event_date,
-          invoices(id, customer_access_token, workflow_status)
-        `)
-        .gte('event_date', yesterdayStr)
-        .lte('event_date', yesterdayStr)
-        .eq('workflow_status', 'completed');
-
-      if (quotesError) throw quotesError;
-      quotes = data || [];
+    if (!quoteId) {
+      return new Response(
+        JSON.stringify({ error: 'quote_id is required. This function is manual-trigger only.' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+      );
     }
+
+    let quotes: any[] = [];
+    console.log(`Manual trigger: Fetching quote ${quoteId}`);
+    const { data, error } = await supabaseClient
+      .from('quote_requests')
+      .select(`
+        id,
+        event_name,
+        contact_name,
+        email,
+        event_date,
+        invoices(id, customer_access_token, workflow_status)
+      `)
+      .eq('id', quoteId)
+      .single();
+
+    if (error) throw error;
+    quotes = data ? [data] : [];
 
     let emailsSent = 0;
     const FRONTEND_URL = Deno.env.get('FRONTEND_URL') || 'https://www.soultrainseatery.com';

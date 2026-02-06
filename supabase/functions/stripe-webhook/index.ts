@@ -261,6 +261,24 @@ serve(async (req) => {
             } catch (err) {
               logStep("Customer deposit confirmation failed (non-critical)", { error: err });
             }
+
+            // Send admin notification for deposit/partial payment (non-blocking)
+            try {
+              await supabaseClient.functions.invoke('send-admin-notification', {
+                body: {
+                  invoiceId: invoice_id,
+                  notificationType: 'payment_received',
+                  metadata: {
+                    amount: session.amount_total,
+                    payment_type: 'deposit',
+                    full_payment: false
+                  }
+                }
+              });
+              logStep("Admin notification sent for partial payment");
+            } catch (err) {
+              logStep("Admin notification failed (non-critical)", { error: err });
+            }
           }
         }
 
