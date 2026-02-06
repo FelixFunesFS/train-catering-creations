@@ -1,20 +1,24 @@
 
 
-## Replace First Hero Image and Display with Minimal Cropping
+## Zoom Out First Hero Image by 50%
 
 ### Problem
-The current first hero image is being cropped too aggressively due to the `scale-[0.7]` transform combined with `object-cover`. You want this new chef image to fill the hero section with no more than ~5% cropping on any side.
+The first hero image needs to be zoomed out to show more of the image content while still filling the container.
 
-### Changes (2 steps)
+### Solution
+Add `scale-[0.5]` to the first image's classes. This scales the image to 50% of its rendered size, effectively "zooming out" by 50%. Combined with `object-cover`, the container remains fully filled with no empty space.
 
-**Step 1: Replace the image file**
-- Copy the uploaded image (`user-uploads://image000000_PhotoGrid-2.png`) to `public/lovable-uploads/hero-chef-serving.png`, replacing the existing file.
+### Changes (1 file)
 
-**Step 2: Update `src/components/home/SplitHero.tsx`**
-- Change `getImageClasses` for index 0 from `"object-cover object-center scale-[0.7]"` back to `"object-cover object-center"` (remove the scale transform).
-- This new image is portrait-oriented, which naturally fits the tall mobile hero container (85vh) with minimal cropping. On desktop (60% width split), the image will center on the chef with slight left/right cropping -- well within the 5% threshold since the subject is centered.
+**`src/components/home/SplitHero.tsx`** (line 202)
 
-### Why This Works
-- The previous image was landscape (wide), so it got heavily cropped in the tall container. This new image is portrait (tall), matching the container shape much better.
-- No scale transform needed -- `object-cover object-center` will fill the space while keeping the chef and food centered with minimal cropping.
+```tsx
+// Before
+return "object-cover object-center";
+
+// After
+return "object-cover object-center scale-[0.5]";
+```
+
+This only affects the first hero slide; all other images remain unchanged.
 
