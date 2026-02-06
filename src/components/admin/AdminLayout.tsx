@@ -34,11 +34,11 @@ export function AdminLayout({ children }: AdminLayoutProps) {
         </div>
       </header>
 
+      <MobileAdminNav />
+
       <main className="flex-1 pb-20 lg:pb-[env(safe-area-inset-bottom)]">
         {children}
       </main>
-
-      <MobileAdminNav />
     </div>
   );
 }
