@@ -45,14 +45,14 @@ export function PaymentList() {
 
   // Filter to show only sent/approved/payment-related invoices
   const paymentInvoices = invoices?.filter(inv => 
-    ['sent', 'viewed', 'approved', 'payment_pending', 'partially_paid', 'paid', 'overdue'].includes(inv.workflow_status || '')
+    ['approved', 'payment_pending', 'partially_paid', 'paid', 'overdue'].includes(inv.workflow_status || '')
   ) || [];
 
   // Apply status filter
   const filteredInvoices = paymentInvoices.filter(inv => {
     switch (statusFilter) {
       case 'awaiting':
-        return ['sent', 'viewed', 'approved', 'payment_pending'].includes(inv.workflow_status || '');
+        return ['approved', 'payment_pending'].includes(inv.workflow_status || '');
       case 'partial':
         return inv.workflow_status === 'partially_paid';
       case 'overdue':
@@ -110,7 +110,7 @@ export function PaymentList() {
           <DollarSign className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
           <h3 className="text-lg font-medium">No Invoices Pending Payment</h3>
           <p className="text-muted-foreground text-sm mt-1">
-            Sent estimates will appear here once customers receive them.
+            Approved estimates will appear here once customers confirm them.
           </p>
         </CardContent>
       </Card>
@@ -141,7 +141,7 @@ export function PaymentList() {
             All ({paymentInvoices.length})
           </TabsTrigger>
           <TabsTrigger value="awaiting" className="text-xs px-2 py-1.5 h-auto sm:px-3 sm:py-2">
-            Awaiting ({paymentInvoices.filter(i => ['sent', 'viewed', 'approved', 'payment_pending'].includes(i.workflow_status || '')).length})
+            Awaiting ({paymentInvoices.filter(i => ['approved', 'payment_pending'].includes(i.workflow_status || '')).length})
           </TabsTrigger>
           <TabsTrigger value="partial" className="text-xs px-2 py-1.5 h-auto sm:px-3 sm:py-2">
             Partial ({paymentInvoices.filter(i => i.workflow_status === 'partially_paid').length})
