@@ -1,22 +1,44 @@
 
 
-## Fix First Hero Image — Replace with Full Chef Photo
+## Fix First Hero Image — No Crop, No Gaps
 
-### Problem
-The current `hero-chef-serving.png` is a cropped version that cuts off the chef's face and the roasted hog he is basting. You want both fully visible.
+### The Core Problem
+The chef photo is portrait (~3:4). The desktop hero container is nearly square/landscape (~1.07:1). CSS can either crop the image to fill (`object-cover`) or show the full image with side gaps (`object-contain`). There is no CSS setting that does both simultaneously.
 
-### Solution (2 steps)
+### Recommended Solution: Blurred Background Fill
+Show the full image at its natural size with a blurred, darkened copy of itself behind it filling the container edges. This is the same technique used by YouTube, Instagram, and TikTok for vertical content in horizontal frames.
 
-**Step 1: Replace the image file**
-Copy the uploaded full photo to `public/lovable-uploads/hero-chef-serving.png`. This new image is portrait-oriented and shows the complete scene: chef's face/hat, tongs, and the entire roasted hog spread below.
+- Full chef + hog scene is visible, no cropping
+- No black bars or background color showing
+- Looks intentional and polished
+- Only applies to the first slide; other slides keep `object-cover`
 
-**Step 2: Keep `object-center` positioning**
-In `src/components/home/SplitHero.tsx`, keep the current `object-cover object-center` for index 0 (no position shift needed).
+### Technical Changes
 
-### Why `object-center` works for both face and hog
-- **Mobile** (portrait container, ~85vh tall): The container shape closely matches the portrait image. Both the chef at the top and the hog at the bottom will be visible with only minor left/right cropping. No vertical content is lost.
-- **Desktop** (60% width, full height): The container is wider relative to height, so the image gets slight left/right cropping to fill, but the full vertical span (face through hog) remains visible since the container is full viewport height.
+**`src/components/home/SplitHero.tsx`**
 
-### What changed from the previous plan
-- Removed `object-[center_30%]` -- that would have shifted focus upward, cropping the hog at the bottom. Standard `object-center` keeps both the face and hog in frame since the new source image is properly framed with both subjects centered vertically.
+1. Update `getImageClasses` for index 0 to return `"object-contain object-center relative z-10"` (layered above the blurred background).
+
+2. For both mobile and desktop `OptimizedImage` blocks, wrap the first slide in a container that includes a second `<img>` behind it acting as the blurred fill:
+
+```text
++------------------------------------------+
+|  [Blurred + darkened copy of image]      |  <-- fills entire container
+|     +----------------------------+       |
+|     | [Sharp, full image]        |       |  <-- object-contain, centered
+|     |  Chef face visible         |       |
+|     |  Hog visible               |       |
+|     +----------------------------+       |
++------------------------------------------+
+```
+
+3. The blurred background layer uses: `object-cover`, `filter: blur(20px)`, `scale(1.1)` (to avoid blur edge artifacts), and `brightness(0.4)` to darken.
+
+4. This only activates for `currentIndex === 0`. All other slides remain unchanged.
+
+### Alternative: Container Resize (simpler but changes layout)
+If the blurred-fill approach feels too complex, we can instead make the first slide's image area taller (full viewport height with a narrower width constraint) so the container aspect ratio matches the portrait image. This avoids both cropping and gaps but slightly alters the desktop hero layout for the first slide only.
+
+### Mobile Impact
+On mobile, the container is already portrait-shaped (85vh tall, full width), so the image naturally fills with minimal or no visible background. The blurred fill layer would still be present but essentially invisible since there are no gaps to fill.
 
