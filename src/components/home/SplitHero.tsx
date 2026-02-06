@@ -200,7 +200,7 @@ export const SplitHero = () => {
   const getImageClasses = (index: number) => {
     // Chef at the grill (index 0) — center on the chef
     if (index === 0) {
-      return "object-cover object-center scale-[0.7]";
+      return "object-cover object-center";
     }
     // For the charcuterie board image (index 1), shift focal point 20% lower
     if (index === 1) {
