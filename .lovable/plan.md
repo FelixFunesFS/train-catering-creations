@@ -1,21 +1,35 @@
 
 
-## Fix: "Reset it here" Link Not Working
+## Move Admin Nav to Top on Desktop
 
 ### Problem
-The "Reset it here" button on the Admin Auth page uses `document.querySelector('[value="reset"]')` to switch tabs, but Radix UI Tabs don't render `value` as a standard HTML attribute, so the selector returns `null` and nothing happens.
+The admin navigation bar is fixed to the bottom on all screen sizes. On desktop, a top navigation bar is more conventional and provides better UX.
 
-### Solution
-Convert the Tabs component from uncontrolled to controlled using React state, and replace DOM manipulation with simple state updates.
+### Approach
+Modify `MobileAdminNav` to render as a **top horizontal bar on desktop** (lg: 1024px+) and keep the existing **bottom bar on mobile/tablet**. The same component, same nav items, same logic -- just repositioned via CSS.
 
-### Changes (1 file)
+### Changes (2 files)
 
-**`src/pages/AdminAuth.tsx`**
+**`src/components/admin/mobile/MobileAdminNav.tsx`**
+- Change the outer `<nav>` classes to:
+  - Mobile: `fixed bottom-0` with `border-t` (unchanged)
+  - Desktop (lg:): `sticky lg:top-0` with `lg:border-b lg:border-t-0`
+- Switch inner layout from vertical icon+label stacking to horizontal icon+label on desktop (`lg:flex-row lg:gap-2`)
+- Hide the Logout button from this nav on desktop (`lg:hidden`) since it already exists in the AdminLayout header
 
-1. Add a `useState` for the active tab: `const [activeTab, setActiveTab] = useState('signin')`
-2. Make the `Tabs` component controlled: `value={activeTab} onValueChange={setActiveTab}`
-3. Replace the "Reset it here" button's `onClick` from DOM query to `setActiveTab('reset')`
-4. Replace the "Sign in here" button's `onClick` from DOM query to `setActiveTab('signin')`
+**`src/components/admin/AdminLayout.tsx`**
+- Move `<MobileAdminNav />` from below `<main>` to **above** `<main>` so it can sit under the header on desktop
+- On desktop, remove the bottom padding on `<main>` (already handled: `lg:pb-[env(safe-area-inset-bottom)]`)
+- The existing header Sign Out button (already `hidden lg:flex`) covers logout on desktop
 
-This is a minimal, low-risk fix -- no other files are affected.
+### Technical Details
+
+The key CSS trick is using responsive classes so the same component renders differently:
+
+```text
+Mobile:  fixed bottom-0 border-t  (bottom bar)
+Desktop: sticky top-[header-height] border-b  (top bar, below header)
+```
+
+No routing, state, or functionality changes -- purely a CSS layout shift using Tailwind responsive prefixes.
 
