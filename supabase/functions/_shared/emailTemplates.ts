@@ -367,9 +367,7 @@ export function generateServiceAddonsSection(quote: any, lineItems?: any[]): str
   if (quote.bussing_tables_needed && !hasInLineItems(['bussing', 'table bussing', 'bus'])) {
     services.push({ label: 'Table Bussing', emoji: '🧹', bgColor: '#f3e8ff', textColor: '#7c3aed' });
   }
-  if (quote.ceremony_included && !hasInLineItems(['ceremony', 'ceremony catering'])) {
-    services.push({ label: 'Ceremony Catering', emoji: '💒', bgColor: '#fce7f3', textColor: '#be185d' });
-  }
+  // ceremony_included is deprecated - removed
   if (quote.cocktail_hour && !hasInLineItems(['cocktail', 'cocktail hour'])) {
     services.push({ label: 'Cocktail Hour', emoji: '🍸', bgColor: '#fef3c7', textColor: '#d97706' });
   }

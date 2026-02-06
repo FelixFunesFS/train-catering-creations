@@ -314,7 +314,7 @@ export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
 
       {/* Service Add-ons */}
       {(quote?.chafers_requested || quote?.wait_staff_requested || quote?.bussing_tables_needed ||
-        quote?.ceremony_included || quote?.cocktail_hour) && (
+        quote?.cocktail_hour) && (
         <>
           <Separator />
           <section className="space-y-2">
@@ -325,9 +325,44 @@ export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
               {quote?.chafers_requested && <li>• Chafer Setup</li>}
               {quote?.wait_staff_requested && <li>• Wait Staff</li>}
               {quote?.bussing_tables_needed && <li>• Bussing Tables</li>}
-              {quote?.ceremony_included && <li>• Ceremony Catering</li>}
               {quote?.cocktail_hour && <li>• Cocktail Hour</li>}
             </ul>
+            {quote?.serving_setup_area && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <MapPin className="h-3 w-3" />
+                <span>Setup Area: {quote.serving_setup_area}</span>
+              </div>
+            )}
+            {quote?.separate_serving_area && (
+              <div className="text-sm text-muted-foreground">• Separate Serving Area</div>
+            )}
+            {quote?.wait_staff_setup_areas && (
+              <div className="text-sm text-muted-foreground">
+                Wait Staff Setup: {quote.wait_staff_setup_areas}
+              </div>
+            )}
+          </section>
+        </>
+      )}
+
+      {/* Operational Setup (shown even if no service add-ons) */}
+      {!quote?.chafers_requested && !quote?.wait_staff_requested && !quote?.bussing_tables_needed &&
+        !quote?.cocktail_hour && (quote?.serving_setup_area || quote?.separate_serving_area || quote?.wait_staff_setup_areas) && (
+        <>
+          <Separator />
+          <section className="space-y-2">
+            <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+              <MapPin className="h-4 w-4" /> Setup Details
+            </h3>
+            {quote?.serving_setup_area && (
+              <div className="text-sm text-muted-foreground">Setup Area: {quote.serving_setup_area}</div>
+            )}
+            {quote?.separate_serving_area && (
+              <div className="text-sm text-muted-foreground">• Separate Serving Area</div>
+            )}
+            {quote?.wait_staff_setup_areas && (
+              <div className="text-sm text-muted-foreground">Wait Staff Setup: {quote.wait_staff_setup_areas}</div>
+            )}
           </section>
         </>
       )}

@@ -2,7 +2,6 @@ import { format, parseISO } from 'date-fns';
 import { MapPin, Users, Clock, CheckCircle, AlertCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { AddToCalendarButton } from './AddToCalendarButton';
 import type { StaffEvent } from '@/hooks/useStaffEvents';
 import { cn } from '@/lib/utils';
 import { formatEventType, formatServiceType } from '@/utils/eventTypeLabels';
@@ -26,7 +25,6 @@ function getCountdownBadge(daysUntil: number, eventDate: string): { text: string
 function formatTime(time: string | null): string {
   if (!time) return '';
   try {
-    // Handle time strings like "14:00:00"
     const [hours, minutes] = time.split(':');
     const date = new Date();
     date.setHours(parseInt(hours), parseInt(minutes));
@@ -53,22 +51,24 @@ export function StaffEventCard({ event, isSelected, onClick }: StaffEventCardPro
       onClick={onClick}
     >
       <CardContent className="p-4 space-y-3">
-        {/* Header with countdown and calendar */}
+        {/* Header with countdown */}
         <div className="flex items-start justify-between gap-2">
           <Badge className={cn("text-xs font-semibold shrink-0", countdown.className)}>
             {countdown.text}
           </Badge>
-          <AddToCalendarButton 
-            event={event} 
-            variant="icon"
-            className="shrink-0 -mt-1 -mr-1"
-          />
         </div>
 
         {/* Event name */}
         <h3 className="font-semibold text-lg leading-tight line-clamp-2">
           {event.event_name}
         </h3>
+
+        {/* Contact name */}
+        {event.contact_name && (
+          <p className="text-sm text-muted-foreground">
+            Contact: {event.contact_name}
+          </p>
+        )}
 
         {/* Date and time */}
         <div className="flex items-center gap-2 text-sm text-muted-foreground">

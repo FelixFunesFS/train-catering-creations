@@ -34,7 +34,6 @@ interface CustomerDetailsSidebarProps {
     guest_count_with_restrictions?: string | null;
     wait_staff_requested?: boolean;
     bussing_tables_needed?: boolean;
-    ceremony_included?: boolean;
     cocktail_hour?: boolean;
     special_requests?: string | null;
     compliance_level?: string | null;
@@ -200,7 +199,7 @@ export function CustomerDetailsSidebar({
             )}
 
             {/* Service Add-ons */}
-            {(quote.wait_staff_requested || quote.bussing_tables_needed || quote.ceremony_included || quote.cocktail_hour) && (
+            {(quote.wait_staff_requested || quote.bussing_tables_needed || quote.cocktail_hour) && (
               <div className="pt-2 border-t border-border">
                 <span className="text-xs text-muted-foreground block mb-2">🍽️ Services:</span>
                 <div className="flex flex-wrap gap-1.5">
@@ -212,11 +211,6 @@ export function CustomerDetailsSidebar({
                   {quote.bussing_tables_needed && (
                     <Badge variant="outline" className="text-xs bg-purple-50 text-purple-700 border-purple-200">
                       Bussing
-                    </Badge>
-                  )}
-                  {quote.ceremony_included && (
-                    <Badge variant="outline" className="text-xs bg-pink-50 text-pink-700 border-pink-200">
-                      Ceremony
                     </Badge>
                   )}
                   {quote.cocktail_hour && (

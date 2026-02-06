@@ -332,11 +332,6 @@ export function EventDetail({ quote, onClose }: EventDetailProps) {
                 <div className="space-y-3 text-sm">
                   {quote.event_type === 'wedding' && (
                     <div className="flex flex-wrap gap-2">
-                      {quote.ceremony_included && (
-                        <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
-                          💒 Ceremony Included
-                        </Badge>
-                      )}
                       {quote.cocktail_hour && (
                         <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
                           🥂 Cocktail Hour

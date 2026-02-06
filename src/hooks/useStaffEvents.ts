@@ -12,6 +12,25 @@ export interface StaffAssignment {
   notes: string | null;
 }
 
+// Line item for staff (no pricing)
+export interface StaffLineItem {
+  id: string;
+  title: string;
+  description: string | null;
+  category: string | null;
+  quantity: number;
+  sort_order: number;
+}
+
+// Admin note for staff
+export interface StaffAdminNote {
+  id: string;
+  note_content: string;
+  category: string | null;
+  priority_level: string | null;
+  created_at: string;
+}
+
 // Staff-safe event interface (excludes pricing/sensitive data)
 export interface StaffEvent {
   id: string;
@@ -25,6 +44,10 @@ export interface StaffEvent {
   service_type: string;
   workflow_status: string;
   
+  // Contact (on-site, no email)
+  contact_name: string | null;
+  phone: string | null;
+  
   // Menu
   proteins: string[];
   sides: string[];
@@ -34,6 +57,8 @@ export interface StaffEvent {
   vegetarian_entrees: string[];
   dietary_restrictions: string[];
   special_requests: string | null;
+  both_proteins_available: boolean;
+  guest_count_with_restrictions: string | null;
   
   // Equipment
   chafers_requested: boolean;
@@ -47,6 +72,14 @@ export interface StaffEvent {
   wait_staff_requested: boolean;
   bussing_tables_needed: boolean;
   cocktail_hour: boolean;
+  serving_setup_area: string | null;
+  separate_serving_area: boolean;
+  wait_staff_requirements: string | null;
+  wait_staff_setup_areas: string | null;
+  
+  // Wedding/Event specific
+  theme_colors: string | null;
+  military_organization: string | null;
   
   // Computed
   days_until: number;
@@ -55,10 +88,53 @@ export interface StaffEvent {
   
   // Joined
   staff_assignments: StaffAssignment[];
+  line_items: StaffLineItem[];
+  admin_notes: StaffAdminNote[];
 }
 
 // Filter type
 export type StaffEventFilter = 'today' | 'week' | 'all';
+
+// Fields to select from quote_requests
+const QUOTE_FIELDS = `
+  id,
+  event_name,
+  event_date,
+  start_time,
+  serving_start_time,
+  location,
+  guest_count,
+  event_type,
+  service_type,
+  workflow_status,
+  contact_name,
+  phone,
+  proteins,
+  sides,
+  appetizers,
+  desserts,
+  drinks,
+  vegetarian_entrees,
+  dietary_restrictions,
+  special_requests,
+  both_proteins_available,
+  guest_count_with_restrictions,
+  chafers_requested,
+  plates_requested,
+  cups_requested,
+  napkins_requested,
+  serving_utensils_requested,
+  ice_requested,
+  wait_staff_requested,
+  bussing_tables_needed,
+  cocktail_hour,
+  serving_setup_area,
+  separate_serving_area,
+  wait_staff_requirements,
+  wait_staff_setup_areas,
+  theme_colors,
+  military_organization
+`;
 
 // Parse JSON array safely
 function parseJsonArray(value: unknown): string[] {
@@ -73,7 +149,12 @@ function parseJsonArray(value: unknown): string[] {
 }
 
 // Transform database row to StaffEvent
-function transformToStaffEvent(row: Record<string, unknown>, assignments: StaffAssignment[]): StaffEvent {
+function transformToStaffEvent(
+  row: Record<string, unknown>, 
+  assignments: StaffAssignment[],
+  lineItems: StaffLineItem[],
+  adminNotes: StaffAdminNote[]
+): StaffEvent {
   const today = startOfDay(new Date());
   const eventDate = parseISO(row.event_date as string);
   const daysUntil = differenceInDays(eventDate, today);
@@ -90,6 +171,10 @@ function transformToStaffEvent(row: Record<string, unknown>, assignments: StaffA
     service_type: row.service_type as string,
     workflow_status: row.workflow_status as string,
     
+    // Contact
+    contact_name: row.contact_name as string | null,
+    phone: row.phone as string | null,
+    
     // Menu
     proteins: parseJsonArray(row.proteins),
     sides: parseJsonArray(row.sides),
@@ -99,6 +184,8 @@ function transformToStaffEvent(row: Record<string, unknown>, assignments: StaffA
     vegetarian_entrees: parseJsonArray(row.vegetarian_entrees),
     dietary_restrictions: parseJsonArray(row.dietary_restrictions),
     special_requests: row.special_requests as string | null,
+    both_proteins_available: Boolean(row.both_proteins_available),
+    guest_count_with_restrictions: row.guest_count_with_restrictions as string | null,
     
     // Equipment
     chafers_requested: Boolean(row.chafers_requested),
@@ -112,6 +199,14 @@ function transformToStaffEvent(row: Record<string, unknown>, assignments: StaffA
     wait_staff_requested: Boolean(row.wait_staff_requested),
     bussing_tables_needed: Boolean(row.bussing_tables_needed),
     cocktail_hour: Boolean(row.cocktail_hour),
+    serving_setup_area: row.serving_setup_area as string | null,
+    separate_serving_area: Boolean(row.separate_serving_area),
+    wait_staff_requirements: row.wait_staff_requirements as string | null,
+    wait_staff_setup_areas: row.wait_staff_setup_areas as string | null,
+    
+    // Event specific
+    theme_colors: row.theme_colors as string | null,
+    military_organization: row.military_organization as string | null,
     
     // Computed
     days_until: daysUntil,
@@ -120,7 +215,77 @@ function transformToStaffEvent(row: Record<string, unknown>, assignments: StaffA
     
     // Joined
     staff_assignments: assignments,
+    line_items: lineItems,
+    admin_notes: adminNotes,
   };
+}
+
+// Fetch line items for events (no pricing columns)
+async function fetchLineItemsForEvents(eventIds: string[]): Promise<Record<string, StaffLineItem[]>> {
+  // First get invoice IDs for these events
+  const { data: invoices, error: invError } = await supabase
+    .from('invoices')
+    .select('id, quote_request_id')
+    .in('quote_request_id', eventIds);
+
+  if (invError || !invoices || invoices.length === 0) return {};
+
+  const invoiceIdToEventId = invoices.reduce((acc, inv) => {
+    if (inv.quote_request_id) acc[inv.id] = inv.quote_request_id;
+    return acc;
+  }, {} as Record<string, string>);
+
+  const invoiceIds = invoices.map(i => i.id);
+  
+  const { data: items, error: itemError } = await supabase
+    .from('invoice_line_items')
+    .select('id, invoice_id, title, description, category, quantity, sort_order')
+    .in('invoice_id', invoiceIds)
+    .order('sort_order', { ascending: true });
+
+  if (itemError || !items) return {};
+
+  const result: Record<string, StaffLineItem[]> = {};
+  for (const item of items) {
+    const eventId = invoiceIdToEventId[item.invoice_id];
+    if (!eventId) continue;
+    if (!result[eventId]) result[eventId] = [];
+    result[eventId].push({
+      id: item.id,
+      title: item.title,
+      description: item.description,
+      category: item.category,
+      quantity: item.quantity,
+      sort_order: item.sort_order ?? 0,
+    });
+  }
+  return result;
+}
+
+// Fetch admin notes for events
+async function fetchAdminNotesForEvents(eventIds: string[]): Promise<Record<string, StaffAdminNote[]>> {
+  const { data: notes, error } = await supabase
+    .from('admin_notes')
+    .select('id, quote_request_id, note_content, category, priority_level, created_at')
+    .in('quote_request_id', eventIds)
+    .order('created_at', { ascending: false });
+
+  if (error || !notes) return {};
+
+  const result: Record<string, StaffAdminNote[]> = {};
+  for (const note of notes) {
+    const eventId = note.quote_request_id;
+    if (!eventId) continue;
+    if (!result[eventId]) result[eventId] = [];
+    result[eventId].push({
+      id: note.id,
+      note_content: note.note_content,
+      category: note.category,
+      priority_level: note.priority_level,
+      created_at: note.created_at,
+    });
+  }
+  return result;
 }
 
 // Fetch staff events with optional filter
@@ -129,43 +294,13 @@ async function fetchStaffEvents(filter?: StaffEventFilter): Promise<StaffEvent[]
   const todayStr = today.toISOString().split('T')[0];
   const weekEndStr = addDays(today, 7).toISOString().split('T')[0];
   
-  // Build query for operational fields only (excludes pricing, contact info)
   let query = supabase
     .from('quote_requests')
-    .select(`
-      id,
-      event_name,
-      event_date,
-      start_time,
-      serving_start_time,
-      location,
-      guest_count,
-      event_type,
-      service_type,
-      workflow_status,
-      proteins,
-      sides,
-      appetizers,
-      desserts,
-      drinks,
-      vegetarian_entrees,
-      dietary_restrictions,
-      special_requests,
-      chafers_requested,
-      plates_requested,
-      cups_requested,
-      napkins_requested,
-      serving_utensils_requested,
-      ice_requested,
-      wait_staff_requested,
-      bussing_tables_needed,
-      cocktail_hour
-    `)
+    .select(QUOTE_FIELDS)
     .in('workflow_status', ['confirmed', 'approved', 'quoted', 'estimated'])
     .gte('event_date', todayStr)
     .order('event_date', { ascending: true });
 
-  // Apply date filters
   if (filter === 'today') {
     query = query.eq('event_date', todayStr);
   } else if (filter === 'week') {
@@ -177,17 +312,21 @@ async function fetchStaffEvents(filter?: StaffEventFilter): Promise<StaffEvent[]
   if (error) throw error;
   if (!events || events.length === 0) return [];
 
-  // Fetch staff assignments for all events
   const eventIds = events.map(e => e.id);
-  const { data: assignments, error: assignError } = await supabase
-    .from('staff_assignments')
-    .select('id, quote_request_id, staff_name, role, arrival_time, confirmed, notes')
-    .in('quote_request_id', eventIds);
 
-  if (assignError) throw assignError;
+  // Fetch all related data in parallel
+  const [assignmentsResult, lineItemsByEvent, notesByEvent] = await Promise.all([
+    supabase
+      .from('staff_assignments')
+      .select('id, quote_request_id, staff_name, role, arrival_time, confirmed, notes')
+      .in('quote_request_id', eventIds),
+    fetchLineItemsForEvents(eventIds),
+    fetchAdminNotesForEvents(eventIds),
+  ]);
 
-  // Group assignments by event
-  const assignmentsByEvent = (assignments || []).reduce((acc, a) => {
+  if (assignmentsResult.error) throw assignmentsResult.error;
+
+  const assignmentsByEvent = (assignmentsResult.data || []).reduce((acc, a) => {
     const eventId = a.quote_request_id;
     if (!acc[eventId]) acc[eventId] = [];
     acc[eventId].push({
@@ -201,9 +340,13 @@ async function fetchStaffEvents(filter?: StaffEventFilter): Promise<StaffEvent[]
     return acc;
   }, {} as Record<string, StaffAssignment[]>);
 
-  // Transform and return
   return events.map(event => 
-    transformToStaffEvent(event, assignmentsByEvent[event.id] || [])
+    transformToStaffEvent(
+      event, 
+      assignmentsByEvent[event.id] || [],
+      lineItemsByEvent[event.id] || [],
+      notesByEvent[event.id] || []
+    )
   );
 }
 
@@ -211,50 +354,26 @@ async function fetchStaffEvents(filter?: StaffEventFilter): Promise<StaffEvent[]
 async function fetchStaffEvent(eventId: string): Promise<StaffEvent | null> {
   const { data: event, error } = await supabase
     .from('quote_requests')
-    .select(`
-      id,
-      event_name,
-      event_date,
-      start_time,
-      serving_start_time,
-      location,
-      guest_count,
-      event_type,
-      service_type,
-      workflow_status,
-      proteins,
-      sides,
-      appetizers,
-      desserts,
-      drinks,
-      vegetarian_entrees,
-      dietary_restrictions,
-      special_requests,
-      chafers_requested,
-      plates_requested,
-      cups_requested,
-      napkins_requested,
-      serving_utensils_requested,
-      ice_requested,
-      wait_staff_requested,
-      bussing_tables_needed,
-      cocktail_hour
-    `)
+    .select(QUOTE_FIELDS)
     .eq('id', eventId)
     .single();
 
   if (error) throw error;
   if (!event) return null;
 
-  // Fetch staff assignments
-  const { data: assignments, error: assignError } = await supabase
-    .from('staff_assignments')
-    .select('id, staff_name, role, arrival_time, confirmed, notes')
-    .eq('quote_request_id', eventId);
+  // Fetch all related data in parallel
+  const [assignmentsResult, lineItemsByEvent, notesByEvent] = await Promise.all([
+    supabase
+      .from('staff_assignments')
+      .select('id, staff_name, role, arrival_time, confirmed, notes')
+      .eq('quote_request_id', eventId),
+    fetchLineItemsForEvents([eventId]),
+    fetchAdminNotesForEvents([eventId]),
+  ]);
 
-  if (assignError) throw assignError;
+  if (assignmentsResult.error) throw assignmentsResult.error;
 
-  const staffAssignments: StaffAssignment[] = (assignments || []).map(a => ({
+  const staffAssignments: StaffAssignment[] = (assignmentsResult.data || []).map(a => ({
     id: a.id,
     staff_name: a.staff_name,
     role: a.role,
@@ -263,7 +382,12 @@ async function fetchStaffEvent(eventId: string): Promise<StaffEvent | null> {
     notes: a.notes,
   }));
 
-  return transformToStaffEvent(event, staffAssignments);
+  return transformToStaffEvent(
+    event, 
+    staffAssignments,
+    lineItemsByEvent[eventId] || [],
+    notesByEvent[eventId] || []
+  );
 }
 
 // Hook for list of events
@@ -271,7 +395,7 @@ export function useStaffEvents(filter: StaffEventFilter = 'all') {
   return useQuery({
     queryKey: ['staff-events', filter],
     queryFn: () => fetchStaffEvents(filter),
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 60 * 5,
   });
 }
 

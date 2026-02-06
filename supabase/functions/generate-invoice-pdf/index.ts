@@ -66,7 +66,7 @@ serve(async (req) => {
           appetizers, desserts, drinks, vegetarian_entrees, guest_count_with_restrictions,
           compliance_level, requires_po_number, event_type, military_organization,
           wait_staff_requested, wait_staff_requirements, bussing_tables_needed,
-          ceremony_included, cocktail_hour, theme_colors
+          cocktail_hour, theme_colors
         )
       `)
       .eq("id", invoice_id)
@@ -417,9 +417,7 @@ serve(async (req) => {
     if (quote?.bussing_tables_needed) {
       serviceAddons.push({ label: 'Table Bussing', color: rgb(0.49, 0.23, 0.93) });
     }
-    if (quote?.ceremony_included) {
-      serviceAddons.push({ label: 'Ceremony Catering', color: rgb(0.75, 0.09, 0.36) });
-    }
+    // ceremony_included is deprecated - removed
     if (quote?.cocktail_hour) {
       serviceAddons.push({ label: 'Cocktail Hour', color: rgb(0.85, 0.47, 0.02) });
     }

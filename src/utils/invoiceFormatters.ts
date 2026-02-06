@@ -57,7 +57,6 @@ export interface QuoteRequest {
   serving_utensils_requested?: boolean;
   ice_requested?: boolean;
   // Wedding-specific fields
-  ceremony_included?: boolean;
   cocktail_hour?: boolean;
 }
 
@@ -316,9 +315,6 @@ export const generateProfessionalLineItems = (quote: QuoteRequest): LineItem[] =
   }
 
   // Wedding-specific services
-  if (quote.ceremony_included) {
-    lineItems.push(createServiceAddon('Ceremony Catering Service', 'On-site catering support during wedding ceremony', 'ceremony_included'));
-  }
   if (quote.cocktail_hour) {
     lineItems.push(createServiceAddon('Cocktail Hour Service', 'Beverage and appetizer service during cocktail hour', 'cocktail_hour'));
   }
