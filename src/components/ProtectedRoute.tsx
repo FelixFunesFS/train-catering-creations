@@ -33,9 +33,14 @@ function AuthLoadingScreen() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center gap-3 bg-background">
-      <Loader2 className="h-8 w-8 animate-spin text-primary dark:text-primary-foreground" />
-      <p className="text-sm text-muted-foreground animate-pulse">Verifying access…</p>
+    <div className="min-h-screen flex flex-col items-center justify-center gap-4" style={{ background: '#fff' }}>
+      <img
+        src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png"
+        alt="Soul Train's Eatery"
+        className="h-16 w-16 rounded-full object-cover"
+      />
+      <Loader2 className="h-8 w-8 animate-spin" style={{ color: '#b91c1c' }} />
+      <p className="text-sm animate-pulse" style={{ color: '#6b7280' }}>Verifying access…</p>
     </div>
   );
 }
