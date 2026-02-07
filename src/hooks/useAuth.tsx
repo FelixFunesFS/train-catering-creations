@@ -143,7 +143,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const initializeAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const sessionResult = await Promise.race([
+          supabase.auth.getSession(),
+          new Promise<null>((resolve) => setTimeout(() => resolve(null), 4000)),
+        ]);
+
+        if (!sessionResult) {
+          console.warn('getSession() timed out – possible browser lock issue');
+          return; // falls through to finally → loading = false → redirects to login
+        }
+
+        const { data: { session } } = sessionResult;
         if (session?.user) {
           // Validate token server-side BEFORE trusting the cached session
           const { error: userError } = await supabase.auth.getUser();
