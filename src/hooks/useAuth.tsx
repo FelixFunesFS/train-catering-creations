@@ -141,31 +141,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     );
 
-    // Single authority for initial session check
+    // Single authority for initial session check — optimistic load
     const initializeAuth = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
+          // Optimistic: render immediately with cached session
+          setSession(session);
+          setUser(session.user);
+          setLoading(false);
+          initializedRef.current = true;
+
+          // Background verification with 5-second hard timeout
           setIsVerifyingAccess(true);
-          const role = await checkAccess(session.user.id);
-          
-          if (!role) {
+          const verifyWithTimeout = Promise.race([
+            checkAccess(session.user.id, 0),
+            new Promise<null>((resolve) => setTimeout(() => resolve(null), 5000)),
+          ]);
+
+          try {
+            const role = await verifyWithTimeout;
+            if (!role) {
+              await supabase.auth.signOut();
+              setUser(null);
+              setSession(null);
+              setUserRole(null);
+            } else {
+              setUserRole(role);
+            }
+          } catch {
             await supabase.auth.signOut();
             setUser(null);
             setSession(null);
             setUserRole(null);
-          } else {
-            setSession(session);
-            setUser(session.user);
-            setUserRole(role);
+          } finally {
+            setIsVerifyingAccess(false);
           }
+          return; // skip the outer finally setLoading
         }
       } catch (err) {
         console.error('Auth initialization error:', err);
       } finally {
-        setIsVerifyingAccess(false);
-        setLoading(false);
-        initializedRef.current = true;
+        // Only reached when there's NO cached session (or outer error)
+        if (!initializedRef.current) {
+          setLoading(false);
+          initializedRef.current = true;
+        }
       }
     };
 
