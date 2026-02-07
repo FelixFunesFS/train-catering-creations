@@ -9,7 +9,7 @@ import { ProtectedRoute, StaffRoute } from "@/components/ProtectedRoute";
 import { Header } from "@/components/Header";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useScrollToAnchor } from "@/hooks/useScrollToAnchor";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 
 import { useIsMobile } from "@/hooks/use-mobile";
 import { HeroVisibilityProvider } from "@/contexts/HeroVisibilityContext";
@@ -135,7 +135,35 @@ const AppContent = () => {
 };
 const queryClient = new QueryClient();
 
-const App = () => (
+// Check for service worker updates on mount — force latest code after publish
+function useServiceWorkerUpdate() {
+  useEffect(() => {
+    if (!('serviceWorker' in navigator)) return;
+    navigator.serviceWorker.getRegistrations().then(registrations => {
+      registrations.forEach(reg => {
+        reg.update();
+        if (reg.waiting) {
+          reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+          window.location.reload();
+          return;
+        }
+        reg.addEventListener('updatefound', () => {
+          const newWorker = reg.installing;
+          newWorker?.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              newWorker.postMessage({ type: 'SKIP_WAITING' });
+              window.location.reload();
+            }
+          });
+        });
+      });
+    });
+  }, []);
+}
+
+const App = () => {
+  useServiceWorkerUpdate();
+  return (
   <QueryClientProvider client={queryClient}>
     <ErrorBoundary>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange={false}>
@@ -155,5 +183,6 @@ const App = () => (
       </ThemeProvider>
     </ErrorBoundary>
   </QueryClientProvider>
-);
+  );
+};
 export default App;

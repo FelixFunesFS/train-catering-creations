@@ -73,4 +73,11 @@ self.addEventListener('notificationclose', (event) => {
   console.log('[SW] Notification closed:', event);
 });
 
+// Allow immediate activation when a new version is available
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
 export {};
