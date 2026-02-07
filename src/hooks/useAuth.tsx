@@ -141,64 +141,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     );
 
-    // Single authority for initial session check — validate before trusting
     const initializeAuth = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
-          // Validate token server-side BEFORE optimistic render
+          // Validate token server-side BEFORE trusting the cached session
           const { error: userError } = await supabase.auth.getUser();
           if (userError) {
             console.warn('Stale session detected, clearing:', userError.message);
             await supabase.auth.signOut();
-            setUser(null);
-            setSession(null);
-            setUserRole(null);
-            setLoading(false);
-            initializedRef.current = true;
+            // State stays at defaults (null user), finally sets loading=false
             return;
           }
 
-          // Token is valid — optimistic render
+          // Token valid — set user, but keep loading=true so dashboard does NOT render yet
           setSession(session);
           setUser(session.user);
-          setLoading(false);
-          initializedRef.current = true;
 
-          // Background role verification with 5-second hard timeout
-          setIsVerifyingAccess(true);
-          const verifyWithTimeout = Promise.race([
-            checkAccess(session.user.id, 0),
+          // Resolve role BEFORE setting loading=false (no two-flag race)
+          const role = await Promise.race([
+            checkAccess(session.user.id, 2),
             new Promise<null>((resolve) => setTimeout(() => resolve(null), 5000)),
           ]);
 
-          try {
-            const role = await verifyWithTimeout;
-            if (!role) {
-              await supabase.auth.signOut();
-              setUser(null);
-              setSession(null);
-              setUserRole(null);
-            } else {
-              setUserRole(role);
-            }
-          } catch {
+          if (!role) {
             await supabase.auth.signOut();
             setUser(null);
             setSession(null);
             setUserRole(null);
-          } finally {
-            setIsVerifyingAccess(false);
+          } else {
+            setUserRole(role);
           }
-          return;
         }
       } catch (err) {
         console.error('Auth initialization error:', err);
       } finally {
-        if (!initializedRef.current) {
-          setLoading(false);
-          initializedRef.current = true;
-        }
+        // SINGLE loading gate — only goes false after everything is resolved
+        setLoading(false);
+        initializedRef.current = true;
       }
     };
 
