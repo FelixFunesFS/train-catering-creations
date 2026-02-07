@@ -201,15 +201,19 @@ export const SplitHero = () => {
   const badge = getCategoryBadge(currentImage.category);
 
   // Dynamic object positioning based on image content
-  const getImageClasses = (img: HeroImage) => {
+  const getImageClasses = (img: HeroImage, index: number, isMobileView: boolean) => {
     if (img.src === heroAppetizers) {
       return "object-cover object-[center_70%]";
     }
     if (img.src === heroSpread) {
-      return "object-cover object-left-center";
+      return isMobileView ? "object-cover object-[40%_center]" : "object-cover object-left-center";
     }
     if (img.src === "/lovable-uploads/hero-chef-serving.png") {
       return "object-contain object-center relative z-10";
+    }
+    // Last image (event space) — left-align on mobile
+    if (isMobileView && index === heroImages.length - 1) {
+      return "object-cover object-left";
     }
     return "object-cover object-center";
   };
@@ -248,9 +252,9 @@ export const SplitHero = () => {
 
           {/* Full Screen Background Image */}
           {currentIndex === 0 && (
-            <img src={currentImage.src} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover scale-110 blur-xl brightness-[0.4] z-0" />
+            <img src={currentImage.src} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover blur-xl brightness-[0.4] z-0" />
           )}
-          <OptimizedImage src={currentImage.src} alt={currentImage.alt} aspectRatio={undefined} className={`w-full h-full ${getImageClasses(currentImage)} transition-transform duration-700`} containerClassName="h-full w-full" priority enableVignette={false} />
+          <OptimizedImage src={currentImage.src} alt={currentImage.alt} aspectRatio={undefined} className={`w-full h-full ${getImageClasses(currentImage, currentIndex, true)} transition-transform duration-700`} containerClassName="h-full w-full" priority enableVignette={false} />
           
           {/* Gradient Overlay for Content Readability */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
@@ -310,7 +314,7 @@ export const SplitHero = () => {
       {/* Visual Area - 60% */}
       <div ref={visualRef} className={`relative w-3/5 h-full overflow-hidden hero-vignette ${visualAnimationClass}`} role="region" aria-label="Image carousel">
         {/* Main Image with cinematic aspect ratio */}
-        <OptimizedImage src={desktopCurrentImage.src} alt={desktopCurrentImage.alt} aspectRatio="aspect-video" className={`w-full h-full ${getImageClasses(desktopCurrentImage)} transition-all duration-1000`} containerClassName="h-full" priority enableVignette={false} />
+        <OptimizedImage src={desktopCurrentImage.src} alt={desktopCurrentImage.alt} aspectRatio="aspect-video" className={`w-full h-full ${getImageClasses(desktopCurrentImage, desktopIndex, false)} transition-all duration-1000`} containerClassName="h-full" priority enableVignette={false} />
         
         {/* Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/20" />
