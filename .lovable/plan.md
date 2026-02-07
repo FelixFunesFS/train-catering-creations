@@ -1,66 +1,71 @@
 
 
-## Fix: Force Browsers to Load Latest Code After Publishing
+## Fix: Remove Redundant Access Check That Causes Black Screen on Refresh
 
 ### Problem
 
-The auth fixes (timeouts, auto-redirect) are working perfectly in the preview build. The production site at soultrainseatery.com/admin still shows a black screen because **the browser is caching the old `index.html`** which references old JavaScript bundles without the fixes.
+`isVerifyingAccess` is the direct cause of the black screen. When a logged-in admin refreshes `/admin`:
 
-Even restarting the computer does not clear browser HTTP cache for previously visited sites. The old `index.html` keeps loading old JS.
+1. `initializeAuth` correctly validates the session and role
+2. Supabase then fires a **duplicate** `SIGNED_IN` event
+3. The handler at line 96-126 of `useAuth.tsx` sets `isVerifyingAccess = true` and re-runs the role check **with no timeout**
+4. `ProtectedRoute` (line 75) sees `isVerifyingAccess = true` and shows the loading screen
+5. If the RPC is slow, `isVerifyingAccess` stays stuck -- resulting in an infinite spinner / black screen
 
-### Changes
+Non-logged-in users are unaffected because `ProtectedRoute` catches `!user` and redirects to `/admin/auth` immediately.
 
-#### 1. `index.html` -- Add cache-control meta tags
+### Changes (3 files)
 
-Add HTTP cache-control meta tags inside `<head>` to tell browsers not to cache the HTML document. This only affects the HTML file itself -- the hashed JS/CSS bundles remain efficiently cached.
+#### 1. `src/hooks/useAuth.tsx` -- Skip redundant SIGNED_IN after init
 
-```html
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-<meta http-equiv="Pragma" content="no-cache" />
-<meta http-equiv="Expires" content="0" />
+**Lines 96-126**: Add an early return before the existing handler. If `initializeAuth` already resolved the role (`initializedRef.current === true` and `userRole` is set), reuse that result instead of re-checking. Also add a 5-second timeout to the fallback `checkAccess` call for cases where the handler does need to run (fresh login).
+
 ```
-
-#### 2. `public/sw-push.js` -- Add SKIP_WAITING handler
-
-Add a `message` event listener so the service worker can be told to activate immediately when a new version is available, instead of waiting for all tabs to close.
-
-```javascript
-self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
+// Add before existing line 96:
+if (event === 'SIGNED_IN' && session?.user) {
+  // Already resolved -- reuse, don't re-check
+  if (initializedRef.current && userRole) {
+    setSession(session);
+    setUser(session.user);
+    setLoading(false);
+    return;
   }
-});
+  
+  setIsVerifyingAccess(true);
+  setTimeout(async () => {
+    try {
+      // Add 5s timeout (was missing)
+      const role = await Promise.race([
+        checkAccess(session.user.id),
+        new Promise(r => setTimeout(() => r(null), 5000)),
+      ]);
+      // ... rest stays the same
 ```
 
-#### 3. `src/App.tsx` -- Add service worker update check
+#### 2. `src/pages/AdminAuth.tsx` -- Add 6-second escape hatch
 
-On app mount, check if a newer service worker is available. If one is found, tell it to activate and reload the page once. This ensures users always get the latest code within seconds of a publish.
+If `isVerifyingAccess` somehow stays stuck (layers 1 and 2 both fail), stop waiting after 6 seconds and show the login form. The valid session will auto-redirect the user to the dashboard.
 
-```typescript
-useEffect(() => {
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistrations().then(registrations => {
-      registrations.forEach(reg => {
-        reg.update();
-        if (reg.waiting) {
-          reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-          window.location.reload();
-        }
-      });
-    });
-  }
-}, []);
-```
+- Add a `verifyTimedOut` state with a `useEffect` timer
+- Change the loading condition from `if (loading || isVerifyingAccess)` to `if (loading || (isVerifyingAccess && !verifyTimedOut))`
 
-### Why This Fixes It For Good
+#### 3. `index.html` -- Add 8-second HTML fallback
 
-| Problem | Solution |
-|---|---|
-| Browser caches `index.html` with old JS references | `no-cache` meta tags force fresh HTML fetch every visit |
-| Service worker serves stale assets from cache | `skipWaiting()` activates new SW immediately |
-| User sees old code even after publish | App checks for SW updates on mount and reloads once if needed |
+Add a small inline script that redirects to `/admin/auth` if the React root is still empty after 8 seconds. This handles the extreme edge case where cached JS fails to execute entirely.
 
-### Immediate Action (Before Publishing)
+### What each layer catches
 
-To verify the fix is already deployed, open an **Incognito/Private** browser window and navigate to `soultrainseatery.com/admin`. If it redirects to the login page, the published code is correct and only your regular browser cache is stale. A hard refresh (`Ctrl+Shift+R` / `Cmd+Shift+R`) will also force the latest code.
+| Layer | Scenario | Timeout |
+|-------|----------|---------|
+| Layer 1 (useAuth skip) | Redundant SIGNED_IN after successful init | Instant -- no check runs at all |
+| Layer 2 (Promise.race) | checkAccess hangs during fresh login | 5 seconds |
+| Layer 3 (AdminAuth escape) | isVerifyingAccess stuck for any reason | 6 seconds |
+| Layer 4 (HTML fallback) | React never mounts (stale cached JS) | 8 seconds |
+
+### What stays the same
+
+- The role-checking security model (server-side RPC verification)
+- The `initializeAuth` flow (already works correctly)
+- The login flow for fresh sign-ins
+- Non-logged-in user behavior (already redirects correctly)
 
