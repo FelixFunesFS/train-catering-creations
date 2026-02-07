@@ -74,7 +74,7 @@ export const SplitHero = () => {
   const heroImages: HeroImage[] = [{
     src: "/lovable-uploads/hero-chef-serving.png",
     alt: "Chef Train serving a beautiful spread of Southern cuisine at a catering event",
-    title: "Soul Food, Served with Pride",
+    title: "Elevated Southern Cuisine",
     subtitle: "Charleston's Premier Caterer",
     category: "culinary",
     description: "Chef Train brings authentic Southern flavors and heartfelt hospitality to every event he touches."
