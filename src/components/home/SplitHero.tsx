@@ -41,7 +41,7 @@ export const SplitHero = () => {
     ref: visualRef,
     isVisible: visualVisible
   } = useScrollAnimation({
-    variant: 'scale-fade',
+    variant: isMobile ? 'subtle' : 'scale-fade',
     delay: 0
   });
   const {
@@ -51,7 +51,7 @@ export const SplitHero = () => {
     variant: 'fade-up',
     delay: 300
   });
-  const visualAnimationClass = useAnimationClass('scale-fade', visualVisible);
+  const visualAnimationClass = useAnimationClass(isMobile ? 'subtle' : 'scale-fade', visualVisible);
   const contentAnimationClass = useAnimationClass('fade-up', contentVisible);
 
   // Intersection observer for hero visibility (controls MobileActionBar)
@@ -254,7 +254,7 @@ export const SplitHero = () => {
           {currentIndex === 0 && (
             <img src={currentImage.src} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover blur-xl brightness-[0.4] z-0" />
           )}
-          <OptimizedImage src={currentImage.src} alt={currentImage.alt} aspectRatio={undefined} className={`w-full h-full ${getImageClasses(currentImage, currentIndex, true)} transition-transform duration-700`} containerClassName="h-full w-full" priority enableVignette={false} />
+          <OptimizedImage src={currentImage.src} alt={currentImage.alt} aspectRatio={undefined} className={`w-full h-full ${getImageClasses(currentImage, currentIndex, true)}`} containerClassName="h-full w-full" priority enableVignette={false} />
           
           {/* Gradient Overlay for Content Readability */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
