@@ -44,32 +44,47 @@ interface ProtectedRouteProps {
   children: ReactNode;
 }
 
-/** Requires admin role. Staff users are redirected to /staff. */
+/** Requires admin role. Staff users are redirected to /staff. Optimistic: renders while verifying. */
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { user, loading: authLoading, isVerifyingAccess, userRole } = useAuth();
   const { loading: rolesLoading, isAdmin } = usePermissions();
 
-  if (authLoading || isVerifyingAccess || rolesLoading) {
+  // Still loading initial session — show spinner
+  if (authLoading) {
     return <AuthLoadingScreen />;
   }
 
+  // No user at all — redirect to login
   if (!user) return <Navigate to="/admin/auth" replace />;
+
+  // Optimistic: user exists but role still verifying — render children
+  if (isVerifyingAccess || rolesLoading) {
+    return <>{children}</>;
+  }
+
+  // Role resolved — enforce access
   if (userRole === 'staff' && !isAdmin()) return <Navigate to="/staff" replace />;
   if (!isAdmin()) return <Navigate to="/admin/auth" replace />;
 
   return <>{children}</>;
 }
 
-/** Requires admin OR staff role. */
+/** Requires admin OR staff role. Optimistic: renders while verifying. */
 export function StaffRoute({ children }: ProtectedRouteProps) {
   const { user, loading: authLoading, isVerifyingAccess } = useAuth();
   const { loading: rolesLoading, isAdmin, isStaff } = usePermissions();
 
-  if (authLoading || isVerifyingAccess || rolesLoading) {
+  if (authLoading) {
     return <AuthLoadingScreen />;
   }
 
   if (!user) return <Navigate to="/admin/auth" replace />;
+
+  // Optimistic: render while verifying
+  if (isVerifyingAccess || rolesLoading) {
+    return <>{children}</>;
+  }
+
   if (!isAdmin() && !isStaff()) return <Navigate to="/admin/auth" replace />;
 
   return <>{children}</>;
