@@ -213,7 +213,7 @@ export const SplitHero = () => {
     }
     // Last image (event space) — left-align on mobile
     if (isMobileView && index === heroImages.length - 1) {
-      return "object-cover object-left";
+      return "object-cover object-[20%_center]";
     }
     return "object-cover object-center";
   };
