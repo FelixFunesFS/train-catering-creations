@@ -1,19 +1,19 @@
 
 
-## Adjust Last Hero Image Position (Mobile)
+## Replace "Soul Food" in First Hero Slide Title
 
 ### Change
 
-Shift the last image (event space) focal point 20% to the right on mobile by changing `object-left` to `object-[20%_center]`.
+Update the first hero image title from **"Soul Food, Served with Pride"** to **"Elevated Southern Cuisine"** to better appeal to formal event clients (weddings, corporate functions, military ceremonies).
 
 ### Technical Detail
 
 **File: `src/components/home/SplitHero.tsx`**
 
-In the `getImageClasses` function, update the mobile-specific case for the last image (around line 215):
+In the `heroImages` array, update the first entry's `title` property (around line 100):
 
-- **From**: `"object-cover object-left"`
-- **To**: `"object-cover object-[20%_center]"`
+- **From**: `"Soul Food, Served with Pride"`
+- **To**: `"Elevated Southern Cuisine"`
 
-This shifts the visible portion 20% rightward from the left edge while keeping desktop rendering unchanged.
+No other files or images are affected. The subtitle ("Charleston's Premier Caterer") and description remain unchanged.
 
