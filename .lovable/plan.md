@@ -1,53 +1,66 @@
 
 
-## Fix: Remove Zoom/Motion on First Hero Image (Mobile)
+## Fix: Force Browsers to Load Latest Code After Publishing
 
 ### Problem
 
-When the hero section loads on mobile, the first image visibly "zooms in" for about 0.6 seconds. This comes from two sources:
+The auth fixes (timeouts, auto-redirect) are working perfectly in the preview build. The production site at soultrainseatery.com/admin still shows a black screen because **the browser is caching the old `index.html`** which references old JavaScript bundles without the fixes.
 
-1. **Container entrance animation**: The `scale-fade` variant scales the entire visual area from `scale(0.95)` to `scale(1)` over 0.6 seconds -- this is the main zoom effect.
-2. **Image transition class**: The `<OptimizedImage>` has `transition-transform duration-700` which can cause visible motion when switching between slides with different `object-position` values.
+Even restarting the computer does not clear browser HTTP cache for previously visited sites. The old `index.html` keeps loading old JS.
 
 ### Changes
 
-#### 1. `src/components/home/SplitHero.tsx` -- Use fade-only animation on mobile
+#### 1. `index.html` -- Add cache-control meta tags
 
-Change the scroll animation variant for the visual container from `scale-fade` to `subtle` on mobile. The `subtle` variant only translates 8px vertically (no scale), which is imperceptible on a full-screen hero. Desktop keeps `scale-fade`.
+Add HTTP cache-control meta tags inside `<head>` to tell browsers not to cache the HTML document. This only affects the HTML file itself -- the hashed JS/CSS bundles remain efficiently cached.
 
-```text
-// Line 40-44: Change from:
-useScrollAnimation({ variant: 'scale-fade', delay: 0 })
-
-// To:
-useScrollAnimation({ variant: isMobile ? 'subtle' : 'scale-fade', delay: 0 })
+```html
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
 ```
 
-Also update the `useAnimationClass` call to match:
+#### 2. `public/sw-push.js` -- Add SKIP_WAITING handler
 
-```text
-// Line 52: Change from:
-useAnimationClass('scale-fade', visualVisible)
+Add a `message` event listener so the service worker can be told to activate immediately when a new version is available, instead of waiting for all tabs to close.
 
-// To:
-useAnimationClass(isMobile ? 'subtle' : 'scale-fade', visualVisible)
+```javascript
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
 ```
 
-#### 2. `src/components/home/SplitHero.tsx` -- Remove transition from image element
+#### 3. `src/App.tsx` -- Add service worker update check
 
-Remove `transition-transform duration-700` from the mobile `<OptimizedImage>` (line 257). The slide change is already instant (React re-render swaps the `src`), so the transition class just causes unwanted motion between slides.
+On app mount, check if a newer service worker is available. If one is found, tell it to activate and reload the page once. This ensures users always get the latest code within seconds of a publish.
 
-```text
-// Line 257: Change from:
-className={`... transition-transform duration-700`}
-
-// To:
-className={`... `}
+```typescript
+useEffect(() => {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(registrations => {
+      registrations.forEach(reg => {
+        reg.update();
+        if (reg.waiting) {
+          reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+          window.location.reload();
+        }
+      });
+    });
+  }
+}, []);
 ```
 
-### Result
+### Why This Fixes It For Good
 
-- First image appears with a smooth fade-in (opacity only), no zoom or scale motion
-- Slide transitions are instant with no visible object-position shift
-- Desktop hero keeps the existing `scale-fade` entrance animation unchanged
+| Problem | Solution |
+|---|---|
+| Browser caches `index.html` with old JS references | `no-cache` meta tags force fresh HTML fetch every visit |
+| Service worker serves stale assets from cache | `skipWaiting()` activates new SW immediately |
+| User sees old code even after publish | App checks for SW updates on mount and reloads once if needed |
+
+### Immediate Action (Before Publishing)
+
+To verify the fix is already deployed, open an **Incognito/Private** browser window and navigate to `soultrainseatery.com/admin`. If it redirects to the login page, the published code is correct and only your regular browser cache is stale. A hard refresh (`Ctrl+Shift+R` / `Cmd+Shift+R`) will also force the latest code.
 
