@@ -68,6 +68,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        // Let initializeAuth be the single authority for the initial session
+        if (event === 'INITIAL_SESSION') return;
+
         // Handle password recovery - user clicked reset link in email
         if (event === 'PASSWORD_RECOVERY') {
           setIsPasswordRecovery(true);
@@ -94,24 +97,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setIsVerifyingAccess(true);
           
           setTimeout(async () => {
-            const role = await checkAccess(session.user.id);
-            
-            if (!role) {
-              await supabase.auth.signOut();
-              toast.error('Access denied. Authorized personnel only.');
+            try {
+              const role = await checkAccess(session.user.id);
+              
+              if (!role) {
+                await supabase.auth.signOut();
+                toast.error('Access denied. Authorized personnel only.');
+                setUser(null);
+                setSession(null);
+                setUserRole(null);
+                return;
+              }
+              
+              setSession(session);
+              setUser(session.user);
+              setUserRole(role);
+            } catch (err) {
+              console.error('Access check failed:', err);
               setUser(null);
               setSession(null);
               setUserRole(null);
+            } finally {
               setIsVerifyingAccess(false);
               setLoading(false);
-              return;
             }
-            
-            setSession(session);
-            setUser(session.user);
-            setUserRole(role);
-            setIsVerifyingAccess(false);
-            setLoading(false);
           }, 0);
           return;
         }
@@ -121,10 +130,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setUser(null);
           setSession(null);
           setLoading(false);
+          return;
         }
-        
-        setSession(session);
-        setUser(session?.user ?? null);
+
+        // Guard: only update state after initialization is complete
+        if (initializedRef.current) {
+          setSession(session);
+          setUser(session?.user ?? null);
+        }
       }
     );
 
@@ -146,11 +159,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setUser(session.user);
             setUserRole(role);
           }
-          setIsVerifyingAccess(false);
         }
       } catch (err) {
         console.error('Auth initialization error:', err);
       } finally {
+        setIsVerifyingAccess(false);
         setLoading(false);
         initializedRef.current = true;
       }
