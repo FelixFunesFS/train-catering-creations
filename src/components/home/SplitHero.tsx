@@ -276,7 +276,7 @@ export const SplitHero = () => {
               <p className="text-lg sm:text-xl font-script text-gold-light font-medium">
                 {currentImage.subtitle}
               </p>
-              <p className="text-sm sm:text-base text-white/80 leading-relaxed line-clamp-2 sm:line-clamp-3">
+              <p className="text-sm sm:text-base text-white/80 leading-relaxed">
                 {currentImage.description}
               </p>
             </div>
