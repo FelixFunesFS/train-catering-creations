@@ -94,11 +94,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
 
         if (event === 'SIGNED_IN' && session?.user) {
+          // Layer 1: If initializeAuth already resolved the role, reuse it
+          if (initializedRef.current && userRole) {
+            setSession(session);
+            setUser(session.user);
+            setLoading(false);
+            return;
+          }
+
           setIsVerifyingAccess(true);
           
           setTimeout(async () => {
             try {
-              const role = await checkAccess(session.user.id);
+              // Layer 2: 5s timeout prevents hanging indefinitely
+              const role = await Promise.race([
+                checkAccess(session.user.id),
+                new Promise<null>((resolve) => setTimeout(() => resolve(null), 5000)),
+              ]);
               
               if (!role) {
                 await supabase.auth.signOut();

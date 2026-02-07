@@ -86,5 +86,14 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <!-- Layer 4: 8s fallback if React never mounts (stale cached JS) -->
+    <script>
+      setTimeout(function(){
+        var r=document.getElementById('root');
+        if(r&&!r.hasChildNodes()&&/^\/admin/.test(window.location.pathname)){
+          window.location.href='/admin/auth';
+        }
+      },8000);
+    </script>
   </body>
 </html>

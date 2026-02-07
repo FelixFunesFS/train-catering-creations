@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Navigate, Link, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -87,6 +87,18 @@ export default function AdminAuth() {
   const [activeTab, setActiveTab] = useState('signin');
   const [searchParams] = useSearchParams();
   const { user, loading, isVerifyingAccess, userRole, isPasswordRecovery, signIn, resetPassword, signInWithGoogle } = useAuth();
+  const [verifyTimedOut, setVerifyTimedOut] = useState(false);
+
+  // Layer 3: 6-second escape hatch if isVerifyingAccess stays stuck
+  useEffect(() => {
+    if (isVerifyingAccess && !verifyTimedOut) {
+      const timer = setTimeout(() => setVerifyTimedOut(true), 6000);
+      return () => clearTimeout(timer);
+    }
+    if (!isVerifyingAccess) {
+      setVerifyTimedOut(false);
+    }
+  }, [isVerifyingAccess, verifyTimedOut]);
 
   const isRecoveryMode = isPasswordRecovery || searchParams.get('mode') === 'recovery';
 
@@ -98,7 +110,7 @@ export default function AdminAuth() {
     return <Navigate to="/admin" replace />;
   }
 
-  if (loading || isVerifyingAccess) {
+  if (loading || (isVerifyingAccess && !verifyTimedOut)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-muted/40">
       <div className="flex flex-col items-center gap-3">
