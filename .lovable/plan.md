@@ -1,99 +1,59 @@
 
 
-## Fix: Eliminate Two-Flag Race Condition in Auth Initialization
+## Fix: Black Screen on Direct `/admin` Navigation
 
-### Root Cause (The Real One)
+### Root Cause
 
-The black screen is caused by a **state gap** between two flags in `useAuth.tsx`:
+`supabase.auth.getSession()` uses the browser's Web Locks API internally. If a previous tab/session crashed or closed mid-operation, the lock is never released. When `getSession()` hangs, the `initializeAuth` function never completes, `loading` stays `true` forever, and the page appears blank/black (the `AuthLoadingScreen` may render but in dark mode appears as a near-black page with subtle elements).
+
+This explains why:
+- Hard refresh sometimes works (clears the lock)
+- It happens whether logged in or not (the hang occurs before session data is even read)
+- The preview environment works fine (fresh browser context each time)
+
+### Fix (2 changes)
+
+#### 1. Add a timeout around `getSession()` in `src/hooks/useAuth.tsx`
+
+Wrap the `getSession()` call in a `Promise.race` with a 4-second timeout. If it hangs, treat it as "no session" and proceed to the login page gracefully.
 
 ```text
-Line 165: setLoading(false)      -- ProtectedRoute stops showing spinner
-Line 166: initializedRef = true
-Line 169: setIsVerifyingAccess(true) -- but React may have already rendered!
+Before:
+  const { data: { session } } = await supabase.auth.getSession();
 
-During that render gap:
-  loading = false
-  user = exists
-  isVerifyingAccess = false  (not yet set!)
-  userRole = null
-
-ProtectedRoute sees: user exists + no role + not verifying = REDIRECT or BLACK SCREEN
-```
-
-Even with React 18 batching, `async/await` boundaries can break batching guarantees, and the `getUser()` call before these lines introduces one.
-
-### The Fix: Single Loading Gate
-
-**Keep `loading=true` until session AND role are BOTH resolved.** Move `setLoading(false)` to the `finally` block so it only fires once, after everything is complete. Remove the intermediate `isVerifyingAccess` flag from the initialization path entirely.
-
-### File: `src/hooks/useAuth.tsx`
-
-Replace the `initializeAuth` function (lines 145-203) with:
-
-```typescript
-const initializeAuth = async () => {
-  try {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session?.user) {
-      // Validate token server-side BEFORE trusting the cached session
-      const { error: userError } = await supabase.auth.getUser();
-      if (userError) {
-        console.warn('Stale session detected, clearing:', userError.message);
-        await supabase.auth.signOut();
-        // State stays at defaults (null user), finally sets loading=false
-        return;
-      }
-
-      // Token valid -- set user for ProtectedRoute, but keep loading=true
-      // so the dashboard does NOT render yet
-      setSession(session);
-      setUser(session.user);
-
-      // Resolve role BEFORE setting loading=false (no two-flag race)
-      const role = await Promise.race([
-        checkAccess(session.user.id, 2),
-        new Promise<null>((resolve) => setTimeout(() => resolve(null), 5000)),
-      ]);
-
-      if (!role) {
-        // Valid session but no admin/staff role -- sign out
-        await supabase.auth.signOut();
-        setUser(null);
-        setSession(null);
-        setUserRole(null);
-      } else {
-        setUserRole(role);
-      }
-    }
-  } catch (err) {
-    console.error('Auth initialization error:', err);
-  } finally {
-    // SINGLE loading gate -- only goes false after everything is resolved
-    setLoading(false);
-    initializedRef.current = true;
+After:
+  const sessionResult = await Promise.race([
+    supabase.auth.getSession(),
+    new Promise<null>((resolve) => setTimeout(() => resolve(null), 4000)),
+  ]);
+  
+  if (!sessionResult) {
+    console.warn('getSession() timed out - possible browser lock issue');
+    // Fall through to finally block, which sets loading=false
+    // User will see login page instead of black screen
+    return;
   }
-};
+  
+  const { data: { session } } = sessionResult;
 ```
 
-### File: `src/components/ProtectedRoute.tsx`
+#### 2. Improve `AuthLoadingScreen` visibility in `src/components/ProtectedRoute.tsx`
 
-No changes needed -- the existing code already checks `authLoading` first, and since `loading` now stays `true` until role is resolved, `ProtectedRoute` will show `AuthLoadingScreen` throughout the entire initialization, then render the correct result (dashboard or redirect) in a single transition.
+Add the Soul Train's logo and a white/light background override so the loading screen is always visible regardless of light/dark mode:
 
-### Why This Fixes It Permanently
+- Add the Soul Train's logo image above the spinner
+- Use explicit light background colors so the loading screen is never "invisible" in dark mode
 
-| Scenario | Old behavior | New behavior |
+### Why This Fixes It
+
+| Scenario | Before | After |
 |---|---|---|
-| Valid admin, fast network | loading=false before role check, gap causes flash | loading stays true until role confirmed, single transition to dashboard |
-| Valid admin, slow network | 2-5s of black screen during role check | 2-5s of spinner, then dashboard |
-| Stale token | Black screen until timeout | Spinner, then redirect to login |
-| No session | Works (immediate redirect) | No change |
-| Role check timeout (5s) | May get stuck | Spinner for 5s, then redirect to login |
+| getSession() hangs (lock stuck) | Black screen forever | 4s timeout, then redirects to login |
+| Normal load, logged in | Works (after our previous fix) | Same, no change |
+| Normal load, not logged in | Should redirect but hangs if lock stuck | 4s max wait, then redirect |
+| Dark mode loading screen | Nearly invisible black-on-black | Clearly visible with explicit styling |
 
-### What About Auto-Login?
+### No Other Files Need Changes
 
-Still works. Returning admins with valid tokens will see a spinner for under 1 second (the time for `getUser()` + `checkAccess()` to complete), then the dashboard loads. This is standard behavior for production admin portals.
-
-### What About the `onAuthStateChange` SIGNED_IN Handler?
-
-The `isVerifyingAccess` flag is still used for the explicit sign-in flow (lines 96-126) where the user submits credentials. That path is separate from initialization and continues to work as-is.
+The auth initialization flow and ProtectedRoute logic are otherwise correct (confirmed by preview testing). This fix targets the specific production-only failure mode.
 
