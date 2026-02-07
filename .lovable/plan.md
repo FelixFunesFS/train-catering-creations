@@ -1,19 +1,24 @@
 
 
-## Replace "Soul Food" in First Hero Slide Title
+## Fix Hero Description Truncation
 
-### Change
+### Problem
+The `line-clamp-2` / `line-clamp-3` CSS on the description paragraph cuts off text with ellipsis but provides no way to read the full content.
 
-Update the first hero image title from **"Soul Food, Served with Pride"** to **"Elevated Southern Cuisine"** to better appeal to formal event clients (weddings, corporate functions, military ceremonies).
+### Recommended Approach: Remove the clamp
+The descriptions are already concise (1-2 short sentences each). Removing the clamp will show the full text without impacting layout or pushing CTAs out of view.
+
+### Why not a "Read More" button?
+- Hero sections should deliver their message instantly -- adding interaction to reveal basic copy is friction
+- It adds visual clutter next to the CTA buttons
+- The text is short enough that truncation is unnecessary
 
 ### Technical Detail
 
-**File: `src/components/home/SplitHero.tsx`**
+**File: `src/components/home/SplitHero.tsx`** (line 279)
 
-In the `heroImages` array, update the first entry's `title` property (around line 100):
+- **From**: `line-clamp-2 sm:line-clamp-3`
+- **To**: remove both classes entirely
 
-- **From**: `"Soul Food, Served with Pride"`
-- **To**: `"Elevated Southern Cuisine"`
-
-No other files or images are affected. The subtitle ("Charleston's Premier Caterer") and description remain unchanged.
+The paragraph keeps its existing `text-sm sm:text-base text-white/80 leading-relaxed` styling. No other changes needed.
 
