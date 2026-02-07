@@ -1,59 +1,85 @@
 
 
-## Fix: Black Screen on Direct `/admin` Navigation
+## Fix: Black Screen on `/admin` -- Timeout `getUser()` and Auto-Redirect
 
-### Root Cause
+### Problem
 
-`supabase.auth.getSession()` uses the browser's Web Locks API internally. If a previous tab/session crashed or closed mid-operation, the lock is never released. When `getSession()` hangs, the `initializeAuth` function never completes, `loading` stays `true` forever, and the page appears blank/black (the `AuthLoadingScreen` may render but in dark mode appears as a near-black page with subtle elements).
+The previous fix only added a timeout to `getSession()`. But when a cached session exists, the code proceeds to `supabase.auth.getUser()` (line 159) which has **no timeout** -- if it hangs, the page stays black forever. The fallback timeout screen also uses theme colors that are invisible in dark mode.
 
-This explains why:
-- Hard refresh sometimes works (clears the lock)
-- It happens whether logged in or not (the hang occurs before session data is even read)
-- The preview environment works fine (fresh browser context each time)
+### Changes
 
-### Fix (2 changes)
+#### 1. `src/hooks/useAuth.tsx` -- Timeout `getUser()` (line 159)
 
-#### 1. Add a timeout around `getSession()` in `src/hooks/useAuth.tsx`
-
-Wrap the `getSession()` call in a `Promise.race` with a 4-second timeout. If it hangs, treat it as "no session" and proceed to the login page gracefully.
+Wrap the `getUser()` call in a 4-second `Promise.race`, matching the existing `getSession()` pattern. If it hangs, treat the session as stale and fall through to login.
 
 ```text
-Before:
-  const { data: { session } } = await supabase.auth.getSession();
+// Before (line 159):
+const { error: userError } = await supabase.auth.getUser();
+if (userError) {
+  console.warn('Stale session detected, clearing:', userError.message);
+  await supabase.auth.signOut();
+  return;
+}
 
-After:
-  const sessionResult = await Promise.race([
-    supabase.auth.getSession(),
-    new Promise<null>((resolve) => setTimeout(() => resolve(null), 4000)),
-  ]);
-  
-  if (!sessionResult) {
-    console.warn('getSession() timed out - possible browser lock issue');
-    // Fall through to finally block, which sets loading=false
-    // User will see login page instead of black screen
-    return;
-  }
-  
-  const { data: { session } } = sessionResult;
+// After:
+const userResult = await Promise.race([
+  supabase.auth.getUser(),
+  new Promise<null>((resolve) => setTimeout(() => resolve(null), 4000)),
+]);
+
+if (!userResult) {
+  console.warn('getUser() timed out -- possible browser lock issue');
+  await supabase.auth.signOut().catch(() => {});
+  return;
+}
+
+const { error: userError } = userResult;
+if (userError) {
+  console.warn('Stale session detected, clearing:', userError.message);
+  await supabase.auth.signOut().catch(() => {});
+  return;
+}
 ```
 
-#### 2. Improve `AuthLoadingScreen` visibility in `src/components/ProtectedRoute.tsx`
+#### 2. `src/components/ProtectedRoute.tsx` -- Reduce timeout and auto-redirect
 
-Add the Soul Train's logo and a white/light background override so the loading screen is always visible regardless of light/dark mode:
+Three sub-changes:
 
-- Add the Soul Train's logo image above the spinner
-- Use explicit light background colors so the loading screen is never "invisible" in dark mode
+- **Line 8**: Reduce `AUTH_TIMEOUT_MS` from `10_000` to `4_000`
+- **Lines 19-32**: On timeout, auto-navigate to `/admin/auth` instead of showing buttons on a potentially invisible screen
+- **Timed-out screen**: Use explicit `style={{ background: '#fff' }}` so it is always visible
 
-### Why This Fixes It
+```text
+// Line 8:
+const AUTH_TIMEOUT_MS = 4_000;
 
-| Scenario | Before | After |
+// Lines 14-32 (timedOut block):
+if (timedOut) {
+  navigate('/admin/auth', { replace: true });
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center gap-4"
+         style={{ background: '#fff' }}>
+      <img src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png"
+           alt="Soul Train's Eatery"
+           className="h-16 w-16 rounded-full object-cover" />
+      <p style={{ color: '#6b7280' }} className="text-sm">Redirecting to login...</p>
+    </div>
+  );
+}
+```
+
+### Summary
+
+| Hang Point | Before | After |
 |---|---|---|
-| getSession() hangs (lock stuck) | Black screen forever | 4s timeout, then redirects to login |
-| Normal load, logged in | Works (after our previous fix) | Same, no change |
-| Normal load, not logged in | Should redirect but hangs if lock stuck | 4s max wait, then redirect |
-| Dark mode loading screen | Nearly invisible black-on-black | Clearly visible with explicit styling |
+| `getSession()` hangs | 4s timeout (already fixed) | Same |
+| `getUser()` hangs | No timeout -- hangs forever | 4s timeout, then login redirect |
+| Timeout fallback screen | Black background, invisible | White background + auto-redirect |
+| Total worst-case wait | Forever (black screen) | 4 seconds, then login page |
 
-### No Other Files Need Changes
+### Impact on Normal Usage
 
-The auth initialization flow and ProtectedRoute logic are otherwise correct (confirmed by preview testing). This fix targets the specific production-only failure mode.
+- **Logged-in admin**: Auth resolves in under 1 second, dashboard loads normally -- no change
+- **Not logged in**: Instant redirect to `/admin/auth` -- no change
+- **Auth hangs (the bug)**: 4 seconds max, then auto-redirect to login instead of black screen forever
 
