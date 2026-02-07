@@ -141,18 +141,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     );
 
-    // Single authority for initial session check — optimistic load
+    // Single authority for initial session check — validate before trusting
     const initializeAuth = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
-          // Optimistic: render immediately with cached session
+          // Validate token server-side BEFORE optimistic render
+          const { error: userError } = await supabase.auth.getUser();
+          if (userError) {
+            console.warn('Stale session detected, clearing:', userError.message);
+            await supabase.auth.signOut();
+            setUser(null);
+            setSession(null);
+            setUserRole(null);
+            setLoading(false);
+            initializedRef.current = true;
+            return;
+          }
+
+          // Token is valid — optimistic render
           setSession(session);
           setUser(session.user);
           setLoading(false);
           initializedRef.current = true;
 
-          // Background verification with 5-second hard timeout
+          // Background role verification with 5-second hard timeout
           setIsVerifyingAccess(true);
           const verifyWithTimeout = Promise.race([
             checkAccess(session.user.id, 0),
@@ -177,12 +190,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           } finally {
             setIsVerifyingAccess(false);
           }
-          return; // skip the outer finally setLoading
+          return;
         }
       } catch (err) {
         console.error('Auth initialization error:', err);
       } finally {
-        // Only reached when there's NO cached session (or outer error)
         if (!initializedRef.current) {
           setLoading(false);
           initializedRef.current = true;
