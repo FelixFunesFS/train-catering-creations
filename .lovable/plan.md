@@ -1,72 +1,31 @@
 
 
-## Revised Fix: Instant Admin Portal Load with Background Verification
+## Mobile Hero Image Adjustments
 
-### The Real Problem
+Three targeted changes to the `getImageClasses` function and related markup in `SplitHero.tsx`, all scoped to mobile only.
 
-The current flow blocks rendering the admin portal until an RPC call (`has_any_role`) completes. With a cached session, this should be instant -- but if the RPC is slow, hangs, or the token needs refreshing, you stare at a dark loading screen that looks like a blank black page.
+### Changes
 
-The previous fixes addressed the `finally` block and event handling, but the fundamental architecture is still "block everything until RPC completes." That's wrong for cached sessions.
+**1. Last image (event space) -- left-align on mobile**
+Currently uses `object-cover object-center`. Will change to `object-cover object-left` when on mobile so the left side of the elegant dining setup is prioritized.
 
-### New Approach: Optimistic Load + Background Verification
+**2. 3rd image (spread with flowers) -- shift right 10% on mobile**
+Currently uses `object-cover object-left-center`. Will change to `object-cover object-[40%_center]` on mobile to pan the focal point rightward, revealing more of the floral arrangements.
 
-Instead of blocking, we should:
+**3. 1st image (chef portrait) -- remove zoom effect on mobile**
+The chef slide has a blurred background layer with `scale-110` that creates a zoom-in effect. This `scale-110` class will be removed so the background sits flat. The foreground `object-contain` image stays unchanged.
 
-1. **If there's a cached session**: set user/session immediately, set loading to false, and let the admin portal render
-2. **Verify role in the background**: fire the RPC, and if it fails, sign out and redirect
-3. **If there's no cached session**: immediately redirect to login (no RPC needed)
+### Technical Detail
 
-This means users with valid cached sessions see the admin portal instantly, and the rare case of an unauthorized cached session gets kicked out after ~1 second instead of blocking everyone.
+**File: `src/components/home/SplitHero.tsx`**
 
-### Technical Changes
+- Modify `getImageClasses` to accept a second parameter (`isMobileView: boolean`) so it can return mobile-specific object-position values:
+  - `heroSpread` on mobile: `"object-cover object-[40%_center]"` (instead of `object-left-center`)
+  - Last image on mobile: `"object-cover object-left"` (instead of `object-center`)
+  - Chef image stays the same (`object-contain object-center`)
 
-**File: `src/hooks/useAuth.tsx`**
+- In the mobile layout JSX (around line 248), remove `scale-110` from the blurred background `<img>` tag for the chef slide, changing it from `scale-110 blur-xl` to just `blur-xl`.
 
-1. In `initializeAuth`, when a cached session exists:
-   - Immediately set `user` and `session` state
-   - Set `loading` to `false` right away (so ProtectedRoute stops blocking)
-   - Fire `checkAccess` in the background (not blocking)
-   - If the role check fails, sign out and clear state (ProtectedRoute will then redirect)
-   - If it succeeds, set the `userRole`
+- Pass `isMobile` into `getImageClasses` calls in both the mobile and desktop render paths (desktop always passes `false`).
 
-2. Add a 5-second hard timeout on the background role check so it never hangs forever
-
-3. Keep the `INITIAL_SESSION` skip and `initializedRef` guard from previous fixes
-
-```text
-initializeAuth flow:
-
-  getSession()
-    |
-    +-- no session --> setLoading(false) --> ProtectedRoute redirects to /admin/auth
-    |
-    +-- has session:
-          setUser(session.user)      // immediate
-          setSession(session)        // immediate
-          setLoading(false)          // immediate -- portal can render
-          initializedRef = true
-          |
-          background: checkAccess(userId, retries=0)
-            |
-            +-- returns 'admin'/'staff' --> setUserRole(role) -- portal stays
-            +-- returns null or throws --> signOut(), clear state -- redirects to login
-            +-- 5s timeout --> signOut(), clear state -- redirects to login
-```
-
-**File: `src/components/ProtectedRoute.tsx`**
-
-4. Update the guard logic: allow rendering children when `user` exists even if `userRole` hasn't resolved yet (optimistic), but redirect if `userRole` is explicitly checked and denied. The existing timeout safety net stays as a fallback.
-
-5. Add a condition: if `!loading && user && !userRole && !isVerifyingAccess`, that means the background check completed and denied access -- redirect to `/admin/auth`.
-
-### Why This Is Better
-
-- **Cached valid sessions**: Admin portal appears instantly (zero wait)
-- **Expired/invalid sessions**: `getSession()` returns null, instant redirect to login
-- **Slow RPC**: Portal renders immediately; if verification fails later, user gets redirected
-- **No more black screen**: Loading state clears immediately, so the spinner/screen is never shown for more than a frame
-
-### Risk Mitigation
-
-- For the brief moment before `userRole` resolves, the admin portal renders but any data fetches protected by RLS will still enforce security server-side
-- If the role check fails, the redirect happens within 1-5 seconds -- the user might see the portal shell briefly before being kicked out, which is far better UX than a permanent black screen
+No other files are affected. Desktop rendering is completely unchanged.
