@@ -163,14 +163,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
           if (!userResult) {
             console.warn('getUser() timed out -- possible browser lock issue');
-            await supabase.auth.signOut().catch(() => {});
-            return;
-          }
+          supabase.auth.signOut().catch(() => {});
+          return;
+        }
 
-          const { error: userError } = userResult;
-          if (userError) {
-            console.warn('Stale session detected, clearing:', userError.message);
-            await supabase.auth.signOut().catch(() => {});
+        const { error: userError } = userResult;
+        if (userError) {
+          console.warn('Stale session detected, clearing:', userError.message);
+          supabase.auth.signOut().catch(() => {});
             return;
           }
 
@@ -185,7 +185,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           ]);
 
           if (!role) {
-            await supabase.auth.signOut();
+            supabase.auth.signOut().catch(() => {});
             setUser(null);
             setSession(null);
             setUserRole(null);
