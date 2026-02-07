@@ -156,11 +156,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const { data: { session } } = sessionResult;
         if (session?.user) {
           // Validate token server-side BEFORE trusting the cached session
-          const { error: userError } = await supabase.auth.getUser();
+          const userResult = await Promise.race([
+            supabase.auth.getUser(),
+            new Promise<null>((resolve) => setTimeout(() => resolve(null), 4000)),
+          ]);
+
+          if (!userResult) {
+            console.warn('getUser() timed out -- possible browser lock issue');
+            await supabase.auth.signOut().catch(() => {});
+            return;
+          }
+
+          const { error: userError } = userResult;
           if (userError) {
             console.warn('Stale session detected, clearing:', userError.message);
-            await supabase.auth.signOut();
-            // State stays at defaults (null user), finally sets loading=false
+            await supabase.auth.signOut().catch(() => {});
             return;
           }
 
