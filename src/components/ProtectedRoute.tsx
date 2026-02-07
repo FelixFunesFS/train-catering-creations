@@ -16,8 +16,18 @@ function AuthLoadingScreen() {
     return () => clearTimeout(timer);
   }, []);
 
+  // Navigate in useEffect (not during render) + nuclear fallback
+  useEffect(() => {
+    if (timedOut) {
+      navigate('/admin/auth', { replace: true });
+      const fallback = setTimeout(() => {
+        window.location.href = '/admin/auth';
+      }, 2000);
+      return () => clearTimeout(fallback);
+    }
+  }, [timedOut, navigate]);
+
   if (timedOut) {
-    navigate('/admin/auth', { replace: true });
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4"
            style={{ background: '#fff' }}>
