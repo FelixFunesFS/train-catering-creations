@@ -1,85 +1,78 @@
 
 
-## Fix: Black Screen on `/admin` -- Timeout `getUser()` and Auto-Redirect
+## Fix: Two Remaining Bugs Causing Infinite Black Screen
 
-### Problem
+### Bug 1: `signOut()` calls can hang forever (`useAuth.tsx`)
 
-The previous fix only added a timeout to `getSession()`. But when a cached session exists, the code proceeds to `supabase.auth.getUser()` (line 159) which has **no timeout** -- if it hangs, the page stays black forever. The fallback timeout screen also uses theme colors that are invisible in dark mode.
+We added timeouts to `getSession()`, `getUser()`, and `checkAccess()`. But when any of those timeout or fail, the code calls `await supabase.auth.signOut()` — which has **no timeout**. If `signOut()` also hangs (same browser Web Locks issue), `initializeAuth()` never reaches the `finally` block, so `loading` stays `true` forever.
 
-### Changes
+There are three unprotected `signOut()` calls:
+- Line 166: after `getUser()` timeout
+- Line 173: after stale session detected
+- Line 188: after role check fails (also missing `.catch()`)
 
-#### 1. `src/hooks/useAuth.tsx` -- Timeout `getUser()` (line 159)
-
-Wrap the `getUser()` call in a 4-second `Promise.race`, matching the existing `getSession()` pattern. If it hangs, treat the session as stale and fall through to login.
-
-```text
-// Before (line 159):
-const { error: userError } = await supabase.auth.getUser();
-if (userError) {
-  console.warn('Stale session detected, clearing:', userError.message);
-  await supabase.auth.signOut();
-  return;
-}
-
-// After:
-const userResult = await Promise.race([
-  supabase.auth.getUser(),
-  new Promise<null>((resolve) => setTimeout(() => resolve(null), 4000)),
-]);
-
-if (!userResult) {
-  console.warn('getUser() timed out -- possible browser lock issue');
-  await supabase.auth.signOut().catch(() => {});
-  return;
-}
-
-const { error: userError } = userResult;
-if (userError) {
-  console.warn('Stale session detected, clearing:', userError.message);
-  await supabase.auth.signOut().catch(() => {});
-  return;
-}
-```
-
-#### 2. `src/components/ProtectedRoute.tsx` -- Reduce timeout and auto-redirect
-
-Three sub-changes:
-
-- **Line 8**: Reduce `AUTH_TIMEOUT_MS` from `10_000` to `4_000`
-- **Lines 19-32**: On timeout, auto-navigate to `/admin/auth` instead of showing buttons on a potentially invisible screen
-- **Timed-out screen**: Use explicit `style={{ background: '#fff' }}` so it is always visible
+**Fix:** Remove the `await` on all three `signOut()` calls inside `initializeAuth`. Fire-and-forget them. The important thing is reaching `finally` to set `loading = false`. The sign-out will complete in the background.
 
 ```text
-// Line 8:
-const AUTH_TIMEOUT_MS = 4_000;
+// Lines 166, 173: Change from:
+await supabase.auth.signOut().catch(() => {});
 
-// Lines 14-32 (timedOut block):
-if (timedOut) {
-  navigate('/admin/auth', { replace: true });
-  return (
-    <div className="min-h-screen flex flex-col items-center justify-center gap-4"
-         style={{ background: '#fff' }}>
-      <img src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png"
-           alt="Soul Train's Eatery"
-           className="h-16 w-16 rounded-full object-cover" />
-      <p style={{ color: '#6b7280' }} className="text-sm">Redirecting to login...</p>
-    </div>
-  );
-}
+// To:
+supabase.auth.signOut().catch(() => {});
+
+// Line 188: Change from:
+await supabase.auth.signOut();
+
+// To:
+supabase.auth.signOut().catch(() => {});
 ```
 
-### Summary
+### Bug 2: `navigate()` called during render (`ProtectedRoute.tsx`)
 
-| Hang Point | Before | After |
+Line 20 calls `navigate('/admin/auth')` directly inside the render function. React Router ignores navigation calls made during render — they must be in a `useEffect`. This means the auto-redirect never actually fires; the user just sees the "Redirecting..." text forever (or a black screen if CSS isn't applied).
+
+**Fix:** Move the timeout redirect into a `useEffect`, and add a nuclear `window.location.href` fallback that fires 2 seconds later as an absolute last resort.
+
+```text
+// Replace the timedOut block with a useEffect:
+useEffect(() => {
+  if (timedOut) {
+    // Try React Router navigation first
+    navigate('/admin/auth', { replace: true });
+    
+    // Nuclear fallback: if React navigation fails, force browser redirect
+    const fallback = setTimeout(() => {
+      window.location.href = '/admin/auth';
+    }, 2000);
+    
+    return () => clearTimeout(fallback);
+  }
+}, [timedOut, navigate]);
+```
+
+### Summary of Changes
+
+**`src/hooks/useAuth.tsx`** (3 lines):
+- Lines 166, 173: Remove `await` from `signOut()` calls
+- Line 188: Remove `await`, add `.catch(() => {})`
+
+**`src/components/ProtectedRoute.tsx`**:
+- Move `navigate()` from render into a `useEffect` triggered by `timedOut`
+- Add `window.location.href` nuclear fallback after 2 seconds
+- Keep the visible "Redirecting..." JSX with white background
+
+### Why This Finally Fixes It
+
+| Scenario | Before | After |
 |---|---|---|
-| `getSession()` hangs | 4s timeout (already fixed) | Same |
-| `getUser()` hangs | No timeout -- hangs forever | 4s timeout, then login redirect |
-| Timeout fallback screen | Black background, invisible | White background + auto-redirect |
-| Total worst-case wait | Forever (black screen) | 4 seconds, then login page |
+| `signOut()` hangs after timeout | `loading` stays `true` forever (black screen) | `signOut` fires in background, `loading` becomes `false` immediately |
+| 4s ProtectedRoute timeout fires | `navigate()` called during render (silently ignored) | `navigate()` in useEffect (works correctly) |
+| React navigation also fails | No fallback | `window.location.href` forces browser redirect after 6s total |
+| **Total worst-case wait** | **Forever** | **6 seconds, then hard browser redirect** |
 
 ### Impact on Normal Usage
 
-- **Logged-in admin**: Auth resolves in under 1 second, dashboard loads normally -- no change
-- **Not logged in**: Instant redirect to `/admin/auth` -- no change
-- **Auth hangs (the bug)**: 4 seconds max, then auto-redirect to login instead of black screen forever
+- Logged-in admin: Auth resolves in under 1 second, no change
+- Not logged in: Instant redirect to `/admin/auth`, no change
+- Auth hangs: Maximum 6 seconds before forced redirect to login
 
