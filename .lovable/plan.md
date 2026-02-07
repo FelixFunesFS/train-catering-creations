@@ -1,71 +1,68 @@
 
 
-## Fix: Remove Redundant Access Check That Causes Black Screen on Refresh
+## Fix: Email Template Category Case Mismatch Dropping Line Item Details
 
 ### Problem
 
-`isVerifyingAccess` is the direct cause of the black screen. When a logged-in admin refreshes `/admin`:
+The email templates use **PascalCase** category names (`'Sides'`, `'Appetizers'`, `'Desserts'`) in their rendering order, but the database stores **lowercase** categories (`'sides'`, `'appetizers'`, `'desserts'`). This causes a mismatch where items don't match their intended category group and either:
 
-1. `initializeAuth` correctly validates the session and role
-2. Supabase then fires a **duplicate** `SIGNED_IN` event
-3. The handler at line 96-126 of `useAuth.tsx` sets `isVerifyingAccess = true` and re-runs the role check **with no timeout**
-4. `ProtectedRoute` (line 75) sees `isVerifyingAccess = true` and shows the loading screen
-5. If the RPC is slow, `isVerifyingAccess` stays stuck -- resulting in an infinite spinner / black screen
+1. Fall through to a generic "catch-all" renderer (losing proper icons, labels, and styling)
+2. Display the generic title ("Additional Side Selection") without the actual food name being prominent
 
-Non-logged-in users are unaffected because `ProtectedRoute` catches `!user` and redirects to `/admin/auth` immediately.
+There are **two affected functions** in the same file, and two sub-issues:
 
-### Changes (3 files)
+---
 
-#### 1. `src/hooks/useAuth.tsx` -- Skip redundant SIGNED_IN after init
+### Issue 1: `generateMenuSection` (non-pricing menu display, line 405)
 
-**Lines 96-126**: Add an early return before the existing handler. If `initializeAuth` already resolved the role (`initializedRef.current === true` and `userRole` is set), reuse that result instead of re-checking. Also add a 5-second timeout to the fallback `checkAccess` call for cases where the handler does need to run (fresh login).
+Used in: inquiry emails, admin notifications, and other non-estimate emails.
 
-```
-// Add before existing line 96:
-if (event === 'SIGNED_IN' && session?.user) {
-  // Already resolved -- reuse, don't re-check
-  if (initializedRef.current && userRole) {
-    setSession(session);
-    setUser(session.user);
-    setLoading(false);
-    return;
-  }
-  
-  setIsVerifyingAccess(true);
-  setTimeout(async () => {
-    try {
-      // Add 5s timeout (was missing)
-      const role = await Promise.race([
-        checkAccess(session.user.id),
-        new Promise(r => setTimeout(() => r(null), 5000)),
-      ]);
-      // ... rest stays the same
-```
+**Bug**: `categoryOrder` on line 435 uses `['Proteins', 'Sides', 'dietary', 'Appetizers', 'Desserts', 'Beverages', 'Service Items']` -- none of these match the actual lowercase database categories (`sides`, `appetizers`, `desserts`, `service`, `supplies`, `package`). So nearly ALL line items fall through to the catch-all renderer, losing their proper icons and category labels.
 
-#### 2. `src/pages/AdminAuth.tsx` -- Add 6-second escape hatch
+**Fix**: Normalize categories to lowercase throughout:
+- Update `categoryOrder` to include lowercase variants: `['package', 'Proteins', 'sides', 'Sides', 'dietary', 'appetizers', 'Appetizers', 'desserts', 'Desserts', 'beverages', 'Beverages', 'service', 'supplies', 'food', 'Other Items']`
+- Add lowercase entries to `categoryIcons` and `categoryLabels` maps
+- Add deduplication so if both `'Sides'` and `'sides'` somehow exist, items aren't rendered twice
 
-If `isVerifyingAccess` somehow stays stuck (layers 1 and 2 both fail), stop waiting after 6 seconds and show the login form. The valid session will auto-redirect the user to the dashboard.
+### Issue 2: `generateLineItemsTable` (pricing/estimate display, line ~780)
 
-- Add a `verifyTimedOut` state with a `useEffect` timer
-- Change the loading condition from `if (loading || isVerifyingAccess)` to `if (loading || (isVerifyingAccess && !verifyTimedOut))`
+Used in: estimate emails, approval emails -- the main customer-facing emails.
 
-#### 3. `index.html` -- Add 8-second HTML fallback
+**Bug**: `categoryOrder` on line 791 includes both cases for `appetizers`/`desserts` but is **missing lowercase `'sides'`**. So additional sides fall through to the catch-all, appearing at the bottom without proper styling.
 
-Add a small inline script that redirects to `/admin/auth` if the React root is still empty after 8 seconds. This handles the extreme edge case where cached JS fails to execute entirely.
+**Fix**: Add `'sides'` to the `categoryOrder` array and ensure `categoryIcons` and `categoryLabels` include lowercase `'sides'`.
 
-### What each layer catches
+---
 
-| Layer | Scenario | Timeout |
-|-------|----------|---------|
-| Layer 1 (useAuth skip) | Redundant SIGNED_IN after successful init | Instant -- no check runs at all |
-| Layer 2 (Promise.race) | checkAccess hangs during fresh login | 5 seconds |
-| Layer 3 (AdminAuth escape) | isVerifyingAccess stuck for any reason | 6 seconds |
-| Layer 4 (HTML fallback) | React never mounts (stale cached JS) | 8 seconds |
+### Issue 3: Title vs. Description Display
 
-### What stays the same
+Both email renderers show `item.title` as the bold heading and `item.description` as secondary text. For the "Additional Side Selection" line item, the title is the generic label and the description contains the actual food ("Rice Peas"). This technically works -- the food name IS shown -- but it's secondary and easy to miss.
 
-- The role-checking security model (server-side RPC verification)
-- The `initializeAuth` flow (already works correctly)
-- The login flow for fresh sign-ins
-- Non-logged-in user behavior (already redirects correctly)
+**Fix**: For items in the `sides` category where the title is generic ("Additional Side Selection"), swap the display so the food name (description) is more prominent. This can be done by checking if the title contains "Selection" and the description exists, then using the description as the primary display text.
+
+---
+
+### Files Changed
+
+**`supabase/functions/_shared/emailTemplates.ts`** (single file, two functions):
+
+1. **`generateMenuSection` (~line 420-435)**: Add lowercase categories to `categoryIcons`, `categoryLabels`, and `categoryOrder`
+2. **`generateLineItemsTable` (~line 781-791)**: Add `'sides'` to `categoryOrder`, add lowercase entries to icon/label maps
+3. **Both functions (~line 487/890)**: Update item display logic so description-heavy items (like "Additional Side Selection" with description "Rice Peas") show the food name prominently
+
+### What This Fixes
+
+| Before | After |
+|---|---|
+| "Additional Side Selection" shown as title, "Rice Peas" buried in small text or missing | "Rice Peas" shown prominently as the side name |
+| Sides, appetizers, desserts fall to catch-all in non-pricing emails | Properly grouped under correct category with icons |
+| Missing "sides" in pricing email category order | Sides appear in correct position with proper styling |
+
+### What Stays the Same
+
+- Database categories unchanged (all lowercase) -- this is the correct source of truth
+- Customer portal (flat list, no category grouping) -- unaffected
+- Staff view -- already uses lowercase categories correctly
+- Admin estimate editor -- unaffected
+- PDF generation -- uses its own rendering path
 
