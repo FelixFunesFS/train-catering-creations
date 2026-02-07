@@ -1,24 +1,50 @@
 
 
-## Fix Hero Description Truncation
+## Fix: Replace Optimistic Render with Loading Screen in ProtectedRoute
 
-### Problem
-The `line-clamp-2` / `line-clamp-3` CSS on the description paragraph cuts off text with ellipsis but provides no way to read the full content.
+### What Changes
 
-### Recommended Approach: Remove the clamp
-The descriptions are already concise (1-2 short sentences each). Removing the clamp will show the full text without impacting layout or pushing CTAs out of view.
+**File: `src/components/ProtectedRoute.tsx`** -- 2 small edits
 
-### Why not a "Read More" button?
-- Hero sections should deliver their message instantly -- adding interaction to reveal basic copy is friction
-- It adds visual clutter next to the CTA buttons
-- The text is short enough that truncation is unnecessary
+**Edit 1 (line 60-63):** In `ProtectedRoute`, change the optimistic render to show the loading screen:
 
-### Technical Detail
+```
+// FROM:
+if (isVerifyingAccess || rolesLoading) {
+  return <>{children}</>;
+}
 
-**File: `src/components/home/SplitHero.tsx`** (line 279)
+// TO:
+if (isVerifyingAccess || rolesLoading) {
+  return <AuthLoadingScreen />;
+}
+```
 
-- **From**: `line-clamp-2 sm:line-clamp-3`
-- **To**: remove both classes entirely
+**Edit 2 (lines 83-86):** Same change in `StaffRoute`:
 
-The paragraph keeps its existing `text-sm sm:text-base text-white/80 leading-relaxed` styling. No other changes needed.
+```
+// FROM:
+if (isVerifyingAccess || rolesLoading) {
+  return <>{children}</>;
+}
 
+// TO:
+if (isVerifyingAccess || rolesLoading) {
+  return <AuthLoadingScreen />;
+}
+```
+
+### Auto-Login Experience
+
+Returning admins with valid sessions will see a brief "Verifying access..." spinner (under 1 second) before the dashboard loads -- instead of a broken black page. This is the standard pattern used by production admin portals.
+
+### Safety Nets Already in Place
+
+- Token validation via `getUser()` in `useAuth.tsx` (added in previous fix)
+- 5-second role check timeout in `useAuth.tsx`
+- 10-second `AuthLoadingScreen` timeout with Retry/Login buttons
+- Immediate redirect for unauthenticated users
+
+### Risk
+
+Minimal. The only behavioral change is showing a spinner instead of an empty dashboard during the 0.5-1 second verification window. No routing, auth logic, or data fetching changes.
