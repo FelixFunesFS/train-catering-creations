@@ -71,9 +71,10 @@ const SAMPLE_LINE_ITEMS = [
   { id: "2", title: "Vegetarian Entrée Selection", description: "Grilled Portobello", category: "dietary", quantity: 5, unit_price: 1200, total_price: 6000 },
   { id: "3", title: "Appetizer Selection", description: "Deviled Eggs, Pimento Cheese", category: "appetizers", quantity: 75, unit_price: 400, total_price: 30000 },
   { id: "4", title: "Dessert Selection", description: "Peach Cobbler", category: "desserts", quantity: 75, unit_price: 300, total_price: 22500 },
-  { id: "5", title: "Full-Service Catering", description: "Professional setup and service", category: "service", quantity: 1, unit_price: 25000, total_price: 25000 },
-  { id: "6", title: "Wait Staff Service", description: "3 servers for 4-hour event", category: "service", quantity: 1, unit_price: 45000, total_price: 45000 },
-  { id: "7", title: "Supply & Equipment Package", description: "Plates, cups, napkins, serving utensils, chafers, ice", category: "supplies", quantity: 1, unit_price: 10000, total_price: 10000 },
+  { id: "5", title: "Additional Side Selection", description: "Rice & Peas", category: "sides", quantity: 75, unit_price: 250, total_price: 18750 },
+  { id: "6", title: "Full-Service Catering", description: "Professional setup and service", category: "service", quantity: 1, unit_price: 25000, total_price: 25000 },
+  { id: "7", title: "Wait Staff Service", description: "3 servers for 4-hour event", category: "service", quantity: 1, unit_price: 45000, total_price: 45000 },
+  { id: "8", title: "Supply & Equipment Package", description: "Plates, cups, napkins, serving utensils, chafers, ice", category: "supplies", quantity: 1, unit_price: 10000, total_price: 10000 },
 ];
 
 const SAMPLE_INVOICE = {

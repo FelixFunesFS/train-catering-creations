@@ -420,19 +420,37 @@ export function generateMenuSection(lineItems: any[], bothProteinsAvailable?: bo
   const categoryIcons: Record<string, string> = {
     'Proteins': '🥩',
     'Sides': '🥗',
+    'sides': '🥗',
     'dietary': '🌱',
     'Appetizers': '🍤',
+    'appetizers': '🍤',
     'Desserts': '🍰',
+    'desserts': '🍰',
     'Beverages': '🥤',
+    'beverages': '🥤',
     'Service Items': '🍴',
+    'service': '🍴',
+    'package': '📦',
+    'food': '🍳',
+    'supplies': '🧊',
     'Other Items': '📦'
   };
 
   const categoryLabels: Record<string, string> = {
     'dietary': 'Vegetarian Options',
+    'sides': 'Sides',
+    'appetizers': 'Starters',
+    'desserts': 'Desserts',
+    'beverages': 'Beverages',
+    'service': 'Service & Staffing',
+    'package': 'Main Entrées',
+    'food': 'Menu Selections',
+    'supplies': 'Equipment',
   };
 
-  const categoryOrder = ['Proteins', 'Sides', 'dietary', 'Appetizers', 'Desserts', 'Beverages', 'Service Items', 'Other Items'];
+  // Normalize: use lowercase as canonical, skip PascalCase duplicates
+  const categoryOrder = ['package', 'Proteins', 'sides', 'dietary', 'appetizers', 'desserts', 'beverages', 'service', 'supplies', 'food', 'Other Items'];
+  const renderedCategories = new Set<string>();
   
   let menuHtml = `
 <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${BRAND_COLORS.white}" style="background:${BRAND_COLORS.white};border:2px solid ${BRAND_COLORS.lightGray};border-radius:8px;margin:16px 0;border-collapse:collapse;">
@@ -447,12 +465,24 @@ export function generateMenuSection(lineItems: any[], bothProteinsAvailable?: bo
 </table>
 `;
 
+  // Also check PascalCase variants that map to same canonical category
+  const caseVariants: Record<string, string> = { 'Sides': 'sides', 'Appetizers': 'appetizers', 'Desserts': 'desserts', 'Beverages': 'beverages' };
+  Object.entries(caseVariants).forEach(([pascal, lower]) => {
+    if (itemsByCategory[pascal] && !itemsByCategory[lower]) {
+      itemsByCategory[lower] = itemsByCategory[pascal];
+    } else if (itemsByCategory[pascal] && itemsByCategory[lower]) {
+      itemsByCategory[lower] = [...itemsByCategory[lower], ...itemsByCategory[pascal]];
+    }
+    delete itemsByCategory[pascal];
+  });
+
   categoryOrder.forEach(category => {
-    if (itemsByCategory[category]) {
+    if (itemsByCategory[category] && !renderedCategories.has(category)) {
+      renderedCategories.add(category);
       const icon = categoryIcons[category] || '📦';
       const isProtein = category === 'Proteins';
       const isDietary = category === 'dietary';
-      const displayLabel = categoryLabels[category] || category;
+      const displayLabel = categoryLabels[category] || category.charAt(0).toUpperCase() + category.slice(1);
       
       let bgColor = '#ffffff';
       let borderColor = BRAND_COLORS.lightGray;
@@ -484,8 +514,8 @@ export function generateMenuSection(lineItems: any[], bothProteinsAvailable?: bo
 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="${borderBottom}border-collapse:collapse;">
 <tr>
 <td style="padding:10px 0;">
-<strong style="color:#2d2d2d;font-size:15px;">${item.title || item.description}</strong>
-${item.description && item.title ? `<br><span style="color:#666;font-size:13px;">${item.description}</span>` : ''}
+<strong style="color:#2d2d2d;font-size:15px;">${(item.title?.toLowerCase().includes('selection') && item.description) ? item.description : (item.title || item.description)}</strong>
+${(item.description && item.title && !item.title.toLowerCase().includes('selection')) ? `<br><span style="color:#666;font-size:13px;">${item.description}</span>` : ''}
 </td>
 ${item.quantity > 1 ? `<td align="right" style="padding:10px 0;"><span style="color:${BRAND_COLORS.crimson};font-weight:600;font-size:14px;">×${item.quantity}</span></td>` : ''}
 </tr>
@@ -764,12 +794,14 @@ export function generateMenuWithPricingSection(
   const categoryIcons: Record<string, string> = {
     'Proteins': '🥩',
     'Sides': '🥗',
+    'sides': '🥗',
     'dietary': '🌱',
     'Appetizers': '🍤',
     'appetizers': '🍤',
     'Desserts': '🍰',
     'desserts': '🍰',
     'Beverages': '🥤',
+    'beverages': '🥤',
     'Service Items': '🍴',
     'service': '🍴',
     'package': '📦',
@@ -782,13 +814,26 @@ export function generateMenuWithPricingSection(
     'dietary': 'Dietary Accommodations',
     'package': 'Main Entrées',
     'food': 'Menu Selections',
+    'sides': 'Sides',
     'appetizers': 'Starters',
     'desserts': 'Sweets',
     'service': 'Service & Staffing',
     'supplies': 'Equipment',
   };
 
-  const categoryOrder = ['package', 'food', 'Proteins', 'Sides', 'dietary', 'Appetizers', 'appetizers', 'Desserts', 'desserts', 'Beverages', 'Service Items', 'service', 'supplies', 'Other Items'];
+  const categoryOrder = ['package', 'food', 'Proteins', 'sides', 'Sides', 'dietary', 'Appetizers', 'appetizers', 'Desserts', 'desserts', 'Beverages', 'beverages', 'Service Items', 'service', 'supplies', 'Other Items'];
+
+  // Merge PascalCase into lowercase canonical keys
+  const caseVariants: Record<string, string> = { 'Sides': 'sides', 'Appetizers': 'appetizers', 'Desserts': 'desserts', 'Beverages': 'beverages' };
+  Object.entries(caseVariants).forEach(([pascal, lower]) => {
+    if (itemsByCategory[pascal] && !itemsByCategory[lower]) {
+      itemsByCategory[lower] = itemsByCategory[pascal];
+    } else if (itemsByCategory[pascal] && itemsByCategory[lower]) {
+      itemsByCategory[lower] = [...itemsByCategory[lower], ...itemsByCategory[pascal]];
+    }
+    delete itemsByCategory[pascal];
+  });
+  const renderedCategories = new Set<string>();
 
   // Format service type
   const serviceLabel = serviceType ? formatServiceType(serviceType) : 'Catering';
@@ -824,7 +869,8 @@ export function generateMenuWithPricingSection(
 
   // Render each category with inline pricing - compact mode
   categoryOrder.forEach(category => {
-    if (itemsByCategory[category]) {
+    if (itemsByCategory[category] && !renderedCategories.has(category)) {
+      renderedCategories.add(category);
       const items = itemsByCategory[category];
       const icon = categoryIcons[category] || '📦';
       const isProtein = category === 'Proteins';
@@ -887,8 +933,8 @@ export function generateMenuWithPricingSection(
 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="${borderBottom}border-collapse:collapse;">
 <tr>
 <td style="padding:6px 0;width:65%;">
-${inlineIcon}<strong style="color:#2d2d2d;font-size:14px;">${item.title || item.description}</strong>
-${item.description && item.title ? `<br><span style="color:#666;font-size:12px;line-height:1.4;">${item.description}</span>` : ''}
+${inlineIcon}<strong style="color:#2d2d2d;font-size:14px;">${(item.title?.toLowerCase().includes('selection') && item.description) ? item.description : (item.title || item.description)}</strong>
+${(item.description && item.title && !item.title.toLowerCase().includes('selection')) ? `<br><span style="color:#666;font-size:12px;line-height:1.4;">${item.description}</span>` : ''}
 ${qtyStr ? `<span style="color:#888;font-size:11px;margin-left:8px;">(${qtyStr})</span>` : ''}
 </td>
 <td style="padding:6px 0;text-align:right;width:35%;vertical-align:top;">
