@@ -57,9 +57,9 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   // No user at all — redirect to login
   if (!user) return <Navigate to="/admin/auth" replace />;
 
-  // Optimistic: user exists but role still verifying — render children
+  // Role still verifying — show loading state (NOT the dashboard)
   if (isVerifyingAccess || rolesLoading) {
-    return <>{children}</>;
+    return <AuthLoadingScreen />;
   }
 
   // Role resolved — enforce access
@@ -80,9 +80,9 @@ export function StaffRoute({ children }: ProtectedRouteProps) {
 
   if (!user) return <Navigate to="/admin/auth" replace />;
 
-  // Optimistic: render while verifying
+  // Role still verifying — show loading state
   if (isVerifyingAccess || rolesLoading) {
-    return <>{children}</>;
+    return <AuthLoadingScreen />;
   }
 
   if (!isAdmin() && !isStaff()) return <Navigate to="/admin/auth" replace />;
