@@ -5,7 +5,7 @@ import { usePermissions } from '@/hooks/usePermissions';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-const AUTH_TIMEOUT_MS = 10_000;
+const AUTH_TIMEOUT_MS = 4_000;
 
 function AuthLoadingScreen() {
   const [timedOut, setTimedOut] = useState(false);
@@ -17,17 +17,16 @@ function AuthLoadingScreen() {
   }, []);
 
   if (timedOut) {
+    navigate('/admin/auth', { replace: true });
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-background">
-        <p className="text-sm text-muted-foreground">Verification is taking longer than expected.</p>
-        <div className="flex gap-3">
-          <Button size="sm" variant="outline" onClick={() => window.location.reload()}>
-            Retry
-          </Button>
-          <Button size="sm" onClick={() => navigate('/admin/auth', { replace: true })}>
-            Go to Login
-          </Button>
-        </div>
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4"
+           style={{ background: '#fff' }}>
+        <img
+          src="/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png"
+          alt="Soul Train's Eatery"
+          className="h-16 w-16 rounded-full object-cover"
+        />
+        <p style={{ color: '#6b7280' }} className="text-sm">Redirecting to login...</p>
       </div>
     );
   }
