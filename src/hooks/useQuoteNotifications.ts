@@ -63,7 +63,7 @@ export const useQuoteNotifications = () => {
     if ('Notification' in window && Notification.permission === 'granted') {
       new Notification('New Quote Request - Soul Train\'s Eatery', {
         body: `${quote.contact_name} - ${quote.event_name}`,
-        icon: '/favicon.ico',
+        icon: '/favicon.png',
         tag: quote.id,
         requireInteraction: false
       });

@@ -193,22 +193,13 @@ The admin dashboard is **fully responsive** and optimized for mobile devices:
 4. Verify tracking pixel is in email template
 5. Check database for `analytics_events` records
 
-### 🔄 **Quote Not Syncing to Calendar**
+### 🔄 **Event Status Not Updating**
 
 **Solution:**
-1. Verify Google Calendar integration is active
-2. Check calendar credentials in settings
-3. Manually sync from Event Timeline tab
-4. Check edge function logs for sync errors
-
-### 📄 **Document Upload Failed**
-
-**Solution:**
-1. Check file size (max 10MB)
-2. Verify file type is allowed
-3. Check storage bucket permissions
-4. Try uploading a smaller file first
-5. Check browser console for errors
+1. Check edge function logs in **Testing** tab
+2. Verify database triggers are active
+3. Refresh the page and check again
+4. Review workflow state log for transition errors
 
 ---
 
@@ -342,18 +333,6 @@ Government contracts work differently:
 - Don't delete completed events (archive instead)
 - Don't ignore "At-Risk" events
 - Don't send estimates without reviewing pricing
-
----
-
-## Keyboard Shortcuts
-
-- `W` - Switch to Workflow tab
-- `P` - Switch to Pipeline tab
-- `R` - Switch to At-Risk tab
-- `T` - Switch to Today tab
-- `S` - Switch to Status tab
-- `/` - Focus search
-- `Esc` - Close modal
 
 ---
 
