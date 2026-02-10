@@ -466,6 +466,65 @@ graph TD
     Note1[stripe-webhook runs async] -.-> M
 ```
 
+### 4.10 Admin Action Automation Map
+
+Every admin button, the handler it invokes, and the full chain of side effects.
+
+#### Button Automation Reference
+
+| Button | Location | Hook/Handler | Edge Function(s) | DB Side Effects | UI Feedback |
+|--------|----------|-------------|-------------------|-----------------|-------------|
+| **Generate Estimate** | EstimatePanelContent | `handleGenerateEstimate` | `generate-invoice-from-quote` | Creates invoice (draft), creates `invoice_line_items` from quote proteins/sides/extras JSONB, upserts customer record | Toast + panel refreshes to show line items |
+| **Save Changes** | EstimatePanelContent | `handleSaveChanges` (useEditableInvoice) | None (direct DB) | Updates line items → triggers `recalculate_invoice_totals` DB trigger → `force_recalculate_invoice_totals` RPC verification | Toast "Changes saved" |
+| **Send Estimate** | EstimatePanelContent | `handleSendEstimate` | `send-customer-portal-email` | Updates invoice status to `sent`, generates `customer_access_token` if missing, sets token expiry | Toast + status badge updates |
+| **Resend Email** | EstimatePanelContent | `handleSendEstimate` (resend mode) | `send-customer-portal-email` | Logs resend in `workflow_state_log` | Toast "Email resent" |
+| **Download PDF** | EstimatePanelContent | `handleDownloadPdf` | `generate-invoice-pdf` | None (read-only) | PDF file downloads |
+| **Apply Discount** | DiscountControls | `handleApplyDiscount` | None (direct DB) | Updates invoice discount fields → triggers total recalculation | Live total updates |
+| **Remove Discount** | DiscountControls | `handleRemoveDiscount` | None (direct DB) | Clears discount fields → triggers total recalculation | Live total updates |
+| **Government Toggle** | EstimatePanelContent | `handleToggleGovernment` | `generate-payment-milestones` | Updates quote `compliance_level`, invoice `payment_schedule_type` to NET30, sets tax exempt → regenerates milestones with 30-day terms | Toast + milestone panel refreshes |
+| **Regenerate Milestones** | PaymentMilestonePanel | `handleRegenerateMilestones` | `generate-payment-milestones` | Deletes existing unpaid milestones, creates new ones based on current total and payment type, preserves paid milestone status | Toast + milestone list refreshes |
+| **Regenerate Line Items** | EstimatePanelContent | `useRegenerateLineItems` | None (QuoteUpdateService) | Re-reads quote proteins/sides JSONB, rebuilds line items, preserves manually set prices where items match, new items get $0 | Toast "Prices preserved where possible" |
+| **Mark Event Completed** | EventDetailsPanelContent | `handleMarkEventCompleted` | None (direct DB) | Updates quote `workflow_status` to `completed` | Toast + status badge updates |
+| **Delete Event** | EventDetailsPanelContent | delete handler | None (direct DB) | Cascade deletes: quote_line_items → admin_notes → invoice_line_items → payment_milestones → invoices → quote_requests | Navigate to dashboard |
+| **Send Thank You** | Event actions | `handleSendThankYou` | `send-event-followup` | Logs in `workflow_state_log` | Toast "Thank you sent" |
+
+#### Automation Chain Pattern
+
+All admin actions that modify financial data follow this cascade:
+
+```mermaid
+sequenceDiagram
+    participant Admin
+    participant UI as React Component
+    participant EF as Edge Function
+    participant DB as Supabase DB
+    participant Trigger as DB Trigger
+    participant RPC as RPC Verification
+    participant RQ as React Query
+
+    Note over Admin,RQ: Example: Generate Estimate
+    Admin->>UI: Clicks "Generate Estimate"
+    UI->>EF: invoke('generate-invoice-from-quote')
+    EF->>DB: INSERT invoice + line_items
+    DB->>Trigger: recalculate_invoice_totals (auto)
+    Trigger->>DB: UPDATE invoice.subtotal, tax, total
+    EF-->>UI: Success response
+    UI->>RQ: invalidateQueries(['invoices', 'line-items', 'events'])
+    RQ-->>UI: Refetch & re-render
+
+    Note over Admin,RQ: Example: Government Toggle
+    Admin->>UI: Toggles "Government Contract"
+    UI->>DB: UPDATE quote_requests (compliance_level)
+    UI->>RPC: force_recalculate_invoice_totals
+    RPC->>DB: Verify totals match
+    UI->>EF: invoke('generate-payment-milestones')
+    EF->>DB: DELETE old milestones, INSERT new (NET30)
+    UI->>RQ: invalidateQueries(['quotes', 'invoices', 'events'])
+    RQ-->>UI: Refetch & re-render
+```
+
+> **Key insight**: The `recalculate_invoice_totals` DB trigger fires automatically on any `invoice_line_items` change. The `force_recalculate_invoice_totals` RPC is a 200ms-delayed verification step that catches any drift. React Query invalidation ensures all UI views stay synchronized.
+
 ---
 
 ## 5. Layer 4 — Structural Diagrams
