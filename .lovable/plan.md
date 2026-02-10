@@ -1,107 +1,92 @@
 
 
-## Documentation Cleanup & Favicon Fix
+## Updated Plan: Admin Guide Rewrite + CODEBASE_MAP Fix
 
 ### Overview
 
-After reviewing all 14 markdown files and the favicon situation, here's the assessment and action plan. The goal is to consolidate, remove stale docs, and fix the favicon -- all without touching any application logic.
+The approved plan correctly identified the Admin Guide needs a rewrite, but missed that `CODEBASE_MAP.md` is also significantly outdated. Both files reference components, services, and structures that no longer exist in the codebase. All other `.md` files are accurate.
 
 ---
 
-### Current State: 14 Markdown Files
+### File 1: `docs/ADMIN_GUIDE.md` — Complete Rewrite
 
-| File | Status | Action |
-|------|--------|--------|
-| **Root directory** | | |
-| `README.md` | Generic Lovable boilerplate | **Update** -- replace with Soul Train's Eatery project README |
-| `CODEBASE_MAP.md` | Mostly accurate, useful reference | **Keep** -- update "Last updated" date |
-| `CUSTOMER_DISPLAY_CHECKLIST.md` | Still valid and actively useful | **Keep as-is** |
-| `PHASE_1_CLEANUP_SUMMARY.md` | Completed work log from Oct 2024 | **Delete** -- historical, no longer actionable |
-| `PHASE_3_IMPLEMENTATION_SUMMARY.md` | Completed work log, references missing `REALTIME_SETUP.sql` | **Delete** -- historical, no longer actionable |
-| `README-FloatingCards.md` | Component documentation for floating cards | **Move** to `docs/` and rename to `FLOATING_CARDS.md` |
-| `WORKFLOW_TESTING_CHECKLIST.md` | Mixed completed/incomplete items, stale phase references | **Delete** -- superseded by `docs/DEPLOYMENT_CHECKLIST.md` and upcoming `UX_ARCHITECTURE.md` |
-| `EDGE_FUNCTION_CRON_SETUP.sql` | SQL setup script (not documentation) | **Keep** -- operational script, not a doc cleanup target |
-| **docs/ directory** | | |
-| `docs/ADMIN_GUIDE.md` | Good content but references non-existent features (Google Calendar sync, keyboard shortcuts, document uploads) | **Update** -- remove references to inactive features |
-| `docs/COMPONENT_CONSOLIDATION_PLAN.md` | Planning document with unchecked items from an old sprint | **Delete** -- stale plan, consolidation either done or abandoned |
-| `docs/DEPLOYMENT_CHECKLIST.md` | Short, valid, still useful | **Keep as-is** |
-| `docs/EDGE_FUNCTION_MONITORING.md` | Contains hardcoded anon key in curl examples, references Resend (system uses Gmail SMTP) | **Update** -- fix inaccuracies |
-| `docs/PAYMENT_TESTING_GUIDE.md` | Comprehensive, still valid | **Keep as-is** |
-| `docs/STATUS_TRANSITION_MATRIX.md` | Accurate, detailed, actively useful | **Keep as-is** |
-| `docs/WORKFLOW_DIAGRAMS.md` | Good mermaid diagrams, accurate | **Keep as-is** |
+As already planned: rewrite to reflect the actual 3-view dashboard (Events, Billing, Settings) plus Staff route. Remove all references to the old 10-tab layout (Workflow, Pipeline, At-Risk, Today, Status, Timeline, Changes, Docs, Testing tabs).
+
+Key sections to rewrite:
+- Dashboard Overview: 3 views, not 10 tabs
+- Daily Workflow: Use SubmissionsCard + EventList, not "Today" or "At-Risk" tabs
+- Common Tasks: Navigate via Events view, click into event details
+- Mobile Access: Bottom nav bar (Events, Billing, Staff, Settings, Logout)
+- Troubleshooting: Remove "Testing tab" references, point to Settings > Email Delivery
+- Tips: Remove "At-Risk panel" and "Pipeline tab" references
+- Version bump to v3.0
 
 ---
 
-### Action Summary
+### File 2: `CODEBASE_MAP.md` — Significant Updates Required
 
-**Delete (4 files):**
-1. `PHASE_1_CLEANUP_SUMMARY.md` -- completed historical log
-2. `PHASE_3_IMPLEMENTATION_SUMMARY.md` -- completed historical log, references missing file
-3. `WORKFLOW_TESTING_CHECKLIST.md` -- stale checklist with mixed states
-4. `docs/COMPONENT_CONSOLIDATION_PLAN.md` -- stale planning doc
+This file has multiple inaccuracies that could mislead future development:
 
-**Move (1 file):**
-5. `README-FloatingCards.md` -> `docs/FLOATING_CARDS.md`
+**Admin Dashboard section (lines 162-177) — references 5 non-existent components:**
+- `DashboardHome` — does not exist
+- `UnifiedEventManager` — does not exist
+- `FinancialHub` — does not exist
+- `SettingsHub` — does not exist
 
-**Update (3 files):**
-6. `README.md` -- Replace boilerplate with Soul Train's Eatery project description (tech stack, setup, contact info)
-7. `docs/ADMIN_GUIDE.md` -- Remove references to: Google Calendar sync (line 199), keyboard shortcuts section (lines 347-357, not implemented), document upload troubleshooting (lines 204-211, feature not active)
-8. `docs/EDGE_FUNCTION_MONITORING.md` -- Remove hardcoded bearer tokens from curl examples (replace with placeholder), fix Resend references to match actual Gmail SMTP setup
+Replace with actual components: `EventsView`, `PaymentList`, `NotificationPreferencesPanel`, `EmailTemplatePreview`, `EmailDeliveryPanel`
 
-**Keep unchanged (6 files):**
-- `CODEBASE_MAP.md`
-- `CUSTOMER_DISPLAY_CHECKLIST.md`
-- `EDGE_FUNCTION_CRON_SETUP.sql`
-- `docs/DEPLOYMENT_CHECKLIST.md`
-- `docs/PAYMENT_TESTING_GUIDE.md`
-- `docs/STATUS_TRANSITION_MATRIX.md`
-- `docs/WORKFLOW_DIAGRAMS.md`
+**Workflow Components section (lines 171-177) — entirely stale:**
+- `UnifiedWorkflowManager` — does not exist
+- `WorkflowSteps` — does not exist
+- `PricingPanel` — does not exist
+- `PaymentPanel` — does not exist
+
+Replace with actual components: `EventDetailsPanelContent`, `EstimatePanelContent`, `EventChecklistPanel`, `StaffAssignmentPanel`, `ShoppingListPanel`
+
+**Customer Portal section (lines 179-183) — wrong component names:**
+- `TokenBasedCustomerPortal` — does not exist (actual: `CustomerEstimateView`)
+- `EstimateApprovalWorkflow` — does not exist (actual: `CustomerActions`)
+
+**Quote Form section (lines 185-193) — wrong component name:**
+- `QuoteRequestForm` — does not exist (actual: `SinglePageQuoteForm`)
+
+**Services section (lines 218-226) — references 2 non-existent services:**
+- `PaymentScheduleService` — does not exist
+- `WorkflowService` — does not exist
+
+Remove these entries. Actual services: `EventDataService`, `PaymentDataService`, `TaxCalculationService`, `InvoiceTotalsRecalculator`, `LineItemsService`, `ChangeRequestService`, `ChangeRequestProcessor`, `EmailNotificationService`, `EstimateVersionService`, `HistoryLogger`, `MenuItemService`, `PaymentMilestoneService`, `QuoteUpdateService`
+
+**Edge Functions section (lines 198-206) — incomplete:**
+- Lists only 5 email functions; actual count is 46 edge functions
+
+Update to show the major functional groups rather than trying to list all 46.
+
+**"Last updated" date (line 332):** Change from December 2024 to current.
 
 ---
 
-### Favicon Fix
+### All Other `.md` Files — No Changes Needed
 
-**Current state:**
-- `public/favicon.ico` exists (likely generic/default)
-- `public/favicon.png` exists (used by `index.html` via `<link rel="icon" href="/favicon.png">`)
-- `public/favicon.svg` exists (the actual Soul Train's logo in red)
-- `src/hooks/useQuoteNotifications.ts` line 66 references `/favicon.ico` for notification icons
-
-**Actions:**
-1. **Delete** `public/favicon.ico` -- not referenced in `index.html`, only used in one notification hook
-2. **Update** `src/hooks/useQuoteNotifications.ts` line 66 -- change `icon: '/favicon.ico'` to `icon: '/favicon.png'` (the actual company logo)
-
-This ensures all favicon references point to the real Soul Train's Eatery branding assets. The `favicon.png` and `favicon.svg` already contain the company logo.
+| File | Status |
+|------|--------|
+| `README.md` | Already updated correctly in previous step |
+| `CUSTOMER_DISPLAY_CHECKLIST.md` | Accurate, references correct files |
+| `EDGE_FUNCTION_CRON_SETUP.sql` | Operational script, still valid |
+| `docs/DEPLOYMENT_CHECKLIST.md` | Short, valid |
+| `docs/EDGE_FUNCTION_MONITORING.md` | Already updated in previous step |
+| `docs/FLOATING_CARDS.md` | Accurate component documentation |
+| `docs/PAYMENT_TESTING_GUIDE.md` | Comprehensive, still valid |
+| `docs/STATUS_TRANSITION_MATRIX.md` | Accurate status flows |
+| `docs/WORKFLOW_DIAGRAMS.md` | Valid mermaid diagrams |
 
 ---
 
-### What This Does NOT Touch
+### Summary of Changes
 
-- No application code changes (except the single notification icon path fix)
-- No edge functions
-- No database changes
-- No component deletions
-- No route changes
-- No styling changes
+| File | Action |
+|------|--------|
+| `docs/ADMIN_GUIDE.md` | Complete rewrite (as previously planned) |
+| `CODEBASE_MAP.md` | Update stale component/service references to match actual codebase |
 
-### Final docs/ structure after cleanup
-
-```
-docs/
-  ADMIN_GUIDE.md          (updated)
-  DEPLOYMENT_CHECKLIST.md  (unchanged)
-  EDGE_FUNCTION_MONITORING.md (updated)
-  FLOATING_CARDS.md        (moved from root)
-  PAYMENT_TESTING_GUIDE.md (unchanged)
-  STATUS_TRANSITION_MATRIX.md (unchanged)
-  WORKFLOW_DIAGRAMS.md     (unchanged)
-
-Root:
-  README.md               (updated)
-  CODEBASE_MAP.md          (unchanged)
-  CUSTOMER_DISPLAY_CHECKLIST.md (unchanged)
-  EDGE_FUNCTION_CRON_SETUP.sql (unchanged)
-```
-
-Total: 11 docs (down from 14), all accurate and current.
+No code changes, no functionality impact — documentation only.
 
