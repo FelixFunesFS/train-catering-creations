@@ -1,68 +1,107 @@
 
 
-## Fix: Email Template Category Case Mismatch Dropping Line Item Details
+## Documentation Cleanup & Favicon Fix
 
-### Problem
+### Overview
 
-The email templates use **PascalCase** category names (`'Sides'`, `'Appetizers'`, `'Desserts'`) in their rendering order, but the database stores **lowercase** categories (`'sides'`, `'appetizers'`, `'desserts'`). This causes a mismatch where items don't match their intended category group and either:
-
-1. Fall through to a generic "catch-all" renderer (losing proper icons, labels, and styling)
-2. Display the generic title ("Additional Side Selection") without the actual food name being prominent
-
-There are **two affected functions** in the same file, and two sub-issues:
+After reviewing all 14 markdown files and the favicon situation, here's the assessment and action plan. The goal is to consolidate, remove stale docs, and fix the favicon -- all without touching any application logic.
 
 ---
 
-### Issue 1: `generateMenuSection` (non-pricing menu display, line 405)
+### Current State: 14 Markdown Files
 
-Used in: inquiry emails, admin notifications, and other non-estimate emails.
-
-**Bug**: `categoryOrder` on line 435 uses `['Proteins', 'Sides', 'dietary', 'Appetizers', 'Desserts', 'Beverages', 'Service Items']` -- none of these match the actual lowercase database categories (`sides`, `appetizers`, `desserts`, `service`, `supplies`, `package`). So nearly ALL line items fall through to the catch-all renderer, losing their proper icons and category labels.
-
-**Fix**: Normalize categories to lowercase throughout:
-- Update `categoryOrder` to include lowercase variants: `['package', 'Proteins', 'sides', 'Sides', 'dietary', 'appetizers', 'Appetizers', 'desserts', 'Desserts', 'beverages', 'Beverages', 'service', 'supplies', 'food', 'Other Items']`
-- Add lowercase entries to `categoryIcons` and `categoryLabels` maps
-- Add deduplication so if both `'Sides'` and `'sides'` somehow exist, items aren't rendered twice
-
-### Issue 2: `generateLineItemsTable` (pricing/estimate display, line ~780)
-
-Used in: estimate emails, approval emails -- the main customer-facing emails.
-
-**Bug**: `categoryOrder` on line 791 includes both cases for `appetizers`/`desserts` but is **missing lowercase `'sides'`**. So additional sides fall through to the catch-all, appearing at the bottom without proper styling.
-
-**Fix**: Add `'sides'` to the `categoryOrder` array and ensure `categoryIcons` and `categoryLabels` include lowercase `'sides'`.
-
----
-
-### Issue 3: Title vs. Description Display
-
-Both email renderers show `item.title` as the bold heading and `item.description` as secondary text. For the "Additional Side Selection" line item, the title is the generic label and the description contains the actual food ("Rice Peas"). This technically works -- the food name IS shown -- but it's secondary and easy to miss.
-
-**Fix**: For items in the `sides` category where the title is generic ("Additional Side Selection"), swap the display so the food name (description) is more prominent. This can be done by checking if the title contains "Selection" and the description exists, then using the description as the primary display text.
+| File | Status | Action |
+|------|--------|--------|
+| **Root directory** | | |
+| `README.md` | Generic Lovable boilerplate | **Update** -- replace with Soul Train's Eatery project README |
+| `CODEBASE_MAP.md` | Mostly accurate, useful reference | **Keep** -- update "Last updated" date |
+| `CUSTOMER_DISPLAY_CHECKLIST.md` | Still valid and actively useful | **Keep as-is** |
+| `PHASE_1_CLEANUP_SUMMARY.md` | Completed work log from Oct 2024 | **Delete** -- historical, no longer actionable |
+| `PHASE_3_IMPLEMENTATION_SUMMARY.md` | Completed work log, references missing `REALTIME_SETUP.sql` | **Delete** -- historical, no longer actionable |
+| `README-FloatingCards.md` | Component documentation for floating cards | **Move** to `docs/` and rename to `FLOATING_CARDS.md` |
+| `WORKFLOW_TESTING_CHECKLIST.md` | Mixed completed/incomplete items, stale phase references | **Delete** -- superseded by `docs/DEPLOYMENT_CHECKLIST.md` and upcoming `UX_ARCHITECTURE.md` |
+| `EDGE_FUNCTION_CRON_SETUP.sql` | SQL setup script (not documentation) | **Keep** -- operational script, not a doc cleanup target |
+| **docs/ directory** | | |
+| `docs/ADMIN_GUIDE.md` | Good content but references non-existent features (Google Calendar sync, keyboard shortcuts, document uploads) | **Update** -- remove references to inactive features |
+| `docs/COMPONENT_CONSOLIDATION_PLAN.md` | Planning document with unchecked items from an old sprint | **Delete** -- stale plan, consolidation either done or abandoned |
+| `docs/DEPLOYMENT_CHECKLIST.md` | Short, valid, still useful | **Keep as-is** |
+| `docs/EDGE_FUNCTION_MONITORING.md` | Contains hardcoded anon key in curl examples, references Resend (system uses Gmail SMTP) | **Update** -- fix inaccuracies |
+| `docs/PAYMENT_TESTING_GUIDE.md` | Comprehensive, still valid | **Keep as-is** |
+| `docs/STATUS_TRANSITION_MATRIX.md` | Accurate, detailed, actively useful | **Keep as-is** |
+| `docs/WORKFLOW_DIAGRAMS.md` | Good mermaid diagrams, accurate | **Keep as-is** |
 
 ---
 
-### Files Changed
+### Action Summary
 
-**`supabase/functions/_shared/emailTemplates.ts`** (single file, two functions):
+**Delete (4 files):**
+1. `PHASE_1_CLEANUP_SUMMARY.md` -- completed historical log
+2. `PHASE_3_IMPLEMENTATION_SUMMARY.md` -- completed historical log, references missing file
+3. `WORKFLOW_TESTING_CHECKLIST.md` -- stale checklist with mixed states
+4. `docs/COMPONENT_CONSOLIDATION_PLAN.md` -- stale planning doc
 
-1. **`generateMenuSection` (~line 420-435)**: Add lowercase categories to `categoryIcons`, `categoryLabels`, and `categoryOrder`
-2. **`generateLineItemsTable` (~line 781-791)**: Add `'sides'` to `categoryOrder`, add lowercase entries to icon/label maps
-3. **Both functions (~line 487/890)**: Update item display logic so description-heavy items (like "Additional Side Selection" with description "Rice Peas") show the food name prominently
+**Move (1 file):**
+5. `README-FloatingCards.md` -> `docs/FLOATING_CARDS.md`
 
-### What This Fixes
+**Update (3 files):**
+6. `README.md` -- Replace boilerplate with Soul Train's Eatery project description (tech stack, setup, contact info)
+7. `docs/ADMIN_GUIDE.md` -- Remove references to: Google Calendar sync (line 199), keyboard shortcuts section (lines 347-357, not implemented), document upload troubleshooting (lines 204-211, feature not active)
+8. `docs/EDGE_FUNCTION_MONITORING.md` -- Remove hardcoded bearer tokens from curl examples (replace with placeholder), fix Resend references to match actual Gmail SMTP setup
 
-| Before | After |
-|---|---|
-| "Additional Side Selection" shown as title, "Rice Peas" buried in small text or missing | "Rice Peas" shown prominently as the side name |
-| Sides, appetizers, desserts fall to catch-all in non-pricing emails | Properly grouped under correct category with icons |
-| Missing "sides" in pricing email category order | Sides appear in correct position with proper styling |
+**Keep unchanged (6 files):**
+- `CODEBASE_MAP.md`
+- `CUSTOMER_DISPLAY_CHECKLIST.md`
+- `EDGE_FUNCTION_CRON_SETUP.sql`
+- `docs/DEPLOYMENT_CHECKLIST.md`
+- `docs/PAYMENT_TESTING_GUIDE.md`
+- `docs/STATUS_TRANSITION_MATRIX.md`
+- `docs/WORKFLOW_DIAGRAMS.md`
 
-### What Stays the Same
+---
 
-- Database categories unchanged (all lowercase) -- this is the correct source of truth
-- Customer portal (flat list, no category grouping) -- unaffected
-- Staff view -- already uses lowercase categories correctly
-- Admin estimate editor -- unaffected
-- PDF generation -- uses its own rendering path
+### Favicon Fix
+
+**Current state:**
+- `public/favicon.ico` exists (likely generic/default)
+- `public/favicon.png` exists (used by `index.html` via `<link rel="icon" href="/favicon.png">`)
+- `public/favicon.svg` exists (the actual Soul Train's logo in red)
+- `src/hooks/useQuoteNotifications.ts` line 66 references `/favicon.ico` for notification icons
+
+**Actions:**
+1. **Delete** `public/favicon.ico` -- not referenced in `index.html`, only used in one notification hook
+2. **Update** `src/hooks/useQuoteNotifications.ts` line 66 -- change `icon: '/favicon.ico'` to `icon: '/favicon.png'` (the actual company logo)
+
+This ensures all favicon references point to the real Soul Train's Eatery branding assets. The `favicon.png` and `favicon.svg` already contain the company logo.
+
+---
+
+### What This Does NOT Touch
+
+- No application code changes (except the single notification icon path fix)
+- No edge functions
+- No database changes
+- No component deletions
+- No route changes
+- No styling changes
+
+### Final docs/ structure after cleanup
+
+```
+docs/
+  ADMIN_GUIDE.md          (updated)
+  DEPLOYMENT_CHECKLIST.md  (unchanged)
+  EDGE_FUNCTION_MONITORING.md (updated)
+  FLOATING_CARDS.md        (moved from root)
+  PAYMENT_TESTING_GUIDE.md (unchanged)
+  STATUS_TRANSITION_MATRIX.md (unchanged)
+  WORKFLOW_DIAGRAMS.md     (unchanged)
+
+Root:
+  README.md               (updated)
+  CODEBASE_MAP.md          (unchanged)
+  CUSTOMER_DISPLAY_CHECKLIST.md (unchanged)
+  EDGE_FUNCTION_CRON_SETUP.sql (unchanged)
+```
+
+Total: 11 docs (down from 14), all accurate and current.
 
