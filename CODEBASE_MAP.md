@@ -162,30 +162,34 @@
 ### Admin Dashboard
 | Component | Location | Purpose |
 |-----------|----------|---------|
-| `UnifiedAdminDashboard` | `src/components/admin/UnifiedAdminDashboard.tsx` | Main admin entry point |
-| `DashboardHome` | `src/components/admin/dashboard/DashboardHome.tsx` | KPIs, at-risk, upcoming |
-| `UnifiedEventManager` | `src/components/admin/UnifiedEventManager.tsx` | Event list/pipeline/calendar |
-| `FinancialHub` | `src/components/admin/FinancialHub.tsx` | Billing & payments |
-| `SettingsHub` | `src/components/admin/SettingsHub.tsx` | Settings & testing |
+| `UnifiedAdminDashboard` | `src/pages/UnifiedAdminDashboard.tsx` | Main admin entry point (3 views: Events, Billing, Settings) |
+| `AdminLayout` | `src/components/admin/AdminLayout.tsx` | Shared layout with header and navigation |
+| `MobileAdminNav` | `src/components/admin/mobile/MobileAdminNav.tsx` | Bottom nav (mobile) / inline nav (desktop) |
+| `EventsView` | `src/components/admin/events/EventsView.tsx` | SubmissionsCard + EventList |
+| `PaymentList` | `src/components/admin/billing/PaymentList.tsx` | Invoices and payment tracking |
+| `NotificationPreferencesPanel` | `src/components/admin/settings/NotificationPreferencesPanel.tsx` | Alert preferences |
+| `EmailTemplatePreview` | `src/components/admin/settings/EmailTemplatePreview.tsx` | Email template previews |
+| `EmailDeliveryPanel` | `src/components/admin/settings/EmailDeliveryPanel.tsx` | Email delivery monitoring |
 
-### Workflow Components
+### Event Detail Components
 | Component | Location | Purpose |
 |-----------|----------|---------|
-| `UnifiedWorkflowManager` | `src/components/admin/UnifiedWorkflowManager.tsx` | Event workflow steps |
-| `WorkflowSteps` | `src/components/admin/workflow/WorkflowSteps.tsx` | Step indicator |
-| `PricingPanel` | `src/components/admin/workflow/PricingPanel.tsx` | Line items editor |
-| `PaymentPanel` | `src/components/admin/workflow/PaymentPanel.tsx` | Payment management |
+| `EventDetailsPanelContent` | `src/components/admin/events/EventDetailsPanelContent.tsx` | Customer info, menu, notes |
+| `EstimatePanelContent` | `src/components/admin/events/EstimatePanelContent.tsx` | Line items, pricing, send estimate |
+| `EventChecklistPanel` | `src/components/admin/events/EventChecklistPanel.tsx` | Event task checklist |
+| `StaffAssignmentPanel` | `src/components/admin/events/StaffAssignmentPanel.tsx` | Staff assignments |
+| `ShoppingListPanel` | `src/components/admin/events/ShoppingListPanel.tsx` | Shopping list management |
 
 ### Customer Portal
 | Component | Location | Purpose |
 |-----------|----------|---------|
-| `TokenBasedCustomerPortal` | `src/components/customer/TokenBasedCustomerPortal.tsx` | Customer estimate view |
-| `EstimateApprovalWorkflow` | `src/components/customer/EstimateApprovalWorkflow.tsx` | Approval flow |
+| `CustomerEstimateView` | `src/components/customer/CustomerEstimateView.tsx` | Customer estimate portal |
+| `CustomerActions` | `src/components/customer/CustomerActions.tsx` | Approve/reject/change request actions |
 
 ### Quote Form
 | Component | Location | Purpose |
 |-----------|----------|---------|
-| `QuoteRequestForm` | `src/components/QuoteRequestForm.tsx` | Main quote form |
+| `SinglePageQuoteForm` | `src/components/quote/SinglePageQuoteForm.tsx` | Main quote request form |
 | `EventContactStep` | `src/components/quote/steps/EventContactStep.tsx` | Contact & event info |
 | `ServiceSelectionStep` | `src/components/quote/steps/ServiceSelectionStep.tsx` | Service type selection |
 | `MenuSelectionStep` | `src/components/quote/steps/MenuSelectionStep.tsx` | Menu items |
@@ -195,15 +199,23 @@
 
 ## 📧 Email System
 
-### Edge Functions
-| Function | Location | Purpose |
-|----------|----------|---------|
-| `send-smtp-email` | `supabase/functions/send-smtp-email/` | Core SMTP sender (all emails route through this) |
-| `send-customer-portal-email` | `supabase/functions/send-customer-portal-email/` | **Primary customer emails** - estimates, approvals, payments |
-| `send-quote-notification` | `supabase/functions/send-quote-notification/` | Admin notification of new quotes |
-| `send-payment-reminder` | `supabase/functions/send-payment-reminder/` | Payment reminders |
+### Edge Functions (46 total, grouped by category)
 
-| `preview-email` | `supabase/functions/preview-email/` | Sample data email previews for Settings |
+**Email (11):** `send-smtp-email` (core SMTP), `send-customer-portal-email`, `send-quote-notification`, `send-quote-confirmation`, `send-payment-reminder`, `send-admin-notification`, `send-change-request-notification`, `send-event-followup`, `send-event-reminders`, `send-status-notification`, `send-manual-email`
+
+**Email Utilities (4):** `preview-email`, `send-batch-test-emails`, `send-test-email`, `track-email-open`
+
+**Payments (5):** `create-checkout-session`, `create-payment-intent`, `create-payment-link`, `stripe-webhook`, `verify-payment`
+
+**Workflow & Automation (7):** `auto-workflow-manager`, `automated-customer-workflow`, `workflow-orchestrator`, `update-quote-workflow`, `fix-workflow-status`, `process-change-request`, `confirm-event`
+
+**Invoice & Estimates (5):** `generate-invoice-from-quote`, `generate-invoice-pdf`, `generate-payment-milestones`, `approve-estimate`, `validate-invoice-totals`
+
+**Customer & Quotes (3):** `submit-quote-request`, `sync-invoice-with-quote`, `token-renewal-manager`
+
+**Other (6):** `create-stripe-customer`, `apply-payment-waterfall`, `generate-payment-receipt`, `staff-calendar-feed`, `event-timeline-generator`, `generate-test-data`
+
+**Infrastructure (5):** `unified-reminder-system`, `rate-limit-check`, `send-push-notification`, `track-visitor`, `email-qa-report`
 
 ### Shared Templates
 | File | Location | Purpose |
@@ -215,14 +227,21 @@
 ## 💰 Payment System
 
 ### Services
-| Service | Location | Purpose | Used By |
-|---------|----------|---------|---------|
-| `TaxCalculationService` | `src/services/TaxCalculationService.ts` | Tax calculations (2% + 7%) | `InvoiceTotalsRecalculator` |
-| `PaymentScheduleService` | `src/services/PaymentScheduleService.ts` | Payment schedule generation | `WorkflowService` |
-| `InvoiceTotalsRecalculator` | `src/services/InvoiceTotalsRecalculator.ts` | Invoice total calculations | `PricingPanel` |
-| `LineItemsService` | `src/services/LineItemsService.ts` | Line item CRUD operations | `useLineItems`, `useLineItemManagement`, `WorkflowService` |
-| `WorkflowService` | `src/services/WorkflowService.ts` | Quote-to-invoice workflow | Uses `LineItemsService` for line items |
-| `ChangeRequestService` | `src/services/ChangeRequestService.ts` | Change request CRUD & quote status updates | `QuoteApprovalFlow` |
+| Service | Location | Purpose |
+|---------|----------|---------|
+| `EventDataService` | `src/services/EventDataService.ts` | Event queries and dashboard KPIs |
+| `PaymentDataService` | `src/services/PaymentDataService.ts` | Invoice and payment queries |
+| `TaxCalculationService` | `src/services/TaxCalculationService.ts` | Tax calculations (2% + 7%) |
+| `InvoiceTotalsRecalculator` | `src/services/InvoiceTotalsRecalculator.ts` | Invoice total recalculations |
+| `LineItemsService` | `src/services/LineItemsService.ts` | Line item CRUD operations |
+| `ChangeRequestService` | `src/services/ChangeRequestService.ts` | Change request CRUD |
+| `ChangeRequestProcessor` | `src/services/ChangeRequestProcessor.ts` | Approve/reject workflow |
+| `EmailNotificationService` | `src/services/EmailNotificationService.ts` | Email sending orchestration |
+| `EstimateVersionService` | `src/services/EstimateVersionService.ts` | Estimate version management |
+| `HistoryLogger` | `src/services/HistoryLogger.ts` | Audit trail logging |
+| `MenuItemService` | `src/services/MenuItemService.ts` | Menu item operations |
+| `PaymentMilestoneService` | `src/services/PaymentMilestoneService.ts` | Payment milestone management |
+| `QuoteUpdateService` | `src/services/QuoteUpdateService.ts` | Quote field updates |
 
 ### Edge Functions
 | Function | Location | Purpose |
@@ -301,7 +320,7 @@ payment_pending → partially_paid → paid
 3. **Never duplicate query logic** - extend existing services/hooks
 4. **Email templates** must use shared functions from `emailTemplates.ts`
 5. **Tax calculations** must use `TaxCalculationService`
-6. **Payment schedules** must use `PaymentScheduleService`
+6. **Payment milestones** must use `PaymentMilestoneService`
 7. **Customer-facing changes** must follow `CUSTOMER_DISPLAY_CHECKLIST.md`
 
 ---
@@ -329,4 +348,4 @@ See `CUSTOMER_DISPLAY_CHECKLIST.md` for detailed matrix.
 
 ---
 
-*Last updated: December 2024*
+*Last updated: February 2026*
