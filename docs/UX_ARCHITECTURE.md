@@ -189,8 +189,8 @@ Phase              Emotion        Touchpoint                      Component
 
 | ID | Use Case | Trigger | Action |
 |----|----------|---------|--------|
-| UC-SYS1 | Auto-advance workflow | Cron (15 min) | `auto-workflow-manager` transitions statuses |
-| UC-SYS2 | Send reminders | Cron (daily) | `unified-reminder-system` sends payment/event reminders |
+| UC-SYS1 | Auto-advance workflow & send reminders | Cron (daily 9 AM) | `unified-reminder-system` transitions statuses (overdue, confirm, complete) and sends payment/event reminders |
+| UC-SYS2 | _(merged into SYS1)_ | — | All workflow automation now handled by `unified-reminder-system` |
 | UC-SYS3 | Renew tokens | Cron (daily) | `token-renewal-manager` extends expiring tokens |
 | UC-SYS4 | Process Stripe webhook | Stripe event | `stripe-webhook` updates payment status |
 | UC-SYS5 | Track email opens | Pixel load | `track-email-open` records open timestamp |

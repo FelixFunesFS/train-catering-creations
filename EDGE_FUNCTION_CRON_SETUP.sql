@@ -60,7 +60,7 @@ SELECT * FROM cron.job;
 -- CLEANUP: Remove old deprecated cron jobs
 -- Run these to remove the old separate jobs if they exist:
 -- =====================================================
--- SELECT cron.unschedule('auto-workflow-manager-every-15-min');
+-- (auto-workflow-manager removed — fully replaced by unified-reminder-system)
 -- SELECT cron.unschedule('payment-reminder-daily');
 -- SELECT cron.unschedule('send-reminders-daily');
 -- SELECT cron.unschedule('send-automated-reminders-daily');

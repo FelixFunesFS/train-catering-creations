@@ -199,13 +199,15 @@ SET due_date = CURRENT_DATE - INTERVAL '5 days',
 WHERE id = 'your-invoice-id';
 ```
 
-### Step 2: Trigger Auto-Workflow Manager
+### Step 2: Trigger Unified Reminder System
 ```typescript
 // Manually invoke edge function
-const { data, error } = await supabase.functions.invoke('auto-workflow-manager');
+const { data, error } = await supabase.functions.invoke('unified-reminder-system', {
+  body: { manual_trigger: true }
+});
 
 console.log(data);
-// Expected: { markedOverdue: 1, ... }
+// Expected: { overdue_marked: 1, ... }
 ```
 
 ### Step 3: Verify Status Change
@@ -222,7 +224,7 @@ SELECT * FROM workflow_state_log
 WHERE entity_id = 'your-invoice-id'
 ORDER BY created_at DESC LIMIT 1;
 
--- Expected: new_status = 'overdue', changed_by = 'auto_workflow_manager'
+-- Expected: new_status = 'overdue', changed_by = 'unified_reminder_system'
 ```
 
 ---
@@ -240,12 +242,14 @@ WHERE id = 'your-milestone-id';
 
 ### Step 2: Trigger Reminder Check
 ```typescript
-// Auto-workflow-manager runs every 15 minutes
+// unified-reminder-system runs daily at 9 AM
 // Or manually invoke:
-const { data } = await supabase.functions.invoke('auto-workflow-manager');
+const { data } = await supabase.functions.invoke('unified-reminder-system', {
+  body: { manual_trigger: true }
+});
 
 console.log(data);
-// Expected: { remindersSent: 1 }
+// Expected: { reminders_sent: 1 }
 ```
 
 ### Step 3: Verify Email Sent

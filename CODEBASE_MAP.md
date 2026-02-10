@@ -207,7 +207,7 @@
 
 **Payments (5):** `create-checkout-session`, `create-payment-intent`, `create-payment-link`, `stripe-webhook`, `verify-payment`
 
-**Workflow & Automation (7):** `auto-workflow-manager`, `automated-customer-workflow`, `workflow-orchestrator`, `update-quote-workflow`, `fix-workflow-status`, `process-change-request`, `confirm-event`
+**Workflow & Automation (6):** `automated-customer-workflow`, `workflow-orchestrator`, `update-quote-workflow`, `fix-workflow-status`, `process-change-request`, `confirm-event`
 
 **Invoice & Estimates (5):** `generate-invoice-from-quote`, `generate-invoice-pdf`, `generate-payment-milestones`, `approve-estimate`, `validate-invoice-totals`
 

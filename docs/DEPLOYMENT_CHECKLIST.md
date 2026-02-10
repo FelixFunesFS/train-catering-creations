@@ -11,7 +11,7 @@
 ### Edge Functions
 - [ ] All functions deployed to production
 - [ ] Secrets configured in Supabase dashboard
-- [ ] Cron jobs scheduled (auto-workflow-manager every 15 min)
+- [ ] Cron jobs scheduled (unified-reminder-system daily 9 AM, token-renewal-manager daily 2 AM)
 - [ ] Function logs reviewed for errors
 
 ### Email
