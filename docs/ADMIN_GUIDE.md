@@ -1,59 +1,50 @@
-# Soul Train's Eatery Admin Dashboard Guide
+# Soul Train's Eatery — Admin Dashboard Guide v3.0
 
 ## Dashboard Overview
 
-The admin dashboard provides a comprehensive event management system with 10 specialized views:
+The admin dashboard at `/admin` has **3 views** accessible from the navigation bar, plus a separate **Staff** route:
 
-### 🎯 **Core Views**
+| View | Nav Icon | What It Shows |
+|------|----------|---------------|
+| **Events** (default) | 📅 Calendar | New submissions + all active events |
+| **Billing** | 💳 CreditCard | Invoices, payments, and transaction history |
+| **Settings** | ⚙️ Settings | Notifications, email templates, email delivery monitoring |
+| **Staff** | 👥 Users | Staff schedule and event assignments (separate `/staff` route) |
 
-1. **Workflow** - Main quote/estimate management interface
-2. **Pipeline** - Kanban board showing all events by workflow stage
-3. **At-Risk** - Alert panel for events requiring immediate attention
-4. **Today** - Daily checklist for events happening today
-5. **Status** - Comprehensive event status overview
-6. **Timeline** - Event timeline and task management
+### Navigation
 
-### 📋 **Operations Views**
-
-7. **Changes** - Customer change request management
-8. **Payments** - Payment processing and tracking
-9. **Docs** - Document management and sharing
-10. **Testing** - Edge function testing and debugging
+- **Mobile**: Fixed bottom nav bar with 5 buttons — Events, Billing, Staff, Settings, Logout
+- **Desktop (lg+)**: Sticky top header with inline nav links + Sign Out button
 
 ---
 
 ## Daily Workflow
 
-### ⏰ **Start Here Every Morning**
+### ⏰ Start Here Every Morning
 
-1. **Check "Today's Events" Panel**
-   - View all events happening today
-   - Review setup checklist
-   - Mark tasks as complete
-   - Note any last-minute requirements
+1. **Open the Events view** (default when you log in)
+   - The **Submissions Card** at the top shows new quote requests (status: `pending` or `under_review`)
+   - Review each submission and begin creating estimates
 
-2. **Review "At-Risk Events"**
-   - Events with overdue payments
-   - Upcoming events with incomplete tasks
-   - Events missing critical information
-   - Events pending approval
+2. **Scan the Event List** below the submissions card
+   - Shows all events excluding pending/under_review
+   - Sort or filter to find events needing attention
+   - Look for upcoming events, overdue payments, or incomplete tasks
 
-3. **Process New Quote Requests**
-   - Go to "Workflow" tab
-   - Review pending quotes
-   - Create estimates
-   - Send to customers
+3. **Check Billing view** for payment status
+   - Review outstanding invoices
+   - Follow up on overdue payments
 
 ---
 
 ## Common Tasks
 
-### 📝 **How to Create an Estimate**
+### 📝 How to Create an Estimate
 
-1. Navigate to **Workflow** tab
-2. Find the quote request (status: "Pending" or "Under Review")
-3. Click "View Details"
-4. Click "Create Estimate" button
+1. Go to **Events** view
+2. Find the quote in the **Submissions Card** (or search the Event List)
+3. Click the event to open its detail page (`/admin/event/:quoteId`)
+4. Open the **Estimate** panel
 5. System auto-generates line items from quote data
 6. Review pricing:
    - Verify all selections are priced correctly
@@ -63,178 +54,146 @@ The admin dashboard provides a comprehensive event management system with 10 spe
    - Standard: 50% deposit + 50% balance
    - Government: Net 30 after event
    - Custom: Define custom milestones
-8. Click "Save Estimate"
+8. Click **Save Estimate**
 9. Review Terms & Conditions inclusion
-10. Click "Send to Customer"
 
-### 📧 **How to Send an Estimate**
+### 📧 How to Send an Estimate
 
-1. From estimate details page, click "Send Estimate"
-2. System will:
-   - Generate customer portal link
-   - Send email with estimate link
-   - Add email tracking pixel
+1. From the event detail page, open the **Estimate** panel
+2. Click **Send to Customer**
+3. System will:
+   - Generate a customer portal link
+   - Send email via Gmail SMTP with estimate link
    - Update status to "Sent"
-3. Customer receives email with:
-   - Direct link to estimate portal
-   - Event details summary
-   - Next steps
+4. Customer receives email with a direct link to their estimate portal
 
-### 🔄 **How to Process a Change Request**
+### 🔄 How to Process a Change Request
 
-1. Navigate to **Changes** tab
-2. Find pending change request
-3. Click "Review"
-4. Read customer's requested changes
-5. Evaluate cost impact:
-   - Increase guest count → Calculate per-person pricing
-   - Add items → Add to line items
-   - Remove items → Subtract from total
-6. Choose action:
+1. Navigate to the event's detail page
+2. Open the **Change Requests** section
+3. Review the customer's requested changes
+4. Evaluate cost impact:
+   - Increase guest count → recalculate per-person pricing
+   - Add/remove items → adjust line items
+5. Choose action:
    - **Approve**: Creates new estimate version automatically
    - **Reject**: Send explanation to customer
-   - **Negotiate**: Contact customer to discuss
-7. If approved, new estimate is sent automatically
+6. If approved, updated estimate is sent automatically
 
-### ✉️ **How to Manually Resend Emails**
+### ✉️ How to Resend Emails
 
 **For Estimates:**
-1. Go to **Workflow** → Find event
-2. Click "Resend Estimate" button
-3. Confirm action
-4. New email sent with tracking
+1. Go to **Events** → click the event
+2. In the Estimate panel, click **Resend Estimate**
+3. New email sent with tracking
 
 **For Payment Links:**
-1. Go to **Payments** tab
-2. Find invoice
-3. Click "Resend Payment Link"
+1. Go to **Billing** view
+2. Find the invoice
+3. Click **Resend Payment Link**
 4. Customer receives new Stripe checkout link
 
-### 💳 **How to Track Payment Status**
+### 💳 How to Track Payment Status
 
-**Quick View:**
-- **Pipeline** tab shows payment status badge on each event card
-- **At-Risk** tab highlights overdue payments in red
-
-**Detailed View:**
-1. Go to **Payments** tab
+1. Go to **Billing** view
 2. View all invoices with:
    - Payment status (Pending, Partially Paid, Paid, Overdue)
    - Amount paid vs. total
    - Payment method
    - Transaction history
-3. Click invoice to see:
+3. Click an invoice to see:
    - All payment transactions
    - Milestone completion
    - Customer payment history
 
-**What Each Status Means:**
-- `draft` - Estimate not sent yet
-- `sent` - Estimate sent to customer
-- `approved` - Customer approved, awaiting payment
-- `partially_paid` - Deposit received, balance pending
-- `paid` - Fully paid
-- `overdue` - Payment past due date
+**Status Reference:**
+- `draft` — Estimate not sent yet
+- `sent` — Estimate sent to customer
+- `approved` — Customer approved, awaiting payment
+- `partially_paid` — Deposit received, balance pending
+- `paid` — Fully paid
+- `overdue` — Payment past due date
 
 ---
 
 ## Mobile Access
 
-The admin dashboard is **fully responsive** and optimized for mobile devices:
+The admin dashboard is **fully responsive** with a mobile-first design.
 
-### 📱 **Mobile Navigation**
-- Tap top menu to switch between views
-- Horizontal scroll for all tabs on smaller screens
-- Cards stack vertically on mobile
-- Touch-friendly buttons and forms
+### 📱 Mobile Navigation
 
-### 📸 **Recommended Mobile Workflow**
+A fixed bottom nav bar provides quick access to all views:
+
+| Button | Destination |
+|--------|-------------|
+| Events | `/admin?view=events` |
+| Billing | `/admin?view=billing` |
+| Staff | `/staff` |
+| Settings | `/admin?view=settings` |
+| Logout | Signs out |
+
+Cards and tables stack vertically on mobile with touch-friendly buttons.
+
+### 📸 Recommended Mobile Workflow
 
 **On the go:**
-1. Check "Today" and "At-Risk" tabs
-2. Mark checklist items complete
+1. Check Events view for new submissions
+2. Review event details and mark tasks complete
 3. Send quick email updates
-4. View payment status
+4. View payment status in Billing
 
 **At your desk:**
-1. Create/edit estimates
+1. Create/edit estimates with line items
 2. Process change requests
-3. Upload documents
-4. Run detailed reports
+3. Configure notification preferences
+4. Review email delivery logs
 
 ---
 
 ## Troubleshooting
 
-### ❌ **Customer Didn't Receive Email**
+### ❌ Customer Didn't Receive Email
 
-**Solution:**
-1. Check customer's email address is correct
+1. Check the customer's email address is correct
 2. Ask customer to check spam folder
-3. Use "Resend Estimate" button in Workflow tab
-4. Check edge function logs in **Testing** tab for email errors
-5. Verify email template is active in system
+3. Resend from the event detail page
+4. Go to **Settings** → **Email Delivery** to check delivery logs
+5. Verify Gmail SMTP credentials are configured in Supabase secrets
 
-### 💳 **Payment Button Not Working**
+### 💳 Payment Button Not Working
 
-**Solution:**
-1. Verify Stripe API keys are configured
-2. Check **Testing** → Edge Function Tester
-3. Test `create-checkout-session` function
-4. Check Stripe Dashboard for webhook status
-5. View logs at: [Stripe Logs](https://supabase.com/dashboard/project/qptprrqjlcvfkhfdnnoa/functions/create-checkout-session/logs)
+1. Verify Stripe API keys are configured in Supabase secrets
+2. Check Stripe Dashboard for webhook status
+3. Review edge function logs in the Supabase dashboard
+4. Test `create-checkout-session` function
 
-### 📊 **Email Tracking Not Working**
+### 📊 Email Delivery Issues
 
-**Solution:**
-1. Go to **Testing** tab
-2. Click "Test Email Tracking"
-3. Check edge function logs
-4. Verify tracking pixel is in email template
-5. Check database for `analytics_events` records
+1. Go to **Settings** → **Email Delivery** tab
+2. Review recent email delivery status
+3. Check for bounce or error messages
+4. Verify Gmail OAuth tokens are current
 
-### 🔄 **Event Status Not Updating**
+### 🔄 Event Status Not Updating
 
-**Solution:**
-1. Check edge function logs in **Testing** tab
+1. Check edge function logs in the Supabase dashboard
 2. Verify database triggers are active
 3. Refresh the page and check again
-4. Review workflow state log for transition errors
+4. Review `workflow_state_log` table for transition errors
 
 ---
 
 ## Payment Workflow
 
-### 💰 **Standard Payment Process**
+### 💰 Standard Payment Process
 
-1. **Customer Approves Estimate**
-   - Accepts Terms & Conditions
-   - Status → "Approved"
+1. **Customer Approves Estimate** — Accepts Terms & Conditions → Status: "Approved"
+2. **Customer Chooses Payment Option** — 50% Deposit (recommended) or Full Payment
+3. **Stripe Checkout** — Secure redirect to Stripe, card processing, 3D Secure if required
+4. **Webhook Processes Payment** — Updates transaction, marks milestone paid, sends notifications
+5. **Admin Sees Update** — Payment reflected in Billing view, status updates automatically
 
-2. **Customer Chooses Payment Option**
-   - 50% Deposit (recommended)
-   - Full Payment
-
-3. **Stripe Checkout**
-   - Secure redirect to Stripe
-   - Card payment processing
-   - 3D Secure authentication if required
-
-4. **Webhook Processes Payment**
-   - Updates transaction status
-   - Marks milestone as paid
-   - Updates invoice status
-   - Sends admin notification
-   - Sends customer confirmation
-
-5. **Admin Receives Notification**
-   - Email alert for payment received
-   - Shows in "At-Risk" (removed from list)
-   - Status updates to "Paid" or "Partially Paid"
-
-### 🏛️ **Government Contract Payment**
-
-Government contracts work differently:
+### 🏛️ Government Contract Payment
 
 - No upfront deposit required
 - Net 30 payment terms after event
@@ -242,123 +201,76 @@ Government contracts work differently:
 - Requires PO number
 - Invoice sent after event completion
 
-**Process:**
-1. Event completes
-2. Admin generates final invoice
-3. Customer provides PO number
-4. Invoice sent with Net 30 terms
-5. Payment received within 30 days
-6. Status → "Paid"
-
 ---
 
 ## Event Lifecycle
 
-### 📅 **Complete Event Journey**
-
-**Stage 1: Request Received**
-- Customer submits quote request form
-- Appears in **Workflow** → "Pending"
-- Admin receives notification
-
-**Stage 2: Under Review**
-- Admin reviews request details
-- Calls customer if clarification needed
-- Begins estimate creation
-
-**Stage 3: Estimate Created**
-- Line items generated from quote data
-- Pricing calculated
-- Payment schedule defined
-- Status → "Quoted"
-
-**Stage 4: Estimate Sent**
-- Email sent to customer with portal link
-- Tracking pixel tracks email opens
-- Status → "Sent"
-- Moves to **Pipeline** → "Estimated" column
-
-**Stage 5: Customer Reviews**
-- Customer opens email (tracked)
-- Reviews estimate in portal
-- Can request changes or approve
-- Status → "Viewed"
-
-**Stage 6: Approved**
-- Customer accepts T&C
-- Status → "Approved"
-- Payment options displayed
-- Appears in **At-Risk** if no payment within 48 hours
-
-**Stage 7: Paid**
-- Customer completes payment
-- Webhook processes transaction
-- Status → "Paid" (or "Partially Paid")
-- Date secured, removed from "At-Risk"
-
-**Stage 8: Confirmed**
-- All payments complete
-- Event date locked in calendar
-- Status → "Confirmed"
-- Appears in **Today** on event day
-
-**Stage 9: In Progress**
-- Event day arrives
-- Shows in **Today** tab with checklist
-- Admin marks setup tasks complete
-
-**Stage 10: Completed**
-- Event finished successfully
-- Status → "Completed"
-- Thank you email sent
-- Request review from customer
+| Stage | What Happens | Status |
+|-------|-------------|--------|
+| 1. Request Received | Customer submits quote form | `pending` |
+| 2. Under Review | Admin reviews details | `under_review` |
+| 3. Estimate Created | Line items and pricing set | `estimated` |
+| 4. Estimate Sent | Email sent with portal link | `sent` |
+| 5. Customer Reviews | Customer views estimate in portal | `viewed` |
+| 6. Approved | Customer accepts T&C | `approved` |
+| 7. Paid | Payment completed via Stripe | `paid` / `partially_paid` |
+| 8. Confirmed | All payments complete, date locked | `confirmed` |
+| 9. In Progress | Event day, tasks in progress | `in_progress` |
+| 10. Completed | Event finished, follow-up sent | `completed` |
 
 ---
 
 ## Tips & Best Practices
 
-### ✅ **Do's**
+### ✅ Do's
 
-- Check "At-Risk" panel daily
+- Check the Events view daily for new submissions
 - Respond to change requests within 24 hours
 - Send payment reminders 7 days before event
 - Mark checklist items complete in real-time
-- Use templates for common email responses
-- Track customer communications in notes
+- Use the Billing view to monitor cash flow
 
-### ❌ **Don'ts**
+### ❌ Don'ts
 
 - Don't skip Terms & Conditions
 - Don't manually edit payment amounts (use change requests)
 - Don't delete completed events (archive instead)
-- Don't ignore "At-Risk" events
 - Don't send estimates without reviewing pricing
+
+---
+
+## Settings
+
+The **Settings** view has 4 tabs:
+
+| Tab | Purpose |
+|-----|---------|
+| **Notifications** | Configure alert preferences (quote alerts, payment alerts, quiet hours) |
+| **Email Templates** | Preview email templates with sample data |
+| **Email Delivery** | Monitor email delivery status and troubleshoot issues |
+| **General** | General settings (coming soon) |
 
 ---
 
 ## Support & Questions
 
 **Technical Issues:**
-- Check **Testing** tab for edge function logs
-- Review browser console for errors
-- Contact system administrator
+- Check **Settings → Email Delivery** for email problems
+- Review edge function logs in Supabase dashboard
+- Check browser console for frontend errors
 
 **Business Questions:**
 - Review this guide first
-- Check quote/estimate history
+- Check quote/estimate history in Events view
 - Contact business owner
-
-**Feature Requests:**
-- Document the request
-- Discuss with team
-- Submit to development queue
 
 ---
 
 ## Version History
 
-- **v2.0** - Complete admin dashboard redesign
-- **v1.5** - Added payment processing
-- **v1.0** - Initial release
+- **v3.0** — Consolidated 3-view dashboard (Events, Billing, Settings)
+- **v2.0** — Complete admin dashboard redesign
+- **v1.5** — Added payment processing
+- **v1.0** — Initial release
 
-Last Updated: 2025-10-07
+Last Updated: 2026-02-10
