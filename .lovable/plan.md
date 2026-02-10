@@ -1,71 +1,50 @@
 
 
-## Add Admin Button Automation Reference to UX Architecture
+## Remove Legacy `auto-workflow-manager` Edge Function
 
 ### Overview
 
-The UX Architecture document covers high-level sequence flows but lacks a dedicated reference for every admin action button and the full automation chain each triggers. The `useEstimateActions` hook alone exposes 10 distinct operations, and several are undocumented. This update adds a new Section 4.10 cataloging every admin-triggered automation.
+The `auto-workflow-manager` edge function is fully redundant. The `unified-reminder-system` already handles all three workflow transitions (overdue marking, auto-confirm, auto-complete) with broader status coverage (e.g., it checks `viewed`, `payment_pending`, `partially_paid` -- statuses the legacy function misses). No frontend code calls `auto-workflow-manager`. Removing it eliminates a source of potential double-processing.
 
----
+### Safety Verification
 
-### What Gets Added
+| Capability | `auto-workflow-manager` | `unified-reminder-system` | Covered? |
+|-----------|------------------------|--------------------------|----------|
+| Mark overdue invoices | `sent`, `approved` only | `sent`, `viewed`, `approved`, `payment_pending`, `partially_paid` | Yes (better) |
+| Auto-confirm paid events | Yes | Yes (with explicit quote status check) | Yes (better) |
+| Auto-complete past events | Yes | Yes (identical logic) | Yes |
+| Payment reminders | Removed (comment says "handled by unified") | Full implementation with cooldowns | Yes |
+| Workflow state logging | Yes | Yes | Yes |
 
-A new **Section 4.10: Admin Action Automation Map** inserted after Section 4.9 (Payment Processing activity diagram), before Section 5 (Structural Diagrams).
+No functionality is lost.
 
-This section contains two parts:
+### Changes
 
-**Part 1 — Button Automation Table**
+**Step 1: Delete the edge function files**
+- Delete `supabase/functions/auto-workflow-manager/index.ts`
+- Use the Supabase delete edge function tool to remove the deployed function
 
-Every admin button, where it appears, what it calls, and the full chain of side effects:
+**Step 2: Remove from `supabase/config.toml`**
+- Remove the `[functions.auto-workflow-manager]` block (lines ~36-37)
 
-| Button | Location | Hook/Handler | Edge Function(s) | DB Side Effects | UI Feedback |
-|--------|----------|-------------|-------------------|-----------------|-------------|
-| Generate Estimate | EstimatePanelContent | `handleGenerateEstimate` | `generate-invoice-from-quote` | Creates invoice (draft), creates invoice_line_items from quote proteins/sides/extras JSONB, upserts customer record | Toast + panel refreshes to show line items |
-| Save Changes | EstimatePanelContent | `handleSaveChanges` (useEditableInvoice) | None (direct DB) | Updates line items, triggers `recalculate_invoice_totals` DB trigger, then `force_recalculate_invoice_totals` RPC verification | Toast "Changes saved" |
-| Send Estimate | EstimatePanelContent | `handleSendEstimate` | `send-customer-portal-email` | Updates invoice status to `sent`, generates `customer_access_token` if missing, sets token expiry | Toast + status badge updates |
-| Resend Email | EstimatePanelContent | `handleSendEstimate` (resend mode) | `send-customer-portal-email` | Logs resend in workflow_state_log | Toast "Email resent" |
-| Download PDF | EstimatePanelContent | `handleDownloadPdf` | `generate-invoice-pdf` | None (read-only) | PDF file downloads |
-| Apply Discount | DiscountControls | `handleApplyDiscount` | None (direct DB) | Updates invoice discount fields, triggers total recalculation | Live total updates |
-| Remove Discount | DiscountControls | `handleRemoveDiscount` | None (direct DB) | Clears discount fields, triggers total recalculation | Live total updates |
-| Government Contract Toggle | EstimatePanelContent | `handleToggleGovernment` | `generate-payment-milestones` | Updates quote `is_government`, invoice `payment_schedule_type` to NET30, sets tax exempt, regenerates milestones with 30-day terms | Toast + milestone panel refreshes |
-| Regenerate Milestones | PaymentMilestonePanel | `handleRegenerateMilestones` | `generate-payment-milestones` | Deletes existing unpaid milestones, creates new ones based on current total and payment type, preserves paid milestone status from payment_transactions | Toast + milestone list refreshes |
-| Regenerate Line Items | EstimatePanelContent | `useRegenerateLineItems` | None (QuoteUpdateService) | Re-reads quote proteins/sides JSONB, rebuilds line items, preserves manually set prices where items match, new items get $0 | Toast "Prices preserved where possible" |
-| Mark Event Completed | EventDetailsPanelContent | `handleMarkEventCompleted` | None (direct DB) | Updates quote workflow_status to `completed` | Toast + status badge updates |
-| Delete Event | EventDetailsPanelContent | delete handler | None (direct DB) | Cascade deletes: quote_line_items, admin_notes, invoice_line_items, payment_milestones, invoices, quote_requests | Navigate to dashboard |
-| Send Thank You | Event actions | `handleSendThankYou` | `send-event-followup` | Logs in workflow_state_log | Toast "Thank you sent" |
+**Step 3: Unschedule the cron job (SQL migration)**
+- Run: `SELECT cron.unschedule('auto-workflow-manager-every-15-min');`
+- This removes the every-15-minute cron that calls the now-deleted function
 
-**Part 2 — Automation Chain Diagram**
+**Step 4: Update documentation (4 files)**
 
-A Mermaid flowchart showing how button actions trigger cascading automations:
-
-```text
-Admin clicks button
-  |
-  v
-Edge Function (if any) -- creates/updates records
-  |
-  v
-DB Trigger (recalculate_invoice_totals) -- auto-fires on line_item changes
-  |
-  v
-RPC Verification (force_recalculate_invoice_totals) -- 200ms delay check
-  |
-  v
-React Query invalidation -- refreshes UI caches
-  |
-  v
-Live UI update (useMemo recalculation for totals)
-```
-
-This will be rendered as a proper Mermaid sequence diagram showing the Generate Estimate and Government Toggle flows as representative examples of the full automation chain pattern.
-
----
-
-### Files Changed
-
-| File | Action |
+| File | Change |
 |------|--------|
-| `docs/UX_ARCHITECTURE.md` | Insert new Section 4.10 (~120 lines) between current sections 4.9 and 5 |
+| `docs/UX_ARCHITECTURE.md` | Update UC-SYS1 to reference `unified-reminder-system` instead; update edge function inventory and cron schedule tables |
+| `docs/EDGE_FUNCTION_MONITORING.md` | Remove `auto-workflow-manager` references from expected cron jobs, function logs list, and manual test section |
+| `docs/DEPLOYMENT_CHECKLIST.md` | Update cron job reference from "auto-workflow-manager every 15 min" to "unified-reminder-system daily 9 AM" |
+| `docs/PAYMENT_TESTING_GUIDE.md` | Replace `auto-workflow-manager` invocation examples with `unified-reminder-system` |
+| `CODEBASE_MAP.md` | Remove `auto-workflow-manager` from edge function inventory |
+| `EDGE_FUNCTION_CRON_SETUP.sql` | Remove commented-out unschedule line for the legacy job |
 
-No code changes. Documentation only.
+**Not changed**: Old migrations (`20251006...`, `20251007...`) are left as-is since they are historical records. The cron unschedule SQL handles the runtime cleanup.
+
+### Risk
+
+Zero. No frontend code references this function. The cron job is the only caller, and `unified-reminder-system` already runs daily with the same (and better) logic.
 
