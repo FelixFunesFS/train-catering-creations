@@ -18,7 +18,7 @@ ORDER BY jobname;
 ```
 
 **Expected Results:**
-- `auto-workflow-manager-every-15-min` - Schedule: `*/15 * * * *` (every 15 minutes)
+- `unified-reminder-system-daily` - Schedule: `0 9 * * *` (daily at 9 AM) — handles workflow transitions + reminders
 - `token-renewal-manager-daily` - Schedule: `0 2 * * *` (daily at 2 AM)
 
 Both should show `active = true` and recent `last_run_start_time`.
@@ -32,13 +32,13 @@ Both should show `active = true` and recent `last_run_start_time`.
 Navigate to Supabase Dashboard:
 - **Edge Functions Logs:** `https://supabase.com/dashboard/project/qptprrqjlcvfkhfdnnoa/functions`
 - Click on each function to view logs:
-  - `auto-workflow-manager`
+  - `unified-reminder-system`
   - `send-customer-portal-email`
   - `send-workflow-email`
   - `send-gmail-email`
 
 **What to Look For:**
-- ✅ Recent invocations (within last 15 minutes for auto-workflow)
+- ✅ Recent invocations (daily at 9 AM for unified-reminder-system)
 - ✅ Status 200 responses
 - ❌ 404 errors = Function not deployed
 - ❌ 500 errors = Function failing (check error message)
@@ -114,14 +114,14 @@ LIMIT 10;
 
 ## Manual Test: Trigger Edge Functions
 
-### Test Auto-Workflow Manager
+### Test Unified Reminder System
 
 ```bash
 curl -X POST \
-  'https://qptprrqjlcvfkhfdnnoa.supabase.co/functions/v1/auto-workflow-manager' \
+  'https://qptprrqjlcvfkhfdnnoa.supabase.co/functions/v1/unified-reminder-system' \
   -H 'Authorization: Bearer YOUR_SUPABASE_ANON_KEY' \
   -H 'Content-Type: application/json' \
-  -d '{}'
+  -d '{"manual_trigger": true}'
 ```
 
 **Expected Response:**
