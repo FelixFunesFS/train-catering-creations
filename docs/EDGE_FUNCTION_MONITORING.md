@@ -78,12 +78,10 @@ ORDER BY sent_at DESC
 LIMIT 20;
 ```
 
-### Check Resend Dashboard
+### Check Gmail SMTP Delivery
 
-1. Navigate to: `https://resend.com/emails`
-2. Filter by:
-   - **Status:** Delivered, Bounced, Spam
-   - **Date Range:** Last 7 days
+1. Verify Gmail OAuth tokens are valid (check edge function logs)
+2. Monitor for bounced emails in the `reminder_logs` table
 3. Verify emails are:
    - ✅ Delivered (not bouncing)
    - ✅ Not marked as spam
@@ -121,7 +119,7 @@ LIMIT 10;
 ```bash
 curl -X POST \
   'https://qptprrqjlcvfkhfdnnoa.supabase.co/functions/v1/auto-workflow-manager' \
-  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwdHBycnFqbGN2ZmtoZmRubm9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM1NjMzNTcsImV4cCI6MjA2OTEzOTM1N30.5ZMvbmhEkcmn_s_Q8ZI3KOPGZD1_kmH0OCUVL3gK3rE' \
+  -H 'Authorization: Bearer YOUR_SUPABASE_ANON_KEY' \
   -H 'Content-Type: application/json' \
   -d '{}'
 ```
@@ -144,7 +142,7 @@ curl -X POST \
 ```bash
 curl -X POST \
   'https://qptprrqjlcvfkhfdnnoa.supabase.co/functions/v1/send-workflow-email' \
-  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwdHBycnFqbGN2ZmtoZmRubm9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM1NjMzNTcsImV4cCI6MjA2OTEzOTM1N30.5ZMvbmhEkcmn_s_Q8ZI3KOPGZD1_kmH0OCUVL3gK3rE' \
+  -H 'Authorization: Bearer YOUR_SUPABASE_ANON_KEY' \
   -H 'Content-Type: application/json' \
   -d '{
     "invoiceId": "YOUR_INVOICE_UUID",
@@ -179,15 +177,15 @@ curl -X POST \
 ### Issue: Emails Not Delivering
 
 **Possible Causes:**
-1. Resend API key missing
-2. Gmail OAuth tokens expired
+1. Gmail OAuth tokens expired
+2. SMTP credentials misconfigured
 3. Email provider blocking
 
 **Solution:**
-- Check secrets in Supabase: `https://supabase.com/dashboard/project/qptprrqjlcvfkhfdnnoa/settings/functions`
-- Verify `RESEND_API_KEY` is set
-- Check Resend dashboard for bounces
-- Test with different email providers
+- Check secrets in Supabase edge function settings
+- Verify Gmail SMTP credentials are set and valid
+- Check edge function logs for SMTP errors
+- Test with a different recipient email
 
 ### Issue: Customer Portal Links Don't Work
 
