@@ -144,6 +144,7 @@ const handler = async (req: Request): Promise<Response> => {
 <h4 style="color:#166534;margin:0 0 8px 0;font-size:16px;">🌱 Vegetarian Options</h4>
 ${safeGuestCountWithRestrictions ? `<p style="margin:5px 0;color:#166534;">${safeGuestCountWithRestrictions} vegetarian portions requested</p>` : ''}
  ${quote.vegetarian_entrees && Array.isArray(quote.vegetarian_entrees) && quote.vegetarian_entrees.length > 0 ? `<p style="margin:5px 0;color:#166534;"><strong>Entrées:</strong> ${quote.vegetarian_entrees.map(formatMenuItem).join(', ')}</p>` : ''}
+ ${safeGuestCountWithRestrictions && (!quote.vegetarian_entrees || !Array.isArray(quote.vegetarian_entrees) || quote.vegetarian_entrees.length === 0) ? `<p style="margin:8px 0;padding:8px;background:#fef3c7;border-radius:4px;color:#92400e;font-weight:bold;">⚠️ Vegetarian entrées not yet specified — follow up recommended.</p>` : ''}
 </div>
 ` : ''}
 

@@ -467,6 +467,16 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
                           </div>
                         </div>
                       )}
+                      {/* Warning: vegetarian portions requested but no entrees selected */}
+                      {quote?.guest_count_with_restrictions && parseInt(quote.guest_count_with_restrictions, 10) > 0 &&
+                        (!quote?.vegetarian_entrees || !Array.isArray(quote.vegetarian_entrees) || quote.vegetarian_entrees.length === 0) && (
+                        <div className="flex items-center gap-2 p-2 rounded-md bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800">
+                          <AlertCircle className="h-3 w-3 text-amber-600 flex-shrink-0" />
+                          <p className="text-xs text-amber-700 dark:text-amber-400">
+                            {quote.guest_count_with_restrictions} vegetarian portion(s) — no entrées selected. Follow up needed.
+                          </p>
+                        </div>
+                      )}
                       
                       {/* Sides */}
                       {quote?.sides && Array.isArray(quote.sides) && quote.sides.length > 0 && (
