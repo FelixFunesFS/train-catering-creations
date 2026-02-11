@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { 
   Calendar, MapPin, Users, MessageSquare, 
   PartyPopper, Heart, Pencil, Utensils, Phone, ExternalLink,
-  Clock, Truck, Palette, Info, Shield, CheckCircle2, Loader2, Mail
+  Clock, Truck, Palette, Info, Shield, CheckCircle2, Loader2, Mail, AlertTriangle
 } from 'lucide-react';
 import { formatDate, formatTime, formatServiceType, formatEventType, formatReferralSource, getStatusColor } from '@/utils/formatters';
 import { formatLocationLink, formatPhoneLink } from '@/utils/linkFormatters';
@@ -266,6 +266,16 @@ export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
                 Vegetarian Entrées{quote.guest_count_with_restrictions && ` (${quote.guest_count_with_restrictions} guests)`}
               </p>
               <p>{formatMenuItems(quote.vegetarian_entrees)}</p>
+            </div>
+          )}
+          {/* Warning: vegetarian portions requested but no entrees selected */}
+          {quote?.guest_count_with_restrictions && parseInt(quote.guest_count_with_restrictions, 10) > 0 &&
+            (!quote?.vegetarian_entrees || !Array.isArray(quote.vegetarian_entrees) || quote.vegetarian_entrees.length === 0) && (
+            <div className="flex items-center gap-2 p-2 rounded-md bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800">
+              <AlertTriangle className="h-4 w-4 text-amber-600 flex-shrink-0" />
+              <p className="text-xs text-amber-700 dark:text-amber-400">
+                {quote.guest_count_with_restrictions} vegetarian portion(s) requested — no entrées selected. Follow up needed.
+              </p>
             </div>
           )}
           {/* Sides */}

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { UseFormReturn, useWatch } from "react-hook-form";
 import {
   FormControl,
@@ -96,6 +97,24 @@ const MenuSelectionStepComponent = ({ form, trackFieldInteraction, variant = 're
     label: getVegetarianEntreeLabel(item.id, variant),
     category: "Vegetarian",
   }));
+
+  // Cross-field validation: require entree selection when vegetarian portions > 0
+  const watchedPortions = useWatch({ control: form.control, name: 'guest_count_with_restrictions' });
+  const watchedEntrees = useWatch({ control: form.control, name: 'vegetarian_entrees' });
+
+  useEffect(() => {
+    const portionCount = parseInt(watchedPortions || '0', 10);
+    const hasEntrees = Array.isArray(watchedEntrees) && watchedEntrees.length > 0;
+    
+    if (portionCount > 0 && !hasEntrees) {
+      form.setError('vegetarian_entrees', {
+        type: 'manual',
+        message: 'Please select at least one vegetarian entrée for your vegetarian guests.',
+      });
+    } else {
+      form.clearErrors('vegetarian_entrees');
+    }
+  }, [watchedPortions, watchedEntrees, form]);
 
   // Convert to MultiSelect options with formatted labels
   const proteinOptions: Option[] = PROTEINS.map(protein => {
