@@ -215,7 +215,7 @@ const handler = async (req: Request): Promise<Response> => {
     const emailMessage: any = {
       from: fromParts.name ? `${fromParts.name} <${fromParts.email}>` : fromParts.email,
       to: to,
-      subject: subject,
+      subject: subject.replace(/[^\x00-\x7F]/g, '').trim(),
       content: (text && String(text).trim().length > 0)
         ? String(text).trim()
         : stripHtmlToText(minifiedHtml) || "Please view this email in an HTML-capable email client.",

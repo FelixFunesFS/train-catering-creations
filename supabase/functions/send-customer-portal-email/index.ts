@@ -192,9 +192,9 @@ const handler = async (req: Request): Promise<Response> => {
       'estimate_ready': `Your Catering Estimate is Ready - ${quote.event_name}`,
       'payment_reminder': `Payment Reminder - ${quote.event_name}`,
       'payment_received': is_full_payment
-        ? `🎉 Payment Confirmed - Your Event is Secured!`
-        : `💰 Deposit Received - ${quote.event_name}`,
-      'approval_confirmation': `✅ Estimate Approved - Next Steps for ${quote.event_name}`,
+        ? `[CONFIRMED] Payment Received - Your Event is Secured!`
+        : `[PAYMENT] Deposit Received - ${quote.event_name}`,
+      'approval_confirmation': `[APPROVED] Estimate Approved - Next Steps for ${quote.event_name}`,
     };
     const subject = subjectMap[emailType] || variantConfig.heroSection.title;
 

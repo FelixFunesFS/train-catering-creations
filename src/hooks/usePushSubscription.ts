@@ -57,7 +57,7 @@ export function usePushSubscription() {
       }
 
       try {
-        const registration = await navigator.serviceWorker.ready;
+        const registration = await navigator.serviceWorker.ready as ServiceWorkerRegistration & { pushManager: any };
         const existingSub = await registration.pushManager.getSubscription();
         
         if (existingSub) {
@@ -116,7 +116,7 @@ export function usePushSubscription() {
       }
 
       // Get service worker registration
-      const registration = await navigator.serviceWorker.ready;
+      const registration = await navigator.serviceWorker.ready as ServiceWorkerRegistration & { pushManager: any };
 
       // Subscribe to push
       const newSubscription = await registration.pushManager.subscribe({
