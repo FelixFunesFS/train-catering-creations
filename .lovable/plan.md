@@ -1,50 +1,57 @@
 
 
-## Remove Legacy `auto-workflow-manager` Edge Function
+## Plan: Fix Jumbled Email Subject Lines + Resolve Build Error
 
-### Overview
+Two changes to fix the email subject corruption, plus one unrelated build error fix.
 
-The `auto-workflow-manager` edge function is fully redundant. The `unified-reminder-system` already handles all three workflow transitions (overdue marking, auto-confirm, auto-complete) with broader status coverage (e.g., it checks `viewed`, `payment_pending`, `partially_paid` -- statuses the legacy function misses). No frontend code calls `auto-workflow-manager`. Removing it eliminates a source of potential double-processing.
+---
 
-### Safety Verification
+### Change 1: Remove Emojis from Subject Lines
+**File:** `supabase/functions/send-customer-portal-email/index.ts` (lines ~190-198)
 
-| Capability | `auto-workflow-manager` | `unified-reminder-system` | Covered? |
-|-----------|------------------------|--------------------------|----------|
-| Mark overdue invoices | `sent`, `approved` only | `sent`, `viewed`, `approved`, `payment_pending`, `partially_paid` | Yes (better) |
-| Auto-confirm paid events | Yes | Yes (with explicit quote status check) | Yes (better) |
-| Auto-complete past events | Yes | Yes (identical logic) | Yes |
-| Payment reminders | Removed (comment says "handled by unified") | Full implementation with cooldowns | Yes |
-| Workflow state logging | Yes | Yes | Yes |
+Replace the 3 emoji-containing subject lines in the `subjectMap`:
 
-No functionality is lost.
+- `🎉 Payment Confirmed...` becomes `[CONFIRMED] Payment Received - Your Event is Secured!`
+- `💰 Deposit Received...` becomes `[PAYMENT] Deposit Received - {event_name}`
+- `✅ Estimate Approved...` becomes `[APPROVED] Estimate Approved - Next Steps for {event_name}`
 
-### Changes
+The other two entries (`quote_confirmation`, `estimate_ready`) are already ASCII-safe -- no changes needed.
 
-**Step 1: Delete the edge function files**
-- Delete `supabase/functions/auto-workflow-manager/index.ts`
-- Use the Supabase delete edge function tool to remove the deployed function
+---
 
-**Step 2: Remove from `supabase/config.toml`**
-- Remove the `[functions.auto-workflow-manager]` block (lines ~36-37)
+### Change 2: Add Safety Net Sanitizer
+**File:** `supabase/functions/send-smtp-email/index.ts`
 
-**Step 3: Unschedule the cron job (SQL migration)**
-- Run: `SELECT cron.unschedule('auto-workflow-manager-every-15-min');`
-- This removes the every-15-minute cron that calls the now-deleted function
+Add one line before the subject is passed to the SMTP client to strip any non-ASCII characters:
 
-**Step 4: Update documentation (4 files)**
+```
+const safeSubject = subject.replace(/[^\x00-\x7F]/g, '').trim();
+```
 
-| File | Change |
-|------|--------|
-| `docs/UX_ARCHITECTURE.md` | Update UC-SYS1 to reference `unified-reminder-system` instead; update edge function inventory and cron schedule tables |
-| `docs/EDGE_FUNCTION_MONITORING.md` | Remove `auto-workflow-manager` references from expected cron jobs, function logs list, and manual test section |
-| `docs/DEPLOYMENT_CHECKLIST.md` | Update cron job reference from "auto-workflow-manager every 15 min" to "unified-reminder-system daily 9 AM" |
-| `docs/PAYMENT_TESTING_GUIDE.md` | Replace `auto-workflow-manager` invocation examples with `unified-reminder-system` |
-| `CODEBASE_MAP.md` | Remove `auto-workflow-manager` from edge function inventory |
-| `EDGE_FUNCTION_CRON_SETUP.sql` | Remove commented-out unschedule line for the legacy job |
+Then use `safeSubject` in the email message object instead of `subject`. This prevents any future emoji from reaching the SMTP layer.
 
-**Not changed**: Old migrations (`20251006...`, `20251007...`) are left as-is since they are historical records. The cron unschedule SQL handles the runtime cleanup.
+---
 
-### Risk
+### Change 3: Fix Build Error in usePushSubscription.ts
+**File:** `src/hooks/usePushSubscription.ts` (lines 61, 122)
 
-Zero. No frontend code references this function. The cron job is the only caller, and `unified-reminder-system` already runs daily with the same (and better) logic.
+The `pushManager` property is not recognized on `ServiceWorkerRegistration` in the current TypeScript config. Fix by casting the registration:
+
+```typescript
+const registration = await navigator.serviceWorker.ready as ServiceWorkerRegistration & { pushManager: any };
+```
+
+This resolves the two TS2339 errors at lines 61 and 122.
+
+---
+
+### Summary
+
+| File | Change | Risk |
+|------|--------|------|
+| `send-customer-portal-email/index.ts` | Replace 3 emoji subjects with ASCII labels | None -- cosmetic only |
+| `send-smtp-email/index.ts` | Add 1-line non-ASCII sanitizer | None -- safety net only |
+| `src/hooks/usePushSubscription.ts` | Fix TypeScript type error | None -- type cast only |
+
+No functionality changes. No template changes. No data changes.
 
