@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, DollarSign, Mail, CreditCard, Wallet, Copy, ExternalLink, CheckCircle2 } from 'lucide-react';
+import { Loader2, DollarSign, Mail, CreditCard, Wallet, Copy, ExternalLink, CheckCircle2, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface PaymentRecorderProps {
@@ -37,7 +37,8 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
   const [sendConfirmationEmail, setSendConfirmationEmail] = useState(true);
 
   // Stripe tab state
-  const [stripePaymentType, setStripePaymentType] = useState<'full' | 'deposit' | 'milestone'>('full');
+  const [stripePaymentType, setStripePaymentType] = useState<'full' | 'deposit' | 'milestone' | 'custom'>('full');
+  const [customAmount, setCustomAmount] = useState('');
   const [selectedMilestoneId, setSelectedMilestoneId] = useState('');
   const [stripeLoading, setStripeLoading] = useState(false);
   const [checkoutUrl, setCheckoutUrl] = useState('');
@@ -85,10 +86,14 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
       const body: Record<string, unknown> = {
         invoice_id: invoiceId,
         access_token: invoice.customer_access_token,
-        payment_type: stripePaymentType,
+        payment_type: stripePaymentType === 'custom' ? 'milestone' : stripePaymentType,
       };
 
-      if (stripePaymentType === 'milestone' && selectedMilestoneId) {
+      if (stripePaymentType === 'custom') {
+        const customCents = Math.round(parseFloat(customAmount) * 100);
+        body.amount = customCents;
+        body.payment_type = 'custom';
+      } else if (stripePaymentType === 'milestone' && selectedMilestoneId) {
         body.milestone_id = selectedMilestoneId;
       }
 
@@ -131,6 +136,10 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
   const getStripeAmount = () => {
     if (stripePaymentType === 'full') return balanceRemaining;
     if (stripePaymentType === 'deposit') return Math.round(totalAmount * 0.5);
+    if (stripePaymentType === 'custom') {
+      const cents = Math.round(parseFloat(customAmount) * 100);
+      return isNaN(cents) ? 0 : cents;
+    }
     if (stripePaymentType === 'milestone' && selectedMilestoneId) {
       const milestone = pendingMilestones.find(m => m.id === selectedMilestoneId);
       return milestone?.amount_cents || 0;
@@ -178,7 +187,7 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
           </div>
         </div>
 
-        <Tabs defaultValue="manual" className="w-full">
+        <Tabs defaultValue="stripe" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="manual" className="flex items-center gap-1.5 text-xs sm:text-sm">
               <Wallet className="h-3.5 w-3.5" />
@@ -296,8 +305,9 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
                     <Select 
                       value={stripePaymentType} 
                       onValueChange={(v) => {
-                        setStripePaymentType(v as 'full' | 'deposit' | 'milestone');
+                        setStripePaymentType(v as 'full' | 'deposit' | 'milestone' | 'custom');
                         setSelectedMilestoneId('');
+                        setCustomAmount('');
                       }}
                     >
                       <SelectTrigger>
@@ -309,6 +319,7 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
                         {pendingMilestones.length > 0 && (
                           <SelectItem value="milestone">Pay Milestone</SelectItem>
                         )}
+                        <SelectItem value="custom">Custom Amount</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -329,6 +340,31 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
                           ))}
                         </SelectContent>
                       </Select>
+                    </div>
+                  )}
+
+                  {/* Custom amount input */}
+                  {stripePaymentType === 'custom' && (
+                    <div className="space-y-2">
+                      <Label>Amount</Label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          min="0.01"
+                          value={customAmount}
+                          onChange={(e) => setCustomAmount(e.target.value)}
+                          className="pl-7"
+                          placeholder="0.00"
+                        />
+                      </div>
+                      {getStripeAmount() > balanceRemaining && balanceRemaining > 0 && (
+                        <p className="text-xs text-amber-600 flex items-center gap-1">
+                          <AlertCircle className="h-3 w-3" />
+                          Amount exceeds balance remaining ({formatCurrency(balanceRemaining)})
+                        </p>
+                      )}
                     </div>
                   )}
 
@@ -353,7 +389,7 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
                     </Button>
                     <Button
                       onClick={handleGenerateStripeLink}
-                      disabled={stripeLoading || (stripePaymentType === 'milestone' && !selectedMilestoneId)}
+                      disabled={stripeLoading || (stripePaymentType === 'milestone' && !selectedMilestoneId) || (stripePaymentType === 'custom' && (!customAmount || parseFloat(customAmount) <= 0))}
                     >
                       {stripeLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                       <CreditCard className="h-4 w-4 mr-2" />

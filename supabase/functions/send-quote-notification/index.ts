@@ -229,10 +229,10 @@ ${safeSpecialRequests ? `
       const { error: adminEmailError } = await supabase.functions.invoke('send-smtp-email', {
         body: {
           to: 'soultrainseatery@gmail.com',
-          subject: `[NEW QUOTE] ${safeContactName} - ${safeEventName}`,
+          subject: `[NEW QUOTE] ${quote.contact_name} - ${quote.event_name}`,
           html: adminEmailHtml,
           from: `Soul Train's Eatery <soultrainseatery@gmail.com>`,
-          replyTo: `${safeContactName} <${safeEmail}>`
+          replyTo: `${quote.contact_name} <${quote.email}>`
         }
       });
 
