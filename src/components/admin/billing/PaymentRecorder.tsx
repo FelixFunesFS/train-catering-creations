@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useRecordPayment } from '@/hooks/useInvoices';
 import { useInvoiceSummary } from '@/hooks/useInvoiceSummary';
 import { supabase } from '@/integrations/supabase/client';
@@ -29,6 +30,7 @@ function formatCurrency(cents: number): string {
 export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
   const { data: invoiceSummary, isLoading: loadingInvoice } = useInvoiceSummary(invoiceId);
   const recordPayment = useRecordPayment();
+  const queryClient = useQueryClient();
   const { toast } = useToast();
   
   // Manual tab state
@@ -70,10 +72,12 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
     setAmount((balanceRemaining / 100).toFixed(2));
   };
 
-  const handleTakePayment = async () => {
+  const handleTakePayment = async (useLinkMode?: boolean) => {
     setStripeLoading(true);
     setEmbeddedClientSecret('');
     setCheckoutUrl('');
+    
+    const isLinkMode = useLinkMode ?? showLinkFallback;
     
     try {
       const { data: invoice, error: invoiceError } = await supabase
@@ -90,7 +94,7 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
         invoice_id: invoiceId,
         access_token: invoice.customer_access_token,
         payment_type: stripePaymentType === 'custom' ? 'milestone' : stripePaymentType,
-        ui_mode: showLinkFallback ? undefined : 'embedded',
+        ui_mode: isLinkMode ? undefined : 'embedded',
       };
 
       if (stripePaymentType === 'custom') {
@@ -107,7 +111,7 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
 
       if (error) throw error;
 
-      if (showLinkFallback) {
+      if (isLinkMode) {
         if (!data?.url) throw new Error('No checkout URL returned');
         setCheckoutUrl(data.url);
         toast({
@@ -130,6 +134,14 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
   };
 
   const handleEmbeddedComplete = () => {
+    // Invalidate all payment-related caches so admin sees fresh data
+    queryClient.removeQueries({ queryKey: ['invoice-summary', invoiceId] });
+    queryClient.invalidateQueries({ queryKey: ['invoice-summary'] });
+    queryClient.invalidateQueries({ queryKey: ['payments'] });
+    queryClient.invalidateQueries({ queryKey: ['payment-transactions'] });
+    queryClient.invalidateQueries({ queryKey: ['ar-dashboard'] });
+    queryClient.invalidateQueries({ queryKey: ['dashboard-kpis'] });
+    
     toast({
       title: 'Payment successful!',
       description: 'The transaction, milestones, and invoice status will update automatically.',
@@ -150,9 +162,18 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
   };
 
   // Get the display amount for selected stripe payment type
+  // Get next pending milestone for dynamic deposit option
+  const nextPendingMilestone = pendingMilestones.length > 0 ? pendingMilestones[0] : null;
+  const depositLabel = nextPendingMilestone 
+    ? `${nextPendingMilestone.milestone_type} (${nextPendingMilestone.percentage}%)` 
+    : '50% Deposit';
+  const depositAmount = nextPendingMilestone 
+    ? nextPendingMilestone.amount_cents 
+    : Math.round(totalAmount * 0.5);
+
   const getStripeAmount = () => {
     if (stripePaymentType === 'full') return balanceRemaining;
-    if (stripePaymentType === 'deposit') return Math.round(totalAmount * 0.5);
+    if (stripePaymentType === 'deposit') return depositAmount;
     if (stripePaymentType === 'custom') {
       const cents = Math.round(parseFloat(customAmount) * 100);
       return isNaN(cents) ? 0 : cents;
@@ -392,7 +413,7 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="full">Full Balance — {formatCurrency(balanceRemaining)}</SelectItem>
-                        <SelectItem value="deposit">50% Deposit — {formatCurrency(Math.round(totalAmount * 0.5))}</SelectItem>
+                        <SelectItem value="deposit">{depositLabel} — {formatCurrency(depositAmount)}</SelectItem>
                         {pendingMilestones.length > 0 && (
                           <SelectItem value="milestone">Pay Milestone</SelectItem>
                         )}
@@ -456,7 +477,7 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
                   {/* Actions */}
                   <div className="flex flex-col gap-2 pt-2">
                     <Button
-                      onClick={handleTakePayment}
+                      onClick={() => handleTakePayment()}
                       disabled={stripeLoading || (stripePaymentType === 'milestone' && !selectedMilestoneId) || (stripePaymentType === 'custom' && (!customAmount || parseFloat(customAmount) <= 0))}
                       className="w-full"
                     >
@@ -470,10 +491,7 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
                         variant="ghost"
                         size="sm"
                         className="text-xs text-muted-foreground"
-                        onClick={() => {
-                          setShowLinkFallback(true);
-                          handleTakePayment();
-                        }}
+                        onClick={() => handleTakePayment(true)}
                         disabled={stripeLoading || (stripePaymentType === 'milestone' && !selectedMilestoneId) || (stripePaymentType === 'custom' && (!customAmount || parseFloat(customAmount) <= 0))}
                       >
                         <Link2 className="h-3 w-3 mr-1" />
