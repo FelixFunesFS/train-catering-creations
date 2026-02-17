@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useRecordPayment } from '@/hooks/useInvoices';
 import { useInvoiceSummary } from '@/hooks/useInvoiceSummary';
+import { supabase } from '@/integrations/supabase/client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,7 +9,9 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Loader2, DollarSign, Mail } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Loader2, DollarSign, Mail, CreditCard, Wallet, Copy, ExternalLink, CheckCircle2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface PaymentRecorderProps {
   invoiceId: string;
@@ -23,24 +26,30 @@ function formatCurrency(cents: number): string {
 }
 
 export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
-  // Use invoice summary hook which fetches from the database view with accurate balances
   const { data: invoiceSummary, isLoading: loadingInvoice } = useInvoiceSummary(invoiceId);
   const recordPayment = useRecordPayment();
+  const { toast } = useToast();
   
+  // Manual tab state
   const [amount, setAmount] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('');
   const [notes, setNotes] = useState('');
   const [sendConfirmationEmail, setSendConfirmationEmail] = useState(true);
 
-  // Get accurate balance from the view
+  // Stripe tab state
+  const [stripePaymentType, setStripePaymentType] = useState<'full' | 'deposit' | 'milestone'>('full');
+  const [selectedMilestoneId, setSelectedMilestoneId] = useState('');
+  const [stripeLoading, setStripeLoading] = useState(false);
+  const [checkoutUrl, setCheckoutUrl] = useState('');
+  const [linkCopied, setLinkCopied] = useState(false);
+
   const totalAmount = invoiceSummary?.total_amount || 0;
   const balanceRemaining = invoiceSummary?.balance_remaining || 0;
+  const pendingMilestones = invoiceSummary?.milestones?.filter(m => m.status === 'pending') || [];
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleManualSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     const amountCents = Math.round(parseFloat(amount) * 100);
-    
     if (isNaN(amountCents) || amountCents <= 0) return;
     
     await recordPayment.mutateAsync({
@@ -50,12 +59,83 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
       notes: notes || undefined,
       sendConfirmationEmail,
     });
-    
     onClose();
   };
 
   const handlePayFullBalance = () => {
     setAmount((balanceRemaining / 100).toFixed(2));
+  };
+
+  const handleGenerateStripeLink = async () => {
+    setStripeLoading(true);
+    setCheckoutUrl('');
+    
+    try {
+      // Fetch the invoice's customer_access_token
+      const { data: invoice, error: invoiceError } = await supabase
+        .from('invoices')
+        .select('customer_access_token')
+        .eq('id', invoiceId)
+        .single();
+
+      if (invoiceError || !invoice?.customer_access_token) {
+        throw new Error('Could not retrieve invoice access token');
+      }
+
+      const body: Record<string, unknown> = {
+        invoice_id: invoiceId,
+        access_token: invoice.customer_access_token,
+        payment_type: stripePaymentType,
+      };
+
+      if (stripePaymentType === 'milestone' && selectedMilestoneId) {
+        body.milestone_id = selectedMilestoneId;
+      }
+
+      const { data, error } = await supabase.functions.invoke('create-checkout-session', {
+        body,
+      });
+
+      if (error) throw error;
+      if (!data?.url) throw new Error('No checkout URL returned');
+
+      setCheckoutUrl(data.url);
+      toast({
+        title: 'Payment link generated',
+        description: 'You can open the checkout or copy the link.',
+      });
+    } catch (err: any) {
+      toast({
+        title: 'Error generating payment link',
+        description: err.message || 'Failed to create checkout session',
+        variant: 'destructive',
+      });
+    } finally {
+      setStripeLoading(false);
+    }
+  };
+
+  const handleCopyLink = async () => {
+    if (!checkoutUrl) return;
+    await navigator.clipboard.writeText(checkoutUrl);
+    setLinkCopied(true);
+    toast({ title: 'Link copied to clipboard' });
+    setTimeout(() => setLinkCopied(false), 2000);
+  };
+
+  const handleOpenCheckout = () => {
+    if (checkoutUrl) window.open(checkoutUrl, '_blank');
+  };
+
+  // Get the display amount for selected stripe payment type
+  const getStripeAmount = () => {
+    if (stripePaymentType === 'full') return balanceRemaining;
+    if (stripePaymentType === 'deposit') return Math.round(totalAmount * 0.5);
+    if (stripePaymentType === 'milestone' && selectedMilestoneId) {
+      const milestone = pendingMilestones.find(m => m.id === selectedMilestoneId);
+      return milestone?.amount_cents || 0;
+    }
+    return 0;
   };
 
   if (loadingInvoice) {
@@ -72,7 +152,7 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
 
   return (
     <Dialog open onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <DollarSign className="h-5 w-5" />
@@ -80,115 +160,249 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Invoice Summary */}
-          <div className="bg-muted/50 rounded-lg p-4 space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Invoice Total</span>
-              <span className="font-medium">{formatCurrency(totalAmount)}</span>
+        {/* Invoice Summary */}
+        <div className="bg-muted/50 rounded-lg p-4 space-y-2 text-sm">
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Invoice Total</span>
+            <span className="font-medium">{formatCurrency(totalAmount)}</span>
+          </div>
+          {invoiceSummary && invoiceSummary.total_paid > 0 && (
+            <div className="flex justify-between text-emerald-600">
+              <span>Amount Paid</span>
+              <span className="font-medium">{formatCurrency(invoiceSummary.total_paid)}</span>
             </div>
-            {invoiceSummary && invoiceSummary.total_paid > 0 && (
-              <div className="flex justify-between text-green-600">
-                <span>Amount Paid</span>
-                <span className="font-medium">{formatCurrency(invoiceSummary.total_paid)}</span>
+          )}
+          <div className="flex justify-between border-t border-border pt-2 mt-2">
+            <span className="text-muted-foreground font-medium">Balance Due</span>
+            <span className="font-semibold text-primary">{formatCurrency(balanceRemaining)}</span>
+          </div>
+        </div>
+
+        <Tabs defaultValue="manual" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="manual" className="flex items-center gap-1.5 text-xs sm:text-sm">
+              <Wallet className="h-3.5 w-3.5" />
+              Manual
+            </TabsTrigger>
+            <TabsTrigger value="stripe" className="flex items-center gap-1.5 text-xs sm:text-sm">
+              <CreditCard className="h-3.5 w-3.5" />
+              Stripe (Card)
+            </TabsTrigger>
+          </TabsList>
+
+          {/* ===== Manual Payment Tab ===== */}
+          <TabsContent value="manual">
+            <form onSubmit={handleManualSubmit} className="space-y-4">
+              {/* Amount */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="amount">Payment Amount</Label>
+                  <Button 
+                    type="button" 
+                    variant="link" 
+                    size="sm" 
+                    className="h-auto p-0 text-xs"
+                    onClick={handlePayFullBalance}
+                  >
+                    Pay Full Balance
+                  </Button>
+                </div>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
+                  <Input
+                    id="amount"
+                    type="number"
+                    step="0.01"
+                    min="0.01"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    className="pl-7"
+                    placeholder="0.00"
+                    required
+                  />
+                </div>
               </div>
-            )}
-            <div className="flex justify-between border-t border-border pt-2 mt-2">
-              <span className="text-muted-foreground font-medium">Balance Due</span>
-              <span className="font-semibold text-primary">{formatCurrency(balanceRemaining)}</span>
+
+              {/* Payment Method */}
+              <div className="space-y-2">
+                <Label htmlFor="method">Payment Method</Label>
+                <Select value={paymentMethod} onValueChange={setPaymentMethod} required>
+                  <SelectTrigger id="method">
+                    <SelectValue placeholder="Select method" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="cash">Cash</SelectItem>
+                    <SelectItem value="check">Check</SelectItem>
+                    <SelectItem value="bank_transfer">Bank Transfer / ACH</SelectItem>
+                    <SelectItem value="credit_card">Credit Card (Manual)</SelectItem>
+                    <SelectItem value="venmo">Venmo</SelectItem>
+                    <SelectItem value="zelle">Zelle</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Notes */}
+              <div className="space-y-2">
+                <Label htmlFor="notes">Notes (Optional)</Label>
+                <Textarea
+                  id="notes"
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="Check #, reference number, etc."
+                  rows={2}
+                />
+              </div>
+
+              {/* Send Confirmation Email */}
+              <div className="flex items-center gap-3 py-2 px-3 bg-muted/30 rounded-lg">
+                <Checkbox
+                  id="sendEmail"
+                  checked={sendConfirmationEmail}
+                  onCheckedChange={(checked) => setSendConfirmationEmail(checked === true)}
+                />
+                <div className="flex items-center gap-2">
+                  <Mail className="h-4 w-4 text-muted-foreground" />
+                  <Label htmlFor="sendEmail" className="cursor-pointer text-sm font-normal">
+                    Send confirmation email to customer
+                  </Label>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex flex-col sm:flex-row justify-end gap-2 pt-2">
+                <Button type="button" variant="outline" onClick={onClose}>
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit" 
+                  disabled={!amount || !paymentMethod || recordPayment.isPending}
+                >
+                  {recordPayment.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                  Record Payment
+                </Button>
+              </div>
+            </form>
+          </TabsContent>
+
+          {/* ===== Stripe (Card) Payment Tab ===== */}
+          <TabsContent value="stripe">
+            <div className="space-y-4">
+              {!checkoutUrl ? (
+                <>
+                  {/* Payment Type Selection */}
+                  <div className="space-y-2">
+                    <Label>Payment Type</Label>
+                    <Select 
+                      value={stripePaymentType} 
+                      onValueChange={(v) => {
+                        setStripePaymentType(v as 'full' | 'deposit' | 'milestone');
+                        setSelectedMilestoneId('');
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="full">Full Balance — {formatCurrency(balanceRemaining)}</SelectItem>
+                        <SelectItem value="deposit">50% Deposit — {formatCurrency(Math.round(totalAmount * 0.5))}</SelectItem>
+                        {pendingMilestones.length > 0 && (
+                          <SelectItem value="milestone">Pay Milestone</SelectItem>
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Milestone selector */}
+                  {stripePaymentType === 'milestone' && pendingMilestones.length > 0 && (
+                    <div className="space-y-2">
+                      <Label>Select Milestone</Label>
+                      <Select value={selectedMilestoneId} onValueChange={setSelectedMilestoneId}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Choose a milestone" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {pendingMilestones.map(m => (
+                            <SelectItem key={m.id} value={m.id}>
+                              {m.milestone_type} — {formatCurrency(m.amount_cents)} ({m.percentage}%)
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+
+                  {/* Amount preview */}
+                  {getStripeAmount() > 0 && (
+                    <div className="bg-muted/30 rounded-lg p-3 text-center">
+                      <p className="text-xs text-muted-foreground">Checkout Amount</p>
+                      <p className="text-2xl font-bold text-primary">{formatCurrency(getStripeAmount())}</p>
+                    </div>
+                  )}
+
+                  {/* Info text */}
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    This generates a Stripe Checkout link. You can enter the customer's card details yourself or share the link with them. 
+                    All standard workflows (milestones, invoice status, emails) apply automatically.
+                  </p>
+
+                  {/* Actions */}
+                  <div className="flex flex-col sm:flex-row justify-end gap-2 pt-2">
+                    <Button type="button" variant="outline" onClick={onClose}>
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={handleGenerateStripeLink}
+                      disabled={stripeLoading || (stripePaymentType === 'milestone' && !selectedMilestoneId)}
+                    >
+                      {stripeLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                      <CreditCard className="h-4 w-4 mr-2" />
+                      Generate Payment Link
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                /* ===== Checkout URL Generated ===== */
+                <div className="space-y-4">
+                  <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4 text-center space-y-2">
+                    <CheckCircle2 className="h-8 w-8 text-emerald-600 mx-auto" />
+                    <p className="font-medium text-emerald-800">Payment Link Ready</p>
+                    <p className="text-xs text-emerald-600">
+                      {formatCurrency(getStripeAmount())} • {stripePaymentType === 'deposit' ? '50% Deposit' : stripePaymentType === 'milestone' ? 'Milestone Payment' : 'Full Balance'}
+                    </p>
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <Button onClick={handleOpenCheckout} className="w-full">
+                      <ExternalLink className="h-4 w-4 mr-2" />
+                      Open Checkout Page
+                    </Button>
+                    <Button variant="outline" onClick={handleCopyLink} className="w-full">
+                      {linkCopied ? (
+                        <><CheckCircle2 className="h-4 w-4 mr-2" /> Copied!</>
+                      ) : (
+                        <><Copy className="h-4 w-4 mr-2" /> Copy Link</>
+                      )}
+                    </Button>
+                  </div>
+
+                  <p className="text-xs text-muted-foreground text-center leading-relaxed">
+                    Once payment completes on Stripe, the transaction, milestones, and invoice status will update automatically.
+                  </p>
+
+                  <div className="flex flex-col sm:flex-row justify-end gap-2 pt-2">
+                    <Button variant="outline" onClick={() => setCheckoutUrl('')} className="text-sm">
+                      Generate New Link
+                    </Button>
+                    <Button variant="outline" onClick={onClose} className="text-sm">
+                      Close
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
-          </div>
-
-          {/* Amount */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="amount">Payment Amount</Label>
-              <Button 
-                type="button" 
-                variant="link" 
-                size="sm" 
-                className="h-auto p-0 text-xs"
-                onClick={handlePayFullBalance}
-              >
-                Pay Full Balance
-              </Button>
-            </div>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
-              <Input
-                id="amount"
-                type="number"
-                step="0.01"
-                min="0.01"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                className="pl-7"
-                placeholder="0.00"
-                required
-              />
-            </div>
-          </div>
-
-          {/* Payment Method */}
-          <div className="space-y-2">
-            <Label htmlFor="method">Payment Method</Label>
-            <Select value={paymentMethod} onValueChange={setPaymentMethod} required>
-              <SelectTrigger id="method">
-                <SelectValue placeholder="Select method" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="cash">Cash</SelectItem>
-                <SelectItem value="check">Check</SelectItem>
-                <SelectItem value="bank_transfer">Bank Transfer / ACH</SelectItem>
-                <SelectItem value="credit_card">Credit Card (Manual)</SelectItem>
-                <SelectItem value="venmo">Venmo</SelectItem>
-                <SelectItem value="zelle">Zelle</SelectItem>
-                <SelectItem value="other">Other</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Notes */}
-          <div className="space-y-2">
-            <Label htmlFor="notes">Notes (Optional)</Label>
-            <Textarea
-              id="notes"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Check #, reference number, etc."
-              rows={2}
-            />
-          </div>
-
-          {/* Send Confirmation Email */}
-          <div className="flex items-center gap-3 py-2 px-3 bg-muted/30 rounded-lg">
-            <Checkbox
-              id="sendEmail"
-              checked={sendConfirmationEmail}
-              onCheckedChange={(checked) => setSendConfirmationEmail(checked === true)}
-            />
-            <div className="flex items-center gap-2">
-              <Mail className="h-4 w-4 text-muted-foreground" />
-              <Label htmlFor="sendEmail" className="cursor-pointer text-sm font-normal">
-                Send confirmation email to customer
-              </Label>
-            </div>
-          </div>
-
-          {/* Actions */}
-          <div className="flex justify-end gap-2 pt-2">
-            <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button 
-              type="submit" 
-              disabled={!amount || !paymentMethod || recordPayment.isPending}
-            >
-              {recordPayment.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              Record Payment
-            </Button>
-          </div>
-        </form>
+          </TabsContent>
+        </Tabs>
       </DialogContent>
     </Dialog>
   );

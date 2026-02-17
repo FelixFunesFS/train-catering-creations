@@ -63,7 +63,12 @@ function getStatusIcon(status: string) {
   }
 }
 
-function getStatusBadge(status: string) {
+function getStatusBadge(status: string, failedReason?: string | null) {
+  // Show "Declined" for failed transactions with bank decline codes
+  if (status === 'failed' && failedReason && failedReason.toLowerCase().includes('declined')) {
+    return <Badge variant="outline" className="bg-red-500/10 text-red-700 border-red-200">Declined</Badge>;
+  }
+  
   const variants: Record<string, { label: string; className: string }> = {
     completed: { label: 'Completed', className: 'bg-emerald-500/10 text-emerald-700 border-emerald-200' },
     succeeded: { label: 'Succeeded', className: 'bg-emerald-500/10 text-emerald-700 border-emerald-200' },
@@ -100,13 +105,14 @@ export function PaymentHistory({ invoiceId, onClose }: PaymentHistoryProps) {
   }, [transactions, invoice]);
 
   // Separate transactions by status
-  const { activeTransactions, voidedTransactions, pendingTransactions } = useMemo(() => {
+  const { activeTransactions, voidedTransactions, pendingTransactions, failedTransactions } = useMemo(() => {
     if (!transactions) return { activeTransactions: [], voidedTransactions: [], pendingTransactions: [] };
     
     return {
       activeTransactions: transactions.filter(tx => tx.status === 'completed' || tx.status === 'succeeded'),
       voidedTransactions: transactions.filter(tx => tx.status === 'voided'),
       pendingTransactions: transactions.filter(tx => tx.status === 'pending'),
+      failedTransactions: transactions.filter(tx => tx.status === 'failed'),
     };
   }, [transactions]);
 
@@ -238,7 +244,7 @@ export function PaymentHistory({ invoiceId, onClose }: PaymentHistoryProps) {
                                   {formatPaymentMethod(tx.payment_method)} • {tx.customer_email}
                                 </p>
                               </div>
-                              {getStatusBadge(tx.status)}
+                              {getStatusBadge(tx.status, (tx as any).failed_reason)}
                             </div>
                             
                             {tx.description && (
@@ -264,6 +270,51 @@ export function PaymentHistory({ invoiceId, onClose }: PaymentHistoryProps) {
                                 <Ban className="h-3 w-3 mr-1" />
                                 {voidingId === tx.id ? 'Voiding...' : 'Void'}
                               </Button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Failed / Declined Transactions */}
+                {failedTransactions.length > 0 && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-sm font-medium text-destructive">
+                      <X className="h-4 w-4" />
+                      Declined / Failed
+                    </div>
+                    <div className="space-y-2">
+                      {failedTransactions.map((tx) => (
+                        <div 
+                          key={tx.id} 
+                          className="flex items-start gap-4 p-4 border border-red-200 bg-red-50/50 rounded-lg"
+                        >
+                          <div className="flex-shrink-0 p-2 bg-red-100 rounded-full">
+                            <X className="h-4 w-4 text-red-600" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between gap-2">
+                              <div>
+                                <p className="font-medium text-sm">{formatCurrency(tx.amount)}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  {formatPaymentMethod(tx.payment_method)} • {tx.customer_email}
+                                </p>
+                              </div>
+                              {getStatusBadge(tx.status, (tx as any).failed_reason)}
+                            </div>
+                            {(tx as any).failed_reason && (
+                              <p className="text-xs text-red-600 mt-1.5 bg-red-50 rounded px-2 py-1">
+                                {(tx as any).failed_reason}
+                              </p>
+                            )}
+                            {tx.description && (
+                              <p className="text-xs text-muted-foreground mt-1">{tx.description}</p>
+                            )}
+                            <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
+                              {getStatusIcon(tx.status)}
+                              <span>{format(new Date(tx.created_at), 'MMM d, yyyy h:mm a')}</span>
                             </div>
                           </div>
                         </div>
@@ -301,7 +352,7 @@ export function PaymentHistory({ invoiceId, onClose }: PaymentHistoryProps) {
                                   {formatPaymentMethod(tx.payment_method)} • {tx.customer_email}
                                 </p>
                               </div>
-                              {getStatusBadge(tx.status)}
+                              {getStatusBadge(tx.status, (tx as any).failed_reason)}
                             </div>
                             
                             {tx.description && (
@@ -352,7 +403,7 @@ export function PaymentHistory({ invoiceId, onClose }: PaymentHistoryProps) {
                                   {formatPaymentMethod(tx.payment_method)}
                                 </p>
                               </div>
-                              {getStatusBadge(tx.status)}
+                              {getStatusBadge(tx.status, (tx as any).failed_reason)}
                             </div>
                             
                             {tx.description && (
