@@ -197,23 +197,35 @@ export function PaymentList() {
               <CardContent className="space-y-4">
                 {/* Event & Payment Info */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
-                  <div className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4 text-muted-foreground" />
-                    <span>{invoice.event_date ? format(parseDateFromLocalString(invoice.event_date), 'MMM d, yyyy') : 'TBD'}</span>
+                  <div className="space-y-1">
+                    <span className="text-xs text-muted-foreground">Event Date</span>
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                      <span>{invoice.event_date ? format(parseDateFromLocalString(invoice.event_date), 'MMM d, yyyy') : 'TBD'}</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Users className="h-4 w-4 text-muted-foreground" />
-                    <span>{invoice.guest_count} guests</span>
+                  <div className="space-y-1">
+                    <span className="text-xs text-muted-foreground">Guests</span>
+                    <div className="flex items-center gap-2">
+                      <Users className="h-4 w-4 text-muted-foreground" />
+                      <span>{invoice.guest_count} guests</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <DollarSign className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-medium">{formatCurrency(invoice.total_amount || 0)}</span>
+                  <div className="space-y-1">
+                    <span className="text-xs text-muted-foreground">Total</span>
+                    <div className="flex items-center gap-2">
+                      <DollarSign className="h-4 w-4 text-muted-foreground" />
+                      <span className="font-medium">{formatCurrency(invoice.total_amount || 0)}</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <CreditCard className="h-4 w-4 text-muted-foreground" />
-                    <span className={balanceRemaining > 0 ? 'text-amber-600' : 'text-emerald-600'}>
-                      {balanceRemaining > 0 ? `${formatCurrency(balanceRemaining)} due` : 'Paid'}
-                    </span>
+                  <div className="space-y-1">
+                    <span className="text-xs text-muted-foreground">Balance Due</span>
+                    <div className="flex items-center gap-2">
+                      <CreditCard className="h-4 w-4 text-muted-foreground" />
+                      <span className={balanceRemaining > 0 ? 'text-amber-600' : 'text-emerald-600'}>
+                        {balanceRemaining > 0 ? formatCurrency(balanceRemaining) : 'Paid in Full'}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
