@@ -10,8 +10,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, DollarSign, Mail, CreditCard, Wallet, Copy, ExternalLink, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Loader2, DollarSign, Mail, CreditCard, Wallet, Copy, ExternalLink, CheckCircle2, AlertCircle, ArrowLeft, Link2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { EmbeddedCheckout } from './EmbeddedCheckout';
 
 interface PaymentRecorderProps {
   invoiceId: string;
@@ -43,6 +44,8 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
   const [stripeLoading, setStripeLoading] = useState(false);
   const [checkoutUrl, setCheckoutUrl] = useState('');
   const [linkCopied, setLinkCopied] = useState(false);
+  const [embeddedClientSecret, setEmbeddedClientSecret] = useState('');
+  const [showLinkFallback, setShowLinkFallback] = useState(false);
 
   const totalAmount = invoiceSummary?.total_amount || 0;
   const balanceRemaining = invoiceSummary?.balance_remaining || 0;
@@ -67,12 +70,12 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
     setAmount((balanceRemaining / 100).toFixed(2));
   };
 
-  const handleGenerateStripeLink = async () => {
+  const handleTakePayment = async () => {
     setStripeLoading(true);
+    setEmbeddedClientSecret('');
     setCheckoutUrl('');
     
     try {
-      // Fetch the invoice's customer_access_token
       const { data: invoice, error: invoiceError } = await supabase
         .from('invoices')
         .select('customer_access_token')
@@ -87,6 +90,7 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
         invoice_id: invoiceId,
         access_token: invoice.customer_access_token,
         payment_type: stripePaymentType === 'custom' ? 'milestone' : stripePaymentType,
+        ui_mode: showLinkFallback ? undefined : 'embedded',
       };
 
       if (stripePaymentType === 'custom') {
@@ -102,22 +106,35 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
       });
 
       if (error) throw error;
-      if (!data?.url) throw new Error('No checkout URL returned');
 
-      setCheckoutUrl(data.url);
-      toast({
-        title: 'Payment link generated',
-        description: 'You can open the checkout or copy the link.',
-      });
+      if (showLinkFallback) {
+        if (!data?.url) throw new Error('No checkout URL returned');
+        setCheckoutUrl(data.url);
+        toast({
+          title: 'Payment link generated',
+          description: 'You can open the checkout or copy the link.',
+        });
+      } else {
+        if (!data?.clientSecret) throw new Error('No client secret returned');
+        setEmbeddedClientSecret(data.clientSecret);
+      }
     } catch (err: any) {
       toast({
-        title: 'Error generating payment link',
+        title: 'Error',
         description: err.message || 'Failed to create checkout session',
         variant: 'destructive',
       });
     } finally {
       setStripeLoading(false);
     }
+  };
+
+  const handleEmbeddedComplete = () => {
+    toast({
+      title: 'Payment successful!',
+      description: 'The transaction, milestones, and invoice status will update automatically.',
+    });
+    onClose();
   };
 
   const handleCopyLink = async () => {
@@ -297,7 +314,67 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
           {/* ===== Stripe (Card) Payment Tab ===== */}
           <TabsContent value="stripe">
             <div className="space-y-4">
-              {!checkoutUrl ? (
+              {embeddedClientSecret ? (
+                /* ===== Embedded Checkout Form ===== */
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setEmbeddedClientSecret('')}
+                      className="text-xs"
+                    >
+                      <ArrowLeft className="h-3 w-3 mr-1" />
+                      Back
+                    </Button>
+                    <p className="text-xs text-muted-foreground">
+                      {formatCurrency(getStripeAmount())}
+                    </p>
+                  </div>
+                  <EmbeddedCheckout
+                    clientSecret={embeddedClientSecret}
+                    onComplete={handleEmbeddedComplete}
+                  />
+                </div>
+              ) : checkoutUrl ? (
+                /* ===== Checkout URL Generated (Link Fallback) ===== */
+                <div className="space-y-4">
+                  <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4 text-center space-y-2">
+                    <CheckCircle2 className="h-8 w-8 text-emerald-600 mx-auto" />
+                    <p className="font-medium text-emerald-800">Payment Link Ready</p>
+                    <p className="text-xs text-emerald-600">
+                      {formatCurrency(getStripeAmount())} • {stripePaymentType === 'deposit' ? '50% Deposit' : stripePaymentType === 'milestone' ? 'Milestone Payment' : 'Full Balance'}
+                    </p>
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <Button onClick={handleOpenCheckout} className="w-full">
+                      <ExternalLink className="h-4 w-4 mr-2" />
+                      Open Checkout Page
+                    </Button>
+                    <Button variant="outline" onClick={handleCopyLink} className="w-full">
+                      {linkCopied ? (
+                        <><CheckCircle2 className="h-4 w-4 mr-2" /> Copied!</>
+                      ) : (
+                        <><Copy className="h-4 w-4 mr-2" /> Copy Link</>
+                      )}
+                    </Button>
+                  </div>
+
+                  <p className="text-xs text-muted-foreground text-center leading-relaxed">
+                    Once payment completes on Stripe, the transaction, milestones, and invoice status will update automatically.
+                  </p>
+
+                  <div className="flex flex-col sm:flex-row justify-end gap-2 pt-2">
+                    <Button variant="outline" onClick={() => { setCheckoutUrl(''); setShowLinkFallback(false); }} className="text-sm">
+                      Back
+                    </Button>
+                    <Button variant="outline" onClick={onClose} className="text-sm">
+                      Close
+                    </Button>
+                  </div>
+                </div>
+              ) : (
                 <>
                   {/* Payment Type Selection */}
                   <div className="space-y-2">
@@ -376,65 +453,38 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
                     </div>
                   )}
 
-                  {/* Info text */}
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    This generates a Stripe Checkout link. You can enter the customer's card details yourself or share the link with them. 
-                    All standard workflows (milestones, invoice status, emails) apply automatically.
-                  </p>
-
                   {/* Actions */}
-                  <div className="flex flex-col sm:flex-row justify-end gap-2 pt-2">
-                    <Button type="button" variant="outline" onClick={onClose}>
-                      Cancel
-                    </Button>
+                  <div className="flex flex-col gap-2 pt-2">
                     <Button
-                      onClick={handleGenerateStripeLink}
+                      onClick={handleTakePayment}
                       disabled={stripeLoading || (stripePaymentType === 'milestone' && !selectedMilestoneId) || (stripePaymentType === 'custom' && (!customAmount || parseFloat(customAmount) <= 0))}
+                      className="w-full"
                     >
                       {stripeLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                       <CreditCard className="h-4 w-4 mr-2" />
-                      Generate Payment Link
+                      Take Payment
                     </Button>
+                    <div className="flex items-center justify-between">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="text-xs text-muted-foreground"
+                        onClick={() => {
+                          setShowLinkFallback(true);
+                          handleTakePayment();
+                        }}
+                        disabled={stripeLoading || (stripePaymentType === 'milestone' && !selectedMilestoneId) || (stripePaymentType === 'custom' && (!customAmount || parseFloat(customAmount) <= 0))}
+                      >
+                        <Link2 className="h-3 w-3 mr-1" />
+                        Share link instead
+                      </Button>
+                      <Button type="button" variant="outline" size="sm" onClick={onClose}>
+                        Cancel
+                      </Button>
+                    </div>
                   </div>
                 </>
-              ) : (
-                /* ===== Checkout URL Generated ===== */
-                <div className="space-y-4">
-                  <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4 text-center space-y-2">
-                    <CheckCircle2 className="h-8 w-8 text-emerald-600 mx-auto" />
-                    <p className="font-medium text-emerald-800">Payment Link Ready</p>
-                    <p className="text-xs text-emerald-600">
-                      {formatCurrency(getStripeAmount())} • {stripePaymentType === 'deposit' ? '50% Deposit' : stripePaymentType === 'milestone' ? 'Milestone Payment' : 'Full Balance'}
-                    </p>
-                  </div>
-
-                  <div className="flex flex-col gap-2">
-                    <Button onClick={handleOpenCheckout} className="w-full">
-                      <ExternalLink className="h-4 w-4 mr-2" />
-                      Open Checkout Page
-                    </Button>
-                    <Button variant="outline" onClick={handleCopyLink} className="w-full">
-                      {linkCopied ? (
-                        <><CheckCircle2 className="h-4 w-4 mr-2" /> Copied!</>
-                      ) : (
-                        <><Copy className="h-4 w-4 mr-2" /> Copy Link</>
-                      )}
-                    </Button>
-                  </div>
-
-                  <p className="text-xs text-muted-foreground text-center leading-relaxed">
-                    Once payment completes on Stripe, the transaction, milestones, and invoice status will update automatically.
-                  </p>
-
-                  <div className="flex flex-col sm:flex-row justify-end gap-2 pt-2">
-                    <Button variant="outline" onClick={() => setCheckoutUrl('')} className="text-sm">
-                      Generate New Link
-                    </Button>
-                    <Button variant="outline" onClick={onClose} className="text-sm">
-                      Close
-                    </Button>
-                  </div>
-                </div>
               )}
             </div>
           </TabsContent>

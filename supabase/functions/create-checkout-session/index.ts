@@ -21,6 +21,7 @@ interface CheckoutRequest {
   milestone_id?: string;
   success_url?: string;
   cancel_url?: string;
+  ui_mode?: 'embedded'; // Optional: renders embedded checkout form
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -38,10 +39,11 @@ const handler = async (req: Request): Promise<Response> => {
       amount: customAmount,
       milestone_id,
       success_url,
-      cancel_url
+      cancel_url,
+      ui_mode
     }: CheckoutRequest = await req.json();
 
-    logStep("Request data", { invoice_id, payment_type, milestone_id, hasToken: !!access_token });
+    logStep("Request data", { invoice_id, payment_type, milestone_id, ui_mode, hasToken: !!access_token });
 
     // SECURITY: Verify invoice access using customer access token
     if (!access_token) {
@@ -148,8 +150,11 @@ const handler = async (req: Request): Promise<Response> => {
 
     const defaultSuccessUrl = `${siteUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}&token=${invoice.customer_access_token}&type=${payment_type}`;
     const defaultCancelUrl = `${siteUrl}/estimate?token=${invoice.customer_access_token}`;
+    const returnUrl = `${siteUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}&token=${invoice.customer_access_token}&type=${payment_type}`;
 
-    const session = await stripe.checkout.sessions.create({
+    const isEmbedded = ui_mode === 'embedded';
+
+    const sessionParams: Record<string, unknown> = {
       customer: stripeCustomerId,
       payment_method_types: ["card"],
       line_items: [{
@@ -164,17 +169,25 @@ const handler = async (req: Request): Promise<Response> => {
         quantity: 1,
       }],
       mode: "payment",
-      success_url: success_url || defaultSuccessUrl,
-      cancel_url: cancel_url || defaultCancelUrl,
       metadata: {
         invoice_id,
         payment_type,
         milestone_id: milestone_id || '',
         quote_request_id: invoice.quote_request_id
       },
-    });
+    };
 
-    logStep("Stripe session created", { sessionId: session.id });
+    if (isEmbedded) {
+      sessionParams.ui_mode = 'embedded';
+      sessionParams.return_url = returnUrl;
+    } else {
+      sessionParams.success_url = success_url || defaultSuccessUrl;
+      sessionParams.cancel_url = cancel_url || defaultCancelUrl;
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionParams as any);
+
+    logStep("Stripe session created", { sessionId: session.id, isEmbedded });
 
     await supabase.from("payment_transactions").insert({
       invoice_id,
@@ -187,8 +200,12 @@ const handler = async (req: Request): Promise<Response> => {
       description: `${payment_type} payment for ${invoice.quote_requests?.event_name}`
     });
 
+    const responseData = isEmbedded
+      ? { clientSecret: session.client_secret, sessionId: session.id }
+      : { url: session.url, sessionId: session.id };
+
     return new Response(
-      JSON.stringify({ url: session.url, sessionId: session.id }),
+      JSON.stringify(responseData),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
