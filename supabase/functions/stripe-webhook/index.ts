@@ -316,6 +316,52 @@ serve(async (req) => {
       }
     }
 
+    // Handle expired checkout sessions (card declined, customer abandoned, etc.)
+    if (event.type === "checkout.session.expired") {
+      const session = event.data.object as Stripe.Checkout.Session;
+      
+      logStep("Checkout session expired", { sessionId: session.id, paymentIntent: session.payment_intent });
+
+      let failedReason = "Checkout session expired";
+
+      // If there's a payment intent, fetch it to get the actual decline reason
+      if (session.payment_intent) {
+        try {
+          const paymentIntent = await stripe.paymentIntents.retrieve(session.payment_intent as string);
+          const lastError = paymentIntent.last_payment_error;
+          
+          if (lastError) {
+            const declineCode = lastError.decline_code || lastError.code || 'unknown';
+            const message = lastError.message || 'Payment declined';
+            failedReason = `Payment declined by customer's bank: ${declineCode}`;
+            logStep("Decline details", { declineCode, message });
+          } else {
+            failedReason = "Checkout session expired - payment attempt failed";
+          }
+        } catch (piError) {
+          logStep("Error fetching payment intent (non-critical)", { error: piError.message });
+          failedReason = "Checkout session expired - unable to retrieve decline details";
+        }
+      } else {
+        failedReason = "Checkout session expired - no payment attempted";
+      }
+
+      const { error: txUpdateError } = await supabaseClient
+        .from('payment_transactions')
+        .update({
+          status: 'failed',
+          failed_reason: failedReason,
+          processed_at: new Date().toISOString()
+        })
+        .eq('stripe_session_id', session.id);
+
+      if (txUpdateError) {
+        logStep("Error updating expired session transaction", { error: txUpdateError.message });
+      } else {
+        logStep("Transaction marked as failed", { reason: failedReason });
+      }
+    }
+
     return new Response(JSON.stringify({ received: true }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,

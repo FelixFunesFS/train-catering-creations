@@ -434,7 +434,8 @@ export class PaymentDataService {
         created_at,
         description,
         customer_email,
-        stripe_payment_intent_id
+        stripe_payment_intent_id,
+        failed_reason
       `)
       .order('created_at', { ascending: false });
 
@@ -490,6 +491,7 @@ export interface PaymentTransaction {
   description: string | null;
   customer_email: string;
   stripe_payment_intent_id: string | null;
+  failed_reason: string | null;
   invoice_number: string | null;
   contact_name: string | null;
   event_name: string | null;
