@@ -152,7 +152,7 @@ export function PaymentHistory({ invoiceId, onClose }: PaymentHistoryProps) {
   return (
     <>
       <Dialog open onOpenChange={onClose}>
-        <DialogContent className="sm:max-w-2xl">
+        <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <History className="h-5 w-5" />
@@ -200,7 +200,7 @@ export function PaymentHistory({ invoiceId, onClose }: PaymentHistoryProps) {
             </div>
           )}
 
-          <ScrollArea className="max-h-[50vh]">
+          <ScrollArea className="max-h-[60vh]">
             {isLoading ? (
               <div className="space-y-4">
                 {[1, 2, 3].map(i => (

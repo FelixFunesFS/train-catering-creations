@@ -166,7 +166,7 @@ const handler = async (req: Request): Promise<Response> => {
     try {
       const emailData = {
         to: changeRequest.customer_email,
-        subject: `Change Request Update - ${escapeHtml(changeRequest.invoices.quote_requests.event_name)}`,
+        subject: `Change Request Update - ${changeRequest.invoices.quote_requests.event_name}`,
         html: generateResponseEmail(changeRequest, action, admin_response, estimated_cost_change)
       };
 

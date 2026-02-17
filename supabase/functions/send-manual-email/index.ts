@@ -108,7 +108,7 @@ serve(async (req) => {
 
     switch (email_type) {
       case 'estimate_sent':
-        subject = `Your Catering Estimate - ${safeEventName || 'Event'}`;
+        subject = `Your Catering Estimate - ${quote?.event_name || 'Event'}`;
         heroSection = {
           badge: '📋 ESTIMATE READY',
           title: 'Your Catering Estimate',
@@ -141,7 +141,7 @@ serve(async (req) => {
         break;
 
       case 'payment_reminder':
-        subject = `Payment Reminder - ${safeEventName || 'Event'}`;
+        subject = `Payment Reminder - ${quote?.event_name || 'Event'}`;
         heroSection = {
           badge: '⏰ PAYMENT DUE',
           title: 'Payment Reminder',
@@ -173,7 +173,7 @@ serve(async (req) => {
         break;
 
       case 'follow_up':
-        subject = `Following Up - ${safeEventName || 'Event'}`;
+        subject = `Following Up - ${quote?.event_name || 'Event'}`;
         heroSection = {
           badge: '📧 FOLLOW UP',
           title: 'Following Up',
