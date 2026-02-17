@@ -372,6 +372,23 @@ export class PaymentDataService {
       throw error;
     }
 
+    // Also write to payment_history for reporting consistency (mirrors webhook behavior)
+    const { error: historyError } = await supabase
+      .from('payment_history')
+      .insert({
+        invoice_id: invoiceId,
+        amount,
+        payment_method: paymentMethod,
+        status: 'completed',
+        notes: notes || `Manual payment - ${paymentMethod}`,
+        transaction_date: new Date().toISOString()
+      });
+
+    if (historyError) {
+      console.error('Error writing to payment_history:', historyError);
+      // Don't throw - payment_history is for reporting only
+    }
+
     // Update invoice status if fully paid
     const newBalance = invoice.balance_remaining - amount;
     const isFullPayment = newBalance <= 0;
