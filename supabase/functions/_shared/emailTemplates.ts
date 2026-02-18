@@ -2127,8 +2127,23 @@ export function getEmailContentBlocks(
       // Event date for context
       const eventDateStr = quote.event_date ? new Date(quote.event_date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : '';
 
+      // Contextual greeting based on payment stage
+      const isFirstPayment = totalPaid === 0;
+      const hasOverdueMilestones = milestones?.some((m: any) => 
+        m.status !== 'paid' && m.due_date && new Date(m.due_date) < new Date()
+      );
+
+      let greetingHtml: string;
+      if (isFirstPayment) {
+        greetingHtml = `<p style="font-size:16px;margin:0 0 16px 0;">Hi ${quote.contact_name},</p><p style="font-size:15px;margin:0 0 16px 0;line-height:1.6;">We're so excited to be part of your upcoming event, <strong>${quote.event_name}</strong>! To secure your date and lock everything in, the next step is a quick deposit. Here's a summary of what's due:</p>`;
+      } else if (hasOverdueMilestones) {
+        greetingHtml = `<p style="font-size:16px;margin:0 0 16px 0;">Hi ${quote.contact_name},</p><p style="font-size:15px;margin:0 0 16px 0;line-height:1.6;">This is a friendly reminder about the remaining balance for <strong>${quote.event_name}</strong>. We want to make sure everything is set for your big day!</p>`;
+      } else {
+        greetingHtml = `<p style="font-size:16px;margin:0 0 16px 0;">Hi ${quote.contact_name},</p><p style="font-size:15px;margin:0 0 16px 0;line-height:1.6;">Thank you for your deposit — your event date is secured! This is a friendly reminder about the next payment for <strong>${quote.event_name}</strong>.</p>`;
+      }
+
       contentBlocks = [
-        { type: 'text', data: { html: `<p style="font-size:16px;margin:0 0 16px 0;">Hi ${quote.contact_name},</p><p style="font-size:15px;margin:0 0 16px 0;line-height:1.6;">This is a friendly reminder about your upcoming event <strong>${quote.event_name}</strong>.</p>` }},
+        { type: 'text', data: { html: greetingHtml }},
         { type: 'custom_html', data: { html: paymentSummaryHtml }},
         { type: 'custom_html', data: { html: milestoneScheduleHtml }},
         { type: 'custom_html', data: { html: `
