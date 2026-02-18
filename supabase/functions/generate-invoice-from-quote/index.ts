@@ -499,7 +499,8 @@ const handler = async (req: Request): Promise<Response> => {
         }
       ];
     } else {
-      // Standard (45+ days): 10% now, 50% at 30 days before, 40% at 14 days before
+      // Standard (45+ days): 10% now, 40% at 30 days before, 50% at 14 days before
+      // Cumulative model: deposit (10%) + milestone (40%) = 50% paid by 30 days out
       const midDue = new Date(eventDate);
       midDue.setDate(midDue.getDate() - 30);
       const finalDue = new Date(eventDate);
@@ -518,22 +519,22 @@ const handler = async (req: Request): Promise<Response> => {
         {
           invoice_id: invoice.id,
           milestone_type: 'MILESTONE',
-          percentage: 50,
+          percentage: 40,
           amount_cents: 0,
           due_date: formatDateToString(midDue),
           status: 'pending',
           is_due_now: false,
-          description: 'Milestone payment (50%)'
+          description: 'Milestone payment (40%) — brings total paid to 50%'
         },
         {
           invoice_id: invoice.id,
           milestone_type: 'BALANCE',
-          percentage: 40,
+          percentage: 50,
           amount_cents: 0,
           due_date: formatDateToString(finalDue),
           status: 'pending',
           is_due_now: false,
-          description: 'Final balance (40%)'
+          description: 'Final balance (50%)'
         }
       ];
     }

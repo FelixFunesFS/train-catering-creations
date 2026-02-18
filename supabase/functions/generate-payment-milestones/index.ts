@@ -218,12 +218,13 @@ const handler = async (req: Request): Promise<Response> => {
         description: "Final 40% due 14 days before event",
       });
     } else {
-      // Standard: 10% now, 50% at 30 days before, 40% at 14 days before
+      // Standard: 10% now, 40% at 30 days before, 50% at 14 days before
+      // Cumulative model: deposit (10%) + milestone (40%) = 50% paid by 30 days out
       const midDue = subtractDaysFromDate(eventDate, 30);
       const finalDue = subtractDaysFromDate(eventDate, 14);
 
       const bookingAmount = Math.round(totalAmountCents * 0.1);
-      const midAmount = Math.round(totalAmountCents * 0.5);
+      const midAmount = Math.round(totalAmountCents * 0.4);
       const finalAmount = totalAmountCents - bookingAmount - midAmount;
 
       const bookingStatus = "pending";
@@ -245,25 +246,25 @@ const handler = async (req: Request): Promise<Response> => {
       milestones.push({
         invoice_id,
         milestone_type: "MILESTONE",
-        percentage: 50,
+        percentage: 40,
         amount_cents: midAmount,
         due_date: formatDateToString(midDue),
         is_due_now: false,
         is_net30: false,
         status: midStatus,
-        description: "50% payment due 30 days before event",
+        description: "Milestone payment (40%) due 30 days before event — brings total paid to 50%",
       });
 
       milestones.push({
         invoice_id,
         milestone_type: "FINAL",
-        percentage: 40,
+        percentage: 50,
         amount_cents: finalAmount,
         due_date: formatDateToString(finalDue),
         is_due_now: false,
         is_net30: false,
         status: finalStatus,
-        description: "Final 40% due 14 days before event",
+        description: "Final balance (50%) due 14 days before event",
       });
     }
 

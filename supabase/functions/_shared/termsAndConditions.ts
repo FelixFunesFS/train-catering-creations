@@ -35,8 +35,8 @@ export const DEFAULT_TERMS: CateringTerms = {
       title: "Booking & Payments",
       items: [
         "A non-refundable deposit of 10% is required to secure your event date in our calendar. This deposit will be credited towards your final payment.",
-        "50% of the total is required no later than 30 days prior to event date.",
-        "The final payment (remaining 40%) is due no later than 14 days prior to the event date.",
+        "50% of the total (including deposit) is required no later than 30 days prior to event date.",
+        "The remaining balance (50%) is due no later than 14 days prior to the event date.",
         "Accepted payment methods: Credit/Debit Card, ACH Bank Transfer, Check, Cash.",
         "A 3% processing fee applies to credit card payments over $1,000."
       ]
@@ -123,8 +123,8 @@ export function getTermsSections(isGovernment: boolean = false): TermsSection[] 
 export function getTermsSummary(): string[] {
   return [
     "10% non-refundable deposit secures your date",
-    "50% due 30 days before event, final 40% due 14 days before",
-    "Final guest count required 7 days before event",
+    "50% of total (including deposit) due 30 days before event — an additional 40% payment",
+    "Remaining balance (50%) due 14 days before event",
     "Cancellation within 7 days forfeits full amount"
   ];
 }

@@ -5,7 +5,7 @@
 // - Rush (≤14 days): 100% NOW
 // - Short Notice (15-30 days): 60% NOW + 40% @ 7 days before
 // - Mid-Range (31-44 days): 60% NOW + 40% @ 14 days before
-// - Standard (45+ days): 10% NOW + 50% @ 30 days + 40% @ 14 days
+// - Standard (45+ days): 10% NOW + 40% @ 30 days + 50% @ 14 days (cumulative: 50% paid by 30 days)
 
 export interface PaymentScheduleRule {
   type: 'DEPOSIT' | 'MILESTONE' | 'BALANCE' | 'FULL' | 'COMBINED' | 'FINAL';
@@ -147,7 +147,8 @@ export const buildPaymentSchedule = (
       description: 'Final balance due 2 weeks before event'
     });
   } else {
-    // STANDARD: 45+ days out - 10% NOW + 50% @ 30 days + 40% @ 14 days
+    // STANDARD: 45+ days out - 10% NOW + 40% @ 30 days + 50% @ 14 days
+    // Cumulative: deposit (10%) + milestone (40%) = 50% paid by 30 days out
     rules.push({
       type: 'DEPOSIT',
       percentage: 10,
@@ -156,15 +157,15 @@ export const buildPaymentSchedule = (
     });
     rules.push({
       type: 'MILESTONE',
-      percentage: 50,
+      percentage: 40,
       due_date: dateMinus(eventDate, 30),
-      description: 'Milestone payment due 30 days before event'
+      description: 'Milestone payment (40%) due 30 days before event — brings total paid to 50%'
     });
     rules.push({
       type: 'BALANCE',
-      percentage: 40,
+      percentage: 50,
       due_date: dateMinus(eventDate, 14),
-      description: 'Final balance due 2 weeks before event'
+      description: 'Final balance (50%) due 2 weeks before event'
     });
   }
   
@@ -237,7 +238,7 @@ export const getScheduleDescription = (tier: PaymentSchedule['schedule_tier']): 
     case 'MID_RANGE':
       return '60% due now, 40% due 2 weeks before event';
     case 'STANDARD':
-      return '10% booking deposit, 50% at 30 days, 40% at 2 weeks';
+      return '10% booking deposit, 40% at 30 days (50% cumulative), final 50% at 2 weeks';
     case 'GOVERNMENT':
       return '100% due Net 30 after event completion';
     default:
