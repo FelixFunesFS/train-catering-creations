@@ -1,4 +1,6 @@
 import { useState, useMemo, useCallback } from 'react';
+import { usePagination } from '@/hooks/usePagination';
+import { PaginationControls } from '@/components/admin/PaginationControls';
 import { format, parseISO } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { useQuotes } from '@/hooks/useQuotes';
@@ -251,6 +253,17 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
   const isLoading = quotesLoading || invoicesLoading;
   const isMobile = useMediaQuery('(max-width: 640px)');
 
+  // Pagination for list view (15 per page)
+  const { currentPage, setCurrentPage, totalPages, startIndex, endIndex } = usePagination(
+    eventsWithInvoices.length,
+    15,
+    [search, statusFilter, serviceTypeFilter, sortBy, sortOrder]
+  );
+  const paginatedEvents = useMemo(
+    () => eventsWithInvoices.slice(startIndex, endIndex),
+    [eventsWithInvoices, startIndex, endIndex]
+  );
+
   if (quotesError) {
     return (
       <Card>
@@ -354,7 +367,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
             ) : isMobile ? (
               /* Mobile Card Layout */
               <div className="space-y-3">
-                {eventsWithInvoices.map((event) => {
+                {paginatedEvents.map((event) => {
                   const { icon: ActionIcon, label: actionLabel } = getActionDetails(event.workflow_status);
                   const invoice = event.invoice;
                   
@@ -596,7 +609,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                {eventsWithInvoices.map((event) => {
+                {paginatedEvents.map((event) => {
                   const { icon: ActionIcon, label: actionLabel } = getActionDetails(event.workflow_status);
                   const invoice = event.invoice;
                   
@@ -683,6 +696,18 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
               </Table>
             )}
           </CardContent>
+          {viewMode === 'list' && (
+            <div className="px-3 sm:px-6 pb-4">
+              <PaginationControls
+                currentPage={currentPage}
+                totalPages={totalPages}
+                startIndex={startIndex}
+                endIndex={endIndex}
+                totalItems={eventsWithInvoices.length}
+                onPageChange={setCurrentPage}
+              />
+            </div>
+          )}
         </Card>
 
         {/* Detail Modal */}

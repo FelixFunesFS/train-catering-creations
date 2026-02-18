@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { usePagination } from '@/hooks/usePagination';
+import { PaginationControls } from '@/components/admin/PaginationControls';
 import { format, parseISO, isAfter, startOfDay, addDays, isEqual } from 'date-fns';
 import { useInvoices } from '@/hooks/useInvoices';
 import { parseDateFromLocalString } from '@/utils/dateHelpers';
@@ -63,6 +65,14 @@ export function PaymentList() {
         return true;
     }
   });
+
+  // Pagination (10 per page)
+  const { currentPage, setCurrentPage, totalPages, startIndex, endIndex } = usePagination(
+    filteredInvoices.length,
+    10,
+    [statusFilter]
+  );
+  const paginatedInvoices = filteredInvoices.slice(startIndex, endIndex);
 
   // Get next due milestone from invoice milestones
   const getNextMilestone = (milestones: any[] | null) => {
@@ -168,7 +178,7 @@ export function PaymentList() {
           </CardContent>
         </Card>
       ) : (
-        filteredInvoices.map((invoice) => {
+        paginatedInvoices.map((invoice) => {
           const totalPaid = invoice.total_paid ?? 0;
           // Use nullish coalescing to properly handle 0 balance (fully paid)
           const balanceRemaining = invoice.balance_remaining ?? (invoice.total_amount ?? 0);
@@ -305,6 +315,15 @@ export function PaymentList() {
           );
         })
       )}
+
+      <PaginationControls
+        currentPage={currentPage}
+        totalPages={totalPages}
+        startIndex={startIndex}
+        endIndex={endIndex}
+        totalItems={filteredInvoices.length}
+        onPageChange={setCurrentPage}
+      />
 
       {/* Payment Recorder Modal */}
       {selectedInvoiceId && (
