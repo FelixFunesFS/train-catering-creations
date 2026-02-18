@@ -1,112 +1,74 @@
 
 
-## Final Comprehensive Fix: All Payment Accuracy Issues
+## Fix: Stale Pending Transactions from PaymentRecorder Auto-Trigger
 
-### Already in Plan (Confirmed Correct)
+### Root Cause
 
-| # | File | Fix |
-|---|------|-----|
-| 1 | `send-admin-notification/index.ts` | Replace hardcoded "50% Deposit" with calculated percentage and type |
-| 2 | `verify-payment/index.ts` | Return `is_fully_paid`, `total_paid`, `invoice_total`, `payment_type` |
-| 3 | `src/pages/PaymentSuccess.tsx` | Three-tier messaging (fully paid / deposit / milestone-custom) |
-| 4 | `create-payment-link/index.ts` | Add `invoice_id` and `type` to success URL |
+Every time an admin opens the "Record Payment" dialog, the PaymentRecorder auto-triggers an embedded Stripe Checkout session (lines 204-217). Each trigger calls `create-checkout-session`, which **inserts a new `payment_transactions` row with status `'pending'`** (line 229-238 of `create-checkout-session/index.ts`).
 
-### Two NEW Issues Found
+The problem is compounded by:
+1. **Auto-trigger on mount** -- the dialog immediately fires a "full balance" checkout session
+2. **Re-trigger on type change** -- switching between Full/Deposit/Custom creates additional sessions
+3. **No cleanup** -- abandoned sessions remain as `pending` forever
+4. **Amount stored is for the auto-selected type** -- defaults to `full` ($403.30), not the actual amount the admin intends to charge
 
-**Issue 5: Customer confirmation email subject always says "Deposit Received" for all partial payments**
+The database currently shows **20 pending transactions** for a single invoice, most at $403.30 (the full balance), because the admin opened the dialog or switched payment types multiple times.
 
-In `send-customer-portal-email/index.ts` line 207:
-```
-'payment_received': is_full_payment
-  ? `[CONFIRMED] Payment Received - Your Event is Secured!`
-  : `[PAYMENT] Deposit Received - ${quote.event_name}`,
-```
+### Why This Matters
 
-A milestone or custom payment still gets the subject "Deposit Received." This should use the actual `payment_type` from metadata to say "Payment Received" for non-deposit partials.
+- Payment History shows a wall of "$403.30 Pending" entries that are just abandoned checkout sessions
+- The `total_paid` calculations (used in summary views) correctly exclude pending, but the visual noise is confusing
+- Each pending transaction is a Stripe Checkout Session that costs API calls and clutters Stripe Dashboard
 
-Fix:
+### Fix (2 changes)
+
+**1. `create-checkout-session/index.ts` -- Void previous pending transactions before creating a new one**
+
+Before inserting a new pending transaction (line 229), find and void any existing pending transactions for the same invoice with the same Stripe payment method that never completed:
+
 ```typescript
-'payment_received': is_full_payment
-  ? `[CONFIRMED] Payment Received - Your Event is Secured!`
-  : metadata?.payment_type === 'deposit'
-    ? `[PAYMENT] Deposit Received - ${quote.event_name}`
-    : `[PAYMENT] Payment Received - ${quote.event_name}`,
+// Before creating a new pending transaction, void stale ones from this invoice
+await supabase
+  .from('payment_transactions')
+  .update({ status: 'voided', failed_reason: 'Superseded by new checkout session' })
+  .eq('invoice_id', invoice_id)
+  .eq('status', 'pending')
+  .eq('payment_method', 'stripe');
 ```
 
----
+This ensures only ONE pending Stripe transaction exists per invoice at any time.
 
-**Issue 6: Stripe webhook hardcodes `payment_type: 'deposit'` for ALL partial payments (lines 261, 279)**
+**2. Clean up existing stale data -- one-time database cleanup**
 
-Both the customer email call (line 261) and admin notification call (line 279) hardcode `payment_type: 'deposit'` regardless of whether it was a milestone, final, or custom payment. The actual type is available in `session.metadata.payment_type`.
+Run a migration to void all existing orphaned pending transactions that are older than 1 hour (Stripe Checkout Sessions expire after 24h by default, but these are clearly abandoned):
 
-Fix (lines 259-263 and 277-281):
-```typescript
-// Customer email metadata
-metadata: {
-  amount: session.amount_total,
-  payment_type: session.metadata?.payment_type || 'deposit',
-  is_full_payment: false
-}
-
-// Admin notification metadata
-metadata: {
-  amount: session.amount_total,
-  payment_type: session.metadata?.payment_type || 'deposit',
-  full_payment: false
-}
+```sql
+UPDATE payment_transactions
+SET status = 'voided',
+    failed_reason = 'Stale checkout session - auto-cleaned'
+WHERE status = 'pending'
+  AND payment_method = 'stripe'
+  AND created_at < NOW() - INTERVAL '1 hour';
 ```
 
----
+### What This Does NOT Change
 
-### Already Accurate (No Changes Needed)
+- The auto-trigger behavior itself (it provides a smooth UX for the admin)
+- Payment processing logic
+- Webhook handling
+- Manual payment recording
+- Any completed or failed transaction
 
-These were reviewed and confirmed working correctly:
+### Files Changed
 
-- **Customer confirmation email body** (`emailTemplates.ts` lines 1950-2010): Already uses milestone data to dynamically label payments ("Booking Deposit", "Milestone Payment", "Final Payment") and shows accurate remaining balance from unpaid milestones. No fix needed.
-- **Payment reminder emails**: Already fixed in the previous change (unique subject + HTML fingerprint).
-- **Milestone generation logic**: 10/40/50 waterfall is correct.
-- **Custom payment milestone skip guard**: Correct by design.
-- **Invoice status updates**: Both webhook and verify-payment correctly distinguish `paid` vs `partially_paid`.
-- **AR Dashboard / Billing views**: Database-driven, already accurate.
-- **Customer portal milestone display**: Reads directly from `payment_milestones` table.
+| File | Change |
+|------|--------|
+| `supabase/functions/create-checkout-session/index.ts` | Void previous pending Stripe transactions before creating new one |
+| Database migration | One-time cleanup of existing stale pending transactions |
 
----
+### Result
 
-### Complete File Change Summary
-
-| File | Change | Risk |
-|------|--------|------|
-| `supabase/functions/send-admin-notification/index.ts` | Line 190: dynamic percentage label | None -- only changes display string |
-| `supabase/functions/verify-payment/index.ts` | Lines 143-153: add 4 fields to response | None -- additive, no consumers break |
-| `src/pages/PaymentSuccess.tsx` | Three-tier UI: fully paid / deposit / other partial | None -- graceful fallback if fields missing |
-| `supabase/functions/create-payment-link/index.ts` | Line 192: add `invoice_id` and `type` to success URL | None -- PaymentSuccess already reads these params |
-| `supabase/functions/stripe-webhook/index.ts` | Lines 261 + 279: pass actual `payment_type` from session metadata | None -- `session.metadata.payment_type` always set by create-checkout-session and create-payment-link; fallback to `'deposit'` |
-| `supabase/functions/send-customer-portal-email/index.ts` | Line 207: subject uses payment_type for non-deposit partials | None -- only changes subject string |
-
-### Technical Detail: Three-Tier Success Page Logic
-
-```text
-if paymentDetails.is_fully_paid:
-  --> "Your event is fully paid and confirmed"
-  --> Next steps: final details, menu finalization
-
-else if paymentDetails.payment_type === 'deposit':
-  --> Blue banner: "Your Event Date is Now Secured!"
-  --> Next steps: service agreement, remaining balance schedule
-
-else (milestone, custom, other):
-  --> "Thank you! Your payment has been received."
-  --> Shows: remaining balance = invoice_total - total_paid
-  --> Next steps: updated schedule in portal, final confirmation
-```
-
-### What Does NOT Change
-
-- Database schema (no migrations)
-- Milestone generation (10/40/50 schedule)
-- Custom payment milestone skip guard
-- Customer confirmation email body (already accurate via milestone labels)
-- Payment reminder emails (already fixed)
-- PDF generation
-- Approval flow emails
+- Payment History shows only the **one active** pending transaction (if any) plus completed/failed ones
+- No more wall of "$403.30 Pending" entries
+- Each new checkout session cleanly replaces the previous abandoned one
 
