@@ -1,73 +1,86 @@
 
 
-## Fix Milestone Corruption and Prevent Future Issues
+## Fix: Customer Portal Payment Progress Disagrees with Admin Billing
 
-### What needs manual action after deploy
+### The Root Cause
 
-Only **Super Bowl Test (INV-2026-0197)** has corrupted data. After deploying, click the **Regenerate** button on its payment schedule in the admin panel. No other events are affected.
+There are **two different data sources** for "amount paid":
 
-**Why it's corrupted:** Two $5.00 custom payments triggered the fallback logic in `verify-payment` and `stripe-webhook`, which marked the $161.32 MILESTONE as "paid" even though only $5.00 was received.
+1. **Admin billing** uses the `invoice_payment_summary` database view, which sums actual `payment_transactions` where `status = 'completed'`. This is the **authoritative source** and is always accurate.
 
-### Changes (4 files)
+2. **Customer portal** uses `calculatePaymentProgress()` in `paymentFormatters.ts`, which sums `amount_cents` of milestones where `status === 'paid'`. This is **derived from milestone statuses**, not actual transactions.
 
-**1. `supabase/functions/stripe-webhook/index.ts` -- Remove dangerous fallback**
+When a custom payment is made (e.g., two $5.00 payments), it doesn't match any milestone amount, so no milestone gets marked as "paid". The admin sees $50.33 paid (correct), but the customer portal sees only $40.33 paid (the deposit milestone), missing the $10.00 in custom payments entirely.
 
-In the milestone-marking section, remove the `|| milestones[0]` fallback that marks the first pending milestone regardless of amount match. Add a guard to skip milestone marking for custom payments entirely.
+This is a **systemic design flaw**, not a one-off data issue. Any custom payment amount will cause this divergence.
 
-Before:
+### What Needs to Change
+
+The customer portal's `get_estimate_with_line_items` RPC function currently returns only milestones. It needs to also return the transaction-based `total_paid` so the customer portal can display accurate payment progress.
+
+### Changes (3 files)
+
+**1. Database: Update `get_estimate_with_line_items` RPC to include `total_paid`**
+
+Add a `total_paid` field to the RPC return value, calculated the same way as the `invoice_payment_summary` view (summing completed `payment_transactions`).
+
+```sql
+-- Inside the RETURN QUERY SELECT, add:
+COALESCE(
+  (SELECT sum(pt.amount) FROM payment_transactions pt 
+   WHERE pt.invoice_id = v_invoice_id AND pt.status = 'completed'),
+  0
+) as total_paid
 ```
-const match = milestones.find(m => m.amount_cents === amount) || milestones[0];
-```
 
-After:
-```
-if (paymentType !== 'custom') {
-  const exactMatch = milestones.find(m => m.amount_cents === amount);
-  if (exactMatch) {
-    // mark as paid
-  } else {
-    logStep("No exact milestone match, skipping direct marking");
-  }
-}
-```
+This makes the customer portal use the same authoritative source as the admin billing.
 
-**2. `supabase/functions/verify-payment/index.ts` -- Same fix**
+**2. `src/utils/paymentFormatters.ts` -- Accept optional `actualTotalPaid` override**
 
-Same pattern: add custom payment guard and remove `|| milestones[0]` fallback on line ~107. The scoped variables (`isFullyPaid`, `totalPaid`, `invoiceData`) also need to be hoisted so they are accessible in the response body (currently they are block-scoped inside the `if` block but referenced in the return statement -- this is an existing bug that causes undefined values in the response).
-
-**3. `src/utils/paymentFormatters.ts` -- Case-insensitive label lookup**
-
-The database stores milestone types as uppercase (DEPOSIT, MILESTONE, FINAL) but the label map uses lowercase keys. Add `.toLowerCase()` before lookup:
+Update `calculatePaymentProgress` to accept an optional `actualTotalPaid` parameter. When provided (from the RPC), it uses that instead of summing milestone statuses.
 
 ```typescript
-export const getMilestoneLabel = (type: string): string => {
-  const labels: Record<string, string> = { ... };
-  return labels[type.toLowerCase()] || type.replace('_', ' ');
+export const calculatePaymentProgress = (
+  milestones: Milestone[], 
+  actualTotalPaid?: number
+): { amountPaid; totalAmount; remaining; percentComplete } => {
+  const totalAmount = milestones.reduce((sum, m) => sum + m.amount_cents, 0);
+  
+  // Use transaction-based total if available, fall back to milestone-based
+  const amountPaid = actualTotalPaid !== undefined 
+    ? actualTotalPaid 
+    : milestones.filter(m => m.status === 'paid').reduce((sum, m) => sum + m.amount_cents, 0);
+  
+  const remaining = Math.max(0, totalAmount - amountPaid);
+  const percentComplete = totalAmount > 0 ? Math.round((amountPaid / totalAmount) * 100) : 0;
+  
+  return { amountPaid, totalAmount, remaining, percentComplete };
 };
 ```
 
-**4. `src/components/admin/mobile/MobileEstimateView.tsx` -- Same case fix**
+**3. Customer portal components -- Pass `total_paid` through**
 
-The local `formatMilestoneType` switch statement uses lowercase cases but receives uppercase values. Normalize with `.toLowerCase()` before the switch.
+Update `CustomerEstimateView.tsx` and `PaymentCard.tsx` to pass the `total_paid` value from the RPC response into `calculatePaymentProgress`.
 
-### Deploy order
+- `CustomerEstimateView.tsx`: Extract `total_paid` from `estimateData` and pass to PaymentCard
+- `PaymentCard.tsx`: Accept `totalPaidFromTransactions` prop and pass to `calculatePaymentProgress`
 
-1. Fix and deploy `stripe-webhook` and `verify-payment` edge functions
-2. Apply the two frontend label fixes
-3. Click **Regenerate** on Super Bowl Test's payment schedule in admin
+### After This Fix
 
-### After the fix
+| Metric | Admin Billing | Customer Portal | Match? |
+|--------|--------------|-----------------|--------|
+| Total Paid | $50.33 (from transactions) | $50.33 (from transactions via RPC) | Yes |
+| Remaining | $352.97 | $352.97 | Yes |
+| Progress % | 12% | 12% | Yes |
 
-| Event | Action Needed |
-|-------|--------------|
-| Super Bowl Test | Click Regenerate button |
-| All other events | No action needed |
+### What Does NOT Change
 
-### What does NOT change
+- Admin billing (already correct -- uses `invoice_payment_summary` view)
+- Milestone schedule display (still shows individual milestone paid/pending status)
+- Payment actions (unchanged)
+- Edge functions (already fixed in previous changes)
+- Email templates or PDF generation
 
-- `generate-payment-milestones` (already correct -- derives from transactions)
-- `create-checkout-session` (just fixed in previous change)
-- Customer PaymentCard component (correct once milestone data is fixed)
-- Admin PaymentScheduleSection labels (already uses uppercase keys)
-- Email templates and PDF generation
-- Webhook payment processing flow (only the milestone-marking fallback is removed)
+### Technical Detail: Database Migration
+
+A SQL migration is needed to update the `get_estimate_with_line_items` function to return `total_paid`. This is a non-breaking change -- it adds a new field to the JSON response without modifying existing fields.
