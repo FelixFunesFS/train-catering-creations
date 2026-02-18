@@ -145,8 +145,10 @@ export function CustomerActions({
       if (!data?.success) throw new Error(data?.error || 'Approval failed');
 
       toast({
-        title: 'Estimate Approved!',
-        description: 'Your payment options are now available below.',
+        title: data?.alreadyApproved ? 'Already Approved' : 'Estimate Approved!',
+        description: data?.alreadyApproved
+          ? 'Your estimate was already approved.'
+          : 'Your payment options are now available below.',
       });
 
       onStatusChange?.();

@@ -52,6 +52,8 @@ const handler = async (req: Request): Promise<Response> => {
       });
     }
 
+    const portalUrl = `/estimate?token=${encodeURIComponent(token)}#payment`;
+
     const alreadyApproved = [
       "approved",
       "paid",
@@ -59,34 +61,39 @@ const handler = async (req: Request): Promise<Response> => {
       "payment_pending",
     ].includes(invoice.workflow_status);
 
-    // Approve estimate (idempotent)
-    if (!alreadyApproved) {
-      console.log("[approve-estimate] updating invoice status -> approved", {
-        invoiceId: invoice.id,
-      });
-
-      const { error: updateError } = await supabase
-        .from("invoices")
-        .update({
-          workflow_status: "approved",
-          document_type: "invoice",
-          last_status_change: new Date().toISOString(),
-          last_customer_interaction: new Date().toISOString(),
-        })
-        .eq("id", invoice.id);
-
-      if (updateError) {
-        console.error("[approve-estimate] invoice update failed:", updateError);
-        throw new Error("Unable to approve estimate");
-      }
-    } else {
-      console.log("[approve-estimate] already approved; continuing", {
+    // Already approved: return immediately with no side effects
+    if (alreadyApproved) {
+      console.log("[approve-estimate] already approved; returning early", {
         invoiceId: invoice.id,
         workflow_status: invoice.workflow_status,
       });
+      return new Response(JSON.stringify({ success: true, alreadyApproved: true, portalUrl }), {
+        status: 200,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
     }
 
-    // Ensure payment milestones exist (blocking)
+    // --- First-time approval: full workflow ---
+    console.log("[approve-estimate] updating invoice status -> approved", {
+      invoiceId: invoice.id,
+    });
+
+    const { error: updateError } = await supabase
+      .from("invoices")
+      .update({
+        workflow_status: "approved",
+        document_type: "invoice",
+        last_status_change: new Date().toISOString(),
+        last_customer_interaction: new Date().toISOString(),
+      })
+      .eq("id", invoice.id);
+
+    if (updateError) {
+      console.error("[approve-estimate] invoice update failed:", updateError);
+      throw new Error("Unable to approve estimate");
+    }
+
+    // Ensure payment milestones exist
     const { data: existingMilestones } = await supabase
       .from("payment_milestones")
       .select("id")
@@ -97,11 +104,8 @@ const handler = async (req: Request): Promise<Response> => {
       console.log("[approve-estimate] generating milestones", { invoiceId: invoice.id });
       const { error: milestoneError } = await supabase.functions.invoke(
         "generate-payment-milestones",
-        {
-          body: { invoice_id: invoice.id },
-        }
+        { body: { invoice_id: invoice.id } }
       );
-
       if (milestoneError) {
         console.error("[approve-estimate] milestone generation failed:", milestoneError);
         throw new Error("Unable to generate payment schedule");
@@ -117,12 +121,11 @@ const handler = async (req: Request): Promise<Response> => {
 
     const firstMilestone = (milestonesData || [])[0];
 
-    // Send hybrid approval confirmation email (payment CTA + portal link)
+    // Send approval confirmation email
     if (invoice.quote_request_id) {
       console.log("[approve-estimate] sending approval confirmation email", {
         quote_request_id: invoice.quote_request_id,
       });
-
       const { error: emailError } = await supabase.functions.invoke(
         "send-customer-portal-email",
         {
@@ -136,14 +139,12 @@ const handler = async (req: Request): Promise<Response> => {
           },
         }
       );
-
       if (emailError) {
-        // Non-blocking: approval should still succeed even if email fails.
         console.error("[approve-estimate] approval email failed:", emailError);
       }
     }
 
-    // Send admin notification for approval (non-blocking)
+    // Send admin notification (non-blocking)
     try {
       await supabase.functions.invoke('send-admin-notification', {
         body: {
@@ -157,11 +158,7 @@ const handler = async (req: Request): Promise<Response> => {
       console.error("[approve-estimate] Admin notification failed (non-critical):", err);
     }
 
-	// Same-site only: return a relative URL so the SPA router can handle navigation reliably.
-	// (Emails can still construct absolute URLs elsewhere using SITE_URL.)
-	const portalUrl = `/estimate?token=${encodeURIComponent(token)}#payment`;
-
-    return new Response(JSON.stringify({ success: true, portalUrl }), {
+    return new Response(JSON.stringify({ success: true, alreadyApproved: false, portalUrl }), {
       status: 200,
       headers: { "Content-Type": "application/json", ...corsHeaders },
     });

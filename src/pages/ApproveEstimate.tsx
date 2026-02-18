@@ -8,7 +8,7 @@ import { Loader2, CheckCircle2, AlertCircle, CreditCard, FileText } from "lucide
 type ApproveState =
   | { status: "idle" }
   | { status: "loading" }
-  | { status: "success"; portalUrl: string }
+  | { status: "success"; portalUrl: string; alreadyApproved: boolean }
   | { status: "error"; message: string };
 
 export default function ApproveEstimate() {
@@ -62,7 +62,7 @@ export default function ApproveEstimate() {
 
       const safePortalUrl = normalizeSameSitePath(data?.portalUrl, portalUrl);
       setShowFallback(false);
-      setState({ status: "success", portalUrl: safePortalUrl });
+      setState({ status: "success", portalUrl: safePortalUrl, alreadyApproved: !!data?.alreadyApproved });
     };
 
     run();
@@ -115,9 +115,13 @@ export default function ApproveEstimate() {
             <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
               <CheckCircle2 className="h-5 w-5 text-primary mt-0.5" />
               <div>
-                <p className="font-medium">Approved!</p>
+               <p className="font-medium">
+                  {state.status === "success" && state.alreadyApproved ? "Already Approved" : "Approved!"}
+                </p>
                 <p className="text-sm text-muted-foreground">
-                  Redirecting you to payment to secure your date…
+                  {state.status === "success" && state.alreadyApproved
+                    ? "Your estimate was already approved. Taking you to your portal…"
+                    : "Redirecting you to payment to secure your date…"}
                 </p>
                 {showFallback && (
                   <p className="text-sm text-muted-foreground mt-1">
