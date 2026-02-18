@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
+import { usePagination } from "@/hooks/usePagination";
+import { PaginationControls } from "@/components/admin/PaginationControls";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -73,6 +75,17 @@ export function EmailDeliveryPanel() {
     return { attempts, successes, failures };
   }, [filtered]);
 
+  // Pagination (25 per page)
+  const { currentPage, setCurrentPage, totalPages, startIndex, endIndex } = usePagination(
+    filtered.length,
+    25,
+    [toFilter]
+  );
+  const paginatedFiltered = useMemo(
+    () => filtered.slice(startIndex, endIndex),
+    [filtered, startIndex, endIndex]
+  );
+
   return (
     <div className="space-y-4">
       <Card>
@@ -124,7 +137,7 @@ export function EmailDeliveryPanel() {
               {filtered.length === 0 ? (
                 <div className="p-6 text-sm text-muted-foreground">No email events found.</div>
               ) : (
-                filtered.map((r) => {
+                paginatedFiltered.map((r) => {
                   const to = getMetaString(r.metadata, "to");
                   const subject = getMetaString(r.metadata, "subject");
                   const from = getMetaString(r.metadata, "resolvedFrom") || getMetaString(r.metadata, "from");
@@ -188,6 +201,15 @@ export function EmailDeliveryPanel() {
           </ScrollArea>
         </CardContent>
       </Card>
+
+      <PaginationControls
+        currentPage={currentPage}
+        totalPages={totalPages}
+        startIndex={startIndex}
+        endIndex={endIndex}
+        totalItems={filtered.length}
+        onPageChange={setCurrentPage}
+      />
     </div>
   );
 }
