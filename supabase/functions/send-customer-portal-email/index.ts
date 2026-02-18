@@ -135,15 +135,25 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     // Fetch milestones when needed for customer-facing schedule previews
-    // (estimate emails may include a schedule preview; approval emails include the full schedule)
     let milestones: any[] = [];
-    if (type === 'approval_confirmation' || type === 'estimate_ready') {
+    if (type === 'approval_confirmation' || type === 'estimate_ready' || type === 'payment_reminder') {
       const { data: milestonesData } = await supabase
         .from('payment_milestones')
         .select('*')
         .eq('invoice_id', invoice.id)
         .order('due_date', { ascending: true });
       milestones = milestonesData || [];
+    }
+
+    // Fetch actual payment totals for payment reminders
+    let totalPaid = 0;
+    if (type === 'payment_reminder') {
+      const { data: payments } = await supabase
+        .from('payment_transactions')
+        .select('amount')
+        .eq('invoice_id', invoice.id)
+        .eq('status', 'completed');
+      totalPaid = (payments || []).reduce((sum: number, p: any) => sum + p.amount, 0);
     }
 
     // Build context for content blocks
@@ -160,7 +170,8 @@ const handler = async (req: Request): Promise<Response> => {
       isUpdated,
       paymentAmount: amount,
       isFullPayment: is_full_payment,
-    });
+      totalPaid,
+    } as any);
 
     // Generate email using standard generator
     let htmlContent = generateStandardEmail({
