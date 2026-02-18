@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
+import { getMilestoneLabel } from '@/utils/paymentFormatters';
 import { useNavigate } from 'react-router-dom';
 import { TaxCalculationService } from '@/services/TaxCalculationService';
 import { useInvoice, useInvoiceWithMilestones } from '@/hooks/useInvoices';
@@ -765,19 +766,7 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
                 </div>
               </CardHeader>
               <CardContent className="pt-0 space-y-2">
-                {milestones.map((milestone: any) => {
-                  const getMilestoneLabel = (type: string) => {
-                     const t = type.toLowerCase();
-                     switch (t) {
-                       case 'deposit': return 'Booking Deposit';
-                       case 'combined': return 'Booking Deposit';
-                       case 'milestone': return 'Milestone Payment';
-                       case 'balance': return 'Final Balance';
-                       case 'full': return 'Full Payment';
-                       case 'final': return 'Full Payment (Net 30)';
-                       default: return type.replace('_', ' ');
-                    }
-                  };
+              {milestones.map((milestone: any) => {
                   return (
                     <div 
                       key={milestone.id}

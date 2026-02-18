@@ -82,6 +82,7 @@ export default function EstimatePrintView() {
   const [estimate, setEstimate] = useState<EstimateData | null>(null);
   const [lineItems, setLineItems] = useState<LineItem[]>([]);
   const [milestones, setMilestones] = useState<PaymentMilestone[]>([]);
+  const [totalPaidFromTransactions, setTotalPaidFromTransactions] = useState<number>(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -122,9 +123,19 @@ export default function EstimatePrintView() {
         .eq('invoice_id', invoiceId)
         .order('due_date', { ascending: true });
 
+      // Fetch payment transactions for accurate totalPaid
+      const { data: transactionsData } = await supabase
+        .from('payment_transactions')
+        .select('amount, status')
+        .eq('invoice_id', invoiceId)
+        .eq('status', 'completed');
+
+      const txTotalPaid = (transactionsData || []).reduce((sum, t) => sum + (t.amount || 0), 0);
+
       setEstimate(data);
       setLineItems(lineItemsData || []);
       setMilestones(milestonesData || []);
+      setTotalPaidFromTransactions(txTotalPaid);
     } catch (error) {
       console.error('Error fetching estimate:', error);
     } finally {
@@ -335,8 +346,8 @@ export default function EstimatePrintView() {
               due_date: m.due_date,
               is_due_now: null,
             })),
-            // For print view, sum paid milestones as proxy for totalPaid
-            milestones.filter(m => m.status === 'paid').reduce((s, m) => s + m.amount_cents, 0)
+            // Use transaction-based totalPaid, fall back to milestone-based
+            totalPaidFromTransactions || milestones.filter(m => m.status === 'paid').reduce((s, m) => s + m.amount_cents, 0)
           );
 
           return (

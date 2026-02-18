@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { RefreshCw, CheckCircle2, Clock, AlertCircle, DollarSign } from 'lucide-react';
 import { usePaymentTransactions } from '@/hooks/useInvoices';
-import { calculateMilestoneBalances } from '@/utils/paymentFormatters';
+import { calculateMilestoneBalances, getMilestoneLabel } from '@/utils/paymentFormatters';
 
 interface PaymentMilestone {
   id: string;
@@ -45,17 +45,6 @@ const formatCurrency = (cents: number) => {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100);
 };
 
-const formatMilestoneType = (type: string): string => {
-  const typeMap: Record<string, string> = {
-    'DEPOSIT': 'Booking Deposit',
-    'MILESTONE': 'Milestone Payment',
-    'BALANCE': 'Final Balance',
-    'FULL': 'Full Payment',
-    'FINAL': 'Final Payment',
-    'COMBINED': 'Combined Payment',
-  };
-  return typeMap[type] || type;
-};
 
 const getScheduleTierLabel = (milestones: PaymentMilestone[], isGovernment: boolean): string => {
   if (isGovernment) return 'NET 30';
@@ -235,7 +224,7 @@ export function PaymentScheduleSection({
                   <div className="flex items-center gap-2">
                     {getMilestoneIcon(milestone.status, !!isDue)}
                     <span className="font-medium text-sm">
-                      {formatMilestoneType(milestone.milestone_type)}
+                      {getMilestoneLabel(milestone.milestone_type)}
                     </span>
                     <span className="text-xs text-muted-foreground">
                       ({milestone.percentage}%)

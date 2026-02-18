@@ -1986,11 +1986,11 @@ export function getEmailContentBlocks(
           const labels: Record<string, string> = {
             'deposit': 'Booking Deposit',
             'booking_deposit': 'Booking Deposit',
-            'combined': 'Combined Deposit',
+            'combined': 'Booking Deposit',
             'milestone': 'Milestone Payment',
             'mid_payment': 'Milestone Payment',
-            'balance': 'Final Payment',
-            'final_payment': 'Final Payment',
+            'balance': 'Final Balance',
+            'final_payment': 'Final Balance',
             'full': 'Full Payment',
             'full_payment': 'Full Payment',
           };
