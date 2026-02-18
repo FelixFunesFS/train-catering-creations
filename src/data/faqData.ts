@@ -140,7 +140,7 @@ export const faqData: FAQItem[] = [
   {
     id: "payment-terms",
     question: "What are your payment terms?",
-    answer: "We follow a tiered payment schedule: A 10% non-refundable deposit secures your date and is credited toward your final payment. 50% is due 30 days before your event, and the final 40% is due 14 days before. We accept cash, check, credit/debit cards, ACH bank transfer, Venmo, and Zelle. A 3% processing fee applies to credit card payments over $1,000.",
+    answer: "We follow a tiered payment schedule: A 10% non-refundable deposit secures your date. 50% of the total (including your deposit) must be paid by 30 days before your event, meaning an additional 40% is due at that time. The remaining 50% balance is due 14 days before. We accept cash, check, credit/debit cards, ACH bank transfer, Venmo, and Zelle. A 3% processing fee applies to credit card payments over $1,000.",
     category: "pricing",
     keywords: ["payment", "deposit", "balance", "credit cards", "payment plan", "terms"]
   },
