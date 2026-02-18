@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2 } from 'lucide-react';
 import { formatDate, formatTime, formatServiceType } from '@/utils/formatters';
-import { getMilestoneLabel } from '@/utils/paymentFormatters';
+import { getMilestoneLabel, calculateMilestoneBalances } from '@/utils/paymentFormatters';
 import { DEFAULT_TERMS } from '@/hooks/useCateringAgreement';
 
 interface LineItem {
@@ -323,7 +323,23 @@ export default function EstimatePrintView() {
         </div>
 
         {/* === PAGE 2: PAYMENT SCHEDULE (if milestones exist) === */}
-        {milestones.length > 0 && (
+        {milestones.length > 0 && (() => {
+          // Calculate per-milestone remaining balances
+          const enriched = calculateMilestoneBalances(
+            milestones.map(m => ({
+              id: m.id,
+              milestone_type: m.milestone_type,
+              amount_cents: m.amount_cents,
+              percentage: m.percentage,
+              status: m.status,
+              due_date: m.due_date,
+              is_due_now: null,
+            })),
+            // For print view, sum paid milestones as proxy for totalPaid
+            milestones.filter(m => m.status === 'paid').reduce((s, m) => s + m.amount_cents, 0)
+          );
+
+          return (
           <div className="max-w-[8.5in] mx-auto p-8 print:p-0 page-break">
             <h2 className="text-2xl font-bold text-[#DC143C] mb-6 pb-4 border-b-2 border-[#DC143C]">
               Payment Schedule
@@ -334,20 +350,24 @@ export default function EstimatePrintView() {
                 <tr className="bg-gray-100">
                   <th className="text-left p-3 font-semibold">Payment</th>
                   <th className="text-center p-3 font-semibold">Percentage</th>
-                  <th className="text-right p-3 font-semibold">Amount</th>
+                  <th className="text-right p-3 font-semibold">Scheduled</th>
+                  <th className="text-right p-3 font-semibold">Remaining</th>
                   <th className="text-right p-3 font-semibold">Due Date</th>
                   <th className="text-center p-3 font-semibold">Status</th>
                 </tr>
               </thead>
               <tbody>
-                {milestones.map((milestone, idx) => (
+                {enriched.map((milestone, idx) => (
                   <tr key={milestone.id} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                     <td className="p-3 border-b border-gray-200 capitalize">
                       {getMilestoneLabel(milestone.milestone_type)}
                     </td>
                     <td className="p-3 text-center border-b border-gray-200">{milestone.percentage}%</td>
-                    <td className="p-3 text-right border-b border-gray-200 font-medium">
+                    <td className="p-3 text-right border-b border-gray-200">
                       ${(milestone.amount_cents / 100).toFixed(2)}
+                    </td>
+                    <td className="p-3 text-right border-b border-gray-200 font-medium">
+                      ${(milestone.remainingCents / 100).toFixed(2)}
                     </td>
                     <td className="p-3 text-right border-b border-gray-200">
                       {milestone.due_date ? formatDate(milestone.due_date) : 'TBD'}
@@ -374,7 +394,8 @@ export default function EstimatePrintView() {
               </p>
             </div>
           </div>
-        )}
+          );
+        })()}
 
         {/* === PAGE 3: TERMS & CONDITIONS === */}
         <div className="max-w-[8.5in] mx-auto p-8 print:p-0 page-break">

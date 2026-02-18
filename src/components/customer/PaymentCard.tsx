@@ -20,7 +20,9 @@ import {
   getMilestoneStatus, 
   calculatePaymentProgress,
   getNextDueMilestone,
-  type Milestone 
+  calculateMilestoneBalances,
+  type Milestone,
+  type EnrichedMilestone,
 } from '@/utils/paymentFormatters';
 import { formatDate } from '@/utils/formatters';
 import { 
@@ -57,17 +59,27 @@ export function PaymentCard({
   const showPaymentActions = ['approved', 'partially_paid', 'payment_pending'].includes(workflowStatus);
   const { amountPaid, remaining, percentComplete } = calculatePaymentProgress(milestones, totalPaidFromTransactions);
   
+  // Calculate per-milestone remaining balances using waterfall
+  const enrichedMilestones = calculateMilestoneBalances(milestones, totalPaidFromTransactions ?? 0);
+  
+  // Find next due/upcoming from enriched milestones (with remaining balances)
+  const nextDueEnriched = enrichedMilestones.find(m => {
+    const { isDue } = getMilestoneStatus(m);
+    return isDue && m.remainingCents > 0;
+  });
+  const nextUpcomingEnriched = enrichedMilestones.find(m => m.remainingCents > 0 && m.status !== 'paid');
+
   const nextDueMilestone = getNextDueMilestone(milestones);
   const nextUpcomingMilestone = milestones.find(m => m.status !== 'paid');
 
   // Handlers
-  const handlePayMilestone = (milestone: Milestone) => {
+  const handlePayMilestone = (milestone: EnrichedMilestone) => {
+    // Send the remaining amount as a custom payment to prevent overcharging
     initiatePayment({
       invoiceId,
       accessToken,
-      paymentType: 'milestone',
-      amount: milestone.amount_cents,
-      milestoneId: milestone.id,
+      paymentType: 'custom',
+      amount: milestone.remainingCents,
     });
   };
 
@@ -162,22 +174,27 @@ export function PaymentCard({
 
       <CardContent className="space-y-6">
         {/* Desktop Quick Pay CTA - Above everything */}
-        {showPaymentActions && (nextDueMilestone || nextUpcomingMilestone) && (
+        {showPaymentActions && (nextDueEnriched || nextUpcomingEnriched) && (
           <div className="hidden lg:block">
-            {nextDueMilestone && getMilestoneStatus(nextDueMilestone).isDue ? (
+            {nextDueEnriched && getMilestoneStatus(nextDueEnriched).isDue ? (
               <div className="p-4 bg-gradient-to-r from-amber-50 to-amber-100/50 dark:from-amber-950/40 dark:to-amber-900/20 rounded-lg border-2 border-amber-300 dark:border-amber-700">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-semibold text-amber-800 dark:text-amber-300 flex items-center gap-2">
                       <span className="inline-block w-2 h-2 bg-amber-500 rounded-full animate-pulse" />
-                      {getMilestoneLabel(nextDueMilestone.milestone_type)} Due Now
+                      {getMilestoneLabel(nextDueEnriched.milestone_type)} Due Now
                     </p>
                     <p className="text-2xl font-bold text-amber-900 dark:text-amber-200 mt-1">
-                      {formatPaymentCurrency(nextDueMilestone.amount_cents)}
+                      {formatPaymentCurrency(nextDueEnriched.remainingCents)}
                     </p>
+                    {nextDueEnriched.remainingCents < nextDueEnriched.amount_cents && (
+                      <p className="text-xs text-amber-700 dark:text-amber-400 mt-0.5">
+                        {formatPaymentCurrency(nextDueEnriched.appliedCents)} already applied
+                      </p>
+                    )}
                   </div>
                   <Button
-                    onClick={() => handlePayMilestone(nextDueMilestone)}
+                    onClick={() => handlePayMilestone(nextDueEnriched)}
                     disabled={isProcessing}
                     size="lg"
                     className="shadow-lg"
@@ -191,24 +208,29 @@ export function PaymentCard({
                   </Button>
                 </div>
               </div>
-            ) : nextUpcomingMilestone ? (
+            ) : nextUpcomingEnriched ? (
               <div className="p-4 bg-primary/5 rounded-lg border border-primary/20">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">
-                      Next Payment: {getMilestoneLabel(nextUpcomingMilestone.milestone_type)}
+                      Next Payment: {getMilestoneLabel(nextUpcomingEnriched.milestone_type)}
                     </p>
                     <p className="text-xl font-bold text-foreground mt-1">
-                      {formatPaymentCurrency(nextUpcomingMilestone.amount_cents)}
+                      {formatPaymentCurrency(nextUpcomingEnriched.remainingCents)}
                     </p>
-                    {nextUpcomingMilestone.due_date && (
+                    {nextUpcomingEnriched.remainingCents < nextUpcomingEnriched.amount_cents && (
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {formatPaymentCurrency(nextUpcomingEnriched.appliedCents)} already applied
+                      </p>
+                    )}
+                    {nextUpcomingEnriched.due_date && (
                       <p className="text-xs text-muted-foreground mt-1">
-                        Due: {formatDate(nextUpcomingMilestone.due_date)}
+                        Due: {formatDate(nextUpcomingEnriched.due_date)}
                       </p>
                     )}
                   </div>
                   <Button
-                    onClick={() => handlePayMilestone(nextUpcomingMilestone)}
+                    onClick={() => handlePayMilestone(nextUpcomingEnriched)}
                     disabled={isProcessing}
                     variant="outline"
                     size="lg"
@@ -241,8 +263,9 @@ export function PaymentCard({
 
         {/* Milestone Schedule */}
         <div className="space-y-3">
-          {milestones.map((milestone, index) => {
+          {enrichedMilestones.map((milestone, index) => {
             const { isPaid, isDue } = getMilestoneStatus(milestone);
+            const hasPartialPayment = !isPaid && milestone.appliedCents > 0;
 
             return (
               <div
@@ -273,10 +296,32 @@ export function PaymentCard({
                     {milestone.percentage}% of total
                     {milestone.due_date && !isPaid && ` • Due ${formatDate(milestone.due_date)}`}
                   </p>
+                  {hasPartialPayment && (
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {formatPaymentCurrency(milestone.appliedCents)} applied
+                    </p>
+                  )}
                 </div>
-                <p className={`font-semibold ${isPaid ? 'text-green-600' : ''}`}>
-                  {formatPaymentCurrency(milestone.amount_cents)}
-                </p>
+                <div className="text-right">
+                  {isPaid ? (
+                    <p className="font-semibold text-green-600">
+                      {formatPaymentCurrency(milestone.amount_cents)}
+                    </p>
+                  ) : hasPartialPayment ? (
+                    <>
+                      <p className="font-semibold">
+                        {formatPaymentCurrency(milestone.remainingCents)}
+                      </p>
+                      <p className="text-xs text-muted-foreground line-through">
+                        {formatPaymentCurrency(milestone.amount_cents)}
+                      </p>
+                    </>
+                  ) : (
+                    <p className="font-semibold">
+                      {formatPaymentCurrency(milestone.amount_cents)}
+                    </p>
+                  )}
+                </div>
               </div>
             );
           })}
@@ -302,21 +347,26 @@ export function PaymentCard({
 
                 {/* Scheduled Payment Tab */}
                 <TabsContent value="scheduled" className="space-y-4 mt-4">
-                  {nextDueMilestone && getMilestoneStatus(nextDueMilestone).isDue ? (
+                  {nextDueEnriched && getMilestoneStatus(nextDueEnriched).isDue ? (
                     <div className="p-4 bg-amber-50 dark:bg-amber-950/20 rounded-lg border border-amber-200 dark:border-amber-800">
                       <p className="text-sm font-medium text-amber-800 dark:text-amber-300 mb-2">
                         Payment Due Now
                       </p>
                       <div className="flex justify-between items-center">
                         <span className="text-foreground">
-                          {getMilestoneLabel(nextDueMilestone.milestone_type)} ({nextDueMilestone.percentage}%)
+                          {getMilestoneLabel(nextDueEnriched.milestone_type)} ({nextDueEnriched.percentage}%)
                         </span>
                         <span className="font-bold text-lg">
-                          {formatPaymentCurrency(nextDueMilestone.amount_cents)}
+                          {formatPaymentCurrency(nextDueEnriched.remainingCents)}
                         </span>
                       </div>
+                      {nextDueEnriched.remainingCents < nextDueEnriched.amount_cents && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {formatPaymentCurrency(nextDueEnriched.appliedCents)} already applied
+                        </p>
+                      )}
                       <Button
-                        onClick={() => handlePayMilestone(nextDueMilestone)}
+                        onClick={() => handlePayMilestone(nextDueEnriched)}
                         disabled={isProcessing}
                         className="w-full mt-3"
                       >
@@ -325,10 +375,10 @@ export function PaymentCard({
                         ) : (
                           <Wallet className="mr-2 h-4 w-4" />
                         )}
-                        Pay {formatPaymentCurrency(nextDueMilestone.amount_cents)}
+                        Pay {formatPaymentCurrency(nextDueEnriched.remainingCents)}
                       </Button>
                     </div>
-                  ) : nextUpcomingMilestone ? (
+                  ) : nextUpcomingEnriched ? (
                     <div className="p-4 bg-muted/50 rounded-lg">
                       <p className="text-sm font-medium text-muted-foreground mb-2">
                         Next Scheduled Payment
@@ -336,20 +386,25 @@ export function PaymentCard({
                       <div className="flex justify-between items-center">
                         <div>
                           <span className="text-foreground block">
-                            {getMilestoneLabel(nextUpcomingMilestone.milestone_type)}
+                            {getMilestoneLabel(nextUpcomingEnriched.milestone_type)}
                           </span>
-                          {nextUpcomingMilestone.due_date && (
+                          {nextUpcomingEnriched.due_date && (
                             <span className="text-xs text-muted-foreground">
-                              Due: {formatDate(nextUpcomingMilestone.due_date)}
+                              Due: {formatDate(nextUpcomingEnriched.due_date)}
                             </span>
                           )}
                         </div>
                         <span className="font-bold text-lg">
-                          {formatPaymentCurrency(nextUpcomingMilestone.amount_cents)}
+                          {formatPaymentCurrency(nextUpcomingEnriched.remainingCents)}
                         </span>
                       </div>
+                      {nextUpcomingEnriched.remainingCents < nextUpcomingEnriched.amount_cents && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {formatPaymentCurrency(nextUpcomingEnriched.appliedCents)} already applied
+                        </p>
+                      )}
                       <Button
-                        onClick={() => handlePayMilestone(nextUpcomingMilestone)}
+                        onClick={() => handlePayMilestone(nextUpcomingEnriched)}
                         disabled={isProcessing}
                         variant="outline"
                         className="w-full mt-3"

@@ -1,5 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { invoiceKeys } from '@/hooks/useInvoices';
 
 interface SyncOptions {
   /** Delay in ms to wait for DB triggers to complete (default: 200ms) */
@@ -57,14 +58,15 @@ export function useInvoiceTotalSync() {
 
       // 3. Invalidate all related queries to refresh UI
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['invoice', invoiceId] }),
-        queryClient.invalidateQueries({ queryKey: ['invoices'] }),
+        queryClient.invalidateQueries({ queryKey: invoiceKeys.detail(invoiceId) }),
+        queryClient.invalidateQueries({ queryKey: invoiceKeys.all }),
         queryClient.invalidateQueries({ queryKey: ['line-items', invoiceId] }),
         queryClient.invalidateQueries({ queryKey: ['events'] }),
         queryClient.invalidateQueries({ queryKey: ['quotes'] }),
         ...(invalidateMilestones ? [
           queryClient.invalidateQueries({ queryKey: ['payment-milestones', invoiceId] }),
-          queryClient.invalidateQueries({ queryKey: ['invoice-with-milestones', invoiceId] }),
+          queryClient.invalidateQueries({ queryKey: [...invoiceKeys.detail(invoiceId), 'with-milestones'] }),
+          queryClient.invalidateQueries({ queryKey: [...invoiceKeys.detail(invoiceId), 'payment-summary'] }),
         ] : []),
       ]);
 
@@ -102,14 +104,15 @@ export async function syncInvoiceTotalsStandalone(
     });
 
     await Promise.all([
-      queryClient.invalidateQueries({ queryKey: ['invoice', invoiceId] }),
-      queryClient.invalidateQueries({ queryKey: ['invoices'] }),
+      queryClient.invalidateQueries({ queryKey: invoiceKeys.detail(invoiceId) }),
+      queryClient.invalidateQueries({ queryKey: invoiceKeys.all }),
       queryClient.invalidateQueries({ queryKey: ['line-items', invoiceId] }),
       queryClient.invalidateQueries({ queryKey: ['events'] }),
       queryClient.invalidateQueries({ queryKey: ['quotes'] }),
       ...(invalidateMilestones ? [
         queryClient.invalidateQueries({ queryKey: ['payment-milestones', invoiceId] }),
-        queryClient.invalidateQueries({ queryKey: ['invoice-with-milestones', invoiceId] }),
+        queryClient.invalidateQueries({ queryKey: [...invoiceKeys.detail(invoiceId), 'with-milestones'] }),
+        queryClient.invalidateQueries({ queryKey: [...invoiceKeys.detail(invoiceId), 'payment-summary'] }),
       ] : []),
     ]);
   } catch (err) {

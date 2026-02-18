@@ -2,6 +2,7 @@ import { useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
+import { invoiceKeys } from '@/hooks/useInvoices';
 
 interface UsePaymentScheduleSyncOptions {
   invoiceId: string | undefined;
@@ -45,7 +46,8 @@ export function usePaymentScheduleSync({
       if (error) throw error;
       
       // Invalidate queries to refresh UI
-      queryClient.invalidateQueries({ queryKey: ['invoice-with-milestones', invoiceId] });
+      queryClient.invalidateQueries({ queryKey: [...invoiceKeys.detail(invoiceId), 'with-milestones'] });
+      queryClient.invalidateQueries({ queryKey: [...invoiceKeys.detail(invoiceId), 'payment-summary'] });
       queryClient.invalidateQueries({ queryKey: ['payment-milestones', invoiceId] });
       
       console.log('[PaymentScheduleSync] Milestones regenerated successfully');

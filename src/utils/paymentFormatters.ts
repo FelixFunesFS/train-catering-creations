@@ -97,3 +97,33 @@ export const getNextDueMilestone = (milestones: Milestone[]): Milestone | null =
   // Otherwise find the next upcoming one
   return milestones.find(m => m.status !== 'paid') || null;
 };
+
+/**
+ * Enriched milestone with waterfall-applied balances
+ */
+export interface EnrichedMilestone extends Milestone {
+  appliedCents: number;
+  remainingCents: number;
+}
+
+/**
+ * Calculate per-milestone remaining balances using waterfall logic.
+ * Distributes totalPaid across milestones in order (by due_date, then creation order).
+ * Mirrors the backend apply-payment-waterfall logic.
+ */
+export const calculateMilestoneBalances = (
+  milestones: Milestone[],
+  totalPaid: number
+): EnrichedMilestone[] => {
+  let remainingPaid = totalPaid;
+
+  return milestones.map(m => {
+    const applied = Math.min(m.amount_cents, remainingPaid);
+    remainingPaid = Math.max(0, remainingPaid - applied);
+    return {
+      ...m,
+      appliedCents: applied,
+      remainingCents: m.amount_cents - applied,
+    };
+  });
+};

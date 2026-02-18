@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useUpdateInvoice } from '@/hooks/useInvoices';
+import { useUpdateInvoice, invoiceKeys } from '@/hooks/useInvoices';
 import { useToast } from '@/hooks/use-toast';
 
 interface UseEstimateActionsProps {
@@ -94,8 +94,12 @@ export function useEstimateActions({
         body: { invoice_id: invoiceId, force_regenerate: true }
       });
       if (error) throw error;
-      queryClient.invalidateQueries({ queryKey: ['invoices'] });
-      queryClient.invalidateQueries({ queryKey: ['invoice-with-milestones', invoiceId] });
+      queryClient.invalidateQueries({ queryKey: invoiceKeys.all });
+      queryClient.invalidateQueries({ queryKey: [...invoiceKeys.detail(invoiceId), 'with-milestones'] });
+      queryClient.invalidateQueries({ queryKey: [...invoiceKeys.detail(invoiceId), 'payment-summary'] });
+      queryClient.invalidateQueries({ queryKey: ['payment-transactions', invoiceId] });
+      queryClient.invalidateQueries({ queryKey: ['payment-milestones', invoiceId] });
+      queryClient.invalidateQueries({ queryKey: ['events'] });
       toast({ title: 'Payment schedule regenerated' });
     } catch (err: any) {
       toast({ title: 'Error', description: err.message, variant: 'destructive' });

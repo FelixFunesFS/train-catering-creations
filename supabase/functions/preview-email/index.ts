@@ -90,9 +90,9 @@ const SAMPLE_INVOICE = {
 };
 
 const SAMPLE_MILESTONES = [
-  { id: "m1", milestone_type: "deposit", percentage: 10, amount_cents: 38014, status: "paid", due_date: null, is_due_now: true },
-  { id: "m2", milestone_type: "mid_payment", percentage: 50, amount_cents: 190069, status: "pending", due_date: getFutureDateString(14), is_due_now: false },
-  { id: "m3", milestone_type: "final_payment", percentage: 40, amount_cents: 152055, status: "pending", due_date: getFutureDateString(28), is_due_now: false },
+  { id: "m1", milestone_type: "DEPOSIT", percentage: 10, amount_cents: 38014, status: "paid", due_date: null, is_due_now: true },
+  { id: "m2", milestone_type: "MILESTONE", percentage: 40, amount_cents: 158486, status: "pending", due_date: getFutureDateString(14), is_due_now: false },
+  { id: "m3", milestone_type: "BALANCE", percentage: 50, amount_cents: 198107, status: "pending", due_date: getFutureDateString(28), is_due_now: false },
 ];
 
 /**

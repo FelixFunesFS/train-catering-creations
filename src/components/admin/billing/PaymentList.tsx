@@ -255,7 +255,14 @@ export function PaymentList() {
                     )}
                     <div className="flex-1 text-sm">
                       <span className="font-medium">
-                        {nextMilestone.milestone_type?.replace(/_/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())}:
+                       {(() => {
+                         const typeMap: Record<string, string> = {
+                           DEPOSIT: 'Booking Deposit', COMBINED: 'Booking Deposit',
+                           MILESTONE: 'Milestone Payment', BALANCE: 'Final Balance',
+                           FULL: 'Full Payment', FINAL: 'Full Payment (Net 30)',
+                         };
+                         return typeMap[nextMilestone.milestone_type?.toUpperCase()] || nextMilestone.milestone_type?.replace(/_/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase());
+                       })()}:
                       </span>{' '}
                       <span className={milestoneOverdue ? 'text-destructive font-medium' : milestoneDueToday ? 'text-amber-600 font-medium' : ''}>
                         {formatCurrency(nextMilestone.amount_cents || 0)}
