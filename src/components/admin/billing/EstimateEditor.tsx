@@ -246,7 +246,7 @@ export function EstimateEditor({ invoice, onClose }: EstimateEditorProps) {
   const discountType = (currentInvoice as any)?.discount_type as 'percentage' | 'fixed' | null;
   const discountDescription = (currentInvoice as any)?.discount_description as string | null;
 
-  const isAlreadySent = currentInvoice?.workflow_status === 'sent' || currentInvoice?.workflow_status === 'viewed';
+  const isAlreadySent = !!currentInvoice?.workflow_status && !['draft', 'pending_review'].includes(currentInvoice.workflow_status);
 
   const handleApplyDiscount = async (amount: number, type: 'percentage' | 'fixed', description: string) => {
     await updateInvoice.mutateAsync({

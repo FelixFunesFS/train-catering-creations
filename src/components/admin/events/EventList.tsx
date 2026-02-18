@@ -14,7 +14,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Eye, Loader2, FileText, Receipt, Mail, MailOpen, Globe, List, CalendarDays, CalendarRange, Phone, Shield, CreditCard } from 'lucide-react';
+import { Search, Eye, Loader2, FileText, Receipt, Mail, MailOpen, Globe, List, CalendarDays, CalendarRange, Phone, Shield, CreditCard, DollarSign } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 import { isMilitaryEvent, getMilitaryBadgeStyles } from '@/utils/eventTypeUtils';
 import { getPaymentStatus, getNextUnpaidMilestone } from '@/utils/statusHelpers';
 import { EventDetail } from './EventDetail';
@@ -154,6 +155,8 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
   const [selectedQuote, setSelectedQuote] = useState<QuoteRequest | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [sendingReminderId, setSendingReminderId] = useState<string | null>(null);
+  const { toast } = useToast();
   
   // Filter & Sort state - default to newest submissions first
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
@@ -264,6 +267,24 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
     [eventsWithInvoices, startIndex, endIndex]
   );
 
+  const paymentReminderStatuses = ['approved', 'payment_pending', 'partially_paid', 'overdue'];
+  
+  const handleSendPaymentReminder = useCallback(async (e: React.MouseEvent, quoteId: string, email: string) => {
+    e.stopPropagation();
+    setSendingReminderId(quoteId);
+    try {
+      const { error } = await supabase.functions.invoke('send-customer-portal-email', {
+        body: { type: 'payment_reminder', quote_request_id: quoteId },
+      });
+      if (error) throw error;
+      toast({ title: 'Payment Reminder Sent', description: `Sent to ${email}` });
+    } catch (err: any) {
+      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+    } finally {
+      setSendingReminderId(null);
+    }
+  }, [toast]);
+
   if (quotesError) {
     return (
       <Card>
@@ -275,7 +296,6 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
   }
 
   const handleEventClick = (event: QuoteRequest) => {
-    // Always navigate to full event view - route handles mobile/desktop rendering
     navigate(`/admin/event/${event.id}`);
   };
 
@@ -467,6 +487,28 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                             </Tooltip>
                           )}
                           
+                          {/* Send Payment Reminder */}
+                          {invoice && paymentReminderStatuses.includes(invoice.workflow_status) && (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8"
+                                  disabled={sendingReminderId === event.id}
+                                  onClick={(e) => handleSendPaymentReminder(e, event.id, event.email)}
+                                >
+                                  {sendingReminderId === event.id ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                  ) : (
+                                    <DollarSign className="h-4 w-4" />
+                                  )}
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Send Payment Reminder</TooltipContent>
+                            </Tooltip>
+                          )}
+                          
                           {/* View estimate/event */}
                           <Tooltip>
                             <TooltipTrigger asChild>
@@ -606,6 +648,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                       onSort={handleSort}
                       className="hidden xl:table-cell"
                     />
+                    <TableCell className="w-10" />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -688,6 +731,31 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                       </TableCell>
                       <TableCell className="hidden xl:table-cell text-muted-foreground text-sm whitespace-nowrap">
                         {event.updated_at ? formatDateTimeShortET(event.updated_at) : '—'}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {invoice && paymentReminderStatuses.includes(invoice.workflow_status) && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8"
+                                disabled={sendingReminderId === event.id}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleSendPaymentReminder(e, event.id, event.email);
+                                }}
+                              >
+                                {sendingReminderId === event.id ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <DollarSign className="h-4 w-4" />
+                                )}
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Send Payment Reminder</TooltipContent>
+                          </Tooltip>
+                        )}
                       </TableCell>
                     </TableRow>
                   );

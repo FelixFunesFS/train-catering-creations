@@ -197,7 +197,7 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
   const discountAmount = (currentInvoice as any)?.discount_amount ?? 0;
   const discountType = (currentInvoice as any)?.discount_type as 'percentage' | 'fixed' | null;
   const discountDescription = (currentInvoice as any)?.discount_description as string | null;
-  const isAlreadySent = currentInvoice?.workflow_status === 'sent' || currentInvoice?.workflow_status === 'viewed';
+  const isAlreadySent = !!currentInvoice?.workflow_status && !['draft', 'pending_review'].includes(currentInvoice.workflow_status);
 
   // Totals: use database values when no unsaved changes, otherwise calculate live
   const { subtotal, taxAmount, total } = useMemo(() => {
