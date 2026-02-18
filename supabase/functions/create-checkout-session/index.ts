@@ -198,7 +198,12 @@ const handler = async (req: Request): Promise<Response> => {
         price_data: {
           currency: "usd",
           product_data: {
-            name: `Soul Train's Eatery LLC - ${invoice.quote_requests?.event_name || 'Catering Event'} (${payment_type === 'deposit' ? 'Deposit' : 'Payment'})`,
+            name: `${invoice.quote_requests?.event_name || 'Catering Event'} - ${
+              payment_type === 'full' ? 'Full Balance Payment'
+              : payment_type === 'deposit' ? 'Deposit'
+              : payment_type === 'custom' ? 'Partial Payment'
+              : 'Payment'
+            }`,
             description: `Event Date: ${invoice.quote_requests?.event_date || 'TBD'}`,
           },
           unit_amount: paymentAmount,
