@@ -1,80 +1,37 @@
 
 
-## Fix Staff View: Show the Right Events with Clear Status
+## Prevent Duplicate Approval Notifications
 
-### Problem
+### Summary
 
-The staff schedule shows the wrong events. Events with payments (`awaiting_payment`, `paid`) are excluded, while unconfirmed estimates are included with no visual distinction. Staff cannot tell which events are definitely happening versus which are just proposals.
-
-### Current Database Reality
-
-| Event | Status | In Staff View? | Should Be? |
-|-------|--------|---------------|------------|
-| Teacher/staff Lunch | estimated | Yes | Yes (but marked as tentative) |
-| Spring Graduation Brunch | awaiting_payment | **No** | **Yes -- has deposit** |
-| Military Bal | estimated | Yes | Yes (but marked as tentative) |
-| USCG Chiefs Dinner | approved | Yes | Yes |
-| Super Bowl Test | awaiting_payment | **No** | **Yes -- has payments** |
-| The Young Wedding | estimated | Yes | Yes (but marked as tentative) |
+Make the `approve-estimate` edge function truly idempotent: first click does everything (DB update, milestones, emails, admin notification), subsequent clicks just return a portal URL with no side effects.
 
 ### Changes
 
-**1. Fix the status filter in `useStaffEvents.ts` (line 300)**
+**1. Edge Function: `supabase/functions/approve-estimate/index.ts`**
 
-Update the `.in()` filter to include payment-active statuses:
+Restructure so that when `alreadyApproved` is true, the function returns early before any milestone, email, or notification logic runs:
 
-```text
-Before: ['confirmed', 'approved', 'quoted', 'estimated']
-After:  ['confirmed', 'approved', 'quoted', 'estimated', 'awaiting_payment', 'paid']
-```
+- Move `portalUrl` construction before the approval check
+- When `alreadyApproved`: return `{ success: true, alreadyApproved: true, portalUrl }` immediately
+- When not approved: run the full flow (DB update, milestones, email, admin notification), then return `{ success: true, alreadyApproved: false, portalUrl }`
 
-This ensures events with deposits or full payment appear in the staff schedule.
+**2. Frontend: `src/pages/ApproveEstimate.tsx`**
 
-**2. Add a confirmation status badge to `StaffEventCard.tsx`**
+- Add `alreadyApproved` to the success state type
+- Pass `data.alreadyApproved` through to state
+- Show "Already Approved -- Taking you to your portal..." instead of "Approved!" when it's a re-click
 
-Add a visual indicator next to the countdown badge showing the event's confirmation state:
+**3. Frontend: `src/components/customer/CustomerActions.tsx`**
 
-- "Confirmed" (green) -- for `confirmed`, `awaiting_payment`, `paid` statuses (these events are definitely happening)
-- "Tentative" (amber/outline) -- for `estimated`, `quoted`, `approved` statuses (these are not yet committed)
-
-This gives staff instant clarity on which events to prioritize prep for.
-
-The `workflow_status` field is already available on the `StaffEvent` interface but is never rendered. This change surfaces it.
-
-**3. Add the same status indicator to `StaffEventDetails.tsx` header**
-
-Show the confirmation badge in the detail view header card, next to the countdown badge, so staff see the status in both the list and detail views.
-
-### Technical Details
-
-**File: `src/hooks/useStaffEvents.ts`**
-- Line 300: Add `'awaiting_payment'` and `'paid'` to the `.in()` array
-
-**File: `src/components/staff/StaffEventCard.tsx`**
-- Add a helper function `getConfirmationBadge(status)` that returns label and color
-- Render the badge in the header row alongside the countdown badge
-- Statuses mapped:
-  - `confirmed`, `awaiting_payment`, `paid` -> "Confirmed" with green styling
-  - `approved` -> "Approved" with blue styling  
-  - `estimated`, `quoted` -> "Tentative" with amber/outline styling
-
-**File: `src/components/staff/StaffEventDetails.tsx`**
-- Import/add the same `getConfirmationBadge` helper
-- Render in the header card next to the countdown badge (line 280 area)
+- Check `data.alreadyApproved` in the toast after approval
+- Show "Already Approved" / "Your estimate was already approved" for re-clicks instead of "Estimate Approved!"
 
 ### What Does NOT Change
 
-- No financial data is exposed (the staff view correctly excludes pricing)
-- No database or RLS changes needed (staff already have SELECT on quote_requests)
-- The filter tabs (Today/This Week/All) continue to work as before
-- The detail view sections (menu, equipment, staff assignments) are unchanged
-- The responsive layout (mobile list/detail, desktop split panel) is unchanged
-- The calendar subscription feed is unchanged
+- First-time approval flow is identical (DB update, milestones, emails, admin notification all fire)
+- Admin resend without changes keeps status unchanged, so re-clicks still early-return correctly
+- Admin revision resets status to `sent`, so the next customer approval triggers the full flow again
+- Payment flows, Stripe, change requests -- all unchanged
+- Database schema, RLS, triggers -- all unchanged
 
-### Risk Assessment
-
-| Change | Risk | Reason |
-|--------|------|--------|
-| Add statuses to filter | None | RLS already grants staff SELECT on quote_requests |
-| Add confirmation badge to card | None | Pure display, uses existing `workflow_status` field |
-| Add confirmation badge to details | None | Same field, same component pattern |
