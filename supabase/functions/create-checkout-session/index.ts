@@ -103,7 +103,44 @@ const handler = async (req: Request): Promise<Response> => {
     let paymentAmount = customAmount || invoice.total_amount;
 
     if (payment_type === 'deposit') {
-      paymentAmount = Math.round(invoice.total_amount * 0.5);
+      // Query completed transactions to calculate partial-payment-aware deposit
+      const { data: completedTx } = await supabase
+        .from("payment_transactions")
+        .select("amount")
+        .eq("invoice_id", invoice_id)
+        .eq("status", "completed");
+
+      const totalAlreadyPaid = completedTx?.reduce((sum, t) => sum + (t.amount || 0), 0) || 0;
+
+      // Get milestones ordered by due_date to apply waterfall logic
+      const { data: milestones } = await supabase
+        .from("payment_milestones")
+        .select("amount_cents, due_date")
+        .eq("invoice_id", invoice_id)
+        .order("due_date", { ascending: true });
+
+      if (milestones && milestones.length > 0) {
+        let cumulative = 0;
+        let depositRemaining = 0;
+        for (const m of milestones) {
+          cumulative += m.amount_cents;
+          if (totalAlreadyPaid >= cumulative) continue;
+          depositRemaining = cumulative - totalAlreadyPaid;
+          break;
+        }
+        paymentAmount = Math.max(0, depositRemaining);
+      } else {
+        // Fallback: 50% minus what's already paid
+        paymentAmount = Math.max(0, Math.round(invoice.total_amount * 0.5) - totalAlreadyPaid);
+      }
+
+      if (paymentAmount <= 0) {
+        logStep("Deposit already satisfied", { totalAlreadyPaid });
+        return new Response(
+          JSON.stringify({ error: "This milestone is already fully paid", code: "DEPOSIT_SATISFIED" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
     } else if (payment_type === 'milestone' && milestone_id) {
       const { data: milestone } = await supabase
         .from("payment_milestones")
