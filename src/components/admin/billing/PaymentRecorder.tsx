@@ -244,6 +244,18 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
             <DollarSign className="h-5 w-5" />
             Record Payment
           </DialogTitle>
+          {invoiceSummary && (
+            <div className="text-sm text-muted-foreground">
+              <p className="font-medium text-foreground">
+                {invoiceSummary.event_name} | {invoiceSummary.invoice_number}
+              </p>
+              {invoiceSummary.event_date && (
+                <p className="text-xs">
+                  Event Date: {new Date(invoiceSummary.event_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                </p>
+              )}
+            </div>
+          )}
         </DialogHeader>
 
         {/* Invoice Summary */}
@@ -532,14 +544,6 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
                         )}
                       </div>
                     )}
-                  </div>
-
-                  {/* Amount being charged indicator */}
-                  <div className="flex items-center justify-between bg-primary/5 border border-primary/20 rounded-lg px-3 py-2">
-                    <span className="text-xs text-muted-foreground">Charging</span>
-                    <span className="text-sm font-semibold text-primary">
-                      {formatCurrency(getStripeAmount())}
-                    </span>
                   </div>
 
                   {/* Embedded Checkout or Loading */}
