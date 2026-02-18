@@ -1,77 +1,80 @@
 
 
-## Fix: PaymentSuccess Page Shows "Fully Paid" Incorrectly
+## Fix Staff View: Show the Right Events with Clear Status
 
-### Root Cause
+### Problem
 
-There are **two issues** causing this:
+The staff schedule shows the wrong events. Events with payments (`awaiting_payment`, `paid`) are excluded, while unconfirmed estimates are included with no visual distinction. Staff cannot tell which events are definitely happening versus which are just proposals.
 
-**Issue 1 (Primary): The published site has old code**
+### Current Database Reality
 
-When the embedded Stripe checkout completes, the `return_url` in the edge function (line 198 of `create-checkout-session/index.ts`) redirects to:
-```
-https://www.soultrainseatery.com/payment-success?session_id=...&token=...&type=custom
-```
-
-This is the **published** site, which has an older version of `PaymentSuccess.tsx` that does NOT have the tier logic (fully paid vs deposit vs milestone). The old code likely always shows "Your event is fully paid and confirmed" regardless of what `verify-payment` returns.
-
-The test/preview environment has the correct code, but it was never published.
-
-**Issue 2 (Code Bug): Loading state initializes as `false`**
-
-Line 27: `const [loading, setLoading] = useState(false);`
-
-When `PaymentSuccess` mounts with a `session_id` in the URL, it renders immediately with `loading = false` and `paymentDetails = null` before `verifyPayment()` sets `loading = true`. This causes a brief flash of incorrect content. The page should show a loading spinner immediately when a session_id is present.
-
-### The Fix
-
-**1. Fix the loading state initialization in `PaymentSuccess.tsx`**
-
-Change `useState(false)` to `useState(!!sessionId)` -- but since `sessionId` comes from hooks, we need to initialize based on URL params:
-
-```typescript
-const [loading, setLoading] = useState(true); // Start true, set false when done or no session
-```
-
-Then in the useEffect, if there's no sessionId, set loading to false. This prevents the flash of wrong content.
-
-**2. Publish the site**
-
-After fixing the loading state, the site needs to be published so the live `soultrainseatery.com` domain serves the updated PaymentSuccess page with the correct tier logic.
-
-### What the verify-payment Edge Function Returns (Already Correct)
-
-The logs confirm the backend works properly:
-```
-Payment verification: { totalPaid: 5433, invoiceTotal: 40330, isFullyPaid: false }
-Invoice marked as partially_paid
-```
-
-It returns `is_fully_paid: false` and `payment_type: 'custom'`. The frontend tier logic (lines 100-106) correctly handles this:
-- `isFullyPaid = false` -- won't show "fully paid"
-- `effectivePaymentType = 'custom'` -- won't match 'deposit'
-- `isMilestoneOrOther = true` -- shows "Your payment has been received" (correct)
-
-The code IS correct in the test environment. The customer just never sees it because they're redirected to the published site.
+| Event | Status | In Staff View? | Should Be? |
+|-------|--------|---------------|------------|
+| Teacher/staff Lunch | estimated | Yes | Yes (but marked as tentative) |
+| Spring Graduation Brunch | awaiting_payment | **No** | **Yes -- has deposit** |
+| Military Bal | estimated | Yes | Yes (but marked as tentative) |
+| USCG Chiefs Dinner | approved | Yes | Yes |
+| Super Bowl Test | awaiting_payment | **No** | **Yes -- has payments** |
+| The Young Wedding | estimated | Yes | Yes (but marked as tentative) |
 
 ### Changes
 
-**File: `src/pages/PaymentSuccess.tsx`**
+**1. Fix the status filter in `useStaffEvents.ts` (line 300)**
 
-- Line 27: Change `useState(false)` to `useState(true)` so the spinner shows immediately
-- Line 37: Keep `setLoading(false)` in the else branch (no session_id case)
+Update the `.in()` filter to include payment-active statuses:
 
-This is a 1-line change. The rest of the tier logic is already correct.
+```text
+Before: ['confirmed', 'approved', 'quoted', 'estimated']
+After:  ['confirmed', 'approved', 'quoted', 'estimated', 'awaiting_payment', 'paid']
+```
 
-### After This Fix
+This ensures events with deposits or full payment appear in the staff schedule.
 
-1. Apply the loading state fix (1 line)
-2. **Publish the site** -- this is the critical step. Without publishing, customers will continue seeing the old PaymentSuccess page on soultrainseatery.com
+**2. Add a confirmation status badge to `StaffEventCard.tsx`**
 
-### No Other Workflows Affected
+Add a visual indicator next to the countdown badge showing the event's confirmation state:
 
-- The verify-payment edge function is already deployed and returning correct data
-- The tier display logic (lines 100-106, 152-181) is already correct
-- The remaining balance display (lines 133-140) is already correct
-- No database, Stripe, or email changes needed
+- "Confirmed" (green) -- for `confirmed`, `awaiting_payment`, `paid` statuses (these events are definitely happening)
+- "Tentative" (amber/outline) -- for `estimated`, `quoted`, `approved` statuses (these are not yet committed)
 
+This gives staff instant clarity on which events to prioritize prep for.
+
+The `workflow_status` field is already available on the `StaffEvent` interface but is never rendered. This change surfaces it.
+
+**3. Add the same status indicator to `StaffEventDetails.tsx` header**
+
+Show the confirmation badge in the detail view header card, next to the countdown badge, so staff see the status in both the list and detail views.
+
+### Technical Details
+
+**File: `src/hooks/useStaffEvents.ts`**
+- Line 300: Add `'awaiting_payment'` and `'paid'` to the `.in()` array
+
+**File: `src/components/staff/StaffEventCard.tsx`**
+- Add a helper function `getConfirmationBadge(status)` that returns label and color
+- Render the badge in the header row alongside the countdown badge
+- Statuses mapped:
+  - `confirmed`, `awaiting_payment`, `paid` -> "Confirmed" with green styling
+  - `approved` -> "Approved" with blue styling  
+  - `estimated`, `quoted` -> "Tentative" with amber/outline styling
+
+**File: `src/components/staff/StaffEventDetails.tsx`**
+- Import/add the same `getConfirmationBadge` helper
+- Render in the header card next to the countdown badge (line 280 area)
+
+### What Does NOT Change
+
+- No financial data is exposed (the staff view correctly excludes pricing)
+- No database or RLS changes needed (staff already have SELECT on quote_requests)
+- The filter tabs (Today/This Week/All) continue to work as before
+- The detail view sections (menu, equipment, staff assignments) are unchanged
+- The responsive layout (mobile list/detail, desktop split panel) is unchanged
+- The calendar subscription feed is unchanged
+
+### Risk Assessment
+
+| Change | Risk | Reason |
+|--------|------|--------|
+| Add statuses to filter | None | RLS already grants staff SELECT on quote_requests |
+| Add confirmation badge to card | None | Pure display, uses existing `workflow_status` field |
+| Add confirmation badge to details | None | Same field, same component pattern |
