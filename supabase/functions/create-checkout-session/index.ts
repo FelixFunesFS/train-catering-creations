@@ -100,19 +100,26 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error("Invoice not found");
     }
 
-    let paymentAmount = customAmount || invoice.total_amount;
+    // Query completed transactions for ALL payment types (not just deposit)
+    const { data: completedTx } = await supabase
+      .from("payment_transactions")
+      .select("amount")
+      .eq("invoice_id", invoice_id)
+      .eq("status", "completed");
 
-    if (payment_type === 'deposit') {
-      // Query completed transactions to calculate partial-payment-aware deposit
-      const { data: completedTx } = await supabase
-        .from("payment_transactions")
-        .select("amount")
-        .eq("invoice_id", invoice_id)
-        .eq("status", "completed");
+    const totalAlreadyPaid = completedTx?.reduce((sum, t) => sum + (t.amount || 0), 0) || 0;
+    const balanceRemaining = Math.max(0, invoice.total_amount - totalAlreadyPaid);
 
-      const totalAlreadyPaid = completedTx?.reduce((sum, t) => sum + (t.amount || 0), 0) || 0;
+    let paymentAmount: number;
 
-      // Get milestones ordered by due_date to apply waterfall logic
+    if (customAmount) {
+      // Explicit amount from client (custom payments, or customer-facing full pay)
+      paymentAmount = customAmount;
+    } else if (payment_type === 'full') {
+      // Server-calculated remaining balance
+      paymentAmount = balanceRemaining;
+    } else if (payment_type === 'deposit') {
+      // Waterfall milestone logic (uses same totalAlreadyPaid, no duplicate query)
       const { data: milestones } = await supabase
         .from("payment_milestones")
         .select("amount_cents, due_date")
@@ -130,7 +137,6 @@ const handler = async (req: Request): Promise<Response> => {
         }
         paymentAmount = Math.max(0, depositRemaining);
       } else {
-        // Fallback: 50% minus what's already paid
         paymentAmount = Math.max(0, Math.round(invoice.total_amount * 0.5) - totalAlreadyPaid);
       }
 
@@ -148,7 +154,9 @@ const handler = async (req: Request): Promise<Response> => {
         .eq("id", milestone_id)
         .single();
 
-      if (milestone) paymentAmount = milestone.amount_cents;
+      paymentAmount = milestone ? milestone.amount_cents : balanceRemaining;
+    } else {
+      paymentAmount = balanceRemaining;
     }
 
     logStep("Payment amount calculated", { paymentAmount, payment_type });
