@@ -297,7 +297,7 @@ async function fetchStaffEvents(filter?: StaffEventFilter): Promise<StaffEvent[]
   let query = supabase
     .from('quote_requests')
     .select(QUOTE_FIELDS)
-    .in('workflow_status', ['confirmed', 'approved', 'quoted', 'estimated'])
+    .in('workflow_status', ['confirmed', 'approved', 'quoted', 'estimated', 'awaiting_payment', 'paid'])
     .gte('event_date', todayStr)
     .order('event_date', { ascending: true });
 

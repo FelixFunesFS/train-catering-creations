@@ -12,6 +12,17 @@ interface StaffEventCardProps {
   onClick?: () => void;
 }
 
+// Confirmation status badge
+function getConfirmationBadge(status: string): { text: string; className: string } {
+  if (['confirmed', 'awaiting_payment', 'paid'].includes(status)) {
+    return { text: 'Confirmed', className: 'bg-green-500/15 text-green-700 dark:text-green-400 border-green-500/30' };
+  }
+  if (status === 'approved') {
+    return { text: 'Approved', className: 'bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-500/30' };
+  }
+  return { text: 'Tentative', className: 'bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30' };
+}
+
 // Countdown badge logic
 function getCountdownBadge(daysUntil: number, eventDate: string): { text: string; className: string } {
   if (daysUntil < 0) return { text: 'PAST', className: 'bg-muted text-muted-foreground' };
@@ -37,6 +48,7 @@ function formatTime(time: string | null): string {
 
 export function StaffEventCard({ event, isSelected, onClick }: StaffEventCardProps) {
   const countdown = getCountdownBadge(event.days_until, event.event_date);
+  const confirmation = getConfirmationBadge(event.workflow_status);
   const confirmedCount = event.staff_assignments.filter(s => s.confirmed).length;
   const totalStaff = event.staff_assignments.length;
   
@@ -55,6 +67,9 @@ export function StaffEventCard({ event, isSelected, onClick }: StaffEventCardPro
         <div className="flex items-start justify-between gap-2">
           <Badge className={cn("text-xs font-semibold shrink-0", countdown.className)}>
             {countdown.text}
+          </Badge>
+          <Badge variant="outline" className={cn("text-xs font-medium shrink-0", confirmation.className)}>
+            {confirmation.text}
           </Badge>
         </div>
 
