@@ -2063,30 +2063,89 @@ export function getEmailContentBlocks(
       }
       break;
 
-    case 'payment_reminder':
+    case 'payment_reminder': {
+      // Calculate payment totals from context
+      const totalAmount = invoice?.total_amount || 0;
+      const totalPaid = (context as any).totalPaid || 0;
+      const balanceDue = totalAmount - totalPaid;
+
+      // Build payment summary box
+      const paymentSummaryHtml = `
+        <div style="background:${BRAND_COLORS.lightGray};border-radius:10px;padding:20px;margin:20px 0;border:1px solid #e0e0e0;">
+          <h3 style="margin:0 0 15px 0;color:${BRAND_COLORS.crimson};font-size:16px;">💰 Payment Summary</h3>
+          <table style="width:100%;font-size:15px;border-collapse:collapse;">
+            <tr>
+              <td style="padding:8px 0;color:#555;">Total</td>
+              <td style="padding:8px 0;text-align:right;font-weight:600;">${formatCurrency(totalAmount)}</td>
+            </tr>
+            <tr>
+              <td style="padding:8px 0;color:#555;">Amount Paid</td>
+              <td style="padding:8px 0;text-align:right;font-weight:600;color:#2e7d32;">${formatCurrency(totalPaid)}</td>
+            </tr>
+            <tr style="border-top:2px solid ${BRAND_COLORS.gold};">
+              <td style="padding:12px 0 0 0;color:${BRAND_COLORS.crimson};font-weight:700;font-size:16px;">Balance Due</td>
+              <td style="padding:12px 0 0 0;text-align:right;font-weight:700;font-size:16px;color:${BRAND_COLORS.crimson};">${formatCurrency(balanceDue)}</td>
+            </tr>
+          </table>
+        </div>
+      `;
+
+      // Build milestone schedule if milestones exist
+      const milestoneScheduleHtml = milestones && milestones.length > 0 ? `
+        <div style="margin:20px 0;">
+          <h3 style="color:${BRAND_COLORS.crimson};margin-bottom:12px;font-size:16px;">📅 Payment Schedule</h3>
+          <table style="width:100%;border-collapse:collapse;font-size:14px;">
+            <thead>
+              <tr style="background:${BRAND_COLORS.lightGray};">
+                <th style="padding:10px 8px;text-align:left;border-bottom:2px solid ${BRAND_COLORS.gold};">Payment</th>
+                <th style="padding:10px 8px;text-align:right;border-bottom:2px solid ${BRAND_COLORS.gold};">Amount</th>
+                <th style="padding:10px 8px;text-align:center;border-bottom:2px solid ${BRAND_COLORS.gold};">Due</th>
+                <th style="padding:10px 8px;text-align:center;border-bottom:2px solid ${BRAND_COLORS.gold};">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${milestones.map((m: any) => {
+                const isPaid = m.status === 'paid';
+                const statusIcon = isPaid ? '✅' : '⬜';
+                const statusText = isPaid ? 'Paid' : (m.is_due_now ? 'Due Now' : 'Upcoming');
+                const statusColor = isPaid ? '#2e7d32' : (m.is_due_now ? BRAND_COLORS.crimson : '#666');
+                const dueText = m.due_date ? new Date(m.due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : (m.is_due_now ? 'Now' : '—');
+                return `
+                  <tr style="border-bottom:1px solid #eee;">
+                    <td style="padding:10px 8px;">${statusIcon} ${m.description || m.milestone_type || 'Payment'}</td>
+                    <td style="padding:10px 8px;text-align:right;font-weight:600;">${formatCurrency(m.amount_cents)}</td>
+                    <td style="padding:10px 8px;text-align:center;">${dueText}</td>
+                    <td style="padding:10px 8px;text-align:center;color:${statusColor};font-weight:600;">${statusText}</td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      ` : '';
+
+      // Event date for context
+      const eventDateStr = quote.event_date ? new Date(quote.event_date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : '';
+
       contentBlocks = [
-        { type: 'text', data: { html: `<p style="font-size:16px;margin:0 0 16px 0;">Hi ${quote.contact_name},</p><p style="font-size:15px;margin:0 0 16px 0;line-height:1.6;">We hope you're as excited as we are about catering <strong>${quote.event_name}</strong>!</p>` }},
+        { type: 'text', data: { html: `<p style="font-size:16px;margin:0 0 16px 0;">Hi ${quote.contact_name},</p><p style="font-size:15px;margin:0 0 16px 0;line-height:1.6;">This is a friendly reminder about your upcoming event <strong>${quote.event_name}</strong>.</p>` }},
+        { type: 'custom_html', data: { html: paymentSummaryHtml }},
+        { type: 'custom_html', data: { html: milestoneScheduleHtml }},
         { type: 'custom_html', data: { html: `
-          <div style="background:#fff3cd;border-left:4px solid ${BRAND_COLORS.gold};padding:20px;margin:20px 0;border-radius:8px;">
-            <h3 style="margin:0 0 10px 0;color:${BRAND_COLORS.crimson};">🔒 Secure Your Event Date</h3>
-            <p style="margin:0;">Your approved estimate is waiting for payment to confirm your booking. Don't risk losing your date - our calendar fills up fast!</p>
+          <div style="background:${BRAND_COLORS.lightGray};padding:15px;border-radius:8px;margin:20px 0;">
+            <p style="margin:0;font-size:14px;color:#555;">
+              <strong>📍 Event:</strong> ${quote.event_name}<br>
+              <strong>📅 Date:</strong> ${eventDateStr}<br>
+              <strong>👥 Guests:</strong> ${quote.guest_count}<br>
+              <strong>📌 Location:</strong> ${quote.location || 'TBD'}
+            </p>
           </div>
         ` }},
-        { type: 'event_details' },
-        { type: 'menu_summary' },
-        { type: 'service_addons' },
-        { type: 'custom_html', data: { html: `
-          <h3 style="color:${BRAND_COLORS.crimson};margin:24px 0 12px 0;">💳 Easy, Secure Payment Options:</h3>
-          <ul style="line-height:1.8;margin:0;padding-left:20px;">
-            <li>💳 Credit/Debit Cards</li>
-            <li>🏦 Bank Transfer</li>
-            <li>📱 Digital Wallets (Apple Pay, Google Pay)</li>
-          </ul>
-        ` }},
-        { type: 'text', data: { html: `<p style="font-size:15px;margin:20px 0 0 0;"><strong>Need to make changes?</strong> No problem! Contact us before completing payment if you need to adjust anything.</p>` }}
+        { type: 'text', data: { html: `<p style="font-size:15px;margin:20px 0 0 0;"><strong>Need to make changes?</strong> Contact us at <a href="tel:+18439700265" style="color:${BRAND_COLORS.crimson};">(843) 970-0265</a> or reply to this email.</p>` }}
       ];
       ctaButton = { text: 'Complete Payment Now', href: effectivePortalUrl, variant: 'primary' };
       break;
+    }
 
     case 'event_reminder':
       if (variant === 'customer') {

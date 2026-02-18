@@ -19,6 +19,7 @@ import { useToast } from '@/hooks/use-toast';
 import { isMilitaryEvent, getMilitaryBadgeStyles } from '@/utils/eventTypeUtils';
 import { getPaymentStatus, getNextUnpaidMilestone } from '@/utils/statusHelpers';
 import { EventDetail } from './EventDetail';
+import { SendPaymentReminderDialog } from './SendPaymentReminderDialog';
 import { EventWeekView } from './EventWeekView';
 import { EventMonthView } from './EventMonthView';
 import { DateNavigation } from './DateNavigation';
@@ -155,7 +156,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
   const [selectedQuote, setSelectedQuote] = useState<QuoteRequest | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [sendingReminderId, setSendingReminderId] = useState<string | null>(null);
+  const [reminderDialogEvent, setReminderDialogEvent] = useState<EventWithInvoice | null>(null);
   const { toast } = useToast();
   
   // Filter & Sort state - default to newest submissions first
@@ -269,21 +270,10 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
 
   const paymentReminderStatuses = ['approved', 'payment_pending', 'partially_paid', 'overdue'];
   
-  const handleSendPaymentReminder = useCallback(async (e: React.MouseEvent, quoteId: string, email: string) => {
+  const handleOpenReminderDialog = useCallback((e: React.MouseEvent, event: EventWithInvoice) => {
     e.stopPropagation();
-    setSendingReminderId(quoteId);
-    try {
-      const { error } = await supabase.functions.invoke('send-customer-portal-email', {
-        body: { type: 'payment_reminder', quote_request_id: quoteId },
-      });
-      if (error) throw error;
-      toast({ title: 'Payment Reminder Sent', description: `Sent to ${email}` });
-    } catch (err: any) {
-      toast({ title: 'Error', description: err.message, variant: 'destructive' });
-    } finally {
-      setSendingReminderId(null);
-    }
-  }, [toast]);
+    setReminderDialogEvent(event);
+  }, []);
 
   if (quotesError) {
     return (
@@ -495,14 +485,9 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                                   variant="ghost"
                                   size="icon"
                                   className="h-8 w-8"
-                                  disabled={sendingReminderId === event.id}
-                                  onClick={(e) => handleSendPaymentReminder(e, event.id, event.email)}
+                                  onClick={(e) => handleOpenReminderDialog(e, event)}
                                 >
-                                  {sendingReminderId === event.id ? (
-                                    <Loader2 className="h-4 w-4 animate-spin" />
-                                  ) : (
-                                    <DollarSign className="h-4 w-4" />
-                                  )}
+                                  <DollarSign className="h-4 w-4" />
                                 </Button>
                               </TooltipTrigger>
                               <TooltipContent>Send Payment Reminder</TooltipContent>
@@ -740,17 +725,12 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                                 variant="ghost"
                                 size="icon"
                                 className="h-8 w-8"
-                                disabled={sendingReminderId === event.id}
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  handleSendPaymentReminder(e, event.id, event.email);
+                                  handleOpenReminderDialog(e, event);
                                 }}
                               >
-                                {sendingReminderId === event.id ? (
-                                  <Loader2 className="h-4 w-4 animate-spin" />
-                                ) : (
-                                  <DollarSign className="h-4 w-4" />
-                                )}
+                                <DollarSign className="h-4 w-4" />
                               </Button>
                             </TooltipTrigger>
                             <TooltipContent>Send Payment Reminder</TooltipContent>
@@ -783,6 +763,19 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
           <EventDetail 
             quote={selectedQuote} 
             onClose={() => setSelectedQuote(null)} 
+          />
+        )}
+
+        {/* Payment Reminder Dialog */}
+        {reminderDialogEvent && (
+          <SendPaymentReminderDialog
+            open={!!reminderDialogEvent}
+            onOpenChange={(open) => { if (!open) setReminderDialogEvent(null); }}
+            quoteId={reminderDialogEvent.id}
+            eventName={reminderDialogEvent.event_name}
+            primaryEmail={reminderDialogEvent.email}
+            invoiceNumber={reminderDialogEvent.invoice?.invoice_number || null}
+            totalAmount={reminderDialogEvent.invoice?.total_amount || 0}
           />
         )}
       </div>
