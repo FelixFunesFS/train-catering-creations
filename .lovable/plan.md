@@ -1,74 +1,56 @@
 
 
-## Fix: Stale Pending Transactions from PaymentRecorder Auto-Trigger
+## Fix: Clarify Payment Amount in Admin Record Payment View
 
-### Root Cause
+### Edge Case Review (Requested)
 
-Every time an admin opens the "Record Payment" dialog, the PaymentRecorder auto-triggers an embedded Stripe Checkout session (lines 204-217). Each trigger calls `create-checkout-session`, which **inserts a new `payment_transactions` row with status `'pending'`** (line 229-238 of `create-checkout-session/index.ts`).
+**Deposit already met**: The PaymentRecorder waterfall logic skips fully-satisfied milestones. If the 10% deposit is paid, the "Deposit" button either shows the next milestone (e.g., "Milestone Payment 40%") or hides entirely when `depositAmount === 0`. The Stripe line item label follows `payment_type`, which is set by the button the admin clicks -- so it can never say "Deposit" if no deposit is owed.
 
-The problem is compounded by:
-1. **Auto-trigger on mount** -- the dialog immediately fires a "full balance" checkout session
-2. **Re-trigger on type change** -- switching between Full/Deposit/Custom creates additional sessions
-3. **No cleanup** -- abandoned sessions remain as `pending` forever
-4. **Amount stored is for the auto-selected type** -- defaults to `full` ($403.30), not the actual amount the admin intends to charge
+**Custom amount paid**: The webhook milestone skip guard prevents custom payments from auto-matching milestones. The Stripe line item will say "Partial Payment" and the "Charging" badge will show the exact custom dollar amount. No ambiguity.
 
-The database currently shows **20 pending transactions** for a single invoice, most at $403.30 (the full balance), because the admin opened the dialog or switched payment types multiple times.
+Both cases are handled correctly because the labels mirror the existing amount selector logic.
 
-### Why This Matters
+### Changes (2 files)
 
-- Payment History shows a wall of "$403.30 Pending" entries that are just abandoned checkout sessions
-- The `total_paid` calculations (used in summary views) correctly exclude pending, but the visual noise is confusing
-- Each pending transaction is a Stripe Checkout Session that costs API calls and clutters Stripe Dashboard
+**1. `supabase/functions/create-checkout-session/index.ts` (line 201) -- Descriptive Stripe line item name**
 
-### Fix (2 changes)
+Replace the vague "Payment" / "Deposit" label with a specific payment type:
 
-**1. `create-checkout-session/index.ts` -- Void previous pending transactions before creating a new one**
+```
+BEFORE: Soul Train's Eatery LLC - Super Bowl Test (Payment)
+AFTER:  Super Bowl Test - Full Balance Payment
+        Super Bowl Test - Deposit
+        Super Bowl Test - Partial Payment
+```
 
-Before inserting a new pending transaction (line 229), find and void any existing pending transactions for the same invoice with the same Stripe payment method that never completed:
+Code change at line 201:
+```typescript
+name: `${invoice.quote_requests?.event_name || 'Catering Event'} - ${
+  payment_type === 'full' ? 'Full Balance Payment'
+  : payment_type === 'deposit' ? 'Deposit'
+  : payment_type === 'custom' ? 'Partial Payment'
+  : 'Payment'
+}`,
+```
+
+**2. `src/components/admin/billing/PaymentRecorder.tsx` -- Add "Charging" badge above embedded checkout**
+
+Insert a small highlighted bar between the amount selector and the Stripe card form so the admin always sees the exact amount about to be charged:
 
 ```typescript
-// Before creating a new pending transaction, void stale ones from this invoice
-await supabase
-  .from('payment_transactions')
-  .update({ status: 'voided', failed_reason: 'Superseded by new checkout session' })
-  .eq('invoice_id', invoice_id)
-  .eq('status', 'pending')
-  .eq('payment_method', 'stripe');
+<div className="flex items-center justify-between bg-primary/5 border border-primary/20 rounded-lg px-3 py-2">
+  <span className="text-xs text-muted-foreground">Charging</span>
+  <span className="text-sm font-semibold text-primary">
+    {formatCurrency(getStripeAmount())}
+  </span>
+</div>
 ```
 
-This ensures only ONE pending Stripe transaction exists per invoice at any time.
+### What Does NOT Change
 
-**2. Clean up existing stale data -- one-time database cleanup**
-
-Run a migration to void all existing orphaned pending transactions that are older than 1 hour (Stripe Checkout Sessions expire after 24h by default, but these are clearly abandoned):
-
-```sql
-UPDATE payment_transactions
-SET status = 'voided',
-    failed_reason = 'Stale checkout session - auto-cleaned'
-WHERE status = 'pending'
-  AND payment_method = 'stripe'
-  AND created_at < NOW() - INTERVAL '1 hour';
-```
-
-### What This Does NOT Change
-
-- The auto-trigger behavior itself (it provides a smooth UX for the admin)
-- Payment processing logic
-- Webhook handling
-- Manual payment recording
-- Any completed or failed transaction
-
-### Files Changed
-
-| File | Change |
-|------|--------|
-| `supabase/functions/create-checkout-session/index.ts` | Void previous pending Stripe transactions before creating new one |
-| Database migration | One-time cleanup of existing stale pending transactions |
-
-### Result
-
-- Payment History shows only the **one active** pending transaction (if any) plus completed/failed ones
-- No more wall of "$403.30 Pending" entries
-- Each new checkout session cleanly replaces the previous abandoned one
+- Payment amounts (already correct based on selector)
+- Webhook milestone skip guard for custom payments
+- Waterfall logic for deposit/milestone calculation
+- Manual payment tab
+- Any other edge functions
 
