@@ -60,18 +60,23 @@ export const getMilestoneStatus = (milestone: Milestone): MilestoneStatus => {
 /**
  * Calculate payment progress from milestones
  */
-export const calculatePaymentProgress = (milestones: Milestone[]): {
+export const calculatePaymentProgress = (
+  milestones: Milestone[],
+  actualTotalPaid?: number
+): {
   amountPaid: number;
   totalAmount: number;
   remaining: number;
   percentComplete: number;
 } => {
-  const amountPaid = milestones
-    .filter(m => m.status === 'paid')
-    .reduce((sum, m) => sum + m.amount_cents, 0);
-  
   const totalAmount = milestones.reduce((sum, m) => sum + m.amount_cents, 0);
-  const remaining = totalAmount - amountPaid;
+  
+  // Use transaction-based total if available, fall back to milestone-based
+  const amountPaid = actualTotalPaid !== undefined
+    ? actualTotalPaid
+    : milestones.filter(m => m.status === 'paid').reduce((sum, m) => sum + m.amount_cents, 0);
+  
+  const remaining = Math.max(0, totalAmount - amountPaid);
   const percentComplete = totalAmount > 0 ? Math.round((amountPaid / totalAmount) * 100) : 0;
   
   return { amountPaid, totalAmount, remaining, percentComplete };

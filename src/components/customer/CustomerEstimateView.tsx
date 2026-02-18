@@ -53,9 +53,9 @@ export function CustomerEstimateView() {
   // Calculate payment progress - MUST be before any early returns
   const amountPaid = useMemo(() => {
     if (!estimateData?.milestones) return 0;
-    const { amountPaid: paid } = calculatePaymentProgress(estimateData.milestones as Milestone[]);
+    const { amountPaid: paid } = calculatePaymentProgress(estimateData.milestones as Milestone[], estimateData.totalPaid);
     return paid;
-  }, [estimateData?.milestones]);
+  }, [estimateData?.milestones, estimateData?.totalPaid]);
 
   // Handle action query params from email links
   useEffect(() => {
@@ -182,6 +182,7 @@ export function CustomerEstimateView() {
             workflowStatus={invoice.workflow_status}
             customerEmail={quote.email}
             accessToken={token}
+            totalPaidFromTransactions={estimateData.totalPaid}
           />
         </div>
       )}
@@ -211,6 +212,7 @@ export function CustomerEstimateView() {
             workflowStatus={invoice.workflow_status}
             customerEmail={quote.email}
             accessToken={token}
+            totalPaidFromTransactions={estimateData.totalPaid}
           />
         </div>
       )}
@@ -468,6 +470,7 @@ export function CustomerEstimateView() {
                   workflowStatus={invoice.workflow_status}
                   customerEmail={quote.email}
                   accessToken={token}
+                  totalPaidFromTransactions={estimateData.totalPaid}
                 />
               </div>
 

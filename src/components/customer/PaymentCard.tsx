@@ -40,6 +40,7 @@ interface PaymentCardProps {
   workflowStatus: string;
   customerEmail: string;
   accessToken: string;
+  totalPaidFromTransactions?: number;
 }
 
 export function PaymentCard({
@@ -48,12 +49,13 @@ export function PaymentCard({
   milestones,
   workflowStatus,
   accessToken,
+  totalPaidFromTransactions,
 }: PaymentCardProps) {
   const { initiatePayment, isProcessing } = usePaymentCheckout();
   const [customAmount, setCustomAmount] = useState('');
 
   const showPaymentActions = ['approved', 'partially_paid', 'payment_pending'].includes(workflowStatus);
-  const { amountPaid, remaining, percentComplete } = calculatePaymentProgress(milestones);
+  const { amountPaid, remaining, percentComplete } = calculatePaymentProgress(milestones, totalPaidFromTransactions);
   
   const nextDueMilestone = getNextDueMilestone(milestones);
   const nextUpcomingMilestone = milestones.find(m => m.status !== 'paid');
