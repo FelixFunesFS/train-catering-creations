@@ -226,6 +226,16 @@ const handler = async (req: Request): Promise<Response> => {
 
     logStep("Stripe session created", { sessionId: session.id, isEmbedded });
 
+    // Void any existing pending Stripe transactions for this invoice
+    await supabase
+      .from('payment_transactions')
+      .update({ status: 'voided', failed_reason: 'Superseded by new checkout session' })
+      .eq('invoice_id', invoice_id)
+      .eq('status', 'pending')
+      .eq('payment_method', 'stripe');
+
+    logStep("Voided previous pending transactions for invoice", { invoice_id });
+
     await supabase.from("payment_transactions").insert({
       invoice_id,
       amount: paymentAmount,
