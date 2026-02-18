@@ -1,130 +1,170 @@
 
 
-## Comprehensive Payment Display Accuracy Fix
+## Comprehensive Fix: Milestone Display Accuracy Across All Surfaces
 
-### Summary of All Issues
+### The Core Problem
 
-Six issues identified across emails, PDF, and print view. The plan ensures milestone labels are human-readable everywhere and remaining balances use authoritative transaction-based totals.
+There are **three distinct categories** of issues remaining:
 
----
-
-### Issue 1: Payment Received Email -- Wrong Remaining Balance (CRITICAL)
-
-**Where:** `emailTemplates.ts` lines 1956-1958
-
-The customer "payment received" email calculates remaining balance by summing unpaid milestones. For custom payments that don't mark any milestone as paid, this shows the full invoice amount as remaining instead of the correct reduced balance.
-
-**Additionally:** `send-customer-portal-email/index.ts` does NOT fetch milestones or totalPaid for `payment_confirmation` type (line 139 only fetches milestones for approval, estimate, reminder; line 150 only fetches totalPaid for reminder). So the template receives empty milestones and zero totalPaid.
-
-**Fix:**
-- In `send-customer-portal-email/index.ts`: Add `payment_confirmation` to the milestone fetch condition (line 139) and totalPaid fetch condition (line 150)
-- In `emailTemplates.ts`: Replace the milestone-based remaining calc with `invoice.total_amount - totalPaid` (where totalPaid comes from context)
-- In `stripe-webhook/index.ts`: Pass `totalPaid` in the email metadata so it's available even before the edge function queries it
+1. **Per-milestone remaining balance not shown** -- All surfaces display the original `amount_cents` instead of what's actually still owed on each milestone after partial payments
+2. **Stale UI after regeneration** -- Query key mismatches prevent the admin portal from refreshing after clicking Regenerate
+3. **Billing label inconsistency** -- PaymentList uses raw string replacement instead of friendly labels
 
 ---
 
-### Issue 2: Admin Payment Email -- Wrong Remaining Balance
+### Category 1: Per-Milestone Remaining Balance (The Big One)
 
-**Where:** `emailTemplates.ts` line 2060
+**Current behavior:** The Super Bowl Test has $50.33 paid ($40.33 deposit + $5 + $5 custom). The 40% milestone shows "$161.32" everywhere. But $10.00 of that has already been covered by the custom payments overflowing past the deposit. The milestone should show "$151.32 remaining".
 
-The admin "payment received" email shows: `Remaining = total_amount - current_payment_amount`. This only subtracts the current payment, not the cumulative total. A second $5 payment shows remaining as $398.30 instead of $352.97.
+**This affects 4 surfaces:**
 
-**Fix:** Use cumulative totalPaid: `Remaining = total_amount - totalPaid`. The totalPaid value will be passed through the same metadata fix from Issue 1.
+| Surface | File | What it shows | What it should show |
+|---------|------|---------------|---------------------|
+| Customer portal milestone list | `PaymentCard.tsx` line 278 | `$161.32` | `$151.32 remaining` |
+| Customer portal Pay button | `PaymentCard.tsx` lines 69, 176, 315, 348 | Pay $161.32 | Pay $151.32 |
+| Admin milestone list | `PaymentScheduleSection.tsx` line 227 | `$161.32` | `$161.32 (scheduled) / $151.32 remaining` |
+| Print view | `EstimatePrintView.tsx` line 350 | `$161.32` | `$151.32 remaining` |
+
+**Fix -- 2 parts:**
+
+**Part A: New waterfall calculator in `paymentFormatters.ts`**
+
+Add a `calculateMilestoneBalances(milestones, totalPaid)` function that walks through milestones in order, distributing `totalPaid` across them:
+
+```text
+For each milestone (in due-date order):
+  appliedCents = min(milestone.amount_cents, remainingPaid)
+  remainingCents = milestone.amount_cents - appliedCents
+  remainingPaid -= appliedCents
+```
+
+Returns enriched milestone array with `appliedCents` and `remainingCents` per milestone.
+
+**Part B: Update display components**
+
+- **PaymentCard.tsx**: Call `calculateMilestoneBalances(milestones, totalPaidFromTransactions)` and display `remainingCents` for unpaid milestones. Show "X remaining of Y" when they differ. Fix `handlePayMilestone` to send `remainingCents` instead of `amount_cents`.
+- **PaymentScheduleSection.tsx**: Same waterfall calculation using the transaction-based `totalPaid` already computed on line 94. Show remaining per milestone.
+- **EstimatePrintView.tsx**: Apply waterfall and show remaining amounts.
+
+**Part C: Checkout session safety (already handled)**
+
+The `create-checkout-session` edge function at line 150-157 uses `milestone.amount_cents` directly when `payment_type === 'milestone'`. However, since `PaymentCard.tsx` sends a `milestone_id` (not an explicit amount), the server fetches the original `amount_cents`. This means clicking "Pay" on the milestone would charge $161.32 even though only $151.32 is owed.
+
+Fix: Change `PaymentCard.tsx` to send `paymentType: 'custom'` with `amount: remainingCents` instead of `paymentType: 'milestone'` with `milestoneId`. Alternatively, pass the remaining amount explicitly. The checkout session already handles `customAmount` correctly at line 115-117.
 
 ---
 
-### Issue 3: Estimate Ready Email -- Raw Milestone Labels
+### Category 2: Stale UI After Regeneration (Query Key Mismatch)
 
-**Where:** `emailTemplates.ts` line 1789
+The actual query key for milestone data is:
+```text
+['invoices', 'detail', invoiceId, 'with-milestones']
+```
+(from `invoiceKeys.detail(id)` which is `['invoices', 'detail', id]` + `'with-milestones'`)
 
-Displays `(m.milestone_type || 'payment').replaceAll('_', ' ')` which renders "DEPOSIT", "MILESTONE", "FINAL" in uppercase with no friendly mapping.
+But three locations invalidate the wrong key `['invoice-with-milestones', invoiceId]`:
 
-**Fix:** Create a shared `formatMilestoneLabel()` function at the top of `emailTemplates.ts` with case-insensitive lookup. Use it here and in all other email milestone displays.
+| File | Line | Wrong Key | Correct Key |
+|------|------|-----------|-------------|
+| `useEstimateActions.tsx` | 98 | `['invoice-with-milestones', id]` | `[...invoiceKeys.detail(id), 'with-milestones']` |
+| `usePaymentScheduleSync.ts` | 48 | `['invoice-with-milestones', id]` | `[...invoiceKeys.detail(id), 'with-milestones']` |
+| `useInvoiceTotalSync.ts` | 67, 112 | `['invoice-with-milestones', id]` | `[...invoiceKeys.detail(id), 'with-milestones']` |
 
----
-
-### Issue 4: Approval Confirmation Email -- Label Map Mismatch
-
-**Where:** `emailTemplates.ts` lines 1840-1848
-
-Local `getMilestoneLabel` has lowercase keys (booking_deposit, deposit, mid_payment, etc.) that don't match the database values (DEPOSIT, MILESTONE, FINAL). Falls through to raw string display.
-
-**Fix:** Replace with the shared `formatMilestoneLabel()` that normalizes to lowercase before lookup.
-
----
-
-### Issue 5: PDF -- Label Map Mismatch
-
-**Where:** `generate-invoice-pdf/index.ts` lines 162-172
-
-`formatMilestoneType` has keys like `booking_deposit`, `midpoint`, `full_payment` -- none match the actual DB values (DEPOSIT, MILESTONE, FINAL). Fallback capitalizes each word but doesn't map to friendly names, so "DEPOSIT" stays as "Deposit" (acceptable) but "MILESTONE" becomes "Milestone" (should be "Milestone Payment").
-
-**Fix:** Update the keys to match actual DB values with case-insensitive lookup: DEPOSIT -> "Booking Deposit", MILESTONE -> "Milestone Payment", FINAL -> "Final Balance", FULL -> "Full Payment", COMBINED -> "Booking Deposit".
+Additionally, `handleRegenerateMilestones` should also invalidate:
+- `[...invoiceKeys.detail(id), 'payment-summary']` -- refreshes payment summary
+- `['payment-transactions', id]` -- refreshes transaction list
+- `['events']` -- refreshes event list badges
 
 ---
 
-### Issue 6: Print View -- Raw milestone_type with No Label Map
+### Category 3: Billing Label in PaymentList
 
-**Where:** `EstimatePrintView.tsx` line 345
+**File:** `PaymentList.tsx` line 258
 
-Uses `milestone.milestone_type.replace('_', ' ')` with CSS `capitalize`. "DEPOSIT" renders as "Deposit" (ok), but "MILESTONE" renders as "Milestone" (missing "Payment" suffix).
+Uses raw regex replacement: `milestone_type?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())`
 
-**Fix:** Import and use `getMilestoneLabel` from `paymentFormatters.ts` instead of raw string manipulation.
+This turns "DEPOSIT" into "Deposit" and "MILESTONE" into "Milestone" (should be "Milestone Payment").
+
+Fix: Add a label map matching the one in `PaymentScheduleSection.tsx` (uppercase keys: DEPOSIT, MILESTONE, BALANCE, FULL, FINAL, COMBINED).
+
+---
+
+### Category 4: Preview Email Sample Data (Minor)
+
+**File:** `preview-email/index.ts` lines 92-96
+
+Sample milestones use old types (`deposit`, `mid_payment`, `final_payment`) that don't match actual DB values (`DEPOSIT`, `MILESTONE`, `FINAL`). This means the email preview in Settings shows labels that won't match real emails.
+
+Fix: Update sample milestone types to uppercase DB values.
 
 ---
 
 ### Changes by File
 
-**1. `supabase/functions/_shared/emailTemplates.ts`**
+**1. `src/utils/paymentFormatters.ts`**
+- Add `calculateMilestoneBalances(milestones: Milestone[], totalPaid: number)` function
+- Returns array of `{ ...milestone, appliedCents, remainingCents }` objects
+- Uses same waterfall logic as backend `apply-payment-waterfall`
 
-- Add a shared `formatMilestoneLabel(type: string)` near the top (alongside existing `formatCurrency`, `formatDate` helpers). Keys: deposit, combined -> "Booking Deposit"; milestone -> "Milestone Payment"; final, balance -> "Final Balance"; full -> "Full Payment".
-- **Line 1789** (estimate_ready): Replace `.replaceAll('_', ' ')` with `formatMilestoneLabel(m.milestone_type)`
-- **Lines 1840-1848** (approval_confirmation): Replace local `getMilestoneLabel` with shared `formatMilestoneLabel`
-- **Lines 1956-1958** (payment_received customer): Replace `remainingMilestones.reduce(...)` with `(invoice?.total_amount || 0) - (context as any).totalPaid` to use transaction-based remaining
-- **Line 2060** (payment_received admin): Replace `(invoice?.total_amount || 0) - amount` with `(invoice?.total_amount || 0) - totalPaid` where totalPaid comes from context
-- **Line 2115** (payment_reminder): Replace `m.description || m.milestone_type || 'Payment'` with `m.description || formatMilestoneLabel(m.milestone_type) || 'Payment'`
+**2. `src/components/customer/PaymentCard.tsx`**
+- Import and call `calculateMilestoneBalances` with milestones + `totalPaidFromTransactions`
+- In milestone list (line 278): show `remainingCents` instead of `amount_cents` for unpaid milestones; show "X remaining of Y" when they differ
+- In desktop CTA (lines 176, 202): show `remainingCents`
+- In mobile scheduled tab (lines 315, 328, 348): show `remainingCents`
+- In `handlePayMilestone`: send `remainingCents` as amount with `paymentType: 'custom'` instead of sending `milestone.amount_cents` with `paymentType: 'milestone'`
 
-**2. `supabase/functions/send-customer-portal-email/index.ts`**
+**3. `src/components/admin/events/PaymentScheduleSection.tsx`**
+- Import and call `calculateMilestoneBalances` with milestones + `paymentSummary.totalPaid`
+- In milestone display (line 227): show remaining alongside original when they differ (e.g., "$151.32 remaining of $161.32")
 
-- **Line 139**: Add `'payment_confirmation'` to the condition that fetches milestones (change from `type === 'approval_confirmation' || type === 'estimate_ready' || type === 'payment_reminder'` to also include `type === 'payment_confirmation'`)
-- **Line 150**: Add `'payment_confirmation'` to the condition that fetches totalPaid from transactions
+**4. `src/pages/EstimatePrintView.tsx`**
+- Import `calculateMilestoneBalances` from `paymentFormatters.ts`
+- Apply waterfall before rendering milestone table
+- Show remaining amount column
 
-**3. `supabase/functions/stripe-webhook/index.ts`**
+**5. `src/hooks/useEstimateActions.tsx`**
+- Line 98: Replace `['invoice-with-milestones', invoiceId]` with `[...invoiceKeys.detail(invoiceId), 'with-milestones']`
+- Add invalidation for payment-summary, payment-transactions, events
 
-- **Lines 226-231** (full payment email metadata): Add `totalPaid` to the metadata object
-- **Lines 256-260** (partial payment email metadata): Add `totalPaid` to the metadata object
-- **Lines 210-213** (admin notification full): Add `totalPaid` to metadata
-- **Lines 274-278** (admin notification partial): Add `totalPaid` to metadata
+**6. `src/hooks/usePaymentScheduleSync.ts`**
+- Line 48: Replace `['invoice-with-milestones', invoiceId]` with correct key
+- Line 49: Also add payment-summary invalidation
 
-**4. `supabase/functions/generate-invoice-pdf/index.ts`**
+**7. `src/hooks/useInvoiceTotalSync.ts`**
+- Lines 67, 112: Replace `['invoice-with-milestones', invoiceId]` with correct key
 
-- **Lines 162-172**: Update `formatMilestoneType` to normalize input with `.toLowerCase()` and add correct keys: deposit -> "Booking Deposit", combined -> "Booking Deposit", milestone -> "Milestone Payment", balance/final -> "Final Balance", full -> "Full Payment"
+**8. `src/components/admin/billing/PaymentList.tsx`**
+- Line 258: Replace raw regex with label map (DEPOSIT -> "Booking Deposit", MILESTONE -> "Milestone Payment", etc.)
 
-**5. `src/pages/EstimatePrintView.tsx`**
-
-- **Line 1**: Import `getMilestoneLabel` from `@/utils/paymentFormatters`
-- **Line 345**: Replace `milestone.milestone_type.replace('_', ' ')` with `getMilestoneLabel(milestone.milestone_type)`
+**9. `supabase/functions/preview-email/index.ts`**
+- Lines 93-95: Update sample milestone types from `deposit`/`mid_payment`/`final_payment` to `DEPOSIT`/`MILESTONE`/`FINAL`
 
 ---
 
-### Deploy Order
-
-1. Update `emailTemplates.ts` (shared label function + remaining balance fixes)
-2. Update `send-customer-portal-email/index.ts` (fetch milestones + totalPaid for payment confirmations)
-3. Update `stripe-webhook/index.ts` (pass totalPaid in email metadata)
-4. Update `generate-invoice-pdf/index.ts` (fix label map)
-5. Update `EstimatePrintView.tsx` (use shared label function)
-6. Deploy edge functions: stripe-webhook, send-customer-portal-email, generate-invoice-pdf
-
 ### What Does NOT Change
 
-- Customer portal PaymentCard (already fixed with transaction-based progress from RPC)
-- Admin PaymentScheduleSection (already correct -- uppercase keys, transaction history display)
-- Payment Success page (already uses verify-payment response)
-- Milestone generation/waterfall logic (already correct)
-- Checkout session creation (already fixed)
-- Payment reminder emails (already use transaction-based totalPaid from context -- line 2069)
+- Database schema or milestone records (`amount_cents` stays as original scheduled amount -- it represents the target, not the balance)
+- Backend waterfall logic (`apply-payment-waterfall` -- already correct)
+- Checkout session edge function (already handles custom amounts at line 115-117)
+- Email templates (already fixed in previous changes)
+- PDF generation edge function (already fixed labels)
+- Overall progress bar calculations (already use transaction-based `totalPaid`)
+
+### Deploy Order
+
+1. Update `paymentFormatters.ts` (add waterfall calculator)
+2. Update `PaymentCard.tsx` (customer portal display + payment button fix)
+3. Update `PaymentScheduleSection.tsx` (admin display)
+4. Update `EstimatePrintView.tsx` (print view)
+5. Fix query key mismatches in `useEstimateActions.tsx`, `usePaymentScheduleSync.ts`, `useInvoiceTotalSync.ts`
+6. Fix `PaymentList.tsx` labels
+7. Fix `preview-email/index.ts` sample data
+8. Deploy `preview-email` edge function
 
 ### Risk Assessment
 
-All changes are additive or replace incorrect calculations with correct ones. No workflow logic changes. No database schema changes. The only behavioral change is that payment confirmation emails will now show accurate remaining balances instead of milestone-derived ones.
+- The waterfall calculator is pure client-side math -- no database changes
+- Payment button fix is critical for preventing overcharges (currently could charge $161.32 when only $151.32 is owed)
+- Query key fixes are low-risk -- they only affect cache invalidation timing
+- All changes are additive or replace incorrect values with correct ones
+
