@@ -160,15 +160,17 @@ serve(async (req) => {
 
     // Format milestone type
     const formatMilestoneType = (type: string) => {
+      if (!type) return 'Payment';
+      const normalized = type.toLowerCase();
       const types: Record<string, string> = {
-        'booking_deposit': 'Booking Deposit',
-        'midpoint': 'Midpoint Payment',
-        'final': 'Final Payment',
-        'full_payment': 'Full Payment',
-        'deposit': 'Deposit',
-        'balance': 'Balance Due'
+        'deposit': 'Booking Deposit',
+        'combined': 'Booking Deposit',
+        'milestone': 'Milestone Payment',
+        'final': 'Final Balance',
+        'balance': 'Final Balance',
+        'full': 'Full Payment',
       };
-      return types[type] || type.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      return types[normalized] || type.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
     };
 
     // Format event type

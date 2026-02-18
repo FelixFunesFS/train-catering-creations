@@ -209,7 +209,8 @@ serve(async (req) => {
                   metadata: {
                     amount: session.amount_total,
                     payment_type: 'full',
-                    full_payment: true
+                    full_payment: true,
+                    totalPaid
                   }
                 }
               });
@@ -227,7 +228,8 @@ serve(async (req) => {
                   metadata: {
                     amount: session.amount_total,
                     payment_type: 'full',
-                    is_full_payment: true
+                    is_full_payment: true,
+                    totalPaid
                   }
                 }
               });
@@ -257,7 +259,8 @@ serve(async (req) => {
                   metadata: {
                     amount: session.amount_total,
                     payment_type: session.metadata?.payment_type || 'deposit',
-                    is_full_payment: false
+                    is_full_payment: false,
+                    totalPaid
                   }
                 }
               });
@@ -275,7 +278,8 @@ serve(async (req) => {
                   metadata: {
                     amount: session.amount_total,
                     payment_type: session.metadata?.payment_type || 'deposit',
-                    full_payment: false
+                    full_payment: false,
+                    totalPaid
                   }
                 }
               });

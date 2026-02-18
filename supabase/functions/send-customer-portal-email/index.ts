@@ -136,7 +136,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Fetch milestones when needed for customer-facing schedule previews
     let milestones: any[] = [];
-    if (type === 'approval_confirmation' || type === 'estimate_ready' || type === 'payment_reminder') {
+    if (type === 'approval_confirmation' || type === 'estimate_ready' || type === 'payment_reminder' || type === 'payment_confirmation') {
       const { data: milestonesData } = await supabase
         .from('payment_milestones')
         .select('*')
@@ -147,7 +147,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Fetch actual payment totals for payment reminders
     let totalPaid = 0;
-    if (type === 'payment_reminder') {
+    if (type === 'payment_reminder' || type === 'payment_confirmation') {
       const { data: payments } = await supabase
         .from('payment_transactions')
         .select('amount')

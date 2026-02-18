@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2 } from 'lucide-react';
 import { formatDate, formatTime, formatServiceType } from '@/utils/formatters';
+import { getMilestoneLabel } from '@/utils/paymentFormatters';
 import { DEFAULT_TERMS } from '@/hooks/useCateringAgreement';
 
 interface LineItem {
@@ -342,7 +343,7 @@ export default function EstimatePrintView() {
                 {milestones.map((milestone, idx) => (
                   <tr key={milestone.id} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                     <td className="p-3 border-b border-gray-200 capitalize">
-                      {milestone.milestone_type.replace('_', ' ')}
+                      {getMilestoneLabel(milestone.milestone_type)}
                     </td>
                     <td className="p-3 text-center border-b border-gray-200">{milestone.percentage}%</td>
                     <td className="p-3 text-right border-b border-gray-200 font-medium">
