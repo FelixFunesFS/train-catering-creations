@@ -767,14 +767,15 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
               <CardContent className="pt-0 space-y-2">
                 {milestones.map((milestone: any) => {
                   const getMilestoneLabel = (type: string) => {
-                    switch (type) {
-                      case 'deposit': return 'Booking Deposit';
-                      case 'combined': return 'Booking Deposit';
-                      case 'milestone': return 'Milestone Payment';
-                      case 'balance': return 'Final Balance';
-                      case 'full': return 'Full Payment';
-                      case 'final': return 'Full Payment (Net 30)';
-                      default: return type.replace('_', ' ');
+                     const t = type.toLowerCase();
+                     switch (t) {
+                       case 'deposit': return 'Booking Deposit';
+                       case 'combined': return 'Booking Deposit';
+                       case 'milestone': return 'Milestone Payment';
+                       case 'balance': return 'Final Balance';
+                       case 'full': return 'Full Payment';
+                       case 'final': return 'Full Payment (Net 30)';
+                       default: return type.replace('_', ' ');
                     }
                   };
                   return (

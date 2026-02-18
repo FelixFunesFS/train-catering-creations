@@ -38,7 +38,7 @@ export const getMilestoneLabel = (type: string): string => {
     full: 'Full Payment',
     final: 'Full Payment (Net 30)',
   };
-  return labels[type] || type.replace('_', ' ');
+  return labels[type.toLowerCase()] || type.replace('_', ' ');
 };
 
 /**
