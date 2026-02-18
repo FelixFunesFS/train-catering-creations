@@ -157,11 +157,14 @@ const handler = async (req: Request): Promise<Response> => {
     const sessionParams: Record<string, unknown> = {
       customer: stripeCustomerId,
       payment_method_types: ["card"],
+      payment_method_options: {
+        link: { enabled: false },
+      },
       line_items: [{
         price_data: {
           currency: "usd",
           product_data: {
-            name: `${invoice.quote_requests?.event_name || 'Catering Event'} - ${payment_type === 'deposit' ? '50% Deposit' : 'Payment'}`,
+            name: `Soul Train's Eatery LLC - ${invoice.quote_requests?.event_name || 'Catering Event'} (${payment_type === 'deposit' ? 'Deposit' : 'Payment'})`,
             description: `Event Date: ${invoice.quote_requests?.event_date || 'TBD'}`,
           },
           unit_amount: paymentAmount,
