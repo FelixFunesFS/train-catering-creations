@@ -2011,6 +2011,7 @@ export type Database = {
           line_items: Json
           milestones: Json
           quote: Json
+          total_paid: number
         }[]
       }
       get_event_summary_for_user: {
