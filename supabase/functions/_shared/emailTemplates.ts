@@ -82,6 +82,23 @@ export const formatServiceType = (serviceType: string): string => {
     .join(' ');
 };
 
+/**
+ * Shared milestone label formatter - case-insensitive lookup
+ * Matches DB values: DEPOSIT, MILESTONE, FINAL, FULL, COMBINED
+ */
+export const formatMilestoneLabel = (type: string): string => {
+  if (!type) return 'Payment';
+  const labels: Record<string, string> = {
+    deposit: 'Booking Deposit',
+    combined: 'Booking Deposit',
+    milestone: 'Milestone Payment',
+    balance: 'Final Balance',
+    final: 'Final Balance',
+    full: 'Full Payment',
+  };
+  return labels[type.toLowerCase()] || type.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+};
+
 export const formatEventType = (eventType: string | null): string => {
   if (!eventType) return 'Event';
   
@@ -1786,7 +1803,7 @@ export function getEmailContentBlocks(
               ${milestones.map((m: any, i: number) => `
                 <tr style="background:${i === 0 ? '#fff3cd' : (i % 2 === 0 ? '#fafafa' : '#ffffff')};">
                   <td style="padding:12px 10px;border-bottom:1px solid #e5e5e5;">
-                    ${(m.milestone_type || 'payment').replaceAll('_', ' ')}
+                    ${formatMilestoneLabel(m.milestone_type)}
                     ${i === 0 ? '<span style="color:#d97706;font-weight:bold;margin-left:8px;">← First Payment</span>' : ''}
                   </td>
                   <td style="padding:12px 10px;border-bottom:1px solid #e5e5e5;">
@@ -1837,16 +1854,7 @@ export function getEmailContentBlocks(
           ? formatCurrency(firstMilestone.amount_cents)
           : formatCurrency(Math.round(total * 0.5));
 
-        const getMilestoneLabel = (type: string): string => {
-          const labels: Record<string, string> = {
-            'booking_deposit': 'Booking Deposit',
-            'deposit': 'Deposit',
-            'mid_payment': 'Milestone Payment',
-            'final_payment': 'Final Balance',
-            'full_payment': 'Full Payment'
-          };
-          return labels[type] || type.replace('_', ' ');
-        };
+        // Use shared formatMilestoneLabel for consistent labeling
 
         const paymentBoxHtml = `
           <div style="background-color:${BRAND_COLORS.crimson};background:linear-gradient(135deg,${BRAND_COLORS.crimson},${BRAND_COLORS.crimsonDark});padding:20px;border-radius:8px;margin:20px 0;">
@@ -1874,7 +1882,7 @@ export function getEmailContentBlocks(
                 ${milestones.map((m: any, i: number) => `
                   <tr style="background:${i === 0 ? '#fff3cd' : (i % 2 === 0 ? '#fafafa' : '#ffffff')};">
                     <td style="padding:12px 10px;border-bottom:1px solid #e5e5e5;">
-                      ${getMilestoneLabel(m.milestone_type)}
+                      ${formatMilestoneLabel(m.milestone_type)}
                       ${i === 0 ? '<span style="color:#d97706;font-weight:bold;margin-left:8px;">← Pay Now</span>' : ''}
                     </td>
                     <td style="padding:12px 10px;border-bottom:1px solid #e5e5e5;">
@@ -1953,9 +1961,10 @@ export function getEmailContentBlocks(
         const amount = paymentAmount || 0;
         const fullPay = isFullPayment || false;
 
-        // Calculate remaining balance from unpaid milestones (accurate, not total - amount)
+        // Calculate remaining balance from authoritative transaction-based totalPaid
+        const txTotalPaid = (context as any).totalPaid || 0;
+        const remainingBalance = Math.max(0, (invoice?.total_amount || 0) - txTotalPaid);
         const remainingMilestones = milestones?.filter(m => m.status !== 'paid') || [];
-        const remainingBalance = remainingMilestones.reduce((sum, m) => sum + m.amount_cents, 0);
         
         // Find the next unpaid milestone for dynamic due date
         const nextMilestone = remainingMilestones[0];
@@ -2057,7 +2066,7 @@ export function getEmailContentBlocks(
           { type: 'customer_contact' },
           { type: 'event_details' },
           { type: 'menu_with_pricing' },
-          { type: 'text', data: { html: `<p style="margin:16px 0;font-size:15px;color:#333;"><strong>Invoice:</strong> ${invoice?.invoice_number || 'N/A'}<br><strong>Amount Paid:</strong> ${formatCurrency(amount)}<br><strong>Remaining Balance:</strong> ${formatCurrency((invoice?.total_amount || 0) - amount)}</p>` }},
+          { type: 'text', data: { html: `<p style="margin:16px 0;font-size:15px;color:#333;"><strong>Invoice:</strong> ${invoice?.invoice_number || 'N/A'}<br><strong>Amount Paid:</strong> ${formatCurrency(amount)}<br><strong>Remaining Balance:</strong> ${formatCurrency(Math.max(0, (invoice?.total_amount || 0) - ((context as any).totalPaid || amount)))}</p>` }},
         ];
         ctaButton = { text: 'View Payment Details', href: `${siteUrl}/admin?view=billing`, variant: 'primary' };
       }
@@ -2112,7 +2121,7 @@ export function getEmailContentBlocks(
                 const dueText = m.due_date ? new Date(m.due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : (m.is_due_now ? 'Now' : '—');
                 return `
                   <tr style="border-bottom:1px solid #eee;">
-                    <td style="padding:10px 8px;">${statusIcon} ${m.description || m.milestone_type || 'Payment'}</td>
+                    <td style="padding:10px 8px;">${statusIcon} ${m.description || formatMilestoneLabel(m.milestone_type) || 'Payment'}</td>
                     <td style="padding:10px 8px;text-align:right;font-weight:600;">${formatCurrency(m.amount_cents)}</td>
                     <td style="padding:10px 8px;text-align:center;">${dueText}</td>
                     <td style="padding:10px 8px;text-align:center;color:${statusColor};font-weight:600;">${statusText}</td>
