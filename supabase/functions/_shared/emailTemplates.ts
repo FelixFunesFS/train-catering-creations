@@ -1987,6 +1987,7 @@ export function getEmailContentBlocks(
             'deposit': 'Booking Deposit',
             'booking_deposit': 'Booking Deposit',
             'combined': 'Booking Deposit',
+            'final': 'Final Balance',
             'milestone': 'Milestone Payment',
             'mid_payment': 'Milestone Payment',
             'balance': 'Final Balance',

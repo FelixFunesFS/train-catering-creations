@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback } from 'react';
-import { getMilestoneLabel } from '@/utils/paymentFormatters';
+import { getMilestoneLabel, calculateMilestoneBalances } from '@/utils/paymentFormatters';
+import { usePaymentTransactions } from '@/hooks/useInvoices';
 import { useNavigate } from 'react-router-dom';
 import { TaxCalculationService } from '@/services/TaxCalculationService';
 import { useInvoice, useInvoiceWithMilestones } from '@/hooks/useInvoices';
@@ -84,6 +85,23 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
   const { data: currentInvoice } = useInvoice(invoice?.id);
   const { data: invoiceWithMilestones } = useInvoiceWithMilestones(invoice?.id);
   const milestones = invoiceWithMilestones?.milestones || [];
+  const { data: transactions } = usePaymentTransactions(invoice?.id);
+  const enrichedMilestones = useMemo(() => {
+    const completedTransactions = (transactions || []).filter(t => t.status === 'completed');
+    const totalPaid = completedTransactions.reduce((sum, t) => sum + t.amount, 0);
+    return calculateMilestoneBalances(
+      milestones.map(m => ({
+        id: m.id,
+        milestone_type: m.milestone_type,
+        amount_cents: m.amount_cents,
+        percentage: m.percentage,
+        status: m.status,
+        due_date: m.due_date,
+        is_due_now: m.is_due_now,
+      })),
+      totalPaid
+    );
+  }, [milestones, transactions]);
   const deleteLineItem = useDeleteLineItem();
   const { mutate: regenerateLineItems, isPending: isRegeneratingItems } = useRegenerateLineItems();
   // Use the unified editable invoice hook
@@ -766,7 +784,7 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
                 </div>
               </CardHeader>
               <CardContent className="pt-0 space-y-2">
-              {milestones.map((milestone: any) => {
+              {enrichedMilestones.map((milestone) => {
                   return (
                     <div 
                       key={milestone.id}
@@ -780,7 +798,14 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="font-medium">{formatCurrency(milestone.amount_cents)}</p>
+                        <p className="font-medium">
+                          {formatCurrency(milestone.status === 'paid' ? milestone.amount_cents : milestone.remainingCents)}
+                          {milestone.status !== 'paid' && milestone.remainingCents < milestone.amount_cents && (
+                            <span className="text-muted-foreground font-normal text-xs block">
+                              of {formatCurrency(milestone.amount_cents)}
+                            </span>
+                          )}
+                        </p>
                         <Badge variant={milestone.status === 'paid' ? 'default' : 'outline'} className="text-xs">
                           {milestone.status}
                         </Badge>
