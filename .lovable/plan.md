@@ -1,85 +1,57 @@
 
 
-## Add Client-Side Pagination to Admin Views
+## Inline Amount Selector on Embedded Checkout
 
-### Approach
+### The Problem
 
-Add simple client-side pagination to three admin views. All data is already fetched and filtered in memory, so we just slice the results into pages. No database query or hook changes needed.
+Currently, changing the payment amount from the Stripe card view requires three steps:
+1. Click "Change amount" (destroys the card form)
+2. Select a new amount from a dropdown on a separate screen
+3. Click "Take Payment" (reloads the card form)
 
-A shared pagination component will be reused across all three views, using the existing `src/components/ui/pagination.tsx` primitives.
+This creates unnecessary friction. The admin loses context and has to wait for the form to reload twice.
 
-### 1. Create a reusable pagination hook
+### The Solution
 
-**New file:** `src/hooks/usePagination.ts`
+Replace the separate "amount picker" screen with a compact inline amount selector that sits **above** the embedded checkout form. When the admin picks a different amount, the checkout automatically reloads with the new amount -- no extra clicks, no separate screen.
 
-A small hook that accepts a total item count and page size, and returns:
-- `currentPage`, `setCurrentPage`
-- `totalPages`
-- `startIndex`, `endIndex` (for slicing arrays)
-- Auto-resets to page 1 when filters change (via a dependency array)
+**Layout (top to bottom):**
+1. Compact amount selector row (segmented buttons or small dropdown) + share link button
+2. Embedded Stripe card form
 
-### 2. Create a reusable PaginationControls component
+### How It Works
 
-**New file:** `src/components/admin/PaginationControls.tsx`
+- The amount selector shows options as compact buttons or a single-line dropdown: **Full Balance**, **Deposit (next milestone %)**, **Custom**
+- Selecting a different option immediately triggers a new checkout session and swaps the embedded form
+- The "Share link instead" button stays inline at the top alongside the selector
+- The separate `showAmountPicker` screen/state is removed entirely -- no more toggling between views
+- Custom amount shows a small inline input field that appears when "Custom" is selected, with a confirmation button to reload the form
 
-A compact, mobile-friendly component built on the existing `pagination.tsx` primitives. Shows:
-- Previous / Next buttons
-- Current page indicator ("Page 1 of 5")
-- Item count summary ("Showing 1-10 of 47")
+### What Changes
 
-### 3. Add pagination to EventList
+**File:** `src/components/admin/billing/PaymentRecorder.tsx`
 
-**File:** `src/components/admin/events/EventList.tsx`
+1. **Remove the `showAmountPicker` state** and the entire amount picker conditional block (lines 403-531). This screen is no longer needed.
 
-- Import the hook and component
-- Add `usePagination(eventsWithInvoices.length, 15)` with filter dependencies so page resets on filter/sort/search change
-- Slice `eventsWithInvoices` using `startIndex` and `endIndex` before rendering the table/cards
-- Render `PaginationControls` below the table (list view only -- week/month views show all events on the calendar)
-- Page size: 15 events per page
+2. **Replace the embedded checkout section** (lines 532-583) with a unified view:
+   - A compact row at the top with amount options (e.g., radio-style buttons: "Full | Deposit | Custom") and the "Share link" button
+   - When "Custom" is selected, a small inline dollar input appears below the selector row
+   - The `EmbeddedCheckout` component renders below
+   - Changing the selection clears `embeddedClientSecret`, sets the new `stripePaymentType`, and calls `handleTakePayment()` automatically
 
-### 4. Add pagination to PaymentList
+3. **Update `handleTakePayment`** error handling: on failure, instead of `setShowAmountPicker(true)`, just show the toast error and keep the selector visible (since it's always visible now).
 
-**File:** `src/components/admin/billing/PaymentList.tsx`
+### Edge Cases and Workflow Impact
 
-- Same pattern: `usePagination(filteredInvoices.length, 10)`
-- Slice `filteredInvoices` before the `.map()` render
-- Render `PaginationControls` below the invoice cards
-- Page size: 10 invoices per page
+- **No workflow impact**: The `create-checkout-session` edge function, webhooks, milestone logic, and verify-payment flow are all unchanged. Only the UI arrangement changes.
+- **Rapid switching**: If the admin clicks between options quickly, only the latest checkout session matters. Previous pending sessions expire automatically in Stripe (they are not charged).
+- **Milestone option**: Only appears if there are pending milestones, same as today.
+- **Custom amount validation**: The inline input validates minimum amount and warns if exceeding balance, same as today but inline.
+- **Loading state**: While a new session loads after switching, show a small spinner overlay on the card form area rather than destroying it entirely.
 
-### 5. Add pagination to EmailDeliveryPanel
-
-**File:** `src/components/admin/settings/EmailDeliveryPanel.tsx`
-
-- Same pattern: `usePagination(filtered.length, 25)`
-- Slice `filtered` before the `.map()` render
-- Render `PaginationControls` below the scroll area
-- Page size: 25 emails per page (higher because rows are compact)
-
-### What stays the same
-
-- **SubmissionsCard**: No pagination -- these are active action items (typically under 5), not an archive
-- **All data hooks** (`useQuotes`, `useInvoices`): No changes -- data fetching stays as-is
-- **Filters, sorting, search**: All continue to work -- pagination just slices the final result
-- **Week/month calendar views**: No pagination -- calendars show all events visually
-
-### Technical details
-
-The `usePagination` hook signature:
-
-```text
-usePagination(totalItems: number, pageSize: number, deps?: any[])
-  --> { currentPage, setCurrentPage, totalPages, startIndex, endIndex }
-```
-
-The `deps` array triggers a reset to page 1 whenever filters, search, or sort change, preventing the user from landing on an empty page after changing a filter.
-
-### Files changed
+### Files Changed
 
 | File | Change |
 |------|--------|
-| `src/hooks/usePagination.ts` | New -- reusable pagination state hook |
-| `src/components/admin/PaginationControls.tsx` | New -- shared pagination UI component |
-| `src/components/admin/events/EventList.tsx` | Add pagination (15 per page, list view only) |
-| `src/components/admin/billing/PaymentList.tsx` | Add pagination (10 per page) |
-| `src/components/admin/settings/EmailDeliveryPanel.tsx` | Add pagination (25 per page) |
+| `src/components/admin/billing/PaymentRecorder.tsx` | Remove separate amount picker screen; add inline amount selector above embedded checkout; remove `showAmountPicker` state |
 
