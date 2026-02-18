@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { getMilestoneLabel } from '@/utils/paymentFormatters';
+import { useState, useMemo } from 'react';
+import { getMilestoneLabel, calculateMilestoneBalances } from '@/utils/paymentFormatters';
 import { usePagination } from '@/hooks/usePagination';
 import { PaginationControls } from '@/components/admin/PaginationControls';
 import { format, parseISO, isAfter, startOfDay, addDays, isEqual } from 'date-fns';
@@ -190,6 +190,24 @@ export function PaymentList() {
           const milestoneOverdue = nextMilestone && isMilestoneOverdue(nextMilestone.due_date, nextMilestone.milestone_type);
           const milestoneDueToday = nextMilestone && isMilestoneDueToday(nextMilestone.due_date);
 
+          // Apply waterfall to get remaining balance for next milestone
+          const parsedMilestones = (invoice.milestones as any[] || []);
+          const enrichedMilestones = calculateMilestoneBalances(
+            parsedMilestones.map((m: any) => ({
+              id: m.id,
+              milestone_type: m.milestone_type,
+              amount_cents: m.amount_cents,
+              percentage: m.percentage,
+              status: m.status,
+              due_date: m.due_date,
+              is_due_now: m.is_due_now,
+            })),
+            totalPaid
+          );
+          const enrichedNext = nextMilestone
+            ? enrichedMilestones.find((e) => e.id === nextMilestone.id)
+            : null;
+
           return (
             <Card key={invoice.invoice_id} className="hover:shadow-md transition-shadow">
               <CardHeader className="pb-2">
@@ -259,7 +277,12 @@ export function PaymentList() {
                        {getMilestoneLabel(nextMilestone.milestone_type || '')}:
                       </span>{' '}
                       <span className={milestoneOverdue ? 'text-destructive font-medium' : milestoneDueToday ? 'text-amber-600 font-medium' : ''}>
-                        {formatCurrency(nextMilestone.amount_cents || 0)}
+                        {formatCurrency(enrichedNext?.remainingCents ?? nextMilestone.amount_cents ?? 0)}
+                        {enrichedNext && enrichedNext.remainingCents < nextMilestone.amount_cents && (
+                          <span className="text-muted-foreground font-normal text-xs ml-1">
+                            of {formatCurrency(nextMilestone.amount_cents)} scheduled
+                          </span>
+                        )}
                       </span>
                       {nextMilestone.due_date && (
                         <span className={milestoneDueToday ? 'text-amber-600' : 'text-muted-foreground'}>
