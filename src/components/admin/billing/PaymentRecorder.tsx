@@ -247,13 +247,13 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
 
         <Tabs defaultValue="stripe" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="manual" className="flex items-center gap-1.5 text-xs sm:text-sm">
-              <Wallet className="h-3.5 w-3.5" />
-              Manual
-            </TabsTrigger>
             <TabsTrigger value="stripe" className="flex items-center gap-1.5 text-xs sm:text-sm">
               <CreditCard className="h-3.5 w-3.5" />
               Stripe (Card)
+            </TabsTrigger>
+            <TabsTrigger value="manual" className="flex items-center gap-1.5 text-xs sm:text-sm">
+              <Wallet className="h-3.5 w-3.5" />
+              Manual
             </TabsTrigger>
           </TabsList>
 
