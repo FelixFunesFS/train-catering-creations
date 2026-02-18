@@ -415,7 +415,7 @@ const handler = async (req: Request): Promise<Response> => {
     
     // For now, create placeholder milestones at $0 (will be calculated when admin sets prices)
     // Following tier system: Rush (≤14 days) = 100%, Short Notice (15-30) = 60/40, 
-    // Mid-Range (31-44) = 60/40, Standard (45+) = 10/50/40
+    // Mid-Range (31-44) = 60/40, Standard (45+) = 10/40/50
     let milestones: any[] = [];
     
     // Valid milestone_type values: DEPOSIT, MILESTONE, BALANCE, FULL, COMBINED, FINAL
