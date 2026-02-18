@@ -1,57 +1,86 @@
 
 
-## Inline Amount Selector on Embedded Checkout
+## Remove Milestone Button and Fix Partial-Payment-Aware Amounts
 
-### The Problem
+### Problem 1: Redundant "Milestone" button
 
-Currently, changing the payment amount from the Stripe card view requires three steps:
-1. Click "Change amount" (destroys the card form)
-2. Select a new amount from a dropdown on a separate screen
-3. Click "Take Payment" (reloads the card form)
+The inline amount selector currently has four options: **Full**, **Deposit**, **Milestone**, and **Custom**. The "Deposit" button already dynamically picks the next pending milestone and shows its label and amount. The separate "Milestone" button duplicates this with an extra dropdown step. It should be removed.
 
-This creates unnecessary friction. The admin loses context and has to wait for the form to reload twice.
+### Problem 2: Milestone amounts ignore already-paid amounts
 
-### The Solution
+This is the more significant issue. Here is how it works today:
 
-Replace the separate "amount picker" screen with a compact inline amount selector that sits **above** the embedded checkout form. When the admin picks a different amount, the checkout automatically reloads with the new amount -- no extra clicks, no separate screen.
+- A milestone is created with `amount_cents` = percentage of invoice total (e.g., 50% of $5,000 = $2,500)
+- The waterfall logic (in `apply-payment-waterfall`) correctly marks milestones as `paid` or `partial` after a payment completes
+- **But the admin payment UI charges the full milestone `amount_cents`**, even if part of that milestone has already been paid
 
-**Layout (top to bottom):**
-1. Compact amount selector row (segmented buttons or small dropdown) + share link button
-2. Embedded Stripe card form
+**Example scenario:**
+- Invoice total: $5,000
+- Milestone: 50% = $2,500
+- Customer already paid $1,000 toward this milestone (status: `partial`)
+- Admin clicks "Deposit" -- the UI shows $2,500 and charges $2,500
+- Customer is now overcharged by $1,000
 
-### How It Works
+This same issue exists in the **customer-facing checkout** via `create-checkout-session`, where `payment_type: 'deposit'` charges `Math.round(invoice.total_amount * 0.5)` without checking existing payments.
 
-- The amount selector shows options as compact buttons or a single-line dropdown: **Full Balance**, **Deposit (next milestone %)**, **Custom**
-- Selecting a different option immediately triggers a new checkout session and swaps the embedded form
-- The "Share link instead" button stays inline at the top alongside the selector
-- The separate `showAmountPicker` screen/state is removed entirely -- no more toggling between views
-- Custom amount shows a small inline input field that appears when "Custom" is selected, with a confirmation button to reload the form
+### Where this is an issue
 
-### What Changes
+| Location | Issue |
+|----------|-------|
+| `PaymentRecorder.tsx` (admin UI) | `depositAmount` uses `nextPendingMilestone.amount_cents` -- full milestone amount, not remaining |
+| `create-checkout-session` (edge function) | Deposit calculation uses `Math.round(invoice.total_amount * 0.5)` -- ignores partial payments |
+| `usePaymentCheckout.ts` (customer hook) | Passes amount directly from above without adjustment |
 
-**File:** `src/components/admin/billing/PaymentRecorder.tsx`
+### The fix
 
-1. **Remove the `showAmountPicker` state** and the entire amount picker conditional block (lines 403-531). This screen is no longer needed.
+**Principle:** The amount charged for any milestone should be `milestone.amount_cents - amount_already_paid_toward_it`. The `invoice_payment_summary` view already includes milestone data, and `balance_remaining` tracks the overall balance. We need per-milestone remaining amounts.
 
-2. **Replace the embedded checkout section** (lines 532-583) with a unified view:
-   - A compact row at the top with amount options (e.g., radio-style buttons: "Full | Deposit | Custom") and the "Share link" button
-   - When "Custom" is selected, a small inline dollar input appears below the selector row
-   - The `EmbeddedCheckout` component renders below
-   - Changing the selection clears `embeddedClientSecret`, sets the new `stripePaymentType`, and calls `handleTakePayment()` automatically
+### Changes
 
-3. **Update `handleTakePayment`** error handling: on failure, instead of `setShowAmountPicker(true)`, just show the toast error and keep the selector visible (since it's always visible now).
+**1. Update `PaymentRecorder.tsx`**
 
-### Edge Cases and Workflow Impact
+- Remove the "Milestone" button and its dropdown (lines 470-527)
+- Remove `selectedMilestoneId` state and `stripePaymentType === 'milestone'` branches
+- Calculate `depositAmount` as: `Math.min(nextPendingMilestone.amount_cents, balanceRemaining)` -- this ensures the deposit never exceeds what is actually owed
+- For partially-paid milestones (status `partial`), compute the remaining amount using total paid against cumulative milestone thresholds (matching the waterfall logic)
 
-- **No workflow impact**: The `create-checkout-session` edge function, webhooks, milestone logic, and verify-payment flow are all unchanged. Only the UI arrangement changes.
-- **Rapid switching**: If the admin clicks between options quickly, only the latest checkout session matters. Previous pending sessions expire automatically in Stripe (they are not charged).
-- **Milestone option**: Only appears if there are pending milestones, same as today.
-- **Custom amount validation**: The inline input validates minimum amount and warns if exceeding balance, same as today but inline.
-- **Loading state**: While a new session loads after switching, show a small spinner overlay on the card form area rather than destroying it entirely.
+**2. Update `create-checkout-session/index.ts`**
 
-### Files Changed
+- When `payment_type === 'deposit'`, query `payment_transactions` for completed payments on this invoice
+- Calculate the deposit amount as: `Math.max(0, depositTarget - totalAlreadyPaid)` where `depositTarget` is the cumulative amount through the next pending milestone
+- If the remaining deposit amount is 0 or negative (milestone already satisfied), return an error instead of charging $0
+
+**3. Simplify the type options**
+
+After removing "Milestone", the admin sees only three options:
+- **Full** -- charges `balanceRemaining` (already correct)
+- **Deposit** -- charges the remaining amount on the next unpaid milestone (fixed)
+- **Custom** -- admin enters any amount (already correct)
+
+### Technical detail: calculating milestone remaining
+
+The waterfall logic in `apply-payment-waterfall` already does this calculation. The same approach should be mirrored:
+
+```text
+totalPaid = sum of completed transactions
+cumulativeRequired = 0
+
+for each milestone (ordered by due_date):
+  cumulativeRequired += milestone.amount_cents
+  if totalPaid >= cumulativeRequired:
+    milestone is fully paid, skip
+  else:
+    remaining on this milestone = cumulativeRequired - totalPaid
+    this is the deposit amount to charge
+    break
+```
+
+This ensures the deposit button always reflects exactly what the customer still owes on the next milestone, regardless of partial payments.
+
+### Files changed
 
 | File | Change |
 |------|--------|
-| `src/components/admin/billing/PaymentRecorder.tsx` | Remove separate amount picker screen; add inline amount selector above embedded checkout; remove `showAmountPicker` state |
+| `src/components/admin/billing/PaymentRecorder.tsx` | Remove "Milestone" button and dropdown; compute deposit as milestone remaining after partial payments |
+| `supabase/functions/create-checkout-session/index.ts` | Fix deposit calculation to subtract already-paid amounts |
 
