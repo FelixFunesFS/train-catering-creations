@@ -40,9 +40,8 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
   const [sendConfirmationEmail, setSendConfirmationEmail] = useState(true);
 
   // Stripe tab state
-  const [stripePaymentType, setStripePaymentType] = useState<'full' | 'deposit' | 'milestone' | 'custom'>('full');
+  const [stripePaymentType, setStripePaymentType] = useState<'full' | 'deposit' | 'custom'>('full');
   const [customAmount, setCustomAmount] = useState('');
-  const [selectedMilestoneId, setSelectedMilestoneId] = useState('');
   const [stripeLoading, setStripeLoading] = useState(false);
   const [checkoutUrl, setCheckoutUrl] = useState('');
   const [linkCopied, setLinkCopied] = useState(false);
@@ -53,7 +52,7 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
 
   const totalAmount = invoiceSummary?.total_amount || 0;
   const balanceRemaining = invoiceSummary?.balance_remaining || 0;
-  const pendingMilestones = invoiceSummary?.milestones?.filter(m => m.status === 'pending') || [];
+  
 
   const handleManualSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,16 +94,13 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
       const body: Record<string, unknown> = {
         invoice_id: invoiceId,
         access_token: invoice.customer_access_token,
-        payment_type: stripePaymentType === 'custom' ? 'milestone' : stripePaymentType,
+        payment_type: stripePaymentType === 'custom' ? 'custom' : stripePaymentType,
         ui_mode: isLinkMode ? undefined : 'embedded',
       };
 
       if (stripePaymentType === 'custom') {
         const customCents = Math.round(parseFloat(customAmount) * 100);
         body.amount = customCents;
-        body.payment_type = 'custom';
-      } else if (stripePaymentType === 'milestone' && selectedMilestoneId) {
-        body.milestone_id = selectedMilestoneId;
       }
 
       const { data, error } = await supabase.functions.invoke('create-checkout-session', {
@@ -165,13 +161,34 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
 
   // Get the display amount for selected stripe payment type
   // Get next pending milestone for dynamic deposit option
-  const nextPendingMilestone = pendingMilestones.length > 0 ? pendingMilestones[0] : null;
+  // Calculate partial-payment-aware deposit amount using waterfall logic
+  const totalPaid = invoiceSummary?.total_paid || 0;
+  const allMilestones = invoiceSummary?.milestones || [];
+  const sortedMilestones = [...allMilestones].sort((a, b) => 
+    (a.due_date || '').localeCompare(b.due_date || '')
+  );
+
+  let nextPendingMilestone: typeof sortedMilestones[0] | null = null;
+  let depositAmount = 0;
+  {
+    let cumulative = 0;
+    for (const m of sortedMilestones) {
+      cumulative += m.amount_cents;
+      if (totalPaid >= cumulative) continue; // fully satisfied
+      // This is the next milestone that needs payment
+      nextPendingMilestone = m;
+      depositAmount = Math.min(cumulative - totalPaid, balanceRemaining);
+      break;
+    }
+  }
+  // Fallback if no milestones exist
+  if (!nextPendingMilestone && sortedMilestones.length === 0) {
+    depositAmount = Math.min(Math.round(totalAmount * 0.5), balanceRemaining);
+  }
+
   const depositLabel = nextPendingMilestone 
     ? `${nextPendingMilestone.milestone_type} (${nextPendingMilestone.percentage}%)` 
     : '50% Deposit';
-  const depositAmount = nextPendingMilestone 
-    ? nextPendingMilestone.amount_cents 
-    : Math.round(totalAmount * 0.5);
 
   const getStripeAmount = () => {
     if (stripePaymentType === 'full') return balanceRemaining;
@@ -179,10 +196,6 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
     if (stripePaymentType === 'custom') {
       const cents = Math.round(parseFloat(customAmount) * 100);
       return isNaN(cents) ? 0 : cents;
-    }
-    if (stripePaymentType === 'milestone' && selectedMilestoneId) {
-      const milestone = pendingMilestones.find(m => m.id === selectedMilestoneId);
-      return milestone?.amount_cents || 0;
     }
     return 0;
   };
@@ -375,7 +388,7 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
                     <CheckCircle2 className="h-8 w-8 text-emerald-600 mx-auto" />
                     <p className="font-medium text-emerald-800">Payment Link Ready</p>
                     <p className="text-xs text-emerald-600">
-                      {formatCurrency(getStripeAmount())} • {stripePaymentType === 'deposit' ? depositLabel : stripePaymentType === 'milestone' ? 'Milestone Payment' : 'Full Balance'}
+                      {formatCurrency(getStripeAmount())} • {stripePaymentType === 'deposit' ? depositLabel : 'Full Balance'}
                     </p>
                   </div>
 
@@ -435,7 +448,6 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
                         onClick={() => {
                           if (stripePaymentType === 'full') return;
                           setStripePaymentType('full');
-                          setSelectedMilestoneId('');
                           setCustomAmount('');
                           setEmbeddedClientSecret('');
                           setPendingTypeChange(true);
@@ -448,42 +460,24 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
                       >
                         Full {formatCurrency(balanceRemaining)}
                       </button>
-                      {/* Deposit button */}
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (stripePaymentType === 'deposit') return;
-                          setStripePaymentType('deposit');
-                          setSelectedMilestoneId('');
-                          setCustomAmount('');
-                          setEmbeddedClientSecret('');
-                          setPendingTypeChange(true);
-                        }}
-                        className={`px-3 py-1.5 rounded-md text-xs font-medium border transition-colors ${
-                          stripePaymentType === 'deposit'
-                            ? 'bg-primary text-primary-foreground border-primary'
-                            : 'bg-background text-foreground border-input hover:border-primary/50'
-                        }`}
-                      >
-                        {depositLabel} {formatCurrency(depositAmount)}
-                      </button>
-                      {/* Milestone button - only if pending milestones exist */}
-                      {pendingMilestones.length > 0 && (
+                      {/* Deposit button - only show if there's a deposit amount to charge */}
+                      {depositAmount > 0 && (
                         <button
                           type="button"
                           onClick={() => {
-                            if (stripePaymentType === 'milestone') return;
-                            setStripePaymentType('milestone');
+                            if (stripePaymentType === 'deposit') return;
+                            setStripePaymentType('deposit');
                             setCustomAmount('');
                             setEmbeddedClientSecret('');
+                            setPendingTypeChange(true);
                           }}
                           className={`px-3 py-1.5 rounded-md text-xs font-medium border transition-colors ${
-                            stripePaymentType === 'milestone'
+                            stripePaymentType === 'deposit'
                               ? 'bg-primary text-primary-foreground border-primary'
                               : 'bg-background text-foreground border-input hover:border-primary/50'
                           }`}
                         >
-                          Milestone
+                          {depositLabel} {formatCurrency(depositAmount)}
                         </button>
                       )}
                       {/* Custom button */}
@@ -492,7 +486,6 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
                         onClick={() => {
                           if (stripePaymentType === 'custom') return;
                           setStripePaymentType('custom');
-                          setSelectedMilestoneId('');
                           setEmbeddedClientSecret('');
                         }}
                         className={`px-3 py-1.5 rounded-md text-xs font-medium border transition-colors ${
@@ -504,28 +497,6 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
                         Custom
                       </button>
                     </div>
-
-                    {/* Milestone selector - inline */}
-                    {stripePaymentType === 'milestone' && pendingMilestones.length > 0 && (
-                      <div className="pt-1">
-                        <Select value={selectedMilestoneId} onValueChange={(v) => {
-                          setSelectedMilestoneId(v);
-                          setEmbeddedClientSecret('');
-                          setPendingTypeChange(true);
-                        }}>
-                          <SelectTrigger className="h-8 text-xs">
-                            <SelectValue placeholder="Choose milestone" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {pendingMilestones.map(m => (
-                              <SelectItem key={m.id} value={m.id}>
-                                {m.milestone_type} — {formatCurrency(m.amount_cents)} ({m.percentage}%)
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    )}
 
                     {/* Custom amount input - inline */}
                     {stripePaymentType === 'custom' && (
