@@ -1,82 +1,54 @@
 
 
-## Enhancement: Contextual Payment Reminder Greeting Based on Payment Stage
+## Fix: Prevent Outlook/Gmail Thread Trimming on Payment Reminder Emails
 
-### Current Behavior
+### Problem
 
-The payment reminder email always shows:
+Outlook's conversation view groups emails with similar subjects and collapses repeated HTML sections (header/footer) behind "..." dots. The email content IS being delivered -- it is just hidden by the email client.
 
-> "Hi [Name], This is a friendly reminder about your upcoming event [Event Name]."
+### Fix (2 changes)
 
-This is the same whether it's the very first deposit request or a follow-up on an overdue final payment.
+**1. Unique subject line without balance** (`send-customer-portal-email/index.ts`, line ~204)
 
-### Proposed Change
+Include the invoice number in the subject to break thread-matching, but omit the balance amount:
 
-Make the greeting message dynamic based on the payment stage, determined from the `totalPaid` and `milestones` data already available in the template:
-
-**Stage 1 -- Deposit Due (totalPaid === 0, first milestone is deposit)**
-
-> "Hi [Name], We're so excited to be part of your upcoming event, [Event Name]! To secure your date and lock everything in, the next step is a quick deposit. Here's a summary of what's due:"
-
-**Stage 2 -- Mid-Payment / Milestone Due (totalPaid > 0, balance remaining)**
-
-> "Hi [Name], Thank you for your deposit -- your event date is secured! This is a friendly reminder about the next payment for [Event Name]."
-
-**Stage 3 -- Overdue / Final Balance**
-
-> "Hi [Name], This is a friendly reminder about the remaining balance for [Event Name]. We want to make sure everything is set for your big day!"
-
-### How It Works
-
-The logic uses data already passed into the template context -- no new data fetching needed:
-
-- `totalPaid === 0` --> Deposit stage (excited tone)
-- `totalPaid > 0 && balanceDue > 0` --> Mid-payment (thank-you tone)
-- All milestones have overdue dates --> Overdue (gentle urgency)
-
-### Technical Details
-
-**File: `supabase/functions/_shared/emailTemplates.ts` (lines 2130-2131)**
-
-Replace the static greeting text block with a conditional that checks `totalPaid` and milestone status to select the appropriate message. The payment summary box, milestone schedule, event details, and CTA all remain unchanged.
+```
+Before: "Payment Reminder - Uscg Chiefs Call To Initiation Acceptance Dinner"
+After:  "Payment Due - INV-2025-0042 - Uscg Chiefs Call To Initiation Acceptance Dinner"
+```
 
 ```typescript
-// Determine greeting based on payment stage
-const isFirstPayment = totalPaid === 0;
-const hasOverdueMilestones = milestones?.some((m: any) => 
-  m.status !== 'paid' && m.due_date && new Date(m.due_date) < new Date()
-);
+'payment_reminder': `Payment Due - ${invoice.invoice_number || 'Invoice'} - ${quote.event_name}`,
+```
 
-let greetingHtml: string;
-if (isFirstPayment) {
-  greetingHtml = `<p>Hi ${quote.contact_name},</p>
-    <p>We're so excited to be part of your upcoming event, <strong>${quote.event_name}</strong>! 
-    To secure your date and lock everything in, the next step is a quick deposit. 
-    Here's a summary of what's due:</p>`;
-} else if (hasOverdueMilestones) {
-  greetingHtml = `<p>Hi ${quote.contact_name},</p>
-    <p>This is a friendly reminder about the remaining balance for 
-    <strong>${quote.event_name}</strong>. We want to make sure everything 
-    is set for your big day!</p>`;
-} else {
-  greetingHtml = `<p>Hi ${quote.contact_name},</p>
-    <p>Thank you for your deposit — your event date is secured! 
-    This is a friendly reminder about the next payment for 
-    <strong>${quote.event_name}</strong>.</p>`;
-}
+**2. Unique HTML fingerprint per send** (`emailTemplates.ts`, line ~2145)
+
+Add an invisible HTML comment with a unique timestamp as the first content block so the body is never identical to previous emails:
+
+```html
+<!-- ref: payment_reminder-1708234567890 -->
+```
+
+```typescript
+contentBlocks = [
+  { type: 'custom_html', data: { html: `<!-- ref: payment_reminder-${Date.now()} -->` }},
+  { type: 'text', data: { html: greetingHtml }},
+  { type: 'custom_html', data: { html: paymentSummaryHtml }},
+  // ... rest unchanged
+];
 ```
 
 ### Files Changed
 
 | File | Change |
 |------|--------|
-| `supabase/functions/_shared/emailTemplates.ts` | Replace static greeting (line 2131) with conditional greeting based on payment stage |
+| `supabase/functions/send-customer-portal-email/index.ts` | Subject line includes invoice number and event name (no balance) |
+| `supabase/functions/_shared/emailTemplates.ts` | Add unique HTML comment as first content block |
 
 ### What Does NOT Change
 
-- Payment summary box, milestone schedule, event details, CTA -- all unchanged
-- No new data fetching needed (uses existing `totalPaid`, `milestones`)
-- No UI changes
-- No status logic changes
-- No other email templates affected
+- Contextual greeting logic (deposit/mid-payment/overdue) -- kept as-is
+- Email layout, payment summary, milestones, CTA -- all unchanged
+- No other email types affected
+- No UI or database changes
 
