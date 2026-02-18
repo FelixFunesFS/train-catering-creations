@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRecordPayment } from '@/hooks/useInvoices';
 import { useInvoiceSummary } from '@/hooks/useInvoiceSummary';
@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, DollarSign, Mail, CreditCard, Wallet, Copy, ExternalLink, CheckCircle2, AlertCircle, ArrowLeft, Link2 } from 'lucide-react';
+import { Loader2, DollarSign, Mail, CreditCard, Wallet, Copy, ExternalLink, CheckCircle2, AlertCircle, ArrowLeft, Link2, Settings2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { EmbeddedCheckout } from './EmbeddedCheckout';
 
@@ -48,6 +48,8 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
   const [linkCopied, setLinkCopied] = useState(false);
   const [embeddedClientSecret, setEmbeddedClientSecret] = useState('');
   const [showLinkFallback, setShowLinkFallback] = useState(false);
+  const [showAmountPicker, setShowAmountPicker] = useState(false);
+  const autoTriggered = useRef(false);
 
   const totalAmount = invoiceSummary?.total_amount || 0;
   const balanceRemaining = invoiceSummary?.balance_remaining || 0;
@@ -123,6 +125,8 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
         setEmbeddedClientSecret(data.clientSecret);
       }
     } catch (err: any) {
+      // On error, fall back to showing the amount picker so admin can retry
+      setShowAmountPicker(true);
       toast({
         title: 'Error',
         description: err.message || 'Failed to create checkout session',
@@ -184,6 +188,22 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
     }
     return 0;
   };
+
+  // Auto-trigger embedded checkout for full balance on mount
+  useEffect(() => {
+    if (
+      !autoTriggered.current &&
+      invoiceSummary &&
+      !loadingInvoice &&
+      balanceRemaining > 0 &&
+      !embeddedClientSecret &&
+      !checkoutUrl &&
+      !stripeLoading
+    ) {
+      autoTriggered.current = true;
+      handleTakePayment();
+    }
+  }, [invoiceSummary, loadingInvoice, balanceRemaining]);
 
   if (loadingInvoice) {
     return (
@@ -335,27 +355,12 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
           {/* ===== Stripe (Card) Payment Tab ===== */}
           <TabsContent value="stripe">
             <div className="space-y-4">
-              {embeddedClientSecret ? (
-                /* ===== Embedded Checkout Form ===== */
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setEmbeddedClientSecret('')}
-                      className="text-xs"
-                    >
-                      <ArrowLeft className="h-3 w-3 mr-1" />
-                      Back
-                    </Button>
-                    <p className="text-xs text-muted-foreground">
-                      {formatCurrency(getStripeAmount())}
-                    </p>
-                  </div>
-                  <EmbeddedCheckout
-                    clientSecret={embeddedClientSecret}
-                    onComplete={handleEmbeddedComplete}
-                  />
+              {balanceRemaining <= 0 ? (
+                /* ===== Paid in Full ===== */
+                <div className="bg-muted/30 rounded-lg p-6 text-center space-y-2">
+                  <CheckCircle2 className="h-8 w-8 text-emerald-600 mx-auto" />
+                  <p className="font-medium">Paid in Full</p>
+                  <p className="text-sm text-muted-foreground">No balance remaining on this invoice.</p>
                 </div>
               ) : checkoutUrl ? (
                 /* ===== Checkout URL Generated (Link Fallback) ===== */
@@ -395,8 +400,26 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
                     </Button>
                   </div>
                 </div>
-              ) : (
+              ) : showAmountPicker ? (
+                /* ===== Amount Picker (Change Amount) ===== */
                 <>
+                  <div className="flex items-center justify-between">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setShowAmountPicker(false);
+                        // Re-trigger checkout with selected amount
+                        handleTakePayment();
+                      }}
+                      className="text-xs"
+                      disabled={stripeLoading || (stripePaymentType === 'milestone' && !selectedMilestoneId) || (stripePaymentType === 'custom' && (!customAmount || parseFloat(customAmount) <= 0))}
+                    >
+                      <ArrowLeft className="h-3 w-3 mr-1" />
+                      Charge {getStripeAmount() > 0 ? formatCurrency(getStripeAmount()) : ''}
+                    </Button>
+                  </div>
+
                   {/* Payment Type Selection */}
                   <div className="space-y-2">
                     <Label>Payment Type</Label>
@@ -477,7 +500,10 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
                   {/* Actions */}
                   <div className="flex flex-col gap-2 pt-2">
                     <Button
-                      onClick={() => handleTakePayment()}
+                      onClick={() => {
+                        setShowAmountPicker(false);
+                        handleTakePayment();
+                      }}
                       disabled={stripeLoading || (stripePaymentType === 'milestone' && !selectedMilestoneId) || (stripePaymentType === 'custom' && (!customAmount || parseFloat(customAmount) <= 0))}
                       className="w-full"
                     >
@@ -503,6 +529,58 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
                     </div>
                   </div>
                 </>
+              ) : (
+                /* ===== Default: Auto-loaded Embedded Checkout ===== */
+                <div className="space-y-3">
+                  {embeddedClientSecret ? (
+                    <>
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm text-muted-foreground">
+                          Charging {stripePaymentType === 'full' ? 'full balance' : stripePaymentType === 'deposit' ? depositLabel : 'custom amount'}: <span className="font-medium text-foreground">{formatCurrency(getStripeAmount())}</span>
+                        </p>
+                      </div>
+                      <EmbeddedCheckout
+                        clientSecret={embeddedClientSecret}
+                        onComplete={handleEmbeddedComplete}
+                      />
+                      <div className="flex items-center justify-between pt-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-xs text-muted-foreground"
+                          onClick={() => {
+                            setEmbeddedClientSecret('');
+                            setShowAmountPicker(true);
+                          }}
+                        >
+                          <Settings2 className="h-3 w-3 mr-1" />
+                          Change amount
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-xs text-muted-foreground"
+                          onClick={() => {
+                            setEmbeddedClientSecret('');
+                            handleTakePayment(true);
+                          }}
+                        >
+                          <Link2 className="h-3 w-3 mr-1" />
+                          Share link instead
+                        </Button>
+                      </div>
+                    </>
+                  ) : (
+                    /* Loading state while auto-triggering */
+                    <div className="flex flex-col items-center justify-center py-10 space-y-3">
+                      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                      <p className="text-sm text-muted-foreground">Loading card form…</p>
+                      <p className="text-xs text-muted-foreground">
+                        Full balance: {formatCurrency(balanceRemaining)}
+                      </p>
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           </TabsContent>
